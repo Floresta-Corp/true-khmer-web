@@ -56,11 +56,11 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-gray-50">
       <Navbar user={user} />
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8">
         {/* Profile Header / Cover */}
         <div className="relative">
           {/* Cover Image */}
-          <div className="h-48 sm:h-56 rounded-b-2xl overflow-hidden bg-linear-to-br from-teal-600 via-cyan-700 to-emerald-800 relative">
+          <div className="h-36 sm:h-56 rounded-b-2xl overflow-hidden bg-linear-to-br from-teal-600 via-cyan-700 to-emerald-800 relative">
             {/* Decorative misty/forest overlay */}
             <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
             <div className="absolute inset-0 opacity-30">
@@ -106,10 +106,10 @@ export default function ProfilePage() {
           </div>
 
           {/* Avatar overlapping cover */}
-          <div className="absolute -bottom-12 left-8">
+          <div className="absolute -bottom-10 sm:-bottom-12 left-4 sm:left-8">
             <div className="relative">
-              <Avatar className="h-24 w-24 border-4 border-white shadow-xl">
-                <AvatarFallback className="bg-gray-800 text-white text-3xl font-bold">
+              <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-white shadow-xl">
+                <AvatarFallback className="bg-gray-800 text-white text-2xl sm:text-3xl font-bold">
                   {displayName.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -132,17 +132,17 @@ export default function ProfilePage() {
         </div>
 
         {/* Name + Title + Actions */}
-        <div className="mt-16 mb-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 px-2">
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+        <div className="mt-14 sm:mt-16 mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 px-2">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <h1 className="text-xl sm:text-3xl font-bold text-gray-900">
                 {fullName}
               </h1>
               <Badge className="bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider border-0 px-2.5 py-0.5">
                 Neary Tier
               </Badge>
             </div>
-            <p className="text-gray-500 mt-1 text-sm">
+            <p className="text-gray-500 mt-1 text-xs sm:text-sm">
               Senior Cultural Strategist & Weaver at Takeo Silk Collective
             </p>
           </div>
@@ -156,8 +156,8 @@ export default function ProfilePage() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="border-b border-gray-200 mb-8">
-          <nav className="flex gap-8 px-2">
+        <div className="border-b border-gray-200 mb-6 sm:mb-8 overflow-x-auto">
+          <nav className="flex gap-4 sm:gap-8 px-2 min-w-max">
             {profileTabs.map((tab) => (
               <button
                 key={tab.id}
@@ -201,13 +201,13 @@ function InfoTab({
   const displayName = user.email?.split("@")[0] || "user";
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 pb-12">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 sm:gap-8 pb-8 sm:pb-12">
       {/* Left Column */}
       <div className="lg:col-span-2 space-y-6">
         {/* Identity Details */}
         <Card className="bg-white border border-gray-100 shadow-sm rounded-xl">
-          <CardContent className="p-6">
-            <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-5">
+          <CardContent className="p-4 sm:p-6">
+            <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4 sm:mb-5">
               Identity Details
             </h3>
             <div className="space-y-4">
@@ -269,7 +269,7 @@ function InfoTab({
 
         {/* Heritage Honors */}
         <Card className="bg-white border border-gray-100 shadow-sm rounded-xl">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
                 Heritage Honors
@@ -297,7 +297,7 @@ function InfoTab({
       </div>
 
       {/* Right Column */}
-      <div className="lg:col-span-3 space-y-8">
+      <div className="lg:col-span-3 space-y-6 sm:space-y-8">
         {/* About Me */}
         <div>
           <h3 className="text-lg font-bold text-gray-900 mb-4">About Me</h3>
@@ -350,18 +350,20 @@ function PlatformTab() {
   ];
 
   return (
-    <div className="pb-12">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="pb-8 sm:pb-12">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {stats.map((stat) => (
           <Card
             key={stat.label}
             className="bg-white border border-gray-100 shadow-sm rounded-xl"
           >
-            <CardContent className="p-5 flex flex-col items-center text-center">
-              <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center mb-3">
-                <stat.icon className="h-5 w-5 text-blue-600" />
+            <CardContent className="p-3 sm:p-5 flex flex-col items-center text-center">
+              <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg bg-blue-50 flex items-center justify-center mb-2 sm:mb-3">
+                <stat.icon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
               </div>
-              <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-900">
+                {stat.value}
+              </p>
               <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mt-1">
                 {stat.label}
               </p>
@@ -376,9 +378,9 @@ function PlatformTab() {
 /* ─── COMMUNITY TAB ────────────────────────────────────── */
 function CommunityTab() {
   return (
-    <div className="pb-12">
+    <div className="pb-8 sm:pb-12">
       <Card className="bg-white border border-gray-100 shadow-sm rounded-xl">
-        <CardContent className="p-8 text-center">
+        <CardContent className="p-5 sm:p-8 text-center">
           <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
             <Users className="h-8 w-8 text-gray-400" />
           </div>

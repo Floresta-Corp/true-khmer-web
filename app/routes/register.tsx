@@ -24,16 +24,19 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
+  const name = String(formData.get("name") || "");
   const email = String(formData.get("email") || "");
   const password = String(formData.get("password") || "");
   const confirmPassword = String(formData.get("confirmPassword") || "");
 
   const errors: {
     email?: string;
+    name?: string;
     password?: string;
     confirmPassword?: string;
     form?: string;
   } = {};
+  if (!name) errors.name = "Name is required";
   if (!email) errors.email = "Email is required";
   else if (!email.includes("@")) errors.email = "Must be a valid email";
   if (!password) errors.password = "Password is required";
@@ -47,8 +50,14 @@ export async function action({ request }: Route.ActionArgs) {
   if (existing)
     return { errors: { email: "An account with this email already exists" } };
 
-  const user = await createUser(email, password);
-  return createUserSession(user.id, user.email, "/dashboard");
+  const user = await createUser(email, name, password);
+  return createUserSession(
+    user.id,
+    user.email,
+    "/dashboard",
+    user?.name,
+    user?.avatar,
+  );
 }
 
 export function meta() {
@@ -76,6 +85,22 @@ export default function RegisterPage() {
             )}
 
             <Form method="post" className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  placeholder="Your Name"
+                />
+                {actionData?.errors?.name && (
+                  <p className="text-sm text-destructive-foreground">
+                    {actionData.errors.name}
+                  </p>
+                )}
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input

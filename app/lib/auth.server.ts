@@ -6,6 +6,8 @@
 interface User {
   id: string;
   email: string;
+  avatar: string;
+  name: string;
   password: string; // In production, store hashed passwords!
 }
 
@@ -14,6 +16,8 @@ const users: User[] = [
   {
     id: "1",
     email: "admin@example.com",
+    avatar: "https://i.pravatar.cc/150?u=socheata",
+    name: "Socheata",
     password: "password123", // demo only — hash in production!
   },
 ];
@@ -28,6 +32,7 @@ export async function findUserByEmail(
 
 export async function createUser(
   email: string,
+  name: string,
   password: string,
 ): Promise<User> {
   const existing = await findUserByEmail(email);
@@ -38,6 +43,8 @@ export async function createUser(
   const user: User = {
     id: String(nextId++),
     email,
+    name,
+    avatar: "https://i.pravatar.cc/150?u=socheata",
     password, // In production, hash with bcrypt!
   };
 

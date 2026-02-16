@@ -42,10 +42,12 @@ export async function getUser(request: Request) {
   const session = await getSession(request);
   const userId = session.get("userId");
   const email = session.get("email");
+  const name = session.get("name");
+  const avatar = session.get("avatar");
 
   if (!userId) return null;
 
-  return { id: userId, email };
+  return { id: userId, email, name, avatar };
 }
 
 // Require user to be logged in — redirect to /login if not
@@ -62,10 +64,14 @@ export async function createUserSession(
   userId: string,
   email: string,
   redirectTo: string,
+  name?: string,
+  avatar?: string,
 ) {
   const session = await sessionStorage.getSession();
   session.set("userId", userId);
   session.set("email", email);
+  session.set("name", name ?? email.split("@")[0]); // Store name for display
+  session.set("avatar", avatar);
 
   return redirect(redirectTo, {
     headers: {

@@ -36,7 +36,13 @@ export async function action({ request }: Route.ActionArgs) {
   const user = await verifyLogin(email, password);
   if (!user) return { errors: { form: "Invalid email or password" } };
 
-  return createUserSession(user.id, user.email, redirectTo);
+  return createUserSession(
+    user.id,
+    user.email,
+    redirectTo,
+    user?.name,
+    user?.avatar,
+  );
 }
 
 export function meta() {

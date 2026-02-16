@@ -37,44 +37,25 @@ const socialLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-white border-t border-gray-200 mt-16">
+    <footer className="bg-white border-t border-gray-200 mt-16 pb-20 md:pb-0">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-6 gap-8">
           {/* Logo + Description */}
           <div className="md:col-span-2">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="flex flex-col leading-tight">
-                <span className="text-sm font-bold text-blue-600 tracking-tight">
-                  ខ្មែរពិត
-                </span>
-                <span className="text-[10px] font-semibold text-gray-500 tracking-widest uppercase">
-                  True Khmer
-                </span>
-              </div>
-              <svg
-                className="h-7 w-7 text-blue-500"
-                viewBox="0 0 32 32"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M16 4C10 4 6 10 6 16C6 22 10 28 16 28C22 28 26 22 26 16"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
+            <div className="flex flex-col gap-4">
+              <Link to="/">
+                <img
+                  src="/logofullcolor.svg"
+                  alt="Logo"
+                  className="h-10 w-auto"
+                  loading="lazy"
                 />
-                <path
-                  d="M16 4C20 8 22 12 22 16"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </Link>
-            <p className="text-sm text-gray-500 leading-relaxed mb-6 max-w-xs">
-              Empowering the Khmer community through heritage-driven growth,
-              cultural preservation, and collective economic sovereignty.
-            </p>
+              </Link>
+              <p className="text-sm text-gray-500 leading-relaxed mb-6 max-w-xs">
+                Empowering the Khmer community through heritage-driven growth,
+                cultural preservation, and collective economic sovereignty.
+              </p>
+            </div>
             <div className="flex items-center gap-3">
               {socialLinks.map((social) => (
                 <Link
