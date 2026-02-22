@@ -9,4 +9,5 @@ export default [
   route("profile", "routes/profile.tsx"),
   route("logout", "routes/logout.tsx"),
   route("api/me", "routes/api.me.tsx"),
+  route("events", "routes/events.tsx"),
 ] satisfies RouteConfig;
