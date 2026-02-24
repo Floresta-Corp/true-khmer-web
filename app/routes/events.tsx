@@ -309,19 +309,27 @@ export default function Events() {
 function EventCard({ event }: { event: EventItem }) {
   const categoryLabel = getCategoryLabel(event);
   const categoryColor = getCategoryColor(categoryLabel);
-  const price = formatPrice(event.basePrice);
-  const isFree = parseFloat(event.basePrice) === 0;
+  const price = formatPrice(event.basePrice || "0");
+  const isFree = parseFloat(event.basePrice || "0") === 0;
   const isSoldOut = event.ticketStatus === "SOLD_OUT";
 
   return (
     <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
       {/* Cover Image */}
       <div className="relative aspect-16/10 overflow-hidden">
-        <img
-          src={event.cover}
-          alt={event.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
+        {event.cover ? (
+          <img
+            src={"https://r2.plumpievents.com/" + event.cover}
+            alt={event.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <img
+            src="/Logofullsize.svg"
+            alt="Default Cover"
+            className="mt-10 object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        )}
         {/* Category Badge */}
         <span
           className={`absolute top-3 left-3 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider ${categoryColor}`}
@@ -424,11 +432,19 @@ function EventListItem({ event }: { event: EventItem }) {
     <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex">
       {/* Cover Image */}
       <div className="relative w-64 shrink-0 overflow-hidden">
-        <img
-          src={event.cover}
-          alt={event.title}
-          className="w-full h-full object-cover"
-        />
+        {event.cover ? (
+          <img
+            src={"https://r2.plumpievents.com/" + event.cover}
+            alt={event.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <img
+            src="/Logofullsize.svg"
+            alt="Default Cover"
+            className="mt-10 object-cover"
+          />
+        )}
         <span
           className={`absolute top-3 left-3 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider ${categoryColor}`}
         >
