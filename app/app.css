@@ -59,3 +59,12 @@ html,
 body {
   @apply bg-background text-foreground;
 }
+
+/* Fix: remove all default input styling */
+input, input:focus, input:active {
+  box-shadow: none !important;
+  border-color: transparent !important;
+  outline: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
