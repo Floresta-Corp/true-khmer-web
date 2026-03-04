@@ -1,524 +1,233 @@
-import { useState } from "react";
+import { useLoaderData } from "react-router";
+import { useState, useRef, useEffect } from "react";
 import type { Route } from "./+types/events";
-import { useLoaderData, Link } from "react-router";
-import { getUser } from "~/lib/session.server";
+import { requireUser } from "~/lib/session.server";
+import { EventCard, type EventData } from "~/components/event-card";
 import { Navbar } from "~/components/navbar";
-import { Input } from "~/components/ui/input";
-import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
-import {
-  CalendarDays,
-  Search,
-  MapPin,
-  Heart,
-  ArrowRight,
-  LayoutGrid,
-  List,
-  Ticket,
-  ChevronDown,
-  Globe,
-  AlertTriangle,
-} from "lucide-react";
+import { Footer } from "~/components/footer";
+import { Search, AlertCircle, ChevronDown, ChevronUp, Check } from "lucide-react";
 
-interface EventItem {
-  title: string;
-  slug: string;
-  startDate: string;
-  endDate: string;
-  venueId: string | null;
-  cover: string;
-  excerpt: string;
-  city: string | null;
-  ticketStatus: string;
-  isOnline: boolean;
-  basePrice: string;
-}
-
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "Events - True Khmer" },
-    {
-      name: "description",
-      content: "Discover events and community gatherings",
-    },
-  ];
-}
+const API_BASE_URL = "https://api-staging.plumpievents.com/v1";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = await getUser(request);
+  const user = await requireUser(request);
 
-  const apiBase = process.env.API_BASE_URL;
-
-  let events: EventItem[] = [];
-  let error: string | null = null;
   try {
-    const res = await fetch(`${apiBase}/api/event`);
-    if (res.ok) {
-      const json = await res.json();
-      events = json.data ?? [];
-    } else {
-      error = `Failed to load events (status ${res.status})`;
+    const response = await fetch(`${API_BASE_URL}/events`);
+
+    if (!response.ok) {
+      throw new Error(`API returned ${response.status}: ${response.statusText}`);
     }
-  } catch (e) {
-    error = "Unable to connect to the event service. Please try again later.";
-    console.error("Event API error:", e);
-  }
 
-  return { user, events, error };
-}
+    const data = await response.json();
+    const eventList = Array.isArray(data.data) ? data.data : [];
 
-function formatEventDate(dateStr: string) {
-  const date = new Date(dateStr);
-  const options: Intl.DateTimeFormatOptions = {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  };
-  const formatted = date
-    .toLocaleDateString("en-US", options)
-    .toUpperCase()
-    .replace(",", "");
+    const mappedEvents: EventData[] = eventList.map((apiEvent: any) => ({
+      id: apiEvent.id,
+      title: apiEvent.name,           // ✅ API uses "name"
+      excerpt: apiEvent.excerpt || "",
+      thumbnail: apiEvent.cover || null, // ✅ API uses "cover"
+      startAt: apiEvent.startAt,
+      endAt: apiEvent.endAt,
+      venueName: apiEvent.venueName || null,
+      eventType: apiEvent.eventType,
+      price: apiEvent.salePrice || apiEvent.basePrice || "Free",
+    }));
 
-  const timeStr = date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: false,
-    timeZoneName: "shortOffset",
-  });
-
-  return `${formatted} • ${timeStr}`;
-}
-
-function getCategoryLabel(event: EventItem): string {
-  if (event.isOnline) return "ONLINE";
-  if (parseFloat(event.basePrice) === 0) return "LEARNING";
-  return "CULTURAL";
-}
-
-function getCategoryColor(label: string): string {
-  switch (label) {
-    case "LEARNING":
-      return "bg-emerald-500 text-white";
-    case "CULTURAL":
-      return "bg-orange-500 text-white";
-    case "NETWORKING":
-      return "bg-violet-500 text-white";
-    case "ONLINE":
-      return "bg-blue-500 text-white";
-    default:
-      return "bg-gray-500 text-white";
+    return { user, events: mappedEvents, error: null };
+  } catch (err) {
+    console.error("Loader fetch error:", err);
+    return {
+      user,
+      events: [],
+      error: "Failed to load events. Please check your connection.",
+    };
   }
 }
 
-function formatPrice(price: string): string {
-  const num = parseFloat(price);
-  if (num === 0) return "Free";
-  return `$${num.toFixed(0)}`;
+export function meta() {
+  return [{ title: "Events | True Khmer" }];
 }
 
-function getTicketStatusStyle(status: string) {
-  if (status === "SOLD_OUT") {
-    return "text-red-500";
-  }
-  return "text-blue-600";
+const CATEGORIES = ["All Categories", "Networking", "Workshop", "Cultural", "Concert", "Exhibition", "Conference", "Festival"];
+const LOCATIONS = ["Anywhere", "Physical", "Virtual"];
+const PRICING = ["All Pricing", "Free", "Paid"];
+
+function Dropdown({
+  options,
+  value,
+  onChange,
+}: {
+  options: string[];
+  value: string;
+  onChange: (val: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap min-w-[110px] justify-between ${
+          open ? "bg-gray-100 text-gray-900" : "text-gray-700 hover:bg-gray-50"
+        }`}
+      >
+        <span>{value}</span>
+        {open ? <ChevronUp className="w-4 h-4 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 flex-shrink-0" />}
+      </button>
+
+      {open && (
+        <div className="absolute top-full mt-2 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 min-w-[180px] z-50">
+          {options.map((opt) => (
+            <button
+              key={opt}
+              onClick={() => { onChange(opt); setOpen(false); }}
+              className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 transition-colors"
+            >
+              <span className={`w-4 h-4 rounded flex items-center justify-center border flex-shrink-0 ${
+                value === opt ? "bg-blue-600 border-blue-600" : "border-gray-300"
+              }`}>
+                {value === opt && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+              </span>
+              <span className={`whitespace-nowrap ${value === opt ? "font-semibold" : ""}`}>{opt}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
-export default function Events() {
+export default function EventsPage() {
   const { user, events, error } = useLoaderData<typeof loader>();
   const [search, setSearch] = useState("");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [category, setCategory] = useState("all");
-  const [location, setLocation] = useState("anywhere");
-  const [pricing, setPricing] = useState("all");
+  const [category, setCategory] = useState("All Categories");
+  const [location, setLocation] = useState("Anywhere");
+  const [pricing, setPricing] = useState("All Pricing");
 
+  // Filter logic
   const filteredEvents = events.filter((event) => {
-    const matchSearch =
-      search === "" ||
-      event.title.toLowerCase().includes(search.toLowerCase()) ||
-      event.excerpt.toLowerCase().includes(search.toLowerCase());
+    const q = search.toLowerCase();
+    const matchesSearch =
+      !q ||
+      event.title?.toLowerCase().includes(q) ||
+      event.venueName?.toLowerCase().includes(q) ||
+      event.excerpt?.toLowerCase().includes(q);
 
-    const matchCategory =
-      category === "all" ||
-      getCategoryLabel(event).toLowerCase() === category.toLowerCase();
+    const matchesCategory =
+      category === "All Categories" ||
+      event.eventType?.toLowerCase() === category.toLowerCase();
 
-    const matchLocation =
-      location === "anywhere" ||
-      (event.isOnline && location === "online") ||
-      event.city?.toLowerCase() === location.toLowerCase();
+    const matchesLocation =
+      location === "Anywhere" ||
+      event.eventType?.toLowerCase() === location.toLowerCase();
 
-    const matchPricing =
-      pricing === "all" ||
-      (pricing === "free" && parseFloat(event.basePrice) === 0) ||
-      (pricing === "paid" && parseFloat(event.basePrice) > 0);
+    const matchesPricing =
+      pricing === "All Pricing" ||
+      (pricing === "Free" && (!event.price || event.price === "Free")) ||
+      (pricing === "Paid" && event.price && event.price !== "Free");
 
-    return matchSearch && matchCategory && matchLocation && matchPricing;
+    return matchesSearch && matchesCategory && matchesLocation && matchesPricing;
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background font-sans">
       <Navbar user={user} />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
-        <div className="text-center mb-10">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <CalendarDays className="h-5 w-5 text-blue-600" />
-            <span className="text-sm font-semibold tracking-[0.2em] text-blue-600 uppercase">
-              Community Gatherings
-            </span>
-          </div>
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-            Event Hub
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-[#eef1f8] pt-20 pb-12 px-6">
+        {/* Left circle */}
+        <div className="absolute left-0 top-0 w-72 h-72 rounded-full bg-[#d6daf0] opacity-60 -translate-x-1/3 -translate-y-1/4 pointer-events-none" />
+        {/* Right circle — clipped by overflow-hidden */}
+        <div className="absolute right-0 bottom-0 w-80 h-80 rounded-full bg-[#c8cee8] opacity-50 translate-x-1/3 translate-y-1/4 pointer-events-none" />
+
+        <div className="relative max-w-4xl mx-auto text-center">
+          <h1 className="text-5xl sm:text-6xl font-extrabold text-[#1a2340] mb-4 tracking-tight">
+            Find your next gathering.
           </h1>
-          <p className="text-gray-500 text-lg max-w-xl mx-auto">
-            Join us in person. From workshops to cultural celebrations, discover
-            where we're meeting next and how you can get involved.
+          <p className="text-base text-gray-500 max-w-xl mx-auto mb-10 leading-relaxed">
+            Connecting you to the best workshops, cultural events, and networking
+            circles in Phnom Penh and beyond. Explore experiences built for our community.
+          </p>
+
+          {/* One big white pill */}
+          <div
+            style={{ backgroundColor: "#ffffff", boxShadow: "0 2px 12px rgba(0,0,0,0.08)" }}
+            className="max-w-4xl mx-auto rounded-full flex items-center h-14 px-5 gap-3"
+          >
+            <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search events by title, venue, or keyword..."
+              style={{
+                background: "#ffffff",
+                boxShadow: "none",
+                border: "none",
+                outline: "none",
+                color: "#6b7280",
+                WebkitAppearance: "none",
+                MozAppearance: "none",
+                appearance: "none",
+                borderRadius: 0,
+                padding: 0,
+                margin: 0,
+              }}
+              className="flex-1 min-w-0 text-sm [border:none!important] [box-shadow:none!important] [outline:none!important] [background:white!important]"
+            />
+            <div className="w-px h-6 bg-gray-200 flex-shrink-0" />
+            <Dropdown options={CATEGORIES} value={category} onChange={setCategory} />
+            <div className="w-px h-6 bg-gray-200 flex-shrink-0" />
+            <Dropdown options={LOCATIONS} value={location} onChange={setLocation} />
+            <div className="w-px h-6 bg-gray-200 flex-shrink-0" />
+            <Dropdown options={PRICING} value={pricing} onChange={setPricing} />
+          </div>
+
+          {/* Supported by */}
+          <p className="mt-6 text-xs text-gray-400 flex items-center justify-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-gray-300 inline-block" />
+            Supported by: Plumpi Event Management
+            <span className="w-1.5 h-1.5 rounded-full bg-gray-300 inline-block" />
           </p>
         </div>
+      </section>
 
-        {/* Filters Bar */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-8">
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            {/* Search */}
-            <div className="relative flex-1 w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search events..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 border-0 bg-gray-50 rounded-xl h-11 focus-visible:ring-1 focus-visible:ring-blue-200"
-              />
-            </div>
-
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              {/* Category Filter */}
-              <div className="relative">
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="appearance-none bg-gray-50 border border-gray-200 rounded-xl px-4 pr-8 h-11 text-sm text-gray-700 cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-200"
-                >
-                  <option value="all">All Categories</option>
-                  <option value="learning">Learning</option>
-                  <option value="cultural">Cultural</option>
-                  <option value="networking">Networking</option>
-                  <option value="online">Online</option>
-                </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-              </div>
-
-              {/* Location Filter */}
-              <div className="relative">
-                <select
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="appearance-none bg-gray-50 border border-gray-200 rounded-xl px-4 pr-8 h-11 text-sm text-gray-700 cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-200"
-                >
-                  <option value="anywhere">Anywhere</option>
-                  <option value="Phnom Penh">Phnom Penh</option>
-                  <option value="Siem Reap">Siem Reap</option>
-                  <option value="online">Online</option>
-                </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-              </div>
-
-              {/* Pricing Filter */}
-              <div className="relative">
-                <select
-                  value={pricing}
-                  onChange={(e) => setPricing(e.target.value)}
-                  className="appearance-none bg-gray-50 border border-gray-200 rounded-xl px-4 pr-8 h-11 text-sm text-gray-700 cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-200"
-                >
-                  <option value="all">All Pricing</option>
-                  <option value="free">Free</option>
-                  <option value="paid">Paid</option>
-                </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Error Banner */}
+      {/* Events Section */}
+      <main className="max-w-6xl mx-auto px-6 py-12">
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-8 flex items-center gap-3">
-            <AlertTriangle className="h-5 w-5 text-red-500 shrink-0" />
-            <p className="text-sm text-red-700">{error}</p>
+          <div className="flex items-center justify-center gap-2 text-red-500 bg-red-50 p-4 rounded-lg mb-6">
+            <AlertCircle className="w-5 h-5" />
+            <p>{error}</p>
           </div>
         )}
 
-        {/* Results count & view toggle */}
-        <div className="flex items-center justify-between mb-6">
-          <p className="text-sm font-semibold text-blue-600 tracking-wide uppercase">
-            {filteredEvents.length} Event
-            {filteredEvents.length !== 1 ? "s" : ""} Available
-          </p>
-          <div className="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`p-2 transition-colors ${
-                viewMode === "grid"
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`p-2 transition-colors ${
-                viewMode === "list"
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
-            >
-              <List className="h-4 w-4" />
-            </button>
+        {!error && filteredEvents.length > 0 ? (
+          <div>
+            <h2 className="text-2xl font-semibold mb-6 text-primary">Featured Gatherings</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredEvents.map((event) => (
+                <EventCard key={event.id} event={event} />
+              ))}
+            </div>
           </div>
-        </div>
-
-        {/* Events Grid */}
-        {filteredEvents.length === 0 ? (
-          <div className="text-center py-20">
-            <CalendarDays className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-1">
-              No events found
-            </h3>
-            <p className="text-gray-500">
-              Try adjusting your filters or check back later.
-            </p>
-          </div>
-        ) : viewMode === "grid" ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredEvents.map((event) => (
-              <EventCard key={event.slug} event={event} />
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col gap-4">
-            {filteredEvents.map((event) => (
-              <EventListItem key={event.slug} event={event} />
-            ))}
-          </div>
+        ) : !error && (
+          <p className="text-center text-muted-foreground py-10">No events found.</p>
         )}
       </main>
-    </div>
-  );
-}
 
-function EventCard({ event }: { event: EventItem }) {
-  const categoryLabel = getCategoryLabel(event);
-  const categoryColor = getCategoryColor(categoryLabel);
-  const price = formatPrice(event.basePrice || "0");
-  const isFree = parseFloat(event.basePrice || "0") === 0;
-  const isSoldOut = event.ticketStatus === "SOLD_OUT";
-
-  return (
-    <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
-      {/* Cover Image */}
-      <div className="relative aspect-16/10 overflow-hidden">
-        {event.cover ? (
-          <img
-            src={"https://r2.plumpievents.com/" + event.cover}
-            alt={event.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <img
-            src="/Logofullsize.svg"
-            alt="Default Cover"
-            className="mt-10 object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        )}
-        {/* Category Badge */}
-        <span
-          className={`absolute top-3 left-3 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider ${categoryColor}`}
-        >
-          {categoryLabel}
-        </span>
-        {/* Favorite Button */}
-        <button className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full p-2 hover:bg-white transition-colors shadow-sm">
-          <Heart className="h-4 w-4 text-gray-500 hover:text-red-500 transition-colors" />
-        </button>
-      </div>
-
-      {/* Content */}
-      <div className="p-5">
-        {/* Date */}
-        <div className="flex items-center gap-1.5 mb-2">
-          <CalendarDays className="h-3.5 w-3.5 text-gray-400" />
-          <span className="text-xs font-medium text-blue-500 uppercase tracking-wide">
-            {formatEventDate(event.startDate)}
-          </span>
-        </div>
-
-        {/* Title */}
-        <h3 className="text-base font-semibold text-gray-900 mb-1.5 line-clamp-1">
-          {event.title}
-        </h3>
-
-        {/* Excerpt */}
-        {event.excerpt && (
-          <p className="text-sm text-gray-500 mb-4 line-clamp-2 leading-relaxed">
-            "
-            {event.excerpt.length > 80
-              ? event.excerpt.substring(0, 80) + "..."
-              : event.excerpt}
-            "
-          </p>
-        )}
-        {!event.excerpt && <div className="mb-4" />}
-
-        {/* Location & Price */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-1.5 text-sm text-gray-500">
-            {event.isOnline ? (
-              <>
-                <Globe className="h-3.5 w-3.5" />
-                <span>Online</span>
-              </>
-            ) : (
-              <>
-                <MapPin className="h-3.5 w-3.5" />
-                <span>{event.city || "TBA"}</span>
-              </>
-            )}
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Ticket className="h-3.5 w-3.5 text-gray-400" />
-            <span
-              className={`text-sm font-semibold ${
-                isFree ? "text-emerald-600" : "text-blue-600"
-              }`}
-            >
-              {price}
-            </span>
-          </div>
-        </div>
-
-        {/* CTA Button */}
-        <Link to={`/events/${event.slug}`}>
-          <Button
-            className={`w-full rounded-xl h-11 font-semibold text-sm ${
-              isSoldOut
-                ? "bg-gray-200 text-gray-500 cursor-not-allowed hover:bg-gray-200"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
-            }`}
-            disabled={isSoldOut}
-          >
-            {isSoldOut ? (
-              "Sold Out"
-            ) : (
-              <>
-                Get Tickets
-                <ArrowRight className="h-4 w-4 ml-1" />
-              </>
-            )}
-          </Button>
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-function EventListItem({ event }: { event: EventItem }) {
-  const categoryLabel = getCategoryLabel(event);
-  const categoryColor = getCategoryColor(categoryLabel);
-  const price = formatPrice(event.basePrice);
-  const isFree = parseFloat(event.basePrice) === 0;
-  const isSoldOut = event.ticketStatus === "SOLD_OUT";
-
-  return (
-    <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex">
-      {/* Cover Image */}
-      <div className="relative w-64 shrink-0 overflow-hidden">
-        {event.cover ? (
-          <img
-            src={"https://r2.plumpievents.com/" + event.cover}
-            alt={event.title}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <img
-            src="/Logofullsize.svg"
-            alt="Default Cover"
-            className="mt-10 object-cover"
-          />
-        )}
-        <span
-          className={`absolute top-3 left-3 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider ${categoryColor}`}
-        >
-          {categoryLabel}
-        </span>
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 p-5 flex flex-col justify-between">
-        <div>
-          <div className="flex items-center gap-1.5 mb-2">
-            <CalendarDays className="h-3.5 w-3.5 text-gray-400" />
-            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              {formatEventDate(event.startDate)}
-            </span>
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">
-            {event.title}
-          </h3>
-          {event.excerpt && (
-            <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
-              "{event.excerpt}"
-            </p>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between mt-4">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5 text-sm text-gray-500">
-              {event.isOnline ? (
-                <>
-                  <Globe className="h-3.5 w-3.5" />
-                  <span>Online</span>
-                </>
-              ) : (
-                <>
-                  <MapPin className="h-3.5 w-3.5" />
-                  <span>{event.city || "TBA"}</span>
-                </>
-              )}
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Ticket className="h-3.5 w-3.5 text-gray-400" />
-              <span
-                className={`text-sm font-semibold ${
-                  isFree ? "text-emerald-600" : "text-blue-600"
-                }`}
-              >
-                {price}
-              </span>
-            </div>
-          </div>
-
-          <Link to={`/events/${event.slug}`}>
-            <Button
-              className={`rounded-xl px-6 font-semibold text-sm ${
-                isSoldOut
-                  ? "bg-gray-200 text-gray-500 cursor-not-allowed hover:bg-gray-200"
-                  : "bg-blue-600 hover:bg-blue-700 text-white"
-              }`}
-              disabled={isSoldOut}
-            >
-              {isSoldOut ? (
-                "Sold Out"
-              ) : (
-                <>
-                  Get Tickets
-                  <ArrowRight className="h-4 w-4 ml-1" />
-                </>
-              )}
-            </Button>
-          </Link>
-        </div>
-      </div>
+      <Footer />
     </div>
   );
 }
