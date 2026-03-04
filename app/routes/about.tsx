@@ -16,6 +16,15 @@ export async function loader({ request }: Route.LoaderArgs) {
   return { user };
 }
 
+// +types/logout.ts
+export type LoaderArgs = {
+  request: Request;
+};
+
+export type Route = {
+  LoaderArgs: LoaderArgs;
+};
+
 export default function AboutPage() {
   const { user } = useLoaderData<typeof loader>();
 
