@@ -5,11 +5,11 @@ const footerColumns = [
   {
     heading: "Platform",
     links: [
-      { label: "Forum", to: "/" },
+      { label: "Forum", to: "/forum" },
       { label: "Events", to: "/events" },
       { label: "Volunteers", to: "/volunteer" },
-      { label: "Launchpad", to: "/" },
-      { label: "People of Cambodia", to: "/" },
+      { label: "Launchpad", to: "/launchpad" },
+      { label: "People of Cambodia", to: "/people" },
     ],
   },
   {
@@ -46,18 +46,18 @@ const legalLinks = [
 export function Footer() {
   return (
     <footer className="w-full bg-white px-6 py-12 md:px-12 lg:px-20">
-      <div className="mx-auto flex w-full max-w-[1278px] flex-col gap-10">
+      <div className="mx-auto flex w-full max-w-319.5 flex-col gap-10">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,493px)_minmax(0,1fr)] lg:gap-8">
           <div className="flex flex-col gap-4">
             <Link to="/" className="inline-flex w-fit">
               <img
                 src="/logofullcolor.svg"
                 alt="True Khmer"
-                className="h-[29px] w-auto"
+                className="h-7.25 w-auto"
                 loading="lazy"
               />
             </Link>
-            <p className="max-w-[413px] text-sm leading-5 text-[#6a7282]">
+            <p className="max-w-103.25 text-sm leading-5 text-[#6a7282]">
               The leading community platform for Khmer business and career
               growth. Bridging the gap between talent and opportunity worldwide.
             </p>
@@ -69,7 +69,7 @@ export function Footer() {
                     key={item.label}
                     to={item.to}
                     aria-label={item.label}
-                    className="flex size-[35px] items-center justify-center rounded-full border border-[#f3f4f6] bg-[#f9fafb] text-[#2f6fe4] transition-colors hover:bg-[#eff6ff]"
+                    className="flex size-8.75 items-center justify-center rounded-full border border-[#f3f4f6] bg-[#f9fafb] text-[#2f6fe4] transition-colors hover:bg-[#eff6ff]"
                   >
                     <Icon className="size-4" />
                   </Link>
@@ -98,7 +98,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 border-t border-[#e2e8f0] pt-[33px] text-sm leading-5 text-[#62748e] sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 border-t border-[#e2e8f0] pt-8.25 text-sm leading-5 text-[#62748e] sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 True Khmer. All Rights Reserved.</p>
           <div className="flex flex-wrap items-center gap-4">
             {legalLinks.map((link) => (

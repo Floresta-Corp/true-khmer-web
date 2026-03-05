@@ -62,7 +62,7 @@ export function Navbar({ user }: NavbarProps) {
           <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => {
               const isActive =
-                location.pathname === link.to ||
+                location.pathname.startsWith(link.to) ||
                 (link.to === "/dashboard" &&
                   location.pathname.startsWith("/dashboard"));
               return (
