@@ -1,7 +1,7 @@
 import { Outlet, useLoaderData } from "react-router";
 import { Navbar } from "~/components/navbar";
 import { getUser } from "~/lib/session.server";
-import type { Route } from "../+types/root";
+import type { Route } from "./+types/app-layout";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const user = await getUser(request);
