@@ -12,6 +12,8 @@ export default [
     route("dashboard", "routes/dashboard.tsx"),
     route("profile", "routes/profile.tsx"),
     route("events", "routes/events.tsx"),
+    route("volunteer", "routes/volunteer/page.tsx"),
+    route("volunteer/:id", "routes/volunteer/$id.tsx"),
   ]),
   route("login", "routes/login.tsx"),
   route("register", "routes/register.tsx"),
