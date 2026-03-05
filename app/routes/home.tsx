@@ -1,7 +1,6 @@
 import type { Route } from "./+types/home";
 import { Link, useLoaderData } from "react-router";
 import { getUser } from "~/lib/session.server";
-import { Navbar } from "~/components/navbar";
 import { Button } from "~/components/ui/button";
 
 export function meta({}: Route.MetaArgs) {
@@ -21,8 +20,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar user={user} />
-
       <main className="flex flex-col items-center justify-center px-4 py-24 sm:py-32">
         <h1 className="text-5xl font-bold tracking-tight text-foreground mb-4">
           True Khmer

@@ -1,7 +1,6 @@
 import { useLoaderData, Link } from "react-router";
 import type { Route } from "./+types/dashboard";
 import { requireUser } from "~/lib/session.server";
-import { Navbar } from "~/components/navbar";
 import { Card, CardContent } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -42,8 +41,6 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar user={user} />
-
       <main className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Welcome Hero Section */}
         <div className="relative overflow-hidden rounded-2xl bg-white border border-gray-100 shadow-sm p-4 sm:p-8 mb-6 sm:mb-10">
