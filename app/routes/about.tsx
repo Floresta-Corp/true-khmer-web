@@ -1,7 +1,3 @@
-import { useLoaderData } from "react-router";
-import type { Route } from "./+types/about";
-import { getUser } from "~/lib/session.server";
-import { Navbar } from "~/components/navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 
 export function meta() {
@@ -11,27 +7,9 @@ export function meta() {
   ];
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const user = await getUser(request);
-  return { user };
-}
-
-// +types/logout.ts
-export type LoaderArgs = {
-  request: Request;
-};
-
-export type Route = {
-  LoaderArgs: LoaderArgs;
-};
-
 export default function AboutPage() {
-  const { user } = useLoaderData<typeof loader>();
-
   return (
     <div className="min-h-screen bg-background">
-      <Navbar user={user} />
-
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-4xl font-bold tracking-tight text-foreground mb-3">
           About True Khmer

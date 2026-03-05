@@ -1,5 +1,5 @@
-import type { Route } from "./+types/api.me";
 import { getUser } from "~/lib/session.server";
+import type { Route } from "../+types/dashboard";
 
 // GET /api/me — returns the current user as JSON
 export async function loader({ request }: Route.LoaderArgs) {

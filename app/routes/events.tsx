@@ -6,18 +6,66 @@ import { EventCard, type EventData } from "~/components/event-card";
 import { Navbar } from "~/components/navbar";
 import { Footer } from "~/components/footer";
 import { Search, AlertCircle, ChevronDown, ChevronUp, Check } from "lucide-react";
+import { useLoaderData, Link } from "react-router";
+import { Input } from "~/components/ui/input";
+import { Button } from "~/components/ui/button";
+import {
+  CalendarDays,
+  Search,
+  MapPin,
+  Heart,
+  ArrowRight,
+  LayoutGrid,
+  List,
+  Ticket,
+  ChevronDown,
+  Globe,
+  AlertTriangle,
+} from "lucide-react";
 
 const API_BASE_URL = "https://api-staging.plumpievents.com/v1";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = await requireUser(request);
+  const apiBase = process.env.API_BASE_URL;
 
+  let events: EventItem[] = [];
+  let error: string | null = null;
   try {
     const response = await fetch(`${API_BASE_URL}/events`);
 
     if (!response.ok) {
       throw new Error(`API returned ${response.status}: ${response.statusText}`);
     }
+  return { events, error };
+}
+
+function formatEventDate(dateStr: string) {
+  const date = new Date(dateStr);
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  };
+  const formatted = date
+    .toLocaleDateString("en-US", options)
+    .toUpperCase()
+    .replace(",", "");
+
+  const timeStr = date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: false,
+    timeZoneName: "shortOffset",
+  });
+
+  return `${formatted} • ${timeStr}`;
+}
+
+function getCategoryLabel(event: EventItem): string {
+  if (event.isOnline) return "ONLINE";
+  if (parseFloat(event.basePrice) === 0) return "LEARNING";
+  return "CULTURAL";
+}
 
     const data = await response.json();
     const eventList = Array.isArray(data.data) ? data.data : [];
@@ -34,11 +82,10 @@ export async function loader({ request }: Route.LoaderArgs) {
       price: apiEvent.salePrice || apiEvent.basePrice || "Free",
     }));
 
-    return { user, events: mappedEvents, error: null };
+    return { events: mappedEvents, error: null };
   } catch (err) {
     console.error("Loader fetch error:", err);
     return {
-      user,
       events: [],
       error: "Failed to load events. Please check your connection.",
     };
@@ -110,7 +157,9 @@ function Dropdown({
 }
 
 export default function EventsPage() {
-  const { user, events, error } = useLoaderData<typeof loader>();
+  const { events, error } = useLoaderData<typeof loader>();
+export default function Events() {
+  const { events, error } = useLoaderData<typeof loader>();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All Categories");
   const [location, setLocation] = useState("Anywhere");
@@ -143,8 +192,6 @@ export default function EventsPage() {
 
   return (
     <div className="min-h-screen bg-background font-sans">
-      <Navbar user={user} />
-
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-[#eef1f8] pt-20 pb-12 px-6">
         {/* Left circle */}
@@ -155,6 +202,18 @@ export default function EventsPage() {
         <div className="relative max-w-4xl mx-auto text-center">
           <h1 className="text-5xl sm:text-6xl font-extrabold text-[#1a2340] mb-4 tracking-tight">
             Find your next gathering.
+    <div className="min-h-screen bg-gray-50">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <CalendarDays className="h-5 w-5 text-blue-600" />
+            <span className="text-sm font-semibold tracking-[0.2em] text-blue-600 uppercase">
+              Community Gatherings
+            </span>
+          </div>
+          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+            Event Hub
           </h1>
           <p className="text-base text-gray-500 max-w-xl mx-auto mb-10 leading-relaxed">
             Connecting you to the best workshops, cultural events, and networking
