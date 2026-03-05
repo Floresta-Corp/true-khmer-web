@@ -3,7 +3,6 @@ import type { Route } from "./+types/register";
 import { createUser, findUserByEmail } from "~/lib/auth.server";
 import { createUserSession, getUser } from "~/lib/session.server";
 import { redirect } from "react-router";
-import { Navbar } from "~/components/navbar";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -69,8 +68,6 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar user={null} />
-
       <main className="flex items-center justify-center px-4 py-16 sm:py-24">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">

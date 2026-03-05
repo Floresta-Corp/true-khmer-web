@@ -1,10 +1,7 @@
 import { useState } from "react";
 import type { Route } from "./+types/events";
 import { useLoaderData, Link } from "react-router";
-import { getUser } from "~/lib/session.server";
-import { Navbar } from "~/components/navbar";
 import { Input } from "~/components/ui/input";
-import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
   CalendarDays,
@@ -45,8 +42,6 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = await getUser(request);
-
   const apiBase = process.env.API_BASE_URL;
 
   let events: EventItem[] = [];
@@ -64,7 +59,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     console.error("Event API error:", e);
   }
 
-  return { user, events, error };
+  return { events, error };
 }
 
 function formatEventDate(dateStr: string) {
@@ -124,7 +119,7 @@ function getTicketStatusStyle(status: string) {
 }
 
 export default function Events() {
-  const { user, events, error } = useLoaderData<typeof loader>();
+  const { events, error } = useLoaderData<typeof loader>();
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [category, setCategory] = useState("all");
@@ -156,8 +151,6 @@ export default function Events() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar user={user} />
-
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="text-center mb-10">

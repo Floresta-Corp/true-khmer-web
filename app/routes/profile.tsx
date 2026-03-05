@@ -1,7 +1,6 @@
 import { useLoaderData } from "react-router";
 import type { Route } from "./+types/profile";
 import { requireUser } from "~/lib/session.server";
-import { Navbar } from "~/components/navbar";
 import { Footer } from "~/components/footer";
 import { Card, CardContent } from "~/components/ui/card";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
@@ -54,8 +53,6 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar user={user} />
-
       <main className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8">
         {/* Profile Header / Cover */}
         <div className="relative">
