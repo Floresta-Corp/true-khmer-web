@@ -1,6 +1,7 @@
-import { AvailableOpportunities } from "./components/AvailableOpportunities";
-import { BrowseCategories } from "./components/BrowseCategories";
-import VolunteerHeader from "./components/VolunteerHeader";
+import { AvailableOpportunities } from "./section/AvailableOpportunities";
+import { BrowseCategories } from "./section/BrowseCategories";
+
+import VolunteerHeader from "./section/VolunteerHeader";
 
 export default function VolunteerPage() {
   return (

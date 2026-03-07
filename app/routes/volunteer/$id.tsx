@@ -1,7 +1,7 @@
 import { useLoaderData, useParams } from "react-router";
 import { getPostById } from "~/lib/post";
-import { VolunteerDetailPage } from "./components/VolunteerDetailPage";
-import VolunteerPostPage from "./components/VolunteerPostPage";
+import { VolunteerDetailPage } from "./page/VolunteerDetailPage";
+import VolunteerPostPage from "./page/VolunteerPostPage";
 
 export async function loader({ params }: { params: { id?: string } }) {
   const routeId = params.id;

@@ -1,6 +1,6 @@
 import React from "react";
-import OpportunityDetail from "./OpportunityDetail";
-import RoleDetail from "./RoleDetail";
+import OpportunityDetail from "../components/OpportunityDetail";
+import RoleDetail from "../components/RoleDetail";
 
 enum State {
   DETAIL = "Detail",
@@ -15,7 +15,6 @@ export default function VolunteerPostPage() {
       <OpportunityDetail
         onContinueToRole={() => {
           setState(State.ROLE);
-          
         }}
       />
     );

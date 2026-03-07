@@ -6,7 +6,7 @@ import {
   HandHelping,
   Heart,
 } from "lucide-react";
-import { CategoryCard } from "./CategoryCard";
+import { CategoryCard } from "../components/CategoryCard";
 
 const categories = [
   {
@@ -44,12 +44,12 @@ const categories = [
 export function BrowseCategories() {
   return (
     <section className="w-full bg-gray-50 px-6 py-16 md:px-12 lg:px-[131.5px] lg:py-[70px]">
-      <div className="mx-auto w-full max-w-[1177px]">
+      <div className="mx-auto w-full max-w-294.25">
         <header className="mb-9">
-          <h2 className="mb-[7px] text-[21px] font-semibold leading-7 tracking-[-0.88px] text-[#030213]">
+          <h2 className="mb-1.75 text-[21px] font-semibold leading-7 tracking-[-0.88px] text-[#030213]">
             Browse by categories
           </h2>
-          <p className="text-sm font-medium leading-[21px] text-[#99a1af]">
+          <p className="text-sm font-medium leading-5.25 text-[#99a1af]">
             Find roles that match your passion and skills.
           </p>
         </header>

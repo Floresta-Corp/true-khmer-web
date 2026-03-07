@@ -18,9 +18,8 @@ import {
 import { Link } from "react-router";
 import type { VolunteerPost } from "~/lib/post";
 import { Button } from "~/components/ui/button";
-import EmptyPost from "./EmptyPost";
-import ApplyForRoleModal from "./ApplyForRoleModal";
-import VolunteerApplicationModal from "./VolunteerApplicationModal";
+import EmptyPost from "../components/EmptyPost";
+import VolunteerApplicationDialog from "../components/dialog/VolunteerApplicationDialog";
 
 const coverImage =
   "https://www.figma.com/api/mcp/asset/b7008d38-7e7e-480c-9520-1c39a524a5f5";
@@ -56,18 +55,19 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
     return <EmptyPost />;
   }
 
-  const roles = volunteer?.availableRoles?.length
-    ? volunteer.availableRoles
-    : [
-        {
-          id: 1,
-          title: "Temple Restoration Support",
-          commitment: "Full week",
-          spotLeft: 3,
-          responsibilities,
-          requirements,
-        },
-      ];
+  const roles =
+    volunteer?.availableRoles?.length > 0
+      ? volunteer.availableRoles
+      : [
+          {
+            id: 1,
+            title: "Temple Restoration Support",
+            commitment: "Full week",
+            spotLeft: 3,
+            responsibilities,
+            requirements,
+          },
+        ];
 
   return (
     <main className="min-h-screen bg-white px-6 py-10 md:px-12 lg:px-28">
@@ -231,12 +231,13 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
                           </div>
 
                           <div className="my-7.25 flex justify-end border-t border-[#f3f4f6] pt-7.25">
-                            <ApplyForRoleModal
-                              roleTitle={role.title}
-                              location={volunteer.location}
-                              commitment={role.commitment}
-                              duration={volunteer.duration}
-                              spotsLeft={role.spotLeft}
+                            <VolunteerApplicationDialog
+                              role={role}
+                              trigger={
+                                <Button className="h-10 bg-[#2f6fe4] px-6 text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]">
+                                  Apply for this Role
+                                </Button>
+                              }
                             />
                           </div>
                         </div>
@@ -370,7 +371,7 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
             </div>
 
             <div className="mt-6 space-y-3.5">
-              <VolunteerApplicationModal title={volunteer.title} />
+              <VolunteerApplicationDialog role={roles[0]} />
               <Button
                 variant="outline"
                 className="h-10 w-full text-sm font-medium"

@@ -99,6 +99,63 @@ const volunteer: VolunteerPost = {
   },
 };
 
+const roleList: VolunteerRole[] = [
+  {
+    id: 1,
+    title: "Temple Restoration Support",
+    commitment: "Full-Week",
+    spotLeft: 3,
+    responsibilities: [
+      "Assist professional archeologists in documenting site conditions",
+      "Catalog fragile carvings and annotate preservation priorities",
+      "Photograph key artifacts and log findings in the field report",
+      "Support local teams with safe site-mapping coordination",
+    ],
+    requirements: [
+      "Physical fitness for walking in tropical environments",
+      "Comfort working outdoors for extended periods",
+      "Basic note-taking and reporting discipline",
+      "Respect for cultural heritage and local customs",
+    ],
+  },
+  {
+    id: 1,
+    title: "Temple Restoration Support",
+    commitment: "Full-Week",
+    spotLeft: 3,
+    responsibilities: [
+      "Assist professional archeologists in documenting site conditions",
+      "Catalog fragile carvings and annotate preservation priorities",
+      "Photograph key artifacts and log findings in the field report",
+      "Support local teams with safe site-mapping coordination",
+    ],
+    requirements: [
+      "Physical fitness for walking in tropical environments",
+      "Comfort working outdoors for extended periods",
+      "Basic note-taking and reporting discipline",
+      "Respect for cultural heritage and local customs",
+    ],
+  },
+  {
+    id: 1,
+    title: "Temple Restoration Support",
+    commitment: "Full-Week",
+    spotLeft: 3,
+    responsibilities: [
+      "Assist professional archeologists in documenting site conditions",
+      "Catalog fragile carvings and annotate preservation priorities",
+      "Photograph key artifacts and log findings in the field report",
+      "Support local teams with safe site-mapping coordination",
+    ],
+    requirements: [
+      "Physical fitness for walking in tropical environments",
+      "Comfort working outdoors for extended periods",
+      "Basic note-taking and reporting discipline",
+      "Respect for cultural heritage and local customs",
+    ],
+  },
+];
+
 // GET /api/me — returns the current user as JSON
 export async function getPostById(id: number): Promise<GetPostResponse> {
   if (id === volunteer.id) {
