@@ -9,7 +9,7 @@ import {
   Target,
 } from "lucide-react";
 import React from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
@@ -51,6 +51,7 @@ interface OpportunityDetailProps {
 export default function OpportunityDetail({
   onContinueToRole,
 }: OpportunityDetailProps) {
+  const navigate = useNavigate();
   return (
     <main className="min-h-screen bg-white px-6 py-10 md:px-12 lg:px-28">
       <div className="mx-auto flex w-full max-w-193 flex-col gap-8">
@@ -73,7 +74,8 @@ export default function OpportunityDetail({
 
         <section className="rounded-[14px] border border-[#e1e7ef] bg-white p-6">
           <h2 className="text-xl font-semibold text-[#030213]">
-            Opportunity Details<p className="inline-block text-red-600">*</p>
+            Opportunity Details
+            <span className="inline-block text-red-600">*</span>
           </h2>
 
           <div className="mt-6 space-y-6">
@@ -81,7 +83,7 @@ export default function OpportunityDetail({
               <FieldLabel>Opportunity title</FieldLabel>
               <Input
                 placeholder="e.g., Digital Literacy for Artisans"
-                className="h-[50px] rounded-xl border-[#e2e8f0] px-4"
+                className="h-12.5 rounded-xl border-[#e2e8f0] px-4"
               />
             </div>
 
@@ -215,7 +217,12 @@ export default function OpportunityDetail({
         </section>
 
         <div className="flex items-center justify-between pb-5">
-          <Button type="button" variant="outline" className="h-10 px-4">
+          <Button
+            type="button"
+            variant="outline"
+            className="h-10 px-4"
+            onClick={() => navigate("/volunteer")}
+          >
             Cancel
           </Button>
           <Button
