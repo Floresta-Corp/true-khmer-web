@@ -28,8 +28,8 @@ export interface VolunteerPost {
   commitment: string;
   duration: string;
   applicants: number;
-  totalApplcants: number;
-  deadLine: string;
+  totalApplicants: number;
+  deadline: string;
   overview: string;
   availableRoles: VolunteerRole[];
   benefits: string[];
@@ -52,8 +52,8 @@ const volunteer: VolunteerPost = {
   commitment: "Full-Week",
   duration: "7 days",
   applicants: 7,
-  totalApplcants: 10,
-  deadLine: "Dec 15, 2026",
+  totalApplicants: 10,
+  deadline: "Dec 15, 2026",
   overview:
     "Join the Khmer Heritage Trust in a critical mission to preserve our nation's architectural history. We are looking for dedicated volunteers to help document and protect delicate 10th-century carvings at lesser-known temple sites in the Siem Reap region. Your work will directly contribute to the digital archives used by global scholars and local preservationists.",
   availableRoles: [
@@ -162,4 +162,8 @@ export async function getPostById(id: number): Promise<GetPostResponse> {
     return { volunteer };
   }
   return { volunteer: null };
+}
+
+export async function getRoleList() {
+  return roleList;
 }

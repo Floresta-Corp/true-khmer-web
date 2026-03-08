@@ -13,6 +13,7 @@ import { Link, useNavigate } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
+import BackToVolunteerButton from "./BackToVolunteerButton";
 
 function FieldLabel({
   children,
@@ -55,13 +56,7 @@ export default function OpportunityDetail({
   return (
     <main className="min-h-screen bg-white px-6 py-10 md:px-12 lg:px-28">
       <div className="mx-auto flex w-full max-w-193 flex-col gap-8">
-        <Link
-          to="/volunteer"
-          className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#9eacc0] hover:text-[#7b8aa1]"
-        >
-          <ChevronLeft className="size-[18px]" />
-          Back to Volunteer
-        </Link>
+        <BackToVolunteerButton />
 
         <section className="space-y-1">
           <h1 className="text-[32px] font-semibold leading-[38.4px] text-[#030213]">

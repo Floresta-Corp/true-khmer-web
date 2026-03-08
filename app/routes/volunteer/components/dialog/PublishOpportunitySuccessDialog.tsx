@@ -37,7 +37,7 @@ export default function PublishOpportunitySuccessDialog({
         <div className="w-full">
           <Button
             type="button"
-            className="h-10 w-full rounded- bg-[#2f6fe4] text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]"
+            className="h-10 w-full rounded-md bg-[#2f6fe4] text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]"
             onClick={() => {
               onOpenChange(false);
               onViewPost?.();

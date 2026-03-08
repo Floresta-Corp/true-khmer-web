@@ -233,7 +233,7 @@ export function Navbar({ user }: NavbarProps) {
         <div className="flex items-center justify-around h-16 px-1">
           {navLinks.map((link) => {
             const isActive =
-              location.pathname === link.to ||
+              location.pathname.startsWith(link.to) ||
               (link.to === "/dashboard" &&
                 location.pathname.startsWith("/dashboard"));
             return (

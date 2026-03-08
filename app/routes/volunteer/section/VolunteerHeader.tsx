@@ -25,7 +25,7 @@ export default function VolunteerHeader() {
                 <Search className="size-[17.5px] shrink-0 text-[#99a1af]" />
                 <Input
                   type="search"
-                  placeholder="Search by name or  mission...."
+                  placeholder="Search by name or mission...."
                   className="h-10.5 border-0 bg-transparent px-0 py-0 text-sm font-semibold text-[#364153] placeholder:font-semibold placeholder:text-[#99a1af] focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               </div>

@@ -1,3 +1,4 @@
+import React from "react";
 import { ChevronDown, FileText, User } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
@@ -50,7 +51,7 @@ export default function VolunteerApplicationDialog({
           </div>
 
           <div className="space-y-2 mb-6">
-            <p className="text-sm font-medium leading-[21px] text-[#65758b]">
+            <p className="text-sm font-medium leading-5.25 text-[#65758b]">
               Which role are you applying for?
             </p>
             <div className="flex items-start justify-between rounded-lg bg-[#f8fafc] px-3 py-3">
@@ -84,7 +85,7 @@ export default function VolunteerApplicationDialog({
             </label>
             <textarea
               id="experience"
-              placeholder="Briefly description your experience relevant to this role..."
+              placeholder="Briefly describe your experience relevant to this role..."
               className="h-23.75 w-full resize-none rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm font-medium text-[#364153] placeholder:text-[#65758b] focus-visible:border-[#2f6fe4] focus-visible:outline-none"
             />
           </div>

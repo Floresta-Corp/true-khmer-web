@@ -20,6 +20,7 @@ import type { VolunteerPost } from "~/lib/post";
 import { Button } from "~/components/ui/button";
 import EmptyPost from "../components/EmptyPost";
 import VolunteerApplicationDialog from "../components/dialog/VolunteerApplicationDialog";
+import BackToVolunteerButton from "../components/BackToVolunteerButton";
 
 const coverImage =
   "https://www.figma.com/api/mcp/asset/b7008d38-7e7e-480c-9520-1c39a524a5f5";
@@ -72,13 +73,7 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
   return (
     <main className="min-h-screen bg-white px-6 py-10 md:px-12 lg:px-28">
       <div className="mx-auto flex w-full max-w-304 flex-col gap-8">
-        <Link
-          to="/volunteer"
-          className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#9eacc0] hover:text-[#7b8aa1]"
-        >
-          <ChevronLeft className="size-4.5" />
-          Back to volunteers
-        </Link>
+        <BackToVolunteerButton />
 
         <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
           <section className="flex min-w-0 flex-col gap-4 md:gap-8">
@@ -141,7 +136,7 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
                     </p>
                     <p className="text-sm font-semibold text-[#4a5565]">
                       {volunteer?.applicants ?? 7}/
-                      {volunteer?.totalApplcants ?? 10}
+                      {volunteer?.totalApplicants ?? 10}
                     </p>
                   </div>
                 </div>
@@ -345,7 +340,7 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
               <div className="flex items-center justify-between">
                 <span className="text-[#99a1af]">Applicants</span>
                 <span className="font-semibold text-[#4a5565]">
-                  {(volunteer?.totalApplcants ?? 10) -
+                  {(volunteer?.totalApplicants ?? 10) -
                     (volunteer?.applicants ?? 7)}{" "}
                   spots open
                 </span>
@@ -353,7 +348,7 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
               <div className="flex items-center justify-between">
                 <span className="text-[#99a1af]">Deadline</span>
                 <span className="font-semibold text-[#4a5565]">
-                  {volunteer?.deadLine ?? "Dec 15, 2026"}
+                  {volunteer?.deadline ?? "Dec 15, 2026"}
                 </span>
               </div>
               <div className="flex items-center justify-between">
