@@ -1,4 +1,4 @@
-import { getUser } from "~/lib/session.server";
+import { getUser } from "~/lib/server/session.server";
 import type { Route } from "../+types/dashboard";
 
 // GET /api/me — returns the current user as JSON

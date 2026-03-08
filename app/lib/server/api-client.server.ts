@@ -1,0 +1,187 @@
+import { resolveApiBase } from "~/lib/server/api-base.server";
+import { commitSession, getSession } from "~/lib/server/session.server";
+import { refreshAccessToken } from "~/services/auth.server";
+
+type JsonPrimitive = string | number | boolean | null;
+type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
+type JsonObject = { [key: string]: JsonValue };
+
+export class ProtectedApiError extends Error {
+  status: number;
+  code?: string;
+  details?: JsonValue;
+
+  constructor(
+    message: string,
+    status: number,
+    code?: string,
+    details?: JsonValue,
+  ) {
+    super(message);
+    this.name = "ProtectedApiError";
+    this.status = status;
+    this.code = code;
+    this.details = details;
+  }
+}
+
+export class AuthSessionExpiredError extends Error {
+  constructor(message = "Session expired. Please log in again.") {
+    super(message);
+    this.name = "AuthSessionExpiredError";
+  }
+}
+
+export class InvalidApiResponseError extends Error {
+  status: number;
+  statusText: string;
+  contentType: string | null;
+
+  constructor(response: Response) {
+    super(
+      `Expected a JSON object response but received invalid JSON (${response.status} ${response.statusText}).`,
+    );
+    this.name = "InvalidApiResponseError";
+    this.status = response.status;
+    this.statusText = response.statusText;
+    this.contentType = response.headers.get("Content-Type");
+  }
+}
+
+type RequestOptions = {
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  body?: JsonObject | undefined;
+};
+
+export type ApiResult<T> = {
+  data: T;
+  setCookie?: string;
+};
+
+function isJsonObject(value: JsonValue): value is JsonObject {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+async function parseJson(response: Response): Promise<JsonObject> {
+  if (response.status === 204 || response.status === 205) {
+    return {};
+  }
+
+  const rawBody = await response.text();
+  if (!rawBody.trim()) {
+    return {};
+  }
+
+  try {
+    const payload = JSON.parse(rawBody) as JsonValue;
+    if (isJsonObject(payload)) {
+      return payload;
+    }
+
+    if (!response.ok) {
+      return {};
+    }
+  } catch {
+    if (!response.ok) {
+      return {};
+    }
+  }
+
+  throw new InvalidApiResponseError(response);
+}
+
+async function fetchWithBearer(
+  request: Request,
+  path: string,
+  accessToken: string,
+  options: RequestOptions = {},
+) {
+  const base = resolveApiBase(request);
+  const url = `${base}${path}`;
+
+  return fetch(url, {
+    method: options.method ?? "GET",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
+    },
+    ...(options.body ? { body: JSON.stringify(options.body) } : {}),
+  });
+}
+
+function readErrorMessage(payload: JsonObject, fallback: string) {
+  return (
+    (typeof payload.message === "string" && payload.message) ||
+    (typeof payload.error === "string" && payload.error) ||
+    fallback
+  );
+}
+
+export async function apiRequestWithSession<T>(
+  request: Request,
+  path: string,
+  options: RequestOptions = {},
+): Promise<ApiResult<T>> {
+  const session = await getSession(request);
+  let accessToken = session.get("accessToken") as string | undefined;
+  const refreshToken = session.get("refreshToken") as string | undefined;
+
+  if (!accessToken) {
+    throw new AuthSessionExpiredError();
+  }
+
+  let response = await fetchWithBearer(request, path, accessToken, options);
+  let setCookie: string | undefined;
+
+  if (response.status === 401) {
+    if (!refreshToken) throw new AuthSessionExpiredError();
+
+    try {
+      const refreshed = await refreshAccessToken(refreshToken, request);
+      accessToken = refreshed.accessToken;
+      session.set("accessToken", refreshed.accessToken);
+      session.set("refreshToken", refreshed.refreshToken);
+      setCookie = await commitSession(session);
+    } catch {
+      throw new AuthSessionExpiredError();
+    }
+
+    response = await fetchWithBearer(request, path, accessToken, options);
+  }
+
+  const payload = await parseJson(response);
+  if (!response.ok) {
+    throw new ProtectedApiError(
+      readErrorMessage(payload, "API request failed."),
+      response.status,
+      typeof payload.code === "string" ? payload.code : undefined,
+      payload,
+    );
+  }
+
+  return {
+    data: payload as T,
+    setCookie,
+  };
+}
+
+export async function apiRequestWithAccessToken<T>(
+  request: Request,
+  accessToken: string,
+  path: string,
+  options: RequestOptions = {},
+) {
+  const response = await fetchWithBearer(request, path, accessToken, options);
+  const payload = await parseJson(response);
+
+  if (!response.ok) {
+    throw new ProtectedApiError(
+      readErrorMessage(payload, "API request failed."),
+      response.status,
+      typeof payload.code === "string" ? payload.code : undefined,
+      payload,
+    );
+  }
+
+  return payload as T;
+}

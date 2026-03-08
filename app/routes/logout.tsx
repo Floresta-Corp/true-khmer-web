@@ -1,5 +1,5 @@
 import type { Route } from "./+types/logout";
-import { getSession, destroySession } from "~/lib/session.server";
+import { getSession, destroySession } from "~/lib/server/session.server";
 import { redirect } from "react-router";
 
 // Logout only works via POST (for CSRF safety)

@@ -1,6 +1,6 @@
-import { useLoaderData } from "react-router";
+import { data, useLoaderData } from "react-router";
 import type { Route } from "./+types/profile";
-import { requireUser } from "~/lib/session.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import { Footer } from "~/components/footer";
 import { Card, CardContent } from "~/components/ui/card";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
@@ -25,8 +25,11 @@ import { cn } from "~/lib/utils";
 import { useState } from "react";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = await requireUser(request);
-  return { user };
+  const guard = await requireUser(request);
+  return data(
+    guard,
+    guard.setCookie ? { headers: { "Set-Cookie": guard.setCookie } } : {},
+  );
 }
 
 export function meta() {
@@ -46,10 +49,10 @@ export default function ProfilePage() {
   const { user } = useLoaderData<typeof loader>();
   const [activeTab, setActiveTab] = useState<TabId>("info");
 
-  const displayName = user.email?.split("@")[0] || "User";
+  const displayName = user.name?.split("@")[0] || "User";
   const capitalizedName =
     displayName.charAt(0).toUpperCase() + displayName.slice(1);
-  const fullName = `${capitalizedName} Mean`;
+  const fullName = `${capitalizedName}`;
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -16,6 +16,7 @@ import {
   Globe,
   AlertTriangle,
 } from "lucide-react";
+import { resolveApiBase } from "~/lib/server/api-base.server";
 
 interface EventItem {
   title: string;
@@ -42,12 +43,12 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const apiBase = process.env.API_BASE_URL;
+  const apiBase = resolveApiBase(request);
 
   let events: EventItem[] = [];
   let error: string | null = null;
   try {
-    const res = await fetch(`${apiBase}/api/event`);
+    const res = await fetch(`${apiBase}/event`);
     if (res.ok) {
       const json = await res.json();
       events = json.data ?? [];

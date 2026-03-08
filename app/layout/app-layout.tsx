@@ -1,11 +1,14 @@
-import { Outlet, useLoaderData } from "react-router";
+import { Outlet, data, useLoaderData } from "react-router";
 import { Navbar } from "~/components/navbar";
-import { getUser } from "~/lib/session.server";
 import type { Route } from "./+types/app-layout";
+import { getOptionalUser } from "~/lib/server/route-guards.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const user = await getUser(request);
-  return { user };
+  const result = await getOptionalUser(request);
+  return data(
+    { user: result.user },
+    result.setCookie ? { headers: { "Set-Cookie": result.setCookie } } : {},
+  );
 }
 
 export default function AppLayout() {
