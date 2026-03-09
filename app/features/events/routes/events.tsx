@@ -6,7 +6,10 @@ import {
   type EventData,
 } from "~/features/events/components/event-card";
 import { Footer } from "~/components/footer";
-import { getUpcomingEvents } from "~/features/events/lib/events.server";
+import {
+  getEventList,
+  getUpcomingEvents,
+} from "~/features/events/lib/events.server";
 import {
   Search,
   AlertCircle,
@@ -22,40 +25,14 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-const API_BASE_URL = "https://api-staging.plumpievents.com/v1";
-
 export async function loader({ request }: Route.LoaderArgs) {
   try {
-    const [eventsResponse, upcomingEvents] = await Promise.all([
-      fetch(`${API_BASE_URL}/events`),
+    const [events, upcomingEvents] = await Promise.all([
+      getEventList(),
       getUpcomingEvents(),
     ]);
 
-    if (!eventsResponse.ok) {
-      throw new Error(
-        `API returned ${eventsResponse.status}: ${eventsResponse.statusText}`,
-      );
-    }
-
-    const data = await eventsResponse.json();
-    const eventList = Array.isArray(data.data) ? data.data : [];
-
-    const mappedEvents: EventData[] = eventList.map((apiEvent: any) => ({
-      id: apiEvent.id,
-      title: apiEvent.title,
-      excerpt: apiEvent.excerpt || "",
-      thumbnail: apiEvent.thumbnail || null,
-      startAt: apiEvent.startAt,
-      endAt: apiEvent.endAt,
-      venueName: apiEvent.venueName || null,
-      eventType: apiEvent.eventType,
-      price: apiEvent.salePrice || apiEvent.basePrice || "Free",
-      ticketStatus: apiEvent.ticketStatus || null,
-      isOnline: apiEvent.isOnline || false,
-      isFavorite: apiEvent.isFavorite || false,
-    }));
-
-    return { events: mappedEvents, upcomingEvents, error: null };
+    return { events, upcomingEvents, error: null };
   } catch (err) {
     console.error("Loader fetch error:", err);
     return {

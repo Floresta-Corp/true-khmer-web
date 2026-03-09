@@ -1,7 +1,7 @@
 import { requireUser } from "~/lib/session.server";
 import type { EventData } from "~/features/events/components/event-card";
 
-const API_BASE_URL = "https://api-staging.plumpievents.com/v1";
+const API_BASE_URL = process.env.PLUMPI_ENDPOINT;
 
 export interface TicketTier {
   id: string;
@@ -173,6 +173,37 @@ export async function getUpcomingEvents(): Promise<EventData[]> {
     }));
   } catch (err) {
     console.error("Failed to fetch upcoming events:", err);
+    return [];
+  }
+}
+
+export async function getEventList(): Promise<EventData[]> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/events`);
+
+    if (!response.ok) {
+      throw new Error(`Plumpi API Error: ${response.status}`);
+    }
+
+    const json = await response.json();
+    const eventList = Array.isArray(json.data) ? json.data : [];
+
+    return eventList.map((apiEvent: any) => ({
+      id: apiEvent.id,
+      title: apiEvent.title,
+      excerpt: apiEvent.excerpt || "",
+      thumbnail: apiEvent.thumbnail || null,
+      startAt: apiEvent.startAt,
+      endAt: apiEvent.endAt,
+      venueName: apiEvent.venueName || null,
+      eventType: apiEvent.eventType,
+      price: apiEvent.salePrice || apiEvent.basePrice || "Free",
+      ticketStatus: apiEvent.ticketStatus || null,
+      isOnline: apiEvent.isOnline || false,
+      isFavorite: apiEvent.isFavorite || false,
+    }));
+  } catch (err) {
+    console.error("Failed to fetch event list:", err);
     return [];
   }
 }
