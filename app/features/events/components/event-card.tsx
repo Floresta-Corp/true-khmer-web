@@ -1,6 +1,11 @@
 import { Link } from "react-router";
 import { Badge } from "~/components/ui/badge";
 import { Calendar, MapPin, Heart } from "lucide-react";
+import {
+  CATEGORY_COLORS,
+  formatEventType,
+  formatEventDateTime,
+} from "~/features/events/lib/event-formatters";
 
 export interface EventData {
   id: string;
@@ -22,35 +27,6 @@ export interface EventData {
 
 interface EventCardProps {
   event: EventData;
-}
-
-const CATEGORY_COLORS: Record<string, string> = {
-  NETWORKING: "bg-blue-600 text-white",
-  WORKSHOP: "bg-purple-600 text-white",
-  CULTURAL: "bg-orange-500 text-white",
-  CONCERT: "bg-pink-600 text-white",
-  EXHIBITION: "bg-teal-600 text-white",
-  CONFERENCE: "bg-indigo-600 text-white",
-  FESTIVAL: "bg-amber-500 text-white",
-};
-
-function formatEventType(type: string): string {
-  return type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
-}
-
-function formatEventDateTime(dateString: string): string {
-  const date = new Date(dateString);
-  const day = date.toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "2-digit",
-  });
-  const time = date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
-  return `${day} • ${time}`;
 }
 
 export function EventCard({ event }: EventCardProps) {
