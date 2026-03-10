@@ -1,4 +1,4 @@
-import { Form, redirect, useActionData } from "react-router";
+import { Form, data, redirect, useActionData } from "react-router";
 import { OnboardingBackContinueActions } from "~/components/onboarding/onboarding-back-continue-actions";
 import { OnboardingCurrentTierCard } from "~/components/onboarding/onboarding-current-tier-card";
 import { OnboardingFormError } from "~/components/onboarding/onboarding-form-error";
@@ -8,28 +8,32 @@ import { OnboardingStepIntro } from "~/components/onboarding/onboarding-step-int
 import { OnboardingTierPathCard } from "~/components/onboarding/onboarding-tier-path-card";
 import type { Route } from "./+types/tier";
 import { saveStep4Complete } from "~/services/onboarding.server";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireOnboardingIncomplete } from "~/lib/server/route-guards.server";
 import { handleOnboardingActionError } from "~/features/onboarding/shared/onboarding-action-error.server";
 
 export async function action({ request }: Route.ActionArgs) {
-  await requireAuthenticatedUser(request);
+  const guard = await requireOnboardingIncomplete(request);
+  const guardSetCookie = guard.setCookie;
+  const cookieHeader = (setCookie?: string) => {
+    const headerValue = setCookie ?? guardSetCookie;
+    return headerValue ? { headers: { "Set-Cookie": headerValue } } : {};
+  };
 
   try {
     const result = await saveStep4Complete(request);
     return redirect(
       "/onboarding/completed",
-      result.setCookie
-        ? {
-            headers: { "Set-Cookie": result.setCookie },
-          }
-        : {},
+      cookieHeader(result.setCookie),
     );
   } catch (error) {
-    return handleOnboardingActionError({
+    const handled = await handleOnboardingActionError({
       error,
       request,
       fallbackMessage: "Unable to complete onboarding. Please try again.",
     });
+
+    if (handled instanceof Response) return handled;
+    return data(handled, cookieHeader());
   }
 }
 

@@ -21,7 +21,7 @@ import {
   AuthSessionExpiredError,
 } from "~/lib/server/api-client.server";
 import { destroySession, getSession } from "~/lib/server/session.server";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireOnboardingIncomplete } from "~/lib/server/route-guards.server";
 import {
   contributionIconByKey,
   mapContributionOptionsToCards,
@@ -70,32 +70,36 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  await requireAuthenticatedUser(request);
+  const guard = await requireOnboardingIncomplete(request);
+  const guardSetCookie = guard.setCookie;
+  const cookieHeader = (setCookie?: string) => {
+    const headerValue = setCookie ?? guardSetCookie;
+    return headerValue ? { headers: { "Set-Cookie": headerValue } } : {};
+  };
 
   const formInput = parseContributionForm(await request.formData());
   const errors = validateContributionInput(formInput.selectedIds);
-  if (errors.form) return { errors };
+  if (errors.form) return data({ errors }, cookieHeader());
 
   if (isContributionInputUnchanged(formInput)) {
-    return redirect("/onboarding/tier");
+    return redirect("/onboarding/tier", cookieHeader());
   }
 
   try {
     const result = await saveStep3Contributions(request, formInput.selectedIds);
     return redirect(
       "/onboarding/tier",
-      result.setCookie
-        ? {
-            headers: { "Set-Cookie": result.setCookie },
-          }
-        : {},
+      cookieHeader(result.setCookie),
     );
   } catch (error) {
-    return handleOnboardingActionError({
+    const handled = await handleOnboardingActionError({
       error,
       request,
       fallbackMessage: "Unable to save contributions. Please try again.",
     });
+
+    if (handled instanceof Response) return handled;
+    return data(handled, cookieHeader());
   }
 }
 

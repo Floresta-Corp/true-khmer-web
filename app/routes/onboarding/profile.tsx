@@ -24,7 +24,7 @@ import {
 import { AuthSessionExpiredError } from "~/lib/server/api-client.server";
 import { destroySession, getSession } from "~/lib/server/session.server";
 import { SearchableSelect } from "~/components/onboarding/searchable-select";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireOnboardingIncomplete } from "~/lib/server/route-guards.server";
 import {
   type ProfileFormErrors,
   isProfileInputUnchanged,
@@ -87,7 +87,12 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  await requireAuthenticatedUser(request);
+  const guard = await requireOnboardingIncomplete(request);
+  const guardSetCookie = guard.setCookie;
+  const cookieHeader = (setCookie?: string) => {
+    const headerValue = setCookie ?? guardSetCookie;
+    return headerValue ? { headers: { "Set-Cookie": headerValue } } : {};
+  };
 
   const formInput = parseProfileForm(await request.formData());
   const errors: ProfileFormErrors = validateProfileInput({
@@ -95,10 +100,10 @@ export async function action({ request }: Route.ActionArgs) {
     cityId: formInput.cityId,
   });
 
-  if (Object.keys(errors).length > 0) return { errors };
+  if (Object.keys(errors).length > 0) return data({ errors }, cookieHeader());
 
   if (isProfileInputUnchanged(formInput)) {
-    return redirect("/onboarding/interest");
+    return redirect("/onboarding/interest", cookieHeader());
   }
 
   try {
@@ -110,14 +115,10 @@ export async function action({ request }: Route.ActionArgs) {
     });
     return redirect(
       "/onboarding/interest",
-      result.setCookie
-        ? {
-            headers: { "Set-Cookie": result.setCookie },
-          }
-        : {},
+      cookieHeader(result.setCookie),
     );
   } catch (error) {
-    return handleOnboardingActionError<ProfileFormErrors>({
+    const handled = await handleOnboardingActionError<ProfileFormErrors>({
       error,
       request,
       fallbackMessage: "Unable to save profile. Please try again.",
@@ -128,6 +129,9 @@ export async function action({ request }: Route.ActionArgs) {
           : protectedError.message || "Validation failed.";
       },
     });
+
+    if (handled instanceof Response) return handled;
+    return data(handled, cookieHeader());
   }
 }
 

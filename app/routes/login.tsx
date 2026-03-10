@@ -67,7 +67,7 @@ export async function action({ request }: Route.ActionArgs) {
         const otpSent = details?.otpSent === true ? "1" : "0";
 
         return redirect(
-          `/verify-otp?email=${encodeURIComponent(email)}&otpSent=${otpSent}&message=${encodeURIComponent(message)}`,
+          `/verify-otp?email=${encodeURIComponent(email)}&redirectTo=${encodeURIComponent(redirectTo)}&otpSent=${otpSent}&message=${encodeURIComponent(message)}`,
         );
       }
       if (error.status === 400) {

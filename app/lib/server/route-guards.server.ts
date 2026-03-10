@@ -224,9 +224,6 @@ export async function requireUser(request: Request): Promise<GuardResult> {
   }
 }
 
-export async function requireOnboardingComplete(request: Request) {
-  return requireUser(request);
-}
 
 export async function requireCompletedPageAccess(request: Request) {
   const user = await requireAuthenticatedUser(request);

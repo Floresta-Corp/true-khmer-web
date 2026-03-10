@@ -18,7 +18,7 @@ import {
   AuthSessionExpiredError,
 } from "~/lib/server/api-client.server";
 import { destroySession, getSession } from "~/lib/server/session.server";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireOnboardingIncomplete } from "~/lib/server/route-guards.server";
 import {
   isInterestInputUnchanged,
   parseInterestForm,
@@ -62,32 +62,36 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  await requireAuthenticatedUser(request);
+  const guard = await requireOnboardingIncomplete(request);
+  const guardSetCookie = guard.setCookie;
+  const cookieHeader = (setCookie?: string) => {
+    const headerValue = setCookie ?? guardSetCookie;
+    return headerValue ? { headers: { "Set-Cookie": headerValue } } : {};
+  };
 
   const formInput = parseInterestForm(await request.formData());
   const errors = validateInterestInput(formInput.selectedIds);
-  if (errors.form) return { errors };
+  if (errors.form) return data({ errors }, cookieHeader());
 
   if (isInterestInputUnchanged(formInput)) {
-    return redirect("/onboarding/contribution");
+    return redirect("/onboarding/contribution", cookieHeader());
   }
 
   try {
     const result = await saveStep2Interests(request, formInput.selectedIds);
     return redirect(
       "/onboarding/contribution",
-      result.setCookie
-        ? {
-            headers: { "Set-Cookie": result.setCookie },
-          }
-        : {},
+      cookieHeader(result.setCookie),
     );
   } catch (error) {
-    return handleOnboardingActionError({
+    const handled = await handleOnboardingActionError({
       error,
       request,
       fallbackMessage: "Unable to save interests. Please try again.",
     });
+
+    if (handled instanceof Response) return handled;
+    return data(handled, cookieHeader());
   }
 }
 
@@ -127,7 +131,7 @@ export default function OnboardingInterestPage() {
 
         <Form
           method="post"
-          className="relative z-10 flex w-full max-w-lg flex-col items-start gap-10 py-0"
+          className="relative z-10 flex w-full max-w-xl flex-col items-start gap-10 py-0"
         >
           {selected.map((id) => (
             <input key={id} type="hidden" name="selected" value={id} />
