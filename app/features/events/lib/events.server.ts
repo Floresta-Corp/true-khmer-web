@@ -1,7 +1,12 @@
 import { requireUser } from "~/lib/session.server";
 import type { EventData } from "~/features/events/components/event-card";
 
-const API_BASE_URL = process.env.PLUMPI_ENDPOINT;
+const PLUMPI_ENDPOINT = process.env.PLUMPI_ENDPOINT;
+if (!PLUMPI_ENDPOINT) {
+  throw new Error(
+    "Environment variable PLUMPI_ENDPOINT is not set. Please configure PLUMPI_ENDPOINT to the base URL of the Plumpi API.",
+  );
+}
 
 export interface TicketTier {
   id: string;
@@ -39,7 +44,7 @@ export interface Organizer {
 export async function getTicketTiers(eventId: string): Promise<TicketTier[]> {
   try {
     const response = await fetch(
-      `${API_BASE_URL}/tickets/tiers?eventId=${eventId}`,
+      `${PLUMPI_ENDPOINT}/tickets/tiers?eventId=${eventId}`,
     );
 
     if (!response.ok) {
@@ -84,7 +89,9 @@ export async function getEventOrganizer(
   eventId: string,
 ): Promise<Organizer | null> {
   try {
-    const response = await fetch(`${API_BASE_URL}/events/${eventId}/organizer`);
+    const response = await fetch(
+      `${PLUMPI_ENDPOINT}/events/${eventId}/organizer`,
+    );
 
     if (!response.ok) {
       return null;
@@ -110,7 +117,7 @@ export async function getEventsData(request: Request) {
   const user = await requireUser(request);
 
   try {
-    const response = await fetch(`${API_BASE_URL}/events?limit=5`);
+    const response = await fetch(`${PLUMPI_ENDPOINT}/events?limit=5`);
 
     if (!response.ok) {
       throw new Error(`Plumpi API Error: ${response.status}`);
@@ -147,7 +154,7 @@ export async function getEventsData(request: Request) {
 
 export async function getUpcomingEvents(): Promise<EventData[]> {
   try {
-    const response = await fetch(`${API_BASE_URL}/events/upcoming`);
+    const response = await fetch(`${PLUMPI_ENDPOINT}/events/upcoming`);
 
     if (!response.ok) {
       return [];
@@ -179,7 +186,7 @@ export async function getUpcomingEvents(): Promise<EventData[]> {
 
 export async function getEventList(): Promise<EventData[]> {
   try {
-    const response = await fetch(`${API_BASE_URL}/events`);
+    const response = await fetch(`${PLUMPI_ENDPOINT}/events`);
 
     if (!response.ok) {
       throw new Error(`Plumpi API Error: ${response.status}`);
@@ -211,7 +218,7 @@ export async function getEventList(): Promise<EventData[]> {
 export async function getEventById(request: Request, id: string) {
   try {
     const [response, ticketTiers, organizer] = await Promise.all([
-      fetch(`${API_BASE_URL}/events/${id}`),
+      fetch(`${PLUMPI_ENDPOINT}/events/${id}`),
       getTicketTiers(id),
       getEventOrganizer(id),
     ]);

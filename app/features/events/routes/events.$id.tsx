@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Badge } from "~/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Footer } from "~/components/footer";
+import { SanitizedHtml } from "~/components/sanitized-html";
 import { getEventById } from "~/features/events/lib/events.server";
 import {
   formatEventType,
@@ -127,11 +128,9 @@ export default function EventDetailPage() {
                     {event.description &&
                     event.description !== "<p></p>" &&
                     event.description.replace(/<[^>]*>/g, "").trim() ? (
-                      <div
+                      <SanitizedHtml
+                        html={event.description}
                         className="prose prose-sm prose-gray max-w-none text-sm text-muted-foreground leading-relaxed [&>p]:mb-2 [&>h1]:text-lg [&>h1]:font-bold [&>h1]:mb-2 [&>h2]:text-base [&>h2]:font-semibold [&>h2]:mb-1.5 [&>h2]:mt-4 [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4"
-                        dangerouslySetInnerHTML={{
-                          __html: event.description,
-                        }}
                       />
                     ) : (
                       <p className="text-sm text-muted-foreground italic">

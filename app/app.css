@@ -61,10 +61,13 @@ body {
 }
 
 /* Fix: remove all default input styling */
-input, input:focus, input:active {
+input {
   box-shadow: none !important;
   border-color: transparent !important;
-  outline: none !important;
   -webkit-appearance: none !important;
   appearance: none !important;
+}
+input:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
 }

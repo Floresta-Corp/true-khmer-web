@@ -15,10 +15,10 @@ export function EventDetailHero({ event }: EventDetailHeroProps) {
           <img
             src={heroImage}
             alt={event.title}
-            className="w-full h-85 sm:h-100 object-cover"
+            className="w-full h-80 sm:h-96 object-cover"
           />
         ) : (
-          <div className="w-full h-85 sm:h-100 flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100">
+          <div className="w-full h-80 sm:h-96 flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100">
             <Calendar className="w-16 h-16 text-blue-300" />
           </div>
         )}
