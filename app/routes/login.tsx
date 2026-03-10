@@ -20,6 +20,7 @@ import { InputField } from "~/components/auth/input-field";
 import { AuthPageShell } from "~/components/auth/page-shell";
 import { PasswordField } from "~/components/auth/password-field";
 import { PrimaryButton } from "~/components/auth/primary-button";
+import { sanitizeRedirectPath } from "~/lib/redirects";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const authRedirect = await redirectIfAuthenticated(request);
@@ -37,7 +38,9 @@ export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const email = String(formData.get("email") || "");
   const password = String(formData.get("password") || "");
-  const redirectTo = String(formData.get("redirectTo") || "/dashboard");
+  const redirectTo = sanitizeRedirectPath(
+    formData.get("redirectTo")?.toString(),
+  );
 
   const errors: { email?: string; password?: string; form?: string } = {};
   if (!email) errors.email = "Email is required";
@@ -99,7 +102,7 @@ export function meta() {
 export default function LoginPage() {
   const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/dashboard";
+  const redirectTo = sanitizeRedirectPath(searchParams.get("redirectTo"));
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

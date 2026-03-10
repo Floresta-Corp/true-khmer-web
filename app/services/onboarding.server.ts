@@ -112,6 +112,10 @@ type OnboardingStateCacheEntry = {
   expiresAt: number;
 };
 
+type ExpiringCacheEntry = {
+  expiresAt: number;
+};
+
 type GetOnboardingStateOptions = {
   forceFresh?: boolean;
 };
@@ -125,6 +129,13 @@ const OPTIONS_CACHE_TTL_MS = 10 * 60 * 1000;
 // to avoid serving stale state while still getting some benefit from caching.
 const ONBOARDING_STATE_CACHE_TTL_MS = 15 * 1000;
 
+// Sweep and cap cache size to avoid unbounded memory growth in long-lived
+// server processes.
+const CACHE_SWEEP_INTERVAL_MS = 60 * 1000;
+const OPTIONS_CACHE_MAX_ENTRIES = 1000;
+const CITIES_CACHE_MAX_ENTRIES = 2000;
+const ONBOARDING_STATE_CACHE_MAX_ENTRIES = 2000;
+
 const countriesCache = new Map<string, CacheEntry<OnboardingOption>>();
 const interestsCache = new Map<string, CacheEntry<OnboardingInterestOption>>();
 const contributionsCache = new Map<
@@ -133,6 +144,7 @@ const contributionsCache = new Map<
 >();
 const citiesCache = new Map<string, CacheEntry<OnboardingOption>>();
 const onboardingStateCache = new Map<string, OnboardingStateCacheEntry>();
+let nextCacheSweepAt = Date.now() + CACHE_SWEEP_INTERVAL_MS;
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object";
@@ -208,17 +220,58 @@ function parseOnboardingStateResponse(
   return payload as OnboardingStateResponse;
 }
 
+function trimCacheToMaxEntries<TEntry>(
+  cache: Map<string, TEntry>,
+  maxEntries: number,
+) {
+  while (cache.size > maxEntries) {
+    const oldest = cache.keys().next();
+    if (oldest.done) break;
+    cache.delete(oldest.value);
+  }
+}
+
+function sweepExpiredEntries<TEntry extends ExpiringCacheEntry>(
+  cache: Map<string, TEntry>,
+  now: number,
+) {
+  for (const [key, entry] of cache) {
+    if (entry.expiresAt <= now) {
+      cache.delete(key);
+    }
+  }
+}
+
+function maybeSweepExpiredCaches(now = Date.now()) {
+  if (now < nextCacheSweepAt) return;
+
+  sweepExpiredEntries(countriesCache, now);
+  sweepExpiredEntries(interestsCache, now);
+  sweepExpiredEntries(contributionsCache, now);
+  sweepExpiredEntries(citiesCache, now);
+  sweepExpiredEntries(onboardingStateCache, now);
+
+  nextCacheSweepAt = now + CACHE_SWEEP_INTERVAL_MS;
+}
+
 function getCachedOptions<TItem>(
   cache: Map<string, CacheEntry<TItem>>,
   key: string,
 ) {
+  const now = Date.now();
+  maybeSweepExpiredCaches(now);
+
   const cached = cache.get(key);
   if (!cached) return null;
 
-  if (cached.expiresAt <= Date.now()) {
+  if (cached.expiresAt <= now) {
     cache.delete(key);
     return null;
   }
+
+  // Move to the end of the Map so max-entry eviction behaves like LRU.
+  cache.delete(key);
+  cache.set(key, cached);
 
   return cached.data;
 }
@@ -227,11 +280,17 @@ function setCachedOptions<TItem>(
   cache: Map<string, CacheEntry<TItem>>,
   key: string,
   data: TItem[],
+  maxEntries = OPTIONS_CACHE_MAX_ENTRIES,
 ) {
+  const now = Date.now();
+  maybeSweepExpiredCaches(now);
+
   cache.set(key, {
     data,
-    expiresAt: Date.now() + OPTIONS_CACHE_TTL_MS,
+    expiresAt: now + OPTIONS_CACHE_TTL_MS,
   });
+
+  trimCacheToMaxEntries(cache, maxEntries);
 }
 
 async function userCacheKey(request: Request) {
@@ -240,22 +299,34 @@ async function userCacheKey(request: Request) {
 }
 
 function getCachedOnboardingState(key: string) {
+  const now = Date.now();
+  maybeSweepExpiredCaches(now);
+
   const cached = onboardingStateCache.get(key);
   if (!cached) return null;
 
-  if (cached.expiresAt <= Date.now()) {
+  if (cached.expiresAt <= now) {
     onboardingStateCache.delete(key);
     return null;
   }
+
+  // Move to the end of the Map so max-entry eviction behaves like LRU.
+  onboardingStateCache.delete(key);
+  onboardingStateCache.set(key, cached);
 
   return cached.state;
 }
 
 function setCachedOnboardingState(key: string, state: OnboardingState) {
+  const now = Date.now();
+  maybeSweepExpiredCaches(now);
+
   onboardingStateCache.set(key, {
     state,
-    expiresAt: Date.now() + ONBOARDING_STATE_CACHE_TTL_MS,
+    expiresAt: now + ONBOARDING_STATE_CACHE_TTL_MS,
   });
+
+  trimCacheToMaxEntries(onboardingStateCache, ONBOARDING_STATE_CACHE_MAX_ENTRIES);
 }
 
 function extractOptionItems(
@@ -525,7 +596,7 @@ export async function getCities(request: Request, countryId: string) {
   );
   const data = normalizeOptions(result.data, "cities");
 
-  setCachedOptions(citiesCache, key, data);
+  setCachedOptions(citiesCache, key, data, CITIES_CACHE_MAX_ENTRIES);
 
   return {
     data,

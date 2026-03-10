@@ -26,9 +26,11 @@ import { Footer } from "~/components/footer";
 // This loader acts as middleware — it requires auth
 export async function loader({ request }: Route.LoaderArgs) {
   const guard = await requireUser(request);
+  const { setCookie, ...payload } = guard;
+
   return data(
-    guard,
-    guard.setCookie ? { headers: { "Set-Cookie": guard.setCookie } } : {},
+    payload,
+    setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
   );
 }
 

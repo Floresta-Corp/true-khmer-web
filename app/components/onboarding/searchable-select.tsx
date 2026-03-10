@@ -1,5 +1,5 @@
 import { Check, ChevronDown, Search } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,6 +43,10 @@ export function SearchableSelect({
   const [query, setQuery] = useState("");
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined);
+  const id = useId();
+  const labelId = `searchable-select-label-${id}`;
+  const valueId = `searchable-select-value-${id}`;
+  const errorId = `searchable-select-error-${id}`;
 
   useEffect(() => {
     if (!open) {
@@ -66,16 +70,21 @@ export function SearchableSelect({
 
   return (
     <div className="space-y-3">
-      <label className="text-sm font-bold leading-5 text-[#374151]">{label}</label>
+      <label id={labelId} className="text-sm font-bold leading-5 text-[#374151]">
+        {label}
+      </label>
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
           <button
             ref={triggerRef}
             type="button"
             disabled={disabled}
+            aria-labelledby={`${labelId} ${valueId}`}
+            aria-describedby={error ? errorId : undefined}
+            aria-invalid={error ? true : undefined}
             className="flex h-11 w-full items-center justify-between rounded-lg bg-[#F8FAFC] px-3 text-sm font-medium text-[#64748B] outline-none disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <span>{selected?.name ?? placeholder}</span>
+            <span id={valueId}>{selected?.name ?? placeholder}</span>
             <ChevronDown size={16} className="text-[#B7C3D6]" />
           </button>
         </DropdownMenuTrigger>
@@ -134,7 +143,11 @@ export function SearchableSelect({
           </div>
         </DropdownMenuContent>
       </DropdownMenu>
-      {error ? <p className="text-xs text-red-500">{error}</p> : null}
+      {error ? (
+        <p id={errorId} className="text-xs text-red-500">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -16,6 +16,7 @@ import { AuthPageShell } from "~/components/auth/page-shell";
 import { PasswordField } from "~/components/auth/password-field";
 import { PrimaryButton } from "~/components/auth/primary-button";
 import { SelectField } from "~/components/auth/select-field";
+import { sanitizeRedirectPath } from "~/lib/redirects";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const authRedirect = await redirectIfAuthenticated(request);
@@ -31,7 +32,9 @@ export async function action({ request }: Route.ActionArgs) {
   const password = String(formData.get("password") || "");
   const gender = String(formData.get("gender") || "");
   const occupation = String(formData.get("occupation") || "");
-  const redirectTo = String(formData.get("redirectTo") || "/dashboard");
+  const redirectTo = sanitizeRedirectPath(
+    formData.get("redirectTo")?.toString(),
+  );
 
   const errors: {
     firstName?: string;
@@ -120,7 +123,7 @@ export default function RegisterPage() {
   const [occupation, setOccupation] = useState("");
   const [agreeToDirectory, setAgreeToDirectory] = useState(false);
 
-  const redirectTo = searchParams.get("redirectTo") || "/dashboard";
+  const redirectTo = sanitizeRedirectPath(searchParams.get("redirectTo"));
 
   const isCreateEnabled =
     firstName.trim() !== "" &&
