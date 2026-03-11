@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Form, Link, redirect, useActionData, useSearchParams } from "react-router";
-import { Briefcase, Check, Lock, Mail, User, UserRound } from "lucide-react";
+import { Briefcase, Lock, Mail, User, UserRound } from "lucide-react";
 import type { Route } from "./+types/register";
 import {
   AuthApiError,
@@ -11,12 +11,21 @@ import { redirectIfAuthenticated } from "~/lib/server/route-guards.server";
 import { FormDivider } from "~/components/auth/form-divider";
 import { FormError } from "~/components/auth/form-error";
 import { GoogleButton } from "~/components/auth/google-button";
-import { InputField } from "~/components/auth/input-field";
 import { AuthPageShell } from "~/components/auth/page-shell";
 import { PasswordField } from "~/components/auth/password-field";
-import { PrimaryButton } from "~/components/auth/primary-button";
-import { SelectField } from "~/components/auth/select-field";
+import { Button } from "~/components/ui/button";
+import { Checkbox } from "~/components/ui/checkbox";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
 import { sanitizeRedirectPath } from "~/lib/redirects";
+
+const genderOptions = [
+  { value: "male", label: "Male" },
+  { value: "female", label: "Female" },
+  { value: "other", label: "Other" },
+  { value: "prefer_not_to_say", label: "Prefer not to say" },
+];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const authRedirect = await redirectIfAuthenticated(request);
@@ -66,7 +75,7 @@ export async function action({ request }: Route.ActionArgs) {
     );
 
     return redirect(
-      `/verify-otp?email=${encodeURIComponent(email)}&redirectTo=${encodeURIComponent(redirectTo)}&otpSent=${registerResponse.otpSent ? "1" : "0"}&message=${encodeURIComponent(registerResponse.message || "")}`,
+      `/verify-otp?email=${encodeURIComponent(email)}&redirectTo=${encodeURIComponent(redirectTo)}&otpSent=${registerResponse.otpSent ? "1" : "0"}&message=${encodeURIComponent(registerResponse.message || "")}&from=register`,
     );
   } catch (error) {
     if (error instanceof AuthApiError) {
@@ -136,11 +145,11 @@ export default function RegisterPage() {
 
   return (
     <AuthPageShell
-      contentClassName="w-full max-w-sm pb-2 pt-10 lg:pb-2 lg:pt-11"
+      contentClassName="w-full max-w-sm pb-2 pt-10 lg:pb-2 lg:pt-2"
       rightPanelContentClassName="text-[36px] font-medium text-[#111827]"
       showRightPanelOverlay={false}
     >
-      <div className="mt-2 space-y-3 lg:mt-3 lg:space-y-4 xl:mt-6 xl:space-y-5 2xl:mt-[73px] 2xl:space-y-[30px]">
+      <div className="mt-2 space-y-3 lg:mt-3 lg:space-y-4 xl:mt-6 xl:space-y-5 2xl:mt-16 2xl:space-y-6">
         <div className="space-y-3 lg:space-y-4 xl:space-y-5 2xl:space-y-7">
           <img
             src="/logofullcolor.svg"
@@ -158,9 +167,10 @@ export default function RegisterPage() {
           </header>
 
           <div className="flex h-10 items-center gap-2 overflow-hidden rounded-md border border-[#E8E8E8] bg-transparent p-1">
-            <button
+            <Button
               type="button"
               onClick={() => setParticipation("member")}
+              variant="ghost"
               className={`flex-1 rounded-sm px-3 py-1.5 text-sm font-medium leading-5 transition-colors ${
                 participation === "member"
                   ? "bg-[#2F6FE4] text-white shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
@@ -168,14 +178,15 @@ export default function RegisterPage() {
               }`}
             >
               Member
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               disabled
+              variant="ghost"
               className="flex-1 cursor-not-allowed rounded-sm px-3 py-1.5 text-sm font-medium leading-5 text-[#62748E] opacity-60"
             >
               Partner
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -197,41 +208,90 @@ export default function RegisterPage() {
             <input type="hidden" name="redirectTo" value={redirectTo} />
 
             <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-              <InputField
-                id="firstName"
-                name="firstName"
-                label="First name"
-                icon={UserRound}
-                value={firstName}
-                onChange={(event) => setFirstName(event.target.value)}
-                placeholder="Socheata"
-                error={actionData?.errors?.firstName}
-              />
+              <div className="space-y-2">
+                <Label
+                  htmlFor="firstName"
+                  className="block text-[13px] font-semibold leading-[19.5px] text-[#364153]"
+                >
+                  First name
+                </Label>
+                <div className="relative">
+                  <UserRound
+                    size={14}
+                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#D1D5DC]"
+                  />
+                  <Input
+                    id="firstName"
+                    name="firstName"
+                    value={firstName}
+                    onChange={(event) => setFirstName(event.target.value)}
+                    placeholder="Socheata"
+                    className="h-11 rounded-lg border-transparent bg-[#F8FAFC] py-2 pl-9 pr-3 text-[12.25px] font-medium text-[#1E293B] placeholder:text-[#C8D6E5] focus-visible:ring-[#2F6FE4]/30"
+                  />
+                </div>
+                {actionData?.errors?.firstName ? (
+                  <p className="text-xs text-red-500">
+                    {actionData.errors.firstName}
+                  </p>
+                ) : null}
+              </div>
 
-              <InputField
-                id="lastName"
-                name="lastName"
-                label="Last name"
-                icon={UserRound}
-                value={lastName}
-                onChange={(event) => setLastName(event.target.value)}
-                placeholder="Mean"
-                error={actionData?.errors?.lastName}
-              />
+              <div className="space-y-2">
+                <Label
+                  htmlFor="lastName"
+                  className="block text-[13px] font-semibold leading-[19.5px] text-[#364153]"
+                >
+                  Last name
+                </Label>
+                <div className="relative">
+                  <UserRound
+                    size={14}
+                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#D1D5DC]"
+                  />
+                  <Input
+                    id="lastName"
+                    name="lastName"
+                    value={lastName}
+                    onChange={(event) => setLastName(event.target.value)}
+                    placeholder="Mean"
+                    className="h-11 rounded-lg border-transparent bg-[#F8FAFC] py-2 pl-9 pr-3 text-[12.25px] font-medium text-[#1E293B] placeholder:text-[#C8D6E5] focus-visible:ring-[#2F6FE4]/30"
+                  />
+                </div>
+                {actionData?.errors?.lastName ? (
+                  <p className="text-xs text-red-500">
+                    {actionData.errors.lastName}
+                  </p>
+                ) : null}
+              </div>
             </div>
 
-            <InputField
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              label="Email address"
-              icon={Mail}
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="name@example.com"
-              error={actionData?.errors?.email}
-            />
+            <div className="space-y-2">
+              <Label
+                htmlFor="email"
+                className="block text-[13px] font-semibold leading-[19.5px] text-[#364153]"
+              >
+                Email address
+              </Label>
+              <div className="relative">
+                <Mail
+                  size={14}
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#D1D5DC]"
+                />
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="name@example.com"
+                  className="h-11 rounded-lg border-transparent bg-[#F8FAFC] py-2 pl-9 pr-3 text-[12.25px] font-medium text-[#1E293B] placeholder:text-[#C8D6E5] focus-visible:ring-[#2F6FE4]/30"
+                />
+              </div>
+              {actionData?.errors?.email ? (
+                <p className="text-xs text-red-500">{actionData.errors.email}</p>
+              ) : null}
+            </div>
 
             <PasswordField
               id="password"
@@ -246,55 +306,88 @@ export default function RegisterPage() {
             />
 
             <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-              <SelectField
-                id="gender"
-                name="gender"
-                label="Gender"
-                icon={User}
-                value={gender}
-                onChange={(event) => setGender(event.target.value)}
-                error={actionData?.errors?.gender}
-              >
-                <option value="">Select gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-                <option value="prefer_not_to_say">Prefer not to say</option>
-              </SelectField>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="gender-trigger"
+                  className="block text-[13px] font-semibold leading-[19.5px] text-[#364153]"
+                >
+                  Gender
+                </Label>
+                <div className="relative">
+                  <User
+                    size={14}
+                    className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-[#D1D5DC]"
+                  />
+                  <SingleSelectDropdown
+                    id="gender"
+                    name="gender"
+                    value={gender}
+                    onValueChange={setGender}
+                    options={genderOptions}
+                    placeholder="Select gender"
+                    menuLabel="Gender"
+                    triggerClassName="pl-9 pr-9"
+                  />
+                </div>
+                {actionData?.errors?.gender ? (
+                  <p className="text-xs text-red-500">{actionData.errors.gender}</p>
+                ) : null}
+              </div>
 
-              <InputField
-                id="occupation"
-                name="occupation"
-                label="Occupation"
-                icon={Briefcase}
-                value={occupation}
-                onChange={(event) => setOccupation(event.target.value)}
-                placeholder="Strategist"
-                error={actionData?.errors?.occupation}
-              />
+              <div className="space-y-2">
+                <Label
+                  htmlFor="occupation"
+                  className="block text-[13px] font-semibold leading-[19.5px] text-[#364153]"
+                >
+                  Occupation
+                </Label>
+                <div className="relative">
+                  <Briefcase
+                    size={14}
+                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#D1D5DC]"
+                  />
+                  <Input
+                    id="occupation"
+                    name="occupation"
+                    value={occupation}
+                    onChange={(event) => setOccupation(event.target.value)}
+                    placeholder="Strategist"
+                    className="h-11 rounded-lg border-transparent bg-[#F8FAFC] py-2 pl-9 pr-3 text-[12.25px] font-medium text-[#1E293B] placeholder:text-[#C8D6E5] focus-visible:ring-[#2F6FE4]/30"
+                  />
+                </div>
+                {actionData?.errors?.occupation ? (
+                  <p className="text-xs text-red-500">
+                    {actionData.errors.occupation}
+                  </p>
+                ) : null}
+              </div>
             </div>
 
-            <label className="group flex items-center gap-2.5 text-[13px] font-medium leading-[19.5px] text-[#6A7282]">
-              <span className="relative inline-flex h-[17.5px] w-[17.5px] items-center justify-center">
-                <input
-                  type="checkbox"
-                  name="agreeToDirectory"
-                  checked={agreeToDirectory}
-                  onChange={(event) => setAgreeToDirectory(event.target.checked)}
-                  className="peer h-[17.5px] w-[17.5px] appearance-none rounded-full border border-[#E5E7EB] bg-[#F9FAFB] checked:border-[#2F6FE4] checked:bg-[#2F6FE4]"
-                />
-                <Check
-                  size={11}
-                  strokeWidth={3}
-                  className="pointer-events-none absolute text-white opacity-0 transition-opacity peer-checked:opacity-100"
-                />
-              </span>
+            <input
+              type="hidden"
+              name="agreeToDirectory"
+              value={agreeToDirectory ? "1" : "0"}
+            />
+            <Label className="group flex items-center gap-2.5 text-[13px] font-medium leading-[19.5px] text-[#6A7282]">
+              <Checkbox
+                checked={agreeToDirectory}
+                onCheckedChange={(checked) => setAgreeToDirectory(checked === true)}
+                className="h-[17.5px] w-[17.5px] rounded-full border-[#E5E7EB] bg-[#F9FAFB] data-[state=checked]:border-[#2F6FE4] data-[state=checked]:bg-[#2F6FE4]"
+              />
               I agree publicly to appear on the member directory
-            </label>
+            </Label>
 
-            <PrimaryButton type="submit" disabled={!isCreateEnabled}>
+            <Button
+              type="submit"
+              disabled={!isCreateEnabled}
+              className={`h-10 w-full rounded-lg text-sm font-medium transition-colors ${
+                isCreateEnabled
+                  ? "bg-[#2F6FE4] text-white hover:bg-[#1F62DF]"
+                  : "cursor-not-allowed bg-[#F1F5F9] text-[#0F172B] opacity-50"
+              }`}
+            >
               Create account
-            </PrimaryButton>
+            </Button>
           </Form>
         </div>
 

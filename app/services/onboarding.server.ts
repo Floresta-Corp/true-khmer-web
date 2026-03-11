@@ -16,12 +16,6 @@ export type OnboardingOption = {
   name: string;
 };
 
-export type OnboardingContributionOption = OnboardingOption & {
-  slug: string;
-  iconKey: string;
-  description: string;
-};
-
 export type OnboardingInterestOption = OnboardingOption & {
   slug: string;
   icon: string;
@@ -40,8 +34,18 @@ export type SavedOnboardingInterests = {
 };
 
 export type SavedOnboardingContributions = {
-  contributionIds: string[];
+  contributionKeys: string[];
 };
+
+const STEP3_CONTRIBUTION_KEYS = [
+  "community_member",
+  "find_volunteers",
+  "launch_project",
+  "organize_event",
+] as const;
+
+type Step3ContributionKey = (typeof STEP3_CONTRIBUTION_KEYS)[number];
+type Step3ContributionPayload = Record<Step3ContributionKey, boolean>;
 
 type BackendOnboardingProfile = {
   countryId: string | null;
@@ -63,7 +67,7 @@ type BackendOnboardingState = {
   user: BackendOnboardingUser;
   profile: BackendOnboardingProfile | null;
   selectedInterestIds: string[];
-  selectedContributionIds: string[];
+  selectedContributionKeys: string[];
   progress: {
     totalPoints: number;
     tier: {
@@ -88,15 +92,12 @@ type RawOptionItem = {
   title?: unknown;
   slug?: unknown;
   icon?: unknown;
-  iconKey?: unknown;
-  description?: unknown;
 };
 
 type OptionContainer = {
   countries?: RawOptionItem[];
   cities?: RawOptionItem[];
   interests?: RawOptionItem[];
-  contributions?: RawOptionItem[];
   options?: RawOptionItem[];
   items?: RawOptionItem[];
   data?: RawOptionItem[] | Record<string, unknown>;
@@ -138,10 +139,6 @@ const ONBOARDING_STATE_CACHE_MAX_ENTRIES = 2000;
 
 const countriesCache = new Map<string, CacheEntry<OnboardingOption>>();
 const interestsCache = new Map<string, CacheEntry<OnboardingInterestOption>>();
-const contributionsCache = new Map<
-  string,
-  CacheEntry<OnboardingContributionOption>
->();
 const citiesCache = new Map<string, CacheEntry<OnboardingOption>>();
 const onboardingStateCache = new Map<string, OnboardingStateCacheEntry>();
 let nextCacheSweepAt = Date.now() + CACHE_SWEEP_INTERVAL_MS;
@@ -206,8 +203,13 @@ function parseOnboardingStateResponse(
     throw new Error(`${context}: selectedInterestIds must be an array`);
   }
 
-  if (!Array.isArray(state.selectedContributionIds)) {
-    throw new Error(`${context}: selectedContributionIds must be an array`);
+  if (!Array.isArray(state.selectedContributionKeys)) {
+    throw new Error(`${context}: selectedContributionKeys must be an array`);
+  }
+  if (state.selectedContributionKeys.some((item) => typeof item !== "string")) {
+    throw new Error(
+      `${context}: selectedContributionKeys must contain only strings`,
+    );
   }
 
   if (
@@ -247,7 +249,6 @@ function maybeSweepExpiredCaches(now = Date.now()) {
 
   sweepExpiredEntries(countriesCache, now);
   sweepExpiredEntries(interestsCache, now);
-  sweepExpiredEntries(contributionsCache, now);
   sweepExpiredEntries(citiesCache, now);
   sweepExpiredEntries(onboardingStateCache, now);
 
@@ -331,7 +332,7 @@ function setCachedOnboardingState(key: string, state: OnboardingState) {
 
 function extractOptionItems(
   payload: OptionContainer,
-  key: "countries" | "cities" | "interests" | "contributions",
+  key: "countries" | "cities" | "interests",
 ) {
   const directCandidate =
     payload[key] ?? payload.options ?? payload.items ?? payload.data;
@@ -349,7 +350,7 @@ function extractOptionItems(
 
 function normalizeOptions(
   payload: OptionContainer,
-  key: "countries" | "cities" | "interests" | "contributions",
+  key: "countries" | "cities" | "interests",
 ): OnboardingOption[] {
   const items = extractOptionItems(payload, key);
 
@@ -367,39 +368,6 @@ function normalizeOptions(
       return acc;
     }
     acc.push({ id, name: nameCandidate });
-    return acc;
-  }, []);
-}
-
-function normalizeContributions(
-  payload: OptionContainer,
-): OnboardingContributionOption[] {
-  const items = extractOptionItems(payload, "contributions");
-
-  return items.reduce<OnboardingContributionOption[]>((acc, item) => {
-    const id = typeof item?.id === "string" ? item.id : "";
-    const nameCandidate =
-      typeof item?.name === "string"
-        ? item.name
-        : typeof item?.label === "string"
-          ? item.label
-          : typeof item?.title === "string"
-            ? item.title
-            : "";
-
-    if (!id || !nameCandidate) {
-      return acc;
-    }
-
-    acc.push({
-      id,
-      name: nameCandidate,
-      slug: typeof item?.slug === "string" ? item.slug : "",
-      iconKey: typeof item?.iconKey === "string" ? item.iconKey : "",
-      description:
-        typeof item?.description === "string" ? item.description : "",
-    });
-
     return acc;
   }, []);
 }
@@ -461,7 +429,7 @@ export function readSavedContributions(
   raw: BackendOnboardingState,
 ): SavedOnboardingContributions {
   return {
-    contributionIds: raw.selectedContributionIds,
+    contributionKeys: raw.selectedContributionKeys,
   };
 }
 
@@ -477,6 +445,24 @@ export function normalizeOnboardingState(
   };
 }
 
+function buildStep3ContributionPayload(
+  contributionKeys: string[],
+): Step3ContributionPayload {
+  const selectedKeys = new Set(contributionKeys);
+  return STEP3_CONTRIBUTION_KEYS.reduce<Step3ContributionPayload>(
+    (payload, key) => {
+      payload[key] = selectedKeys.has(key);
+      return payload;
+    },
+    {
+      community_member: false,
+      find_volunteers: false,
+      launch_project: false,
+      organize_event: false,
+    },
+  );
+}
+
 function updateStateCacheFromResponse(
   key: string,
   payload: unknown,
@@ -488,7 +474,7 @@ function updateStateCacheFromResponse(
 }
 
 export function onboardingPathForStep(step: number) {
-  if (step <= 1) return "/onboarding/profile";
+  if (step <= 1) return "/onboarding";
   if (step === 2) return "/onboarding/interest";
   if (step === 3) return "/onboarding/contribution";
   return "/onboarding/tier";
@@ -646,28 +632,6 @@ export async function getInterests(request: Request) {
   };
 }
 
-export async function getContributions(request: Request) {
-  const key = await userCacheKey(request);
-  const cached = getCachedOptions(contributionsCache, key);
-
-  if (cached) {
-    return { data: cached };
-  }
-
-  const result = await apiRequestWithSession<OptionContainer>(
-    request,
-    "/onboarding/contributions",
-  );
-  const data = normalizeContributions(result.data);
-
-  setCachedOptions(contributionsCache, key, data);
-
-  return {
-    data,
-    setCookie: result.setCookie,
-  };
-}
-
 export async function saveStep1Profile(
   request: Request,
   payload: {
@@ -721,15 +685,16 @@ export async function saveStep2Interests(
 
 export async function saveStep3Contributions(
   request: Request,
-  contributionIds: string[],
+  contributionKeys: string[],
 ) {
   const key = await userCacheKey(request);
+  const payload = buildStep3ContributionPayload(contributionKeys);
   const result = await apiRequestWithSession<OnboardingStateResponse>(
     request,
     "/onboarding/step-3-contributions",
     {
       method: "PUT",
-      body: { contributionIds },
+      body: payload,
     },
   );
 

@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Link } from "react-router";
 import { cn } from "~/lib/utils";
+import { Button } from "~/components/ui/button";
 
 type OnboardingBackContinueActionsProps = {
   backTo: string;
@@ -30,29 +31,33 @@ export function OnboardingBackContinueActions({
         containerClassName,
       )}
     >
-      <Link
-        to={backTo}
+      <Button
+        asChild
+        variant="outline"
         className={cn(
-          "inline-flex h-10 items-center gap-1.5 rounded-lg border border-[#CBD5E1] bg-white px-6 text-sm font-medium text-[#0F172B] shadow-[0px_1px_2px_rgba(0,0,0,0.05)]",
+          "h-10 gap-1.5 rounded-lg border-[#CBD5E1] bg-white px-6 text-sm font-medium text-[#0F172B] shadow-[0px_1px_2px_rgba(0,0,0,0.05)] hover:bg-[#F8FAFC]",
           backButtonClassName,
         )}
       >
-        <ArrowLeft size={20} />
-        {backLabel}
-      </Link>
+        <Link to={backTo}>
+          <ArrowLeft size={20} />
+          {backLabel}
+        </Link>
+      </Button>
 
-      <button
+      <Button
         type="submit"
+        variant="default"
         disabled={continueDisabled}
         className={cn(
-          "inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white",
+          "h-10 gap-1.5 rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white hover:bg-[#1F62DF]",
           continueDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
           continueButtonClassName,
         )}
       >
         {continueLabel}
         {showContinueIcon ? <ArrowRight size={20} /> : null}
-      </button>
+      </Button>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { cn } from "~/lib/utils";
+import { Separator } from "~/components/ui/separator";
 
 type FormDividerProps = {
   label?: string;
@@ -15,7 +16,11 @@ export function FormDivider({
 }: FormDividerProps) {
   return (
     <div className={cn("flex items-center gap-3.5", className)}>
-      <div className={cn("h-px flex-1 bg-[#E8E8E8]", lineClassName)} />
+      <Separator
+        decorative
+        orientation="horizontal"
+        className={cn("h-px flex-1 bg-[#E8E8E8]", lineClassName)}
+      />
       <span
         className={cn(
           "text-[10px] font-semibold uppercase tracking-[1px] text-[#99A1AF]",
@@ -24,7 +29,11 @@ export function FormDivider({
       >
         {label}
       </span>
-      <div className={cn("h-px flex-1 bg-[#E8E8E8]", lineClassName)} />
+      <Separator
+        decorative
+        orientation="horizontal"
+        className={cn("h-px flex-1 bg-[#E8E8E8]", lineClassName)}
+      />
     </div>
   );
 }

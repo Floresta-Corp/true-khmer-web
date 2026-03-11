@@ -28,7 +28,7 @@ export function AuthPageShell({
         <section className="relative flex h-full w-full justify-center overflow-y-auto bg-[#FFFFFF] px-5 py-3 lg:w-1/2 lg:px-6 lg:py-3 xl:px-7 xl:py-4">
           <Link
             to={backTo}
-            className="absolute left-5 top-5 z-10 inline-flex items-center gap-[7px] text-[11px] font-semibold uppercase tracking-[1.1px] text-[#99A1AF] transition-colors hover:text-[#637081] lg:left-7 lg:top-7"
+            className="absolute left-5 top-5 z-10 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[1.1px] text-[#99A1AF] transition-colors hover:text-[#637081] lg:left-7 lg:top-7"
           >
             <span className="flex h-7 w-7 items-center justify-center rounded-full border border-[#F3F4F6]">
               <ArrowLeft size={12} />
@@ -38,7 +38,7 @@ export function AuthPageShell({
 
           <div
             className={cn(
-              "w-full max-w-sm pb-2 pt-10 lg:pb-2 lg:pt-11",
+              "tk-fade-up w-full max-w-sm pb-2 pt-10 lg:pb-2 lg:pt-11",
               contentClassName,
             )}
           >

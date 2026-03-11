@@ -16,10 +16,11 @@ import { redirectIfAuthenticated } from "~/lib/server/route-guards.server";
 import { FormDivider } from "~/components/auth/form-divider";
 import { FormError } from "~/components/auth/form-error";
 import { GoogleButton } from "~/components/auth/google-button";
-import { InputField } from "~/components/auth/input-field";
 import { AuthPageShell } from "~/components/auth/page-shell";
 import { PasswordField } from "~/components/auth/password-field";
-import { PrimaryButton } from "~/components/auth/primary-button";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
 import { sanitizeRedirectPath } from "~/lib/redirects";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -67,7 +68,7 @@ export async function action({ request }: Route.ActionArgs) {
         const otpSent = details?.otpSent === true ? "1" : "0";
 
         return redirect(
-          `/verify-otp?email=${encodeURIComponent(email)}&redirectTo=${encodeURIComponent(redirectTo)}&otpSent=${otpSent}&message=${encodeURIComponent(message)}`,
+          `/verify-otp?email=${encodeURIComponent(email)}&redirectTo=${encodeURIComponent(redirectTo)}&otpSent=${otpSent}&message=${encodeURIComponent(message)}&from=login`,
         );
       }
       if (error.status === 400) {
@@ -131,18 +132,33 @@ export default function LoginPage() {
         <Form method="post" className="space-y-6">
           <input type="hidden" name="redirectTo" value={redirectTo} />
 
-          <InputField
-            id="email"
-            name="email"
-            type="email"
-            label="Email address"
-            icon={Mail}
-            autoComplete="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="name@example.com"
-            error={actionData?.errors?.email}
-          />
+          <div className="space-y-2">
+            <Label
+              htmlFor="email"
+              className="block text-[13px] font-semibold leading-[19.5px] text-[#364153]"
+            >
+              Email address
+            </Label>
+            <div className="relative">
+              <Mail
+                size={14}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#D1D5DC]"
+              />
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="name@example.com"
+                className="h-11 rounded-lg border-transparent bg-[#F8FAFC] py-2 pl-9 pr-3 text-[12.25px] font-medium text-[#1E293B] placeholder:text-[#C8D6E5] focus-visible:ring-[#2F6FE4]/30"
+              />
+            </div>
+            {actionData?.errors?.email ? (
+              <p className="text-xs text-red-500">{actionData.errors.email}</p>
+            ) : null}
+          </div>
 
           <div className="space-y-2">
             <PasswordField
@@ -158,18 +174,27 @@ export default function LoginPage() {
             />
 
             <div className="flex justify-end">
-              <button
+              <Button
                 type="button"
-                className="text-[13px] font-semibold leading-4 text-[#2F6FE4]"
+                variant="link"
+                className="h-auto px-0 text-[13px] font-semibold leading-4 text-[#2F6FE4] hover:text-[#1F62DF]"
               >
                 Forgot password?
-              </button>
+              </Button>
             </div>
           </div>
 
-          <PrimaryButton type="submit" disabled={!isSignInEnabled}>
+          <Button
+            type="submit"
+            disabled={!isSignInEnabled}
+            className={`h-10 w-full rounded-lg text-sm font-medium transition-colors ${
+              isSignInEnabled
+                ? "bg-[#2F6FE4] text-white hover:bg-[#1F62DF]"
+                : "cursor-not-allowed bg-[#F1F5F9] text-[#0F172B] opacity-50"
+            }`}
+          >
             Sign in
-          </PrimaryButton>
+          </Button>
         </Form>
 
         <p className="text-center text-sm font-medium leading-5 text-[#6A7282]">

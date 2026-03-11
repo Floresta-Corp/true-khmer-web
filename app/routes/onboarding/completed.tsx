@@ -27,7 +27,7 @@ export default function OnboardingCompletedPage() {
         <OnboardingRomdoulCorners />
 
         <section className="relative z-10 flex w-full max-w-5xl flex-col items-center gap-8 text-center">
-          <div className="space-y-2">
+          <div className="tk-fade-up space-y-2">
             <h1 className="leading-[1.08]">
               <span className="block text-[44px] font-normal text-[#1D4DB4] sm:text-[52px] lg:text-[64px]">
                 You&apos;re in.
@@ -41,14 +41,14 @@ export default function OnboardingCompletedPage() {
             </h1>
           </div>
 
-          <p className="max-w-2xl text-xl font-medium leading-8 text-[#667085]">
+          <p className="tk-fade-up-1 max-w-2xl text-xl font-medium leading-8 text-[#667085]">
             Your profile is live and you&apos;ve already earned{" "}
             <span className="font-bold text-[#2F6FE4]">10 points</span> for
             setting up. Your journey as a{" "}
             <span className="font-bold">Neary</span> begins now.
           </p>
 
-          <div className="w-full max-w-lg rounded-2xl border border-[#2F6FE4] bg-[#2894FA1A] px-5 py-4">
+          <div className="tk-fade-up-2 w-full max-w-lg rounded-2xl border border-[#2F6FE4] bg-[#2894FA1A] px-5 py-4">
             <div className="flex items-center gap-3">
               <div className="flex h-6 w-6 shrink-0 items-center justify-center text-[#2F6FE4]">
                 <Sparkles size={18} />
@@ -76,13 +76,13 @@ export default function OnboardingCompletedPage() {
             </div>
           </div>
 
-          <p className="max-w-md text-sm font-normal leading-5 text-[#667085]">
+          <p className="tk-fade-up-2 max-w-md text-sm font-normal leading-5 text-[#667085]">
             Your suggested first actions are waiting whenever you&apos;re ready.
           </p>
 
           <Link
             to="/dashboard"
-            className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white"
+            className="tk-fade-up-3 inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white"
           >
             Enter my dashboard
             <ArrowRight size={20} />

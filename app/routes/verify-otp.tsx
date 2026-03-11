@@ -21,8 +21,13 @@ import {
 } from "~/services/onboarding.server";
 import { redirectIfAuthenticated } from "~/lib/server/route-guards.server";
 import { InlineMessage } from "~/components/auth/inline-message";
-import { OtpCodeInput } from "~/components/auth/otp-code-input";
-import { PrimaryButton } from "~/components/auth/primary-button";
+import { Button } from "~/components/ui/button";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "~/components/auth/input-otp";
+import { Label } from "~/components/ui/label";
 import { sanitizeRedirectPath } from "~/lib/redirects";
 
 export async function loader({ request }: { request: Request }) {
@@ -171,8 +176,10 @@ export default function VerifyOtpPage() {
   const redirectTo = sanitizeRedirectPath(searchParams.get("redirectTo"));
   const infoMessage = searchParams.get("message") || "";
   const hasInitialOtp = searchParams.get("otpSent") !== "0";
+  const backTo = searchParams.get("from") === "login" ? "/login" : "/register";
 
   const [otp, setOtp] = useState("");
+  const otpSlots = [0, 1, 2, 3, 4, 5];
   const [otpRemainingSeconds, setOtpRemainingSeconds] = useState(
     hasInitialOtp ? OTP_EXPIRY_SECONDS : 0,
   );
@@ -207,7 +214,7 @@ export default function VerifyOtpPage() {
   return (
     <div className="relative min-h-screen bg-white">
       <Link
-        to="/register"
+        to={backTo}
         className="absolute left-7 top-7 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 transition hover:text-slate-600"
       >
         <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white">
@@ -270,7 +277,35 @@ export default function VerifyOtpPage() {
             <input type="hidden" name="email" value={email} />
             <input type="hidden" name="redirectTo" value={redirectTo} />
 
-            <OtpCodeInput value={otp} onChange={setOtp} />
+            <div className="space-y-2">
+              <Label htmlFor="otp" className="sr-only">
+                OTP code
+              </Label>
+              <InputOTP
+                id="otp"
+                name="otp"
+                maxLength={6}
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                value={otp}
+                onChange={(nextValue) => {
+                  const sanitized = nextValue.replace(/\D/g, "").slice(0, 6);
+                  setOtp(sanitized);
+                }}
+                containerClassName="w-full justify-center"
+                className="w-full"
+              >
+                <InputOTPGroup className="w-full justify-between gap-2 border-none bg-transparent p-0">
+                  {otpSlots.map((index) => (
+                    <InputOTPSlot
+                      key={`otp-${index}`}
+                      index={index}
+                      className="h-12 w-12 rounded-full border border-blue-100 text-sm text-slate-700 first:rounded-full first:border last:rounded-full data-[active=true]:border-blue-500 data-[active=true]:text-blue-600 data-[active=true]:ring-0 data-[active=true]:shadow-none data-[active=true]:aria-invalid:ring-0"
+                    />
+                  ))}
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
 
             <div className="space-y-1">
               <InlineMessage
@@ -284,13 +319,13 @@ export default function VerifyOtpPage() {
               />
             </div>
 
-            <PrimaryButton
+            <Button
               type="submit"
               disabled={!canVerify}
               className="h-10 w-full rounded-lg bg-slate-200 px-6 text-sm font-medium text-slate-500 transition enabled:cursor-pointer enabled:bg-blue-600 enabled:text-white enabled:hover:bg-blue-700 disabled:opacity-70"
             >
               {isVerifying ? "Verifying..." : "Verify"}
-            </PrimaryButton>
+            </Button>
           </Form>
 
           <InlineMessage
@@ -307,17 +342,18 @@ export default function VerifyOtpPage() {
 
             <p className="text-base text-slate-500">
               Didn&apos;t receive any code?{" "}
-              <button
+              <Button
                 type="submit"
                 disabled={!email || isResending || resendCooldownSeconds > 0}
-                className="font-medium text-blue-600 transition hover:text-blue-700 disabled:cursor-not-allowed disabled:text-slate-400"
+                variant="link"
+                className="h-auto px-0 font-medium text-blue-600 transition hover:text-blue-700 disabled:text-slate-400"
               >
                 {isResending
                   ? "Sending..."
                   : resendCooldownSeconds > 0
                     ? `Resend in ${formatTimer(resendCooldownSeconds)}`
                     : "Resend Code"}
-              </button>
+              </Button>
             </p>
           </Form>
         </section>

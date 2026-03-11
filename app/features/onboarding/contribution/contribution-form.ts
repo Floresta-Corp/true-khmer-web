@@ -1,16 +1,22 @@
+import {
+  maxContributionSelections,
+  onboardingContributionOptionKeys,
+} from "./contribution-options";
+
 export type ParsedContributionFormInput = {
-  selectedIds: string[];
-  initialSelectedIds: string[];
+  selectedKeys: string[];
+  initialSelectedKeys: string[];
 };
 
 export type ContributionFormErrors = {
   form?: string;
 };
 
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const ALLOWED_CONTRIBUTION_KEYS = new Set<string>(
+  onboardingContributionOptionKeys,
+);
 
-function normalizeContributionIds(values: string[]) {
+function normalizeContributionKeys(values: string[]) {
   return [...new Set(values.map((value) => value.trim()).filter(Boolean))].sort();
 }
 
@@ -25,34 +31,40 @@ export function parseContributionForm(
   const selectedValues = formData.getAll("selected").map(String);
   const initialSelectedValues = formData.getAll("initialSelected").map(String);
 
-  const normalizedSelected =
+  const normalizedSelectedKeys =
     selectedValues.length > 0
-      ? normalizeContributionIds(selectedValues)
-      : normalizeContributionIds(
+      ? normalizeContributionKeys(selectedValues)
+      : normalizeContributionKeys(
           parseLegacyCommaValue(String(formData.get("selected") || "")),
         );
 
-  const normalizedInitialSelected =
+  const normalizedInitialSelectedKeys =
     initialSelectedValues.length > 0
-      ? normalizeContributionIds(initialSelectedValues)
-      : normalizeContributionIds(
+      ? normalizeContributionKeys(initialSelectedValues)
+      : normalizeContributionKeys(
           parseLegacyCommaValue(String(formData.get("initialSelected") || "")),
         );
 
   return {
-    selectedIds: normalizedSelected,
-    initialSelectedIds: normalizedInitialSelected,
+    selectedKeys: normalizedSelectedKeys,
+    initialSelectedKeys: normalizedInitialSelectedKeys,
   };
 }
 
 export function validateContributionInput(
-  selectedIds: string[],
+  selectedKeys: string[],
 ): ContributionFormErrors {
-  if (selectedIds.length === 0) {
+  if (selectedKeys.length === 0) {
     return { form: "Select at least one contribution role." };
   }
 
-  if (selectedIds.some((id) => !UUID_REGEX.test(id))) {
+  if (selectedKeys.length > maxContributionSelections) {
+    return {
+      form: `You can select up to ${maxContributionSelections} contribution roles.`,
+    };
+  }
+
+  if (selectedKeys.some((key) => !ALLOWED_CONTRIBUTION_KEYS.has(key))) {
     return {
       form: "Contribution options are out of sync. Please refresh and try again.",
     };
@@ -64,8 +76,8 @@ export function validateContributionInput(
 export function isContributionInputUnchanged(
   input: ParsedContributionFormInput,
 ) {
-  if (input.selectedIds.length !== input.initialSelectedIds.length) return false;
-  return input.selectedIds.every((value, index) => {
-    return value === input.initialSelectedIds[index];
+  if (input.selectedKeys.length !== input.initialSelectedKeys.length) return false;
+  return input.selectedKeys.every((value, index) => {
+    return value === input.initialSelectedKeys[index];
   });
 }

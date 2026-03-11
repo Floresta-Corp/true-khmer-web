@@ -1,5 +1,7 @@
 import { Camera } from "lucide-react";
 import { useRef } from "react";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 
 type ProfilePhotoUploadProps = {
   avatarPreviewUrl: string;
@@ -38,7 +40,7 @@ export function ProfilePhotoUpload({
             </div>
           )}
 
-          <input
+          <Input
             ref={fileInputRef}
             type="file"
             accept="image/jpeg,image/png,image/webp"
@@ -48,14 +50,16 @@ export function ProfilePhotoUpload({
             }
           />
 
-          <button
+          <Button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="absolute bottom-0 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-[#E5E7EB] bg-white text-[#4A5565]"
+            variant="outline"
+            size="icon"
+            className="absolute bottom-0 right-0 h-8 w-8 rounded-full border-2 border-[#E5E7EB] bg-white text-[#4A5565] hover:bg-slate-50"
             aria-label="Upload profile photo"
           >
             <Camera size={16} />
-          </button>
+          </Button>
         </div>
 
         <div className="flex-1 space-y-1">

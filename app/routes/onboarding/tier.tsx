@@ -74,16 +74,22 @@ export default function OnboardingTierPage() {
             descriptionClassName="text-sm font-normal leading-6 text-[#98A2B3]"
           />
 
-          <OnboardingCurrentTierCard />
-          <OnboardingTierPathCard />
+          <div className="tk-fade-up-1">
+            <OnboardingCurrentTierCard />
+          </div>
+          <div className="tk-fade-up-2">
+            <OnboardingTierPathCard />
+          </div>
 
-          <OnboardingFormError message={actionData?.errors?.form} />
+          <div className="tk-fade-up-2">
+            <OnboardingFormError message={actionData?.errors?.form} />
+          </div>
 
           <OnboardingBackContinueActions
             backTo="/onboarding/contribution"
             continueLabel="Complete your setup"
             showContinueIcon={false}
-            containerClassName="flex w-full flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-start sm:justify-between"
+            containerClassName="tk-fade-up-3 flex w-full flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-start sm:justify-between"
             backButtonClassName="justify-center sm:justify-start"
             continueButtonClassName="justify-center"
           />

@@ -15,7 +15,7 @@ export function OnboardingHeader({
 }: OnboardingHeaderProps) {
   const renderRight = () => {
     if (titlePosition === "right") {
-      return <span className="text-lg font-medium leading-7 text-[#737373]">{title}</span>;
+      return <span className="text-base font-medium leading-7 text-[#737373]">{title}</span>;
     }
 
     if (rightText) {

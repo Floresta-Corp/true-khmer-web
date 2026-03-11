@@ -167,21 +167,25 @@ export default function OnboardingInterestPage() {
             interests={interests}
             selectedIds={selected}
             onToggle={toggleInterest}
+            className="tk-fade-up-1"
           />
 
           {interestsError ? (
-            <p className="text-sm text-red-500">{interestsError}</p>
+            <p className="tk-fade-up-1 text-sm text-red-500">{interestsError}</p>
           ) : null}
 
-          <p className="self-stretch text-sm font-normal italic leading-5 text-[#99A1AF]">
+          <p className="tk-fade-up-2 self-stretch text-sm font-normal italic leading-5 text-[#99A1AF]">
             Pick at least 2. You can update these anytime later.
           </p>
 
-          <OnboardingFormError message={actionData?.errors?.form} />
+          <div className="tk-fade-up-2">
+            <OnboardingFormError message={actionData?.errors?.form} />
+          </div>
 
           <OnboardingBackContinueActions
             backTo="/onboarding/profile"
             continueDisabled={!canContinue}
+            containerClassName="tk-fade-up-3"
           />
         </Form>
       </main>

@@ -23,7 +23,6 @@ import {
 } from "~/services/onboarding.server";
 import { AuthSessionExpiredError } from "~/lib/server/api-client.server";
 import { destroySession, getSession } from "~/lib/server/session.server";
-import { SearchableSelect } from "~/components/onboarding/searchable-select";
 import { requireOnboardingIncomplete } from "~/lib/server/route-guards.server";
 import {
   type ProfileFormErrors,
@@ -38,6 +37,9 @@ import {
 import { useOnboardingProfileLayoutData } from "~/features/onboarding/profile/use-onboarding-profile-layout-data";
 import { useAvatarUpload } from "~/features/onboarding/profile/use-avatar-upload";
 import { handleOnboardingActionError } from "~/features/onboarding/shared/onboarding-action-error.server";
+import { Label } from "~/components/ui/label";
+import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
+import { Textarea } from "~/components/ui/textarea";
 
 type CitiesFetcherData = {
   success: boolean;
@@ -175,6 +177,22 @@ export default function OnboardingProfilePage() {
   const selectedCountryId = profileForm.countryId;
   const selectedCityId = profileForm.cityId;
   const countriesError = loaderData.countriesError;
+  const countryOptions = useMemo(
+    () =>
+      loaderData.countries.map((country) => ({
+        value: country.id,
+        label: country.name,
+      })),
+    [loaderData.countries],
+  );
+  const citySelectOptions = useMemo(
+    () =>
+      cityOptions.map((city) => ({
+        value: city.id,
+        label: city.name,
+      })),
+    [cityOptions],
+  );
 
   useEffect(() => {
     if (initializedCitiesRef.current) return;
@@ -291,7 +309,7 @@ export default function OnboardingProfilePage() {
             descriptionClassName="text-sm font-medium leading-5 text-[#99A1AF]"
           />
 
-          <div className="space-y-6">
+          <div className="tk-fade-up-1 space-y-6">
             <ProfilePhotoUpload
               avatarPreviewUrl={avatarPreviewUrl}
               placeholderInitials={placeholderInitials}
@@ -304,40 +322,70 @@ export default function OnboardingProfilePage() {
 
             <div className="space-y-5">
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <SearchableSelect
-                  label="Country"
-                  options={loaderData.countries}
-                  value={selectedCountryId}
-                  onChange={handleCountryChange}
-                  placeholder="Select country"
-                  allowClear
-                  clearLabel="Select country"
-                  error={actionData?.errors?.countryId}
-                  emptyText="No countries found"
-                />
+                <div className="space-y-3">
+                  <Label
+                    htmlFor="onboarding-country-trigger"
+                    className="text-sm font-bold leading-5 text-[#374151]"
+                  >
+                    Country
+                  </Label>
+                  <SingleSelectDropdown
+                    id="onboarding-country"
+                    value={selectedCountryId}
+                    onValueChange={handleCountryChange}
+                    options={countryOptions}
+                    placeholder="Select country"
+                    searchable
+                    allowClear
+                    clearLabel="Select country"
+                    emptyText="No countries found"
+                    triggerClassName="text-sm font-medium text-[#64748B]"
+                    contentClassName="rounded-xl p-2"
+                  />
+                  {actionData?.errors?.countryId ? (
+                    <p className="text-xs text-red-500">
+                      {actionData.errors.countryId}
+                    </p>
+                  ) : null}
+                </div>
 
-                <SearchableSelect
-                  label="City/State"
-                  options={cityOptions}
-                  value={selectedCityId}
-                  onChange={(nextCityId) =>
-                    setProfileForm((current) => ({
-                      ...current,
-                      cityId: nextCityId,
-                    }))
-                  }
-                  placeholder={
-                    selectedCountryId ? "Select city" : "Select country first"
-                  }
-                  disabled={!selectedCountryId}
-                  loading={citiesFetcher.state === "loading"}
-                  error={actionData?.errors?.cityId}
-                  emptyText={
-                    selectedCountryId
-                      ? "No cities found"
-                      : "Select country first"
-                  }
-                />
+                <div className="space-y-3">
+                  <Label
+                    htmlFor="onboarding-city-trigger"
+                    className="text-sm font-bold leading-5 text-[#374151]"
+                  >
+                    City/State
+                  </Label>
+                  <SingleSelectDropdown
+                    id="onboarding-city"
+                    value={selectedCityId}
+                    onValueChange={(nextCityId) =>
+                      setProfileForm((current) => ({
+                        ...current,
+                        cityId: nextCityId,
+                      }))
+                    }
+                    options={citySelectOptions}
+                    placeholder={
+                      selectedCountryId ? "Select city" : "Select country first"
+                    }
+                    disabled={!selectedCountryId}
+                    loading={citiesFetcher.state === "loading"}
+                    searchable
+                    emptyText={
+                      selectedCountryId
+                        ? "No cities found"
+                        : "Select country first"
+                    }
+                    triggerClassName="text-sm font-medium text-[#64748B]"
+                    contentClassName="rounded-xl p-2"
+                  />
+                  {actionData?.errors?.cityId ? (
+                    <p className="text-xs text-red-500">
+                      {actionData.errors.cityId}
+                    </p>
+                  ) : null}
+                </div>
               </div>
 
               {countriesError ? (
@@ -349,14 +397,14 @@ export default function OnboardingProfilePage() {
               ) : null}
 
               <div className="space-y-3">
-                <label
+                <Label
                   htmlFor="onboarding-profile-bio"
                   className="text-sm leading-5 text-[#374151]"
                 >
                   <span className="font-bold">Short Bio</span>{" "}
                   <span className="font-normal">(optional)</span>
-                </label>
-                <textarea
+                </Label>
+                <Textarea
                   id="onboarding-profile-bio"
                   name="bio"
                   value={profileForm.bio}
@@ -367,7 +415,7 @@ export default function OnboardingProfilePage() {
                     }))
                   }
                   rows={3}
-                  className="h-20 w-full resize-none rounded-md bg-[#F1F5F980] px-3 py-2 text-sm font-normal leading-5 text-[#64748B] outline-none placeholder:text-[#94A3B8]"
+                  className="h-20 w-full resize-none rounded-md border-transparent bg-[#F1F5F980] text-sm font-normal leading-5 text-[#64748B] placeholder:text-[#94A3B8] focus-visible:border-[#2F6FE4]/40 focus-visible:ring-[#2F6FE4]/20"
                   placeholder="Tell the community a little about yourself - what you do, what you care about, what you're building..."
                 />
               </div>
@@ -382,6 +430,7 @@ export default function OnboardingProfilePage() {
           <OnboardingBackContinueActions
             backTo="/onboarding"
             continueDisabled={!canContinue || isSubmitting}
+            containerClassName="tk-fade-up-2"
           />
         </Form>
       </main>

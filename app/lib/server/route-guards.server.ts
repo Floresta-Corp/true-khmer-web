@@ -116,7 +116,7 @@ export async function getOptionalUser(
       throw await clearAndRedirectToLogin(request);
     }
     if (isOnboardingRequiredError(error)) {
-      throw redirect("/onboarding/profile");
+      throw redirect("/onboarding");
     }
     throw error;
   }
@@ -141,7 +141,7 @@ export async function redirectIfAuthenticated(request: Request) {
       return clearAndRedirectToLogin(request);
     }
     if (isOnboardingRequiredError(error)) {
-      return redirect("/onboarding/profile");
+      return redirect("/onboarding");
     }
     throw error;
   }
@@ -181,7 +181,7 @@ export async function requireOnboardingIncomplete(request: Request) {
           },
           profile: null,
           selectedInterestIds: [],
-          selectedContributionIds: [],
+          selectedContributionKeys: [],
           progress: {
             totalPoints: 0,
             tier: null,
@@ -218,7 +218,7 @@ export async function requireUser(request: Request): Promise<GuardResult> {
       throw await clearAndRedirectToLogin(request);
     }
     if (isOnboardingRequiredError(error)) {
-      throw redirect("/onboarding/profile");
+      throw redirect("/onboarding");
     }
     throw error;
   }

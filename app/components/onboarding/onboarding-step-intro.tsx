@@ -23,7 +23,7 @@ export function OnboardingStepIntro({
 }: OnboardingStepIntroProps) {
   return (
     <div
-      className={`flex w-full flex-col gap-5 ${centered ? "items-center" : "items-start"}`}
+      className={`tk-fade-up flex w-full flex-col gap-5 ${centered ? "items-center" : "items-start"}`}
     >
       <div className="inline-flex items-center gap-1.5">
         {Array.from({ length: totalSteps }).map((_, index) => {

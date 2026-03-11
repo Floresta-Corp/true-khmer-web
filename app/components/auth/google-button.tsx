@@ -1,14 +1,16 @@
 import type { ButtonHTMLAttributes } from "react";
 import { cn } from "~/lib/utils";
+import { Button } from "~/components/ui/button";
 
 type GoogleButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
 
 export function GoogleButton({ className, ...buttonProps }: GoogleButtonProps) {
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
       className={cn(
-        "flex h-[46px] w-full items-center justify-center gap-2 rounded-[14px] border border-[#F3F4F6] bg-transparent text-[13px] font-semibold text-[#4A5565]",
+        "h-12 w-full rounded-[14px] border-[#F3F4F6] bg-transparent text-[13px] font-semibold text-[#4A5565] hover:bg-[#F8FAFC]",
         className,
       )}
       {...buttonProps}
@@ -20,6 +22,6 @@ export function GoogleButton({ className, ...buttonProps }: GoogleButtonProps) {
         alt="Google Logo"
       />
       Continue with Google
-    </button>
+    </Button>
   );
 }

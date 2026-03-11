@@ -4,7 +4,6 @@ import {
   data,
   redirect,
   useActionData,
-  useLoaderData,
 } from "react-router";
 import { OnboardingHeader } from "~/components/onboarding/onboarding-header";
 import { OnboardingBackContinueActions } from "~/components/onboarding/onboarding-back-continue-actions";
@@ -12,19 +11,11 @@ import { OnboardingFormError } from "~/components/onboarding/onboarding-form-err
 import { OnboardingRomdoulCorners } from "~/components/onboarding/onboarding-romdoul-corners";
 import { OnboardingStepIntro } from "~/components/onboarding/onboarding-step-intro";
 import { SelectableContributionCard } from "~/components/onboarding/selectable-contribution-card";
-import {
-  getContributions,
-  saveStep3Contributions,
-} from "~/services/onboarding.server";
+import { saveStep3Contributions } from "~/services/onboarding.server";
 import type { Route } from "./+types/contribution";
-import {
-  AuthSessionExpiredError,
-} from "~/lib/server/api-client.server";
-import { destroySession, getSession } from "~/lib/server/session.server";
 import { requireOnboardingIncomplete } from "~/lib/server/route-guards.server";
 import {
-  contributionIconByKey,
-  mapContributionOptionsToCards,
+  onboardingContributionCards,
 } from "~/features/onboarding/contribution/contribution-cards";
 import {
   isContributionInputUnchanged,
@@ -34,40 +25,15 @@ import {
 import { useOnboardingContributionLayoutData } from "~/features/onboarding/contribution/use-onboarding-contribution-layout-data";
 import { handleOnboardingActionError } from "~/features/onboarding/shared/onboarding-action-error.server";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  try {
-    const result = await getContributions(request);
-    if (result.data.length === 0) {
-      return data(
-        {
-          cards: [],
-          contributionsError:
-            "No contribution options are available from the server.",
-        },
-        result.setCookie ? { headers: { "Set-Cookie": result.setCookie } } : {},
-      );
-    }
-
-    const cards = mapContributionOptionsToCards(result.data);
-
-    return data(
-      { cards, contributionsError: "" },
-      result.setCookie ? { headers: { "Set-Cookie": result.setCookie } } : {},
-    );
-  } catch (error) {
-    if (error instanceof AuthSessionExpiredError) {
-      const session = await getSession(request);
-      throw redirect("/login", {
-        headers: { "Set-Cookie": await destroySession(session) },
-      });
-    }
-
-    return data({
-      cards: [],
-      contributionsError: "Unable to load contributions from backend.",
-    });
-  }
-}
+const selectableContributionKeys = new Set<string>(
+  onboardingContributionCards.map((card) => card.key),
+);
+const featuredContributionCard = onboardingContributionCards.find(
+  (card) => card.layout === "featured",
+);
+const standardContributionCards = onboardingContributionCards.filter(
+  (card) => card.layout !== "featured",
+);
 
 export async function action({ request }: Route.ActionArgs) {
   const guard = await requireOnboardingIncomplete(request);
@@ -78,7 +44,7 @@ export async function action({ request }: Route.ActionArgs) {
   };
 
   const formInput = parseContributionForm(await request.formData());
-  const errors = validateContributionInput(formInput.selectedIds);
+  const errors = validateContributionInput(formInput.selectedKeys);
   if (errors.form) return data({ errors }, cookieHeader());
 
   if (isContributionInputUnchanged(formInput)) {
@@ -86,7 +52,7 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   try {
-    const result = await saveStep3Contributions(request, formInput.selectedIds);
+    const result = await saveStep3Contributions(request, formInput.selectedKeys);
     return redirect(
       "/onboarding/tier",
       cookieHeader(result.setCookie),
@@ -108,14 +74,14 @@ export function meta() {
 }
 
 export default function OnboardingContributionPage() {
-  const { cards, contributionsError } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const onboardingLayoutData = useOnboardingContributionLayoutData();
-  const savedContributionIds =
-    onboardingLayoutData.savedContributions?.contributionIds ?? [];
-  const [selected, setSelected] = useState<string[]>(() =>
-    savedContributionIds.filter((id) => cards.some((card) => card.id === id)),
-  );
+  const savedContributionKeysFromState =
+    onboardingLayoutData.savedContributions?.contributionKeys ?? [];
+  const savedContributionKeys = savedContributionKeysFromState
+    .filter((key) => selectableContributionKeys.has(key))
+    .sort();
+  const [selected, setSelected] = useState<string[]>(() => savedContributionKeys);
   const canContinue = selected.length > 0;
 
   function toggleCard(key: string) {
@@ -126,24 +92,24 @@ export default function OnboardingContributionPage() {
 
   return (
     <div className="min-h-screen overflow-hidden bg-white text-[#111827]">
-      <OnboardingHeader title="Your Contribution" />
+      <OnboardingHeader title="How You'll Engage" titlePosition="right" />
 
       <main className="relative flex min-h-[calc(100vh-60px)] items-start justify-center overflow-hidden px-6 pt-8 pb-12 font-['Inter'] sm:px-10 md:px-16 lg:px-24 xl:px-80 xl:pt-10">
         <OnboardingRomdoulCorners />
 
         <Form
           method="post"
-          className="relative z-10 flex w-full max-w-3xl flex-col items-center gap-10 py-0"
+          className="relative z-10 flex w-full max-w-3xl flex-col items-start gap-6 py-0"
         >
-          {selected.map((id) => (
-            <input key={id} type="hidden" name="selected" value={id} />
+          {selected.map((key) => (
+            <input key={key} type="hidden" name="selected" value={key} />
           ))}
-          {savedContributionIds.map((id) => (
+          {savedContributionKeys.map((key) => (
             <input
-              key={`initial-${id}`}
+              key={`initial-${key}`}
               type="hidden"
               name="initialSelected"
-              value={id}
+              value={key}
             />
           ))}
 
@@ -151,43 +117,68 @@ export default function OnboardingContributionPage() {
             centered
             currentStep={3}
             totalSteps={4}
-            stepLabel="Your Contribution"
+            stepLabel="How You'll Engage"
             title={
               <>
-                How will you <span className="text-[#2894FA]">contribute</span>?
+                How do you <span className="text-[#2894FA]">plan</span> to use the
+                True Khmer App?
               </>
             }
-            description="You start as a Member by default — add extra roles to unlock more features. You can switch roles anytime."
-            titleClassName="text-2xl font-semibold leading-8 text-[#334155]"
-            descriptionClassName="text-sm font-normal leading-5 text-[#99A1AF]"
+            description={
+              <>
+                This helps us personalize your experience.
+                <br className="hidden sm:block" />
+                You can explore everything and add or remove roles anytime.
+              </>
+            }
           />
 
-          <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {cards.map((card) => {
-              return (
-                <SelectableContributionCard
-                  key={card.id}
-                  title={card.title}
-                  description={card.description}
-                  icon={contributionIconByKey[card.iconKey]}
-                  selected={selected.includes(card.id)}
-                  onClick={() => toggleCard(card.id)}
-                />
-              );
-            })}
-          </div>
-
-          {contributionsError ? (
-            <p className="w-full text-center text-sm text-red-500">
-              {contributionsError}
-            </p>
+          {featuredContributionCard ? (
+            <SelectableContributionCard
+              key={featuredContributionCard.key}
+              title={featuredContributionCard.title}
+              description={featuredContributionCard.description}
+              icon={featuredContributionCard.icon}
+              selected={selected.includes(featuredContributionCard.key)}
+              onClick={() => toggleCard(featuredContributionCard.key)}
+              layout="featured"
+              className="tk-fade-up-1"
+            />
           ) : null}
 
-          <OnboardingFormError message={actionData?.errors?.form} />
+          <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {standardContributionCards.map((card, index) => (
+              <SelectableContributionCard
+                key={card.key}
+                title={card.title}
+                description={card.description}
+                icon={card.icon}
+                selected={selected.includes(card.key)}
+                onClick={() => toggleCard(card.key)}
+                className={
+                  index === 0
+                    ? "tk-fade-up-1"
+                    : index === 1
+                      ? "tk-fade-up-2"
+                      : "tk-fade-up-3"
+                }
+              />
+            ))}
+          </div>
+
+          <p className="tk-fade-up-2 text-sm font-normal italic leading-5 text-[#8A99AD]">
+            Pick at least 1 to continue
+          </p>
+
+          <div className="tk-fade-up-2">
+            <OnboardingFormError message={actionData?.errors?.form} />
+          </div>
 
           <OnboardingBackContinueActions
             backTo="/onboarding/interest"
             continueDisabled={!canContinue}
+            containerClassName="tk-fade-up-3 mt-2"
+            continueButtonClassName="min-w-[144px] justify-center"
           />
         </Form>
       </main>

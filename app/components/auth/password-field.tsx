@@ -3,6 +3,9 @@ import type { ComponentType, InputHTMLAttributes } from "react";
 import type { LucideProps } from "lucide-react";
 import { Eye, EyeOff } from "lucide-react";
 import { cn } from "~/lib/utils";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { Button } from "~/components/ui/button";
 
 type PasswordFieldProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
@@ -37,7 +40,7 @@ export function PasswordField({
 
   return (
     <div className={cn("space-y-2", wrapperClassName)}>
-      <label
+      <Label
         htmlFor={id}
         className={cn(
           "block text-[13px] font-semibold leading-[19.5px] text-[#364153]",
@@ -45,7 +48,7 @@ export function PasswordField({
         )}
       >
         {label}
-      </label>
+      </Label>
 
       <div className="relative">
         <Icon
@@ -56,27 +59,29 @@ export function PasswordField({
           )}
         />
 
-        <input
+        <Input
           id={id}
           type={showPassword ? "text" : "password"}
           className={cn(
-            "h-11 w-full rounded-lg border border-transparent bg-[#F8FAFC] py-2 pl-9 pr-10 text-[12.25px] font-medium text-[#1E293B] outline-none placeholder:text-[#C8D6E5]",
+            "h-11 rounded-lg border-transparent bg-[#F8FAFC] py-2 pl-9 pr-10 text-[12.25px] font-medium text-[#1E293B] placeholder:text-[#C8D6E5] focus-visible:ring-[#2F6FE4]/30",
             inputClassName,
           )}
           {...inputProps}
         />
 
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon"
           onClick={() => setShowPassword((prev) => !prev)}
           className={cn(
-            "absolute right-3 top-1/2 -translate-y-1/2 text-[#D1D5DC]",
+            "absolute right-1.5 top-1/2 h-7 w-7 -translate-y-1/2 text-[#D1D5DC] hover:bg-transparent hover:text-[#94A3B8]",
             toggleClassName,
           )}
           aria-label={showPassword ? "Hide password" : "Show password"}
         >
           {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
-        </button>
+        </Button>
       </div>
 
       {error ? (
