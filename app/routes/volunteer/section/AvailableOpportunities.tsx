@@ -1,5 +1,5 @@
 import { Heart, MapPin, Timer, Workflow } from "lucide-react";
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 
 const opportunities = [
@@ -153,7 +153,6 @@ function OpportunityCard({
   filled,
   total,
 }: (typeof opportunities)[number]) {
-  const navigate = useNavigate();
   const progress = `${(filled / total) * 100}%`;
 
   return (
@@ -162,7 +161,7 @@ function OpportunityCard({
         <img
           src={image}
           alt={title}
-          className="absolute inset-0 size-full object-cover"
+          className="absolute inset-0 size-full object-cover hover:scale-105 transition-transform duration-300"
           loading="lazy"
         />
         <span className="relative inline-flex rounded-xl border border-white/20 bg-white/95 px-[9px] py-1 text-[10px] font-semibold tracking-[-0.13px] text-[#2f6fe4]">
@@ -232,14 +231,15 @@ function OpportunityCard({
           </div>
         </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          className="h-9 w-full text-sm font-medium"
-          onClick={() => navigate(`/volunteer/${id}`)}
-        >
-          Apply
-        </Button>
+        <Link to={`/volunteer/${id}`}>
+          <Button
+            type="button"
+            variant="outline"
+            className="h-9 w-full text-sm font-medium"
+          >
+            Apply
+          </Button>
+        </Link>
       </div>
     </article>
   );

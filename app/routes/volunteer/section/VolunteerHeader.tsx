@@ -1,10 +1,24 @@
 import { ChevronDown, Plus, Search } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useState } from "react";
+import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+
+const LOCATIONS = [
+  { value: "anywhere", label: "Anywhere" },
+  { value: "phnom-penh", label: "Phnom Penh" },
+  { value: "siem-reap", label: "Siem Reap" },
+  { value: "battambang", label: "Battambang" },
+];
 
 export default function VolunteerHeader() {
-  const navigate = useNavigate();
+  const [location, setLocation] = useState(LOCATIONS[0]);
 
   return (
     <section className="flex min-h-125 w-full items-center justify-center bg-quadrant-glow px-6 py-16">
@@ -30,29 +44,32 @@ export default function VolunteerHeader() {
                 />
               </div>
               <div className="h-8.75 w-px shrink-0 bg-[#f3f4f6]" />
-              <div className="relative shrink-0 rounded-xl">
-                <select
-                  defaultValue="anywhere"
-                  aria-label="Location"
-                  className="h-[34px] appearance-none rounded-xl px-[14px] pr-8 text-[13px] font-semibold leading-[19.5px] text-[#364153] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <option value="anywhere">Anywhere</option>
-                  <option value="phnom-penh">Phnom Penh</option>
-                  <option value="siem-reap">Siem Reap</option>
-                  <option value="battambang">Battambang</option>
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 size-3.5 -translate-y-1/2 text-[#364153]/65" />
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex h-8.5 items-center gap-1.5 rounded-xl px-3.5 text-[13px] font-semibold leading-[19.5px] text-[#364153] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  {location.label}
+                  <ChevronDown className="size-3.5 text-[#364153]/65" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {LOCATIONS.map((loc) => (
+                    <DropdownMenuItem
+                      key={loc.value}
+                      onSelect={() => setLocation(loc)}
+                    >
+                      {loc.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-
-            <Button
-              size="lg"
-              className="h-14 min-w-47.75 gap-1.5 rounded-lg bg-[#2f6fe4] px-6 text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]"
-              onClick={() => navigate("/volunteer/post")}
-            >
-              <Plus className="size-4" />
-              Post opportunity
-            </Button>
+            <Link to="/volunteer/post">
+              <Button
+                size="lg"
+                className="h-14 min-w-47.75 gap-1.5 rounded-lg bg-[#2f6fe4] px-6 text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]"
+              >
+                <Plus className="size-4" />
+                Post opportunity
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
