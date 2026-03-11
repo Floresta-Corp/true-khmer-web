@@ -31,7 +31,11 @@ function hasDialogTitle(children: React.ReactNode): boolean {
 
     const element = child as React.ReactElement<{ children?: React.ReactNode }>;
 
-    if (element.type === DialogPrimitive.Title) {
+    if (
+      element.type === DialogPrimitive.Title ||
+      (element.type as { displayName?: string })?.displayName ===
+        DialogPrimitive.Title.displayName
+    ) {
       return true;
     }
 
@@ -47,7 +51,11 @@ function hasDialogDescription(children: React.ReactNode): boolean {
 
     const element = child as React.ReactElement<{ children?: React.ReactNode }>;
 
-    if (element.type === DialogPrimitive.Description) {
+    if (
+      element.type === DialogPrimitive.Description ||
+      (element.type as { displayName?: string })?.displayName ===
+        DialogPrimitive.Description.displayName
+    ) {
       return true;
     }
 
