@@ -6,7 +6,7 @@ import {
   HandHelping,
   Heart,
 } from "lucide-react";
-import { CategoryCard } from "../components/CategoryCard";
+import { CategoryCard } from "../../components/CategoryCard";
 
 const categories = [
   {

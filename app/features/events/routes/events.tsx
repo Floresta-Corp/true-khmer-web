@@ -179,8 +179,6 @@ export default function Events() {
           </div>
         )}
       </div>
-
-      <Footer />
     </div>
   );
 }

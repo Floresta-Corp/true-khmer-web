@@ -5,7 +5,6 @@ import { Link } from "react-router";
 import { useState } from "react";
 import { Badge } from "~/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Footer } from "~/components/footer";
 import { SanitizedHtml } from "~/components/sanitized-html";
 import { getEventById } from "~/features/events/lib/events.server";
 import {
@@ -50,7 +49,6 @@ export default function EventDetailPage() {
             </Link>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -181,8 +179,6 @@ export default function EventDetailPage() {
           <EventDetailSidebar event={event} organizer={organizer} />
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }
