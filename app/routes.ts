@@ -12,6 +12,7 @@ export default [
     route("dashboard", "routes/dashboard.tsx"),
     route("profile", "routes/profile.tsx"),
     route("events", "routes/events.tsx"),
+    route("forum", "routes/forum/routes/forum.tsx"),
   ]),
   route("login", "routes/login.tsx"),
   route("register", "routes/register.tsx"),
