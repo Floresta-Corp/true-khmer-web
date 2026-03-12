@@ -18,24 +18,24 @@ export function EventHero({
   locationOptions,
 }: EventHeroProps) {
   return (
-    <section className="relative bg-linear-to-b from-[#e8ecf8] to-[#f0f2fa] pt-20 pb-14 px-6">
+    <section className="relative bg-linear-to-b from-[#e8ecf8] to-[#f0f2fa] pt-12 md:pt-20 pb-10 md:pb-14 px-4 md:px-6">
       {/* Decorative circles — clipped wrapper */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute left-0 top-0 w-80 h-80 rounded-full bg-[#d6daf0] opacity-50 -translate-x-1/3 -translate-y-1/4" />
-        <div className="absolute right-0 bottom-0 w-96 h-96 rounded-full bg-[#c8cee8] opacity-40 translate-x-1/3 translate-y-1/4" />
+        <div className="absolute left-0 top-0 w-48 md:w-80 h-48 md:h-80 rounded-full bg-[#d6daf0] opacity-50 -translate-x-1/3 -translate-y-1/4" />
+        <div className="absolute right-0 bottom-0 w-56 md:w-96 h-56 md:h-96 rounded-full bg-[#c8cee8] opacity-40 translate-x-1/3 translate-y-1/4" />
       </div>
 
       <div className="relative max-w-3xl mx-auto text-center">
-        <h1 className="text-4xl sm:text-5xl font-extrabold text-[#174FB4] mb-3 tracking-tight">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#174FB4] mb-2 md:mb-3 tracking-tight">
           Explore. <span className="text-[#32A8FF]">Connect.</span> Organize.
         </h1>
-        <p className="text-base text-gray-500 max-w-md mx-auto mb-8 leading-relaxed">
+        <p className="text-sm md:text-base text-gray-500 max-w-md mx-auto mb-6 md:mb-8 leading-relaxed">
           Find events worth your time, or create one worth remembering.
         </p>
 
         {/* Search bar */}
-        <div className="max-w-2xl mx-auto flex items-center gap-2">
-          <div className="flex-1 flex items-center bg-white rounded-full h-12 px-4 gap-2 shadow-sm border border-gray-100">
+        <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <div className="flex-1 flex items-center bg-white rounded-full h-11 md:h-12 px-4 gap-2 shadow-sm border border-gray-100">
             <Search className="w-4 h-4 text-gray-400 shrink-0" />
             <input
               type="text"
@@ -53,7 +53,7 @@ export function EventHero({
           </div>
           <Link
             to="#"
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-full h-12 px-5 shadow-sm transition-colors shrink-0"
+            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-full h-11 md:h-12 px-5 shadow-sm transition-colors shrink-0"
           >
             <Plus className="w-4 h-4" />
             <span>Organize an Event</span>
@@ -61,7 +61,7 @@ export function EventHero({
         </div>
 
         {/* Supported by */}
-        <p className="mt-5 text-xs text-gray-400 flex items-center justify-center gap-1.5">
+        <p className="mt-4 md:mt-5 text-xs text-gray-400 flex items-center justify-center gap-1.5">
           Supported by{" "}
           <Link
             to={import.meta.env.VITE_PLUMPI_WEB}

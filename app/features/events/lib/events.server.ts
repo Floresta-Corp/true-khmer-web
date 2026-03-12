@@ -1,11 +1,15 @@
 import { requireUser } from "~/lib/session.server";
 import type { EventData } from "~/features/events/components/event-card";
 
-const PLUMPI_ENDPOINT = process.env.PLUMPI_ENDPOINT;
-if (!PLUMPI_ENDPOINT) {
-  throw new Error(
-    "Environment variable PLUMPI_ENDPOINT is not set. Please configure PLUMPI_ENDPOINT to the base URL of the Plumpi API.",
-  );
+export interface EventCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  icon: string;
+  color: string;
+  sortOrder: number;
+  status: string;
 }
 
 export interface TicketTier {
@@ -45,6 +49,43 @@ interface EventPhoto {
   id: string;
   key: string;
   url: string;
+}
+
+const PLUMPI_ENDPOINT = process.env.PLUMPI_ENDPOINT;
+if (!PLUMPI_ENDPOINT) {
+  throw new Error(
+    "Environment variable PLUMPI_ENDPOINT is not set. Please configure PLUMPI_ENDPOINT to the base URL of the Plumpi API.",
+  );
+}
+
+export async function getEventCategories(): Promise<EventCategory[]> {
+  try {
+    const response = await fetch(`${PLUMPI_ENDPOINT}/event-categories`);
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const json = await response.json();
+    const categories = Array.isArray(json.data) ? json.data : [];
+
+    return categories
+      .filter((c: any) => c.status === "ACTIVE")
+      .sort((a: any, b: any) => a.sortOrder - b.sortOrder)
+      .map((c: any) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        description: c.description || "",
+        icon: c.icon || "📌",
+        color: c.color || "#6B7280",
+        sortOrder: c.sortOrder,
+        status: c.status,
+      }));
+  } catch (err) {
+    console.error("Failed to fetch event categories:", err);
+    return [];
+  }
 }
 
 export async function getTicketTiers(eventId: string): Promise<TicketTier[]> {
@@ -194,6 +235,7 @@ export async function getUpcomingEvents(): Promise<EventData[]> {
     return eventList.map((apiEvent: any) => ({
       id: apiEvent.id,
       title: apiEvent.name || apiEvent.title || "",
+      slug: apiEvent.slug || "",
       excerpt: apiEvent.excerpt || "",
       thumbnail: apiEvent.cover || apiEvent.thumbnail || null,
       cover: apiEvent.cover || null,
@@ -269,6 +311,7 @@ export async function getEventById(request: Request, id: string) {
     const event: EventData = {
       id: apiEvent.id,
       title: apiEvent.title,
+      slug: apiEvent.slug,
       excerpt: apiEvent.excerpt || "",
       thumbnail: apiEvent.cover || apiEvent.thumbnail || null,
       cover: apiEvent.cover || null,

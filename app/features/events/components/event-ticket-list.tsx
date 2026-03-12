@@ -4,6 +4,7 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { formatShortDate } from "~/features/events/lib/event-formatters";
 import type { TicketTier } from "~/features/events/lib/events.server";
+import { cn } from "~/lib/utils";
 
 interface EventTicketListProps {
   ticketTiers: TicketTier[];
@@ -53,9 +54,7 @@ export function EventTicketList({
               <Card
                 key={tier.id}
                 className={`transition-colors ${
-                  isSoldOut
-                    ? "opacity-60"
-                    : "hover:border-blue-200 cursor-pointer"
+                  isSoldOut ? "opacity-60" : "hover:border-blue-200"
                 }`}
               >
                 <CardContent className="p-5">
@@ -121,12 +120,17 @@ export function EventTicketList({
                       </p>
                       {!isSoldOut && (
                         <Link
-                          to={`${import.meta.env.VITE_PLUMPI_WEB}/events/${eventName?.toLowerCase().replaceAll(" ", "-")}`}
+                          to={`${import.meta.env.VITE_PLUMPI_WEB}/events/${eventName}`}
                           target="_blank"
                         >
                           <Button
                             size="sm"
-                            className="mt-2 rounded-full px-5 text-xs"
+                            className={cn(
+                              "mt-2 rounded-full px-5 text-xs",
+                              isSoldOut
+                                ? "cursor-not-allowed opacity-50"
+                                : "cursor-pointer",
+                            )}
                           >
                             SELECT
                           </Button>
@@ -142,11 +146,12 @@ export function EventTicketList({
       ) : (
         <Card>
           <CardContent className="pt-6 text-center">
-            <p className="text-3xl font-bold text-foreground mb-1">
-              {isFree ? "Free" : `$${parseFloat(price!).toFixed(2)}`}
+            <p className="text-gray-500 font-semibold text-lg mb-1">
+              No Tickets Available
             </p>
-            <p className="text-sm text-muted-foreground mb-5">per ticket</p>
-            <Button className="rounded-full px-8">Get Tickets</Button>
+            <p className="text-sm text-muted-foreground">
+              There are currently no tickets available for this event.
+            </p>
           </CardContent>
         </Card>
       )}

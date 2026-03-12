@@ -9,24 +9,28 @@ import { Footer } from "~/components/footer";
 import {
   getEventList,
   getUpcomingEvents,
+  getEventCategories,
 } from "~/features/events/lib/events.server";
+import type { EventCategory } from "~/features/events/lib/events.server";
 import { AlertCircle } from "lucide-react";
 import { EventHero } from "~/features/events/components/event-hero";
 import { CategoryFilter } from "~/features/events/components/category-filter";
 
 export async function loader({ request }: Route.LoaderArgs) {
   try {
-    const [events, upcomingEvents] = await Promise.all([
+    const [events, upcomingEvents, categories] = await Promise.all([
       getEventList(),
       getUpcomingEvents(),
+      getEventCategories(),
     ]);
 
-    return { events, upcomingEvents, error: null };
+    return { events, upcomingEvents, categories, error: null };
   } catch (err) {
     console.error("Loader fetch error:", err);
     return {
       events: [] as EventData[],
       upcomingEvents: [] as EventData[],
+      categories: [] as EventCategory[],
       error: "Failed to load events. Please check your connection.",
     };
   }
@@ -37,10 +41,12 @@ export function meta() {
 }
 
 export default function Events() {
-  const { events, upcomingEvents, error } = useLoaderData<typeof loader>();
+  const { events, upcomingEvents, categories, error } =
+    useLoaderData<typeof loader>();
   const [search, setSearch] = useState("");
   const [locationFilter, setLocationFilter] = useState("Anywhere");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
 
   // Compute unique locations from event data
   const locationOptions = useMemo(() => {
@@ -53,12 +59,17 @@ export default function Events() {
     return ["Anywhere", ...Array.from(venueNames).sort()];
   }, [events, upcomingEvents]);
 
-  // Compute category counts from all events
+  // Compute category counts from all events (keyed by slug to match API categories)
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const event of events) {
-      const type = event.eventType || "Other";
-      counts[type] = (counts[type] || 0) + 1;
+      const type = event.eventType || "other";
+      // Convert eventType to a slug-like key (lowercase, replace spaces/& with slug format)
+      const slug = type
+        .toLowerCase()
+        .replace(/\s*&\s*/g, "and")
+        .replace(/\s+/g, "-");
+      counts[slug] = (counts[slug] || 0) + 1;
     }
     return counts;
   }, [events]);
@@ -73,7 +84,11 @@ export default function Events() {
       event.excerpt?.toLowerCase().includes(q);
 
     const matchesCategory =
-      !activeCategory || event.eventType === activeCategory;
+      !activeCategory ||
+      (event.eventType || "other")
+        .toLowerCase()
+        .replace(/\s*&\s*/g, "and")
+        .replace(/\s+/g, "-") === activeCategory;
 
     const matchesLocation =
       locationFilter === "Anywhere" || event.venueName === locationFilter;
@@ -91,7 +106,11 @@ export default function Events() {
       event.excerpt?.toLowerCase().includes(q);
 
     const matchesCategory =
-      !activeCategory || event.eventType === activeCategory;
+      !activeCategory ||
+      (event.eventType || "other")
+        .toLowerCase()
+        .replace(/\s*&\s*/g, "and")
+        .replace(/\s+/g, "-") === activeCategory;
 
     const matchesLocation =
       locationFilter === "Anywhere" || event.venueName === locationFilter;
@@ -116,14 +135,14 @@ export default function Events() {
       {/* Main Content */}
       <div className="mx-auto">
         {error && (
-          <div className="flex items-center justify-center gap-2 text-red-500 bg-red-50 p-4 rounded-lg mt-8">
-            <AlertCircle className="w-5 h-5" />
-            <p>{error}</p>
+          <div className="flex items-center justify-center gap-2 text-red-500 bg-red-50 p-3 md:p-4 rounded-lg mt-4 md:mt-8 mx-4 sm:mx-8 md:mx-16 lg:mx-28.25">
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            <p className="text-sm md:text-base">{error}</p>
           </div>
         )}
 
         {/* Featured Events */}
-        {!error && featuredEvents.length > 0 && (
+        {/* {!error && featuredEvents.length > 0 && (
           <section className="py-12 mx-28.25">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
@@ -139,11 +158,12 @@ export default function Events() {
               ))}
             </div>
           </section>
-        )}
+        )} */}
 
         {/* Browse by categories */}
-        {!error && events.length > 0 && (
+        {!error && categories.length > 0 && (
           <CategoryFilter
+            categories={categories}
             categoryCounts={categoryCounts}
             activeCategory={activeCategory}
             onCategoryChange={setActiveCategory}
@@ -151,8 +171,8 @@ export default function Events() {
         )}
 
         {/* Upcoming Events */}
-        {!error && filteredUpcoming.length > 0 && (
-          <section className="pb-16">
+        {/* {!error && filteredUpcoming.length > 0 && (
+          <section className="py-12 mx-28.25">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
                 Upcoming Events
@@ -167,13 +187,41 @@ export default function Events() {
               ))}
             </div>
           </section>
+        )} */}
+
+        {/* All Event */}
+        {!error && featuredEvents.length > 0 && (
+          <section className="py-8 md:py-12 mx-4 sm:mx-8 md:mx-16 lg:mx-28.25">
+            <div className="flex items-center justify-between mb-4 md:mb-6">
+              <h2 className="text-2xl md:text-4xl font-bold text-gray-900">
+                Events
+              </h2>
+              {featuredEvents.length > 6 && (
+                <button
+                  onClick={() => setShowAll(!showAll)}
+                  className="text-xs md:text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors flex items-center gap-1 border border-gray-200 rounded-full px-3 md:px-4 py-1 md:py-1.5"
+                >
+                  {showAll ? "Show less" : "View all"}
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              {(showAll ? featuredEvents : featuredEvents.slice(0, 6)).map(
+                (event) => (
+                  <EventCard key={event.id} event={event} />
+                ),
+              )}
+            </div>
+          </section>
         )}
 
         {/* Empty state */}
         {!error && hasNoResults && (
-          <div className="text-center py-20">
-            <p className="text-gray-400 text-lg">No events found.</p>
-            <p className="text-gray-400 text-sm mt-1">
+          <div className="text-center py-12 md:py-20 px-4">
+            <p className="text-gray-400 text-base md:text-lg">
+              No events found.
+            </p>
+            <p className="text-gray-400 text-xs md:text-sm mt-1">
               Try adjusting your search or filters.
             </p>
           </div>

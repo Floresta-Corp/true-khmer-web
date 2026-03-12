@@ -159,7 +159,7 @@ export default function EventDetailPage() {
                 ticketStatus={event.ticketStatus}
                 price={event.price}
                 heroImage={heroImage}
-                eventName={event.title}
+                eventName={event.slug}
               />
             )}
           </div>
