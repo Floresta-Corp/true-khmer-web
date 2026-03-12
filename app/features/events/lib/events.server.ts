@@ -41,6 +41,12 @@ export interface Organizer {
   totalEvent: string;
 }
 
+interface EventPhoto {
+  id: string;
+  key: string;
+  url: string;
+}
+
 export async function getTicketTiers(eventId: string): Promise<TicketTier[]> {
   try {
     const response = await fetch(
@@ -110,6 +116,28 @@ export async function getEventOrganizer(
   } catch (err) {
     console.error("Failed to fetch event organizer:", err);
     return null;
+  }
+}
+
+export async function getEventPhotos(eventId: string): Promise<string[]> {
+  try {
+    const response = await fetch(`${PLUMPI_ENDPOINT}/events/${eventId}/photos`);
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const json = await response.json();
+    const photos = Array.isArray(json.photos) ? json.photos : [];
+
+    return photos
+      .map((photo: EventPhoto) => photo.url)
+      .filter((photoUrl: string | undefined): photoUrl is string =>
+        Boolean(photoUrl),
+      );
+  } catch (err) {
+    console.error("Failed to fetch event photos:", err);
+    return [];
   }
 }
 
@@ -217,10 +245,11 @@ export async function getEventList(): Promise<EventData[]> {
 
 export async function getEventById(request: Request, id: string) {
   try {
-    const [response, ticketTiers, organizer] = await Promise.all([
+    const [response, ticketTiers, organizer, photos] = await Promise.all([
       fetch(`${PLUMPI_ENDPOINT}/events/${id}`),
       getTicketTiers(id),
       getEventOrganizer(id),
+      getEventPhotos(id),
     ]);
 
     if (!response.ok) {
@@ -252,7 +281,7 @@ export async function getEventById(request: Request, id: string) {
       isOnline: apiEvent.isOnline || false,
       isFavorite: apiEvent.isFavorite || false,
       description: apiEvent.description || "",
-      photos: Array.isArray(apiEvent.photos) ? apiEvent.photos : [],
+      photos,
     };
 
     return { event, ticketTiers, organizer, error: null };

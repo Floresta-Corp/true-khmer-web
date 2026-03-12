@@ -114,7 +114,7 @@ export default function Events() {
       />
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto">
         {error && (
           <div className="flex items-center justify-center gap-2 text-red-500 bg-red-50 p-4 rounded-lg mt-8">
             <AlertCircle className="w-5 h-5" />
@@ -124,7 +124,7 @@ export default function Events() {
 
         {/* Featured Events */}
         {!error && featuredEvents.length > 0 && (
-          <section className="py-12">
+          <section className="py-12 mx-28.25">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
                 Featured Events

@@ -4,6 +4,7 @@ import { AlertCircle, ArrowLeft } from "lucide-react";
 import { Link } from "react-router";
 import { useState } from "react";
 import { Badge } from "~/components/ui/badge";
+import { ImageGallery } from "~/components/image-lightbox";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { SanitizedHtml } from "~/components/sanitized-html";
 import { getEventById } from "~/features/events/lib/events.server";
@@ -27,6 +28,8 @@ export default function EventDetailPage() {
   const { event, ticketTiers, organizer, error } =
     useLoaderData<typeof loader>();
   const [activeTab, setActiveTab] = useState<"tickets" | "info">("info");
+
+  const photos: string[] = event?.photos || [];
 
   if (error || !event) {
     return (
@@ -56,8 +59,6 @@ export default function EventDetailPage() {
   const heroImage = event.cover || event.thumbnail;
   const badgeColor =
     CATEGORY_COLORS_LIGHT[event.eventType] || "bg-gray-100 text-gray-700";
-
-  const photos = event.photos || [];
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
@@ -135,33 +136,20 @@ export default function EventDetailPage() {
                         No description provided for this event.
                       </p>
                     )}
+                    {photos.length > 0 && (
+                      <div className="flex flex-col gap-4">
+                        <div className="pt-10 text-lg font-semibold">
+                          Gallery
+                        </div>
+                        <ImageGallery
+                          images={photos}
+                          alt={`${event.title} photo`}
+                          columns={3}
+                        />
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
-
-                {/* Gallery */}
-                {photos.length > 0 && (
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-lg">Gallery</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-3 gap-2">
-                        {photos.map((photo: string, index: number) => (
-                          <div
-                            key={index}
-                            className="aspect-square rounded-lg overflow-hidden bg-muted"
-                          >
-                            <img
-                              src={photo}
-                              alt={`${event.title} photo ${index + 1}`}
-                              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
               </div>
             )}
 
@@ -171,6 +159,7 @@ export default function EventDetailPage() {
                 ticketStatus={event.ticketStatus}
                 price={event.price}
                 heroImage={heroImage}
+                eventName={event.title}
               />
             )}
           </div>

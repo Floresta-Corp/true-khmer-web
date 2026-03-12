@@ -1,4 +1,5 @@
 import { Calendar } from "lucide-react";
+import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { formatShortDate } from "~/features/events/lib/event-formatters";
@@ -9,6 +10,7 @@ interface EventTicketListProps {
   ticketStatus?: string;
   price?: string;
   heroImage: string | null;
+  eventName: string | null;
 }
 
 export function EventTicketList({
@@ -16,6 +18,7 @@ export function EventTicketList({
   ticketStatus,
   price,
   heroImage,
+  eventName,
 }: EventTicketListProps) {
   const isFree = !price || price === "Free" || parseFloat(price) === 0;
 
@@ -117,12 +120,17 @@ export function EventTicketList({
                           : `$${parseFloat(tierPrice!).toFixed(2)}`}
                       </p>
                       {!isSoldOut && (
-                        <Button
-                          size="sm"
-                          className="mt-2 rounded-full px-5 text-xs"
+                        <Link
+                          to={`${import.meta.env.VITE_PLUMPI_WEB}/events/${eventName?.toLowerCase().replaceAll(" ", "-")}`}
+                          target="_blank"
                         >
-                          SELECT
-                        </Button>
+                          <Button
+                            size="sm"
+                            className="mt-2 rounded-full px-5 text-xs"
+                          >
+                            SELECT
+                          </Button>
+                        </Link>
                       )}
                     </div>
                   </div>

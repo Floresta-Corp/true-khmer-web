@@ -63,14 +63,14 @@ export function EventHero({
         {/* Supported by */}
         <p className="mt-5 text-xs text-gray-400 flex items-center justify-center gap-1.5">
           Supported by{" "}
-          <a
-            href="https://plumpievents.com"
+          <Link
+            to={import.meta.env.VITE_PLUMPI_WEB}
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 font-semibold underline underline-offset-2"
           >
             Plumpi Event Management
-          </a>
+          </Link>
         </p>
       </div>
     </section>
