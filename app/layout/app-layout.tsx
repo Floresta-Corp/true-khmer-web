@@ -2,6 +2,7 @@ import { Outlet, data, useLoaderData } from "react-router";
 import { Navbar } from "~/components/navbar";
 import type { Route } from "./+types/app-layout";
 import { getOptionalUser } from "~/lib/server/route-guards.server";
+import { Footer } from "~/components/footer";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const result = await getOptionalUser(request);
@@ -18,6 +19,7 @@ export default function AppLayout() {
     <>
       <Navbar user={user} />
       <Outlet />
+      <Footer />
     </>
   );
 }

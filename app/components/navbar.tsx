@@ -61,10 +61,9 @@ export function Navbar({ user }: NavbarProps) {
           {/* Center: Navigation Links (desktop only) */}
           <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => {
-              const isActive =
-                location.pathname === link.to ||
-                (link.to === "/dashboard" &&
-                  location.pathname.startsWith("/dashboard"));
+              const isActive = location.pathname.startsWith(link.to)
+                ? true
+                : false;
               return (
                 <Link
                   key={link.to}
@@ -232,10 +231,7 @@ export function Navbar({ user }: NavbarProps) {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         <div className="flex items-center justify-around h-16 px-1">
           {navLinks.map((link) => {
-            const isActive =
-              location.pathname === link.to ||
-              (link.to === "/dashboard" &&
-                location.pathname.startsWith("/dashboard"));
+            const isActive = location.pathname.startsWith(link.to);
             return (
               <Link
                 key={link.to}
