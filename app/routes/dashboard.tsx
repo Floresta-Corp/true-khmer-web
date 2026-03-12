@@ -376,9 +376,6 @@ export default function DashboardPage() {
           </div>
         </section>
       </main>
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 }

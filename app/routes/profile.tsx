@@ -1,7 +1,6 @@
 import { useLoaderData } from "react-router";
 import type { Route } from "./+types/profile";
 import { requireUser } from "~/lib/session.server";
-import { Footer } from "~/components/footer";
 import { Card, CardContent } from "~/components/ui/card";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
@@ -181,8 +180,6 @@ export default function ProfilePage() {
         {activeTab === "platform" && <PlatformTab />}
         {activeTab === "community" && <CommunityTab />}
       </main>
-
-      <Footer />
     </div>
   );
 }

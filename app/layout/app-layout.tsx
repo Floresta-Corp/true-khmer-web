@@ -2,6 +2,7 @@ import { Outlet, useLoaderData } from "react-router";
 import { Navbar } from "~/components/navbar";
 import { getUser } from "~/lib/session.server";
 import type { Route } from "./+types/app-layout";
+import { Footer } from "~/components/footer";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const user = await getUser(request);
@@ -15,6 +16,7 @@ export default function AppLayout() {
     <>
       <Navbar user={user} />
       <Outlet />
+      <Footer />
     </>
   );
 }
