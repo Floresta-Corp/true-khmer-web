@@ -28,7 +28,7 @@ export function OnboardingCurrentTierCard() {
           <div className="inline-flex h-6 items-center gap-1 rounded-2xl border border-[#A6D4FF] bg-[#F5F7FA] px-4 py-1">
             <Sprout size={14} className="text-[#65A30D]" />
             <span className="text-xs font-semibold leading-4 text-[#2F6FE4]">
-              0 point
+              0 points
             </span>
           </div>
           <div className="inline-flex h-6 items-center gap-1 rounded-2xl border border-[#A6D4FF] bg-[#F5F7FA] px-4 py-1">

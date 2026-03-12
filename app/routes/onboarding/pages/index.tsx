@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router";
-import { OnboardingHeader } from "~/components/onboarding/onboarding-header";
-import { OnboardingRomdoulCorners } from "~/components/onboarding/onboarding-romdoul-corners";
+import { OnboardingHeader } from "~/routes/onboarding/components/onboarding-header";
+import { OnboardingRomdoulCorners } from "~/routes/onboarding/components/onboarding-romdoul-corners";
 
 export function meta() {
   return [{ title: "Onboarding | True Khmer" }];

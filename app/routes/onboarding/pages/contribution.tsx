@@ -5,25 +5,25 @@ import {
   redirect,
   useActionData,
 } from "react-router";
-import { OnboardingHeader } from "~/components/onboarding/onboarding-header";
-import { OnboardingBackContinueActions } from "~/components/onboarding/onboarding-back-continue-actions";
-import { OnboardingFormError } from "~/components/onboarding/onboarding-form-error";
-import { OnboardingRomdoulCorners } from "~/components/onboarding/onboarding-romdoul-corners";
-import { OnboardingStepIntro } from "~/components/onboarding/onboarding-step-intro";
-import { SelectableContributionCard } from "~/components/onboarding/selectable-contribution-card";
+import { OnboardingHeader } from "~/routes/onboarding/components/onboarding-header";
+import { OnboardingBackContinueActions } from "~/routes/onboarding/components/onboarding-back-continue-actions";
+import { OnboardingFormError } from "~/routes/onboarding/components/onboarding-form-error";
+import { OnboardingRomdoulCorners } from "~/routes/onboarding/components/onboarding-romdoul-corners";
+import { OnboardingStepIntro } from "~/routes/onboarding/components/onboarding-step-intro";
+import { SelectableContributionCard } from "~/routes/onboarding/components/selectable-contribution-card";
 import { saveStep3Contributions } from "~/services/onboarding.server";
 import type { Route } from "./+types/contribution";
 import { requireOnboardingIncomplete } from "~/lib/server/route-guards.server";
 import {
   onboardingContributionCards,
-} from "~/features/onboarding/contribution/contribution-cards";
+} from "~/routes/onboarding/domain/contribution/contribution-cards";
 import {
   isContributionInputUnchanged,
   parseContributionForm,
   validateContributionInput,
-} from "~/features/onboarding/contribution/contribution-form";
-import { useOnboardingContributionLayoutData } from "~/features/onboarding/contribution/use-onboarding-contribution-layout-data";
-import { handleOnboardingActionError } from "~/features/onboarding/shared/onboarding-action-error.server";
+} from "~/routes/onboarding/domain/contribution/contribution-form";
+import { useOnboardingContributionLayoutData } from "~/routes/onboarding/domain/contribution/use-onboarding-contribution-layout-data";
+import { handleOnboardingActionError } from "~/routes/onboarding/domain/shared/onboarding-action-error.server";
 
 const selectableContributionKeys = new Set<string>(
   onboardingContributionCards.map((card) => card.key),

@@ -2,155 +2,28 @@ import { useEffect, useState } from "react";
 import {
   Form,
   Link,
-  redirect,
   useActionData,
   useNavigation,
   useSearchParams,
 } from "react-router";
 import { ArrowLeft, Mail } from "lucide-react";
-import {
-  AuthApiError,
-  getAuthFieldError,
-  resendRegisterOtp,
-  verifyRegisterOtp,
-} from "~/services/auth.server";
-import { createUserSession } from "~/lib/server/session.server";
-import {
-  destinationFromOnboardingState,
-  getOnboardingStateWithToken,
-} from "~/services/onboarding.server";
-import { redirectIfAuthenticated } from "~/lib/server/route-guards.server";
-import { InlineMessage } from "~/components/auth/inline-message";
+import { InlineMessage } from "~/routes/auth/components/inline-message";
 import { Button } from "~/components/ui/button";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
-} from "~/components/auth/input-otp";
+} from "~/routes/auth/components/input-otp";
+import {
+  action as verifyOtpAction,
+  loader as verifyOtpLoader,
+} from "~/routes/auth/domain/verify-otp.server";
+import type { VerifyOtpActionData } from "~/routes/auth/domain/auth.types";
 import { Label } from "~/components/ui/label";
 import { sanitizeRedirectPath } from "~/lib/redirects";
 
-export async function loader({ request }: { request: Request }) {
-  const authRedirect = await redirectIfAuthenticated(request);
-  if (authRedirect) throw authRedirect;
-  return {};
-}
-
-export async function action({ request }: { request: Request }) {
-  const formData = await request.formData();
-  const intent = String(formData.get("intent") || "verify");
-  const email = String(formData.get("email") || "");
-  const otp = String(formData.get("otp") || "");
-  const redirectTo = sanitizeRedirectPath(
-    formData.get("redirectTo")?.toString(),
-  );
-
-  if (intent === "resend") {
-    const errors: { email?: string; otp?: string; form?: string } = {};
-
-    if (!email) errors.email = "Email is required";
-    if (Object.keys(errors).length > 0) return { errors };
-
-    try {
-      await resendRegisterOtp(email, request);
-      return {
-        resend: {
-          success: true,
-          message: "A new verification code has been sent to your email.",
-        },
-      };
-    } catch (error) {
-      if (error instanceof AuthApiError) {
-        if (error.status === 400) {
-          return {
-            errors: {
-              email: getAuthFieldError(error.details, "email"),
-              form: error.message,
-            },
-          };
-        }
-
-        if (error.status === 404) {
-          throw redirect("/register");
-        }
-
-        if (error.status === 409) {
-          throw redirect("/login");
-        }
-
-        return { errors: { form: error.message } };
-      }
-
-      return {
-        errors: {
-          form:
-            error instanceof Error
-              ? `Could not resend OTP: ${error.message}`
-              : "Could not resend OTP. Please try again.",
-        },
-      };
-    }
-  }
-
-  const errors: { email?: string; otp?: string; form?: string } = {};
-
-  if (!email) errors.email = "Email is required";
-  if (!otp) errors.otp = "OTP is required";
-  else if (!/^\d{6}$/.test(otp)) errors.otp = "OTP must be 6 digits";
-
-  if (Object.keys(errors).length > 0) return { errors };
-
-  try {
-    const auth = await verifyRegisterOtp(email, otp, request);
-    const onboardingState = await getOnboardingStateWithToken(
-      request,
-      auth.accessToken,
-    );
-
-    const destination = onboardingState.completed
-      ? redirectTo
-      : destinationFromOnboardingState(onboardingState);
-
-    return createUserSession(auth, destination);
-  } catch (error) {
-    if (error instanceof AuthApiError) {
-      if (error.status === 400) {
-        const otpFieldError = getAuthFieldError(error.details, "otp");
-        const emailFieldError = getAuthFieldError(error.details, "email");
-
-        const normalizedMessage =
-          error.message === "Authentication request failed." ||
-          error.message === "Validation failed."
-            ? "Incorrect OTP."
-            : error.message;
-
-        return {
-          errors: {
-            email: emailFieldError,
-            otp: otpFieldError,
-            form: otpFieldError ? normalizedMessage : "Incorrect OTP.",
-          },
-        };
-      }
-
-      if (error.status === 401) {
-        return { errors: { form: "Incorrect OTP." } };
-      }
-
-      return { errors: { form: error.message } };
-    }
-
-    return {
-      errors: {
-        form:
-          error instanceof Error
-            ? `OTP verification failed: ${error.message}`
-            : "OTP verification failed. Please try again.",
-      },
-    };
-  }
-}
-
+export const loader = verifyOtpLoader;
+export const action = verifyOtpAction;
 export function meta() {
   return [{ title: "Verify OTP | True Khmer" }];
 }
@@ -168,7 +41,7 @@ function formatTimer(totalSeconds: number) {
 }
 
 export default function VerifyOtpPage() {
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData<VerifyOtpActionData>();
   const navigation = useNavigation();
   const [searchParams] = useSearchParams();
 

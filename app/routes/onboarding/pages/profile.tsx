@@ -8,12 +8,12 @@ import {
   data,
   redirect,
 } from "react-router";
-import { OnboardingHeader } from "~/components/onboarding/onboarding-header";
-import { OnboardingBackContinueActions } from "~/components/onboarding/onboarding-back-continue-actions";
-import { OnboardingFormError } from "~/components/onboarding/onboarding-form-error";
-import { OnboardingRomdoulCorners } from "~/components/onboarding/onboarding-romdoul-corners";
-import { OnboardingStepIntro } from "~/components/onboarding/onboarding-step-intro";
-import { ProfilePhotoUpload } from "~/components/onboarding/profile-photo-upload";
+import { OnboardingHeader } from "~/routes/onboarding/components/onboarding-header";
+import { OnboardingBackContinueActions } from "~/routes/onboarding/components/onboarding-back-continue-actions";
+import { OnboardingFormError } from "~/routes/onboarding/components/onboarding-form-error";
+import { OnboardingRomdoulCorners } from "~/routes/onboarding/components/onboarding-romdoul-corners";
+import { OnboardingStepIntro } from "~/routes/onboarding/components/onboarding-step-intro";
+import { ProfilePhotoUpload } from "~/routes/onboarding/components/profile-photo-upload";
 import type { Route } from "./+types/profile";
 import {
   getCountries,
@@ -29,14 +29,14 @@ import {
   isProfileInputUnchanged,
   parseProfileForm,
   validateProfileInput,
-} from "~/features/onboarding/profile/profile-form";
+} from "~/routes/onboarding/domain/profile/profile-form";
 import {
   getInitials,
   readValidationIssues,
-} from "~/features/onboarding/profile/profile-utils";
-import { useOnboardingProfileLayoutData } from "~/features/onboarding/profile/use-onboarding-profile-layout-data";
-import { useAvatarUpload } from "~/features/onboarding/profile/use-avatar-upload";
-import { handleOnboardingActionError } from "~/features/onboarding/shared/onboarding-action-error.server";
+} from "~/routes/onboarding/domain/profile/profile-utils";
+import { useOnboardingProfileLayoutData } from "~/routes/onboarding/domain/profile/use-onboarding-profile-layout-data";
+import { useAvatarUpload } from "~/routes/onboarding/domain/profile/use-avatar-upload";
+import { handleOnboardingActionError } from "~/routes/onboarding/domain/shared/onboarding-action-error.server";
 import { Label } from "~/components/ui/label";
 import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
 import { Textarea } from "~/components/ui/textarea";

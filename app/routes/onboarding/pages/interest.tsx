@@ -6,12 +6,12 @@ import {
   useActionData,
   useLoaderData,
 } from "react-router";
-import { OnboardingHeader } from "~/components/onboarding/onboarding-header";
-import { OnboardingBackContinueActions } from "~/components/onboarding/onboarding-back-continue-actions";
-import { OnboardingFormError } from "~/components/onboarding/onboarding-form-error";
-import { InterestSelector } from "~/components/onboarding/interest-selector";
-import { OnboardingRomdoulCorners } from "~/components/onboarding/onboarding-romdoul-corners";
-import { OnboardingStepIntro } from "~/components/onboarding/onboarding-step-intro";
+import { OnboardingHeader } from "~/routes/onboarding/components/onboarding-header";
+import { OnboardingBackContinueActions } from "~/routes/onboarding/components/onboarding-back-continue-actions";
+import { OnboardingFormError } from "~/routes/onboarding/components/onboarding-form-error";
+import { InterestSelector } from "~/routes/onboarding/components/interest-selector";
+import { OnboardingRomdoulCorners } from "~/routes/onboarding/components/onboarding-romdoul-corners";
+import { OnboardingStepIntro } from "~/routes/onboarding/components/onboarding-step-intro";
 import type { Route } from "./+types/interest";
 import { getInterests, saveStep2Interests } from "~/services/onboarding.server";
 import {
@@ -23,9 +23,9 @@ import {
   isInterestInputUnchanged,
   parseInterestForm,
   validateInterestInput,
-} from "~/features/onboarding/interest/interest-form";
-import { useOnboardingInterestLayoutData } from "~/features/onboarding/interest/use-onboarding-interest-layout-data";
-import { handleOnboardingActionError } from "~/features/onboarding/shared/onboarding-action-error.server";
+} from "~/routes/onboarding/domain/interest/interest-form";
+import { useOnboardingInterestLayoutData } from "~/routes/onboarding/domain/interest/use-onboarding-interest-layout-data";
+import { handleOnboardingActionError } from "~/routes/onboarding/domain/shared/onboarding-action-error.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
   try {

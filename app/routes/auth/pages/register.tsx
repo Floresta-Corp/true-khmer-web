@@ -1,18 +1,16 @@
 import { useState } from "react";
-import { Form, Link, redirect, useActionData, useSearchParams } from "react-router";
+import { Form, Link, useActionData, useSearchParams } from "react-router";
 import { Briefcase, Lock, Mail, User, UserRound } from "lucide-react";
-import type { Route } from "./+types/register";
+import { FormDivider } from "~/routes/auth/components/form-divider";
+import { FormError } from "~/routes/auth/components/form-error";
+import { GoogleButton } from "~/routes/auth/components/google-button";
+import { AuthPageShell } from "~/routes/auth/components/page-shell";
+import { PasswordField } from "~/routes/auth/components/password-field";
 import {
-  AuthApiError,
-  getAuthFieldError,
-  registerUser,
-} from "~/services/auth.server";
-import { redirectIfAuthenticated } from "~/lib/server/route-guards.server";
-import { FormDivider } from "~/components/auth/form-divider";
-import { FormError } from "~/components/auth/form-error";
-import { GoogleButton } from "~/components/auth/google-button";
-import { AuthPageShell } from "~/components/auth/page-shell";
-import { PasswordField } from "~/components/auth/password-field";
+  action as registerAction,
+  loader as registerLoader,
+} from "~/routes/auth/domain/register.server";
+import type { RegisterActionData } from "~/routes/auth/domain/auth.types";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
@@ -27,98 +25,14 @@ const genderOptions = [
   { value: "prefer_not_to_say", label: "Prefer not to say" },
 ];
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const authRedirect = await redirectIfAuthenticated(request);
-  if (authRedirect) throw authRedirect;
-  return {};
-}
-
-export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const firstName = String(formData.get("firstName") || "");
-  const lastName = String(formData.get("lastName") || "");
-  const email = String(formData.get("email") || "");
-  const password = String(formData.get("password") || "");
-  const gender = String(formData.get("gender") || "");
-  const occupation = String(formData.get("occupation") || "");
-  const redirectTo = sanitizeRedirectPath(
-    formData.get("redirectTo")?.toString(),
-  );
-
-  const errors: {
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-    gender?: string;
-    occupation?: string;
-    password?: string;
-    form?: string;
-  } = {};
-
-  if (!firstName) errors.firstName = "First name is required";
-  if (!lastName) errors.lastName = "Last name is required";
-  if (!email) errors.email = "Email is required";
-  else if (!email.includes("@")) errors.email = "Must be a valid email";
-  if (!gender) errors.gender = "Gender is required";
-  if (!occupation) errors.occupation = "Occupation is required";
-  if (!password) errors.password = "Password is required";
-  else if (password.length < 8) {
-    errors.password = "Password must be at least 8 characters";
-  }
-
-  if (Object.keys(errors).length > 0) return { errors };
-
-  try {
-    const registerResponse = await registerUser(
-      { email, password, firstName, lastName, gender, occupation },
-      request,
-    );
-
-    return redirect(
-      `/verify-otp?email=${encodeURIComponent(email)}&redirectTo=${encodeURIComponent(redirectTo)}&otpSent=${registerResponse.otpSent ? "1" : "0"}&message=${encodeURIComponent(registerResponse.message || "")}&from=register`,
-    );
-  } catch (error) {
-    if (error instanceof AuthApiError) {
-      if (error.status === 400) {
-        return {
-          errors: {
-            firstName: getAuthFieldError(error.details, "firstName"),
-            lastName: getAuthFieldError(error.details, "lastName"),
-            email: getAuthFieldError(error.details, "email"),
-            gender: getAuthFieldError(error.details, "gender"),
-            occupation: getAuthFieldError(error.details, "occupation"),
-            password: getAuthFieldError(error.details, "password"),
-            form: error.message,
-          },
-        };
-      }
-
-      if (error.status === 409) {
-        return {
-          errors: { email: "An account with this email already exists" },
-        };
-      }
-
-      return { errors: { form: error.message } };
-    }
-
-    return {
-      errors: {
-        form:
-          error instanceof Error
-            ? `Registration failed: ${error.message}`
-            : "Registration failed. Please try again.",
-      },
-    };
-  }
-}
-
+export const loader = registerLoader;
+export const action = registerAction;
 export function meta() {
   return [{ title: "Register | True Khmer" }];
 }
 
 export default function RegisterPage() {
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData<RegisterActionData>();
   const [searchParams] = useSearchParams();
 
   const [participation, setParticipation] = useState<"member" | "partner">(

@@ -1,15 +1,15 @@
 import { Form, data, redirect, useActionData } from "react-router";
-import { OnboardingBackContinueActions } from "~/components/onboarding/onboarding-back-continue-actions";
-import { OnboardingCurrentTierCard } from "~/components/onboarding/onboarding-current-tier-card";
-import { OnboardingFormError } from "~/components/onboarding/onboarding-form-error";
-import { OnboardingHeader } from "~/components/onboarding/onboarding-header";
-import { OnboardingRomdoulCorners } from "~/components/onboarding/onboarding-romdoul-corners";
-import { OnboardingStepIntro } from "~/components/onboarding/onboarding-step-intro";
-import { OnboardingTierPathCard } from "~/components/onboarding/onboarding-tier-path-card";
+import { OnboardingBackContinueActions } from "~/routes/onboarding/components/onboarding-back-continue-actions";
+import { OnboardingCurrentTierCard } from "~/routes/onboarding/components/onboarding-current-tier-card";
+import { OnboardingFormError } from "~/routes/onboarding/components/onboarding-form-error";
+import { OnboardingHeader } from "~/routes/onboarding/components/onboarding-header";
+import { OnboardingRomdoulCorners } from "~/routes/onboarding/components/onboarding-romdoul-corners";
+import { OnboardingStepIntro } from "~/routes/onboarding/components/onboarding-step-intro";
+import { OnboardingTierPathCard } from "~/routes/onboarding/components/onboarding-tier-path-card";
 import type { Route } from "./+types/tier";
 import { saveStep4Complete } from "~/services/onboarding.server";
 import { requireOnboardingIncomplete } from "~/lib/server/route-guards.server";
-import { handleOnboardingActionError } from "~/features/onboarding/shared/onboarding-action-error.server";
+import { handleOnboardingActionError } from "~/routes/onboarding/domain/shared/onboarding-action-error.server";
 
 export async function action({ request }: Route.ActionArgs) {
   const guard = await requireOnboardingIncomplete(request);
