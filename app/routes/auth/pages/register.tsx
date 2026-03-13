@@ -34,6 +34,9 @@ export function meta() {
 export default function RegisterPage() {
   const actionData = useActionData<RegisterActionData>();
   const [searchParams] = useSearchParams();
+  const formError = actionData?.errors?.form;
+  const emailError =
+    actionData?.errors?.email !== formError ? actionData?.errors?.email : null;
 
   const [participation, setParticipation] = useState<"member" | "partner">(
     "member",
@@ -113,7 +116,7 @@ export default function RegisterPage() {
             labelClassName="text-[#D1D5DC]"
           />
 
-          <FormError message={actionData?.errors?.form} />
+          <FormError message={formError} />
 
           <Form
             method="post"
@@ -202,8 +205,8 @@ export default function RegisterPage() {
                   className="h-11 rounded-lg border-transparent bg-[#F8FAFC] py-2 pl-9 pr-3 text-[12.25px] font-medium text-[#1E293B] placeholder:text-[#C8D6E5] focus-visible:ring-[#2F6FE4]/30"
                 />
               </div>
-              {actionData?.errors?.email ? (
-                <p className="text-xs text-red-500">{actionData.errors.email}</p>
+              {emailError ? (
+                <p className="text-xs text-red-500">{emailError}</p>
               ) : null}
             </div>
 
@@ -216,7 +219,6 @@ export default function RegisterPage() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="••••••••"
-              error={actionData?.errors?.password}
             />
 
             <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">

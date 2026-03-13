@@ -44,9 +44,9 @@ type ResendRegisterOtpResponse = {
 
 export class AuthApiError extends Error {
   status: number;
-  details?: unknown;
+  details?: AuthErrorDetails;
 
-  constructor(message: string, status: number, details?: unknown) {
+  constructor(message: string, status: number, details?: AuthErrorDetails) {
     super(message);
     this.name = "AuthApiError";
     this.status = status;
@@ -54,16 +54,103 @@ export class AuthApiError extends Error {
   }
 }
 
-type AuthValidationDetails = {
-  fieldErrors?: Record<string, unknown>;
+export type AuthErrorDetails = {
+  code?: string;
+  fieldErrors?: Record<string, string>;
+  message?: string;
+  otpSent?: boolean;
 };
 
-export function getAuthFieldError(details: unknown, field: string) {
-  if (!details || typeof details !== "object") return undefined;
-  const fieldErrors = (details as AuthValidationDetails).fieldErrors;
-  if (!fieldErrors || typeof fieldErrors !== "object") return undefined;
-  const message = fieldErrors[field];
-  return typeof message === "string" ? message : undefined;
+type AuthErrorResponse = {
+  code?: string;
+  details?: AuthErrorDetails;
+  error?: string;
+  fieldErrors?: Record<string, string>;
+  message?: string;
+  otpSent?: boolean;
+};
+
+function isStringRecord(value: unknown): value is Record<string, string> {
+  if (!value || typeof value !== "object") return false;
+  return Object.values(value).every((entry) => typeof entry === "string");
+}
+
+function normalizeAuthErrorDetails(data: AuthErrorResponse): AuthErrorDetails {
+  const nestedDetails = data.details;
+  const fieldErrors = nestedDetails?.fieldErrors ?? data.fieldErrors;
+
+  return {
+    code: nestedDetails?.code ?? data.code,
+    fieldErrors: isStringRecord(fieldErrors) ? fieldErrors : undefined,
+    message: nestedDetails?.message ?? data.message ?? data.error,
+    otpSent: nestedDetails?.otpSent ?? data.otpSent,
+  };
+}
+
+export function getAuthFieldError(details: AuthErrorDetails | undefined, field: string) {
+  return details?.fieldErrors?.[field];
+}
+
+export function getAuthErrorCode(details: AuthErrorDetails | undefined) {
+  return details?.code;
+}
+
+export function getAuthErrorMessage(details: AuthErrorDetails | undefined) {
+  return details?.message;
+}
+
+const authMessageRules: Array<{
+  pattern: RegExp;
+  replacement: string | ((match: RegExpMatchArray) => string);
+}> = [
+  {
+    pattern: /^authentication request failed\.?$/i,
+    replacement: "We couldn't complete your request. Please try again.",
+  },
+  {
+    pattern: /^validation failed\.?$/i,
+    replacement: "Please check your information and try again.",
+  },
+  {
+    pattern: /^password must contain at least one lowercase letter\.?$/i,
+    replacement: "Password must include at least one lowercase letter.",
+  },
+  {
+    pattern: /^password must contain at least one uppercase letter\.?$/i,
+    replacement: "Password must include at least one uppercase letter.",
+  },
+  {
+    pattern: /^password must contain at least one special character\.?$/i,
+    replacement: "Password must include at least one special character.",
+  },
+  {
+    pattern: /^password must not contain whitespace\.?$/i,
+    replacement: "Password must not contain spaces.",
+  },
+  {
+    pattern: /^password must be at least (\d+) characters?(?: long)?\.?$/i,
+    replacement: (match) =>
+      `Password must be at least ${match[1]} characters long.`,
+  },
+];
+
+export function formatAuthMessage(message?: string) {
+  if (!message) return undefined;
+
+  const normalized = message.trim().replace(/\s+/g, " ");
+  if (!normalized) return undefined;
+
+  for (const rule of authMessageRules) {
+    const match = normalized.match(rule.pattern);
+    if (!match) continue;
+    return typeof rule.replacement === "function"
+      ? rule.replacement(match)
+      : rule.replacement;
+  }
+
+  const sentence = normalized.charAt(0).toUpperCase() + normalized.slice(1);
+
+  return /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
 }
 
 async function authRequest<T>(
@@ -88,16 +175,12 @@ async function authRequest<T>(
     throw new Error(`Cannot reach auth API at ${url}. ${reason}`);
   }
 
-  const data = (await response.json().catch(() => ({}))) as Record<
-    string,
-    unknown
-  >;
+  const data = (await response.json().catch(() => ({}))) as AuthErrorResponse;
 
   if (!response.ok) {
-    const message =
-      (typeof data.message === "string" && data.message) ||
-      "Authentication request failed.";
-    throw new AuthApiError(message, response.status, data);
+    const details = normalizeAuthErrorDetails(data);
+    const message = details.message || "Authentication request failed.";
+    throw new AuthApiError(message, response.status, details);
   }
 
   return data as T;

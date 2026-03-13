@@ -6,6 +6,8 @@ import {
 import type { LoginActionData, LoginErrors } from "./auth.types";
 import {
   AuthApiError,
+  getAuthErrorCode,
+  getAuthErrorMessage,
   getAuthFieldError,
   loginUser,
 } from "~/services/auth.server";
@@ -24,9 +26,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 function isUnverifiedAccountError(error: AuthApiError) {
-  const details = error.details as Record<string, unknown> | undefined;
-  const code = typeof details?.code === "string" ? details.code : "";
-  return code === "EMAIL_NOT_VERIFIED";
+  return getAuthErrorCode(error.details) === "EMAIL_NOT_VERIFIED";
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -55,11 +55,10 @@ export async function action({ request }: ActionFunctionArgs) {
   } catch (error) {
     if (error instanceof AuthApiError) {
       if (isUnverifiedAccountError(error)) {
-        const details = error.details as Record<string, unknown> | undefined;
         const message =
-          (typeof details?.message === "string" && details.message) ||
+          getAuthErrorMessage(error.details) ||
           "Verification code sent. Please verify OTP.";
-        const otpSent = details?.otpSent === true ? "1" : "0";
+        const otpSent = error.details?.otpSent ? "1" : "0";
 
         return redirect(
           `/verify-otp?email=${encodeURIComponent(email)}&redirectTo=${encodeURIComponent(redirectTo)}&otpSent=${otpSent}&message=${encodeURIComponent(message)}&from=login`,

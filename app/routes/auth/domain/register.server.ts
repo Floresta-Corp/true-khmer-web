@@ -6,11 +6,33 @@ import {
 import type { RegisterErrors } from "./auth.types";
 import {
   AuthApiError,
+  formatAuthMessage,
+  getAuthErrorCode,
   getAuthFieldError,
   registerUser,
 } from "~/services/auth.server";
 import { redirectIfAuthenticated } from "~/lib/server/route-guards.server";
 import { sanitizeRedirectPath } from "~/lib/redirects";
+
+const USER_ALREADY_EXISTS_CODE = "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL";
+
+function getRegisterFormError(
+  passwordError?: string,
+  hasFieldError?: boolean,
+  generalError?: string,
+) {
+  if (passwordError) return passwordError;
+  if (!hasFieldError) return generalError;
+  return undefined;
+}
+
+function withRegisterFormError(errors: RegisterErrors): RegisterErrors {
+  if (errors.password) {
+    return { ...errors, form: errors.password };
+  }
+
+  return errors;
+}
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const authRedirect = await redirectIfAuthenticated(request);
@@ -43,7 +65,9 @@ export async function action({ request }: ActionFunctionArgs) {
     errors.password = "Password must be at least 8 characters";
   }
 
-  if (Object.keys(errors).length > 0) return { errors };
+  if (Object.keys(errors).length > 0) {
+    return { errors: withRegisterFormError(errors) };
+  }
 
   try {
     const registerResponse = await registerUser(
@@ -56,34 +80,71 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   } catch (error) {
     if (error instanceof AuthApiError) {
-      if (error.status === 400) {
+      if (getAuthErrorCode(error.details) === USER_ALREADY_EXISTS_CODE) {
+        const duplicateEmailMessage =
+          "An account with this email already exists. Please sign in.";
+
         return {
           errors: {
-            firstName: getAuthFieldError(error.details, "firstName"),
-            lastName: getAuthFieldError(error.details, "lastName"),
-            email: getAuthFieldError(error.details, "email"),
-            gender: getAuthFieldError(error.details, "gender"),
-            occupation: getAuthFieldError(error.details, "occupation"),
-            password: getAuthFieldError(error.details, "password"),
-            form: error.message,
+            email: duplicateEmailMessage,
+            form: duplicateEmailMessage,
           },
         };
       }
 
-      if (error.status === 409) {
+      if (error.status === 400) {
+        const firstNameError = formatAuthMessage(
+          getAuthFieldError(error.details, "firstName"),
+        );
+        const lastNameError = formatAuthMessage(
+          getAuthFieldError(error.details, "lastName"),
+        );
+        const emailError = formatAuthMessage(
+          getAuthFieldError(error.details, "email"),
+        );
+        const genderError = formatAuthMessage(
+          getAuthFieldError(error.details, "gender"),
+        );
+        const occupationError = formatAuthMessage(
+          getAuthFieldError(error.details, "occupation"),
+        );
+        const passwordError = formatAuthMessage(
+          getAuthFieldError(error.details, "password"),
+        );
+        const hasFieldError = !!(
+          firstNameError ||
+          lastNameError ||
+          emailError ||
+          genderError ||
+          occupationError ||
+          passwordError
+        );
+
         return {
-          errors: { email: "An account with this email already exists" },
+          errors: withRegisterFormError({
+            firstName: firstNameError,
+            lastName: lastNameError,
+            email: emailError,
+            gender: genderError,
+            occupation: occupationError,
+            password: passwordError,
+            form: getRegisterFormError(
+              passwordError,
+              hasFieldError,
+              formatAuthMessage(error.message),
+            ),
+          }),
         };
       }
 
-      return { errors: { form: error.message } };
+      return { errors: { form: formatAuthMessage(error.message) } };
     }
 
     return {
       errors: {
         form:
           error instanceof Error
-            ? `Registration failed: ${error.message}`
+            ? formatAuthMessage(`Registration failed: ${error.message}`)
             : "Registration failed. Please try again.",
       },
     };
