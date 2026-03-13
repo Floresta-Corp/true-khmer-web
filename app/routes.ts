@@ -13,6 +13,7 @@ export default [
     route("profile", "routes/profile.tsx"),
     route("events", "routes/events.tsx"),
     route("forum", "routes/forum/routes/forum.tsx"),
+    route("forum/:postId", "routes/forum/routes/forum-detail.tsx"),
   ]),
   route("login", "routes/login.tsx"),
   route("register", "routes/register.tsx"),

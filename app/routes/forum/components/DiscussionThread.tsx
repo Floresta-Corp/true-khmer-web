@@ -3,6 +3,7 @@ import {
   MessageSquare,
   MoreHorizontal,
   ChevronDown,
+  Link,
 } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -72,7 +73,9 @@ export function DiscussionCard({ post, onCategoryClick }: DiscussionCardProps) {
 
       {/* Title */}
       <h2 className="text-base font-semibold text-[#030213] mb-2">
-        {post.title}
+        <Link to={`/forum/${post.id}`} className="hover:text-[#2f6fe4]">
+          {post.title}
+        </Link>
       </h2>
 
       {/* Description */}
@@ -113,7 +116,7 @@ export function DiscussionCard({ post, onCategoryClick }: DiscussionCardProps) {
 
         {/* Engagement metrics */}
         <div className="flex items-center gap-3.5">
-          <div className="flex items-center gap-1 px-3 h-[30px] rounded-lg border border-[#f3f4f6] bg-[#f9fafb]">
+          <div className="flex h-7.5 items-center gap-1 rounded-lg border border-[#f3f4f6] bg-[#f9fafb] px-3">
             <Button variant="ghost" size="sm" className="h-auto p-0">
               <Heart size={14} className="text-[#1fc16b]" />
             </Button>
