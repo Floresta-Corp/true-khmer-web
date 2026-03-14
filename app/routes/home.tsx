@@ -1,6 +1,6 @@
 import type { Route } from "./+types/home";
 import { Link, useLoaderData } from "react-router";
-import { getUser } from "~/lib/session.server";
+import { getUser } from "~/lib/server/session.server";
 import { Button } from "~/components/ui/button";
 
 export function meta({}: Route.MetaArgs) {
