@@ -1,115 +1,121 @@
+import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
 import { Link } from "react-router";
-import { Separator } from "~/components/ui/separator";
-import { Instagram, Facebook, Twitter, Mail, Globe } from "lucide-react";
 
-const footerLinks = {
-  "Your Journey": [
-    { label: "My Identity", to: "#" },
-    { label: "My Impact", to: "#" },
-    { label: "Leaderboard", to: "#" },
-    { label: "Tier Benefits", to: "#" },
-  ],
-  Marketplace: [
-    { label: "Product", to: "#" },
-    { label: "Service Providers", to: "#" },
-    { label: "Merchant Tools", to: "#" },
-  ],
-  Community: [
-    { label: "Resources", to: "#" },
-    { label: "Forum", to: "/forum" },
-    { label: "Events", to: "/events" },
-    { label: "Mentorship", to: "#" },
-  ],
-  Legal: [
-    { label: "Privacy Policy", to: "#" },
-    { label: "Terms of Service", to: "#" },
-    { label: "Cookie Policy", to: "#" },
-    { label: "Ethics Covenant", to: "#" },
-  ],
-};
+const footerColumns = [
+  {
+    heading: "Platform",
+    links: [
+      { label: "Forum", to: "/forum" },
+      { label: "Events", to: "/events" },
+      { label: "Volunteers", to: "/volunteer" },
+      { label: "Launchpad", to: "/launchpad" },
+      { label: "People of Cambodia", to: "/people" },
+    ],
+  },
+  {
+    heading: "Community",
+    links: [
+      { label: "Sponsors", to: "/" },
+      { label: "Success Stories", to: "/" },
+      { label: "Partners", to: "/" },
+      { label: "News", to: "/" },
+    ],
+  },
+  {
+    heading: "About",
+    links: [
+      { label: "Our Story", to: "/about" },
+      { label: "Our Team", to: "/" },
+    ],
+  },
+];
 
 const socialLinks = [
-  { icon: Instagram, to: "#", label: "Instagram" },
-  { icon: Facebook, to: "#", label: "Facebook" },
-  { icon: Twitter, to: "#", label: "Twitter" },
-  { icon: Mail, to: "#", label: "Email" },
+  { label: "Facebook", to: "#", icon: Facebook },
+  { label: "Twitter", to: "#", icon: Twitter },
+  { label: "Instagram", to: "#", icon: Instagram },
+  { label: "LinkedIn", to: "#", icon: Linkedin },
+];
+
+const legalLinks = [
+  { label: "Privacy Policy", to: "/" },
+  { label: "Terms of Service", to: "/" },
+  { label: "Cookie Settings", to: "/" },
 ];
 
 export function Footer() {
   return (
-    <footer className="bg-white border-t border-gray-200 mt-16 pb-20 md:pb-0">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-8">
-          {/* Logo + Description */}
-          <div className="md:col-span-2">
-            <div className="flex flex-col gap-4">
-              <Link to="/">
-                <img
-                  src="/logofullcolor.svg"
-                  alt="Logo"
-                  className="h-10 w-auto"
-                  loading="lazy"
-                />
-              </Link>
-              <p className="text-sm text-gray-500 leading-relaxed mb-6 max-w-xs">
-                Empowering the Khmer community through heritage-driven growth,
-                cultural preservation, and collective economic sovereignty.
-              </p>
-            </div>
+    <footer className="w-full border-t border-[#e2e8f0] bg-[#f9fafb]">
+      <div className="w-full px-6 py-14 md:px-12 lg:px-20">
+        <div className="flex flex-col gap-10 lg:flex-row lg:justify-between lg:gap-20">
+          {/* Brand section */}
+          <div className="flex max-w-sm shrink-0 flex-col gap-5">
+            <Link to="/" className="inline-flex w-fit">
+              <img
+                src="/logofullcolor.svg"
+                alt="True Khmer"
+                className="h-8 w-auto"
+                loading="lazy"
+              />
+            </Link>
+            <p className="text-sm leading-6 text-[#6a7282]">
+              The leading community platform for Khmer business and career
+              growth. Bridging the gap between talent and opportunity worldwide.
+            </p>
             <div className="flex items-center gap-3">
-              {socialLinks.map((social) => (
-                <Link
-                  key={social.label}
-                  to={social.to}
-                  className="h-9 w-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-                  aria-label={social.label}
-                >
-                  <social.icon className="h-4 w-4" />
-                </Link>
-              ))}
+              {socialLinks.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.label}
+                    to={item.to}
+                    aria-label={item.label}
+                    className="flex size-9 items-center justify-center rounded-full border border-[#e2e8f0] bg-white text-[#6a7282] transition-all hover:border-[#2f6fe4] hover:text-[#2f6fe4]"
+                  >
+                    <Icon className="size-4" />
+                  </Link>
+                );
+              })}
             </div>
           </div>
 
-          {/* Link Columns */}
-          {Object.entries(footerLinks).map(([title, links]) => (
-            <div key={title}>
-              <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4">
-                {title}
-              </h3>
-              <ul className="space-y-2.5">
-                {links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      to={link.to}
-                      className="text-sm text-gray-500 hover:text-blue-600 transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {/* Link columns */}
+          <div className="grid flex-1 grid-cols-2 gap-8 sm:grid-cols-3 lg:max-w-xl lg:gap-12">
+            {footerColumns.map((column) => (
+              <div key={column.heading} className="flex flex-col gap-4">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#2f6fe4]">
+                  {column.heading}
+                </h3>
+                <ul className="flex flex-col gap-3">
+                  {column.links.map((link) => (
+                    <li key={link.label}>
+                      <Link
+                        to={link.to}
+                        className="text-sm leading-5 text-[#374151] transition-colors hover:text-[#2f6fe4]"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Bottom bar */}
-      <Separator className="bg-gray-100" />
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
-              © 2026 True Khmer. All roots protected.
-            </p>
-            <p className="text-[11px] text-gray-400 italic mt-0.5">
-              Designed with respect for heritage and future.
-            </p>
-          </div>
-          <div className="flex items-center gap-2 border border-gray-200 rounded-full px-4 py-2">
-            <Globe className="h-4 w-4 text-gray-400" />
-            <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
-              Region: Cambodia
-            </span>
+        {/* Bottom bar */}
+        <div className="mt-12 flex flex-col gap-4 border-t border-[#e2e8f0] pt-8 text-sm text-[#6a7282] sm:flex-row sm:items-center sm:justify-between">
+          <p>© 2026 True Khmer. All Rights Reserved.</p>
+          <div className="flex flex-wrap items-center gap-6">
+            {legalLinks.map((link) => (
+              <Link
+                key={link.label}
+                to={link.to}
+                className="transition-colors hover:text-[#2f6fe4]"
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>
