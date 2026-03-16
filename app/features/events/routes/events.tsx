@@ -5,7 +5,6 @@ import {
   EventCard,
   type EventData,
 } from "~/features/events/components/event-card";
-import { Footer } from "~/components/footer";
 import {
   getEventList,
   getUpcomingEvents,

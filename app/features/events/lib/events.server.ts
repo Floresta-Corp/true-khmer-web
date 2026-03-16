@@ -1,5 +1,5 @@
-import { requireUser } from "~/lib/session.server";
 import type { EventData } from "~/features/events/components/event-card";
+import { requireUser } from "~/lib/server/route-guards.server";
 
 export interface EventCategory {
   id: string;
