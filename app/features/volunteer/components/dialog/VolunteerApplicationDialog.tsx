@@ -28,7 +28,7 @@ export default function VolunteerApplicationDialog({
         )}
       </DialogTrigger>
 
-      <DialogContent className="max-w-140 rounded-[14px] border border-[#e1e7ef] p-0 [&>button]:right-6 [&>button]:top-[22px] [&>button]:rounded-full [&>button]:p-1.5 [&>button]:text-[#99a1af] [&>button]:opacity-100">
+      <DialogContent className="min-w-lg rounded-[14px] border border-[#e1e7ef] p-0 [&>button]:right-6 [&>button]:top-5.5 [&>button]:rounded-full [&>button]:p-1.5 [&>button]:text-[#99a1af] [&>button]:opacity-100">
         <div className="border-b border-[#f3f4f6] px-6 pb-3.75 pt-5 mb-6">
           <h2 className="text-[20px] font-semibold leading-[25.2px] text-[#030213]">
             Volunteer Application
@@ -92,15 +92,16 @@ export default function VolunteerApplicationDialog({
 
           <div className="space-y-3 mb-5">
             <div className="flex items-start justify-between">
-              <p className="text-sm font-medium leading-[21px] text-[#65758b]">
+              <p className="text-sm font-medium leading-5.25 text-[#65758b]">
                 Supporting Documents
               </p>
-              <button
+              <Button
                 type="button"
-                className="text-sm font-semibold leading-[18px] text-[#2f6fe4]"
+                variant="ghost"
+                className="text-sm font-semibold leading-4.5 text-[#2f6fe4]"
               >
                 + Add
-              </button>
+              </Button>
             </div>
 
             <div className="rounded-lg border border-[#f1f5f9] p-2.5">
@@ -111,12 +112,13 @@ export default function VolunteerApplicationDialog({
                     Volunteer 2025 David
                   </p>
                 </div>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-medium leading-[19.5px] text-[#65758b]"
                 >
                   Replace
-                </button>
+                </Button>
               </div>
             </div>
           </div>

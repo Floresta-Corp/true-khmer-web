@@ -1,4 +1,5 @@
 import { Calendar, MapPin, Globe, Flag } from "lucide-react";
+import { Button } from "~/components/ui/button";
 import { formatDate, formatTime } from "~/features/events/lib/event-formatters";
 import type { EventData } from "./event-card";
 import type { Organizer } from "~/features/events/lib/event-types";
@@ -100,10 +101,13 @@ export function EventDetailSidebar({
             </div>
 
             {/* Report */}
-            <button className="flex items-center gap-1.5 mt-5 text-xs text-red-400 hover:text-red-500 transition-colors">
+            <Button
+              variant="ghost"
+              className="h-auto mt-5 px-0 py-0 flex items-center gap-1.5 text-xs text-red-400 hover:text-red-500 transition-colors"
+            >
               <Flag className="w-3.5 h-3.5" />
               Report
-            </button>
+            </Button>
           </div>
         )}
       </div>

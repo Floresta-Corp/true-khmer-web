@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
 import { Calendar, MapPin, Heart } from "lucide-react";
 import {
   CATEGORY_COLORS,
@@ -68,11 +69,13 @@ export function EventCard({ event }: EventCardProps) {
             )}
           </div>
           {/* Favorite button — top right */}
-          <button
+          <Button
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
             }}
+            variant="ghost"
+            size="icon"
             className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors shadow-sm"
           >
             <Heart
@@ -82,7 +85,7 @@ export function EventCard({ event }: EventCardProps) {
                   : "text-gray-500 hover:text-red-500"
               }`}
             />
-          </button>
+          </Button>
         </div>
 
         {/* Content */}

@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 export interface DiscussionPost {
   id: string;
@@ -37,12 +38,13 @@ export function DiscussionCard({ post, onCategoryClick }: DiscussionCardProps) {
       {/* Header with category and metadata */}
       <div className="flex justify-between items-start mb-5 gap-4">
         <div className="flex gap-2 items-center">
-          <button
+          <Button
             onClick={() => onCategoryClick?.(post.category)}
-            className="text-xs font-bold text-[#2f6fe4] hover:underline"
+            variant="ghost"
+            className="h-auto px-0 py-0 text-xs font-bold text-[#2f6fe4] hover:underline"
           >
             {post.category}
-          </button>
+          </Button>
           {post.badge && (
             <Badge
               variant="secondary"
@@ -62,12 +64,20 @@ export function DiscussionCard({ post, onCategoryClick }: DiscussionCardProps) {
           <div className="flex items-center gap-1 text-xs text-[#9eacc0]">
             <span>{post.timeAgo}</span>
           </div>
-          <button className="p-1 hover:bg-[#f8fafc] rounded transition-colors">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="p-1 hover:bg-[#f8fafc] rounded transition-colors"
+          >
             <Heart size={16} className="text-[#ccc]" />
-          </button>
-          <button className="p-1 hover:bg-[#f8fafc] rounded transition-colors">
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="p-1 hover:bg-[#f8fafc] rounded transition-colors"
+          >
             <MessageSquare size={16} className="text-[#ccc]" />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -152,31 +162,36 @@ export function DiscussionThread({
   onTabChange,
   onCategoryClick,
 }: DiscussionThreadProps) {
-  const tabs = [
-    { id: "recent" as const, label: "Recent" },
-    { id: "topRated" as const, label: "Top Rated" },
-    { id: "unanswered" as const, label: "Unanswered" },
-    { id: "myActivity" as const, label: "My Activity" },
-  ];
+  const tabs: Array<{ id: DiscussionThreadProps["activeTab"]; label: string }> =
+    [
+      { id: "recent" as const, label: "Recent" },
+      { id: "topRated" as const, label: "Top Rated" },
+      { id: "unanswered" as const, label: "Unanswered" },
+      { id: "myActivity" as const, label: "My Activity" },
+    ];
 
   return (
     <div className="flex-1 w-full">
       {/* Tabs */}
-      <div className="flex gap-5 mb-4 border-b border-[#f1f5f9] pb-2">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange?.(tab.id)}
-            className={`text-sm font-semibold pb-2 transition-colors relative ${
-              activeTab === tab.id
-                ? "text-[#2f6fe4] border-b-2 border-[#2f6fe4]"
-                : "text-[#9eacc0] hover:text-[#344256]"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        className="mb-3.5"
+        value={activeTab}
+        onValueChange={(value) =>
+          onTabChange?.(value as DiscussionThreadProps["activeTab"])
+        }
+      >
+        <TabsList variant="line">
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.id}
+              value={tab.id}
+              className="after:-bottom-px h-auto text-sm font-semibold text-[#9eacc0] transition-colors hover:text-[#344256] data-[state=active]:text-[#2f6fe4] data-[state=active]:after:bg-[#2f6fe4]"
+            >
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
 
       {/* Discussion posts */}
       <div className="flex flex-col gap-4">
@@ -198,9 +213,12 @@ export function DiscussionThread({
       {/* Load more button */}
       {posts.length > 0 && (
         <div className="text-center mt-8">
-          <button className="text-sm font-medium text-[#9eacc0] hover:text-[#344256] transition-colors">
+          <Button
+            variant="ghost"
+            className="h-auto px-0 py-0 text-sm font-medium text-[#9eacc0] hover:text-[#344256] transition-colors"
+          >
             Load more discussions
-          </button>
+          </Button>
         </div>
       )}
     </div>

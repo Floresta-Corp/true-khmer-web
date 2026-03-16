@@ -15,7 +15,8 @@ import {
 } from "lucide-react";
 
 import AddAnswerDialog from "../components/AddAnswerDialog";
-import type { Route } from "./+types/forum-detail";
+import { Button } from "~/components/ui/button";
+import type { Route } from ".react-router/types/app/+types/root";
 
 type Profile = {
   name: string;
@@ -118,15 +119,23 @@ export async function loader({ params }: Route.LoaderArgs) {
 function VoteRail({ votes }: { votes: number }) {
   return (
     <div className="flex w-7 shrink-0 flex-col items-center gap-1.5 pt-1">
-      <button className="flex h-7 w-7 items-center justify-center rounded-xl border border-[#f3f4f6] bg-[#f9fafb] text-[#9eacc0] transition-colors hover:text-[#344256]">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="flex h-7 w-7 items-center justify-center rounded-xl border border-[#f3f4f6] bg-[#f9fafb] text-[#9eacc0] transition-colors hover:text-[#344256]"
+      >
         <ChevronUp className="h-3.5 w-3.5" />
-      </button>
+      </Button>
       <span className="text-[11px] font-semibold leading-4 text-[#4a5565]">
         {votes}
       </span>
-      <button className="flex h-7 w-7 items-center justify-center rounded-xl border border-[#f3f4f6] bg-[#f9fafb] text-[#9eacc0] transition-colors hover:text-[#344256]">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="flex h-7 w-7 items-center justify-center rounded-xl border border-[#f3f4f6] bg-[#f9fafb] text-[#9eacc0] transition-colors hover:text-[#344256]"
+      >
         <ChevronDown className="h-3.5 w-3.5" />
-      </button>
+      </Button>
     </div>
   );
 }
@@ -158,9 +167,13 @@ function AnswerCard({ answer }: { answer: Answer }) {
 
             <div className="flex items-center gap-3 text-xs font-medium text-[#99a1af]">
               <span>{answer.postedAt}</span>
-              <button className="rounded-sm p-1 transition-colors hover:text-[#4a5565]">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-sm p-1 transition-colors hover:text-[#4a5565]"
+              >
                 <Flag className="h-3.5 w-3.5" />
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -188,12 +201,14 @@ function ForumDetailFooter() {
             </p>
             <div className="mt-5 flex items-center gap-3.5">
               {social.map((Icon, index) => (
-                <button
+                <Button
                   key={index}
+                  variant="ghost"
+                  size="icon"
                   className="flex h-8.75 w-8.75 items-center justify-center rounded-full border border-[#f3f4f6] bg-[#f9fafb] text-[#9eacc0] transition-colors hover:text-[#2f6fe4]"
                 >
                   <Icon className="h-4 w-4" />
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -264,12 +279,20 @@ export default function ForumDetailPage() {
             </Link>
 
             <div className="flex items-center gap-2">
-              <button className="rounded-xl p-2 text-[#99a1af] transition-colors hover:bg-white hover:text-[#4a5565]">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-xl p-2 text-[#99a1af] transition-colors hover:bg-white hover:text-[#4a5565]"
+              >
                 <Share2 className="h-4 w-4" />
-              </button>
-              <button className="rounded-xl p-2 text-[#99a1af] transition-colors hover:bg-white hover:text-[#4a5565]">
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-xl p-2 text-[#99a1af] transition-colors hover:bg-white hover:text-[#4a5565]"
+              >
                 <EllipsisVertical className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -316,15 +339,21 @@ export default function ForumDetailPage() {
                 </div>
 
                 <div className="flex h-7.5 items-center rounded-xl border border-[#f3f4f6] bg-[#f9fafb] text-[#4a5565]">
-                  <button className="px-2 text-[#99a1af] hover:text-[#4a5565]">
+                  <Button
+                    variant="ghost"
+                    className="h-auto px-2 py-0 text-[#99a1af] hover:text-[#4a5565]"
+                  >
                     <ChevronUp className="h-3.5 w-3.5" />
-                  </button>
+                  </Button>
                   <span className="px-1 text-xs font-semibold">
                     {discussion.score}
                   </span>
-                  <button className="px-2 text-[#99a1af] hover:text-[#4a5565]">
+                  <Button
+                    variant="ghost"
+                    className="h-auto px-2 py-0 text-[#99a1af] hover:text-[#4a5565]"
+                  >
                     <ChevronDown className="h-3.5 w-3.5" />
-                  </button>
+                  </Button>
                 </div>
               </div>
 

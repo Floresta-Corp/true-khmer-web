@@ -1,4 +1,5 @@
 import { ChevronDown, Check } from "lucide-react";
+import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -22,10 +23,13 @@ export function LocationDropdown({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors whitespace-nowrap">
+        <Button
+          variant="ghost"
+          className="h-auto px-3 py-2 flex items-center gap-1.5 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors whitespace-nowrap"
+        >
           <span>{value}</span>
           <ChevronDown className="w-3.5 h-3.5 shrink-0" />
-        </button>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"

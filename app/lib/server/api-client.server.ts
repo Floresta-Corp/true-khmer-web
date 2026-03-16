@@ -48,9 +48,9 @@ export class InvalidApiResponseError extends Error {
   }
 }
 
-type RequestOptions = {
+type RequestOptions<K extends object = JsonObject> = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  body?: JsonObject | undefined;
+  body?: K | undefined;
 };
 
 export type ApiResult<T> = {
@@ -90,11 +90,11 @@ async function parseJson(response: Response): Promise<JsonObject> {
   throw new InvalidApiResponseError(response);
 }
 
-async function fetchWithBearer(
+async function fetchWithBearer<K extends object = JsonObject>(
   request: Request,
   path: string,
   accessToken: string,
-  options: RequestOptions = {},
+  options: RequestOptions<K> = {},
 ) {
   const base = resolveApiBase(request);
   const url = `${base}${path}`;
@@ -117,10 +117,10 @@ function readErrorMessage(payload: JsonObject, fallback: string) {
   );
 }
 
-export async function apiRequestWithSession<T>(
+export async function apiRequestWithSession<T, K extends object = JsonObject>(
   request: Request,
   path: string,
-  options: RequestOptions = {},
+  options: RequestOptions<K> = {},
 ): Promise<ApiResult<T>> {
   const session = await getSession(request);
   let accessToken = session.get("accessToken") as string | undefined;
@@ -165,11 +165,14 @@ export async function apiRequestWithSession<T>(
   };
 }
 
-export async function apiRequestWithAccessToken<T>(
+export async function apiRequestWithAccessToken<
+  T,
+  K extends object = JsonObject,
+>(
   request: Request,
   accessToken: string,
   path: string,
-  options: RequestOptions = {},
+  options: RequestOptions<K> = {},
 ) {
   const response = await fetchWithBearer(request, path, accessToken, options);
   const payload = await parseJson(response);

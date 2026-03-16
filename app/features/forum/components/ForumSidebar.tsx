@@ -51,9 +51,10 @@ function Categories({
       {/* Category buttons */}
       <div className="flex flex-col gap-[3.5px]">
         {CATEGORIES.map((category) => (
-          <button
+          <Button
             key={category.name}
             onClick={() => onCategorySelect?.(category.name)}
+            variant="ghost"
             className={`flex h-9 items-center justify-between px-2.25 py-0 rounded-lg transition-colors ${
               selectedCategory === category.name
                 ? "bg-transparent"
@@ -78,7 +79,7 @@ function Categories({
             >
               {category.count}
             </span>
-          </button>
+          </Button>
         ))}
       </div>
     </div>
@@ -103,25 +104,27 @@ function TrendingTopics() {
             key={index}
             className={`flex gap-[7px] flex-wrap ${index % 2 === 0 ? "" : ""}`}
           >
-            <button
+            <Button
+              variant="ghost"
               className="bg-[#f8fafc] rounded-2xl px-1.5 py-1 hover:bg-[#f1f5f9] transition-colors"
               title={topic}
             >
               <span className="text-xs font-medium text-[#344256]">
                 {topic}
               </span>
-            </button>
+            </Button>
             {index < TRENDING_TOPICS.length - 1 &&
               (index + 1) % 2 === 0 &&
               TRENDING_TOPICS[index + 1] && (
-                <button
+                <Button
+                  variant="ghost"
                   className="bg-[#f8fafc] rounded-2xl px-1.5 py-1 hover:bg-[#f1f5f9] transition-colors"
                   title={TRENDING_TOPICS[index + 1]}
                 >
                   <span className="text-xs font-medium text-[#344256]">
                     {TRENDING_TOPICS[index + 1]}
                   </span>
-                </button>
+                </Button>
               )}
           </div>
         ))}

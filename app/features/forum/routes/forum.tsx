@@ -4,7 +4,9 @@ import ForumHeader from "../components/ForumHeader";
 import ForumContent from "../components/ForumContent";
 import type { ForumContentData } from "../components/ForumContent";
 import type { DiscussionPost } from "../components/DiscussionThread";
-import type { Route } from "./+types/forum";
+import type { Route } from ".react-router/types/app/+types/root";
+import { createForumQuestion } from "~/services/forum/forum.server";
+import { parseCreateForumPostForm } from "~/services/forum/utils";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -78,6 +80,14 @@ export async function loader() {
   const forumData: ForumContentData = { posts };
 
   return { forumData };
+}
+
+export async function action({ request }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const payload = parseCreateForumPostForm(formData);
+  const result = await createForumQuestion(request, payload);
+
+  return result;
 }
 
 export default function ForumPage() {

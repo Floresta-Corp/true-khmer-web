@@ -3,7 +3,6 @@ import {
   Calendar,
   CheckCircle2,
   ChevronDown,
-  ChevronLeft,
   Circle,
   Clock3,
   Globe,
@@ -15,7 +14,6 @@ import {
   Users,
   Zap,
 } from "lucide-react";
-import { Link } from "react-router";
 import type { VolunteerPost } from "~/lib/post";
 import { Button } from "~/components/ui/button";
 import EmptyPost from "../components/EmptyPost";

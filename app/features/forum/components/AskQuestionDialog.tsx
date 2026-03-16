@@ -1,7 +1,6 @@
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
 import { ChevronDown, Plus, X } from "lucide-react";
-
+import { useFetcher } from "react-router";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -29,10 +28,19 @@ const categories = [
 ];
 
 export default function AskQuestionDialog() {
+  const fetcher = useFetcher();
+  const isSubmitting = fetcher.state !== "idle";
+  const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("Business Growth");
 
+  useEffect(() => {
+    if (!isSubmitting && fetcher.data) {
+      setOpen(false);
+    }
+  }, [fetcher.data, isSubmitting]);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="flex h-10 items-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca]">
           <Plus size={24} />
@@ -66,12 +74,15 @@ export default function AskQuestionDialog() {
 
         <div className="-mx-6 border-t border-[#e2e8f0]" />
 
-        <form className="flex flex-col gap-2">
+        <fetcher.Form className="flex flex-col gap-2" method="post">
+          <input type="hidden" name="status" value="PUBLISHED" />
+          <input type="hidden" name="categoryId" value={selectedCategory} />
           <div className="flex flex-col gap-2">
             <Label className="text-xs leading-4.5 font-medium text-[#364153]">
               Question title
             </Label>
             <Input
+              name="title"
               placeholder="What are the best resources for learning Khmer business law?"
               className="h-11 rounded-lg border-transparent bg-[#f8fafc] text-sm text-[#344256] placeholder:text-[#9eacc0] focus-visible:border-[#2f6fe4] focus-visible:ring-0 focus-visible:ring-offset-0"
             />
@@ -83,13 +94,14 @@ export default function AskQuestionDialog() {
             </Label>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   className="flex h-11 w-full items-center justify-between rounded-lg border border-transparent bg-[#f8fafc] px-3 text-left text-sm font-medium text-[#344256] outline-none transition-colors focus:border-[#2f6fe4]"
                 >
                   <span>{selectedCategory}</span>
                   <ChevronDown className="h-3.5 w-3.5 text-[#99a1af]" />
-                </button>
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
@@ -113,6 +125,7 @@ export default function AskQuestionDialog() {
               Discussion Details
             </Label>
             <textarea
+              name="body"
               placeholder="What are the best resources for learning Khmer business law?"
               className="min-h-11 w-full resize-none rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm text-[#344256] placeholder:text-[#9eacc0] outline-none focus:border-[#2f6fe4]"
               rows={1}
@@ -124,6 +137,7 @@ export default function AskQuestionDialog() {
               Tags
             </Label>
             <Input
+              name="tags"
               placeholder="Separate with commas"
               className="h-11 rounded-lg border-transparent bg-[#f8fafc] text-sm text-[#344256] placeholder:text-[#9eacc0] focus-visible:border-[#2f6fe4] focus-visible:ring-0 focus-visible:ring-offset-0"
             />
@@ -135,18 +149,20 @@ export default function AskQuestionDialog() {
                 type="button"
                 variant="outline"
                 className="h-8 rounded-lg border-[#e1e7ef] px-3 text-sm font-medium text-[#1d283a]"
+                disabled={isSubmitting}
               >
                 Cancel
               </Button>
             </DialogClose>
             <Button
               type="submit"
+              disabled={isSubmitting}
               className="h-8 rounded-lg bg-[#2f6fe4] px-3 text-sm font-medium text-white hover:bg-[#245fca]"
             >
-              Post question
+              {isSubmitting ? "Posting..." : "Post question"}
             </Button>
           </div>
-        </form>
+        </fetcher.Form>
       </DialogContent>
     </Dialog>
   );
