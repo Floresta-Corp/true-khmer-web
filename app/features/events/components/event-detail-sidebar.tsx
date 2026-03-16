@@ -1,7 +1,7 @@
 import { Calendar, MapPin, Globe, Flag } from "lucide-react";
 import { formatDate, formatTime } from "~/features/events/lib/event-formatters";
 import type { EventData } from "./event-card";
-import type { Organizer } from "~/features/events/lib/events.server";
+import type { Organizer } from "~/features/events/lib/event-types";
 
 interface EventDetailSidebarProps {
   event: EventData;

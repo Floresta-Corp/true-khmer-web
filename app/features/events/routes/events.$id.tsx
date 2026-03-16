@@ -1,7 +1,6 @@
-import { useLoaderData } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 import type { Route } from "./+types/events.$id";
 import { AlertCircle, ArrowLeft } from "lucide-react";
-import { Link } from "react-router";
 import { useState } from "react";
 import { Badge } from "~/components/ui/badge";
 import { ImageGallery } from "~/components/image-lightbox";
@@ -27,7 +26,16 @@ export function meta() {
 export default function EventDetailPage() {
   const { event, ticketTiers, organizer, error } =
     useLoaderData<typeof loader>();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"tickets" | "info">("info");
+
+  const goBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/events");
+    }
+  };
 
   const photos: string[] = event?.photos || [];
 
@@ -43,13 +51,13 @@ export default function EventDetailPage() {
             <p className="text-red-600 text-sm mb-6">
               {error || "The event you are looking for does not exist."}
             </p>
-            <Link
-              to="/events"
-              className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+            <button
+              onClick={goBack}
+              className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to events
-            </Link>
+            </button>
           </div>
         </div>
       </div>
@@ -64,13 +72,13 @@ export default function EventDetailPage() {
     <div className="min-h-screen bg-gray-50 font-sans">
       {/* Back link */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <Link
-          to="/events"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600 transition-colors"
+        <button
+          onClick={goBack}
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600 transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to events
-        </Link>
+        </button>
       </div>
 
       {/* Hero Image */}

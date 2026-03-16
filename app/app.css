@@ -110,10 +110,10 @@ body {
 
 /* Fix: remove all default input styling */
 input {
-  box-shadow: none !important;
-  border-color: transparent !important;
-  -webkit-appearance: none !important;
-  appearance: none !important;
+  box-shadow: none;
+  border-color: transparent;
+  -webkit-appearance: none;
+  appearance: none;
 }
 input:focus-visible {
   outline: 2px solid var(--color-ring);
@@ -203,4 +203,13 @@ input:focus-visible {
       @apply font-sans;
     }
   }
+}
+
+/* Hide scrollbar but keep scroll functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }

@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { formatShortDate } from "~/features/events/lib/event-formatters";
-import type { TicketTier } from "~/features/events/lib/events.server";
+import type { TicketTier } from "~/features/events/lib/event-types";
 import { cn } from "~/lib/utils";
 
 interface EventTicketListProps {

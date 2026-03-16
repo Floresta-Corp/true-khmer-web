@@ -1,49 +1,15 @@
 import type { EventData } from "~/features/events/components/event-card";
 import { requireUser } from "~/lib/server/route-guards.server";
+import { EVENT_TYPES, type EventType } from "./event-types";
+import type { EventCategory, TicketTier, Organizer } from "./event-types";
 
-export interface EventCategory {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  icon: string;
-  color: string;
-  sortOrder: number;
-  status: string;
-}
-
-export interface TicketTier {
-  id: string;
-  name: string;
-  description: string | null;
-  type: "PAID" | "FREE" | string;
-  isActive: boolean;
-  isVisible: boolean;
-  totalQuantity: number;
-  soldCount: number;
-  availableCount: number;
-  minPurchase: number;
-  maxPurchase: number;
-  basePrice: string | null;
-  salePrice: string | null;
-  currencyCode: string;
-  saleStartAt: string | null;
-  saleEndAt: string | null;
-  validFrom: string | null;
-  validUntil: string | null;
-  status: string;
-  benefits: string | null;
-  cover: string | null;
-}
-
-export interface Organizer {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  image: string | null;
-  totalEvent: string;
-}
+export {
+  EVENT_TYPES,
+  type EventType,
+  type EventCategory,
+  type TicketTier,
+  type Organizer,
+};
 
 interface EventPhoto {
   id: string;
@@ -250,6 +216,41 @@ export async function getUpcomingEvents(): Promise<EventData[]> {
     }));
   } catch (err) {
     console.error("Failed to fetch upcoming events:", err);
+    return [];
+  }
+}
+
+export async function getEventsByType(
+  eventType: EventType,
+): Promise<EventData[]> {
+  try {
+    const response = await fetch(
+      `${PLUMPI_ENDPOINT}/events?eventType=${eventType}`,
+    );
+
+    if (!response.ok) {
+      throw new Error(`Plumpi API Error: ${response.status}`);
+    }
+
+    const json = await response.json();
+    const eventList = Array.isArray(json.data) ? json.data : [];
+
+    return eventList.map((apiEvent: any) => ({
+      id: apiEvent.id,
+      title: apiEvent.title,
+      excerpt: apiEvent.excerpt || "",
+      thumbnail: apiEvent.thumbnail || null,
+      startAt: apiEvent.startAt,
+      endAt: apiEvent.endAt,
+      venueName: apiEvent.venueName || null,
+      eventType: apiEvent.eventType,
+      price: apiEvent.salePrice || apiEvent.basePrice || "Free",
+      ticketStatus: apiEvent.ticketStatus || null,
+      isOnline: apiEvent.isOnline || false,
+      isFavorite: apiEvent.isFavorite || false,
+    }));
+  } catch (err) {
+    console.error("Failed to fetch events by type:", err);
     return [];
   }
 }

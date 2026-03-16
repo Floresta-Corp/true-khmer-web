@@ -50,6 +50,7 @@ export function ImageLightbox({
         type="button"
         onClick={onClose}
         className="absolute top-4 right-4 z-10 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 transition-colors"
+        aria-label="Close"
       >
         <X className="w-6 h-6" />
       </button>
