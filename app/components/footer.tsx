@@ -45,23 +45,24 @@ const legalLinks = [
 
 export function Footer() {
   return (
-    <footer className="w-full bg-white px-6 py-12 md:px-12 lg:px-20">
-      <div className="mx-auto flex w-full max-w-319.5 flex-col gap-10">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,493px)_minmax(0,1fr)] lg:gap-8">
-          <div className="flex flex-col gap-4">
+    <footer className="w-full border-t border-[#e2e8f0] bg-[#f9fafb]">
+      <div className="w-full px-6 py-14 md:px-12 lg:px-20">
+        <div className="flex flex-col gap-10 lg:flex-row lg:justify-between lg:gap-20">
+          {/* Brand section */}
+          <div className="flex max-w-sm shrink-0 flex-col gap-5">
             <Link to="/" className="inline-flex w-fit">
               <img
                 src="/logofullcolor.svg"
                 alt="True Khmer"
-                className="h-7.25 w-auto"
+                className="h-8 w-auto"
                 loading="lazy"
               />
             </Link>
-            <p className="max-w-103.25 text-sm leading-5 text-[#6a7282]">
+            <p className="text-sm leading-6 text-[#6a7282]">
               The leading community platform for Khmer business and career
               growth. Bridging the gap between talent and opportunity worldwide.
             </p>
-            <div className="flex items-center gap-3.5 pt-1">
+            <div className="flex items-center gap-3">
               {socialLinks.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -69,7 +70,7 @@ export function Footer() {
                     key={item.label}
                     to={item.to}
                     aria-label={item.label}
-                    className="flex size-8.75 items-center justify-center rounded-full border border-[#f3f4f6] bg-[#f9fafb] text-[#2f6fe4] transition-colors hover:bg-[#eff6ff]"
+                    className="flex size-9 items-center justify-center rounded-full border border-[#e2e8f0] bg-white text-[#6a7282] transition-all hover:border-[#2f6fe4] hover:text-[#2f6fe4]"
                   >
                     <Icon className="size-4" />
                   </Link>
@@ -78,29 +79,34 @@ export function Footer() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Link columns */}
+          <div className="grid flex-1 grid-cols-2 gap-8 sm:grid-cols-3 lg:max-w-xl lg:gap-12">
             {footerColumns.map((column) => (
               <div key={column.heading} className="flex flex-col gap-4">
-                <p className="text-xs font-semibold leading-4 text-[#2f6fe4]">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#2f6fe4]">
                   {column.heading}
-                </p>
-                {column.links.map((link) => (
-                  <Link
-                    key={link.label}
-                    to={link.to}
-                    className="w-fit text-sm leading-5 text-[#020618] transition-colors hover:text-[#2f6fe4]"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+                </h3>
+                <ul className="flex flex-col gap-3">
+                  {column.links.map((link) => (
+                    <li key={link.label}>
+                      <Link
+                        to={link.to}
+                        className="text-sm leading-5 text-[#374151] transition-colors hover:text-[#2f6fe4]"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 border-t border-[#e2e8f0] pt-8.25 text-sm leading-5 text-[#62748e] sm:flex-row sm:items-center sm:justify-between">
+        {/* Bottom bar */}
+        <div className="mt-12 flex flex-col gap-4 border-t border-[#e2e8f0] pt-8 text-sm text-[#6a7282] sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 True Khmer. All Rights Reserved.</p>
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-6">
             {legalLinks.map((link) => (
               <Link
                 key={link.label}
