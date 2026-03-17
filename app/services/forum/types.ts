@@ -1,3 +1,15 @@
+export interface GetQuestionpaginationResponse {
+  ok: boolean;
+  questions: Question[];
+  pagination: Pagination;
+}
+
+export interface Pagination {
+  limit: number;
+  hasMore: boolean;
+  nextCursor: string;
+}
+
 export interface GetQuestionResponse {
   ok: boolean;
   question: Question;

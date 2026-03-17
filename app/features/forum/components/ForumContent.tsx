@@ -2,13 +2,14 @@ import { useState } from "react";
 import ForumSidebar from "./ForumSidebar";
 import { DiscussionThread, type DiscussionPost } from "./DiscussionThread";
 import RightSidebar from "./RightSidebar";
+import type { GetQuestionpaginationResponse } from "~/services/forum/types";
 
 export interface ForumContentData {
   posts: DiscussionPost[];
 }
 
 interface ForumContentProps {
-  data: ForumContentData;
+  data: GetQuestionpaginationResponse;
 }
 
 export default function ForumContent({ data }: ForumContentProps) {
@@ -29,7 +30,7 @@ export default function ForumContent({ data }: ForumContentProps) {
 
         {/* Main Content */}
         <DiscussionThread
-          posts={data.posts}
+          question={data.questions}
           activeTab={activeTab}
           onTabChange={setActiveTab}
           onCategoryClick={setSelectedCategory}

@@ -3,11 +3,12 @@ import {
   MessageSquare,
   MoreHorizontal,
   ChevronDown,
-  Link,
 } from "lucide-react";
+import { Link } from "react-router";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import type { Question } from "~/services/forum/types";
 
 export interface DiscussionPost {
   id: string;
@@ -28,11 +29,12 @@ export interface DiscussionPost {
 }
 
 interface DiscussionCardProps {
-  post: DiscussionPost;
+  questions: Question[];
+  category: string;
   onCategoryClick?: (category: string) => void;
 }
 
-export function DiscussionCard({ post, onCategoryClick }: DiscussionCardProps) {
+export function DiscussionCard({ questions, onCategoryClick }: DiscussionCardProps) {
   return (
     <div className="bg-white border border-[#f1f5f9] rounded-2xl p-6 w-full">
       {/* Header with category and metadata */}
@@ -157,7 +159,7 @@ interface DiscussionThreadProps {
 }
 
 export function DiscussionThread({
-  posts,
+  questions,
   activeTab,
   onTabChange,
   onCategoryClick,
