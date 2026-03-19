@@ -1,14 +1,17 @@
 import { redirect, useLoaderData } from "react-router";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import ForumHeader from "../components/ForumHeader";
 import ForumContent from "../components/ForumContent";
 import type { Route } from ".react-router/types/app/+types/root";
 import { createForumQuestion } from "~/services/forum/forum.server";
 import { parseCreateForumPostForm } from "~/services/forum/utils";
-import { getQuestionPagination } from "~/lib/forum";
 import { useReducedMotion } from "framer-motion";
-import { destroySession, getSession } from "~/lib/server/session.server";
-import { AuthSessionExpiredError } from "~/lib/server/api-client.server";
+import {
+  apiRequestWithSession,
+  AuthSessionExpiredError,
+} from "~/lib/server/api-client.server";
+import { getSession, destroySession } from "~/lib/server/session.server";
+import type { GetQuestionpaginationResponse } from "~/services/forum/types";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -23,7 +26,29 @@ export function meta({}: Route.MetaArgs) {
 
 export async function loader({ request }: Route.LoaderArgs) {
   try {
-    const result = await getQuestionPagination(request, { limit: 10 });
+    const url = new URL(request.url);
+    const cursor = url.searchParams.get("cursor");
+    const categoryId = url.searchParams.get("categoryId");
+
+    const params = new URLSearchParams();
+    params.set("limit", "10");
+    if (cursor) params.set("cursor", cursor);
+    if (categoryId) params.set("categoryId", categoryId);
+
+    const path = `/forum/questions${
+      params.toString() ? `?${params.toString()}` : ""
+    }`;
+
+    const result = await apiRequestWithSession<GetQuestionpaginationResponse>(
+      request,
+      path,
+      {
+        method: "GET",
+      },
+    );
+
+    console.log({ result });
+
     return result;
   } catch (error) {
     if (error instanceof AuthSessionExpiredError) {
@@ -47,8 +72,6 @@ export default function ForumPage() {
   const { data } = useLoaderData<typeof loader>();
   const prefersReducedMotion = useReducedMotion();
 
-  console.log({ DATA: data });
-
   const handleSearch = (query: string) => {
     // TODO: Filter discussions based on search query
     console.log("Search:", query);
@@ -56,29 +79,27 @@ export default function ForumPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AnimatePresence mode="wait">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{
-            duration: prefersReducedMotion ? 0 : 0.3,
-          }}
-        >
-          <ForumHeader onSearch={handleSearch} />
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{
-            duration: prefersReducedMotion ? 0 : 0.3,
-            delay: prefersReducedMotion ? 0 : 0.1,
-          }}
-        >
-          <ForumContent data={data} />
-        </motion.div>
-      </AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
+        transition={{
+          duration: prefersReducedMotion ? 0 : 0.3,
+        }}
+      >
+        <ForumHeader onSearch={handleSearch} />
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
+        transition={{
+          duration: prefersReducedMotion ? 0 : 0.3,
+          delay: prefersReducedMotion ? 0 : 0.1,
+        }}
+      >
+        <ForumContent data={data} />
+      </motion.div>
     </div>
   );
 }

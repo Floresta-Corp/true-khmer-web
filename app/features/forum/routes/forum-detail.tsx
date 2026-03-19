@@ -13,10 +13,11 @@ import {
   Twitter,
   Trophy,
 } from "lucide-react";
-
 import AddAnswerDialog from "../components/AddAnswerDialog";
 import { Button } from "~/components/ui/button";
 import type { Route } from ".react-router/types/app/+types/root";
+import { apiRequestWithSession } from "~/lib/server/api-client.server";
+import type { GetQuestionResponse } from "~/services/forum/types";
 
 type Profile = {
   name: string;
@@ -45,75 +46,26 @@ type DiscussionDetail = {
   answers: Answer[];
 };
 
-const discussions: Record<string, DiscussionDetail> = {
-  "1": {
-    id: "1",
-    category: "Business Growth",
-    postedAt: "2 hours ago",
-    title: "How to scale a local SME to the international market?",
-    body: "I've been running a small production house in Phnom Penh for 3 years. We want to start exporting to neighboring countries. What are the first steps for legal compliance?",
-    tags: ["# Export", "# Legal", "# SME"],
-    score: 42,
-    author: {
-      name: "Dara Samnang",
-      role: "SME Owner",
-      avatar:
-        "http://localhost:3845/assets/c688d192bfd3524458d5f9d6670fb96eba7796d4.png",
-    },
-    topAnswer: {
-      id: "ta-1",
-      body: "You should look into the General Department of Customs and Excise. They have specific guidelines for cross-border trade with Vietnam. I highly recommend attending the SME Export workshop next month.",
-      votes: 45,
-      postedAt: "1 hour ago",
-      author: {
-        name: "Sophea Rath",
-        role: "Tech Recruiter",
-        avatar:
-          "http://localhost:3845/assets/8befcb6610611323e87966c7d635c0e3edd12197.png",
-      },
-    },
-    answers: [
-      {
-        id: "a-1",
-        body: "I've done this recently. Start with your Certificate of Origin. It's crucial for ASEAN trade benefits. Also, check the GDT for VAT export rules.",
-        votes: 12,
-        postedAt: "45 mins ago",
-        author: {
-          name: "Long Vannak",
-          role: "Entrepreneur",
-          avatar:
-            "http://localhost:3845/assets/84deebc9464283edd8955ce95d024a9432e91489.png",
-        },
-      },
-      {
-        id: "a-2",
-        body: "Actually, it has a very specific import quota for certain agricultural products. Make sure your production house is certified by the Ministry of Commerce.",
-        votes: 8,
-        postedAt: "10 mins ago",
-        author: {
-          name: "Chanavy K.",
-          role: "Creative Lead",
-          avatar:
-            "http://localhost:3845/assets/c4561fc7e9918b600a1ca267d3619f90060aa23d.png",
-        },
-      },
-    ],
-  },
-};
+export async function loader({ request, params }: Route.LoaderArgs) {
+  const questionId = params.questionId;
 
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "Forum Discussion - True Khmer" },
+  if (!questionId) {
+    throw new Error("No question ID provided");
+  }
+
+  const path = `/forum/questions/${questionId}`;
+
+  const result = await apiRequestWithSession<GetQuestionResponse>(
+    request,
+    path,
     {
-      name: "description",
-      content: "Discussion details, answers, and community insights.",
+      method: "GET",
     },
-  ];
-}
+  );
 
-export async function loader({ params }: Route.LoaderArgs) {
-  const discussion = discussions[params.postId ?? ""] ?? discussions["1"];
-  return { discussion };
+  console.log({ result });
+
+  return result;
 }
 
 function VoteRail({ votes }: { votes: number }) {
@@ -263,7 +215,28 @@ function ForumDetailFooter() {
 }
 
 export default function ForumDetailPage() {
-  const { discussion } = useLoaderData<typeof loader>();
+  const { data } = useLoaderData<typeof loader>();
+
+  if (!data) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f8fafc]">
+        <div className="text-center">
+          <h1 className="text-xl font-semibold text-[#030213]">
+            Discussion not found
+          </h1>
+          <p className="mt-2 text-[#65758b]">
+            The post you are looking for does not exist or failed to load.
+          </p>
+          <Link
+            to="/forum"
+            className="mt-4 inline-block text-[#2f6fe4] hover:underline"
+          >
+            Go back to Forum
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
@@ -299,23 +272,23 @@ export default function ForumDetailPage() {
           <article className="rounded-2xl border border-[#f1f5f9] bg-white p-6">
             <div className="flex items-center justify-between">
               <p className="text-xs font-bold leading-4.5 text-[#2f6fe4]">
-                {discussion.category}
+                {data.question.category.name}
               </p>
               <p className="inline-flex items-center gap-1 text-xs font-medium text-[#9eacc0]">
                 <Clock3 className="h-4 w-4" />
-                {discussion.postedAt}
+                {data.question.postedAt}
               </p>
             </div>
 
             <h1 className="mt-5 text-base font-semibold leading-5 text-[#030213]">
-              {discussion.title}
+              {data.question.title}
             </h1>
             <p className="mt-2 text-xs leading-4.5 text-[#65758b]">
-              {discussion.body}
+              {data.question.body}
             </p>
 
             <div className="mt-5 flex items-center gap-2 text-xs font-medium text-[#99a1af]">
-              {discussion.tags.map((tag) => (
+              {data.question.tags?.map((tag: string) => (
                 <span key={tag}>{tag}</span>
               ))}
             </div>
@@ -324,16 +297,16 @@ export default function ForumDetailPage() {
               <div className="flex items-center gap-8">
                 <div className="flex items-center gap-2.5">
                   <img
-                    src={discussion.author.avatar}
-                    alt={discussion.author.name}
+                    src={data.question.author.avatar}
+                    alt={data.question.author.name}
                     className="h-7 w-7 rounded-full border border-[#f3f4f6] object-cover"
                   />
                   <div>
                     <p className="text-sm font-semibold leading-4 text-[#344256]">
-                      {discussion.author.name}
+                      {data.question.author.name}
                     </p>
                     <p className="text-xs font-medium leading-4 text-[#9eacc0]">
-                      {discussion.author.role}
+                      {data.question.author.role}
                     </p>
                   </div>
                 </div>
@@ -346,7 +319,7 @@ export default function ForumDetailPage() {
                     <ChevronUp className="h-3.5 w-3.5" />
                   </Button>
                   <span className="px-1 text-xs font-semibold">
-                    {discussion.score}
+                    {data.question.score}
                   </span>
                   <Button
                     variant="ghost"
@@ -361,22 +334,24 @@ export default function ForumDetailPage() {
             </div>
           </article>
 
-          <section className="mt-5">
-            <h2 className="inline-flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[1.3px] text-[#99a1af]">
-              <Trophy className="h-3.5 w-3.5 text-[#f59e0b]" />
-              Top Answer
-            </h2>
-            <div className="mt-2">
-              <AnswerCard answer={discussion.topAnswer} />
-            </div>
-          </section>
+          {data.question.topAnswer && (
+            <section className="mt-5">
+              <h2 className="inline-flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[1.3px] text-[#99a1af]">
+                <Trophy className="h-3.5 w-3.5 text-[#f59e0b]" />
+                Top Answer
+              </h2>
+              <div className="mt-2">
+                <AnswerCard answer={data.question.topAnswer} />
+              </div>
+            </section>
+          )}
 
           <section className="mt-5">
             <h2 className="text-[13px] font-semibold uppercase tracking-[1.3px] text-[#99a1af]">
-              All Answers ({discussion.answers.length + 1})
+              All Answers ({data.question.answers?.length ?? 0})
             </h2>
             <div className="mt-2 space-y-3.5">
-              {discussion.answers.map((answer) => (
+              {data.question.answers?.map((answer: any) => (
                 <AnswerCard key={answer.id} answer={answer} />
               ))}
             </div>

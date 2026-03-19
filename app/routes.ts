@@ -12,7 +12,7 @@ export default [
     route("dashboard", "routes/dashboard.tsx"),
     route("profile", "routes/profile.tsx"),
     route("forum", "features/forum/routes/forum.tsx"),
-    route("forum/:postId", "features/forum/routes/forum-detail.tsx"),
+    route("forum/:questionId", "features/forum/routes/forum-detail.tsx"),
     route("events", "features/events/routes/events.tsx"),
     route("events/all", "features/events/routes/events.all.tsx"),
     route("events/:id", "features/events/routes/events.$id.tsx"),

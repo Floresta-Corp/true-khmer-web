@@ -56,84 +56,43 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
   return (
     <main className="min-h-screen bg-white px-6 py-10 md:px-12 lg:px-28">
       <div className="mx-auto flex w-full max-w-304 flex-col gap-8">
-        <AnimatePresence mode="wait">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{
-              duration: prefersReducedMotion ? 0 : 0.3,
-            }}
-          >
-            <BackToVolunteerButton />
-          </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          transition={{
+            duration: prefersReducedMotion ? 0 : 0.3,
+          }}
+        >
+          <BackToVolunteerButton />
+        </motion.div>
 
-          <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
-            <section className="flex min-w-0 flex-col gap-4 md:gap-8">
-              {/* Cover Section */}
-              <motion.article
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{
-                  duration: prefersReducedMotion ? 0 : 0.3,
-                  delay: prefersReducedMotion ? 0 : 0.05,
-                }}
-                className="flex flex-col gap-8 overflow-hidden rounded-3xl border border-[#e1e7ef] bg-white"
-              >
-                <OpportunityCover volunteer={volunteer} />
-                <div className="px-8">
-                  <OpportunityDetailsGrid volunteer={volunteer} />
-                </div>
-                <div className="px-8 pb-8">
-                  <ProjectOverviewSection volunteer={volunteer} />
-                </div>
-                <div className="px-8 pb-8">
-                  <AvailableRolesSection roles={roles} />
-                </div>
-              </motion.article>
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <section className="flex min-w-0 flex-col gap-4 md:gap-8">
+            {/* Cover Section */}
+            <motion.article
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{
+                duration: prefersReducedMotion ? 0 : 0.3,
+                delay: prefersReducedMotion ? 0 : 0.05,
+              }}
+              className="flex flex-col gap-8 overflow-hidden rounded-3xl border border-[#e1e7ef] bg-white"
+            >
+              <OpportunityCover volunteer={volunteer} />
+              <div className="px-8">
+                <OpportunityDetailsGrid volunteer={volunteer} />
+              </div>
+              <div className="px-8 pb-8">
+                <ProjectOverviewSection volunteer={volunteer} />
+              </div>
+              <div className="px-8 pb-8">
+                <AvailableRolesSection roles={roles} />
+              </div>
+            </motion.article>
 
-              {/* Benefits Section */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{
-                  duration: prefersReducedMotion ? 0 : 0.3,
-                  delay: prefersReducedMotion ? 0 : 0.1,
-                }}
-              >
-                <BenefitsSection volunteer={volunteer} />
-              </motion.div>
-
-              {/* Impact Section */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{
-                  duration: prefersReducedMotion ? 0 : 0.3,
-                  delay: prefersReducedMotion ? 0 : 0.15,
-                }}
-              >
-                <ProjectImpactSection volunteer={volunteer} />
-              </motion.div>
-
-              {/* Organizer Card */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{
-                  duration: prefersReducedMotion ? 0 : 0.3,
-                  delay: prefersReducedMotion ? 0 : 0.2,
-                }}
-              >
-                <OrganizerCard volunteer={volunteer} />
-              </motion.div>
-            </section>
-
-            {/* Sidebar */}
+            {/* Benefits Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -143,10 +102,49 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
                 delay: prefersReducedMotion ? 0 : 0.1,
               }}
             >
-              <ApplicationSummary volunteer={volunteer} role={primaryRole} />
+              <BenefitsSection volunteer={volunteer} />
             </motion.div>
-          </div>
-        </AnimatePresence>
+
+            {/* Impact Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{
+                duration: prefersReducedMotion ? 0 : 0.3,
+                delay: prefersReducedMotion ? 0 : 0.15,
+              }}
+            >
+              <ProjectImpactSection volunteer={volunteer} />
+            </motion.div>
+
+            {/* Organizer Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{
+                duration: prefersReducedMotion ? 0 : 0.3,
+                delay: prefersReducedMotion ? 0 : 0.2,
+              }}
+            >
+              <OrganizerCard volunteer={volunteer} />
+            </motion.div>
+          </section>
+
+          {/* Sidebar */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{
+              duration: prefersReducedMotion ? 0 : 0.3,
+              delay: prefersReducedMotion ? 0 : 0.1,
+            }}
+          >
+            <ApplicationSummary volunteer={volunteer} role={primaryRole} />
+          </motion.div>
+        </div>
       </div>
     </main>
   );

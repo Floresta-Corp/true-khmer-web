@@ -17,8 +17,16 @@ export interface GetQuestionResponse {
 
 export interface Question {
   id: string;
-  categoryId: string;
-  authorId: string;
+  category: {
+    id: string;
+    name: string;
+  };
+  author: {
+    id: string;
+    name: string;
+    avatarKey?: string;
+    role?: string;
+  };
   title: string;
   body: string;
   status: string;

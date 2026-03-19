@@ -153,7 +153,7 @@ export function DiscussionCard({
 }
 
 interface DiscussionThreadProps {
-  questions: Question[];
+  questions: Question[] | undefined;
   activeTab: "recent" | "topRated" | "unanswered" | "myActivity";
   onTabChange?: (
     tab: "recent" | "topRated" | "unanswered" | "myActivity",
@@ -200,7 +200,7 @@ export function DiscussionThread({
 
       {/* Discussion posts */}
       <div className="flex flex-col gap-4">
-        {questions.length > 0 ? (
+        {questions && questions.length > 0 ? (
           questions.map((question) => {
             const randomIndex = Math.floor(Math.random() * 7);
             const category =
@@ -224,7 +224,7 @@ export function DiscussionThread({
       </div>
 
       {/* Load more button */}
-      {questions.length > 0 && (
+      {questions && questions.length > 0 && (
         <div className="text-center mt-8">
           <Button
             variant="ghost"

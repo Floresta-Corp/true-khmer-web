@@ -26,7 +26,7 @@ export default function ForumContent({ data }: ForumContentProps) {
 
         {/* Main Content */}
         <DiscussionThread
-          questions={data.questions}
+          questions={data?.questions}
           activeTab={activeTab}
           onTabChange={setActiveTab}
           onCategoryClick={setSelectedCategory}

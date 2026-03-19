@@ -1,5 +1,10 @@
+import { redirect } from "react-router";
 import { resolveApiBase } from "~/lib/server/api-base.server";
-import { commitSession, getSession } from "~/lib/server/session.server";
+import {
+  commitSession,
+  destroySession,
+  getSession,
+} from "~/lib/server/session.server";
 import { refreshAccessToken } from "~/services/auth.server";
 
 type JsonPrimitive = string | number | boolean | null;
@@ -143,7 +148,9 @@ export async function apiRequestWithSession<T, K extends object = JsonObject>(
       session.set("refreshToken", refreshed.refreshToken);
       setCookie = await commitSession(session);
     } catch {
-      throw new AuthSessionExpiredError();
+      throw redirect("/login", {
+        headers: { "Set-Cookie": await destroySession(session) },
+      });
     }
 
     response = await fetchWithBearer(request, path, accessToken, options);
