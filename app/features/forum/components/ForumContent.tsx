@@ -5,7 +5,7 @@ import RightSidebar from "./RightSidebar";
 import type { GetQuestionpaginationResponse } from "~/services/forum/types";
 
 interface ForumContentProps {
-  data: GetQuestionpaginationResponse;
+  data?: GetQuestionpaginationResponse;
 }
 
 export default function ForumContent({ data }: ForumContentProps) {

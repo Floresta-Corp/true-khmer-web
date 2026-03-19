@@ -1,4 +1,4 @@
-import { useLoaderData } from "react-router";
+import { redirect, useLoaderData } from "react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import ForumHeader from "../components/ForumHeader";
 import ForumContent from "../components/ForumContent";
@@ -7,6 +7,8 @@ import { createForumQuestion } from "~/services/forum/forum.server";
 import { parseCreateForumPostForm } from "~/services/forum/utils";
 import { getQuestionPagination } from "~/lib/forum";
 import { useReducedMotion } from "framer-motion";
+import { destroySession, getSession } from "~/lib/server/session.server";
+import { AuthSessionExpiredError } from "~/lib/server/api-client.server";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -20,8 +22,18 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const result = await getQuestionPagination(request, { limit: 10 });
-  return result;
+  try {
+    const result = await getQuestionPagination(request, { limit: 10 });
+    return result;
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) {
+      const session = await getSession(request);
+      throw redirect("/login", {
+        headers: { "Set-Cookie": await destroySession(session) },
+      });
+    }
+    return { data: undefined };
+  }
 }
 
 export async function action({ request }: Route.ActionArgs) {
