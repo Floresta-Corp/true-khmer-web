@@ -7,34 +7,32 @@ import {
 } from "~/features/events/components/event-card";
 import {
   getEventList,
-  getEventsByType,
+  getEventsByCategory,
+  getEventCategories,
 } from "~/features/events/lib/events.server";
-import { EVENT_TYPES, type EventType } from "~/features/events/lib/event-types";
+import type { EventCategory } from "~/features/events/lib/event-types";
 import { ChevronDown } from "lucide-react";
-import { EventTypeCarousel } from "~/features/events/components/event-type-carousel";
+import { EventCategoryCarousel } from "~/features/events/components/event-category-carousel";
 
 const PAGE_SIZE = 8;
 
 export async function loader({ request }: Route.LoaderArgs) {
   try {
     const url = new URL(request.url);
-    const eventTypeParam = url.searchParams.get("eventType");
+    const categoryId = url.searchParams.get("categoryId");
 
-    const activeEventType =
-      eventTypeParam && EVENT_TYPES.includes(eventTypeParam as EventType)
-        ? (eventTypeParam as EventType)
-        : null;
+    const [events, categories] = await Promise.all([
+      categoryId ? getEventsByCategory(categoryId) : getEventList(),
+      getEventCategories(),
+    ]);
 
-    const events = activeEventType
-      ? await getEventsByType(activeEventType)
-      : await getEventList();
-
-    return { events, activeEventType, error: null };
+    return { events, categories, activeCategoryId: categoryId, error: null };
   } catch (err) {
     console.error("All events loader error:", err);
     return {
       events: [] as EventData[],
-      activeEventType: null as EventType | null,
+      categories: [] as EventCategory[],
+      activeCategoryId: null as string | null,
       error: "Failed to load events. Please check your connection.",
     };
   }
@@ -45,7 +43,8 @@ export function meta() {
 }
 
 export default function AllEvents() {
-  const { events, activeEventType, error } = useLoaderData<typeof loader>();
+  const { events, categories, activeCategoryId, error } =
+    useLoaderData<typeof loader>();
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const visibleEvents = events.slice(0, visibleCount);
@@ -63,7 +62,10 @@ export default function AllEvents() {
 
         {/* Event type carousel */}
         <div className="mb-8">
-          <EventTypeCarousel activeEventType={activeEventType} />
+          <EventCategoryCarousel
+            categories={categories}
+            activeCategoryId={activeCategoryId}
+          />
         </div>
 
         {/* Error state */}

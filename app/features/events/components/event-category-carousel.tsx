@@ -1,27 +1,17 @@
 import { useRef, useState, useEffect, useCallback } from "react";
-import { Link, useSearchParams } from "react-router";
+import { Link } from "react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { EVENT_TYPES, type EventType } from "~/features/events/lib/event-types";
-import { formatEventType } from "~/features/events/lib/event-formatters";
+import type { EventCategory } from "~/features/events/lib/event-types";
 
-const EVENT_TYPE_META: Record<EventType, { icon: string; color: string }> = {
-  CONFERENCE: { icon: "🎤", color: "#4F46E5" },
-  WORKSHOP: { icon: "🛠️", color: "#9333EA" },
-  SEMINAR: { icon: "📚", color: "#2563EB" },
-  CONCERT: { icon: "🎵", color: "#DB2777" },
-  FESTIVAL: { icon: "🎉", color: "#D97706" },
-  EXHIBITION: { icon: "🖼️", color: "#0D9488" },
-  NETWORKING: { icon: "🤝", color: "#2563EB" },
-  TRAINING: { icon: "🏋️", color: "#16A34A" },
-  WEBINAR: { icon: "💻", color: "#0891B2" },
-  OTHER: { icon: "📌", color: "#6B7280" },
-};
-
-interface EventTypeCarouselProps {
-  activeEventType: string | null;
+interface EventCategoryCarouselProps {
+  categories: EventCategory[];
+  activeCategoryId: string | null;
 }
 
-export function EventTypeCarousel({ activeEventType }: EventTypeCarouselProps) {
+export function EventCategoryCarousel({
+  categories,
+  activeCategoryId,
+}: EventCategoryCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -75,18 +65,18 @@ export function EventTypeCarousel({ activeEventType }: EventTypeCarouselProps) {
       {/* Scrollable items */}
       <div
         ref={scrollRef}
-        className="flex-1 flex justify-between gap-4 overflow-x-auto scrollbar-hide py-1"
+        className="flex-1 flex justify-between gap-4 overflow-x-auto scrollbar-hide px-1 py-2 -my-2"
+        style={{ scrollbarWidth: "none" }}
       >
-        {EVENT_TYPES.map((type) => {
-          const meta = EVENT_TYPE_META[type];
-          const isActive = activeEventType === type;
+        {categories.map((category) => {
+          const isActive = activeCategoryId === category.id;
           const href = isActive
             ? "/events/all"
-            : `/events/all?eventType=${type}`;
+            : `/events/all?categoryId=${category.id}`;
 
           return (
             <Link
-              key={type}
+              key={category.id}
               to={href}
               className="flex flex-col items-center gap-1.5 shrink-0 group"
             >
@@ -97,7 +87,7 @@ export function EventTypeCarousel({ activeEventType }: EventTypeCarouselProps) {
                     : "bg-gray-100 group-hover:bg-gray-200"
                 }`}
               >
-                {meta.icon}
+                {category.icon}
               </span>
               <span
                 className={`text-xs font-medium text-center whitespace-nowrap transition-colors ${
@@ -106,7 +96,7 @@ export function EventTypeCarousel({ activeEventType }: EventTypeCarouselProps) {
                     : "text-gray-600 group-hover:text-gray-900"
                 }`}
               >
-                {formatEventType(type)}
+                {category.name}
               </span>
             </Link>
           );

@@ -22,6 +22,7 @@ export interface EventCategory {
   color: string;
   sortOrder: number;
   status: string;
+  eventCount: number;
 }
 
 export interface TicketTier {
