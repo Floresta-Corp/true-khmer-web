@@ -9,7 +9,11 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 
-export default function AddAnswerDialog() {
+interface AddAnswerDialogProps {
+  onSubmit?: (answer: string) => void;
+}
+
+export default function AddAnswerDialog({ onSubmit }: AddAnswerDialogProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>

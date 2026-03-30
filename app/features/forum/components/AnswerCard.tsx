@@ -20,10 +20,17 @@ interface AnswerCardProps {
   index?: number;
 }
 
-function VoteRail({ votes }: { votes: number }) {
+interface VoteRailProps {
+  votes: number;
+  onUpvote?: () => void;
+  onDownvote?: () => void;
+}
+
+function VoteRail({ votes, onDownvote, onUpvote }: VoteRailProps) {
   return (
     <div className="flex w-7 shrink-0 flex-col items-center gap-[5.25px] pt-[3.5px]">
       <Button
+        onClick={onUpvote}
         variant="ghost"
         size="icon"
         className="flex h-7 w-7 items-center justify-center rounded-xl border border-[#f3f4f6] bg-[#f9fafb] text-[#9eacc0] transition-colors hover:border-[#2f6fe4] hover:text-[#2f6fe4]"
@@ -37,6 +44,7 @@ function VoteRail({ votes }: { votes: number }) {
         variant="ghost"
         size="icon"
         className="flex h-7 w-7 items-center justify-center rounded-xl border border-[#f3f4f6] bg-[#f9fafb] text-[#9eacc0] transition-colors hover:text-[#344256]"
+        onClick={onDownvote}
       >
         <ChevronDown className="h-3.5 w-3.5" />
       </Button>
@@ -83,11 +91,11 @@ export default function AnswerCard({ answer, index = 0 }: AnswerCardProps) {
                 />
               </div>
               <div className="flex flex-col gap-[3.5px]">
-                <p className="text-xs font-semibold leading-[12px] text-[#030213] whitespace-nowrap">
+                <p className="text-xs font-semibold leading-3 text-[#030213] whitespace-nowrap">
                   {answer.author.name}
                 </p>
                 {answer.author.role && (
-                  <p className="text-[10px] font-medium leading-[15px] text-[#99a1af] whitespace-nowrap">
+                  <p className="text-[10px] font-medium leading-3.75 text-[#99a1af] whitespace-nowrap">
                     {answer.author.role}
                   </p>
                 )}
@@ -99,7 +107,12 @@ export default function AnswerCard({ answer, index = 0 }: AnswerCardProps) {
               <span className="text-xs font-medium text-[#99a1af] whitespace-nowrap">
                 {answer.postedAt}
               </span>
-              <ReportDialog postTitle={answer.body} />
+              <ReportDialog
+                postTitle={answer.body}
+                onSubmit={() => {
+                  // Implement submit logic here...
+                }}
+              />
             </div>
           </div>
         </div>

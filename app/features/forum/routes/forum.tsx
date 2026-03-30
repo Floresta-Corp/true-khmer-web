@@ -2,7 +2,7 @@ import { redirect, useLoaderData, useFetcher } from "react-router";
 import { motion } from "framer-motion";
 import ForumHeader from "../components/sections/ForumHeader";
 import ForumContent from "../components/sections/ForumContent";
-import type { Route } from ".react-router/types/app/+types/root";
+import type { Route } from "./+types/forum";
 import {
   createForumQuestion,
   getCategories,
@@ -51,14 +51,14 @@ export async function loader({ request }: Route.LoaderArgs) {
       categories: categoriesResult?.data?.categories || [],
     };
   } catch (error) {
-    console.log({ error });
+    console.error({ error });
     if (error instanceof AuthSessionExpiredError) {
       const session = await getSession(request);
       throw redirect("/login", {
         headers: { "Set-Cookie": await destroySession(session) },
       });
     }
-    return { data: undefined, categories: [] };
+    throw error;
   }
 }
 
