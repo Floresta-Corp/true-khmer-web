@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "motion/react";
 import { Form, Link, useActionData, useSearchParams } from "react-router";
 import { Lock, Mail } from "lucide-react";
 import { FormDivider } from "~/routes/auth/components/form-divider";
@@ -36,67 +37,114 @@ export default function LoginPage() {
 
   return (
     <AuthPageShell>
-      <div className="mt-6 space-y-5 lg:mt-8 lg:space-y-6 xl:mt-18 xl:space-y-8">
-        <img
-          src="/logofullcolor.svg"
-          alt="True Khmer"
-          className="mx-auto h-9 w-auto object-contain sm:h-10"
-        />
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: {
+              staggerChildren: 0.04,
+              delayChildren: 0,
+            },
+          },
+        }}
+        className="mt-6 space-y-5 lg:mt-8 lg:space-y-6 xl:mt-18 xl:space-y-8"
+      >
+        <motion.div
+          variants={{
+            hidden: { opacity: 0, y: 10 },
+            visible: { opacity: 1, y: 0 },
+          }}
+        >
+          <img
+            src="/logofullcolor.svg"
+            alt="True Khmer"
+            className="mx-auto h-9 w-auto object-contain sm:h-10"
+          />
+        </motion.div>
 
-        <h1 className="text-center text-3xl font-semibold leading-8 text-[#030213]">
+        <motion.h1
+          variants={{
+            hidden: { opacity: 0, y: 10 },
+            visible: { opacity: 1, y: 0 },
+          }}
+          className="text-center text-3xl font-semibold leading-8 text-[#030213]"
+        >
           Welcome Back
-        </h1>
+        </motion.h1>
 
-        <GoogleButton />
+        <motion.div
+          variants={{
+            hidden: { opacity: 0, y: 10 },
+            visible: { opacity: 1, y: 0 },
+          }}
+        >
+          <GoogleButton />
+        </motion.div>
 
-        <FormDivider />
+        <motion.div
+          variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
+        >
+          <FormDivider />
+        </motion.div>
 
         <InlineMessage tone="success" message={successMessage} />
         <FormError message={actionData?.errors?.form} />
 
-        <Form method="post" className="space-y-6">
-          <input type="hidden" name="redirectTo" value={redirectTo} />
+        <motion.div
+          variants={{
+            hidden: { opacity: 0, y: 10 },
+            visible: { opacity: 1, y: 0 },
+          }}
+        >
+          <Form method="post" className="space-y-6">
+            <input type="hidden" name="redirectTo" value={redirectTo} />
 
-          <div className="space-y-2">
-            <Label
-              htmlFor="email"
-              className="block text-[13px] font-semibold leading-[19.5px] text-[#364153]"
-            >
-              Email address
-            </Label>
-            <div className="relative">
-              <Mail
-                size={14}
-                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#D1D5DC]"
-              />
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="name@example.com"
-                className="h-11 rounded-lg border-transparent bg-[#F8FAFC] py-2 pl-9 pr-3 text-[12.25px] font-medium text-[#1E293B] placeholder:text-[#C8D6E5] focus-visible:ring-[#2F6FE4]/30"
-              />
+            <div className="space-y-2">
+              <Label
+                htmlFor="email"
+                className="block text-[13px] font-semibold leading-[19.5px] text-[#364153]"
+              >
+                Email address
+              </Label>
+              <div className="relative">
+                <Mail
+                  size={14}
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#D1D5DC]"
+                />
+                <Input
+                  autoFocus
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="name@example.com"
+                  className="h-11 rounded-lg border-transparent bg-[#F8FAFC] py-2 pl-9 pr-3 text-[12.25px] font-medium text-[#1E293B] placeholder:text-[#C8D6E5] focus-visible:ring-[#2F6FE4]/30 transition-shadow duration-200"
+                />
+              </div>
+              {actionData?.errors?.email ? (
+                <p className="text-xs text-red-500">
+                  {actionData.errors.email}
+                </p>
+              ) : null}
             </div>
-            {actionData?.errors?.email ? (
-              <p className="text-xs text-red-500">{actionData.errors.email}</p>
-            ) : null}
-          </div>
 
-          <div className="space-y-2">
-            <PasswordField
-              id="password"
-              name="password"
-              label="Password"
-              icon={Lock}
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="••••••••"
-              error={actionData?.errors?.password}
-            />
+            <div className="space-y-2">
+              <PasswordField
+                id="password"
+                name="password"
+                label="Password"
+                icon={Lock}
+                autoComplete="current-password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="••••••••"
+                error={actionData?.errors?.password}
+              />
 
             <div className="flex justify-end">
               <Button
@@ -107,28 +155,34 @@ export default function LoginPage() {
                 <Link to="/forgot-password">Forgot password?</Link>
               </Button>
             </div>
-          </div>
 
-          <Button
-            type="submit"
-            disabled={!isSignInEnabled}
-            className={`h-10 w-full rounded-lg text-sm font-medium transition-colors ${
-              isSignInEnabled
-                ? "bg-[#2F6FE4] text-white hover:bg-[#1F62DF]"
-                : "cursor-not-allowed bg-[#F1F5F9] text-[#0F172B] opacity-50"
-            }`}
-          >
-            Sign in
-          </Button>
-        </Form>
+            <Button
+              type="submit"
+              disabled={!isSignInEnabled}
+              className={`h-10 w-full rounded-lg text-sm font-medium transition-all duration-300 ${
+                isSignInEnabled
+                  ? "bg-[#2F6FE4] text-white hover:bg-[#1F62DF] hover:shadow-md hover:-translate-y-0.5"
+                  : "cursor-not-allowed bg-[#F1F5F9] text-[#0F172B] opacity-50"
+              }`}
+            >
+              Sign in
+            </Button>
+          </Form>
+        </motion.div>
 
-        <p className="text-center text-sm font-medium leading-5 text-[#6A7282]">
+        <motion.p
+          variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
+          className="text-center text-sm font-medium leading-5 text-[#6A7282]"
+        >
           New to True Khmer?{" "}
-          <Link to="/register" className="font-semibold text-[#2F6FE4]">
+          <Link
+            to="/register"
+            className="font-semibold text-[#2F6FE4] hover:underline transition-all"
+          >
             Create account
           </Link>
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
     </AuthPageShell>
   );
 }

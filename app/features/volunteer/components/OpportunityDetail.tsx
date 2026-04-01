@@ -2,16 +2,16 @@ import {
   Award,
   Calendar,
   ChevronDown,
-  ChevronLeft,
   Clock3,
   ImageIcon,
   MapPin,
   Target,
 } from "lucide-react";
-import React from "react";
-import { Link, useNavigate } from "react-router";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
 import { cn } from "~/lib/utils";
 import BackToVolunteerButton from "./BackToVolunteerButton";
 
@@ -53,6 +53,27 @@ export default function OpportunityDetail({
   onContinueToRole,
 }: OpportunityDetailProps) {
   const navigate = useNavigate();
+  const [category, setCategory] = useState("");
+
+  const categoryOptions = [
+    { value: "education", label: "Education" },
+    { value: "environment", label: "Environment" },
+    { value: "health", label: "Health" },
+    { value: "technology", label: "Technology" },
+  ];
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
+  }, []);
+
   return (
     <main className="min-h-screen bg-white px-6 py-10 md:px-12 lg:px-28">
       <div className="mx-auto flex w-full max-w-193 flex-col gap-8">
@@ -85,15 +106,15 @@ export default function OpportunityDetail({
             <div className="grid gap-5 md:grid-cols-2">
               <div className="space-y-2">
                 <FieldLabel>Category</FieldLabel>
-                <div className="relative">
-                  <select className="h-11 w-full appearance-none rounded-xl border border-[#e2e8f0] bg-white px-3.5 pr-10 text-sm text-[#6a7282] focus:outline-none focus:ring-2 focus:ring-ring">
-                    <option>e.g., Education</option>
-                    <option>Environment</option>
-                    <option>Health</option>
-                    <option>Technology</option>
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-[#99a1af]" />
-                </div>
+                <SingleSelectDropdown
+                  id="category"
+                  value={category}
+                  onValueChange={setCategory}
+                  options={categoryOptions}
+                  placeholder="e.g., Education"
+                  triggerClassName="h-11 w-full rounded-xl border border-[#e2e8f0] bg-white px-3.5 pr-10 text-sm text-[#6a7282] shadow-none hover:bg-white"
+                  contentClassName="rounded-xl"
+                />
               </div>
 
               <div className="space-y-2">
@@ -196,12 +217,13 @@ export default function OpportunityDetail({
               <Award className="size-4 text-[#FE9A00]" />
               Volunteer benefits
             </h3>
-            <button
+            <Button
               type="button"
-              className="text-sm font-medium text-[#2f6fe4] hover:text-[#245fca]"
+              variant="ghost"
+              className="h-auto px-0 py-0 text-sm font-medium text-[#2f6fe4] hover:text-[#245fca]"
             >
               + Add point
-            </button>
+            </Button>
           </div>
           <div className="mt-3">
             <TextArea

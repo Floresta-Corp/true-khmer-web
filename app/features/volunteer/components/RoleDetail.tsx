@@ -8,7 +8,7 @@ import {
   User,
   Users,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import PublishOpportunitySuccessDialog from "./dialog/PublishOpportunitySuccessDialog";
@@ -46,6 +46,18 @@ export default function RoleDetail({ onBackToDetails }: RoleDetailProps) {
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
+  }, []);
+
   return (
     <>
       <main className="min-h-screen bg-white px-6 py-10 md:px-12 lg:px-28">
@@ -81,12 +93,13 @@ export default function RoleDetail({ onBackToDetails }: RoleDetailProps) {
                       <p className="text-[13px] font-semibold text-[#030213]">
                         Responsibilities
                       </p>
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
                         className="text-xs font-semibold text-[#2f6fe4]"
                       >
                         + Add point
-                      </button>
+                      </Button>
                     </div>
                     <div className="h-[42px] rounded-2xl bg-[#f8fafc]" />
                   </div>
@@ -96,12 +109,13 @@ export default function RoleDetail({ onBackToDetails }: RoleDetailProps) {
                       <p className="text-[13px] font-semibold text-[#030213]">
                         Requirements
                       </p>
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
                         className="text-xs font-semibold text-[#2f6fe4]"
                       >
                         + Add point
-                      </button>
+                      </Button>
                     </div>
                     <div className="h-[42px] rounded-2xl bg-[#f8fafc]" />
                   </div>
@@ -136,19 +150,21 @@ export default function RoleDetail({ onBackToDetails }: RoleDetailProps) {
                 </h3>
 
                 <div className="inline-flex h-[42px] rounded-lg border border-[#f1f5f9] bg-[#f8fafc] p-1">
-                  <button
+                  <Button
                     type="button"
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#f1f5f9] bg-white px-3.5 text-xs font-bold text-[#2f6fe4]"
+                    variant="ghost"
+                    className="h-auto inline-flex items-center gap-1.5 rounded-lg border border-[#f1f5f9] bg-white px-3.5 py-0 text-xs font-bold text-[#2f6fe4]"
                   >
                     <User className="size-3.5" />
                     Use profile
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
-                    className="px-3.5 text-xs font-bold text-[#65758b]"
+                    variant="ghost"
+                    className="h-auto px-3.5 py-0 text-xs font-bold text-[#65758b]"
                   >
                     Different contact
-                  </button>
+                  </Button>
                 </div>
               </div>
 
