@@ -19,6 +19,12 @@ export default [
   ]),
   route("login", "routes/auth/pages/login.tsx"),
   route("register", "routes/auth/pages/register.tsx"),
+  route("forgot-password", "routes/auth/pages/forgot-password.tsx"),
+  route(
+    "forgot-password/check-email",
+    "routes/auth/pages/forgot-password-check-email.tsx",
+  ),
+  route("reset-password", "routes/auth/pages/reset-password.tsx"),
   route("onboarding", "routes/onboarding/pages/layout.tsx", [
     index("routes/onboarding/pages/index.tsx"),
     route("profile", "routes/onboarding/pages/profile.tsx"),

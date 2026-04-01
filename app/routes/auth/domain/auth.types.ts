@@ -35,3 +35,23 @@ export type VerifyOtpActionData = {
     message: string;
   };
 };
+
+export type ForgotPasswordErrors = {
+  email?: string;
+  form?: string;
+};
+
+export type ForgotPasswordActionData = {
+  errors?: ForgotPasswordErrors;
+};
+
+export type ResetPasswordErrors = {
+  token?: string;
+  newPassword?: string;
+  confirmPassword?: string;
+  form?: string;
+};
+
+export type ResetPasswordActionData = {
+  errors?: ResetPasswordErrors;
+};

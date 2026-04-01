@@ -4,6 +4,7 @@ import { Lock, Mail } from "lucide-react";
 import { FormDivider } from "~/routes/auth/components/form-divider";
 import { FormError } from "~/routes/auth/components/form-error";
 import { GoogleButton } from "~/routes/auth/components/google-button";
+import { InlineMessage } from "~/routes/auth/components/inline-message";
 import { AuthPageShell } from "~/routes/auth/components/page-shell";
 import { PasswordField } from "~/routes/auth/components/password-field";
 import {
@@ -26,6 +27,7 @@ export default function LoginPage() {
   const actionData = useActionData<LoginActionData>();
   const [searchParams] = useSearchParams();
   const redirectTo = sanitizeRedirectPath(searchParams.get("redirectTo"));
+  const successMessage = searchParams.get("message") || "";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -49,6 +51,7 @@ export default function LoginPage() {
 
         <FormDivider />
 
+        <InlineMessage tone="success" message={successMessage} />
         <FormError message={actionData?.errors?.form} />
 
         <Form method="post" className="space-y-6">
@@ -97,11 +100,11 @@ export default function LoginPage() {
 
             <div className="flex justify-end">
               <Button
-                type="button"
+                asChild
                 variant="link"
                 className="h-auto px-0 text-[13px] font-semibold leading-4 text-[#2F6FE4] hover:text-[#1F62DF]"
               >
-                Forgot password?
+                <Link to="/forgot-password">Forgot password?</Link>
               </Button>
             </div>
           </div>
