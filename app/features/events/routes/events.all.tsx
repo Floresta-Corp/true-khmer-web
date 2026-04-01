@@ -11,6 +11,7 @@ import {
   getEventCategories,
 } from "~/features/events/lib/events.server";
 import type { EventCategory } from "~/features/events/lib/event-types";
+import { Button } from "~/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import { EventCategoryCarousel } from "~/features/events/components/event-category-carousel";
 
@@ -97,13 +98,14 @@ export default function AllEvents() {
         {/* Load more */}
         {!error && hasMore && (
           <div className="mt-8">
-            <button
+            <Button
               type="button"
               onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-              className="w-full py-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
+              variant="ghost"
+              className="h-auto w-full px-0 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
             >
               Load more
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -113,13 +115,14 @@ export default function AllEvents() {
 
 function FilterPill({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <button
+    <Button
       type="button"
-      className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-full hover:border-gray-300 transition-colors cursor-pointer"
+      variant="ghost"
+      className="h-auto flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-full hover:border-gray-300 transition-colors cursor-pointer"
     >
       {icon}
       <span>{label}</span>
       <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
-    </button>
+    </Button>
   );
 }

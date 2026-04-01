@@ -2,6 +2,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { Link } from "react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { EventCategory } from "~/features/events/lib/event-types";
+import { Button } from "~/components/ui/button";
 
 interface EventCategoryCarouselProps {
   categories: EventCategory[];
@@ -48,9 +49,11 @@ export function EventCategoryCarousel({
   return (
     <div className="relative flex items-center gap-2">
       {/* Left arrow */}
-      <button
+      <Button
         type="button"
         onClick={() => scroll("left")}
+        variant="ghost"
+        size="icon"
         className={`shrink-0 w-8 h-8 rounded-full border border-gray-200 bg-white flex items-center justify-center transition-opacity ${
           canScrollLeft
             ? "opacity-100 hover:bg-gray-50 cursor-pointer"
@@ -60,7 +63,7 @@ export function EventCategoryCarousel({
         aria-label="Scroll left"
       >
         <ChevronLeft className="w-4 h-4 text-gray-600" />
-      </button>
+      </Button>
 
       {/* Scrollable items */}
       <div
@@ -104,9 +107,11 @@ export function EventCategoryCarousel({
       </div>
 
       {/* Right arrow */}
-      <button
+      <Button
         type="button"
         onClick={() => scroll("right")}
+        variant="ghost"
+        size="icon"
         className={`shrink-0 w-8 h-8 rounded-full border border-gray-200 bg-white flex items-center justify-center transition-opacity ${
           canScrollRight
             ? "opacity-100 hover:bg-gray-50 cursor-pointer"
@@ -116,7 +121,7 @@ export function EventCategoryCarousel({
         aria-label="Scroll right"
       >
         <ChevronRight className="w-4 h-4 text-gray-600" />
-      </button>
+      </Button>
     </div>
   );
 }

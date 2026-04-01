@@ -1,5 +1,10 @@
+import { redirect } from "react-router";
 import { resolveApiBase } from "~/lib/server/api-base.server";
-import { commitSession, getSession } from "~/lib/server/session.server";
+import {
+  commitSession,
+  destroySession,
+  getSession,
+} from "~/lib/server/session.server";
 import { refreshAccessToken } from "~/services/auth.server";
 
 type JsonPrimitive = string | number | boolean | null;
@@ -48,9 +53,9 @@ export class InvalidApiResponseError extends Error {
   }
 }
 
-type RequestOptions = {
+type RequestOptions<K extends object = JsonObject> = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  body?: JsonObject | undefined;
+  body?: K | undefined;
 };
 
 export type ApiResult<T> = {
@@ -90,11 +95,11 @@ async function parseJson(response: Response): Promise<JsonObject> {
   throw new InvalidApiResponseError(response);
 }
 
-async function fetchWithBearer(
+async function fetchWithBearer<K extends object = JsonObject>(
   request: Request,
   path: string,
   accessToken: string,
-  options: RequestOptions = {},
+  options: RequestOptions<K> = {},
 ) {
   const base = resolveApiBase(request);
   const url = `${base}${path}`;
@@ -117,10 +122,10 @@ function readErrorMessage(payload: JsonObject, fallback: string) {
   );
 }
 
-export async function apiRequestWithSession<T>(
+export async function apiRequestWithSession<T, K extends object = JsonObject>(
   request: Request,
   path: string,
-  options: RequestOptions = {},
+  options: RequestOptions<K> = {},
 ): Promise<ApiResult<T>> {
   const session = await getSession(request);
   let accessToken = session.get("accessToken") as string | undefined;
@@ -143,7 +148,9 @@ export async function apiRequestWithSession<T>(
       session.set("refreshToken", refreshed.refreshToken);
       setCookie = await commitSession(session);
     } catch {
-      throw new AuthSessionExpiredError();
+      throw redirect("/login", {
+        headers: { "Set-Cookie": await destroySession(session) },
+      });
     }
 
     response = await fetchWithBearer(request, path, accessToken, options);
@@ -165,11 +172,14 @@ export async function apiRequestWithSession<T>(
   };
 }
 
-export async function apiRequestWithAccessToken<T>(
+export async function apiRequestWithAccessToken<
+  T,
+  K extends object = JsonObject,
+>(
   request: Request,
   accessToken: string,
   path: string,
-  options: RequestOptions = {},
+  options: RequestOptions<K> = {},
 ) {
   const response = await fetchWithBearer(request, path, accessToken, options);
   const payload = await parseJson(response);

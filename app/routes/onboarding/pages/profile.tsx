@@ -115,10 +115,7 @@ export async function action({ request }: Route.ActionArgs) {
       bio: formInput.bio,
       ...(formInput.avatarKey ? { avatarKey: formInput.avatarKey } : {}),
     });
-    return redirect(
-      "/onboarding/interest",
-      cookieHeader(result.setCookie),
-    );
+    return redirect("/onboarding/interest", cookieHeader(result.setCookie));
   } catch (error) {
     const handled = await handleOnboardingActionError<ProfileFormErrors>({
       error,

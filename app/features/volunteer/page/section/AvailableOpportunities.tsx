@@ -167,13 +167,15 @@ function OpportunityCard({
         <span className="relative inline-flex rounded-xl border border-white/20 bg-white/95 px-[9px] py-1 text-[10px] font-semibold tracking-[-0.13px] text-[#2f6fe4]">
           {category}
         </span>
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon"
           aria-label="Save opportunity"
           className="relative float-right flex size-[31.5px] items-center justify-center rounded-2xl bg-white/95 text-[#9aa2af] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)]"
         >
           <Heart className="size-[14px]" />
-        </button>
+        </Button>
       </div>
 
       <div className="flex flex-col gap-6 p-5">

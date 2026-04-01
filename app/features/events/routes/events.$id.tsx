@@ -3,6 +3,7 @@ import type { Route } from "./+types/events.$id";
 import { AlertCircle, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
 import { ImageGallery } from "~/components/image-lightbox";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { SanitizedHtml } from "~/components/sanitized-html";
@@ -51,13 +52,14 @@ export default function EventDetailPage() {
             <p className="text-red-600 text-sm mb-6">
               {error || "The event you are looking for does not exist."}
             </p>
-            <button
+            <Button
               onClick={goBack}
-              className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors cursor-pointer"
+              variant="ghost"
+              className="h-auto px-0 py-0 inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to events
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -72,13 +74,14 @@ export default function EventDetailPage() {
     <div className="min-h-screen bg-gray-50 font-sans">
       {/* Back link */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <button
+        <Button
           onClick={goBack}
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600 transition-colors cursor-pointer"
+          variant="ghost"
+          className="h-auto px-0 py-0 inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600 transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to events
-        </button>
+        </Button>
       </div>
 
       {/* Hero Image */}
@@ -101,26 +104,28 @@ export default function EventDetailPage() {
 
             {/* Tabs */}
             <div className="flex items-center gap-6 mt-8 border-b border-gray-200">
-              <button
+              <Button
                 onClick={() => setActiveTab("tickets")}
-                className={`pb-3 text-sm font-semibold uppercase tracking-wider transition-colors ${
+                variant="ghost"
+                className={`h-auto px-0 py-0 pb-3 text-sm font-semibold uppercase tracking-wider transition-colors ${
                   activeTab === "tickets"
                     ? "text-blue-600 border-b-2 border-blue-600"
                     : "text-gray-400 hover:text-gray-600"
                 }`}
               >
                 Get Tickets
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setActiveTab("info")}
-                className={`pb-3 text-sm font-semibold uppercase tracking-wider transition-colors ${
+                variant="ghost"
+                className={`h-auto px-0 py-0 pb-3 text-sm font-semibold uppercase tracking-wider transition-colors ${
                   activeTab === "info"
                     ? "text-blue-600 border-b-2 border-blue-600"
                     : "text-gray-400 hover:text-gray-600"
                 }`}
               >
                 More Info
-              </button>
+              </Button>
             </div>
 
             {/* Tab Content */}

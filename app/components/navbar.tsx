@@ -20,6 +20,7 @@ import {
   Settings,
   Plus,
   ChevronRight,
+  Video,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { Separator } from "~/components/ui/separator";
@@ -30,11 +31,12 @@ interface NavbarProps {
 
 const navLinks = [
   { to: "/workspace", label: "Workspace", icon: Briefcase },
-  { to: "/dashboard", label: "My Journey", icon: Compass },
+  // { to: "/dashboard", label: "My Journey", icon: Compass },
   { to: "/forum", label: "Forum", icon: MessageSquare },
+  { to: "/events", label: "Events", icon: CalendarDays },
   { to: "/volunteer", label: "Volunteer", icon: Heart },
   { to: "/launchpad", label: "Launchpad", icon: Rocket },
-  { to: "/events", label: "Events", icon: CalendarDays },
+  { to: "/poc", label: "POC", icon: Video },
 ];
 
 export function Navbar({ user }: NavbarProps) {
@@ -77,9 +79,6 @@ export function Navbar({ user }: NavbarProps) {
                 >
                   <link.icon className="h-4 w-4" />
                   <span>{link.label}</span>
-                  {isActive && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-t-full" />
-                  )}
                 </Link>
               );
             })}
