@@ -28,9 +28,9 @@ export async function action({ request }: ActionFunctionArgs) {
   if (Object.keys(errors).length > 0) return { errors };
 
   try {
-    const response = await resetPassword(token, newPassword, request);
+    await resetPassword(token, newPassword, request);
     const params = new URLSearchParams({
-      message: response.message || "Password reset completed successfully.",
+      notice: "reset_password_success",
     });
     return redirect(`/login?${params.toString()}`);
   } catch (error) {

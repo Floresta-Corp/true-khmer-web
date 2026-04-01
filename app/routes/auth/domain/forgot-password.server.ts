@@ -34,7 +34,6 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     const response = await requestPasswordReset(email, resetPageUrl, request);
     const params = new URLSearchParams({
-      email,
       message:
         response.message || "We’ve sent a password reset link to your email.",
     });
@@ -55,14 +54,21 @@ export async function action({ request }: ActionFunctionArgs) {
         };
       }
 
-      return { errors: { form: formatAuthMessage(error.message) } };
+      return {
+        errors: {
+          form:
+            formatAuthMessage(error.message) ??
+            "Could not send reset email. Please try again.",
+        },
+      };
     }
 
     return {
       errors: {
         form:
           error instanceof Error
-            ? formatAuthMessage(`Could not send reset email: ${error.message}`)
+            ? formatAuthMessage(`Could not send reset email: ${error.message}`) ??
+              "Could not send reset email. Please try again."
             : "Could not send reset email. Please try again.",
       },
     };

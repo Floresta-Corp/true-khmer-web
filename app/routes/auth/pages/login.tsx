@@ -18,6 +18,10 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { sanitizeRedirectPath } from "~/lib/redirects";
 
+const LOGIN_NOTICE_MESSAGES = {
+  reset_password_success: "Password reset completed successfully.",
+} as const;
+
 export const loader = loginLoader;
 export const action = loginAction;
 export function meta() {
@@ -28,7 +32,12 @@ export default function LoginPage() {
   const actionData = useActionData<LoginActionData>();
   const [searchParams] = useSearchParams();
   const redirectTo = sanitizeRedirectPath(searchParams.get("redirectTo"));
-  const successMessage = searchParams.get("message") || "";
+  const notice = searchParams.get("notice");
+  const successMessage = notice
+    ? LOGIN_NOTICE_MESSAGES[
+        notice as keyof typeof LOGIN_NOTICE_MESSAGES
+      ] ?? ""
+    : "";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
