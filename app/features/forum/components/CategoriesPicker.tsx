@@ -7,11 +7,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import type { Category } from "~/services/forum/types";
+import type { CategoriesPicker as CategoryOption } from "~/services/forum/types";
 
 interface CategoriesPickerProps {
   name: string;
-  categories: Category[];
+  categories: CategoryOption[];
   defaultValue?: string;
 }
 
@@ -20,8 +20,16 @@ export default function CategoriesPicker({
   categories,
   defaultValue = "",
 }: CategoriesPickerProps) {
-  const defaultCategory = categories.find((c) => c.id === defaultValue) || categories[0] || null;
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(defaultCategory);
+  const defaultCategory =
+    categories.find((c) => c.id === defaultValue) || categories[0] || null;
+  const [selectedCategory, setSelectedCategory] =
+    useState<CategoryOption | null>(defaultCategory);
+
+  useEffect(() => {
+    const nextCategory =
+      categories.find((c) => c.id === defaultValue) || categories[0] || null;
+    setSelectedCategory(nextCategory);
+  }, [defaultValue, categories]);
 
   useEffect(() => {
     if (!selectedCategory && categories.length > 0) {

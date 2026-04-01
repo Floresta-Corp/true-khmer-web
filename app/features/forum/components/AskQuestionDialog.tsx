@@ -14,20 +14,30 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import CategoriesPicker from "./CategoriesPicker";
-import type { Category } from "~/services/forum/types";
+import type {
+  CategoriesPicker as CategoryOption,
+  Question,
+} from "~/services/forum/types";
 
 interface AskQuestionDialogProps {
-  categories: Category[];
+  categories: CategoryOption[];
+  isEditing?: boolean;
+  data?: Question | null;
+  trigger?: React.ReactNode;
 }
 
 export default function AskQuestionDialog({
   categories,
+  isEditing,
+  data,
+  trigger,
 }: AskQuestionDialogProps) {
   const fetcher = useFetcher();
   const isSubmitting = fetcher.state !== "idle";
   const [open, setOpen] = useState(false);
   const wasSubmitting = useRef(false);
   const revalidator = useRevalidator();
+  const tagsValue = data?.tags?.join(", ") ?? "";
 
   useEffect(() => {
     if (fetcher.state === "submitting") {
@@ -51,10 +61,12 @@ export default function AskQuestionDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="flex h-10 w-full sm:w-auto items-center justify-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca]">
-          <Plus size={24} />
-          Ask question
-        </Button>
+        {trigger || (
+          <Button className="flex h-10 w-full sm:w-auto items-center justify-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca]">
+            <Plus size={24} />
+            Ask question
+          </Button>
+        )}
       </DialogTrigger>
 
       <DialogContent
@@ -76,7 +88,7 @@ export default function AskQuestionDialog({
 
         <div className="flex flex-col gap-1.5">
           <DialogTitle className="text-lg leading-7 font-semibold text-[#0f1729]">
-            Ask question
+            {isEditing ? "Edit question" : "Ask question"}
           </DialogTitle>
           <DialogDescription className="text-sm leading-5 font-normal text-[#6a7282]">
             Share knowledge with the community
@@ -85,7 +97,11 @@ export default function AskQuestionDialog({
 
         <div className="-mx-6 border-t border-[#e2e8f0]" />
 
-        <fetcher.Form className="flex flex-col gap-2" method="post">
+        <fetcher.Form
+          key={data?.id ?? "create-question"}
+          className="flex flex-col gap-2"
+          method="post"
+        >
           <input type="hidden" name="status" value="PUBLISHED" />
           <div className="flex flex-col gap-2">
             <Label className="text-xs leading-4.5 font-medium text-[#364153]">
@@ -94,6 +110,7 @@ export default function AskQuestionDialog({
             <Input
               name="title"
               placeholder="What are the best resources for learning Khmer business law?"
+              defaultValue={data?.title ?? ""}
               className="h-11 rounded-lg border-transparent bg-[#f8fafc] text-sm text-[#344256] placeholder:text-[#9eacc0] focus-visible:border-[#2f6fe4] focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
@@ -102,7 +119,11 @@ export default function AskQuestionDialog({
             <Label className="text-xs leading-4.5 font-medium text-[#364153]">
               Category
             </Label>
-            <CategoriesPicker name="categoryId" categories={categories} />
+            <CategoriesPicker
+              name="categoryId"
+              categories={categories}
+              defaultValue={data?.category?.id}
+            />
           </div>
 
           <div className="flex flex-col gap-2">
@@ -112,6 +133,7 @@ export default function AskQuestionDialog({
             <textarea
               name="body"
               placeholder="What are the best resources for learning Khmer business law?"
+              defaultValue={data?.body ?? ""}
               className="min-h-11 w-full resize-none rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm text-[#344256] placeholder:text-[#9eacc0] outline-none focus:border-[#2f6fe4]"
               rows={1}
             />
@@ -124,6 +146,7 @@ export default function AskQuestionDialog({
             <Input
               name="tags"
               placeholder="Separate with commas"
+              defaultValue={tagsValue}
               className="h-11 rounded-lg border-transparent bg-[#f8fafc] text-sm text-[#344256] placeholder:text-[#9eacc0] focus-visible:border-[#2f6fe4] focus-visible:ring-0 focus-visible:ring-offset-0"
             />
           </div>
@@ -144,7 +167,11 @@ export default function AskQuestionDialog({
               disabled={isSubmitting}
               className="h-8 rounded-lg bg-[#2f6fe4] px-3 text-sm font-medium text-white hover:bg-[#245fca]"
             >
-              {isSubmitting ? "Posting..." : "Post question"}
+              {isSubmitting
+                ? "Posting..."
+                : isEditing
+                  ? "Update question"
+                  : "Post question"}
             </Button>
           </div>
         </fetcher.Form>

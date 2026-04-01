@@ -1,13 +1,13 @@
 import { Link, useLoaderData } from "react-router";
-import { ChevronDown, ChevronUp, Clock3 } from "lucide-react";
+import { Clock3 } from "lucide-react";
 import { motion } from "framer-motion";
 import AddAnswerDialog from "../components/AddAnswerDialog";
 import BackToForum from "../components/BackToForum";
 import ForumPostActions from "../components/ForumPostActions";
+import VoteComponent from "../components/VoteComponent";
 import TopAnswer from "../components/sections/TopAnswer";
 import AllAnswers from "../components/sections/AllAnswers";
 import type { AnswerData } from "../components/AnswerCard";
-import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import type { Route } from ".react-router/types/app/+types/root";
 import { apiRequestWithSession } from "~/lib/server/api-client.server";
@@ -26,11 +26,6 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     `/forum/questions/${questionId}`,
     { method: "GET" },
   );
-  // const answers = await apiRequestWithSession<GetQuestionResponse>(
-  //   request,
-  //   `/forum/answer/get-answers/${questionId}`,
-  //   { method: "GET" },
-  // );
 
   return { question: question.data.question };
 }
@@ -56,31 +51,6 @@ const fadeUp = {
     },
   }),
 };
-
-// ─── Sub-components ──────────────────────────────────────────────────────────
-function VoteRail({ votes }: { votes: number }) {
-  return (
-    <div className="flex w-7 shrink-0 flex-col items-center gap-[5.25px] pt-[3.5px]">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="flex h-7 w-7 items-center justify-center rounded-xl border border-[#f3f4f6] bg-[#f9fafb] text-[#9eacc0] transition-colors hover:border-[#2f6fe4] hover:text-[#2f6fe4]"
-      >
-        <ChevronUp className="h-3.5 w-3.5" />
-      </Button>
-      <span className="text-[11px] font-semibold leading-4 text-[#4a5565]">
-        {votes}
-      </span>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="flex h-7 w-7 items-center justify-center rounded-xl border border-[#f3f4f6] bg-[#f9fafb] text-[#9eacc0] transition-colors hover:text-[#344256]"
-      >
-        <ChevronDown className="h-3.5 w-3.5" />
-      </Button>
-    </div>
-  );
-}
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 export default function ForumDetailPage() {
@@ -117,8 +87,6 @@ export default function ForumDetailPage() {
     day: "numeric",
     year: "numeric",
   });
-
-  const avatarSrc = `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(question.author.name)}`;
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
@@ -200,28 +168,23 @@ export default function ForumDetailPage() {
                     <p className="text-sm font-semibold leading-4 text-[#344256]">
                       {question.author.name}
                     </p>
-                    <p className="text-xs font-medium leading-4 text-[#9eacc0]">
-                      {question.author.role ?? "Community Member"}
-                    </p>
+                    {/* <p className="text-xs font-medium leading-4 text-[#9eacc0]">
+                      { {question.author.role ?? "Community Member"}}
+                      {"Community Member"}
+                    </p> */}
                   </div>
                 </div>
 
                 {/* Vote counter */}
-                <div className="flex h-7.5 items-center rounded-xl border border-[#f3f4f6] bg-[#f9fafb] text-[#4a5565]">
-                  <Button
-                    variant="ghost"
-                    className="h-auto px-2 py-0 text-[#99a1af] hover:text-[#2f6fe4]"
-                  >
-                    <ChevronUp className="h-3.5 w-3.5" />
-                  </Button>
-                  <span className="px-1 text-xs font-semibold">0</span>
-                  <Button
-                    variant="ghost"
-                    className="h-auto px-2 py-0 text-[#99a1af] hover:text-[#344256]"
-                  >
-                    <ChevronDown className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
+                <VoteComponent
+                  score={0}
+                  onUpVote={() => {
+                    console.log("Up vote clicked", question.id);
+                  }}
+                  onDownVote={() => {
+                    console.log("Down vote clicked", question.id);
+                  }}
+                />
               </div>
 
               <AddAnswerDialog />

@@ -1,3 +1,5 @@
+import CategoriesPicker from "~/features/forum/components/CategoriesPicker";
+
 export interface GetQuestionpaginationResponse {
   ok: boolean;
   questions: Question[];
@@ -15,24 +17,32 @@ export interface GetQuestionResponse {
   question: Question;
 }
 
+export interface Author {
+  id: string;
+  name: string;
+  avatarKey: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+}
+
 export interface Question {
   id: string;
-  category: {
-    id: string;
-    name: string;
-  };
-  author: {
-    id: string;
-    name: string;
-    avatarKey?: string;
-    role?: string;
-  };
+  category: Category;
+  author: Author;
   title: string;
   body: string;
   status: string;
   answerCount: number;
+  upvoteCount: number;
+  downvoteCount: number;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt: Date;
+  score: number;
+  viewerVote: string;
   tags: string[];
 }
 
@@ -44,17 +54,6 @@ export interface CreateForumPostInput {
   body: string;
   tags: string[];
   status: ForumPostStatus;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  description?: string;
-}
-
-export interface GetCategoryResponse {
-  ok: boolean;
-  categories: Category[];
 }
 
 export type AnswerStatus = "PUBLISHED" | "DRAFT";
@@ -81,3 +80,27 @@ export interface GetAnswersResponse {
   ok: boolean;
   answers: Answer[];
 }
+
+export interface GetCategoriesListResponse {
+  ok: boolean;
+  categories: Category[];
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  displayOrder: number;
+  status: string;
+  createdBy: string;
+  updatedBy: string;
+  createdAt: string;
+  updatedAt: string;
+  archivedAt: null;
+}
+
+export type CategoriesPicker = {
+  id: string;
+  name: string;
+};

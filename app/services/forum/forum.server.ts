@@ -2,7 +2,7 @@ import { apiRequestWithSession } from "~/lib/server/api-client.server";
 import type {
   CreateForumPostInput,
   GetAnswersResponse,
-  GetCategoryResponse,
+  GetCategoriesListResponse,
   GetQuestionpaginationResponse,
   GetQuestionResponse,
 } from "./types";
@@ -22,7 +22,7 @@ export async function createForumQuestion(
 }
 
 export async function getCategories(request: Request) {
-  const result = await apiRequestWithSession<GetCategoryResponse>(
+  const result = await apiRequestWithSession<GetCategoriesListResponse>(
     request,
     "/forum/category",
     {

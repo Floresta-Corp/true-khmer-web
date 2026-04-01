@@ -1,26 +1,6 @@
-import {
-  Hash,
-  Clock,
-  Heart,
-  MessageSquare,
-  MoreHorizontal,
-} from "lucide-react";
-import { Badge } from "~/components/ui/badge";
+import { Hash } from "lucide-react";
 import { Button } from "~/components/ui/button";
-
-interface Category {
-  name: string;
-  count: number;
-}
-
-export const CATEGORIES: Category[] = [
-  { name: "All Categories", count: 4 },
-  { name: "Business Growth", count: 1 },
-  { name: "Career Advice", count: 0 },
-  { name: "Tech & Innovation", count: 2 },
-  { name: "Khmer Culture", count: 0 },
-  { name: "Networking", count: 1 },
-];
+import type { CategoriesPicker } from "~/services/forum/types";
 
 export const TRENDING_TOPICS = [
   "#ImpactKhmerLaunchpad",
@@ -31,56 +11,62 @@ export const TRENDING_TOPICS = [
 ];
 
 interface CategoriesProps {
-  selectedCategory?: string;
-  onCategorySelect?: (category: string) => void;
+  categories?: CategoriesPicker[] | undefined;
+  selectedCategory?: CategoriesPicker;
+  onCategorySelect?: (category: CategoriesPicker) => void;
 }
 
 function Categories({
-  selectedCategory = "All Categories",
+  categories,
+  selectedCategory = { id: "all-categories", name: "All Categories" },
   onCategorySelect,
 }: CategoriesProps) {
   return (
     <div className="bg-white border border-[#f1f5f9] rounded-2xl p-5 w-full">
       {/* Header */}
       <div className="mb-4">
-        <h3 className="font-bold text-lg leading-[27px] text-[#344256]">
+        <h3 className="font-bold text-lg leading-6.75 text-[#344256]">
           Categories
         </h3>
       </div>
 
       {/* Category buttons */}
       <div className="flex flex-col gap-[3.5px]">
-        {CATEGORIES.map((category) => (
-          <Button
-            key={category.name}
-            onClick={() => onCategorySelect?.(category.name)}
-            variant="ghost"
-            className={`flex h-9 items-center justify-between px-2.25 py-0 rounded-lg transition-colors ${
-              selectedCategory === category.name
-                ? "bg-transparent"
-                : "hover:bg-[#f8fafc]"
-            }`}
-          >
-            <span
-              className={`text-sm font-semibold text-center tracking-tight ${
-                selectedCategory === category.name
-                  ? "text-[#2f6fe4]"
-                  : "text-[#4a5565]"
-              }`}
-            >
-              {category.name}
-            </span>
-            <span
-              className={`h-[18.5px] rounded-lg px-1.5 text-xs font-semibold text-center flex items-center justify-center ${
-                selectedCategory === category.name
-                  ? "bg-[#2f6fe4] text-white"
-                  : "bg-[#f3f4f6] text-[#99a1af]"
-              }`}
-            >
-              {category.count}
-            </span>
-          </Button>
-        ))}
+        {categories &&
+          categories.map((category) => {
+            const count = Math.floor(Math.random() * 11);
+            return (
+              <Button
+                key={category.name}
+                onClick={() => onCategorySelect?.(category)}
+                variant="ghost"
+                className={`flex h-9 items-center justify-between px-2.25 py-0 rounded-lg transition-colors ${
+                  selectedCategory.id === category.id
+                    ? "bg-transparent"
+                    : "hover:bg-[#f8fafc]"
+                }`}
+              >
+                <span
+                  className={`text-sm font-semibold text-center tracking-tight ${
+                    selectedCategory.id === category.id
+                      ? "text-[#2f6fe4]"
+                      : "text-[#4a5565]"
+                  }`}
+                >
+                  {category.name}
+                </span>
+                <span
+                  className={`h-[18.5px] rounded-lg px-1.5 text-xs font-semibold text-center flex items-center justify-center ${
+                    selectedCategory.id === category.id
+                      ? "bg-[#2f6fe4] text-white"
+                      : "bg-[#f3f4f6] text-[#99a1af]"
+                  }`}
+                >
+                  {count}
+                </span>
+              </Button>
+            );
+          })}
       </div>
     </div>
   );
@@ -92,17 +78,17 @@ function TrendingTopics() {
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
         <Hash className="w-6 h-6 text-[#344256]" />
-        <h3 className="font-bold text-lg leading-[27px] text-[#344256]">
+        <h3 className="font-bold text-lg leading-6.75 text-[#344256]">
           Trending Topics
         </h3>
       </div>
 
       {/* Topics grid */}
-      <div className="flex flex-col gap-[7px]">
+      <div className="flex flex-col gap-1.75">
         {TRENDING_TOPICS.map((topic, index) => (
           <div
             key={index}
-            className={`flex gap-[7px] flex-wrap ${index % 2 === 0 ? "" : ""}`}
+            className={`flex gap-1.75 flex-wrap ${index % 2 === 0 ? "" : ""}`}
           >
             <Button
               variant="ghost"
@@ -134,17 +120,20 @@ function TrendingTopics() {
 }
 
 interface ForumSidebarProps {
-  selectedCategory?: string;
-  onCategorySelect?: (category: string) => void;
+  categories?: CategoriesPicker[] | undefined;
+  selectedCategory?: CategoriesPicker;
+  onCategorySelect?: (category: CategoriesPicker) => void;
 }
 
 export default function ForumSidebar({
   selectedCategory,
+  categories,
   onCategorySelect,
 }: ForumSidebarProps) {
   return (
     <div className="flex flex-col gap-5 max-w-sm">
       <Categories
+        categories={categories}
         selectedCategory={selectedCategory}
         onCategorySelect={onCategorySelect}
       />

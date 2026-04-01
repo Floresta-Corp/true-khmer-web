@@ -1,21 +1,31 @@
 import {
-  Heart,
+  Bookmark,
+  Clock,
+  Flag,
   MessageSquare,
-  ChevronDown,
-  MoreHorizontal,
+  Pencil,
+  Share2,
+  Trash2,
 } from "lucide-react";
 import { Link } from "react-router";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import type { Question } from "~/services/forum/types";
+import VoteComponent from "./VoteComponent";
+import type { CategoriesPicker, Question } from "~/services/forum/types";
+import type { AuthenticatedUser } from "~/lib/server/route-guards.server";
+import AskQuestionDialog from "./AskQuestionDialog";
 
 interface DiscussionCardProps {
+  user: AuthenticatedUser;
   question: Question;
-  onCategoryClick?: (category: string) => void;
+  categories: CategoriesPicker[];
+  onCategoryClick?: (category: CategoriesPicker) => void;
 }
 
 export default function QuestionCard({
+  user,
   question,
+  categories,
   onCategoryClick,
 }: DiscussionCardProps) {
   const createdLabel = new Date(question.createdAt).toLocaleDateString(
@@ -26,6 +36,7 @@ export default function QuestionCard({
       year: "numeric",
     },
   );
+  const isCurrentAuthor = user.id === question.author.id ? true : false;
 
   return (
     <div className="bg-white border border-[#f1f5f9] rounded-2xl p-4 sm:p-6 w-full hover:shadow-sm transition-shadow">
@@ -33,41 +44,33 @@ export default function QuestionCard({
       <div className="flex justify-between items-start mb-3 sm:mb-5 gap-2">
         <div className="flex gap-2 items-center flex-wrap">
           <Button
-            onClick={() => onCategoryClick?.(question.category.name)}
+            onClick={() =>
+              onCategoryClick?.({
+                id: question.category.id,
+                name: question.category.name,
+              } as CategoriesPicker)
+            } // Placeholder, replace with actual category object
             variant="ghost"
             className="h-auto px-0 py-0 text-xs font-bold text-[#2f6fe4] hover:underline"
           >
             {question.category.name}
           </Button>
-          {question.status && (
+          {isCurrentAuthor && (
             <Badge
               variant="secondary"
-              className="text-xs font-semibold bg-[#f0f6ff] text-[#2f6fe4]"
+              className="text-xs font-semibold bg-green-100 text-green-500"
             >
-              {question.status}
+              Author
             </Badge>
           )}
         </div>
 
         {/* Time and action buttons */}
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          <Clock size={16} className="text-[#9EACC0]" />
           <span className="text-xs text-[#9eacc0] hidden sm:block">
             {createdLabel}
           </span>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 hover:bg-[#f8fafc] rounded transition-colors"
-          >
-            <Heart size={15} className="text-[#ccc]" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 hover:bg-[#f8fafc] rounded transition-colors"
-          >
-            <MessageSquare size={15} className="text-[#ccc]" />
-          </Button>
         </div>
       </div>
 
@@ -103,6 +106,38 @@ export default function QuestionCard({
         </div>
       )}
 
+      {isCurrentAuthor && (
+        <div className="flex items-center justify-end">
+          <div className="flex h-[26.25px] w-[59.5px] items-center gap-1.75">
+            <AskQuestionDialog
+              categories={categories.filter(
+                (category) => category.id !== "all-categories",
+              )}
+              isEditing
+              data={question}
+              trigger={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-[26.25px] w-[26.25px] rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
+                >
+                  <Pencil size={12.25} />
+                </Button>
+              }
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-[26.25px] min-w-[26.25px] flex-1 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
+            >
+              <Trash2 size={12.25} />
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Divider */}
       <div className="border-t border-[#f9fafb] my-3 sm:my-4" />
 
@@ -127,20 +162,49 @@ export default function QuestionCard({
 
         {/* Engagement metrics */}
         <div className="flex items-center gap-2 sm:gap-3.5 shrink-0">
-          <div className="flex h-7 items-center gap-1 rounded-lg border border-[#f3f4f6] bg-[#f9fafb] px-2 sm:px-3">
-            <Heart size={13} className="text-[#1fc16b]" />
-            <span className="text-xs font-semibold text-[#1fc16b]">0</span>
-            <ChevronDown size={13} className="text-[#99a1af]" />
+          <VoteComponent
+            score={0}
+            onUpVote={() => {
+              console.log("Up vote clicked", question.id);
+            }}
+            onDownVote={() => {
+              console.log("Down vote clicked", question.id);
+            }}
+            className="h-7 rounded-lg"
+          />
+
+          <div className="inline-flex items-center gap-1 text-xs font-medium text-[#99a1af]">
+            <MessageSquare size={12.25} className="text-[#99a1af]" />
+            <span>
+              {question.answerCount}
+              <span className="hidden sm:inline"> answers</span>
+              <span className="sm:hidden"> ans</span>
+            </span>
           </div>
 
-          <div className="text-xs text-[#9eacc0]">
-            {question.answerCount}
-            <span className="hidden sm:inline"> answers</span>
-            <span className="sm:hidden"> ans</span>
-          </div>
+          <div className="h-[22.75px] w-px bg-[#f3f4f6]" />
 
-          <Button variant="ghost" size="sm" className="h-auto p-0">
-            <MoreHorizontal size={15} className="text-[#99a1af]" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-[22.75px] w-[22.75px] rounded-xl text-[#99a1af] hover:bg-[#f8fafc] hover:text-[#344256]"
+          >
+            <Bookmark size={12.25} />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-[22.75px] w-[22.75px] rounded-xl text-[#99a1af] hover:bg-[#f8fafc] hover:text-[#344256]"
+          >
+            <Share2 size={12.25} />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-[22.75px] w-[22.75px] rounded-xl text-[#99a1af] hover:bg-[#f8fafc] hover:text-[#344256]"
+          >
+            <Flag size={12.25} />
           </Button>
         </div>
       </div>

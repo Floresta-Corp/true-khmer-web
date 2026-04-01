@@ -1,8 +1,8 @@
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import type { Question } from "~/services/forum/types";
-import { CATEGORIES } from "./ForumSidebar";
+import type { CategoriesPicker, Question } from "~/services/forum/types";
 import LoadMore from "./LoadMore";
 import QuestionCard from "./QuestionCard";
+import type { AuthenticatedUser } from "~/lib/server/route-guards.server";
 
 export interface DiscussionPost {
   id: string;
@@ -23,6 +23,8 @@ export interface DiscussionPost {
 }
 
 interface DiscussionThreadProps {
+  user: AuthenticatedUser;
+  categories?: CategoriesPicker[];
   data?: {
     questions: Question[] | undefined;
     hasMore: boolean | undefined;
@@ -31,12 +33,14 @@ interface DiscussionThreadProps {
   onTabChange?: (
     tab: "recent" | "topRated" | "unanswered" | "myActivity",
   ) => void;
-  onCategoryClick?: (category: string) => void;
+  onCategoryClick?: (category: CategoriesPicker) => void;
   onLoadMore?: () => void;
   isLoading?: boolean;
 }
 
 export function DiscussionThread({
+  user,
+  categories,
   data,
   activeTab,
   onTabChange,
@@ -44,6 +48,10 @@ export function DiscussionThread({
   onLoadMore,
   isLoading,
 }: DiscussionThreadProps) {
+  const questions = data?.questions ?? [];
+  const hasQuestions = questions.length > 0;
+  const isEmptyAndLoading = !hasQuestions && Boolean(isLoading);
+
   const tabs: Array<{ id: DiscussionThreadProps["activeTab"]; label: string }> =
     [
       { id: "recent" as const, label: "Recent" },
@@ -78,21 +86,22 @@ export function DiscussionThread({
 
       {/* Discussion posts */}
       <div className="flex flex-col gap-4">
-        {data?.questions && data?.questions.length > 0 ? (
-          data?.questions.map((question) => {
-            const randomIndex = Math.floor(Math.random() * 7);
-            const category =
-              CATEGORIES[randomIndex % CATEGORIES.length]?.name ??
-              "All Categories";
-
+        {hasQuestions ? (
+          questions.map((question) => {
             return (
               <QuestionCard
                 key={question.id}
                 question={question}
+                categories={categories ?? []}
                 onCategoryClick={onCategoryClick}
+                user={user}
               />
             );
           })
+        ) : isEmptyAndLoading ? (
+          <div className="text-center py-12 text-[#9eacc0]">
+            Loading discussions...
+          </div>
         ) : (
           <div className="text-center py-12 text-[#9eacc0]">
             No discussions found
