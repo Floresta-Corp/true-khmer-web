@@ -34,7 +34,7 @@ function Categories({
       <div className="flex flex-col gap-[3.5px]">
         {categories &&
           categories.map((category) => {
-            const count = Math.floor(Math.random() * 11);
+            const count = category.count ?? 0; // Fallback to 0 if count is undefined
             return (
               <Button
                 key={category.name}

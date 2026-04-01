@@ -2,6 +2,7 @@ import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import type { CategoriesPicker, Question } from "~/services/forum/types";
 import LoadMore from "./LoadMore";
 import QuestionCard from "./QuestionCard";
+import QuestionCardSkeleton from "./QuestionCardSkeleton";
 import type { AuthenticatedUser } from "~/lib/server/route-guards.server";
 
 export interface DiscussionPost {
@@ -99,9 +100,9 @@ export function DiscussionThread({
             );
           })
         ) : isEmptyAndLoading ? (
-          <div className="text-center py-12 text-[#9eacc0]">
-            Loading discussions...
-          </div>
+          Array.from({ length: 5 }).map((_, index) => (
+            <QuestionCardSkeleton key={`question-card-skeleton-${index}`} />
+          ))
         ) : (
           <div className="text-center py-12 text-[#9eacc0]">
             No discussions found

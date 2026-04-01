@@ -30,34 +30,39 @@ export interface Category {
 
 export interface Question {
   id: string;
-  category: Category;
-  author: Author;
   title: string;
   body: string;
-  status: string;
+  status: ForumQuestionStatus;
   answerCount: number;
   upvoteCount: number;
   downvoteCount: number;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   score: number;
-  viewerVote: string;
+  viewerVote: ViewerVote;
+  category: Category;
+  author: Author;
   tags: string[];
 }
 
-export type ForumPostStatus = "DRAFT" | "PUBLISHED";
+export type ForumQuestionStatus = "DRAFT" | "PUBLISHED";
 
 export interface CreateForumPostInput {
   categoryId: string;
   title: string;
   body: string;
   tags: string[];
-  status: ForumPostStatus;
+  status: ForumQuestionStatus;
 }
 
+export type VoteIntent = "UPVOTE" | "DOWNVOTE" | "NONE";
+
 export type AnswerStatus = "PUBLISHED" | "DRAFT";
-export type ViewerVote = "UPVOTE" | "DOWNVOTE" | null;
+export enum ViewerVote {
+  UPVOTE = "UPVOTE",
+  DOWNVOTE = "DOWNVOTE",
+  NONE = "NONE"
+}
 
 export interface Answer {
   id: string;
@@ -65,6 +70,7 @@ export interface Answer {
   authorId: string;
   body: string;
   status: AnswerStatus;
+  answerCount: number;
   upvoteCount: number;
   downvoteCount: number;
   createdAt: string;
@@ -98,9 +104,11 @@ export interface Category {
   createdAt: string;
   updatedAt: string;
   archivedAt: null;
+  questionCount: number;
 }
 
 export type CategoriesPicker = {
   id: string;
   name: string;
+  count?: number;
 };

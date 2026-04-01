@@ -18,6 +18,8 @@ export default [
     route("events/:id", "features/events/routes/events.$id.tsx"),
     route("volunteer", "features/volunteer/routes/page.tsx"),
     route("volunteer/:id", "features/volunteer/routes/$id.tsx"),
+    route("poc", "features/poc/routes/page.tsx"),
+    route("poc/:id", "features/poc/routes/$id.tsx"),
   ]),
   route("login", "routes/auth/pages/login.tsx"),
   route("register", "routes/auth/pages/register.tsx"),

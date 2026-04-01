@@ -1,5 +1,5 @@
 import { Search } from "lucide-react";
-import AskQuestionDialog from "../AskQuestionDialog";
+import AskQuestionDialog from "../dialog/AskQuestionDialog";
 
 import type { Category } from "~/services/forum/types";
 
@@ -39,7 +39,7 @@ export default function ForumHeader({
           type="text"
           placeholder="Search discussions or categories..."
           onChange={(e) => onSearch?.(e.target.value)}
-          className="w-full h-11 sm:h-[51px] bg-[#f8fafc] border border-[#f1f5f9] rounded-xl pl-10.5 pr-3.5 font-medium text-sm text-[#9eacc0] placeholder-[#9eacc0] focus:outline-none focus:ring-2 focus:ring-[#2f6fe4] focus:border-transparent transition"
+          className="w-full h-11 sm:h-12.75 bg-[#f8fafc] border border-[#f1f5f9] rounded-xl pl-10.5 pr-3.5 font-medium text-sm text-[#9eacc0] placeholder-[#9eacc0] focus:outline-none focus:ring-2 focus:ring-[#2f6fe4] focus:border-transparent transition"
         />
       </div>
     </div>

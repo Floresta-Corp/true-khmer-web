@@ -13,10 +13,12 @@ import {
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import CategoriesPicker from "./CategoriesPicker";
-import type { Question } from "~/services/forum/types";
+import CategoriesPicker from "../CategoriesPicker";
+import type {
+  CategoriesPicker as CategoryOption,
+  Question,
+} from "~/services/forum/types";
 import type { ForumPostFormFieldErrors } from "~/services/forum/utils";
-import type { CategoriesPicker as CategoryOption } from "~/services/forum/types";
 
 interface AskQuestionDialogProps {
   categories: CategoryOption[];
@@ -74,6 +76,8 @@ export default function AskQuestionDialog({
       }
     }
   }, [fetcher.state, fetcher.data, isEditing, revalidator]);
+
+  console.log(data);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

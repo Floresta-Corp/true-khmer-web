@@ -5,6 +5,7 @@ import type {
   GetCategoriesListResponse,
   GetQuestionpaginationResponse,
   GetQuestionResponse,
+  VoteIntent,
 } from "./types";
 
 export async function createForumQuestion(
@@ -18,6 +19,48 @@ export async function createForumQuestion(
     method: "POST",
     body: payload,
   });
+  return result;
+}
+
+export async function updateForumQuestion(
+  request: Request,
+  questionId: string,
+  payload: CreateForumPostInput,
+) {
+  const result = await apiRequestWithSession<
+    GetQuestionResponse,
+    CreateForumPostInput
+  >(request, `/forum/questions/edit-question/${questionId}`, {
+    method: "PATCH",
+    body: payload,
+  });
+  return result;
+}
+
+export async function deleteForumQuestion(request: Request, questionId: string) {
+  const result = await apiRequestWithSession<GetQuestionResponse>(
+    request,
+    `/forum/questions/delete-question/${questionId}`,
+    {
+      method: "DELETE",
+    },
+  );
+  return result;
+}
+
+export async function voteForumQuestion(
+  request: Request,
+  questionId: string,
+  voteType: VoteIntent,
+) {
+  const result = await apiRequestWithSession<
+    GetQuestionResponse,
+    { voteType: VoteIntent }
+  >(request, `/forum/questions/vote-question/${questionId}`, {
+    method: "POST",
+    body: { voteType },
+  });
+
   return result;
 }
 

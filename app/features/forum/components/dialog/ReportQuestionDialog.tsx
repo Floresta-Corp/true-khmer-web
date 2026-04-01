@@ -5,6 +5,8 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
@@ -23,17 +25,15 @@ const REPORT_REASONS = [
 
 type ReportReason = (typeof REPORT_REASONS)[number];
 
-interface ReportDialogProps {
-  /** Title of the post/answer being reported — shown in the preview card */
-  postTitle?: string;
-  /** Called when the user submits the report */
+interface ReportQuestionDialogProps {
+  questionTitle?: string;
   onSubmit?: (reason: ReportReason, details: string) => void;
 }
 
-export default function ReportDialog({
-  postTitle,
+export default function ReportQuestionDialog({
+  questionTitle,
   onSubmit,
-}: ReportDialogProps) {
+}: ReportQuestionDialogProps) {
   const [open, setOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState<ReportReason | null>(
     null,
@@ -45,14 +45,14 @@ export default function ReportDialog({
     setDetails("");
   }
 
-  function handleSubmit() {
-    if (!selectedReason) return;
-    onSubmit?.(selectedReason, details);
+  function handleCancel() {
     setOpen(false);
     reset();
   }
 
-  function handleCancel() {
+  function handleSubmit() {
+    if (!selectedReason) return;
+    onSubmit?.(selectedReason, details);
     setOpen(false);
     reset();
   }
@@ -61,32 +61,31 @@ export default function ReportDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
+          type="button"
           variant="ghost"
           size="icon"
-          className="h-[22.75px] w-[22.75px] rounded-[3.5px] p-[5.25px] text-[#99a1af] transition-colors hover:bg-transparent hover:text-[#e7000b]"
+          className="h-[22.75px] w-[22.75px] rounded-xl text-[#99a1af] hover:bg-[#f8fafc] hover:text-[#344256]"
         >
-          <Flag className="h-3 w-3" />
-          <span className="sr-only">Report</span>
+          <Flag size={12.25} />
+          <span className="sr-only">Report question</span>
         </Button>
       </DialogTrigger>
 
       <DialogContent
         showCloseButton={false}
-        className="gap-4 rounded-lg border border-[#e2e8f0] bg-white p-6 shadow-lg min-w-lg"
+        className="min-w-lg gap-4 rounded-lg border border-[#e2e8f0] bg-white p-6 shadow-lg"
       >
-        {/* Close */}
         <DialogClose asChild>
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-3.75 top-3.75 h-4 w-4 rounded-sm p-0 text-[#4a5565]/70 hover:bg-transparent hover:text-[#1f2937]"
+            className="absolute top-3.75 right-3.75 h-4 w-4 rounded-sm p-0 text-[#4a5565]/70 hover:bg-transparent hover:text-[#1f2937]"
           >
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </Button>
         </DialogClose>
 
-        {/* Header */}
         <div className="flex items-center gap-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#fef2f2]">
             <AlertTriangle className="h-[17.5px] w-[17.5px] text-[#e7000b]" />
@@ -95,29 +94,26 @@ export default function ReportDialog({
             <DialogTitle className="text-lg font-semibold leading-7 text-[#030213]">
               Report Discussion
             </DialogTitle>
-            <p className="text-sm font-normal leading-5 text-[#6a7282]">
+            <DialogDescription className="text-sm font-normal leading-5 text-[#6a7282]">
               Help us keep the community professional
-            </p>
+            </DialogDescription>
           </div>
         </div>
 
         <Separator />
 
-        {/* Scrollable body */}
         <div className="flex max-h-[60dvh] flex-col gap-5 overflow-y-auto p-1">
-          {/* Reporting post preview */}
-          {postTitle && (
+          {questionTitle ? (
             <div className="flex flex-col gap-[3.5px] rounded-2xl border border-[#f3f4f6] bg-[#f8fafc] px-3 py-3">
               <p className="text-[12px] font-medium leading-4.5 text-[#99a1af]">
                 Reporting Post:
               </p>
               <p className="text-[14px] font-normal leading-5.25 text-[#344256]">
-                "{postTitle}"
+                "{questionTitle}"
               </p>
             </div>
-          )}
+          ) : null}
 
-          {/* Reason selector */}
           <div className="flex flex-col gap-3">
             <Label className="text-[14px] font-bold leading-5.25 text-[#344256]">
               Reason for Reporting
@@ -143,9 +139,8 @@ export default function ReportDialog({
             </div>
           </div>
 
-          {/* Additional details */}
           <div className="flex flex-col gap-3">
-            <Label className="text-[14px] leading-[21px] text-[#344256]">
+            <Label className="text-[14px] leading-5.25 text-[#344256]">
               <span className="font-bold">Additional Details</span>{" "}
               <span className="font-normal italic text-[#9eacc0]">
                 (optional)
@@ -156,14 +151,14 @@ export default function ReportDialog({
               onChange={(e) => setDetails(e.target.value)}
               placeholder="Tell us more about why you are reporting this..."
               rows={4}
-              className="w-full rounded-2xl border-[#f1f5f9] bg-[#f8fafc] px-[14px] py-[10.5px] text-[14px] font-medium leading-[21px] text-[#344256] placeholder:font-medium placeholder:text-[#9eacc0] focus-visible:ring-[#e7000b]/20"
+              className="w-full rounded-2xl border-[#f1f5f9] bg-[#f8fafc] px-3.5 py-[10.5px] text-[14px] font-medium leading-5.25 text-[#344256] placeholder:font-medium placeholder:text-[#9eacc0] focus-visible:ring-[#e7000b]/20"
             />
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-end gap-2">
+        <DialogFooter className="mx-0 mb-0 border-0 bg-transparent p-0">
           <Button
+            type="button"
             variant="outline"
             onClick={handleCancel}
             className="h-8 rounded-lg border-[#e1e7ef] px-3 text-sm font-medium text-[#1d283a] hover:bg-[#f8fafc]"
@@ -171,13 +166,14 @@ export default function ReportDialog({
             Cancel
           </Button>
           <Button
+            type="button"
             onClick={handleSubmit}
             disabled={!selectedReason}
-            className="h-8 rounded-lg bg-[#FB3748] px-3 text-sm font-medium text-white hover:bg-[#e7000b] disabled:opacity-50"
+            className="h-8 rounded-lg bg-[#fb3748] px-3 text-sm font-medium text-white hover:bg-[#e7000b]"
           >
             Submit report
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

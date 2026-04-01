@@ -5,17 +5,25 @@ import ForumContent from "../components/sections/ForumContent";
 import type { Route } from "./+types/forum";
 import {
   createForumQuestion,
+  deleteForumQuestion,
   getCategories,
   getQuestionPagination,
+  updateForumQuestion,
+  voteForumQuestion,
 } from "~/services/forum/forum.server";
-import { parseCreateForumPostForm } from "~/services/forum/utils";
+import { validateCreateForumPostForm } from "~/services/forum/utils";
 import { useReducedMotion } from "framer-motion";
-import { AuthSessionExpiredError } from "~/lib/server/api-client.server";
+import {
+  AuthSessionExpiredError,
+  ProtectedApiError,
+  type ApiResult,
+} from "~/lib/server/api-client.server";
 import { getSession, destroySession } from "~/lib/server/session.server";
 import type {
   CategoriesPicker,
   GetQuestionpaginationResponse,
   Question,
+  VoteIntent,
 } from "~/services/forum/types";
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -71,8 +79,84 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
-  const payload = parseCreateForumPostForm(formData);
-  const result = await createForumQuestion(request, payload);
+  const actionType = String(formData.get("actionType") ?? "").trim();
+
+  if (actionType === "vote-question") {
+    const questionId = String(formData.get("questionId") ?? "").trim();
+    const voteType = String(formData.get("voteType") ?? "")
+      .trim()
+      .toUpperCase();
+
+    if (!questionId) {
+      return {
+        ok: false,
+        message: "Question ID is required for voting.",
+      };
+    }
+
+    if (
+      voteType !== "UPVOTE" &&
+      voteType !== "DOWNVOTE" &&
+      voteType !== "NONE"
+    ) {
+      return {
+        ok: false,
+        message: "Invalid vote type.",
+      };
+    }
+
+    try {
+      return voteForumQuestion(request, questionId, voteType as VoteIntent);
+    } catch (error) {
+      if (error instanceof ProtectedApiError) {
+        return {
+          ok: false,
+          message: error.message || "Failed to submit vote. Please try again.",
+        };
+      }
+
+      return {
+        ok: false,
+        message: "Failed to submit vote. Please try again.",
+      };
+    }
+  }
+
+  const method = request.method.toUpperCase();
+  if (method === "DELETE") {
+    const questionId = String(formData.get("questionId") ?? "").trim();
+    if (!questionId) {
+      return {
+        ok: false,
+        message: "Question ID is required for deleting.",
+      };
+    }
+
+    return deleteForumQuestion(request, questionId);
+  }
+
+  const validation = validateCreateForumPostForm(formData);
+  if (!validation.success) {
+    return {
+      ok: false,
+      message: validation.message,
+      fieldErrors: validation.fieldErrors,
+    };
+  }
+
+  if (method === "PATCH") {
+    const questionId = String(formData.get("questionId") ?? "").trim();
+    if (!questionId) {
+      return {
+        ok: false,
+        message: "Question ID is required for updating.",
+      };
+    }
+
+    return updateForumQuestion(request, questionId, validation.data);
+  }
+
+  const result = await createForumQuestion(request, validation.data);
   return result;
 }
 
@@ -164,7 +248,12 @@ export default function ForumPage() {
     console.log("Search:", query);
   };
 
-  console.log(fetcher.state);
+  const allQuestion = categories.reduce(
+    (acc, category) => acc + (category.questionCount || 0),
+    0,
+  );
+
+  console.log(data.questions);
 
   return (
     <div className="min-h-screen bg-background">
@@ -196,8 +285,16 @@ export default function ForumPage() {
             questions: questionList,
           }}
           categories={[
-            { id: "all-categories", name: "All Categories" },
-            ...categories.map((v) => ({ id: v.id, name: v.name })),
+            {
+              id: "all-categories",
+              name: "All Categories",
+              count: allQuestion,
+            },
+            ...categories.map((v) => ({
+              id: v.id,
+              name: v.name,
+              count: v.questionCount ?? 0,
+            })),
           ]} // Ensure "All Categories" is included
           onLoadMore={handleLoadMore}
           isLoading={fetcher.state === "loading"}

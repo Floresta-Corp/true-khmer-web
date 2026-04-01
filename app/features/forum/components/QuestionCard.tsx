@@ -1,7 +1,6 @@
 import {
   Bookmark,
   Clock,
-  Flag,
   MessageSquare,
   Pencil,
   Share2,
@@ -10,10 +9,12 @@ import {
 import { Link } from "react-router";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import VoteComponent from "./VoteComponent";
+import QuestionVoteComponent from "./QuestionVoteComponent";
 import type { CategoriesPicker, Question } from "~/services/forum/types";
 import type { AuthenticatedUser } from "~/lib/server/route-guards.server";
-import AskQuestionDialog from "./AskQuestionDialog";
+import AskQuestionDialog from "./dialog/AskQuestionDialog";
+import DeleteQuestionDialog from "./dialog/DeleteQuestionDialog";
+import ReportQuestionDialog from "./dialog/ReportQuestionDialog";
 
 interface DiscussionCardProps {
   user: AuthenticatedUser;
@@ -95,7 +96,7 @@ export default function QuestionCard({
       {/* Tags */}
       {question.tags.length > 0 && (
         <div className="flex gap-1.5 sm:gap-2 mb-3 sm:mb-4 flex-wrap">
-          {question.tags.slice(0, 4).map((tag) => (
+          {question.tags.slice(0, 5).map((tag) => (
             <span
               key={tag}
               className="text-xs text-[#99a1af] bg-[#f8fafc] border border-[#f1f5f9] rounded-md px-2 py-0.5"
@@ -126,14 +127,19 @@ export default function QuestionCard({
                 </Button>
               }
             />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-[26.25px] min-w-[26.25px] flex-1 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
-            >
-              <Trash2 size={12.25} />
-            </Button>
+            <DeleteQuestionDialog
+              questionId={question.id}
+              trigger={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-[26.25px] min-w-[26.25px] flex-1 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
+                >
+                  <Trash2 size={12.25} />
+                </Button>
+              }
+            />
           </div>
         </div>
       )}
@@ -162,15 +168,10 @@ export default function QuestionCard({
 
         {/* Engagement metrics */}
         <div className="flex items-center gap-2 sm:gap-3.5 shrink-0">
-          <VoteComponent
-            score={0}
-            onUpVote={() => {
-              console.log("Up vote clicked", question.id);
-            }}
-            onDownVote={() => {
-              console.log("Down vote clicked", question.id);
-            }}
-            className="h-7 rounded-lg"
+          <QuestionVoteComponent
+            questionId={question.id}
+            score={question.score}
+            viewerVote={question.viewerVote}
           />
 
           <div className="inline-flex items-center gap-1 text-xs font-medium text-[#99a1af]">
@@ -199,13 +200,7 @@ export default function QuestionCard({
           >
             <Share2 size={12.25} />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-[22.75px] w-[22.75px] rounded-xl text-[#99a1af] hover:bg-[#f8fafc] hover:text-[#344256]"
-          >
-            <Flag size={12.25} />
-          </Button>
+          <ReportQuestionDialog questionTitle={question.title} />
         </div>
       </div>
     </div>

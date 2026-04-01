@@ -1,10 +1,10 @@
 import { Link, useLoaderData } from "react-router";
 import { Clock3 } from "lucide-react";
 import { motion } from "framer-motion";
-import AddAnswerDialog from "../components/AddAnswerDialog";
+import AddAnswerDialog from "../components/dialog/AddAnswerDialog";
 import BackToForum from "../components/BackToForum";
 import ForumPostActions from "../components/ForumPostActions";
-import VoteComponent from "../components/VoteComponent";
+import QuestionVoteComponent from "../components/QuestionVoteComponent";
 import TopAnswer from "../components/sections/TopAnswer";
 import AllAnswers from "../components/sections/AllAnswers";
 import type { AnswerData } from "../components/AnswerCard";
@@ -55,6 +55,8 @@ const fadeUp = {
 // ─── Page ────────────────────────────────────────────────────────────────────
 export default function ForumDetailPage() {
   const { question } = useLoaderData<typeof loader>();
+
+  console.log(question);
 
   if (!question) {
     return (
@@ -176,14 +178,10 @@ export default function ForumDetailPage() {
                 </div>
 
                 {/* Vote counter */}
-                <VoteComponent
-                  score={0}
-                  onUpVote={() => {
-                    console.log("Up vote clicked", question.id);
-                  }}
-                  onDownVote={() => {
-                    console.log("Down vote clicked", question.id);
-                  }}
+                <QuestionVoteComponent
+                  questionId={question.id}
+                  score={question.score}
+                  viewerVote={question.viewerVote}
                 />
               </div>
 
