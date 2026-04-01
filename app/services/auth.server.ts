@@ -87,7 +87,10 @@ function normalizeAuthErrorDetails(data: AuthErrorResponse): AuthErrorDetails {
   };
 }
 
-export function getAuthFieldError(details: AuthErrorDetails | undefined, field: string) {
+export function getAuthFieldError(
+  details: AuthErrorDetails | undefined,
+  field: string,
+) {
   return details?.fieldErrors?.[field];
 }
 

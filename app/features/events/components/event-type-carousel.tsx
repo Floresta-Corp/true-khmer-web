@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { Link, useSearchParams } from "react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "~/components/ui/button";
 import { EVENT_TYPES, type EventType } from "~/features/events/lib/event-types";
 import { formatEventType } from "~/features/events/lib/event-formatters";
 
@@ -58,9 +59,11 @@ export function EventTypeCarousel({ activeEventType }: EventTypeCarouselProps) {
   return (
     <div className="relative flex items-center gap-2">
       {/* Left arrow */}
-      <button
+      <Button
         type="button"
         onClick={() => scroll("left")}
+        variant="ghost"
+        size="icon"
         className={`shrink-0 w-8 h-8 rounded-full border border-gray-200 bg-white flex items-center justify-center transition-opacity ${
           canScrollLeft
             ? "opacity-100 hover:bg-gray-50 cursor-pointer"
@@ -70,7 +73,7 @@ export function EventTypeCarousel({ activeEventType }: EventTypeCarouselProps) {
         aria-label="Scroll left"
       >
         <ChevronLeft className="w-4 h-4 text-gray-600" />
-      </button>
+      </Button>
 
       {/* Scrollable items */}
       <div
@@ -114,9 +117,11 @@ export function EventTypeCarousel({ activeEventType }: EventTypeCarouselProps) {
       </div>
 
       {/* Right arrow */}
-      <button
+      <Button
         type="button"
         onClick={() => scroll("right")}
+        variant="ghost"
+        size="icon"
         className={`shrink-0 w-8 h-8 rounded-full border border-gray-200 bg-white flex items-center justify-center transition-opacity ${
           canScrollRight
             ? "opacity-100 hover:bg-gray-50 cursor-pointer"
@@ -126,7 +131,7 @@ export function EventTypeCarousel({ activeEventType }: EventTypeCarouselProps) {
         aria-label="Scroll right"
       >
         <ChevronRight className="w-4 h-4 text-gray-600" />
-      </button>
+      </Button>
     </div>
   );
 }

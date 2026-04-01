@@ -5,10 +5,10 @@ import { getOptionalUser } from "~/lib/server/route-guards.server";
 import { Footer } from "~/components/footer";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const result = await getOptionalUser(request);
+  const { user, setCookie } = await getOptionalUser(request);
   return data(
-    { user: result.user },
-    result.setCookie ? { headers: { "Set-Cookie": result.setCookie } } : {},
+    { user: user },
+    setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
   );
 }
 

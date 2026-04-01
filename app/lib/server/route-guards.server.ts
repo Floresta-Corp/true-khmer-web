@@ -14,7 +14,7 @@ import {
   type OnboardingState,
 } from "~/services/onboarding.server";
 
-type AuthenticatedUser = NonNullable<
+export type AuthenticatedUser = NonNullable<
   Awaited<ReturnType<typeof getSessionUser>>
 > & {
   role?: string;
@@ -26,7 +26,7 @@ type GuardResult = {
   setCookie?: string;
 };
 
-type OptionalUserResult = {
+export type OptionalUserResult = {
   user: AuthenticatedUser | null;
   setCookie?: string;
 };
@@ -223,7 +223,6 @@ export async function requireUser(request: Request): Promise<GuardResult> {
     throw error;
   }
 }
-
 
 export async function requireCompletedPageAccess(request: Request) {
   const user = await requireAuthenticatedUser(request);

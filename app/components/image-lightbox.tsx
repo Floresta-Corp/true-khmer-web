@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "~/components/ui/button";
 
 interface ImageLightboxProps {
   images: string[];
@@ -46,14 +47,16 @@ export function ImageLightbox({
       onClick={onClose}
     >
       {/* Close button */}
-      <button
+      <Button
         type="button"
         onClick={onClose}
+        variant="ghost"
+        size="icon"
         className="absolute top-4 right-4 z-10 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 transition-colors"
         aria-label="Close"
       >
         <X className="w-6 h-6" />
-      </button>
+      </Button>
 
       {/* Counter */}
       {images.length > 1 && (
@@ -64,16 +67,18 @@ export function ImageLightbox({
 
       {/* Previous button */}
       {images.length > 1 && (
-        <button
+        <Button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
             goToPrev();
           }}
+          variant="ghost"
+          size="icon"
           className="absolute left-4 z-10 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 transition-colors"
         >
           <ChevronLeft className="w-6 h-6" />
-        </button>
+        </Button>
       )}
 
       {/* Image */}
@@ -86,16 +91,18 @@ export function ImageLightbox({
 
       {/* Next button */}
       {images.length > 1 && (
-        <button
+        <Button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
             goToNext();
           }}
+          variant="ghost"
+          size="icon"
           className="absolute right-4 z-10 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 transition-colors"
         >
           <ChevronRight className="w-6 h-6" />
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -126,18 +133,19 @@ export function ImageGallery({
     <>
       <div className={`grid ${GRID_COLS[columns]} gap-2`}>
         {images.map((image, index) => (
-          <button
+          <Button
             key={index}
             type="button"
             onClick={() => setLightboxIndex(index)}
-            className="aspect-square rounded-lg overflow-hidden bg-muted cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            variant="ghost"
+            className="h-auto w-full aspect-square rounded-lg overflow-hidden bg-muted cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             <img
               src={image}
               alt={`${alt} ${index + 1}`}
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
             />
-          </button>
+          </Button>
         ))}
       </div>
 

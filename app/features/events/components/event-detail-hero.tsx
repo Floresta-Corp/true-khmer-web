@@ -1,4 +1,5 @@
 import { Calendar, Heart, Share2 } from "lucide-react";
+import { Button } from "~/components/ui/button";
 import type { EventData } from "./event-card";
 
 interface EventDetailHeroProps {
@@ -24,16 +25,24 @@ export function EventDetailHero({ event }: EventDetailHeroProps) {
         )}
         {/* Overlay buttons */}
         <div className="absolute top-4 right-4 flex items-center gap-2">
-          <button className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-colors">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-colors"
+          >
             <Heart
               className={`w-5 h-5 ${
                 event.isFavorite ? "text-red-500 fill-red-500" : "text-gray-600"
               }`}
             />
-          </button>
-          <button className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-colors">
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-colors"
+          >
             <Share2 className="w-5 h-5 text-gray-600" />
-          </button>
+          </Button>
         </div>
       </div>
     </div>

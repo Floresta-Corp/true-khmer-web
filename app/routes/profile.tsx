@@ -160,11 +160,12 @@ export default function ProfilePage() {
         <div className="border-b border-gray-200 mb-6 sm:mb-8 overflow-x-auto">
           <nav className="flex gap-4 sm:gap-8 px-2 min-w-max">
             {profileTabs.map((tab) => (
-              <button
+              <Button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
+                variant="ghost"
                 className={cn(
-                  "relative flex items-center gap-2 pb-3 text-sm font-medium transition-colors cursor-pointer",
+                  "relative h-auto px-0 py-0 flex items-center gap-2 pb-3 text-sm font-medium transition-colors cursor-pointer",
                   activeTab === tab.id
                     ? "text-blue-600"
                     : "text-gray-500 hover:text-gray-700",
@@ -175,7 +176,7 @@ export default function ProfilePage() {
                 {activeTab === tab.id && (
                   <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-t-full" />
                 )}
-              </button>
+              </Button>
             ))}
           </nav>
         </div>
