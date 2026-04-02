@@ -1,7 +1,7 @@
 import { useState } from "react";
-import ForumSidebar from "./ForumSidebar";
+import ForumLeftSidebar from "./ForumLeftSidebar";
 import { DiscussionThreadSection } from "./DiscussionThreadSection";
-import RightSidebar from "./RightSidebar";
+import ForumRightSidebar from "./ForumRightSidebar";
 import type { CategoriesPicker, Question, Tag } from "~/services/forum/types";
 import type { AuthenticatedUser } from "~/lib/server/route-guards.server";
 
@@ -60,7 +60,7 @@ export default function ForumContent({
       <div className="flex gap-7 max-w-full">
         {/* Left Sidebar — hidden on mobile/tablet */}
         <div className="hidden lg:block w-56 xl:w-64 shrink-0">
-          <ForumSidebar
+          <ForumLeftSidebar
             tags={tags}
             categories={categories}
             selectedCategory={selectedCategory}
@@ -86,7 +86,7 @@ export default function ForumContent({
 
         {/* Right Sidebar — hidden on mobile */}
         <div className="hidden xl:block w-56 xl:w-64 shrink-0">
-          <RightSidebar />
+          <ForumRightSidebar />
         </div>
       </div>
     </div>

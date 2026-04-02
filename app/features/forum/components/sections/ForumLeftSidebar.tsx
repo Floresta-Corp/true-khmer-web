@@ -1,4 +1,5 @@
 import { Hash } from "lucide-react";
+import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import type { CategoriesPicker, Tag } from "~/services/forum/types";
 
@@ -87,39 +88,28 @@ function TrendingTopics({
         </h3>
       </div>
 
-      {/* Topics grid */}
-      <div className="flex flex-col gap-1.75">
-        {tags.map((tag, index) => (
-          <div
+      {/* Topics badges */}
+      <div className="flex flex-wrap gap-1.75">
+        {tags.map((tag) => (
+          <Badge
             key={tag.id}
-            className={`flex gap-1.75 flex-wrap ${index % 2 === 0 ? "" : ""}`}
+            onClick={() => onTagSelect?.(tag)}
+            className={`inline-flex cursor-pointer rounded-lg border px-2 py-1 text-xs font-medium transition-colors ${
+              selectedTagId === tag.id
+                ? "border-[#c9defc] bg-[#edf4ff] text-[#1f5fbf] hover:bg-[#e2eeff]"
+                : "border-[#e6ebf1] bg-[#f6f8fb] text-[#4a5565] hover:bg-[#eef2f7] hover:text-[#344256]"
+            }`}
+            title={tag.name}
           >
-            <Button
-              variant="ghost"
-              onClick={() => onTagSelect?.(tag)}
-              className={`rounded-lg px-2 py-2 transition-colors ${
-                selectedTagId === tag.id
-                  ? "bg-[#eaf1ff]"
-                  : "bg-[#f8fafc] hover:bg-[#f1f5f9]"
-              }`}
-              title={tag.name}
-            >
-              <span
-                className={`text-xs font-medium ${
-                  selectedTagId === tag.id ? "text-[#2f6fe4]" : "text-[#344256]"
-                }`}
-              >
-                #{tag.name}
-              </span>
-            </Button>
-          </div>
+            #{tag.name}
+          </Badge>
         ))}
       </div>
     </div>
   );
 }
 
-interface ForumSidebarProps {
+interface ForumLeftSidebarProps {
   categories?: CategoriesPicker[] | undefined;
   selectedCategory?: CategoriesPicker;
   onCategorySelect?: (category: CategoriesPicker) => void;
@@ -128,14 +118,14 @@ interface ForumSidebarProps {
   onTagSelect?: (tag: Tag) => void;
 }
 
-export default function ForumSidebar({
+export default function ForumLeftSidebar({
   selectedCategory,
   categories,
   tags,
   onCategorySelect,
   selectedTagId,
   onTagSelect,
-}: ForumSidebarProps) {
+}: ForumLeftSidebarProps) {
   return (
     <div className="flex flex-col gap-5 max-w-sm">
       <Categories

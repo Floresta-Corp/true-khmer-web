@@ -199,14 +199,6 @@ export default function ForumDetailPage() {
                 <p className="text-xs font-bold leading-4.5 text-[#2f6fe4]">
                   {question.category.name}
                 </p>
-                {question.status && (
-                  <Badge
-                    variant="secondary"
-                    className="text-xs font-semibold bg-[#f0f6ff] text-[#2f6fe4]"
-                  >
-                    {question.status}
-                  </Badge>
-                )}
               </div>
               <p className="inline-flex items-center gap-1 text-xs font-medium text-[#9eacc0]">
                 <Clock3 className="h-3.5 w-3.5" />
