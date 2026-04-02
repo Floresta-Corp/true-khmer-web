@@ -1,7 +1,7 @@
 import { useState } from "react";
-import ForumSidebar from "../ForumSidebar";
-import { DiscussionThread } from "../DiscussionThread";
-import RightSidebar from "../RightSidebar";
+import ForumSidebar from "./ForumSidebar";
+import { DiscussionThreadSection } from "./DiscussionThreadSection";
+import RightSidebar from "./RightSidebar";
 import type { CategoriesPicker, Question } from "~/services/forum/types";
 import type { AuthenticatedUser } from "~/lib/server/route-guards.server";
 
@@ -63,7 +63,7 @@ export default function ForumContent({
 
         {/* Main Content */}
         <div className="flex-1 min-w-0">
-          <DiscussionThread
+          <DiscussionThreadSection
             user={user}
             categories={categories}
             data={data}

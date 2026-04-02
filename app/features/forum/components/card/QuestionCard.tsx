@@ -9,12 +9,15 @@ import {
 import { Link } from "react-router";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import QuestionVoteComponent from "./QuestionVoteComponent";
+import QuestionVoteComponent from "../QuestionVoteComponent";
 import type { CategoriesPicker, Question } from "~/services/forum/types";
 import type { AuthenticatedUser } from "~/lib/server/route-guards.server";
-import AskQuestionDialog from "./dialog/AskQuestionDialog";
-import DeleteQuestionDialog from "./dialog/DeleteQuestionDialog";
-import ReportQuestionDialog from "./dialog/ReportQuestionDialog";
+import { formatMinutesOrHoursAgo } from "~/lib/time";
+import AskQuestionDialog from "../dialog/AskQuestionDialog";
+import DeleteQuestionDialog from "../dialog/DeleteQuestionDialog";
+import ReportQuestionDialog from "../dialog/ReportQuestionDialog";
+import { resolveImageURL } from "~/lib/utils";
+import { Avatar, AvatarImage } from "~/components/ui/avatar";
 
 interface DiscussionCardProps {
   user: AuthenticatedUser;
@@ -29,15 +32,9 @@ export default function QuestionCard({
   categories,
   onCategoryClick,
 }: DiscussionCardProps) {
-  const createdLabel = new Date(question.createdAt).toLocaleDateString(
-    "en-US",
-    {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    },
-  );
+  const createdAgoLabel = formatMinutesOrHoursAgo(question.createdAt);
   const isCurrentAuthor = user.id === question.author.id ? true : false;
+  const profileImage = resolveImageURL(question.author.avatarKey);
 
   return (
     <div className="bg-white border border-[#f1f5f9] rounded-2xl p-4 sm:p-6 w-full hover:shadow-sm transition-shadow">
@@ -70,13 +67,13 @@ export default function QuestionCard({
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           <Clock size={16} className="text-[#9EACC0]" />
           <span className="text-xs text-[#9eacc0] hidden sm:block">
-            {createdLabel}
+            {createdAgoLabel}
           </span>
         </div>
       </div>
 
       {/* Date visible on mobile only */}
-      <p className="text-xs text-[#9eacc0] mb-2 sm:hidden">{createdLabel}</p>
+      <p className="text-xs text-[#9eacc0] mb-2 sm:hidden">{createdAgoLabel}</p>
 
       {/* Title */}
       <h2 className="text-sm sm:text-base font-semibold text-[#030213] mb-2 leading-snug">
@@ -151,11 +148,13 @@ export default function QuestionCard({
       <div className="flex justify-between items-center gap-2">
         {/* Author info */}
         <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-          <img
-            src={`https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(question.author.name)}`}
-            alt={question.author.name}
-            className="w-7 h-7 rounded-full border border-[#f3f4f6] shrink-0"
-          />
+          <Avatar className="border border-[#f3f4f6] shrink-0">
+            <AvatarImage
+              src={profileImage}
+              alt={question.author.name}
+              className="object-cover"
+            />
+          </Avatar>
           <div className="flex flex-col gap-0.5 min-w-0">
             <p className="text-xs sm:text-sm font-semibold text-[#344256] truncate">
               {question.author.name}

@@ -1,63 +1,27 @@
-import { ChevronUp, ChevronDown } from "lucide-react";
-import { Button } from "~/components/ui/button";
 import { motion } from "framer-motion";
-import ReportDialog from "./ReportDialog";
-
-export interface AnswerData {
-  id: string;
-  body: string;
-  votes: number;
-  postedAt: string;
-  author: {
-    name: string;
-    role?: string;
-    avatarUrl?: string;
-  };
-}
+import { Pencil, Trash2 } from "lucide-react";
+import ReportDialog from "./dialog/ReportDialog";
+import AnswerVoteComponent from "./AnswerVoteComponent";
+import type { Answer } from "~/services/forum/types";
+import { formatMinutesOrHoursAgo } from "~/lib/time";
+import AddAnswerDialog from "./dialog/AddAnswerDialog";
+import DeleteAnswerDialog from "./dialog/DeleteAnswerDialog";
+import { Button } from "~/components/ui/button";
+import { resolveImageURL } from "~/lib/utils";
 
 interface AnswerCardProps {
-  answer: AnswerData;
+  answer: Answer;
   index?: number;
+  isCurrentAuthor?: boolean;
 }
 
-interface VoteRailProps {
-  votes: number;
-  onUpvote?: () => void;
-  onDownvote?: () => void;
-}
-
-function VoteRail({ votes, onDownvote, onUpvote }: VoteRailProps) {
-  return (
-    <div className="flex w-7 shrink-0 flex-col items-center gap-[5.25px] pt-[3.5px]">
-      <Button
-        onClick={onUpvote}
-        variant="ghost"
-        size="icon"
-        className="flex h-7 w-7 items-center justify-center rounded-xl border border-[#f3f4f6] bg-[#f9fafb] text-[#9eacc0] transition-colors hover:border-[#2f6fe4] hover:text-[#2f6fe4]"
-      >
-        <ChevronUp className="h-3.5 w-3.5" />
-      </Button>
-      <span className="text-[11px] font-semibold leading-[16.5px] text-[#4a5565]">
-        {votes}
-      </span>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="flex h-7 w-7 items-center justify-center rounded-xl border border-[#f3f4f6] bg-[#f9fafb] text-[#9eacc0] transition-colors hover:text-[#344256]"
-        onClick={onDownvote}
-      >
-        <ChevronDown className="h-3.5 w-3.5" />
-      </Button>
-    </div>
-  );
-}
-
-export default function AnswerCard({ answer, index = 0 }: AnswerCardProps) {
-  const avatarSrc =
-    answer.author.avatarUrl ||
-    `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
-      answer.author.name,
-    )}`;
+export default function AnswerCard({
+  answer,
+  index = 0,
+  isCurrentAuthor,
+}: AnswerCardProps) {
+  const formattedDate = formatMinutesOrHoursAgo(answer.createdAt);
+  const imageUrl = resolveImageURL(answer.author.avatarKey);
 
   return (
     <motion.article
@@ -72,21 +36,60 @@ export default function AnswerCard({ answer, index = 0 }: AnswerCardProps) {
     >
       <div className="flex w-full gap-5 items-start">
         {/* Vote rail */}
-        <VoteRail votes={answer.votes} />
+        <AnswerVoteComponent
+          answerId={answer.id}
+          score={answer.score}
+          viewerVote={answer.viewerVote}
+        />
 
         {/* Content */}
         <div className="flex flex-1 flex-col gap-5 min-w-0">
           {/* Answer body */}
           <p className="text-xs leading-normal text-[#65758b]">{answer.body}</p>
 
+          {isCurrentAuthor && (
+            <div className="flex items-center justify-end">
+              <div className="flex h-[26.25px] w-[59.5px] items-center gap-1.75">
+                <AddAnswerDialog
+                  questionId={answer.questionId}
+                  isEditing
+                  data={{ id: answer.id, body: answer.body }}
+                  trigger={
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-[26.25px] w-[26.25px] rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
+                    >
+                      <Pencil size={12.25} />
+                    </Button>
+                  }
+                />
+                <DeleteAnswerDialog
+                  answerId={answer.id}
+                  trigger={
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-[26.25px] min-w-[26.25px] flex-1 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
+                    >
+                      <Trash2 size={12.25} />
+                    </Button>
+                  }
+                />
+              </div>
+            </div>
+          )}
+
           {/* Footer: author + timestamp */}
-          <div className="flex items-center justify-between border-t border-[#f9fafb] pt-[0.8px] gap-3">
+          <div className="flex items-center justify-between border-t border-[#f9fafb] pt-1.5 gap-3">
             {/* Author */}
             <div className="flex items-center gap-[10.5px]">
               <div className="shrink-0 size-7 rounded-full border border-[#f3f4f6] overflow-hidden">
                 <img
-                  src={avatarSrc}
-                  alt={answer.author.name}
+                  src={imageUrl}
+                  // alt={answer.author.name}
                   className="size-full object-cover"
                 />
               </div>
@@ -94,25 +97,26 @@ export default function AnswerCard({ answer, index = 0 }: AnswerCardProps) {
                 <p className="text-xs font-semibold leading-3 text-[#030213] whitespace-nowrap">
                   {answer.author.name}
                 </p>
-                {answer.author.role && (
+                {/* {answer.author.role && (
                   <p className="text-[10px] font-medium leading-3.75 text-[#99a1af] whitespace-nowrap">
                     {answer.author.role}
                   </p>
-                )}
+                )} */}
               </div>
             </div>
 
             {/* Timestamp + flag */}
             <div className="flex items-center gap-[10.5px] shrink-0">
               <span className="text-xs font-medium text-[#99a1af] whitespace-nowrap">
-                {answer.postedAt}
+                {formattedDate}
               </span>
-              <ReportDialog
-                postTitle={answer.body}
-                onSubmit={() => {
-                  // Implement submit logic here...
-                }}
-              />
+              {!isCurrentAuthor && (
+                <ReportDialog
+                  onSubmit={() => {
+                    // Implement submit logic here...
+                  }}
+                />
+              )}
             </div>
           </div>
         </div>

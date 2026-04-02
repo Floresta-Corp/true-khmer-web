@@ -5,31 +5,29 @@ import ForumContent from "../components/sections/ForumContent";
 import type { Route } from "./+types/forum";
 import {
   createForumQuestion,
-  deleteForumQuestion,
   getCategories,
   getQuestionPagination,
   updateForumQuestion,
-  voteForumQuestion,
 } from "~/services/forum/forum.server";
 import { validateCreateForumPostForm } from "~/services/forum/utils";
 import { useReducedMotion } from "framer-motion";
-import {
-  AuthSessionExpiredError,
-  ProtectedApiError,
-  type ApiResult,
-} from "~/lib/server/api-client.server";
+import { AuthSessionExpiredError } from "~/lib/server/api-client.server";
 import { getSession, destroySession } from "~/lib/server/session.server";
 import type {
   CategoriesPicker,
   GetQuestionpaginationResponse,
   Question,
-  VoteIntent,
 } from "~/services/forum/types";
 import { useState, useEffect, useCallback } from "react";
 import {
   getOptionalUser,
   type AuthenticatedUser,
 } from "~/lib/server/route-guards.server";
+import {
+  deleteQuestionAction,
+  parseVoteAction,
+  submitVoteAction,
+} from "~/services/forum/action";
 
 const LIMIT = 5;
 
@@ -80,59 +78,21 @@ export async function loader({ request }: Route.LoaderArgs) {
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const actionType = String(formData.get("actionType") ?? "").trim();
+  const method = request.method.toUpperCase();
 
   if (actionType === "vote-question") {
-    const questionId = String(formData.get("questionId") ?? "").trim();
-    const voteType = String(formData.get("voteType") ?? "")
-      .trim()
-      .toUpperCase();
-
-    if (!questionId) {
+    const parsedVoteAction = parseVoteAction(formData);
+    if (!parsedVoteAction.ok) {
       return {
         ok: false,
-        message: "Question ID is required for voting.",
+        message: parsedVoteAction.message,
       };
     }
-
-    if (
-      voteType !== "UPVOTE" &&
-      voteType !== "DOWNVOTE" &&
-      voteType !== "NONE"
-    ) {
-      return {
-        ok: false,
-        message: "Invalid vote type.",
-      };
-    }
-
-    try {
-      return voteForumQuestion(request, questionId, voteType as VoteIntent);
-    } catch (error) {
-      if (error instanceof ProtectedApiError) {
-        return {
-          ok: false,
-          message: error.message || "Failed to submit vote. Please try again.",
-        };
-      }
-
-      return {
-        ok: false,
-        message: "Failed to submit vote. Please try again.",
-      };
-    }
+    return submitVoteAction(request, parsedVoteAction);
   }
 
-  const method = request.method.toUpperCase();
   if (method === "DELETE") {
-    const questionId = String(formData.get("questionId") ?? "").trim();
-    if (!questionId) {
-      return {
-        ok: false,
-        message: "Question ID is required for deleting.",
-      };
-    }
-
-    return deleteForumQuestion(request, questionId);
+    return deleteQuestionAction(request, formData);
   }
 
   const validation = validateCreateForumPostForm(formData);
@@ -156,8 +116,7 @@ export async function action({ request }: Route.ActionArgs) {
     return updateForumQuestion(request, questionId, validation.data);
   }
 
-  const result = await createForumQuestion(request, validation.data);
-  return result;
+  return createForumQuestion(request, validation.data);
 }
 
 export default function ForumPage() {
@@ -245,15 +204,12 @@ export default function ForumPage() {
 
   const handleSearch = (query: string) => {
     // TODO: Filter discussions based on search query
-    console.log("Search:", query);
   };
 
   const allQuestion = categories.reduce(
     (acc, category) => acc + (category.questionCount || 0),
     0,
   );
-
-  console.log(data.questions);
 
   return (
     <div className="min-h-screen bg-background">

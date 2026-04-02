@@ -5,13 +5,28 @@ import AddAnswerDialog from "../components/dialog/AddAnswerDialog";
 import BackToForum from "../components/BackToForum";
 import ForumPostActions from "../components/ForumPostActions";
 import QuestionVoteComponent from "../components/QuestionVoteComponent";
-import TopAnswer from "../components/sections/TopAnswer";
 import AllAnswers from "../components/sections/AllAnswers";
-import type { AnswerData } from "../components/AnswerCard";
 import { Badge } from "~/components/ui/badge";
 import type { Route } from ".react-router/types/app/+types/root";
-import { apiRequestWithSession } from "~/lib/server/api-client.server";
-import type { GetQuestionResponse } from "~/services/forum/types";
+import {
+  parseAnswerVoteAction,
+  parseVoteAction,
+  submitAnswerVoteAction,
+  submitVoteAction,
+} from "~/services/forum/action";
+import {
+  createAnswerByQuestionId,
+  deleteAnswerById,
+  getAnswersByQuestionId,
+  getQuestionById,
+  updateAnswerById,
+} from "~/services/forum/forum.server";
+import {
+  getOptionalUser,
+  type AuthenticatedUser,
+} from "~/lib/server/route-guards.server";
+import { formatMinutesOrHoursAgo } from "~/lib/time";
+import { resolveImageURL } from "~/lib/utils";
 
 // ─── Loader ─────────────────────────────────────────────────────────────────
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -21,13 +36,17 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     throw new Error("No question ID provided");
   }
 
-  const question = await apiRequestWithSession<GetQuestionResponse>(
-    request,
-    `/forum/questions/${questionId}`,
-    { method: "GET" },
-  );
+  const [question, answer, user] = await Promise.all([
+    getQuestionById(request, questionId),
+    getAnswersByQuestionId(request, questionId),
+    getOptionalUser(request),
+  ]);
 
-  return { question: question.data.question };
+  return {
+    question: question.data.question,
+    answers: answer.data.answers,
+    user: (user.user as AuthenticatedUser) || null,
+  };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -36,6 +55,70 @@ export function meta({ data }: Route.MetaArgs) {
     { title: `${title} - True Khmer Forum` },
     { name: "description", content: title },
   ];
+}
+
+export async function action({ request, params }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const method = request.method.toUpperCase();
+  const questionId = params.questionId;
+  const answerId = String(formData.get("answerId") ?? "").trim();
+  const body = String(formData.get("body") ?? "").trim();
+  const actionType = String(formData.get("actionType") ?? "").trim();
+
+  if (actionType === "vote-question") {
+    const parsedVoteAction = parseVoteAction(formData);
+    if (!parsedVoteAction.ok) {
+      return {
+        ok: false,
+        message: parsedVoteAction.message,
+      };
+    }
+
+    return submitVoteAction(request, parsedVoteAction);
+  }
+
+  if (actionType === "vote-answer") {
+    const parsedAnswerVoteAction = parseAnswerVoteAction(formData);
+    if (!parsedAnswerVoteAction.ok) {
+      return {
+        ok: false,
+        message: parsedAnswerVoteAction.message,
+      };
+    }
+
+    return submitAnswerVoteAction(request, parsedAnswerVoteAction);
+  }
+
+  if (actionType === "delete-answer") {
+    if (!answerId) {
+      return {
+        ok: false,
+        message: "Answer ID is required.",
+      };
+    }
+
+    return deleteAnswerById(request, answerId);
+  }
+
+  if (!questionId) {
+    return {
+      ok: false,
+      message: "Question ID is required.",
+    };
+  }
+
+  if (method === "PATCH") {
+    if (!answerId) {
+      return {
+        ok: false,
+        message: "Answer ID is required.",
+      };
+    }
+
+    return updateAnswerById(request, answerId, { body });
+  }
+
+  return createAnswerByQuestionId(request, { questionId, body });
 }
 
 // ─── Animation variants ──────────────────────────────────────────────────────
@@ -54,9 +137,9 @@ const fadeUp = {
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 export default function ForumDetailPage() {
-  const { question } = useLoaderData<typeof loader>();
+  const { question, answers, user } = useLoaderData<typeof loader>();
 
-  console.log(question);
+  console.log(question, answers);
 
   if (!question) {
     return (
@@ -84,11 +167,8 @@ export default function ForumDetailPage() {
     );
   }
 
-  const postedAt = new Date(question.createdAt).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  const postedAt = formatMinutesOrHoursAgo(question.createdAt);
+  const authorProfile = resolveImageURL(question.author.avatarKey);
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
@@ -162,7 +242,7 @@ export default function ForumDetailPage() {
                 {/* Author */}
                 <div className="flex items-center gap-2.5">
                   <img
-                    src={`https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(question.author.name)}`}
+                    src={authorProfile}
                     alt={question.author.name}
                     className="h-8 w-8 rounded-full border border-[#f3f4f6] object-cover"
                   />
@@ -185,65 +265,17 @@ export default function ForumDetailPage() {
                 />
               </div>
 
-              <AddAnswerDialog />
+              <AddAnswerDialog questionId={question.id} />
             </div>
           </motion.article>
 
-          {/* Top answer — fake data for development */}
-          {(() => {
-            const topAnswer: AnswerData = {
-              id: "top-answer-1",
-              body: 'The best approach here is to use the Khmer Unicode standard encoding (U+1780–U+17FF). Make sure your font stack includes Noto Sans Khmer or Khmer OS as a fallback, and set the lang attribute to "km" on the root element so the browser applies the correct shaping engine. This alone resolves most rendering inconsistencies across platforms.',
-              votes: 42,
-              postedAt: "Mar 15, 2025",
-              author: {
-                name: "Dara Sok",
-                role: "Senior Developer",
-                avatarUrl: undefined,
-              },
-            };
-            return <TopAnswer answer={topAnswer} />;
-          })()}
-
-          {/* All answers — fake data for development */}
-          {(() => {
-            const answers: AnswerData[] = [
-              {
-                id: "answer-2",
-                body: "You can also leverage the react-intl library with the Khmer locale (km-KH) for number and date formatting. Pair it with a custom collator (Intl.Collator('km')) for sorting strings correctly — the default JS sort order does not respect Khmer script ordering.",
-                votes: 18,
-                postedAt: "Mar 16, 2025",
-                author: {
-                  name: "Chenda Pich",
-                  role: "Frontend Engineer",
-                  avatarUrl: undefined,
-                },
-              },
-              {
-                id: "answer-3",
-                body: "If you are working with PDF generation, make sure the Khmer font is embedded in the PDF output. Libraries like pdfmake or react-pdf let you pass a custom font file — grab Koh Santepheap from Google Fonts and register it as the default font family for Khmer text blocks.",
-                votes: 9,
-                postedAt: "Mar 17, 2025",
-                author: {
-                  name: "Virak Meas",
-                  role: undefined,
-                  avatarUrl: undefined,
-                },
-              },
-              {
-                id: "answer-4",
-                body: "One gotcha people miss: always normalise Khmer strings to NFC (Unicode canonical composition) before comparing or storing them. JavaScript gives you String.prototype.normalize('NFC') for this. Failing to do so causes duplicate entries in databases when users type the same word through different IME key sequences.",
-                votes: 5,
-                postedAt: "Mar 18, 2025",
-                author: {
-                  name: "Sopheap Rith",
-                  role: "Full-stack Developer",
-                  avatarUrl: undefined,
-                },
-              },
-            ];
-            return <AllAnswers answers={answers} />;
-          })()}
+          {answers && answers.length > 0 ? (
+            <AllAnswers answers={answers} user={user as AuthenticatedUser} />
+          ) : (
+            <p className="mt-8 text-center text-sm text-[#65758b]">
+              No answers yet. Be the first to share your knowledge!
+            </p>
+          )}
         </section>
       </main>
     </div>

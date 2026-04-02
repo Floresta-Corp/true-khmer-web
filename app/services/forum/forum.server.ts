@@ -1,20 +1,27 @@
 import { apiRequestWithSession } from "~/lib/server/api-client.server";
 import type {
-  CreateForumPostInput,
+  CreateAnswerInput,
+  CreateForumQuestionInput,
+  DeleteAnswerResponse,
   GetAnswersResponse,
   GetCategoriesListResponse,
   GetQuestionpaginationResponse,
   GetQuestionResponse,
+  UpdateAnswerInput,
+  UpsertAnswerResponse,
+  VoteAnswerResponse,
   VoteIntent,
+
 } from "./types";
+import { CreateAnswerInputSchema, UpdateAnswerInputSchema } from "./types";
 
 export async function createForumQuestion(
   request: Request,
-  payload: CreateForumPostInput,
+  payload: CreateForumQuestionInput,
 ) {
   const result = await apiRequestWithSession<
     GetQuestionResponse,
-    CreateForumPostInput
+    CreateForumQuestionInput
   >(request, "/forum/questions", {
     method: "POST",
     body: payload,
@@ -25,15 +32,26 @@ export async function createForumQuestion(
 export async function updateForumQuestion(
   request: Request,
   questionId: string,
-  payload: CreateForumPostInput,
+  payload: CreateForumQuestionInput,
 ) {
   const result = await apiRequestWithSession<
     GetQuestionResponse,
-    CreateForumPostInput
+    CreateForumQuestionInput
   >(request, `/forum/questions/edit-question/${questionId}`, {
     method: "PATCH",
     body: payload,
   });
+  return result;
+}
+
+export async function getQuestionById(request: Request, questionId: string) {
+  const result = await apiRequestWithSession<GetQuestionResponse>(
+    request,
+    `/forum/questions/${questionId}`,
+    {
+      method: "GET",
+    },
+  );
   return result;
 }
 
@@ -57,6 +75,22 @@ export async function voteForumQuestion(
     GetQuestionResponse,
     { voteType: VoteIntent }
   >(request, `/forum/questions/vote-question/${questionId}`, {
+    method: "POST",
+    body: { voteType },
+  });
+
+  return result;
+}
+
+export async function voteForumAnswer(
+  request: Request,
+  answerId: string,
+  voteType: VoteIntent,
+) {
+  const result = await apiRequestWithSession<
+    VoteAnswerResponse,
+    { voteType: VoteIntent }
+  >(request, `/forum/answer/vote-answer/${answerId}`, {
     method: "POST",
     body: { voteType },
   });
@@ -99,7 +133,7 @@ export async function getQuestionPagination(
   return result;
 }
 
-export async function getAnswers(request: Request, questionId: string) {
+export async function getAnswersByQuestionId(request: Request, questionId: string) {
   const result = await apiRequestWithSession<GetAnswersResponse>(
     request,
     `/forum/answer/get-answers/${questionId}`,
@@ -107,5 +141,60 @@ export async function getAnswers(request: Request, questionId: string) {
       method: "GET",
     },
   );
+  return result;
+}
+
+
+export async function createAnswerByQuestionId(
+  request: Request,
+  body: CreateAnswerInput,
+) {
+  const parsedBody = CreateAnswerInputSchema.safeParse(body);
+  if (!parsedBody.success) {
+    throw new Error("Invalid create answer payload");
+  }
+
+  const result = await apiRequestWithSession<UpsertAnswerResponse>(
+    request,
+    `/forum/answer/create-answer`,
+    {
+      method: "POST",
+      body: parsedBody.data,
+    },
+  );
+  return result;
+}
+
+export async function updateAnswerById(
+  request: Request,
+  answerId: string,
+  body: UpdateAnswerInput,
+) {
+  const parsedBody = UpdateAnswerInputSchema.safeParse(body);
+  if (!parsedBody.success) {
+    throw new Error("Invalid update answer payload");
+  }
+
+  const result = await apiRequestWithSession<UpsertAnswerResponse>(
+    request,
+    `/forum/answer/edit-answer/${answerId}`,
+    {
+      method: "PATCH",
+      body: parsedBody.data,
+    },
+  );
+
+  return result;
+}
+
+export async function deleteAnswerById(request: Request, answerId: string) {
+  const result = await apiRequestWithSession<DeleteAnswerResponse>(
+    request,
+    `/forum/answer/delete-answer/${answerId}`,
+    {
+      method: "DELETE",
+    },
+  );
+
   return result;
 }

@@ -77,8 +77,6 @@ export default function AskQuestionDialog({
     }
   }, [fetcher.state, fetcher.data, isEditing, revalidator]);
 
-  console.log(data);
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>

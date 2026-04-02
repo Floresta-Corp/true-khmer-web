@@ -1,29 +1,11 @@
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import type { CategoriesPicker, Question } from "~/services/forum/types";
-import LoadMore from "./LoadMore";
-import QuestionCard from "./QuestionCard";
-import QuestionCardSkeleton from "./QuestionCardSkeleton";
+import LoadMore from "../LoadMore";
+import QuestionCardSkeleton from "../card/QuestionCardSkeleton";
 import type { AuthenticatedUser } from "~/lib/server/route-guards.server";
+import QuestionCard from "../card/QuestionCard";
 
-export interface DiscussionPost {
-  id: string;
-  category: string;
-  badge?: string;
-  badgeColor?: string;
-  title: string;
-  description: string;
-  tags: string[];
-  timeAgo: string;
-  author: {
-    name: string;
-    avatar: string;
-    role: string;
-  };
-  likes: number;
-  answers: number;
-}
-
-interface DiscussionThreadProps {
+interface DiscussionThreadSectionProps {
   user: AuthenticatedUser;
   categories?: CategoriesPicker[];
   data?: {
@@ -39,7 +21,7 @@ interface DiscussionThreadProps {
   isLoading?: boolean;
 }
 
-export function DiscussionThread({
+export function DiscussionThreadSection({
   user,
   categories,
   data,
@@ -48,18 +30,20 @@ export function DiscussionThread({
   onCategoryClick,
   onLoadMore,
   isLoading,
-}: DiscussionThreadProps) {
+}: DiscussionThreadSectionProps) {
   const questions = data?.questions ?? [];
   const hasQuestions = questions.length > 0;
   const isEmptyAndLoading = !hasQuestions && Boolean(isLoading);
 
-  const tabs: Array<{ id: DiscussionThreadProps["activeTab"]; label: string }> =
-    [
-      { id: "recent" as const, label: "Recent" },
-      { id: "topRated" as const, label: "Top Rated" },
-      { id: "unanswered" as const, label: "Unanswered" },
-      { id: "myActivity" as const, label: "My Activity" },
-    ];
+  const tabs: Array<{
+    id: DiscussionThreadSectionProps["activeTab"];
+    label: string;
+  }> = [
+    { id: "recent" as const, label: "Recent" },
+    { id: "topRated" as const, label: "Top Rated" },
+    { id: "unanswered" as const, label: "Unanswered" },
+    { id: "myActivity" as const, label: "My Activity" },
+  ];
 
   return (
     <div className="flex-1 w-full min-w-0">
@@ -68,7 +52,7 @@ export function DiscussionThread({
           className="mb-3.5"
           value={activeTab}
           onValueChange={(value) =>
-            onTabChange?.(value as DiscussionThreadProps["activeTab"])
+            onTabChange?.(value as DiscussionThreadSectionProps["activeTab"])
           }
         >
           <TabsList variant="line" className="flex-nowrap">
