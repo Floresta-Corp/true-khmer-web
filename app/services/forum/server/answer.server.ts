@@ -1,0 +1,94 @@
+import { apiRequestWithSession } from "~/lib/server/api-client.server";
+import type {
+  CreateAnswerInput,
+  DeleteAnswerResponse,
+  GetAnswersResponse,
+  UpdateAnswerInput,
+  UpsertAnswerResponse,
+  VoteAnswerResponse,
+  VoteIntent,
+} from "../types";
+import { CreateAnswerInputSchema, UpdateAnswerInputSchema } from "../types";
+
+export async function voteForumAnswer(
+  request: Request,
+  answerId: string,
+  voteType: VoteIntent,
+) {
+  const result = await apiRequestWithSession<
+    VoteAnswerResponse,
+    { voteType: VoteIntent }
+  >(request, `/forum/answer/vote-answer/${answerId}`, {
+    method: "POST",
+    body: { voteType },
+  });
+
+  return result;
+}
+
+export async function getAnswersByQuestionId(request: Request, questionId: string) {
+  const result = await apiRequestWithSession<GetAnswersResponse>(
+    request,
+    `/forum/answer/get-answers/${questionId}`,
+    {
+      method: "GET",
+    },
+  );
+
+  return result;
+}
+
+export async function createAnswerByQuestionId(
+  request: Request,
+  body: CreateAnswerInput,
+) {
+  const parsedBody = CreateAnswerInputSchema.safeParse(body);
+  if (!parsedBody.success) {
+    throw new Error("Invalid create answer payload");
+  }
+
+  const result = await apiRequestWithSession<UpsertAnswerResponse>(
+    request,
+    "/forum/answer/create-answer",
+    {
+      method: "POST",
+      body: parsedBody.data,
+    },
+  );
+
+  return result;
+}
+
+export async function updateAnswerById(
+  request: Request,
+  answerId: string,
+  body: UpdateAnswerInput,
+) {
+  const parsedBody = UpdateAnswerInputSchema.safeParse(body);
+  if (!parsedBody.success) {
+    throw new Error("Invalid update answer payload");
+  }
+
+  const result = await apiRequestWithSession<UpsertAnswerResponse>(
+    request,
+    `/forum/answer/edit-answer/${answerId}`,
+    {
+      method: "PATCH",
+      body: parsedBody.data,
+    },
+  );
+
+  return result;
+}
+
+export async function deleteAnswerById(request: Request, answerId: string) {
+  const result = await apiRequestWithSession<DeleteAnswerResponse>(
+    request,
+    `/forum/answer/delete-answer/${answerId}`,
+    {
+      method: "DELETE",
+    },
+  );
+
+  return result;
+}

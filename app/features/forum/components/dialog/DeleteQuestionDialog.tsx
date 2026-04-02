@@ -42,7 +42,7 @@ export default function DeleteQuestionDialog({
 
           <deleteFetcher.Form method="delete">
             <input type="hidden" name="questionId" value={questionId} />
-            <Button type="submit" disabled={isDeleting}>
+            <Button type="submit" disabled={isDeleting} className="bg-red-600 hover:bg-red-700 text-white">
               {isDeleting ? "Deleting..." : "Delete"}
             </Button>
           </deleteFetcher.Form>

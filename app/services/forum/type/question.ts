@@ -1,4 +1,4 @@
-import type { Pagination, ViewerVote, Category } from "../types";
+import type { Pagination, ViewerVote, Category, BasicJoinType } from "../types";
 
 export interface GetQuestionpaginationResponse {
 
@@ -12,9 +12,7 @@ export interface GetQuestionResponse {
     question: Question;
 }
 
-export interface Author {
-    id: string;
-    name: string;
+export interface Author extends BasicJoinType {
     avatarKey: string;
 }
 
@@ -32,9 +30,9 @@ export interface Question {
     updatedAt: string;
     score: number;
     viewerVote: ViewerVote;
-    category: Category;
+    category: BasicJoinType;
     author: Author;
-    tags: string[];
+    tags: BasicJoinType[];
 }
 
 export type ForumQuestionStatus = "DRAFT" | "PUBLISHED";

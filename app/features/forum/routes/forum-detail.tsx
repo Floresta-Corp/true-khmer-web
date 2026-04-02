@@ -20,7 +20,7 @@ import {
   getAnswersByQuestionId,
   getQuestionById,
   updateAnswerById,
-} from "~/services/forum/forum.server";
+} from "~/services/forum/server";
 import {
   getOptionalUser,
   type AuthenticatedUser,
@@ -225,12 +225,12 @@ export default function ForumDetailPage() {
             {/* Tags */}
             {question.tags?.length > 0 && (
               <div className="mt-4 flex flex-wrap items-center gap-1.5">
-                {question.tags.map((tag: string) => (
+                {question.tags.map((tag) => (
                   <span
-                    key={tag}
+                    key={tag.id}
                     className="rounded-md border border-[#f1f5f9] bg-[#f8fafc] px-2 py-0.5 text-xs text-[#99a1af]"
                   >
-                    #{tag}
+                    #{tag.name}
                   </span>
                 ))}
               </div>
@@ -272,9 +272,15 @@ export default function ForumDetailPage() {
           {answers && answers.length > 0 ? (
             <AllAnswers answers={answers} user={user as AuthenticatedUser} />
           ) : (
-            <p className="mt-8 text-center text-sm text-[#65758b]">
+            <motion.p
+              className="mt-8 text-center text-sm text-[#65758b]"
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              custom={2}
+            >
               No answers yet. Be the first to share your knowledge!
-            </p>
+            </motion.p>
           )}
         </section>
       </main>

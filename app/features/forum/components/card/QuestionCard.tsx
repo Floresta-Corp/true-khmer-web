@@ -95,10 +95,10 @@ export default function QuestionCard({
         <div className="flex gap-1.5 sm:gap-2 mb-3 sm:mb-4 flex-wrap">
           {question.tags.slice(0, 5).map((tag) => (
             <span
-              key={tag}
+              key={tag.id}
               className="text-xs text-[#99a1af] bg-[#f8fafc] border border-[#f1f5f9] rounded-md px-2 py-0.5"
             >
-              #{tag}
+              #{tag.name}
             </span>
           ))}
         </div>
@@ -173,14 +173,20 @@ export default function QuestionCard({
             viewerVote={question.viewerVote}
           />
 
-          <div className="inline-flex items-center gap-1 text-xs font-medium text-[#99a1af]">
-            <MessageSquare size={12.25} className="text-[#99a1af]" />
+          <Link
+            to={`/forum/${question.id}`}
+            className="group inline-flex items-center gap-1 text-xs font-medium text-[#99a1af] px-2 py-1 rounded-lg cursor-pointer transition-colors hover:text-[#344256] active:text-[#344256]"
+          >
+            <MessageSquare
+              size={12.25}
+              className="text-[#99a1af] group-hover:text-[#344256] group-active:text-[#344256] transition-colors"
+            />
             <span>
               {question.answerCount}
               <span className="hidden sm:inline"> answers</span>
               <span className="sm:hidden"> ans</span>
             </span>
-          </div>
+          </Link>
 
           <div className="h-[22.75px] w-px bg-[#f3f4f6]" />
 

@@ -43,10 +43,13 @@ export function formatMinutesOrHoursAgo(
     }
 
     if (minutesAgo > 24 * 60) {
-        return fromDate.toLocaleDateString("en-US", {
+        return fromDate.toLocaleString("en-US", {
             month: "short",
             day: "numeric",
             year: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
         })
     }
 

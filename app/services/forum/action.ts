@@ -3,7 +3,7 @@ import {
     deleteForumQuestion,
     voteForumAnswer,
     voteForumQuestion,
-} from "~/services/forum/forum.server";
+} from "~/services/forum/server";
 import type { VoteIntent } from "~/services/forum/types";
 
 const VALID_VOTE_TYPES: readonly VoteIntent[] = ["UPVOTE", "DOWNVOTE", "NONE"];

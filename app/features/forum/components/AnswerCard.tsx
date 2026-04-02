@@ -8,6 +8,7 @@ import AddAnswerDialog from "./dialog/AddAnswerDialog";
 import DeleteAnswerDialog from "./dialog/DeleteAnswerDialog";
 import { Button } from "~/components/ui/button";
 import { resolveImageURL } from "~/lib/utils";
+import { Separator } from "~/components/ui/separator";
 
 interface AnswerCardProps {
   answer: Answer;
@@ -43,47 +44,16 @@ export default function AnswerCard({
         />
 
         {/* Content */}
-        <div className="flex flex-1 flex-col gap-5 min-w-0">
+        <div className="flex flex-1 flex-col gap-5">
           {/* Answer body */}
-          <p className="text-xs leading-normal text-[#65758b]">{answer.body}</p>
+          <p className="grow text-xs leading-normal text-[#65758b]">
+            {answer.body}
+          </p>
 
-          {isCurrentAuthor && (
-            <div className="flex items-center justify-end">
-              <div className="flex h-[26.25px] w-[59.5px] items-center gap-1.75">
-                <AddAnswerDialog
-                  questionId={answer.questionId}
-                  isEditing
-                  data={{ id: answer.id, body: answer.body }}
-                  trigger={
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-[26.25px] w-[26.25px] rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
-                    >
-                      <Pencil size={12.25} />
-                    </Button>
-                  }
-                />
-                <DeleteAnswerDialog
-                  answerId={answer.id}
-                  trigger={
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-[26.25px] min-w-[26.25px] flex-1 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
-                    >
-                      <Trash2 size={12.25} />
-                    </Button>
-                  }
-                />
-              </div>
-            </div>
-          )}
+          <Separator />
 
           {/* Footer: author + timestamp */}
-          <div className="flex items-center justify-between border-t border-[#f9fafb] pt-1.5 gap-3">
+          <div className="flex items-center justify-between">
             {/* Author */}
             <div className="flex items-center gap-[10.5px]">
               <div className="shrink-0 size-7 rounded-full border border-[#f3f4f6] overflow-hidden">
@@ -110,7 +80,40 @@ export default function AnswerCard({
               <span className="text-xs font-medium text-[#99a1af] whitespace-nowrap">
                 {formattedDate}
               </span>
-              {!isCurrentAuthor && (
+              {isCurrentAuthor ? (
+                <div className="flex items-center justify-end">
+                  <div className="flex h-[26.25px] w-[59.5px] items-center gap-1.75">
+                    <AddAnswerDialog
+                      questionId={answer.questionId}
+                      isEditing
+                      data={{ id: answer.id, body: answer.body }}
+                      trigger={
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-[26.25px] w-[26.25px] rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
+                        >
+                          <Pencil size={12.25} />
+                        </Button>
+                      }
+                    />
+                    <DeleteAnswerDialog
+                      answerId={answer.id}
+                      trigger={
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-[26.25px] min-w-[26.25px] flex-1 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
+                        >
+                          <Trash2 size={12.25} />
+                        </Button>
+                      }
+                    />
+                  </div>
+                </div>
+              ) : (
                 <ReportDialog
                   onSubmit={() => {
                     // Implement submit logic here...

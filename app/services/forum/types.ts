@@ -1,7 +1,8 @@
-import CategoriesPicker from "~/features/forum/components/CategoriesPicker";
 export * from './type/answer';
 export * from './type/category';
 export * from './type/question';
+export * from './type/tags';
+
 
 
 export interface Pagination {
@@ -10,6 +11,10 @@ export interface Pagination {
   nextCursor: string;
 }
 
+export interface BasicJoinType {
+  id: string;
+  name: string;
+}
 
 export type VoteIntent = "UPVOTE" | "DOWNVOTE" | "NONE";
 

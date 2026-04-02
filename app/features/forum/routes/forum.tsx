@@ -7,8 +7,9 @@ import {
   createForumQuestion,
   getCategories,
   getQuestionPagination,
+  getTrendingTags,
   updateForumQuestion,
-} from "~/services/forum/forum.server";
+} from "~/services/forum/server";
 import { validateCreateForumPostForm } from "~/services/forum/utils";
 import { useReducedMotion } from "framer-motion";
 import { AuthSessionExpiredError } from "~/lib/server/api-client.server";
@@ -46,22 +47,26 @@ export async function loader({ request }: Route.LoaderArgs) {
   try {
     const url = new URL(request.url);
     const cursor = url.searchParams.get("cursor");
+    const tagId = url.searchParams.get("tagId");
     const categoryId = url.searchParams.get("categoryId");
     const limit = url.searchParams.get("limit");
-    const [result, categoriesResult, user] = await Promise.all([
+    const [result, categoriesResult, user, tags] = await Promise.all([
       getQuestionPagination(request, {
         limit: limit ? Number(limit) : LIMIT,
         categoryId: categoryId || undefined,
+        tagId: tagId || undefined,
         cursor: cursor || undefined,
       }),
       getCategories(request),
       getOptionalUser(request),
+      getTrendingTags(request),
     ]);
 
     return {
       data: result?.data,
       categories: categoriesResult?.data?.categories || [],
       user: (user.user as AuthenticatedUser) || null,
+      tags: tags?.data?.tags || [],
     };
   } catch (error) {
     console.error({ error });
@@ -120,7 +125,7 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 export default function ForumPage() {
-  const { data, categories, user } = useLoaderData<typeof loader>();
+  const { data, categories, user, tags } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof loader>();
   const [questionList, setQuestionList] = useState<Question[] | undefined>(
     data?.questions,
@@ -135,7 +140,31 @@ export default function ForumPage() {
     id: "all-categories",
     name: "All Categories",
   });
+  const [selectedTagId, setSelectedTagId] = useState<string | undefined>(
+    undefined,
+  );
   const prefersReducedMotion = useReducedMotion();
+
+  const buildForumQuery = useCallback(
+    (cursor?: string) => {
+      const params = new URLSearchParams({ limit: String(LIMIT) });
+
+      if (cursor) {
+        params.set("cursor", cursor);
+      }
+
+      if (selectedCategory.id !== "all-categories") {
+        params.set("categoryId", selectedCategory.id);
+      }
+
+      if (selectedTagId) {
+        params.set("tagId", selectedTagId);
+      }
+
+      return `/forum?${params.toString()}`;
+    },
+    [selectedCategory.id, selectedTagId],
+  );
 
   // Sync local state from fresh loader data after revalidation
   useEffect(() => {
@@ -147,18 +176,11 @@ export default function ForumPage() {
   }, [data]);
 
   useEffect(() => {
-    if (selectedCategory.id) {
-      setQuestionList([]);
-      setHasMore(undefined);
-      setNextCursor(undefined);
-
-      if (selectedCategory.id !== "all-categories") {
-        fetcher.load(`/forum?limit=${LIMIT}&categoryId=${selectedCategory.id}`);
-      } else {
-        fetcher.load(`/forum?limit=${LIMIT}`);
-      }
-    }
-  }, [selectedCategory.id]);
+    setQuestionList([]);
+    setHasMore(undefined);
+    setNextCursor(undefined);
+    fetcher.load(buildForumQuery());
+  }, [buildForumQuery, fetcher.load]);
 
   useEffect(() => {
     const fetcherData = fetcher.data?.data as
@@ -185,13 +207,7 @@ export default function ForumPage() {
     if (hasMore === false) return;
 
     if (nextCursor) {
-      if (selectedCategory && selectedCategory.id !== "all-categories") {
-        fetcher.load(
-          `/forum?limit=${LIMIT}&cursor=${nextCursor}&categoryId=${selectedCategory.id}`,
-        );
-      } else {
-        fetcher.load(`/forum?limit=${LIMIT}&cursor=${nextCursor}`);
-      }
+      fetcher.load(buildForumQuery(nextCursor));
     }
   }, [
     questionList,
@@ -199,8 +215,16 @@ export default function ForumPage() {
     fetcher.load,
     hasMore,
     nextCursor,
-    selectedCategory,
+    buildForumQuery,
   ]);
+
+  const handleCategorySelect = useCallback((category: CategoriesPicker) => {
+    setSelectedCategory(category);
+  }, []);
+
+  const handleTagSelect = useCallback((tagId: string | undefined) => {
+    setSelectedTagId((prev) => (prev === tagId ? undefined : tagId));
+  }, []);
 
   const handleSearch = (query: string) => {
     // TODO: Filter discussions based on search query
@@ -233,9 +257,12 @@ export default function ForumPage() {
         }}
       >
         <ForumContent
+          tags={tags}
           user={user as AuthenticatedUser}
           selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
+          setSelectedCategory={handleCategorySelect}
+          selectedTagId={selectedTagId}
+          setSelectedTagId={handleTagSelect}
           data={{
             hasMore: hasMore,
             questions: questionList,

@@ -2,7 +2,7 @@ import { useState } from "react";
 import ForumSidebar from "./ForumSidebar";
 import { DiscussionThreadSection } from "./DiscussionThreadSection";
 import RightSidebar from "./RightSidebar";
-import type { CategoriesPicker, Question } from "~/services/forum/types";
+import type { CategoriesPicker, Question, Tag } from "~/services/forum/types";
 import type { AuthenticatedUser } from "~/lib/server/route-guards.server";
 
 interface ForumContentProps {
@@ -12,10 +12,13 @@ interface ForumContentProps {
     hasMore: boolean | undefined;
   };
   categories: CategoriesPicker[] | undefined;
+  tags: Tag[] | undefined;
   onLoadMore?: () => void;
   isLoading?: boolean;
   selectedCategory: CategoriesPicker;
   setSelectedCategory: (category: CategoriesPicker) => void;
+  selectedTagId?: string;
+  setSelectedTagId: (tagId: string | undefined) => void;
 }
 
 export default function ForumContent({
@@ -24,8 +27,11 @@ export default function ForumContent({
   categories,
   onLoadMore,
   isLoading,
+  tags,
   selectedCategory,
   setSelectedCategory,
+  selectedTagId,
+  setSelectedTagId,
 }: ForumContentProps) {
   const [activeTab, setActiveTab] = useState<
     "recent" | "topRated" | "unanswered" | "myActivity"
@@ -55,9 +61,12 @@ export default function ForumContent({
         {/* Left Sidebar — hidden on mobile/tablet */}
         <div className="hidden lg:block w-56 xl:w-64 shrink-0">
           <ForumSidebar
+            tags={tags}
             categories={categories}
             selectedCategory={selectedCategory}
             onCategorySelect={setSelectedCategory}
+            selectedTagId={selectedTagId}
+            onTagSelect={(tag) => setSelectedTagId(tag.id)}
           />
         </div>
 
