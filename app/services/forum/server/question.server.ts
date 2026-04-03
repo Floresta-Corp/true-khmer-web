@@ -1,4 +1,5 @@
 import { apiRequestWithSession } from "~/lib/server/api-client.server";
+import { ProtectedApiError } from "~/lib/server/api-client.server";
 import type {
     CreateForumQuestionInput,
     GetQuestionPaginationResponse,
@@ -45,15 +46,23 @@ export async function updateForumQuestion(
 }
 
 export async function getQuestionById(request: Request, questionId: string) {
-    const result = await apiRequestWithSession<GetQuestionResponse>(
-        request,
-        `/forum/questions/${questionId}`,
-        {
-            method: "GET",
-        },
-    );
+    try {
+        const result = await apiRequestWithSession<GetQuestionResponse>(
+            request,
+            `/forum/questions/${questionId}`,
+            {
+                method: "GET",
+            },
+        );
 
-    return result;
+        return result;
+    } catch (error) {
+        if (error instanceof ProtectedApiError && error.status === 404) {
+            return null;
+        }
+
+        throw error;
+    }
 }
 
 export async function deleteForumQuestion(request: Request, questionId: string) {

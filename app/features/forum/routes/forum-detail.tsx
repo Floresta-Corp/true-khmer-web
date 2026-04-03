@@ -40,14 +40,13 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   ]);
 
   return {
-    question: question.data.question,
-    answers: answer.data.answers,
+    question: question?.data.question ?? null,
+    answers: answer?.data.answers ?? [],
     user: (user.user as AuthenticatedUser) || null,
   };
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
-  console.log(loaderData);
   const title = loaderData?.question?.title ?? "Forum Discussion";
   return [
     { title: `${title} - True Khmer Forum` },
@@ -301,7 +300,7 @@ export default function ForumDetailPage() {
           </motion.article>
 
           {answers && answers.length > 0 ? (
-            <AllAnswers answers={answers} user={user as AuthenticatedUser} />
+            <AllAnswers answers={answers} user={user} />
           ) : (
             <motion.p
               className="mt-8 text-center text-sm text-[#65758b]"

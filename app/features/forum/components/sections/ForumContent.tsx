@@ -67,7 +67,7 @@ export default function ForumContent({
             onCategorySelect={setSelectedCategory}
             selectedTagId={selectedTagId}
             onTagSelect={(tag) =>
-              +setSelectedTagId(selectedTagId === tag.id ? undefined : tag.id)
+              setSelectedTagId(selectedTagId === tag.id ? undefined : tag.id)
             }
           />
         </div>

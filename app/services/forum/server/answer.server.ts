@@ -1,4 +1,5 @@
 import { apiRequestWithSession } from "~/lib/server/api-client.server";
+import { ProtectedApiError } from "~/lib/server/api-client.server";
 import type {
   CreateAnswerInput,
   DeleteAnswerResponse,
@@ -27,15 +28,23 @@ export async function voteForumAnswer(
 }
 
 export async function getAnswersByQuestionId(request: Request, questionId: string) {
-  const result = await apiRequestWithSession<GetAnswersResponse>(
-    request,
-    `/forum/answer/get-answers/${questionId}`,
-    {
-      method: "GET",
-    },
-  );
+  try {
+    const result = await apiRequestWithSession<GetAnswersResponse>(
+      request,
+      `/forum/answer/get-answers/${questionId}`,
+      {
+        method: "GET",
+      },
+    );
 
-  return result;
+    return result;
+  } catch (error) {
+    if (error instanceof ProtectedApiError && error.status === 404) {
+      return null;
+    }
+
+    throw error;
+  }
 }
 
 export async function createAnswerByQuestionId(

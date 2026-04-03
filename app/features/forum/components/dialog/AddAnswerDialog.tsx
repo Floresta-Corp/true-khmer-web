@@ -127,6 +127,11 @@ export default function AddAnswerDialog({
           method={isEditing ? "patch" : "post"}
           onSubmit={handleSubmit}
         >
+          <input
+            type="hidden"
+            name="actionType"
+            value={isEditing ? "update-answer" : "create-answer"}
+          />
           <input type="hidden" name="questionId" value={questionId} />
           {isEditing ? (
             <input type="hidden" name="answerId" value={data?.id ?? ""} />

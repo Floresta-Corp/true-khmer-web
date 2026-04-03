@@ -1,4 +1,9 @@
-import { redirect, useLoaderData, useFetcher } from "react-router";
+import {
+  redirect,
+  useLoaderData,
+  useFetcher,
+  useSearchParams,
+} from "react-router";
 import { motion } from "framer-motion";
 import ForumHeader from "../components/sections/ForumHeader";
 import ForumContent from "../components/sections/ForumContent";
@@ -19,7 +24,7 @@ import type {
   GetQuestionPaginationResponse,
   Question,
 } from "~/services/forum/types";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { getOptionalUser } from "~/lib/server/route-guards.server";
 import {
   deleteQuestionAction,
@@ -124,6 +129,20 @@ export async function action({ request }: Route.ActionArgs) {
 export default function ForumPage() {
   const { data, categories, user, tags } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof loader>();
+  const [searchParams] = useSearchParams();
+  const isFirstRenderRef = useRef(true);
+
+  // Initialize filters from URL params
+  const initialCategoryId = searchParams.get("categoryId");
+  const initialTagId = searchParams.get("tagId");
+  const initialCategory =
+    initialCategoryId && categories.length > 0
+      ? categories.find((c) => c.id === initialCategoryId) || {
+          id: "all-categories",
+          name: "All Categories",
+        }
+      : { id: "all-categories", name: "All Categories" };
+
   const [questionList, setQuestionList] = useState<Question[] | undefined>(
     data?.questions,
   );
@@ -133,12 +152,10 @@ export default function ForumPage() {
   const [nextCursor, setNextCursor] = useState<string | undefined>(
     data?.pagination?.nextCursor,
   );
-  const [selectedCategory, setSelectedCategory] = useState<CategoriesPicker>({
-    id: "all-categories",
-    name: "All Categories",
-  });
+  const [selectedCategory, setSelectedCategory] =
+    useState<CategoriesPicker>(initialCategory);
   const [selectedTagId, setSelectedTagId] = useState<string | undefined>(
-    undefined,
+    initialTagId || undefined,
   );
   const prefersReducedMotion = useReducedMotion();
 
@@ -172,12 +189,17 @@ export default function ForumPage() {
     }
   }, [data]);
 
+  // Fetch when filters change (but skip the initial mount)
   useEffect(() => {
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false;
+      return; // Skip initial fetch since loader already hydrated
+    }
     setQuestionList([]);
     setHasMore(undefined);
     setNextCursor(undefined);
     fetcher.load(buildForumQuery());
-  }, [fetcher, buildForumQuery]);
+  }, [buildForumQuery]);
 
   useEffect(() => {
     const fetcherData = fetcher.data?.data as

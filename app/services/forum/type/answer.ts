@@ -41,7 +41,6 @@ export interface Answer {
     authorId: string;
     body: string;
     status: AnswerStatus;
-    answerCount: number;
     upvoteCount: number;
     downvoteCount: number;
     createdAt: string;

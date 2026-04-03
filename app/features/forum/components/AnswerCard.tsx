@@ -59,7 +59,6 @@ export default function AnswerCard({
               <div className="shrink-0 size-7 rounded-full border border-[#f3f4f6] overflow-hidden">
                 <img
                   src={imageUrl}
-                  // alt={answer.author.name}
                   alt={answer.author.name ?? "Author avatar"}
                   className="size-full object-cover"
                 />
