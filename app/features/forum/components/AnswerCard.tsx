@@ -60,6 +60,7 @@ export default function AnswerCard({
                 <img
                   src={imageUrl}
                   // alt={answer.author.name}
+                  alt={answer.author.name ?? "Author avatar"}
                   className="size-full object-cover"
                 />
               </div>

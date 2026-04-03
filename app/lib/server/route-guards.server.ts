@@ -77,7 +77,6 @@ export async function requireAuthenticatedUser(
   request: Request,
 ): Promise<AuthenticatedUser> {
   const user = await getSessionUser(request);
-  console.log({ user });
   if (!user) {
     throw redirect(loginRedirectPath(request));
   }

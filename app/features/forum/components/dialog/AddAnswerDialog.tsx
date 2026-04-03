@@ -15,7 +15,6 @@ import {
 import type { Answer } from "~/services/forum/types";
 
 interface AddAnswerDialogProps {
-  onSubmit?: (answer: string) => void;
   questionId: string;
   isEditing?: boolean;
   data?: Pick<Answer, "id" | "body"> | null;
@@ -160,8 +159,10 @@ export default function AddAnswerDialog({
                   <Spinner className="size-3.5" />
                   {isEditing ? "Updating..." : "Posting..."}
                 </span>
+              ) : isEditing ? (
+                "Update answer"
               ) : (
-                (isEditing ? "Update answer" : "Post answer")
+                "Post answer"
               )}
             </Button>
           </div>

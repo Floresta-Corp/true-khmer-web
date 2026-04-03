@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import AnswerCard from "../AnswerCard";
-import type { AuthenticatedUser } from "~/lib/server/route-guards.server";
+import type { AuthenticatedUser } from "~/lib/server/types";
 import type { Answer } from "~/services/forum/types";
 
 interface AllAnswersProps {

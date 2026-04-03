@@ -1,7 +1,6 @@
-import type { Pagination, ViewerVote, Category, BasicJoinType } from "../types";
+import type { Pagination, ViewerVote, BasicJoinType } from "../types";
 
-export interface GetQuestionpaginationResponse {
-
+export interface GetQuestionPaginationResponse {
     ok: boolean;
     questions: Question[];
     pagination: Pagination;

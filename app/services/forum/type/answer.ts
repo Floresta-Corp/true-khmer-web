@@ -3,13 +3,13 @@ import type { Author, ViewerVote } from "../types";
 
 export const CreateAnswerInputSchema = z.object({
     questionId: z.string(),
-    body: z.string(),
+    body: z.string().trim().min(1, "Answer body is required."),
 });
 
 export type CreateAnswerInput = z.infer<typeof CreateAnswerInputSchema>;
 
 export const UpdateAnswerInputSchema = z.object({
-    body: z.string(),
+    body: z.string().trim().min(1, "Answer body is required."),
 });
 
 export type UpdateAnswerInput = z.infer<typeof UpdateAnswerInputSchema>;

@@ -20,7 +20,7 @@ import { resolveImageURL } from "~/lib/utils";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 
 interface DiscussionCardProps {
-  user: AuthenticatedUser;
+  user: AuthenticatedUser | null;
   question: Question;
   categories: CategoriesPicker[];
   onCategoryClick?: (category: CategoriesPicker) => void;
@@ -33,7 +33,7 @@ export default function QuestionCard({
   onCategoryClick,
 }: DiscussionCardProps) {
   const createdAgoLabel = formatMinutesOrHoursAgo(question.createdAt);
-  const isCurrentAuthor = user.id === question.author.id ? true : false;
+  const isCurrentAuthor = user?.id === question.author.id;
   const profileImage = resolveImageURL(question.author.avatarKey);
 
   return (

@@ -6,7 +6,7 @@ import BackToForum from "../components/BackToForum";
 import ForumPostActions from "../components/ForumPostActions";
 import QuestionVoteComponent from "../components/QuestionVoteComponent";
 import AllAnswers from "../components/sections/AllAnswers";
-import type { Route } from ".react-router/types/app/+types/root";
+import type { Route } from "./+types/forum-detail";
 import {
   parseAnswerVoteAction,
   parseVoteAction,
@@ -46,8 +46,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   };
 }
 
-export function meta({ data }: Route.MetaArgs) {
-  const title = (data as any)?.data?.question?.title ?? "Forum Discussion";
+export function meta({ loaderData }: Route.MetaArgs) {
+  console.log(loaderData);
+  const title = loaderData?.question?.title ?? "Forum Discussion";
   return [
     { title: `${title} - True Khmer Forum` },
     { name: "description", content: title },
@@ -61,6 +62,21 @@ export async function action({ request, params }: Route.ActionArgs) {
   const answerId = String(formData.get("answerId") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
   const actionType = String(formData.get("actionType") ?? "").trim();
+
+  const allowedActionTypes = new Set([
+    "vote-question",
+    "vote-answer",
+    "delete-answer",
+    "update-answer",
+    "create-answer",
+  ]);
+
+  if (actionType && !allowedActionTypes.has(actionType)) {
+    return {
+      ok: false,
+      message: "Unsupported action.",
+    };
+  }
 
   if (actionType === "vote-question") {
     const parsedVoteAction = parseVoteAction(formData);
@@ -104,7 +120,14 @@ export async function action({ request, params }: Route.ActionArgs) {
     };
   }
 
-  if (method === "PATCH") {
+  if (actionType === "update-answer") {
+    if (method !== "PATCH") {
+      return {
+        ok: false,
+        message: "Invalid method for updating an answer.",
+      };
+    }
+
     if (!answerId) {
       return {
         ok: false,
@@ -112,10 +135,31 @@ export async function action({ request, params }: Route.ActionArgs) {
       };
     }
 
+    if (!body) {
+      return {
+        ok: false,
+        message: "Answer body is required.",
+      };
+    }
+
     return updateAnswerById(request, answerId, { body });
   }
 
-  return createAnswerByQuestionId(request, { questionId, body });
+  if (actionType === "create-answer" || !actionType) {
+    if (!body) {
+      return {
+        ok: false,
+        message: "Answer body is required.",
+      };
+    }
+
+    return createAnswerByQuestionId(request, { questionId, body });
+  }
+
+  return {
+    ok: false,
+    message: "Unsupported action.",
+  };
 }
 
 // ─── Animation variants ──────────────────────────────────────────────────────

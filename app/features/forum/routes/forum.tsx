@@ -16,12 +16,11 @@ import { AuthSessionExpiredError } from "~/lib/server/api-client.server";
 import { getSession, destroySession } from "~/lib/server/session.server";
 import type {
   CategoriesPicker,
-  GetQuestionpaginationResponse,
+  GetQuestionPaginationResponse,
   Question,
 } from "~/services/forum/types";
 import { useState, useEffect, useCallback } from "react";
 import { getOptionalUser } from "~/lib/server/route-guards.server";
-import type { AuthenticatedUser } from "~/lib/server/types";
 import {
   deleteQuestionAction,
   parseVoteAction,
@@ -63,7 +62,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     return {
       data: result?.data,
       categories: categoriesResult?.data?.categories || [],
-      user: (user.user as AuthenticatedUser) || null,
+      user: user.user,
       tags: tags?.data?.tags || [],
     };
   } catch (error) {
@@ -178,11 +177,11 @@ export default function ForumPage() {
     setHasMore(undefined);
     setNextCursor(undefined);
     fetcher.load(buildForumQuery());
-  }, [buildForumQuery, fetcher.load]);
+  }, [fetcher, buildForumQuery]);
 
   useEffect(() => {
     const fetcherData = fetcher.data?.data as
-      | GetQuestionpaginationResponse
+      | GetQuestionPaginationResponse
       | undefined;
     if (fetcherData) {
       const fetchedQuestions = fetcherData.questions;
@@ -256,7 +255,7 @@ export default function ForumPage() {
       >
         <ForumContent
           tags={tags}
-          user={user as AuthenticatedUser}
+          user={user}
           selectedCategory={selectedCategory}
           setSelectedCategory={handleCategorySelect}
           selectedTagId={selectedTagId}

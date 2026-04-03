@@ -2,11 +2,11 @@ import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import type { CategoriesPicker, Question } from "~/services/forum/types";
 import LoadMore from "../LoadMore";
 import QuestionCardSkeleton from "../card/QuestionCardSkeleton";
-import type { AuthenticatedUser } from "~/lib/server/route-guards.server";
+import type { AuthenticatedUser } from "~/lib/server/types";
 import QuestionCard from "../card/QuestionCard";
 
 interface DiscussionThreadSectionProps {
-  user: AuthenticatedUser;
+  user: AuthenticatedUser | null;
   categories?: CategoriesPicker[];
   data?: {
     questions: Question[] | undefined;

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 import { ViewerVote } from "~/services/forum/types";
+import { cn } from "~/lib/utils";
 
 interface AnswerVoteComponentProps {
   answerId: string;
@@ -68,7 +69,12 @@ export default function AnswerVoteComponent({
     : "bg-transparent text-[#99a1af] hover:bg-[#FEF2F2] hover:text-[#FF2631]";
 
   return (
-    <div className="flex w-7 shrink-0 flex-col items-center gap-[5.25px] pt-[3.5px]">
+    <div
+      className={cn(
+        "flex w-7 shrink-0 flex-col items-center gap-[5.25px] pt-[3.5px]",
+        className,
+      )}
+    >
       <fetcher.Form method="post">
         <input type="hidden" name="actionType" value="vote-answer" />
         <input type="hidden" name="answerId" value={answerId} />
@@ -76,7 +82,10 @@ export default function AnswerVoteComponent({
         <Button
           type="submit"
           variant="ghost"
-          className={`flex h-7 w-7 items-center justify-center rounded-xl border border-[#f3f4f6] transition-colors ${upvoteClassName}`}
+          className={cn(
+            `flex h-7 w-7 items-center justify-center rounded-xl border border-[#f3f4f6] transition-colors`,
+            upvoteClassName,
+          )}
           disabled={isSubmitting}
           aria-label="Up vote answer"
         >
@@ -88,7 +97,10 @@ export default function AnswerVoteComponent({
         <Spinner className="mx-1 size-3" />
       ) : (
         <span
-          className={`text-[11px] font-semibold leading-[16.5px] ${scoreClassName}`}
+          className={cn(
+            `text-[11px] font-semibold leading-[16.5px]`,
+            scoreClassName,
+          )}
         >
           {score}
         </span>
@@ -102,7 +114,10 @@ export default function AnswerVoteComponent({
           type="submit"
           variant="ghost"
           disabled={isSubmitting}
-          className={`flex h-7 w-7 items-center justify-center rounded-xl border border-[#f3f4f6] transition-colors ${downvoteClassName}`}
+          className={cn(
+            `flex h-7 w-7 items-center justify-center rounded-xl border border-[#f3f4f6] transition-colors`,
+            downvoteClassName,
+          )}
           aria-label="Down vote answer"
         >
           <ChevronDown className="h-3.5 w-3.5" />

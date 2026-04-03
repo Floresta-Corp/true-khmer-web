@@ -1,6 +1,6 @@
 import { Hash } from "lucide-react";
-import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import { Toggle } from "~/components/ui/toggle";
 import type { CategoriesPicker, Tag } from "~/services/forum/types";
 
 interface CategoriesProps {
@@ -91,18 +91,14 @@ function TrendingTopics({
       {/* Topics badges */}
       <div className="flex flex-wrap gap-1.75">
         {tags.map((tag) => (
-          <Badge
+          <Toggle
             key={tag.id}
             onClick={() => onTagSelect?.(tag)}
-            className={`inline-flex cursor-pointer rounded-lg border px-2 py-1 text-xs font-medium transition-colors ${
-              selectedTagId === tag.id
-                ? "border-[#c9defc] bg-[#edf4ff] text-[#1f5fbf] hover:bg-[#e2eeff]"
-                : "border-[#e6ebf1] bg-[#f6f8fb] text-[#4a5565] hover:bg-[#eef2f7] hover:text-[#344256]"
-            }`}
+            className={`inline-flex cursor-pointer rounded-lg border px-2 py-1 text-xs font-medium transition-colors`}
             title={tag.name}
           >
             #{tag.name}
-          </Badge>
+          </Toggle>
         ))}
       </div>
     </div>

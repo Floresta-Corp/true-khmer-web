@@ -1,7 +1,7 @@
 import { apiRequestWithSession } from "~/lib/server/api-client.server";
 import type {
     CreateForumQuestionInput,
-    GetQuestionpaginationResponse,
+    GetQuestionPaginationResponse,
     GetQuestionResponse,
     VoteIntent,
 } from "../types";
@@ -94,7 +94,7 @@ export async function getQuestionPagination(
     if (params.categoryId) queryParams.set("categoryId", params.categoryId);
     if (params.tagId) queryParams.set("tagId", params.tagId);
 
-    const result = await apiRequestWithSession<GetQuestionpaginationResponse>(
+    const result = await apiRequestWithSession<GetQuestionPaginationResponse>(
         request,
         `/forum/questions?${queryParams.toString()}`,
         {

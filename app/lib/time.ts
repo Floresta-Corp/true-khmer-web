@@ -42,7 +42,7 @@ export function formatMinutesOrHoursAgo(
         return `${minutesAgo} ${minutesAgo === 1 ? "minute" : "minutes"} ago`
     }
 
-    if (minutesAgo > 24 * 60) {
+    if (minutesAgo >= 24 * 60) {
         return fromDate.toLocaleString("en-US", {
             month: "short",
             day: "numeric",

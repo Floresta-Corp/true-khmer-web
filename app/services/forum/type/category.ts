@@ -1,8 +1,3 @@
-export interface Category {
-    id: string;
-    name: string;
-}
-
 export interface GetCategoriesListResponse {
     ok: boolean;
     categories: Category[];

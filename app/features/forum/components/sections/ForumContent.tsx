@@ -6,7 +6,7 @@ import type { CategoriesPicker, Question, Tag } from "~/services/forum/types";
 import type { AuthenticatedUser } from "~/lib/server/types";
 
 interface ForumContentProps {
-  user: AuthenticatedUser;
+  user: AuthenticatedUser | null;
   data?: {
     questions: Question[] | undefined;
     hasMore: boolean | undefined;
@@ -66,7 +66,9 @@ export default function ForumContent({
             selectedCategory={selectedCategory}
             onCategorySelect={setSelectedCategory}
             selectedTagId={selectedTagId}
-            onTagSelect={(tag) => setSelectedTagId(tag.id)}
+            onTagSelect={(tag) =>
+              +setSelectedTagId(selectedTagId === tag.id ? undefined : tag.id)
+            }
           />
         </div>
 
