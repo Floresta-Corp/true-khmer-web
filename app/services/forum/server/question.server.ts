@@ -1,4 +1,4 @@
-import { apiRequestWithSession } from "~/lib/server/api-client.server";
+import { apiRequestWithOptionalSession, apiRequestWithSession } from "~/lib/server/api-client.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import type {
     CreateForumQuestionInput,
@@ -45,26 +45,6 @@ export async function updateForumQuestion(
     return result;
 }
 
-export async function getQuestionById(request: Request, questionId: string) {
-    try {
-        const result = await apiRequestWithSession<GetQuestionResponse>(
-            request,
-            `/forum/questions/${questionId}`,
-            {
-                method: "GET",
-            },
-        );
-
-        return result;
-    } catch (error) {
-        if (error instanceof ProtectedApiError && error.status === 404) {
-            return null;
-        }
-
-        throw error;
-    }
-}
-
 export async function deleteForumQuestion(request: Request, questionId: string) {
     const result = await apiRequestWithSession<GetQuestionResponse>(
         request,
@@ -93,6 +73,27 @@ export async function voteForumQuestion(
     return result;
 }
 
+export async function getPublicQuestionPagination(
+    request: Request,
+    params: QuestionPaginationParams,
+) {
+    const queryParams = new URLSearchParams();
+    if (params.cursor) queryParams.set("cursor", params.cursor);
+    if (params.limit) queryParams.set("limit", params.limit.toString());
+    if (params.categoryId) queryParams.set("categoryId", params.categoryId);
+    if (params.tagId) queryParams.set("tagId", params.tagId);
+
+    const result = await apiRequestWithOptionalSession<GetQuestionPaginationResponse>(
+        request,
+        `/forum/public/questions?${queryParams.toString()}`,
+        {
+            method: "GET",
+        },
+    );
+
+    return result;
+}
+
 export async function getQuestionPagination(
     request: Request,
     params: QuestionPaginationParams,
@@ -112,4 +113,44 @@ export async function getQuestionPagination(
     );
 
     return result;
+}
+
+export async function getPublicQuestionById(request: Request, questionId: string) {
+    try {
+        const result = await apiRequestWithOptionalSession<GetQuestionResponse>(
+            request,
+            `/forum/public/questions/${questionId}`,
+            {
+                method: "GET",
+            },
+        );
+
+        return result;
+    } catch (error) {
+        if (error instanceof ProtectedApiError && error.status === 404) {
+            return null;
+        }
+
+        throw error;
+    }
+}
+
+export async function getQuestionById(request: Request, questionId: string) {
+    try {
+        const result = await apiRequestWithSession<GetQuestionResponse>(
+            request,
+            `/forum/questions/${questionId}`,
+            {
+                method: "GET",
+            },
+        );
+
+        return result;
+    } catch (error) {
+        if (error instanceof ProtectedApiError && error.status === 404) {
+            return null;
+        }
+
+        throw error;
+    }
 }

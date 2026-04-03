@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AlertTriangle, Flag, X } from "lucide-react";
+import { Link, useLocation } from "react-router";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -26,14 +27,17 @@ type ReportReason = (typeof REPORT_REASONS)[number];
 interface ReportDialogProps {
   /** Title of the post/answer being reported — shown in the preview card */
   postTitle?: string;
+  isAuthenticated?: boolean;
   /** Called when the user submits the report */
   onSubmit?: (reason: ReportReason, details: string) => void;
 }
 
 export default function ReportDialog({
   postTitle,
+  isAuthenticated = true,
   onSubmit,
 }: ReportDialogProps) {
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState<ReportReason | null>(
     null,
@@ -55,6 +59,24 @@ export default function ReportDialog({
   function handleCancel() {
     setOpen(false);
     reset();
+  }
+
+  const redirectTo = `${location.pathname}${location.search}`;
+  const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
+
+  if (!isAuthenticated) {
+    return (
+      <Link to={loginHref}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-[22.75px] w-[22.75px] rounded-[3.5px] p-[5.25px] text-[#99a1af] transition-colors hover:bg-transparent hover:text-[#e7000b]"
+        >
+          <Flag className="h-3 w-3" />
+          <span className="sr-only">Report</span>
+        </Button>
+      </Link>
+    );
   }
 
   return (
@@ -145,7 +167,7 @@ export default function ReportDialog({
 
           {/* Additional details */}
           <div className="flex flex-col gap-3">
-            <Label className="text-[14px] leading-[21px] text-[#344256]">
+            <Label className="text-[14px] leading-5.25 text-[#344256]">
               <span className="font-bold">Additional Details</span>{" "}
               <span className="font-normal italic text-[#9eacc0]">
                 (optional)
@@ -156,7 +178,7 @@ export default function ReportDialog({
               onChange={(e) => setDetails(e.target.value)}
               placeholder="Tell us more about why you are reporting this..."
               rows={4}
-              className="w-full rounded-2xl border-[#f1f5f9] bg-[#f8fafc] px-[14px] py-[10.5px] text-[14px] font-medium leading-[21px] text-[#344256] placeholder:font-medium placeholder:text-[#9eacc0] focus-visible:ring-[#e7000b]/20"
+              className="w-full rounded-2xl border-[#f1f5f9] bg-[#f8fafc] px-3.5 py-[10.5px] text-[14px] font-medium leading-5.25 text-[#344256] placeholder:font-medium placeholder:text-[#9eacc0] focus-visible:ring-[#e7000b]/20"
             />
           </div>
         </div>

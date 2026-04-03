@@ -205,7 +205,10 @@ export default function QuestionCard({
           >
             <Share2 size={12.25} />
           </Button>
-          <ReportQuestionDialog questionTitle={question.title} />
+          <ReportQuestionDialog
+            questionTitle={question.title}
+            isAuthenticated={Boolean(user)}
+          />
         </div>
       </div>
     </div>

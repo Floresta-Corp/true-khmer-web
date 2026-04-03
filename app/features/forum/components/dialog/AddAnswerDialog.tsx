@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
-import { useFetcher } from "react-router";
+import { Link, useFetcher, useLocation } from "react-router";
 import { toast } from "sonner";
 
 import { Button } from "~/components/ui/button";
@@ -17,6 +17,7 @@ import type { Answer } from "~/services/forum/types";
 interface AddAnswerDialogProps {
   questionId: string;
   isEditing?: boolean;
+  isAuthenticated?: boolean;
   data?: Pick<Answer, "id" | "body"> | null;
   trigger?: React.ReactNode;
 }
@@ -24,14 +25,33 @@ interface AddAnswerDialogProps {
 export default function AddAnswerDialog({
   questionId,
   isEditing,
+  isAuthenticated = true,
   data,
   trigger,
 }: AddAnswerDialogProps) {
   const fetch = useFetcher();
+  const location = useLocation();
   const isSubmitting = fetch.state !== "idle";
   const wasSubmitting = useRef(false);
   const [open, setOpen] = useState(false);
   const [bodyError, setBodyError] = useState<string | null>(null);
+  const redirectTo = `${location.pathname}${location.search}`;
+  const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
+
+  if (!isAuthenticated && !isEditing) {
+    if (trigger) {
+      return <Link to={loginHref}>{trigger}</Link>;
+    }
+
+    return (
+      <Link
+        to={loginHref}
+        className="inline-flex h-9 items-center justify-center rounded-lg border border-[#e2e8f0] px-4 text-sm font-medium text-[#0f172b] shadow-xs"
+      >
+        Add your answer
+      </Link>
+    );
+  }
 
   useEffect(() => {
     if (fetch.state === "submitting") {

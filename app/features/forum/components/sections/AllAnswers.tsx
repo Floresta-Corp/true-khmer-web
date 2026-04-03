@@ -33,6 +33,7 @@ export default function AllAnswers({ answers, user }: AllAnswersProps) {
               answer={answer}
               index={i}
               isCurrentAuthor={isCurrentAuthor}
+              isAuthenticated={Boolean(user)}
             />
           );
         })}

@@ -17,11 +17,14 @@ import {
   createAnswerByQuestionId,
   deleteAnswerById,
   getAnswersByQuestionId,
+  getPublicAnswersByQuestionId,
+  getPublicQuestionById,
   getQuestionById,
   updateAnswerById,
 } from "~/services/forum/server";
 import type { AuthenticatedUser } from "~/lib/server/types";
-import { getOptionalUser } from "~/lib/server/route-guards.server";
+import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { getUser } from "~/lib/server/session.server";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL } from "~/lib/utils";
 
@@ -33,16 +36,24 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     throw new Error("No question ID provided");
   }
 
-  const [question, answer, user] = await Promise.all([
-    getQuestionById(request, questionId),
-    getAnswersByQuestionId(request, questionId),
-    getOptionalUser(request),
-  ]);
+  const user = await getUser(request);
+
+  const [question, answer] = await Promise.all(
+    user
+      ? [
+          getQuestionById(request, questionId),
+          getAnswersByQuestionId(request, questionId),
+        ]
+      : [
+          getPublicQuestionById(request, questionId),
+          getPublicAnswersByQuestionId(request, questionId),
+        ],
+  );
 
   return {
     question: question?.data.question ?? null,
     answers: answer?.data.answers ?? [],
-    user: (user.user as AuthenticatedUser) || null,
+    user: (user as AuthenticatedUser) || null,
   };
 }
 
@@ -55,6 +66,8 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
+  await requireAuthenticatedUser(request);
+
   const formData = await request.formData();
   const method = request.method.toUpperCase();
   const questionId = params.questionId;
@@ -295,7 +308,10 @@ export default function ForumDetailPage() {
                 />
               </div>
 
-              <AddAnswerDialog questionId={question.id} />
+              <AddAnswerDialog
+                questionId={question.id}
+                isAuthenticated={Boolean(user)}
+              />
             </div>
           </motion.article>
 

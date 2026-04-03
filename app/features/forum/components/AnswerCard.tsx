@@ -14,12 +14,14 @@ interface AnswerCardProps {
   answer: Answer;
   index?: number;
   isCurrentAuthor?: boolean;
+  isAuthenticated?: boolean;
 }
 
 export default function AnswerCard({
   answer,
   index = 0,
   isCurrentAuthor,
+  isAuthenticated = true,
 }: AnswerCardProps) {
   const formattedDate = formatMinutesOrHoursAgo(answer.createdAt);
   const imageUrl = resolveImageURL(answer.author.avatarKey);
@@ -115,6 +117,7 @@ export default function AnswerCard({
                 </div>
               ) : (
                 <ReportDialog
+                  isAuthenticated={isAuthenticated}
                   onSubmit={() => {
                     // Implement submit logic here...
                   }}

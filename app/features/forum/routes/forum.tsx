@@ -1,9 +1,4 @@
-import {
-  redirect,
-  useLoaderData,
-  useFetcher,
-  useSearchParams,
-} from "react-router";
+import { useLoaderData, useFetcher, useSearchParams } from "react-router";
 import { motion } from "framer-motion";
 import ForumHeader from "../components/sections/ForumHeader";
 import ForumContent from "../components/sections/ForumContent";
@@ -11,21 +6,24 @@ import type { Route } from "./+types/forum";
 import {
   createForumQuestion,
   getCategories,
+  getPublicCategories,
+  getPublicQuestionPagination,
+  getPublicTrendingTags,
   getQuestionPagination,
   getTrendingTags,
   updateForumQuestion,
 } from "~/services/forum/server";
 import { validateCreateForumPostForm } from "~/services/forum/utils";
 import { useReducedMotion } from "framer-motion";
-import { AuthSessionExpiredError } from "~/lib/server/api-client.server";
-import { getSession, destroySession } from "~/lib/server/session.server";
+import { getUser } from "~/lib/server/session.server";
 import type {
   CategoriesPicker,
   GetQuestionPaginationResponse,
   Question,
 } from "~/services/forum/types";
+import type { AuthenticatedUser } from "~/lib/server/types";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { getOptionalUser } from "~/lib/server/route-guards.server";
+import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
 import {
   deleteQuestionAction,
   parseVoteAction,
@@ -46,43 +44,49 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  try {
-    const url = new URL(request.url);
-    const cursor = url.searchParams.get("cursor");
-    const tagId = url.searchParams.get("tagId");
-    const categoryId = url.searchParams.get("categoryId");
-    const limit = url.searchParams.get("limit");
-    const [result, categoriesResult, user, tags] = await Promise.all([
-      getQuestionPagination(request, {
-        limit: limit ? Number(limit) : LIMIT,
-        categoryId: categoryId || undefined,
-        tagId: tagId || undefined,
-        cursor: cursor || undefined,
-      }),
-      getCategories(request),
-      getOptionalUser(request),
-      getTrendingTags(request),
-    ]);
+  const url = new URL(request.url);
+  const cursor = url.searchParams.get("cursor");
+  const tagId = url.searchParams.get("tagId");
+  const categoryId = url.searchParams.get("categoryId");
+  const limit = url.searchParams.get("limit");
 
-    return {
-      data: result?.data,
-      categories: categoriesResult?.data?.categories || [],
-      user: user.user,
-      tags: tags?.data?.tags || [],
-    };
-  } catch (error) {
-    console.error({ error });
-    if (error instanceof AuthSessionExpiredError) {
-      const session = await getSession(request);
-      throw redirect("/login", {
-        headers: { "Set-Cookie": await destroySession(session) },
-      });
-    }
-    throw error;
-  }
+  const user = await getUser(request);
+
+  console.log({ user });
+
+  const [question, categoriesResult, tags] = user
+    ? await Promise.all([
+        getQuestionPagination(request, {
+          limit: limit ? Number(limit) : LIMIT,
+          categoryId: categoryId || undefined,
+          tagId: tagId || undefined,
+          cursor: cursor || undefined,
+        }),
+        getCategories(request),
+        getTrendingTags(request),
+      ])
+    : await Promise.all([
+        getPublicQuestionPagination(request, {
+          limit: limit ? Number(limit) : LIMIT,
+          categoryId: categoryId || undefined,
+          tagId: tagId || undefined,
+          cursor: cursor || undefined,
+        }),
+        getPublicCategories(request),
+        getPublicTrendingTags(request),
+      ]);
+
+  return {
+    data: question?.data,
+    categories: categoriesResult?.data?.categories || [],
+    user: (user as AuthenticatedUser) || null,
+    tags: tags?.data?.tags || [],
+  };
 }
 
 export async function action({ request }: Route.ActionArgs) {
+  await requireAuthenticatedUser(request);
+
   const formData = await request.formData();
   const actionType = String(formData.get("actionType") ?? "").trim();
   const method = request.method.toUpperCase();
@@ -264,7 +268,11 @@ export default function ForumPage() {
           duration: prefersReducedMotion ? 0 : 0.3,
         }}
       >
-        <ForumHeader onSearch={handleSearch} categories={categories} />
+        <ForumHeader
+          onSearch={handleSearch}
+          categories={categories}
+          user={user}
+        />
       </motion.div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}

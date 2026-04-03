@@ -1,4 +1,4 @@
-import { apiRequestWithSession } from "~/lib/server/api-client.server";
+import { apiRequestWithOptionalSession, apiRequestWithSession } from "~/lib/server/api-client.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import type {
   CreateAnswerInput,
@@ -29,9 +29,28 @@ export async function voteForumAnswer(
 
 export async function getAnswersByQuestionId(request: Request, questionId: string) {
   try {
-    const result = await apiRequestWithSession<GetAnswersResponse>(
+    const result = await apiRequestWithOptionalSession<GetAnswersResponse>(
       request,
-      `/forum/answer/get-answers/${questionId}`,
+      `/forum/public/answer/get-answers/${questionId}`,
+      {
+        method: "GET",
+      },
+    );
+
+    return result;
+  } catch (error) {
+    if (error instanceof ProtectedApiError && error.status === 404) {
+      return null;
+    }
+
+    throw error;
+  }
+}
+export async function getPublicAnswersByQuestionId(request: Request, questionId: string) {
+  try {
+    const result = await apiRequestWithOptionalSession<GetAnswersResponse>(
+      request,
+      `/forum/public/answer/get-answers/${questionId}`,
       {
         method: "GET",
       },

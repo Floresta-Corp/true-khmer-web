@@ -2,15 +2,18 @@ import { Search } from "lucide-react";
 import AskQuestionDialog from "../dialog/AskQuestionDialog";
 
 import type { Category } from "~/services/forum/types";
+import type { AuthenticatedUser } from "~/lib/server/types";
 
 interface ForumHeaderProps {
   onSearch?: (query: string) => void;
   categories: Category[];
+  user: AuthenticatedUser | null;
 }
 
 export default function ForumHeader({
   onSearch,
   categories,
+  user,
 }: ForumHeaderProps) {
   return (
     <div className="bg-white flex flex-col gap-6 sm:gap-8 items-start px-4 sm:px-8 lg:px-16 xl:px-30 py-8 sm:py-10 lg:py-14 w-full">
@@ -26,7 +29,10 @@ export default function ForumHeader({
         </div>
 
         <div className="shrink-0 w-full sm:w-auto">
-          <AskQuestionDialog categories={categories} />
+          <AskQuestionDialog
+            categories={categories}
+            isAuthenticated={Boolean(user)}
+          />
         </div>
       </div>
 
