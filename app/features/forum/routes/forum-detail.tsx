@@ -6,7 +6,6 @@ import BackToForum from "../components/BackToForum";
 import ForumPostActions from "../components/ForumPostActions";
 import QuestionVoteComponent from "../components/QuestionVoteComponent";
 import AllAnswers from "../components/sections/AllAnswers";
-import { Badge } from "~/components/ui/badge";
 import type { Route } from ".react-router/types/app/+types/root";
 import {
   parseAnswerVoteAction,
@@ -21,10 +20,8 @@ import {
   getQuestionById,
   updateAnswerById,
 } from "~/services/forum/server";
-import {
-  getOptionalUser,
-  type AuthenticatedUser,
-} from "~/lib/server/route-guards.server";
+import type { AuthenticatedUser } from "~/lib/server/types";
+import { getOptionalUser } from "~/lib/server/route-guards.server";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL } from "~/lib/utils";
 

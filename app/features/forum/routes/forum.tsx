@@ -20,10 +20,8 @@ import type {
   Question,
 } from "~/services/forum/types";
 import { useState, useEffect, useCallback } from "react";
-import {
-  getOptionalUser,
-  type AuthenticatedUser,
-} from "~/lib/server/route-guards.server";
+import { getOptionalUser } from "~/lib/server/route-guards.server";
+import type { AuthenticatedUser } from "~/lib/server/types";
 import {
   deleteQuestionAction,
   parseVoteAction,
