@@ -139,8 +139,6 @@ const fadeUp = {
 export default function ForumDetailPage() {
   const { question, answers, user } = useLoaderData<typeof loader>();
 
-  console.log(question, answers);
-
   if (!question) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f8fafc]">

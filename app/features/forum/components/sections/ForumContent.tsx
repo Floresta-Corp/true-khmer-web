@@ -3,7 +3,7 @@ import ForumLeftSidebar from "./ForumLeftSidebar";
 import { DiscussionThreadSection } from "./DiscussionThreadSection";
 import ForumRightSidebar from "./ForumRightSidebar";
 import type { CategoriesPicker, Question, Tag } from "~/services/forum/types";
-import type { AuthenticatedUser } from "~/lib/server/route-guards.server";
+import type { AuthenticatedUser } from "~/lib/server/types";
 
 interface ForumContentProps {
   user: AuthenticatedUser;

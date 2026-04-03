@@ -14,7 +14,6 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export default function AppLayout() {
   const { user } = useLoaderData<typeof loader>();
-  console.log(user);
 
   return (
     <>

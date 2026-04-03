@@ -11,7 +11,7 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import QuestionVoteComponent from "../QuestionVoteComponent";
 import type { CategoriesPicker, Question } from "~/services/forum/types";
-import type { AuthenticatedUser } from "~/lib/server/route-guards.server";
+import type { AuthenticatedUser } from "~/lib/server/types";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import AskQuestionDialog from "../dialog/AskQuestionDialog";
 import DeleteQuestionDialog from "../dialog/DeleteQuestionDialog";

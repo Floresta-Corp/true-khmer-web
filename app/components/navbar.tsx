@@ -11,7 +11,7 @@ import {
   Video,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
-import type { AuthenticatedUser } from "~/lib/server/route-guards.server";
+import type { AuthenticatedUser } from "~/lib/server/types";
 import ProfileDropDown from "./profile-dropdown";
 
 interface NavbarProps {

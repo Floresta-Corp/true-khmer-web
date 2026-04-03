@@ -1,6 +1,7 @@
 import { createCookieSessionStorage } from "react-router";
 import { redirect } from "react-router";
 import type { AuthTokensResponse } from "~/services/auth.server";
+import type { AuthenticatedUser } from "./types";
 
 const SESSION_SECRET = process.env.SESSION_SECRET;
 if (!SESSION_SECRET) {
@@ -36,10 +37,17 @@ export async function destroySession(
   return sessionStorage.destroySession(session);
 }
 
-export async function getUser(request: Request) {
+interface SessionUser {
+  id: string;
+  email: string;
+  name: string;
+  avatar?: string;
+}
+
+export async function getUser(request: Request): Promise<AuthenticatedUser | null | SessionUser> {
   const session = await getSession(request);
   const user = session.get("user");
-  if (user) return user;
+  if (user) return user as AuthenticatedUser;
 
   const userId = session.get("userId");
   const email = session.get("email");

@@ -7,18 +7,39 @@ import {
 } from "./ui/dropdown-menu";
 import { ChevronRight, LogOut, Plus, Settings } from "lucide-react";
 import { Separator } from "./ui/separator";
-import { AvatarFallback, Avatar, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
-import type { AuthenticatedUser } from "~/lib/server/route-guards.server";
-import { resolveImageURL } from "~/lib/utils";
+import type { AuthenticatedUser } from "~/lib/server/types";
+import { cn, resolveImageURL } from "~/lib/utils";
 
 interface ProfileDropDownProps {
   user: AuthenticatedUser;
 }
 
+function ProfileAvatar({
+  className,
+  profileImage,
+  displayName,
+}: {
+  className?: string;
+  profileImage?: string;
+  displayName?: string;
+}) {
+  return (
+    <Avatar className={cn(className)}>
+      <AvatarImage
+        src={profileImage}
+        alt={displayName}
+        className="object-fill"
+      />
+    </Avatar>
+  );
+}
+
 export default function ProfileDropDown({ user }: ProfileDropDownProps) {
   const displayName = user?.name || user?.email?.split("@")[0] || "User";
-  const profileImage = resolveImageURL(user?.avatarKey);
+  const profileImage = resolveImageURL(user?.profile?.avatarKey);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -26,12 +47,11 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
           variant="ghost"
           className="relative flex items-center gap-2.5 h-10 pl-2 pr-2 sm:pr-4 rounded-full bg-gray-100 hover:bg-gray-200 border border-gray-200"
         >
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={profileImage} alt={displayName} />
-            <AvatarFallback className="bg-gray-800 text-white text-sm font-semibold">
-              {displayName.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          <ProfileAvatar
+            className="h-8 w-8"
+            profileImage={profileImage}
+            displayName={displayName}
+          />
           <span className="hidden lg:block text-sm font-medium text-gray-700">
             {displayName}
           </span>
@@ -50,11 +70,11 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
           </p>
           <DropdownMenuItem className="px-5 py-4 rounded-none">
             <Link to="/profile" className="flex items-center gap-3 group">
-              <Avatar className="h-12 w-12">
-                <AvatarFallback className="bg-gray-800 text-white text-lg font-bold">
-                  {displayName.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              <ProfileAvatar
+                className="h-12 w-12"
+                profileImage={profileImage}
+                displayName={displayName}
+              />
               <div className="flex-1 min-w-0">
                 <p className="text-base font-semibold text-gray-900">
                   {displayName}
