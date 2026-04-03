@@ -5,7 +5,7 @@ import type { Answer } from "~/services/forum/types";
 
 interface AllAnswersProps {
   answers: Answer[];
-  user: AuthenticatedUser;
+  user: AuthenticatedUser | null;
 }
 
 export default function AllAnswers({ answers, user }: AllAnswersProps) {
@@ -26,7 +26,7 @@ export default function AllAnswers({ answers, user }: AllAnswersProps) {
       {/* Answer list */}
       <div className="flex flex-col gap-3.5">
         {answers.map((answer, i) => {
-          const isCurrentAuthor = user.id === answer.author.id ? true : false;
+          const isCurrentAuthor = user?.id === answer.author.id ? true : false;
           return (
             <AnswerCard
               key={answer.id}
