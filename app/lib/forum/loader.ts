@@ -1,6 +1,7 @@
 import { getQuestionPagination, getCategories, getTrendingTags, getPublicQuestionPagination, getPublicCategories, getPublicTrendingTags } from "~/services/forum/server";
 import type { Route } from "../../+types/root";
 import { getUserId } from "../server/session.server";
+import { questionSortBySchema } from "~/services/forum/types";
 
 const LIMIT = 10;
 
@@ -10,6 +11,9 @@ export async function forumListloader({ request }: Route.LoaderArgs) {
   const tagId = url.searchParams.get("tagId");
   const categoryId = url.searchParams.get("categoryId");
   const limit = url.searchParams.get("limit");
+  const rawSortBy = url.searchParams.get("sortBy");
+  const parsedSortBy = questionSortBySchema.safeParse(rawSortBy);
+  const sortBy = parsedSortBy.success ? parsedSortBy.data : "recent";
 
   const userId = await getUserId(request);
 
@@ -20,6 +24,7 @@ export async function forumListloader({ request }: Route.LoaderArgs) {
         categoryId: categoryId || undefined,
         tagId: tagId || undefined,
         cursor: cursor || undefined,
+        sortBy,
       }),
       getCategories(request),
       getTrendingTags(request),
@@ -30,6 +35,7 @@ export async function forumListloader({ request }: Route.LoaderArgs) {
         categoryId: categoryId || undefined,
         tagId: tagId || undefined,
         cursor: cursor || undefined,
+        sortBy,
       }),
       getPublicCategories(request),
       getPublicTrendingTags(request),

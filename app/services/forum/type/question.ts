@@ -1,4 +1,14 @@
+import { z } from "zod";
 import type { Pagination, ViewerVote, BasicJoinType } from "../types";
+
+export const questionSortBySchema = z.enum([
+    "recent",
+    "topRated",
+    "unanswered",
+    "myActivity",
+]);
+
+export type QuestionSortBy = z.infer<typeof questionSortBySchema>;
 
 export interface GetQuestionPaginationResponse {
     ok: boolean;

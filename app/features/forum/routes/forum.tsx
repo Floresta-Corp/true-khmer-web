@@ -8,10 +8,12 @@ import type {
   CategoriesPicker,
   GetQuestionPaginationResponse,
   Question,
+  QuestionSortBy,
 } from "~/services/forum/types";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { forumListloader } from "~/routes/api/forum/forumLoader";
 import { forumListAction } from "~/routes/api/forum/forumAction";
+import { questionSortBySchema } from "~/services/forum/types";
 
 const LIMIT = 10;
 export const loader = forumListloader;
@@ -29,14 +31,17 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function ForumPage() {
-  const { data, categories, tags } = useLoaderData<typeof loader>();
+  const { data, categories, tags, userId } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof loader>();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const isFirstRenderRef = useRef(true);
 
   // Initialize filters from URL params
   const initialCategoryId = searchParams.get("categoryId");
   const initialTagId = searchParams.get("tagId");
+  const initialSortBy = questionSortBySchema.safeParse(
+    searchParams.get("sortBy"),
+  );
   const initialCategory =
     initialCategoryId && categories.length > 0
       ? categories.find((c) => c.id === initialCategoryId) || {
@@ -59,6 +64,9 @@ export default function ForumPage() {
   const [selectedTagId, setSelectedTagId] = useState<string | undefined>(
     initialTagId || undefined,
   );
+  const [activeTab, setActiveTab] = useState<QuestionSortBy>(
+    initialSortBy.success ? initialSortBy.data : "recent",
+  );
   const prefersReducedMotion = useReducedMotion();
 
   const buildForumQuery = useCallback(
@@ -77,9 +85,11 @@ export default function ForumPage() {
         params.set("tagId", selectedTagId);
       }
 
+      params.set("sortBy", activeTab);
+
       return `/forum?${params.toString()}`;
     },
-    [selectedCategory.id, selectedTagId],
+    [activeTab, selectedCategory.id, selectedTagId],
   );
 
   // Sync local state from fresh loader data after revalidation
@@ -147,6 +157,26 @@ export default function ForumPage() {
     setSelectedTagId((prev) => (prev === tagId ? undefined : tagId));
   }, []);
 
+  const handleTabChange = useCallback(
+    (tab: QuestionSortBy) => {
+      setActiveTab(tab);
+
+      const nextParams = new URLSearchParams();
+      nextParams.set("sortBy", tab);
+
+      if (selectedCategory.id !== "all-categories") {
+        nextParams.set("categoryId", selectedCategory.id);
+      }
+
+      if (selectedTagId) {
+        nextParams.set("tagId", selectedTagId);
+      }
+
+      setSearchParams(nextParams, { replace: true });
+    },
+    [selectedCategory.id, selectedTagId, setSearchParams],
+  );
+
   const handleSearch = (query: string) => {
     // TODO: Filter discussions based on search query
   };
@@ -178,11 +208,14 @@ export default function ForumPage() {
         }}
       >
         <ForumContent
+          userId={userId}
           tags={tags}
           selectedCategory={selectedCategory}
           setSelectedCategory={handleCategorySelect}
           selectedTagId={selectedTagId}
           setSelectedTagId={handleTagSelect}
+          activeTab={activeTab}
+          setActiveTab={handleTabChange}
           data={{
             hasMore: hasMore,
             questions: questionList,

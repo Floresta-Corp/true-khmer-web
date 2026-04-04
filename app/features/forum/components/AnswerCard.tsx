@@ -25,7 +25,6 @@ export default function AnswerCard({
 }: AnswerCardProps) {
   const formattedDate = formatMinutesOrHoursAgo(answer.createdAt);
   const imageUrl = resolveImageURL(answer.author.avatarKey);
-  console.log(answer.viewerVote);
 
   return (
     <motion.article

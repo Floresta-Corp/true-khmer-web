@@ -49,7 +49,8 @@ export default function AskQuestionDialog({
   const [open, setOpen] = useState(false);
   const wasSubmitting = useRef(false);
   const revalidator = useRevalidator();
-  const tagsValue = data?.tags?.join(", ") ?? "";
+  const tagsValue =
+    data?.tags?.map((tag) => tag.name).filter(Boolean).join(", ") ?? "";
   const redirectTo = `${location.pathname}${location.search}`;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
 

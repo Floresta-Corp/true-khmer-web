@@ -6,6 +6,7 @@ import type { AuthenticatedUser } from "~/lib/server/types";
 import QuestionCard from "../card/QuestionCard";
 
 interface DiscussionThreadSectionProps {
+  userId: AuthenticatedUser["id"] | null;
   categories?: CategoriesPicker[];
   data?: {
     questions: Question[] | undefined;
@@ -21,6 +22,7 @@ interface DiscussionThreadSectionProps {
 }
 
 export function DiscussionThreadSection({
+  userId,
   categories,
   data,
   activeTab,
@@ -40,7 +42,7 @@ export function DiscussionThreadSection({
     { id: "recent" as const, label: "Recent" },
     { id: "topRated" as const, label: "Top Rated" },
     { id: "unanswered" as const, label: "Unanswered" },
-    { id: "myActivity" as const, label: "My Activity" },
+    ...(userId ? [{ id: "myActivity" as const, label: "My Activity" }] : []),
   ];
 
   return (

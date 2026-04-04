@@ -1,11 +1,16 @@
-import { useState } from "react";
 import ForumLeftSidebar from "./ForumLeftSidebar";
 import { DiscussionThreadSection } from "./DiscussionThreadSection";
 import ForumRightSidebar from "./ForumRightSidebar";
-import type { CategoriesPicker, Question, Tag } from "~/services/forum/types";
+import type {
+  CategoriesPicker,
+  Question,
+  QuestionSortBy,
+  Tag,
+} from "~/services/forum/types";
 import type { AuthenticatedUser } from "~/lib/server/types";
 
 interface ForumContentProps {
+  userId: AuthenticatedUser["id"] | null;
   data?: {
     questions: Question[] | undefined;
     hasMore: boolean | undefined;
@@ -18,9 +23,12 @@ interface ForumContentProps {
   setSelectedCategory: (category: CategoriesPicker) => void;
   selectedTagId?: string;
   setSelectedTagId: (tagId: string | undefined) => void;
+  activeTab: QuestionSortBy;
+  setActiveTab: (tab: QuestionSortBy) => void;
 }
 
 export default function ForumContent({
+  userId,
   data,
   categories,
   onLoadMore,
@@ -30,11 +38,9 @@ export default function ForumContent({
   setSelectedCategory,
   selectedTagId,
   setSelectedTagId,
+  activeTab,
+  setActiveTab,
 }: ForumContentProps) {
-  const [activeTab, setActiveTab] = useState<
-    "recent" | "topRated" | "unanswered" | "myActivity"
-  >("recent");
-
   return (
     <div className="bg-[#f8fafc] px-4 sm:px-8 lg:px-16 xl:px-30 py-6 sm:py-8 lg:py-10 min-h-screen">
       {/* Mobile: categories as horizontal scrollable chips */}
@@ -73,6 +79,7 @@ export default function ForumContent({
         {/* Main Content */}
         <div className="flex-1 min-w-0">
           <DiscussionThreadSection
+            userId={userId}
             categories={categories}
             data={data}
             activeTab={activeTab}

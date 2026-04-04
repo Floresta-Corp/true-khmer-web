@@ -32,9 +32,6 @@ export default function QuestionCard({
   onCategoryClick,
 }: DiscussionCardProps) {
   const { userId } = useLoaderData<typeof loader>();
-
-  console.log({ userId });
-
   const createdAgoLabel = formatMinutesOrHoursAgo(question.createdAt);
   const isCurrentAuthor = userId === question.author.id;
   const profileImage = resolveImageURL(question.author.avatarKey);

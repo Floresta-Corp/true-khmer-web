@@ -4,6 +4,7 @@ import type {
     CreateForumQuestionInput,
     GetQuestionPaginationResponse,
     GetQuestionResponse,
+    QuestionSortBy,
     VoteIntent,
 } from "../types";
 
@@ -12,6 +13,7 @@ export interface QuestionPaginationParams {
     limit?: number;
     categoryId?: string;
     tagId?: string;
+    sortBy?: QuestionSortBy;
 }
 
 export async function createForumQuestion(
@@ -82,6 +84,7 @@ export async function getPublicQuestionPagination(
     if (params.limit) queryParams.set("limit", params.limit.toString());
     if (params.categoryId) queryParams.set("categoryId", params.categoryId);
     if (params.tagId) queryParams.set("tagId", params.tagId);
+    if (params.sortBy) queryParams.set("sortBy", params.sortBy);
 
     const result = await apiRequestWithOptionalSession<GetQuestionPaginationResponse>(
         request,
@@ -103,6 +106,7 @@ export async function getQuestionPagination(
     if (params.limit) queryParams.set("limit", params.limit.toString());
     if (params.categoryId) queryParams.set("categoryId", params.categoryId);
     if (params.tagId) queryParams.set("tagId", params.tagId);
+    if (params.sortBy) queryParams.set("sortBy", params.sortBy);
 
     const result = await apiRequestWithSession<GetQuestionPaginationResponse>(
         request,
