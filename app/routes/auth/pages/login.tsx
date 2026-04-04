@@ -5,6 +5,7 @@ import { Lock, Mail } from "lucide-react";
 import { FormDivider } from "~/routes/auth/components/form-divider";
 import { FormError } from "~/routes/auth/components/form-error";
 import { GoogleButton } from "~/routes/auth/components/google-button";
+import { InlineMessage } from "~/routes/auth/components/inline-message";
 import { AuthPageShell } from "~/routes/auth/components/page-shell";
 import { PasswordField } from "~/routes/auth/components/password-field";
 import {
@@ -17,6 +18,10 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { sanitizeRedirectPath } from "~/lib/redirects";
 
+const LOGIN_NOTICE_MESSAGES = {
+  reset_password_success: "Password reset completed successfully.",
+} as const;
+
 export const loader = loginLoader;
 export const action = loginAction;
 export function meta() {
@@ -27,6 +32,11 @@ export default function LoginPage() {
   const actionData = useActionData<LoginActionData>();
   const [searchParams] = useSearchParams();
   const redirectTo = sanitizeRedirectPath(searchParams.get("redirectTo"));
+  const notice = searchParams.get("notice");
+  const successMessage = notice
+    ? (LOGIN_NOTICE_MESSAGES[notice as keyof typeof LOGIN_NOTICE_MESSAGES] ??
+      "")
+    : "";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -88,6 +98,7 @@ export default function LoginPage() {
           <FormDivider />
         </motion.div>
 
+        <InlineMessage tone="success" message={successMessage} />
         <FormError message={actionData?.errors?.form} />
 
         <motion.div
@@ -142,16 +153,15 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 error={actionData?.errors?.password}
               />
-
-              <div className="flex justify-end">
-                <Button
-                  type="button"
-                  variant="link"
-                  className="h-auto px-0 text-[13px] font-semibold leading-4 text-[#2F6FE4] hover:text-[#1F62DF] transition-colors"
-                >
-                  Forgot password?
-                </Button>
-              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button
+                asChild
+                variant="link"
+                className="h-auto px-0 text-[13px] font-semibold leading-4 text-[#2F6FE4] hover:text-[#1F62DF]"
+              >
+                <Link to="/forgot-password">Forgot password?</Link>
+              </Button>
             </div>
 
             <Button
