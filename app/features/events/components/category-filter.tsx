@@ -1,57 +1,50 @@
 import { Link } from "react-router";
-import { EVENT_TYPES, type EventType } from "~/features/events/lib/event-types";
-import { formatEventType } from "~/features/events/lib/event-formatters";
+import type { EventCategory } from "~/features/events/lib/event-types";
 
-const EVENT_TYPE_META: Record<EventType, { icon: string; color: string }> = {
-  CONFERENCE: { icon: "🎤", color: "#4F46E5" },
-  WORKSHOP: { icon: "🛠️", color: "#9333EA" },
-  SEMINAR: { icon: "📚", color: "#2563EB" },
-  CONCERT: { icon: "🎵", color: "#DB2777" },
-  FESTIVAL: { icon: "🎉", color: "#D97706" },
-  EXHIBITION: { icon: "🖼️", color: "#0D9488" },
-  NETWORKING: { icon: "🤝", color: "#2563EB" },
-  TRAINING: { icon: "🏋️", color: "#16A34A" },
-  WEBINAR: { icon: "💻", color: "#0891B2" },
-  OTHER: { icon: "📌", color: "#6B7280" },
-};
+interface EventCategoryFilterProps {
+  categories: EventCategory[];
+}
 
-export function EventTypeFilter() {
+export function EventCategoryFilter({ categories }: EventCategoryFilterProps) {
   return (
-    <section className="pb-8 md:pb-12 bg-blue-50 w-full">
-      <div className="mx-4 sm:mx-8 md:mx-16 lg:mx-[131.5px] py-8 md:py-17.5">
-        <div className="mb-4 md:mb-6">
+    <section className="w-full">
+      <div className="mx-4 sm:mx-8 md:mx-16 lg:mx-[131.5px] py-8">
+        <div className="mb-6 md:mb-8">
           <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-            Browse by Event Type
+            Browse by categories
           </h2>
-          <p className="text-xs md:text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-500 mt-1">
             Explore events based on your interests and career goals.
           </p>
         </div>
-        <div className="flex justify-between gap-2 md:gap-3 overflow-x-auto pb-2 scrollbar-hide">
-          {EVENT_TYPES.map((type) => {
-            const meta = EVENT_TYPE_META[type];
-            return (
-              <Link
-                key={type}
-                to={`/events/all?eventType=${type}`}
-                className="flex items-center gap-2 md:gap-2.5 rounded-full border px-3 md:px-5 py-2 md:py-2.5 text-xs md:text-sm font-medium transition-all whitespace-nowrap shrink-0 cursor-pointer bg-white text-gray-700 border-gray-200 hover:border-blue-200 hover:shadow-sm"
+        <div
+          className="flex gap-3 md:gap-4 overflow-x-auto p-1 -m-1"
+          style={{ scrollbarWidth: "none" }}
+        >
+          {categories.map((category) => (
+            <Link
+              key={category.id}
+              to={`/events/all?categoryId=${category.id}`}
+              className="group flex items-center gap-3 border border-gray-200 bg-white px-4 md:px-5 py-1.5 md:py-2 transition-all hover:shadow-md hover:border-blue-200 hover:-translate-y-0.5 shrink-0 shadow-sm"
+              style={{ borderRadius: "24px" }}
+            >
+              <span
+                className="text-xl leading-none"
+                style={{ color: category.color }}
               >
-                <span
-                  className="w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: `${meta.color}20` }}
-                >
-                  <span className="text-sm md:text-base leading-none">
-                    {meta.icon}
-                  </span>
-                </span>
-                <div className="text-left">
-                  <div className="font-semibold leading-tight">
-                    {formatEventType(type)}
-                  </div>
+                {category.icon}
+              </span>
+              <div>
+                <div className="font-semibold text-sm text-gray-900 leading-snug group-hover:text-blue-600 transition-colors">
+                  {category.name}
                 </div>
-              </Link>
-            );
-          })}
+                <div className="text-xs text-gray-400 mt-0.5">
+                  {category.eventCount}{" "}
+                  {category.eventCount === 1 ? "event" : "events"}
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
     </section>

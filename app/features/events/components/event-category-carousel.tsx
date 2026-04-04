@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { Link } from "react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { EventCategory } from "../lib/event-types";
+import type { EventCategory } from "~/features/events/lib/event-types";
 import { Button } from "~/components/ui/button";
 
 interface EventCategoryCarouselProps {

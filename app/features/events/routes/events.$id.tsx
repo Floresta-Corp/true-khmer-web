@@ -103,29 +103,33 @@ export default function EventDetailPage() {
             </Badge>
 
             {/* Tabs */}
-            <div className="flex items-center gap-6 mt-8 border-b border-gray-200">
-              <Button
+            <div className="flex items-center gap-6 mt-8">
+              <button
                 onClick={() => setActiveTab("tickets")}
-                variant="ghost"
-                className={`h-auto px-0 py-0 pb-3 text-sm font-semibold uppercase tracking-wider transition-colors ${
+                className={`relative pb-1.5 text-sm font-semibold transition-colors cursor-pointer bg-transparent ${
                   activeTab === "tickets"
-                    ? "text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-400 hover:text-gray-600"
+                    ? "text-[#2f6fe4]"
+                    : "text-[#9eacc0] hover:text-[#344256]"
                 }`}
               >
                 Get Tickets
-              </Button>
-              <Button
+                {activeTab === "tickets" && (
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2f6fe4] rounded-full" />
+                )}
+              </button>
+              <button
                 onClick={() => setActiveTab("info")}
-                variant="ghost"
-                className={`h-auto px-0 py-0 pb-3 text-sm font-semibold uppercase tracking-wider transition-colors ${
+                className={`relative pb-1.5 text-sm font-semibold transition-colors cursor-pointer bg-transparent ${
                   activeTab === "info"
-                    ? "text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-400 hover:text-gray-600"
+                    ? "text-[#2f6fe4]"
+                    : "text-[#9eacc0] hover:text-[#344256]"
                 }`}
               >
                 More Info
-              </Button>
+                {activeTab === "info" && (
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2f6fe4] rounded-full" />
+                )}
+              </button>
             </div>
 
             {/* Tab Content */}

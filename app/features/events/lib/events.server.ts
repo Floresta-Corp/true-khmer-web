@@ -47,6 +47,7 @@ export async function getEventCategories(): Promise<EventCategory[]> {
         color: c.color || "#6B7280",
         sortOrder: c.sortOrder,
         status: c.status,
+        eventCount: c.eventCount || 0,
       }));
   } catch (err) {
     console.error("Failed to fetch event categories:", err);
@@ -165,6 +166,7 @@ export async function getEventsData(request: Request) {
       id: apiEvent.id,
       title: apiEvent.title,
       excerpt: apiEvent.excerpt || "",
+      slug: apiEvent.slug || "",
       thumbnail: apiEvent.thumbnail || null,
       startAt: apiEvent.startAt,
       endAt: apiEvent.endAt,
@@ -239,6 +241,7 @@ export async function getEventsByType(
       id: apiEvent.id,
       title: apiEvent.title,
       excerpt: apiEvent.excerpt || "",
+      slug: apiEvent.slug || "",
       thumbnail: apiEvent.thumbnail || null,
       startAt: apiEvent.startAt,
       endAt: apiEvent.endAt,
@@ -251,6 +254,41 @@ export async function getEventsByType(
     }));
   } catch (err) {
     console.error("Failed to fetch events by type:", err);
+    return [];
+  }
+}
+
+export async function getEventsByCategory(
+  categoryId: string,
+): Promise<EventData[]> {
+  try {
+    const response = await fetch(
+      `${PLUMPI_ENDPOINT}/events?categoryId=${categoryId}`,
+    );
+
+    if (!response.ok) {
+      throw new Error(`Plumpi API Error: ${response.status}`);
+    }
+
+    const json = await response.json();
+    const eventList = Array.isArray(json.data) ? json.data : [];
+
+    return eventList.map((apiEvent: any) => ({
+      id: apiEvent.id,
+      title: apiEvent.title,
+      excerpt: apiEvent.excerpt || "",
+      thumbnail: apiEvent.thumbnail || null,
+      startAt: apiEvent.startAt,
+      endAt: apiEvent.endAt,
+      venueName: apiEvent.venueName || null,
+      eventType: apiEvent.eventType,
+      price: apiEvent.salePrice || apiEvent.basePrice || "Free",
+      ticketStatus: apiEvent.ticketStatus || null,
+      isOnline: apiEvent.isOnline || false,
+      isFavorite: apiEvent.isFavorite || false,
+    }));
+  } catch (err) {
+    console.error("Failed to fetch events by category:", err);
     return [];
   }
 }
@@ -270,6 +308,7 @@ export async function getEventList(): Promise<EventData[]> {
       id: apiEvent.id,
       title: apiEvent.title,
       excerpt: apiEvent.excerpt || "",
+      slug: apiEvent.slug || "",
       thumbnail: apiEvent.thumbnail || null,
       startAt: apiEvent.startAt,
       endAt: apiEvent.endAt,
