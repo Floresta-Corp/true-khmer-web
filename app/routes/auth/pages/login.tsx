@@ -34,9 +34,8 @@ export default function LoginPage() {
   const redirectTo = sanitizeRedirectPath(searchParams.get("redirectTo"));
   const notice = searchParams.get("notice");
   const successMessage = notice
-    ? LOGIN_NOTICE_MESSAGES[
-        notice as keyof typeof LOGIN_NOTICE_MESSAGES
-      ] ?? ""
+    ? (LOGIN_NOTICE_MESSAGES[notice as keyof typeof LOGIN_NOTICE_MESSAGES] ??
+      "")
     : "";
 
   const [email, setEmail] = useState("");
@@ -154,7 +153,7 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 error={actionData?.errors?.password}
               />
-
+            </div>
             <div className="flex justify-end">
               <Button
                 asChild
