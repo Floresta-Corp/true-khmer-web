@@ -1,0 +1,28 @@
+name: Stage Deployment
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  build_deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout V3
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Private Registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: docker-registry-local.bongit.net
+          username: ${{ secrets.LOCAL_REGISTRY_USERNAME }}
+          password: ${{ secrets.LOCAL_REGISTRY_PASSWORD }}
+
+      - name: Build and Push
+        run: curl -s -L https://dokploy-build-loffy-api.bongit.net/qEnwNk01ZXJ6lTnkHUOmC | bash
+      - name: Deploy to Dokploy
+        run: |
+          curl --request GET 'https://dokploy.bongit.net/api/deploy/wGlcAOqT5RZfFGDviHtIs'
