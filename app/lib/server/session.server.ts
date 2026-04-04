@@ -58,6 +58,17 @@ export async function getUser(request: Request): Promise<AuthenticatedUser | nul
   return { id: userId, email, name, avatar };
 }
 
+export async function getUserId(request: Request): Promise<string | null> {
+  const session = await getSession(request);
+  const user = session.get("user");
+  if (user) return user.id as string;
+
+  const userId = session.get("userId");
+  if (!userId) return null;
+
+  return userId;
+}
+
 export async function createUserSession(
   auth: AuthTokensResponse,
   redirectTo: string,

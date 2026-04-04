@@ -6,7 +6,7 @@ import {
   Share2,
   Trash2,
 } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import QuestionVoteComponent from "../QuestionVoteComponent";
@@ -18,22 +18,25 @@ import DeleteQuestionDialog from "../dialog/DeleteQuestionDialog";
 import ReportQuestionDialog from "../dialog/ReportQuestionDialog";
 import { resolveImageURL } from "~/lib/utils";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
+import type { loader } from "../../routes/forum";
 
 interface DiscussionCardProps {
-  user: AuthenticatedUser | null;
   question: Question;
   categories: CategoriesPicker[];
   onCategoryClick?: (category: CategoriesPicker) => void;
 }
 
 export default function QuestionCard({
-  user,
   question,
   categories,
   onCategoryClick,
 }: DiscussionCardProps) {
+  const { userId } = useLoaderData<typeof loader>();
+
+  console.log({ userId });
+
   const createdAgoLabel = formatMinutesOrHoursAgo(question.createdAt);
-  const isCurrentAuthor = user?.id === question.author.id;
+  const isCurrentAuthor = userId === question.author.id;
   const profileImage = resolveImageURL(question.author.avatarKey);
 
   return (
@@ -207,7 +210,7 @@ export default function QuestionCard({
           </Button>
           <ReportQuestionDialog
             questionTitle={question.title}
-            isAuthenticated={Boolean(user)}
+            isAuthenticated={Boolean(userId)}
           />
         </div>
       </div>

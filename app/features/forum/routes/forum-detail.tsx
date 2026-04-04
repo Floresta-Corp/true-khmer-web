@@ -7,55 +7,13 @@ import ForumPostActions from "../components/ForumPostActions";
 import QuestionVoteComponent from "../components/QuestionVoteComponent";
 import AllAnswers from "../components/sections/AllAnswers";
 import type { Route } from "./+types/forum-detail";
-import {
-  parseAnswerVoteAction,
-  parseVoteAction,
-  submitAnswerVoteAction,
-  submitVoteAction,
-} from "~/services/forum/action";
-import {
-  createAnswerByQuestionId,
-  deleteAnswerById,
-  getAnswersByQuestionId,
-  getPublicAnswersByQuestionId,
-  getPublicQuestionById,
-  getQuestionById,
-  updateAnswerById,
-} from "~/services/forum/server";
-import type { AuthenticatedUser } from "~/lib/server/types";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
-import { getUser } from "~/lib/server/session.server";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL } from "~/lib/utils";
+import { forumDetailLoader } from "~/routes/api/forum/forumLoader";
+import { forumDetailAction } from "~/routes/api/forum/forumAction";
 
-// ─── Loader ─────────────────────────────────────────────────────────────────
-export async function loader({ request, params }: Route.LoaderArgs) {
-  const questionId = params.questionId;
-
-  if (!questionId) {
-    throw new Error("No question ID provided");
-  }
-
-  const user = await getUser(request);
-
-  const [question, answer] = await Promise.all(
-    user
-      ? [
-          getQuestionById(request, questionId),
-          getAnswersByQuestionId(request, questionId),
-        ]
-      : [
-          getPublicQuestionById(request, questionId),
-          getPublicAnswersByQuestionId(request, questionId),
-        ],
-  );
-
-  return {
-    question: question?.data.question ?? null,
-    answers: answer?.data.answers ?? [],
-    user: (user as AuthenticatedUser) || null,
-  };
-}
+export const loader = forumDetailLoader;
+export const action = forumDetailAction;
 
 export function meta({ loaderData }: Route.MetaArgs) {
   const title = loaderData?.question?.title ?? "Forum Discussion";
@@ -63,115 +21,6 @@ export function meta({ loaderData }: Route.MetaArgs) {
     { title: `${title} - True Khmer Forum` },
     { name: "description", content: title },
   ];
-}
-
-export async function action({ request, params }: Route.ActionArgs) {
-  await requireAuthenticatedUser(request);
-
-  const formData = await request.formData();
-  const method = request.method.toUpperCase();
-  const questionId = params.questionId;
-  const answerId = String(formData.get("answerId") ?? "").trim();
-  const body = String(formData.get("body") ?? "").trim();
-  const actionType = String(formData.get("actionType") ?? "").trim();
-
-  const allowedActionTypes = new Set([
-    "vote-question",
-    "vote-answer",
-    "delete-answer",
-    "update-answer",
-    "create-answer",
-  ]);
-
-  if (actionType && !allowedActionTypes.has(actionType)) {
-    return {
-      ok: false,
-      message: "Unsupported action.",
-    };
-  }
-
-  if (actionType === "vote-question") {
-    const parsedVoteAction = parseVoteAction(formData);
-    if (!parsedVoteAction.ok) {
-      return {
-        ok: false,
-        message: parsedVoteAction.message,
-      };
-    }
-
-    return submitVoteAction(request, parsedVoteAction);
-  }
-
-  if (actionType === "vote-answer") {
-    const parsedAnswerVoteAction = parseAnswerVoteAction(formData);
-    if (!parsedAnswerVoteAction.ok) {
-      return {
-        ok: false,
-        message: parsedAnswerVoteAction.message,
-      };
-    }
-
-    return submitAnswerVoteAction(request, parsedAnswerVoteAction);
-  }
-
-  if (actionType === "delete-answer") {
-    if (!answerId) {
-      return {
-        ok: false,
-        message: "Answer ID is required.",
-      };
-    }
-
-    return deleteAnswerById(request, answerId);
-  }
-
-  if (!questionId) {
-    return {
-      ok: false,
-      message: "Question ID is required.",
-    };
-  }
-
-  if (actionType === "update-answer") {
-    if (method !== "PATCH") {
-      return {
-        ok: false,
-        message: "Invalid method for updating an answer.",
-      };
-    }
-
-    if (!answerId) {
-      return {
-        ok: false,
-        message: "Answer ID is required.",
-      };
-    }
-
-    if (!body) {
-      return {
-        ok: false,
-        message: "Answer body is required.",
-      };
-    }
-
-    return updateAnswerById(request, answerId, { body });
-  }
-
-  if (actionType === "create-answer" || !actionType) {
-    if (!body) {
-      return {
-        ok: false,
-        message: "Answer body is required.",
-      };
-    }
-
-    return createAnswerByQuestionId(request, { questionId, body });
-  }
-
-  return {
-    ok: false,
-    message: "Unsupported action.",
-  };
 }
 
 // ─── Animation variants ──────────────────────────────────────────────────────
@@ -190,7 +39,7 @@ const fadeUp = {
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 export default function ForumDetailPage() {
-  const { question, answers, user } = useLoaderData<typeof loader>();
+  const { question, answers, userId } = useLoaderData<typeof loader>();
 
   if (!question) {
     return (
@@ -310,13 +159,13 @@ export default function ForumDetailPage() {
 
               <AddAnswerDialog
                 questionId={question.id}
-                isAuthenticated={Boolean(user)}
+                isAuthenticated={Boolean(userId)}
               />
             </div>
           </motion.article>
 
           {answers && answers.length > 0 ? (
-            <AllAnswers answers={answers} user={user} />
+            <AllAnswers answers={answers}  />
           ) : (
             <motion.p
               className="mt-8 text-center text-sm text-[#65758b]"

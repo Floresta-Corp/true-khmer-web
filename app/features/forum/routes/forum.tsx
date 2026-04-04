@@ -3,34 +3,19 @@ import { motion } from "framer-motion";
 import ForumHeader from "../components/sections/ForumHeader";
 import ForumContent from "../components/sections/ForumContent";
 import type { Route } from "./+types/forum";
-import {
-  createForumQuestion,
-  getCategories,
-  getPublicCategories,
-  getPublicQuestionPagination,
-  getPublicTrendingTags,
-  getQuestionPagination,
-  getTrendingTags,
-  updateForumQuestion,
-} from "~/services/forum/server";
-import { validateCreateForumPostForm } from "~/services/forum/utils";
 import { useReducedMotion } from "framer-motion";
-import { getUser } from "~/lib/server/session.server";
 import type {
   CategoriesPicker,
   GetQuestionPaginationResponse,
   Question,
 } from "~/services/forum/types";
-import type { AuthenticatedUser } from "~/lib/server/types";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
-import {
-  deleteQuestionAction,
-  parseVoteAction,
-  submitVoteAction,
-} from "~/services/forum/action";
+import { forumListloader } from "~/routes/api/forum/forumLoader";
+import { forumListAction } from "~/routes/api/forum/forumAction";
 
-const LIMIT = 5;
+const LIMIT = 10;
+export const loader = forumListloader;
+export const action = forumListAction;
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -43,95 +28,8 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const url = new URL(request.url);
-  const cursor = url.searchParams.get("cursor");
-  const tagId = url.searchParams.get("tagId");
-  const categoryId = url.searchParams.get("categoryId");
-  const limit = url.searchParams.get("limit");
-
-  const user = await getUser(request);
-
-  console.log({ user });
-
-  const [question, categoriesResult, tags] = user
-    ? await Promise.all([
-        getQuestionPagination(request, {
-          limit: limit ? Number(limit) : LIMIT,
-          categoryId: categoryId || undefined,
-          tagId: tagId || undefined,
-          cursor: cursor || undefined,
-        }),
-        getCategories(request),
-        getTrendingTags(request),
-      ])
-    : await Promise.all([
-        getPublicQuestionPagination(request, {
-          limit: limit ? Number(limit) : LIMIT,
-          categoryId: categoryId || undefined,
-          tagId: tagId || undefined,
-          cursor: cursor || undefined,
-        }),
-        getPublicCategories(request),
-        getPublicTrendingTags(request),
-      ]);
-
-  return {
-    data: question?.data,
-    categories: categoriesResult?.data?.categories || [],
-    user: (user as AuthenticatedUser) || null,
-    tags: tags?.data?.tags || [],
-  };
-}
-
-export async function action({ request }: Route.ActionArgs) {
-  await requireAuthenticatedUser(request);
-
-  const formData = await request.formData();
-  const actionType = String(formData.get("actionType") ?? "").trim();
-  const method = request.method.toUpperCase();
-
-  if (actionType === "vote-question") {
-    const parsedVoteAction = parseVoteAction(formData);
-    if (!parsedVoteAction.ok) {
-      return {
-        ok: false,
-        message: parsedVoteAction.message,
-      };
-    }
-    return submitVoteAction(request, parsedVoteAction);
-  }
-
-  if (method === "DELETE") {
-    return deleteQuestionAction(request, formData);
-  }
-
-  const validation = validateCreateForumPostForm(formData);
-  if (!validation.success) {
-    return {
-      ok: false,
-      message: validation.message,
-      fieldErrors: validation.fieldErrors,
-    };
-  }
-
-  if (method === "PATCH") {
-    const questionId = String(formData.get("questionId") ?? "").trim();
-    if (!questionId) {
-      return {
-        ok: false,
-        message: "Question ID is required for updating.",
-      };
-    }
-
-    return updateForumQuestion(request, questionId, validation.data);
-  }
-
-  return createForumQuestion(request, validation.data);
-}
-
 export default function ForumPage() {
-  const { data, categories, user, tags } = useLoaderData<typeof loader>();
+  const { data, categories, tags } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof loader>();
   const [searchParams] = useSearchParams();
   const isFirstRenderRef = useRef(true);
@@ -268,11 +166,7 @@ export default function ForumPage() {
           duration: prefersReducedMotion ? 0 : 0.3,
         }}
       >
-        <ForumHeader
-          onSearch={handleSearch}
-          categories={categories}
-          user={user}
-        />
+        <ForumHeader onSearch={handleSearch} categories={categories} />
       </motion.div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -285,7 +179,6 @@ export default function ForumPage() {
       >
         <ForumContent
           tags={tags}
-          user={user}
           selectedCategory={selectedCategory}
           setSelectedCategory={handleCategorySelect}
           selectedTagId={selectedTagId}

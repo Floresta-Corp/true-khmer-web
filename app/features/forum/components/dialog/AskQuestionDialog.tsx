@@ -31,7 +31,7 @@ interface AskQuestionDialogProps {
 export default function AskQuestionDialog({
   categories,
   isEditing,
-  isAuthenticated = true,
+  isAuthenticated = false,
   data,
   trigger,
 }: AskQuestionDialogProps) {

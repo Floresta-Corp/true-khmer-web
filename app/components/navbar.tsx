@@ -16,6 +16,7 @@ import ProfileDropDown from "./profile-dropdown";
 
 interface NavbarProps {
   user: AuthenticatedUser | null;
+  loginRedirectTo?: string;
 }
 
 const navLinks = [
@@ -28,7 +29,7 @@ const navLinks = [
   { to: "/poc", label: "POC", icon: Video },
 ];
 
-export function Navbar({ user }: NavbarProps) {
+export function Navbar({ user, loginRedirectTo }: NavbarProps) {
   const location = useLocation();
 
   return (
@@ -97,7 +98,11 @@ export function Navbar({ user }: NavbarProps) {
             ) : (
               <div className="hidden md:flex items-center gap-2">
                 <Button variant="ghost" size="sm" asChild>
-                  <Link to="/login">Login</Link>
+                  <Link
+                    to={`/login?redirectTo=${encodeURIComponent(loginRedirectTo || "/")}`}
+                  >
+                    Login
+                  </Link>
                 </Button>
                 <Button
                   size="sm"

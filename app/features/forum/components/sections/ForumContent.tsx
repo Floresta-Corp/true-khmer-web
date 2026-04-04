@@ -6,7 +6,6 @@ import type { CategoriesPicker, Question, Tag } from "~/services/forum/types";
 import type { AuthenticatedUser } from "~/lib/server/types";
 
 interface ForumContentProps {
-  user: AuthenticatedUser | null;
   data?: {
     questions: Question[] | undefined;
     hasMore: boolean | undefined;
@@ -22,7 +21,6 @@ interface ForumContentProps {
 }
 
 export default function ForumContent({
-  user,
   data,
   categories,
   onLoadMore,
@@ -75,7 +73,6 @@ export default function ForumContent({
         {/* Main Content */}
         <div className="flex-1 min-w-0">
           <DiscussionThreadSection
-            user={user}
             categories={categories}
             data={data}
             activeTab={activeTab}

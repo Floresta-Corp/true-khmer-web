@@ -34,7 +34,7 @@ interface ReportDialogProps {
 
 export default function ReportDialog({
   postTitle,
-  isAuthenticated = true,
+  isAuthenticated = false,
   onSubmit,
 }: ReportDialogProps) {
   const location = useLocation();
@@ -60,21 +60,17 @@ export default function ReportDialog({
     setOpen(false);
     reset();
   }
-
   const redirectTo = `${location.pathname}${location.search}`;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
 
   if (!isAuthenticated) {
     return (
-      <Link to={loginHref}>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-[22.75px] w-[22.75px] rounded-[3.5px] p-[5.25px] text-[#99a1af] transition-colors hover:bg-transparent hover:text-[#e7000b]"
-        >
-          <Flag className="h-3 w-3" />
-          <span className="sr-only">Report</span>
-        </Button>
+      <Link
+        to={loginHref}
+        className="h-[22.75px] w-[22.75px] rounded-[3.5px] p-[5.25px] text-[#99a1af] transition-colors hover:bg-transparent hover:text-[#e7000b]"
+      >
+        <Flag className="h-3 w-3" />
+        <span className="sr-only">Report</span>
       </Link>
     );
   }
@@ -148,7 +144,7 @@ export default function ReportDialog({
               {REPORT_REASONS.map((reason) => {
                 const isSelected = selectedReason === reason;
                 return (
-                  <button
+                  <Button
                     key={reason}
                     type="button"
                     onClick={() => setSelectedReason(reason)}
@@ -159,7 +155,7 @@ export default function ReportDialog({
                     }`}
                   >
                     {reason}
-                  </button>
+                  </Button>
                 );
               })}
             </div>

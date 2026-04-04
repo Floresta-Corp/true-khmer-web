@@ -21,10 +21,11 @@ export default function AnswerCard({
   answer,
   index = 0,
   isCurrentAuthor,
-  isAuthenticated = true,
+  isAuthenticated = false,
 }: AnswerCardProps) {
   const formattedDate = formatMinutesOrHoursAgo(answer.createdAt);
   const imageUrl = resolveImageURL(answer.author.avatarKey);
+  console.log(answer.viewerVote);
 
   return (
     <motion.article

@@ -6,7 +6,6 @@ import type { AuthenticatedUser } from "~/lib/server/types";
 import QuestionCard from "../card/QuestionCard";
 
 interface DiscussionThreadSectionProps {
-  user: AuthenticatedUser | null;
   categories?: CategoriesPicker[];
   data?: {
     questions: Question[] | undefined;
@@ -22,7 +21,6 @@ interface DiscussionThreadSectionProps {
 }
 
 export function DiscussionThreadSection({
-  user,
   categories,
   data,
   activeTab,
@@ -79,7 +77,6 @@ export function DiscussionThreadSection({
                 question={question}
                 categories={categories ?? []}
                 onCategoryClick={onCategoryClick}
-                user={user}
               />
             );
           })

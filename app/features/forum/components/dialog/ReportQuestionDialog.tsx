@@ -34,7 +34,7 @@ interface ReportQuestionDialogProps {
 
 export default function ReportQuestionDialog({
   questionTitle,
-  isAuthenticated = true,
+  isAuthenticated = false,
   onSubmit,
 }: ReportQuestionDialogProps) {
   const location = useLocation();

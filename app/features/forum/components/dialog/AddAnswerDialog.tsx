@@ -25,7 +25,7 @@ interface AddAnswerDialogProps {
 export default function AddAnswerDialog({
   questionId,
   isEditing,
-  isAuthenticated = true,
+  isAuthenticated = false,
   data,
   trigger,
 }: AddAnswerDialogProps) {

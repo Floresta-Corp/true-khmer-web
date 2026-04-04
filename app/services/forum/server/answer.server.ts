@@ -29,9 +29,9 @@ export async function voteForumAnswer(
 
 export async function getAnswersByQuestionId(request: Request, questionId: string) {
   try {
-    const result = await apiRequestWithOptionalSession<GetAnswersResponse>(
+    const result = await apiRequestWithSession<GetAnswersResponse>(
       request,
-      `/forum/public/answer/get-answers/${questionId}`,
+      `/forum/answer/get-answers/${questionId}`,
       {
         method: "GET",
       },

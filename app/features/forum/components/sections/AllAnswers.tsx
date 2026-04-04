@@ -1,14 +1,15 @@
 import { motion } from "framer-motion";
 import AnswerCard from "../AnswerCard";
-import type { AuthenticatedUser } from "~/lib/server/types";
 import type { Answer } from "~/services/forum/types";
+import type { loader } from "../../routes/forum-detail";
+import { useLoaderData } from "react-router";
 
 interface AllAnswersProps {
   answers: Answer[];
-  user: AuthenticatedUser | null;
 }
 
-export default function AllAnswers({ answers, user }: AllAnswersProps) {
+export default function AllAnswers({ answers }: AllAnswersProps) {
+  const { userId } = useLoaderData<typeof loader>();
   return (
     <motion.section
       className="mt-5 flex flex-col gap-2"
@@ -26,14 +27,14 @@ export default function AllAnswers({ answers, user }: AllAnswersProps) {
       {/* Answer list */}
       <div className="flex flex-col gap-3.5">
         {answers.map((answer, i) => {
-          const isCurrentAuthor = user?.id === answer.author.id ? true : false;
+          const isCurrentAuthor = userId === answer.author.id ? true : false;
           return (
             <AnswerCard
               key={answer.id}
               answer={answer}
               index={i}
               isCurrentAuthor={isCurrentAuthor}
-              isAuthenticated={Boolean(user)}
+              isAuthenticated={Boolean(userId)}
             />
           );
         })}
