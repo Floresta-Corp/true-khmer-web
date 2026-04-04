@@ -22,12 +22,25 @@ export async function loader({ request }: Route.LoaderArgs) {
     const url = new URL(request.url);
     const categoryId = url.searchParams.get("categoryId");
 
-    const [events, categories] = await Promise.all([
-      categoryId ? getEventsByCategory(categoryId) : getEventList(),
-      getEventCategories(),
-    ]);
+    // Fetch categories first so we can validate categoryId against them
+    const categories = await getEventCategories();
 
-    return { events, categories, activeCategoryId: categoryId, error: null };
+    // Only use categoryId if it matches a known category; fall back to all events otherwise
+    const validCategoryId =
+      categoryId && categories.some((c) => c.id === categoryId)
+        ? categoryId
+        : null;
+
+    const events = validCategoryId
+      ? await getEventsByCategory(validCategoryId)
+      : await getEventList();
+
+    return {
+      events,
+      categories,
+      activeCategoryId: validCategoryId,
+      error: null,
+    };
   } catch (err) {
     console.error("All events loader error:", err);
     return {
