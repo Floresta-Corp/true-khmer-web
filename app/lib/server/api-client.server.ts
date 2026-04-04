@@ -172,6 +172,68 @@ export async function apiRequestWithSession<T, K extends object = JsonObject>(
   };
 }
 
+export async function apiRequestPublic<T, K extends object = JsonObject>(
+  request: Request,
+  path: string,
+  options: RequestOptions<K> = {},
+): Promise<ApiResult<T>> {
+  const base = resolveApiBase(request);
+  const url = `${base}${path}`;
+
+  const response = await fetch(url, {
+    method: options.method ?? "GET",
+    headers: {
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
+    },
+    ...(options.body ? { body: JSON.stringify(options.body) } : {}),
+  });
+
+  const payload = await parseJson(response);
+  if (!response.ok) {
+    throw new ProtectedApiError(
+      readErrorMessage(payload, "API request failed."),
+      response.status,
+      typeof payload.code === "string" ? payload.code : undefined,
+      payload,
+    );
+  }
+
+  return { data: payload as T };
+}
+
+function isLoginRedirectResponse(error: unknown): error is Response {
+  if (!(error instanceof Response)) return false;
+  const location = error.headers.get("Location") ?? "";
+  return error.status >= 300 && error.status < 400 && location.startsWith("/login");
+}
+
+export async function apiRequestWithOptionalSession<
+  T,
+  K extends object = JsonObject,
+>(
+  request: Request,
+  path: string,
+  options: RequestOptions<K> = {},
+): Promise<ApiResult<T>> {
+  try {
+    return await apiRequestWithSession<T, K>(request, path, options);
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) {
+      return apiRequestPublic<T, K>(request, path, options);
+    }
+
+    if (isLoginRedirectResponse(error)) {
+      const fallback = await apiRequestPublic<T, K>(request, path, options);
+      return {
+        ...fallback,
+        setCookie: error.headers.get("Set-Cookie") ?? undefined,
+      };
+    }
+
+    throw error;
+  }
+}
+
 export async function apiRequestWithAccessToken<
   T,
   K extends object = JsonObject,

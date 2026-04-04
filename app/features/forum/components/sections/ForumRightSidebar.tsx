@@ -1,15 +1,35 @@
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+
 interface Contributor {
   name: string;
   avatar: string;
   points: number;
 }
 
-interface CommunityGuidelinesProps {
+interface ForumRightSidebarProps {
   contributors?: Contributor[];
   guidelines?: string[];
 }
 
-export default function RightSidebar({
+const fallbackBgClasses = [
+  "bg-slate-700",
+  "bg-blue-700",
+  "bg-indigo-700",
+  "bg-emerald-700",
+  "bg-rose-700",
+  "bg-amber-700",
+];
+
+function getFallbackBgClass(name: string) {
+  const hash = Array.from(name).reduce(
+    (acc, char) => acc + char.charCodeAt(0),
+    0,
+  );
+
+  return fallbackBgClasses[hash % fallbackBgClasses.length];
+}
+
+export default function ForumRightSidebar({
   contributors = [
     {
       name: "Virak Hou",
@@ -47,7 +67,7 @@ export default function RightSidebar({
     "No self-promotion or spamming.",
     "Help others before asking for help.",
   ],
-}: CommunityGuidelinesProps) {
+}: ForumRightSidebarProps) {
   return (
     <div className="flex flex-col gap-5 max-w-sm">
       {/* Top Contributors */}
@@ -63,11 +83,14 @@ export default function RightSidebar({
               key={contributor.name}
               className="flex items-center gap-3 hover:bg-[#f8fafc] rounded-lg p-2 transition-colors cursor-pointer"
             >
-              <img
-                src={contributor.avatar}
-                alt={contributor.name}
-                className="w-8 h-8 rounded-full border border-[#f3f4f6]"
-              />
+              <Avatar className="border border-[#f3f4f6]">
+                <AvatarImage src={contributor.avatar} alt={contributor.name} />
+                <AvatarFallback
+                  className={`${getFallbackBgClass(contributor.name)} text-white text-sm font-semibold`}
+                >
+                  {contributor.name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-[#344256] truncate">
                   {contributor.name}

@@ -1,4 +1,4 @@
-import type { CreateForumPostInput, ForumQuestionStatus } from "./types";
+import type { CreateForumQuestionInput, ForumQuestionStatus } from "./types";
 import { z } from "zod";
 
 export type ForumPostFormFieldErrors = Partial<
@@ -6,7 +6,7 @@ export type ForumPostFormFieldErrors = Partial<
 >;
 
 type ValidateForumPostFormResult =
-  | { success: true; data: CreateForumPostInput }
+  | { success: true; data: CreateForumQuestionInput }
   | {
     success: false;
     fieldErrors: ForumPostFormFieldErrors;
@@ -69,14 +69,14 @@ function parseTags(formData: FormData): string[] {
 
 export function parseCreateForumPostForm(
   formData: FormData,
-): CreateForumPostInput {
+): CreateForumQuestionInput {
   const statusRaw = String(formData.get("status") ?? "PUBLISHED").toUpperCase();
   const status: ForumQuestionStatus = statusRaw === "DRAFT" ? "DRAFT" : "PUBLISHED";
   const categoryId = String(formData.get("categoryId") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
   const tags = parseTags(formData);
-  console.log({ tags })
+
   return {
     categoryId,
     title,

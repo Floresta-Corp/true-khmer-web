@@ -42,6 +42,16 @@ type ResendRegisterOtpResponse = {
   message: string;
 };
 
+type ForgotPasswordResponse = {
+  success: true;
+  message: string;
+};
+
+type ResetPasswordResponse = {
+  success: true;
+  message: string;
+};
+
 export class AuthApiError extends Error {
   status: number;
   details?: AuthErrorDetails;
@@ -235,6 +245,30 @@ export async function refreshAccessToken(
   return authRequest<Pick<AuthTokensResponse, "accessToken" | "refreshToken">>(
     "/auth/refresh",
     { refreshToken },
+    request,
+  );
+}
+
+export async function requestPasswordReset(
+  email: string,
+  resetPageUrl: string,
+  request?: Request,
+) {
+  return authRequest<ForgotPasswordResponse>(
+    "/auth/forgot-password",
+    { email, resetPageUrl },
+    request,
+  );
+}
+
+export async function resetPassword(
+  token: string,
+  newPassword: string,
+  request?: Request,
+) {
+  return authRequest<ResetPasswordResponse>(
+    "/auth/reset-password",
+    { token, newPassword },
     request,
   );
 }

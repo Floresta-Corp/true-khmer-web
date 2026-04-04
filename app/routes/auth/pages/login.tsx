@@ -1,10 +1,18 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Form, Link, useActionData, useSearchParams } from "react-router";
+import {
+  Form,
+  Link,
+  useActionData,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
 import { Lock, Mail } from "lucide-react";
+import { z } from "zod";
 import { FormDivider } from "~/routes/auth/components/form-divider";
 import { FormError } from "~/routes/auth/components/form-error";
 import { GoogleButton } from "~/routes/auth/components/google-button";
+import { InlineMessage } from "~/routes/auth/components/inline-message";
 import { AuthPageShell } from "~/routes/auth/components/page-shell";
 import { PasswordField } from "~/routes/auth/components/password-field";
 import {
@@ -17,21 +25,79 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { sanitizeRedirectPath } from "~/lib/redirects";
 
+const LOGIN_NOTICE_MESSAGES = {
+  reset_password_success: "Password reset completed successfully.",
+} as const;
+
 export const loader = loginLoader;
 export const action = loginAction;
+
+const loginFormSchema = z.object({
+  email: z
+    .email("Please enter a valid email address")
+    .trim()
+    .min(1, "Email is required"),
+  password: z.string().trim().min(1, "Password is required"),
+});
+
+type LoginFieldErrors = {
+  email?: string;
+  password?: string;
+};
+
+function getLoginFieldErrors(values: {
+  email: string;
+  password: string;
+}): LoginFieldErrors {
+  const parsed = loginFormSchema.safeParse(values);
+  if (parsed.success) {
+    return {};
+  }
+
+  const errors: LoginFieldErrors = {};
+  for (const issue of parsed.error.issues) {
+    const field = issue.path[0];
+    if (field === "email" && !errors.email) {
+      errors.email = issue.message;
+    }
+    if (field === "password" && !errors.password) {
+      errors.password = issue.message;
+    }
+  }
+
+  return errors;
+}
+
 export function meta() {
   return [{ title: "Login | True Khmer" }];
 }
 
 export default function LoginPage() {
   const actionData = useActionData<LoginActionData>();
+  const navigation = useNavigation();
   const [searchParams] = useSearchParams();
   const redirectTo = sanitizeRedirectPath(searchParams.get("redirectTo"));
+  const notice = searchParams.get("notice");
+  const successMessage = notice
+    ? (LOGIN_NOTICE_MESSAGES[notice as keyof typeof LOGIN_NOTICE_MESSAGES] ??
+      "")
+    : "";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [clientErrors, setClientErrors] = useState<LoginFieldErrors>({});
+  const isSubmitting = navigation.state === "submitting";
+  const isFormValid = loginFormSchema.safeParse({ email, password }).success;
 
-  const isSignInEnabled = email.trim() !== "" && password.trim() !== "";
+  function validateCurrentValues(nextValues?: {
+    email: string;
+    password: string;
+  }) {
+    const values = nextValues ?? { email, password };
+    const errors = getLoginFieldErrors(values);
+    setClientErrors(errors);
+    return errors;
+  }
 
   return (
     <AuthPageShell>
@@ -88,6 +154,7 @@ export default function LoginPage() {
           <FormDivider />
         </motion.div>
 
+        <InlineMessage tone="success" message={successMessage} />
         <FormError message={actionData?.errors?.form} />
 
         <motion.div
@@ -96,7 +163,16 @@ export default function LoginPage() {
             visible: { opacity: 1, y: 0 },
           }}
         >
-          <Form method="post" className="space-y-6">
+          <Form
+            method="post"
+            className="space-y-6"
+            onSubmit={(event) => {
+              const errors = validateCurrentValues();
+              if (errors.email || errors.password) {
+                event.preventDefault();
+              }
+            }}
+          >
             <input type="hidden" name="redirectTo" value={redirectTo} />
 
             <div className="space-y-2">
@@ -118,14 +194,18 @@ export default function LoginPage() {
                   type="email"
                   autoComplete="email"
                   value={email}
-                  onChange={(event) => setEmail(event.target.value)}
+                  onChange={(event) => {
+                    const nextEmail = event.target.value;
+                    setEmail(nextEmail);
+                    validateCurrentValues({ email: nextEmail, password });
+                  }}
                   placeholder="name@example.com"
                   className="h-11 rounded-lg border-transparent bg-[#F8FAFC] py-2 pl-9 pr-3 text-[12.25px] font-medium text-[#1E293B] placeholder:text-[#C8D6E5] focus-visible:ring-[#2F6FE4]/30 transition-shadow duration-200"
                 />
               </div>
-              {actionData?.errors?.email ? (
+              {clientErrors.email || actionData?.errors?.email ? (
                 <p className="text-xs text-red-500">
-                  {actionData.errors.email}
+                  {clientErrors.email ?? actionData?.errors?.email}
                 </p>
               ) : null}
             </div>
@@ -138,32 +218,31 @@ export default function LoginPage() {
                 icon={Lock}
                 autoComplete="current-password"
                 value={password}
-                onChange={(event) => setPassword(event.target.value)}
+                onChange={(event) => {
+                  const nextPassword = event.target.value;
+                  setPassword(nextPassword);
+                  validateCurrentValues({ email, password: nextPassword });
+                }}
                 placeholder="••••••••"
-                error={actionData?.errors?.password}
+                error={clientErrors.password ?? actionData?.errors?.password}
               />
-
-              <div className="flex justify-end">
-                <Button
-                  type="button"
-                  variant="link"
-                  className="h-auto px-0 text-[13px] font-semibold leading-4 text-[#2F6FE4] hover:text-[#1F62DF] transition-colors"
-                >
-                  Forgot password?
-                </Button>
-              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button
+                asChild
+                variant="link"
+                className="h-auto px-0 text-[13px] font-semibold leading-4 text-[#2F6FE4] hover:text-[#1F62DF]"
+              >
+                <Link to="/forgot-password">Forgot password?</Link>
+              </Button>
             </div>
 
             <Button
               type="submit"
-              disabled={!isSignInEnabled}
-              className={`h-10 w-full rounded-lg text-sm font-medium transition-all duration-300 ${
-                isSignInEnabled
-                  ? "bg-[#2F6FE4] text-white hover:bg-[#1F62DF] hover:shadow-md hover:-translate-y-0.5"
-                  : "cursor-not-allowed bg-[#F1F5F9] text-[#0F172B] opacity-50"
-              }`}
+              disabled={isSubmitting || !isFormValid}
+              className={`h-10 w-full rounded-lg text-sm font-medium transition-all duration-300 ${"bg-[#2F6FE4] text-white hover:bg-[#1F62DF] hover:shadow-md hover:-translate-y-0.5"}`}
             >
-              Sign in
+              {isSubmitting ? "Signing in..." : "Sign in"}
             </Button>
           </Form>
         </motion.div>
