@@ -9,6 +9,8 @@ WORKDIR /app
 RUN bun install --frozen-lockfile --production
 
 FROM oven/bun:1-alpine AS build-env
+ARG VITE_R2_PUBLIC_BASE_URL
+ARG VITE_PLUMPI_WEB
 COPY . /app/
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
 WORKDIR /app
