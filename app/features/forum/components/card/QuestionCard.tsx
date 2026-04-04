@@ -6,38 +6,35 @@ import {
   Share2,
   Trash2,
 } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import QuestionVoteComponent from "./QuestionVoteComponent";
+import QuestionVoteComponent from "../QuestionVoteComponent";
 import type { CategoriesPicker, Question } from "~/services/forum/types";
-import type { AuthenticatedUser } from "~/lib/server/route-guards.server";
-import AskQuestionDialog from "./dialog/AskQuestionDialog";
-import DeleteQuestionDialog from "./dialog/DeleteQuestionDialog";
-import ReportQuestionDialog from "./dialog/ReportQuestionDialog";
+import type { AuthenticatedUser } from "~/lib/server/types";
+import { formatMinutesOrHoursAgo } from "~/lib/time";
+import AskQuestionDialog from "../dialog/AskQuestionDialog";
+import DeleteQuestionDialog from "../dialog/DeleteQuestionDialog";
+import ReportQuestionDialog from "../dialog/ReportQuestionDialog";
+import { resolveImageURL } from "~/lib/utils";
+import { Avatar, AvatarImage } from "~/components/ui/avatar";
+import type { loader } from "../../routes/forum";
 
 interface DiscussionCardProps {
-  user: AuthenticatedUser;
   question: Question;
   categories: CategoriesPicker[];
   onCategoryClick?: (category: CategoriesPicker) => void;
 }
 
 export default function QuestionCard({
-  user,
   question,
   categories,
   onCategoryClick,
 }: DiscussionCardProps) {
-  const createdLabel = new Date(question.createdAt).toLocaleDateString(
-    "en-US",
-    {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    },
-  );
-  const isCurrentAuthor = user.id === question.author.id ? true : false;
+  const { userId } = useLoaderData<typeof loader>();
+  const createdAgoLabel = formatMinutesOrHoursAgo(question.createdAt);
+  const isCurrentAuthor = userId === question.author.id;
+  const profileImage = resolveImageURL(question.author.avatarKey);
 
   return (
     <div className="bg-white border border-[#f1f5f9] rounded-2xl p-4 sm:p-6 w-full hover:shadow-sm transition-shadow">
@@ -70,13 +67,13 @@ export default function QuestionCard({
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           <Clock size={16} className="text-[#9EACC0]" />
           <span className="text-xs text-[#9eacc0] hidden sm:block">
-            {createdLabel}
+            {createdAgoLabel}
           </span>
         </div>
       </div>
 
       {/* Date visible on mobile only */}
-      <p className="text-xs text-[#9eacc0] mb-2 sm:hidden">{createdLabel}</p>
+      <p className="text-xs text-[#9eacc0] mb-2 sm:hidden">{createdAgoLabel}</p>
 
       {/* Title */}
       <h2 className="text-sm sm:text-base font-semibold text-[#030213] mb-2 leading-snug">
@@ -98,10 +95,10 @@ export default function QuestionCard({
         <div className="flex gap-1.5 sm:gap-2 mb-3 sm:mb-4 flex-wrap">
           {question.tags.slice(0, 5).map((tag) => (
             <span
-              key={tag}
+              key={tag.id}
               className="text-xs text-[#99a1af] bg-[#f8fafc] border border-[#f1f5f9] rounded-md px-2 py-0.5"
             >
-              #{tag}
+              #{tag.name}
             </span>
           ))}
         </div>
@@ -151,11 +148,13 @@ export default function QuestionCard({
       <div className="flex justify-between items-center gap-2">
         {/* Author info */}
         <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-          <img
-            src={`https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(question.author.name)}`}
-            alt={question.author.name}
-            className="w-7 h-7 rounded-full border border-[#f3f4f6] shrink-0"
-          />
+          <Avatar className="border border-[#f3f4f6] shrink-0">
+            <AvatarImage
+              src={profileImage}
+              alt={question.author.name}
+              className="object-cover"
+            />
+          </Avatar>
           <div className="flex flex-col gap-0.5 min-w-0">
             <p className="text-xs sm:text-sm font-semibold text-[#344256] truncate">
               {question.author.name}
@@ -174,14 +173,20 @@ export default function QuestionCard({
             viewerVote={question.viewerVote}
           />
 
-          <div className="inline-flex items-center gap-1 text-xs font-medium text-[#99a1af]">
-            <MessageSquare size={12.25} className="text-[#99a1af]" />
+          <Link
+            to={`/forum/${question.id}`}
+            className="group inline-flex items-center gap-1 text-xs font-medium text-[#99a1af] px-2 py-1 rounded-lg cursor-pointer transition-colors hover:text-[#344256] active:text-[#344256]"
+          >
+            <MessageSquare
+              size={12.25}
+              className="text-[#99a1af] group-hover:text-[#344256] group-active:text-[#344256] transition-colors"
+            />
             <span>
               {question.answerCount}
               <span className="hidden sm:inline"> answers</span>
               <span className="sm:hidden"> ans</span>
             </span>
-          </div>
+          </Link>
 
           <div className="h-[22.75px] w-px bg-[#f3f4f6]" />
 
@@ -200,7 +205,10 @@ export default function QuestionCard({
           >
             <Share2 size={12.25} />
           </Button>
-          <ReportQuestionDialog questionTitle={question.title} />
+          <ReportQuestionDialog
+            questionTitle={question.title}
+            isAuthenticated={Boolean(userId)}
+          />
         </div>
       </div>
     </div>

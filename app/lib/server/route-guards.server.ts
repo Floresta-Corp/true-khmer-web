@@ -13,12 +13,7 @@ import {
   getOnboardingState,
   type OnboardingState,
 } from "~/services/onboarding.server";
-
-export type AuthenticatedUser = NonNullable<
-  Awaited<ReturnType<typeof getSessionUser>>
-> & {
-  role?: string;
-};
+import type { AuthenticatedUser } from "./types";
 
 type GuardResult = {
   user: AuthenticatedUser;

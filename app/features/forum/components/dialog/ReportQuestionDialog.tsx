@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AlertTriangle, Flag, X } from "lucide-react";
+import { Link, useLocation } from "react-router";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -27,13 +28,16 @@ type ReportReason = (typeof REPORT_REASONS)[number];
 
 interface ReportQuestionDialogProps {
   questionTitle?: string;
+  isAuthenticated?: boolean;
   onSubmit?: (reason: ReportReason, details: string) => void;
 }
 
 export default function ReportQuestionDialog({
   questionTitle,
+  isAuthenticated = false,
   onSubmit,
 }: ReportQuestionDialogProps) {
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState<ReportReason | null>(
     null,
@@ -55,6 +59,25 @@ export default function ReportQuestionDialog({
     onSubmit?.(selectedReason, details);
     setOpen(false);
     reset();
+  }
+
+  const redirectTo = `${location.pathname}${location.search}`;
+  const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
+
+  if (!isAuthenticated) {
+    return (
+      <Link to={loginHref}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-[22.75px] w-[22.75px] rounded-xl text-[#99a1af] hover:bg-[#f8fafc] hover:text-[#344256]"
+        >
+          <Flag size={12.25} />
+          <span className="sr-only">Report question</span>
+        </Button>
+      </Link>
+    );
   }
 
   return (

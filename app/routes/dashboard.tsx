@@ -21,7 +21,7 @@ import {
   Users,
   FileText,
 } from "lucide-react";
-import { Footer } from "~/components/footer";
+import { resolveImageURL } from "~/lib/utils";
 
 // This loader acts as middleware — it requires auth
 export async function loader({ request }: Route.LoaderArgs) {
@@ -41,6 +41,7 @@ export function meta() {
 export default function DashboardPage() {
   const { user } = useLoaderData<typeof loader>();
   const displayName = user?.name || user.email?.split("@")[0] || "User";
+  const profileImage = resolveImageURL(user?.profile?.avatarKey);
   const capitalizedName =
     displayName.charAt(0).toUpperCase() + displayName.slice(1);
 
@@ -84,7 +85,11 @@ export default function DashboardPage() {
               <div className="flex flex-col md:flex-row items-center md:items-center gap-4 sm:gap-5 w-full md:w-auto">
                 <div className="relative shrink-0">
                   <Avatar className="h-20 w-20 sm:h-20 sm:w-20 border-4 border-white shadow-lg">
-                    <AvatarImage src={user?.avatar} alt={displayName} />
+                    <AvatarImage
+                      src={profileImage}
+                      alt={displayName}
+                      className="object-fill"
+                    />
                     <AvatarFallback className="bg-gray-800 text-white text-2xl font-bold">
                       {displayName.charAt(0).toUpperCase()}
                     </AvatarFallback>

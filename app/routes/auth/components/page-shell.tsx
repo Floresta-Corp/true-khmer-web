@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router";
+import { useNavigate, Link } from "react-router";
 import { cn } from "~/lib/utils";
 
 type AuthPageShellProps = {
@@ -16,18 +16,19 @@ type AuthPageShellProps = {
 export function AuthPageShell({
   children,
   contentClassName,
-  backTo = "/",
   backLabel = "Exit",
   rightPanelContent = "image",
   rightPanelContentClassName,
   showRightPanelOverlay = true,
 }: AuthPageShellProps) {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-[#FFFFFF]">
       <main className="flex h-screen w-full overflow-hidden bg-[#FFFFFF]">
         <section className="relative flex h-full w-full justify-center overflow-y-auto bg-[#FFFFFF] px-5 py-3 lg:w-1/2 lg:px-6 lg:py-3 xl:px-7 xl:py-4">
           <Link
-            to={backTo}
+            to=".."
+            onClick={() => navigate(-1)}
             className="absolute left-5 top-5 z-10 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[1.1px] text-[#99A1AF] transition-colors hover:text-[#637081] lg:left-7 lg:top-7"
           >
             <span className="flex h-7 w-7 items-center justify-center rounded-full border border-[#F3F4F6]">

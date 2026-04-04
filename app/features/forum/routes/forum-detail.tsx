@@ -5,33 +5,18 @@ import AddAnswerDialog from "../components/dialog/AddAnswerDialog";
 import BackToForum from "../components/BackToForum";
 import ForumPostActions from "../components/ForumPostActions";
 import QuestionVoteComponent from "../components/QuestionVoteComponent";
-import TopAnswer from "../components/sections/TopAnswer";
 import AllAnswers from "../components/sections/AllAnswers";
-import type { AnswerData } from "../components/AnswerCard";
-import { Badge } from "~/components/ui/badge";
-import type { Route } from ".react-router/types/app/+types/root";
-import { apiRequestWithSession } from "~/lib/server/api-client.server";
-import type { GetQuestionResponse } from "~/services/forum/types";
+import type { Route } from "./+types/forum-detail";
+import { formatMinutesOrHoursAgo } from "~/lib/time";
+import { resolveImageURL } from "~/lib/utils";
+import { forumDetailLoader } from "~/routes/api/forum/forumLoader";
+import { forumDetailAction } from "~/routes/api/forum/forumAction";
 
-// ─── Loader ─────────────────────────────────────────────────────────────────
-export async function loader({ request, params }: Route.LoaderArgs) {
-  const questionId = params.questionId;
+export const loader = forumDetailLoader;
+export const action = forumDetailAction;
 
-  if (!questionId) {
-    throw new Error("No question ID provided");
-  }
-
-  const question = await apiRequestWithSession<GetQuestionResponse>(
-    request,
-    `/forum/questions/${questionId}`,
-    { method: "GET" },
-  );
-
-  return { question: question.data.question };
-}
-
-export function meta({ data }: Route.MetaArgs) {
-  const title = (data as any)?.data?.question?.title ?? "Forum Discussion";
+export function meta({ loaderData }: Route.MetaArgs) {
+  const title = loaderData?.question?.title ?? "Forum Discussion";
   return [
     { title: `${title} - True Khmer Forum` },
     { name: "description", content: title },
@@ -54,9 +39,7 @@ const fadeUp = {
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 export default function ForumDetailPage() {
-  const { question } = useLoaderData<typeof loader>();
-
-  console.log(question);
+  const { question, answers, userId } = useLoaderData<typeof loader>();
 
   if (!question) {
     return (
@@ -84,11 +67,8 @@ export default function ForumDetailPage() {
     );
   }
 
-  const postedAt = new Date(question.createdAt).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  const postedAt = formatMinutesOrHoursAgo(question.createdAt);
+  const authorProfile = resolveImageURL(question.author.avatarKey);
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
@@ -119,14 +99,6 @@ export default function ForumDetailPage() {
                 <p className="text-xs font-bold leading-4.5 text-[#2f6fe4]">
                   {question.category.name}
                 </p>
-                {question.status && (
-                  <Badge
-                    variant="secondary"
-                    className="text-xs font-semibold bg-[#f0f6ff] text-[#2f6fe4]"
-                  >
-                    {question.status}
-                  </Badge>
-                )}
               </div>
               <p className="inline-flex items-center gap-1 text-xs font-medium text-[#9eacc0]">
                 <Clock3 className="h-3.5 w-3.5" />
@@ -145,12 +117,12 @@ export default function ForumDetailPage() {
             {/* Tags */}
             {question.tags?.length > 0 && (
               <div className="mt-4 flex flex-wrap items-center gap-1.5">
-                {question.tags.map((tag: string) => (
+                {question.tags.map((tag) => (
                   <span
-                    key={tag}
+                    key={tag.id}
                     className="rounded-md border border-[#f1f5f9] bg-[#f8fafc] px-2 py-0.5 text-xs text-[#99a1af]"
                   >
-                    #{tag}
+                    #{tag.name}
                   </span>
                 ))}
               </div>
@@ -162,7 +134,7 @@ export default function ForumDetailPage() {
                 {/* Author */}
                 <div className="flex items-center gap-2.5">
                   <img
-                    src={`https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(question.author.name)}`}
+                    src={authorProfile}
                     alt={question.author.name}
                     className="h-8 w-8 rounded-full border border-[#f3f4f6] object-cover"
                   />
@@ -185,65 +157,26 @@ export default function ForumDetailPage() {
                 />
               </div>
 
-              <AddAnswerDialog />
+              <AddAnswerDialog
+                questionId={question.id}
+                isAuthenticated={Boolean(userId)}
+              />
             </div>
           </motion.article>
 
-          {/* Top answer — fake data for development */}
-          {(() => {
-            const topAnswer: AnswerData = {
-              id: "top-answer-1",
-              body: 'The best approach here is to use the Khmer Unicode standard encoding (U+1780–U+17FF). Make sure your font stack includes Noto Sans Khmer or Khmer OS as a fallback, and set the lang attribute to "km" on the root element so the browser applies the correct shaping engine. This alone resolves most rendering inconsistencies across platforms.',
-              votes: 42,
-              postedAt: "Mar 15, 2025",
-              author: {
-                name: "Dara Sok",
-                role: "Senior Developer",
-                avatarUrl: undefined,
-              },
-            };
-            return <TopAnswer answer={topAnswer} />;
-          })()}
-
-          {/* All answers — fake data for development */}
-          {(() => {
-            const answers: AnswerData[] = [
-              {
-                id: "answer-2",
-                body: "You can also leverage the react-intl library with the Khmer locale (km-KH) for number and date formatting. Pair it with a custom collator (Intl.Collator('km')) for sorting strings correctly — the default JS sort order does not respect Khmer script ordering.",
-                votes: 18,
-                postedAt: "Mar 16, 2025",
-                author: {
-                  name: "Chenda Pich",
-                  role: "Frontend Engineer",
-                  avatarUrl: undefined,
-                },
-              },
-              {
-                id: "answer-3",
-                body: "If you are working with PDF generation, make sure the Khmer font is embedded in the PDF output. Libraries like pdfmake or react-pdf let you pass a custom font file — grab Koh Santepheap from Google Fonts and register it as the default font family for Khmer text blocks.",
-                votes: 9,
-                postedAt: "Mar 17, 2025",
-                author: {
-                  name: "Virak Meas",
-                  role: undefined,
-                  avatarUrl: undefined,
-                },
-              },
-              {
-                id: "answer-4",
-                body: "One gotcha people miss: always normalise Khmer strings to NFC (Unicode canonical composition) before comparing or storing them. JavaScript gives you String.prototype.normalize('NFC') for this. Failing to do so causes duplicate entries in databases when users type the same word through different IME key sequences.",
-                votes: 5,
-                postedAt: "Mar 18, 2025",
-                author: {
-                  name: "Sopheap Rith",
-                  role: "Full-stack Developer",
-                  avatarUrl: undefined,
-                },
-              },
-            ];
-            return <AllAnswers answers={answers} />;
-          })()}
+          {answers && answers.length > 0 ? (
+            <AllAnswers answers={answers}  />
+          ) : (
+            <motion.p
+              className="mt-8 text-center text-sm text-[#65758b]"
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              custom={2}
+            >
+              No answers yet. Be the first to share your knowledge!
+            </motion.p>
+          )}
         </section>
       </main>
     </div>

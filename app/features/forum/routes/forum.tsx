@@ -1,37 +1,23 @@
-import { redirect, useLoaderData, useFetcher } from "react-router";
+import { useLoaderData, useFetcher, useSearchParams } from "react-router";
 import { motion } from "framer-motion";
 import ForumHeader from "../components/sections/ForumHeader";
 import ForumContent from "../components/sections/ForumContent";
 import type { Route } from "./+types/forum";
-import {
-  createForumQuestion,
-  deleteForumQuestion,
-  getCategories,
-  getQuestionPagination,
-  updateForumQuestion,
-  voteForumQuestion,
-} from "~/services/forum/forum.server";
-import { validateCreateForumPostForm } from "~/services/forum/utils";
 import { useReducedMotion } from "framer-motion";
-import {
-  AuthSessionExpiredError,
-  ProtectedApiError,
-  type ApiResult,
-} from "~/lib/server/api-client.server";
-import { getSession, destroySession } from "~/lib/server/session.server";
 import type {
   CategoriesPicker,
-  GetQuestionpaginationResponse,
+  GetQuestionPaginationResponse,
   Question,
-  VoteIntent,
+  QuestionSortBy,
 } from "~/services/forum/types";
-import { useState, useEffect, useCallback } from "react";
-import {
-  getOptionalUser,
-  type AuthenticatedUser,
-} from "~/lib/server/route-guards.server";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { forumListloader } from "~/routes/api/forum/forumLoader";
+import { forumListAction } from "~/routes/api/forum/forumAction";
+import { questionSortBySchema } from "~/services/forum/types";
 
-const LIMIT = 5;
+const LIMIT = 10;
+export const loader = forumListloader;
+export const action = forumListAction;
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -44,125 +30,26 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
-  try {
-    const url = new URL(request.url);
-    const cursor = url.searchParams.get("cursor");
-    const categoryId = url.searchParams.get("categoryId");
-    const limit = url.searchParams.get("limit");
-    const [result, categoriesResult, user] = await Promise.all([
-      getQuestionPagination(request, {
-        limit: limit ? Number(limit) : LIMIT,
-        categoryId: categoryId || undefined,
-        cursor: cursor || undefined,
-      }),
-      getCategories(request),
-      getOptionalUser(request),
-    ]);
-
-    return {
-      data: result?.data,
-      categories: categoriesResult?.data?.categories || [],
-      user: (user.user as AuthenticatedUser) || null,
-    };
-  } catch (error) {
-    console.error({ error });
-    if (error instanceof AuthSessionExpiredError) {
-      const session = await getSession(request);
-      throw redirect("/login", {
-        headers: { "Set-Cookie": await destroySession(session) },
-      });
-    }
-    throw error;
-  }
-}
-
-export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const actionType = String(formData.get("actionType") ?? "").trim();
-
-  if (actionType === "vote-question") {
-    const questionId = String(formData.get("questionId") ?? "").trim();
-    const voteType = String(formData.get("voteType") ?? "")
-      .trim()
-      .toUpperCase();
-
-    if (!questionId) {
-      return {
-        ok: false,
-        message: "Question ID is required for voting.",
-      };
-    }
-
-    if (
-      voteType !== "UPVOTE" &&
-      voteType !== "DOWNVOTE" &&
-      voteType !== "NONE"
-    ) {
-      return {
-        ok: false,
-        message: "Invalid vote type.",
-      };
-    }
-
-    try {
-      return voteForumQuestion(request, questionId, voteType as VoteIntent);
-    } catch (error) {
-      if (error instanceof ProtectedApiError) {
-        return {
-          ok: false,
-          message: error.message || "Failed to submit vote. Please try again.",
-        };
-      }
-
-      return {
-        ok: false,
-        message: "Failed to submit vote. Please try again.",
-      };
-    }
-  }
-
-  const method = request.method.toUpperCase();
-  if (method === "DELETE") {
-    const questionId = String(formData.get("questionId") ?? "").trim();
-    if (!questionId) {
-      return {
-        ok: false,
-        message: "Question ID is required for deleting.",
-      };
-    }
-
-    return deleteForumQuestion(request, questionId);
-  }
-
-  const validation = validateCreateForumPostForm(formData);
-  if (!validation.success) {
-    return {
-      ok: false,
-      message: validation.message,
-      fieldErrors: validation.fieldErrors,
-    };
-  }
-
-  if (method === "PATCH") {
-    const questionId = String(formData.get("questionId") ?? "").trim();
-    if (!questionId) {
-      return {
-        ok: false,
-        message: "Question ID is required for updating.",
-      };
-    }
-
-    return updateForumQuestion(request, questionId, validation.data);
-  }
-
-  const result = await createForumQuestion(request, validation.data);
-  return result;
-}
-
 export default function ForumPage() {
-  const { data, categories, user } = useLoaderData<typeof loader>();
+  const { data, categories, tags, userId } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof loader>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isFirstRenderRef = useRef(true);
+
+  // Initialize filters from URL params
+  const initialCategoryId = searchParams.get("categoryId");
+  const initialTagId = searchParams.get("tagId");
+  const initialSortBy = questionSortBySchema.safeParse(
+    searchParams.get("sortBy"),
+  );
+  const initialCategory =
+    initialCategoryId && categories.length > 0
+      ? categories.find((c) => c.id === initialCategoryId) || {
+          id: "all-categories",
+          name: "All Categories",
+        }
+      : { id: "all-categories", name: "All Categories" };
+
   const [questionList, setQuestionList] = useState<Question[] | undefined>(
     data?.questions,
   );
@@ -172,11 +59,38 @@ export default function ForumPage() {
   const [nextCursor, setNextCursor] = useState<string | undefined>(
     data?.pagination?.nextCursor,
   );
-  const [selectedCategory, setSelectedCategory] = useState<CategoriesPicker>({
-    id: "all-categories",
-    name: "All Categories",
-  });
+  const [selectedCategory, setSelectedCategory] =
+    useState<CategoriesPicker>(initialCategory);
+  const [selectedTagId, setSelectedTagId] = useState<string | undefined>(
+    initialTagId || undefined,
+  );
+  const [activeTab, setActiveTab] = useState<QuestionSortBy>(
+    initialSortBy.success ? initialSortBy.data : "recent",
+  );
   const prefersReducedMotion = useReducedMotion();
+
+  const buildForumQuery = useCallback(
+    (cursor?: string) => {
+      const params = new URLSearchParams({ limit: String(LIMIT) });
+
+      if (cursor) {
+        params.set("cursor", cursor);
+      }
+
+      if (selectedCategory.id !== "all-categories") {
+        params.set("categoryId", selectedCategory.id);
+      }
+
+      if (selectedTagId) {
+        params.set("tagId", selectedTagId);
+      }
+
+      params.set("sortBy", activeTab);
+
+      return `/forum?${params.toString()}`;
+    },
+    [activeTab, selectedCategory.id, selectedTagId],
+  );
 
   // Sync local state from fresh loader data after revalidation
   useEffect(() => {
@@ -187,23 +101,21 @@ export default function ForumPage() {
     }
   }, [data]);
 
+  // Fetch when filters change (but skip the initial mount)
   useEffect(() => {
-    if (selectedCategory.id) {
-      setQuestionList([]);
-      setHasMore(undefined);
-      setNextCursor(undefined);
-
-      if (selectedCategory.id !== "all-categories") {
-        fetcher.load(`/forum?limit=${LIMIT}&categoryId=${selectedCategory.id}`);
-      } else {
-        fetcher.load(`/forum?limit=${LIMIT}`);
-      }
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false;
+      return; // Skip initial fetch since loader already hydrated
     }
-  }, [selectedCategory.id]);
+    setQuestionList([]);
+    setHasMore(undefined);
+    setNextCursor(undefined);
+    fetcher.load(buildForumQuery());
+  }, [buildForumQuery]);
 
   useEffect(() => {
     const fetcherData = fetcher.data?.data as
-      | GetQuestionpaginationResponse
+      | GetQuestionPaginationResponse
       | undefined;
     if (fetcherData) {
       const fetchedQuestions = fetcherData.questions;
@@ -226,13 +138,7 @@ export default function ForumPage() {
     if (hasMore === false) return;
 
     if (nextCursor) {
-      if (selectedCategory && selectedCategory.id !== "all-categories") {
-        fetcher.load(
-          `/forum?limit=${LIMIT}&cursor=${nextCursor}&categoryId=${selectedCategory.id}`,
-        );
-      } else {
-        fetcher.load(`/forum?limit=${LIMIT}&cursor=${nextCursor}`);
-      }
+      fetcher.load(buildForumQuery(nextCursor));
     }
   }, [
     questionList,
@@ -240,20 +146,45 @@ export default function ForumPage() {
     fetcher.load,
     hasMore,
     nextCursor,
-    selectedCategory,
+    buildForumQuery,
   ]);
+
+  const handleCategorySelect = useCallback((category: CategoriesPicker) => {
+    setSelectedCategory(category);
+  }, []);
+
+  const handleTagSelect = useCallback((tagId: string | undefined) => {
+    setSelectedTagId((prev) => (prev === tagId ? undefined : tagId));
+  }, []);
+
+  const handleTabChange = useCallback(
+    (tab: QuestionSortBy) => {
+      setActiveTab(tab);
+
+      const nextParams = new URLSearchParams();
+      nextParams.set("sortBy", tab);
+
+      if (selectedCategory.id !== "all-categories") {
+        nextParams.set("categoryId", selectedCategory.id);
+      }
+
+      if (selectedTagId) {
+        nextParams.set("tagId", selectedTagId);
+      }
+
+      setSearchParams(nextParams, { replace: true });
+    },
+    [selectedCategory.id, selectedTagId, setSearchParams],
+  );
 
   const handleSearch = (query: string) => {
     // TODO: Filter discussions based on search query
-    console.log("Search:", query);
   };
 
   const allQuestion = categories.reduce(
     (acc, category) => acc + (category.questionCount || 0),
     0,
   );
-
-  console.log(data.questions);
 
   return (
     <div className="min-h-screen bg-background">
@@ -277,9 +208,14 @@ export default function ForumPage() {
         }}
       >
         <ForumContent
-          user={user as AuthenticatedUser}
+          userId={userId}
+          tags={tags}
           selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
+          setSelectedCategory={handleCategorySelect}
+          selectedTagId={selectedTagId}
+          setSelectedTagId={handleTagSelect}
+          activeTab={activeTab}
+          setActiveTab={handleTabChange}
           data={{
             hasMore: hasMore,
             questions: questionList,

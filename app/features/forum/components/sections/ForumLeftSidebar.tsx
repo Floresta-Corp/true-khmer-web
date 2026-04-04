@@ -1,14 +1,7 @@
 import { Hash } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import type { CategoriesPicker } from "~/services/forum/types";
-
-export const TRENDING_TOPICS = [
-  "#ImpactKhmerLaunchpad",
-  "#RealEstateTrendsPP",
-  "#VCFundinginSEA",
-  "#Agri-TechOpportunities",
-  "#DigitalNomadLife",
-];
+import { Toggle } from "~/components/ui/toggle";
+import type { CategoriesPicker, Tag } from "~/services/forum/types";
 
 interface CategoriesProps {
   categories?: CategoriesPicker[] | undefined;
@@ -72,7 +65,19 @@ function Categories({
   );
 }
 
-function TrendingTopics() {
+function TrendingTopics({
+  tags,
+  selectedTagId,
+  onTagSelect,
+}: {
+  tags?: Tag[] | undefined;
+  selectedTagId?: string;
+  onTagSelect?: (tag: Tag) => void;
+}) {
+  if (!tags || tags.length === 0) {
+    return null;
+  }
+
   return (
     <div className="bg-white border border-[#f1f5f9] rounded-2xl p-5 w-full">
       {/* Header */}
@@ -83,53 +88,40 @@ function TrendingTopics() {
         </h3>
       </div>
 
-      {/* Topics grid */}
-      <div className="flex flex-col gap-1.75">
-        {TRENDING_TOPICS.map((topic, index) => (
-          <div
-            key={index}
-            className={`flex gap-1.75 flex-wrap ${index % 2 === 0 ? "" : ""}`}
+      {/* Topics badges */}
+      <div className="flex flex-wrap gap-1.75">
+        {tags.map((tag) => (
+          <Toggle
+            key={tag.id}
+            onClick={() => onTagSelect?.(tag)}
+            className={`inline-flex cursor-pointer rounded-lg border px-2 py-1 text-xs font-medium transition-colors`}
+            title={tag.name}
           >
-            <Button
-              variant="ghost"
-              className="bg-[#f8fafc] rounded-2xl px-1.5 py-1 hover:bg-[#f1f5f9] transition-colors"
-              title={topic}
-            >
-              <span className="text-xs font-medium text-[#344256]">
-                {topic}
-              </span>
-            </Button>
-            {index < TRENDING_TOPICS.length - 1 &&
-              (index + 1) % 2 === 0 &&
-              TRENDING_TOPICS[index + 1] && (
-                <Button
-                  variant="ghost"
-                  className="bg-[#f8fafc] rounded-2xl px-1.5 py-1 hover:bg-[#f1f5f9] transition-colors"
-                  title={TRENDING_TOPICS[index + 1]}
-                >
-                  <span className="text-xs font-medium text-[#344256]">
-                    {TRENDING_TOPICS[index + 1]}
-                  </span>
-                </Button>
-              )}
-          </div>
+            #{tag.name}
+          </Toggle>
         ))}
       </div>
     </div>
   );
 }
 
-interface ForumSidebarProps {
+interface ForumLeftSidebarProps {
   categories?: CategoriesPicker[] | undefined;
   selectedCategory?: CategoriesPicker;
   onCategorySelect?: (category: CategoriesPicker) => void;
+  tags?: Tag[] | undefined;
+  selectedTagId?: string;
+  onTagSelect?: (tag: Tag) => void;
 }
 
-export default function ForumSidebar({
+export default function ForumLeftSidebar({
   selectedCategory,
   categories,
+  tags,
   onCategorySelect,
-}: ForumSidebarProps) {
+  selectedTagId,
+  onTagSelect,
+}: ForumLeftSidebarProps) {
   return (
     <div className="flex flex-col gap-5 max-w-sm">
       <Categories
@@ -137,7 +129,11 @@ export default function ForumSidebar({
         selectedCategory={selectedCategory}
         onCategorySelect={onCategorySelect}
       />
-      <TrendingTopics />
+      <TrendingTopics
+        tags={tags}
+        selectedTagId={selectedTagId}
+        onTagSelect={onTagSelect}
+      />
     </div>
   );
 }

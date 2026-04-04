@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Plus, X } from "lucide-react";
-import { useFetcher, useRevalidator } from "react-router";
+import { Link, useFetcher, useLocation, useRevalidator } from "react-router";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -23,6 +23,7 @@ import type { ForumPostFormFieldErrors } from "~/services/forum/utils";
 interface AskQuestionDialogProps {
   categories: CategoryOption[];
   isEditing?: boolean;
+  isAuthenticated?: boolean;
   data?: Question | null;
   trigger?: React.ReactNode;
 }
@@ -30,10 +31,12 @@ interface AskQuestionDialogProps {
 export default function AskQuestionDialog({
   categories,
   isEditing,
+  isAuthenticated = false,
   data,
   trigger,
 }: AskQuestionDialogProps) {
   const fetcher = useFetcher();
+  const location = useLocation();
   const isSubmitting = fetcher.state !== "idle";
   const actionData = fetcher.data as
     | {
@@ -46,7 +49,26 @@ export default function AskQuestionDialog({
   const [open, setOpen] = useState(false);
   const wasSubmitting = useRef(false);
   const revalidator = useRevalidator();
-  const tagsValue = data?.tags?.join(", ") ?? "";
+  const tagsValue =
+    data?.tags?.map((tag) => tag.name).filter(Boolean).join(", ") ?? "";
+  const redirectTo = `${location.pathname}${location.search}`;
+  const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
+
+  if (!isAuthenticated && !isEditing) {
+    if (trigger) {
+      return <Link to={loginHref}>{trigger}</Link>;
+    }
+
+    return (
+      <Link
+        to={loginHref}
+        className="flex h-10 w-full sm:w-auto items-center justify-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca]"
+      >
+        <Plus size={24} />
+        Ask question
+      </Link>
+    );
+  }
 
   useEffect(() => {
     if (fetcher.state === "submitting") {
@@ -76,8 +98,6 @@ export default function AskQuestionDialog({
       }
     }
   }, [fetcher.state, fetcher.data, isEditing, revalidator]);
-
-  console.log(data);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
