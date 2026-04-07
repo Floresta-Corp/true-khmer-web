@@ -1,8 +1,38 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
+type DebouncedFn<TArgs extends unknown[]> = ((...args: TArgs) => void) & {
+  cancel: () => void;
+}
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+export function debounce<TArgs extends unknown[]>(
+  fn: (...args: TArgs) => void,
+  delay = 300,
+): DebouncedFn<TArgs> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+
+  const debounced = (...args: TArgs) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
+
+    timeoutId = setTimeout(() => {
+      fn(...args)
+    }, delay)
+  }
+
+  debounced.cancel = () => {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+      timeoutId = undefined
+    }
+  }
+
+  return debounced
 }
 
 export function resolveImageURL(url?: string, fallback?: string) {

@@ -8,7 +8,7 @@ interface EventCategoryFilterProps {
 export function EventCategoryFilter({ categories }: EventCategoryFilterProps) {
   return (
     <section className="w-full">
-      <div className="mx-4 sm:mx-8 md:mx-16 lg:mx-[131.5px] py-8">
+      <div>
         <div className="mb-6 md:mb-8">
           <h2 className="text-xl md:text-2xl font-bold text-gray-900">
             Browse by categories
@@ -18,7 +18,7 @@ export function EventCategoryFilter({ categories }: EventCategoryFilterProps) {
           </p>
         </div>
         <div
-          className="flex gap-3 md:gap-4 overflow-x-auto p-1 -m-1"
+          className="flex overflow-x-auto p-1 -m-1 items-center justify-between"
           style={{ scrollbarWidth: "none" }}
         >
           {categories.map((category) => (

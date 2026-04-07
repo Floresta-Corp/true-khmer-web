@@ -77,7 +77,7 @@ export default function ReportDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger>
         <Button
           variant="ghost"
           size="icon"
@@ -93,7 +93,7 @@ export default function ReportDialog({
         className="gap-4 rounded-lg border border-[#e2e8f0] bg-white p-6 shadow-lg min-w-lg"
       >
         {/* Close */}
-        <DialogClose asChild>
+        <DialogClose>
           <Button
             variant="ghost"
             size="icon"

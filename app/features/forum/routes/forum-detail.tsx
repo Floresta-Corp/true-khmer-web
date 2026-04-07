@@ -2,15 +2,15 @@ import { Link, useLoaderData } from "react-router";
 import { Clock3 } from "lucide-react";
 import { motion } from "framer-motion";
 import AddAnswerDialog from "../components/dialog/AddAnswerDialog";
-import BackToForum from "../components/BackToForum";
 import ForumPostActions from "../components/ForumPostActions";
 import QuestionVoteComponent from "../components/QuestionVoteComponent";
 import AllAnswers from "../components/sections/AllAnswers";
 import type { Route } from "./+types/forum-detail";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL } from "~/lib/utils";
-import { forumDetailLoader } from "~/routes/api/forum/forumLoader";
-import { forumDetailAction } from "~/routes/api/forum/forumAction";
+import { forumDetailLoader } from "~/routes/api/forum/forum-detail-loader";
+import { forumDetailAction } from "~/routes/api/forum/forum-detail-action";
+import BackToButton from "~/components/back-to-button";
 
 export const loader = forumDetailLoader;
 export const action = forumDetailAction;
@@ -81,7 +81,7 @@ export default function ForumDetailPage() {
             initial="hidden"
             animate="visible"
           >
-            <BackToForum />
+            <BackToButton text="Back to Forum" to="/forum" />
             <ForumPostActions />
           </motion.div>
 
@@ -165,7 +165,7 @@ export default function ForumDetailPage() {
           </motion.article>
 
           {answers && answers.length > 0 ? (
-            <AllAnswers answers={answers}  />
+            <AllAnswers answers={answers} />
           ) : (
             <motion.p
               className="mt-8 text-center text-sm text-[#65758b]"

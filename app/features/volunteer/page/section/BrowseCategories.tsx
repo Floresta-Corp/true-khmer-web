@@ -43,7 +43,7 @@ const categories = [
 
 export function BrowseCategories() {
   return (
-    <section className="w-full bg-gray-50 px-6 py-16 md:px-12 lg:px-[131.5px] lg:py-[70px]">
+    <section className="w-full bg-gray-50 px-6 md:px-12 lg:px-[131.5px]">
       <div className="mx-auto w-full max-w-294.25">
         <header className="mb-9">
           <h2 className="mb-1.75 text-[21px] font-semibold leading-7 tracking-[-0.88px] text-[#030213]">

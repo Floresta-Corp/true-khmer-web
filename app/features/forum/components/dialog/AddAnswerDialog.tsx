@@ -13,6 +13,7 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import type { Answer } from "~/services/forum/types";
+import { Textarea } from "~/components/ui/textarea";
 
 interface AddAnswerDialogProps {
   questionId: string;
@@ -113,7 +114,7 @@ export default function AddAnswerDialog({
         }
       }}
     >
-      <DialogTrigger asChild>
+      <DialogTrigger>
         {trigger || (
           <Button
             variant="outline"
@@ -128,7 +129,7 @@ export default function AddAnswerDialog({
         showCloseButton={false}
         className="max-w-[calc(100%-1rem)] gap-4 overflow-hidden rounded-2xl border border-[#f1f5f9] bg-white p-6 sm:max-w-201"
       >
-        <DialogClose asChild>
+        <DialogClose>
           <Button
             variant="ghost"
             size="icon-sm"
@@ -156,7 +157,7 @@ export default function AddAnswerDialog({
           {isEditing ? (
             <input type="hidden" name="answerId" value={data?.id ?? ""} />
           ) : null}
-          <textarea
+          <Textarea
             name="body"
             placeholder="Share your experience or provide advice..."
             defaultValue={data?.body ?? ""}
@@ -167,7 +168,7 @@ export default function AddAnswerDialog({
                 setBodyError(null);
               }
             }}
-            className="h-20 w-full resize-none rounded-md border border-[#e2e8f0] bg-white px-3 pt-2 text-sm leading-5 text-[#111827] placeholder:text-black/50 focus:outline-none focus:ring-2 focus:ring-[#2f6fe4]/20 aria-invalid:border-red-500"
+            className="h-20 w-full rounded-md border border-[#e2e8f0] bg-white px-3 pt-2 text-sm leading-5 text-[#111827] placeholder:text-black/50 focus:outline-none focus:ring-2 focus:ring-[#2f6fe4]/20 aria-invalid:border-red-500 overflow-x-auto"
           />
           {bodyError ? (
             <p className="mt-1 text-xs text-red-600">{bodyError}</p>

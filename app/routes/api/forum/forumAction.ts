@@ -3,7 +3,7 @@ import { parseVoteAction, submitVoteAction, deleteQuestionAction, parseAnswerVot
 import { updateForumQuestion, createForumQuestion, createAnswerByQuestionId, deleteAnswerById, updateAnswerById } from "~/services/forum/server";
 import { validateCreateForumPostForm } from "~/services/forum/utils";
 import type { Route as ForumRoute } from "../../../features/forum/routes/+types/forum";
-import type { Route as ForumDetailRoute } from "../../../features/forum/routes/+types/forum-detail";
+
 
 
 export async function forumListAction({ request }: ForumRoute.ActionArgs) {
@@ -12,70 +12,9 @@ export async function forumListAction({ request }: ForumRoute.ActionArgs) {
     const formData = await request.formData();
     const actionType = String(formData.get("actionType") ?? "").trim();
     const method = request.method.toUpperCase();
-
-    if (actionType === "vote-question") {
-        const parsedVoteAction = parseVoteAction(formData);
-        if (!parsedVoteAction.ok) {
-            return {
-                ok: false,
-                message: parsedVoteAction.message,
-            };
-        }
-        return submitVoteAction(request, parsedVoteAction);
-    }
-
-    if (method === "DELETE") {
-        return deleteQuestionAction(request, formData);
-    }
-
-    const validation = validateCreateForumPostForm(formData);
-    if (!validation.success) {
-        return {
-            ok: false,
-            message: validation.message,
-            fieldErrors: validation.fieldErrors,
-        };
-    }
-
-    if (method === "PATCH") {
-        const questionId = String(formData.get("questionId") ?? "").trim();
-        if (!questionId) {
-            return {
-                ok: false,
-                message: "Question ID is required for updating.",
-            };
-        }
-
-        return updateForumQuestion(request, questionId, validation.data);
-    }
-
-    return createForumQuestion(request, validation.data);
-}
-
-export async function forumDetailAction({ request, params }: ForumDetailRoute.ActionArgs) {
-    await requireAuthenticatedUser(request);
-
-    const formData = await request.formData();
-    const method = request.method.toUpperCase();
-    const questionId = params.questionId;
+    const questionId = String(formData.get("questionId") ?? "").trim();
     const answerId = String(formData.get("answerId") ?? "").trim();
     const body = String(formData.get("body") ?? "").trim();
-    const actionType = String(formData.get("actionType") ?? "").trim();
-
-    const allowedActionTypes = new Set([
-        "vote-question",
-        "vote-answer",
-        "delete-answer",
-        "update-answer",
-        "create-answer",
-    ]);
-
-    if (actionType && !allowedActionTypes.has(actionType)) {
-        return {
-            ok: false,
-            message: "Unsupported action.",
-        };
-    }
 
     if (actionType === "vote-question") {
         const parsedVoteAction = parseVoteAction(formData);
@@ -85,7 +24,6 @@ export async function forumDetailAction({ request, params }: ForumDetailRoute.Ac
                 message: parsedVoteAction.message,
             };
         }
-
         return submitVoteAction(request, parsedVoteAction);
     }
 
@@ -99,24 +37,6 @@ export async function forumDetailAction({ request, params }: ForumDetailRoute.Ac
         }
 
         return submitAnswerVoteAction(request, parsedAnswerVoteAction);
-    }
-
-    if (actionType === "delete-answer") {
-        if (!answerId) {
-            return {
-                ok: false,
-                message: "Answer ID is required.",
-            };
-        }
-
-        return deleteAnswerById(request, answerId);
-    }
-
-    if (!questionId) {
-        return {
-            ok: false,
-            message: "Question ID is required.",
-        };
     }
 
     if (actionType === "update-answer") {
@@ -144,7 +64,25 @@ export async function forumDetailAction({ request, params }: ForumDetailRoute.Ac
         return updateAnswerById(request, answerId, { body });
     }
 
-    if (actionType === "create-answer" || !actionType) {
+    if (actionType === "delete-answer") {
+        if (!answerId) {
+            return {
+                ok: false,
+                message: "Answer ID is required.",
+            };
+        }
+
+        return deleteAnswerById(request, answerId);
+    }
+
+    if (actionType === "create-answer") {
+        if (!questionId) {
+            return {
+                ok: false,
+                message: "Question ID is required.",
+            };
+        }
+
         if (!body) {
             return {
                 ok: false,
@@ -155,8 +93,32 @@ export async function forumDetailAction({ request, params }: ForumDetailRoute.Ac
         return createAnswerByQuestionId(request, { questionId, body });
     }
 
-    return {
-        ok: false,
-        message: "Unsupported action.",
-    };
+
+
+    if (method === "DELETE") {
+        return deleteQuestionAction(request, formData);
+    }
+
+    const validation = validateCreateForumPostForm(formData);
+    if (!validation.success) {
+        return {
+            ok: false,
+            message: validation.message,
+            fieldErrors: validation.fieldErrors,
+        };
+    }
+
+    if (method === "PATCH") {
+        const questionId = String(formData.get("questionId") ?? "").trim();
+        if (!questionId) {
+            return {
+                ok: false,
+                message: "Question ID is required for updating.",
+            };
+        }
+
+        return updateForumQuestion(request, questionId, validation.data);
+    }
+
+    return createForumQuestion(request, validation.data);
 }

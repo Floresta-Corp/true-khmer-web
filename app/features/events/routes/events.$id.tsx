@@ -15,6 +15,7 @@ import {
 import { EventDetailHero } from "~/features/events/components/event-detail-hero";
 import { EventDetailSidebar } from "~/features/events/components/event-detail-sidebar";
 import { EventTicketList } from "~/features/events/components/event-ticket-list";
+import BackToButton from "~/components/back-to-button";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   return await getEventById(request, params.id);
@@ -74,14 +75,7 @@ export default function EventDetailPage() {
     <div className="min-h-screen bg-gray-50 font-sans">
       {/* Back link */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <Button
-          onClick={goBack}
-          variant="ghost"
-          className="h-auto px-0 py-0 inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600 transition-colors cursor-pointer"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to events
-        </Button>
+        <BackToButton text="Back to events" to="/events" />
       </div>
 
       {/* Hero Image */}

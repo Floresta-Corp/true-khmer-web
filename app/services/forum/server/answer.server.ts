@@ -120,3 +120,14 @@ export async function deleteAnswerById(request: Request, answerId: string) {
 
   return result;
 }
+export async function getMyAnswers(request: Request) {
+  const result = await apiRequestWithSession<GetAnswersResponse>(
+    request,
+    `/forum/answer/my-answers`,
+    {
+      method: "GET",
+    },
+  );
+
+  return result;
+}

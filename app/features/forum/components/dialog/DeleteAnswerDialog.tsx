@@ -54,7 +54,7 @@ export default function DeleteAnswerDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      <DialogTrigger>{trigger}</DialogTrigger>
 
       <DialogContent className="max-w-sm">
         <DialogTitle>Delete answer?</DialogTitle>

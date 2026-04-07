@@ -208,7 +208,6 @@ export default function ForumPage() {
         }}
       >
         <ForumContent
-          userId={userId}
           tags={tags}
           selectedCategory={selectedCategory}
           setSelectedCategory={handleCategorySelect}

@@ -20,7 +20,7 @@ interface NavbarProps {
 }
 
 const navLinks = [
-  { to: "/workspace", label: "Workspace", icon: Briefcase },
+  { to: "/myspace", label: "My Space", icon: Briefcase },
   // { to: "/dashboard", label: "My Journey", icon: Compass },
   { to: "/forum", label: "Forum", icon: MessageSquare },
   { to: "/events", label: "Events", icon: CalendarDays },
@@ -59,7 +59,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                   key={link.to}
                   to={link.to}
                   className={cn(
-                    "relative flex items-center gap-1.5 px-3 py-5 text-sm font-medium transition-colors",
+                    "relative flex items-center gap-1.5 px-3 py-5 text-sm transition-colors",
                     isActive
                       ? "text-blue-600"
                       : "text-gray-600 hover:text-gray-900",

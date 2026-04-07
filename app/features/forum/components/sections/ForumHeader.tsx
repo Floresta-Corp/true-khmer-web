@@ -16,8 +16,9 @@ export default function ForumHeader({
   const { userId } = useLoaderData<typeof loader>();
   const isAuthenticated = Boolean(userId);
   return (
-    <div className="bg-white flex flex-col gap-6 sm:gap-8 items-start px-4 sm:px-8 lg:px-16 xl:px-30 py-8 sm:py-10 lg:py-14 w-full">
+    <div className="max-w-7xl mx-auto bg-white flex flex-col gap-6 sm:gap-8 items-start px-4 sm:px-8 lg:px-16 xl:px-30 py-8 sm:py-10 lg:py-14">
       {/* Header with Title and Button */}
+
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-3 sm:items-end w-full">
         <div className="flex flex-1 flex-col gap-2 sm:gap-3 items-start">
           <h1 className="font-bold text-3xl sm:text-4xl lg:text-5xl leading-tight text-[#0f1729]">

@@ -9,9 +9,9 @@ import {
 import { Link, useLoaderData } from "react-router";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import { Card } from "~/components/ui/card";
 import QuestionVoteComponent from "../QuestionVoteComponent";
 import type { CategoriesPicker, Question } from "~/services/forum/types";
-import type { AuthenticatedUser } from "~/lib/server/types";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import AskQuestionDialog from "../dialog/AskQuestionDialog";
 import DeleteQuestionDialog from "../dialog/DeleteQuestionDialog";
@@ -37,7 +37,7 @@ export default function QuestionCard({
   const profileImage = resolveImageURL(question.author.avatarKey);
 
   return (
-    <div className="bg-white border border-[#f1f5f9] rounded-2xl p-4 sm:p-6 w-full hover:shadow-sm transition-shadow">
+    <Card className="w-full rounded-2xl border-[#f1f5f9] p-4 shadow-none transition-shadow hover:shadow-sm sm:p-6">
       {/* Header with category and metadata */}
       <div className="flex justify-between items-start mb-3 sm:mb-5 gap-2">
         <div className="flex gap-2 items-center flex-wrap">
@@ -211,6 +211,6 @@ export default function QuestionCard({
           />
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

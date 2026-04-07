@@ -1,7 +1,6 @@
-import { getQuestionPagination, getCategories, getTrendingTags, getPublicQuestionPagination, getPublicCategories, getPublicTrendingTags, getAnswersByQuestionId, getPublicAnswersByQuestionId, getPublicQuestionById, getQuestionById } from "~/services/forum/server";
-import { questionSortBySchema } from "~/services/forum/types";
+import { getQuestionPagination, getCategories, getTrendingTags, getPublicQuestionPagination, getPublicCategories, getPublicTrendingTags, getAnswersByQuestionId, getPublicAnswersByQuestionId, getPublicQuestionById, getQuestionById, getMyAnswers } from "~/services/forum/server";
+import { questionSortBySchema, type Answer } from "~/services/forum/types";
 import type { Route as ForumRoute } from "../../../features/forum/routes/+types/forum";
-import type { Route as ForumDetailRoute } from "../../../features/forum/routes/+types/forum-detail";
 import { getUserId } from "../../../lib/server/session.server";
 
 
@@ -43,38 +42,22 @@ export async function forumListloader({ request }: ForumRoute.LoaderArgs) {
       getPublicTrendingTags(request),
     ]);
 
+  console.log(rawSortBy)
+
+  let answers: Answer[] = []
+
+  if (rawSortBy === "myActivity" && userId) {
+    const queryAnswer = await getMyAnswers(request);
+    answers = queryAnswer?.data?.answers || []
+  }
+
+
   return {
     data: question?.data,
     categories: categoriesResult?.data?.categories || [],
     userId: userId || null,
     tags: tags?.data?.tags || [],
+    answers: answers || []
   };
 }
 
-export async function forumDetailLoader({ request, params }: ForumDetailRoute.LoaderArgs) {
-  const questionId = params.questionId;
-
-  if (!questionId) {
-    throw new Error("No question ID provided");
-  }
-
-  const userId = await getUserId(request);
-
-  const [question, answer] = await Promise.all(
-    userId
-      ? [
-        getQuestionById(request, questionId),
-        getAnswersByQuestionId(request, questionId),
-      ]
-      : [
-        getPublicQuestionById(request, questionId),
-        getPublicAnswersByQuestionId(request, questionId),
-      ],
-  );
-
-  return {
-    question: question?.data.question ?? null,
-    answers: answer?.data.answers ?? [],
-    userId: userId || null,
-  };
-}

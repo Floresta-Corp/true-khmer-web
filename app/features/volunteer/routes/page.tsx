@@ -22,6 +22,7 @@ export default function VolunteerPage() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration, delay: prefersReducedMotion ? 0 : 0.08 }}
+        className="lg:pt-17.5"
       >
         <BrowseCategories />
       </motion.div>

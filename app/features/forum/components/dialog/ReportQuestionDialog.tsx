@@ -82,7 +82,7 @@ export default function ReportQuestionDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger>
         <Button
           type="button"
           variant="ghost"

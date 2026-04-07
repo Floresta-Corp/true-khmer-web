@@ -1,28 +1,31 @@
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import type { CategoriesPicker, Question } from "~/services/forum/types";
+import type {
+  CategoriesPicker,
+  Question,
+  QuestionSortBy,
+} from "~/services/forum/types";
 import LoadMore from "../LoadMore";
 import QuestionCardSkeleton from "../card/QuestionCardSkeleton";
-import type { AuthenticatedUser } from "~/lib/server/types";
 import QuestionCard from "../card/QuestionCard";
+import { useLoaderData } from "react-router";
+import type { loader } from "../../routes/forum";
+import MyActivityAnswerList from "./MyActivityAnswerList";
+import ThreadsTitle from "./ThreadsTitle";
 
 interface DiscussionThreadSectionProps {
-  userId: AuthenticatedUser["id"] | null;
   categories?: CategoriesPicker[];
   data?: {
     questions: Question[] | undefined;
     hasMore: boolean | undefined;
   };
-  activeTab: "recent" | "topRated" | "unanswered" | "myActivity";
-  onTabChange?: (
-    tab: "recent" | "topRated" | "unanswered" | "myActivity",
-  ) => void;
+  activeTab: QuestionSortBy;
+  onTabChange?: (tab: QuestionSortBy) => void;
   onCategoryClick?: (category: CategoriesPicker) => void;
   onLoadMore?: () => void;
   isLoading?: boolean;
 }
 
 export function DiscussionThreadSection({
-  userId,
   categories,
   data,
   activeTab,
@@ -34,16 +37,19 @@ export function DiscussionThreadSection({
   const questions = data?.questions ?? [];
   const hasQuestions = questions.length > 0;
   const isEmptyAndLoading = !hasQuestions && Boolean(isLoading);
+  const { userId } = useLoaderData<typeof loader>();
 
   const tabs: Array<{
-    id: DiscussionThreadSectionProps["activeTab"];
+    id: QuestionSortBy;
     label: string;
   }> = [
-    { id: "recent" as const, label: "Recent" },
-    { id: "topRated" as const, label: "Top Rated" },
-    { id: "unanswered" as const, label: "Unanswered" },
+    { id: "recent", label: "Recent" },
+    { id: "topRated", label: "Top Rated" },
+    { id: "unanswered", label: "Unanswered" },
     ...(userId ? [{ id: "myActivity" as const, label: "My Activity" }] : []),
   ];
+
+  const isMyActivityTab = activeTab === "myActivity" && userId ? true : false;
 
   return (
     <div className="flex-1 w-full min-w-0">
@@ -51,16 +57,14 @@ export function DiscussionThreadSection({
         <Tabs
           className="mb-3.5"
           value={activeTab}
-          onValueChange={(value) =>
-            onTabChange?.(value as DiscussionThreadSectionProps["activeTab"])
-          }
+          onValueChange={(value) => onTabChange?.(value as QuestionSortBy)}
         >
           <TabsList variant="line" className="flex-nowrap">
             {tabs.map((tab) => (
               <TabsTrigger
                 key={tab.id}
                 value={tab.id}
-                className="after:-bottom-px h-auto text-sm font-semibold text-[#9eacc0] whitespace-nowrap transition-colors hover:text-[#344256] data-[state=active]:text-[#2f6fe4] data-[state=active]:after:bg-[#2f6fe4]"
+                className="cursor-pointer after:-bottom-px h-auto text-sm font-semibold text-[#9eacc0] whitespace-nowrap transition-colors hover:text-[#344256] data-[state=active]:text-[#2f6fe4] data-[state=active]:after:bg-[#2f6fe4]"
               >
                 {tab.label}
               </TabsTrigger>
@@ -69,7 +73,11 @@ export function DiscussionThreadSection({
         </Tabs>
       </div>
 
+      {/* Listing Answer but only for tab My Activity Only */}
+      {isMyActivityTab && <MyActivityAnswerList isLoading={isLoading} />}
+
       {/* Discussion posts */}
+      {isMyActivityTab && <ThreadsTitle />}
       <div className="flex flex-col gap-4">
         {hasQuestions ? (
           questions.map((question) => {

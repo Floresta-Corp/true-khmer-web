@@ -99,7 +99,7 @@ export function EventCard({ event }: EventCardProps) {
           </div>
 
           {/* Title */}
-          <h3 className="font-bold text-base text-gray-900 mb-1.5 line-clamp-1 group-hover:text-blue-600 transition-colors">
+          <h3 className="font-bold text-base text-gray-900 mb-1.5 line-clamp-1 hover:text-blue-600 transition-colors">
             {event.title}
           </h3>
 

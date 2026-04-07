@@ -10,7 +10,6 @@ import type {
 import type { AuthenticatedUser } from "~/lib/server/types";
 
 interface ForumContentProps {
-  userId: AuthenticatedUser["id"] | null;
   data?: {
     questions: Question[] | undefined;
     hasMore: boolean | undefined;
@@ -28,7 +27,6 @@ interface ForumContentProps {
 }
 
 export default function ForumContent({
-  userId,
   data,
   categories,
   onLoadMore,
@@ -61,7 +59,7 @@ export default function ForumContent({
           ))}
       </div>
 
-      <div className="flex gap-7 max-w-full">
+      <div className="flex gap-7 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Left Sidebar — hidden on mobile/tablet */}
         <div className="hidden lg:block w-56 xl:w-64 shrink-0">
           <ForumLeftSidebar
@@ -79,7 +77,6 @@ export default function ForumContent({
         {/* Main Content */}
         <div className="flex-1 min-w-0">
           <DiscussionThreadSection
-            userId={userId}
             categories={categories}
             data={data}
             activeTab={activeTab}

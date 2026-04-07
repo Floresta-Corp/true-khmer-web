@@ -249,8 +249,8 @@ function OpportunityCard({
 
 export function AvailableOpportunities() {
   return (
-    <section className="w-full bg-white px-6 py-20 md:px-12 lg:px-[112px]">
-      <div className="mx-auto flex w-full max-w-[1216px] flex-col gap-8">
+    <section className="w-full bg-gray-50 px-6 py-14 md:px-12 lg:px-28">
+      <div className="mx-auto flex w-full max-w-304 flex-col gap-8">
         <div className="flex items-center justify-between gap-4">
           <h2 className="text-[32px] font-bold leading-12 text-[#020618]">
             Available Opportunities

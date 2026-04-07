@@ -19,6 +19,7 @@ import type {
   Question,
 } from "~/services/forum/types";
 import type { ForumPostFormFieldErrors } from "~/services/forum/utils";
+import { Textarea } from "~/components/ui/textarea";
 
 interface AskQuestionDialogProps {
   categories: CategoryOption[];
@@ -50,7 +51,10 @@ export default function AskQuestionDialog({
   const wasSubmitting = useRef(false);
   const revalidator = useRevalidator();
   const tagsValue =
-    data?.tags?.map((tag) => tag.name).filter(Boolean).join(", ") ?? "";
+    data?.tags
+      ?.map((tag) => tag.name)
+      .filter(Boolean)
+      .join(", ") ?? "";
   const redirectTo = `${location.pathname}${location.search}`;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
 
@@ -64,6 +68,7 @@ export default function AskQuestionDialog({
         to={loginHref}
         className="flex h-10 w-full sm:w-auto items-center justify-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca]"
       >
+        q
         <Plus size={24} />
         Ask question
       </Link>
@@ -101,9 +106,12 @@ export default function AskQuestionDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger>
         {trigger || (
-          <Button className="flex h-10 w-full sm:w-auto items-center justify-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca]">
+          <Button
+            variant={"default"}
+            className="flex h-10 w-full sm:w-auto items-center justify-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca]"
+          >
             <Plus size={24} />
             Ask question
           </Button>
@@ -116,7 +124,7 @@ export default function AskQuestionDialog({
         showCloseButton={false}
         className="max-w-[calc(100%-1rem)] gap-4 overflow-hidden rounded-lg border border-[#e2e8f0] p-6 shadow-lg sm:max-w-130"
       >
-        <DialogClose asChild>
+        <DialogClose>
           <Button
             variant="ghost"
             size="icon-sm"
@@ -181,12 +189,12 @@ export default function AskQuestionDialog({
             <Label className="text-xs leading-4.5 font-medium text-[#364153]">
               Discussion Details
             </Label>
-            <textarea
+            <Textarea
               name="body"
               placeholder="What are the best resources for learning Khmer business law?"
               defaultValue={data?.body ?? ""}
               aria-invalid={Boolean(fieldErrors?.body)}
-              className="min-h-11 w-full resize-none rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm text-[#344256] placeholder:text-[#9eacc0] outline-none focus:border-[#2f6fe4] aria-invalid:border-red-500"
+              className="h-30 overflow-x-auto max-w-full text-wrap rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm text-[#344256] placeholder:text-[#9eacc0] outline-none focus:border-[#2f6fe4] aria-invalid:border-red-500"
               rows={1}
             />
             {fieldErrors?.body ? (
@@ -211,7 +219,7 @@ export default function AskQuestionDialog({
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <DialogClose asChild>
+            <DialogClose>
               <Button
                 type="button"
                 variant="outline"
