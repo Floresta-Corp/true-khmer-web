@@ -1,5 +1,6 @@
 import { useLoaderData, Link } from "react-router";
 import { useState, useMemo, useEffect } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import type { Route } from "./+types/events";
 import {
   EventCard,
@@ -42,6 +43,7 @@ export function meta() {
 export default function Events() {
   const { events, upcomingEvents, categories, error } =
     useLoaderData<typeof loader>();
+  const prefersReducedMotion = useReducedMotion();
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [locationFilter, setLocationFilter] = useState("Anywhere");
@@ -102,37 +104,55 @@ export default function Events() {
 
   const hasNoResults =
     filteredEvents.length === 0 && filteredUpcoming.length === 0;
+  const duration = prefersReducedMotion ? 0 : 0.35;
 
   return (
     <div className="min-h-screen bg-white font-sans">
       {/* Hero Section */}
-      <EventHero
-        search={searchInput}
-        onSearchChange={setSearchInput}
-        locationFilter={locationFilter}
-        onLocationChange={setLocationFilter}
-        locationOptions={locationOptions}
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration, delay: 0 }}
+      >
+        <EventHero
+          search={searchInput}
+          onSearchChange={setSearchInput}
+          locationFilter={locationFilter}
+          onLocationChange={setLocationFilter}
+          locationOptions={locationOptions}
+        />
+      </motion.div>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {error && (
-          <div className="flex items-center justify-center gap-2 text-red-500 bg-red-50 p-3 md:p-4 rounded-lg mt-4 md:mt-8 mx-4 sm:mx-8 md:mx-16 lg:mx-28.25">
-            <AlertCircle className="w-5 h-5 shrink-0" />
-            <p className="text-sm md:text-base">{error}</p>
-          </div>
-        )}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration, delay: prefersReducedMotion ? 0 : 0.08 }}
+        >
+          {error && (
+            <div className="flex items-center justify-center gap-2 text-red-500 bg-red-50 p-3 md:p-4 rounded-lg mt-4 md:mt-8 mx-4 sm:mx-8 md:mx-16 lg:mx-28.25">
+              <AlertCircle className="w-5 h-5 shrink-0" />
+              <p className="text-sm md:text-base">{error}</p>
+            </div>
+          )}
 
-        {/* Browse by Event Category */}
-        {!error && (
-          <div className="pt-17.5 pb-3.5">
-            <EventCategoryFilter categories={categories} />
-          </div>
-        )}
+          {/* Browse by Event Category */}
+          {!error && (
+            <div className="pt-17.5 pb-3.5">
+              <EventCategoryFilter categories={categories} />
+            </div>
+          )}
+        </motion.div>
 
         {/* All Event */}
         {!error && filteredEvents.length > 0 && (
-          <section className="py-8 md:py-12">
+          <motion.section
+            className="py-8 md:py-12"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration, delay: prefersReducedMotion ? 0 : 0.16 }}
+          >
             <div className="flex items-center justify-between pb-8 md:mb-6">
               <h2 className="text-2xl md:text-4xl font-bold text-gray-900">
                 Events
@@ -149,19 +169,24 @@ export default function Events() {
                 <EventCard key={event.id} event={event} />
               ))}
             </div>
-          </section>
+          </motion.section>
         )}
 
         {/* Empty state */}
         {!error && hasNoResults && (
-          <div className="text-center py-12 md:py-20 px-4">
+          <motion.div
+            className="text-center py-12 md:py-20 px-4"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration, delay: prefersReducedMotion ? 0 : 0.16 }}
+          >
             <p className="text-gray-400 text-base md:text-lg">
               No events found.
             </p>
             <p className="text-gray-400 text-xs md:text-sm mt-1">
               Try adjusting your search or filters.
             </p>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

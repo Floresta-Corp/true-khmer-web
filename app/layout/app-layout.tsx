@@ -3,6 +3,7 @@ import { Navbar } from "~/components/navbar";
 import type { Route } from "./+types/app-layout";
 import { getOptionalUser } from "~/lib/server/route-guards.server";
 import { Footer } from "~/components/footer";
+import { SidebarProvider } from "~/components/ui/sidebar";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const { user, setCookie } = await getOptionalUser(request);
@@ -20,7 +21,6 @@ export default function AppLayout() {
     <>
       <Navbar user={user} loginRedirectTo={location.pathname} />
       <Outlet />
-      <Footer />
     </>
   );
 }

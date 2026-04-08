@@ -1,7 +1,7 @@
-export * from './type/answer';
-export * from './type/category';
-export * from './type/question';
-export * from './type/tags';
+export * from './types/answer';
+export * from './types/category';
+export * from './types/question';
+export * from './types/tags';
 
 
 

@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { BackToStories } from "../back-to-stories";
+import BackToButton from "~/components/back-to-button";
 
 interface PocNavigationSectionProps {
   onWatchVideo?: () => void;
@@ -22,7 +22,7 @@ export function PocNavigationSection({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
-      <BackToStories />
+      <BackToButton to="/poc" text="Back to POCs" />
       <motion.div
         className="flex items-center gap-1 bg-white border border-gray-100 rounded-full px-1 py-1 shadow-sm"
         data-node-id="14300:4269"

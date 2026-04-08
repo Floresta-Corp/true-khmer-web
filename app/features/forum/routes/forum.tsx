@@ -1,7 +1,7 @@
 import { useLoaderData, useFetcher, useSearchParams } from "react-router";
 import { motion } from "framer-motion";
-import ForumHeader from "../components/sections/ForumHeader";
-import ForumContent from "../components/sections/ForumContent";
+import ForumHeader from "../components/sections/forum-header";
+import ForumContent from "../components/sections/forum-content";
 import type { Route } from "./+types/forum";
 import { useReducedMotion } from "framer-motion";
 import type {

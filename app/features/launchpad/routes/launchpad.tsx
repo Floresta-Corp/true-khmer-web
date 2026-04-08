@@ -1,0 +1,36 @@
+import { motion, useReducedMotion } from "motion/react";
+import LaunchpadHeaderSection from "../components/section/launchpad-header-section";
+import { LaunchpadBrowseCategoriesSection } from "../components/section/launchpad-browse-categories-section";
+import { LaunchpadAvailableProjectsSection } from "../components/section/launchpad-available-project-section";
+
+export default function LaunchpadPage() {
+  const prefersReducedMotion = useReducedMotion();
+  const duration = prefersReducedMotion ? 0 : 0.35;
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration, delay: 0 }}
+      >
+        <LaunchpadHeaderSection />
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration, delay: prefersReducedMotion ? 0 : 0.08 }}
+      >
+        <LaunchpadBrowseCategoriesSection />
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration, delay: prefersReducedMotion ? 0 : 0.16 }}
+      >
+        <LaunchpadAvailableProjectsSection />
+      </motion.div>
+    </div>
+  );
+}

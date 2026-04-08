@@ -30,7 +30,7 @@ function ProfileAvatar({
       <AvatarImage
         src={profileImage}
         alt={displayName}
-        className="object-fill"
+        className="object-center"
       />
     </Avatar>
   );
@@ -45,10 +45,10 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="relative flex items-center gap-2.5 h-10 pl-2 pr-2 sm:pr-4 rounded-full bg-gray-100 hover:bg-gray-200 border border-gray-200"
+          className="relative flex items-center gap-2.5 h-10 pl-2 pr-2 sm:pr-4 rounded-full hover:bg-gray-100 border border-gray-200"
         >
           <ProfileAvatar
-            className="h-8 w-8"
+            className="size-6.5"
             profileImage={profileImage}
             displayName={displayName}
           />
@@ -71,7 +71,7 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
           <DropdownMenuItem className="px-5 py-4 rounded-none">
             <Link to="/profile" className="flex items-center gap-3 group">
               <ProfileAvatar
-                className="h-12 w-12"
+                className="size-12"
                 profileImage={profileImage}
                 displayName={displayName}
               />

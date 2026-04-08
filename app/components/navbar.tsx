@@ -20,7 +20,7 @@ interface NavbarProps {
 }
 
 const navLinks = [
-  { to: "/myspace", label: "My Space", icon: Briefcase },
+  { to: "/myspace", label: "My Space", icon: LayoutDashboard },
   // { to: "/dashboard", label: "My Journey", icon: Compass },
   { to: "/forum", label: "Forum", icon: MessageSquare },
   { to: "/events", label: "Events", icon: CalendarDays },

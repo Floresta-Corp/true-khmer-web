@@ -42,8 +42,6 @@ export async function forumListloader({ request }: ForumRoute.LoaderArgs) {
       getPublicTrendingTags(request),
     ]);
 
-  console.log(rawSortBy)
-
   let answers: Answer[] = []
 
   if (rawSortBy === "myActivity" && userId) {

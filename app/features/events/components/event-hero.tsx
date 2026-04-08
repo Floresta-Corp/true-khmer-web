@@ -1,12 +1,5 @@
 import { Link } from "react-router";
-import { Search, Plus, SearchIcon } from "lucide-react";
-import { LocationDropdown } from "./location-dropdown";
-import { Input } from "~/components/ui/input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "~/components/ui/input-group";
+import HeaderSearch from "~/components/header-search";
 
 interface EventHeroProps {
   search: string;
@@ -32,17 +25,23 @@ export function EventHero({
       </div>
 
       <div className="max-w-3xl text-center h-full w-full flex item,s-center justify-center flex-col mx-auto relative">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#174FB4] mb-2 md:mb-3 tracking-tight">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-[#174FB4] mb-2 md:mb-3 tracking-tight">
           Explore. <span className="text-[#32A8FF]">Connect.</span> Organize.
         </h1>
-        <p className="text-sm md:text-base text-gray-500 max-w-md mx-auto mb-6 md:mb-8 leading-relaxed">
+        <p className="text-sm md:text-base text-gray-500 max-w-146.25 mx-auto mb-6 md:mb-8 leading-relaxed">
           Find events worth your time, or create one worth remembering.
         </p>
 
         {/* Search bar */}
 
-        <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-5">
-          <div className="flex-1 flex items-center bg-white rounded-lg h-11 md:h-12 px-4 gap-2 border border-[#F3F4F6]">
+        <div className="flex w-full max-w-196 flex-col gap-5">
+          <div className="flex w-full flex-col items-stretch gap-4 md:flex-row md:items-center md:gap-5.25 mb-5.25">
+            <HeaderSearch
+              postUrl="#"
+              postButton="Organize an Event"
+              inputPlaceholder="Search events by title, venue, or keyword..."
+            />
+            {/* <div className="flex-1 flex items-center bg-white rounded-lg h-11 md:h-12 px-4 gap-2 border border-[#F3F4F6]">
             <InputGroup className="outline-none border-none ring-0 focus-within:ring-0 has-[[data-slot=input-group-control]:focus-visible]:border-transparent has-[[data-slot=input-group-control]:focus-visible]:ring-0">
               <InputGroupInput
                 type="text"
@@ -61,18 +60,19 @@ export function EventHero({
               onChange={onLocationChange}
               locations={locationOptions}
             />
-          </div>
-          <Link
+          </div> */}
+            {/* <Link
             to="#"
             className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg h-11 md:h-12 px-5 transition-colors shrink-0"
           >
             <Plus className="w-4 h-4" />
             <span>Organize an Event</span>
-          </Link>
+          </Link> */}
+          </div>
         </div>
 
         {/* Supported by */}
-        <p className="mt-4 md:mt-5 text-xs text-gray-400 flex items-center justify-center gap-1.5">
+        <p className="text-xs text-gray-400 flex items-center justify-center gap-1.5">
           Supported by{" "}
           <Link
             to={import.meta.env.VITE_PLUMPI_WEB}
