@@ -243,7 +243,7 @@ export async function requireOnboardingIncomplete(request: Request) {
         },
       };
       return {
-        user,
+        user: mergeUserWithOnboardingState(user, fallbackState),
         state: fallbackState,
         setCookie: undefined,
       };
