@@ -97,9 +97,10 @@ function buildUserProfile(
   const existingProfile: Record<string, unknown> = isObject(userRecord.profile)
     ? userRecord.profile
     : {};
+  const profileId = readString(existingProfile.id);
 
   return {
-    id: readString(existingProfile.id),
+    id: profileId || undefined,
     displayName: readString(existingProfile.displayName) || displayName,
     avatarKey:
       readString(rawProfile.avatarKey) || readString(existingProfile.avatarKey),

@@ -13,7 +13,7 @@ export interface AuthenticatedUser {
 }
 
 export interface Profile {
-    id: string;
+    id?: string;
     displayName: string;
     avatarKey: string;
     avatarUrl: string;
