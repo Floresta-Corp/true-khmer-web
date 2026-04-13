@@ -33,8 +33,7 @@ ARG API_BASE_URL
 ENV API_BASE_URL=$API_BASE_URL
 ARG PLUMPI_ENDPOINT
 ENV PLUMPI_ENDPOINT=$PLUMPI_ENDPOINT
-ARG SESSION_SECRET
-ENV SESSION_SECRET=$SESSION_SECRET
+ENV SESSION_SECRET=${SESSION_SECRET}
 
 COPY --from=production-dependencies-env /app/node_modules /app/node_modules
 COPY --from=build-env /app/build /app/build
