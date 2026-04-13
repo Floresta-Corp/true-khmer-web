@@ -9,8 +9,6 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
     define: {
-      "process.env.API_BASE_URL": JSON.stringify(env.API_BASE_URL),
-      "process.env.PLUMPI_ENDPOINT": JSON.stringify(env.PLUMPI_ENDPOINT),
       "process.env.NODE_ENV": JSON.stringify(mode),
     },
   };
