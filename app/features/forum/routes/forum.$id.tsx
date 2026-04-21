@@ -104,7 +104,8 @@ const MOCK_RELATED_DISCUSSIONS = [
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 export default function ForumDetailPage() {
-  const { question, answers, userId } = useLoaderData<typeof loader>();
+  const { question, answers, userId, reportReasons } =
+    useLoaderData<typeof loader>();
   const displayedRelatedDiscussions = MOCK_RELATED_DISCUSSIONS;
 
   if (!question) {
@@ -148,7 +149,6 @@ export default function ForumDetailPage() {
             animate="visible"
           >
             <BackToButton text="Back to Forum" to="/forum" />
-            <ForumPostActions />
           </motion.div>
 
           {/* Main question card */}
@@ -160,10 +160,19 @@ export default function ForumDetailPage() {
           >
             <div className="rounded-2xl border border-[#e1e7ef] bg-white px-8 py-8">
               <ForumDetailQuestionHeader
+                questionId={question.id}
                 authorName={question.author.name}
-                authorAvatar={question.author.avatarKey}
-                category={question.category.name}
-                postedAt={question.createdAt}
+                authorAvatar={authorProfile}
+                category={question.category}
+                postedAt={postedAt}
+                title={question.title}
+                isAuthenticated={Boolean(userId)}
+                reportReasons={
+                  reportReasons.reportingTypes.map((v) => ({
+                    id: v.id,
+                    reason: v.type,
+                  })) || []
+                }
               />
 
               <h1 className="mt-6 text-[40px] leading-10 font-bold tracking-[-0.2px] text-[#2c2f31]">

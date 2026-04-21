@@ -21,6 +21,7 @@ interface AddAnswerDialogProps {
   isAuthenticated?: boolean;
   data?: Pick<Answer, "id" | "body"> | null;
   trigger?: React.ReactNode;
+  replyToAnswer?: string;
 }
 
 export default function AddAnswerDialog({
@@ -29,6 +30,7 @@ export default function AddAnswerDialog({
   isAuthenticated = false,
   data,
   trigger,
+  replyToAnswer,
 }: AddAnswerDialogProps) {
   const fetch = useFetcher();
   const location = useLocation();
@@ -153,6 +155,7 @@ export default function AddAnswerDialog({
             name="actionType"
             value={isEditing ? "update-answer" : "create-answer"}
           />
+          <input type="hidden" name="replyToAnswer" value={replyToAnswer} />
           <input type="hidden" name="questionId" value={questionId} />
           {isEditing ? (
             <input type="hidden" name="answerId" value={data?.id ?? ""} />

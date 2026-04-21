@@ -151,7 +151,23 @@ export default function ForumPage() {
 
   const handleCategorySelect = useCallback((category: CategoriesPicker) => {
     setSelectedCategory(category);
-  }, []);
+
+    const nextParams = new URLSearchParams();
+    nextParams.set("sortBy", activeTab);
+
+    if (category.id !== "all-categories") {
+      nextParams.set("categoryId", category.id);
+    }
+
+    if (selectedTagId) {
+      nextParams.set("tagId", selectedTagId);
+    }
+
+    setSearchParams(nextParams, {
+      replace: true,
+      preventScrollReset: true,
+    });
+  }, [activeTab, selectedTagId, setSearchParams]);
 
   const handleTagSelect = useCallback((tagId: string | undefined) => {
     setSelectedTagId((prev) => (prev === tagId ? undefined : tagId));

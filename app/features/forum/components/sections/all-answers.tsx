@@ -12,13 +12,13 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
   const { userId } = useLoaderData<typeof loader>();
   return (
     <motion.section
-      className="mt-5 flex flex-col gap-2"
+      className="mt-5 flex flex-col gap-6"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
     >
       {/* Heading */}
-      <div className="px-1.75 mb-6 flex items-center">
+      <div className="px-1.75 flex items-center">
         <h2 className="text-[18px] font-medium text-[#2C2F31]">
           All {answers.length} Answers
         </h2>
@@ -28,7 +28,7 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
       </div>
 
       {/* Answer list */}
-      <div className="flex flex-col gap-3.5">
+      <div className="flex flex-col gap-6">
         {answers.map((answer, i) => {
           const isCurrentAuthor = userId === answer.author.id ? true : false;
           return (

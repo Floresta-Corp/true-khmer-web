@@ -29,7 +29,7 @@ export default function AnswerNewCard({
   isCurrentAuthor,
   isAuthenticated = false,
 }: AnswerNewCardProps) {
-  const { reportReasons } = useLoaderData<typeof loader>();
+  const { reportReasons, userId } = useLoaderData<typeof loader>();
   const formattedDate = formatMinutesOrHoursAgo(answer.createdAt);
   const imageUrl = resolveImageURL(answer.author.avatarKey);
   const replyCount = answer.replyCount;
@@ -37,7 +37,7 @@ export default function AnswerNewCard({
   return (
     <>
       <motion.article
-        className="flex flex-col gap-4 rounded-xl bg-white p-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]"
+        className="flex flex-col gap-4 border rounded-xl bg-white p-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{
@@ -129,6 +129,7 @@ export default function AnswerNewCard({
 
             <AddAnswerDialog
               questionId={answer.questionId}
+              replyToAnswer={answer.id}
               isAuthenticated={isAuthenticated}
               trigger={
                 <Button
@@ -157,15 +158,24 @@ export default function AnswerNewCard({
         </div>
       </motion.article>
 
-      {answer.repliedAnswers &&
-        answer.repliedAnswers.map((repliedAnswer, repliedIndex) => (
-          <CommentWrapper
-            isReply
-            isLast={repliedIndex === (answer.repliedAnswers?.length || 0) - 1}
-          >
-            <NestedReplyCard repliedAnswer={repliedAnswer} />
-          </CommentWrapper>
-        ))}
+      {answer.repliedAnswers && (
+        <CommentWrapper>
+          {answer.repliedAnswers.map((repliedAnswer, repliedIndex) => (
+            <CommentWrapper
+              key={repliedAnswer.id}
+              isReply
+              isFirst={repliedIndex === 0}
+              isLast={repliedIndex === answer.repliedAnswers!.length - 1}
+            >
+              <NestedReplyCard
+                repliedAnswer={repliedAnswer}
+                questionId={answer.questionId}
+                isCurrentAuthor={repliedAnswer.author.id === userId}
+              />
+            </CommentWrapper>
+          ))}
+        </CommentWrapper>
+      )}
     </>
   );
 }

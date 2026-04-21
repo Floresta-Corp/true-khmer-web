@@ -3,32 +3,34 @@ import React from "react";
 interface CommentWrapperProps {
   children: React.ReactNode;
   isReply?: boolean;
+  isFirst?: boolean;
   isLast?: boolean;
 }
 
 const CommentWrapper = ({
   children,
   isReply = false,
+  isFirst = false,
   isLast = false,
 }: CommentWrapperProps) => {
-  return (
-    <div className="relative w-full">
-      {/* The Vertical "Spine" Line */}
-      {/* We only hide the bottom half of the line if it's the last child */}
-      {isReply && (
-        <div
-          className={`absolute left-[-26px] w-px bg-slate-200 ${
-            isLast ? "top-0 h-5" : "top-0 bottom-0"
-          }`}
-        />
-      )}
+  const timelineClassName = isReply ? `ml-1 ${!isLast ? "mb-6" : ""}` : "";
 
+  // Determine timeline line styling based on position
+  const getLineClassName = () => {
+    if (!isReply) return "";
+    if (isFirst) return "absolute -left-2 w-0.5 bg-slate-200 -top-1 bottom-0";
+    if (!isLast) return "absolute -left-2 w-0.5 bg-slate-200 -top-6.5 bottom-0";
+    return `absolute -left-2 w-0.5 bg-slate-200 -top-6 h-22`;
+  };
+
+  return (
+    <div className="relative w-full pl-5">
+      {isReply && <div className={getLineClassName()} />}
       {/* The Curved Arrow (Branch) */}
       {isReply && (
-        <div className="absolute left-[-26px] top-5 w-5 h-5 border-l border-b border-slate-200 rounded-bl-xl" />
+        <div className="absolute -left-2 top-15 h-5 w-5 rounded-bl-xl border-b-2 border-l-2 border-slate-200" />
       )}
-
-      <div className={`${isReply ? "ml-8" : ""}`}>{children}</div>
+      <div className={timelineClassName}>{children}</div>
     </div>
   );
 };

@@ -5,6 +5,7 @@ import {
   ThumbsDown,
   ThumbsUp,
 } from "lucide-react";
+import { useNavigate } from "react-router";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -40,6 +41,10 @@ const tabItems: Array<{ label: string; value: QuestionSortBy }> = [
 function DiscussionCard({ question }: { question: Question }) {
   const createdAgoLabel = formatMinutesOrHoursAgo(question.createdAt);
   const profileImage = resolveImageURL(question.author.avatarKey);
+  const navigate = useNavigate();
+  const handleGoToDetail = () => {
+    navigate(`/forum/${question.id}`);
+  };
 
   return (
     <article className="w-full rounded-2xl bg-white p-6 shadow-[0px_4px_24px_0px_rgba(0,0,0,0.04)]">
@@ -52,8 +57,8 @@ function DiscussionCard({ question }: { question: Question }) {
             <span className="font-semibold text-[#2c2f31]">
               {question.author.name}
             </span>
-            <span className="mx-1">• in</span>
-            <span className="font-semibold text-[#1c5dd4]">
+            <span className="mx-1">•</span>
+            <span className="font-semibold text-[#1c5dd4] ">
               {question.category.name}
             </span>
             <span className="mx-1">•</span>
@@ -68,7 +73,10 @@ function DiscussionCard({ question }: { question: Question }) {
         )}
       </div>
 
-      <h3 className="mt-3 text-[22px] font-bold leading-8.25 text-[#2c2f31]">
+      <h3
+        onClick={handleGoToDetail}
+        className="mt-3 cursor-pointer text-[22px] font-bold leading-8.25 text-[#2c2f31] transition-colors hover:text-[#1c5dd4]"
+      >
         {question.title}
       </h3>
       <p className="mt-3 text-sm leading-5.25 text-[#595c5e] line-clamp-2">
@@ -107,7 +115,10 @@ function DiscussionCard({ question }: { question: Question }) {
           </button>
         </div>
 
-        <div className="inline-flex items-center gap-2 text-sm font-bold">
+        <div
+          onClick={handleGoToDetail}
+          className="inline-flex cursor-pointer items-center gap-2 text-sm font-bold transition-colors hover:text-[#1c5dd4]"
+        >
           <MessageCircle className="size-4.5" />
           {question.answerCount} answers
         </div>

@@ -25,6 +25,7 @@ export async function forumDetailAction({
   const questionId = params.questionId;
   const answerId = String(formData.get("answerId") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
+  const replyToAnswer = String(formData.get("replyToAnswer") ?? "").trim();
   const actionType = String(formData.get("actionType") ?? "").trim();
 
   const allowedActionTypes = new Set([
@@ -34,6 +35,7 @@ export async function forumDetailAction({
     "update-answer",
     "create-answer",
     "report-answer",
+    "report-question",
   ]);
 
   if (actionType && !allowedActionTypes.has(actionType)) {
@@ -41,6 +43,34 @@ export async function forumDetailAction({
       ok: false,
       message: "Unsupported action.",
     };
+  }
+
+  if (actionType === "report-question") {
+    const reportQuestionId = String(formData.get("questionId") ?? "").trim();
+    const reportTypeId = String(formData.get("typeId") ?? "").trim();
+    const reportDescription = String(formData.get("description") ?? "").trim();
+
+    if (!reportQuestionId) {
+      return {
+        ok: false,
+        message: "Question ID is required for reporting.",
+      };
+    }
+
+    if (!reportTypeId) {
+      return {
+        ok: false,
+        message: "Report type ID is required.",
+      };
+    }
+
+    const body: SubmitReportInput = {
+      description: reportDescription,
+      typeId: reportTypeId,
+      questionId: reportQuestionId,
+
+    };
+    return SubmitReport(request, body);
   }
 
   if (actionType === "report-answer") {
@@ -171,7 +201,7 @@ export async function forumDetailAction({
       };
     }
 
-    return createAnswerByQuestionId(request, { questionId, body });
+    return createAnswerByQuestionId(request, { questionId, body, replyToAnswer: replyToAnswer });
   }
 
   return {

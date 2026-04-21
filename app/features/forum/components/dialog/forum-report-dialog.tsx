@@ -31,6 +31,7 @@ interface ForumReportDialogProps {
   reportReasons: ReportReasonData[];
   type: ReportDialogType;
   id: string;
+  trigger?: React.ReactNode;
 }
 
 export default function ForumReportDialog({
@@ -39,6 +40,7 @@ export default function ForumReportDialog({
   reportReasons,
   type,
   id,
+  trigger,
 }: ForumReportDialogProps) {
   const location = useLocation();
   const [open, setOpen] = useState(false);
@@ -83,6 +85,10 @@ export default function ForumReportDialog({
   const isSubmitting = fetcher.state === "submitting";
 
   if (!isAuthenticated) {
+    if (trigger) {
+      return <Link to={loginHref}>{trigger}</Link>;
+    }
+
     return (
       <Link
         to={loginHref}
@@ -98,15 +104,17 @@ export default function ForumReportDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="cursor-pointer h-[22.75px] w-[22.75px] rounded-[3.5px] p-[5.25px] text-[#99a1af] transition-colors hover:bg-transparent hover:text-[#e7000b]"
-        >
-          <Flag className="h-3 w-3" />
-          <span className="sr-only">Report</span>
-        </Button>
+      <DialogTrigger asChild>
+        {trigger || (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="cursor-pointer h-[22.75px] w-[22.75px] rounded-[3.5px] p-[5.25px] text-[#99a1af] transition-colors hover:bg-transparent hover:text-[#e7000b]"
+          >
+            <Flag className="h-3 w-3" />
+            <span className="sr-only">Report</span>
+          </Button>
+        )}
       </DialogTrigger>
 
       <DialogContent

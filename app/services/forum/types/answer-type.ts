@@ -5,6 +5,7 @@ import { ViewerVoteSchema } from "~/services/types";
 export const CreateAnswerInputSchema = z.object({
     questionId: z.string(),
     body: z.string().trim().min(1, "Answer body is required."),
+    replyToAnswer: z.string().nullish(),
 });
 
 export type CreateAnswerInput = z.infer<typeof CreateAnswerInputSchema>;
