@@ -19,8 +19,8 @@ interface EventPhoto {
 
 const PLUMPI_ENDPOINT = process.env.PLUMPI_ENDPOINT;
 if (!PLUMPI_ENDPOINT) {
-  throw new Error(
-    "Environment variable PLUMPI_ENDPOINT is not set. Please configure PLUMPI_ENDPOINT to the base URL of the Plumpi API.",
+  console.warn(
+    "PLUMPI_ENDPOINT is not set. Event data requests will fail until it is configured.",
   );
 }
 

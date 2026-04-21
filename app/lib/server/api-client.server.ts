@@ -106,6 +106,7 @@ async function fetchWithBearer<K extends object = JsonObject>(
 
   return fetch(url, {
     method: options.method ?? "GET",
+    credentials: "include",
     headers: {
       Authorization: `Bearer ${accessToken}`,
       ...(options.body ? { "Content-Type": "application/json" } : {}),
@@ -182,6 +183,7 @@ export async function apiRequestPublic<T, K extends object = JsonObject>(
 
   const response = await fetch(url, {
     method: options.method ?? "GET",
+    credentials: "include",
     headers: {
       ...(options.body ? { "Content-Type": "application/json" } : {}),
     },

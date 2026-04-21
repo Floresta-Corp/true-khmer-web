@@ -1,7 +1,7 @@
 import { Trophy } from "lucide-react";
 import { motion } from "framer-motion";
 import AnswerCard from "../answer-card";
-import type { Answer } from "~/services/forum/types";
+import type { Answer } from "~/services/forum/forum-types";
 
 interface TopAnswerProps {
   answer: Answer;

@@ -1,5 +1,5 @@
 import { apiRequestWithOptionalSession, apiRequestWithSession } from "~/lib/server/api-client.server";
-import type { GetTrendingTagsResponse } from "../types";
+import type { GetTrendingTagsResponse } from "../forum-types";
 
 export async function getTrendingTags(request: Request) {
     const result = await apiRequestWithSession<GetTrendingTagsResponse>(

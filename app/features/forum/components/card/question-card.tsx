@@ -11,14 +11,16 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import QuestionVoteComponent from "../question-vote-component";
-import type { CategoriesPicker, Question } from "~/services/forum/types";
+import type { CategoriesPicker, Question } from "~/services/forum/forum-types";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import AskQuestionDialog from "../dialog/ask-question-dialog";
 import DeleteQuestionDialog from "../dialog/delete-question-dialog";
-import ReportQuestionDialog from "../dialog/report-question-dialog";
 import { resolveImageURL } from "~/lib/utils";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import type { loader } from "../../routes/forum";
+import ForumReportDialog, {
+  ReportDialogType,
+} from "../dialog/forum-report-dialog";
 
 interface DiscussionCardProps {
   question: Question;
@@ -31,13 +33,13 @@ export default function QuestionCard({
   categories,
   onCategoryClick,
 }: DiscussionCardProps) {
-  const { userId } = useLoaderData<typeof loader>();
+  const { userId, reportReasons } = useLoaderData<typeof loader>();
   const createdAgoLabel = formatMinutesOrHoursAgo(question.createdAt);
   const isCurrentAuthor = userId === question.author.id;
   const profileImage = resolveImageURL(question.author.avatarKey);
 
   return (
-    <Card className="w-134 rounded-2xl border-[#f1f5f9] p-4 shadow-none transition-shadow hover:shadow-sm sm:p-6">
+    <Card className="w-full max-w-134 rounded-2xl border-[#f1f5f9] p-4 shadow-none transition-shadow hover:shadow-sm sm:p-6">
       {/* Header with category and metadata */}
       <div className="flex justify-between items-start mb-3 sm:mb-5 gap-2">
         <div className="flex gap-2 items-center flex-wrap">
@@ -205,9 +207,17 @@ export default function QuestionCard({
           >
             <Share2 size={12.25} />
           </Button>
-          <ReportQuestionDialog
-            questionTitle={question.title}
+          <ForumReportDialog
+            id={question.id}
+            type={ReportDialogType.QUESTION}
+            title={question.title}
             isAuthenticated={Boolean(userId)}
+            reportReasons={
+              reportReasons?.reportingTypes.map((v) => ({
+                id: v.id,
+                reason: v.type,
+              })) || []
+            }
           />
         </div>
       </div>

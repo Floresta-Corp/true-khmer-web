@@ -10,6 +10,7 @@ const config: Config = {
     extend: {
       colors: {
         primary: "#2F6FE4",
+        "bluegray": "#F8FAFC"
       },
       backgroundImage: {
         // Using a template literal for the 4-quadrant gradient

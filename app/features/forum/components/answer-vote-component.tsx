@@ -4,7 +4,7 @@ import { useFetcher } from "react-router";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
-import { ViewerVote } from "~/services/forum/types";
+import { ViewerVote } from "~/services/types";
 import { cn } from "~/lib/utils";
 
 interface AnswerVoteComponentProps {
@@ -83,7 +83,7 @@ export default function AnswerVoteComponent({
           type="submit"
           variant="ghost"
           className={cn(
-            `flex h-7 w-7 items-center justify-center rounded-xl border border-[#f3f4f6] transition-colors`,
+            `flex h-7 w-7 items-center cursor-pointer justify-center rounded-xl border border-[#f3f4f6] transition-colors`,
             upvoteClassName,
           )}
           disabled={isSubmitting}
@@ -115,7 +115,7 @@ export default function AnswerVoteComponent({
           variant="ghost"
           disabled={isSubmitting}
           className={cn(
-            `flex h-7 w-7 items-center justify-center rounded-xl border border-[#f3f4f6] transition-colors`,
+            `flex h-7 w-7 items-center cursor-pointer justify-center rounded-xl border border-[#f3f4f6] transition-colors`,
             downvoteClassName,
           )}
           aria-label="Down vote answer"

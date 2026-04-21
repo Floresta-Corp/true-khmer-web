@@ -6,7 +6,7 @@ import type {
   Question,
   QuestionSortBy,
   Tag,
-} from "~/services/forum/types";
+} from "~/services/forum/forum-types";
 import type { AuthenticatedUser } from "~/lib/server/types";
 
 interface ForumContentProps {
@@ -59,7 +59,7 @@ export default function ForumContent({
           ))}
       </div>
 
-      <div className="flex gap-7 mx-auto px-4 lg:px-8 justify-center items-start">
+      <div className="flex gap-7 mx-auto px-4 lg:px-8 justify-center items-start w-full">
         {/* Left Sidebar — hidden on mobile/tablet */}
         <div className="hidden lg:block w-56 xl:w-64 shrink-0">
           <ForumLeftSidebar

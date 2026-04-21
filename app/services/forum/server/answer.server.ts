@@ -7,9 +7,9 @@ import type {
   UpdateAnswerInput,
   UpsertAnswerResponse,
   VoteAnswerResponse,
-  VoteIntent,
-} from "../types";
-import { CreateAnswerInputSchema, UpdateAnswerInputSchema } from "../types";
+} from "../forum-types";
+import { CreateAnswerInputSchema, UpdateAnswerInputSchema } from "../forum-types";
+import type { VoteIntent } from "~/services/types";
 
 export async function voteForumAnswer(
   request: Request,

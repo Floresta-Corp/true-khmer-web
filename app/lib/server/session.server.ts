@@ -3,9 +3,12 @@ import { redirect } from "react-router";
 import type { AuthTokensResponse } from "~/services/auth.server";
 import type { AuthenticatedUser } from "./types";
 const SESSION_SECRET =
-  process.env.SESSION_SECRET;
-if (!SESSION_SECRET) {
-  throw new Error("SESSION_SECRET must be set.");
+  process.env.SESSION_SECRET ?? crypto.randomUUID();
+
+if (!process.env.SESSION_SECRET) {
+  console.warn(
+    "SESSION_SECRET is not set. Using an ephemeral secret; sessions will reset on restart.",
+  );
 }
 
 const sessionStorage = createCookieSessionStorage({

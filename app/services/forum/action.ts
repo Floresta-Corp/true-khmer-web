@@ -4,7 +4,7 @@ import {
     voteForumAnswer,
     voteForumQuestion,
 } from "~/services/forum/server";
-import type { VoteIntent } from "~/services/forum/types";
+import type { VoteIntent } from "../types";
 
 const VALID_VOTE_TYPES: readonly VoteIntent[] = ["UPVOTE", "DOWNVOTE", "NONE"];
 

@@ -4,7 +4,7 @@ import { useFetcher } from "react-router";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
-import { ViewerVote } from "~/services/forum/types";
+import { ViewerVote } from "~/services/types";
 
 interface QuestionVoteComponentProps {
   questionId: string;
@@ -78,7 +78,7 @@ export default function QuestionVoteComponent({
         <Button
           type="submit"
           variant="ghost"
-          className={`h-7 w-7 rounded-none ${upvoteClassName}`}
+          className={`cursor-pointer h-7 w-7 rounded-none ${upvoteClassName}`}
           disabled={isSubmitting}
           aria-label="Up vote"
         >
@@ -101,7 +101,7 @@ export default function QuestionVoteComponent({
           type="submit"
           variant="ghost"
           disabled={isSubmitting}
-          className={`h-7 w-7 rounded-none ${downvoteClassName}`}
+          className={`cursor-pointer h-7 w-7 rounded-none ${downvoteClassName}`}
           aria-label="Down vote"
         >
           <ChevronDown className="h-3.5 w-3.5" />

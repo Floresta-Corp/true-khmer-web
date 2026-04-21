@@ -82,6 +82,7 @@ export function useAvatarUpload({
       try {
         const presignResponse = await fetch("/api/uploads/avatar/presign", {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
@@ -95,13 +96,13 @@ export function useAvatarUpload({
         const presign = (await presignResponse
           .json()
           .catch(() => ({}))) as PresignResponse & {
-          details?: { message?: string };
-        };
+            details?: { message?: string };
+          };
         if (!presignResponse.ok || !presign.upload) {
           throw new Error(
             presign.message ||
-              presign.details?.message ||
-              "Upload unavailable, try again.",
+            presign.details?.message ||
+            "Upload unavailable, try again.",
           );
         }
 

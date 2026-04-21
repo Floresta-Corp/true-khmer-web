@@ -2,6 +2,9 @@ import { motion, useReducedMotion } from "motion/react";
 import LaunchpadHeaderSection from "../components/section/launchpad-header-section";
 import { LaunchpadBrowseCategoriesSection } from "../components/section/launchpad-browse-categories-section";
 import { LaunchpadAvailableProjectsSection } from "../components/section/launchpad-available-project-section";
+import { LaunchpadLoader } from "~/routes/api/launchpad/launchpad-loader";
+
+export const loader = LaunchpadLoader;
 
 export default function LaunchpadPage() {
   const prefersReducedMotion = useReducedMotion();

@@ -1,13 +1,7 @@
 import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Plus, X } from "lucide-react";
-import {
-  Link,
-  useFetcher,
-  useLocation,
-  useRevalidator,
-  useSearchParams,
-} from "react-router";
+import { Link, useFetcher, useLocation, useRevalidator } from "react-router";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
@@ -24,8 +18,8 @@ import CategoriesPicker from "../categories-picker";
 import type {
   CategoriesPicker as CategoryOption,
   Question,
-} from "~/services/forum/types";
-import type { ForumPostFormFieldErrors } from "~/services/forum/utils";
+} from "~/services/forum/forum-types";
+import type { ForumPostFormFieldErrors } from "~/services/forum/validation";
 import { Textarea } from "~/components/ui/textarea";
 
 interface AskQuestionDialogProps {

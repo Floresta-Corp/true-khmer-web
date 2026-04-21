@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import AnswerCard from "../answer-card";
-import type { Answer } from "~/services/forum/types";
+import AnswerNewCard from "../card/answer-new-card";
+import type { Answer } from "~/services/forum/forum-types";
 import type { loader } from "../../routes/forum.$id";
 import { useLoaderData } from "react-router";
 
@@ -18,10 +18,13 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
       transition={{ duration: 0.35, delay: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
     >
       {/* Heading */}
-      <div className="px-1.75">
-        <h2 className="text-[13px] font-semibold uppercase tracking-[1.3px] text-[#99a1af]">
-          All Answers ({answers.length})
+      <div className="px-1.75 mb-6 flex items-center">
+        <h2 className="text-[18px] font-medium text-[#2C2F31]">
+          All {answers.length} Answers
         </h2>
+        <div className="text-[14px]">
+          <p className="font-semibold text-[#595C5E]">Sort by:</p>
+        </div>
       </div>
 
       {/* Answer list */}
@@ -29,7 +32,7 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
         {answers.map((answer, i) => {
           const isCurrentAuthor = userId === answer.author.id ? true : false;
           return (
-            <AnswerCard
+            <AnswerNewCard
               key={answer.id}
               answer={answer}
               index={i}

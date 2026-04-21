@@ -1,14 +1,18 @@
 import { motion } from "framer-motion";
 import { Pencil, Trash2 } from "lucide-react";
-import ReportDialog from "./dialog/report-dialog";
+import ForumReportDialog, {
+  ReportDialogType,
+} from "./dialog/forum-report-dialog";
 import AnswerVoteComponent from "./answer-vote-component";
-import type { Answer } from "~/services/forum/types";
+import type { Answer } from "~/services/forum/forum-types";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import AddAnswerDialog from "./dialog/add-answer-dialog";
 import DeleteAnswerDialog from "./dialog/delete-answer-dialog";
 import { Button } from "~/components/ui/button";
 import { resolveImageURL } from "~/lib/utils";
 import { Separator } from "~/components/ui/separator";
+import { useLoaderData } from "react-router";
+import type { loader } from "../routes/forum.$id";
 
 interface AnswerCardProps {
   answer: Answer;
@@ -23,6 +27,7 @@ export default function AnswerCard({
   isCurrentAuthor,
   isAuthenticated = false,
 }: AnswerCardProps) {
+  const { reportReasons } = useLoaderData<typeof loader>();
   const formattedDate = formatMinutesOrHoursAgo(answer.createdAt);
   const imageUrl = resolveImageURL(answer.author.avatarKey);
 
@@ -116,11 +121,15 @@ export default function AnswerCard({
                   </div>
                 </div>
               ) : (
-                <ReportDialog
+                <ForumReportDialog
+                  title={answer.body}
+                  id={answer.id}
+                  type={ReportDialogType.ANSWER}
+                  reportReasons={reportReasons.reportingTypes.map((v) => ({
+                    id: v.id,
+                    reason: v.type,
+                  }))}
                   isAuthenticated={isAuthenticated}
-                  onSubmit={() => {
-                    // Implement submit logic here...
-                  }}
                 />
               )}
             </div>

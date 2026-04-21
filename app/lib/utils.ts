@@ -51,3 +51,15 @@ export function resolveImageURL(url?: string, fallback?: string) {
   }
   return `${baseUrl}/${url}`;
 }
+
+export const convertFileSize = (sizeInKB: number) => {
+  if (sizeInKB < 1024) {
+    return `${sizeInKB.toFixed(2)} KB`;
+  } else if (sizeInKB < 1024 * 1024) {
+    const sizeInMB = sizeInKB / 1024;
+    return `${sizeInMB.toFixed(2)} MB`;
+  } else {
+    const sizeInGB = sizeInKB / (1024 * 1024);
+    return `${sizeInGB.toFixed(2)} GB`;
+  }
+}

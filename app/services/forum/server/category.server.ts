@@ -1,5 +1,5 @@
 import { apiRequestWithOptionalSession, apiRequestWithSession } from "~/lib/server/api-client.server";
-import type { GetCategoriesListResponse } from "../types";
+import type { GetCategoriesListResponse } from "../forum-types";
 
 export async function getCategories(request: Request) {
   const result = await apiRequestWithSession<GetCategoriesListResponse>(

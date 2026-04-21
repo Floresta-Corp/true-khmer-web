@@ -1,9 +1,16 @@
-import BackToButton from "~/components/back-to-button";
+import { LaunchpadDetailLoader } from "~/routes/api/launchpad/launchpad-detail-loader";
+import type { Route } from "./+types/launchpad.$id";
+import LaunchpadPostPage from "../pages/launchpad-post-page";
+import LaunchpadProjectDetailPage from "../pages/launchpad-project-detail-page";
 
-export default function LaunchpadDetailPage() {
+export const loader = LaunchpadDetailLoader;
+
+export default function LaunchpadDetailPage({ params }: Route.ComponentProps) {
+  const { id } = params;
+
   return (
     <>
-      <BackToButton text={"Back to launchpad"} to={"/launchpad"} />
+      {id === "post" ? <LaunchpadPostPage /> : <LaunchpadProjectDetailPage />}
     </>
   );
 }

@@ -5,8 +5,8 @@ import type {
     GetQuestionPaginationResponse,
     GetQuestionResponse,
     QuestionSortBy,
-    VoteIntent,
-} from "../types";
+} from "../forum-types";
+import type { VoteIntent } from "~/services/types";
 
 export interface QuestionPaginationParams {
     cursor?: string;

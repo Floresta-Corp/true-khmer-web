@@ -1,6 +1,6 @@
 import { ChevronDown, Plus, Search } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import {
@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import type { loader } from "../../routes/volunteer";
 
 const LOCATIONS = [
   { value: "anywhere", label: "Anywhere" },
@@ -18,7 +19,11 @@ const LOCATIONS = [
 ];
 
 export default function VolunteerHeader() {
+  const { userId } = useLoaderData<typeof loader>();
   const [location, setLocation] = useState(LOCATIONS[0]);
+  const linkTo = userId
+    ? "/volunteer/post"
+    : "/login?redirectTo=/volunteer/post";
 
   return (
     <section className="flex w-full items-center justify-center bg-linear-to-r from-sky-100 to-white px-4 py-12 md:h-125 md:px-6 md:py-0">
@@ -63,10 +68,10 @@ export default function VolunteerHeader() {
                 </DropdownMenu>
               </div>
             </div>
-            <Link to="/volunteer/post" className="w-full md:w-auto">
+            <Link to={linkTo} className="w-full md:w-auto">
               <Button
                 size="lg"
-                className="h-14 w-full min-w-0 gap-1.5 rounded-lg bg-[#2f6fe4] px-6 text-sm font-medium text-[#f8fafc] hover:bg-[#245fca] md:min-w-47.75 md:w-auto"
+                className="cursor-pointer h-14 w-full min-w-0 gap-1.5 rounded-lg bg-[#2f6fe4] px-6 text-sm font-medium text-[#f8fafc] hover:bg-[#245fca] md:min-w-47.75 md:w-auto"
               >
                 <Plus className="size-4" />
                 Post opportunity

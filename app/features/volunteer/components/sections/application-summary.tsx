@@ -22,7 +22,7 @@ export default function ApplicationSummary({
   role,
 }: ApplicationSummaryProps) {
   return (
-    <aside className="h-fit rounded-[14px] border border-[#e1e7ef] bg-white p-8 xl:sticky xl:top-24">
+    <aside className="rounded-[14px] border border-[#e1e7ef] bg-white p-8 h-fit xl:sticky xl:top-24">
       <h2 className="text-lg font-semibold tracking-[-0.44px] text-[#030213]">
         Application Summary
       </h2>

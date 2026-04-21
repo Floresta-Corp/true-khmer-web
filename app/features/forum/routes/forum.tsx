@@ -9,11 +9,11 @@ import type {
   GetQuestionPaginationResponse,
   Question,
   QuestionSortBy,
-} from "~/services/forum/types";
+} from "~/services/forum/forum-types";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { forumListloader } from "~/routes/api/forum/forumLoader";
-import { forumListAction } from "~/routes/api/forum/forumAction";
-import { questionSortBySchema } from "~/services/forum/types";
+import { forumListloader } from "~/routes/api/forum/forum-loader";
+import { forumListAction } from "~/routes/api/forum/forum-action";
+import { questionSortBySchema } from "~/services/forum/forum-types";
 
 const LIMIT = 10;
 export const loader = forumListloader;
@@ -31,7 +31,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function ForumPage() {
-  const { data, categories, tags, userId } = useLoaderData<typeof loader>();
+  const { data, categories, tags } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
   const isFirstRenderRef = useRef(true);
@@ -56,7 +56,7 @@ export default function ForumPage() {
   const [hasMore, setHasMore] = useState<boolean | undefined>(
     data?.pagination?.hasMore,
   );
-  const [nextCursor, setNextCursor] = useState<string | undefined>(
+  const [nextCursor, setNextCursor] = useState<string | null | undefined>(
     data?.pagination?.nextCursor,
   );
   const [selectedCategory, setSelectedCategory] =
@@ -97,7 +97,7 @@ export default function ForumPage() {
     if (data?.questions) {
       setQuestionList(data.questions);
       setHasMore(data.pagination?.hasMore);
-      setNextCursor(data.pagination?.nextCursor);
+      setNextCursor(data.pagination?.nextCursor ?? undefined);
     }
   }, [data]);
 
@@ -128,7 +128,7 @@ export default function ForumPage() {
       });
       const pagination = fetcherData.pagination;
       setHasMore(pagination.hasMore);
-      setNextCursor(pagination.nextCursor);
+      setNextCursor(pagination.nextCursor ?? undefined);
     }
   }, [fetcher.data?.data]);
 
@@ -172,7 +172,10 @@ export default function ForumPage() {
         nextParams.set("tagId", selectedTagId);
       }
 
-      setSearchParams(nextParams, { replace: true });
+      setSearchParams(nextParams, {
+        replace: true,
+        preventScrollReset: true,
+      });
     },
     [selectedCategory.id, selectedTagId, setSearchParams],
   );

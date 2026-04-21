@@ -1,31 +1,55 @@
 import { getUserId } from "~/lib/server/session.server";
-import { getQuestionById, getAnswersByQuestionId, getPublicQuestionById, getPublicAnswersByQuestionId } from "~/services/forum/server";
-import type { Route as ForumDetailRoute } from "../../../features/forum/routes/+types/forum-detail";
+import {
+  getQuestionById,
+  getAnswersByQuestionId,
+  getPublicQuestionById,
+  getPublicAnswersByQuestionId,
+  GetPublicReportType,
+} from "~/services/forum/server";
+import type {
+  Answer,
+  GetPublicReportType as GetPublicReportTypeResponse,
+  Question,
+} from "~/services/forum/forum-types";
+import type { Route as ForumDetailRoute } from "project-types/forum/routes/+types/forum.$id";
 
-export async function forumDetailLoader({ request, params }: ForumDetailRoute.LoaderArgs) {
-    const questionId = params.questionId;
+type ForumDetailLoaderData = {
+  question: Question | null;
+  answers: Answer[];
+  userId: string | null;
+  reportReasons: GetPublicReportTypeResponse;
+};
 
-    if (!questionId) {
-        throw new Error("No question ID provided");
-    }
+export async function forumDetailLoader({
+  request,
+  params,
+}: ForumDetailRoute.LoaderArgs) {
+  const questionId = params.questionId;
+  if (!questionId) {
+    throw new Error("No question ID provided");
+  }
 
-    const userId = await getUserId(request);
+  const userId = await getUserId(request);
 
-    const [question, answer] = await Promise.all(
-        userId
-            ? [
-                getQuestionById(request, questionId),
-                getAnswersByQuestionId(request, questionId),
-            ]
-            : [
-                getPublicQuestionById(request, questionId),
-                getPublicAnswersByQuestionId(request, questionId),
-            ],
+  const [questionResult, answersResult, reportReasonsResult] =
+    await Promise.all(
+      userId
+        ? [
+          getQuestionById(request, questionId),
+          getAnswersByQuestionId(request, questionId),
+          GetPublicReportType(request),
+        ]
+        : [
+          getPublicQuestionById(request, questionId),
+          getPublicAnswersByQuestionId(request, questionId),
+          GetPublicReportType(request),
+        ],
     );
 
-    return {
-        question: question?.data.question ?? null,
-        answers: answer?.data.answers ?? [],
-        userId: userId || null,
-    };
+  return {
+    question: questionResult?.data.question ?? null,
+    answers: answersResult?.data.answers ?? [],
+    userId: userId ?? null,
+    reportReasons: reportReasonsResult.data as GetPublicReportTypeResponse,
+  } satisfies ForumDetailLoaderData;
 }

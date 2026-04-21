@@ -13,7 +13,7 @@ import { useLoaderData, Link } from "react-router";
 import type { loader } from "../../routes/forum";
 import { Button } from "~/components/ui/button";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
-import type { Answer } from "~/services/forum/types";
+import type { Answer } from "~/services/forum/forum-types";
 import DeleteAnswerDialog from "../dialog/delete-answer-dialog";
 import AddAnswerDialog from "../dialog/add-answer-dialog";
 import AnswerCardSkeleton from "../card/answer-card-skeleton";
@@ -45,7 +45,7 @@ export default function MyActivityAnswerList({
 
   if (isLoading && (!answers || answers.length === 0)) {
     return (
-      <div className="bb-3.75">
+      <div className="pb-3.75">
         <ThreadsTitle
           icon={<Reply className="size-2.5" />}
           title="My answers"
@@ -78,13 +78,13 @@ export default function MyActivityAnswerList({
         {answers.map((answer: Answer) => (
           <Card
             key={answer.id}
-            className="w-134 rounded-3xl border-[#f3f4f6] p-6 shadow-none"
+            className="w-full max-w-134 rounded-3xl border-[#f3f4f6] p-4 shadow-none sm:p-6"
           >
             <CardContent className="p-0 space-y-4">
               {/* Header with Answer label and timestamp */}
-              <div className="flex justify-between items-start">
+              <div className="flex flex-wrap items-start justify-between gap-2">
                 <p className="text-xs font-bold text-[#2f6fe4]">Answer</p>
-                <div className="flex items-center gap-1.5 text-[#9eacc0]">
+                <div className="flex items-center gap-1.5 text-[#9eacc0] sm:ml-auto">
                   <Clock size={16} className="shrink-0" />
                   <span className="text-xs font-medium">
                     {formatMinutesOrHoursAgo(answer.createdAt)}
@@ -98,13 +98,13 @@ export default function MyActivityAnswerList({
               </p>
 
               {/* Footer with helpful count and action buttons */}
-              <div className="flex justify-between items-center pt-2">
-                <div className="flex items-center gap-6">
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 flex-wrap items-center gap-2.5 sm:gap-6">
                   {/* Helpful count */}
                   {(answer.score || answer.score !== 0) && (
                     <div className="flex items-center gap-1.5 text-[#9eacc0]">
                       <AnswerScoreIcon score={answer.score} />
-                      <div className="text-xs flex font-semibold gap-1.5">
+                      <div className="flex gap-1.5 text-xs font-semibold">
                         <p>{answer.score}</p>
                         <p>{CheckHelpFul(answer.score)}</p>
                       </div>
@@ -113,14 +113,14 @@ export default function MyActivityAnswerList({
                   {/* View discussion thread link */}
                   <Link
                     to={`/forum/${answer.questionId}`}
-                    className="text-xs font-semibold text-[#2f6fe4] hover:underline"
+                    className="text-xs font-semibold text-[#2f6fe4] hover:underline wrap-break-word"
                   >
                     View discussion thread
                   </Link>
                 </div>
 
                 {/* Edit and Delete buttons */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 self-end sm:self-auto">
                   <AddAnswerDialog
                     questionId={answer.questionId}
                     isAuthenticated

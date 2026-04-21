@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import type { Answer } from "~/services/forum/types";
+import type { Answer } from "~/services/forum/forum-types";
 import { Textarea } from "~/components/ui/textarea";
 
 interface AddAnswerDialogProps {

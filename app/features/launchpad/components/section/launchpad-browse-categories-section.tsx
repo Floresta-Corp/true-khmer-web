@@ -32,7 +32,7 @@ const categories = [
 export function LaunchpadBrowseCategoriesSection() {
   return (
     <section className="w-full px-6 md:px-12 lg:px-[131.5px] py-8 lg:py-21">
-      <div className="mx-auto w-full max-w-294.25\">
+      <div className="mx-auto w-full max-w-304">
         <header className="mb-9">
           <h2 className="mb-1.75 text-[21px] font-semibold leading-7 tracking-[-0.88px] text-[#030213]">
             Browse by categories

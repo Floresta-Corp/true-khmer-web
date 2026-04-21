@@ -1,7 +1,6 @@
 import { Link, useLoaderData } from "react-router";
-import { Clock3 } from "lucide-react";
+import { MessageCircle, Share2 } from "lucide-react";
 import { motion } from "framer-motion";
-import AddAnswerDialog from "../components/dialog/add-answer-dialog";
 import ForumPostActions from "../components/forum-post-action";
 import QuestionVoteComponent from "../components/question-vote-component";
 import AllAnswers from "../components/sections/all-answers";
@@ -11,6 +10,8 @@ import { resolveImageURL } from "~/lib/utils";
 import { forumDetailLoader } from "~/routes/api/forum/forum-detail-loader";
 import { forumDetailAction } from "~/routes/api/forum/forum-detail-action";
 import BackToButton from "~/components/back-to-button";
+import RelatedDiscussionsCard from "../components/card/related-discussions-card";
+import ForumDetailQuestionHeader from "../components/forum-detail-question-header";
 
 export const loader = forumDetailLoader;
 export const action = forumDetailAction;
@@ -37,9 +38,74 @@ const fadeUp = {
   }),
 };
 
+// ─── Mock data for related discussions ───────────────────────────────────────
+const MOCK_RELATED_DISCUSSIONS = [
+  {
+    id: "mock-1",
+    title: "Best practices for carbon-aware computing in 2026",
+    body: "Mock discussion",
+    status: "PUBLISHED" as const,
+    answerCount: 15,
+    upvoteCount: 45,
+    downvoteCount: 2,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    score: 43,
+    viewerVote: "NONE" as const,
+    category: { id: "cat-1", name: "Sustainability" },
+    author: {
+      id: "auth-1",
+      name: "John Developer",
+      avatarKey: "mock-avatar-1",
+    },
+    tags: [{ id: "tag-1", name: "carbon" }],
+  },
+  {
+    id: "mock-2",
+    title: "How to measure digital sustainability metrics",
+    body: "Mock discussion",
+    status: "PUBLISHED" as const,
+    answerCount: 15,
+    upvoteCount: 32,
+    downvoteCount: 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    score: 31,
+    viewerVote: "NONE" as const,
+    category: { id: "cat-1", name: "Sustainability" },
+    author: {
+      id: "auth-2",
+      name: "Jane Smith",
+      avatarKey: "mock-avatar-2",
+    },
+    tags: [{ id: "tag-2", name: "metrics" }],
+  },
+  {
+    id: "mock-3",
+    title: "Green coding frameworks comparison",
+    body: "Mock discussion",
+    status: "PUBLISHED" as const,
+    answerCount: 15,
+    upvoteCount: 28,
+    downvoteCount: 0,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    score: 28,
+    viewerVote: "NONE" as const,
+    category: { id: "cat-2", name: "Development" },
+    author: {
+      id: "auth-3",
+      name: "Alex Code",
+      avatarKey: "mock-avatar-3",
+    },
+    tags: [{ id: "tag-3", name: "frameworks" }],
+  },
+];
+
 // ─── Page ────────────────────────────────────────────────────────────────────
 export default function ForumDetailPage() {
   const { question, answers, userId } = useLoaderData<typeof loader>();
+  const displayedRelatedDiscussions = MOCK_RELATED_DISCUSSIONS;
 
   if (!question) {
     return (
@@ -72,11 +138,11 @@ export default function ForumDetailPage() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
-      <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-8 sm:py-10 lg:px-20">
-        <section className="mx-auto w-full max-w-3xl">
+      <main className="mx-auto w-full px-20 py-10">
+        <section className="mx-auto w-full max-w-5xl">
           {/* Back nav + actions */}
           <motion.div
-            className="mb-5 flex items-center justify-between"
+            className="mb-8 flex items-center justify-between"
             variants={fadeUp}
             initial="hidden"
             animate="visible"
@@ -87,80 +153,59 @@ export default function ForumDetailPage() {
 
           {/* Main question card */}
           <motion.article
-            className="rounded-2xl border border-[#f1f5f9] bg-white p-4 sm:p-6"
             variants={fadeUp}
             initial="hidden"
             animate="visible"
             custom={1}
           >
-            {/* Category + date */}
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <p className="text-xs font-bold leading-4.5 text-[#2f6fe4]">
-                  {question.category.name}
-                </p>
-              </div>
-              <p className="inline-flex items-center gap-1 text-xs font-medium text-[#9eacc0]">
-                <Clock3 className="h-3.5 w-3.5" />
-                {postedAt}
-              </p>
-            </div>
-
-            {/* Title + body */}
-            <h1 className="mt-4 text-base sm:text-lg font-semibold leading-snug text-[#030213]">
-              {question.title}
-            </h1>
-            <p className="mt-2 text-sm leading-relaxed text-[#65758b]">
-              {question.body}
-            </p>
-
-            {/* Tags */}
-            {question.tags?.length > 0 && (
-              <div className="mt-4 flex flex-wrap items-center gap-1.5">
-                {question.tags.map((tag) => (
-                  <span
-                    key={tag.id}
-                    className="rounded-md border border-[#f1f5f9] bg-[#f8fafc] px-2 py-0.5 text-xs text-[#99a1af]"
-                  >
-                    #{tag.name}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Author + vote + answer */}
-            <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-[#f9fafb] pt-4">
-              <div className="flex items-center gap-3">
-                {/* Author */}
-                <div className="flex items-center gap-2.5">
-                  <img
-                    src={authorProfile}
-                    alt={question.author.name}
-                    className="h-8 w-8 rounded-full border border-[#f3f4f6] object-cover"
-                  />
-                  <div>
-                    <p className="text-sm font-semibold leading-4 text-[#344256]">
-                      {question.author.name}
-                    </p>
-                    {/* <p className="text-xs font-medium leading-4 text-[#9eacc0]">
-                      { {question.author.role ?? "Community Member"}}
-                      {"Community Member"}
-                    </p> */}
-                  </div>
-                </div>
-
-                {/* Vote counter */}
-                <QuestionVoteComponent
-                  questionId={question.id}
-                  score={question.score}
-                  viewerVote={question.viewerVote}
-                />
-              </div>
-
-              <AddAnswerDialog
-                questionId={question.id}
-                isAuthenticated={Boolean(userId)}
+            <div className="rounded-2xl border border-[#e1e7ef] bg-white px-8 py-8">
+              <ForumDetailQuestionHeader
+                authorName={question.author.name}
+                authorAvatar={question.author.avatarKey}
+                category={question.category.name}
+                postedAt={question.createdAt}
               />
+
+              <h1 className="mt-6 text-[40px] leading-10 font-bold tracking-[-0.2px] text-[#2c2f31]">
+                {question.title}
+              </h1>
+
+              <p className="mt-6 text-lg leading-9 text-[#595c5e]">
+                {question.body}
+              </p>
+
+              {question.tags?.length > 0 && (
+                <div className="mt-4 flex flex-wrap items-center gap-2 text-sm font-medium leading-5.25 text-[#8a93a3]">
+                  {question.tags.map((tag) => (
+                    <span key={tag.id}>#{tag.name}</span>
+                  ))}
+                </div>
+              )}
+
+              <div className="mt-6 border-t border-[#abadaf1a] pt-6">
+                <div className="flex flex-wrap items-center gap-5 text-[#48566a]">
+                  <div className="rounded-xl border border-[#f3f4f6] bg-[#f9fafb] p-px">
+                    <QuestionVoteComponent
+                      questionId={question.id}
+                      score={question.score}
+                      viewerVote={question.viewerVote}
+                    />
+                  </div>
+
+                  <div className="inline-flex items-center gap-2 text-sm font-medium leading-5.25">
+                    <MessageCircle className="h-5 w-5" />
+                    <span>{question.answerCount} answers</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-2 text-sm font-medium leading-5.25 hover:text-[#245fca]"
+                  >
+                    <Share2 className="h-5 w-5" />
+                    Share
+                  </button>
+                </div>
+              </div>
             </div>
           </motion.article>
 

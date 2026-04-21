@@ -3,7 +3,7 @@ import type {
   CategoriesPicker,
   Question,
   QuestionSortBy,
-} from "~/services/forum/types";
+} from "~/services/forum/forum-types";
 import LoadMore from "../load-more";
 import QuestionCardSkeleton from "../card/question-card-skeleton";
 import QuestionCard from "../card/question-card";
@@ -95,7 +95,7 @@ export function DiscussionThreadSection({
             <QuestionCardSkeleton key={`question-card-skeleton-${index}`} />
           ))
         ) : (
-          <div className="text-center py-12 text-[#9eacc0] lg:w-134">
+          <div className="w-full max-w-134 py-12 text-center text-[#9eacc0]">
             No discussions found
           </div>
         )}

@@ -1,11 +1,3 @@
-import {
-  BookOpen,
-  CircleHelp,
-  Cpu,
-  Globe,
-  HandHelping,
-  Heart,
-} from "lucide-react";
 import { CategoryCard } from "~/components/category-card";
 import type { VolunteerCategory } from "~/services/volunteer/types/category";
 
@@ -16,8 +8,6 @@ interface VolunteerCategoriesSectionProps {
 export function VolunteerCategoriesSection({
   categories,
 }: VolunteerCategoriesSectionProps) {
-  console.log(categories.map((v) => v.iconKey));
-
   return (
     <section className="w-full bg-gray-50 px-6 md:px-12 lg:px-[131.5px] py-8">
       <div className="mx-auto w-full max-w-294.25">

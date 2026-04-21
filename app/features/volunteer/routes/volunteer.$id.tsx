@@ -1,26 +1,16 @@
-import { useLoaderData, useParams } from "react-router";
+import { useLoaderData } from "react-router";
 import { getPostById } from "~/lib/post";
 import { VolunteerDetailPage } from "../page/volunteer-detail-page";
 import VolunteerPostPage from "../page/volunteer-post-page";
+import type { Route } from "./+types/volunteer.$id";
+import { VolunteerDetailLoader } from "~/routes/api/volunteer/volunteer-detail-loader";
 
-export async function loader({ params }: { params: { id?: string } }) {
-  const routeId = params.id;
+export const loader = VolunteerDetailLoader;
 
-  if (routeId === "post") {
-    return { volunteer: null };
-  }
-
-  const parsedId = Number(routeId);
-  if (!Number.isInteger(parsedId)) {
-    throw new Response("Invalid volunteer id", { status: 400 });
-  }
-
-  const { volunteer } = await getPostById(parsedId);
-  return { volunteer };
-}
-
-export default function VolunteerOpportunityDetail() {
-  const { id } = useParams();
+export default function VolunteerOpportunityDetail({
+  params,
+}: Route.ComponentProps) {
+  const { id } = params;
   const { volunteer } = useLoaderData<typeof loader>();
 
   return (

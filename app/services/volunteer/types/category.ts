@@ -1,38 +1,58 @@
-export interface CreateVolunteerCategoryResponse {
-    ok: boolean;
-    category: VolunteerCategory;
-}
+import * as z from "zod";
 
-export interface GetVolunteerCategoriesResponse {
-    ok: boolean
-    categories: VolunteerCategory[];
-}
+export const VolunteerCategoryStatusSchema = z.enum([
+    "ACTIVE",
+    "ARCHIVED",
+    "HIDDEN",
+]);
 
-export interface VolunteerCategory {
-    id: string;
-    slug?: string;
-    name?: string;
-    description?: string;
-    iconKey?: string;
-    displayOrder?: number;
-    status?: string;
-    createdBy?: string;
-    updatedBy?: string;
-    createdAt?: string;
-    updatedAt?: string;
-    archivedAt?: string;
-}
+export type VolunteerCategoryStatus = z.infer<
+    typeof VolunteerCategoryStatusSchema
+>;
 
-export interface CreateVolunteerCategoryInput {
-    name: string;
-    slug: string;
-    description: string | null;
-    iconKey: string | null;
-    status: VolunteerCategoryStatus;
-}
+export const VolunteerCategorySchema = z.object({
+    id: z.string(),
+    slug: z.string().optional(),
+    name: z.string().optional(),
+    description: z.string().optional(),
+    iconKey: z.string().optional(),
+    displayOrder: z.number().optional(),
+    status: z.string().optional(),
+    createdBy: z.string().optional(),
+    updatedBy: z.string().optional(),
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
+    archivedAt: z.string().optional(),
+});
 
-enum VolunteerCategoryStatus {
-    ACTIVE = "ACTIVE",
-    ARCHIVED = "ARCHIVED",
-    HIDDEN = "HIDDEN",
-}
+export type VolunteerCategory = z.infer<typeof VolunteerCategorySchema>;
+
+export const CreateVolunteerCategoryInputSchema = z.object({
+    name: z.string(),
+    slug: z.string(),
+    description: z.string().nullable(),
+    iconKey: z.string().nullable(),
+    status: VolunteerCategoryStatusSchema,
+});
+
+export type CreateVolunteerCategoryInput = z.infer<
+    typeof CreateVolunteerCategoryInputSchema
+>;
+
+export const CreateVolunteerCategoryResponseSchema = z.object({
+    ok: z.boolean(),
+    category: VolunteerCategorySchema,
+});
+
+export type CreateVolunteerCategoryResponse = z.infer<
+    typeof CreateVolunteerCategoryResponseSchema
+>;
+
+export const GetVolunteerCategoriesResponseSchema = z.object({
+    ok: z.boolean(),
+    categories: z.array(VolunteerCategorySchema),
+});
+
+export type GetVolunteerCategoriesResponse = z.infer<
+    typeof GetVolunteerCategoriesResponseSchema
+>;
