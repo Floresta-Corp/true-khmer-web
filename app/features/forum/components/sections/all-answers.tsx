@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 import AnswerNewCard from "../card/answer-new-card";
 import type { Answer } from "~/services/forum/forum-types";
 import type { loader } from "../../routes/forum.$id";
 import { useLoaderData } from "react-router";
+import { Button } from "~/components/ui/button";
 
 interface AllAnswersProps {
   answers: Answer[];
@@ -18,12 +20,22 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
       transition={{ duration: 0.35, delay: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
     >
       {/* Heading */}
-      <div className="px-1.75 flex items-center">
-        <h2 className="text-[18px] font-medium text-[#2C2F31]">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-medium leading-6.75 text-[#2c2f31]">
           All {answers.length} Answers
         </h2>
-        <div className="text-[14px]">
-          <p className="font-semibold text-[#595C5E]">Sort by:</p>
+        <div className="flex items-center gap-3">
+          <p className="text-sm font-semibold leading-5 text-[#595c5e]">
+            Sort by:
+          </p>
+          <Button
+            variant={"default"}
+            type="button"
+            className="inline-flex bg-transparent items-center text-base font-semibold leading-6 text-[#0050d4]"
+          >
+            Popular
+            <ChevronDown size={13.5} className="text-[#0050d4]" />
+          </Button>
         </div>
       </div>
 

@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
 
 interface Contributor {
   name: string;
@@ -9,6 +10,7 @@ interface Contributor {
 interface ForumRightSidebarProps {
   contributors?: Contributor[];
   guidelines?: string[];
+  hideGuidelines?: boolean;
 }
 
 const fallbackBgClasses = [
@@ -67,6 +69,7 @@ export default function ForumRightSidebar({
     "No self-promotion or spamming.",
     "Help others before asking for help.",
   ],
+  hideGuidelines = false,
 }: ForumRightSidebarProps) {
   return (
     <div className="flex flex-col gap-5 max-w-sm">
@@ -102,28 +105,37 @@ export default function ForumRightSidebar({
             </div>
           ))}
         </div>
+        <Button
+          type="button"
+          variant="ghost"
+          className="mt-4 h-11.5 w-full rounded-xl border border-[rgba(171,173,175,0.2)] px-px py-3.25 text-sm font-semibold leading-5 text-[#595c5e] hover:bg-[#f8fafc]"
+        >
+          View all top 10
+        </Button>
       </div>
 
       {/* Community Guidelines */}
-      <div className="bg-white border border-[#f1f5f9] rounded-2xl p-5 w-full">
-        <h3 className="font-bold text-lg leading-6.75 text-[#344256] mb-4">
-          Community Guidelines
-        </h3>
+      {!hideGuidelines && (
+        <div className="bg-white border border-[#f1f5f9] rounded-2xl p-5 w-full">
+          <h3 className="font-bold text-lg leading-6.75 text-[#344256] mb-4">
+            Community Guidelines
+          </h3>
 
-        <ol className="flex flex-col gap-3">
-          {guidelines.map((guideline, index) => (
-            <li
-              key={index}
-              className="flex gap-3 text-sm text-[#65758b] leading-6"
-            >
-              <span className="font-semibold text-[#344256] shrink-0">
-                {index + 1}.
-              </span>
-              <span>{guideline}</span>
-            </li>
-          ))}
-        </ol>
-      </div>
+          <ol className="flex flex-col gap-3">
+            {guidelines.map((guideline, index) => (
+              <li
+                key={index}
+                className="flex gap-3 text-sm text-[#65758b] leading-6"
+              >
+                <span className="font-semibold text-[#344256] shrink-0">
+                  {index + 1}.
+                </span>
+                <span>{guideline}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
     </div>
   );
 }

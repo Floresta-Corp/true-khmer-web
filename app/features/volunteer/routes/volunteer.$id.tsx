@@ -1,5 +1,4 @@
 import { useLoaderData } from "react-router";
-import { getPostById } from "~/lib/post";
 import { VolunteerDetailPage } from "../page/volunteer-detail-page";
 import VolunteerPostPage from "../page/volunteer-post-page";
 import type { Route } from "./+types/volunteer.$id";
@@ -18,7 +17,7 @@ export default function VolunteerOpportunityDetail({
       {id === "post" ? (
         <VolunteerPostPage />
       ) : (
-        <VolunteerDetailPage volunteer={volunteer ?? undefined} />
+        <VolunteerDetailPage volunteer={volunteer} />
       )}
     </>
   );

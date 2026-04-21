@@ -69,7 +69,7 @@ export async function getPublicVolunteerOpportunities(
 
 export async function getPublicOpportunityById(
   request: Request,
-  id: number,
+  id: string,
   filter?: VolunteerOpportunityFilter,
 ) {
   try {
@@ -91,7 +91,7 @@ export async function getPublicOpportunityById(
 }
 export async function getOpportunityById(
   request: Request,
-  id: number,
+  id: string,
   filter?: VolunteerOpportunityFilter,
 ) {
   try {

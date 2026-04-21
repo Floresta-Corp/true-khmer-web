@@ -119,7 +119,7 @@ export default function ForumReportDialog({
 
       <DialogContent
         showCloseButton={false}
-        className="gap-4 rounded-lg border border-[#e2e8f0] bg-white p-6 shadow-lg min-w-lg"
+        className="flex max-h-[90dvh] w-[calc(100%-1.5rem)] max-w-160 flex-col gap-4 overflow-hidden rounded-lg border border-[#e2e8f0] bg-white p-4 shadow-lg sm:p-6"
       >
         {/* Close */}
         <DialogClose>
@@ -150,7 +150,7 @@ export default function ForumReportDialog({
 
         <Separator />
 
-        <fetcher.Form method="post">
+        <fetcher.Form method="post" className="flex min-h-0 flex-1 flex-col">
           <input
             hidden
             name="actionType"
@@ -167,7 +167,7 @@ export default function ForumReportDialog({
           />
           <input hidden name="typeId" value={selectedReason || ""} />
           {/* Scrollable body */}
-          <div className="flex max-h-[60dvh] flex-col gap-5 overflow-y-auto p-1 pb-5">
+          <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-1 pb-4 sm:pb-5">
             {/* Reporting post preview */}
             {title && (
               <div className="flex flex-col gap-[3.5px] rounded-2xl border border-[#f3f4f6] bg-[#f8fafc] px-3 py-3">
@@ -226,19 +226,19 @@ export default function ForumReportDialog({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-2">
+          <div className="mt-3 flex flex-col-reverse gap-2 sm:mt-4 sm:flex-row sm:justify-end">
             <Button
               type="button"
               variant="outline"
               onClick={handleCancel}
-              className="h-8 rounded-lg border-[#e1e7ef] px-3 text-sm font-medium text-[#1d283a] hover:bg-[#f8fafc]"
+              className="h-9 w-full rounded-lg border-[#e1e7ef] px-3 text-sm font-medium text-[#1d283a] hover:bg-[#f8fafc] sm:h-8 sm:w-auto"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={!selectedReason || isSubmitting}
-              className="h-8 rounded-lg bg-[#FB3748] px-3 text-sm font-medium text-white hover:bg-[#e7000b] disabled:opacity-50"
+              className="h-9 w-full rounded-lg bg-[#FB3748] px-3 text-sm font-medium text-white hover:bg-[#e7000b] disabled:opacity-50 sm:h-8 sm:w-auto"
             >
               {isSubmitting ? (
                 <span className="inline-flex items-center gap-1.5">

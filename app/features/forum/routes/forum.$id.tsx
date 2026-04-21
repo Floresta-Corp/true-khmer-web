@@ -1,7 +1,6 @@
 import { Link, useLoaderData } from "react-router";
 import { MessageCircle, Share2 } from "lucide-react";
 import { motion } from "framer-motion";
-import ForumPostActions from "../components/forum-post-action";
 import QuestionVoteComponent from "../components/question-vote-component";
 import AllAnswers from "../components/sections/all-answers";
 import type { Route } from "./+types/forum.$id";
@@ -138,99 +137,110 @@ export default function ForumDetailPage() {
   const authorProfile = resolveImageURL(question.author.avatarKey);
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
-      <main className="mx-auto w-full px-20 py-10">
-        <section className="mx-auto w-full max-w-5xl">
-          {/* Back nav + actions */}
-          <motion.div
-            className="mb-8 flex items-center justify-between"
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-          >
-            <BackToButton text="Back to Forum" to="/forum" />
-          </motion.div>
+    <div className="min-h-screen bg-[#f8fafc] w-full">
+      <main className="mx-auto w-full px-4 pb-10 md:px-10 xl:px-30 pt-8">
+        {/* Back nav + actions */}
+        <motion.div
+          className="mb-8 flex items-center justify-between"
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+        >
+          <BackToButton text="Back to Forum" to="/forum" />
+        </motion.div>
+        <section className="mx-auto flex w-full flex-col items-start justify-center gap-8 xl:flex-row xl:gap-10">
+          <div className="w-full">
+            {/* Main question card */}
+            <motion.article
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              custom={1}
+            >
+              <div className="rounded-2xl border border-[#e1e7ef] bg-white p-4 sm:p-6 lg:px-8 lg:py-8">
+                <ForumDetailQuestionHeader
+                  questionId={question.id}
+                  authorName={question.author.name}
+                  authorAvatar={authorProfile}
+                  category={question.category}
+                  postedAt={postedAt}
+                  title={question.title}
+                  isAuthenticated={Boolean(userId)}
+                  reportReasons={
+                    reportReasons.reportingTypes.map((v) => ({
+                      id: v.id,
+                      reason: v.type,
+                    })) || []
+                  }
+                />
 
-          {/* Main question card */}
-          <motion.article
+                <h1 className="mt-5 text-2xl leading-8 font-bold text-[#2c2f31] sm:mt-6 sm:text-3xl sm:leading-9 lg:text-[40px] lg:leading-10 lg:tracking-[-0.2px]">
+                  {question.title}
+                </h1>
+
+                <p className="mt-4 text-base leading-6.75 text-[#595c5e] sm:mt-6 sm:text-lg sm:leading-9">
+                  {question.body}
+                </p>
+
+                {question.tags?.length > 0 && (
+                  <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium leading-4.5 text-[#8a93a3] sm:text-sm sm:leading-5.25">
+                    {question.tags.map((tag) => (
+                      <span key={tag.id}>#{tag.name}</span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="mt-5 border-t border-[#abadaf1a] pt-5 sm:mt-6 sm:pt-6">
+                  <div className="flex flex-wrap items-center gap-3 text-[#48566a] sm:gap-5">
+                    <div className="rounded-xl border border-[#f3f4f6] bg-[#f9fafb] p-px">
+                      <QuestionVoteComponent
+                        questionId={question.id}
+                        score={question.score}
+                        viewerVote={question.viewerVote}
+                      />
+                    </div>
+
+                    <div className="inline-flex items-center gap-2 text-xs font-medium leading-4.5 sm:text-sm sm:leading-5.25">
+                      <MessageCircle className="h-5 w-5" />
+                      <span>{question.answerCount} answers</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-2 text-xs font-medium leading-4.5 hover:text-[#245fca] sm:text-sm sm:leading-5.25"
+                    >
+                      <Share2 className="h-5 w-5" />
+                      Share
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.article>
+
+            {answers && answers.length > 0 ? (
+              <AllAnswers answers={answers} />
+            ) : (
+              <motion.p
+                className="mt-8 text-center text-sm text-[#65758b]"
+                variants={fadeUp}
+                initial="hidden"
+                animate="visible"
+                custom={2}
+              >
+                No answers yet. Be the first to share your knowledge!
+              </motion.p>
+            )}
+          </div>
+
+          <motion.aside
+            className="hidden lg:block w-full xl:w-64 xl:shrink-0"
             variants={fadeUp}
             initial="hidden"
             animate="visible"
             custom={1}
           >
-            <div className="rounded-2xl border border-[#e1e7ef] bg-white px-8 py-8">
-              <ForumDetailQuestionHeader
-                questionId={question.id}
-                authorName={question.author.name}
-                authorAvatar={authorProfile}
-                category={question.category}
-                postedAt={postedAt}
-                title={question.title}
-                isAuthenticated={Boolean(userId)}
-                reportReasons={
-                  reportReasons.reportingTypes.map((v) => ({
-                    id: v.id,
-                    reason: v.type,
-                  })) || []
-                }
-              />
-
-              <h1 className="mt-6 text-[40px] leading-10 font-bold tracking-[-0.2px] text-[#2c2f31]">
-                {question.title}
-              </h1>
-
-              <p className="mt-6 text-lg leading-9 text-[#595c5e]">
-                {question.body}
-              </p>
-
-              {question.tags?.length > 0 && (
-                <div className="mt-4 flex flex-wrap items-center gap-2 text-sm font-medium leading-5.25 text-[#8a93a3]">
-                  {question.tags.map((tag) => (
-                    <span key={tag.id}>#{tag.name}</span>
-                  ))}
-                </div>
-              )}
-
-              <div className="mt-6 border-t border-[#abadaf1a] pt-6">
-                <div className="flex flex-wrap items-center gap-5 text-[#48566a]">
-                  <div className="rounded-xl border border-[#f3f4f6] bg-[#f9fafb] p-px">
-                    <QuestionVoteComponent
-                      questionId={question.id}
-                      score={question.score}
-                      viewerVote={question.viewerVote}
-                    />
-                  </div>
-
-                  <div className="inline-flex items-center gap-2 text-sm font-medium leading-5.25">
-                    <MessageCircle className="h-5 w-5" />
-                    <span>{question.answerCount} answers</span>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-2 text-sm font-medium leading-5.25 hover:text-[#245fca]"
-                  >
-                    <Share2 className="h-5 w-5" />
-                    Share
-                  </button>
-                </div>
-              </div>
-            </div>
-          </motion.article>
-
-          {answers && answers.length > 0 ? (
-            <AllAnswers answers={answers} />
-          ) : (
-            <motion.p
-              className="mt-8 text-center text-sm text-[#65758b]"
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={2}
-            >
-              No answers yet. Be the first to share your knowledge!
-            </motion.p>
-          )}
+            <RelatedDiscussionsCard discussions={displayedRelatedDiscussions} />
+          </motion.aside>
         </section>
       </main>
     </div>

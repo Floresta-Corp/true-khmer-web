@@ -33,7 +33,7 @@ function OpportunityCard({
           loading="lazy"
         />
         <span className="relative inline-flex rounded-xl border border-white/20 bg-white/95 px-2.25 py-1 text-[10px] font-semibold tracking-[-0.13px] text-[#2f6fe4]">
-          {categoryName ?? opportunity.categoryId}
+          {categoryName ?? opportunity.category.name}
         </span>
         <Button
           type="button"
@@ -143,7 +143,7 @@ export function VolunteerAvailableOpportunities({
               <OpportunityCard
                 key={opportunity.id}
                 opportunity={opportunity}
-                categoryName={categoryNameById[opportunity.categoryId]}
+                categoryName={categoryNameById[opportunity.category.id]}
               />
             ))}
           </div>

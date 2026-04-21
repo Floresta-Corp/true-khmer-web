@@ -11,13 +11,17 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import QuestionCardSkeleton from "../card/question-card-skeleton";
 import ForumTopCategoriesCard from "../card/forum-top-categories-card";
+import TrendingTopics from "./trending-topics";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL } from "~/lib/utils";
 import type {
   CategoriesPicker,
   Question,
   QuestionSortBy,
+  Tag,
 } from "~/services/forum/forum-types";
+import ForumRightSidebar from "./forum-right-sidebar";
+import YourActivitiesCard from "../card/your-activities-card";
 
 interface ForumContentNewProps {
   questions?: Question[];
@@ -26,6 +30,9 @@ interface ForumContentNewProps {
   onCategorySelect: (category: CategoriesPicker) => void;
   activeTab: QuestionSortBy;
   setActiveTab: (tab: QuestionSortBy) => void;
+  tags?: Tag[];
+  selectedTagId?: string;
+  onTagSelect?: (tag: Tag) => void;
   onLoadMore?: () => void;
   hasMore?: boolean;
   isLoading?: boolean;
@@ -139,6 +146,9 @@ export default function ForumContentNew({
   onCategorySelect,
   activeTab,
   setActiveTab,
+  tags,
+  selectedTagId,
+  onTagSelect,
   onLoadMore,
   hasMore,
   isLoading,
@@ -204,12 +214,19 @@ export default function ForumContentNew({
           )}
         </div>
 
-        <aside className="hidden w-70 shrink-0 xl:block">
+        <aside className="hidden w-70 shrink-0 lg:block space-y-5">
+          <YourActivitiesCard />
           <ForumTopCategoriesCard
             categories={categories}
             selectedCategory={selectedCategory}
             onCategorySelect={onCategorySelect}
           />
+          <TrendingTopics
+            tags={tags}
+            selectedTagId={selectedTagId}
+            onTagSelect={onTagSelect}
+          />
+          <ForumRightSidebar hideGuidelines />
         </aside>
       </div>
     </section>

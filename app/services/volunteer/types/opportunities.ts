@@ -1,6 +1,11 @@
 import * as z from "zod";
 import { PaginationSchema } from "~/services/types";
 
+export const CategorySchema = z.object({
+    "id": z.string(),
+    "name": z.string(),
+});
+export type Category = z.infer<typeof CategorySchema>;
 
 export const ContactSchema = z.object({
     "email": z.string(),
@@ -21,10 +26,20 @@ export const RoleSchema = z.object({
 });
 export type Role = z.infer<typeof RoleSchema>;
 
+export const OrganizerSchema = z.object({
+    "id": z.string(),
+    "name": z.string(),
+    "avatarUrl": z.null(),
+    "opportunityCount": z.number(),
+    "organizerLocation": z.null(),
+    "contact": ContactSchema,
+});
+export type Organizer = z.infer<typeof OrganizerSchema>;
+
 export const OpportunitySchema = z.object({
     "id": z.string(),
-    "categoryId": z.string(),
-    "locationId": z.string(),
+    "category": CategorySchema,
+    "location": CategorySchema,
     "title": z.string(),
     "overview": z.string(),
     "communityImpact": z.null(),
@@ -34,9 +49,9 @@ export const OpportunitySchema = z.object({
     "coverImageKey": z.string(),
     "coverImageUrl": z.null(),
     "benefits": z.array(z.string()),
-    "contact": ContactSchema,
     "status": z.string(),
     "publishedAt": z.null(),
+    "organizer": OrganizerSchema,
     "createdBy": z.string(),
     "createdAt": z.string(),
     "updatedAt": z.string(),

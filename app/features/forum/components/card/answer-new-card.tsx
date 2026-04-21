@@ -164,7 +164,10 @@ export default function AnswerNewCard({
             <CommentWrapper
               key={repliedAnswer.id}
               isReply
-              isFirst={repliedIndex === 0}
+              isFirst={
+                repliedIndex === 0 &&
+                repliedIndex !== answer.repliedAnswers!.length - 1
+              }
               isLast={repliedIndex === answer.repliedAnswers!.length - 1}
             >
               <NestedReplyCard

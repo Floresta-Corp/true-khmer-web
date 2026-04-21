@@ -6,6 +6,7 @@ import type {
   GetQuestionPaginationResponse,
   Question,
   QuestionSortBy,
+  Tag,
 } from "~/services/forum/forum-types";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { forumListloader } from "~/routes/api/forum/forum-loader";
@@ -136,29 +137,52 @@ export default function ForumNewPage() {
     buildForumQuery,
   ]);
 
-  const handleCategorySelect = useCallback((category: CategoriesPicker) => {
-    setSelectedCategory(category);
+  const handleCategorySelect = useCallback(
+    (category: CategoriesPicker) => {
+      setSelectedCategory(category);
 
-    const nextParams = new URLSearchParams();
-    nextParams.set("sortBy", activeTab);
+      const nextParams = new URLSearchParams();
+      nextParams.set("sortBy", activeTab);
 
-    if (category.id !== "all-categories") {
-      nextParams.set("categoryId", category.id);
-    }
+      if (category.id !== "all-categories") {
+        nextParams.set("categoryId", category.id);
+      }
 
-    if (selectedTagId) {
-      nextParams.set("tagId", selectedTagId);
-    }
+      if (selectedTagId) {
+        nextParams.set("tagId", selectedTagId);
+      }
 
-    setSearchParams(nextParams, {
-      replace: true,
-      preventScrollReset: true,
-    });
-  }, [activeTab, selectedTagId, setSearchParams]);
+      setSearchParams(nextParams, {
+        replace: true,
+        preventScrollReset: true,
+      });
+    },
+    [activeTab, selectedTagId, setSearchParams],
+  );
 
-  const handleTagSelect = useCallback((tagId: string | undefined) => {
-    setSelectedTagId((prev) => (prev === tagId ? undefined : tagId));
-  }, []);
+  const handleTagSelect = useCallback(
+    (tag: Tag) => {
+      const nextTagId = selectedTagId === tag.id ? undefined : tag.id;
+      setSelectedTagId(nextTagId);
+
+      const nextParams = new URLSearchParams();
+      nextParams.set("sortBy", activeTab);
+
+      if (selectedCategory.id !== "all-categories") {
+        nextParams.set("categoryId", selectedCategory.id);
+      }
+
+      if (nextTagId) {
+        nextParams.set("tagId", nextTagId);
+      }
+
+      setSearchParams(nextParams, {
+        replace: true,
+        preventScrollReset: true,
+      });
+    },
+    [activeTab, selectedCategory.id, selectedTagId, setSearchParams],
+  );
 
   const handleTabChange = useCallback(
     (tab: QuestionSortBy) => {
@@ -227,10 +251,13 @@ export default function ForumNewPage() {
               count: v.questionCount ?? 0,
             })),
           ]}
+          tags={tags}
           selectedCategory={selectedCategory}
           onCategorySelect={handleCategorySelect}
           activeTab={activeTab}
           setActiveTab={handleTabChange}
+          selectedTagId={selectedTagId}
+          onTagSelect={handleTagSelect}
           onLoadMore={handleLoadMore}
           hasMore={hasMore}
           isLoading={fetcher.state === "loading"}
