@@ -23,7 +23,7 @@ const navLinks = [
   { to: "/myspace", label: "My Space", icon: LayoutDashboard },
   // { to: "/dashboard", label: "My Journey", icon: Compass },
   { to: "/forum", label: "Forum", icon: MessageSquare },
-  { to: "/forumv2", label: "Forum V2", icon: MessageSquare },
+  // { to: "/forumv2", label: "Forum V2", icon: MessageSquare },
   { to: "/events", label: "Events", icon: CalendarDays },
   { to: "/volunteer", label: "Volunteer", icon: Heart },
   { to: "/launchpad", label: "Launchpad", icon: Rocket },

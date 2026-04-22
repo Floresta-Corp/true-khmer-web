@@ -1,4 +1,7 @@
-import { apiRequestWithOptionalSession, apiRequestWithSession } from "~/lib/server/api-client.server";
+import {
+  apiRequestWithOptionalSession,
+  apiRequestWithSession,
+} from "~/lib/server/api-client.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import type {
   CreateAnswerInput,
@@ -8,7 +11,10 @@ import type {
   UpsertAnswerResponse,
   VoteAnswerResponse,
 } from "../forum-types";
-import { CreateAnswerInputSchema, UpdateAnswerInputSchema } from "../forum-types";
+import {
+  CreateAnswerInputSchema,
+  UpdateAnswerInputSchema,
+} from "../forum-types";
 import type { VoteIntent } from "~/services/types";
 
 export async function voteForumAnswer(
@@ -27,7 +33,10 @@ export async function voteForumAnswer(
   return result;
 }
 
-export async function getAnswersByQuestionId(request: Request, questionId: string) {
+export async function getAnswersByQuestionId(
+  request: Request,
+  questionId: string,
+) {
   try {
     const result = await apiRequestWithSession<GetAnswersResponse>(
       request,
@@ -46,7 +55,10 @@ export async function getAnswersByQuestionId(request: Request, questionId: strin
     throw error;
   }
 }
-export async function getPublicAnswersByQuestionId(request: Request, questionId: string) {
+export async function getPublicAnswersByQuestionId(
+  request: Request,
+  questionId: string,
+) {
   try {
     const result = await apiRequestWithOptionalSession<GetAnswersResponse>(
       request,
@@ -71,6 +83,7 @@ export async function createAnswerByQuestionId(
   body: CreateAnswerInput,
 ) {
   const parsedBody = CreateAnswerInputSchema.safeParse(body);
+  console.log(parsedBody);
   if (!parsedBody.success) {
     throw new Error("Invalid create answer payload");
   }

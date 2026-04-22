@@ -1,18 +1,18 @@
 import { Search } from "lucide-react";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useNavigate, useSearchParams } from "react-router";
 import AskQuestionDialog from "../dialog/ask-question-dialog";
 import type { loader } from "../../routes/forum.new";
+import { useState } from "react";
 
-const heroBackgroundImage =
-  "http://localhost:3845/assets/5045a1ee9edecdfd095a011038e25e40ce763ee0.png";
-const avatarImage =
-  "http://localhost:3845/assets/d0f6c817c8dd6af5ac0d39b77a89a9dd995212c6.png";
-const trendingIcon =
-  "http://localhost:3845/assets/163e39034ec5380173fd1536b262e29407ea65b6.svg";
-const activeIcon =
-  "http://localhost:3845/assets/b33d95858719d752d411558b9bc6baa0559a07ce.svg";
+const heroBackgroundImage = "/images/hero-background-image.jpg";
+const avatarImage = "/images/forum-avatar.jpg";
+const trendingIcon = "/icons/apollo-icon.svg";
+const activeIcon = "/icons/conversation-icon.svg";
 
 export default function ForumHeaderNew() {
+  const navigate = useNavigate();
+  const [searchParams, setSeachParams] = useSearchParams();
+  const [search, setSearch] = useState("");
   const { categories, userId } = useLoaderData<typeof loader>();
   const isAuthenticated = Boolean(userId);
 
@@ -44,6 +44,16 @@ export default function ForumHeaderNew() {
             <Search className="size-4.5 shrink-0 text-[#8f9294]" />
             <input
               type="search"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.currentTarget.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  const url = `/forum?search=${encodeURIComponent(search)}`;
+                  navigate(url);
+                }
+              }}
               placeholder="Search discussions"
               className="w-full border-0 bg-transparent text-base text-[#2c2f31] placeholder:text-[#abadaf] focus:outline-none"
             />

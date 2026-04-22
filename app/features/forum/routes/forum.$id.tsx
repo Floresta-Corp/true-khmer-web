@@ -11,6 +11,7 @@ import { forumDetailAction } from "~/routes/api/forum/forum-detail-action";
 import BackToButton from "~/components/back-to-button";
 import RelatedDiscussionsCard from "../components/card/related-discussions-card";
 import ForumDetailQuestionHeader from "../components/forum-detail-question-header";
+import ReplyBox from "../components/reply-box";
 
 export const loader = forumDetailLoader;
 export const action = forumDetailAction;
@@ -216,6 +217,17 @@ export default function ForumDetailPage() {
                 </div>
               </div>
             </motion.article>
+
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              custom={2}
+              className="mt-6"
+            >
+              {/* Reply box for posting a new answer / reply */}
+              <ReplyBox questionId={question.id} />
+            </motion.div>
 
             {answers && answers.length > 0 ? (
               <AllAnswers answers={answers} />

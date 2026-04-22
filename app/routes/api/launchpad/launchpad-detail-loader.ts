@@ -3,6 +3,10 @@ import { GetLaunchpadProjectById } from "~/services/launchpad/server/launchpad.s
 
 export async function LaunchpadDetailLoader({ request, params }: LaunchpadDetailRoute.LoaderArgs) {
     const id = params.id;
-    const project = await GetLaunchpadProjectById(id ?? "")
-    return project
+    if (id !== "post") {
+        const project = await GetLaunchpadProjectById(id ?? "")
+        return project
+    } else {
+        return {}
+    }
 }

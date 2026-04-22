@@ -25,8 +25,11 @@ export async function forumDetailAction({
   const questionId = params.questionId;
   const answerId = String(formData.get("answerId") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
-  const replyToAnswer = String(formData.get("replyToAnswer") ?? "").trim();
+  const _replyToAnswer = String(formData.get("replyToAnswer") ?? "").trim();
+  const replyToAnswer = _replyToAnswer === "" ? null : _replyToAnswer;
   const actionType = String(formData.get("actionType") ?? "").trim();
+
+  console.log({ actionType, method, formData });
 
   const allowedActionTypes = new Set([
     "vote-question",
@@ -68,7 +71,6 @@ export async function forumDetailAction({
       description: reportDescription,
       typeId: reportTypeId,
       questionId: reportQuestionId,
-
     };
     return SubmitReport(request, body);
   }
@@ -201,7 +203,15 @@ export async function forumDetailAction({
       };
     }
 
-    return createAnswerByQuestionId(request, { questionId, body, replyToAnswer: replyToAnswer });
+    const input = {
+      questionId,
+      body,
+      replyToAnswer: replyToAnswer ?? undefined,
+    };
+
+    console.log(input);
+
+    return createAnswerByQuestionId(request, input);
   }
 
   return {

@@ -37,7 +37,7 @@ export default function AnswerNewCard({
   return (
     <>
       <motion.article
-        className="flex flex-col gap-4 border rounded-xl bg-white p-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]"
+        className="flex flex-col gap-4 border rounded-xl bg-white p-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] z-10"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{
@@ -104,7 +104,9 @@ export default function AnswerNewCard({
         </div>
 
         <div className="pb-2">
-          <p className="text-base leading-6.5 text-[#595c5e]">{answer.body}</p>
+          <p className="text-base leading-6.5 text-[#595c5e] whitespace-pre-line">
+            {answer.body}
+          </p>
         </div>
 
         <Separator className="bg-[#abadaf1a]" />

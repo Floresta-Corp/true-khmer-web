@@ -12,6 +12,7 @@ interface AllAnswersProps {
 
 export default function AllAnswers({ answers }: AllAnswersProps) {
   const { userId } = useLoaderData<typeof loader>();
+  console.log(answers);
   return (
     <motion.section
       className="mt-5 flex flex-col gap-6"

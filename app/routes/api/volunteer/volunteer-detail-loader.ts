@@ -4,11 +4,12 @@ import { getOpportunityById, getPublicOpportunityById } from '~/services/volunte
 
 export async function VolunteerDetailLoader({ request, params }: VolunteerRoute.LoaderArgs) {
     const id = params.id;
-    const userId = await getUserId(request);
 
-    const [volunteer] = await Promise.all(userId ? [getOpportunityById(request, id)] : [getPublicOpportunityById(request, id)]);
-
-
-
-    return { volunteer: volunteer?.data.opportunity, userId }
+    if (id !== "post") {
+        const userId = await getUserId(request);
+        const [volunteer] = await Promise.all(userId ? [getOpportunityById(request, id)] : [getPublicOpportunityById(request, id)]);
+        return { volunteer: volunteer?.data.opportunity, userId }
+    } else {
+        return {}
+    }
 }

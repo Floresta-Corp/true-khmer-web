@@ -83,7 +83,7 @@ export default function NestedReplyCard({
         </div>
       </div>
 
-      <p className="mt-4 text-sm leading-[22.75px] text-[#595c5e]">
+      <p className="mt-4 text-sm leading-[22.75px] text-[#595c5e] whitespace-pre-line">
         {repliedAnswer.body}
       </p>
 

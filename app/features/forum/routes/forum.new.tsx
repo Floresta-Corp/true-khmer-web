@@ -13,10 +13,12 @@ import { forumListloader } from "~/routes/api/forum/forum-loader";
 import { questionSortBySchema } from "~/services/forum/forum-types";
 import ForumHeaderNew from "../components/sections/forum-header-new";
 import ForumContentNew from "../components/sections/forum-content-new";
+import { forumListAction } from "~/routes/api/forum/forum-action";
 
 const LIMIT = 10;
 
 export const loader = forumListloader;
+export const action = forumListAction;
 
 export default function ForumNewPage() {
   const { data, categories, tags } = useLoaderData<typeof loader>();
@@ -206,10 +208,6 @@ export default function ForumNewPage() {
     },
     [selectedCategory.id, selectedTagId, setSearchParams],
   );
-
-  const handleSearch = (query: string) => {
-    // TODO: Filter discussions based on search query
-  };
 
   const allQuestion = categories.reduce(
     (acc, category) => acc + (category.questionCount || 0),

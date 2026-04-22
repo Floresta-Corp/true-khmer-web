@@ -4,9 +4,17 @@ import {
   Share2,
   ThumbsDown,
   ThumbsUp,
+  Pencil,
+  Trash2,
 } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLoaderData } from "react-router";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "~/components/ui/dropdown-menu";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import QuestionCardSkeleton from "../card/question-card-skeleton";
@@ -22,6 +30,8 @@ import type {
 } from "~/services/forum/forum-types";
 import ForumRightSidebar from "./forum-right-sidebar";
 import YourActivitiesCard from "../card/your-activities-card";
+import AskQuestionDialog from "../dialog/ask-question-dialog";
+import DeleteQuestionDialog from "../dialog/delete-question-dialog";
 
 interface ForumContentNewProps {
   questions?: Question[];
@@ -41,17 +51,25 @@ interface ForumContentNewProps {
 const tabItems: Array<{ label: string; value: QuestionSortBy }> = [
   { label: "All", value: "recent" },
   { label: "Trending", value: "topRated" },
-  { label: "Latest", value: "recent" },
   { label: "Unanswered", value: "unanswered" },
 ];
 
-function DiscussionCard({ question }: { question: Question }) {
+function DiscussionCard({
+  question,
+  categories,
+}: {
+  question: Question;
+  categories: CategoriesPicker[];
+}) {
+  const { userId } = useLoaderData() as any;
   const createdAgoLabel = formatMinutesOrHoursAgo(question.createdAt);
   const profileImage = resolveImageURL(question.author.avatarKey);
   const navigate = useNavigate();
   const handleGoToDetail = () => {
     navigate(`/forum/${question.id}`);
   };
+
+  const isCurrentAuthor = Boolean(userId) && userId === question.author.id;
 
   return (
     <article className="w-full rounded-2xl bg-white p-6 shadow-[0px_4px_24px_0px_rgba(0,0,0,0.04)]">
@@ -61,22 +79,103 @@ function DiscussionCard({ question }: { question: Question }) {
             <AvatarImage src={profileImage} alt={question.author.name} />
           </Avatar>
           <div className="min-w-0 text-[#595c5e]">
-            <span className="font-semibold text-[#2c2f31]">
-              {question.author.name}
-            </span>
-            <span className="mx-1">•</span>
-            <span className="font-semibold text-[#1c5dd4] ">
-              {question.category.name}
-            </span>
-            <span className="mx-1">•</span>
-            <span>{createdAgoLabel}</span>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+              <span className="font-semibold text-[#2c2f31] truncate">
+                {question.author.name}
+              </span>
+              <div className="flex items-center text-sm text-[#595c5e] mt-1 sm:mt-0">
+                <span className="font-semibold text-[#1c5dd4] mr-2">
+                  {question.category.name}
+                </span>
+                <span className="text-xs">{createdAgoLabel}</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {question.author.id === question.id && (
-          <Badge className="bg-[#ceffe5] text-[#19a95e] hover:bg-[#ceffe5]">
-            Author
-          </Badge>
+        {isCurrentAuthor && (
+          <div className="flex items-center gap-1.5">
+            <Badge className="bg-[#ceffe5] text-[#19a95e] hover:bg-[#ceffe5]">
+              Author
+            </Badge>
+
+            <div className="flex items-center gap-1.5">
+              {/* Inline actions for sm+ */}
+              <div className="hidden sm:flex items-center gap-1.5">
+                <AskQuestionDialog
+                  categories={categories.filter(
+                    (c) => c.id !== "all-categories",
+                  )}
+                  isEditing
+                  data={question}
+                  trigger={
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-[26.25px] w-[26.25px] rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256] cursor-pointer"
+                      aria-label="Edit question"
+                    >
+                      <Pencil size={12.25} />
+                    </Button>
+                  }
+                />
+                <DeleteQuestionDialog
+                  questionId={question.id}
+                  trigger={
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-[26.25px] min-w-[26.25px] flex-1 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256] cursor-pointer"
+                      aria-label="Delete question"
+                    >
+                      <Trash2 size={12.25} />
+                    </Button>
+                  }
+                />
+              </div>
+
+              {/* Dropdown for xs screens */}
+              <div className="sm:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
+                      aria-label="More actions"
+                    >
+                      <ChevronDown className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <div className="w-full px-3 py-2">
+                        <AskQuestionDialog
+                          categories={categories.filter(
+                            (c) => c.id !== "all-categories",
+                          )}
+                          isEditing
+                          data={question}
+                          trigger={<span className="w-full">Edit</span>}
+                        />
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <div className="w-full px-3 py-2">
+                        <DeleteQuestionDialog
+                          questionId={question.id}
+                          trigger={<span className="w-full">Delete</span>}
+                        />
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </div>
         )}
       </div>
 
@@ -153,31 +252,57 @@ export default function ForumContentNew({
   hasMore,
   isLoading,
 }: ForumContentNewProps) {
-  const list = questions ?? [];
-
   return (
     <section className="bg-[#f8fafc] px-4 py-10 md:px-10 lg:px-30">
       <div className="mx-auto flex w-full max-w-300 gap-10">
         <div className="flex min-w-0 flex-1 flex-col gap-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              {tabItems.map((tab) => {
-                const isActive = activeTab === tab.value;
-                return (
-                  <button
-                    key={`${tab.label}-${tab.value}`}
-                    type="button"
-                    onClick={() => setActiveTab(tab.value)}
-                    className={`rounded-full px-6 py-2.5 text-sm font-medium transition-colors ${
-                      isActive
-                        ? "bg-[#0050d4] text-[#f1f2ff]"
-                        : "bg-[#eef1f3] text-[#595c5e] hover:bg-[#e2e8f0]"
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                );
-              })}
+              {/* Tabs: inline on sm+, dropdown on xs */}
+              <div className="hidden sm:flex flex-wrap items-center gap-2">
+                {tabItems.map((tab) => {
+                  const isActive = activeTab === tab.value;
+                  return (
+                    <button
+                      key={`${tab.label}-${tab.value}`}
+                      type="button"
+                      onClick={() => setActiveTab(tab.value)}
+                      className={`rounded-full px-6 py-2.5 text-sm font-medium transition-colors ${
+                        isActive
+                          ? "bg-[#0050d4] text-[#f1f2ff]"
+                          : "bg-[#eef1f3] text-[#595c5e] hover:bg-[#e2e8f0]"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="sm:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="rounded-full px-4 py-2.5 text-sm"
+                    >
+                      {tabItems.find((t) => t.value === activeTab)?.label ??
+                        tabItems[0].label}
+                      <ChevronDown className="ml-2 size-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    {tabItems.map((tab) => (
+                      <DropdownMenuItem
+                        key={tab.value}
+                        onSelect={() => setActiveTab(tab.value)}
+                      >
+                        {tab.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
 
             <button
@@ -190,12 +315,16 @@ export default function ForumContentNew({
           </div>
 
           <div className="flex flex-col gap-5">
-            {isLoading && list.length === 0
+            {isLoading && questions?.length === 0
               ? Array.from({ length: 4 }).map((_, index) => (
                   <QuestionCardSkeleton key={`question-skeleton-${index}`} />
                 ))
-              : list.map((question) => (
-                  <DiscussionCard key={question.id} question={question} />
+              : questions?.map((question) => (
+                  <DiscussionCard
+                    key={question.id}
+                    question={question}
+                    categories={categories}
+                  />
                 ))}
           </div>
 
