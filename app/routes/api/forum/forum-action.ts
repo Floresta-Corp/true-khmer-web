@@ -26,7 +26,6 @@ export async function forumListAction({ request }: ForumRoute.ActionArgs) {
   const questionId = String(formData.get("questionId") ?? "").trim();
   const answerId = String(formData.get("answerId") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
-  console.log(actionType, method)
 
   const allowedActionTypes = new Set([
     "vote-question",

@@ -83,7 +83,7 @@ export async function createAnswerByQuestionId(
   body: CreateAnswerInput,
 ) {
   const parsedBody = CreateAnswerInputSchema.safeParse(body);
-  console.log(parsedBody);
+
   if (!parsedBody.success) {
     throw new Error("Invalid create answer payload");
   }

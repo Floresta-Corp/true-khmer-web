@@ -1,4 +1,5 @@
 import { CircleAlert, Pencil, Trash2 } from "lucide-react";
+import { motion } from "framer-motion";
 import AnswerVoteComponent from "../answer-vote-component";
 import { Button } from "~/components/ui/button";
 import { resolveImageURL } from "~/lib/utils";
@@ -24,7 +25,13 @@ export default function NestedReplyCard({
   const imageUrl = resolveImageURL(repliedAnswer.author.avatarKey);
 
   return (
-    <article className="w-full rounded-xl bg-[#fffefe] border border-slate-200 px-5 py-5 shadow-[0px_1px_2px_rgba(15,23,42,0.04)]">
+    <motion.article
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 6 }}
+      transition={{ duration: 0.18, ease: "easeOut" }}
+      className="w-full rounded-xl bg-[#fffefe] border border-slate-200 px-5 py-5 shadow-[0px_1px_2px_rgba(15,23,42,0.04)]"
+    >
       <div className="flex w-full items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-[#dfe3e6]">
@@ -107,6 +114,6 @@ export default function NestedReplyCard({
           <CircleAlert className="h-3.5 w-3.5" />
         </Button>
       </div>
-    </article>
+    </motion.article>
   );
 }

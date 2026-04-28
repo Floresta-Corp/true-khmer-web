@@ -40,7 +40,7 @@ export default function ForumHeaderNew() {
         </div>
 
         <div className="flex w-full max-w-2xl flex-col gap-4 md:flex-row md:items-center md:justify-center">
-          <div className="flex h-12 flex-1 items-center gap-3 rounded-xl border border-[#e1e7ef] bg-white px-6">
+          <div className="flex py-2 h-12 flex-1 items-center gap-3 rounded-lg md:rounded-xl border border-[#e1e7ef] bg-white px-6">
             <Search className="size-4.5 shrink-0 text-[#8f9294]" />
             <input
               type="search"
@@ -50,8 +50,10 @@ export default function ForumHeaderNew() {
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  const url = `/forum?search=${encodeURIComponent(search)}`;
-                  navigate(url);
+                  if (search.trim()) {
+                    const url = `/forum/search?search=${encodeURIComponent(search)}`;
+                    navigate(url);
+                  }
                 }
               }}
               placeholder="Search discussions"
@@ -65,7 +67,7 @@ export default function ForumHeaderNew() {
             trigger={
               <button
                 type="button"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#0050d4] px-6 text-base font-semibold text-[#f1f2ff] transition-colors hover:bg-[#0044b4]"
+                className="inline-flex h-8 md:h-12 items-center justify-center gap-2 rounded-lg md:rounded-xl bg-[#0050d4] px-6 text-base font-semibold text-[#f1f2ff] transition-colors hover:bg-[#0044b4]"
               >
                 <span className="text-[18px] leading-none">+</span>
                 Ask a Question

@@ -2,7 +2,7 @@ import { Calendar, Clock, Heart, MapPin, Timer } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import { resolveImageURL } from "~/lib/utils";
-import type { Opportunity } from "~/services/volunteer/types";
+import type { Opportunity } from "~/services/volunteer/volunteer-types";
 import type { VolunteerCategory } from "~/services/volunteer/types/category";
 import { format } from "date-fns";
 
@@ -98,7 +98,7 @@ function OpportunityCard({
           </div>
         </div>
 
-        <Link to={`/volunteer/${opportunity.id}`}>
+        <Link to={`/volunteer/detail/${opportunity.id}`}>
           <Button
             type="button"
             variant="outline"

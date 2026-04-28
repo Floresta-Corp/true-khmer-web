@@ -58,7 +58,7 @@ export default function LaunchpadPostPage() {
             initial="hidden"
             animate="visible"
           >
-            <BackToButton text="Back to Launchpad" to="/launchpad" />
+            <BackToButton to="/launchpad" />
           </motion.div>
 
           <motion.div

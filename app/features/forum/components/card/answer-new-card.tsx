@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { MessageCircle, Pencil, Trash2 } from "lucide-react";
 import AnswerVoteComponent from "../answer-vote-component";
 import { Separator } from "~/components/ui/separator";
@@ -162,23 +162,32 @@ export default function AnswerNewCard({
 
       {answer.repliedAnswers && (
         <CommentWrapper>
-          {answer.repliedAnswers.map((repliedAnswer, repliedIndex) => (
-            <CommentWrapper
-              key={repliedAnswer.id}
-              isReply
-              isFirst={
-                repliedIndex === 0 &&
-                repliedIndex !== answer.repliedAnswers!.length - 1
-              }
-              isLast={repliedIndex === answer.repliedAnswers!.length - 1}
-            >
-              <NestedReplyCard
-                repliedAnswer={repliedAnswer}
-                questionId={answer.questionId}
-                isCurrentAuthor={repliedAnswer.author.id === userId}
-              />
-            </CommentWrapper>
-          ))}
+          <AnimatePresence mode="wait">
+            {answer.repliedAnswers.map((repliedAnswer, repliedIndex) => (
+              <motion.div
+                key={repliedAnswer.id}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, height: 0, marginBottom: 0, y: -6 }}
+                transition={{ duration: 0.18, ease: "easeOut" }}
+              >
+                <CommentWrapper
+                  isReply
+                  isFirst={
+                    repliedIndex === 0 &&
+                    repliedIndex !== answer.repliedAnswers!.length - 1
+                  }
+                  isLast={repliedIndex === answer.repliedAnswers!.length - 1}
+                >
+                  <NestedReplyCard
+                    repliedAnswer={repliedAnswer}
+                    questionId={answer.questionId}
+                    isCurrentAuthor={repliedAnswer.author.id === userId}
+                  />
+                </CommentWrapper>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </CommentWrapper>
       )}
     </>

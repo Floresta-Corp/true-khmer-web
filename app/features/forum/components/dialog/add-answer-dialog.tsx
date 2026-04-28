@@ -171,7 +171,7 @@ export default function AddAnswerDialog({
                 setBodyError(null);
               }
             }}
-            className="h-20 w-full rounded-md border border-[#e2e8f0] bg-white px-3 pt-2 text-sm leading-5 text-[#111827] placeholder:text-black/50 focus:outline-none focus:ring-2 focus:ring-[#2f6fe4]/20 aria-invalid:border-red-500 overflow-x-auto"
+            className="min-h-20 w-full rounded-md border border-[#e2e8f0] bg-white px-3 pt-2 text-sm leading-5 text-[#111827] placeholder:text-black/50 focus:outline-none focus:ring-2 focus:ring-[#2f6fe4]/20 aria-invalid:border-red-500 resize-none overflow-x-auto"
           />
           {bodyError ? (
             <p className="mt-1 text-xs text-red-600">{bodyError}</p>

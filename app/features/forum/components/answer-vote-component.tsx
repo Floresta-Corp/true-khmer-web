@@ -98,7 +98,7 @@ export default function AnswerVoteComponent({
       ) : (
         <span
           className={cn(
-            `text-[11px] font-semibold leading-[16.5px]`,
+            `text-[11px] font-semibold leading-[16.5px] mx-1`,
             scoreClassName,
           )}
         >

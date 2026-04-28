@@ -10,6 +10,7 @@ import ForumReportDialog, {
   ReportDialogType,
   type ReportReasonData,
 } from "./dialog/forum-report-dialog";
+import { Link } from "react-router";
 
 interface ForumDetailQuestionHeaderProps {
   questionId: string;
@@ -52,7 +53,7 @@ export default function ForumDetailQuestionHeader({
             variant="link"
             className="h-auto max-w-full truncate p-0 text-sm font-semibold text-blue-600"
           >
-            {category.name}
+            <Link to={`/forum?categoryId=${category.id}`}>{category.name}</Link>
           </Button>
           <span className="text-[#abadaf]">•</span>
           <p className="text-[#595c5e]">{postedAt}</p>

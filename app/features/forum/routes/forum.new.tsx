@@ -12,13 +12,41 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { forumListloader } from "~/routes/api/forum/forum-loader";
 import { questionSortBySchema } from "~/services/forum/forum-types";
 import ForumHeaderNew from "../components/sections/forum-header-new";
-import ForumContentNew from "../components/sections/forum-content-new";
+import ForumContentNew, {
+  type ForumQuestionTab,
+} from "../components/sections/forum-content-new";
 import { forumListAction } from "~/routes/api/forum/forum-action";
 
 const LIMIT = 10;
 
 export const loader = forumListloader;
 export const action = forumListAction;
+
+function getTabQueryFlags(tab: ForumQuestionTab) {
+  if (tab === "topRated") {
+    return { isTrending: "true", isUnanswered: undefined };
+  }
+
+  if (tab === "unanswered") {
+    return { isTrending: undefined, isUnanswered: "true" };
+  }
+
+  return { isTrending: undefined, isUnanswered: undefined };
+}
+
+function getTabFromSearchParams(
+  searchParams: URLSearchParams,
+): ForumQuestionTab {
+  if (searchParams.get("isUnanswered") === "true") {
+    return "unanswered";
+  }
+
+  if (searchParams.get("isTrending") === "true") {
+    return "topRated";
+  }
+
+  return "recent";
+}
 
 export default function ForumNewPage() {
   const { data, categories, tags } = useLoaderData<typeof loader>();
@@ -32,6 +60,7 @@ export default function ForumNewPage() {
   const initialSortBy = questionSortBySchema.safeParse(
     searchParams.get("sortBy"),
   );
+  const initialTab = getTabFromSearchParams(searchParams);
   const initialCategory =
     initialCategoryId && categories.length > 0
       ? categories.find((c) => c.id === initialCategoryId) || {
@@ -54,10 +83,27 @@ export default function ForumNewPage() {
   const [selectedTagId, setSelectedTagId] = useState<string | undefined>(
     initialTagId || undefined,
   );
-  const [activeTab, setActiveTab] = useState<QuestionSortBy>(
-    initialSortBy.success ? initialSortBy.data : "recent",
+  const [sortBy, setSortBy] = useState<QuestionSortBy>(
+    initialSortBy.success ? initialSortBy.data : "mostRelevant",
   );
+  const [activeTab, setActiveTab] = useState<ForumQuestionTab>(initialTab);
   const prefersReducedMotion = useReducedMotion();
+
+  // Sync selectedCategory from URL when categoryId changes
+  useEffect(() => {
+    const urlCategoryId = searchParams.get("categoryId");
+    if (urlCategoryId && categories.length > 0) {
+      const foundCategory = categories.find((c) => c.id === urlCategoryId);
+      if (foundCategory) {
+        setSelectedCategory({
+          id: foundCategory.id,
+          name: foundCategory.name,
+        });
+      }
+    } else if (!urlCategoryId) {
+      setSelectedCategory({ id: "all-categories", name: "All Categories" });
+    }
+  }, [searchParams.get("categoryId"), categories]);
 
   const buildForumQuery = useCallback(
     (cursor?: string) => {
@@ -75,11 +121,21 @@ export default function ForumNewPage() {
         params.set("tagId", selectedTagId);
       }
 
-      params.set("sortBy", activeTab);
+      params.set("sortBy", sortBy);
+
+      const { isTrending, isUnanswered } = getTabQueryFlags(activeTab);
+
+      if (isTrending) {
+        params.set("isTrending", isTrending);
+      }
+
+      if (isUnanswered) {
+        params.set("isUnanswered", isUnanswered);
+      }
 
       return `/forum?${params.toString()}`;
     },
-    [activeTab, selectedCategory.id, selectedTagId],
+    [activeTab, selectedCategory.id, selectedTagId, sortBy],
   );
 
   // Sync local state from fresh loader data after revalidation
@@ -144,7 +200,17 @@ export default function ForumNewPage() {
       setSelectedCategory(category);
 
       const nextParams = new URLSearchParams();
-      nextParams.set("sortBy", activeTab);
+      nextParams.set("sortBy", sortBy);
+
+      const { isTrending, isUnanswered } = getTabQueryFlags(activeTab);
+
+      if (isTrending) {
+        nextParams.set("isTrending", isTrending);
+      }
+
+      if (isUnanswered) {
+        nextParams.set("isUnanswered", isUnanswered);
+      }
 
       if (category.id !== "all-categories") {
         nextParams.set("categoryId", category.id);
@@ -159,7 +225,7 @@ export default function ForumNewPage() {
         preventScrollReset: true,
       });
     },
-    [activeTab, selectedTagId, setSearchParams],
+    [activeTab, selectedTagId, setSearchParams, sortBy],
   );
 
   const handleTagSelect = useCallback(
@@ -168,7 +234,17 @@ export default function ForumNewPage() {
       setSelectedTagId(nextTagId);
 
       const nextParams = new URLSearchParams();
-      nextParams.set("sortBy", activeTab);
+      nextParams.set("sortBy", sortBy);
+
+      const { isTrending, isUnanswered } = getTabQueryFlags(activeTab);
+
+      if (isTrending) {
+        nextParams.set("isTrending", isTrending);
+      }
+
+      if (isUnanswered) {
+        nextParams.set("isUnanswered", isUnanswered);
+      }
 
       if (selectedCategory.id !== "all-categories") {
         nextParams.set("categoryId", selectedCategory.id);
@@ -183,15 +259,25 @@ export default function ForumNewPage() {
         preventScrollReset: true,
       });
     },
-    [activeTab, selectedCategory.id, selectedTagId, setSearchParams],
+    [activeTab, selectedCategory.id, selectedTagId, setSearchParams, sortBy],
   );
 
   const handleTabChange = useCallback(
-    (tab: QuestionSortBy) => {
+    (tab: ForumQuestionTab) => {
       setActiveTab(tab);
 
       const nextParams = new URLSearchParams();
-      nextParams.set("sortBy", tab);
+      nextParams.set("sortBy", sortBy);
+
+      const { isTrending, isUnanswered } = getTabQueryFlags(tab);
+
+      if (isTrending) {
+        nextParams.set("isTrending", isTrending);
+      }
+
+      if (isUnanswered) {
+        nextParams.set("isUnanswered", isUnanswered);
+      }
 
       if (selectedCategory.id !== "all-categories") {
         nextParams.set("categoryId", selectedCategory.id);
@@ -206,7 +292,40 @@ export default function ForumNewPage() {
         preventScrollReset: true,
       });
     },
-    [selectedCategory.id, selectedTagId, setSearchParams],
+    [selectedCategory.id, selectedTagId, setSearchParams, sortBy],
+  );
+
+  const handleSortByChange = useCallback(
+    (value: QuestionSortBy) => {
+      setSortBy(value);
+
+      const nextParams = new URLSearchParams();
+      nextParams.set("sortBy", value);
+
+      const { isTrending, isUnanswered } = getTabQueryFlags(activeTab);
+
+      if (isTrending) {
+        nextParams.set("isTrending", isTrending);
+      }
+
+      if (isUnanswered) {
+        nextParams.set("isUnanswered", isUnanswered);
+      }
+
+      if (selectedCategory.id !== "all-categories") {
+        nextParams.set("categoryId", selectedCategory.id);
+      }
+
+      if (selectedTagId) {
+        nextParams.set("tagId", selectedTagId);
+      }
+
+      setSearchParams(nextParams, {
+        replace: true,
+        preventScrollReset: true,
+      });
+    },
+    [activeTab, selectedCategory.id, selectedTagId, setSearchParams],
   );
 
   const allQuestion = categories.reduce(
@@ -254,6 +373,8 @@ export default function ForumNewPage() {
           onCategorySelect={handleCategorySelect}
           activeTab={activeTab}
           setActiveTab={handleTabChange}
+          sortBy={sortBy}
+          setSortBy={handleSortByChange}
           selectedTagId={selectedTagId}
           onTagSelect={handleTagSelect}
           onLoadMore={handleLoadMore}

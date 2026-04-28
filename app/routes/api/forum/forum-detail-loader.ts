@@ -4,12 +4,15 @@ import {
   getAnswersByQuestionId,
   getPublicQuestionById,
   getPublicAnswersByQuestionId,
+  getPublicCategories,
+  getCategories,
   GetPublicReportType,
 } from "~/services/forum/server";
 import type {
   Answer,
   GetPublicReportType as GetPublicReportTypeResponse,
   Question,
+  Category,
 } from "~/services/forum/forum-types";
 import type { Route as ForumDetailRoute } from "project-types/forum/routes/+types/forum.$id";
 
@@ -18,6 +21,7 @@ type ForumDetailLoaderData = {
   answers: Answer[];
   userId: string | null;
   reportReasons: GetPublicReportTypeResponse;
+  categories: Category[];
 };
 
 export async function forumDetailLoader({
@@ -31,19 +35,21 @@ export async function forumDetailLoader({
 
   const userId = await getUserId(request);
 
-  const [questionResult, answersResult, reportReasonsResult] =
+const [questionResult, answersResult, reportReasonsResult, categoriesResult] =
     await Promise.all(
       userId
         ? [
-          getQuestionById(request, questionId),
-          getAnswersByQuestionId(request, questionId),
-          GetPublicReportType(request),
-        ]
+            getQuestionById(request, questionId),
+            getAnswersByQuestionId(request, questionId),
+            GetPublicReportType(request),
+            getCategories(request),
+          ]
         : [
-          getPublicQuestionById(request, questionId),
-          getPublicAnswersByQuestionId(request, questionId),
-          GetPublicReportType(request),
-        ],
+            getPublicQuestionById(request, questionId),
+            getPublicAnswersByQuestionId(request, questionId),
+            GetPublicReportType(request),
+            getPublicCategories(request),
+          ],
     );
 
   return {
@@ -51,5 +57,6 @@ export async function forumDetailLoader({
     answers: answersResult?.data.answers ?? [],
     userId: userId ?? null,
     reportReasons: reportReasonsResult.data as GetPublicReportTypeResponse,
+    categories: categoriesResult.data.categories ?? [],
   } satisfies ForumDetailLoaderData;
 }

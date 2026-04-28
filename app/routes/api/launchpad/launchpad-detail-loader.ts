@@ -1,12 +1,15 @@
 import type { Route as LaunchpadDetailRoute } from "project-types/launchpad/routes/+types/launchpad.$id";
-import { GetLaunchpadProjectById } from "~/services/launchpad/server/launchpad.server";
+import { GetLaunchpadProjectById } from "~/services/launchpad/launchpad.server";
 
-export async function LaunchpadDetailLoader({ request, params }: LaunchpadDetailRoute.LoaderArgs) {
-    const id = params.id;
-    if (id !== "post") {
-        const project = await GetLaunchpadProjectById(id ?? "")
-        return project
-    } else {
-        return {}
-    }
+export async function LaunchpadDetailLoader({
+  request,
+  params,
+}: LaunchpadDetailRoute.LoaderArgs) {
+  const id = params.id;
+  if (id !== "post") {
+    const project = await GetLaunchpadProjectById(id ?? "");
+    return project;
+  } else {
+    return {};
+  }
 }

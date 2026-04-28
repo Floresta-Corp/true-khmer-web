@@ -8,7 +8,8 @@ import { useLoaderData } from "react-router";
 export const loader = volunteerLoader;
 
 export default function VolunteerPage() {
-  const { categories, opportunities } = useLoaderData<typeof loader>();
+  const { categories, opportunities, locations } =
+    useLoaderData<typeof loader>();
   const prefersReducedMotion = useReducedMotion();
   const duration = prefersReducedMotion ? 0 : 0.35;
 
@@ -19,7 +20,7 @@ export default function VolunteerPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration, delay: 0 }}
       >
-        <VolunteerHeader />
+        <VolunteerHeader locations={locations?.locations || []} />
       </motion.div>
 
       {categories?.categories && categories.categories.length > 0 && (

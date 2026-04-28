@@ -4,12 +4,16 @@ import {
   ProtectedApiError,
 } from "~/lib/server/api-client.server";
 import {
+  UploadOpportunityCoverImageInputSchema,
   VolunteerOpportunityInputSchema,
+  type CreateVolunteerOpportunityResponse,
   type GetVolunteerOpportunitiesResponse,
   type GetVolunteerOpportunityByIdResponse,
+  type UploadOpportunityCoverImageInput,
+  type UploadOpportunityCoverImageResponse,
   type VolunteerOpportunityFilter,
   type VolunteerOpportunityInput,
-} from "../types";
+} from "../volunteer-types";
 
 function buildOpportunityQuery(filter?: VolunteerOpportunityFilter) {
   const queryParams = new URLSearchParams();
@@ -117,22 +121,26 @@ export async function createVolunteerOpportunity(
   input: VolunteerOpportunityInput,
 ) {
   const body = VolunteerOpportunityInputSchema.parse(input);
-  return await apiRequestWithSession(request, "/volunteer/opportunities", {
+  return await apiRequestWithSession<
+    CreateVolunteerOpportunityResponse,
+    VolunteerOpportunityInput
+  >(request, "/volunteer/opportunities", {
     method: "POST",
     body,
   });
 }
 
-export async function uploadCoverImage(request: Request, file: File) {
-  const formData = new FormData();
-  formData.append("file", file);
+export async function uploadOpportunityCoverImage(
+  request: Request,
+  input: UploadOpportunityCoverImageInput,
+) {
+  const body = UploadOpportunityCoverImageInputSchema.parse(input);
 
-  return await apiRequestWithSession(
-    request,
-    "/volunteer/opportunities/cover-image/presign",
-    {
-      method: "POST",
-      body: formData,
-    },
-  );
+  return await apiRequestWithSession<
+    UploadOpportunityCoverImageResponse,
+    UploadOpportunityCoverImageInput
+  >(request, "/volunteer/opportunities/cover-image/presign", {
+    method: "POST",
+    body: body,
+  });
 }

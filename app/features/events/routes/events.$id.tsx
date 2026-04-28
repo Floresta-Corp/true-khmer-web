@@ -2,6 +2,7 @@ import { useLoaderData, useNavigate } from "react-router";
 import type { Route } from "./+types/events.$id";
 import { AlertCircle, ArrowLeft } from "lucide-react";
 import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { ImageGallery } from "~/components/image-lightbox";
@@ -30,6 +31,12 @@ export default function EventDetailPage() {
     useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"tickets" | "info">("info");
+  const prefersReducedMotion = useReducedMotion();
+
+  const fadeUp = {
+    initial: { opacity: 0, y: prefersReducedMotion ? 0 : 16 },
+    animate: { opacity: 1, y: 0 },
+  };
 
   const goBack = () => {
     if (window.history.length > 1) {
@@ -72,17 +79,38 @@ export default function EventDetailPage() {
     CATEGORY_COLORS_LIGHT[event.eventType] || "bg-gray-100 text-gray-700";
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
+    <motion.div
+      className="min-h-screen bg-gray-50 font-sans"
+      initial={fadeUp.initial}
+      animate={fadeUp.animate}
+      transition={{ duration: prefersReducedMotion ? 0 : 0.25 }}
+    >
       {/* Back link */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <BackToButton text="Back to events" to="/events" />
-      </div>
+      <motion.div
+        className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6"
+        initial={fadeUp.initial}
+        animate={fadeUp.animate}
+        transition={{ duration: prefersReducedMotion ? 0 : 0.22, delay: 0.03 }}
+      >
+        <BackToButton to="/events" />
+      </motion.div>
 
       {/* Hero Image */}
-      <EventDetailHero event={event} />
+      <motion.div
+        initial={fadeUp.initial}
+        animate={fadeUp.animate}
+        transition={{ duration: prefersReducedMotion ? 0 : 0.28, delay: 0.06 }}
+      >
+        <EventDetailHero event={event} />
+      </motion.div>
 
       {/* Content */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pb-16">
+      <motion.div
+        className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pb-16"
+        initial={fadeUp.initial}
+        animate={fadeUp.animate}
+        transition={{ duration: prefersReducedMotion ? 0 : 0.3, delay: 0.1 }}
+      >
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left Column */}
           <div className="flex-1 min-w-0">
@@ -127,58 +155,84 @@ export default function EventDetailPage() {
             </div>
 
             {/* Tab Content */}
-            {activeTab === "info" && (
-              <div className="mt-6 space-y-5">
-                {/* About this event */}
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg">About this event</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {event.description &&
-                    event.description !== "<p></p>" &&
-                    event.description.replace(/<[^>]*>/g, "").trim() ? (
-                      <SanitizedHtml
-                        html={event.description}
-                        className="prose prose-sm prose-gray max-w-none text-sm text-muted-foreground leading-relaxed [&>p]:mb-2 [&>h1]:text-lg [&>h1]:font-bold [&>h1]:mb-2 [&>h2]:text-base [&>h2]:font-semibold [&>h2]:mb-1.5 [&>h2]:mt-4 [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4"
-                      />
-                    ) : (
-                      <p className="text-sm text-muted-foreground italic">
-                        No description provided for this event.
-                      </p>
-                    )}
-                    {photos.length > 0 && (
-                      <div className="flex flex-col gap-4">
-                        <div className="pt-10 text-lg font-semibold">
-                          Gallery
-                        </div>
-                        <ImageGallery
-                          images={photos}
-                          alt={`${event.title} photo`}
-                          columns={3}
+            <AnimatePresence mode="wait" initial={false}>
+              {activeTab === "info" ? (
+                <motion.div
+                  key="info"
+                  className="mt-6 space-y-5"
+                  initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: prefersReducedMotion ? 0 : -8 }}
+                  transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
+                >
+                  {/* About this event */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg">
+                        About this event
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {event.description &&
+                      event.description !== "<p></p>" &&
+                      event.description.replace(/<[^>]*>/g, "").trim() ? (
+                        <SanitizedHtml
+                          html={event.description}
+                          className="prose prose-sm prose-gray max-w-none text-sm text-muted-foreground leading-relaxed [&>p]:mb-2 [&>h1]:text-lg [&>h1]:font-bold [&>h1]:mb-2 [&>h2]:text-base [&>h2]:font-semibold [&>h2]:mb-1.5 [&>h2]:mt-4 [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4"
                         />
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {activeTab === "tickets" && (
-              <EventTicketList
-                ticketTiers={ticketTiers}
-                ticketStatus={event.ticketStatus}
-                price={event.price}
-                heroImage={heroImage}
-                eventName={event.slug}
-              />
-            )}
+                      ) : (
+                        <p className="text-sm text-muted-foreground italic">
+                          No description provided for this event.
+                        </p>
+                      )}
+                      {photos.length > 0 && (
+                        <div className="flex flex-col gap-4">
+                          <div className="pt-10 text-lg font-semibold">
+                            Gallery
+                          </div>
+                          <ImageGallery
+                            images={photos}
+                            alt={`${event.title} photo`}
+                            columns={3}
+                          />
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="tickets"
+                  initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: prefersReducedMotion ? 0 : -8 }}
+                  transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
+                >
+                  <EventTicketList
+                    ticketTiers={ticketTiers}
+                    ticketStatus={event.ticketStatus}
+                    price={event.price}
+                    heroImage={heroImage}
+                    eventName={event.slug}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Right Sidebar */}
-          <EventDetailSidebar event={event} organizer={organizer} />
+          <motion.div
+            initial={fadeUp.initial}
+            animate={fadeUp.animate}
+            transition={{
+              duration: prefersReducedMotion ? 0 : 0.28,
+              delay: 0.12,
+            }}
+          >
+            <EventDetailSidebar event={event} organizer={organizer} />
+          </motion.div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

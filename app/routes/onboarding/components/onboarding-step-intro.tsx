@@ -7,6 +7,8 @@ type OnboardingStepIntroProps = {
   title: ReactNode;
   description: ReactNode;
   centered?: boolean;
+  stepBadgeClassName?: string;
+  stepTextClassName?: string;
   titleClassName?: string;
   descriptionClassName?: string;
 };
@@ -18,6 +20,8 @@ export function OnboardingStepIntro({
   title,
   description,
   centered = false,
+  stepBadgeClassName = "rounded-full border border-black/10 px-3.5 py-2",
+  stepTextClassName = "text-xs uppercase tracking-[0.16em] text-[#2F6FE4]",
   titleClassName = "text-2xl font-semibold leading-8 text-[#030213]",
   descriptionClassName = "text-sm font-normal leading-5 text-[#99A1AF]",
 }: OnboardingStepIntroProps) {
@@ -38,8 +42,8 @@ export function OnboardingStepIntro({
         })}
       </div>
 
-      <div className="inline-flex rounded-full border border-black/10 px-3.5 py-2">
-        <p className="text-xs uppercase tracking-[0.16em] text-[#2F6FE4]">
+      <div className={`inline-flex ${stepBadgeClassName}`}>
+        <p className={stepTextClassName}>
           <span className="font-normal">
             Step {currentStep} of {totalSteps} —{" "}
           </span>
@@ -47,7 +51,9 @@ export function OnboardingStepIntro({
         </p>
       </div>
 
-      <div className={`w-full space-y-1.5 ${centered ? "text-center" : "text-left"}`}>
+      <div
+        className={`w-full space-y-1.5 ${centered ? "text-center" : "text-left"}`}
+      >
         <h1 className={titleClassName}>{title}</h1>
         <p className={descriptionClassName}>{description}</p>
       </div>

@@ -1,10 +1,5 @@
 import { useState } from "react";
-import {
-  Form,
-  data,
-  redirect,
-  useActionData,
-} from "react-router";
+import { Form, data, redirect, useActionData } from "react-router";
 import { OnboardingHeader } from "~/routes/onboarding/components/onboarding-header";
 import { OnboardingBackContinueActions } from "~/routes/onboarding/components/onboarding-back-continue-actions";
 import { OnboardingFormError } from "~/routes/onboarding/components/onboarding-form-error";
@@ -14,9 +9,7 @@ import { SelectableContributionCard } from "~/routes/onboarding/components/selec
 import { saveStep3Contributions } from "~/services/onboarding.server";
 import type { Route } from "./+types/contribution";
 import { requireOnboardingIncomplete } from "~/lib/server/route-guards.server";
-import {
-  onboardingContributionCards,
-} from "~/routes/onboarding/domain/contribution/contribution-cards";
+import { onboardingContributionCards } from "~/routes/onboarding/domain/contribution/contribution-cards";
 import {
   isContributionInputUnchanged,
   parseContributionForm,
@@ -52,11 +45,11 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   try {
-    const result = await saveStep3Contributions(request, formInput.selectedKeys);
-    return redirect(
-      "/onboarding/tier",
-      cookieHeader(result.setCookie),
+    const result = await saveStep3Contributions(
+      request,
+      formInput.selectedKeys,
     );
+    return redirect("/onboarding/tier", cookieHeader(result.setCookie));
   } catch (error) {
     const handled = await handleOnboardingActionError({
       error,
@@ -81,7 +74,9 @@ export default function OnboardingContributionPage() {
   const savedContributionKeys = savedContributionKeysFromState
     .filter((key) => selectableContributionKeys.has(key))
     .sort();
-  const [selected, setSelected] = useState<string[]>(() => savedContributionKeys);
+  const [selected, setSelected] = useState<string[]>(
+    () => savedContributionKeys,
+  );
   const canContinue = selected.length > 0;
 
   function toggleCard(key: string) {
@@ -94,12 +89,12 @@ export default function OnboardingContributionPage() {
     <div className="min-h-screen overflow-hidden bg-white text-[#111827]">
       <OnboardingHeader title="How You'll Engage" titlePosition="right" />
 
-      <main className="relative flex min-h-[calc(100vh-60px)] items-start justify-center overflow-hidden px-6 pt-8 pb-12 font-['Inter'] sm:px-10 md:px-16 lg:px-24 xl:px-80 xl:pt-10">
+      <main className="relative flex min-h-[calc(100vh-60px)] items-start justify-center overflow-hidden px-6 py-10 font-['Inter'] sm:px-10 md:px-16 lg:px-24 xl:px-80">
         <OnboardingRomdoulCorners />
 
         <Form
           method="post"
-          className="relative z-10 flex w-full max-w-3xl flex-col items-start gap-6 py-0"
+          className="relative z-10 flex w-full max-w-191 flex-col items-start gap-10 py-0"
         >
           {selected.map((key) => (
             <input key={key} type="hidden" name="selected" value={key} />
@@ -118,10 +113,14 @@ export default function OnboardingContributionPage() {
             currentStep={3}
             totalSteps={4}
             stepLabel="How You'll Engage"
+            stepBadgeClassName="rounded-full border border-black/10 px-3.75 py-2"
+            stepTextClassName="text-xs uppercase tracking-widest text-[#2F6FE4]"
+            titleClassName="text-[26.25px] font-semibold leading-[31.5px] tracking-[-0.6563px] text-[#1D283A]"
+            descriptionClassName="text-[14px] font-normal leading-5.25 text-[#99A1AF]"
             title={
               <>
-                How do you <span className="text-[#2894FA]">plan</span> to use the
-                True Khmer App?
+                How do you <span className="text-[#2894FA]">plan</span> to use
+                the True Khmer App?
               </>
             }
             description={
@@ -166,7 +165,7 @@ export default function OnboardingContributionPage() {
             ))}
           </div>
 
-          <p className="tk-fade-up-2 text-sm font-normal italic leading-5 text-[#8A99AD]">
+          <p className="tk-fade-up-2 text-sm font-normal italic leading-5.25 text-[#99A1AF]">
             Pick at least 1 to continue
           </p>
 

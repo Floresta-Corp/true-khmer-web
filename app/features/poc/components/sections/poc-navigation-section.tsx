@@ -22,7 +22,7 @@ export function PocNavigationSection({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
-      <BackToButton to="/poc" text="Back to POCs" />
+      <BackToButton to="/poc" />
       <motion.div
         className="flex items-center gap-1 bg-white border border-gray-100 rounded-full px-1 py-1 shadow-sm"
         data-node-id="14300:4269"

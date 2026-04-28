@@ -32,7 +32,7 @@ export default function LaunchpadProjectDetailPage() {
             duration: prefersReducedMotion ? 0 : 0.3,
           }}
         >
-          <BackToButton text="Back to Launchpad" to="/launchpad" />
+          <BackToButton to="/launchpad" />
         </motion.div>
         <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
           <section className="flex min-w-0 flex-col gap-4 md:gap-8">

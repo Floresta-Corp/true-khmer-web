@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import type { loader } from "../../routes/volunteer";
+import type { Location } from "~/services/volunteer/volunteer-types";
 
 const LOCATIONS = [
   { value: "anywhere", label: "Anywhere" },
@@ -18,12 +19,16 @@ const LOCATIONS = [
   { value: "battambang", label: "Battambang" },
 ];
 
-export default function VolunteerHeader() {
+interface VolunteerHeaderProps {
+  locations: Location[];
+}
+
+export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
   const { userId } = useLoaderData<typeof loader>();
-  const [location, setLocation] = useState(LOCATIONS[0]);
+  const [location, setLocation] = useState(locations[0]);
   const linkTo = userId
-    ? "/volunteer/post"
-    : "/login?redirectTo=/volunteer/post";
+    ? "/volunteer/create"
+    : "/login?redirectTo=/volunteer/create";
 
   return (
     <section className="flex w-full items-center justify-center bg-linear-to-r from-sky-100 to-white px-4 py-12 md:h-125 md:px-6 md:py-0">
@@ -52,16 +57,16 @@ export default function VolunteerHeader() {
               <div className="flex w-full justify-start px-2 md:w-auto md:px-0">
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex h-8.5 w-full items-center justify-between gap-1.5 rounded-xl px-3.5 text-[13px] font-semibold leading-[19.5px] text-[#364153] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:w-auto md:justify-start">
-                    {location.label}
+                    {location.name}
                     <ChevronDown className="size-3.5 text-[#364153]/65" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    {LOCATIONS.map((loc) => (
+                    {locations.map((loc) => (
                       <DropdownMenuItem
-                        key={loc.value}
+                        key={loc.name}
                         onSelect={() => setLocation(loc)}
                       >
-                        {loc.label}
+                        {loc.name}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>

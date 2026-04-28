@@ -31,9 +31,14 @@ export function InterestSelector({
   }, [chunkSize, interests]);
 
   return (
-    <div className={`flex w-full flex-col items-start gap-3 ${className ?? ""}`}>
+    <div
+      className={`flex w-full flex-col items-start gap-3 ${className ?? ""}`}
+    >
       {rows.map((row, rowIndex) => (
-        <div key={rowIndex} className="inline-flex w-full flex-wrap items-start gap-2">
+        <div
+          key={rowIndex}
+          className="inline-flex w-full flex-wrap items-start gap-2"
+        >
           {row.map((interest) => {
             const isActive = selectedIds.includes(interest.id);
             return (
@@ -44,8 +49,8 @@ export function InterestSelector({
                 variant="outline"
                 className={`h-8 shrink-0 cursor-pointer gap-1.5 whitespace-nowrap rounded-[999px] px-3 text-sm font-medium leading-5 ${
                   isActive
-                    ? "border-[#9FC4F8] bg-[#EAF2FF] text-[#1D4DB4]"
-                    : "border-[#E2E8F0] bg-white text-[#0F172B] hover:bg-[#F8FAFC]"
+                    ? "border-[#D0E2FF] bg-[#EAF2FF] text-[#1D4DB4]"
+                    : "border-[#F1F5F9] bg-white text-[#0F172B] hover:bg-white"
                 }`}
               >
                 <span aria-hidden="true" className="text-base leading-none">

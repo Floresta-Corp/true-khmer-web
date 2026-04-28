@@ -80,7 +80,7 @@ const defaultStories: Story[] = [
 
 function StoryCard({ story, onCardClick, onLike, onShare }: any) {
   return (
-    <Link to={`/poc/${story.id}`}>
+    <Link to={`/poc/detail/${story.id}`}>
       <div
         className="flex flex-col gap-5.25 cursor-pointer"
         onClick={() => onCardClick?.(story)}

@@ -2,8 +2,7 @@ import { createCookieSessionStorage } from "react-router";
 import { redirect } from "react-router";
 import type { AuthTokensResponse } from "~/services/auth.server";
 import type { AuthenticatedUser } from "./types";
-const SESSION_SECRET =
-  process.env.SESSION_SECRET ?? crypto.randomUUID();
+const SESSION_SECRET = process.env.SESSION_SECRET ?? crypto.randomUUID();
 
 if (!process.env.SESSION_SECRET) {
   console.warn(
@@ -19,7 +18,7 @@ const sessionStorage = createCookieSessionStorage({
     path: "/",
     sameSite: "lax",
     secrets: [SESSION_SECRET],
-    secure: process.env.NODE_ENV === "production",
+    secure: false,
   },
 });
 
@@ -47,7 +46,9 @@ interface SessionUser {
   avatar?: string;
 }
 
-export async function getUser(request: Request): Promise<AuthenticatedUser | null | SessionUser> {
+export async function getUser(
+  request: Request,
+): Promise<AuthenticatedUser | null | SessionUser> {
   const session = await getSession(request);
   const user = session.get("user");
   if (user) return user as AuthenticatedUser;

@@ -35,9 +35,9 @@ export default function LaunchpadContactDetailCard() {
         <TabsContent value="user-profile">
           <UserProfileContactTab />
         </TabsContent>
-        <TabsContent value={"different-contact"}>
+        {/* <TabsContent value={"different-contact"}>
           <DifferentContactTab />
-        </TabsContent>
+        </TabsContent> */}
       </SectionInputCard>
     </Tabs>
   );

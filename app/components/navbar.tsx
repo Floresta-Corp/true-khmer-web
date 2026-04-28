@@ -9,6 +9,12 @@ import {
   Bell,
   LayoutDashboard,
   Video,
+  HeartHandshake,
+  Calendar,
+  MessagesSquare,
+  House,
+  BriefcaseBusiness,
+  TvMinimalPlay,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import type { AuthenticatedUser } from "~/lib/server/types";
@@ -20,14 +26,14 @@ interface NavbarProps {
 }
 
 const navLinks = [
-  { to: "/myspace", label: "My Space", icon: LayoutDashboard },
+  { to: "/myspace", label: "Home", icon: House },
   // { to: "/dashboard", label: "My Journey", icon: Compass },
-  { to: "/forum", label: "Forum", icon: MessageSquare },
+  { to: "/forum", label: "Forum", icon: MessagesSquare },
   // { to: "/forumv2", label: "Forum V2", icon: MessageSquare },
-  { to: "/events", label: "Events", icon: CalendarDays },
-  { to: "/volunteer", label: "Volunteer", icon: Heart },
-  { to: "/launchpad", label: "Launchpad", icon: Rocket },
-  { to: "/poc", label: "POC", icon: Video },
+  { to: "/events", label: "Events", icon: Calendar },
+  { to: "/volunteer", label: "Volunteer", icon: HeartHandshake },
+  { to: "/launchpad", label: "Launchpad", icon: BriefcaseBusiness },
+  { to: "/poc", label: "POC", icon: TvMinimalPlay },
 ];
 
 export function Navbar({ user, loginRedirectTo }: NavbarProps) {

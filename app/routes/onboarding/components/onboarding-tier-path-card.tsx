@@ -23,31 +23,31 @@ const TIERS = [
 
 export function OnboardingTierPathCard() {
   return (
-    <div className="rounded-2xl border border-[#A6D4FF] bg-white px-5 py-3.5 sm:py-4">
+    <div className="w-full rounded-2xl border border-[#ACDCFF] bg-white px-5 py-4">
       <div className="flex flex-col gap-3">
-        <p className="text-xs font-semibold leading-5 text-[#667085]">
+        <p className="text-xs font-semibold leading-5 text-[#65758B]">
           Tiers Path Ahead
         </p>
 
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center justify-between gap-4">
           {TIERS.map((tier, index) => {
             const Icon = tier.icon;
             return (
               <div key={tier.name} className="contents">
-                <div className="flex w-[90px] shrink-0 flex-col items-center gap-1 sm:w-[100px]">
-                  <Icon size={18} className={tier.colorClassName} />
+                <div className="flex w-14.25 shrink-0 flex-col items-center gap-1 text-center">
+                  <Icon size={20} className={tier.colorClassName} />
                   <p
                     className={`text-sm font-semibold leading-5 ${tier.colorClassName}`}
                   >
                     {tier.name}
                   </p>
-                  <p className="whitespace-nowrap text-xs font-normal leading-5 text-[#667085]">
+                  <p className="whitespace-nowrap text-xs font-normal leading-5 text-[#48566A]">
                     {tier.range}
                   </p>
                 </div>
 
                 {index < TIERS.length - 1 ? (
-                  <div className="h-0.5 min-w-4 flex-1 rounded-full bg-[#E4E7EC]" />
+                  <div className="h-0.5 min-w-25 flex-1 rounded-full bg-[#F1F5F9]" />
                 ) : null}
               </div>
             );

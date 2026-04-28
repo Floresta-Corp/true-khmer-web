@@ -35,37 +35,43 @@ export async function forumListloader({ request }: ForumRoute.LoaderArgs) {
   const tagId = url.searchParams.get("tagId");
   const categoryId = url.searchParams.get("categoryId");
   const limit = url.searchParams.get("limit");
+  const isTrending = url.searchParams.get("isTrending") === "true";
+  const isUnanswered = url.searchParams.get("isUnanswered") === "true";
   const rawSortBy = url.searchParams.get("sortBy");
   const parsedSortBy = questionSortBySchema.safeParse(rawSortBy);
-  const sortBy = parsedSortBy.success ? parsedSortBy.data : "recent";
+  const sortBy = parsedSortBy.success ? parsedSortBy.data : undefined;
 
   const userId = await getUserId(request);
 
   const [question, categoriesResult, tags, reportReasons] = userId
     ? await Promise.all([
-      getQuestionPagination(request, {
-        limit: limit ? Number(limit) : LIMIT,
-        categoryId: categoryId || undefined,
-        tagId: tagId || undefined,
-        cursor: cursor || undefined,
-        sortBy,
-      }),
-      getCategories(request),
-      getTrendingTags(request),
-      GetPublicReportType(request),
-    ])
+        getQuestionPagination(request, {
+          limit: limit ? Number(limit) : LIMIT,
+          categoryId: categoryId || undefined,
+          tagId: tagId || undefined,
+          cursor: cursor || undefined,
+          sortBy,
+          isTrending,
+          isUnanswered,
+        }),
+        getCategories(request),
+        getTrendingTags(request),
+        GetPublicReportType(request),
+      ])
     : await Promise.all([
-      getPublicQuestionPagination(request, {
-        limit: limit ? Number(limit) : LIMIT,
-        categoryId: categoryId || undefined,
-        tagId: tagId || undefined,
-        cursor: cursor || undefined,
-        sortBy,
-      }),
-      getPublicCategories(request),
-      getPublicTrendingTags(request),
-      GetPublicReportType(request),
-    ]);
+        getPublicQuestionPagination(request, {
+          limit: limit ? Number(limit) : LIMIT,
+          categoryId: categoryId || undefined,
+          tagId: tagId || undefined,
+          cursor: cursor || undefined,
+          sortBy,
+          isTrending,
+          isUnanswered,
+        }),
+        getPublicCategories(request),
+        getPublicTrendingTags(request),
+        GetPublicReportType(request),
+      ]);
 
   let answers: Answer[] = [];
 

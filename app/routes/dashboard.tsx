@@ -88,7 +88,7 @@ export default function DashboardPage() {
                     <AvatarImage
                       src={profileImage}
                       alt={displayName}
-                      className="object-fill"
+                      className="object-cover"
                     />
                     <AvatarFallback className="bg-gray-800 text-white text-2xl font-bold">
                       {displayName.charAt(0).toUpperCase()}

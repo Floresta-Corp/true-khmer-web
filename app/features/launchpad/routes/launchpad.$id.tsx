@@ -6,11 +6,5 @@ import LaunchpadProjectDetailPage from "../pages/launchpad-project-detail-page";
 export const loader = LaunchpadDetailLoader;
 
 export default function LaunchpadDetailPage({ params }: Route.ComponentProps) {
-  const { id } = params;
-
-  return (
-    <>
-      {id === "post" ? <LaunchpadPostPage /> : <LaunchpadProjectDetailPage />}
-    </>
-  );
+  return <LaunchpadProjectDetailPage />;
 }

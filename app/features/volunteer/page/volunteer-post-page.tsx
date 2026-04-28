@@ -1,26 +1,91 @@
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useSearchParams } from "react-router";
+import { useState } from "react";
+import { motion } from "motion/react";
+import { useSearchParams, useFetcher, useLoaderData } from "react-router";
 import VolunteerPostPage1 from "./volunteer-post-page-1";
-import BackToButton from "~/components/back-to-button";
 import VolunteerPostPage2 from "./volunteer-post-page-2";
+import ProgressIndicator, { ProgressState } from "./section/progress-indicator";
+import PageHeader from "./section/page-header";
+import FormContainer from "./section/form-container";
+import {
+  validateDetailStep,
+  validateRoleStep,
+} from "../lib/volunteer-validation";
+import type { VolunteerOpportunityInput } from "~/services/volunteer/volunteer-types";
+import type { loader } from "../routes/volunteer.create";
+import type { VolunteerPostPage1Errors } from "./volunteer-post-page-1";
+import type { VolunteerPostPage2Errors } from "./volunteer-post-page-2";
 
-enum State {
-  DETAIL = "Detail",
-  ROLE = "Role",
-}
+const initialData: VolunteerOpportunityInput = {
+  categoryId: "",
+  locationId: "",
+  title: "",
+  overview: "",
+  communityImpact: null,
+  durationLabel: "",
+  commitmentLabel: "",
+  applicationDeadline: "",
+  benefits: [""],
+  contact: {
+    email: "",
+    telegramUsername: null,
+    phone: null,
+    websiteUrl: null,
+  },
+  roles: [
+    {
+      title: "",
+      commitmentLabel: "",
+      capacity: 1,
+      responsibilities: [""],
+      requirements: [""],
+    },
+  ],
+  coverImageKey: "",
+};
 
 export default function VolunteerPostPage() {
+  const { locations, categories, userId } = useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const prefersReducedMotion = useReducedMotion();
+  const fetcher = useFetcher<{
+    error?: string;
+    success?: boolean;
+    redirectTo?: string;
+  }>();
   const state =
     searchParams.get("state")?.toLowerCase() === "role"
-      ? State.ROLE
-      : State.DETAIL;
+      ? ProgressState.ROLE
+      : ProgressState.DETAIL;
 
-  const setState = (nextState: State) => {
+  const [formData, setFormData] =
+    useState<VolunteerOpportunityInput>(initialData);
+  const [detailErrors, setDetailErrors] = useState<VolunteerPostPage1Errors>(
+    {},
+  );
+  const [roleErrors, setRoleErrors] = useState<VolunteerPostPage2Errors>({});
+
+  const updateField = <K extends keyof VolunteerOpportunityInput>(
+    field: K,
+    value: VolunteerOpportunityInput[K],
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setDetailErrors((prev) => {
+      const next = { ...prev };
+      if (field === "benefits") delete next.benefitErrors;
+      if (field in next) delete next[field as keyof VolunteerPostPage1Errors];
+      return next;
+    });
+    setRoleErrors((prev) => {
+      const next = { ...prev };
+      if (field === "roles") delete next.roleErrors;
+      if (field === "contact") delete next.contact;
+      return next;
+    });
+  };
+
+  const setState = (nextState: ProgressState) => {
     const nextParams = new URLSearchParams(searchParams);
 
-    if (nextState === State.ROLE) {
+    if (nextState === ProgressState.ROLE) {
       nextParams.set("state", "role");
     } else {
       nextParams.delete("state");
@@ -32,109 +97,87 @@ export default function VolunteerPostPage() {
     });
   };
 
+  const handleSubmit = (): boolean => {
+    // Validate page 1 data first
+    const detailErrors = validateDetailStep(formData);
+    if (Object.keys(detailErrors).length > 0) {
+      setDetailErrors(detailErrors);
+      setState(ProgressState.DETAIL); // Go back to page 1
+      return false;
+    }
+
+    // Validate page 2 data
+    const errors = validateRoleStep(formData);
+    if (Object.keys(errors).length > 0) {
+      setRoleErrors(errors);
+      return false;
+    }
+
+    setRoleErrors({});
+    fetcher.submit(
+      { actionType: "create-volunteer", data: JSON.stringify(formData) },
+      { method: "post" },
+    );
+    return true;
+  };
+
   return (
     <div className="min-h-screen w-full bg-white">
       <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-8 sm:py-10 lg:px-20">
         <section className="mx-auto w-full max-w-3xl">
-          <motion.div
-            key={State.ROLE}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
+          <PageHeader
+            title="Post a Volunteer Opportunity"
+            subtitle="Tell volunteers what you need and why it matters."
+            backTo="/volunteer"
+          />
+
+          <motion.div className="my-10">
+            <ProgressIndicator currentState={state} onStateChange={setState} />
+          </motion.div>
+
+          <FormContainer
+            currentState={state}
+            stateKey={ProgressState.ROLE}
+            animationDelay={0}
           >
-            <BackToButton
-              text="Back to Volunteer Opportunities"
-              to="/volunteer"
+            <VolunteerPostPage2
+              formData={formData}
+              errors={roleErrors}
+              onUpdateField={updateField}
+              onBackToDetails={() => setState(ProgressState.DETAIL)}
+              onSubmit={handleSubmit}
+              isSubmitting={fetcher.state === "submitting"}
             />
-          </motion.div>
+          </FormContainer>
 
-          <motion.div
-            className="my-10"
-            key={State.ROLE}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{
-              duration: prefersReducedMotion ? 0 : 0.3,
-              delay: prefersReducedMotion ? 0 : 0.05,
-            }}
+          <FormContainer
+            currentState={state}
+            stateKey={ProgressState.DETAIL}
+            animationDelay={0.05}
           >
-            <motion.div className="relative flex gap-3.5 transition-all items-center p-1 rounded-full">
-              <motion.div
-                className="h-3 w-20 bg-blue-500 rounded-full absolute top-1 left-1"
-                initial={{ x: 0, y: 0 }}
-                animate={{ x: state === State.DETAIL ? 0 : 80 + 13 }}
-                transition={{
-                  duration: prefersReducedMotion ? 0 : 0.3,
-                }}
-              />
-              <div
-                className="cursor-pointer h-3 w-20 bg-gray-200 rounded-full"
-                onClick={() => setState(State.DETAIL)}
-              />
-              <div
-                className="cursor-pointer h-3 w-20 bg-gray-200 rounded-full"
-                onClick={() => setState(State.ROLE)}
-              />
-            </motion.div>
-          </motion.div>
-          <motion.div
-            className="my-10"
-            key={State.ROLE}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{
-              duration: prefersReducedMotion ? 0 : 0.3,
-              delay: prefersReducedMotion ? 0 : 0.1,
-            }}
-          >
-            <section>
-              <h1 className="text-[32px] font-semibold leading-[38.4px] text-[#030213]">
-                Post new opportunity
-              </h1>
-              <p className="text-base text-[#6a7282]">
-                Share the mission and core details of your project
-              </p>
-            </section>
-          </motion.div>
-
-          <AnimatePresence mode="wait">
-            {state === State.ROLE ? (
-              <motion.div
-                key={State.ROLE}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                transition={{
-                  duration: prefersReducedMotion ? 0 : 0.3,
-                  delay: prefersReducedMotion ? 0 : 0.15,
-                }}
-              >
-                <VolunteerPostPage2
-                  onBackToDetails={() => setState(State.DETAIL)}
-                />
-              </motion.div>
-            ) : (
-              <motion.div
-                key={State.DETAIL}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                transition={{
-                  duration: prefersReducedMotion ? 0 : 0.3,
-                  delay: prefersReducedMotion ? 0 : 0.2,
-                }}
-              >
-                <VolunteerPostPage1
-                  onContinueToRole={() => {
-                    setState(State.ROLE);
-                  }}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
+            <VolunteerPostPage1
+              formData={formData}
+              errors={detailErrors}
+              setDetailErrors={setDetailErrors}
+              onUpdateField={updateField}
+              onContinueToRole={() => {
+                const errors = validateDetailStep(formData);
+                if (Object.keys(errors).length > 0) {
+                  setDetailErrors(errors);
+                  return;
+                }
+                setDetailErrors({});
+                setState(ProgressState.ROLE);
+              }}
+              locations={locations?.locations ?? []}
+              categories={
+                categories?.categories.map((v) => ({
+                  id: v.id,
+                  name: v.name || "",
+                })) ?? []
+              }
+            />
+          </FormContainer>
         </section>
       </main>
     </div>

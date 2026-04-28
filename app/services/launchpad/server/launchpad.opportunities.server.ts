@@ -1,0 +1,120 @@
+import type { LaunchpadOpportunity } from "../types/project";
+
+export const mockLaunchpadItems: LaunchpadOpportunity[] = [
+  {
+    id: "lp-1",
+    name: "Kroma Logistics",
+    tagline: "Sustainable last-mile delivery across Phnom Penh.",
+    description:
+      "Kroma Logistics is a green mobility solution optimizing urban delivery routes using electric vehicles to reduce carbon footprints.",
+    stage: "MVP",
+    location: "Phnom Penh",
+    teamSize: 7,
+    category: "Mobility",
+    seekingRoles: 3,
+    views: 1240,
+    applicationClose: "27/03/2026",
+    image:
+      "https://images.unsplash.com/photo-1580674285054-bed31e145f59?auto=format&fit=crop&q=80&w=800",
+    thumbnail:
+      "https://images.unsplash.com/photo-1580674285054-bed31e145f59?auto=format&fit=crop&q=80&w=200&h=200",
+  },
+  {
+    id: "lp-2",
+    name: "MedBridge KH",
+    tagline: "Connecting patients with verified local clinics.",
+    description:
+      "A Growth-stage HealthTech platform streamlining patient-clinic interactions through verified digital records and scheduling.",
+    stage: "Growth",
+    location: "Siem Reap",
+    teamSize: 11,
+    category: "HealthTech",
+    seekingRoles: 2,
+    views: 1240,
+    applicationClose: "27/03/2026",
+    image:
+      "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800",
+    thumbnail:
+      "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=200&h=200",
+  },
+  {
+    id: "lp-3",
+    name: "RiceLoop",
+    tagline: "Smart supply matching for independent farmers.",
+    description:
+      "RiceLoop leverages data analytics to connect independent rice farmers directly with distributors, ensuring fair pricing.",
+    stage: "Idea",
+    location: "Battambang",
+    teamSize: 4,
+    category: "AgriTech",
+    seekingRoles: 1,
+    views: 1240,
+    applicationClose: "27/03/2026",
+    image:
+      "https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&q=80&w=800",
+    thumbnail:
+      "https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&q=80&w=200&h=200",
+  },
+  {
+    id: "lp-4",
+    name: "StudyLoom",
+    tagline: "Peer-led learning circles for university students.",
+    description:
+      "An EdTech initiative that facilitates collaborative learning environments where university students can share resources.",
+    stage: "MVP",
+    location: "Phnom Penh",
+    teamSize: 6,
+    category: "EdTech",
+    seekingRoles: 4,
+    views: 1240,
+    applicationClose: "27/03/2026",
+    image:
+      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=800",
+    thumbnail:
+      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=200&h=200",
+  },
+  {
+    id: "lp-5",
+    name: "Temple Trails",
+    tagline: "Cultural experiences curated by local communities.",
+    description:
+      "An authentic tourism platform allowing travelers to book off-the-beaten-path tours managed by local community leaders.",
+    stage: "Growth",
+    location: "Siem Reap",
+    teamSize: 9,
+    category: "Travel",
+    seekingRoles: 5,
+    views: 1240,
+    applicationClose: "27/03/2026",
+    image:
+      "https://images.unsplash.com/photo-1543731068-7e0f5beff43a?auto=format&fit=crop&q=80&w=800",
+    thumbnail:
+      "https://images.unsplash.com/photo-1543731068-7e0f5beff43a?auto=format&fit=crop&q=80&w=200&h=200",
+  },
+  {
+    id: "lp-6",
+    name: "CraftLink",
+    tagline: "Digital storefront toolkit for Khmer artisans.",
+    description:
+      "CraftLink provides Khmer artisans with a mobile toolkit to manage inventory and sell products to a global audience.",
+    stage: "Idea",
+    location: "Kampot",
+    teamSize: 5,
+    category: "Commerce",
+    seekingRoles: 2,
+    views: 1240,
+    applicationClose: "27/03/2026",
+    image:
+      "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?auto=format&fit=crop&q=80&w=800",
+    thumbnail:
+      "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?auto=format&fit=crop&q=80&w=200&h=200",
+  },
+];
+
+export async function GetLaunchpadProjects() {
+  return mockLaunchpadItems;
+}
+
+export async function GetLaunchpadProjectById(id: string) {
+  return mockLaunchpadItems.find((item) => item.id === id);
+}

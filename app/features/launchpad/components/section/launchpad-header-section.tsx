@@ -19,7 +19,7 @@ export default function LaunchpadHeaderSection() {
         <div className="flex w-full flex-col items-stretch gap-4 md:flex-row md:items-center md:gap-5.25">
           <HeaderSearch
             postButton="Post project"
-            postUrl="/launchpad/post"
+            postUrl="/launchpad/create"
             inputPlaceholder="Search project by name..."
           />
         </div>

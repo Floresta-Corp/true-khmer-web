@@ -63,21 +63,27 @@ export function ProfilePhotoUpload({
         </div>
 
         <div className="flex-1 space-y-1">
-          <h2 className="text-base font-medium leading-6 text-[#111827]">
+          <h2 className="text-base font-medium leading-6 text-[#101828]">
             Add a profile photo
           </h2>
-          <p className="text-sm leading-5 text-black/40">
+          <p className="text-sm font-normal leading-5.25 text-[#1414145C]">
             Members with photos get 3× more engagement. <br />
             <span className="font-bold text-[#2F6FE4]">+10 points</span> for
             completing your profile.
           </p>
           {isUploading && uploadProgress !== null ? (
-            <p className="text-xs text-[#2F6FE4]">Uploading... {uploadProgress}%</p>
+            <p className="text-xs text-[#2F6FE4]">
+              Uploading... {uploadProgress}%
+            </p>
           ) : null}
           {avatarKey && !isUploading ? (
-            <p className="text-xs text-emerald-600">Avatar uploaded successfully.</p>
+            <p className="text-xs text-emerald-600">
+              Avatar uploaded successfully.
+            </p>
           ) : null}
-          {uploadError ? <p className="text-xs text-red-500">{uploadError}</p> : null}
+          {uploadError ? (
+            <p className="text-xs text-red-500">{uploadError}</p>
+          ) : null}
         </div>
       </div>
     </div>

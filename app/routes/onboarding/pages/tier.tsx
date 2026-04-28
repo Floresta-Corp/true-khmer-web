@@ -21,10 +21,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   try {
     const result = await saveStep4Complete(request);
-    return redirect(
-      "/onboarding/completed",
-      cookieHeader(result.setCookie),
-    );
+    return redirect("/onboarding/completed", cookieHeader(result.setCookie));
   } catch (error) {
     const handled = await handleOnboardingActionError({
       error,
@@ -48,17 +45,21 @@ export default function OnboardingTierPage() {
     <div className="min-h-screen overflow-x-hidden bg-white text-[#111827]">
       <OnboardingHeader title="Your Tier" titlePosition="right" />
 
-      <main className="relative flex min-h-[calc(100vh-60px)] items-start justify-center overflow-x-hidden overflow-y-auto px-4 py-6 sm:px-8 sm:py-8 md:px-12 lg:px-20 xl:px-80 xl:py-8">
+      <main className="relative flex min-h-[calc(100vh-60px)] items-start justify-center overflow-x-hidden overflow-y-auto px-6 py-10 font-['Inter'] sm:px-8 sm:py-10 md:px-12 lg:px-20 xl:px-80">
         <OnboardingRomdoulCorners />
 
         <Form
           method="post"
-          className="relative z-10 flex w-full max-w-lg flex-col gap-6 pb-6 sm:gap-7 sm:pb-8"
+          className="relative z-10 flex w-full max-w-121.5 flex-col gap-10 pb-6 sm:pb-8"
         >
           <OnboardingStepIntro
             currentStep={4}
             totalSteps={4}
             stepLabel="Your Starting Rank"
+            stepBadgeClassName="rounded-full border border-black/10 px-3.75 py-2"
+            stepTextClassName="text-xs uppercase tracking-widest text-[#2F6FE4]"
+            titleClassName="text-[26.25px] font-semibold leading-[31.5px] tracking-[-0.6563px] text-[#1D283A]"
+            descriptionClassName="text-[14px] font-normal leading-5.25 text-[#99A1AF]"
             title={
               <>
                 Your <span className="text-[#2894FA]">journey begins</span> here
@@ -71,7 +72,6 @@ export default function OnboardingTierPage() {
                 ranks to earn. Your actions shape how fast you rise.
               </>
             }
-            descriptionClassName="text-sm font-normal leading-6 text-[#98A2B3]"
           />
 
           <div className="tk-fade-up-1">

@@ -14,9 +14,7 @@ import { OnboardingRomdoulCorners } from "~/routes/onboarding/components/onboard
 import { OnboardingStepIntro } from "~/routes/onboarding/components/onboarding-step-intro";
 import type { Route } from "./+types/interest";
 import { getInterests, saveStep2Interests } from "~/services/onboarding.server";
-import {
-  AuthSessionExpiredError,
-} from "~/lib/server/api-client.server";
+import { AuthSessionExpiredError } from "~/lib/server/api-client.server";
 import { destroySession, getSession } from "~/lib/server/session.server";
 import { requireOnboardingIncomplete } from "~/lib/server/route-guards.server";
 import {
@@ -79,10 +77,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   try {
     const result = await saveStep2Interests(request, formInput.selectedIds);
-    return redirect(
-      "/onboarding/contribution",
-      cookieHeader(result.setCookie),
-    );
+    return redirect("/onboarding/contribution", cookieHeader(result.setCookie));
   } catch (error) {
     const handled = await handleOnboardingActionError({
       error,
@@ -149,6 +144,10 @@ export default function OnboardingInterestPage() {
             currentStep={2}
             totalSteps={4}
             stepLabel="Your Interests"
+            stepBadgeClassName="rounded-full border border-black/10 px-3.75 py-2"
+            stepTextClassName="text-xs uppercase tracking-widest text-[#2F6FE4]"
+            titleClassName="text-[26.25px] font-semibold leading-[31.5px] tracking-[-0.6563px] text-[#030213]"
+            descriptionClassName="text-[14px] font-normal leading-5.25 text-[#99A1AF]"
             title={
               <>
                 What <span className="text-[#2894FA]">drives you</span> forward?
@@ -171,10 +170,12 @@ export default function OnboardingInterestPage() {
           />
 
           {interestsError ? (
-            <p className="tk-fade-up-1 text-sm text-red-500">{interestsError}</p>
+            <p className="tk-fade-up-1 text-sm text-red-500">
+              {interestsError}
+            </p>
           ) : null}
 
-          <p className="tk-fade-up-2 self-stretch text-sm font-normal italic leading-5 text-[#99A1AF]">
+          <p className="tk-fade-up-2 self-stretch text-sm font-normal italic leading-5.25 text-[#99A1AF]">
             Pick at least 2. You can update these anytime later.
           </p>
 

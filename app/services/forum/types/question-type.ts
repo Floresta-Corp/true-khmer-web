@@ -1,15 +1,16 @@
 import { z } from "zod";
 import {
-    BasicJoinSchema,
-    PaginationSchema,
-    ViewerVoteSchema,
+  BasicJoinSchema,
+  PaginationSchema,
+  ViewerVoteSchema,
 } from "~/services/types";
 
 export const questionSortBySchema = z.enum([
-    "recent",
-    "topRated",
-    "unanswered",
-    "myActivity",
+  "mostRelevant",
+  "newest",
+  "oldest",
+  "mostVoted",
+  "mostAnswered",
 ]);
 
 export type QuestionSortBy = z.infer<typeof questionSortBySchema>;
@@ -18,50 +19,50 @@ export const ForumQuestionStatusSchema = z.enum(["DRAFT", "PUBLISHED"]);
 export type ForumQuestionStatus = z.infer<typeof ForumQuestionStatusSchema>;
 
 export const AuthorSchema = BasicJoinSchema.extend({
-    avatarKey: z.string(),
+  avatarKey: z.string(),
 });
 export type Author = z.infer<typeof AuthorSchema>;
 
 export const QuestionSchema = z.object({
-    id: z.string(),
-    title: z.string(),
-    body: z.string(),
-    status: ForumQuestionStatusSchema,
-    answerCount: z.number(),
-    upvoteCount: z.number(),
-    downvoteCount: z.number(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-    score: z.number(),
-    viewerVote: ViewerVoteSchema,
-    category: BasicJoinSchema,
-    author: AuthorSchema,
-    tags: z.array(BasicJoinSchema),
+  id: z.string(),
+  title: z.string(),
+  body: z.string(),
+  status: ForumQuestionStatusSchema,
+  answerCount: z.number(),
+  upvoteCount: z.number(),
+  downvoteCount: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  score: z.number(),
+  viewerVote: ViewerVoteSchema,
+  category: BasicJoinSchema,
+  author: AuthorSchema,
+  tags: z.array(BasicJoinSchema),
 });
 export type Question = z.infer<typeof QuestionSchema>;
 
 export const GetQuestionPaginationResponseSchema = z.object({
-    ok: z.boolean(),
-    questions: z.array(QuestionSchema),
-    pagination: PaginationSchema,
+  ok: z.boolean(),
+  questions: z.array(QuestionSchema),
+  pagination: PaginationSchema,
 });
 export type GetQuestionPaginationResponse = z.infer<
-    typeof GetQuestionPaginationResponseSchema
+  typeof GetQuestionPaginationResponseSchema
 >;
 
 export const GetQuestionResponseSchema = z.object({
-    ok: z.boolean(),
-    question: QuestionSchema,
+  ok: z.boolean(),
+  question: QuestionSchema,
 });
 export type GetQuestionResponse = z.infer<typeof GetQuestionResponseSchema>;
 
 export const CreateForumQuestionInputSchema = z.object({
-    categoryId: z.string(),
-    title: z.string(),
-    body: z.string(),
-    tags: z.array(z.string()),
-    status: ForumQuestionStatusSchema,
+  categoryId: z.string(),
+  title: z.string(),
+  body: z.string(),
+  tags: z.array(z.string()),
+  status: ForumQuestionStatusSchema,
 });
 export type CreateForumQuestionInput = z.infer<
-    typeof CreateForumQuestionInputSchema
+  typeof CreateForumQuestionInputSchema
 >;

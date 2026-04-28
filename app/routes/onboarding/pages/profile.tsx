@@ -266,7 +266,7 @@ export default function OnboardingProfilePage() {
         rightTo="/onboarding/interest"
       />
 
-      <main className="relative flex min-h-[calc(100vh-60px)] items-start justify-center overflow-hidden bg-white px-6 py-8 sm:px-10 md:px-16 lg:px-24 xl:px-80 xl:py-10">
+      <main className="relative flex min-h-[calc(100vh-60px)] items-start justify-center overflow-hidden bg-white px-6 py-8 font-['Inter'] sm:px-10 md:px-16 lg:px-24 xl:px-80 xl:py-10">
         <OnboardingRomdoulCorners />
 
         <Form
@@ -297,6 +297,9 @@ export default function OnboardingProfilePage() {
             currentStep={1}
             totalSteps={4}
             stepLabel="Your Identity"
+            stepBadgeClassName="rounded-full border border-black/10 px-3.75 py-2"
+            stepTextClassName="text-xs uppercase tracking-widest text-[#2F6FE4]"
+            titleClassName="text-[26.25px] font-semibold leading-[31.5px] tracking-[-0.6563px] text-[#030213]"
             title={
               <>
                 Build your <span className="text-[#2894FA]">profile</span>
@@ -306,7 +309,7 @@ export default function OnboardingProfilePage() {
             descriptionClassName="text-sm font-medium leading-5 text-[#99A1AF]"
           />
 
-          <div className="tk-fade-up-1 space-y-6">
+          <div className="tk-fade-up-1 space-y-10">
             <ProfilePhotoUpload
               avatarPreviewUrl={avatarPreviewUrl}
               placeholderInitials={placeholderInitials}
@@ -322,7 +325,7 @@ export default function OnboardingProfilePage() {
                 <div className="space-y-3">
                   <Label
                     htmlFor="onboarding-country-trigger"
-                    className="text-sm font-bold leading-5 text-[#374151]"
+                    className="text-sm font-bold leading-5.25 text-[#364153]"
                   >
                     Country
                   </Label>
@@ -336,7 +339,7 @@ export default function OnboardingProfilePage() {
                     allowClear
                     clearLabel="Select country"
                     emptyText="No countries found"
-                    triggerClassName="text-sm font-medium text-[#64748B]"
+                    triggerClassName="text-sm font-medium text-[#65758B]"
                     contentClassName="rounded-xl p-2"
                   />
                   {actionData?.errors?.countryId ? (
@@ -349,7 +352,7 @@ export default function OnboardingProfilePage() {
                 <div className="space-y-3">
                   <Label
                     htmlFor="onboarding-city-trigger"
-                    className="text-sm font-bold leading-5 text-[#374151]"
+                    className="text-sm font-bold leading-5.25 text-[#364153]"
                   >
                     City/State
                   </Label>
@@ -374,7 +377,7 @@ export default function OnboardingProfilePage() {
                         ? "No cities found"
                         : "Select country first"
                     }
-                    triggerClassName="text-sm font-medium text-[#64748B]"
+                    triggerClassName="text-sm font-medium text-[#65758B]"
                     contentClassName="rounded-xl p-2"
                   />
                   {actionData?.errors?.cityId ? (
@@ -396,7 +399,7 @@ export default function OnboardingProfilePage() {
               <div className="space-y-3">
                 <Label
                   htmlFor="onboarding-profile-bio"
-                  className="text-sm leading-5 text-[#374151]"
+                  className="text-sm leading-5.25 text-[#364153]"
                 >
                   <span className="font-bold">Short Bio</span>{" "}
                   <span className="font-normal">(optional)</span>
@@ -412,7 +415,7 @@ export default function OnboardingProfilePage() {
                     }))
                   }
                   rows={3}
-                  className="h-20 w-full resize-none rounded-md border-transparent bg-[#F1F5F980] text-sm font-normal leading-5 text-[#64748B] placeholder:text-[#94A3B8] focus-visible:border-[#2F6FE4]/40 focus-visible:ring-[#2F6FE4]/20"
+                  className="h-20 w-full resize-none rounded-md border-transparent bg-[#F1F5F980] px-3 py-2 text-sm font-normal leading-5 text-[#62748E] placeholder:text-[#94A3B8] focus-visible:border-[#2F6FE4]/40 focus-visible:ring-[#2F6FE4]/20"
                   placeholder="Tell the community a little about yourself - what you do, what you care about, what you're building..."
                 />
               </div>

@@ -9,7 +9,7 @@ export function LaunchpadAvailableProjectsSection() {
   const projects = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const onOpenOpportunity = useCallback((item: LaunchpadOpportunity) => {
-    navigate(`/launchpad/${item.id}`);
+    navigate(`/launchpad/detail/${item.id}`);
   }, []);
 
   return (

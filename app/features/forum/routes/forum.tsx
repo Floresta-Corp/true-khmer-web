@@ -65,7 +65,7 @@ export default function ForumPage() {
     initialTagId || undefined,
   );
   const [activeTab, setActiveTab] = useState<QuestionSortBy>(
-    initialSortBy.success ? initialSortBy.data : "recent",
+    initialSortBy.success ? initialSortBy.data : "mostRelevant",
   );
   const prefersReducedMotion = useReducedMotion();
 
@@ -149,25 +149,28 @@ export default function ForumPage() {
     buildForumQuery,
   ]);
 
-  const handleCategorySelect = useCallback((category: CategoriesPicker) => {
-    setSelectedCategory(category);
+  const handleCategorySelect = useCallback(
+    (category: CategoriesPicker) => {
+      setSelectedCategory(category);
 
-    const nextParams = new URLSearchParams();
-    nextParams.set("sortBy", activeTab);
+      const nextParams = new URLSearchParams();
+      nextParams.set("sortBy", activeTab);
 
-    if (category.id !== "all-categories") {
-      nextParams.set("categoryId", category.id);
-    }
+      if (category.id !== "all-categories") {
+        nextParams.set("categoryId", category.id);
+      }
 
-    if (selectedTagId) {
-      nextParams.set("tagId", selectedTagId);
-    }
+      if (selectedTagId) {
+        nextParams.set("tagId", selectedTagId);
+      }
 
-    setSearchParams(nextParams, {
-      replace: true,
-      preventScrollReset: true,
-    });
-  }, [activeTab, selectedTagId, setSearchParams]);
+      setSearchParams(nextParams, {
+        replace: true,
+        preventScrollReset: true,
+      });
+    },
+    [activeTab, selectedTagId, setSearchParams],
+  );
 
   const handleTagSelect = useCallback((tagId: string | undefined) => {
     setSelectedTagId((prev) => (prev === tagId ? undefined : tagId));

@@ -1,0 +1,128 @@
+import { Mail, Phone, Send } from "lucide-react";
+import React from "react";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "~/components/ui/input-group";
+import { Input } from "~/components/ui/input";
+import type { VolunteerOpportunityInput } from "~/services/volunteer/volunteer-types";
+import type { VolunteerPostPage2Errors } from "../volunteer-post-page-2";
+
+interface PaleInputProps {
+  placeholder: string;
+  type?: string;
+  value: string;
+  onChange: (value: string) => void;
+  className?: string;
+}
+
+function PaleInput({
+  placeholder,
+  type = "text",
+  value,
+  onChange,
+  className = "",
+}: PaleInputProps) {
+  return (
+    <Input
+      type={type}
+      placeholder={placeholder}
+      value={value}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+        onChange(e.target.value)
+      }
+      className={`h-11 rounded-lg border border-transparent bg-[#f8fafc] px-4 text-sm font-medium text-[#364153] placeholder:text-[#c8d6e5] ${className}`}
+    />
+  );
+}
+
+interface ContactDetailsFormProps {
+  contact: VolunteerOpportunityInput["contact"];
+  errors?: VolunteerPostPage2Errors["contact"];
+  onUpdateField: (
+    field: keyof VolunteerOpportunityInput["contact"],
+    value: string | null,
+  ) => void;
+}
+
+export default function ContactDetailsForm({
+  contact,
+  errors,
+  onUpdateField,
+}: ContactDetailsFormProps) {
+  return (
+    <section className="rounded-2xl border border-[#E1E7EF] bg-white p-6">
+      <div className="flex items-center gap-3">
+        <Mail className="size-6 text-[#2f6fe4]" />
+        <h3 className="text-[22px] font-bold leading-8.25 text-[#344256]">
+          Contact Details
+        </h3>
+      </div>
+
+      <div className="mt-5 border-t border-[#F3F4F6]" />
+
+      <div className="grid gap-7 pt-5 md:grid-cols-2">
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 text-[13px] font-semibold text-[#364153]">
+            <Phone className="size-3.5 text-[#00BC7D]" />
+            Phone number
+            <span className="text-[#e12f3f]">*</span>
+          </label>
+          <InputGroup className="h-11 rounded-lg">
+            <InputGroupAddon className="bg-[#f8fafc] border-r border-[#e1e7ef] pr-3">
+              <span className="text-[14px] font-medium text-[#434654]">
+                +855
+              </span>
+            </InputGroupAddon>
+            <InputGroupInput
+              type="tel"
+              placeholder="12 345 678"
+              value={contact.phone ?? ""}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                onUpdateField("phone", e.target.value || null)
+              }
+              className="text-[14px] font-medium text-[#364153] placeholder:text-[#c8d6e5]"
+            />
+          </InputGroup>
+          {errors?.phone && (
+            <p className="text-xs text-red-500">{errors.phone}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 text-[13px] font-semibold text-[#364153]">
+            <Mail className="size-3.5 text-[#ef4444]" />
+            Email address
+            <span className="text-[#e12f3f]">*</span>
+          </label>
+          <PaleInput
+            placeholder="virak.hou@impactkhmer.com"
+            value={contact.email}
+            onChange={(value: string) => onUpdateField("email", value)}
+          />
+          {errors?.email && (
+            <p className="text-xs text-red-500">{errors.email}</p>
+          )}
+        </div>
+
+        <div className="space-y-2 md:col-span-2">
+          <label className="flex items-center gap-2 text-[13px] font-semibold text-[#364153]">
+            <Send className="size-3.5 text-[#2f6fe4]" />
+            Telegram username (optional)
+          </label>
+          <PaleInput
+            placeholder="@virak_hou"
+            value={contact.telegramUsername ?? ""}
+            onChange={(value: string) =>
+              onUpdateField("telegramUsername", value || null)
+            }
+          />
+          {errors?.telegramUsername && (
+            <p className="text-xs text-red-500">{errors.telegramUsername}</p>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}

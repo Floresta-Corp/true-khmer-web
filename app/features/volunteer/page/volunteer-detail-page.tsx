@@ -10,7 +10,7 @@ import ProjectImpactSection from "../components/sections/project-impact-section"
 import OrganizerCard from "../components/sections/organizer-card";
 import ApplicationSummary from "../components/sections/application-summary";
 import BackToButton from "~/components/back-to-button";
-import type { Opportunity } from "~/services/volunteer/types";
+import type { Opportunity } from "~/services/volunteer/volunteer-types";
 
 const responsibilities = [
   "Assist professional archeologists in documenting site conditions",
@@ -103,10 +103,7 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
             duration: prefersReducedMotion ? 0 : 0.3,
           }}
         >
-          <BackToButton
-            text="Back to Volunteer Opportunities"
-            to="/volunteer"
-          />
+          <BackToButton to="/volunteer" />
         </motion.div>
 
         <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">

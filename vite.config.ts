@@ -7,6 +7,19 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
   return {
+    build: {
+      sourcemap: mode === "development",
+    },
+    server: {
+      port: 3001,
+      host: true, // This exposes the server to the local network
+      strictPort: true,
+    },
+    preview: {
+      port: 3001,
+      host: true, // This exposes the preview server
+      strictPort: true,
+    },
     plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
     define: {
       "process.env.NODE_ENV": JSON.stringify(mode),

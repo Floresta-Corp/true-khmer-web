@@ -1,5 +1,5 @@
 import { Link, useLoaderData } from "react-router";
-import { MessageCircle, Share2 } from "lucide-react";
+import { MessageSquare, Share2 } from "lucide-react";
 import { motion } from "framer-motion";
 import QuestionVoteComponent from "../components/question-vote-component";
 import AllAnswers from "../components/sections/all-answers";
@@ -12,6 +12,8 @@ import BackToButton from "~/components/back-to-button";
 import RelatedDiscussionsCard from "../components/card/related-discussions-card";
 import ForumDetailQuestionHeader from "../components/forum-detail-question-header";
 import ReplyBox from "../components/reply-box";
+import ShareQuestionDialog from "../components/dialog/share-question-dialog";
+import MobileAuthorOptions from "../components/mobile-author-options";
 
 export const loader = forumDetailLoader;
 export const action = forumDetailAction;
@@ -104,9 +106,10 @@ const MOCK_RELATED_DISCUSSIONS = [
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 export default function ForumDetailPage() {
-  const { question, answers, userId, reportReasons } =
+  const { question, answers, userId, reportReasons, categories } =
     useLoaderData<typeof loader>();
   const displayedRelatedDiscussions = MOCK_RELATED_DISCUSSIONS;
+  const isCurrentAuthor = Boolean(userId) && userId === question?.author.id;
 
   if (!question) {
     return (
@@ -147,7 +150,7 @@ export default function ForumDetailPage() {
           initial="hidden"
           animate="visible"
         >
-          <BackToButton text="Back to Forum" to="/forum" />
+          <BackToButton to="/forum" />
         </motion.div>
         <section className="mx-auto flex w-full flex-col items-start justify-center gap-8 xl:flex-row xl:gap-10">
           <div className="w-full">
@@ -202,17 +205,22 @@ export default function ForumDetailPage() {
                     </div>
 
                     <div className="inline-flex items-center gap-2 text-xs font-medium leading-4.5 sm:text-sm sm:leading-5.25">
-                      <MessageCircle className="h-5 w-5" />
+                      <MessageSquare className="h-5 w-5" />
                       <span>{question.answerCount} answers</span>
                     </div>
 
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-2 text-xs font-medium leading-4.5 hover:text-[#245fca] sm:text-sm sm:leading-5.25"
-                    >
-                      <Share2 className="h-5 w-5" />
-                      Share
-                    </button>
+                    <ShareQuestionDialog
+                      questionId={question.id}
+                      trigger={
+                        <button
+                          type="button"
+                          className="cursor-pointer inline-flex items-center gap-2 text-xs font-medium leading-4.5 hover:text-[#245fca] sm:text-sm sm:leading-5.25"
+                        >
+                          <Share2 className="h-5 w-5" />
+                          Share
+                        </button>
+                      }
+                    />
                   </div>
                 </div>
               </div>
