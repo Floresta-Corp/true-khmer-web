@@ -1,14 +1,9 @@
 import { Link, useLocation } from "react-router";
 import { Button } from "~/components/ui/button";
 import {
-  Briefcase,
-  MessageSquare,
-  Heart,
-  Rocket,
-  CalendarDays,
   Bell,
+  Mail,
   LayoutDashboard,
-  Video,
   HeartHandshake,
   Calendar,
   MessagesSquare,
@@ -26,7 +21,8 @@ interface NavbarProps {
 }
 
 const navLinks = [
-  { to: "/myspace", label: "Home", icon: House },
+  { to: "/workspace", label: "Workspace", icon: LayoutDashboard },
+  { to: "/home", label: "Home", icon: House },
   // { to: "/dashboard", label: "My Journey", icon: Compass },
   { to: "/forum", label: "Forum", icon: MessagesSquare },
   // { to: "/forumv2", label: "Forum V2", icon: MessageSquare },
@@ -42,8 +38,8 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
   return (
     <>
       {/* Top Header Bar */}
-      <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 w-full border-b border-[#f1f5f9] bg-white shadow-sm">
+        <div className="mx-auto flex h-17 w-full max-w-300 items-center justify-between px-4 lg:px-6">
           {/* Left: Logo */}
           <div className="flex items-center shrink-0">
             <Link to="/" className="flex items-center gap-2">
@@ -56,7 +52,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
           </div>
 
           {/* Center: Navigation Links (desktop only) */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-5">
             {navLinks.map((link) => {
               const isActive = location.pathname.startsWith(link.to)
                 ? true
@@ -66,10 +62,10 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                   key={link.to}
                   to={link.to}
                   className={cn(
-                    "relative flex items-center gap-1.5 px-3 py-5 text-sm transition-colors",
-                    isActive
-                      ? "text-blue-600"
-                      : "text-gray-600 hover:text-gray-900",
+                    "relative flex items-center gap-1.5 text-sm text-[#344256] transition-colors",
+                    link.to === "/workspace" &&
+                      "border-r border-[#c8d6e5] pr-6 mr-1",
+                    isActive ? "text-[#0f172a]" : "hover:text-[#0f172a]",
                   )}
                 >
                   <link.icon className="h-4 w-4" />
@@ -87,16 +83,19 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-gray-500 hover:text-gray-700"
+                  className="size-9 rounded-full border border-[#f1f5f9] bg-white text-[#344256] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+                  aria-label="Messages"
                 >
-                  <LayoutDashboard className="h-5 w-5" />
+                  <Mail className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-gray-500 hover:text-gray-700 relative"
+                  className="relative size-8.75 rounded-full border border-[#f1f5f9] bg-white text-[#344256] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+                  aria-label="Notifications"
                 >
-                  <Bell className="h-5 w-5" />
+                  <Bell className="h-3.5 w-3.5" />
+                  <span className="absolute top-2 right-2 h-1.75 w-1.75 rounded-full border border-white bg-[#fb2c36]" />
                 </Button>
 
                 {/* User dropdown */}
@@ -114,7 +113,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                 <Button
                   size="sm"
                   asChild
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-linear-to-r from-[#0082e1] to-[#5ab9ff] text-white hover:from-[#0078d2] hover:to-[#4aaef8]"
                 >
                   <Link to="/register">Register</Link>
                 </Button>

@@ -67,24 +67,34 @@ export default function QuestionVoteComponent({
     ? "bg-[#FEF2F2] text-[#E7000B] hover:bg-[#FEF2F2] hover:text-[#FF2631]"
     : "bg-transparent text-[#99a1af] hover:bg-[#FEF2F2] hover:text-[#FF2631]";
 
+  const handleUpvote = () => {
+    fetcher.submit(
+      { actionType: "vote-question", questionId, voteType: upvoteIntent },
+      { method: "post" },
+    );
+  };
+
+  const handleDownvote = () => {
+    fetcher.submit(
+      { actionType: "vote-question", questionId, voteType: downvoteIntent },
+      { method: "post" },
+    );
+  };
+
   return (
     <div
       className={`flex h-7 items-center rounded-xl overflow-hidden border border-[#f3f4f6] bg-[#f9fafb] text-[#4a5565] ${className ?? ""}`}
     >
-      <fetcher.Form method="post">
-        <input type="hidden" name="actionType" value="vote-question" />
-        <input type="hidden" name="questionId" value={questionId} />
-        <input type="hidden" name="voteType" value={upvoteIntent} />
-        <Button
-          type="submit"
-          variant="ghost"
-          className={`cursor-pointer h-7 w-7 rounded-none ${upvoteClassName}`}
-          disabled={isSubmitting}
-          aria-label="Up vote"
-        >
-          <ChevronUp className="h-3.5 w-3.5" />
-        </Button>
-      </fetcher.Form>
+      <Button
+        type="button"
+        variant="ghost"
+        className={`cursor-pointer h-7 w-7 rounded-none ${upvoteClassName}`}
+        disabled={isSubmitting}
+        onClick={handleUpvote}
+        aria-label="Up vote"
+      >
+        <ChevronUp className="h-3.5 w-3.5" />
+      </Button>
 
       {isSubmitting ? (
         <Spinner className="mx-1 size-3" />
@@ -93,20 +103,16 @@ export default function QuestionVoteComponent({
           {score}
         </span>
       )}
-      <fetcher.Form method="post">
-        <input type="hidden" name="actionType" value="vote-question" />
-        <input type="hidden" name="questionId" value={questionId} />
-        <input type="hidden" name="voteType" value={downvoteIntent} />
-        <Button
-          type="submit"
-          variant="ghost"
-          disabled={isSubmitting}
-          className={`cursor-pointer h-7 w-7 rounded-none ${downvoteClassName}`}
-          aria-label="Down vote"
-        >
-          <ChevronDown className="h-3.5 w-3.5" />
-        </Button>
-      </fetcher.Form>
+      <Button
+        type="button"
+        variant="ghost"
+        disabled={isSubmitting}
+        className={`cursor-pointer h-7 w-7 rounded-none ${downvoteClassName}`}
+        onClick={handleDownvote}
+        aria-label="Down vote"
+      >
+        <ChevronDown className="h-3.5 w-3.5" />
+      </Button>
     </div>
   );
 }

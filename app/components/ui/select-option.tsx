@@ -19,6 +19,8 @@ type SelectOptionProps = {
   allowClear?: boolean;
   triggerClassName?: string;
   className?: string;
+  ariaInvalid?: boolean;
+  id?: string;
 };
 
 export function SelectOption({
@@ -32,6 +34,8 @@ export function SelectOption({
   loading = false,
   searchable = false,
   allowClear = false,
+  ariaInvalid = false,
+  id = "location",
 }: SelectOptionProps) {
   const options: SingleSelectOption[] = data.map((option) => ({
     value: option.id,
@@ -42,7 +46,7 @@ export function SelectOption({
     <SingleSelectDropdown
       triggerClassName={triggerClassName}
       className={className}
-      id="location"
+      id={id}
       value={defaultValue}
       onValueChange={onChange}
       options={options}
@@ -51,6 +55,7 @@ export function SelectOption({
       loading={loading}
       searchable={searchable}
       allowClear={allowClear}
+      ariaInvalid={ariaInvalid}
       emptyText="No locations found"
     />
   );

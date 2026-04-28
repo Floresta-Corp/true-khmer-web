@@ -5,7 +5,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { ChevronRight, LogOut, Plus, Settings } from "lucide-react";
+import {
+  ChevronDown,
+  CirclePlus,
+  UserRound,
+  FileUser,
+  Ticket,
+  BookmarkCheck,
+  Settings,
+  LogOut,
+} from "lucide-react";
 import { Separator } from "./ui/separator";
 import { Avatar, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
@@ -45,90 +54,109 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="relative flex items-center gap-2.5 h-10 pl-2 pr-2 sm:pr-4 rounded-full hover:bg-gray-100 border border-gray-200"
+          className="relative size-9 rounded-full border border-[#f9fafb] bg-transparent p-0 hover:bg-[#f8fafc]"
+          aria-label="Open profile menu"
         >
           <ProfileAvatar
-            className="size-6.5"
+            className="size-9 rounded-full object-cover"
             profileImage={profileImage}
             displayName={displayName}
           />
-          <span className="hidden lg:block text-sm font-medium text-gray-700">
-            {displayName}
+          <span className="absolute bottom-0 right-0 size-3 rounded-full bg-white p-0.5 flex items-center justify-center">
+            <ChevronDown className="size-1.75 text-[#64748b]" />
           </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-72 rounded-2xl p-0 shadow-lg border border-gray-100"
+        className="w-48 rounded-2xl border border-[#e2e8f0] p-3 shadow-[0_16px_40px_rgba(15,23,42,0.12)]"
         align="end"
         sideOffset={8}
         forceMount
       >
-        {/* Public Profile Section */}
-        <div>
-          <p className="px-5 pt-5 text-[11px] font-bold text-blue-500 uppercase tracking-wider mb-1">
-            Public Profile
-          </p>
-          <DropdownMenuItem className="px-5 py-4 rounded-none">
-            <Link to="/profile" className="flex items-center gap-3 group">
-              <ProfileAvatar
-                className="size-12"
-                profileImage={profileImage}
-                displayName={displayName}
-              />
-              <div className="flex-1 min-w-0">
-                <p className="text-base font-semibold text-gray-900">
-                  {displayName}
-                </p>
-                <p className="text-sm text-gray-500 truncate">{user.email}</p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
-            </Link>
-          </DropdownMenuItem>
-        </div>
-
-        <Separator className="bg-gray-100" />
-
-        {/* Contributor Ecosystem Section */}
-        <div className="px-5 py-4">
-          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">
-            Contributor Ecosystem
-          </p>
-          <Link
-            to="#"
-            className="flex items-center gap-3 rounded-full bg-blue-50 border border-blue-100 px-4 py-2.5 hover:bg-blue-100 transition-colors"
-          >
-            <Plus className="h-5 w-5 text-blue-500" />
-            <span className="text-sm font-semibold text-blue-600">
-              Contributor profile
+        {/* Profile Section */}
+        <div className="flex items-center gap-2 px-4 pt-4 pb-2">
+          <Avatar className="size-7 border border-[#f9fafb]">
+            <AvatarImage
+              src={profileImage}
+              alt={displayName}
+              className="object-cover"
+            />
+          </Avatar>
+          <div className="flex flex-col">
+            <span className="text-xs font-semibold text-[#344256] leading-3">
+              {displayName}
             </span>
-          </Link>
+            <span className="text-[10px] text-[#65758b] leading-3">
+              {user.email}
+            </span>
+          </div>
         </div>
-
-        <Separator className="bg-gray-100" />
-
-        {/* Settings & Logout */}
-        <div className="py-2 pb-3">
-          <DropdownMenuItem asChild className="rounded-none px-5">
-            <Link
-              to="/settings"
-              className="flex items-center gap-3 py-3 cursor-pointer text-gray-700 hover:text-gray-900"
-            >
-              <Settings className="h-5 w-5 text-gray-400" />
-              <span className="text-sm font-medium">Settings</span>
+        <Separator className="bg-[#f3f4f6]" />
+        {/* Action List */}
+        <div className="flex flex-col gap-0 py-1 px-1">
+          <DropdownMenuItem className="flex gap-3 items-center px-3 py-1.75 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]">
+            <CirclePlus className="size-4 shrink-0" />
+            <span>Enable new role</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            asChild
+            className="flex gap-3 items-center px-3 py-1.75 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
+          >
+            <Link to="/myspace" className="flex gap-3 items-center w-full">
+              <UserRound className="size-4 shrink-0" />
+              <span>My space</span>
             </Link>
           </DropdownMenuItem>
-
+          <DropdownMenuItem
+            asChild
+            className="flex gap-3 items-center px-3 py-1.75 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
+          >
+            <Link to="/applications" className="flex gap-3 items-center w-full">
+              <FileUser className="size-4 shrink-0" />
+              <span>My applications</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            asChild
+            className="flex gap-3 items-center px-3 py-1.75 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
+          >
+            <Link to="/tickets" className="flex gap-3 items-center w-full">
+              <Ticket className="size-4 shrink-0" />
+              <span>My tickets</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            asChild
+            className="flex gap-3 items-center px-3 py-1.75 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
+          >
+            <Link to="/saved" className="flex gap-3 items-center w-full">
+              <BookmarkCheck className="size-4 shrink-0" />
+              <span>Saved items</span>
+            </Link>
+          </DropdownMenuItem>
+        </div>
+        <Separator className="bg-[#f1f5f9] my-1" />
+        <div className="flex flex-col gap-0 py-1 px-1">
+          <DropdownMenuItem
+            asChild
+            className="flex gap-3 items-center px-3 py-1.75 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
+          >
+            <Link to="/settings" className="flex gap-3 items-center w-full">
+              <Settings className="size-4 shrink-0" />
+              <span>Account settings</span>
+            </Link>
+          </DropdownMenuItem>
           <Form method="post" action="/logout" id="logout-form">
             <DropdownMenuItem
-              className="flex items-center gap-3 py-3 rounded-none px-5 cursor-pointer text-gray-700 hover:text-gray-900"
+              className="flex gap-3 items-center px-3 py-1.75 rounded-lg text-xs font-normal text-[#fb3748] cursor-pointer hover:bg-[#fbeaec]"
               onSelect={() => {
                 (
                   document.getElementById("logout-form") as HTMLFormElement
                 )?.requestSubmit();
               }}
             >
-              <LogOut className="h-5 w-5 text-gray-400" />
-              <span className="text-sm font-medium">Logout</span>
+              <LogOut className="size-4 shrink-0" />
+              <span>Log out</span>
             </DropdownMenuItem>
           </Form>
         </div>

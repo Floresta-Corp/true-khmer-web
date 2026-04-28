@@ -20,6 +20,7 @@ interface PaleInputProps {
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  ariaInvalid?: boolean;
 }
 
 function PaleInput({
@@ -28,6 +29,7 @@ function PaleInput({
   value,
   onChange,
   className = "",
+  ariaInvalid = false,
 }: PaleInputProps) {
   return (
     <Input
@@ -37,6 +39,7 @@ function PaleInput({
       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
         onChange(e.target.value)
       }
+      aria-invalid={ariaInvalid}
       className={`h-11 rounded-lg border border-transparent bg-[#f8fafc] px-4 text-sm font-medium text-[#364153] placeholder:text-[#c8d6e5] ${className}`}
     />
   );
@@ -69,6 +72,7 @@ export default function RoleDetailsForm({
           placeholder="e.g., Field Researcher"
           value={title}
           onChange={onTitleChange}
+          ariaInvalid={Boolean(errors?.title)}
         />
         {errors?.title && (
           <p className="text-xs text-red-500">{errors.title}</p>
@@ -83,6 +87,7 @@ export default function RoleDetailsForm({
             placeholder="e.g., flexible"
             value={commitmentLabel}
             onChange={onCommitmentChange}
+            ariaInvalid={Boolean(errors?.commitmentLabel)}
             className="pl-9"
           />
         </div>
@@ -100,6 +105,7 @@ export default function RoleDetailsForm({
           onChange={(value) =>
             onCapacityChange(Math.max(1, parseInt(value, 10) || 1))
           }
+          ariaInvalid={Boolean(errors?.capacity)}
         />
         {errors?.capacity && (
           <p className="text-xs text-red-500">{errors.capacity}</p>

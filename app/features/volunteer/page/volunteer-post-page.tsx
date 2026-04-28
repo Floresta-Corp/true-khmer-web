@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { useSearchParams, useFetcher, useLoaderData } from "react-router";
 import VolunteerPostPage1 from "./volunteer-post-page-1";
@@ -62,6 +62,80 @@ export default function VolunteerPostPage() {
     {},
   );
   const [roleErrors, setRoleErrors] = useState<VolunteerPostPage2Errors>({});
+  const hasScrolledRef = useRef(false);
+  const prevStateRef = useRef(state);
+  const prevErrorsRef = useRef<Record<string, unknown>>({});
+
+  // Scroll to first error when validation fails
+  useEffect(() => {
+    const hasDetailErrors = Object.keys(detailErrors).some(
+      (key) => key !== "benefitErrors" && detailErrors[key as keyof typeof detailErrors],
+    );
+    const hasRoleErrors = Object.keys(roleErrors).some(
+      (key) => key !== "roleErrors" && roleErrors[key as keyof typeof roleErrors],
+    );
+
+    // Only scroll if we just switched to DETAIL with detail errors, or role errors exist
+    if (!hasDetailErrors && !hasRoleErrors) {
+      hasScrolledRef.current = false;
+      return;
+    }
+
+    // Don't scroll if we've already scrolled for these specific errors
+    const errorsKey = JSON.stringify({ detailErrors, roleErrors });
+    if (prevErrorsRef.current.errorkey === errorsKey) return;
+    prevErrorsRef.current = { errorkey: errorsKey };
+
+    if (hasScrolledRef.current) return;
+    hasScrolledRef.current = true;
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    const scrollToElement = () => {
+      if (hasDetailErrors && state === ProgressState.DETAIL) {
+        const firstError = Object.keys(detailErrors).find(
+          (key) => key !== "benefitErrors" && detailErrors[key as keyof typeof detailErrors],
+        );
+        if (firstError === "title") {
+          document.querySelector('[name="title"]')?.scrollIntoView({
+            behavior: prefersReducedMotion ? "auto" : "smooth",
+            block: "center",
+          });
+        } else if (firstError === "categoryId" || firstError === "locationId") {
+          document.querySelector(`#${firstError}-trigger`)?.scrollIntoView({
+            behavior: prefersReducedMotion ? "auto" : "smooth",
+            block: "center",
+          });
+        } else {
+          document.querySelector('[aria-invalid="true"]')?.scrollIntoView({
+            behavior: prefersReducedMotion ? "auto" : "smooth",
+            block: "center",
+          });
+        }
+      } else if (hasRoleErrors) {
+        const contactError = document.querySelector('[data-contact-error="true"]');
+        const roleError = document.querySelector('[data-role-error="true"]');
+        const target = contactError || roleError;
+        target?.scrollIntoView({
+          behavior: prefersReducedMotion ? "auto" : "smooth",
+          block: "center",
+        });
+      }
+    };
+
+    setTimeout(scrollToElement, 100);
+  }, [detailErrors, roleErrors, state]);
+
+  // Reset scroll flag when state changes
+  useEffect(() => {
+    if (prevStateRef.current !== state) {
+      hasScrolledRef.current = false;
+      prevErrorsRef.current = { errorkey: "{}" };
+    }
+    prevStateRef.current = state;
+  }, [state]);
 
   const updateField = <K extends keyof VolunteerOpportunityInput>(
     field: K,

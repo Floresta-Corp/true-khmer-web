@@ -1,10 +1,6 @@
 import { Outlet } from "react-router";
 import MySpaceSideBar from "~/components/myspace-sidebar";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "~/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 
 export default function AppLayout() {
   return (

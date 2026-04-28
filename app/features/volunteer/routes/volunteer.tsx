@@ -20,10 +20,10 @@ export default function VolunteerPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration, delay: 0 }}
       >
-        <VolunteerHeader locations={locations?.locations || []} />
+        <VolunteerHeader locations={locations || []} />
       </motion.div>
 
-      {categories?.categories && categories.categories.length > 0 && (
+      {categories && categories.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -31,7 +31,7 @@ export default function VolunteerPage() {
           className="lg:pt-17.5"
         >
           <VolunteerCategoriesSection
-            categories={categories?.categories || []}
+            categories={categories || []}
           />
         </motion.div>
       )}
@@ -42,8 +42,8 @@ export default function VolunteerPage() {
         transition={{ duration, delay: prefersReducedMotion ? 0 : 0.16 }}
       >
         <VolunteerAvailableOpportunities
-          opportunities={opportunities?.opportunities ?? []}
-          categories={categories?.categories ?? []}
+          opportunities={opportunities ?? []}
+          categories={categories ?? []}
         />
       </motion.div>
     </div>

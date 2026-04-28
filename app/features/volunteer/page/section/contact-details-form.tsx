@@ -15,6 +15,7 @@ interface PaleInputProps {
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  ariaInvalid?: boolean;
 }
 
 function PaleInput({
@@ -23,6 +24,7 @@ function PaleInput({
   value,
   onChange,
   className = "",
+  ariaInvalid = false,
 }: PaleInputProps) {
   return (
     <Input
@@ -32,6 +34,7 @@ function PaleInput({
       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
         onChange(e.target.value)
       }
+      aria-invalid={ariaInvalid}
       className={`h-11 rounded-lg border border-transparent bg-[#f8fafc] px-4 text-sm font-medium text-[#364153] placeholder:text-[#c8d6e5] ${className}`}
     />
   );
@@ -51,6 +54,8 @@ export default function ContactDetailsForm({
   errors,
   onUpdateField,
 }: ContactDetailsFormProps) {
+  const hasErrors = errors?.phone || errors?.email || errors?.telegramUsername;
+
   return (
     <section className="rounded-2xl border border-[#E1E7EF] bg-white p-6">
       <div className="flex items-center gap-3">
@@ -62,7 +67,7 @@ export default function ContactDetailsForm({
 
       <div className="mt-5 border-t border-[#F3F4F6]" />
 
-      <div className="grid gap-7 pt-5 md:grid-cols-2">
+      <div className="grid gap-7 pt-5 md:grid-cols-2" data-contact-error={hasErrors ? "true" : undefined}>
         <div className="space-y-2">
           <label className="flex items-center gap-2 text-[13px] font-semibold text-[#364153]">
             <Phone className="size-3.5 text-[#00BC7D]" />
@@ -82,6 +87,7 @@ export default function ContactDetailsForm({
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 onUpdateField("phone", e.target.value || null)
               }
+              aria-invalid={Boolean(errors?.phone)}
               className="text-[14px] font-medium text-[#364153] placeholder:text-[#c8d6e5]"
             />
           </InputGroup>
@@ -100,6 +106,7 @@ export default function ContactDetailsForm({
             placeholder="virak.hou@impactkhmer.com"
             value={contact.email}
             onChange={(value: string) => onUpdateField("email", value)}
+            aria-invalid={Boolean(errors?.email)}
           />
           {errors?.email && (
             <p className="text-xs text-red-500">{errors.email}</p>
@@ -117,6 +124,7 @@ export default function ContactDetailsForm({
             onChange={(value: string) =>
               onUpdateField("telegramUsername", value || null)
             }
+            aria-invalid={Boolean(errors?.telegramUsername)}
           />
           {errors?.telegramUsername && (
             <p className="text-xs text-red-500">{errors.telegramUsername}</p>

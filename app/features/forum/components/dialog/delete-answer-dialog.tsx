@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { useFetcher } from "react-router";
+import React, { useEffect, useRef, useState } from "react";
+import { useFetcher, Form } from "react-router";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import {
@@ -52,6 +52,13 @@ export default function DeleteAnswerDialog({
     }
   }, [fetcher.state, fetcher.data]);
 
+  const handleDelete = () => {
+    fetcher.submit(
+      { actionType: "delete-answer", answerId },
+      { method: "post" },
+    );
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>{trigger}</DialogTrigger>
@@ -69,17 +76,14 @@ export default function DeleteAnswerDialog({
             </Button>
           </DialogClose>
 
-          <fetcher.Form method="post">
-            <input type="hidden" name="actionType" value="delete-answer" />
-            <input type="hidden" name="answerId" value={answerId} />
-            <Button
-              type="submit"
-              disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              {isDeleting ? "Deleting..." : "Delete"}
-            </Button>
-          </fetcher.Form>
+          <Button
+            type="button"
+            disabled={isDeleting}
+            onClick={handleDelete}
+            className="bg-red-600 hover:bg-red-700 text-white"
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

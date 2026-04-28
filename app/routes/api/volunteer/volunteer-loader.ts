@@ -43,16 +43,16 @@ export async function volunteerLoader({ request }: VolunteerRoute.LoaderArgs) {
         getPublicVolunteerLocations(request),
       ]);
   return {
-    categories: categories?.data,
-    opportunities: opportunities?.data,
-    locations: locations?.data,
+    categories: categories?.data?.categories,
+    opportunities: opportunities?.data?.opportunities,
+    locations: locations?.data?.locations,
     userId: userId,
-  };
+  } satisfies VolunteerLoaderData;
 }
 
 interface VolunteerLoaderData {
-  categories: GetVolunteerCategoriesResponse;
-  opportunities: GetVolunteerOpportunitiesResponse;
-  locations: GetVolunteerLocationsResponse;
+  categories: (GetVolunteerCategoriesResponse["categories"] | undefined) | undefined;
+  opportunities: (GetVolunteerOpportunitiesResponse["opportunities"] | undefined) | undefined;
+  locations: (GetVolunteerLocationsResponse["locations"] | undefined) | undefined;
   userId: string | null;
 }

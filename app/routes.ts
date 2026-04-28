@@ -8,7 +8,8 @@ import {
 export default [
   layout("layout/app-layout.tsx", [
     layout("layout/footer-layout.tsx", [
-      index("routes/home.tsx"),
+      index("routes/index.tsx"),
+      route("home", "routes/home.tsx"),
       route("about", "routes/about.tsx"),
       route("dashboard", "routes/dashboard.tsx"),
       route("profile", "routes/profile.tsx"),
@@ -40,8 +41,10 @@ export default [
         "features/launchpad/routes/launchpad.$id.tsx",
       ),
     ]),
-    layout("layout/myspace-layout.tsx", [
-      route("myspace", "features/myspace/routes/myspace.tsx"),
+    route("myspace", "features/myspace/routes/myspace.tsx"),
+    route("edit-profile", "features/myspace/routes/edit-profile.tsx"),
+    layout("layout/workspace-layout.tsx", [
+      route("workspace", "features/workspace/routes/workspace.tsx"),
     ]),
   ]),
   route("login", "routes/auth/pages/login.tsx"),

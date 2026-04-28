@@ -42,12 +42,18 @@ function TextArea({
   rows = 4,
   value,
   onChange,
+  id,
+  hasError,
 }: {
   placeholder: string;
   rows?: number;
   value: string;
   onChange: (value: string) => void;
+  id?: string;
+  hasError?: boolean;
 }) {
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
     onChange(newValue);
@@ -58,10 +64,13 @@ function TextArea({
 
   return (
     <textarea
+      ref={textareaRef}
+      id={id}
       rows={rows}
       placeholder={placeholder}
       value={value}
       onChange={handleChange}
+      aria-invalid={hasError}
       className="w-full min-h-15 resize-none rounded-lg border border-transparent bg-[#F8FAFC] px-4 py-3 text-sm font-medium leading-5 text-[#364153] placeholder:text-[#C8D6E5] focus:outline-none focus:ring-2 focus:ring-ring"
     />
   );
@@ -90,6 +99,7 @@ export default function VolunteerPostPage1({
   categories,
 }: VolunteerPostPage1Props) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const titleInputRef = useRef<HTMLInputElement | null>(null);
   const navigate = useNavigate();
   const fetcher = useFetcher();
 
@@ -155,16 +165,13 @@ export default function VolunteerPostPage1({
       }));
       return;
     }
-
-    // Use the uploaded file as the current image value for now.
-    const url = URL.createObjectURL(file);
-
-    console.log(file, url);
-
-    // Template: update parent form with the selected file (or upload and set a key)
-    // If your `onUpdateField` expects a storage key, replace this with an upload
-    // routine that returns the key, then call onUpdateField('coverImageKey', uploadedKey)
-    onUpdateField("coverImageKey", url as string);
+    const formData = new FormData();
+    formData.append("actionType", "upload-cover-image");
+    formData.append("file", file);
+    fetcher.submit(formData, {
+      method: "post",
+      encType: "multipart/form-data",
+    });
   };
 
   // Sync successful upload with your main form state
@@ -192,6 +199,7 @@ export default function VolunteerPostPage1({
               Opportunity name
             </FieldLabel>
             <Input
+              ref={titleInputRef}
               name="title"
               value={formData.title}
               onChange={(e) => onUpdateField("title", e.target.value)}
@@ -208,7 +216,9 @@ export default function VolunteerPostPage1({
             <div className="space-y-2">
               <FieldLabel>Category</FieldLabel>
               <SelectOption
-                triggerClassName={`h-11 w-full rounded-lg border bg-[#F8FAFC] px-3 text-sm font-medium text-[#6A7282] shadow-none hover:bg-[#F8FAFC] ${errors?.categoryId ? "border-red-500 ring-2 ring-red-500" : "border-transparent"}`}
+                id="categoryId"
+                triggerClassName="h-11 w-full rounded-[14px] border border-[#E1E7EF] bg-[#F8FAFC] px-3 text-sm font-medium text-[#6A7282] shadow-none hover:bg-[#F8FAFC]"
+                ariaInvalid={Boolean(errors?.categoryId)}
                 data={categories}
                 defaultValue={formData.categoryId}
                 onChange={(id) => onUpdateField("categoryId", id)}
@@ -222,7 +232,9 @@ export default function VolunteerPostPage1({
             <div className="space-y-2">
               <FieldLabel>Location</FieldLabel>
               <SelectOption
-                triggerClassName={`h-11 w-full rounded-lg border bg-[#F8FAFC] px-3 text-sm font-medium text-[#6A7282] shadow-none hover:bg-[#F8FAFC] ${errors?.locationId ? "border-red-500 ring-2 ring-red-500" : "border-transparent"}`}
+                id="locationId"
+                triggerClassName="h-11 w-full rounded-[14px] border border-[#E1E7EF] bg-[#F8FAFC] px-3 text-sm font-medium text-[#6A7282] shadow-none hover:bg-[#F8FAFC]"
+                ariaInvalid={Boolean(errors?.locationId)}
                 data={locations}
                 defaultValue={formData.locationId}
                 onChange={(id) => onUpdateField("locationId", id)}
@@ -293,8 +305,8 @@ export default function VolunteerPostPage1({
             <label className="flex h-37 w-fit cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[#e5e5e5] bg-[#fafafa] px-4 py-3 text-center">
               {formData.coverImageKey ? (
                 <img
-                  // src={resolveImageURL(formData.coverImageKey)}
-                  src={formData.coverImageKey}
+                  src={resolveImageURL(formData.coverImageKey)}
+                  // src={formData.coverImageKey}
                   alt="Selected cover"
                   className="h-full w-full rounded-xl object-cover"
                 />
@@ -337,10 +349,12 @@ export default function VolunteerPostPage1({
         </h3>
         <div className="mt-3">
           <TextArea
+            id="overview"
             placeholder="What is this opportunity about and who is it for?"
             rows={3}
             value={formData.overview}
             onChange={(value) => onUpdateField("overview", value)}
+            hasError={Boolean(errors?.overview)}
           />
           {errors?.overview ? (
             <p className="mt-2 text-xs text-red-500">{errors.overview}</p>

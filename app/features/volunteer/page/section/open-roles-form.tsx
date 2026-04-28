@@ -32,8 +32,14 @@ export default function OpenRolesForm({
 }: OpenRolesFormProps) {
   if (!currentRole) return null;
 
+  const hasRoleErrors =
+    errors?.title || errors?.commitmentLabel || errors?.capacity;
+
   return (
-    <section className="rounded-2xl border border-[#E1E7EF] bg-white p-6">
+    <section
+      className="rounded-2xl border border-[#E1E7EF] bg-white p-6"
+      data-role-error={hasRoleErrors ? "true" : undefined}
+    >
       <div className="flex items-center gap-3">
         <Users className="size-6 text-[#2f6fe4]" />
         <h3 className="text-[22px] font-bold leading-8.25 text-[#344256]">

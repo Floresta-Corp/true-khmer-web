@@ -5,6 +5,7 @@ import { getVolunteerCategories } from "~/services/volunteer/server/volunteer.ca
 import { getVolunteerLocations } from "~/services/volunteer/server/volunteer.location.server";
 import type { GetVolunteerCategoriesResponse } from "~/services/volunteer/volunteer-types";
 import type { GetVolunteerLocationsResponse } from "~/services/volunteer/types/location";
+import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
 
 interface VolunteerLoaderData {
   userId?: string | null;
@@ -15,6 +16,7 @@ interface VolunteerLoaderData {
 export default async function volunteerCreateLoader({
   request,
 }: VolunteerRoute.LoaderArgs) {
+  await requireAuthenticatedUser(request);
   const userId = await getUserId(request);
   if (!userId) {
     redirect("/login?redirectTo=/volunteer/create");

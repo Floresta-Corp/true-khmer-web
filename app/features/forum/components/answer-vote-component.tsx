@@ -68,6 +68,20 @@ export default function AnswerVoteComponent({
     ? "bg-[#FEF2F2] text-[#E7000B] hover:bg-[#FEF2F2] hover:text-[#FF2631]"
     : "bg-transparent text-[#99a1af] hover:bg-[#FEF2F2] hover:text-[#FF2631]";
 
+  const handleUpvote = () => {
+    fetcher.submit(
+      { actionType: "vote-answer", answerId, voteType: upvoteIntent },
+      { method: "post" },
+    );
+  };
+
+  const handleDownvote = () => {
+    fetcher.submit(
+      { actionType: "vote-answer", answerId, voteType: downvoteIntent },
+      { method: "post" },
+    );
+  };
+
   return (
     <div
       className={cn(
@@ -75,23 +89,19 @@ export default function AnswerVoteComponent({
         className,
       )}
     >
-      <fetcher.Form method="post">
-        <input type="hidden" name="actionType" value="vote-answer" />
-        <input type="hidden" name="answerId" value={answerId} />
-        <input type="hidden" name="voteType" value={upvoteIntent} />
-        <Button
-          type="submit"
-          variant="ghost"
-          className={cn(
-            `flex h-7 w-7 items-center cursor-pointer justify-center rounded-xl border border-[#f3f4f6] transition-colors`,
-            upvoteClassName,
-          )}
-          disabled={isSubmitting}
-          aria-label="Up vote answer"
-        >
-          <ChevronUp className="h-3.5 w-3.5" />
-        </Button>
-      </fetcher.Form>
+      <Button
+        type="button"
+        variant="ghost"
+        className={cn(
+          `flex h-7 w-7 items-center cursor-pointer justify-center rounded-xl border border-[#f3f4f6] transition-colors`,
+          upvoteClassName,
+        )}
+        disabled={isSubmitting}
+        onClick={handleUpvote}
+        aria-label="Up vote answer"
+      >
+        <ChevronUp className="h-3.5 w-3.5" />
+      </Button>
 
       {isSubmitting ? (
         <Spinner className="mx-1 size-3" />
@@ -106,23 +116,19 @@ export default function AnswerVoteComponent({
         </span>
       )}
 
-      <fetcher.Form method="post">
-        <input type="hidden" name="actionType" value="vote-answer" />
-        <input type="hidden" name="answerId" value={answerId} />
-        <input type="hidden" name="voteType" value={downvoteIntent} />
-        <Button
-          type="submit"
-          variant="ghost"
-          disabled={isSubmitting}
-          className={cn(
-            `flex h-7 w-7 items-center cursor-pointer justify-center rounded-xl border border-[#f3f4f6] transition-colors`,
-            downvoteClassName,
-          )}
-          aria-label="Down vote answer"
-        >
-          <ChevronDown className="h-3.5 w-3.5" />
-        </Button>
-      </fetcher.Form>
+      <Button
+        type="button"
+        variant="ghost"
+        disabled={isSubmitting}
+        className={cn(
+          `flex h-7 w-7 items-center cursor-pointer justify-center rounded-xl border border-[#f3f4f6] transition-colors`,
+          downvoteClassName,
+        )}
+        onClick={handleDownvote}
+        aria-label="Down vote answer"
+      >
+        <ChevronDown className="h-3.5 w-3.5" />
+      </Button>
     </div>
   );
 }
