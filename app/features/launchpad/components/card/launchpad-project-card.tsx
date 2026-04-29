@@ -20,6 +20,9 @@ export default function LaunchpadProjectCard({
   // Format the deadline date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return "Invalid date";
+    }
     return date.toLocaleDateString('en-US', {
       day: '2-digit',
       month: '2-digit',

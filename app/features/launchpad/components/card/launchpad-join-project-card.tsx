@@ -24,6 +24,9 @@ export default function LaunchpadJoinProjectCard({
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return "Invalid date";
+    }
     return date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",

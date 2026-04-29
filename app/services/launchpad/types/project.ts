@@ -24,11 +24,21 @@ const CitySchema = z.object({
   name: z.string(),
 });
 
+const dateStringSchema = z.string().refine(
+  (value) => {
+    const date = new Date(value);
+    return !isNaN(date.getTime());
+  },
+  {
+    message: "Invalid date format",
+  }
+);
+
 export const LaunchpadOpportunitySchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string(),
-  deadline: z.string(),
+  deadline: dateStringSchema,
   logoKey: z.string().nullable(),
   coverKey: z.string().nullable(),
   documentKeys: z.array(z.string()),
@@ -37,7 +47,7 @@ export const LaunchpadOpportunitySchema = z.object({
   telegramUsername: z.string().nullable(),
   totalView: z.number(),
   createdBy: CreatorSchema,
-  createdAt: z.string(),
+  createdAt: dateStringSchema,
   category: CategorySchema,
   city: CitySchema,
   totalRoles: z.number(),
@@ -51,7 +61,7 @@ export const LaunchpadDetailSchema = z.object({
   category: CategorySchema,
   city: CitySchema,
   description: z.string(),
-  deadline: z.string(),
+  deadline: dateStringSchema,
   logoKey: z.string().nullable(),
   coverKey: z.string().nullable(),
   documentKeys: z.array(z.string()),
@@ -60,7 +70,7 @@ export const LaunchpadDetailSchema = z.object({
   telegramUsername: z.string().nullable(),
   totalView: z.number(),
   createdBy: CreatorSchema,
-  createdAt: z.string(),
+  createdAt: dateStringSchema,
   roles: z.array(RoleSchema),
 });
 
