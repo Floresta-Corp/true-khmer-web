@@ -53,6 +53,7 @@ export default function VerifyOtpPage() {
 
   const [otp, setOtp] = useState("");
   const otpSlots = [0, 1, 2, 3, 4, 5];
+  const [isOtpClientReady, setIsOtpClientReady] = useState(false);
   const [otpRemainingSeconds, setOtpRemainingSeconds] = useState(
     hasInitialOtp ? OTP_EXPIRY_SECONDS : 0,
   );
@@ -64,6 +65,10 @@ export default function VerifyOtpPage() {
   const isVerifying =
     navigation.state === "submitting" &&
     (submittingIntent === "verify" || submittingIntent == null);
+
+  useEffect(() => {
+    setIsOtpClientReady(true);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -154,30 +159,49 @@ export default function VerifyOtpPage() {
               <Label htmlFor="otp" className="sr-only">
                 OTP code
               </Label>
-              <InputOTP
-                id="otp"
-                name="otp"
-                maxLength={6}
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                value={otp}
-                onChange={(nextValue) => {
-                  const sanitized = nextValue.replace(/\D/g, "").slice(0, 6);
-                  setOtp(sanitized);
-                }}
-                containerClassName="w-full justify-center"
-                className="w-full"
-              >
-                <InputOTPGroup className="w-full justify-between gap-2 border-none bg-transparent p-0">
-                  {otpSlots.map((index) => (
-                    <InputOTPSlot
-                      key={`otp-${index}`}
-                      index={index}
-                      className="h-12 w-12 rounded-full border border-blue-100 text-sm text-slate-700 first:rounded-full first:border last:rounded-full data-[active=true]:border-blue-500 data-[active=true]:text-blue-600 data-[active=true]:ring-0 data-[active=true]:shadow-none data-[active=true]:aria-invalid:ring-0"
-                    />
-                  ))}
-                </InputOTPGroup>
-              </InputOTP>
+              {isOtpClientReady ? (
+                <InputOTP
+                  id="otp"
+                  name="otp"
+                  maxLength={6}
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  value={otp}
+                  onChange={(nextValue) => {
+                    const sanitized = nextValue.replace(/\D/g, "").slice(0, 6);
+                    setOtp(sanitized);
+                  }}
+                  containerClassName="w-full justify-center"
+                  className="w-full"
+                >
+                  <InputOTPGroup className="w-full justify-between gap-2 border-none bg-transparent p-0">
+                    {otpSlots.map((index) => (
+                      <InputOTPSlot
+                        key={`otp-${index}`}
+                        index={index}
+                        className="h-12 w-12 rounded-full border border-blue-100 text-sm text-slate-700 first:rounded-full first:border last:rounded-full data-[active=true]:border-blue-500 data-[active=true]:text-blue-600 data-[active=true]:ring-0 data-[active=true]:shadow-none data-[active=true]:aria-invalid:ring-0"
+                      />
+                    ))}
+                  </InputOTPGroup>
+                </InputOTP>
+              ) : (
+                <input
+                  id="otp"
+                  name="otp"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={otp}
+                  onChange={(event) => {
+                    const sanitized = event.target.value
+                      .replace(/\D/g, "")
+                      .slice(0, 6);
+                    setOtp(sanitized);
+                  }}
+                  className="h-12 w-full rounded-full border border-blue-100 px-5 text-center text-sm tracking-[0.5em] text-slate-700 outline-none ring-0 placeholder:text-slate-300"
+                />
+              )}
             </div>
 
             <div className="space-y-1">

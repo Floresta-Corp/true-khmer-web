@@ -81,10 +81,10 @@ export default function OnboardingCompletedPage() {
           </p>
 
           <Link
-            to="/dashboard"
+            to="/home"
             className="tk-fade-up-3 inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white"
           >
-            Enter my dashboard
+            Go to home
             <ArrowRight size={24} />
           </Link>
         </section>

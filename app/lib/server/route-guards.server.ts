@@ -204,7 +204,7 @@ export async function requireOnboardingIncomplete(request: Request) {
     const { state, setCookie } = await getOnboardingState(request);
     if (state.completed) {
       throw redirect(
-        "/dashboard",
+        "/home",
         setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
       );
     }

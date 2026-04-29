@@ -7,13 +7,15 @@ import {
   useNavigation,
   useSearchParams,
 } from "react-router";
-import { Lock, Mail } from "lucide-react";
 import { z } from "zod";
 import { FormDivider } from "~/routes/auth/components/form-divider";
 import { FormError } from "~/routes/auth/components/form-error";
 import { GoogleButton } from "~/routes/auth/components/google-button";
 import { InlineMessage } from "~/routes/auth/components/inline-message";
-import { AuthPageShell } from "~/routes/auth/components/page-shell";
+import {
+  AuthBrandPanel,
+  AuthPageShell,
+} from "~/routes/auth/components/page-shell";
 import { PasswordField } from "~/routes/auth/components/password-field";
 import {
   action as loginAction,
@@ -21,6 +23,7 @@ import {
 } from "~/routes/auth/domain/login.server";
 import type { LoginActionData } from "~/routes/auth/domain/auth.types";
 import { Button } from "~/components/ui/button";
+import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { sanitizeRedirectPath } from "~/lib/redirects";
@@ -85,6 +88,7 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [clientErrors, setClientErrors] = useState<LoginFieldErrors>({});
   const isSubmitting = navigation.state === "submitting";
   const isFormValid = loginFormSchema.safeParse({ email, password }).success;
@@ -100,7 +104,17 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthPageShell>
+    <AuthPageShell
+      backTo="/"
+      backLabel="Back to Home"
+      leftSectionClassName="items-start justify-center px-6 py-10 sm:px-10 lg:px-8 lg:py-0 xl:px-12"
+      contentClassName="max-w-md pb-10 pt-20 lg:pt-36 xl:pt-40"
+      backLinkClassName="left-6 top-8 text-sm font-semibold normal-case tracking-normal text-[#1C5DD4] hover:text-[#164CB0] sm:left-10 lg:left-1/2 lg:top-16 lg:-translate-x-56 xl:top-24"
+      backIconClassName="h-auto w-auto rounded-none border-0"
+      rightPanelContent={<AuthBrandPanel />}
+      rightPanelContentClassName="items-stretch justify-stretch text-left"
+      showRightPanelOverlay={false}
+    >
       <motion.div
         initial="hidden"
         animate="visible"
@@ -114,30 +128,22 @@ export default function LoginPage() {
             },
           },
         }}
-        className="mt-6 space-y-5 lg:mt-8 lg:space-y-6 xl:mt-18 xl:space-y-8"
+        className="space-y-8"
       >
-        <motion.div
+        <motion.header
           variants={{
             hidden: { opacity: 0, y: 10 },
             visible: { opacity: 1, y: 0 },
           }}
+          className="space-y-2"
         >
-          <img
-            src="/logofullcolor.svg"
-            alt="True Khmer"
-            className="mx-auto h-9 w-auto object-contain sm:h-10"
-          />
-        </motion.div>
-
-        <motion.h1
-          variants={{
-            hidden: { opacity: 0, y: 10 },
-            visible: { opacity: 1, y: 0 },
-          }}
-          className="text-center text-3xl font-semibold leading-8 text-[#030213]"
-        >
-          Welcome Back
-        </motion.h1>
+          <h1 className="text-3xl font-bold leading-9 text-[#111827]">
+            Welcome Back
+          </h1>
+          <p className="text-base font-normal leading-6 text-[#4B5563]">
+            Please enter your details to sign in.
+          </p>
+        </motion.header>
 
         <motion.div
           variants={{
@@ -145,13 +151,20 @@ export default function LoginPage() {
             visible: { opacity: 1, y: 0 },
           }}
         >
-          <GoogleButton />
+          <GoogleButton className="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3 text-base font-semibold text-[#111827] shadow-sm hover:bg-[#F9FAFB]">
+            Log in with Google
+          </GoogleButton>
         </motion.div>
 
         <motion.div
           variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
         >
-          <FormDivider />
+          <FormDivider
+            label="or"
+            className="py-4"
+            lineClassName="bg-[#E5E7EB]"
+            labelClassName="text-sm font-normal normal-case tracking-normal text-[#4B5563]"
+          />
         </motion.div>
 
         <InlineMessage tone="success" message={successMessage} />
@@ -178,31 +191,25 @@ export default function LoginPage() {
             <div className="space-y-2">
               <Label
                 htmlFor="email"
-                className="block text-[13px] font-semibold leading-[19.5px] text-[#364153]"
+                className="block text-sm font-semibold leading-5 text-[#111827]"
               >
-                Email address
+                Email Address
               </Label>
-              <div className="relative">
-                <Mail
-                  size={14}
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#D1D5DC]"
-                />
-                <Input
-                  autoFocus
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(event) => {
-                    const nextEmail = event.target.value;
-                    setEmail(nextEmail);
-                    validateCurrentValues({ email: nextEmail, password });
-                  }}
-                  placeholder="name@example.com"
-                  className="h-11 rounded-lg border-transparent bg-[#F8FAFC] py-2 pl-9 pr-3 text-[12.25px] font-medium text-[#1E293B] placeholder:text-[#C8D6E5] focus-visible:ring-[#2F6FE4]/30 transition-shadow duration-200"
-                />
-              </div>
+              <Input
+                autoFocus
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(event) => {
+                  const nextEmail = event.target.value;
+                  setEmail(nextEmail);
+                  validateCurrentValues({ email: nextEmail, password });
+                }}
+                placeholder="name@example.com"
+                className="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-[#6B7280] focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20"
+              />
               {clientErrors.email || actionData?.errors?.email ? (
                 <p className="text-xs text-red-500">
                   {clientErrors.email ?? actionData?.errors?.email}
@@ -215,7 +222,7 @@ export default function LoginPage() {
                 id="password"
                 name="password"
                 label="Password"
-                icon={Lock}
+                showToggle={false}
                 autoComplete="current-password"
                 value={password}
                 onChange={(event) => {
@@ -225,13 +232,25 @@ export default function LoginPage() {
                 }}
                 placeholder="••••••••"
                 error={clientErrors.password ?? actionData?.errors?.password}
+                labelClassName="text-sm font-semibold leading-5 text-[#111827]"
+                inputClassName="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-[#6B7280] focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20"
               />
             </div>
-            <div className="flex justify-end">
+
+            <div className="flex items-center justify-between gap-4">
+              <Label className="flex items-center gap-2 text-sm font-semibold leading-5 text-[#1D283A]">
+                <Checkbox
+                  checked={rememberMe}
+                  onCheckedChange={(checked) => setRememberMe(checked === true)}
+                  className="size-4 rounded border-[#E8E8E8] bg-white data-[state=checked]:border-[#2F6FE4] data-[state=checked]:bg-[#2F6FE4]"
+                />
+                Remember me
+              </Label>
+
               <Button
                 asChild
                 variant="link"
-                className="h-auto px-0 text-[13px] font-semibold leading-4 text-[#2F6FE4] hover:text-[#1F62DF]"
+                className="h-auto px-0 text-sm font-semibold leading-5 text-[#1C5DD4] hover:text-[#164CB0]"
               >
                 <Link to="/forgot-password">Forgot password?</Link>
               </Button>
@@ -240,23 +259,23 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={isSubmitting || !isFormValid}
-              className={`h-10 w-full rounded-lg text-sm font-medium transition-all duration-300 ${"bg-[#2F6FE4] text-white hover:bg-[#1F62DF] hover:shadow-md hover:-translate-y-0.5"}`}
+              className="h-10 w-full rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white transition-colors hover:bg-[#1F62DF] disabled:bg-[#2F6FE4] disabled:opacity-50"
             >
-              {isSubmitting ? "Signing in..." : "Sign in"}
+              {isSubmitting ? "Signing in..." : "Sign In"}
             </Button>
           </Form>
         </motion.div>
 
         <motion.p
           variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
-          className="text-center text-sm font-medium leading-5 text-[#6A7282]"
+          className="text-center text-sm font-normal leading-5 text-[#4B5563]"
         >
           New to True Khmer?{" "}
           <Link
             to="/register"
-            className="font-semibold text-[#2F6FE4] hover:underline transition-all"
+            className="font-semibold text-[#1C5DD4] transition-colors hover:text-[#164CB0]"
           >
-            Create account
+            Join the community
           </Link>
         </motion.p>
       </motion.div>

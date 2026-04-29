@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ComponentType, InputHTMLAttributes } from "react";
+import type { ComponentType, InputHTMLAttributes, ReactNode } from "react";
 import type { LucideProps } from "lucide-react";
 import { Eye, EyeOff } from "lucide-react";
 import { cn } from "~/lib/utils";
@@ -12,9 +12,10 @@ type PasswordFieldProps = Omit<
   "id" | "type"
 > & {
   id: string;
-  label: string;
-  icon: ComponentType<LucideProps>;
+  label: ReactNode;
+  icon?: ComponentType<LucideProps>;
   error?: string;
+  showToggle?: boolean;
   wrapperClassName?: string;
   labelClassName?: string;
   inputClassName?: string;
@@ -28,6 +29,7 @@ export function PasswordField({
   label,
   icon: Icon,
   error,
+  showToggle = true,
   wrapperClassName,
   labelClassName,
   inputClassName,
@@ -51,13 +53,15 @@ export function PasswordField({
       </Label>
 
       <div className="relative">
-        <Icon
-          size={14}
-          className={cn(
-            "pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#D1D5DC]",
-            iconClassName,
-          )}
-        />
+        {Icon ? (
+          <Icon
+            size={14}
+            className={cn(
+              "pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#D1D5DC]",
+              iconClassName,
+            )}
+          />
+        ) : null}
 
         <Input
           id={id}
@@ -69,19 +73,21 @@ export function PasswordField({
           {...inputProps}
         />
 
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={() => setShowPassword((prev) => !prev)}
-          className={cn(
-            "absolute right-1.5 top-1/2 h-7 w-7 -translate-y-1/2 text-[#D1D5DC] hover:bg-transparent hover:text-[#94A3B8]",
-            toggleClassName,
-          )}
-          aria-label={showPassword ? "Hide password" : "Show password"}
-        >
-          {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
-        </Button>
+        {showToggle ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className={cn(
+              "absolute right-1.5 top-1/2 h-7 w-7 -translate-y-1/2 text-[#D1D5DC] hover:bg-transparent hover:text-[#94A3B8]",
+              toggleClassName,
+            )}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+          </Button>
+        ) : null}
       </div>
 
       {error ? (

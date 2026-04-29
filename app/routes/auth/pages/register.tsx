@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { Form, Link, useActionData, useSearchParams } from "react-router";
-import { Briefcase, Lock, Mail, User, UserRound } from "lucide-react";
 import { FormDivider } from "~/routes/auth/components/form-divider";
 import { FormError } from "~/routes/auth/components/form-error";
 import { GoogleButton } from "~/routes/auth/components/google-button";
-import { AuthPageShell } from "~/routes/auth/components/page-shell";
+import {
+  AuthPageShell,
+  RegisterBrandPanel,
+} from "~/routes/auth/components/page-shell";
 import { PasswordField } from "~/routes/auth/components/password-field";
 import {
   action as registerAction,
@@ -15,20 +17,87 @@ import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
+import { RadioGroup, RadioGroupItem } from "~/components/ui/radio";
+import { cn } from "~/lib/utils";
 import { sanitizeRedirectPath } from "~/lib/redirects";
-
-const genderOptions = [
-  { value: "male", label: "Male" },
-  { value: "female", label: "Female" },
-  { value: "other", label: "Other" },
-  { value: "prefer_not_to_say", label: "Prefer not to say" },
-];
 
 export const loader = registerLoader;
 export const action = registerAction;
+
 export function meta() {
   return [{ title: "Register | True Khmer" }];
+}
+
+type RegisterTextFieldProps = {
+  id: string;
+  name?: string;
+  label: string;
+  value: string;
+  placeholder: string;
+  required?: boolean;
+  type?: string;
+  autoComplete?: string;
+  error?: string | null;
+  onChange: (value: string) => void;
+};
+
+const registerInputClasses =
+  "h-12 rounded-xl border-[#C3C6D6] bg-white px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-[#434654]/50 focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20";
+
+function RequiredMark() {
+  return <span className="text-red-500">*</span>;
+}
+
+function RegisterLabel({
+  htmlFor,
+  children,
+  required,
+}: {
+  htmlFor?: string;
+  children: string;
+  required?: boolean;
+}) {
+  return (
+    <Label
+      htmlFor={htmlFor}
+      className="block text-sm font-semibold leading-5 text-zinc-900"
+    >
+      {children}
+      {required ? <RequiredMark /> : null}
+    </Label>
+  );
+}
+
+function RegisterTextField({
+  id,
+  name,
+  label,
+  value,
+  placeholder,
+  required,
+  type = "text",
+  autoComplete,
+  error,
+  onChange,
+}: RegisterTextFieldProps) {
+  return (
+    <div className="space-y-2">
+      <RegisterLabel htmlFor={id} required={required}>
+        {label}
+      </RegisterLabel>
+      <Input
+        id={id}
+        name={name ?? id}
+        type={type}
+        autoComplete={autoComplete}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        className={registerInputClasses}
+      />
+      {error ? <p className="text-xs text-red-500">{error}</p> : null}
+    </div>
+  );
 }
 
 export default function RegisterPage() {
@@ -45,272 +114,264 @@ export default function RegisterPage() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
   const [gender, setGender] = useState("");
   const [occupation, setOccupation] = useState("");
   const [agreeToDirectory, setAgreeToDirectory] = useState(false);
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
 
   const redirectTo = sanitizeRedirectPath(searchParams.get("redirectTo"));
+  const passwordsMatch =
+    confirmPassword.trim() !== "" && password === confirmPassword;
 
   const isCreateEnabled =
     firstName.trim() !== "" &&
     lastName.trim() !== "" &&
     email.trim() !== "" &&
     password.trim() !== "" &&
+    passwordsMatch &&
+    contactNumber.trim() !== "" &&
     gender.trim() !== "" &&
     occupation.trim() !== "" &&
     agreeToDirectory;
 
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    if (password !== confirmPassword) {
+      event.preventDefault();
+      setConfirmPasswordError("Passwords do not match");
+      return;
+    }
+
+    setConfirmPasswordError("");
+  }
+
   return (
     <AuthPageShell
-      contentClassName="w-full max-w-sm pb-2 pt-10 lg:pb-2 lg:pt-2"
-      rightPanelContentClassName="text-[36px] font-medium text-[#111827]"
+      backTo="/"
+      backLabel="Back to Home"
+      leftSectionClassName="items-start justify-center px-6 py-10 sm:px-10 lg:px-8 lg:py-0 xl:px-12"
+      contentClassName="max-w-md pb-10 pt-20 lg:pt-40"
+      backLinkClassName="left-6 top-8 text-sm font-semibold normal-case tracking-normal text-[#1C5DD4] hover:text-[#164CB0] sm:left-10 lg:left-1/2 lg:top-24 lg:-translate-x-56"
+      backIconClassName="h-auto w-auto rounded-none border-0"
+      rightPanelContent={<RegisterBrandPanel />}
+      rightPanelContentClassName="items-stretch justify-stretch text-left"
       showRightPanelOverlay={false}
     >
-      <div className="mt-2 space-y-3 lg:mt-3 lg:space-y-4 xl:mt-6 xl:space-y-5 2xl:mt-16 2xl:space-y-6">
-        <div className="space-y-3 lg:space-y-4 xl:space-y-5 2xl:space-y-7">
-          <img
-            src="/logofullcolor.svg"
-            alt="True Khmer"
-            className="h-9 w-auto object-contain sm:h-10"
-          />
+      <div className="space-y-8">
+        <header className="space-y-2">
+          <h1 className="text-3xl font-bold leading-9 text-[#111827]">
+            Create Your Account
+          </h1>
+          <p className="text-base font-normal leading-6 text-[#4B5563]">
+            Please choose your participation type
+          </p>
+        </header>
 
-          <header className="space-y-[7px]">
-            <h1 className="text-[26.25px] font-semibold leading-[31.5px] text-[#030213]">
-              Welcome to True Khmer
-            </h1>
-            <p className="text-sm font-medium leading-[21px] text-[#99A1AF]">
-              Please choose your participation type
-            </p>
-          </header>
-
-          <div className="flex h-10 items-center gap-2 overflow-hidden rounded-md border border-[#E8E8E8] bg-transparent p-1">
-            <Button
-              type="button"
-              onClick={() => setParticipation("member")}
-              variant="ghost"
-              className={`flex-1 rounded-sm px-3 py-1.5 text-sm font-medium leading-5 transition-colors ${
-                participation === "member"
-                  ? "bg-[#2F6FE4] text-white shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
-                  : "text-[#62748E]"
-              }`}
-            >
-              Member
-            </Button>
-            <Button
-              type="button"
-              disabled
-              variant="ghost"
-              className="flex-1 cursor-not-allowed rounded-sm px-3 py-1.5 text-sm font-medium leading-5 text-[#62748E] opacity-60"
-            >
-              Partner
-            </Button>
-          </div>
-        </div>
-
-        <div className="space-y-2.5 lg:space-y-3 xl:space-y-4 2xl:space-y-[25px]">
-          <GoogleButton />
-
-          <FormDivider
-            className="py-2"
-            lineClassName="bg-[#F3F4F6]"
-            labelClassName="text-[#D1D5DC]"
-          />
-
-          <FormError message={formError} />
-
-          <Form
-            method="post"
-            className="space-y-2.5 lg:space-y-3 xl:space-y-3.5 2xl:space-y-[19px]"
+        <div className="grid rounded-2xl bg-[#ECEDF8] p-1 sm:grid-cols-2">
+          <Button
+            type="button"
+            onClick={() => setParticipation("member")}
+            variant="ghost"
+            className={cn(
+              "h-10 rounded-xl px-4 py-2 text-sm font-semibold leading-5 transition-colors",
+              participation === "member"
+                ? "bg-white text-[#0046AC] shadow-sm"
+                : "text-[#434654]",
+            )}
           >
-            <input type="hidden" name="redirectTo" value={redirectTo} />
-
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="firstName"
-                  className="block text-[13px] font-semibold leading-[19.5px] text-[#364153]"
-                >
-                  First name
-                </Label>
-                <div className="relative">
-                  <UserRound
-                    size={14}
-                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#D1D5DC]"
-                  />
-                  <Input
-                    id="firstName"
-                    name="firstName"
-                    value={firstName}
-                    onChange={(event) => setFirstName(event.target.value)}
-                    placeholder="Socheata"
-                    className="h-11 rounded-lg border-transparent bg-[#F8FAFC] py-2 pl-9 pr-3 text-[12.25px] font-medium text-[#1E293B] placeholder:text-[#C8D6E5] focus-visible:ring-[#2F6FE4]/30"
-                  />
-                </div>
-                {actionData?.errors?.firstName ? (
-                  <p className="text-xs text-red-500">
-                    {actionData.errors.firstName}
-                  </p>
-                ) : null}
-              </div>
-
-              <div className="space-y-2">
-                <Label
-                  htmlFor="lastName"
-                  className="block text-[13px] font-semibold leading-[19.5px] text-[#364153]"
-                >
-                  Last name
-                </Label>
-                <div className="relative">
-                  <UserRound
-                    size={14}
-                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#D1D5DC]"
-                  />
-                  <Input
-                    id="lastName"
-                    name="lastName"
-                    value={lastName}
-                    onChange={(event) => setLastName(event.target.value)}
-                    placeholder="Mean"
-                    className="h-11 rounded-lg border-transparent bg-[#F8FAFC] py-2 pl-9 pr-3 text-[12.25px] font-medium text-[#1E293B] placeholder:text-[#C8D6E5] focus-visible:ring-[#2F6FE4]/30"
-                  />
-                </div>
-                {actionData?.errors?.lastName ? (
-                  <p className="text-xs text-red-500">
-                    {actionData.errors.lastName}
-                  </p>
-                ) : null}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label
-                htmlFor="email"
-                className="block text-[13px] font-semibold leading-[19.5px] text-[#364153]"
-              >
-                Email address
-              </Label>
-              <div className="relative">
-                <Mail
-                  size={14}
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#D1D5DC]"
-                />
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder="name@example.com"
-                  className="h-11 rounded-lg border-transparent bg-[#F8FAFC] py-2 pl-9 pr-3 text-[12.25px] font-medium text-[#1E293B] placeholder:text-[#C8D6E5] focus-visible:ring-[#2F6FE4]/30"
-                />
-              </div>
-              {emailError ? (
-                <p className="text-xs text-red-500">{emailError}</p>
-              ) : null}
-            </div>
-
-            <PasswordField
-              id="password"
-              name="password"
-              autoComplete="new-password"
-              label="Password"
-              icon={Lock}
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="••••••••"
-            />
-
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="gender-trigger"
-                  className="block text-[13px] font-semibold leading-[19.5px] text-[#364153]"
-                >
-                  Gender
-                </Label>
-                <div className="relative">
-                  <User
-                    size={14}
-                    className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-[#D1D5DC]"
-                  />
-                  <SingleSelectDropdown
-                    id="gender"
-                    name="gender"
-                    value={gender}
-                    onValueChange={setGender}
-                    options={genderOptions}
-                    placeholder="Select gender"
-                    menuLabel="Gender"
-                    triggerClassName="pl-9 pr-9"
-                  />
-                </div>
-                {actionData?.errors?.gender ? (
-                  <p className="text-xs text-red-500">{actionData.errors.gender}</p>
-                ) : null}
-              </div>
-
-              <div className="space-y-2">
-                <Label
-                  htmlFor="occupation"
-                  className="block text-[13px] font-semibold leading-[19.5px] text-[#364153]"
-                >
-                  Occupation
-                </Label>
-                <div className="relative">
-                  <Briefcase
-                    size={14}
-                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#D1D5DC]"
-                  />
-                  <Input
-                    id="occupation"
-                    name="occupation"
-                    value={occupation}
-                    onChange={(event) => setOccupation(event.target.value)}
-                    placeholder="Strategist"
-                    className="h-11 rounded-lg border-transparent bg-[#F8FAFC] py-2 pl-9 pr-3 text-[12.25px] font-medium text-[#1E293B] placeholder:text-[#C8D6E5] focus-visible:ring-[#2F6FE4]/30"
-                  />
-                </div>
-                {actionData?.errors?.occupation ? (
-                  <p className="text-xs text-red-500">
-                    {actionData.errors.occupation}
-                  </p>
-                ) : null}
-              </div>
-            </div>
-
-            <input
-              type="hidden"
-              name="agreeToDirectory"
-              value={agreeToDirectory ? "1" : "0"}
-            />
-            <Label className="group flex items-center gap-2.5 text-[13px] font-medium leading-[19.5px] text-[#6A7282]">
-              <Checkbox
-                checked={agreeToDirectory}
-                onCheckedChange={(checked) => setAgreeToDirectory(checked === true)}
-                className="h-[17.5px] w-[17.5px] rounded-full border-[#E5E7EB] bg-[#F9FAFB] data-[state=checked]:border-[#2F6FE4] data-[state=checked]:bg-[#2F6FE4]"
-              />
-              I agree publicly to appear on the member directory
-            </Label>
-
-            <Button
-              type="submit"
-              disabled={!isCreateEnabled}
-              className={`h-10 w-full rounded-lg text-sm font-medium transition-colors ${
-                isCreateEnabled
-                  ? "bg-[#2F6FE4] text-white hover:bg-[#1F62DF]"
-                  : "cursor-not-allowed bg-[#F1F5F9] text-[#0F172B] opacity-50"
-              }`}
-            >
-              Create account
-            </Button>
-          </Form>
+            Member
+          </Button>
+          <Button
+            type="button"
+            onClick={() => setParticipation("partner")}
+            variant="ghost"
+            className={cn(
+              "h-10 rounded-xl px-4 py-2 text-sm font-semibold leading-5 transition-colors",
+              participation === "partner"
+                ? "bg-white text-[#0046AC] shadow-sm"
+                : "text-[#434654]",
+            )}
+          >
+            Partner
+          </Button>
         </div>
 
-        <p className="pt-0 text-center text-sm font-medium leading-[21px] text-[#6A7282]">
+        <GoogleButton className="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3 text-base font-semibold text-[#111827] shadow-sm hover:bg-[#F9FAFB]">
+          Log in with Google
+        </GoogleButton>
+
+        <FormDivider
+          label="or"
+          className="py-4"
+          lineClassName="bg-[#E5E7EB]"
+          labelClassName="text-sm font-normal normal-case tracking-normal text-[#4B5563]"
+        />
+
+        <FormError message={formError} />
+
+        <Form method="post" className="space-y-6" onSubmit={handleSubmit}>
+          <input type="hidden" name="redirectTo" value={redirectTo} />
+          <input
+            type="hidden"
+            name="agreeToDirectory"
+            value={agreeToDirectory ? "1" : "0"}
+          />
+          <input type="hidden" name="participation" value={participation} />
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <RegisterTextField
+              id="firstName"
+              label="First name"
+              value={firstName}
+              onChange={setFirstName}
+              placeholder="Socheata"
+              autoComplete="given-name"
+              required
+              error={actionData?.errors?.firstName}
+            />
+            <RegisterTextField
+              id="lastName"
+              label="Last name"
+              value={lastName}
+              onChange={setLastName}
+              placeholder="Mean"
+              autoComplete="family-name"
+              required
+              error={actionData?.errors?.lastName}
+            />
+          </div>
+
+          <RegisterTextField
+            id="email"
+            label="Email address"
+            type="email"
+            value={email}
+            onChange={setEmail}
+            placeholder="name@example.com"
+            autoComplete="email"
+            required
+            error={emailError}
+          />
+
+          <PasswordField
+            id="password"
+            name="password"
+            autoComplete="new-password"
+            label={
+              <>
+                Password
+                <RequiredMark />
+              </>
+            }
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="••••••••"
+            showToggle={false}
+            error={actionData?.errors?.password}
+            labelClassName="text-sm font-semibold leading-5 text-zinc-900"
+            inputClassName={registerInputClasses}
+          />
+
+          <PasswordField
+            id="confirmPassword"
+            name="confirmPassword"
+            autoComplete="new-password"
+            label={
+              <>
+                Confirm password
+                <RequiredMark />
+              </>
+            }
+            value={confirmPassword}
+            onChange={(event) => {
+              setConfirmPassword(event.target.value);
+              if (confirmPasswordError) setConfirmPasswordError("");
+            }}
+            placeholder="••••••••"
+            showToggle={false}
+            error={confirmPasswordError}
+            labelClassName="text-sm font-semibold leading-5 text-zinc-900"
+            inputClassName={registerInputClasses}
+          />
+
+          <div className="space-y-2">
+            <RegisterLabel htmlFor="contactNumber" required>
+              Contact number
+            </RegisterLabel>
+            <div className="flex h-12 overflow-hidden rounded-lg bg-white">
+              <div className="flex items-center rounded-l-lg border border-r-0 border-[#C3C6D6] bg-slate-50 px-4 text-sm font-medium leading-5 text-[#434654]">
+                +855
+              </div>
+              <Input
+                id="contactNumber"
+                value={contactNumber}
+                onChange={(event) => setContactNumber(event.target.value)}
+                placeholder="12 345 678"
+                inputMode="tel"
+                autoComplete="tel-national"
+                className="h-full rounded-l-none rounded-r-lg border-[#C3C6D6] px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-gray-500 focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20"
+              />
+            </div>
+          </div>
+
+          <RegisterTextField
+            id="occupation"
+            label="Occupation"
+            value={occupation}
+            onChange={setOccupation}
+            placeholder="Strategist"
+            autoComplete="organization-title"
+            error={actionData?.errors?.occupation}
+          />
+
+          <div className="space-y-2 pl-1">
+            <RegisterLabel required>Gender</RegisterLabel>
+            <RadioGroup
+              name="gender"
+              value={gender}
+              onValueChange={setGender}
+              className="flex flex-wrap gap-6"
+            >
+              <Label className="flex items-center gap-2 text-sm font-normal leading-5 text-zinc-900">
+                <RadioGroupItem value="male" className="border-[#C3C6D6]" />
+                Male
+              </Label>
+              <Label className="flex items-center gap-2 text-sm font-normal leading-5 text-zinc-900">
+                <RadioGroupItem value="female" className="border-[#C3C6D6]" />
+                Female
+              </Label>
+            </RadioGroup>
+            {actionData?.errors?.gender ? (
+              <p className="text-xs text-red-500">{actionData.errors.gender}</p>
+            ) : null}
+          </div>
+
+          <Label className="flex items-center gap-3 pl-1 text-sm font-semibold leading-5 text-gray-700">
+            <Checkbox
+              checked={agreeToDirectory}
+              onCheckedChange={(checked) => setAgreeToDirectory(checked === true)}
+              className="size-4 rounded border-[#E8E8E8] bg-white data-[state=checked]:border-[#2F6FE4] data-[state=checked]:bg-[#2F6FE4]"
+            />
+            I agree publicly to appear on the member directory
+          </Label>
+
+          <Button
+            type="submit"
+            disabled={!isCreateEnabled}
+            className="h-10 w-full rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white transition-colors hover:bg-[#1F62DF] disabled:bg-[#2F6FE4] disabled:opacity-50"
+          >
+            Join as {participation}
+          </Button>
+        </Form>
+
+        <p className="text-center text-base font-normal leading-6 text-gray-700">
           Already have an account?{" "}
-          <Link to="/login" className="font-semibold text-[#2F6FE4]">
-            Sign in
+          <Link
+            to="/login"
+            className="font-bold text-[#1C5DD4] transition-colors hover:text-[#164CB0]"
+          >
+            Sign In
           </Link>
         </p>
       </div>

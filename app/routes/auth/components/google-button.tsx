@@ -4,7 +4,11 @@ import { Button } from "~/components/ui/button";
 
 type GoogleButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
 
-export function GoogleButton({ className, ...buttonProps }: GoogleButtonProps) {
+export function GoogleButton({
+  className,
+  children = "Continue with Google",
+  ...buttonProps
+}: GoogleButtonProps) {
   return (
     <Button
       type="button"
@@ -21,7 +25,7 @@ export function GoogleButton({ className, ...buttonProps }: GoogleButtonProps) {
         height={16}
         alt="Google Logo"
       />
-      Continue with Google
+      {children}
     </Button>
   );
 }
