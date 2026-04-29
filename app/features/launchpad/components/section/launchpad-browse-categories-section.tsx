@@ -1,35 +1,11 @@
-import { BookOpen, Cpu, Globe, HandHelping, Heart } from "lucide-react";
 import { CategoryCard } from "~/components/category-card";
-
-const categories = [
-  {
-    icon: <BookOpen className="size-[17.5px]" strokeWidth={2} />,
-    title: "Education",
-    roleCount: 12,
-  },
-  {
-    icon: <Globe className="size-[17.5px]" strokeWidth={2} />,
-    title: "Environment",
-    roleCount: 8,
-  },
-  {
-    icon: <Heart className="size-[17.5px]" strokeWidth={2} />,
-    title: "Health",
-    roleCount: 5,
-  },
-  {
-    icon: <HandHelping className="size-[17.5px]" strokeWidth={2} />,
-    title: "Mentorship",
-    roleCount: 15,
-  },
-  {
-    icon: <Cpu className="size-[17.5px]" strokeWidth={2} />,
-    title: "Technology",
-    roleCount: 10,
-  },
-];
+import { useLoaderData } from "react-router";
+import type { loader } from "~/features/launchpad/routes/launchpad";
+import type { Category } from "~/services/launchpad/types/category";
 
 export function LaunchpadBrowseCategoriesSection() {
+  const { categories } = useLoaderData<typeof loader>();
+
   return (
     <section className="w-full px-6 md:px-12 lg:px-[131.5px] py-8 lg:py-21">
       <div className="mx-auto w-full max-w-304">
@@ -42,18 +18,20 @@ export function LaunchpadBrowseCategoriesSection() {
           </p>
         </header>
         <div className="w-full flex snap-x snap-mandatory gap-3.5 overflow-x-auto px-1 pb-1 md:grid md:grid-cols-3 md:gap-3.5 md:overflow-visible md:px-0 lg:grid-cols-4 xl:grid-cols-6">
-          {categories.map((category) => (
-            <div
-              key={category.title}
-              className="shrink-0 snap-start md:min-w-0 md:shrink md:w-full"
-            >
-              <CategoryCard
-                icon={category.icon ?? ""}
-                title={category.title}
-                roleCount={category.roleCount}
-              />
-            </div>
-          ))}
+          {categories.map((category: Category) => {
+            return (
+              <div
+                key={category.id}
+                className="shrink-0 snap-start md:min-w-0 md:shrink md:w-full"
+              >
+                <CategoryCard
+                  icon={category.iconKey}
+                  title={category.name}
+                  roleCount={category.roleCount}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

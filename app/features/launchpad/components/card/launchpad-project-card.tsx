@@ -6,6 +6,7 @@ import {} from "~/components/ui/skeleton";
 import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
 import type { LaunchpadOpportunity } from "~/services/launchpad/types/project";
+import { resolveImageURL } from "~/lib/utils";
 
 interface LaunchpadProjectCardProps {
   item: LaunchpadOpportunity;
@@ -16,6 +17,16 @@ export default function LaunchpadProjectCard({
   item,
   onOpenOpportunity,
 }: LaunchpadProjectCardProps) {
+  // Format the deadline date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
   return (
     <Card
       key={item.id}
@@ -33,7 +44,7 @@ export default function LaunchpadProjectCard({
       <div className="flex items-center justify-between pb-3">
         <div className="flex gap-1 items-baseline text-blue-500">
           <MapPin className="size-3" />
-          <p className="text-sm">{item.location}</p>
+          <p className="text-sm">{item.city.name}</p>
         </div>
         <div className="flex gap-2">
           <IconButton icon={<Share2 className="size-3.5" />} />
@@ -43,7 +54,7 @@ export default function LaunchpadProjectCard({
       <div className="flex items-center gap-3.5 pb-6">
         <div className="size-12.25 rounded-md border">
           <img
-            src={item.image}
+            src={resolveImageURL(item.logoKey || undefined)}
             alt={`${item.name} image`}
             className="w-full h-full object-cover rounded-lg"
           />
@@ -57,7 +68,7 @@ export default function LaunchpadProjectCard({
             seeking:
           </div>
           <Badge variant="outline" className="text-[#2F6FE4] bg-white">
-            {item.teamSize} ROLES
+            {item.totalRoles} ROLES
           </Badge>
         </div>
       </div>
@@ -65,11 +76,11 @@ export default function LaunchpadProjectCard({
       <div className="w-full flex items-center justify-between text-[#9EACC0] text-xs">
         <div className="flex gap-1.75 items-center">
           <Eye size={14} />
-          <div className="font-semibold">{item.views} Views</div>
+          <div className="font-semibold">{item.totalView} Views</div>
         </div>
         <div className="flex items-center gap-1.75">
           <div>Application close:</div>
-          <div>{item.applicationClose}</div>
+          <div>{formatDate(item.deadline)}</div>
         </div>
       </div>
     </Card>

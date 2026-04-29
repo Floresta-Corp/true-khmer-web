@@ -6,7 +6,7 @@ import type { LaunchpadOpportunity } from "~/services/launchpad/types/project";
 import type { loader } from "~/features/launchpad/routes/launchpad";
 
 export function LaunchpadAvailableProjectsSection() {
-  const projects = useLoaderData<typeof loader>();
+  const { projects } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const onOpenOpportunity = useCallback((item: LaunchpadOpportunity) => {
     navigate(`/launchpad/detail/${item.id}`);

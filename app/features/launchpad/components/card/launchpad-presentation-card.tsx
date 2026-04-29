@@ -1,41 +1,51 @@
 import { ArrowRight, Download } from "lucide-react";
 import { Card } from "~/components/ui/card";
-import { convertFileSize } from "~/lib/utils";
+import { resolveImageURL } from "~/lib/utils";
+import type { LaunchpadDetail } from "~/services/launchpad/types/project";
 
-const data = [
-  {
-    id: "file-1",
-    name: "Nexus Pitch Deck.pdf",
-    size: 4915.2,
-  },
-  {
-    id: "file-2",
-    name: "Game Mechanics.pdf",
-    size: 2048.5,
-  },
-];
+interface LaunchpadPresentationCardProps {
+  project: LaunchpadDetail;
+}
 
-export default function LaunchpadPresentationCard() {
+export default function LaunchpadPresentationCard({
+  project,
+}: LaunchpadPresentationCardProps) {
+  const documentData = project.documentKeys.map((key, index) => ({
+    id: `file-${index}`,
+    key,
+    name: key.split("/").pop() || `Document ${index + 1}`,
+    sizeLabel: "PDF",
+  }));
+
+  if (documentData.length === 0) {
+    return null;
+  }
+
   return (
-    <Card className="p-8 gap-3 flex flex-col">
-      <div className="text-lg font-semibold">Presentation</div>
-      <div className="flex gap-4">
-        {data.map((file) => (
-          <div
+    <Card className="flex flex-col gap-4 rounded-2xl border-[#E7ECF3] bg-white p-6">
+      <div className="text-xl font-semibold text-[#0F1729]">Presentation</div>
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        {documentData.map((file) => (
+          <a
             key={file.id}
-            className="cursor-pointer flex flex-1 border border-[#F3F4F6] p-4 rounded-2xl items-center gap-3.5 transition-all hover:bg-slate-50 active:bg-slate-100"
+            href={resolveImageURL(file.key)}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-3 rounded-xl border border-[#E7ECF3] p-3 transition-all hover:bg-slate-50"
           >
-            <div className="size-10.5 flex items-center bg-white justify-center border border-[#F3F4F6] rounded-lg">
-              <Download size={17.5} className="text-blue-500" />
+            <div className="flex size-9 items-center justify-center rounded-lg border border-[#E7ECF3] bg-white">
+              <Download size={16} className="text-blue-500" />
             </div>
             <div className="flex-1">
-              <div className="text-[15px] font-medium">{file.name}</div>
-              <div className="text-xs text-[#99A1AF] font-bold">
-                {convertFileSize(file.size)}
+              <div className="line-clamp-1 text-sm font-medium text-[#0F1729]">
+                {file.name}
+              </div>
+              <div className="text-xs font-semibold text-[#99A1AF]">
+                {file.sizeLabel}
               </div>
             </div>
-            <ArrowRight className="text-[#E5E7EB]" size={17.5} />
-          </div>
+            <ArrowRight className="text-[#D1D5DC]" size={16} />
+          </a>
         ))}
       </div>
     </Card>
