@@ -13,23 +13,8 @@ import type { LaunchpadDetail } from "~/services/launchpad/types/project";
 import LaunchpadJoinProjectCard from "../components/card/launchpad-join-project-card";
 
 export default function LaunchpadProjectDetailPage() {
-  const project = useLoaderData<LaunchpadDetail | null>();
+  const project = useLoaderData<LaunchpadDetail>();
   const prefersReducedMotion = useReducedMotion();
-
-  if (!project) {
-    return (
-      <main className="min-h-screen bg-[#F5F7FB] px-4 py-8 sm:px-6 lg:px-10">
-        <div className="mx-auto flex w-full max-w-304 flex-col gap-8">
-          <BackToButton to="/launchpad" />
-          <div className="text-center py-20">
-            <h2 className="text-2xl font-semibold text-gray-600">
-              Project not found
-            </h2>
-          </div>
-        </div>
-      </main>
-    );
-  }
 
   return (
     <main className="min-h-screen bg-[#F5F7FB] px-4 py-8 sm:px-6 lg:px-10">
@@ -48,10 +33,12 @@ export default function LaunchpadProjectDetailPage() {
             <IconButton
               icon={<Share2 className="size-4" />}
               ariaLabel="Share project"
+              disabled
             />
             <IconButton
               icon={<EllipsisVertical className="size-4" />}
               ariaLabel="More options"
+              disabled
             />
           </div>
         </motion.div>

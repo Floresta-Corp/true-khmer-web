@@ -17,7 +17,7 @@ export function LaunchpadAvailableProjectsSection() {
       <div className="mx-auto w-full max-w-304">
         <header className="py-10 flex items-center justify-between">
           <div className="text-3xl font-bold">All Projects</div>
-          <Button className="curosr-pointer" variant={"outline"}>
+          <Button className="cursor-pointer" variant={"outline"}>
             View All
           </Button>
         </header>

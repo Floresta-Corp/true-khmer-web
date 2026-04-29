@@ -33,31 +33,6 @@ export async function GetLaunchpadProjects(
   }
 }
 
-export async function GetLaunchpadProjectById(
-  id: string,
-  request?: Request,
-): Promise<LaunchpadOpportunity | undefined> {
-  try {
-    if (!request) {
-      return undefined;
-    }
-
-    const result = await apiRequestWithOptionalSession<GetLaunchpadResponse>(
-      request,
-      `/launchpad`,
-      {
-        method: "GET",
-      },
-    );
-    return result.data.launchpads.find((item) => item.id === id);
-  } catch (error) {
-    if (error instanceof ProtectedApiError && error.status === 404) {
-      return undefined;
-    }
-    throw error;
-  }
-}
-
 export async function GetLaunchpadDetail(
   id: string,
   request?: Request,

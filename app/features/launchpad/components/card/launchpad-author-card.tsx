@@ -2,6 +2,7 @@ import { Mail, PhoneCall, Send } from "lucide-react";
 import { Card } from "~/components/ui/card";
 import { resolveImageURL } from "~/lib/utils";
 import type { LaunchpadDetail } from "~/services/launchpad/types/project";
+import { Button } from "~/components/ui/button";
 
 interface LaunchpadAuthorCardProps {
   project: LaunchpadDetail;
@@ -41,29 +42,56 @@ export default function LaunchpadAuthorCard({
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
-          <a
-            href={telegramUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex size-8 items-center justify-center rounded-lg border border-[#E7ECF3] bg-[#EDF4FF] text-[#2F6FE4] transition-colors hover:bg-[#DFEBFF]"
-            aria-disabled={!telegramUrl}
-          >
-            <Send className="size-3.5" />
-          </a>
-          <a
-            href={contactLink}
-            className="inline-flex size-8 items-center justify-center rounded-lg border border-[#E7ECF3] bg-white text-[#6A7282] transition-colors hover:bg-[#F8FAFB]"
-            aria-disabled={!contactLink}
-          >
-            <PhoneCall className="size-3.5" />
-          </a>
-          <a
-            href={emailLink}
-            className="inline-flex size-8 items-center justify-center rounded-lg border border-[#E7ECF3] bg-white text-[#6A7282] transition-colors hover:bg-[#F8FAFB]"
-            aria-disabled={!emailLink}
-          >
-            <Mail className="size-3.5" />
-          </a>
+          {telegramUrl ? (
+            <a
+              href={telegramUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex size-8 items-center justify-center rounded-lg border border-[#E7ECF3] bg-[#EDF4FF] text-[#2F6FE4] transition-colors hover:bg-[#DFEBFF]"
+            >
+              <Send className="size-3.5" />
+            </a>
+          ) : (
+            <Button
+              disabled
+              className="inline-flex size-8 items-center justify-center rounded-lg border border-[#E7ECF3] bg-[#EDF4FF] text-[#2F6FE4] opacity-50"
+              variant="ghost"
+            >
+              <Send className="size-3.5" />
+            </Button>
+          )}
+          {contactLink ? (
+            <a
+              href={contactLink}
+              className="inline-flex size-8 items-center justify-center rounded-lg border border-[#E7ECF3] bg-white text-[#6A7282] transition-colors hover:bg-[#F8FAFB]"
+            >
+              <PhoneCall className="size-3.5" />
+            </a>
+          ) : (
+            <Button
+              disabled
+              className="inline-flex size-8 items-center justify-center rounded-lg border border-[#E7ECF3] bg-white text-[#6A7282] opacity-50"
+              variant="ghost"
+            >
+              <PhoneCall className="size-3.5" />
+            </Button>
+          )}
+          {emailLink ? (
+            <a
+              href={emailLink}
+              className="inline-flex size-8 items-center justify-center rounded-lg border border-[#E7ECF3] bg-white text-[#6A7282] transition-colors hover:bg-[#F8FAFB]"
+            >
+              <Mail className="size-3.5" />
+            </a>
+          ) : (
+            <Button
+              disabled
+              className="inline-flex size-8 items-center justify-center rounded-lg border border-[#E7ECF3] bg-white text-[#6A7282] opacity-50"
+              variant="ghost"
+            >
+              <Mail className="size-3.5" />
+            </Button>
+          )}
         </div>
       </div>
     </Card>

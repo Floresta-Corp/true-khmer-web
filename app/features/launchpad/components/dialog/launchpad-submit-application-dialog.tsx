@@ -15,11 +15,16 @@ import { Separator } from "~/components/ui/separator";
 
 interface LaunchpadSubmitApplicationDialogProps {
   trigger: ReactNode;
+  selectedRoleId?: string;
+  roles?: Array<{ id: string; title: string }>;
 }
 
 export default function LaunchpadSubmitApplicationDialog({
   trigger,
+  selectedRoleId,
+  roles = [],
 }: LaunchpadSubmitApplicationDialogProps) {
+  const selectedRole = roles.find((role) => role.id === selectedRoleId);
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -57,7 +62,7 @@ export default function LaunchpadSubmitApplicationDialog({
               className="flex h-11 w-full items-center justify-between rounded-lg bg-[#F8FAFC] px-3"
             >
               <span className="text-sm font-semibold text-[#344256]">
-                Temple Restoration Support
+                {selectedRole?.title || "Select a role"}
               </span>
               <ChevronDown className="size-3.5 text-[#344256]" />
             </button>

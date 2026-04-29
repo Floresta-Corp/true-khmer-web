@@ -66,6 +66,8 @@ export default function LaunchpadJoinProjectCard({
       </div>
 
       <LaunchpadSubmitApplicationDialog
+        selectedRoleId={selectedRoleId}
+        roles={project.roles}
         trigger={
           <Button className="mt-5 h-10 w-full rounded-lg bg-[#2F6FE4] text-sm font-semibold text-white hover:bg-[#245cc2]">
             Apply Now
