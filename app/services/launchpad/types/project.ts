@@ -69,6 +69,7 @@ export const LaunchpadDetailSchema = z.object({
   email: z.string().nullable(),
   telegramUsername: z.string().nullable(),
   totalView: z.number(),
+  totalRoles: z.number(),
   createdBy: CreatorSchema,
   createdAt: dateStringSchema,
   roles: z.array(RoleSchema),
