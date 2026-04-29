@@ -13,6 +13,8 @@ export default function VolunteerPage() {
   const prefersReducedMotion = useReducedMotion();
   const duration = prefersReducedMotion ? 0 : 0.35;
 
+
+
   return (
     <div className="min-h-screen bg-gray-50">
       <motion.div
@@ -30,9 +32,7 @@ export default function VolunteerPage() {
           transition={{ duration, delay: prefersReducedMotion ? 0 : 0.08 }}
           className="lg:pt-17.5"
         >
-          <VolunteerCategoriesSection
-            categories={categories || []}
-          />
+          <VolunteerCategoriesSection categories={categories || []} />
         </motion.div>
       )}
 
@@ -41,10 +41,7 @@ export default function VolunteerPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration, delay: prefersReducedMotion ? 0 : 0.16 }}
       >
-        <VolunteerAvailableOpportunities
-          opportunities={opportunities ?? []}
-          categories={categories ?? []}
-        />
+        <VolunteerAvailableOpportunities opportunities={opportunities ?? []} />
       </motion.div>
     </div>
   );

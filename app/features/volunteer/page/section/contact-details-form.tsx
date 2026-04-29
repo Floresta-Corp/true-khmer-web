@@ -6,8 +6,8 @@ import {
   InputGroupInput,
 } from "~/components/ui/input-group";
 import { Input } from "~/components/ui/input";
-import type { VolunteerOpportunityInput } from "~/services/volunteer/volunteer-types";
 import type { VolunteerPostPage2Errors } from "../volunteer-post-page-2";
+import type { FormDataVolunteerInput } from "~/services/volunteer/types";
 
 interface PaleInputProps {
   placeholder: string;
@@ -41,10 +41,10 @@ function PaleInput({
 }
 
 interface ContactDetailsFormProps {
-  contact: VolunteerOpportunityInput["contact"];
+  contact: FormDataVolunteerInput["contact"];
   errors?: VolunteerPostPage2Errors["contact"];
   onUpdateField: (
-    field: keyof VolunteerOpportunityInput["contact"],
+    field: keyof FormDataVolunteerInput["contact"],
     value: string | null,
   ) => void;
 }
@@ -67,7 +67,10 @@ export default function ContactDetailsForm({
 
       <div className="mt-5 border-t border-[#F3F4F6]" />
 
-      <div className="grid gap-7 pt-5 md:grid-cols-2" data-contact-error={hasErrors ? "true" : undefined}>
+      <div
+        className="grid gap-7 pt-5 md:grid-cols-2"
+        data-contact-error={hasErrors ? "true" : undefined}
+      >
         <div className="space-y-2">
           <label className="flex items-center gap-2 text-[13px] font-semibold text-[#364153]">
             <Phone className="size-3.5 text-[#00BC7D]" />

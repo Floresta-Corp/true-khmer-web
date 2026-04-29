@@ -1,5 +1,8 @@
 import { motion, useReducedMotion } from "framer-motion";
-import type { VolunteerPost } from "~/lib/post";
+import type {
+  Opportunity,
+  Role,
+} from "~/services/volunteer/types/opportunities";
 import EmptyPost from "../components/empty-post";
 import OpportunityCover from "../components/sections/opportunity-cover";
 import OpportunityDetailsGrid from "../components/sections/opportunity-details-grid";
@@ -10,7 +13,11 @@ import ProjectImpactSection from "../components/sections/project-impact-section"
 import OrganizerCard from "../components/sections/organizer-card";
 import ApplicationSummary from "../components/sections/application-summary";
 import BackToButton from "~/components/back-to-button";
-import type { Opportunity } from "~/services/volunteer/volunteer-types";
+
+interface VolunteerDetailPageProps {
+  volunteer?: Opportunity;
+  userId?: string;
+}
 
 const responsibilities = [
   "Assist professional archeologists in documenting site conditions",
@@ -26,71 +33,24 @@ const requirements = [
   "Respect for cultural heritage and local customs",
 ];
 
-interface VolunteerDetailPageProps {
-  opportunityId?: string;
-  volunteer?: Opportunity;
-}
-
-export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
+export function VolunteerDetailPage({
+  volunteer,
+  userId,
+}: VolunteerDetailPageProps) {
   if (!volunteer) {
     return <EmptyPost />;
   }
 
   const prefersReducedMotion = useReducedMotion();
 
-  const adaptedVolunteer: VolunteerPost = {
-    id: Number(volunteer.id) || 0,
-    title: volunteer.title,
-    status: volunteer.status,
-    location: volunteer.location.name,
-    commitment: volunteer.commitmentLabel,
-    duration: volunteer.durationLabel,
-    applicants: 0,
-    totalApplicants:
-      volunteer.roles?.reduce((sum, role) => sum + role.capacity, 0) ?? 0,
-    deadline: volunteer.applicationDeadline,
-    overview: volunteer.overview,
-    availableRoles:
-      volunteer.roles?.map((role, index) => ({
-        id: index + 1,
-        title: role.title,
-        commitment: role.commitmentLabel,
-        spotLeft: role.capacity,
-        responsibilities: role.responsibilities,
-        requirements: role.requirements,
-      })) ?? [],
-    benefits: volunteer.benefits,
-    projectImpact: volunteer.communityImpact ?? "",
-    createdBy: {
-      profile: {
-        name: volunteer.organizer.name,
-        status: "ORGANIZER",
-        isVerified: true,
-        imageUrl: volunteer.organizer.avatarUrl ?? "",
-      },
-      details: {
-        website: volunteer.organizer.contact.websiteUrl ?? "",
-        opportunitiesCount: String(volunteer.organizer.opportunityCount),
-        location: volunteer.location.name,
-      },
-    },
-  };
+  const totalCapacity = volunteer.roles.reduce(
+    (sum, role) => sum + role.capacity,
+    0,
+  );
 
-  const roles =
-    adaptedVolunteer.availableRoles.length > 0
-      ? adaptedVolunteer.availableRoles
-      : [
-          {
-            id: 1,
-            title: "Temple Restoration Support",
-            commitment: "Full week",
-            spotLeft: 3,
-            responsibilities,
-            requirements,
-          },
-        ];
-
-  const primaryRole = roles[0];
+  const primaryRole = volunteer.roles.reduce((a, b) =>
+    a.displayOrder < b.displayOrder ? a : b,
+  );
 
   return (
     <main className="min-h-screen bg-white px-6 py-10 md:px-12 lg:px-28">
@@ -108,7 +68,6 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
 
         <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
           <section className="flex min-w-0 flex-col gap-4 md:gap-8">
-            {/* Cover Section */}
             <motion.article
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -119,19 +78,18 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
               }}
               className="flex flex-col gap-8 overflow-hidden rounded-3xl border border-[#e1e7ef] bg-white"
             >
-              <OpportunityCover volunteer={adaptedVolunteer} />
+              <OpportunityCover volunteer={volunteer} />
               <div className="px-8">
-                <OpportunityDetailsGrid volunteer={adaptedVolunteer} />
+                <OpportunityDetailsGrid volunteer={volunteer} />
               </div>
               <div className="px-8 pb-8">
-                <ProjectOverviewSection volunteer={adaptedVolunteer} />
+                <ProjectOverviewSection volunteer={volunteer} />
               </div>
               <div className="px-8 pb-8">
-                <AvailableRolesSection roles={roles} />
+                <AvailableRolesSection roles={volunteer.roles} />
               </div>
             </motion.article>
 
-            {/* Benefits Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -141,10 +99,9 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
                 delay: prefersReducedMotion ? 0 : 0.1,
               }}
             >
-              <BenefitsSection volunteer={adaptedVolunteer} />
+              <BenefitsSection volunteer={volunteer} />
             </motion.div>
 
-            {/* Impact Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -154,10 +111,9 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
                 delay: prefersReducedMotion ? 0 : 0.15,
               }}
             >
-              <ProjectImpactSection volunteer={adaptedVolunteer} />
+              <ProjectImpactSection volunteer={volunteer} />
             </motion.div>
 
-            {/* Organizer Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -167,11 +123,10 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
                 delay: prefersReducedMotion ? 0 : 0.2,
               }}
             >
-              <OrganizerCard volunteer={adaptedVolunteer} />
+              <OrganizerCard volunteer={volunteer} />
             </motion.div>
           </section>
 
-          {/* Sidebar */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -182,8 +137,9 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
             }}
           >
             <ApplicationSummary
-              volunteer={adaptedVolunteer}
+              volunteer={volunteer}
               role={primaryRole}
+              totalCapacity={totalCapacity}
             />
           </motion.div>
         </div>

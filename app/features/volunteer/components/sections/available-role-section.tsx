@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Users,
   ChevronDown,
@@ -7,16 +8,8 @@ import {
   Circle,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import type { Role } from "~/services/volunteer/types/opportunities";
 import VolunteerApplicationDialog from "../dialog/volunteer-application-dialog";
-
-interface Role {
-  id: number;
-  title: string;
-  commitment: string;
-  spotLeft: number;
-  responsibilities: string[];
-  requirements: string[];
-}
 
 interface AvailableRolesSectionProps {
   roles: Role[];
@@ -29,7 +22,7 @@ export default function AvailableRolesSection({
     <div className="space-y-5">
       <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-[-0.44px] text-[#030213]">
         <Users className="size-[17.5px] text-[#2563eb]" />
-        Available Roles ({roles.length})
+        Available Roles ({roles.reduce((a, b) => a + b.capacity, 0)})
       </h2>
 
       <div className="space-y-5">
@@ -46,9 +39,15 @@ interface RoleCardProps {
 }
 
 function RoleCard({ role }: RoleCardProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <div className="overflow-hidden rounded-[14px] border border-[#e1e7ef]">
-      <div className="flex items-center justify-between px-5.25 py-6">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex w-full items-center justify-between px-5.25 py-6 text-left"
+      >
         <div className="flex items-center gap-3.5">
           <div className="flex size-5.25 items-center justify-center rounded-full border-2 border-[#2f6fe4] bg-[#2f6fe4]">
             <div className="size-1.75 rounded-full bg-white" />
@@ -56,32 +55,37 @@ function RoleCard({ role }: RoleCardProps) {
           <div>
             <h3 className="text-base font-bold text-[#0a0a0a]">{role.title}</h3>
             <p className="mt-1 flex items-center gap-2 text-[11px] font-bold text-[#99a1af]">
-              {role.commitment}
+              {role.commitmentLabel}
               <span className="size-[3.5px] rounded-full bg-[#d1d5dc]" />
-              <span className="text-[#009966]">{role.spotLeft} spots left</span>
+              <span className="text-[#009966]">{role.capacity} spots left</span>
             </p>
           </div>
         </div>
-        <ChevronDown className="size-[17.5px] text-[#2f6fe4]" />
-      </div>
+        <ChevronDown
+          className={`size-[17.5px] text-[#2f6fe4] transition-transform duration-200 ${isOpen ? "rotate-180" : ""
+            }`}
+        />
+      </button>
 
-      <div className="border-t border-black/10 px-5.25 pt-7.25">
-        <div className="grid gap-5 lg:grid-cols-2">
-          <ResponsibilitiesSection items={role.responsibilities} />
-          <RequirementsSection items={role.requirements} />
-        </div>
+      {isOpen && (
+        <div className="border-t border-black/10 px-5.25 pt-7.25">
+          <div className="grid gap-5 lg:grid-cols-2">
+            <ResponsibilitiesSection items={role.responsibilities} />
+            <RequirementsSection items={role.requirements} />
+          </div>
 
-        <div className="my-7.25 flex justify-end border-t border-[#f3f4f6] pt-7.25">
-          <VolunteerApplicationDialog
-            role={role}
-            trigger={
-              <Button className="h-10 bg-[#2f6fe4] px-6 text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]">
-                Apply for this Role
-              </Button>
-            }
-          />
+          <div className="my-7.25 flex justify-end border-t border-[#f3f4f6] pt-7.25">
+            <VolunteerApplicationDialog
+              role={role}
+              trigger={
+                <Button className="h-10 bg-[#2f6fe4] px-6 text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]">
+                  Apply for this Role
+                </Button>
+              }
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

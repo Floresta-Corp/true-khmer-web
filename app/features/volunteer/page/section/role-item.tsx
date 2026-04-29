@@ -1,9 +1,9 @@
 import { Trash2 } from "lucide-react";
 import IconButton from "~/components/icon-button";
-import type { VolunteerOpportunityInput } from "~/services/volunteer/volunteer-types";
+import type { FormDataVolunteerInput } from "../volunteer-post-page";
 
 interface RoleItemProps {
-  role: VolunteerOpportunityInput["roles"][number];
+  role: FormDataVolunteerInput["roles"][number];
   roleIndex: number;
   isActive: boolean;
   onSelect: (index: number) => void;

@@ -1,4 +1,4 @@
-import type { VolunteerOpportunityInput } from "~/services/volunteer/volunteer-types";
+import type { FormDataVolunteerInput } from "~/services/volunteer/types";
 import type { VolunteerPostPage1Errors } from "../page/volunteer-post-page-1";
 import type { VolunteerPostPage2Errors } from "../page/volunteer-post-page-2";
 
@@ -6,7 +6,7 @@ const hasText = (value: unknown): value is string =>
   typeof value === "string" && value.trim().length > 0;
 
 export const validateDetailStep = (
-  formData: VolunteerOpportunityInput,
+  formData: FormDataVolunteerInput,
 ): VolunteerPostPage1Errors => {
   const errors: VolunteerPostPage1Errors = {};
 
@@ -28,7 +28,7 @@ export const validateDetailStep = (
   if (!hasText(formData.applicationDeadline)) {
     errors.applicationDeadline = "Application deadline is required.";
   }
-  if (!hasText(formData.coverImageKey)) {
+  if (!formData.coverImageKey?.value) {
     errors.coverImageKey = "Main event cover is required.";
   }
   if (!hasText(formData.overview)) {
@@ -50,7 +50,7 @@ export const validateDetailStep = (
 };
 
 export const validateRoleStep = (
-  formData: VolunteerOpportunityInput,
+  formData: FormDataVolunteerInput,
 ): VolunteerPostPage2Errors => {
   const errors: VolunteerPostPage2Errors = {};
 

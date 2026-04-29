@@ -8,7 +8,7 @@ export const loader = VolunteerDetailLoader;
 export default function VolunteerOpportunityDetail({
   params,
 }: Route.ComponentProps) {
-  const { volunteer } = useLoaderData<typeof loader>();
+  const { volunteer, userId } = useLoaderData<typeof loader>();
 
-  return <VolunteerDetailPage volunteer={volunteer} />;
+  return <VolunteerDetailPage volunteer={volunteer} userId={userId || ""} />;
 }

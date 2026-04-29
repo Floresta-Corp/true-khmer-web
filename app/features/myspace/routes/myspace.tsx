@@ -31,7 +31,7 @@ export default function MySpacePage() {
             </div>
             <div className="flex items-center gap-2">
               <Link to={"/edit-profile"}>
-                <Button variant="secondary" className="h-9">
+                <Button variant="default" className="h-9 bg-blue-600">
                   Edit profile
                 </Button>
               </Link>
@@ -40,7 +40,6 @@ export default function MySpacePage() {
               </Button>
             </div>
           </motion.div>
-
           {/* Figma Profile Header Card Implementation */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -315,7 +314,8 @@ export default function MySpacePage() {
                   </p>
 
                   <p className="max-w-[320px] pt-1 text-center text-[14px] leading-5 text-[#94a3b8]">
-                    Start interacting with the community to see your history here.
+                    Start interacting with the community to see your history
+                    here.
                   </p>
 
                   <Link
@@ -374,7 +374,9 @@ export default function MySpacePage() {
                           <AvatarFallback>SD</AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="text-sm font-medium">Sarah Jenkins</div>
+                          <div className="text-sm font-medium">
+                            Sarah Jenkins
+                          </div>
                           <div className="text-xs text-muted-foreground">
                             12.5k points
                           </div>

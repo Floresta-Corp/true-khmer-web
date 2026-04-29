@@ -202,11 +202,10 @@ export function RecommendedStoriesSection({
             {/* Trending Tab */}
             <button
               onClick={() => setActiveTab("trending")}
-              className={`pb-2 font-bold text-[13px] tracking-tight transition-colors ${
-                activeTab === "trending"
+              className={`pb-2 font-bold text-[13px] tracking-tight transition-colors ${activeTab === "trending"
                   ? "text-gray-400 border-b-0"
                   : "text-gray-400 border-b-0 hover:text-gray-600"
-              }`}
+                }`}
             >
               Trending
             </button>
@@ -214,11 +213,10 @@ export function RecommendedStoriesSection({
             {/* Recent Tab */}
             <button
               onClick={() => setActiveTab("recent")}
-              className={`pb-2 font-bold text-[13px] tracking-tight transition-colors border-b-2 ${
-                activeTab === "recent"
+              className={`pb-2 font-bold text-[13px] tracking-tight transition-colors border-b-2 ${activeTab === "recent"
                   ? "text-gray-900 border-blue-600"
                   : "text-gray-400 border-transparent"
-              }`}
+                }`}
             >
               Recent
             </button>

@@ -68,13 +68,13 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-48 rounded-2xl border border-[#e2e8f0] p-3 shadow-[0_16px_40px_rgba(15,23,42,0.12)]"
+        className="w-50 pb-3 rounded-2xl border border-[#e2e8f0] px-0 pt-0 shadow-[0_16px_40px_rgba(15,23,42,0.12)]"
         align="end"
         sideOffset={8}
         forceMount
       >
         {/* Profile Section */}
-        <div className="flex items-center gap-2 px-4 pt-4 pb-2">
+        <div className="flex items-center gap-2 pb-2 pt-3 px-3">
           <Avatar className="size-7 border border-[#f9fafb]">
             <AvatarImage
               src={profileImage}
@@ -92,15 +92,19 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
           </div>
         </div>
         <Separator className="bg-[#f3f4f6]" />
-        {/* Action List */}
-        <div className="flex flex-col gap-0 py-1 px-1">
-          <DropdownMenuItem className="flex gap-3 items-center px-3 py-1.75 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]">
+        <div className="p-1">
+          <DropdownMenuItem className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]">
             <CirclePlus className="size-4 shrink-0" />
             <span>Enable new role</span>
           </DropdownMenuItem>
+        </div>
+
+        <Separator className="bg-[#f3f4f6]" />
+        {/* Action List */}
+        <div className="flex flex-col gap-1 py-1 px-1">
           <DropdownMenuItem
             asChild
-            className="flex gap-3 items-center px-3 py-1.75 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
+            className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
           >
             <Link to="/myspace" className="flex gap-3 items-center w-full">
               <UserRound className="size-4 shrink-0" />
@@ -109,7 +113,7 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
           </DropdownMenuItem>
           <DropdownMenuItem
             asChild
-            className="flex gap-3 items-center px-3 py-1.75 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
+            className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
           >
             <Link to="/applications" className="flex gap-3 items-center w-full">
               <FileUser className="size-4 shrink-0" />
@@ -118,7 +122,7 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
           </DropdownMenuItem>
           <DropdownMenuItem
             asChild
-            className="flex gap-3 items-center px-3 py-1.75 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
+            className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
           >
             <Link to="/tickets" className="flex gap-3 items-center w-full">
               <Ticket className="size-4 shrink-0" />
@@ -127,7 +131,7 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
           </DropdownMenuItem>
           <DropdownMenuItem
             asChild
-            className="flex gap-3 items-center px-3 py-1.75 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
+            className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
           >
             <Link to="/saved" className="flex gap-3 items-center w-full">
               <BookmarkCheck className="size-4 shrink-0" />
@@ -135,11 +139,11 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
             </Link>
           </DropdownMenuItem>
         </div>
-        <Separator className="bg-[#f1f5f9] my-1" />
+        <Separator className="bg-[#f1f5f9]" />
         <div className="flex flex-col gap-0 py-1 px-1">
           <DropdownMenuItem
             asChild
-            className="flex gap-3 items-center px-3 py-1.75 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
+            className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
           >
             <Link to="/settings" className="flex gap-3 items-center w-full">
               <Settings className="size-4 shrink-0" />
@@ -148,7 +152,7 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
           </DropdownMenuItem>
           <Form method="post" action="/logout" id="logout-form">
             <DropdownMenuItem
-              className="flex gap-3 items-center px-3 py-1.75 rounded-lg text-xs font-normal text-[#fb3748] cursor-pointer hover:bg-[#fbeaec]"
+              className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#fb3748] cursor-pointer hover:bg-[#fbeaec]"
               onSelect={() => {
                 (
                   document.getElementById("logout-form") as HTMLFormElement

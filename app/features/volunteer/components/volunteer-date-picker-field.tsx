@@ -9,7 +9,7 @@ import {
 } from "~/components/ui/popover";
 
 type VolunteerDatePickerFieldProps = {
-  value: string;
+  value?: string;
   onChange: (value: string) => void;
   error?: string;
   placeholder?: string;
@@ -46,10 +46,7 @@ export default function VolunteerDatePickerField({
             <Calendar
               mode="single"
               selected={selectedDate}
-              onSelect={(date) =>
-                onChange(date ? format(date, "yyyy-MM-dd") : "")
-              }
-              initialFocus
+              onSelect={(date) => onChange(date ? date.toISOString() : "")}
             />
           </PopoverContent>
         </Popover>

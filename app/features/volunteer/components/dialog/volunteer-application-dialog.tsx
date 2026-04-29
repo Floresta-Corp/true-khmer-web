@@ -7,10 +7,10 @@ import {
   DialogContent,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import type { VolunteerRole } from "~/lib/post";
+import type { Role } from "~/services/volunteer/types/opportunities";
 
 interface VolunteerApplicationDialogProps {
-  role: VolunteerRole;
+  role: Role;
   trigger?: React.ReactNode;
 }
 

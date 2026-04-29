@@ -3,25 +3,24 @@ import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import { resolveImageURL } from "~/lib/utils";
 import type { Opportunity } from "~/services/volunteer/volunteer-types";
-import type { VolunteerCategory } from "~/services/volunteer/types/category";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
 
 const volunteerPlaceholderImage = "/images/volunteer-placeholder.svg";
 
-function OpportunityCard({
-  opportunity,
-  categoryName,
-}: {
-  opportunity: Opportunity;
-  categoryName?: string;
-}) {
+function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
   const image = resolveImageURL(
-    opportunity.coverImageUrl ?? opportunity.coverImageKey,
+    opportunity.coverImageKey,
     volunteerPlaceholderImage,
   );
-  const openSpots =
-    opportunity.roles?.reduce((sum, role) => sum + role.capacity, 0) ?? 0;
-  const progress = openSpots > 0 ? "100%" : "0%";
+
+  const progress =
+    opportunity.capacity > 0
+      ? Math.min(
+        (opportunity.applicationCount / opportunity.capacity) * 100,
+        100,
+      ) + 50
+      : 0;
 
   return (
     <article className="flex flex-col overflow-hidden rounded-[14px] border border-[#f3f4f6] bg-white p-px shadow-[0px_10px_30px_-15px_rgba(0,0,0,0.05)]">
@@ -33,9 +32,9 @@ function OpportunityCard({
           loading="lazy"
         />
         <span className="relative inline-flex rounded-xl border border-white/20 bg-white/95 px-2.25 py-1 text-[10px] font-semibold tracking-[-0.13px] text-[#2f6fe4]">
-          {categoryName ?? opportunity.category.name}
+          {opportunity.category.name}
         </span>
-        <Button
+        {/* <Button
           type="button"
           variant="ghost"
           size="icon"
@@ -43,7 +42,7 @@ function OpportunityCard({
           className="relative float-right flex size-[31.5px] items-center justify-center rounded-2xl bg-white/95 text-[#9aa2af] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)]"
         >
           <Heart className="size-3.5" />
-        </Button>
+        </Button> */}
       </div>
 
       <div className="flex flex-col gap-6 p-5">
@@ -61,7 +60,7 @@ function OpportunityCard({
             <div className="flex items-center gap-[5.25px] text-[11px] text-[#4a5565]">
               <Calendar size={13.5} className="text-blue-500" />
               <span>
-                {format(opportunity.applicationDeadline, "MMM, yyyy")}
+                {format(opportunity.createdAt, "MMM, yyyy")}
               </span>
             </div>
             <div className="flex items-center gap-[5.25px] text-[11px] text-[#4a5565]">
@@ -80,13 +79,15 @@ function OpportunityCard({
                 Spots filled
               </span>
               <span className="text-xs font-black leading-4.5 text-[#2f6fe4]">
-                {openSpots}/{10}
+                {opportunity.applicationCount}/{opportunity.capacity}
               </span>
             </div>
             <div className="h-[5.25px] w-full overflow-hidden rounded-full bg-[#f9fafb]">
-              <div
+              <motion.div
                 className="h-full rounded-full bg-[#2f6fe4]"
-                style={{ width: progress }}
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ type: "spring", stiffness: 120, damping: 20 }}
               />
             </div>
           </div>
@@ -114,17 +115,11 @@ function OpportunityCard({
 
 interface VolunteerAvailableOpportunitiesProps {
   opportunities?: Opportunity[];
-  categories?: VolunteerCategory[];
 }
 
 export function VolunteerAvailableOpportunities({
   opportunities = [],
-  categories = [],
 }: VolunteerAvailableOpportunitiesProps) {
-  const categoryNameById = Object.fromEntries(
-    categories.map((category) => [category.id, category.name ?? category.id]),
-  );
-
   return (
     <section className="w-full bg-gray-50 px-6 py-14 md:px-12 lg:px-28">
       <div className="mx-auto flex w-full max-w-304 flex-col gap-8">
@@ -140,11 +135,7 @@ export function VolunteerAvailableOpportunities({
         {opportunities.length > 0 ? (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
             {opportunities.map((opportunity) => (
-              <OpportunityCard
-                key={opportunity.id}
-                opportunity={opportunity}
-                categoryName={categoryNameById[opportunity.category.id]}
-              />
+              <OpportunityCard key={opportunity.id} opportunity={opportunity} />
             ))}
           </div>
         ) : (

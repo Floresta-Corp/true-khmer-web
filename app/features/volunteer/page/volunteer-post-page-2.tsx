@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useFetcher } from "react-router";
 import RolesList from "./section/roles-list";
 import OpenRolesForm from "./section/open-roles-form";
 import ContactDetailsForm from "./section/contact-details-form";
 import FormActions from "./section/form-actions";
 import PublishOpportunitySuccessDialog from "../components/dialog/publish-opportunity-dialog";
-import type { VolunteerOpportunityInput } from "~/services/volunteer/volunteer-types";
+import type { FormDataVolunteerInput } from "~/services/volunteer/types";
 
 export type VolunteerRoleErrors = {
   title?: string;
@@ -22,17 +22,18 @@ export type VolunteerPostPage2Errors = {
     email?: string;
     telegramUsername?: string;
   };
+  submit?: string;
 };
 
 interface VolunteerPostPage2Props {
-  formData: VolunteerOpportunityInput;
+  formData: FormDataVolunteerInput;
   errors?: VolunteerPostPage2Errors;
-  onUpdateField: <K extends keyof VolunteerOpportunityInput>(
+  onUpdateField: <K extends keyof FormDataVolunteerInput>(
     field: K,
-    value: VolunteerOpportunityInput[K],
+    value: FormDataVolunteerInput[K],
   ) => void;
   onBackToDetails: () => void;
-  onSubmit: () => boolean;
+  onSubmit: () => void | boolean | Promise<void> | Promise<boolean>;
   isSubmitting: boolean;
 }
 
@@ -73,21 +74,21 @@ export default function VolunteerPostPage2({
   const currentRoleErrors = errors?.roleErrors?.[activeRoleIndex];
 
   const updateContactField = (
-    field: keyof VolunteerOpportunityInput["contact"],
+    field: keyof FormDataVolunteerInput["contact"],
     value: string | null,
   ) => {
-    onUpdateField("contact", { ...formData.contact, [field]: value });
+    onUpdateField("contact", { ...formData.contact, [field]: value } as any);
   };
 
   const handleRoleChange = <
-    K extends keyof VolunteerOpportunityInput["roles"][number],
+    K extends keyof FormDataVolunteerInput["roles"][number],
   >(
     index: number,
     field: K,
-    value: VolunteerOpportunityInput["roles"][number][K],
+    value: FormDataVolunteerInput["roles"][number][K],
   ) => {
     const newRoles = [...formData.roles];
-    newRoles[index] = { ...newRoles[index], [field]: value };
+    newRoles[index] = { ...newRoles[index], [field]: value } as any;
     onUpdateField("roles", newRoles);
   };
 
@@ -164,6 +165,7 @@ export default function VolunteerPostPage2({
         onBack={onBackToDetails}
         onSubmit={onSubmit}
         isSubmitting={isSubmitting}
+        error={errors?.submit}
       />
 
       <PublishOpportunitySuccessDialog

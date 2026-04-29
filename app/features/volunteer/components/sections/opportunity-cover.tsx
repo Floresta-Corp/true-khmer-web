@@ -1,17 +1,19 @@
-import type { VolunteerPost } from "~/lib/post";
+import { resolveImageURL } from "~/lib/utils";
+import type { Opportunity } from "~/services/volunteer/types/opportunities";
 
 const coverImage = "/images/volunteer-placeholder.svg";
 
 interface OpportunityCoverProps {
-  volunteer: VolunteerPost;
+  volunteer: Opportunity;
 }
 
 export default function OpportunityCover({ volunteer }: OpportunityCoverProps) {
+  const image = resolveImageURL(volunteer.coverImageKey, coverImage);
   return (
     <div className="overflow-hidden rounded-t-3xl border border-[#e1e7ef]">
       <div className="relative h-70 px-5.25 pb-5.25 pt-50.5">
         <img
-          src={coverImage}
+          src={image}
           alt="Temple restoration volunteers"
           className="absolute inset-0 size-full object-cover"
         />

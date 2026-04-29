@@ -1,5 +1,5 @@
 import { Award, CheckCircle2 } from "lucide-react";
-import type { VolunteerPost } from "~/lib/post";
+import type { Opportunity } from "~/services/volunteer/types/opportunities";
 
 const defaultBenefits = [
   "Hands-on mentorship from conservation experts",
@@ -9,7 +9,7 @@ const defaultBenefits = [
 ];
 
 interface BenefitsSectionProps {
-  volunteer: VolunteerPost;
+  volunteer: Opportunity;
 }
 
 export default function BenefitsSection({ volunteer }: BenefitsSectionProps) {

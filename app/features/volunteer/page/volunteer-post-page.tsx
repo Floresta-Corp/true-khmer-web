@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { useSearchParams, useFetcher, useLoaderData } from "react-router";
+import {
+  useNavigate,
+  useSearchParams,
+  useFetcher,
+  useLoaderData,
+} from "react-router";
 import VolunteerPostPage1 from "./volunteer-post-page-1";
 import VolunteerPostPage2 from "./volunteer-post-page-2";
 import ProgressIndicator, { ProgressState } from "./section/progress-indicator";
@@ -10,41 +15,17 @@ import {
   validateDetailStep,
   validateRoleStep,
 } from "../lib/volunteer-validation";
-import type { VolunteerOpportunityInput } from "~/services/volunteer/volunteer-types";
+import {
+  initialFormDataVolunteerInput,
+  type FormDataVolunteerInput,
+} from "~/services/volunteer/volunteer-types";
 import type { loader } from "../routes/volunteer.create";
 import type { VolunteerPostPage1Errors } from "./volunteer-post-page-1";
 import type { VolunteerPostPage2Errors } from "./volunteer-post-page-2";
 
-const initialData: VolunteerOpportunityInput = {
-  categoryId: "",
-  locationId: "",
-  title: "",
-  overview: "",
-  communityImpact: null,
-  durationLabel: "",
-  commitmentLabel: "",
-  applicationDeadline: "",
-  benefits: [""],
-  contact: {
-    email: "",
-    telegramUsername: null,
-    phone: null,
-    websiteUrl: null,
-  },
-  roles: [
-    {
-      title: "",
-      commitmentLabel: "",
-      capacity: 1,
-      responsibilities: [""],
-      requirements: [""],
-    },
-  ],
-  coverImageKey: "",
-};
-
 export default function VolunteerPostPage() {
   const { locations, categories, userId } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const fetcher = useFetcher<{
     error?: string;
@@ -56,8 +37,9 @@ export default function VolunteerPostPage() {
       ? ProgressState.ROLE
       : ProgressState.DETAIL;
 
-  const [formData, setFormData] =
-    useState<VolunteerOpportunityInput>(initialData);
+  const [formData, setFormData] = useState<FormDataVolunteerInput>(
+    initialFormDataVolunteerInput,
+  );
   const [detailErrors, setDetailErrors] = useState<VolunteerPostPage1Errors>(
     {},
   );
@@ -69,10 +51,13 @@ export default function VolunteerPostPage() {
   // Scroll to first error when validation fails
   useEffect(() => {
     const hasDetailErrors = Object.keys(detailErrors).some(
-      (key) => key !== "benefitErrors" && detailErrors[key as keyof typeof detailErrors],
+      (key) =>
+        key !== "benefitErrors" &&
+        detailErrors[key as keyof typeof detailErrors],
     );
     const hasRoleErrors = Object.keys(roleErrors).some(
-      (key) => key !== "roleErrors" && roleErrors[key as keyof typeof roleErrors],
+      (key) =>
+        key !== "roleErrors" && roleErrors[key as keyof typeof roleErrors],
     );
 
     // Only scroll if we just switched to DETAIL with detail errors, or role errors exist
@@ -96,7 +81,9 @@ export default function VolunteerPostPage() {
     const scrollToElement = () => {
       if (hasDetailErrors && state === ProgressState.DETAIL) {
         const firstError = Object.keys(detailErrors).find(
-          (key) => key !== "benefitErrors" && detailErrors[key as keyof typeof detailErrors],
+          (key) =>
+            key !== "benefitErrors" &&
+            detailErrors[key as keyof typeof detailErrors],
         );
         if (firstError === "title") {
           document.querySelector('[name="title"]')?.scrollIntoView({
@@ -115,7 +102,9 @@ export default function VolunteerPostPage() {
           });
         }
       } else if (hasRoleErrors) {
-        const contactError = document.querySelector('[data-contact-error="true"]');
+        const contactError = document.querySelector(
+          '[data-contact-error="true"]',
+        );
         const roleError = document.querySelector('[data-role-error="true"]');
         const target = contactError || roleError;
         target?.scrollIntoView({
@@ -137,9 +126,23 @@ export default function VolunteerPostPage() {
     prevStateRef.current = state;
   }, [state]);
 
-  const updateField = <K extends keyof VolunteerOpportunityInput>(
+  // Handle fetcher response
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data) {
+      if (fetcher.data.success && fetcher.data.redirectTo) {
+        navigate(fetcher.data.redirectTo);
+      } else if (fetcher.data.error) {
+        setRoleErrors((prev) => ({
+          ...prev,
+          submit: fetcher?.data?.error,
+        }));
+      }
+    }
+  }, [fetcher.state, fetcher.data, navigate]);
+
+  const updateField = <K extends keyof FormDataVolunteerInput>(
     field: K,
-    value: VolunteerOpportunityInput[K],
+    value: FormDataVolunteerInput[K],
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setDetailErrors((prev) => {
@@ -171,16 +174,14 @@ export default function VolunteerPostPage() {
     });
   };
 
-  const handleSubmit = (): boolean => {
-    // Validate page 1 data first
+  const handleSubmit = () => {
     const detailErrors = validateDetailStep(formData);
     if (Object.keys(detailErrors).length > 0) {
       setDetailErrors(detailErrors);
-      setState(ProgressState.DETAIL); // Go back to page 1
+      setState(ProgressState.DETAIL);
       return false;
     }
 
-    // Validate page 2 data
     const errors = validateRoleStep(formData);
     if (Object.keys(errors).length > 0) {
       setRoleErrors(errors);
@@ -188,10 +189,25 @@ export default function VolunteerPostPage() {
     }
 
     setRoleErrors({});
-    fetcher.submit(
-      { actionType: "create-volunteer", data: JSON.stringify(formData) },
-      { method: "post" },
-    );
+
+    const submitFormData = new FormData();
+    submitFormData.append("actionType", "create-volunteer");
+
+    const coverImageValue = formData.coverImageKey?.value ?? null;
+    const dataToSubmit = {
+      ...formData,
+      coverImageKey: coverImageValue,
+    };
+    submitFormData.append("data", JSON.stringify(dataToSubmit));
+
+    if (formData.coverImageKey?.file) {
+      submitFormData.append("file", formData.coverImageKey.file);
+    }
+
+    fetcher.submit(submitFormData, {
+      method: "post",
+      encType: "multipart/form-data",
+    });
     return true;
   };
 

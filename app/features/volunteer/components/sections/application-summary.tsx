@@ -1,25 +1,21 @@
 import { Info } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import type {
+  Opportunity,
+  Role,
+} from "~/services/volunteer/types/opportunities";
 import VolunteerApplicationDialog from "../dialog/volunteer-application-dialog";
-import type { VolunteerPost } from "~/lib/post";
-
-interface Role {
-  id: number;
-  title: string;
-  commitment: string;
-  spotLeft: number;
-  responsibilities: string[];
-  requirements: string[];
-}
 
 interface ApplicationSummaryProps {
-  volunteer: VolunteerPost;
+  volunteer: Opportunity;
   role: Role;
+  totalCapacity: number;
 }
 
 export default function ApplicationSummary({
   volunteer,
   role,
+  totalCapacity,
 }: ApplicationSummaryProps) {
   return (
     <aside className="rounded-[14px] border border-[#e1e7ef] bg-white p-8 h-fit xl:sticky xl:top-24">
@@ -27,47 +23,47 @@ export default function ApplicationSummary({
         Application Summary
       </h2>
 
-      <SummaryDetails volunteer={volunteer} />
+      <SummaryDetails volunteer={volunteer} totalCapacity={totalCapacity} />
       <ActionButtons role={role} />
       <InfoBox />
 
-      <p className="mt-4 text-[11px] font-medium text-[#99a1af]">
+      {/* <p className="mt-4 text-[11px] font-medium text-[#99a1af]">
         Opportunity ID: {volunteer.id ?? "1"}
-      </p>
+      </p> */}
     </aside>
   );
 }
 
 interface SummaryDetailsProps {
-  volunteer: VolunteerPost;
+  volunteer: Opportunity;
+  totalCapacity: number;
 }
 
-function SummaryDetails({ volunteer }: SummaryDetailsProps) {
+function SummaryDetails({ volunteer, totalCapacity }: SummaryDetailsProps) {
   return (
     <div className="mt-6 space-y-3.5 border-b border-[#f9fafb] pb-6 text-sm">
       <div className="flex items-center justify-between">
         <span className="text-[#99a1af]">Applicants</span>
         <span className="font-semibold text-[#4a5565]">
-          {(volunteer?.totalApplicants ?? 10) - (volunteer?.applicants ?? 7)}{" "}
-          spots open
+          {totalCapacity} spots open
         </span>
       </div>
       <div className="flex items-center justify-between">
         <span className="text-[#99a1af]">Deadline</span>
         <span className="font-semibold text-[#4a5565]">
-          {volunteer?.deadline ?? "Dec 15, 2026"}
+          {volunteer?.applicationDeadline ?? "Dec 15, 2026"}
         </span>
       </div>
       <div className="flex items-center justify-between">
         <span className="text-[#99a1af]">Commitment</span>
         <span className="font-semibold text-[#4a5565]">
-          {volunteer?.commitment ?? "Full week"}
+          {volunteer?.commitmentLabel ?? "Full week"}
         </span>
       </div>
       <div className="flex items-center justify-between">
         <span className="text-[#99a1af]">Duration</span>
         <span className="font-semibold text-[#4a5565]">
-          {volunteer?.duration ?? "1 week"}
+          {volunteer?.durationLabel ?? "1 week"}
         </span>
       </div>
     </div>

@@ -1,8 +1,8 @@
 import { Target } from "lucide-react";
-import type { VolunteerPost } from "~/lib/post";
+import type { Opportunity } from "~/services/volunteer/types/opportunities";
 
 interface ProjectImpactSectionProps {
-  volunteer: VolunteerPost;
+  volunteer: Opportunity;
 }
 
 export default function ProjectImpactSection({
@@ -15,7 +15,7 @@ export default function ProjectImpactSection({
         Project Impact
       </h2>
       <p className="mt-5 text-[15px] font-medium leading-[24.375px] tracking-[-0.23px] text-[#4a5565]">
-        {volunteer?.projectImpact ??
+        {volunteer?.communityImpact ??
           "Lorem ipsum dolor sit amet consectetur. Pretium nulla tellus volutpat augue vulputate amet. Id facilisis elit aliquam mattis. Pellentesque tristique eget mauris tempus egestas sapien libero. In tincidunt duis volutpat pellentesque mauris ac lacus nisi a. Gravida nulla risus massa viverra praesent. Elit malesuada condimentum neque in amet eget. Tincidunt diam nulla lectus."}
       </p>
     </article>

@@ -3,17 +3,18 @@ import { Button } from "~/components/ui/button";
 import RoleDetailsForm from "./role-details-form";
 import ResponsibilitiesSection from "./responsibilities-section";
 import RequirementsSection from "./requirements-section";
-import type { VolunteerOpportunityInput } from "~/services/volunteer/volunteer-types";
+
 import type { VolunteerRoleErrors } from "../volunteer-post-page-2";
+import type { FormDataVolunteerInput } from "~/services/volunteer/types";
 
 interface OpenRolesFormProps {
-  currentRole: VolunteerOpportunityInput["roles"][number] | undefined;
+  currentRole: FormDataVolunteerInput["roles"][number] | undefined;
   activeRoleIndex: number;
   errors?: VolunteerRoleErrors;
-  onRoleChange: <K extends keyof VolunteerOpportunityInput["roles"][number]>(
+  onRoleChange: <K extends keyof FormDataVolunteerInput["roles"][number]>(
     index: number,
     field: K,
-    value: VolunteerOpportunityInput["roles"][number][K],
+    value: FormDataVolunteerInput["roles"][number][K],
   ) => void;
   onAddRole: () => void;
   onRemovePoint: (

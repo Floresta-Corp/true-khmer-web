@@ -1,8 +1,8 @@
 import RoleItem from "./role-item";
-import type { VolunteerOpportunityInput } from "~/services/volunteer/volunteer-types";
+import type { FormDataVolunteerInput } from "../volunteer-post-page";
 
 interface RolesListProps {
-  roles: VolunteerOpportunityInput["roles"];
+  roles: FormDataVolunteerInput["roles"];
   activeRoleIndex: number;
   onSelectRole: (index: number) => void;
   onRemoveRole: (index: number) => void;

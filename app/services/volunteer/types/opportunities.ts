@@ -13,9 +13,9 @@ export type Category = z.infer<typeof CategorySchema>;
 
 export const ContactSchema = z.object({
   email: z.string(),
-  telegramUsername: z.null(),
-  phone: z.null(),
-  websiteUrl: z.null(),
+  telegramUsername: z.string().nullish(),
+  phone: z.string().nullish(),
+  websiteUrl: z.string().nullish(),
 });
 export type Contact = z.infer<typeof ContactSchema>;
 
@@ -33,9 +33,9 @@ export type Role = z.infer<typeof RoleSchema>;
 export const OrganizerSchema = z.object({
   id: z.string(),
   name: z.string(),
-  avatarUrl: z.null(),
+  avatarUrl: z.string().nullish(),
   opportunityCount: z.number(),
-  organizerLocation: z.null(),
+  organizerLocation: z.string().nullish(),
   contact: ContactSchema,
 });
 export type Organizer = z.infer<typeof OrganizerSchema>;
@@ -46,15 +46,17 @@ export const OpportunitySchema = z.object({
   location: CategorySchema,
   title: z.string(),
   overview: z.string(),
-  communityImpact: z.null(),
+  communityImpact: z.string().nullish(),
   durationLabel: z.string(),
   commitmentLabel: z.string(),
   applicationDeadline: z.string(),
+  applicationCount: z.number(),
+  capacity: z.number(),
   coverImageKey: z.string(),
-  coverImageUrl: z.null(),
+  coverImageUrl: z.string().nullish(),
   benefits: z.array(z.string()),
   status: z.string(),
-  publishedAt: z.null(),
+  publishedAt: z.string().nullish(),
   organizer: OrganizerSchema,
   createdBy: z.string(),
   createdAt: z.string(),
@@ -85,7 +87,7 @@ export const PostVolunteerInputSchema = z.object({
   locationId: z.string(),
   title: z.string(),
   overview: z.string(),
-  communityImpact: z.null(),
+  communityImpact: z.string().nullish(),
   durationLabel: z.string(),
   commitmentLabel: z.string(),
   applicationDeadline: z.string(),
@@ -110,7 +112,7 @@ export type VolunteerOpportunityFilter = z.infer<
 
 export const ContactInputSchema = z.object({
   email: z.string(),
-  telegramUsername: z.null(),
+  telegramUsername: z.string().nullish(),
   phone: z
     .string()
     .nullish()
@@ -144,11 +146,11 @@ export const VolunteerOpportunityInputSchema = z.object({
   locationId: z.string(),
   title: z.string(),
   overview: z.string(),
-  communityImpact: z.null(),
-  durationLabel: z.string(),
-  commitmentLabel: z.string(),
+  durationLabel: z.string().nullish(),
+  commitmentLabel: z.string().nullish(),
   applicationDeadline: z.string(),
-  benefits: z.array(z.string()),
+  communityImpact: z.string().nullish(),
+  benefits: z.array(z.string()).nullish(),
   contact: ContactInputSchema,
   roles: z.array(RoleInputSchema),
   coverImageKey: z.string(),
@@ -195,3 +197,91 @@ export const UploadOpportunityCoverImageResponseSchema = z.object({
 export type UploadOpportunityCoverImageResponse = z.infer<
   typeof UploadOpportunityCoverImageResponseSchema
 >;
+
+export const formDataVolunteerInput = z.object({
+  categoryId: z.string(),
+  locationId: z.string(),
+  title: z.string(),
+  overview: z.string(),
+  communityImpact: z.string().nullish(),
+  durationLabel: z.string().nullish(),
+  commitmentLabel: z.string(),
+  applicationDeadline: z.string(),
+  benefits: z.array(z.string()),
+  contact: z.object({
+    email: z.string().email(),
+    telegramUsername: z.string().nullish(),
+    phone: z.string().nullish(),
+    websiteUrl: z.string().url().nullish(),
+  }),
+  roles: z.array(RoleSchema.omit({ displayOrder: true, id: true })),
+  coverImageKey: z
+    .object({
+      file: z.any().nullish(),
+      value: z.string(),
+    })
+    .nullish(),
+});
+export type FormDataVolunteerInput = z.infer<typeof formDataVolunteerInput>;
+
+// export const initialFormDataVolunteerInput: FormDataVolunteerInput = {
+//   categoryId: "",
+//   locationId: "",
+//   title: "",
+//   overview: "",
+//   communityImpact: null,
+//   durationLabel: "",
+//   commitmentLabel: "",
+//   applicationDeadline: "",
+//   benefits: [""],
+//   contact: {
+//     email: "",
+//     telegramUsername: null,
+//     phone: null,
+//     websiteUrl: null,
+//   },
+//   roles: [
+//     {
+//       title: "",
+//       commitmentLabel: "",
+//       capacity: 1,
+//       responsibilities: [""],
+//       requirements: [""],
+//     },
+//   ],
+//   coverImageKey: {
+//     file: null,
+//     value: "",
+//   },
+// };
+
+export const initialFormDataVolunteerInput: FormDataVolunteerInput = {
+  categoryId: "6336cef5-8352-4d37-86b1-7c8461633f13",
+  locationId: "ce5132ab-05ac-4aaf-87e3-7f984c2c11c6",
+  title: "Volunteer Opportunity",
+  overview: "testing",
+  communityImpact: "123123123",
+  durationLabel: "3 months",
+  commitmentLabel: "5 hour",
+  applicationDeadline: "2026-04-29T17:00:00.000Z",
+  benefits: ["123123"],
+  contact: {
+    email: "test@gmail.com",
+    telegramUsername: null,
+    phone: "85 952225",
+    websiteUrl: null,
+  },
+  roles: [
+    {
+      title: "role 1",
+      commitmentLabel: "flexible",
+      capacity: 3,
+      responsibilities: ["responsibilities 1", "responsibilities 2"],
+      requirements: ["requirement 1", "requirement 2"],
+    },
+  ],
+  coverImageKey: {
+    file: "",
+    value: "",
+  },
+};

@@ -1,6 +1,5 @@
 import {
   Calendar as CalendarIcon,
-  ChevronDown,
   Clock3,
   Gift,
   ImageIcon,
@@ -15,15 +14,15 @@ import {
   useRef,
   useState,
 } from "react";
-import { useFetcher, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import FieldLabel from "~/components/field-label";
 import IconButton from "~/components/icon-button";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { SelectOption } from "~/components/ui/select-option";
+import { Textarea } from "~/components/ui/textarea";
 import VolunteerDatePickerField from "~/features/volunteer/components/volunteer-date-picker-field";
-import { resolveImageURL } from "~/lib/utils";
-import type { VolunteerOpportunityInput } from "~/services/volunteer/volunteer-types";
+import type { FormDataVolunteerInput } from "~/services/volunteer/types";
 
 export type VolunteerPostPage1Errors = {
   title?: string;
@@ -37,7 +36,7 @@ export type VolunteerPostPage1Errors = {
   benefitErrors?: string[];
 };
 
-function TextArea({
+function CustomTextarea({
   placeholder,
   rows = 4,
   value,
@@ -63,26 +62,26 @@ function TextArea({
   };
 
   return (
-    <textarea
+    <Textarea
       ref={textareaRef}
       id={id}
       rows={rows}
       placeholder={placeholder}
       value={value}
-      onChange={handleChange}
       aria-invalid={hasError}
-      className="w-full min-h-15 resize-none rounded-lg border border-transparent bg-[#F8FAFC] px-4 py-3 text-sm font-medium leading-5 text-[#364153] placeholder:text-[#C8D6E5] focus:outline-none focus:ring-2 focus:ring-ring"
+      onChange={handleChange}
+      className="w-full rounded-lg border border-transparent bg-[#F8FAFC] px-4 py-3 text-sm font-medium leading-5 text-[#364153] placeholder:text-[#C8D6E5] focus:outline-none focus:ring-2 focus:ring-ring"
     />
   );
 }
 
 interface VolunteerPostPage1Props {
-  formData: VolunteerOpportunityInput;
+  formData: FormDataVolunteerInput;
   errors?: VolunteerPostPage1Errors;
   setDetailErrors: Dispatch<SetStateAction<VolunteerPostPage1Errors>>;
-  onUpdateField: <K extends keyof VolunteerOpportunityInput>(
+  onUpdateField: <K extends keyof FormDataVolunteerInput>(
     field: K,
-    value: VolunteerOpportunityInput[K],
+    value: FormDataVolunteerInput[K],
   ) => void;
   onContinueToRole: () => void;
   locations: { id: string; name: string }[];
@@ -101,7 +100,6 @@ export default function VolunteerPostPage1({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
   const navigate = useNavigate();
-  const fetcher = useFetcher();
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia(
@@ -115,27 +113,48 @@ export default function VolunteerPostPage1({
     });
   }, []);
 
-  const [benefits, setBenefits] = useState(
-    formData.benefits.map((benefit, index) => ({ id: index, value: benefit })),
+  const [benefits, setBenefits] = useState(() =>
+    formData.benefits && formData.benefits.length > 0
+      ? formData.benefits.map((benefit, index) => ({
+          id: index,
+          value: benefit,
+        }))
+      : [{ id: Date.now(), value: "" }],
   );
 
   const handleAddBenefit = () => {
     const newBenefit = { id: Date.now(), value: "" };
-    setBenefits((prev) => [...prev, newBenefit]);
-    onUpdateField("benefits", [...formData.benefits, ""]);
+    setBenefits((prev) => {
+      const next = [...prev, newBenefit];
+      onUpdateField(
+        "benefits",
+        next.map((b) => b.value),
+      );
+      return next;
+    });
   };
 
   const handleBenefitChange = (id: number, value: string) => {
-    setBenefits((prev) => prev.map((b) => (b.id === id ? { ...b, value } : b)));
-    const newBenefits = benefits.map((b) => (b.id === id ? value : b.value));
-    onUpdateField("benefits", newBenefits);
+    setBenefits((prev) => {
+      const next = prev.map((b) => (b.id === id ? { ...b, value } : b));
+      onUpdateField(
+        "benefits",
+        next.map((b) => b.value),
+      );
+      return next;
+    });
     setDetailErrors((prev) => ({ ...prev, benefitErrors: undefined }));
   };
 
   const handleRemoveBenefit = (id: number) => {
-    setBenefits((prev) => prev.filter((b) => b.id !== id));
-    const newBenefits = benefits.filter((b) => b.id !== id).map((b) => b.value);
-    onUpdateField("benefits", newBenefits);
+    setBenefits((prev) => {
+      const next = prev.filter((b) => b.id !== id);
+      onUpdateField(
+        "benefits",
+        next.map((b) => b.value),
+      );
+      return next;
+    });
   };
 
   const handleCommunityImpactChange = (value: string) => {
@@ -148,9 +167,8 @@ export default function VolunteerPostPage1({
 
     // Basic validations
     const isImage = file.type.startsWith("image/");
-    const maxSizeInBytes = 3 * 1024 * 1024; // 3MB
+    const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
     if (!isImage) {
-      // TODO: surface error to UI
       setDetailErrors((prev) => ({
         ...prev,
         coverImageKey: "Selected file is not an image",
@@ -158,30 +176,20 @@ export default function VolunteerPostPage1({
       return;
     }
     if (file.size > maxSizeInBytes) {
-      // TODO: surface error to UI
       setDetailErrors((prev) => ({
         ...prev,
-        coverImageKey: "Selected file is larger than 3MB",
+        coverImageKey: "Selected file is larger than 5MB",
       }));
       return;
     }
-    const formData = new FormData();
-    formData.append("actionType", "upload-cover-image");
-    formData.append("file", file);
-    fetcher.submit(formData, {
-      method: "post",
-      encType: "multipart/form-data",
-    });
-  };
 
-  // Sync successful upload with your main form state
-  useEffect(() => {
-    if (fetcher.data?.coverImageKey) {
-      onUpdateField("coverImageKey", fetcher.data.coverImageKey);
-      // Reset file input so re-selecting the same file triggers onChange again
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  }, [fetcher.data]);
+    onUpdateField("coverImageKey", {
+      file,
+      value: URL.createObjectURL(file),
+    });
+
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   return (
     <div className="flex flex-col gap-8">
@@ -253,7 +261,7 @@ export default function VolunteerPostPage1({
                 <CalendarIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#99a1af]" />
                 <Input
                   name="durationLabel"
-                  value={formData.durationLabel}
+                  value={formData.durationLabel || ""}
                   onChange={(e) =>
                     onUpdateField("durationLabel", e.target.value)
                   }
@@ -273,7 +281,7 @@ export default function VolunteerPostPage1({
                 <Clock3 className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#99a1af]" />
                 <Input
                   name="commitmentLabel"
-                  value={formData.commitmentLabel}
+                  value={formData.commitmentLabel || ""}
                   onChange={(e) =>
                     onUpdateField("commitmentLabel", e.target.value)
                   }
@@ -281,7 +289,6 @@ export default function VolunteerPostPage1({
                   aria-invalid={Boolean(errors?.commitmentLabel)}
                   className={`h-11 rounded-lg bg-[#F8FAFC] pl-9 pr-9 text-sm font-medium text-[#364153] placeholder:text-[#C8D6E5] ${errors?.commitmentLabel ? "border-red-500" : "border-transparent"}`}
                 />
-                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-[#99a1af]" />
               </div>
               {errors?.commitmentLabel ? (
                 <p className="text-xs text-red-500">{errors.commitmentLabel}</p>
@@ -303,10 +310,9 @@ export default function VolunteerPostPage1({
               Cover Image
             </FieldLabel>
             <label className="flex h-37 w-fit cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[#e5e5e5] bg-[#fafafa] px-4 py-3 text-center">
-              {formData.coverImageKey ? (
+              {formData.coverImageKey?.value ? (
                 <img
-                  src={resolveImageURL(formData.coverImageKey)}
-                  // src={formData.coverImageKey}
+                  src={formData.coverImageKey.value}
                   alt="Selected cover"
                   className="h-full w-full rounded-xl object-cover"
                 />
@@ -348,7 +354,7 @@ export default function VolunteerPostPage1({
           <span className="text-red-600">*</span>
         </h3>
         <div className="mt-3">
-          <TextArea
+          <CustomTextarea
             id="overview"
             placeholder="What is this opportunity about and who is it for?"
             rows={3}
@@ -391,7 +397,7 @@ export default function VolunteerPostPage1({
               >
                 <div className="flex items-center gap-2">
                   <div className="flex-1">
-                    <TextArea
+                    <CustomTextarea
                       placeholder="e.g., Certificate of completion, networking, skill development"
                       rows={2}
                       value={benefit.value}
@@ -421,7 +427,7 @@ export default function VolunteerPostPage1({
           Community Impact
         </h3>
         <div className="mt-3">
-          <TextArea
+          <CustomTextarea
             placeholder="What change will volunteers help create?"
             rows={3}
             value={formData.communityImpact ?? ""}

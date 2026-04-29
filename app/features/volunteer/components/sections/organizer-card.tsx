@@ -8,10 +8,10 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import type { VolunteerPost } from "~/lib/post";
+import type { Opportunity } from "~/services/volunteer/types/opportunities";
 
 interface OrganizerCardProps {
-  volunteer: VolunteerPost;
+  volunteer: Opportunity;
 }
 
 export default function OrganizerCard({ volunteer }: OrganizerCardProps) {
@@ -25,7 +25,7 @@ export default function OrganizerCard({ volunteer }: OrganizerCardProps) {
 }
 
 interface OrganizerHeaderProps {
-  volunteer: VolunteerPost;
+  volunteer: Opportunity;
 }
 
 function OrganizerHeader({ volunteer }: OrganizerHeaderProps) {
@@ -35,11 +35,11 @@ function OrganizerHeader({ volunteer }: OrganizerHeaderProps) {
         <div className="size-12.25 rounded-2xl border border-[#f3f4f6] bg-[#f9fafb]" />
         <div>
           <p className="flex items-center gap-1.5 text-lg font-semibold text-[#030213]">
-            {volunteer?.createdBy.profile.name ?? "User Profile Name"}
+            {volunteer?.organizer.name ?? "User Profile Name"}
             <Shield className="size-3.5 text-[#2f6fe4]" />
           </p>
           <p className="text-[13px] font-medium uppercase tracking-[1.22px] text-[#6a7282]">
-            {volunteer?.createdBy.profile.status ?? "Premium Partner"}
+            ORGANIZER
           </p>
         </div>
       </div>
@@ -51,7 +51,7 @@ function OrganizerHeader({ volunteer }: OrganizerHeaderProps) {
 }
 
 interface OrganizerDetailsProps {
-  volunteer: VolunteerPost;
+  volunteer: Opportunity;
 }
 
 function OrganizerDetails({ volunteer }: OrganizerDetailsProps) {
@@ -59,15 +59,15 @@ function OrganizerDetails({ volunteer }: OrganizerDetailsProps) {
     <div className="mt-5.5 grid gap-5.25 border-t border-[#f9fafb] pt-5.5 text-[13px] font-medium text-[#4a5565] sm:grid-cols-3">
       <p className="flex items-center gap-2.5">
         <Globe className="size-3.5" />
-        {volunteer?.createdBy.details.website ?? "khmerheritage.org"}
+        {volunteer?.organizer.contact.websiteUrl ?? "khmerheritage.org"}
       </p>
       <p className="flex items-center gap-2.5">
         <Users className="size-3.5" />
-        {volunteer?.createdBy.details.opportunitiesCount ?? "10+"} Opportunities
+        {volunteer?.organizer.opportunityCount ?? "10+"} Opportunities
       </p>
       <p className="flex items-center gap-2.5">
         <MapPin className="size-3.5" />
-        {volunteer?.createdBy.details.location ?? "Phnom Penh"}
+        {volunteer?.location.name ?? "Phnom Penh"}
       </p>
     </div>
   );

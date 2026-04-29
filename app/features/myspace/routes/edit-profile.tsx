@@ -730,18 +730,17 @@ export default function EditProfile() {
                                       ? "default"
                                       : "outline"
                                   }
-                                  className={`text-xs font-medium transition-all ${
-                                    section.currentVisibility === option
-                                      ? "bg-blue-600 hover:bg-blue-700 text-white"
-                                      : ""
-                                  }`}
+                                  className={`text-xs font-medium transition-all ${section.currentVisibility === option
+                                    ? "bg-blue-600 hover:bg-blue-700 text-white"
+                                    : ""
+                                    }`}
                                   onClick={() =>
                                     toggleVisibility(
                                       key,
                                       option as
-                                        | "Public"
-                                        | "Members"
-                                        | "Private",
+                                      | "Public"
+                                      | "Members"
+                                      | "Private",
                                     )
                                   }
                                 >

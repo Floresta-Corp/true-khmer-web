@@ -1,7 +1,7 @@
-import type { VolunteerPost } from "~/lib/post";
+import type { Opportunity } from "~/services/volunteer/types/opportunities";
 
 interface ProjectOverviewSectionProps {
-  volunteer: VolunteerPost;
+  volunteer: Opportunity;
 }
 
 export default function ProjectOverviewSection({
