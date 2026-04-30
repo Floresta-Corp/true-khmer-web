@@ -1,5 +1,10 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Form, Link, useActionData, useSearchParams } from "react-router";
+import {
+  getCountries,
+  getCountryCallingCode,
+  type CountryCode,
+} from "libphonenumber-js";
 import { FormDivider } from "~/routes/auth/components/form-divider";
 import { FormError } from "~/routes/auth/components/form-error";
 import { GoogleButton } from "~/routes/auth/components/google-button";
@@ -18,6 +23,13 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+} from "~/components/ui/select";
 import { cn } from "~/lib/utils";
 import { sanitizeRedirectPath } from "~/lib/redirects";
 
@@ -43,6 +55,26 @@ type RegisterTextFieldProps = {
 
 const registerInputClasses =
   "h-12 rounded-xl border-[#C3C6D6] bg-white px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-[#434654]/50 focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20";
+
+const countryNameFormatter =
+  typeof Intl !== "undefined" && "DisplayNames" in Intl
+    ? new Intl.DisplayNames(["en"], { type: "region" })
+    : null;
+
+const phoneCountryOptions = getCountries()
+  .map((country) => {
+    const dialCode = `+${getCountryCallingCode(country)}`;
+    return {
+      country,
+      dialCode,
+      label: `${countryNameFormatter?.of(country) ?? country} ${dialCode}`,
+    };
+  })
+  .sort((first, second) => {
+    if (first.country === "KH") return -1;
+    if (second.country === "KH") return 1;
+    return first.label.localeCompare(second.label);
+  });
 
 function RequiredMark() {
   return <span className="text-red-500">*</span>;
@@ -115,6 +147,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [phoneCountry, setPhoneCountry] = useState<CountryCode>("KH");
   const [contactNumber, setContactNumber] = useState("");
   const [gender, setGender] = useState("");
   const [occupation, setOccupation] = useState("");
@@ -122,8 +155,28 @@ export default function RegisterPage() {
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
 
   const redirectTo = sanitizeRedirectPath(searchParams.get("redirectTo"));
+  const selectedPhoneCountry =
+    phoneCountryOptions.find((option) => option.country === phoneCountry) ??
+    ({
+      country: "KH",
+      dialCode: "+855",
+      label: "Cambodia +855",
+    } satisfies (typeof phoneCountryOptions)[number]);
+  const normalizedContactNumber = contactNumber.replace(/[^\d]/g, "");
+  const phoneNumber = normalizedContactNumber
+    ? `${selectedPhoneCountry.dialCode}${normalizedContactNumber}`
+    : "";
   const passwordsMatch =
     confirmPassword.trim() !== "" && password === confirmPassword;
+
+  useEffect(() => {
+    if (confirmPassword.trim() !== "" && !passwordsMatch) {
+      setConfirmPasswordError("Passwords do not match");
+      return;
+    }
+
+    setConfirmPasswordError("");
+  }, [confirmPassword, passwordsMatch]);
 
   const isCreateEnabled =
     firstName.trim() !== "" &&
@@ -218,6 +271,7 @@ export default function RegisterPage() {
             value={agreeToDirectory ? "1" : "0"}
           />
           <input type="hidden" name="participation" value={participation} />
+          <input type="hidden" name="phoneNumber" value={phoneNumber} />
 
           <div className="grid gap-4 sm:grid-cols-2">
             <RegisterTextField
@@ -284,10 +338,7 @@ export default function RegisterPage() {
               </>
             }
             value={confirmPassword}
-            onChange={(event) => {
-              setConfirmPassword(event.target.value);
-              if (confirmPasswordError) setConfirmPasswordError("");
-            }}
+            onChange={(event) => setConfirmPassword(event.target.value)}
             placeholder="••••••••"
             showToggle={false}
             error={confirmPasswordError}
@@ -300,9 +351,28 @@ export default function RegisterPage() {
               Contact number
             </RegisterLabel>
             <div className="flex h-12 overflow-hidden rounded-lg bg-white">
-              <div className="flex items-center rounded-l-lg border border-r-0 border-[#C3C6D6] bg-slate-50 px-4 text-sm font-medium leading-5 text-[#434654]">
-                +855
-              </div>
+              <Select
+                value={phoneCountry}
+                onValueChange={(value) => setPhoneCountry(value as CountryCode)}
+              >
+                <SelectTrigger
+                  aria-label="Country calling code"
+                  className="h-full w-[8.5rem] rounded-l-lg rounded-r-none border-[#C3C6D6] border-r-0 bg-slate-50 px-3 text-sm font-medium leading-5 text-[#434654] shadow-none focus:ring-[#2F6FE4]/20 focus:ring-offset-0"
+                >
+                  <span className="truncate">
+                    {selectedPhoneCountry.dialCode}
+                  </span>
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectGroup>
+                    {phoneCountryOptions.map((option) => (
+                      <SelectItem key={option.country} value={option.country}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
               <Input
                 id="contactNumber"
                 value={contactNumber}
@@ -313,6 +383,11 @@ export default function RegisterPage() {
                 className="h-full rounded-l-none rounded-r-lg border-[#C3C6D6] px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-gray-500 focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20"
               />
             </div>
+            {actionData?.errors?.phoneNumber ? (
+              <p className="text-xs text-red-500">
+                {actionData.errors.phoneNumber}
+              </p>
+            ) : null}
           </div>
 
           <RegisterTextField
