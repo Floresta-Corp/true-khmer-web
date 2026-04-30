@@ -1,22 +1,30 @@
-import { Plus, Users } from "lucide-react";
+import { Plus, Users, X } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import RoleDetailsForm from "./role-details-form";
 import ResponsibilitiesSection from "./responsibilities-section";
 import RequirementsSection from "./requirements-section";
 
 import type { VolunteerRoleErrors } from "../volunteer-post-page-2";
-import type { FormDataVolunteerInput } from "~/services/volunteer/types";
+
+type DraftRole = {
+  title: string;
+  commitmentLabel: string;
+  capacity: number;
+  responsibilities: string[];
+  requirements: string[];
+};
 
 interface OpenRolesFormProps {
-  currentRole: FormDataVolunteerInput["roles"][number] | undefined;
-  activeRoleIndex: number;
+  draftRole: DraftRole;
+  editingIndex: number | null;
   errors?: VolunteerRoleErrors;
-  onRoleChange: <K extends keyof FormDataVolunteerInput["roles"][number]>(
-    index: number,
+  hasSavedRoles: boolean;
+  onDraftChange: <K extends keyof DraftRole>(
     field: K,
-    value: FormDataVolunteerInput["roles"][number][K],
+    value: DraftRole[K],
   ) => void;
   onAddRole: () => void;
+  onCancelEdit: () => void;
   onRemovePoint: (
     field: "responsibilities" | "requirements",
     index: number,
@@ -24,15 +32,15 @@ interface OpenRolesFormProps {
 }
 
 export default function OpenRolesForm({
-  currentRole,
-  activeRoleIndex,
+  draftRole,
+  editingIndex,
   errors,
-  onRoleChange,
+  hasSavedRoles,
+  onDraftChange,
   onAddRole,
+  onCancelEdit,
   onRemovePoint,
 }: OpenRolesFormProps) {
-  if (!currentRole) return null;
-
   const hasRoleErrors =
     errors?.title || errors?.commitmentLabel || errors?.capacity;
 
@@ -41,52 +49,59 @@ export default function OpenRolesForm({
       className="rounded-2xl border border-[#E1E7EF] bg-white p-6"
       data-role-error={hasRoleErrors ? "true" : undefined}
     >
-      <div className="flex items-center gap-3">
-        <Users className="size-6 text-[#2f6fe4]" />
-        <h3 className="text-[22px] font-bold leading-8.25 text-[#344256]">
-          Open Roles
-          <span className="inline-block text-[#fb3748]">*</span>
-        </h3>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Users className="size-6 text-[#2f6fe4]" />
+          <h3 className="text-[22px] font-bold leading-8.25 text-[#344256]">
+            {editingIndex !== null ? "Edit Role" : "Add a Role"}
+            {!hasSavedRoles && (
+              <span className="inline-block text-[#fb3748]">*</span>
+            )}
+          </h3>
+        </div>
+        {editingIndex !== null && (
+          <Button
+            type="button"
+            variant="ghost"
+            className="h-8 px-2 text-[#99a1af] hover:text-[#344256]"
+            onClick={onCancelEdit}
+          >
+            <X className="size-4 mr-1" />
+            Cancel
+          </Button>
+        )}
       </div>
 
       <div className="mt-5 border-t border-[#F3F4F6]" />
 
       <div className="mt-5 space-y-5">
         <RoleDetailsForm
-          title={currentRole.title}
-          commitmentLabel={currentRole.commitmentLabel}
-          capacity={currentRole.capacity}
+          title={draftRole.title}
+          commitmentLabel={draftRole.commitmentLabel}
+          capacity={draftRole.capacity}
           errors={errors}
-          onTitleChange={(value) =>
-            onRoleChange(activeRoleIndex, "title", value)
-          }
+          onTitleChange={(value) => onDraftChange("title", value)}
           onCommitmentChange={(value) =>
-            onRoleChange(activeRoleIndex, "commitmentLabel", value)
+            onDraftChange("commitmentLabel", value)
           }
-          onCapacityChange={(value) =>
-            onRoleChange(activeRoleIndex, "capacity", value)
-          }
+          onCapacityChange={(value) => onDraftChange("capacity", value)}
         />
 
         <div className="space-y-4">
           <ResponsibilitiesSection
-            responsibilities={currentRole.responsibilities}
+            responsibilities={draftRole.responsibilities}
             errors={errors?.responsibilityErrors}
             onUpdate={(responsibilities) =>
-              onRoleChange(
-                activeRoleIndex,
-                "responsibilities",
-                responsibilities,
-              )
+              onDraftChange("responsibilities", responsibilities)
             }
             onRemovePoint={(index) => onRemovePoint("responsibilities", index)}
           />
 
           <RequirementsSection
-            requirements={currentRole.requirements}
+            requirements={draftRole.requirements}
             errors={errors?.requirementErrors}
             onUpdate={(requirements) =>
-              onRoleChange(activeRoleIndex, "requirements", requirements)
+              onDraftChange("requirements", requirements)
             }
             onRemovePoint={(index) => onRemovePoint("requirements", index)}
           />
@@ -99,7 +114,7 @@ export default function OpenRolesForm({
             onClick={onAddRole}
           >
             <Plus className="size-4" />
-            Add role
+            {editingIndex !== null ? "Save Changes" : "Add Role"}
           </Button>
         </div>
       </div>

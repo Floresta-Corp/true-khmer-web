@@ -271,15 +271,7 @@ export const initialFormDataVolunteerInput: FormDataVolunteerInput = {
     phone: "85 952225",
     websiteUrl: null,
   },
-  roles: [
-    {
-      title: "role 1",
-      commitmentLabel: "flexible",
-      capacity: 3,
-      responsibilities: ["responsibilities 1", "responsibilities 2"],
-      requirements: ["requirement 1", "requirement 2"],
-    },
-  ],
+  roles: [],
   coverImageKey: {
     file: "",
     value: "",

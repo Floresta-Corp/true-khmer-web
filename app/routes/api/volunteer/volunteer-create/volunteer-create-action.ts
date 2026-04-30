@@ -71,7 +71,7 @@ export async function volunteerCreateAction({ request }: ActionFunctionArgs) {
       return { success: true, redirectTo: "/volunteer" };
     } catch (error) {
       console.error("Failed to create volunteer opportunity:", error);
-      return { error: "Failed to create opportunity. Please try again." };
+      return { error: `Failed to create opportunity: ${error}` };
     }
   }
 

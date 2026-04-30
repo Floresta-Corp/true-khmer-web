@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
+import { toast } from "sonner";
 import {
   useNavigate,
   useSearchParams,
@@ -21,7 +22,10 @@ import {
 } from "~/services/volunteer/volunteer-types";
 import type { loader } from "../routes/volunteer.create";
 import type { VolunteerPostPage1Errors } from "./volunteer-post-page-1";
-import type { VolunteerPostPage2Errors } from "./volunteer-post-page-2";
+import type {
+  VolunteerPostPage2Errors,
+  VolunteerRoleErrors,
+} from "./volunteer-post-page-2";
 
 export default function VolunteerPostPage() {
   const { locations, categories } = useLoaderData<typeof loader>();
@@ -130,12 +134,10 @@ export default function VolunteerPostPage() {
   useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data) {
       if (fetcher.data.success && fetcher.data.redirectTo) {
+        toast.success("Volunteer opportunity published successfully");
         navigate(fetcher.data.redirectTo);
       } else if (fetcher.data.error) {
-        setRoleErrors((prev) => ({
-          ...prev,
-          submit: fetcher?.data?.error,
-        }));
+        toast.error(fetcher.data.error);
       }
     }
   }, [fetcher.state, fetcher.data, navigate]);
@@ -179,6 +181,13 @@ export default function VolunteerPostPage() {
     if (Object.keys(detailErrors).length > 0) {
       setDetailErrors(detailErrors);
       setState(ProgressState.DETAIL);
+      return false;
+    }
+
+    if (formData.roles.length === 0) {
+      setRoleErrors({
+        roleErrors: [{ title: "At least one role is required." }],
+      });
       return false;
     }
 

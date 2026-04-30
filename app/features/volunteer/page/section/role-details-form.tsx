@@ -21,9 +21,11 @@ interface PaleInputProps {
   onChange: (value: string) => void;
   className?: string;
   ariaInvalid?: boolean;
+  autoFocus?: boolean;
 }
 
 function PaleInput({
+  autoFocus = false,
   placeholder,
   type = "text",
   value,
@@ -33,6 +35,7 @@ function PaleInput({
 }: PaleInputProps) {
   return (
     <Input
+      autoFocus={autoFocus}
       type={type}
       placeholder={placeholder}
       value={value}
@@ -69,6 +72,7 @@ export default function RoleDetailsForm({
       <div className="space-y-2">
         <SectionLabel>Role title</SectionLabel>
         <PaleInput
+          autoFocus
           placeholder="e.g., Field Researcher"
           value={title}
           onChange={onTitleChange}

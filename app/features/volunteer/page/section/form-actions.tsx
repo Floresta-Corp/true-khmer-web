@@ -15,9 +15,6 @@ export default function FormActions({
 }: FormActionsProps) {
   return (
     <div className="flex flex-col gap-4">
-      {error && (
-        <p className="text-sm text-red-500">{error}</p>
-      )}
       <div className="flex items-center justify-between border-t border-[#F3F4F6] pt-5 pb-5">
         <Button
           type="button"

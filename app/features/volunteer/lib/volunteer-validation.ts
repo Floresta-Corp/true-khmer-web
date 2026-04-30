@@ -159,28 +159,26 @@ export const validateVolunteerApplicationData = (
 
 const ALLOWED_FILE_TYPES = [
   "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ];
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 5MB
 
 export const validateVolunteerApplicationFiles = (
   files: unknown[],
 ): Record<string, string> => {
-  if (!files || files.length === 0) {
-    return { files: "At least one supporting document is required" };
-  }
+  if (!files || files.length === 0) return { files: "At least one supporting document is required" };
 
-  for (const file of files) {
-    if (file instanceof File) {
-      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-        return { files: "Only PDF, DOC, and DOCX files are allowed" };
-      }
-      if (file.size > MAX_FILE_SIZE) {
-        return { files: "Each file must be less than 5MB" };
+  if (files.length > 3) return {files: "Maximum 3 files can be uploaded"}
+
+    for (const file of files) {
+      if (file instanceof File) {
+        if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+          return { files: "Only PDF files are allowed" };
+        }
+        if (file.size > MAX_FILE_SIZE) {
+          return { files: "Each file must be less than 10MB" };
+        }
       }
     }
-  }
 
   return {};
 };

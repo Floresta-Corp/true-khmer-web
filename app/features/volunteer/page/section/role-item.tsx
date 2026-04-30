@@ -1,35 +1,31 @@
-import { Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import IconButton from "~/components/icon-button";
-import type { FormDataVolunteerInput } from "../volunteer-post-page";
+import type { FormDataVolunteerInput } from "~/services/volunteer/types";
 
 interface RoleItemProps {
   role: FormDataVolunteerInput["roles"][number];
   roleIndex: number;
-  isActive: boolean;
-  onSelect: (index: number) => void;
+  isEditing: boolean;
+  onEdit: (index: number) => void;
   onRemove: (index: number) => void;
 }
 
 export default function RoleItem({
   role,
   roleIndex,
-  isActive,
-  onSelect,
+  isEditing,
+  onEdit,
   onRemove,
 }: RoleItemProps) {
   return (
     <div
       className={`flex items-center gap-3 rounded-2xl border p-4 transition-colors ${
-        isActive
+        isEditing
           ? "border-[#2f6fe4] bg-[#ebf5ff]"
           : "border-[#e5e7eb] bg-white hover:border-[#c8d6e5]"
       }`}
     >
-      <button
-        type="button"
-        className="flex-1 text-left"
-        onClick={() => onSelect(roleIndex)}
-      >
+      <div className="flex-1">
         <p className="text-sm font-semibold text-[#344256]">
           {role.title.trim() || `Role ${roleIndex + 1}`}
         </p>
@@ -85,14 +81,22 @@ export default function RoleItem({
             </div>
           </div>
         )}
-      </button>
+      </div>
 
-      <IconButton
-        ariaLabel={`Remove role ${roleIndex + 1}`}
-        icon={<Trash2 className="size-4 text-red-500" />}
-        onClick={() => onRemove(roleIndex)}
-        className="border"
-      />
+      <div className="flex items-center gap-2">
+        <IconButton
+          ariaLabel={`Edit role ${roleIndex + 1}`}
+          icon={<Pencil className="size-4 text-[#2f6fe4]" />}
+          onClick={() => onEdit(roleIndex)}
+          className="border"
+        />
+        <IconButton
+          ariaLabel={`Remove role ${roleIndex + 1}`}
+          icon={<Trash2 className="size-4 text-red-500" />}
+          onClick={() => onRemove(roleIndex)}
+          className="border"
+        />
+      </div>
     </div>
   );
 }

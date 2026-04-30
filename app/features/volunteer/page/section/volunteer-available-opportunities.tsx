@@ -17,13 +17,13 @@ function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
   const progress =
     opportunity.capacity > 0
       ? Math.min(
-        (opportunity.applicationCount / opportunity.capacity) * 100,
-        100,
-      ) + 50
+          (opportunity.applicationCount / opportunity.capacity) * 100,
+          100,
+        ) + 50
       : 0;
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-[14px] border border-[#f3f4f6] bg-white p-px shadow-[0px_10px_30px_-15px_rgba(0,0,0,0.05)]">
+    <article className="flex h-full flex-col overflow-hidden rounded-[14px] border border-[#f3f4f6] bg-white p-px shadow-[0px_10px_30px_-15px_rgba(0,0,0,0.05)]">
       <div className="relative h-39.25 w-full overflow-hidden p-3.5">
         <img
           src={image}
@@ -45,23 +45,21 @@ function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
         </Button> */}
       </div>
 
-      <div className="flex flex-col gap-6 p-5">
-        <div className="flex flex-col gap-3">
+      <div className="flex flex-1 flex-col gap-6 p-5">
+        <div className="flex min-h-0 flex-1 flex-col gap-3">
           <h3 className="text-[17px] font-semibold leading-[21.25px] tracking-[-0.43px] text-[#030213]">
             {opportunity.title}
           </h3>
-          <p className="text-sm font-medium leading-[22.75px] tracking-[-0.15px] text-[#99a1af]">
+          <p className="text-sm font-medium leading-[22.75px] tracking-[-0.15px] text-[#99a1af] line-clamp-3">
             {opportunity.overview}
           </p>
         </div>
 
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-1 flex-col gap-5">
           <div className="grid grid-cols-3 gap-1.75 font-semibold">
             <div className="flex items-center gap-[5.25px] text-[11px] text-[#4a5565]">
               <Calendar size={13.5} className="text-blue-500" />
-              <span>
-                {format(opportunity.createdAt, "MMM, yyyy")}
-              </span>
+              <span>{format(opportunity.createdAt, "MMM, yyyy")}</span>
             </div>
             <div className="flex items-center gap-[5.25px] text-[11px] text-[#4a5565]">
               <Clock size={13.5} className="text-blue-500" />

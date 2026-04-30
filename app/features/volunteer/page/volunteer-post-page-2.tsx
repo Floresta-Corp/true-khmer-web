@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useFetcher } from "react-router";
 import RolesList from "./section/roles-list";
 import OpenRolesForm from "./section/open-roles-form";
@@ -22,7 +22,22 @@ export type VolunteerPostPage2Errors = {
     email?: string;
     telegramUsername?: string;
   };
-  submit?: string;
+};
+
+type DraftRole = {
+  title: string;
+  commitmentLabel: string;
+  capacity: number;
+  responsibilities: string[];
+  requirements: string[];
+};
+
+const emptyDraft: DraftRole = {
+  title: "",
+  commitmentLabel: "",
+  capacity: 1,
+  responsibilities: [""],
+  requirements: [""],
 };
 
 interface VolunteerPostPage2Props {
@@ -45,9 +60,13 @@ export default function VolunteerPostPage2({
   onSubmit,
   isSubmitting,
 }: VolunteerPostPage2Props) {
-  // Show modal when submission is successful (from fetcher response)
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const fetcher = useFetcher();
+  const navigate = useNavigate();
+
+  const [draftRole, setDraftRole] = useState<DraftRole>(emptyDraft);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (fetcher.data?.success) {
@@ -55,8 +74,17 @@ export default function VolunteerPostPage2({
     }
   }, [fetcher.data?.success]);
 
-  const [activeRoleIndex, setActiveRoleIndex] = useState(0);
-  const navigate = useNavigate();
+  useEffect(() => {
+    if (editingIndex !== null && formRef.current) {
+      const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      formRef.current.scrollIntoView({
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+        block: "center",
+      });
+    }
+  }, [editingIndex]);
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia(
@@ -70,8 +98,8 @@ export default function VolunteerPostPage2({
     });
   }, []);
 
-  const currentRole = formData.roles[activeRoleIndex];
-  const currentRoleErrors = errors?.roleErrors?.[activeRoleIndex];
+  const hasSavedRoles = formData.roles.length > 0;
+  const currentRoleErrors = hasSavedRoles ? undefined : errors?.roleErrors?.[0];
 
   const updateContactField = (
     field: keyof FormDataVolunteerInput["contact"],
@@ -80,80 +108,95 @@ export default function VolunteerPostPage2({
     onUpdateField("contact", { ...formData.contact, [field]: value } as any);
   };
 
-  const handleRoleChange = <
-    K extends keyof FormDataVolunteerInput["roles"][number],
-  >(
-    index: number,
+  const handleDraftChange = <K extends keyof DraftRole>(
     field: K,
-    value: FormDataVolunteerInput["roles"][number][K],
+    value: DraftRole[K],
   ) => {
-    const newRoles = [...formData.roles];
-    newRoles[index] = { ...newRoles[index], [field]: value } as any;
-    onUpdateField("roles", newRoles);
-  };
-
-  const handleAddRole = () => {
-    const nextRoles = [
-      ...formData.roles,
-      {
-        title: "",
-        commitmentLabel: "",
-        capacity: 1,
-        responsibilities: [""],
-        requirements: [""],
-      },
-    ];
-
-    onUpdateField("roles", nextRoles);
-    setActiveRoleIndex(nextRoles.length - 1);
+    setDraftRole((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleRemovePoint = (
     field: "responsibilities" | "requirements",
     itemIndex: number,
   ) => {
-    if (!currentRole) return;
-
-    const nextValues = currentRole[field].filter(
+    const nextValues = draftRole[field].filter(
       (_, index) => index !== itemIndex,
     );
-    handleRoleChange(
-      activeRoleIndex,
-      field,
-      nextValues.length > 0 ? nextValues : [""],
-    );
+    handleDraftChange(field, nextValues.length > 0 ? nextValues : [""]);
+  };
+
+  const handleAddRole = () => {
+    if (editingIndex !== null) {
+      const updatedRoles = formData.roles.map((role, i) => {
+        if (i === editingIndex) {
+          return {
+            title: draftRole.title,
+            commitmentLabel: draftRole.commitmentLabel,
+            capacity: draftRole.capacity,
+            responsibilities: draftRole.responsibilities,
+            requirements: draftRole.requirements,
+          };
+        }
+        return role;
+      });
+      onUpdateField("roles", updatedRoles);
+      setEditingIndex(null);
+    } else {
+      onUpdateField("roles", [...formData.roles, { ...draftRole }]);
+    }
+    setDraftRole(emptyDraft);
+  };
+
+  const handleEditRole = (index: number) => {
+    const role = formData.roles[index];
+    setDraftRole({
+      title: role.title,
+      commitmentLabel: role.commitmentLabel,
+      capacity: role.capacity,
+      responsibilities: role.responsibilities,
+      requirements: role.requirements,
+    });
+    setEditingIndex(index);
   };
 
   const handleRemoveRole = (index: number) => {
-    if (formData.roles.length <= 1) return;
-
     const nextRoles = formData.roles.filter((_, i) => i !== index);
     onUpdateField("roles", nextRoles);
 
-    if (activeRoleIndex >= nextRoles.length) {
-      setActiveRoleIndex(nextRoles.length - 1);
-    } else if (activeRoleIndex > index) {
-      setActiveRoleIndex(activeRoleIndex - 1);
+    if (editingIndex === index) {
+      setEditingIndex(null);
+      setDraftRole(emptyDraft);
+    } else if (editingIndex !== null && editingIndex > index) {
+      setEditingIndex(editingIndex - 1);
     }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingIndex(null);
+    setDraftRole(emptyDraft);
   };
 
   return (
     <div className="flex flex-col gap-8">
       <RolesList
         roles={formData.roles}
-        activeRoleIndex={activeRoleIndex}
-        onSelectRole={setActiveRoleIndex}
+        editingIndex={editingIndex}
+        onEditRole={handleEditRole}
         onRemoveRole={handleRemoveRole}
       />
 
-      <OpenRolesForm
-        currentRole={currentRole}
-        activeRoleIndex={activeRoleIndex}
-        errors={currentRoleErrors}
-        onRoleChange={handleRoleChange}
-        onAddRole={handleAddRole}
-        onRemovePoint={handleRemovePoint}
-      />
+      <div ref={formRef}>
+        <OpenRolesForm
+          draftRole={draftRole}
+          editingIndex={editingIndex}
+          errors={currentRoleErrors}
+          hasSavedRoles={hasSavedRoles}
+          onDraftChange={handleDraftChange}
+          onAddRole={handleAddRole}
+          onCancelEdit={handleCancelEdit}
+          onRemovePoint={handleRemovePoint}
+        />
+      </div>
 
       <ContactDetailsForm
         contact={formData.contact}
@@ -165,7 +208,6 @@ export default function VolunteerPostPage2({
         onBack={onBackToDetails}
         onSubmit={onSubmit}
         isSubmitting={isSubmitting}
-        error={errors?.submit}
       />
 
       <PublishOpportunitySuccessDialog

@@ -1,12 +1,18 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useFetcher, useParams } from "react-router";
+import { toast } from "sonner";
 import type { Role } from "~/services/volunteer/types/opportunities";
 import {
   validateVolunteerApplicationData,
   validateVolunteerApplicationFiles,
 } from "../../lib/volunteer-validation";
 import { User, FileText } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger, DialogClose } from "~/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogClose,
+} from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
 import { Textarea } from "~/components/ui/textarea";
@@ -33,10 +39,32 @@ export default function VolunteerApplicationDialog({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data) {
+      if (fetcher.data.success) {
+        toast.success("Application submitted successfully");
+        setFormData({
+          roleId: initialRoleId || roles[0]?.id || "",
+          availability: "",
+          relevantExperience: "",
+        });
+        setFiles([]);
+        setErrors({});
+      } else if (fetcher.data.error) {
+        toast.error(fetcher.data.error);
+      }
+    }
+  }, [fetcher.state, fetcher.data, initialRoleId, roles]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
     if (selectedFiles) {
-      setFiles((prev) => [...prev, ...Array.from(selectedFiles)]);
+      setFiles((prev) => {
+        const newFiles = Array.from(selectedFiles);
+        const existingFileKeys = new Set(prev.map(f => `${f.name}-${f.size}`));
+        const uniqueNewFiles = newFiles.filter(f => !existingFileKeys.has(`${f.name}-${f.size}`));
+        return [...prev, ...uniqueNewFiles];
+      });
       setErrors((prev) => {
         const next = { ...prev };
         delete next.files;
@@ -190,7 +218,10 @@ export default function VolunteerApplicationDialog({
               id="experience"
               value={formData.relevantExperience}
               onChange={(e) => {
-                setFormData((prev) => ({ ...prev, relevantExperience: e.target.value }));
+                setFormData((prev) => ({
+                  ...prev,
+                  relevantExperience: e.target.value,
+                }));
                 setErrors((prev) => {
                   const next = { ...prev };
                   delete next.relevantExperience;
@@ -216,11 +247,8 @@ export default function VolunteerApplicationDialog({
               className="hidden"
               accept=".pdf,.doc,.docx"
               multiple
-
             />
-            <p
-              className={`text-sm font-medium leading-5.25`}
-            >
+            <p className={`text-sm font-medium leading-5.25`}>
               Supporting Documents
             </p>
             <Button
@@ -233,7 +261,9 @@ export default function VolunteerApplicationDialog({
             </Button>
           </div>
           {errors.files && (
-            <p className="text-[11px] font-medium text-red-500">{errors.files}</p>
+            <p className="text-[11px] font-medium text-red-500">
+              {errors.files}
+            </p>
           )}
 
           <div className="space-y-2">
