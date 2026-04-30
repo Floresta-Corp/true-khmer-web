@@ -12,6 +12,7 @@ export type RegisterErrors = {
   firstName?: string;
   lastName?: string;
   email?: string;
+  phoneNumber?: string;
   gender?: string;
   occupation?: string;
   password?: string;

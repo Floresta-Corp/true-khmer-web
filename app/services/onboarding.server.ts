@@ -482,7 +482,7 @@ export function onboardingPathForStep(step: number) {
 
 export function destinationFromOnboardingState(state: OnboardingState) {
   return state.completed
-    ? "/dashboard"
+    ? "/home"
     : onboardingPathForStep(state.currentStep);
 }
 
