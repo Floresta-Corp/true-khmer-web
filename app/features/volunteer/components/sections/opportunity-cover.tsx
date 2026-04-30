@@ -20,7 +20,6 @@ export default function OpportunityCover({ volunteer }: OpportunityCoverProps) {
         <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/0 to-black/0" />
 
         <div className="relative flex items-end gap-3">
-          <div className="size-14 rounded-2xl border border-[#f3f4f6] bg-white shadow-[0px_20px_25px_0px_rgba(0,0,0,0.1),0px_8px_10px_0px_rgba(0,0,0,0.1)]" />
           <div className="flex min-w-0 flex-col gap-1">
             <div className="flex items-center gap-2">
               <span className="rounded-[3.5px] bg-white px-2 py-0.5 text-[10px] font-semibold tracking-[0.12px] text-[#2f6fe4]">

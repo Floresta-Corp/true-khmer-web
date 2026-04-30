@@ -27,7 +27,7 @@ export default function AvailableRolesSection({
 
       <div className="space-y-5">
         {roles.map((role) => (
-          <RoleCard key={role.id} role={role} />
+          <RoleCard key={role.id} role={role} roles={roles} />
         ))}
       </div>
     </div>
@@ -36,9 +36,10 @@ export default function AvailableRolesSection({
 
 interface RoleCardProps {
   role: Role;
+  roles: Role[];
 }
 
-function RoleCard({ role }: RoleCardProps) {
+function RoleCard({ role, roles }: RoleCardProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -76,7 +77,8 @@ function RoleCard({ role }: RoleCardProps) {
 
           <div className="my-7.25 flex justify-end border-t border-[#f3f4f6] pt-7.25">
             <VolunteerApplicationDialog
-              role={role}
+              roles={roles}
+              initialRoleId={role.id}
               trigger={
                 <Button className="h-10 bg-[#2f6fe4] px-6 text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]">
                   Apply for this Role

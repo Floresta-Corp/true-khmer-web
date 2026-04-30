@@ -1,6 +1,5 @@
 import * as z from "zod";
 import { RoleSchema } from "./opportunities";
-import type { Upload } from "lucide-react";
 
 export const ApplyApplicationInputSchema = z.object({
   roleId: z.string(),

@@ -138,7 +138,6 @@ export function VolunteerDetailPage({
           >
             <ApplicationSummary
               volunteer={volunteer}
-              role={primaryRole}
               totalCapacity={totalCapacity}
             />
           </motion.div>

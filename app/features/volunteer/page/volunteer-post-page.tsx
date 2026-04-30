@@ -24,7 +24,7 @@ import type { VolunteerPostPage1Errors } from "./volunteer-post-page-1";
 import type { VolunteerPostPage2Errors } from "./volunteer-post-page-2";
 
 export default function VolunteerPostPage() {
-  const { locations, categories, userId } = useLoaderData<typeof loader>();
+  const { locations, categories } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const fetcher = useFetcher<{

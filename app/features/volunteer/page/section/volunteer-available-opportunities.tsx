@@ -67,9 +67,9 @@ function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
               <Clock size={13.5} className="text-blue-500" />
               <span>{opportunity.durationLabel}</span>
             </div>
-            <div className="flex items-center gap-[5.25px] text-[11px] uppercase">
+            <div className="flex items-center gap-[5.25px] text-[11px]">
               <MapPin size={13.5} className="text-blue-500" />
-              <span>Phnom Penh</span>
+              <span>{opportunity.location.name}</span>
             </div>
           </div>
 

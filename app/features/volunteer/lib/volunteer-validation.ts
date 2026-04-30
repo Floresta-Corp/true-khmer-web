@@ -1,6 +1,7 @@
 import type { FormDataVolunteerInput } from "~/services/volunteer/types";
 import type { VolunteerPostPage1Errors } from "../page/volunteer-post-page-1";
 import type { VolunteerPostPage2Errors } from "../page/volunteer-post-page-2";
+import { z } from "zod";
 
 const hasText = (value: unknown): value is string =>
   typeof value === "string" && value.trim().length > 0;
@@ -121,4 +122,66 @@ export const validateRoleStep = (
     errors.contact = contactErrors;
   }
   return errors;
+}
+
+export const VolunteerApplicationDataSchema = z.object({
+  roleId: z.string().min(1, "Role is required"),
+  availability: z.string().min(1, "Availability is required"),
+  relevantExperience: z.string().min(1, "Relevant experience is required"),
+});
+
+export const VolunteerApplicationFilesSchema = z.object({
+  files: z
+    .array(z.any())
+    .min(1, "At least one supporting document is required"),
+});
+
+export type VolunteerApplicationDataInput = z.infer<
+  typeof VolunteerApplicationDataSchema
+>;
+export type VolunteerApplicationFilesInput = z.infer<
+  typeof VolunteerApplicationFilesSchema
+>;
+
+export const validateVolunteerApplicationData = (
+  data: unknown,
+): Record<string, string> => {
+  const result = VolunteerApplicationDataSchema.safeParse(data);
+  if (result.success) return {};
+
+  const errors: Record<string, string> = {};
+  result.error.issues.forEach((issue) => {
+    const path = issue.path[0] as string;
+    errors[path] = issue.message;
+  });
+  return errors;
 };
+
+const ALLOWED_FILE_TYPES = [
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+export const validateVolunteerApplicationFiles = (
+  files: unknown[],
+): Record<string, string> => {
+  if (!files || files.length === 0) {
+    return { files: "At least one supporting document is required" };
+  }
+
+  for (const file of files) {
+    if (file instanceof File) {
+      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+        return { files: "Only PDF, DOC, and DOCX files are allowed" };
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        return { files: "Each file must be less than 5MB" };
+      }
+    }
+  }
+
+  return {};
+};
+

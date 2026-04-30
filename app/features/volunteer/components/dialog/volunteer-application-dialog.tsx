@@ -1,23 +1,91 @@
-import React from "react";
-import { ChevronDown, FileText, User } from "lucide-react";
-import { Button } from "~/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogTrigger,
-} from "~/components/ui/dialog";
+import React, { useRef, useState } from "react";
+import { useFetcher, useParams } from "react-router";
 import type { Role } from "~/services/volunteer/types/opportunities";
+import {
+  validateVolunteerApplicationData,
+  validateVolunteerApplicationFiles,
+} from "../../lib/volunteer-validation";
+import { User, FileText } from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger, DialogClose } from "~/components/ui/dialog";
+import { Button } from "~/components/ui/button";
+import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
+import { Textarea } from "~/components/ui/textarea";
 
 interface VolunteerApplicationDialogProps {
-  role: Role;
+  roles: Role[];
+  initialRoleId?: string;
   trigger?: React.ReactNode;
 }
 
 export default function VolunteerApplicationDialog({
-  role,
+  roles,
+  initialRoleId,
   trigger,
 }: VolunteerApplicationDialogProps) {
+  const { id: opportunityId } = useParams();
+  const fetcher = useFetcher();
+  const [formData, setFormData] = useState({
+    roleId: initialRoleId || roles[0]?.id || "",
+    availability: "",
+    relevantExperience: "",
+  });
+  const [files, setFiles] = useState<File[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = e.target.files;
+    if (selectedFiles) {
+      setFiles((prev) => [...prev, ...Array.from(selectedFiles)]);
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next.files;
+        return next;
+      });
+      e.target.value = "";
+    }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleTriggerUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleSubmit = () => {
+    const dataErrors = validateVolunteerApplicationData(formData);
+    const fileErrors = validateVolunteerApplicationFiles(files);
+
+    const validationErrors = { ...dataErrors, ...fileErrors };
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setErrors({});
+    const submitData = new FormData();
+    submitData.append("actionType", "apply-application");
+
+    const submitPayload = {
+      opportunityId,
+      roleId: formData.roleId,
+      availability: formData.availability,
+      relevantExperience: formData.relevantExperience,
+    };
+
+    submitData.append("data", JSON.stringify(submitPayload));
+    files.forEach((file) => {
+      submitData.append("files", file);
+    });
+
+    fetcher.submit(submitData, {
+      method: "POST",
+      encType: "multipart/form-data",
+    });
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -54,12 +122,29 @@ export default function VolunteerApplicationDialog({
             <p className="text-sm font-medium leading-5.25 text-[#65758b]">
               Which role are you applying for?
             </p>
-            <div className="flex items-start justify-between rounded-lg bg-[#f8fafc] px-3 py-3">
-              <p className="flex-1 text-sm font-semibold text-[#344256]">
-                {role.title}
+            <SingleSelectDropdown
+              id="role-selection"
+              value={formData.roleId}
+              onValueChange={(val) => {
+                setFormData((prev) => ({ ...prev, roleId: val }));
+                setErrors((prev) => {
+                  const next = { ...prev };
+                  delete next.roleId;
+                  return next;
+                });
+              }}
+              options={roles.map((r) => ({
+                value: r.id,
+                label: r.title,
+              }))}
+              placeholder="Select a role"
+              aria-invalid={!!errors.roleId}
+            />
+            {errors.roleId && (
+              <p className="text-[11px] font-medium text-red-500">
+                {errors.roleId}
               </p>
-              <ChevronDown className="size-3.5 text-[#99a1af]" />
-            </div>
+            )}
           </div>
 
           <div className="space-y-2 mb-6">
@@ -69,11 +154,29 @@ export default function VolunteerApplicationDialog({
             >
               Your Availability
             </label>
-            <textarea
+            <Textarea
               id="availability"
+              value={formData.availability}
+              onChange={(e) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  availability: e.target.value,
+                }));
+                setErrors((prev) => {
+                  const next = { ...prev };
+                  delete next.availability;
+                  return next;
+                });
+              }}
+              aria-invalid={!!errors.availability}
               placeholder="e.g. Weekend only, 2-4 hours per week..."
               className="h-21 w-full resize-none rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm font-medium text-[#364153] placeholder:text-[#65758b] focus-visible:border-[#2f6fe4] focus-visible:outline-none"
             />
+            {errors.availability && (
+              <p className="text-[11px] font-medium text-red-500">
+                {errors.availability}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2 mb-5">
@@ -83,44 +186,80 @@ export default function VolunteerApplicationDialog({
             >
               Relevant Experience
             </label>
-            <textarea
+            <Textarea
               id="experience"
+              value={formData.relevantExperience}
+              onChange={(e) => {
+                setFormData((prev) => ({ ...prev, relevantExperience: e.target.value }));
+                setErrors((prev) => {
+                  const next = { ...prev };
+                  delete next.relevantExperience;
+                  return next;
+                });
+              }}
+              aria-invalid={!!errors.relevantExperience}
               placeholder="Briefly describe your experience relevant to this role..."
               className="h-23.75 w-full resize-none rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm font-medium text-[#364153] placeholder:text-[#65758b] focus-visible:border-[#2f6fe4] focus-visible:outline-none"
             />
+            {errors.relevantExperience && (
+              <p className="text-[11px] font-medium text-red-500">
+                {errors.relevantExperience}
+              </p>
+            )}
           </div>
 
-          <div className="space-y-3 mb-5">
-            <div className="flex items-start justify-between">
-              <p className="text-sm font-medium leading-5.25 text-[#65758b]">
-                Supporting Documents
-              </p>
-              <Button
-                type="button"
-                variant="ghost"
-                className="text-sm font-semibold leading-4.5 text-[#2f6fe4]"
-              >
-                + Add
-              </Button>
-            </div>
+          <div className="space-y-3 mb-5 flex justify-between">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+              accept=".pdf,.doc,.docx"
+              multiple
 
-            <div className="rounded-lg border border-[#f1f5f9] p-2.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <FileText className="size-6 text-[#2f6fe4]" />
-                  <p className="text-xs font-medium leading-[19.5px] text-[#0a0a0a]">
-                    Volunteer 2025 David
-                  </p>
+            />
+            <p
+              className={`text-sm font-medium leading-5.25`}
+            >
+              Supporting Documents
+            </p>
+            <Button
+              type="button"
+              variant="ghost"
+              className={`text-sm font-semibold leading-4.5`}
+              onClick={handleTriggerUpload}
+            >
+              + Add
+            </Button>
+          </div>
+          {errors.files && (
+            <p className="text-[11px] font-medium text-red-500">{errors.files}</p>
+          )}
+
+          <div className="space-y-2">
+            {files.map((file, index) => (
+              <div
+                key={`${file.name}-${index}`}
+                className="rounded-lg border border-[#f1f5f9] p-2.5"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileText className="size-6 text-[#2f6fe4]" />
+                    <p className="text-xs font-medium leading-[19.5px] text-[#0a0a0a]">
+                      {file.name}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-medium leading-[19.5px] text-[#ef4444] hover:text-[#dc2626]"
+                    onClick={() => handleRemoveFile(index)}
+                  >
+                    Remove
+                  </Button>
                 </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-medium leading-[19.5px] text-[#65758b]"
-                >
-                  Replace
-                </Button>
               </div>
-            </div>
+            ))}
           </div>
         </div>
 
@@ -130,8 +269,12 @@ export default function VolunteerApplicationDialog({
               Cancel
             </Button>
           </DialogClose>
-          <Button className="h-10 rounded-lg bg-[#2f6fe4] px-6 text-sm text-[#f8fafc] hover:bg-[#245fca]">
-            Submit Application
+          <Button
+            className="h-10 rounded-lg bg-[#2f6fe4] px-6 text-sm text-[#f8fafc] hover:bg-[#245fca]"
+            onClick={handleSubmit}
+            disabled={fetcher.state !== "idle"}
+          >
+            {fetcher.state === "idle" ? "Submit Application" : "Submitting..."}
           </Button>
         </div>
       </DialogContent>
