@@ -11,49 +11,46 @@ import ForumReportDialog, {
   type ReportReasonData,
 } from "./dialog/forum-report-dialog";
 import { Link } from "react-router";
+import type { Question } from "~/services/forum/forum-types";
+import { resolveImageURL } from "~/lib/utils";
+import { formatMinutesOrHoursAgo } from "~/lib/time";
 
 interface ForumDetailQuestionHeaderProps {
-  questionId: string;
-  authorName: string;
-  authorAvatar: string;
-  category: {
-    id: string;
-    name: string;
-  };
-  postedAt: string;
-  title: string;
+  question: Question;
   isAuthenticated: boolean;
   reportReasons: ReportReasonData[];
 }
 
 export default function ForumDetailQuestionHeader({
-  questionId,
-  authorName,
-  authorAvatar,
-  category,
-  postedAt,
-  title,
+  question,
   isAuthenticated,
   reportReasons,
 }: ForumDetailQuestionHeaderProps) {
+  if (!question) return null;
+
+  const authorProfile = resolveImageURL(question.author.avatarKey);
+  const postedAt = formatMinutesOrHoursAgo(question.createdAt);
+
   return (
     <div className="flex flex-wrap items-start justify-between gap-3 sm:items-center sm:gap-4">
       <div className="flex min-w-0 flex-1 items-start gap-3 sm:items-center">
         <img
-          src={authorAvatar}
-          alt={authorName}
+          src={authorProfile}
+          alt={question.author.name}
           className="h-6 w-6 rounded-full object-cover"
         />
         <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm leading-5">
           <p className="max-w-full truncate font-semibold text-[#2c2f31]">
-            {authorName}
+            {question.author.name}
           </p>
           <span className="text-[#abadaf]">•</span>
           <Button
             variant="link"
             className="h-auto max-w-full truncate p-0 text-sm font-semibold text-blue-600"
           >
-            <Link to={`/forum?categoryId=${category.id}`}>{category.name}</Link>
+            <Link to={`/forum?categoryId=${question.category.id}`}>
+              {question.category.name}
+            </Link>
           </Button>
           <span className="text-[#abadaf]">•</span>
           <p className="text-[#595c5e]">{postedAt}</p>
@@ -78,9 +75,9 @@ export default function ForumDetailQuestionHeader({
             Save
           </DropdownMenuItem>
           <ForumReportDialog
-            id={questionId}
+            id={question.id}
             type={ReportDialogType.QUESTION}
-            title={title}
+            title={question.title}
             isAuthenticated={isAuthenticated}
             reportReasons={reportReasons}
             trigger={
@@ -106,9 +103,9 @@ export default function ForumDetailQuestionHeader({
         </Button>
 
         <ForumReportDialog
-          id={questionId}
+          id={question.id}
           type={ReportDialogType.QUESTION}
-          title={title}
+          title={question.title}
           isAuthenticated={isAuthenticated}
           reportReasons={reportReasons}
           trigger={

@@ -4,6 +4,7 @@ import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import { Spinner } from "~/components/ui/spinner";
 import { cn } from "~/lib/utils";
+import type { Question } from "~/services/forum/forum-types";
 
 export interface ReplyBoxProps {
   /**
@@ -27,9 +28,9 @@ export interface ReplyBoxProps {
    */
   submitLabel?: string;
   /**
-   * The question id the reply belongs to (required by CreateAnswerInputSchema).
+   * The question the reply belongs to (required by CreateAnswerInputSchema).
    */
-  questionId: string;
+  question: Question;
 }
 
 export default function ReplyBox({
@@ -38,8 +39,10 @@ export default function ReplyBox({
   className,
   maxLength,
   submitLabel = "Reply",
-  questionId,
+  question,
 }: ReplyBoxProps) {
+  if (!question) return null;
+
   const fetcher = useFetcher();
   const wasSubmitting = useRef(false);
   const [body, setBody] = useState("");
@@ -86,7 +89,7 @@ export default function ReplyBox({
         >
           {/* Server expects these per CreateAnswerInputSchema */}
           <input type="hidden" name="actionType" value="create-answer" />
-          <input type="hidden" name="questionId" value={questionId} />
+          <input type="hidden" name="questionId" value={question.id} />
 
           {/* Textarea area. Add bottom padding so overlay doesn't overlap content */}
           <div className="w-full p-4">

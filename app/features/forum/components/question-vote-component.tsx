@@ -5,18 +5,15 @@ import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 import { ViewerVote } from "~/services/types";
+import type { Question } from "~/services/forum/forum-types";
 
 interface QuestionVoteComponentProps {
-  questionId: string;
-  score: number;
-  viewerVote: ViewerVote;
+  question: Question;
   className?: string;
 }
 
 export default function QuestionVoteComponent({
-  questionId,
-  viewerVote,
-  score,
+  question,
   className,
 }: QuestionVoteComponentProps) {
   const fetcher = useFetcher();
@@ -45,13 +42,17 @@ export default function QuestionVoteComponent({
     }
   }, [fetcher.state, fetcher.data]);
 
-  const isUpvoteActive = viewerVote === ViewerVote.UPVOTE;
-  const isDownvoteActive = viewerVote === ViewerVote.DOWNVOTE;
+  const isUpvoteActive = question?.viewerVote === ViewerVote.UPVOTE;
+  const isDownvoteActive = question?.viewerVote === ViewerVote.DOWNVOTE;
 
   const upvoteIntent =
-    viewerVote === ViewerVote.UPVOTE ? ViewerVote.NONE : ViewerVote.UPVOTE;
+    question?.viewerVote === ViewerVote.UPVOTE
+      ? ViewerVote.NONE
+      : ViewerVote.UPVOTE;
   const downvoteIntent =
-    viewerVote === ViewerVote.DOWNVOTE ? ViewerVote.NONE : ViewerVote.DOWNVOTE;
+    question?.viewerVote === ViewerVote.DOWNVOTE
+      ? ViewerVote.NONE
+      : ViewerVote.DOWNVOTE;
 
   const scoreClassName = isUpvoteActive
     ? "text-[#009966]"
@@ -68,18 +69,30 @@ export default function QuestionVoteComponent({
     : "bg-transparent text-[#99a1af] hover:bg-[#FEF2F2] hover:text-[#FF2631]";
 
   const handleUpvote = () => {
+    if (!question) return;
     fetcher.submit(
-      { actionType: "vote-question", questionId, voteType: upvoteIntent },
+      {
+        actionType: "vote-question",
+        questionId: question.id,
+        voteType: upvoteIntent,
+      },
       { method: "post" },
     );
   };
 
   const handleDownvote = () => {
+    if (!question) return;
     fetcher.submit(
-      { actionType: "vote-question", questionId, voteType: downvoteIntent },
+      {
+        actionType: "vote-question",
+        questionId: question.id,
+        voteType: downvoteIntent,
+      },
       { method: "post" },
     );
   };
+
+  if (!question) return null;
 
   return (
     <div
@@ -100,7 +113,7 @@ export default function QuestionVoteComponent({
         <Spinner className="mx-1 size-3" />
       ) : (
         <span className={`px-2 text-xs font-semibold ${scoreClassName}`}>
-          {score}
+          {question.score}
         </span>
       )}
       <Button

@@ -4,8 +4,6 @@ import { motion } from "framer-motion";
 import QuestionVoteComponent from "../components/question-vote-component";
 import AllAnswers from "../components/sections/all-answers";
 import type { Route } from "./+types/forum.$id";
-import { formatMinutesOrHoursAgo } from "~/lib/time";
-import { resolveImageURL } from "~/lib/utils";
 import { forumDetailLoader } from "~/routes/api/forum/forum-detail-loader";
 import { forumDetailAction } from "~/routes/api/forum/forum-detail-action";
 import BackToButton from "~/components/back-to-button";
@@ -137,9 +135,6 @@ export default function ForumDetailPage() {
     );
   }
 
-  const postedAt = formatMinutesOrHoursAgo(question.createdAt);
-  const authorProfile = resolveImageURL(question.author.avatarKey);
-
   return (
     <div className="min-h-screen bg-[#f8fafc] w-full">
       <main className="mx-auto w-full px-4 pb-10 md:px-10 xl:px-30 pt-8">
@@ -163,12 +158,7 @@ export default function ForumDetailPage() {
             >
               <div className="rounded-2xl border border-[#e1e7ef] bg-white p-4 sm:p-6 lg:px-8 lg:py-8">
                 <ForumDetailQuestionHeader
-                  questionId={question.id}
-                  authorName={question.author.name}
-                  authorAvatar={authorProfile}
-                  category={question.category}
-                  postedAt={postedAt}
-                  title={question.title}
+                  question={question}
                   isAuthenticated={Boolean(userId)}
                   reportReasons={
                     reportReasons.reportingTypes.map((v) => ({
@@ -197,11 +187,7 @@ export default function ForumDetailPage() {
                 <div className="mt-5 border-t border-[#abadaf1a] pt-5 sm:mt-6 sm:pt-6">
                   <div className="flex flex-wrap items-center gap-3 text-[#48566a] sm:gap-5">
                     <div className="rounded-xl border border-[#f3f4f6] bg-[#f9fafb] p-px">
-                      <QuestionVoteComponent
-                        questionId={question.id}
-                        score={question.score}
-                        viewerVote={question.viewerVote}
-                      />
+                      <QuestionVoteComponent question={question} />
                     </div>
 
                     <div className="inline-flex items-center gap-2 text-xs font-medium leading-4.5 sm:text-sm sm:leading-5.25">
@@ -210,7 +196,7 @@ export default function ForumDetailPage() {
                     </div>
 
                     <ShareQuestionDialog
-                      questionId={question.id}
+                      question={question}
                       trigger={
                         <button
                           type="button"
@@ -234,7 +220,7 @@ export default function ForumDetailPage() {
               className="mt-6"
             >
               {/* Reply box for posting a new answer / reply */}
-              <ReplyBox questionId={question.id} />
+              <ReplyBox question={question} />
             </motion.div>
 
             {answers && answers.length > 0 ? (

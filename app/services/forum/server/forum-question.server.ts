@@ -178,4 +178,26 @@ export async function getQuestionById(request: Request, questionId: string) {
   }
 }
 
+export async function deleteSaveQuestion(request: Request, questionId: string) {
+  const result = await apiRequestWithSession<GetQuestionResponse>(
+    request,
+    `/forum/questions/save-question/${questionId}`,
+    {
+      method: "DELETE",
+    },
+  );
 
+  return result;
+}
+
+export async function aaddSaveQuestion(request: Request, questionId: string) {
+  const result = await apiRequestWithSession<GetQuestionResponse>(
+    request,
+    `/forum/questions/save-question/${questionId}`,
+    {
+      method: "POST",
+    },
+  );
+
+  return result;
+}

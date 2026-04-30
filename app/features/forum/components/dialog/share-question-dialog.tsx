@@ -2,22 +2,25 @@ import { useState } from "react";
 import { Check, Copy, Share2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
+import type { Question } from "~/services/forum/forum-types";
 
 interface ShareQuestionDialogProps {
-  questionId: string;
+  question: Question;
   trigger: React.ReactNode;
 }
 
 export default function ShareQuestionDialog({
-  questionId,
+  question,
   trigger,
 }: ShareQuestionDialogProps) {
+  if (!question) return null;
+
   const [isCopied, setIsCopied] = useState(false);
 
   const shareUrl =
     typeof window !== "undefined"
-      ? new URL(`/forum/detail/${questionId}`, window.location.origin).href
-      : `/forum/detail/${questionId}`;
+      ? new URL(`/forum/detail/${question.id}`, window.location.origin).href
+      : `/forum/detail/${question.id}`;
 
   const handleCopy = async () => {
     try {
