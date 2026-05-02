@@ -48,6 +48,7 @@ function OrganizerHeader({ organizer }: OrganizerHeaderProps) {
         <img
           className="size-12.25 rounded-2xl border border-[#f3f4f6] bg-[#f9fafb] object-cover"
           src={image}
+          alt={organizer.name || "Organizer avatar"}
         />
         <div>
           <p className="flex items-center gap-1.5 text-lg font-semibold text-[#030213]">

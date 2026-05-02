@@ -27,7 +27,6 @@ export async function ApplyApplication(
     );
     return result;
   } catch (error) {
-    console.log({ error });
     if (error instanceof ProtectedApiError && error.status === 404) {
       return null;
     }
