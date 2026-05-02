@@ -31,13 +31,16 @@ export const QuestionSchema = z.object({
   answerCount: z.number(),
   upvoteCount: z.number(),
   downvoteCount: z.number(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
   score: z.number(),
   viewerVote: ViewerVoteSchema,
+  viewerSave: z.boolean(),
+  bestAnswerId: z.string().nullable(),
+  bestAnswerSelectedAt: z.string().nullable(),
   category: BasicJoinSchema,
   author: AuthorSchema,
   tags: z.array(BasicJoinSchema),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
 export type Question = z.infer<typeof QuestionSchema>;
 

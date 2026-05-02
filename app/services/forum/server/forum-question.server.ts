@@ -190,7 +190,7 @@ export async function deleteSaveQuestion(request: Request, questionId: string) {
   return result;
 }
 
-export async function aaddSaveQuestion(request: Request, questionId: string) {
+export async function addSaveQuestion(request: Request, questionId: string) {
   const result = await apiRequestWithSession<GetQuestionResponse>(
     request,
     `/forum/questions/save-question/${questionId}`,

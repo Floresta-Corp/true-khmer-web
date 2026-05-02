@@ -48,10 +48,11 @@ const MOCK_RELATED_DISCUSSIONS = [
     answerCount: 15,
     upvoteCount: 45,
     downvoteCount: 2,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
     score: 43,
     viewerVote: "NONE" as const,
+    viewerSave: false,
+    bestAnswerId: null,
+    bestAnswerSelectedAt: null,
     category: { id: "cat-1", name: "Sustainability" },
     author: {
       id: "auth-1",
@@ -59,6 +60,8 @@ const MOCK_RELATED_DISCUSSIONS = [
       avatarKey: "mock-avatar-1",
     },
     tags: [{ id: "tag-1", name: "carbon" }],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "mock-2",
@@ -68,10 +71,11 @@ const MOCK_RELATED_DISCUSSIONS = [
     answerCount: 15,
     upvoteCount: 32,
     downvoteCount: 1,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
     score: 31,
     viewerVote: "NONE" as const,
+    viewerSave: false,
+    bestAnswerId: null,
+    bestAnswerSelectedAt: null,
     category: { id: "cat-1", name: "Sustainability" },
     author: {
       id: "auth-2",
@@ -79,6 +83,8 @@ const MOCK_RELATED_DISCUSSIONS = [
       avatarKey: "mock-avatar-2",
     },
     tags: [{ id: "tag-2", name: "metrics" }],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
   {
     id: "mock-3",
@@ -88,10 +94,11 @@ const MOCK_RELATED_DISCUSSIONS = [
     answerCount: 15,
     upvoteCount: 28,
     downvoteCount: 0,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
     score: 28,
     viewerVote: "NONE" as const,
+    viewerSave: false,
+    bestAnswerId: null,
+    bestAnswerSelectedAt: null,
     category: { id: "cat-2", name: "Development" },
     author: {
       id: "auth-3",
@@ -99,6 +106,8 @@ const MOCK_RELATED_DISCUSSIONS = [
       avatarKey: "mock-avatar-3",
     },
     tags: [{ id: "tag-3", name: "frameworks" }],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
 ];
 
