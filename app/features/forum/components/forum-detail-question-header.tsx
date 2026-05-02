@@ -35,6 +35,7 @@ export default function ForumDetailQuestionHeader({
   const location = useLocation();
   const fetcher = useFetcher();
   const wasSubmitting = useRef(false);
+  const submittedIntent = useRef<string | null>(null);
   const isSubmitting = fetcher.state !== "idle";
 
   useEffect(() => {
@@ -58,8 +59,9 @@ export default function ForumDetailQuestionHeader({
         ("data" in result && result.data?.ok === true);
 
       if (isSuccess) {
-        const isSaved = result.question?.viewerSave ?? question.viewerSave;
+        const isSaved = submittedIntent.current === "save-question";
         toast.success(isSaved ? "Question saved" : "Question unsaved");
+        submittedIntent.current = null;
       } else {
         toast.error(
           result?.message ?? result?.error ?? "Failed to save question.",
@@ -75,7 +77,9 @@ export default function ForumDetailQuestionHeader({
     const actionType = question.viewerSave
       ? "unsave-question"
       : "save-question";
+    submittedIntent.current = actionType;
     fetcher.submit({ actionType, questionId: question.id }, { method: "post" });
+    return actionType;
   };
 
   const authorProfile = resolveImageURL(question.author.avatarKey);
