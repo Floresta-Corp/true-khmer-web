@@ -222,7 +222,7 @@ export default function LoginPage() {
                 id="password"
                 name="password"
                 label="Password"
-                showToggle={false}
+                showToggle={true}
                 autoComplete="current-password"
                 value={password}
                 onChange={(event) => {

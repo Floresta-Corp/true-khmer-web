@@ -1,4 +1,7 @@
+import { useEffect, useRef } from "react";
 import { Bookmark, EllipsisVertical, Info } from "lucide-react";
+import { useFetcher, useLocation } from "react-router";
+import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -14,6 +17,7 @@ import { Link } from "react-router";
 import type { Question } from "~/services/forum/forum-types";
 import { resolveImageURL } from "~/lib/utils";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
+import { Spinner } from "~/components/ui/spinner";
 
 interface ForumDetailQuestionHeaderProps {
   question: Question;
@@ -27,6 +31,56 @@ export default function ForumDetailQuestionHeader({
   reportReasons,
 }: ForumDetailQuestionHeaderProps) {
   if (!question) return null;
+
+  const location = useLocation();
+  const fetcher = useFetcher();
+  const wasSubmitting = useRef(false);
+  const submittedIntent = useRef<string | null>(null);
+  const isSubmitting = fetcher.state !== "idle";
+
+  useEffect(() => {
+    if (fetcher.state === "submitting") {
+      wasSubmitting.current = true;
+    }
+
+    if (wasSubmitting.current && fetcher.state === "idle" && fetcher.data) {
+      wasSubmitting.current = false;
+      const result = fetcher.data as
+        | {
+            ok?: boolean;
+            question?: { viewerSave?: boolean };
+            message?: string;
+            error?: string;
+          }
+        | { data?: { ok?: boolean }; message?: string; error?: string };
+
+      const isSuccess =
+        ("ok" in result && result.ok === true) ||
+        ("data" in result && result.data?.ok === true);
+
+      if (isSuccess) {
+        const isSaved = submittedIntent.current === "save-question";
+        toast.success(isSaved ? "Question saved" : "Question unsaved");
+        submittedIntent.current = null;
+      } else {
+        toast.error(
+          result?.message ?? result?.error ?? "Failed to save question.",
+        );
+      }
+    }
+  }, [fetcher.state, fetcher.data]);
+
+  const redirectTo = `${location.pathname}${location.search}`;
+  const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
+
+  const handleSave = () => {
+    const actionType = question.viewerSave
+      ? "unsave-question"
+      : "save-question";
+    submittedIntent.current = actionType;
+    fetcher.submit({ actionType, questionId: question.id }, { method: "post" });
+    return actionType;
+  };
 
   const authorProfile = resolveImageURL(question.author.avatarKey);
   const postedAt = formatMinutesOrHoursAgo(question.createdAt);
@@ -70,10 +124,39 @@ export default function ForumDetailQuestionHeader({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-36">
-          <DropdownMenuItem className="font-medium text-[#595c5e]">
-            <Bookmark className="h-4 w-4" />
-            Save
-          </DropdownMenuItem>
+          {!isAuthenticated ? (
+            <DropdownMenuItem asChild>
+              <Link
+                to={loginHref}
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm font-medium text-[#595c5e] cursor-pointer"
+              >
+                <Bookmark className="h-4 w-4" />
+                Save
+              </Link>
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem
+              className={`font-medium text-[#595c5e] ${question.viewerSave ? "text-blue-500" : ""}`}
+              onSelect={(e) => {
+                e.preventDefault();
+                handleSave();
+              }}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <Spinner className="size-3.5" />
+              ) : (
+                <Bookmark
+                  className={`h-4 w-4 ${question.viewerSave ? "fill-blue-500" : ""}`}
+                />
+              )}
+              {isSubmitting
+                ? "Saving..."
+                : question.viewerSave
+                  ? "Unsave"
+                  : "Save"}
+            </DropdownMenuItem>
+          )}
           <ForumReportDialog
             id={question.id}
             type={ReportDialogType.QUESTION}
@@ -94,13 +177,34 @@ export default function ForumDetailQuestionHeader({
       </DropdownMenu>
 
       <div className="hidden items-center text-sm font-semibold text-[#9eacc0] md:flex">
-        <Button
-          type="button"
-          className="cursor-pointer group transition-colors hover:text-blue-500 bg-transparent text-[#595C5E]"
-        >
-          <Bookmark className="group-hover:text-blue-500 transition-colors" />
-          Save
-        </Button>
+        {!isAuthenticated ? (
+          <Link to={loginHref}>
+            <Button
+              className="cursor-pointer group transition-colors hover:text-blue-500 bg-transparent text-[#595C5E]"
+              disabled={isSubmitting}
+            >
+              <Bookmark className="group-hover:text-blue-500 transition-colors" />
+              Save
+            </Button>
+          </Link>
+        ) : (
+          <Button
+            type="button"
+            className={`cursor-pointer group transition-colors hover:text-blue-500 bg-transparent text-[#595C5E] ${question.viewerSave ? "text-blue-500" : ""}`}
+            onClick={handleSave}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <Spinner className="size-3.5" />
+            ) : (
+              <Bookmark
+                className={`group-hover:text-blue-500 transition-colors ${question.viewerSave ? "fill-blue-500" : ""}`}
+              />
+            )}
+
+            {question.viewerSave ? "Saved" : "Save"}
+          </Button>
+        )}
 
         <ForumReportDialog
           id={question.id}
