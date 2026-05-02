@@ -138,7 +138,7 @@ export default function ForumDetailQuestionHeader({
                 <Spinner className="size-3.5" />
               ) : (
                 <Bookmark
-                  className={`h-4 w-4 $${question.viewerSave ? "fill-blue-500" : ""}`}
+                  className={`h-4 w-4 ${question.viewerSave ? "fill-blue-500" : ""}`}
                 />
               )}
               {isSubmitting
