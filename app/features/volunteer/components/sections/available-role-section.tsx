@@ -48,22 +48,23 @@ function RoleCard({ role, roles }: RoleCardProps) {
       className="overflow-hidden rounded-[14px] border border-[#e1e7ef] data-[state=open]:border-[#e1e7ef]"
     >
       <AccordionTrigger className="px-5.25 py-6 text-left no-underline hover:no-underline [&>svg]:size-[17.5px] [&>svg]:text-[#2f6fe4]">
-        <div className="flex items-center gap-3.5">
-          <div className="flex size-5.25 items-center justify-center rounded-full border-2 border-[#2f6fe4] bg-[#2f6fe4]">
-            <div className="size-1.75 rounded-full bg-white" />
-          </div>
+        <div className="flex items-center gap-3.5 ">
           <div>
-            <h3 className="text-base font-bold text-[#0a0a0a]">{role.title}</h3>
-            <p className="mt-1 flex items-center gap-2 text-[11px] font-bold text-[#99a1af]">
+            <h3 className="text-[16px] font-bold text-[#0a0a0a]">
+              {role.title}
+            </h3>
+            <p className="mt-1 flex items-center gap-2 text-[14px] font-medium text-[#99A1AF]">
               {role.commitmentLabel}
               <span className="size-[3.5px] rounded-full bg-[#d1d5dc]" />
-              <span className="text-[#009966]">{role.capacity} spots left</span>
+              <span className="text-[#009966] text-[14px] font-medium">
+                {role.capacity} spots open
+              </span>
             </p>
           </div>
         </div>
       </AccordionTrigger>
 
-      <AccordionContent className="px-5.25 pt-7.25 data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+      <AccordionContent className="px-5.25 pt-7.25 data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down border-t border-[#0000001A]">
         <div className="grid gap-5 lg:grid-cols-2">
           <ResponsibilitiesSection items={role.responsibilities} />
           <RequirementsSection items={role.requirements} />
@@ -92,8 +93,7 @@ interface ResponsibilitiesSectionProps {
 function ResponsibilitiesSection({ items }: ResponsibilitiesSectionProps) {
   return (
     <div className="space-y-3.5">
-      <h4 className="flex items-center gap-2 text-sm font-bold text-[#030213]">
-        <Target className="size-3.5 text-[#2f6fe4]" />
+      <h4 className="font-semibold text-[16px] text-[#030213] uppercase">
         Responsibilities
       </h4>
       <ul className="space-y-3.5">
@@ -118,8 +118,7 @@ interface RequirementsSectionProps {
 function RequirementsSection({ items }: RequirementsSectionProps) {
   return (
     <div className="space-y-3.5">
-      <h4 className="flex items-center gap-2 text-sm font-bold text-[#030213]">
-        <Zap className="size-3.5 text-[#fe9a00]" />
+      <h4 className="font-semibold text-[16px] text-[#030213] uppercase">
         Requirements
       </h4>
       <ul className="space-y-3.5">
@@ -128,9 +127,7 @@ function RequirementsSection({ items }: RequirementsSectionProps) {
             key={item}
             className="flex items-start gap-2 text-sm font-medium leading-[22.75px] text-[#4a5565]"
           >
-            <span className="mt-0.5 flex size-[17.5px] shrink-0 items-center justify-center rounded-full bg-[#fffbeb]">
-              <Circle className="size-[5.25px] fill-[#fe9a00] text-[#fe9a00]" />
-            </span>
+            <CheckCircle2 className="mt-0.5 size-[17.5px] shrink-0 text-[#009966]" />
             {item}
           </li>
         ))}

@@ -12,5 +12,5 @@ export default function VolunteerOpportunityDetail({
 }: Route.ComponentProps) {
   const { volunteer, userId } = useLoaderData<typeof loader>();
 
-  return <VolunteerDetailPage volunteer={volunteer} userId={userId || ""} />;
+  return <VolunteerDetailPage volunteer={volunteer} />;
 }

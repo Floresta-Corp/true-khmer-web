@@ -190,12 +190,7 @@ export default function DiscussionCard({
 
       {/* Footer with vote, answer count, and share */}
       <div className="flex items-center gap-2 sm:gap-3.5 shrink-0">
-        <QuestionVoteComponent
-          questionId={question.id}
-          score={question.score}
-          viewerVote={question.viewerVote}
-          className="h-7.5"
-        />
+        <QuestionVoteComponent question={question} className="h-7.5" />
 
         <button
           onClick={handleGoToDetail}
@@ -212,7 +207,7 @@ export default function DiscussionCard({
           </span>
         </button>
         <ShareQuestionDialog
-          questionId={question.id}
+          question={question}
           trigger={
             <button className="group inline-flex items-center gap-2 text-xs font-medium text-[#48566A] text-[14px] rounded-lg cursor-pointer transition-colors hover:text-blue-600">
               <Share2

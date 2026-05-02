@@ -23,6 +23,17 @@ interface VolunteerApplicationDialogProps {
   trigger?: React.ReactNode;
 }
 
+interface ApiError {
+  status: number;
+  code: string | undefined;
+  details: {
+    ok: false;
+    error: string;
+  };
+}
+
+type ApplicationResponse = { success: true } | ({ success: false } & ApiError);
+
 export default function VolunteerApplicationDialog({
   roles,
   initialRoleId,
@@ -30,6 +41,7 @@ export default function VolunteerApplicationDialog({
 }: VolunteerApplicationDialogProps) {
   const { id: opportunityId } = useParams();
   const fetcher = useFetcher();
+  const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     roleId: initialRoleId || roles[0]?.id || "",
     availability: "",
@@ -41,7 +53,8 @@ export default function VolunteerApplicationDialog({
 
   useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data) {
-      if (fetcher.data.success) {
+      const data = fetcher.data as ApplicationResponse;
+      if ("success" in data && data.success === true) {
         toast.success("Application submitted successfully");
         setFormData({
           roleId: initialRoleId || roles[0]?.id || "",
@@ -50,8 +63,9 @@ export default function VolunteerApplicationDialog({
         });
         setFiles([]);
         setErrors({});
-      } else if (fetcher.data.error) {
-        toast.error(fetcher.data.error);
+        setOpen(false);
+      } else if ("details" in data && data.details?.error) {
+        toast.error(data.details.error);
       }
     }
   }, [fetcher.state, fetcher.data, initialRoleId, roles]);
@@ -59,17 +73,28 @@ export default function VolunteerApplicationDialog({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
     if (selectedFiles) {
-      setFiles((prev) => {
-        const newFiles = Array.from(selectedFiles);
-        const existingFileKeys = new Set(prev.map(f => `${f.name}-${f.size}`));
-        const uniqueNewFiles = newFiles.filter(f => !existingFileKeys.has(`${f.name}-${f.size}`));
-        return [...prev, ...uniqueNewFiles];
-      });
-      setErrors((prev) => {
-        const next = { ...prev };
-        delete next.files;
-        return next;
-      });
+      const newFiles = Array.from(selectedFiles);
+      const existingFileKeys = new Set(files.map((f) => `${f.name}-${f.size}`));
+      const duplicates = newFiles.filter((f) =>
+        existingFileKeys.has(`${f.name}-${f.size}`),
+      );
+
+      if (duplicates.length > 0) {
+        toast.error("This file has already been added");
+      }
+
+      const uniqueNewFiles = newFiles.filter(
+        (f) => !existingFileKeys.has(`${f.name}-${f.size}`),
+      );
+
+      if (uniqueNewFiles.length > 0) {
+        setFiles((prev) => [...prev, ...uniqueNewFiles]);
+        setErrors((prev) => {
+          const next = { ...prev };
+          delete next.files;
+          return next;
+        });
+      }
       e.target.value = "";
     }
   };
@@ -115,7 +140,7 @@ export default function VolunteerApplicationDialog({
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
           <Button className="h-10 w-full bg-[#2f6fe4] text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]">

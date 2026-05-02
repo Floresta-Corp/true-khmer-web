@@ -25,6 +25,12 @@ interface DiscussionThreadSectionProps {
   isLoading?: boolean;
 }
 
+export type DiscussionThreadSectionTab =
+  | "recent"
+  | "topRated"
+  | "unanswered"
+  | "myActivity";
+
 export function DiscussionThreadSection({
   categories,
   data,
@@ -40,16 +46,13 @@ export function DiscussionThreadSection({
   const { userId } = useLoaderData<typeof loader>();
 
   const tabs: Array<{
-    id: QuestionSortBy;
+    id: DiscussionThreadSectionTab;
     label: string;
   }> = [
     { id: "recent", label: "Recent" },
     { id: "topRated", label: "Top Rated" },
     { id: "unanswered", label: "Unanswered" },
-    ...(userId ? [{ id: "myActivity" as const, label: "My Activity" }] : []),
   ];
-
-  const isMyActivityTab = activeTab === "myActivity" && userId ? true : false;
 
   return (
     <div className="flex-1 w-full min-w-0">
@@ -73,11 +76,6 @@ export function DiscussionThreadSection({
         </Tabs>
       </div>
 
-      {/* Listing Answer but only for tab My Activity Only */}
-      {isMyActivityTab && <MyActivityAnswerList isLoading={isLoading} />}
-
-      {/* Discussion posts */}
-      {isMyActivityTab && <ThreadsTitle />}
       <div className="flex flex-col gap-4">
         {hasQuestions ? (
           questions.map((question) => {

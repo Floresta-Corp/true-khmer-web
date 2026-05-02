@@ -19,7 +19,7 @@ export async function ApplyApplication(
   try {
     const result = await apiRequestWithSession<ApplyApplicationResponse>(
       request,
-      "",
+      "/volunteer/applications",
       {
         method: "POST",
         body,
@@ -27,6 +27,7 @@ export async function ApplyApplication(
     );
     return result;
   } catch (error) {
+    console.log({ error });
     if (error instanceof ProtectedApiError && error.status === 404) {
       return null;
     }
