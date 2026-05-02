@@ -1,4 +1,5 @@
 import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { ProtectedApiError } from "~/lib/server/api-client.server";
 import {
   parseVoteAction,
   submitVoteAction,
@@ -125,7 +126,20 @@ export async function forumDetailAction({
         message: "Question ID is required for saving.",
       };
     }
-    return addSaveQuestion(request, saveQuestionId);
+    try {
+      return await addSaveQuestion(request, saveQuestionId);
+    } catch (error) {
+      if (error instanceof ProtectedApiError) {
+        return {
+          ok: false,
+          message: error.message || "Failed to save question.",
+        };
+      }
+      return {
+        ok: false,
+        message: "Failed to save question.",
+      };
+    }
   }
 
   if (actionType === "unsave-question") {
@@ -136,7 +150,20 @@ export async function forumDetailAction({
         message: "Question ID is required for unsaving.",
       };
     }
-    return deleteSaveQuestion(request, saveQuestionId);
+    try {
+      return await deleteSaveQuestion(request, saveQuestionId);
+    } catch (error) {
+      if (error instanceof ProtectedApiError) {
+        return {
+          ok: false,
+          message: error.message || "Failed to save question.",
+        };
+      }
+      return {
+        ok: false,
+        message: "Failed to save question.",
+      };
+    }
   }
 
   if (actionType === "update-answer") {

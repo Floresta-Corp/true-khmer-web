@@ -45,7 +45,12 @@ export default function ForumDetailQuestionHeader({
     if (wasSubmitting.current && fetcher.state === "idle" && fetcher.data) {
       wasSubmitting.current = false;
       const result = fetcher.data as
-        | { ok?: boolean; message?: string; error?: string }
+        | {
+            ok?: boolean;
+            question?: { viewerSave?: boolean };
+            message?: string;
+            error?: string;
+          }
         | { data?: { ok?: boolean }; message?: string; error?: string };
 
       const isSuccess =
@@ -53,7 +58,7 @@ export default function ForumDetailQuestionHeader({
         ("data" in result && result.data?.ok === true);
 
       if (isSuccess) {
-        const isSaved = question.viewerSave;
+        const isSaved = result.question?.viewerSave ?? question.viewerSave;
         toast.success(isSaved ? "Question saved" : "Question unsaved");
       } else {
         toast.error(
@@ -61,7 +66,7 @@ export default function ForumDetailQuestionHeader({
         );
       }
     }
-  }, [fetcher.state, fetcher.data, question.viewerSave]);
+  }, [fetcher.state, fetcher.data]);
 
   const redirectTo = `${location.pathname}${location.search}`;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
