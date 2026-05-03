@@ -25,11 +25,7 @@ interface DiscussionThreadSectionProps {
   isLoading?: boolean;
 }
 
-export type DiscussionThreadSectionTab =
-  | "recent"
-  | "topRated"
-  | "unanswered"
-  | "myActivity";
+export type DiscussionThreadSectionTab = "recent" | "topRated" | "unanswered";
 
 export function DiscussionThreadSection({
   categories,
@@ -43,7 +39,6 @@ export function DiscussionThreadSection({
   const questions = data?.questions ?? [];
   const hasQuestions = questions.length > 0;
   const isEmptyAndLoading = !hasQuestions && Boolean(isLoading);
-  const { userId } = useLoaderData<typeof loader>();
 
   const tabs: Array<{
     id: DiscussionThreadSectionTab;

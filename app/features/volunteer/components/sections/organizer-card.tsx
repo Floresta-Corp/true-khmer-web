@@ -74,10 +74,12 @@ interface OrganizerDetailsProps {
 function OrganizerDetails({ organizer }: OrganizerDetailsProps) {
   return (
     <div className="mt-5.5 grid gap-5.25 border-t border-[#f9fafb] pt-5.5 text-[13px] font-medium text-[#4a5565] sm:grid-cols-3">
-      <p className="flex items-center gap-2.5">
-        <Phone className="size-3.5" />
-        +855 {organizer.contact.phone ?? ""}
-      </p>
+      {organizer.contact.phone && (
+        <p className="flex items-center gap-2.5">
+          <Phone className="size-3.5" />
+          +855 {organizer.contact.phone ?? ""}
+        </p>
+      )}
       <p className="flex items-center gap-2.5">
         <Users className="size-3.5" />
         {organizer.opportunityCount ?? "10+"} Opportunities

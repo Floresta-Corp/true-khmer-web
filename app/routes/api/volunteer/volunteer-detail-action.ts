@@ -20,7 +20,9 @@ export async function VolunteerDetailAction({
   if (actionType === "apply-application") {
     let supportingDocumentKeys: string[] = [];
     const files = formData.getAll("files") as File[];
-    if (files.length > 0) {
+    try {
+      if (files.length > 0) {
+      }
       const input = UploadApplicationDocumentSchema.parse({
         opportunityId: id,
         files: files.map((file) => ({
@@ -77,6 +79,16 @@ export async function VolunteerDetailAction({
         }
         return { error: `Failed to apply Application: ${error}` };
       }
+    } catch (error) {
+      if (error instanceof ProtectedApiError) {
+        return {
+          success: false,
+          status: error.status,
+          code: error.code,
+          details: error.details,
+        };
+      }
+      return { error: `Failed to apply Application: ${error}` };
     }
   }
   return { error: "Invalid action type" };
