@@ -110,11 +110,16 @@ export default function LaunchpadAllPage() {
   );
 
   const handleCategoryClick = (categoryId: string | null) => {
-    if (categoryId) {
-      setSearchParams({ categoryId });
-    } else {
-      setSearchParams({});
-    }
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (categoryId) {
+        next.set("categoryId", categoryId);
+      } else {
+        next.delete("categoryId");
+      }
+      next.delete("cursor");
+      return next;
+    });
   };
 
   const handleLoadMore = () => {

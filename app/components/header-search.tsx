@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Input } from "./ui/input";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { cn } from "~/lib/utils";
 import type { Location } from "~/services/volunteer/types/location";
 
@@ -36,6 +36,12 @@ export default function HeaderSearch({
   const [searchValue, setSearchValue] = useState("");
   const navigate = useNavigate();
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    };
+  }, []);
 
   const buildUrl = (search: string, cityId: string | null) => {
     const params = new URLSearchParams();
