@@ -13,7 +13,10 @@ export default function LaunchpadPresentationCard({
   const documentData = project.documentKeys.map((key, index) => ({
     id: `file-${index}`,
     key,
-    name: key.split("/").pop() || `Document ${index + 1}`,
+    name:
+      project.documentNames?.[index] ||
+      key.split("/").pop() ||
+      `Document ${index + 1}`,
     sizeLabel: "PDF",
   }));
 

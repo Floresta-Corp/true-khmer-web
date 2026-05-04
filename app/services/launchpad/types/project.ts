@@ -32,6 +32,7 @@ export const LaunchpadOpportunitySchema = z.object({
   logoKey: z.string().nullable(),
   coverKey: z.string().nullable(),
   documentKeys: z.array(z.string()),
+  documentNames: z.array(z.string()).default([]),
   phoneNumber: z.string().nullable(),
   email: z.string().nullable(),
   telegramUsername: z.string().nullable(),
@@ -55,6 +56,7 @@ export const LaunchpadDetailSchema = z.object({
   logoKey: z.string().nullable(),
   coverKey: z.string().nullable(),
   documentKeys: z.array(z.string()),
+  documentNames: z.array(z.string()).default([]),
   phoneNumber: z.string().nullable(),
   email: z.string().nullable(),
   telegramUsername: z.string().nullable(),
@@ -80,4 +82,6 @@ export const GetLaunchpadDetailResponseSchema = z.object({
   launchpad: LaunchpadDetailSchema,
 });
 
-export type GetLaunchpadDetailResponse = z.infer<typeof GetLaunchpadDetailResponseSchema>;
+export type GetLaunchpadDetailResponse = z.infer<
+  typeof GetLaunchpadDetailResponseSchema
+>;

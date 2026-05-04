@@ -1,5 +1,5 @@
 import { Search, ChevronDown, Plus } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -8,21 +8,19 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Input } from "./ui/input";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { cn } from "~/lib/utils";
+import type { Location } from "~/services/volunteer/types/location";
 
-const LOCATIONS = [
-  { value: "anywhere", label: "Anywhere" },
-  { value: "phnom-penh", label: "Phnom Penh" },
-  { value: "siem-reap", label: "Siem Reap" },
-  { value: "battambang", label: "Battambang" },
-];
+const ANYWHERE: Location = { id: "anywhere", name: "Anywhere" };
 
 interface HeaderSearchProps {
   postButton?: string;
   inputPlaceholder?: string;
   postUrl?: string;
   buttonWidth?: string;
+  locations?: Location[];
+  searchBaseUrl?: string;
 }
 
 export default function HeaderSearch({
@@ -30,8 +28,36 @@ export default function HeaderSearch({
   postUrl,
   inputPlaceholder,
   buttonWidth,
+  locations = [],
+  searchBaseUrl = "/launchpad/all",
 }: HeaderSearchProps) {
-  const [location, setLocation] = useState(LOCATIONS[0]);
+  const allLocations = [ANYWHERE, ...locations];
+  const [location, setLocation] = useState<Location>(ANYWHERE);
+  const [searchValue, setSearchValue] = useState("");
+  const navigate = useNavigate();
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const buildUrl = (search: string, cityId: string | null) => {
+    const params = new URLSearchParams();
+    if (search.trim()) params.set("search", search.trim());
+    if (cityId && cityId !== "anywhere") params.set("cityId", cityId);
+    const qs = params.toString();
+    return qs ? `${searchBaseUrl}?${qs}` : searchBaseUrl;
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchValue(value);
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(() => {
+      navigate(buildUrl(value, location.id));
+    }, 400);
+  };
+
+  const handleLocationSelect = (loc: Location) => {
+    setLocation(loc);
+    navigate(buildUrl(searchValue, loc.id));
+  };
+
   return (
     <>
       <div className="flex min-h-16.25 flex-1 flex-col rounded-xl border border-[#f3f4f6] bg-white px-2 py-2 sm:px-[11.5px] sm:py-px md:h-16.25 md:flex-row md:items-center md:gap-3.5 items-center">
@@ -39,6 +65,8 @@ export default function HeaderSearch({
           <Search className="size-[17.5px] shrink-0 text-[#99a1af]" />
           <Input
             type="search"
+            value={searchValue}
+            onChange={(e) => handleSearchChange(e.target.value)}
             placeholder={inputPlaceholder || "Search by name or mission...."}
             className="h-10.5 border-0 bg-transparent px-0 py-0 text-sm font-semibold text-[#364153] placeholder:font-semibold placeholder:text-[#99a1af] focus-visible:ring-0 focus-visible:ring-offset-0"
           />
@@ -47,16 +75,19 @@ export default function HeaderSearch({
         <div className="flex w-full justify-start px-2 md:w-auto md:px-0">
           <DropdownMenu>
             <DropdownMenuTrigger className="flex h-8.5 w-full items-center justify-between gap-1.5 rounded-xl px-3.5 text-[13px] font-semibold leading-[19.5px] text-[#364153] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:w-auto md:justify-start">
-              {location.label}
+              {location.name}
               <ChevronDown className="size-3.5 text-[#364153]/65" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {LOCATIONS.map((loc) => (
+            <DropdownMenuContent
+              align="end"
+              className="max-h-64 overflow-y-auto"
+            >
+              {allLocations.map((loc) => (
                 <DropdownMenuItem
-                  key={loc.value}
-                  onSelect={() => setLocation(loc)}
+                  key={loc.id}
+                  onSelect={() => handleLocationSelect(loc)}
                 >
-                  {loc.label}
+                  {loc.name}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>

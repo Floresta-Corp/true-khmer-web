@@ -1,8 +1,9 @@
-import { Link } from "react-router";
+import { useLoaderData } from "react-router";
 import HeaderSearch from "~/components/header-search";
-import { Button } from "~/components/ui/button";
+import type { loader } from "~/features/launchpad/routes/launchpad";
 
 export default function LaunchpadHeaderSection() {
+  const { locations } = useLoaderData<typeof loader>();
   return (
     <section className="flex h-125 flex-col items-center justify-center px-6 md:px-12 lg:px-[131.5px] bg-linear-to-r from-sky-100 to-white">
       <div className="mb-8 text-center">
@@ -21,6 +22,7 @@ export default function LaunchpadHeaderSection() {
             postButton="Post project"
             postUrl="/launchpad/create"
             inputPlaceholder="Search project by name..."
+            locations={locations}
           />
         </div>
       </div>

@@ -1,10 +1,11 @@
 import { CategoryCard } from "~/components/category-card";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 import type { loader } from "~/features/launchpad/routes/launchpad";
 import type { Category } from "~/services/launchpad/types/category";
 
 export function LaunchpadBrowseCategoriesSection() {
   const { categories } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
 
   return (
     <section className="w-full px-6 md:px-12 lg:px-[131.5px] py-8 lg:py-21">
@@ -22,7 +23,10 @@ export function LaunchpadBrowseCategoriesSection() {
             return (
               <div
                 key={category.id}
-                className="shrink-0 snap-start md:min-w-0 md:shrink md:w-full"
+                className="shrink-0 snap-start md:min-w-0 md:shrink md:w-full cursor-pointer"
+                onClick={() =>
+                  navigate(`/launchpad/all?categoryId=${category.id}`)
+                }
               >
                 <CategoryCard
                   icon={category.iconKey}
