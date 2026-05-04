@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from "motion/react";
 import { useLoaderData } from "react-router";
-import { EllipsisVertical, Share2 } from "lucide-react";
+import { EllipsisVertical } from "lucide-react";
 import LaunchpadProjectDetailCard from "../components/card/launchpad-project-detail-card";
 import LaunchpadProjectCoverCard from "../components/card/launchpad-project-cover-card";
 import LaunchpadSeekingCollaborationCard from "../components/card/launchpad-seeking-collaboration-card";
@@ -11,6 +11,8 @@ import IconButton from "~/components/icon-button";
 import { Card } from "~/components/ui/card";
 import type { LaunchpadDetail } from "~/services/launchpad/types/project";
 import LaunchpadJoinProjectCard from "../components/card/launchpad-join-project-card";
+import { ShareLaunchpadDialog } from "../components/dialog/share-launchpad-dialog";
+import { Share2 } from "lucide-react";
 
 export default function LaunchpadProjectDetailPage() {
   const project = useLoaderData<LaunchpadDetail>();
@@ -30,10 +32,14 @@ export default function LaunchpadProjectDetailPage() {
         >
           <BackToButton to="/launchpad" />
           <div className="flex items-center gap-2">
-            <IconButton
-              icon={<Share2 className="size-4" />}
-              ariaLabel="Share project"
-              disabled
+            <ShareLaunchpadDialog
+              projectId={project.id}
+              trigger={
+                <IconButton
+                  icon={<Share2 className="size-4" />}
+                  ariaLabel="Share project"
+                />
+              }
             />
             <IconButton
               icon={<EllipsisVertical className="size-4" />}

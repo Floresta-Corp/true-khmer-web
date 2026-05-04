@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Input } from "./ui/input";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { cn } from "~/lib/utils";
 import type { Location } from "~/services/volunteer/types/location";
 
@@ -35,13 +35,6 @@ export default function HeaderSearch({
   const [location, setLocation] = useState<Location>(ANYWHERE);
   const [searchValue, setSearchValue] = useState("");
   const navigate = useNavigate();
-  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
-    };
-  }, []);
 
   const buildUrl = (search: string, cityId: string | null) => {
     const params = new URLSearchParams();
@@ -51,12 +44,14 @@ export default function HeaderSearch({
     return qs ? `${searchBaseUrl}?${qs}` : searchBaseUrl;
   };
 
-  const handleSearchChange = (value: string) => {
-    setSearchValue(value);
-    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
-    searchTimerRef.current = setTimeout(() => {
-      navigate(buildUrl(value, location.id));
-    }, 400);
+  const handleSearch = () => {
+    navigate(buildUrl(searchValue, location.id));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.code === "NumpadEnter") {
+      handleSearch();
+    }
   };
 
   const handleLocationSelect = (loc: Location) => {
@@ -72,7 +67,8 @@ export default function HeaderSearch({
           <Input
             type="search"
             value={searchValue}
-            onChange={(e) => handleSearchChange(e.target.value)}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder={inputPlaceholder || "Search by name or mission...."}
             className="h-10.5 border-0 bg-transparent px-0 py-0 text-sm font-semibold text-[#364153] placeholder:font-semibold placeholder:text-[#99a1af] focus-visible:ring-0 focus-visible:ring-offset-0"
           />

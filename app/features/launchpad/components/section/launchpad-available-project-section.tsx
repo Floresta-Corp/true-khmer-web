@@ -34,7 +34,7 @@ export function LaunchpadAvailableProjectsSection() {
           </Button>
         </header>
 
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3 gap-x-5 gap-y-6">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3 gap-x-5 gap-y-6 pb-10">
           {displayedProjects.map((item) => (
             <LaunchpadProjectCard
               key={item.id}
@@ -43,15 +43,6 @@ export function LaunchpadAvailableProjectsSection() {
             />
           ))}
         </div>
-      </div>
-      <div className="py-10 text-center">
-        <Button
-          variant="outline"
-          className="text-sm px-6 py-5 rounded-md"
-          onClick={() => navigate("/launchpad/all")}
-        >
-          Load more
-        </Button>
       </div>
     </section>
   );
