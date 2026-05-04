@@ -16,6 +16,7 @@ import {
 import { Button } from "~/components/ui/button";
 import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
 import { Textarea } from "~/components/ui/textarea";
+import ApplicationSubmitSuccessDialog from "./application-submit-success-dialog";
 
 interface VolunteerApplicationDialogProps {
   roles: Role[];
@@ -49,12 +50,13 @@ export default function VolunteerApplicationDialog({
   });
   const [files, setFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data) {
-      const data = fetcher.data as ApplicationResponse;
-      if ("success" in data && data.success === true) {
+      const data = fetcher.data as { ok: boolean; data?: unknown; error?: string };
+      if (data.ok) {
         toast.success("Application submitted successfully");
         setFormData({
           roleId: initialRoleId || roles[0]?.id || "",
@@ -64,8 +66,9 @@ export default function VolunteerApplicationDialog({
         setFiles([]);
         setErrors({});
         setOpen(false);
-      } else if ("details" in data && data.details?.error) {
-        toast.error(data.details.error);
+        setSuccessDialogOpen(true);
+      } else if (data.error) {
+        toast.error(data.error);
       }
     }
   }, [fetcher.state, fetcher.data, initialRoleId, roles]);
@@ -333,6 +336,11 @@ export default function VolunteerApplicationDialog({
           </Button>
         </div>
       </DialogContent>
+
+      <ApplicationSubmitSuccessDialog
+        open={successDialogOpen}
+        onOpenChange={setSuccessDialogOpen}
+      />
     </Dialog>
   );
 }

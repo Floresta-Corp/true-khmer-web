@@ -62,10 +62,12 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                   key={link.to}
                   to={link.to}
                   className={cn(
-                    "relative flex items-center gap-1.5 text-sm text-[#344256] transition-colors",
+                    "relative flex items-center gap-1.5 text-sm text-[#344256] transition-all",
                     link.to === "/workspace" &&
                       "border-r border-[#c8d6e5] pr-6 mr-1",
-                    isActive ? "text-[#0f172a]" : "hover:text-[#0f172a]",
+                    isActive
+                      ? "text-blue-600 font-semibold"
+                      : "hover:text-blue-600 hover:font-semibold",
                   )}
                 >
                   <link.icon className="h-4 w-4" />

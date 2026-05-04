@@ -64,7 +64,10 @@ export type Answer = z.infer<typeof AnswerSchema>;
 
 export const GetAnswersResponseSchema = z.object({
   ok: z.boolean(),
-  answers: z.array(AnswerSchema),
+  answers: z.object({
+    bestAnswer: z.array(AnswerSchema),
+    answers: z.array(AnswerSchema),
+  }),
 });
 export type GetAnswersResponse = z.infer<typeof GetAnswersResponseSchema>;
 

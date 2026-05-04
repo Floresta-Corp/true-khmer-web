@@ -6,7 +6,7 @@ import type {
 } from "~/services/forum/forum-types";
 import LoadMore from "../load-more";
 import QuestionCardSkeleton from "../card/question-card-skeleton";
-import QuestionCard from "../card/question-card";
+import QuestionCard from "../card/old-question-card";
 import { useLoaderData } from "react-router";
 import type { loader } from "../../routes/forum";
 import MyActivityAnswerList from "./my-activity-answer-list";

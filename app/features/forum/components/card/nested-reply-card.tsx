@@ -1,4 +1,4 @@
-import { CircleAlert, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import AnswerVoteComponent from "../answer-vote-component";
 import { Button } from "~/components/ui/button";
@@ -7,6 +7,12 @@ import type { Answer } from "~/services/forum/forum-types";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import AddAnswerDialog from "../dialog/add-answer-dialog";
 import DeleteAnswerDialog from "../dialog/delete-answer-dialog";
+import { useState } from "react";
+import SlideToLeftHoverAnimation from "~/components/slide-to-left-hover-animation";
+import ForumReportDialog, {
+  ReportDialogType,
+  type ReportReasonData,
+} from "../dialog/forum-report-dialog";
 
 type RepliedAnswer = NonNullable<Answer["repliedAnswers"]>[number];
 
@@ -14,15 +20,20 @@ interface NestedReplyCardProps {
   repliedAnswer: RepliedAnswer;
   questionId?: string;
   isCurrentAuthor?: boolean;
+  isAuthenticated?: boolean;
+  reportReasons: ReportReasonData[];
 }
 
 export default function NestedReplyCard({
   repliedAnswer,
   questionId,
-  isCurrentAuthor = false,
+  isAuthenticated = false,
+  isCurrentAuthor,
+  reportReasons,
 }: NestedReplyCardProps) {
   const formattedDate = formatMinutesOrHoursAgo(repliedAnswer.createdAt);
   const imageUrl = resolveImageURL(repliedAnswer.author.avatarKey);
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <motion.article
@@ -30,6 +41,8 @@ export default function NestedReplyCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 6 }}
       transition={{ duration: 0.18, ease: "easeOut" }}
+      onMouseOver={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       className="w-full rounded-xl bg-[#fffefe] border border-slate-200 px-5 py-5 shadow-[0px_1px_2px_rgba(15,23,42,0.04)]"
     >
       <div className="flex w-full items-start justify-between gap-3">
@@ -54,7 +67,7 @@ export default function NestedReplyCard({
 
         <div className="flex items-center gap-2">
           {isCurrentAuthor ? (
-            <div className="flex items-center gap-1.5">
+            <SlideToLeftHoverAnimation isHovered={isHovered}>
               <AddAnswerDialog
                 questionId={questionId}
                 isEditing
@@ -85,7 +98,7 @@ export default function NestedReplyCard({
                   </Button>
                 }
               />
-            </div>
+            </SlideToLeftHoverAnimation>
           ) : null}
         </div>
       </div>
@@ -95,24 +108,22 @@ export default function NestedReplyCard({
       </p>
 
       <div className="mt-4 flex items-center justify-between pt-[1.2px]">
-        <div className="rounded-xl border border-[#f3f4f6] bg-[#f9fafb] p-px">
-          <AnswerVoteComponent
-            answerId={repliedAnswer.id}
-            score={repliedAnswer.score}
-            viewerVote={repliedAnswer.viewerVote}
-            className="w-auto flex-row items-center gap-0 pt-0"
-          />
-        </div>
+        <AnswerVoteComponent
+          answerId={repliedAnswer.id}
+          score={repliedAnswer.score}
+          viewerVote={repliedAnswer.viewerVote}
+          className="w-auto flex-row items-center gap-0 pt-0"
+        />
 
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="h-5 w-5 rounded-sm p-0 text-[#99a1af] hover:bg-transparent hover:text-[#4a5565]"
-          aria-label="Reply information"
-        >
-          <CircleAlert className="h-3.5 w-3.5" />
-        </Button>
+        {!isCurrentAuthor && (
+          <ForumReportDialog
+            title={repliedAnswer.body}
+            id={repliedAnswer.id}
+            type={ReportDialogType.ANSWER}
+            reportReasons={reportReasons}
+            isAuthenticated={isAuthenticated}
+          />
+        )}
       </div>
     </motion.article>
   );

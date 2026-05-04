@@ -115,7 +115,10 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
             asChild
             className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
           >
-            <Link to="/applications" className="flex gap-3 items-center w-full">
+            <Link
+              to="/my-applications"
+              className="flex gap-3 items-center w-full"
+            >
               <FileUser className="size-4 shrink-0" />
               <span>My applications</span>
             </Link>

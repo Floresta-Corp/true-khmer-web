@@ -5,7 +5,7 @@ import type {
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import SearchFiltersSidebar from "./search-filters-sidebar";
-import DiscussionCard from "../card/discussion-card";
+import QuestionCard from "../card/question-card";
 import EmptySearchResultCard from "../card/empty-search-result-card";
 import { useLoaderData } from "react-router";
 import type { loader } from "../../routes/forum.search";
@@ -94,7 +94,7 @@ export default function ForumSearchResultsSection({
             : data.questions.length === 0
               ? search && <EmptySearchResultCard />
               : data.questions.map((question, index) => (
-                  <DiscussionCard
+                  <QuestionCard
                     key={question.id}
                     userId={userId ?? undefined}
                     question={question}

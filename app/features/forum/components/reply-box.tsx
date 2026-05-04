@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useFetcher } from "react-router";
+import { useFetcher, useRevalidator } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import { Spinner } from "~/components/ui/spinner";
@@ -44,6 +44,7 @@ export default function ReplyBox({
   if (!question) return null;
 
   const fetcher = useFetcher();
+  const revalidator = useRevalidator();
   const wasSubmitting = useRef(false);
   const [body, setBody] = useState("");
   const isSubmitting = fetcher.state !== "idle";
@@ -68,6 +69,7 @@ export default function ReplyBox({
 
       if (isSuccess) {
         setBody("");
+        revalidator.revalidate();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

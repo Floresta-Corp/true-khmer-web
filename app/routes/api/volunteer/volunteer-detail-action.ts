@@ -8,7 +8,11 @@ import {
   type ApplyApplicationInput,
 } from "~/services/volunteer/types";
 import type { Route as VolunteerDetailRoute } from "project-types/volunteer/routes/+types/volunteer.$id";
-import { ProtectedApiError } from "~/lib/server/api-client.server";
+import {
+  transformActionResponse,
+  successActionResponse,
+  errorActionResponse,
+} from "~/lib/server/action-response.server";
 
 export async function VolunteerDetailAction({
   request,
@@ -66,30 +70,19 @@ export async function VolunteerDetailAction({
             supportingDocumentKeys,
           });
 
-          return await ApplyApplication(request, applyInput);
+          try {
+            const result = await ApplyApplication(request, applyInput);
+            return transformActionResponse(result);
+          } catch (applyError) {
+            return transformActionResponse(applyError);
+          }
         }
       } catch (error) {
-        if (error instanceof ProtectedApiError) {
-          return {
-            success: false,
-            status: error.status,
-            code: error.code,
-            details: error.details,
-          };
-        }
-        return { error: `Failed to apply Application: ${error}` };
+        return transformActionResponse(error);
       }
     } catch (error) {
-      if (error instanceof ProtectedApiError) {
-        return {
-          success: false,
-          status: error.status,
-          code: error.code,
-          details: error.details,
-        };
-      }
-      return { error: `Failed to apply Application: ${error}` };
+      return transformActionResponse(error);
     }
   }
-  return { error: "Invalid action type" };
+  return errorActionResponse("Invalid action type");
 }

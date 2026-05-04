@@ -77,7 +77,7 @@ export async function forumListloader({ request }: ForumRoute.LoaderArgs) {
 
   if (rawSortBy === "myActivity" && userId) {
     const queryAnswer = await getMyAnswers(request);
-    answers = queryAnswer?.data?.answers || [];
+    answers = queryAnswer?.data?.answers.answers || [];
   }
 
   return {

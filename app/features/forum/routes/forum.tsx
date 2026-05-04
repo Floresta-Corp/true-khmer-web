@@ -16,6 +16,7 @@ import { forumListAction } from "~/routes/api/forum/forum-action";
 import { questionSortBySchema } from "~/services/forum/forum-types";
 
 const LIMIT = 10;
+
 export const loader = forumListloader;
 export const action = forumListAction;
 

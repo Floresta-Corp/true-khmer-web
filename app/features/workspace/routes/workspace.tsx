@@ -1,3 +1,3 @@
 export default function WorkspacePage() {
-  return <>Test</>;
+  return <>Testing Workspace Layout</>;
 }
