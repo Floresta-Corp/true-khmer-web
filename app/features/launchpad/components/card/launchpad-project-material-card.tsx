@@ -1,16 +1,35 @@
-import { Paperclip, Plus, Trash } from "lucide-react";
+import { Paperclip, Plus } from "lucide-react";
+import { useId } from "react";
 import { Button } from "~/components/ui/button";
-import { Card } from "~/components/ui/card";
 import LaunchpadMaterialComponent from "../launchpad-material-component";
 import SectionInputCard from "~/components/section-input-card";
 
 interface LaunchpadProjectMaterialCardProps {
-  file: { name: string }[];
+  files: File[];
+  error?: string;
+  onChange: (files: File[]) => void;
 }
 
 export default function LaunchpadProjectMaterialCard({
-  file,
+  files,
+  error,
+  onChange,
 }: LaunchpadProjectMaterialCardProps) {
+  const inputId = useId();
+
+  const handleAddFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const incoming = Array.from(event.target.files ?? []);
+    if (incoming.length === 0) return;
+
+    const nextFiles = [...files, ...incoming].slice(0, 5);
+    onChange(nextFiles);
+    event.currentTarget.value = "";
+  };
+
+  const handleRemoveFile = (index: number) => {
+    onChange(files.filter((_, itemIndex) => itemIndex !== index));
+  };
+
   return (
     <SectionInputCard
       header={{
@@ -18,19 +37,39 @@ export default function LaunchpadProjectMaterialCard({
         icon: <Paperclip size={17.5} className="text-blue-500" />,
         required: true,
         action: (
-          <Button
-            variant="outline"
-            className="cursor-pointer h-10 bg-gray-100 hover:bg-gray-200 border-none"
-          >
-            <Plus /> Add file
-          </Button>
+          <>
+            <label htmlFor={inputId}>
+              <Button
+                type="button"
+                variant="outline"
+                className="cursor-pointer h-10 bg-gray-100 hover:bg-gray-200 border-none"
+                asChild
+              >
+                <span>
+                  <Plus /> Add file
+                </span>
+              </Button>
+            </label>
+            <input
+              id={inputId}
+              type="file"
+              multiple
+              className="sr-only"
+              onChange={handleAddFile}
+            />
+          </>
         ),
       }}
       hideSeparator
     >
-      {file?.map((v) => (
-        <LaunchpadMaterialComponent key={v.name} data={v} />
+      {files?.map((file, index) => (
+        <LaunchpadMaterialComponent
+          key={`${file.name}-${index}`}
+          data={{ name: file.name }}
+          onRemove={() => handleRemoveFile(index)}
+        />
       ))}
+      {error ? <p className="text-xs text-red-500">{error}</p> : null}
     </SectionInputCard>
   );
 }

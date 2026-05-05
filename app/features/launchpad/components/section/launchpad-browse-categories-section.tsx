@@ -29,9 +29,11 @@ export function LaunchpadBrowseCategoriesSection() {
                 }
               >
                 <CategoryCard
-                  icon={category.iconKey}
-                  title={category.name}
-                  roleCount={category.roleCount}
+                  category={{
+                    ...category,
+                    displayOrder: category.roleCount,
+                    updatedBy: category.updatedBy ?? undefined,
+                  }}
                 />
               </div>
             );

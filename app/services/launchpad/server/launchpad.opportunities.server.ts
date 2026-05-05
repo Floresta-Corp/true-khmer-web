@@ -1,5 +1,6 @@
 import {
   apiRequestWithOptionalSession,
+  apiRequestWithSession,
   ProtectedApiError,
 } from "~/lib/server/api-client.server";
 import type {
@@ -8,6 +9,16 @@ import type {
   LaunchpadOpportunity,
   LaunchpadDetail,
 } from "../types/project";
+import {
+  LaunchpadCreateInputSchema,
+  LaunchpadPresignInputSchema,
+  type LaunchpadCoverPresignResponse,
+  type LaunchpadCreateInput,
+  type LaunchpadCreateResponse,
+  type LaunchpadDocumentPresignResponse,
+  type LaunchpadLogoPresignResponse,
+  type LaunchpadPresignInput,
+} from "../types/create";
 
 export async function GetLaunchpadProjects(
   request?: Request,
@@ -94,4 +105,61 @@ export async function GetLaunchpadDetail(
     }
     throw error;
   }
+}
+
+export async function createLaunchpad(
+  request: Request,
+  input: LaunchpadCreateInput,
+) {
+  const body = LaunchpadCreateInputSchema.parse(input);
+  return apiRequestWithSession<LaunchpadCreateResponse, LaunchpadCreateInput>(
+    request,
+    "/launchpad",
+    {
+      method: "POST",
+      body,
+    },
+  );
+}
+
+export async function uploadLaunchpadLogoPresign(
+  request: Request,
+  input: LaunchpadPresignInput,
+) {
+  const body = LaunchpadPresignInputSchema.parse(input);
+  return apiRequestWithSession<
+    LaunchpadLogoPresignResponse,
+    LaunchpadPresignInput
+  >(request, "/launchpad/logo/presign", {
+    method: "POST",
+    body,
+  });
+}
+
+export async function uploadLaunchpadCoverPresign(
+  request: Request,
+  input: LaunchpadPresignInput,
+) {
+  const body = LaunchpadPresignInputSchema.parse(input);
+  return apiRequestWithSession<
+    LaunchpadCoverPresignResponse,
+    LaunchpadPresignInput
+  >(request, "/launchpad/cover/presign", {
+    method: "POST",
+    body,
+  });
+}
+
+export async function uploadLaunchpadDocumentPresign(
+  request: Request,
+  input: LaunchpadPresignInput,
+) {
+  const body = LaunchpadPresignInputSchema.parse(input);
+  return apiRequestWithSession<
+    LaunchpadDocumentPresignResponse,
+    LaunchpadPresignInput
+  >(request, "/launchpad/document/presign", {
+    method: "POST",
+    body,
+  });
 }

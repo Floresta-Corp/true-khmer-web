@@ -1,44 +1,77 @@
-import { Mail, UserCheck } from "lucide-react";
+import { Mail } from "lucide-react";
+import FieldLabel from "~/components/field-label";
 import SectionInputCard from "~/components/section-input-card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import UserProfileContactTab from "../user-profile-contact-tab";
-import DifferentContactTab from "../different-contact-tab";
-import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 
-export default function LaunchpadContactDetailCard() {
+interface LaunchpadContactDetailCardProps {
+  email: string;
+  phoneNumber: string;
+  telegramUsername: string;
+  emailError?: string;
+  phoneNumberError?: string;
+  onEmailChange: (value: string) => void;
+  onPhoneNumberChange: (value: string) => void;
+  onTelegramUsernameChange: (value: string) => void;
+}
+
+export default function LaunchpadContactDetailCard({
+  email,
+  phoneNumber,
+  telegramUsername,
+  emailError,
+  phoneNumberError,
+  onEmailChange,
+  onPhoneNumberChange,
+  onTelegramUsernameChange,
+}: LaunchpadContactDetailCardProps) {
   return (
-    <Tabs defaultValue="user-profile" asChild className="w-full transition-all">
-      <SectionInputCard
-        header={{
-          title: "Contact Details",
-          icon: <Mail size={24} className="text-blue-500" />,
-          required: true,
-          action: (
-            <TabsList className="border border-[#F1F5F9] bg-[#F8FAFC] font-bold p-[4.3px] rounded-lg gap-1">
-              <TabsTrigger
-                value={"user-profile"}
-                className="data-[state=active]:text-blue-500 px-3.75 py-2 rounded-lg"
-              >
-                <UserCheck />
-                User Profile
-              </TabsTrigger>
-              <TabsTrigger
-                value={"different-contact"}
-                className="data-[state=active]:text-blue-500 px-3.75 py-2 rounded-lg"
-              >
-                Different Contact
-              </TabsTrigger>
-            </TabsList>
-          ),
-        }}
-      >
-        <TabsContent value="user-profile">
-          <UserProfileContactTab />
-        </TabsContent>
-        {/* <TabsContent value={"different-contact"}>
-          <DifferentContactTab />
-        </TabsContent> */}
-      </SectionInputCard>
-    </Tabs>
+    <SectionInputCard
+      header={{
+        title: "Contact Details",
+        icon: <Mail size={24} className="text-blue-500" />,
+        required: true,
+      }}
+    >
+      <div className="grid gap-5 md:grid-cols-2">
+        <div className="space-y-2">
+          <FieldLabel>Email address</FieldLabel>
+          <Input
+            type="email"
+            value={email}
+            onChange={(event) => onEmailChange(event.target.value)}
+            placeholder="you@example.com"
+            aria-invalid={Boolean(emailError)}
+            className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
+          />
+          {emailError ? (
+            <p className="text-xs text-red-500">{emailError}</p>
+          ) : null}
+        </div>
+
+        <div className="space-y-2">
+          <FieldLabel>Phone number</FieldLabel>
+          <Input
+            value={phoneNumber}
+            onChange={(event) => onPhoneNumberChange(event.target.value)}
+            placeholder="+855 xx xxx xxx"
+            aria-invalid={Boolean(phoneNumberError)}
+            className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
+          />
+          {phoneNumberError ? (
+            <p className="text-xs text-red-500">{phoneNumberError}</p>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <FieldLabel>Telegram username (optional)</FieldLabel>
+        <Input
+          value={telegramUsername}
+          onChange={(event) => onTelegramUsernameChange(event.target.value)}
+          placeholder="@username"
+          className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
+        />
+      </div>
+    </SectionInputCard>
   );
 }

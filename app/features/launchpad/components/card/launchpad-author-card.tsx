@@ -8,6 +8,16 @@ interface LaunchpadAuthorCardProps {
   project: LaunchpadDetail;
 }
 
+function formatPostedProjectCount(count: number): string {
+  if (count > 1000) return "1000+";
+  if (count > 500) return "500+";
+  if (count > 200) return "200+";
+  if (count > 100) return "100+";
+  if (count > 50) return "50+";
+  if (count > 10) return "10+";
+  return "1+";
+}
+
 export default function LaunchpadAuthorCard({
   project,
 }: LaunchpadAuthorCardProps) {
@@ -15,7 +25,7 @@ export default function LaunchpadAuthorCard({
   const profileImage = resolveImageURL(
     project.createdBy.avatarKey || undefined,
   );
-  const postedProjects = `${project.createdBy.launchpadCount}+ projects posted`;
+  const postedProjects = `${formatPostedProjectCount(project.createdBy.launchpadCount)} projects posted`;
   const telegramUrl = project.telegramUsername
     ? `https://t.me/${project.telegramUsername.replace("@", "")}`
     : undefined;
