@@ -125,6 +125,27 @@ export default function LaunchpadPostPage() {
   };
 
   const onPublishedClicked = () => {
+    // Re-validate detail fields in case the user navigated directly to the Role step.
+    const detailValidationErrors: DetailErrors = {};
+    if (!store.name.trim())
+      detailValidationErrors.name = "Project name is required.";
+    if (!store.categoryId.trim())
+      detailValidationErrors.categoryId = "Category is required.";
+    if (!store.cityId.trim())
+      detailValidationErrors.cityId = "City is required.";
+    if (!store.deadline.trim())
+      detailValidationErrors.deadline = "Deadline is required.";
+    if (!store.logoFile)
+      detailValidationErrors.logoFile = "Project logo is required.";
+    if (!store.coverFile)
+      detailValidationErrors.coverFile = "Project cover is required.";
+
+    if (Object.keys(detailValidationErrors).length > 0) {
+      setDetailErrors(detailValidationErrors);
+      setState(State.DETAIL);
+      return;
+    }
+
     const errors: RoleErrors = {};
 
     if (store.roles.length === 0) {

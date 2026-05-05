@@ -20,6 +20,7 @@ type SelectOptionProps = {
   triggerClassName?: string;
   className?: string;
   ariaInvalid?: boolean;
+  ariaDescribedBy?: string;
   id?: string;
 };
 
@@ -35,6 +36,7 @@ export function SelectOption({
   searchable = false,
   allowClear = false,
   ariaInvalid = false,
+  ariaDescribedBy,
   id = "location",
 }: SelectOptionProps) {
   const options: SingleSelectOption[] = data.map((option) => ({
@@ -56,6 +58,7 @@ export function SelectOption({
       searchable={searchable}
       allowClear={allowClear}
       ariaInvalid={ariaInvalid}
+      ariaDescribedBy={ariaDescribedBy}
       emptyText="No locations found"
     />
   );

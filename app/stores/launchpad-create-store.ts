@@ -244,16 +244,35 @@ export const useLaunchpadCreateStore = create<LaunchpadCreateStore>()(
       storage: {
         getItem: (name) => {
           if (typeof window === "undefined") return null;
-          const item = localStorage.getItem(name);
-          return item ? JSON.parse(item) : null;
+          try {
+            const item = localStorage.getItem(name);
+            return item ? JSON.parse(item) : null;
+          } catch (error) {
+            console.error(
+              `Failed to parse persisted state for "${name}"`,
+              error,
+            );
+            return null;
+          }
         },
         setItem: (name, value) => {
           if (typeof window === "undefined") return;
-          localStorage.setItem(name, JSON.stringify(value));
+          try {
+            localStorage.setItem(name, JSON.stringify(value));
+          } catch (error) {
+            console.error(`Failed to persist state for "${name}"`, error);
+          }
         },
         removeItem: (name) => {
           if (typeof window === "undefined") return;
-          localStorage.removeItem(name);
+          try {
+            localStorage.removeItem(name);
+          } catch (error) {
+            console.error(
+              `Failed to remove persisted state for "${name}"`,
+              error,
+            );
+          }
         },
       },
       partialize: (state) =>

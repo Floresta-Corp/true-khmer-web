@@ -241,10 +241,10 @@ export async function launchpadCreateAction({ request }: ActionFunctionArgs) {
     const coverPresign = resolvePresignedUpload(coverRes.data);
 
     if (!logoPresign || !coverPresign) {
-      console.error("[PRESIGN SHAPE ERROR]", {
-        logoPayload: logoRes.data,
-        coverPayload: coverRes.data,
-      });
+      console.error(
+        "[PRESIGN SHAPE ERROR] Could not resolve presigned upload from API response.",
+        { logoResolved: !!logoPresign, coverResolved: !!coverPresign },
+      );
       return { error: "Unable to get logo/cover upload payload" };
     }
 
@@ -253,18 +253,8 @@ export async function launchpadCreateAction({ request }: ActionFunctionArgs) {
 
     if (!logoKey || !coverKey) {
       console.error(
-        "[KEY ERROR] logoKey:",
-        logoKey,
-        "coverKey:",
-        coverKey,
-        "logoPresign:",
-        logoPresign,
-        "coverPresign:",
-        coverPresign,
-        "logoPayload:",
-        logoRes.data,
-        "coverPayload:",
-        coverRes.data,
+        "[KEY ERROR] Could not extract storage key from presign response.",
+        { logoKeyFound: !!logoKey, coverKeyFound: !!coverKey },
       );
       return { error: "Unable to get logo/cover upload key" };
     }
@@ -284,9 +274,9 @@ export async function launchpadCreateAction({ request }: ActionFunctionArgs) {
 
       const documentPresign = resolvePresignedUpload(documentRes.data);
       if (!documentPresign) {
-        console.error("[DOC PRESIGN SHAPE ERROR]", {
-          documentPayload: documentRes.data,
-        });
+        console.error(
+          "[DOC PRESIGN SHAPE ERROR] Could not resolve presigned upload from document API response.",
+        );
         return { error: "Unable to get a material document upload payload" };
       }
 
@@ -294,10 +284,7 @@ export async function launchpadCreateAction({ request }: ActionFunctionArgs) {
         getUploadKey(documentPresign) ?? getUploadKey(documentRes.data);
       if (!documentKey) {
         console.error(
-          "[DOC KEY ERROR] documentKey:",
-          documentKey,
-          "documentPresign:",
-          documentPresign,
+          "[DOC KEY ERROR] Could not extract storage key from document presign response.",
         );
         return { error: "Unable to get a material document upload key" };
       }
@@ -328,11 +315,6 @@ export async function launchpadCreateAction({ request }: ActionFunctionArgs) {
     };
   } catch (error) {
     console.error("Failed to create launchpad:", error);
-    return {
-      error:
-        error instanceof Error
-          ? `Failed to create launchpad: ${error.message}`
-          : "Failed to create launchpad",
-    };
+    return { error: "Failed to create launchpad. Please try again." };
   }
 }

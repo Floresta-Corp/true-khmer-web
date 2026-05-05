@@ -20,6 +20,7 @@ export default function LaunchpadMaterialComponent({
         className="cursor-pointer border-none bg-transparent"
         type="button"
         onClick={onRemove}
+        aria-label={`Remove file ${data.name}`}
       >
         <Trash size={14} className="text-destructive" />
       </Button>

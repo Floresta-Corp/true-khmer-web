@@ -1,4 +1,5 @@
 import { Plus, Users2 } from "lucide-react";
+import { useId } from "react";
 import { Separator } from "~/components/ui/separator";
 import { Card } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -27,6 +28,8 @@ export default function LaunchpadOpenRoleCard({
   onDescriptionChange,
   onAddRole,
 }: LaunchpadOpenRoleCardProps) {
+  const roleErrorId = useId();
+
   return (
     <Card className="p-6 space-y-5">
       <div className="flex items-center gap-3">
@@ -53,9 +56,10 @@ export default function LaunchpadOpenRoleCard({
             min={1}
             max={1000}
             value={capacity}
-            onChange={(event) =>
-              onCapacityChange(Number.parseInt(event.target.value || "1", 10))
-            }
+            onChange={(event) => {
+              const nextValue = Number.parseInt(event.target.value, 10);
+              onCapacityChange(Number.isFinite(nextValue) ? nextValue : 1);
+            }}
             placeholder="1"
             className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
           />
@@ -72,11 +76,16 @@ export default function LaunchpadOpenRoleCard({
         <Button
           type="button"
           onClick={onAddRole}
+          aria-describedby={roleError ? roleErrorId : undefined}
           className="cursor-pointer col-span-2 h-10 bg-blue-500 hover:bg-blue-600"
         >
           <Plus /> Add role
         </Button>
-        {roleError ? <p className="text-xs text-red-500">{roleError}</p> : null}
+        {roleError ? (
+          <p id={roleErrorId} className="text-xs text-red-500">
+            {roleError}
+          </p>
+        ) : null}
       </div>
     </Card>
   );

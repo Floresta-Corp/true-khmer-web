@@ -9,21 +9,31 @@ const LaunchpadRoleInputSchema = z.object({
   description: z.string().nullable().optional(),
 });
 
-export const LaunchpadCreateInputSchema = z.object({
-  categoryId: z.string().regex(UUID_PATTERN),
-  cityId: z.string().regex(UUID_PATTERN),
-  coverKey: z.string().min(1).max(255),
-  deadline: z.string().datetime({ offset: true }),
-  email: z.string().email().max(255),
-  logoKey: z.string().min(1).max(255),
-  materialDocumentKey: z.array(z.string().min(1)).min(1).max(5),
-  materialDocumentName: z.array(z.string().min(1)).min(1).max(5),
-  name: z.string().min(1).max(120),
-  phoneNumber: z.string().min(1),
-  role: z.array(LaunchpadRoleInputSchema).min(1),
-  description: z.string().nullable().optional(),
-  telegramUsername: z.string().nullable().optional(),
-});
+export const LaunchpadCreateInputSchema = z
+  .object({
+    categoryId: z.string().regex(UUID_PATTERN),
+    cityId: z.string().regex(UUID_PATTERN),
+    coverKey: z.string().min(1).max(255),
+    deadline: z.string().datetime({ offset: true }),
+    email: z.string().email().max(255),
+    logoKey: z.string().min(1).max(255),
+    materialDocumentKey: z.array(z.string().min(1)).min(1).max(5),
+    materialDocumentName: z.array(z.string().min(1)).min(1).max(5),
+    name: z.string().min(1).max(120),
+    phoneNumber: z.string().min(1),
+    role: z.array(LaunchpadRoleInputSchema).min(1),
+    description: z.string().nullable().optional(),
+    telegramUsername: z.string().nullable().optional(),
+  })
+  .refine(
+    (data) =>
+      data.materialDocumentKey.length === data.materialDocumentName.length,
+    {
+      message:
+        "materialDocumentKey and materialDocumentName must have the same number of entries.",
+      path: ["materialDocumentName"],
+    },
+  );
 
 export type LaunchpadCreateInput = z.infer<typeof LaunchpadCreateInputSchema>;
 

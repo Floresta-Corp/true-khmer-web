@@ -1,4 +1,4 @@
-import { useId, useMemo } from "react";
+import { useEffect, useId, useState } from "react";
 import { Input } from "~/components/ui/input";
 import { Calendar } from "lucide-react";
 
@@ -66,27 +66,61 @@ export default function LaunchpadProjectDetailInputCard({
   onLogoChange,
   onCoverChange,
 }: LaunchpadProjectDetailInputCardProps) {
+  const projectNameErrorId = useId();
+  const categoryErrorId = useId();
+  const cityErrorId = useId();
+  const deadlineErrorId = useId();
   const projectLogoInputId = useId();
   const projectCoverInputId = useId();
-  const projectLogoPreview = useMemo(
-    () => (logoFile ? URL.createObjectURL(logoFile) : PROJECT_LOGO_PLACEHOLDER),
-    [logoFile],
+  const logoErrorId = useId();
+  const coverErrorId = useId();
+  const [projectLogoPreview, setProjectLogoPreview] = useState(
+    PROJECT_LOGO_PLACEHOLDER,
   );
-  const projectCoverPreview = useMemo(
-    () => (coverFile ? URL.createObjectURL(coverFile) : undefined),
-    [coverFile],
-  );
+  const [projectCoverPreview, setProjectCoverPreview] = useState<
+    string | undefined
+  >(undefined);
+
+  useEffect(() => {
+    if (!logoFile) {
+      setProjectLogoPreview(PROJECT_LOGO_PLACEHOLDER);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(logoFile);
+    setProjectLogoPreview(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [logoFile]);
+
+  useEffect(() => {
+    if (!coverFile) {
+      setProjectCoverPreview(undefined);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(coverFile);
+    setProjectCoverPreview(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [coverFile]);
 
   const handleProjectLogoChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.currentTarget.files?.[0];
     onLogoChange(file ?? null);
+    event.currentTarget.value = "";
   };
 
   const handleCoverChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.currentTarget.files?.[0];
     onCoverChange(file ?? null);
+    event.currentTarget.value = "";
   };
 
   return (
@@ -103,11 +137,14 @@ export default function LaunchpadProjectDetailInputCard({
           value={name}
           onChange={(event) => onNameChange(event.target.value)}
           aria-invalid={Boolean(errors?.name)}
+          aria-describedby={errors?.name ? projectNameErrorId : undefined}
           placeholder="e.g., Digital Literacy for Artisans"
           className="h-12.5 rounded-xl px-4 border-none bg-[#F8FAFC]"
         />
         {errors?.name ? (
-          <p className="text-xs text-red-500">{errors.name}</p>
+          <p id={projectNameErrorId} className="text-xs text-red-500">
+            {errors.name}
+          </p>
         ) : null}
       </div>
       <div className="grid gap-5 md:grid-cols-2">
@@ -119,11 +156,14 @@ export default function LaunchpadProjectDetailInputCard({
             defaultValue={categoryId}
             onChange={onCategoryChange}
             ariaInvalid={Boolean(errors?.categoryId)}
+            ariaDescribedBy={errors?.categoryId ? categoryErrorId : undefined}
             placeholder="e.g., Education"
             triggerClassName="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
           />
           {errors?.categoryId ? (
-            <p className="text-xs text-red-500">{errors.categoryId}</p>
+            <p id={categoryErrorId} className="text-xs text-red-500">
+              {errors.categoryId}
+            </p>
           ) : null}
         </div>
         <div className="space-y-3">
@@ -134,11 +174,14 @@ export default function LaunchpadProjectDetailInputCard({
             defaultValue={cityId}
             onChange={onCityChange}
             ariaInvalid={Boolean(errors?.cityId)}
+            ariaDescribedBy={errors?.cityId ? cityErrorId : undefined}
             placeholder="e.g., Phnom Penh"
             triggerClassName="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
           />
           {errors?.cityId ? (
-            <p className="text-xs text-red-500">{errors.cityId}</p>
+            <p id={cityErrorId} className="text-xs text-red-500">
+              {errors.cityId}
+            </p>
           ) : null}
         </div>
       </div>
@@ -150,6 +193,7 @@ export default function LaunchpadProjectDetailInputCard({
             type="datetime-local"
             value={toDateTimeLocal(deadline)}
             aria-invalid={Boolean(errors?.deadline)}
+            aria-describedby={errors?.deadline ? deadlineErrorId : undefined}
             onChange={(event) => {
               const value = event.target.value;
               onDeadlineChange(value ? new Date(value).toISOString() : "");
@@ -160,7 +204,9 @@ export default function LaunchpadProjectDetailInputCard({
           </InputGroupAddon>
         </InputGroup>
         {errors?.deadline ? (
-          <p className="text-xs text-red-500">{errors.deadline}</p>
+          <p id={deadlineErrorId} className="text-xs text-red-500">
+            {errors.deadline}
+          </p>
         ) : null}
       </div>
       <div className="space-y-3">
@@ -185,11 +231,15 @@ export default function LaunchpadProjectDetailInputCard({
             type="file"
             accept="image/*"
             className="sr-only"
+            aria-invalid={Boolean(errors?.logoFile)}
+            aria-describedby={errors?.logoFile ? logoErrorId : undefined}
             onChange={handleProjectLogoChange}
           />
         </div>
         {errors?.logoFile ? (
-          <p className="text-xs text-red-500">{errors.logoFile}</p>
+          <p id={logoErrorId} className="text-xs text-red-500">
+            {errors.logoFile}
+          </p>
         ) : null}
       </div>
       <div className="space-y-3">
@@ -224,11 +274,15 @@ export default function LaunchpadProjectDetailInputCard({
             type="file"
             accept="image/*"
             className="sr-only"
+            aria-invalid={Boolean(errors?.coverFile)}
+            aria-describedby={errors?.coverFile ? coverErrorId : undefined}
             onChange={handleCoverChange}
           />
         </div>
         {errors?.coverFile ? (
-          <p className="text-xs text-red-500">{errors.coverFile}</p>
+          <p id={coverErrorId} className="text-xs text-red-500">
+            {errors.coverFile}
+          </p>
         ) : null}
 
         {/* <Input

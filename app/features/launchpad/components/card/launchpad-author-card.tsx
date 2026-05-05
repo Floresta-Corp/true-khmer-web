@@ -9,12 +9,12 @@ interface LaunchpadAuthorCardProps {
 }
 
 function formatPostedProjectCount(count: number): string {
-  if (count > 1000) return "1000+";
-  if (count > 500) return "500+";
-  if (count > 200) return "200+";
-  if (count > 100) return "100+";
-  if (count > 50) return "50+";
-  if (count > 10) return "10+";
+  if (count >= 1000) return "1000+";
+  if (count >= 500) return "500+";
+  if (count >= 200) return "200+";
+  if (count >= 100) return "100+";
+  if (count >= 50) return "50+";
+  if (count >= 10) return "10+";
   return "1+";
 }
 

@@ -16,6 +16,7 @@ export default function LaunchpadProjectMaterialCard({
   onChange,
 }: LaunchpadProjectMaterialCardProps) {
   const inputId = useId();
+  const errorId = useId();
 
   const handleAddFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const incoming = Array.from(event.target.files ?? []);
@@ -55,6 +56,8 @@ export default function LaunchpadProjectMaterialCard({
               type="file"
               multiple
               className="sr-only"
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? errorId : undefined}
               onChange={handleAddFile}
             />
           </>
@@ -69,7 +72,11 @@ export default function LaunchpadProjectMaterialCard({
           onRemove={() => handleRemoveFile(index)}
         />
       ))}
-      {error ? <p className="text-xs text-red-500">{error}</p> : null}
+      {error ? (
+        <p id={errorId} className="text-xs text-red-500">
+          {error}
+        </p>
+      ) : null}
     </SectionInputCard>
   );
 }

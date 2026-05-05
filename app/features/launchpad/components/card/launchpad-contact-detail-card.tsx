@@ -1,4 +1,5 @@
 import { Mail } from "lucide-react";
+import { useId } from "react";
 import FieldLabel from "~/components/field-label";
 import SectionInputCard from "~/components/section-input-card";
 import { Input } from "~/components/ui/input";
@@ -24,6 +25,9 @@ export default function LaunchpadContactDetailCard({
   onPhoneNumberChange,
   onTelegramUsernameChange,
 }: LaunchpadContactDetailCardProps) {
+  const emailErrorId = useId();
+  const phoneErrorId = useId();
+
   return (
     <SectionInputCard
       header={{
@@ -41,10 +45,13 @@ export default function LaunchpadContactDetailCard({
             onChange={(event) => onEmailChange(event.target.value)}
             placeholder="you@example.com"
             aria-invalid={Boolean(emailError)}
+            aria-describedby={emailError ? emailErrorId : undefined}
             className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
           />
           {emailError ? (
-            <p className="text-xs text-red-500">{emailError}</p>
+            <p id={emailErrorId} className="text-xs text-red-500">
+              {emailError}
+            </p>
           ) : null}
         </div>
 
@@ -55,10 +62,13 @@ export default function LaunchpadContactDetailCard({
             onChange={(event) => onPhoneNumberChange(event.target.value)}
             placeholder="+855 xx xxx xxx"
             aria-invalid={Boolean(phoneNumberError)}
+            aria-describedby={phoneNumberError ? phoneErrorId : undefined}
             className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
           />
           {phoneNumberError ? (
-            <p className="text-xs text-red-500">{phoneNumberError}</p>
+            <p id={phoneErrorId} className="text-xs text-red-500">
+              {phoneNumberError}
+            </p>
           ) : null}
         </div>
       </div>
