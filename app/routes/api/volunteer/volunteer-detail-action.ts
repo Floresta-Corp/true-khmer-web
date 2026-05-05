@@ -10,7 +10,6 @@ import {
 import type { Route as VolunteerDetailRoute } from "project-types/volunteer/routes/+types/volunteer.$id";
 import {
   transformActionResponse,
-  successActionResponse,
   errorActionResponse,
 } from "~/lib/server/action-response.server";
 
@@ -22,11 +21,8 @@ export async function VolunteerDetailAction({
   const formData = await request.formData();
   const actionType = formData.get("actionType");
   if (actionType === "apply-application") {
-    let supportingDocumentKeys: string[] = [];
     const files = formData.getAll("files") as File[];
     try {
-      if (files.length > 0) {
-      }
       const input = UploadApplicationDocumentSchema.parse({
         opportunityId: id,
         files: files.map((file) => ({
@@ -39,7 +35,7 @@ export async function VolunteerDetailAction({
         const result = await uploadDocumentApplication(request, input);
         const upload = result.data.uploads;
 
-        const uploadResult = await Promise.all(
+        const supportingDocumentKeys = await Promise.all(
           files.map(async (file, index) => {
             const uploadInput = upload[index];
 
@@ -56,26 +52,27 @@ export async function VolunteerDetailAction({
               throw new Error("Failed to upload file");
             }
 
-            supportingDocumentKeys.push(uploadInput.supportingDocumentKey);
-            return uploadCloudflaredResult.ok;
+            return uploadInput.supportingDocumentKey;
           }),
         );
-        if (uploadResult) {
-          const dataStr = formData.get("data");
-          if (!dataStr) throw new Error("Missing data field");
-          const data: ApplyApplicationInput = JSON.parse(dataStr.toString());
 
-          const applyInput = ApplyApplicationInputSchema.parse({
-            ...data,
-            supportingDocumentKeys,
-          });
+        const dataStr = formData.get("data");
+        if (!dataStr) throw new Error("Missing data field");
+        const data: ApplyApplicationInput = JSON.parse(dataStr.toString());
 
-          try {
-            const result = await ApplyApplication(request, applyInput);
-            return transformActionResponse(result);
-          } catch (applyError) {
-            return transformActionResponse(applyError);
+        const applyInput = ApplyApplicationInputSchema.parse({
+          ...data,
+          supportingDocumentKeys,
+        });
+
+        try {
+          const result = await ApplyApplication(request, applyInput);
+          if (result === null) {
+            return errorActionResponse("Failed to submit application");
           }
+          return transformActionResponse(result);
+        } catch (applyError) {
+          return transformActionResponse(applyError);
         }
       } catch (error) {
         return transformActionResponse(error);

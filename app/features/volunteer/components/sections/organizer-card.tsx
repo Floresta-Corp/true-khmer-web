@@ -96,6 +96,9 @@ function OrganizerDetails({ organizer }: OrganizerDetailsProps) {
 }
 
 function ContactSection({ organizer }: { organizer: Organizer }) {
+  function stripCountryCode(phone: string): string {
+    return phone.replace(/^\+?855/, "");
+  }
   const contact = organizer.contact;
   return (
     <div className="mt-7 flex flex-col gap-3 rounded-xl border border-[#f3f4f6] bg-[#f9fafb] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
@@ -120,11 +123,11 @@ function ContactSection({ organizer }: { organizer: Organizer }) {
           {contact.phone && (
             <DropdownMenuItem asChild>
               <a
-                href={`tel:+855${contact.phone}`}
+                href={`tel:+855${stripCountryCode(contact.phone)}`}
                 className="flex items-center gap-2"
               >
                 <Phone className="size-3.5" />
-                +855 {contact.phone}
+                +855 {stripCountryCode(contact.phone)}
               </a>
             </DropdownMenuItem>
           )}

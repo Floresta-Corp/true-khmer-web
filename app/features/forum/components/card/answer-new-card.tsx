@@ -206,7 +206,7 @@ function AnswerComponent({
           </div>
         </motion.article>
         {answer.repliedAnswers && (
-          <AccordionContent asChild>
+          <AccordionContent>
             <CommentWrapper>
               <AnimatePresence>
                 {answer.repliedAnswers.map((repliedAnswer, repliedIndex) => (

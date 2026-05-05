@@ -71,13 +71,23 @@ export async function volunteerCreateAction({ request }: ActionFunctionArgs) {
       return { success: true, redirectTo: "/volunteer" };
     } catch (error) {
       if (error instanceof ProtectedApiError) {
-        const details = error.details as { error?: { message?: string } } | undefined;
+        const details = error.details as
+          | { error?: { message?: string } }
+          | undefined;
         if (details?.error?.message) {
           try {
             const parsedErrors = JSON.parse(details.error.message);
             if (Array.isArray(parsedErrors) && parsedErrors.length > 0) {
               const firstError = parsedErrors[0];
-              return { error: firstError.message };
+              if (
+                firstError &&
+                typeof firstError === "object" &&
+                "message" in firstError &&
+                typeof (firstError as { message?: unknown }).message ===
+                  "string"
+              ) {
+                return { error: (firstError as { message: string }).message };
+              }
             }
           } catch {
             return { error: error.message || "Failed to create opportunity" };

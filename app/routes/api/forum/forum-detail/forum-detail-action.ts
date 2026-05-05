@@ -174,12 +174,12 @@ export async function forumDetailAction({
       if (error instanceof ProtectedApiError) {
         return {
           ok: false,
-          message: error.message || "Failed to save question.",
+          message: error.message || "Failed to unsave question.",
         };
       }
       return {
         ok: false,
-        message: "Failed to save question.",
+        message: "Failed to unsave question.",
       };
     }
   }

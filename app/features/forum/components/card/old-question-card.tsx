@@ -123,7 +123,7 @@ export default function OldQuestionCard({
                   size="icon"
                   className="h-[26.25px] w-[26.25px] rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
                 >
-                  <Pencil size={12.25} />
+                  <Pencil size={12.25} aria-label="Edit Question" />
                 </Button>
               }
             />
@@ -137,7 +137,7 @@ export default function OldQuestionCard({
                   size="icon"
                   className="h-[26.25px] min-w-[26.25px] flex-1 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
                 >
-                  <Trash2 size={12.25} />
+                  <Trash2 size={12.25} aria-label="Delete Question" />
                 </Button>
               }
             />
@@ -196,7 +196,7 @@ export default function OldQuestionCard({
             size="icon"
             className="h-[22.75px] w-[22.75px] rounded-xl text-[#99a1af] hover:bg-[#f8fafc] hover:text-[#344256]"
           >
-            <Bookmark size={12.25} />
+            <Bookmark size={12.25} aria-label="save question" />
           </Button>
 
           <Button
@@ -205,7 +205,7 @@ export default function OldQuestionCard({
             size="icon"
             className="h-[22.75px] w-[22.75px] rounded-xl text-[#99a1af] hover:bg-[#f8fafc] hover:text-[#344256]"
           >
-            <Share2 size={12.25} />
+            <Share2 size={12.25} aria-label="share question" />
           </Button>
           <ForumReportDialog
             id={question.id}

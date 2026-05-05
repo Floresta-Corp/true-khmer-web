@@ -53,6 +53,6 @@ export async function forumDetailLoader({
     answers: answersResult?.data.answers.answers ?? [],
     userId: userId ?? null,
     reportReasons:
-      (reportReasonsResult?.data as GetPublicReportTypeResponse) ?? null,
+      (reportReasonsResult?.data as GetPublicReportTypeResponse | null) ?? null,
   } satisfies ForumDetailLoaderData;
 }
