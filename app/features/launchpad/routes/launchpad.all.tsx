@@ -88,7 +88,7 @@ export default function LaunchpadAllPage() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
+        if (entries[0].isIntersecting && fetcher.state !== "loading") {
           const params = new URLSearchParams();
           params.set("cursor", nextCursor);
           params.set("sortBy", "newest");
