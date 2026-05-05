@@ -1,65 +1,62 @@
-import { Calendar, Eye, MapPin, Share2 } from "lucide-react";
-import IconButton from "~/components/icon-button";
-import { Card } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
+import type { LaunchpadDetail } from "~/services/launchpad/types/project";
 
-const data = {
-  background: "",
-  tag: "Web3 Gaming",
-  name: "The Etherium Nexus",
-  location: "Phnom Penh",
-  deadline: "2026-04-12",
-  views: 1234,
-  projectDetails:
-    "The Etherium Nexus is an exciting new Web3 game which immerses players in a naval-inspired virtual world built for competition. \n\n Our mission is to empower the next generation of Khmer creators by providing decentralized infrastructure that scales without compromising on community values. We believe that true impact comes from building tools that are accessible, transparent, and owned by the users themselves.",
-};
+interface LaunchpadProjectDetailCardProps {
+  project: LaunchpadDetail;
+}
 
-export default function LaunchpadProjectDetailCard() {
+export default function LaunchpadProjectDetailCard({
+  project,
+}: LaunchpadProjectDetailCardProps) {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return "Invalid date";
+    }
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
   return (
-    <Card className="px-7 py-4 bg-white">
-      <div className="flex items-center justify-between">
-        <div className="py-1 flex gap-9">
-          <div>
-            <div className="flex items-center gap-1.75 text-[#9EACC0] pb-1">
-              <MapPin className="size-2.5" />
-              <div className="text-xs uppercase">Location</div>
-            </div>
-            <div className="font-semibold">{data.location}</div>
+    <section className="bg-white p-6">
+      <div className="flex flex-wrap items-start gap-x-10 gap-y-4">
+        <div>
+          <div className="pb-1 text-[11px] font-medium uppercase tracking-wide text-[#9EACC0]">
+            Location
           </div>
-          <div>
-            <div className="flex items-center gap-1.75 text-[#9EACC0] pb-1">
-              <Calendar className="size-2.5" />
-              <div className="text-xs uppercase">Deadline</div>
-            </div>
-            <div className="font-semibold">{data.deadline}</div>
-          </div>
-          <div>
-            <div className="flex items-center gap-1.75 text-[#9EACC0] pb-1">
-              <Eye className="size-2.5" />
-              <div className="text-xs uppercase">Views</div>
-            </div>
-            <div className="font-semibold">{data.views} Views</div>
+          <div className="text-[15px] font-semibold text-[#0F1729]">
+            {project.city.name}
           </div>
         </div>
         <div>
-          <IconButton icon={<Share2 className="size-3.5" />} />
+          <div className="pb-1 text-[11px] font-medium uppercase tracking-wide text-[#9EACC0]">
+            Deadline
+          </div>
+          <div className="text-[15px] font-semibold text-[#0F1729]">
+            {formatDate(project.deadline)}
+          </div>
+        </div>
+        <div>
+          <div className="pb-1 text-[11px] font-medium uppercase tracking-wide text-[#9EACC0]">
+            Visibility
+          </div>
+          <div className="text-[15px] font-semibold text-[#0F1729]">
+            {project.totalView.toLocaleString()} views
+          </div>
         </div>
       </div>
-      <Separator className="my-4" />
+      <Separator className="my-5 bg-[#E7ECF3]" />
       <div>
-        <div className="font-semibold text-lg mb-3">Project Details</div>
-        <p className="text-[13px] leading-5.5 text-[#6A7282]">
-          The Etherium Nexus is an exciting new Web3 game which immerses players
-          in a naval-inspired virtual world built for competition.
-          <br />
-          <br />
-          Our mission is to empower the next generation of Khmer creators by
-          providing decentralized infrastructure that scales without
-          compromising on community values. We believe that true impact comes
-          from building tools that are accessible, transparent, and owned by the
-          users themselves.
+        <div className="mb-3 text-xl font-semibold text-[#0F1729]">
+          Project Overview
+        </div>
+        <p className="whitespace-pre-line text-sm leading-6 text-[#6A7282]">
+          {project.description}
         </p>
       </div>
-    </Card>
+    </section>
   );
 }
