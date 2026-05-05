@@ -1,5 +1,6 @@
 import { Paperclip, Plus } from "lucide-react";
 import { useId } from "react";
+import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import LaunchpadMaterialComponent from "../launchpad-material-component";
 import SectionInputCard from "~/components/section-input-card";
@@ -22,7 +23,16 @@ export default function LaunchpadProjectMaterialCard({
     const incoming = Array.from(event.target.files ?? []);
     if (incoming.length === 0) return;
 
+    const previousCount = files.length;
     const nextFiles = [...files, ...incoming].slice(0, 5);
+    const droppedCount = previousCount + incoming.length - nextFiles.length;
+
+    if (droppedCount > 0) {
+      toast.warning(
+        `Only ${5 - previousCount} file${5 - previousCount !== 1 ? "s" : ""} can be added. ${droppedCount} file${droppedCount !== 1 ? "s" : ""} ${droppedCount === 1 ? "was" : "were"} not added.`,
+      );
+    }
+
     onChange(nextFiles);
     event.currentTarget.value = "";
   };
@@ -39,16 +49,13 @@ export default function LaunchpadProjectMaterialCard({
         required: true,
         action: (
           <>
-            <label htmlFor={inputId}>
+            <label htmlFor={inputId} className="cursor-pointer">
               <Button
                 type="button"
                 variant="outline"
-                className="cursor-pointer h-10 bg-gray-100 hover:bg-gray-200 border-none"
-                asChild
+                className="h-10 bg-gray-100 hover:bg-gray-200 border-none"
               >
-                <span>
-                  <Plus /> Add file
-                </span>
+                <Plus /> Add file
               </Button>
             </label>
             <input
