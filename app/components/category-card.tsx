@@ -7,7 +7,7 @@ import {
   Zap,
   type LucideProps,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import type { ReactNode, MouseEventHandler } from "react";
 import { Button } from "~/components/ui/button";
 import type { VolunteerCategory } from "~/services/volunteer/types";
 
@@ -47,7 +47,10 @@ export function CategoryCard({ category, onClick }: CategoryCardProps) {
       onClick={() => onClick?.(category.id)}
       type="button"
       variant="ghost"
-      className="cursor-pointer h-17 w-52.5 justify-start gap-3.5 rounded-[28px] border border-[#f3f4f6] bg-white px-3.75 py-0 text-left shadow-none hover:bg-white md:w-full md:min-w-0"
+      onClick={onClick}
+      className={`cursor-pointer h-17 w-52.5 justify-start gap-3.5 rounded-[28px] border bg-white px-3.75 py-0 text-left shadow-none hover:bg-white md:w-full md:min-w-0 ${
+        active ? "border-blue-300 bg-blue-50" : "border-[#f3f4f6]"
+      }`}
     >
       <div className="flex size-[38.5px] shrink-0 items-center justify-center rounded-full bg-[#eff6ff] text-[#2563eb]">
         <BuildCategoryIcon icon={iconKey} className="size-4" />

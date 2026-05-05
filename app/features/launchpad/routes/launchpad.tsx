@@ -3,8 +3,20 @@ import LaunchpadHeaderSection from "../components/section/launchpad-header-secti
 import { LaunchpadBrowseCategoriesSection } from "../components/section/launchpad-browse-categories-section";
 import { LaunchpadAvailableProjectsSection } from "../components/section/launchpad-available-project-section";
 import { LaunchpadLoader } from "~/routes/api/launchpad/launchpad-loader";
+import type { Route } from "./+types/launchpad";
 
 export const loader = LaunchpadLoader;
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "Launchpad - True Khmer" },
+    {
+      name: "description",
+      content:
+        "Discover and join exciting projects on the True Khmer Launchpad.",
+    },
+  ];
+}
 
 export default function LaunchpadPage() {
   const prefersReducedMotion = useReducedMotion();

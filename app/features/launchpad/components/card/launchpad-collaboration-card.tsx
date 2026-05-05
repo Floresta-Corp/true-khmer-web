@@ -13,24 +13,26 @@ interface CollaborationCardProps {
 export default function LaunchpadCollaborationCard({
   data,
 }: CollaborationCardProps) {
+  const spotLabel = data.availableSpot === 1 ? "Spot" : "Spots";
+
   return (
-    <div className="p-4 rounded-lg flex bg-[#F8FAFB] items-center gap-8">
-      <div className="size-10.5 bg-[#2f6ee41c] rounded-[14px] flex items-center justify-center">
+    <div className="flex items-center gap-4 rounded-xl border border-[#EEF2F7] bg-[#F8FAFC] p-4">
+      <div className="flex size-10 items-center justify-center rounded-xl bg-[#EAF2FF]">
         <Users className="size-4.25 text-blue-500" />
       </div>
-      <div className="text-sm flex-1">
-        <div>
-          <div className="font-semibold">{data.title}</div>
-          <p className="text-[13px] text-[#6A7282]">{data.details}</p>
-        </div>
-      </div>
-      <div className="text-right">
-        <div className="text-[#9EACC0] text-xs">Available</div>
-        <p className="text-sm text-blue-500 font-semibold">
-          {data.availableSpot} Spots
+      <div className="flex-1 text-sm">
+        <div className="font-semibold text-[#0F1729]">{data.title}</div>
+        <p className="line-clamp-1 text-[13px] text-[#94A3B8]">
+          {data.details}
         </p>
       </div>
-      <Button className="bg-blue-500 px-3 py-4.5 font-base text-sm">
+      <div className="text-right min-w-15">
+        <div className="text-[#9EACC0] text-xs">Available</div>
+        <p className="text-sm text-blue-500 font-semibold">
+          {data.availableSpot} {spotLabel}
+        </p>
+      </div>
+      <Button className="h-8 bg-blue-500 px-4 text-sm font-medium hover:bg-blue-600">
         Apply
       </Button>
     </div>

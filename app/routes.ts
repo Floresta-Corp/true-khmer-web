@@ -33,6 +33,7 @@ export default [
       route("poc", "features/poc/routes/poc.tsx"),
       route("poc/detail/:id", "features/poc/routes/poc.$id.tsx"),
       route("launchpad", "features/launchpad/routes/launchpad.tsx"),
+      route("launchpad/all", "features/launchpad/routes/launchpad.all.tsx"),
       route(
         "launchpad/create",
         "features/launchpad/routes/launchpad.create.tsx",
