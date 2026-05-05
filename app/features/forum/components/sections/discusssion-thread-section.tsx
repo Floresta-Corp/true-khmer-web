@@ -1,16 +1,10 @@
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import type {
-  CategoriesPicker,
-  Question,
-  QuestionSortBy,
-} from "~/services/forum/forum-types";
+import type { CategoriesPicker, Question } from "~/services/forum/forum-types";
 import LoadMore from "../load-more";
 import QuestionCardSkeleton from "../card/question-card-skeleton";
 import QuestionCard from "../card/old-question-card";
-import { useLoaderData } from "react-router";
-import type { loader } from "../../routes/forum";
-import MyActivityAnswerList from "./my-activity-answer-list";
-import ThreadsTitle from "./threads-title";
+
+export type DiscussionThreadSectionTab = "recent" | "topRated" | "unanswered";
 
 interface DiscussionThreadSectionProps {
   categories?: CategoriesPicker[];
@@ -18,14 +12,12 @@ interface DiscussionThreadSectionProps {
     questions: Question[] | undefined;
     hasMore: boolean | undefined;
   };
-  activeTab: QuestionSortBy;
-  onTabChange?: (tab: QuestionSortBy) => void;
+  activeTab: DiscussionThreadSectionTab;
+  onTabChange?: (tab: DiscussionThreadSectionTab) => void;
   onCategoryClick?: (category: CategoriesPicker) => void;
   onLoadMore?: () => void;
   isLoading?: boolean;
 }
-
-export type DiscussionThreadSectionTab = "recent" | "topRated" | "unanswered";
 
 export function DiscussionThreadSection({
   categories,
@@ -55,7 +47,9 @@ export function DiscussionThreadSection({
         <Tabs
           className="mb-3.5"
           value={activeTab}
-          onValueChange={(value) => onTabChange?.(value as QuestionSortBy)}
+          onValueChange={(value) =>
+            onTabChange?.(value as DiscussionThreadSectionTab)
+          }
         >
           <TabsList variant="line" className="flex-nowrap">
             {tabs.map((tab) => (

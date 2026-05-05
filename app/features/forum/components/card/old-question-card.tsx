@@ -115,6 +115,7 @@ export default function OldQuestionCard({
               )}
               isEditing
               data={question}
+              aria-label="Edit Question"
               trigger={
                 <Button
                   type="button"
@@ -128,6 +129,7 @@ export default function OldQuestionCard({
             />
             <DeleteQuestionDialog
               questionId={question.id}
+              aria-label="Delete Question"
               trigger={
                 <Button
                   type="button"
@@ -189,6 +191,7 @@ export default function OldQuestionCard({
           <div className="h-[22.75px] w-px bg-[#f3f4f6]" />
 
           <Button
+            aria-label="save question"
             variant="ghost"
             size="icon"
             className="h-[22.75px] w-[22.75px] rounded-xl text-[#99a1af] hover:bg-[#f8fafc] hover:text-[#344256]"
@@ -197,6 +200,7 @@ export default function OldQuestionCard({
           </Button>
 
           <Button
+            aria-label="share question"
             variant="ghost"
             size="icon"
             className="h-[22.75px] w-[22.75px] rounded-xl text-[#99a1af] hover:bg-[#f8fafc] hover:text-[#344256]"

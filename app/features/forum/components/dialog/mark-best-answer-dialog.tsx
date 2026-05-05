@@ -63,7 +63,7 @@ export default function MarkBestAnswerDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>{trigger}</DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
 
       <DialogContent className="max-w-sm">
         <DialogTitle>Mark as best answer?</DialogTitle>

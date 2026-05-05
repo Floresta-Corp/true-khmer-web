@@ -21,6 +21,7 @@ export default [
       route("events/all", "features/events/routes/events.all.tsx"),
       route("events/detail/:id", "features/events/routes/events.$id.tsx"),
       route("volunteer", "features/volunteer/routes/volunteer.tsx"),
+      route("volunteer/all", "features/volunteer/routes/volunteer.all.tsx"),
       route(
         "volunteer/create",
         "features/volunteer/routes/volunteer.create.tsx",

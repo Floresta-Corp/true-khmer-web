@@ -1,5 +1,4 @@
 import { Share2, Pencil, Trash2, MessageCircle } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
@@ -13,6 +12,7 @@ import DeleteQuestionDialog from "../dialog/delete-question-dialog";
 import ShareQuestionDialog from "../dialog/share-question-dialog";
 import QuestionVoteComponent from "../question-vote-component";
 import MobileAuthorOptions from "../mobile-author-options";
+import { motion, useReducedMotion } from "motion/react";
 
 interface QuestionCardProps {
   question: Question;
@@ -66,14 +66,12 @@ export default function QuestionCard({
                 {question.author.name}
               </p>
               <span className="hidden text-[#d1d5db] sm:inline">·</span>
-              <Button
-                variant="link"
-                className="h-auto max-w-full truncate p-0 text-sm font-semibold text-blue-600"
+              <Link
+                to={`/forum?categoryId=${question.category.id}`}
+                className="inline-flex h-auto max-w-full truncate p-0 text-sm font-semibold text-blue-600"
               >
-                <Link to={`/forum?categoryId=${question.category.id}`}>
-                  {question.category.name}
-                </Link>
-              </Button>
+                {question.category.name}
+              </Link>
               <span className="hidden text-[#d1d5db] sm:inline">·</span>
               <span className="text-xs text-[#9eacc0]">{createdAgoLabel}</span>
               {isCurrentAuthor && (

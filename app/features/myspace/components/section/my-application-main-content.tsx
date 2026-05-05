@@ -1,4 +1,3 @@
-import React from "react";
 import { useSearchParams } from "react-router";
 
 const tabItems = [
@@ -9,19 +8,23 @@ const tabItems = [
 
 type TabItem = (typeof tabItems)[number]["value"];
 
+const isTabItem = (value: string | null): value is TabItem =>
+  tabItems.some((tab) => tab.value === value);
+
 export default function MyAppicationMainContent() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = (searchParams.get("tab") as TabItem) ?? "all";
-  const [activeTab, setActiveTab] = React.useState<TabItem>(initialTab);
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    setSearchParams({ tab: value }, { replace: true });
+  const tabParam = searchParams.get("tab");
+  const activeTab: TabItem = isTabItem(tabParam) ? tabParam : "all";
+  const handleTabChange = (value: TabItem) => {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set("tab", value);
+    setSearchParams(nextParams, { replace: true });
   };
 
   return (
     <div>
-      <div className="">
-        <div className="hidden sm:flex flex-wrap items-center gap-2">
+      <div>
+        <div className="flex flex-wrap items-center gap-2">
           {tabItems.map((tab) => {
             const isActive = activeTab === tab.value;
             return (

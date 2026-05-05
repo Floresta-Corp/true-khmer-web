@@ -3,10 +3,12 @@ import type { VolunteerCategory } from "~/services/volunteer/types/category";
 
 interface VolunteerCategoriesSectionProps {
   categories: VolunteerCategory[];
+  onClickCategory?: (categoryId: string) => void;
 }
 
 export function VolunteerCategoriesSection({
   categories,
+  onClickCategory,
 }: VolunteerCategoriesSectionProps) {
   return (
     <section className="w-full bg-gray-50 px-6 md:px-12 lg:px-[131.5px] py-8">
@@ -26,9 +28,8 @@ export function VolunteerCategoriesSection({
               className="shrink-0 snap-start md:min-w-0 md:shrink md:w-full"
             >
               <CategoryCard
-                icon={category.iconKey ?? ""}
-                title={category.name ?? "Unknown"}
-                roleCount={category.displayOrder ?? 0}
+                category={category}
+                onClick={() => onClickCategory?.(category.id)}
               />
             </div>
           ))}

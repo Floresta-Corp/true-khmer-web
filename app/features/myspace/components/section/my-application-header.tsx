@@ -5,7 +5,7 @@ export default function MyApplicationHeader() {
         My Application
       </p>
       <p className="text-lg font-medium leading-6.75 text-[#4d5d73]">
-        Keep track of your submitted applications and project involcement
+        Keep track of your submitted applications and project involveement
       </p>
     </div>
   );

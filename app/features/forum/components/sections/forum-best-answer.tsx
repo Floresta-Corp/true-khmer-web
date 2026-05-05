@@ -15,6 +15,8 @@ export default function ForumBestAnswer({
   userId,
   question,
 }: ForumBestAnswerProps) {
+  const { reportReasons } = useLoaderData<typeof loader>();
+
   if (!answer) {
     return (
       <div className="mt-6 rounded-2xl border border-[#e1e7ef] bg-white p-4 sm:p-6 lg:px-8 lg:py-8">
@@ -25,13 +27,15 @@ export default function ForumBestAnswer({
     );
   }
 
-  const { reportReasons } = useLoaderData<typeof loader>();
-
   const isCurrentAuthor = userId === answer.author.id;
   const isAuthenticated = Boolean(userId);
   const isQuestionAuthor = userId === question?.author.id;
-
-  const repliesKey = answer.repliedAnswers?.map(r => r.id).join(',') ?? '';
+  const repliesKey = answer.repliedAnswers?.map((r) => r.id).join(",") ?? "";
+  const mappedReportReasons =
+    reportReasons?.reportingTypes.map((v) => ({
+      id: v.id,
+      reason: v.type,
+    })) ?? [];
 
   return (
     <div
@@ -55,10 +59,7 @@ export default function ForumBestAnswer({
       </div>
 
       <AnswerNewCard
-        reportReasons={reportReasons.reportingTypes.map((v) => ({
-          id: v.id,
-          reason: v.type,
-        }))}
+        reportReasons={mappedReportReasons}
         isQuestionAuthor={isQuestionAuthor}
         answer={answer}
         isBestAnswer={true}

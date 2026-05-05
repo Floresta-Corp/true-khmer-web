@@ -55,7 +55,11 @@ export default function VolunteerApplicationDialog({
 
   useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data) {
-      const data = fetcher.data as { ok: boolean; data?: unknown; error?: string };
+      const data = fetcher.data as {
+        ok: boolean;
+        data?: unknown;
+        error?: string;
+      };
       if (data.ok) {
         toast.success("Application submitted successfully");
         setFormData({
@@ -77,9 +81,11 @@ export default function VolunteerApplicationDialog({
     const selectedFiles = e.target.files;
     if (selectedFiles) {
       const newFiles = Array.from(selectedFiles);
-      const existingFileKeys = new Set(files.map((f) => `${f.name}-${f.size}`));
+      const fileKey = (file: File) =>
+        `${file.name}-${file.size}-${file.lastModified}`;
+      const existingFileKeys = new Set(files.map(fileKey));
       const duplicates = newFiles.filter((f) =>
-        existingFileKeys.has(`${f.name}-${f.size}`),
+        existingFileKeys.has(fileKey(f)),
       );
 
       if (duplicates.length > 0) {
@@ -87,7 +93,7 @@ export default function VolunteerApplicationDialog({
       }
 
       const uniqueNewFiles = newFiles.filter(
-        (f) => !existingFileKeys.has(`${f.name}-${f.size}`),
+        (f) => !existingFileKeys.has(fileKey(f)),
       );
 
       if (uniqueNewFiles.length > 0) {

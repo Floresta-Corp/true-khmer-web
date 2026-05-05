@@ -1,10 +1,12 @@
 import ForumLeftSidebar from "./forum-left-sidebar";
-import { DiscussionThreadSection } from "./discusssion-thread-section";
+import {
+  DiscussionThreadSection,
+  type DiscussionThreadSectionTab,
+} from "./discusssion-thread-section";
 import ForumRightSidebar from "./forum-right-sidebar";
 import type {
   CategoriesPicker,
   Question,
-  QuestionSortBy,
   Tag,
 } from "~/services/forum/forum-types";
 import type { AuthenticatedUser } from "~/lib/server/types";
@@ -22,8 +24,8 @@ interface ForumContentProps {
   setSelectedCategory: (category: CategoriesPicker) => void;
   selectedTagId?: string;
   setSelectedTagId: (tagId: string | undefined) => void;
-  activeTab: QuestionSortBy;
-  setActiveTab: (tab: QuestionSortBy) => void;
+  activeTab: DiscussionThreadSectionTab;
+  setActiveTab: (tab: DiscussionThreadSectionTab) => void;
 }
 
 export default function ForumContent({

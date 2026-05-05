@@ -8,17 +8,33 @@ import type {
   CategoriesPicker,
   GetQuestionPaginationResponse,
   Question,
-  QuestionSortBy,
 } from "~/services/forum/forum-types";
+import type { DiscussionThreadSectionTab } from "../components/sections/discusssion-thread-section";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { forumListloader } from "~/routes/api/forum/forum-loader";
 import { forumListAction } from "~/routes/api/forum/forum-action";
-import { questionSortBySchema } from "~/services/forum/forum-types";
 
 const LIMIT = 10;
 
 export const loader = forumListloader;
 export const action = forumListAction;
+
+// Map UI tab labels to backend query params
+function mapTabToQueryParams(tab: DiscussionThreadSectionTab): {
+  sortBy?: string;
+  isUnanswered?: boolean;
+} {
+  switch (tab) {
+    case "recent":
+      return { sortBy: "newest" };
+    case "topRated":
+      return { sortBy: "mostVoted" };
+    case "unanswered":
+      return { isUnanswered: true };
+    default:
+      return { sortBy: "newest" };
+  }
+}
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -40,9 +56,17 @@ export default function ForumPage() {
   // Initialize filters from URL params
   const initialCategoryId = searchParams.get("categoryId");
   const initialTagId = searchParams.get("tagId");
-  const initialSortBy = questionSortBySchema.safeParse(
-    searchParams.get("sortBy"),
-  );
+  const initialSortBy = searchParams.get("sortBy");
+  const initialIsUnanswered = searchParams.get("isUnanswered") === "true";
+
+  // Map backend params back to UI tab
+  const getInitialTab = (): DiscussionThreadSectionTab => {
+    if (initialIsUnanswered) return "unanswered";
+    if (initialSortBy === "mostVoted") return "topRated";
+    if (initialSortBy === "newest") return "recent";
+    return "recent";
+  };
+
   const initialCategory =
     initialCategoryId && categories.length > 0
       ? categories.find((c) => c.id === initialCategoryId) || {
@@ -65,9 +89,8 @@ export default function ForumPage() {
   const [selectedTagId, setSelectedTagId] = useState<string | undefined>(
     initialTagId || undefined,
   );
-  const [activeTab, setActiveTab] = useState<QuestionSortBy>(
-    initialSortBy.success ? initialSortBy.data : "mostRelevant",
-  );
+  const [activeTab, setActiveTab] =
+    useState<DiscussionThreadSectionTab>(getInitialTab());
   const prefersReducedMotion = useReducedMotion();
 
   const buildForumQuery = useCallback(
@@ -86,7 +109,14 @@ export default function ForumPage() {
         params.set("tagId", selectedTagId);
       }
 
-      params.set("sortBy", activeTab);
+      // Map UI tab to backend params
+      const queryParams = mapTabToQueryParams(activeTab);
+      if (queryParams.sortBy) {
+        params.set("sortBy", queryParams.sortBy);
+      }
+      if (queryParams.isUnanswered) {
+        params.set("isUnanswered", "true");
+      }
 
       return `/forum?${params.toString()}`;
     },
@@ -155,7 +185,15 @@ export default function ForumPage() {
       setSelectedCategory(category);
 
       const nextParams = new URLSearchParams();
-      nextParams.set("sortBy", activeTab);
+
+      // Map current tab to backend params
+      const queryParams = mapTabToQueryParams(activeTab);
+      if (queryParams.sortBy) {
+        nextParams.set("sortBy", queryParams.sortBy);
+      }
+      if (queryParams.isUnanswered) {
+        nextParams.set("isUnanswered", "true");
+      }
 
       if (category.id !== "all-categories") {
         nextParams.set("categoryId", category.id);
@@ -178,11 +216,19 @@ export default function ForumPage() {
   }, []);
 
   const handleTabChange = useCallback(
-    (tab: QuestionSortBy) => {
+    (tab: DiscussionThreadSectionTab) => {
       setActiveTab(tab);
 
       const nextParams = new URLSearchParams();
-      nextParams.set("sortBy", tab);
+
+      // Map new tab to backend params
+      const queryParams = mapTabToQueryParams(tab);
+      if (queryParams.sortBy) {
+        nextParams.set("sortBy", queryParams.sortBy);
+      }
+      if (queryParams.isUnanswered) {
+        nextParams.set("isUnanswered", "true");
+      }
 
       if (selectedCategory.id !== "all-categories") {
         nextParams.set("categoryId", selectedCategory.id);
