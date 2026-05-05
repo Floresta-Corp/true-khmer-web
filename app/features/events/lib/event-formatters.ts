@@ -1,5 +1,8 @@
 export function formatDate(dateString: string): string {
   const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return "Invalid date";
+  }
   return date.toLocaleDateString("en-US", {
     weekday: "long",
     month: "long",
@@ -9,7 +12,11 @@ export function formatDate(dateString: string): string {
 }
 
 export function formatTime(dateString: string): string {
-  return new Date(dateString).toLocaleTimeString("en-US", {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return "Invalid time";
+  }
+  return date.toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: true,
@@ -21,7 +28,11 @@ export function formatEventType(type: string): string {
 }
 
 export function formatShortDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("en-US", {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return "Invalid date";
+  }
+  return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
   });
@@ -29,6 +40,9 @@ export function formatShortDate(dateString: string): string {
 
 export function formatEventDateTime(dateString: string): string {
   const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return "Invalid date/time";
+  }
   const day = date.toLocaleDateString("en-US", {
     weekday: "short",
     month: "short",

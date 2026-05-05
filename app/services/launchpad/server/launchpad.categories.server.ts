@@ -22,7 +22,7 @@ export async function getVolunteerCategories(request: Request) {
     throw error;
   }
 }
-export async function getPublicVolunteerCategories(request: Request) {
+export async function getPublicLaunchpadCategories(request: Request) {
   try {
     const result =
       await apiRequestWithOptionalSession<GetLaunchpadCategoriesResponse>(
