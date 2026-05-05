@@ -1,6 +1,6 @@
 import { ChevronDown, Plus, Search } from "lucide-react";
 import { useState } from "react";
-import { Link, useLoaderData } from "react-router";
+import { Link, useLoaderData, useNavigate } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import {
@@ -25,6 +25,7 @@ interface VolunteerHeaderProps {
 
 export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
   const { userId } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
   const [location, setLocation] = useState(locations[0]);
   const linkTo = userId
     ? "/volunteer/create"
@@ -49,6 +50,13 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
                 <Search className="size-[17.5px] shrink-0 text-[#99a1af]" />
                 <Input
                   type="search"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      navigate(
+                        `/volunteer/all?search=${e.currentTarget.value}`,
+                      );
+                    }
+                  }}
                   placeholder="Search by name or mission...."
                   className="h-10.5 border-0 bg-transparent px-0 py-0 text-sm font-semibold text-[#364153] placeholder:font-semibold placeholder:text-[#99a1af] focus-visible:ring-0 focus-visible:ring-offset-0"
                 />

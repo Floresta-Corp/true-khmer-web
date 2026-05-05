@@ -7,15 +7,14 @@ import {
   Zap,
   type LucideProps,
 } from "lucide-react";
-import type { ReactNode, MouseEventHandler } from "react";
+import type { ReactNode } from "react";
 import { Button } from "~/components/ui/button";
+import type { VolunteerCategory } from "~/services/volunteer/types";
 
 interface CategoryCardProps {
-  icon: string | ReactNode;
-  title: string;
-  roleCount: number;
+  category: VolunteerCategory;
+  onClick?: (categoryId: string) => void;
   active?: boolean;
-  onClick?: MouseEventHandler<HTMLButtonElement>;
 }
 
 function BuildCategoryIcon({
@@ -42,33 +41,24 @@ function BuildCategoryIcon({
   }
 }
 
-export function CategoryCard({ icon, title, roleCount, active, onClick }: CategoryCardProps) {
+export function CategoryCard({ category, onClick, active }: CategoryCardProps) {
+  const { iconKey, name, displayOrder } = category;
   return (
     <Button
+      onClick={() => onClick?.(category.id)}
       type="button"
       variant="ghost"
-      onClick={onClick}
       className={`cursor-pointer h-17 w-52.5 justify-start gap-3.5 rounded-[28px] border bg-white px-3.75 py-0 text-left shadow-none hover:bg-white md:w-full md:min-w-0 ${
         active ? "border-blue-300 bg-blue-50" : "border-[#f3f4f6]"
       }`}
     >
-      <div
-        className={`flex size-[38.5px] shrink-0 items-center justify-center rounded-full ${
-          active ? "bg-blue-200 text-blue-700" : "bg-[#eff6ff] text-[#2563eb]"
-        }`}
-      >
-        <BuildCategoryIcon icon={icon} className="size-4" />
+      <div className="flex size-[38.5px] shrink-0 items-center justify-center rounded-full bg-[#eff6ff] text-[#2563eb]">
+        <BuildCategoryIcon icon={iconKey} className="size-4" />
       </div>
       <div className="flex flex-col items-start gap-[3.5px]">
-        <h3
-          className={`text-sm font-bold leading-3.5 ${
-            active ? "text-blue-700" : "text-[#030213]"
-          }`}
-        >
-          {title}
-        </h3>
+        <h3 className="text-sm font-bold leading-3.5 text-[#030213]">{name}</h3>
         <p className="text-xs font-medium leading-4.5 text-[#99a1af]">
-          {roleCount} roles
+          {displayOrder} roles
         </p>
       </div>
     </Button>

@@ -21,6 +21,7 @@ export default [
       route("events/all", "features/events/routes/events.all.tsx"),
       route("events/detail/:id", "features/events/routes/events.$id.tsx"),
       route("volunteer", "features/volunteer/routes/volunteer.tsx"),
+      route("volunteer/all", "features/volunteer/routes/volunteer.all.tsx"),
       route(
         "volunteer/create",
         "features/volunteer/routes/volunteer.create.tsx",
@@ -44,9 +45,22 @@ export default [
     ]),
     route("myspace", "features/myspace/routes/myspace.tsx"),
     route("edit-profile", "features/myspace/routes/edit-profile.tsx"),
+    route("my-applications", "features/myspace/routes/my-applications.tsx"),
+
     layout("layout/workspace-layout.tsx", [
       route("workspace", "features/workspace/routes/workspace.tsx"),
     ]),
+  ]),
+  route("onboarding", "routes/onboarding/pages/layout.tsx", [
+    index("routes/onboarding/pages/index.tsx"),
+    route("profile", "routes/onboarding/pages/profile.tsx"),
+    route("interest", "routes/onboarding/pages/interest.tsx"),
+    route("contribution", "routes/onboarding/pages/contribution.tsx"),
+    route("tier", "routes/onboarding/pages/tier.tsx"),
+  ]),
+  route("tk-admin", "layout/admin-layout.tsx", [
+    index("features/admin/index.tsx"),
+    route("users", "features/admin/admin-users.tsx"),
   ]),
   route("login", "routes/auth/pages/login.tsx"),
   route("register", "routes/auth/pages/register.tsx"),
@@ -56,13 +70,6 @@ export default [
     "routes/auth/pages/forgot-password-check-email.tsx",
   ),
   route("reset-password", "routes/auth/pages/reset-password.tsx"),
-  route("onboarding", "routes/onboarding/pages/layout.tsx", [
-    index("routes/onboarding/pages/index.tsx"),
-    route("profile", "routes/onboarding/pages/profile.tsx"),
-    route("interest", "routes/onboarding/pages/interest.tsx"),
-    route("contribution", "routes/onboarding/pages/contribution.tsx"),
-    route("tier", "routes/onboarding/pages/tier.tsx"),
-  ]),
   route("onboarding/completed", "routes/onboarding/pages/completed.tsx"),
   route("verify-otp", "routes/auth/pages/verify-otp.tsx"),
   route("logout", "routes/logout.tsx"),

@@ -16,12 +16,24 @@ import {
 import { Button } from "~/components/ui/button";
 import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
 import { Textarea } from "~/components/ui/textarea";
+import ApplicationSubmitSuccessDialog from "./application-submit-success-dialog";
 
 interface VolunteerApplicationDialogProps {
   roles: Role[];
   initialRoleId?: string;
   trigger?: React.ReactNode;
 }
+
+interface ApiError {
+  status: number;
+  code: string | undefined;
+  details: {
+    ok: false;
+    error: string;
+  };
+}
+
+type ApplicationResponse = { success: true } | ({ success: false } & ApiError);
 
 export default function VolunteerApplicationDialog({
   roles,
@@ -30,6 +42,7 @@ export default function VolunteerApplicationDialog({
 }: VolunteerApplicationDialogProps) {
   const { id: opportunityId } = useParams();
   const fetcher = useFetcher();
+  const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     roleId: initialRoleId || roles[0]?.id || "",
     availability: "",
@@ -37,11 +50,17 @@ export default function VolunteerApplicationDialog({
   });
   const [files, setFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data) {
-      if (fetcher.data.success) {
+      const data = fetcher.data as {
+        ok: boolean;
+        data?: unknown;
+        error?: string;
+      };
+      if (data.ok) {
         toast.success("Application submitted successfully");
         setFormData({
           roleId: initialRoleId || roles[0]?.id || "",
@@ -50,8 +69,10 @@ export default function VolunteerApplicationDialog({
         });
         setFiles([]);
         setErrors({});
-      } else if (fetcher.data.error) {
-        toast.error(fetcher.data.error);
+        setOpen(false);
+        setSuccessDialogOpen(true);
+      } else if (data.error) {
+        toast.error(data.error);
       }
     }
   }, [fetcher.state, fetcher.data, initialRoleId, roles]);
@@ -59,17 +80,30 @@ export default function VolunteerApplicationDialog({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
     if (selectedFiles) {
-      setFiles((prev) => {
-        const newFiles = Array.from(selectedFiles);
-        const existingFileKeys = new Set(prev.map(f => `${f.name}-${f.size}`));
-        const uniqueNewFiles = newFiles.filter(f => !existingFileKeys.has(`${f.name}-${f.size}`));
-        return [...prev, ...uniqueNewFiles];
-      });
-      setErrors((prev) => {
-        const next = { ...prev };
-        delete next.files;
-        return next;
-      });
+      const newFiles = Array.from(selectedFiles);
+      const fileKey = (file: File) =>
+        `${file.name}-${file.size}-${file.lastModified}`;
+      const existingFileKeys = new Set(files.map(fileKey));
+      const duplicates = newFiles.filter((f) =>
+        existingFileKeys.has(fileKey(f)),
+      );
+
+      if (duplicates.length > 0) {
+        toast.error("This file has already been added");
+      }
+
+      const uniqueNewFiles = newFiles.filter(
+        (f) => !existingFileKeys.has(fileKey(f)),
+      );
+
+      if (uniqueNewFiles.length > 0) {
+        setFiles((prev) => [...prev, ...uniqueNewFiles]);
+        setErrors((prev) => {
+          const next = { ...prev };
+          delete next.files;
+          return next;
+        });
+      }
       e.target.value = "";
     }
   };
@@ -115,7 +149,7 @@ export default function VolunteerApplicationDialog({
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
           <Button className="h-10 w-full bg-[#2f6fe4] text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]">
@@ -308,6 +342,11 @@ export default function VolunteerApplicationDialog({
           </Button>
         </div>
       </DialogContent>
+
+      <ApplicationSubmitSuccessDialog
+        open={successDialogOpen}
+        onOpenChange={setSuccessDialogOpen}
+      />
     </Dialog>
   );
 }

@@ -1,4 +1,5 @@
 import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { ProtectedApiError } from "~/lib/server/api-client.server";
 import {
   parseVoteAction,
   submitVoteAction,
@@ -10,9 +11,13 @@ import {
   deleteAnswerById,
   createAnswerByQuestionId,
   SubmitReport,
+  addSaveQuestion,
+  deleteSaveQuestion,
+  markAsBestAnswer,
 } from "~/services/forum/server";
 import type { Route as ForumDetailRoute } from "project-types/forum/routes/+types/forum.$id";
 import type { SubmitReportInput } from "~/services/forum/forum-types";
+import { transformActionResponse } from "~/lib/server/action-response.server";
 
 export async function forumDetailAction({
   request,
@@ -37,6 +42,9 @@ export async function forumDetailAction({
     "create-answer",
     "report-answer",
     "report-question",
+    "save-question",
+    "unsave-question",
+    "mark-as-best-answer",
   ]);
 
   if (actionType && !allowedActionTypes.has(actionType)) {
@@ -44,6 +52,21 @@ export async function forumDetailAction({
       ok: false,
       message: "Unsupported action.",
     };
+  }
+
+  if (actionType === "mark-as-best-answer") {
+    const answerId = String(formData.get("answerId") ?? "").trim();
+    if (!answerId) {
+      return {
+        ok: false,
+        message: "Answer ID is required for marking as best answer.",
+      };
+    }
+    try {
+      return await markAsBestAnswer(request, answerId);
+    } catch (error) {
+      return transformActionResponse(error);
+    }
   }
 
   if (actionType === "report-question") {
@@ -111,6 +134,54 @@ export async function forumDetailAction({
     }
 
     return submitVoteAction(request, parsedVoteAction);
+  }
+
+  if (actionType === "save-question") {
+    const saveQuestionId = String(formData.get("questionId") ?? "").trim();
+    if (!saveQuestionId) {
+      return {
+        ok: false,
+        message: "Question ID is required for saving.",
+      };
+    }
+    try {
+      return await addSaveQuestion(request, saveQuestionId);
+    } catch (error) {
+      if (error instanceof ProtectedApiError) {
+        return {
+          ok: false,
+          message: error.message || "Failed to save question.",
+        };
+      }
+      return {
+        ok: false,
+        message: "Failed to save question.",
+      };
+    }
+  }
+
+  if (actionType === "unsave-question") {
+    const saveQuestionId = String(formData.get("questionId") ?? "").trim();
+    if (!saveQuestionId) {
+      return {
+        ok: false,
+        message: "Question ID is required for unsaving.",
+      };
+    }
+    try {
+      return await deleteSaveQuestion(request, saveQuestionId);
+    } catch (error) {
+      if (error instanceof ProtectedApiError) {
+        return {
+          ok: false,
+          message: error.message || "Failed to unsave question.",
+        };
+      }
+      return {
+        ok: false,
+        message: "Failed to unsave question.",
+      };
+    }
   }
 
   if (actionType === "update-answer") {

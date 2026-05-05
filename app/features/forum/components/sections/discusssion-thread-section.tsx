@@ -1,16 +1,10 @@
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import type {
-  CategoriesPicker,
-  Question,
-  QuestionSortBy,
-} from "~/services/forum/forum-types";
+import type { CategoriesPicker, Question } from "~/services/forum/forum-types";
 import LoadMore from "../load-more";
 import QuestionCardSkeleton from "../card/question-card-skeleton";
-import QuestionCard from "../card/question-card";
-import { useLoaderData } from "react-router";
-import type { loader } from "../../routes/forum";
-import MyActivityAnswerList from "./my-activity-answer-list";
-import ThreadsTitle from "./threads-title";
+import QuestionCard from "../card/old-question-card";
+
+export type DiscussionThreadSectionTab = "recent" | "topRated" | "unanswered";
 
 interface DiscussionThreadSectionProps {
   categories?: CategoriesPicker[];
@@ -18,8 +12,8 @@ interface DiscussionThreadSectionProps {
     questions: Question[] | undefined;
     hasMore: boolean | undefined;
   };
-  activeTab: QuestionSortBy;
-  onTabChange?: (tab: QuestionSortBy) => void;
+  activeTab: DiscussionThreadSectionTab;
+  onTabChange?: (tab: DiscussionThreadSectionTab) => void;
   onCategoryClick?: (category: CategoriesPicker) => void;
   onLoadMore?: () => void;
   isLoading?: boolean;
@@ -37,19 +31,15 @@ export function DiscussionThreadSection({
   const questions = data?.questions ?? [];
   const hasQuestions = questions.length > 0;
   const isEmptyAndLoading = !hasQuestions && Boolean(isLoading);
-  const { userId } = useLoaderData<typeof loader>();
 
   const tabs: Array<{
-    id: QuestionSortBy;
+    id: DiscussionThreadSectionTab;
     label: string;
   }> = [
     { id: "recent", label: "Recent" },
     { id: "topRated", label: "Top Rated" },
     { id: "unanswered", label: "Unanswered" },
-    ...(userId ? [{ id: "myActivity" as const, label: "My Activity" }] : []),
   ];
-
-  const isMyActivityTab = activeTab === "myActivity" && userId ? true : false;
 
   return (
     <div className="flex-1 w-full min-w-0">
@@ -57,7 +47,9 @@ export function DiscussionThreadSection({
         <Tabs
           className="mb-3.5"
           value={activeTab}
-          onValueChange={(value) => onTabChange?.(value as QuestionSortBy)}
+          onValueChange={(value) =>
+            onTabChange?.(value as DiscussionThreadSectionTab)
+          }
         >
           <TabsList variant="line" className="flex-nowrap">
             {tabs.map((tab) => (
@@ -73,11 +65,6 @@ export function DiscussionThreadSection({
         </Tabs>
       </div>
 
-      {/* Listing Answer but only for tab My Activity Only */}
-      {isMyActivityTab && <MyActivityAnswerList isLoading={isLoading} />}
-
-      {/* Discussion posts */}
-      {isMyActivityTab && <ThreadsTitle />}
       <div className="flex flex-col gap-4">
         {hasQuestions ? (
           questions.map((question) => {

@@ -1,5 +1,6 @@
 import { type ActionFunctionArgs } from "react-router";
 import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { ProtectedApiError } from "~/lib/server/api-client.server";
 import {
   createVolunteerOpportunity,
   uploadOpportunityCoverImage,
@@ -14,7 +15,6 @@ export async function volunteerCreateAction({ request }: ActionFunctionArgs) {
   if (actionType === "create-volunteer") {
     const dataStr = formData.get("data");
     const file = formData.get("file");
-
 
     if (!dataStr || typeof dataStr !== "string") {
       return { error: "Invalid form data" };
@@ -70,8 +70,33 @@ export async function volunteerCreateAction({ request }: ActionFunctionArgs) {
 
       return { success: true, redirectTo: "/volunteer" };
     } catch (error) {
+      if (error instanceof ProtectedApiError) {
+        const details = error.details as
+          | { error?: { message?: string } }
+          | undefined;
+        if (details?.error?.message) {
+          try {
+            const parsedErrors = JSON.parse(details.error.message);
+            if (Array.isArray(parsedErrors) && parsedErrors.length > 0) {
+              const firstError = parsedErrors[0];
+              if (
+                firstError &&
+                typeof firstError === "object" &&
+                "message" in firstError &&
+                typeof (firstError as { message?: unknown }).message ===
+                  "string"
+              ) {
+                return { error: (firstError as { message: string }).message };
+              }
+            }
+          } catch {
+            return { error: error.message || "Failed to create opportunity" };
+          }
+        }
+        return { error: error.message || "Failed to create opportunity" };
+      }
       console.error("Failed to create volunteer opportunity:", error);
-      return { error: `Failed to create opportunity: ${error}` };
+      return { error: "Failed to create opportunity" };
     }
   }
 

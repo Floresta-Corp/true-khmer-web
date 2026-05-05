@@ -27,6 +27,7 @@ export default function QuestionVoteComponent({
 
     if (wasSubmitting.current && fetcher.state === "idle" && fetcher.data) {
       wasSubmitting.current = false;
+
       const result = fetcher.data as
         | { ok?: boolean; message?: string; error?: string }
         | { data?: { ok?: boolean }; message?: string; error?: string };
@@ -96,7 +97,7 @@ export default function QuestionVoteComponent({
 
   return (
     <div
-      className={`flex h-7 items-center rounded-xl overflow-hidden border border-[#f3f4f6] bg-[#f9fafb] text-[#4a5565] ${className ?? ""}`}
+      className={`flex h-fit items-center rounded-xl overflow-hidden bg-[#f9fafb] text-[#4a5565] ${className ?? ""}`}
     >
       <Button
         type="button"

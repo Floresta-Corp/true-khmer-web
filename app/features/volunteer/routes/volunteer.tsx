@@ -3,17 +3,16 @@ import { VolunteerCategoriesSection } from "../page/section/volunteer-categories
 import { motion, useReducedMotion } from "motion/react";
 import VolunteerHeader from "../page/section/volunteer-header";
 import { volunteerLoader } from "~/routes/api/volunteer/volunteer-loader";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 
 export const loader = volunteerLoader;
 
 export default function VolunteerPage() {
   const { categories, opportunities, locations } =
     useLoaderData<typeof loader>();
+  const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
   const duration = prefersReducedMotion ? 0 : 0.35;
-
-
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -32,7 +31,12 @@ export default function VolunteerPage() {
           transition={{ duration, delay: prefersReducedMotion ? 0 : 0.08 }}
           className="lg:pt-17.5"
         >
-          <VolunteerCategoriesSection categories={categories || []} />
+          <VolunteerCategoriesSection
+            categories={categories || []}
+            onClickCategory={(v) => {
+              navigate(`/volunteer/all?categoryId=${v}`);
+            }}
+          />
         </motion.div>
       )}
 

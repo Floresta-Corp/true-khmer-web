@@ -6,6 +6,7 @@ import {
   Sparkle,
   Trash2,
 } from "lucide-react";
+import { toast } from "sonner";
 import { AnimatePresence, motion } from "motion/react";
 import {
   type Dispatch,
@@ -169,6 +170,7 @@ export default function VolunteerPostPage1({
     const isImage = file.type.startsWith("image/");
     const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
     if (!isImage) {
+      toast.error("Selected file is not an image");
       setDetailErrors((prev) => ({
         ...prev,
         coverImageKey: "Selected file is not an image",
@@ -176,6 +178,7 @@ export default function VolunteerPostPage1({
       return;
     }
     if (file.size > maxSizeInBytes) {
+      toast.error("Selected file is larger than 5MB");
       setDetailErrors((prev) => ({
         ...prev,
         coverImageKey: "Selected file is larger than 5MB",

@@ -13,7 +13,7 @@ import ForumRightSidebar from "./forum-right-sidebar";
 import YourActivitiesCard from "../card/your-activities-card";
 import MobileQuestionFilter from "../mobile-question-filter";
 import QuestionSortByDropdown from "../question-sort-by-dropdown";
-import DiscussionCard from "../card/discussion-card";
+import QuestionCard from "../card/question-card";
 import { useLoaderData } from "react-router";
 import type { loader } from "../../routes/forum.new";
 
@@ -108,7 +108,7 @@ export default function ForumContentNew({
                   <QuestionCardSkeleton key={`question-skeleton-${index}`} />
                 ))
               : questions?.map((question, index) => (
-                  <DiscussionCard
+                  <QuestionCard
                     key={question.id}
                     question={question}
                     userId={userId ?? undefined}

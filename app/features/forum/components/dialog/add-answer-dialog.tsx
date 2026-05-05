@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
-import { Link, useFetcher, useLocation } from "react-router";
+import { Link, useFetcher, useLocation, useRevalidator } from "react-router";
 import { toast } from "sonner";
 
 import { Button } from "~/components/ui/button";
@@ -34,6 +34,7 @@ export default function AddAnswerDialog({
 }: AddAnswerDialogProps) {
   const fetch = useFetcher();
   const location = useLocation();
+  const revalidator = useRevalidator();
   const isSubmitting = fetch.state !== "idle";
   const wasSubmitting = useRef(false);
   const [open, setOpen] = useState(false);
@@ -63,7 +64,6 @@ export default function AddAnswerDialog({
 
     if (wasSubmitting.current && fetch.state === "idle" && fetch.data) {
       wasSubmitting.current = false;
-
       const result = fetch.data as
         | { ok?: boolean; message?: string; error?: string }
         | {
@@ -79,6 +79,7 @@ export default function AddAnswerDialog({
       if (isSuccess) {
         setOpen(false);
         setBodyError(null);
+        revalidator.revalidate();
         toast.success(
           isEditing
             ? "Answer updated successfully!"

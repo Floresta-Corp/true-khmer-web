@@ -19,7 +19,7 @@ export async function ApplyApplication(
   try {
     const result = await apiRequestWithSession<ApplyApplicationResponse>(
       request,
-      "",
+      "/volunteer/applications",
       {
         method: "POST",
         body,

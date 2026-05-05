@@ -1,13 +1,10 @@
-import { Info } from "lucide-react";
 import { useState } from "react";
-import { Button } from "~/components/ui/button";
 import type {
   Opportunity,
   Role,
 } from "~/services/volunteer/types/opportunities";
 import VolunteerApplicationDialog from "../dialog/volunteer-application-dialog";
 import { formatDate } from "date-fns";
-import { Label } from "~/components/ui/label";
 import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
 
 interface ApplicationSummaryProps {

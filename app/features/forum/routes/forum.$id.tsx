@@ -4,14 +4,15 @@ import { motion } from "framer-motion";
 import QuestionVoteComponent from "../components/question-vote-component";
 import AllAnswers from "../components/sections/all-answers";
 import type { Route } from "./+types/forum.$id";
-import { forumDetailLoader } from "~/routes/api/forum/forum-detail-loader";
-import { forumDetailAction } from "~/routes/api/forum/forum-detail-action";
+import { forumDetailLoader } from "~/routes/api/forum/forum-detail/forum-detail-loader";
+import { forumDetailAction } from "~/routes/api/forum/forum-detail/forum-detail-action";
 import BackToButton from "~/components/back-to-button";
 import RelatedDiscussionsCard from "../components/card/related-discussions-card";
 import ForumDetailQuestionHeader from "../components/forum-detail-question-header";
 import ReplyBox from "../components/reply-box";
 import ShareQuestionDialog from "../components/dialog/share-question-dialog";
-import MobileAuthorOptions from "../components/mobile-author-options";
+// import MobileAuthorOptions from "../components/mobile-author-options";
+import ForumBestAnswer from "../components/sections/forum-best-answer";
 
 export const loader = forumDetailLoader;
 export const action = forumDetailAction;
@@ -113,10 +114,11 @@ const MOCK_RELATED_DISCUSSIONS = [
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 export default function ForumDetailPage() {
-  const { question, answers, userId, reportReasons, categories } =
+  const { question, bestAnswer, answers, userId, reportReasons } =
     useLoaderData<typeof loader>();
   const displayedRelatedDiscussions = MOCK_RELATED_DISCUSSIONS;
-  const isCurrentAuthor = Boolean(userId) && userId === question?.author.id;
+
+  console.log(answers);
 
   if (!question) {
     return (
@@ -195,9 +197,7 @@ export default function ForumDetailPage() {
 
                 <div className="mt-5 border-t border-[#abadaf1a] pt-5 sm:mt-6 sm:pt-6">
                   <div className="flex flex-wrap items-center gap-3 text-[#48566a] sm:gap-5">
-                    <div className="rounded-xl border border-[#f3f4f6] bg-[#f9fafb] p-px">
-                      <QuestionVoteComponent question={question} />
-                    </div>
+                    <QuestionVoteComponent question={question} />
 
                     <div className="inline-flex items-center gap-2 text-xs font-medium leading-4.5 sm:text-sm sm:leading-5.25">
                       <MessageSquare className="h-5 w-5" />
@@ -232,6 +232,22 @@ export default function ForumDetailPage() {
               <ReplyBox question={question} />
             </motion.div>
 
+            {bestAnswer && bestAnswer.length > 0 && (
+              <motion.div
+                variants={fadeUp}
+                initial="hidden"
+                animate="visible"
+                custom={2}
+                className="mt-6"
+              >
+                <ForumBestAnswer
+                  answer={bestAnswer?.[0]}
+                  userId={userId}
+                  question={question}
+                />
+              </motion.div>
+            )}
+
             {answers && answers.length > 0 ? (
               <AllAnswers answers={answers} />
             ) : (
@@ -240,7 +256,7 @@ export default function ForumDetailPage() {
                 variants={fadeUp}
                 initial="hidden"
                 animate="visible"
-                custom={2}
+                custom={3}
               >
                 No answers yet. Be the first to share your knowledge!
               </motion.p>

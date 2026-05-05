@@ -1,8 +1,5 @@
 import { motion, useReducedMotion } from "framer-motion";
-import type {
-  Opportunity,
-  Role,
-} from "~/services/volunteer/types/opportunities";
+import type { Opportunity } from "~/services/volunteer/types/opportunities";
 import EmptyPost from "../components/empty-post";
 import OpportunityCover from "../components/sections/opportunity-cover";
 import OpportunityDetailsGrid from "../components/sections/opportunity-details-grid";
@@ -16,27 +13,9 @@ import BackToButton from "~/components/back-to-button";
 
 interface VolunteerDetailPageProps {
   volunteer?: Opportunity;
-  userId?: string;
 }
 
-const responsibilities = [
-  "Assist professional archeologists in documenting site conditions",
-  "Catalog fragile carvings and annotate preservation priorities",
-  "Photograph key artifacts and log findings in the field report",
-  "Support local teams with safe site-mapping coordination",
-];
-
-const requirements = [
-  "Physical fitness for walking in tropical environments",
-  "Comfort working outdoors for extended periods",
-  "Basic note-taking and reporting discipline",
-  "Respect for cultural heritage and local customs",
-];
-
-export function VolunteerDetailPage({
-  volunteer,
-  userId,
-}: VolunteerDetailPageProps) {
+export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
   if (!volunteer) {
     return <EmptyPost />;
   }
@@ -46,10 +25,6 @@ export function VolunteerDetailPage({
   const totalCapacity = volunteer.roles.reduce(
     (sum, role) => sum + role.capacity,
     0,
-  );
-
-  const primaryRole = volunteer.roles.reduce((a, b) =>
-    a.displayOrder < b.displayOrder ? a : b,
   );
 
   return (

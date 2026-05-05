@@ -15,7 +15,7 @@ import {
   SubmitReport,
 } from "~/services/forum/server";
 import { validateCreateForumPostForm } from "~/services/forum/validation";
-import type { Route as ForumRoute } from "../../../features/forum/routes/+types/forum";
+import type { Route as ForumRoute } from "project-types/forum/routes/+types/forum.new";
 import type { SubmitReportInput } from "~/services/forum/forum-types";
 
 export async function forumListAction({ request }: ForumRoute.ActionArgs) {

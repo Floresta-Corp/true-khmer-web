@@ -1,94 +1,158 @@
-import {
-  Bookmark,
-  Clock,
-  MessageSquare,
-  Pencil,
-  Share2,
-  Trash2,
-} from "lucide-react";
-import { Link, useLoaderData } from "react-router";
+import { Share2, Pencil, Trash2, MessageCircle } from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import { Card } from "~/components/ui/card";
-import QuestionVoteComponent from "../question-vote-component";
-import type { CategoriesPicker, Question } from "~/services/forum/forum-types";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
+import { resolveImageURL } from "~/lib/utils";
+import type { CategoriesPicker, Question } from "~/services/forum/forum-types";
 import AskQuestionDialog from "../dialog/ask-question-dialog";
 import DeleteQuestionDialog from "../dialog/delete-question-dialog";
-import { resolveImageURL } from "~/lib/utils";
-import { Avatar, AvatarImage } from "~/components/ui/avatar";
-import type { loader } from "../../routes/forum";
-import ForumReportDialog, {
-  ReportDialogType,
-} from "../dialog/forum-report-dialog";
+import ShareQuestionDialog from "../dialog/share-question-dialog";
+import QuestionVoteComponent from "../question-vote-component";
+import MobileAuthorOptions from "../mobile-author-options";
+import { motion, useReducedMotion } from "motion/react";
 
-interface DiscussionCardProps {
+interface QuestionCardProps {
   question: Question;
   categories: CategoriesPicker[];
-  onCategoryClick?: (category: CategoriesPicker) => void;
+  userId?: string;
+  index?: number;
 }
 
 export default function QuestionCard({
   question,
   categories,
-  onCategoryClick,
-}: DiscussionCardProps) {
-  const { userId, reportReasons } = useLoaderData<typeof loader>();
+  userId,
+  index = 0,
+}: QuestionCardProps) {
+  const prefersReducedMotion = useReducedMotion();
   const createdAgoLabel = formatMinutesOrHoursAgo(question.createdAt);
-  const isCurrentAuthor = userId === question.author.id;
   const profileImage = resolveImageURL(question.author.avatarKey);
+  const navigate = useNavigate();
+  const handleGoToDetail = () => {
+    navigate(`/forum/detail/${question.id}`);
+  };
+
+  const isCurrentAuthor = Boolean(userId) && userId === question.author.id;
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <Card className="w-full max-w-134 rounded-2xl border-[#f1f5f9] p-4 shadow-none transition-shadow hover:shadow-sm sm:p-6">
-      {/* Header with category and metadata */}
+    <motion.article
+      className="w-full rounded-2xl bg-white p-4 shadow-[0px_4px_24px_0px_rgba(0,0,0,0.04)] sm:p-6"
+      initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: prefersReducedMotion ? 0 : 0.1,
+        delay: prefersReducedMotion ? 0 : index * 0.02,
+      }}
+      onMouseOver={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Header with author info */}
       <div className="flex justify-between items-start mb-3 sm:mb-5 gap-2">
-        <div className="flex gap-2 items-center flex-wrap">
-          <Button
-            onClick={() =>
-              onCategoryClick?.({
-                id: question.category.id,
-                name: question.category.name,
-              } as CategoriesPicker)
-            } // Placeholder, replace with actual category object
-            variant="ghost"
-            className="h-auto px-0 py-0 text-xs font-bold text-[#2f6fe4] hover:underline"
-          >
-            {question.category.name}
-          </Button>
-          {isCurrentAuthor && (
-            <Badge
-              variant="secondary"
-              className="text-xs font-semibold bg-green-100 text-green-500"
-            >
-              Author
-            </Badge>
-          )}
+        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+          <Avatar className="border border-[#f3f4f6] shrink-0">
+            <AvatarImage
+              src={profileImage}
+              alt={question.author.name}
+              className="object-cover"
+            />
+          </Avatar>
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-xs sm:text-sm font-semibold text-[#344256] truncate">
+                {question.author.name}
+              </p>
+              <span className="hidden text-[#d1d5db] sm:inline">·</span>
+              <Link
+                to={`/forum?categoryId=${question.category.id}`}
+                className="inline-flex h-auto max-w-full truncate p-0 text-sm font-semibold text-blue-600"
+              >
+                {question.category.name}
+              </Link>
+              <span className="hidden text-[#d1d5db] sm:inline">·</span>
+              <span className="text-xs text-[#9eacc0]">{createdAgoLabel}</span>
+              {isCurrentAuthor && (
+                <Badge
+                  variant="secondary"
+                  className="text-xs font-semibold bg-green-100 text-green-500"
+                >
+                  Author
+                </Badge>
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* Time and action buttons */}
-        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-          <Clock size={16} className="text-[#9EACC0]" />
-          <span className="text-xs text-[#9eacc0] hidden sm:block">
-            {createdAgoLabel}
-          </span>
-        </div>
+        {/* Edit/Delete actions */}
+        {isCurrentAuthor ? (
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Mobile: Dropdown menu */}
+            <div className="sm:hidden">
+              <MobileAuthorOptions
+                question={question}
+                categories={categories}
+              />
+            </div>
+
+            {/* Desktop: Inline buttons with animation */}
+            <div className="hidden sm:block">
+              <motion.div
+                className="flex items-center gap-1.5"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : 10 }}
+                transition={{ duration: 0.2 }}
+              >
+                <AskQuestionDialog
+                  categories={categories.filter(
+                    (category) => category.id !== "all-categories",
+                  )}
+                  isEditing
+                  data={question}
+                  trigger={
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-[26.25px] w-[26.25px] rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256] cursor-pointer"
+                      aria-label="Edit question"
+                    >
+                      <Pencil size={12.25} />
+                    </Button>
+                  }
+                />
+                <DeleteQuestionDialog
+                  questionId={question.id}
+                  trigger={
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-[26.25px] min-w-[26.25px] flex-1 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256] cursor-pointer"
+                      aria-label="Delete question"
+                    >
+                      <Trash2 size={12.25} />
+                    </Button>
+                  }
+                />
+              </motion.div>
+            </div>
+          </div>
+        ) : null}
       </div>
 
-      {/* Date visible on mobile only */}
-      <p className="text-xs text-[#9eacc0] mb-2 sm:hidden">{createdAgoLabel}</p>
-
-      {/* Title */}
-      <h2 className="text-sm sm:text-base font-semibold text-[#030213] mb-2 leading-snug">
-        <Link
-          to={`/forum/${question.id}`}
-          className="hover:text-[#2f6fe4] transition-colors"
-        >
-          {question.title}
-        </Link>
+      {/* Question Title */}
+      <h2
+        onClick={handleGoToDetail}
+        className="text-sm sm:text-2xl font-semibold text-[#030213] mb-2 leading-snug cursor-pointer hover:text-[#2f6fe4] transition-colors"
+      >
+        {question.title}
       </h2>
 
-      {/* Description */}
-      <p className="text-xs text-[#65758b] mb-3 sm:mb-4 line-clamp-2 leading-relaxed">
+      {/* Question Body */}
+      <p className="text-xs sm:text-sm text-[#65758b] mb-3 sm:mb-4 line-clamp-2 leading-relaxed">
         {question.body}
       </p>
 
@@ -106,121 +170,40 @@ export default function QuestionCard({
         </div>
       )}
 
-      {isCurrentAuthor && (
-        <div className="flex items-center justify-end">
-          <div className="flex h-[26.25px] w-[59.5px] items-center gap-1.75">
-            <AskQuestionDialog
-              categories={categories.filter(
-                (category) => category.id !== "all-categories",
-              )}
-              isEditing
-              data={question}
-              trigger={
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-[26.25px] w-[26.25px] rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
-                >
-                  <Pencil size={12.25} />
-                </Button>
-              }
-            />
-            <DeleteQuestionDialog
-              questionId={question.id}
-              trigger={
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-[26.25px] min-w-[26.25px] flex-1 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
-                >
-                  <Trash2 size={12.25} />
-                </Button>
-              }
-            />
-          </div>
-        </div>
-      )}
-
       {/* Divider */}
       <div className="border-t border-[#f9fafb] my-3 sm:my-4" />
 
-      {/* Footer with author and engagement */}
-      <div className="flex justify-between items-center gap-2">
-        {/* Author info */}
-        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-          <Avatar className="border border-[#f3f4f6] shrink-0">
-            <AvatarImage
-              src={profileImage}
-              alt={question.author.name}
-              className="object-cover"
-            />
-          </Avatar>
-          <div className="flex flex-col gap-0.5 min-w-0">
-            <p className="text-xs sm:text-sm font-semibold text-[#344256] truncate">
-              {question.author.name}
-            </p>
-            <p className="text-xs text-[#9eacc0] hidden sm:block">
-              Community Member
-            </p>
-          </div>
-        </div>
+      {/* Footer with vote, answer count, and share */}
+      <div className="flex items-center gap-2 sm:gap-3.5 shrink-0">
+        <QuestionVoteComponent question={question} className="h-7.5" />
 
-        {/* Engagement metrics */}
-        <div className="flex items-center gap-2 sm:gap-3.5 shrink-0">
-          <QuestionVoteComponent
-            questionId={question.id}
-            score={question.score}
-            viewerVote={question.viewerVote}
+        <button
+          onClick={handleGoToDetail}
+          className="group inline-flex items-center gap-2 text-xs font-medium text-[#48566A] text-[14px] rounded-lg cursor-pointer transition-colors hover:text-blue-600"
+        >
+          <MessageCircle
+            size={20}
+            className="text-[#48566A] group-hover:text-blue-600 transition-colors"
           />
-
-          <Link
-            to={`/forum/${question.id}`}
-            className="group inline-flex items-center gap-1 text-xs font-medium text-[#99a1af] px-2 py-1 rounded-lg cursor-pointer transition-colors hover:text-[#344256] active:text-[#344256]"
-          >
-            <MessageSquare
-              size={12.25}
-              className="text-[#99a1af] group-hover:text-[#344256] group-active:text-[#344256] transition-colors"
-            />
-            <span>
-              {question.answerCount}
-              <span className="hidden sm:inline"> answers</span>
-              <span className="sm:hidden"> ans</span>
-            </span>
-          </Link>
-
-          <div className="h-[22.75px] w-px bg-[#f3f4f6]" />
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-[22.75px] w-[22.75px] rounded-xl text-[#99a1af] hover:bg-[#f8fafc] hover:text-[#344256]"
-          >
-            <Bookmark size={12.25} />
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-[22.75px] w-[22.75px] rounded-xl text-[#99a1af] hover:bg-[#f8fafc] hover:text-[#344256]"
-          >
-            <Share2 size={12.25} />
-          </Button>
-          <ForumReportDialog
-            id={question.id}
-            type={ReportDialogType.QUESTION}
-            title={question.title}
-            isAuthenticated={Boolean(userId)}
-            reportReasons={
-              reportReasons?.reportingTypes.map((v) => ({
-                id: v.id,
-                reason: v.type,
-              })) || []
-            }
-          />
-        </div>
+          <span>
+            {question.answerCount}
+            <span className="hidden sm:inline"> answers</span>
+            <span className="sm:hidden"> ans</span>
+          </span>
+        </button>
+        <ShareQuestionDialog
+          question={question}
+          trigger={
+            <button className="group inline-flex items-center gap-2 text-xs font-medium text-[#48566A] text-[14px] rounded-lg cursor-pointer transition-colors hover:text-blue-600">
+              <Share2
+                size={20}
+                className="text-[#48566A] group-hover:text-blue-600 transition-colors"
+              />
+              Share
+            </button>
+          }
+        />
       </div>
-    </Card>
+    </motion.article>
   );
 }

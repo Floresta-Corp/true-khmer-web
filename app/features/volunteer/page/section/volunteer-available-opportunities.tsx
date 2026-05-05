@@ -19,7 +19,7 @@ function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
       ? Math.min(
           (opportunity.applicationCount / opportunity.capacity) * 100,
           100,
-        ) + 50
+        )
       : 0;
 
   return (

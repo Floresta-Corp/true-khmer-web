@@ -357,7 +357,7 @@ export default function RegisterPage() {
               >
                 <SelectTrigger
                   aria-label="Country calling code"
-                  className="h-full w-[8.5rem] rounded-l-lg rounded-r-none border-[#C3C6D6] border-r-0 bg-slate-50 px-3 text-sm font-medium leading-5 text-[#434654] shadow-none focus:ring-[#2F6FE4]/20 focus:ring-offset-0"
+                  className="h-full w-34 rounded-l-lg rounded-r-none border-[#C3C6D6] border-r-0 bg-slate-50 px-3 text-sm font-medium leading-5 text-[#434654] shadow-none focus:ring-[#2F6FE4]/20 focus:ring-offset-0"
                 >
                   <span className="truncate">
                     {selectedPhoneCountry.dialCode}
@@ -425,7 +425,9 @@ export default function RegisterPage() {
           <Label className="flex items-center gap-3 pl-1 text-sm font-semibold leading-5 text-gray-700">
             <Checkbox
               checked={agreeToDirectory}
-              onCheckedChange={(checked) => setAgreeToDirectory(checked === true)}
+              onCheckedChange={(checked) =>
+                setAgreeToDirectory(checked === true)
+              }
               className="size-4 rounded border-[#E8E8E8] bg-white data-[state=checked]:border-[#2F6FE4] data-[state=checked]:bg-[#2F6FE4]"
             />
             I agree publicly to appear on the member directory

@@ -11,7 +11,6 @@ const activeIcon = "/icons/conversation-icon.svg";
 
 export default function ForumHeaderNew() {
   const navigate = useNavigate();
-  const [searchParams, setSeachParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const { categories, userId } = useLoaderData<typeof loader>();
   const isAuthenticated = Boolean(userId);
@@ -43,19 +42,20 @@ export default function ForumHeaderNew() {
           <div className="flex py-2 h-12 flex-1 items-center gap-3 rounded-lg md:rounded-xl border border-[#e1e7ef] bg-white px-6">
             <Search className="size-4.5 shrink-0 text-[#8f9294]" />
             <input
-              type="search"
               value={search}
-              onChange={(e) => {
-                setSearch(e.currentTarget.value);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  if (search.trim()) {
-                    const url = `/forum/search?search=${encodeURIComponent(search)}`;
-                    navigate(url);
-                  }
-                }
-              }}
+              // onChange={(e) => {
+              //   setSearch(e.currentTarget.value);
+              // }}
+              // onKeyDown={(e) => {
+              //   if (e.key === "Enter") {
+              //     if (search.trim()) {
+              //       const url = `/forum/search?search=${encodeURIComponent(search)}`;
+              //       navigate(url);
+              //     }
+              //   }
+              // }}
+              //
+              onClick={() => navigate("/forum/search")}
               placeholder="Search discussions"
               className="w-full border-0 bg-transparent text-base text-[#2c2f31] placeholder:text-[#abadaf] focus:outline-none"
             />

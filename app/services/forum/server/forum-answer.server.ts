@@ -141,6 +141,15 @@ export async function getMyAnswers(request: Request) {
       method: "GET",
     },
   );
-
   return result;
+}
+
+export async function markAsBestAnswer(request: Request, answerId: string) {
+  return await apiRequestWithSession(
+    request,
+    `/forum/answer/mark-best-answer/${answerId}`,
+    {
+      method: "POST",
+    },
+  );
 }

@@ -15,9 +15,10 @@ import type { Route as ForumDetailRoute } from "project-types/forum/routes/+type
 
 type ForumDetailLoaderData = {
   question: Question | null;
+  bestAnswer: Answer[];
   answers: Answer[];
   userId: string | null;
-  reportReasons: GetPublicReportTypeResponse;
+  reportReasons: GetPublicReportTypeResponse | null;
 };
 
 export async function forumDetailLoader({
@@ -48,8 +49,10 @@ export async function forumDetailLoader({
 
   return {
     question: questionResult?.data.question ?? null,
-    answers: answersResult?.data.answers ?? [],
+    bestAnswer: answersResult?.data.answers.bestAnswer ?? [],
+    answers: answersResult?.data.answers.answers ?? [],
     userId: userId ?? null,
-    reportReasons: reportReasonsResult.data as GetPublicReportTypeResponse,
+    reportReasons:
+      (reportReasonsResult?.data as GetPublicReportTypeResponse | null) ?? null,
   } satisfies ForumDetailLoaderData;
 }

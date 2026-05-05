@@ -62,11 +62,11 @@ export default function AnswerVoteComponent({
 
   const upvoteClassName = isUpvoteActive
     ? "bg-[#ECFDF5] text-[#009966] hover:bg-[#ECFDF5] hover:text-[#009966]"
-    : "bg-transparent text-[#99a1af] hover:bg-[#ECFDF5] hover:text-[#009966]";
+    : "hover:bg-[#ECFDF5] hover:text-[#009966]";
 
   const downvoteClassName = isDownvoteActive
     ? "bg-[#FEF2F2] text-[#E7000B] hover:bg-[#FEF2F2] hover:text-[#FF2631]"
-    : "bg-transparent text-[#99a1af] hover:bg-[#FEF2F2] hover:text-[#FF2631]";
+    : "hover:bg-[#FEF2F2] hover:text-[#FF2631]";
 
   const handleUpvote = () => {
     fetcher.submit(
@@ -85,7 +85,7 @@ export default function AnswerVoteComponent({
   return (
     <div
       className={cn(
-        "flex w-7 shrink-0 flex-col items-center gap-[5.25px] pt-[3.5px]",
+        "flex h-fit bg-[#f9fafb] shrink-0 flex-col items-center gap-[5.25px] text-[#99a1af] pt-[3.5px] rounded-xl overflow-hidden transition-all",
         className,
       )}
     >
@@ -93,7 +93,7 @@ export default function AnswerVoteComponent({
         type="button"
         variant="ghost"
         className={cn(
-          `flex h-7 w-7 items-center cursor-pointer justify-center rounded-xl border border-[#f3f4f6] transition-colors`,
+          `flex h-7 w-7 items-center cursor-pointer justify-center rounded-none`,
           upvoteClassName,
         )}
         disabled={isSubmitting}
@@ -121,7 +121,7 @@ export default function AnswerVoteComponent({
         variant="ghost"
         disabled={isSubmitting}
         className={cn(
-          `flex h-7 w-7 items-center cursor-pointer justify-center rounded-xl border border-[#f3f4f6] transition-colors`,
+          `flex h-7 w-7 items-center cursor-pointer justify-center rounded-none`,
           downvoteClassName,
         )}
         onClick={handleDownvote}

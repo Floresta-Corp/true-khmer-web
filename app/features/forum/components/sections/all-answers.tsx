@@ -11,7 +11,9 @@ interface AllAnswersProps {
 }
 
 export default function AllAnswers({ answers }: AllAnswersProps) {
-  const { userId } = useLoaderData<typeof loader>();
+  const { userId, reportReasons, question } = useLoaderData<typeof loader>();
+  const answersKey = answers.map(a => a.id + (a.repliedAnswers?.map(r => r.id).join(',') ?? '')).join('|');
+
   return (
     <motion.section
       className="mt-5 flex flex-col gap-6"
@@ -40,16 +42,22 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
       </div>
 
       {/* Answer list */}
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6" key={answersKey}>
         {answers.map((answer, i) => {
           const isCurrentAuthor = userId === answer.author.id ? true : false;
           return (
             <AnswerNewCard
+              userId={userId}
               key={answer.id}
               answer={answer}
               index={i}
               isCurrentAuthor={isCurrentAuthor}
               isAuthenticated={Boolean(userId)}
+              isQuestionAuthor={userId === question?.author.id}
+              reportReasons={reportReasons.reportingTypes.map((v) => ({
+                id: v.id,
+                reason: v.type,
+              }))}
             />
           );
         })}
