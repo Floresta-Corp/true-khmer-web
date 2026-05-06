@@ -10,7 +10,7 @@ export default function ProjectOverviewSection({
   return (
     <div className="space-y-3.5">
       <h2 className="text-lg font-semibold tracking-[-0.44px] text-[#030213]">
-        Project Overview
+        Opportunity Overview
       </h2>
       <p className="text-[15px] font-medium leading-[24.375px] tracking-[-0.23px] text-[#4a5565]">
         {volunteer?.overview ??

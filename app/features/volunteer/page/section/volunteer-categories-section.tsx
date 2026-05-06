@@ -1,17 +1,32 @@
 import { CategoryCard } from "~/components/category-card";
+import { cn } from "~/lib/utils";
 import type { VolunteerCategory } from "~/services/volunteer/types/category";
 
 interface VolunteerCategoriesSectionProps {
+  fullscreen?: boolean;
+  className?: string;
   categories: VolunteerCategory[];
   onClickCategory?: (categoryId: string) => void;
+  cardClassName?: string;
+  activeCategoryId?: string;
 }
 
 export function VolunteerCategoriesSection({
   categories,
   onClickCategory,
+  className,
+  cardClassName,
+  fullscreen,
+  activeCategoryId,
 }: VolunteerCategoriesSectionProps) {
   return (
-    <section className="w-full bg-gray-50 px-6 md:px-12 lg:px-[131.5px] py-8">
+    <section
+      className={cn(
+        "w-full bg-gray-50",
+        fullscreen ? "" : "px-6 md:px-12 lg:px-[131.5px] py-8",
+        className,
+      )}
+    >
       <div className="mx-auto w-full max-w-294.25">
         <header className="mb-9">
           <h2 className="mb-1.75 text-[21px] font-semibold leading-7 tracking-[-0.88px] text-[#030213]">
@@ -30,6 +45,8 @@ export function VolunteerCategoriesSection({
               <CategoryCard
                 category={category}
                 onClick={() => onClickCategory?.(category.id)}
+                className={cardClassName}
+                active={category.id === activeCategoryId}
               />
             </div>
           ))}

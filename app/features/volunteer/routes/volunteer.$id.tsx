@@ -8,6 +8,5 @@ export const action = VolunteerDetailAction;
 
 export default function VolunteerOpportunityDetail() {
   const { volunteer } = useLoaderData<typeof loader>();
-
   return <VolunteerDetailPage volunteer={volunteer} />;
 }

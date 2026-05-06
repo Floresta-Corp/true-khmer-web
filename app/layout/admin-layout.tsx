@@ -1,17 +1,91 @@
-import { Outlet } from "react-router";
+import { Building2, LayoutDashboard, ShieldCheck, Users } from "lucide-react";
+import { Link, Outlet } from "react-router";
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarTrigger,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarInset,
+  SidebarMenu,
+} from "~/components/ui/sidebar";
+
+const user = {
+  userRole: "Super Admin",
+};
+
+const nav = [
+  {
+    icon: LayoutDashboard,
+    label: "Dashboard",
+    href: "/tk-admin/dashboard",
+    hide: false,
+  },
+  {
+    icon: ShieldCheck,
+    label: "Content Moderator",
+    href: "/tk-admin/content-moderator",
+    hide: false,
+  },
+  {
+    icon: Users,
+    label: "User management",
+    href: "/tk-admin/user-management",
+    hide: false,
+  },
+  { icon: Building2, label: "Partner", href: "/tk-admin/partner", hide: false },
+];
 
 export default function AdminLayout() {
   return (
-    <>
-      <header className="sticky top-0 z-50 w-full border-b border-[#f1f5f9] bg-white shadow-sm h-17">
-        Header
-      </header>
-      <div className="flex h-[calc(100vh-4.25rem)]">
-        <div className="w-64 border-r shrink-0">Side Bar</div>
-        <div className="flex-1 overflow-auto">
-          <Outlet />
-        </div>
-      </div>
-    </>
+    <div className="flex w-full overflow-hidden">
+      <SidebarProvider>
+        <Sidebar collapsible="icon" variant="sidebar">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton>Test</SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+          <SidebarContent>
+            {nav.map((item, index) => {
+              if (!item.hide)
+                return (
+                  <SidebarMenuItem key={index}>
+                    <Link to={item.href}>
+                      <SidebarMenuButton>
+                        <item.icon />
+                        <span>{item.label}</span>
+                      </SidebarMenuButton>
+                    </Link>
+                  </SidebarMenuItem>
+                );
+              return null;
+            })}
+            <SidebarGroup />
+          </SidebarContent>
+          <SidebarFooter />
+        </Sidebar>
+        <SidebarInset>
+          <header className="sticky top-0 z-50 w-full border-b border-[#f1f5f9] bg-white shadow-sm flex items-center h-17 gap-4 px-4 sm:px-6">
+            <SidebarTrigger />
+            <div className="flex items-center gap-2.5">
+              <span className="text-[10px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-[0.2em] hidden sm:inline">
+                Viewing as
+              </span>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 rounded-xl text-[11px] font-black uppercase tracking-widest border border-blue-100/50 dark:border-blue-900/20">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                {user.userRole}
+              </div>
+            </div>
+          </header>
+          <div className="overflow-y-auto">
+            <Outlet />
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </div>
   );
 }

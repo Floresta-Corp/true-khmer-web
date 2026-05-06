@@ -11,17 +11,19 @@ export default function BackToButton({ text, to }: BackToButtonProps) {
   const navigate = useNavigate();
 
   const goBack = () => {
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
+    if (to) {
       navigate(to);
+    } else {
+      if (window.history.length > 1) {
+        navigate(-1);
+      }
     }
   };
   return (
     <Button
       variant="link"
       onClick={goBack}
-      className="cursor-pointer inline-flex items-center gap-1.5 text-[13px] font-semibold transition-colors hover:text-[#2f6fe4] text-blue-600"
+      className="cursor-pointer inline-flex items-center gap-1.5 p-0 text-[13px] font-semibold transition-colors hover:text-[#2f6fe4] text-blue-600"
     >
       <ChevronLeft className="h-4.5 w-4.5" />
       {text ?? "Back"}
