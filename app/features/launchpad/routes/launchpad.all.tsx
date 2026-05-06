@@ -9,9 +9,7 @@ import { GetLaunchpadProjectsPaginated } from "~/services/launchpad/server/launc
 import { getPublicLaunchpadCategories } from "~/services/launchpad/server/launchpad.categories.server";
 import type { LaunchpadOpportunity } from "~/services/launchpad/types/project";
 import type { Category } from "~/services/launchpad/types/category";
-import type { VolunteerCategory } from "~/services/volunteer/types/category";
 import LaunchpadProjectCard from "../components/card/launchpad-project-card";
-import LaunchpadProjectCardSkeleton from "../components/card/launchpad-project-card-skeleton";
 import { CategoryCard } from "~/components/category-card";
 import BackToButton from "~/components/back-to-button";
 import { motion, useReducedMotion } from "motion/react";
@@ -154,12 +152,16 @@ export default function LaunchpadAllPage() {
                 <div
                   key={category.id}
                   className="shrink-0 snap-start md:min-w-0 md:shrink md:w-full cursor-pointer"
+                  onClick={() =>
+                    handleCategoryClick(isActive ? null : category.id)
+                  }
                 >
                   <CategoryCard
-                    category={category as unknown as VolunteerCategory}
-                    onClick={() =>
-                      handleCategoryClick(isActive ? null : category.id)
-                    }
+                    category={{
+                      ...category,
+                      displayOrder: category.roleCount,
+                      updatedBy: category.updatedBy ?? undefined,
+                    }}
                     active={isActive}
                   />
                 </div>
@@ -168,20 +170,19 @@ export default function LaunchpadAllPage() {
           </div>
         )}
 
+        {/* Divider */}
+        <div className="border-t border-gray-100 mb-8" />
+
         {/* Project grid */}
-        {allProjects.length > 0 || fetcher.state === "loading" ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 px-0 py-0 md:px-0 lg:px-0">
-            {fetcher.state === "loading" && !allProjects.length
-              ? Array.from({ length: 6 }).map((_, i) => (
-                  <LaunchpadProjectCardSkeleton key={`skeleton-${i}`} />
-                ))
-              : allProjects.map((item) => (
-                  <LaunchpadProjectCard
-                    key={item.id}
-                    item={item}
-                    onOpenOpportunity={onOpenOpportunity}
-                  />
-                ))}
+        {allProjects.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+            {allProjects.map((item) => (
+              <LaunchpadProjectCard
+                key={item.id}
+                item={item}
+                onOpenOpportunity={onOpenOpportunity}
+              />
+            ))}
           </div>
         ) : (
           <div className="text-center py-20">
