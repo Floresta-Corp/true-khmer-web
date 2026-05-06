@@ -2,7 +2,15 @@ import { FileText } from "lucide-react";
 import SectionInputCard from "~/components/section-input-card";
 import { Textarea } from "~/components/ui/textarea";
 
-export default function LaunchpadAboutProjectCard() {
+interface LaunchpadAboutProjectCardProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+export default function LaunchpadAboutProjectCard({
+  value,
+  onChange,
+}: LaunchpadAboutProjectCardProps) {
   return (
     <SectionInputCard
       header={{
@@ -13,6 +21,8 @@ export default function LaunchpadAboutProjectCard() {
     >
       <Textarea
         placeholder="What are you building, why does it matter, and what problem does it solve?"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
         className="bg-gray-50 border-none min-h-23"
       />
     </SectionInputCard>
