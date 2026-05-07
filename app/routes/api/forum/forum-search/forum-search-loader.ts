@@ -34,36 +34,54 @@ export async function ForumSearchLoader({
   const isTrending = searchParams.get("isTrending") === "true";
   const userId = await getUserId(request);
 
-  const [question, categories] = userId
-    ? await Promise.all([
-        getQuestionPagination(request, {
-          limit: limit ? Number(limit) : 10,
-          categoryId: categoryId || undefined,
-          tagId: tagId || undefined,
-          cursor: cursor || undefined,
-          sortBy,
-          isUnanswered,
-          isTrending,
-          search: search || undefined,
-        }),
-        getCategories(request),
-      ])
-    : await Promise.all([
-        getPublicQuestionPagination(request, {
-          limit: limit ? Number(limit) : 10,
-          categoryId: categoryId || undefined,
-          tagId: tagId || undefined,
-          cursor: cursor || undefined,
-          sortBy,
-          isUnanswered,
-          isTrending,
-          search: search || undefined,
-        }),
-        getPublicCategories(request),
-      ]);
+  // Check if any filter params are present (excluding cursor and limit)
+  const hasFilters = !!(
+    search ||
+    categoryId ||
+    tagId ||
+    isUnanswered ||
+    isTrending
+  );
+
+  // Only fetch categories - data will be fetched client-side when filters are applied
+  const categories = userId
+    ? await getCategories(request)
+    : await getPublicCategories(request);
+
+  // If no filters and not loading more (no cursor), skip fetching questions
+  const question =
+    hasFilters || cursor
+      ? userId
+        ? await getQuestionPagination(request, {
+            limit: limit ? Number(limit) : 10,
+            categoryId: categoryId || undefined,
+            tagId: tagId || undefined,
+            cursor: cursor || undefined,
+            sortBy,
+            isUnanswered,
+            isTrending,
+            search: search || undefined,
+          })
+        : await getPublicQuestionPagination(request, {
+            limit: limit ? Number(limit) : 10,
+            categoryId: categoryId || undefined,
+            tagId: tagId || undefined,
+            cursor: cursor || undefined,
+            sortBy,
+            isUnanswered,
+            isTrending,
+            search: search || undefined,
+          })
+      : null;
+
+  const emptyResponse: GetQuestionPaginationResponse = {
+    ok: true,
+    questions: [],
+    pagination: { limit: 10, hasMore: false, nextCursor: null },
+  };
 
   return {
-    data: question.data,
+    data: question?.data ?? emptyResponse,
     categories: categories.data.categories,
     userId: userId || null,
   } satisfies ForumSearchLoaderData;

@@ -1,4 +1,4 @@
-import { Users, Target, Zap, CheckCircle2, Circle } from "lucide-react";
+import { Users, CheckCircle2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Accordion,
@@ -11,17 +11,21 @@ import VolunteerApplicationDialog from "../dialog/volunteer-application-dialog";
 
 interface AvailableRolesSectionProps {
   roles: Role[];
+  showHeader?: boolean;
 }
 
 export default function AvailableRolesSection({
   roles,
+  showHeader = true,
 }: AvailableRolesSectionProps) {
   return (
     <div className="space-y-5">
-      <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-[-0.44px] text-[#030213]">
-        <Users className="size-[17.5px] text-[#2563eb]" />
-        Available Roles ({roles.reduce((a, b) => a + b.capacity, 0)})
-      </h2>
+      {showHeader && (
+        <h2 className="flex items-center gap-2.5 text-lg font-semibold tracking-[-0.44px] text-[#030213]">
+          <Users className="size-[17.5px] text-[#2563eb]" />
+          Available Roles ({roles.reduce((a, b) => a + b.capacity, 0)})
+        </h2>
+      )}
 
       <Accordion
         type="multiple"
@@ -45,10 +49,10 @@ function RoleCard({ role, roles }: RoleCardProps) {
   return (
     <AccordionItem
       value={role.id}
-      className="overflow-hidden rounded-[14px] border border-[#e1e7ef] data-[state=open]:border-[#e1e7ef]"
+      className="overflow-hidden rounded-[16px] border border-gray-100"
     >
-      <AccordionTrigger className="px-5.25 py-6 text-left no-underline hover:no-underline [&>svg]:size-[17.5px] [&>svg]:text-[#2f6fe4]">
-        <div className="flex items-center gap-3.5 ">
+      <AccordionTrigger className="px-5.25 py-4 text-left no-underline hover:no-underline [&>svg]:size-[17.5px] [&>svg]:text-[#2f6fe4] bg-[#f8fafc] rounded-none ">
+        <div className="flex items-center justify-between w-full">
           <div>
             <h3 className="text-[16px] font-bold text-[#0a0a0a]">
               {role.title}
@@ -64,18 +68,18 @@ function RoleCard({ role, roles }: RoleCardProps) {
         </div>
       </AccordionTrigger>
 
-      <AccordionContent className="px-5.25 pt-7.25 data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down border-t border-[#0000001A]">
+      <AccordionContent className="px-5.25 pt-7.25 bg-[#f8fafc] rounded-b-[16px] border-t border-[#0000001A]">
         <div className="grid gap-5 lg:grid-cols-2">
           <ResponsibilitiesSection items={role.responsibilities} />
           <RequirementsSection items={role.requirements} />
         </div>
 
-        <div className="my-7.25 flex justify-end border-t border-[#f3f4f6] pt-7.25">
+        <div className="my-7.25 flex justify-end pt-7.25">
           <VolunteerApplicationDialog
             roles={roles}
             initialRoleId={role.id}
             trigger={
-              <Button className="h-10 bg-[#2f6fe4] px-6 text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]">
+              <Button className="h-10 w-full bg-[#1c5dd4] px-6 text-sm font-medium text-[#f8fafc] hover:bg-[#184fb0]">
                 Apply for this Role
               </Button>
             }

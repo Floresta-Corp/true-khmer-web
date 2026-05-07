@@ -51,6 +51,7 @@ const ForumSearchHeader = forwardRef<HTMLInputElement, ForumSearchHeaderProps>(
                 <Search className="size-4.5 shrink-0 text-[#8f9294]" />
                 <input
                   ref={ref}
+                  autoFocus
                   type="search"
                   value={searchValue}
                   onChange={(event) =>

@@ -4,7 +4,7 @@ import EmptyPost from "../components/empty-post";
 import OpportunityCover from "../components/sections/opportunity-cover";
 import OpportunityDetailsGrid from "../components/sections/opportunity-details-grid";
 import ProjectOverviewSection from "../components/sections/project-overview-section";
-import AvailableRolesSection from "../components/sections/available-role-section";
+import AvailableRolesCard from "../components/sections/available-roles-card";
 import BenefitsSection from "../components/sections/benefit-section";
 import ProjectImpactSection from "../components/sections/project-impact-section";
 import OrganizerCard from "../components/sections/organizer-card";
@@ -60,10 +60,9 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
               <div className="px-8 pb-8">
                 <ProjectOverviewSection volunteer={volunteer} />
               </div>
-              <div className="px-8 pb-8">
-                <AvailableRolesSection roles={volunteer.roles} />
-              </div>
             </motion.article>
+
+            <AvailableRolesCard roles={volunteer.roles} />
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -97,9 +96,7 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
                 duration: prefersReducedMotion ? 0 : 0.3,
                 delay: prefersReducedMotion ? 0 : 0.2,
               }}
-            >
-              <OrganizerCard volunteer={volunteer} />
-            </motion.div>
+            ></motion.div>
           </section>
 
           <motion.div
@@ -110,11 +107,13 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
               duration: prefersReducedMotion ? 0 : 0.3,
               delay: prefersReducedMotion ? 0 : 0.1,
             }}
+            className="lg:sticky lg:top-24 flex flex-col gap-6"
           >
             <ApplicationSummary
               volunteer={volunteer}
               totalCapacity={totalCapacity}
             />
+            <OrganizerCard volunteer={volunteer} />
           </motion.div>
         </div>
       </div>
