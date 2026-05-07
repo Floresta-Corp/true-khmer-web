@@ -8,11 +8,48 @@ import {
   CardTitle,
   CardDescription,
 } from "~/components/ui/card";
-// Sidebar removed: page should not render the MySpaceSideBar
 import { Button } from "~/components/ui/button";
-import { MoreVertical } from "lucide-react";
+import {
+  MoreVertical,
+  Globe,
+  Linkedin,
+  Twitter,
+  Facebook,
+  Star,
+  Award,
+  Trophy,
+  Medal,
+  BarChart3,
+} from "lucide-react";
+import { MyspaceLoader } from "~/routes/api/myspace/myspace-loader";
+import type { Route } from "./+types/myspace";
+import { resolveImageURL } from "~/lib/utils";
+import { RecentActivityList } from "../components/recent-activity-list";
 
-export default function MySpacePage() {
+export const loader = MyspaceLoader;
+
+export default function MySpacePage({ loaderData }: Route.MetaArgs) {
+  const { me, recentActivities } = loaderData;
+
+  console.log(recentActivities);
+
+  if (!me) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p>Loading profile...</p>
+      </div>
+    );
+  }
+
+  const displayName =
+    me.user.displayName || `${me.user.firstName} ${me.user.lastName}`;
+  const avatarUrl = resolveImageURL(me.profile.avatarKey || undefined);
+  const hasSocialLinks =
+    me.socialLinks.website ||
+    me.socialLinks.linkedin ||
+    me.socialLinks.twitter ||
+    me.socialLinks.facebook;
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-300 mx-auto px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -50,17 +87,20 @@ export default function MySpacePage() {
               {/* Avatar with border and shadow */}
               <div className="flex flex-col items-start shrink-0">
                 <div className="bg-white border-8 border-[#f5f7f9] flex flex-col items-start justify-center overflow-clip p-2 rounded-[24px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] size-40">
-                  <img
-                    src="http://localhost:3845/assets/e0d1a8db5a2330b9ca78f2b988f21aed4bdd7bac.png"
-                    alt="Moran Hadad"
-                    className="absolute bg-clip-padding border-0 border-transparent inset-0 max-w-none object-cover pointer-events-none size-full"
-                    style={{
-                      position: "relative",
-                      width: "100%",
-                      height: "100%",
-                      borderRadius: 24,
-                    }}
-                  />
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt={displayName}
+                      className="object-cover size-full rounded-[24px]"
+                    />
+                  ) : (
+                    <div className="size-full bg-gray-200 rounded-[24px] flex items-center justify-center">
+                      <span className="text-2xl font-bold text-gray-500">
+                        {me.user.firstName[0]}
+                        {me.user.lastName[0]}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
               {/* Profile Info */}
@@ -69,47 +109,66 @@ export default function MySpacePage() {
                   <div className="flex items-start w-full">
                     <div className="flex flex-1 flex-col gap-2 justify-center min-w-0">
                       <p className="font-bold text-[26px] leading-9.75 text-[#2c2f31] whitespace-nowrap">
-                        Moran Hadad
+                        {displayName}
                       </p>
                       <p className="font-medium text-[18px] leading-6.75 text-[#65758b] whitespace-nowrap">
-                        Senior Product Designer
+                        {me.user.occupation || "No occupation set"}
                       </p>
                     </div>
                   </div>
                   <div className="flex flex-col items-start max-w-xl w-full">
                     <p className="font-medium text-[14px] leading-5.25 text-[#595c5e]">
-                      Dedicated to ecological restoration and sustainable urban
-                      development across Southeast Asia.
+                      {me.profile.bio || "No bio set"}
                     </p>
                   </div>
                 </div>
                 {/* Social Buttons */}
                 <div className="flex items-end w-full">
                   <div className="flex gap-2 items-center">
-                    {/* LinkedIn Button */}
-                    <a
-                      href="#"
-                      className="bg-[#f1f5f9] rounded-full flex items-center justify-center size-8 hover:bg-[#e9f0ff] transition-colors"
-                      aria-label="LinkedIn"
-                    >
-                      <img
-                        src="http://localhost:3845/assets/876e3cf6bb022b335a12648c5a9dcd118d5e5ff3.svg"
-                        alt="LinkedIn"
-                        className="size-4"
-                      />
-                    </a>
-                    {/* Facebook Button */}
-                    <a
-                      href="#"
-                      className="bg-[#f1f5f9] rounded-full flex items-center justify-center size-8 hover:bg-[#e9f0ff] transition-colors"
-                      aria-label="Facebook"
-                    >
-                      <img
-                        src="http://localhost:3845/assets/ce7af6c278d080b514abe053b62c266456043de6.svg"
-                        alt="Facebook"
-                        className="size-4"
-                      />
-                    </a>
+                    {me.socialLinks.linkedin && (
+                      <a
+                        href={me.socialLinks.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-[#f1f5f9] rounded-full flex items-center justify-center size-8 hover:bg-[#e9f0ff] transition-colors"
+                        aria-label="LinkedIn"
+                      >
+                        <Linkedin className="size-4" />
+                      </a>
+                    )}
+                    {me.socialLinks.facebook && (
+                      <a
+                        href={me.socialLinks.facebook}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-[#f1f5f9] rounded-full flex items-center justify-center size-8 hover:bg-[#e9f0ff] transition-colors"
+                        aria-label="Facebook"
+                      >
+                        <Facebook className="size-4" />
+                      </a>
+                    )}
+                    {me.socialLinks.twitter && (
+                      <a
+                        href={me.socialLinks.twitter}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-[#f1f5f9] rounded-full flex items-center justify-center size-8 hover:bg-[#e9f0ff] transition-colors"
+                        aria-label="Twitter"
+                      >
+                        <Twitter className="size-4" />
+                      </a>
+                    )}
+                    {me.socialLinks.website && (
+                      <a
+                        href={me.socialLinks.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-[#f1f5f9] rounded-full flex items-center justify-center size-8 hover:bg-[#e9f0ff] transition-colors"
+                        aria-label="Website"
+                      >
+                        <Globe className="size-4" />
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>
@@ -127,14 +186,10 @@ export default function MySpacePage() {
                 <CardDescription className="text-base font-medium text-[#595c5e]">
                   Impact Points
                 </CardDescription>
-                <img
-                  src="http://localhost:3845/assets/70bc6784b1bab91452ac25b603fb5f14bf4738c0.svg"
-                  alt=""
-                  className="h-4.25 w-4.25 shrink-0"
-                />
+                <Star className="h-4.25 w-4.25 shrink-0 text-[#f59e0b]" />
               </div>
               <CardTitle className="w-full text-[32px] font-bold leading-12 text-[#1d283a]">
-                10
+                {me.progress.totalPoints}
               </CardTitle>
             </Card>
 
@@ -143,14 +198,10 @@ export default function MySpacePage() {
                 <CardDescription className="text-base font-medium text-[#595c5e]">
                   Current Tier
                 </CardDescription>
-                <img
-                  src="http://localhost:3845/assets/c17863c1f78b17afb9f9b03fbed4517dfd6806f2.svg"
-                  alt=""
-                  className="h-5.25 w-4 shrink-0"
-                />
+                <Award className="h-5.25 w-4 shrink-0 text-[#cd7f32]" />
               </div>
               <CardTitle className="w-full text-[32px] font-bold leading-12 text-[#1d283a]">
-                Bronze
+                {me.progress.tier.name}
               </CardTitle>
               <div className="mt-6 flex w-full flex-col gap-2">
                 <div className="h-2 w-full rounded-full bg-[#f1f5f9]" />
@@ -165,14 +216,10 @@ export default function MySpacePage() {
                 <CardDescription className="text-base font-medium text-[#595c5e]">
                   Current Rank
                 </CardDescription>
-                <img
-                  src="http://localhost:3845/assets/b50b2a4750c595b34b78b6d6f0079c0034b31e04.svg"
-                  alt=""
-                  className="h-5 w-5 shrink-0"
-                />
+                <Trophy className="h-5 w-5 shrink-0 text-[#fbbf24]" />
               </div>
               <CardTitle className="w-full text-[32px] font-bold leading-12 text-[#0f172a]">
-                #128
+                {me.progress.rank || "#-"}
               </CardTitle>
             </Card>
           </motion.div>
@@ -191,11 +238,7 @@ export default function MySpacePage() {
                 </div>
 
                 <div className="relative flex min-h-45 flex-col items-center justify-center py-2 text-center">
-                  <img
-                    src="http://localhost:3845/assets/9fd463df1094d9fde1def3ac5bca7846a4183db4.svg"
-                    alt=""
-                    className="mb-2 h-8 w-6 shrink-0"
-                  />
+                  <Medal className="mb-2 h-8 w-6 shrink-0 text-[#94a3b8]" />
                   <p className="text-base text-[#64748b]">No medals yet</p>
                   <Link
                     to="#"
@@ -204,12 +247,6 @@ export default function MySpacePage() {
                     Browse achievements
                   </Link>
                 </div>
-
-                <img
-                  src="http://localhost:3845/assets/fcb0a02a248920b5399e23297a1696250e088318.svg"
-                  alt=""
-                  className="pointer-events-none absolute -bottom-4 -right-4 h-24 w-24 shrink-0 opacity-10"
-                />
               </div>
             </Card>
           </motion.div>
@@ -226,11 +263,7 @@ export default function MySpacePage() {
                 </CardTitle>
                 <div className="flex items-start">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f8fafc]">
-                    <img
-                      src="http://localhost:3845/assets/5787f0c18721ff4a5dea95192b8804d2a9d951bb.svg"
-                      alt=""
-                      className="h-[11.667px] w-[10.5px] shrink-0"
-                    />
+                    <BarChart3 className="h-[11.667px] w-[10.5px] shrink-0 text-[#64748b]" />
                   </div>
                 </div>
               </div>
@@ -290,48 +323,10 @@ export default function MySpacePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
           >
-            <Card className="overflow-clip rounded-xl bg-white p-8 shadow-[0px_4px_10px_rgba(0,0,0,0.03)]">
-              <div className="pb-8">
-                <CardTitle className="text-[20px] font-semibold leading-7 text-[#111c2d]">
-                  Recent Activity
-                </CardTitle>
-              </div>
-
-              <div className="rounded-2xl border border-[#f8fafc] px-px py-12.25">
-                <div className="flex flex-col items-center justify-center">
-                  <div className="mb-4 flex h-20 w-16 items-start justify-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#f1f5f9]">
-                      <img
-                        src="http://localhost:3845/assets/65c6f78db0c919da9fd702f7e1b152ec0edec4c3.svg"
-                        alt=""
-                        className="h-[22.5px] w-[22.5px] shrink-0"
-                      />
-                    </div>
-                  </div>
-
-                  <p className="text-[16px] leading-6 text-[#64748b]">
-                    No activity yet
-                  </p>
-
-                  <p className="max-w-[320px] pt-1 text-center text-[14px] leading-5 text-[#94a3b8]">
-                    Start interacting with the community to see your history
-                    here.
-                  </p>
-
-                  <Link
-                    to="/forum"
-                    className="mt-6 inline-flex items-center gap-2 text-[14px] font-semibold leading-5 text-[#2563eb]"
-                  >
-                    Visit community forum
-                    <img
-                      src="http://localhost:3845/assets/e44ca6eb4f611530aed41b802432436e5eb81267.svg"
-                      alt=""
-                      className="h-2 w-2 shrink-0"
-                    />
-                  </Link>
-                </div>
-              </div>
-            </Card>
+            <RecentActivityList
+              activities={recentActivities || []}
+              maxItems={20}
+            />
           </motion.div>
         </div>
 

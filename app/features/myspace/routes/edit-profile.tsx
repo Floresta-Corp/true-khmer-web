@@ -1,4 +1,9 @@
 import { useState } from "react";
+import { useLoaderData, useNavigate, useSubmit, Form } from "react-router";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   Upload,
   Trash2,
@@ -21,123 +26,148 @@ import { Textarea } from "~/components/ui/textarea";
 import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Spinner } from "~/components/ui/spinner";
+import { resolveImageURL } from "~/lib/utils";
+import {
+  EditProfileLoader,
+  EditProfileAction,
+} from "~/routes/api/myspace/edit-profile-loader";
 
-interface ProfileVisibilitySection {
-  title: string;
-  options: ("Public" | "Members" | "Private")[];
-  currentVisibility: "Public" | "Members" | "Private";
+export const loader = EditProfileLoader;
+export const action = EditProfileAction;
+
+const editProfileSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  gender: z.string().min(1, "Gender is required"),
+  dateOfBirth: z.string().optional(),
+  occupation: z.string().optional(),
+  phoneNumber: z.string().optional(),
+  telegramUsername: z.string().optional(),
+  bio: z.string().optional(),
+  countryId: z.string().optional(),
+  cityId: z.string().optional(),
+  avatarKey: z.string().optional(),
+  skills: z.array(z.string()),
+  website: z.string().optional(),
+  linkedin: z.string().optional(),
+  twitter: z.string().optional(),
+  facebook: z.string().optional(),
+  profileVisibility: z.string(),
+  contactVisibility: z.string(),
+  socialLinksVisibility: z.string(),
+  contributionsVisibility: z.string(),
+});
+
+type EditProfileFormData = z.infer<typeof editProfileSchema>;
+
+export function meta() {
+  return [
+    { title: "Edit Profile - True Khmer" },
+    { name: "description", content: "Update your profile information" },
+  ];
 }
 
 export default function EditProfile() {
-  const [profileImage, setProfileImage] = useState<string>(
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=User",
-  );
-  const [formData, setFormData] = useState({
-    firstName: "Moren",
-    lastName: "Hadad",
-    professionalTitle: "Senior Product Designer",
-    location: "Phnom Penh, Cambodia",
-    dateOfBirth: "October 14, 1985",
-    gender: "Female",
-    bio: "Passionate cloud specialist with over 5 years of experience in Azure architecture. I love helping the community grow through knowledge sharing and mentorship.",
+  const { me } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
+  const submit = useSubmit();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const defaultValues: EditProfileFormData = {
+    firstName: me?.user.firstName || "",
+    lastName: me?.user.lastName || "",
+    gender: me?.user.gender || "",
+    dateOfBirth: me?.user.dateOfBirth || "",
+    occupation: me?.user.occupation || "",
+    phoneNumber: me?.user.phoneNumber || "",
+    telegramUsername: me?.user.telegramUsername || "",
+    bio: me?.profile.bio || "",
+    countryId: me?.profile.country?.id || "",
+    cityId: me?.profile.city?.id || "",
+    avatarKey: me?.profile.avatarKey || "",
+    skills: me?.skills.map((s) => s.name) || [],
+    website: me?.socialLinks.website || "",
+    linkedin: me?.socialLinks.linkedin || "",
+    twitter: me?.socialLinks.twitter || "",
+    facebook: me?.socialLinks.facebook || "",
+    profileVisibility: me?.profile.visibility?.profile || "public",
+    contactVisibility: me?.profile.visibility?.contact || "public",
+    socialLinksVisibility: me?.profile.visibility?.socialLinks || "public",
+    contributionsVisibility: me?.profile.visibility?.contributions || "public",
+  };
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<EditProfileFormData>({
+    resolver: zodResolver(editProfileSchema),
+    defaultValues,
   });
 
-  const [skills, setSkills] = useState([
-    "Leadership",
-    "Project Management",
-    "UI Design",
-    "Azure DevOps",
-    "Architecture",
-  ]);
+  const skills = watch("skills");
   const [newSkill, setNewSkill] = useState("");
 
-  const [socialLinks, setSocialLinks] = useState({
-    website: "https://truekhmer.org",
-    linkedin: "LinkedIn Profile URL",
-    twitter: "Twitter Profile URL",
-    facebook: "Facebook Profile URL",
-  });
-
-  const [contactDetails, setContactDetails] = useState({
-    telegram: "@khmer_user",
-    phone: "+855 12 345 678",
-  });
-
-  const [visibilitySettings, setVisibilitySettings] = useState<
-    Record<string, ProfileVisibilitySection>
-  >({
-    profile: {
-      title: "Your Profile",
-      options: ["Public", "Members", "Private"],
-      currentVisibility: "Public",
-    },
-    contacts: {
-      title: "Contact Details",
-      options: ["Public", "Members", "Private"],
-      currentVisibility: "Public",
-    },
-    social: {
-      title: "Social Links",
-      options: ["Public", "Members", "Private"],
-      currentVisibility: "Public",
-    },
-    activities: {
-      title: "Contribution Activities",
-      options: ["Public", "Members", "Private"],
-      currentVisibility: "Public",
-    },
-  });
-
-  const handleInputChange = (field: keyof typeof formData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleSocialLinkChange = (
-    field: keyof typeof socialLinks,
-    value: string,
-  ) => {
-    setSocialLinks((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleContactDetailChange = (
-    field: keyof typeof contactDetails,
-    value: string,
-  ) => {
-    setContactDetails((prev) => ({ ...prev, [field]: value }));
-  };
+  const avatarUrl = resolveImageURL(me?.profile.avatarKey || undefined);
 
   const handleAddSkill = () => {
     if (newSkill.trim() && !skills.includes(newSkill)) {
-      setSkills((prev) => [...prev, newSkill]);
+      setValue("skills", [...skills, newSkill], { shouldValidate: true });
       setNewSkill("");
     }
   };
 
   const handleRemoveSkill = (skill: string) => {
-    setSkills((prev) => prev.filter((s) => s !== skill));
+    setValue(
+      "skills",
+      skills.filter((s) => s !== skill),
+      { shouldValidate: true },
+    );
+  };
+
+  const onSubmit = (data: EditProfileFormData) => {
+    setIsSubmitting(true);
+
+    const formData = new FormData();
+    formData.append("firstName", data.firstName);
+    formData.append("lastName", data.lastName);
+    formData.append("gender", data.gender);
+    formData.append("dateOfBirth", data.dateOfBirth || "");
+    formData.append("occupation", data.occupation || "");
+    formData.append("phoneNumber", data.phoneNumber || "");
+    formData.append("telegramUsername", data.telegramUsername || "");
+    formData.append("bio", data.bio || "");
+    formData.append("countryId", data.countryId || "");
+    formData.append("cityId", data.cityId || "");
+    formData.append("avatarKey", data.avatarKey || "");
+    formData.append("skills", data.skills.join(","));
+    formData.append("website", data.website || "");
+    formData.append("linkedin", data.linkedin || "");
+    formData.append("twitter", data.twitter || "");
+    formData.append("facebook", data.facebook || "");
+    formData.append("profileVisibility", data.profileVisibility);
+    formData.append("contactVisibility", data.contactVisibility);
+    formData.append("socialLinksVisibility", data.socialLinksVisibility);
+    formData.append("contributionsVisibility", data.contributionsVisibility);
+
+    submit(formData, {
+      method: "post",
+      action: "/profile/edit",
+    });
   };
 
   const toggleVisibility = (
-    section: string,
-    visibility: "Public" | "Members" | "Private",
+    field:
+      | "profileVisibility"
+      | "contactVisibility"
+      | "socialLinksVisibility"
+      | "contributionsVisibility",
+    value: string,
   ) => {
-    setVisibilitySettings((prev) => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        currentVisibility: visibility,
-      },
-    }));
-  };
-
-  const handleSaveChanges = () => {
-    console.log("Saving changes:", {
-      formData,
-      skills,
-      socialLinks,
-      contactDetails,
-      visibilitySettings,
-    });
+    setValue(field, value, { shouldValidate: true });
   };
 
   const containerVariants = {
@@ -177,7 +207,7 @@ export default function EditProfile() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <BackToButton text="Back to Profile" to="/profile" />
+          <BackToButton text="Back to My Space" to="/myspace" />
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -190,516 +220,511 @@ export default function EditProfile() {
           </motion.div>
         </motion.div>
 
-        <motion.div
-          className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          {/* Left Column - Main Form */}
+        <Form method="post" onSubmit={handleSubmit(onSubmit)}>
           <motion.div
-            className="lg:col-span-2 space-y-6"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
+            className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
           >
-            {/* Profile Picture Card */}
+            {/* Left Column - Main Form */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, duration: 0.4 }}
+              className="lg:col-span-2 space-y-6"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
             >
-              <Card className="border border-gray-200">
-                <CardContent className="p-6 space-y-6">
-                  <div className="flex gap-6">
-                    <motion.div
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 30,
-                        delay: 0.4,
-                      }}
-                    >
-                      <Avatar className="h-24 w-24 shrink-0">
-                        <AvatarImage src={profileImage} alt="Profile" />
-                        <AvatarFallback>MH</AvatarFallback>
-                      </Avatar>
-                    </motion.div>
-                    <motion.div
-                      className="space-y-3"
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.4, duration: 0.3 }}
-                    >
-                      <h3 className="font-semibold text-gray-900">
-                        Profile Picture
-                      </h3>
-                      <div className="flex gap-3">
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="gap-2 text-sm"
-                          >
-                            <Upload className="h-4 w-4" />
-                            Upload new image
-                          </Button>
-                        </motion.div>
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="gap-2 text-sm"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            Delete current image
-                          </Button>
-                        </motion.div>
-                      </div>
-                    </motion.div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Basic Information */}
-                  <motion.div
-                    className="grid grid-cols-2 gap-6"
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                  >
-                    <motion.div className="space-y-2" variants={itemVariants}>
-                      <Label htmlFor="firstName">First name</Label>
-                      <Input
-                        id="firstName"
-                        value={formData.firstName}
-                        onChange={(e) =>
-                          handleInputChange("firstName", e.target.value)
-                        }
-                        placeholder="First name"
-                      />
-                    </motion.div>
-                    <motion.div className="space-y-2" variants={itemVariants}>
-                      <Label htmlFor="lastName">Last name</Label>
-                      <Input
-                        id="lastName"
-                        value={formData.lastName}
-                        onChange={(e) =>
-                          handleInputChange("lastName", e.target.value)
-                        }
-                        placeholder="Last name"
-                      />
-                    </motion.div>
-                  </motion.div>
-
-                  <motion.div
-                    className="grid grid-cols-2 gap-6"
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                  >
-                    <motion.div className="space-y-2" variants={itemVariants}>
-                      <Label htmlFor="professionalTitle">
-                        Professional title
-                      </Label>
-                      <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2">
-                        <span className="text-gray-400">🎯</span>
-                        <input
-                          id="professionalTitle"
-                          type="text"
-                          value={formData.professionalTitle}
-                          onChange={(e) =>
-                            handleInputChange(
-                              "professionalTitle",
-                              e.target.value,
-                            )
-                          }
-                          placeholder="Job title"
-                          className="flex-1 outline-none text-sm"
-                        />
-                      </div>
-                    </motion.div>
-                    <motion.div className="space-y-2" variants={itemVariants}>
-                      <Label
-                        htmlFor="location"
-                        className="flex items-center gap-2"
-                      >
-                        <MapPin className="h-4 w-4" />
-                        Location
-                      </Label>
-                      <Input
-                        id="location"
-                        value={formData.location}
-                        onChange={(e) =>
-                          handleInputChange("location", e.target.value)
-                        }
-                        placeholder="City, Country"
-                      />
-                    </motion.div>
-                  </motion.div>
-
-                  <motion.div
-                    className="grid grid-cols-2 gap-6"
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                  >
-                    <motion.div className="space-y-2" variants={itemVariants}>
-                      <Label
-                        htmlFor="dateOfBirth"
-                        className="flex items-center gap-2"
-                      >
-                        <Calendar className="h-4 w-4" />
-                        Date of birth
-                      </Label>
-                      <Input
-                        id="dateOfBirth"
-                        value={formData.dateOfBirth}
-                        onChange={(e) =>
-                          handleInputChange("dateOfBirth", e.target.value)
-                        }
-                        placeholder="Date"
-                      />
-                    </motion.div>
-                    <motion.div className="space-y-2" variants={itemVariants}>
-                      <Label htmlFor="gender">Gender</Label>
-                      <Input
-                        id="gender"
-                        value={formData.gender}
-                        onChange={(e) =>
-                          handleInputChange("gender", e.target.value)
-                        }
-                        placeholder="Gender"
-                      />
-                    </motion.div>
-                  </motion.div>
-
-                  <motion.div
-                    className="space-y-2"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.55, duration: 0.4 }}
-                  >
-                    <Label htmlFor="bio">Bio</Label>
-                    <Textarea
-                      id="bio"
-                      value={formData.bio}
-                      onChange={(e) => handleInputChange("bio", e.target.value)}
-                      placeholder="Tell us about yourself"
-                      rows={4}
-                    />
-                  </motion.div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Skills Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.4 }}
-            >
-              <Card className="border border-gray-200">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900">Skills</h3>
-                    <Button
-                      variant="link"
-                      size="sm"
-                      className="text-blue-600 p-0 h-auto"
-                      onClick={handleAddSkill}
-                    >
-                      Add
-                    </Button>
-                  </div>
-                  <div className="flex gap-2 mb-4">
-                    <Input
-                      value={newSkill}
-                      onChange={(e) => setNewSkill(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          handleAddSkill();
-                        }
-                      }}
-                      placeholder="Add a skill (e.g. Graphic Design)"
-                      className="text-sm"
-                    />
-                  </div>
-                  <motion.div
-                    className="flex flex-wrap gap-2"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.45, staggerChildren: 0.05 }}
-                  >
-                    {skills.map((skill, index) => (
+              {/* Profile Picture Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35, duration: 0.4 }}
+              >
+                <Card className="border border-gray-200">
+                  <CardContent className="p-6 space-y-6">
+                    <div className="flex gap-6">
                       <motion.div
-                        key={skill}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
                         transition={{
                           type: "spring",
                           stiffness: 300,
                           damping: 30,
-                          delay: index * 0.05,
+                          delay: 0.4,
                         }}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
                       >
-                        <Badge
-                          variant="outline"
-                          className="flex items-center gap-2 cursor-pointer hover:bg-gray-100"
-                          onClick={() => handleRemoveSkill(skill)}
-                        >
-                          {skill}
-                          <span className="ml-1">×</span>
-                        </Badge>
+                        <Avatar className="h-24 w-24 shrink-0">
+                          <AvatarImage
+                            src={avatarUrl || undefined}
+                            alt="Profile"
+                          />
+                          <AvatarFallback>
+                            {me?.user.firstName?.[0]}
+                            {me?.user.lastName?.[0]}
+                          </AvatarFallback>
+                        </Avatar>
                       </motion.div>
-                    ))}
-                  </motion.div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Social Links Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45, duration: 0.4 }}
-            >
-              <Card className="border border-gray-200">
-                <CardContent className="p-6">
-                  <h3 className="font-semibold text-gray-900 mb-4">
-                    Social Links
-                  </h3>
-                  <motion.div
-                    className="grid grid-cols-2 gap-6"
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                  >
-                    {[
-                      {
-                        id: "website",
-                        label: "Website or link",
-                        icon: Globe,
-                      },
-                      {
-                        id: "linkedin",
-                        label: "LinkedIn",
-                        icon: Linkedin,
-                      },
-                    ].map((field) => (
                       <motion.div
-                        key={field.id}
-                        className="space-y-2"
-                        variants={itemVariants}
+                        className="space-y-3"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4, duration: 0.3 }}
                       >
+                        <h3 className="font-semibold text-gray-900">
+                          Profile Picture
+                        </h3>
+                        <div className="flex gap-3">
+                          <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="gap-2 text-sm"
+                            >
+                              <Upload className="h-4 w-4" />
+                              Upload new image
+                            </Button>
+                          </motion.div>
+                          <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="gap-2 text-sm"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              Delete current image
+                            </Button>
+                          </motion.div>
+                        </div>
+                      </motion.div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Basic Information */}
+                    <motion.div
+                      className="grid grid-cols-2 gap-6"
+                      variants={containerVariants}
+                      initial="hidden"
+                      animate="visible"
+                    >
+                      <motion.div className="space-y-2" variants={itemVariants}>
+                        <Label htmlFor="firstName">First name</Label>
+                        <Input
+                          id="firstName"
+                          {...register("firstName")}
+                          placeholder="First name"
+                        />
+                        {errors.firstName && (
+                          <p className="text-xs text-red-500">
+                            {errors.firstName.message}
+                          </p>
+                        )}
+                      </motion.div>
+                      <motion.div className="space-y-2" variants={itemVariants}>
+                        <Label htmlFor="lastName">Last name</Label>
+                        <Input
+                          id="lastName"
+                          {...register("lastName")}
+                          placeholder="Last name"
+                        />
+                        {errors.lastName && (
+                          <p className="text-xs text-red-500">
+                            {errors.lastName.message}
+                          </p>
+                        )}
+                      </motion.div>
+                    </motion.div>
+
+                    <motion.div
+                      className="grid grid-cols-2 gap-6"
+                      variants={containerVariants}
+                      initial="hidden"
+                      animate="visible"
+                    >
+                      <motion.div className="space-y-2" variants={itemVariants}>
+                        <Label htmlFor="occupation">Occupation</Label>
+                        <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2">
+                          <span className="text-gray-400">🎯</span>
+                          <input
+                            id="occupation"
+                            type="text"
+                            {...register("occupation")}
+                            placeholder="Job title"
+                            className="flex-1 outline-none text-sm bg-transparent"
+                          />
+                        </div>
+                      </motion.div>
+                      <motion.div className="space-y-2" variants={itemVariants}>
                         <Label
-                          htmlFor={field.id}
+                          htmlFor="countryId"
                           className="flex items-center gap-2"
                         >
-                          <field.icon className="h-4 w-4" />
-                          {field.label}
+                          <MapPin className="h-4 w-4" />
+                          Location
                         </Label>
                         <Input
-                          id={field.id}
-                          value={
-                            socialLinks[field.id as keyof typeof socialLinks]
-                          }
-                          onChange={(e) =>
-                            handleSocialLinkChange(
-                              field.id as keyof typeof socialLinks,
-                              e.target.value,
-                            )
-                          }
-                          placeholder={`${field.label} URL`}
+                          id="countryId"
+                          {...register("countryId")}
+                          placeholder="Country"
                         />
                       </motion.div>
-                    ))}
-                  </motion.div>
-                  <motion.div
-                    className="grid grid-cols-2 gap-6 mt-6"
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                  >
-                    {[
-                      {
-                        id: "twitter",
-                        label: "Twitter",
-                        icon: Twitter,
-                      },
-                      {
-                        id: "facebook",
-                        label: "Facebook",
-                        icon: Facebook,
-                      },
-                    ].map((field) => (
-                      <motion.div
-                        key={field.id}
-                        className="space-y-2"
-                        variants={itemVariants}
-                      >
+                    </motion.div>
+
+                    <motion.div
+                      className="grid grid-cols-2 gap-6"
+                      variants={containerVariants}
+                      initial="hidden"
+                      animate="visible"
+                    >
+                      <motion.div className="space-y-2" variants={itemVariants}>
                         <Label
-                          htmlFor={field.id}
+                          htmlFor="dateOfBirth"
                           className="flex items-center gap-2"
                         >
-                          <field.icon className="h-4 w-4" />
-                          {field.label}
+                          <Calendar className="h-4 w-4" />
+                          Date of birth
                         </Label>
                         <Input
-                          id={field.id}
-                          value={
-                            socialLinks[field.id as keyof typeof socialLinks]
-                          }
-                          onChange={(e) =>
-                            handleSocialLinkChange(
-                              field.id as keyof typeof socialLinks,
-                              e.target.value,
-                            )
-                          }
-                          placeholder={`${field.label} Profile URL`}
+                          id="dateOfBirth"
+                          type="date"
+                          {...register("dateOfBirth")}
+                          placeholder="Date"
                         />
                       </motion.div>
-                    ))}
-                  </motion.div>
-                </CardContent>
-              </Card>
-            </motion.div>
+                      <motion.div className="space-y-2" variants={itemVariants}>
+                        <Label htmlFor="gender">Gender</Label>
+                        <select
+                          id="gender"
+                          {...register("gender")}
+                          className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                        >
+                          <option value="">Select gender</option>
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
+                          <option value="other">Other</option>
+                        </select>
+                        {errors.gender && (
+                          <p className="text-xs text-red-500">
+                            {errors.gender.message}
+                          </p>
+                        )}
+                      </motion.div>
+                    </motion.div>
 
-            {/* Contact Details Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.4 }}
-            >
-              <Card className="border border-gray-200">
-                <CardContent className="p-6">
-                  <h3 className="font-semibold text-gray-900 mb-4">
-                    Contact Details
-                  </h3>
-                  <motion.div
-                    className="grid grid-cols-2 gap-6"
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                  >
-                    <motion.div className="space-y-2" variants={itemVariants}>
-                      <Label
-                        htmlFor="telegram"
-                        className="flex items-center gap-2"
-                      >
-                        <MessageSquare className="h-4 w-4" />
-                        Telegram username
-                      </Label>
-                      <Input
-                        id="telegram"
-                        value={contactDetails.telegram}
-                        onChange={(e) =>
-                          handleContactDetailChange("telegram", e.target.value)
-                        }
-                        placeholder="@username"
+                    <motion.div
+                      className="space-y-2"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.55, duration: 0.4 }}
+                    >
+                      <Label htmlFor="bio">Bio</Label>
+                      <Textarea
+                        id="bio"
+                        {...register("bio")}
+                        placeholder="Tell us about yourself"
+                        rows={4}
                       />
                     </motion.div>
-                    <motion.div className="space-y-2" variants={itemVariants}>
-                      <Label
-                        htmlFor="phone"
-                        className="flex items-center gap-2"
-                      >
-                        <Phone className="h-4 w-4" />
-                        Phone number
-                      </Label>
-                      <Input
-                        id="phone"
-                        value={contactDetails.phone}
-                        onChange={(e) =>
-                          handleContactDetailChange("phone", e.target.value)
-                        }
-                        placeholder="+855 12 345 678"
-                      />
-                    </motion.div>
-                  </motion.div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Action Buttons */}
-            <motion.div
-              className="flex justify-end gap-3"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.55, duration: 0.4 }}
-            >
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Button variant="outline">Cancel</Button>
+                  </CardContent>
+                </Card>
               </motion.div>
+
+              {/* Skills Section */}
               <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.4 }}
               >
-                <Button
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                  onClick={handleSaveChanges}
+                <Card className="border border-gray-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-gray-900">Skills</h3>
+                    </div>
+                    <div className="flex gap-2 mb-4">
+                      <Input
+                        value={newSkill}
+                        onChange={(e) => setNewSkill(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleAddSkill();
+                          }
+                        }}
+                        placeholder="Add a skill (e.g. Graphic Design)"
+                        className="text-sm"
+                      />
+                      <Button type="button" onClick={handleAddSkill}>
+                        Add
+                      </Button>
+                    </div>
+                    <motion.div
+                      className="flex flex-wrap gap-2"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.45, staggerChildren: 0.05 }}
+                    >
+                      {skills.map((skill, index) => (
+                        <motion.div
+                          key={skill}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 30,
+                            delay: index * 0.05,
+                          }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Badge
+                            variant="outline"
+                            className="flex items-center gap-2 cursor-pointer hover:bg-gray-100"
+                            onClick={() => handleRemoveSkill(skill)}
+                          >
+                            {skill}
+                            <span className="ml-1">×</span>
+                          </Badge>
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Social Links Section */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.45, duration: 0.4 }}
+              >
+                <Card className="border border-gray-200">
+                  <CardContent className="p-6">
+                    <h3 className="font-semibold text-gray-900 mb-4">
+                      Social Links
+                    </h3>
+                    <motion.div
+                      className="grid grid-cols-2 gap-6"
+                      variants={containerVariants}
+                      initial="hidden"
+                      animate="visible"
+                    >
+                      <motion.div className="space-y-2" variants={itemVariants}>
+                        <Label
+                          htmlFor="website"
+                          className="flex items-center gap-2"
+                        >
+                          <Globe className="h-4 w-4" />
+                          Website
+                        </Label>
+                        <Input
+                          id="website"
+                          {...register("website")}
+                          placeholder="Website URL"
+                        />
+                      </motion.div>
+                      <motion.div className="space-y-2" variants={itemVariants}>
+                        <Label
+                          htmlFor="linkedin"
+                          className="flex items-center gap-2"
+                        >
+                          <Linkedin className="h-4 w-4" />
+                          LinkedIn
+                        </Label>
+                        <Input
+                          id="linkedin"
+                          {...register("linkedin")}
+                          placeholder="LinkedIn URL"
+                        />
+                      </motion.div>
+                    </motion.div>
+                    <motion.div
+                      className="grid grid-cols-2 gap-6 mt-6"
+                      variants={containerVariants}
+                      initial="hidden"
+                      animate="visible"
+                    >
+                      <motion.div className="space-y-2" variants={itemVariants}>
+                        <Label
+                          htmlFor="twitter"
+                          className="flex items-center gap-2"
+                        >
+                          <Twitter className="h-4 w-4" />
+                          Twitter
+                        </Label>
+                        <Input
+                          id="twitter"
+                          {...register("twitter")}
+                          placeholder="Twitter URL"
+                        />
+                      </motion.div>
+                      <motion.div className="space-y-2" variants={itemVariants}>
+                        <Label
+                          htmlFor="facebook"
+                          className="flex items-center gap-2"
+                        >
+                          <Facebook className="h-4 w-4" />
+                          Facebook
+                        </Label>
+                        <Input
+                          id="facebook"
+                          {...register("facebook")}
+                          placeholder="Facebook URL"
+                        />
+                      </motion.div>
+                    </motion.div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Contact Details Section */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.4 }}
+              >
+                <Card className="border border-gray-200">
+                  <CardContent className="p-6">
+                    <h3 className="font-semibold text-gray-900 mb-4">
+                      Contact Details
+                    </h3>
+                    <motion.div
+                      className="grid grid-cols-2 gap-6"
+                      variants={containerVariants}
+                      initial="hidden"
+                      animate="visible"
+                    >
+                      <motion.div className="space-y-2" variants={itemVariants}>
+                        <Label
+                          htmlFor="telegramUsername"
+                          className="flex items-center gap-2"
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                          Telegram username
+                        </Label>
+                        <Input
+                          id="telegramUsername"
+                          {...register("telegramUsername")}
+                          placeholder="@username"
+                        />
+                      </motion.div>
+                      <motion.div className="space-y-2" variants={itemVariants}>
+                        <Label
+                          htmlFor="phoneNumber"
+                          className="flex items-center gap-2"
+                        >
+                          <Phone className="h-4 w-4" />
+                          Phone number
+                        </Label>
+                        <Input
+                          id="phoneNumber"
+                          {...register("phoneNumber")}
+                          placeholder="+855 12 345 678"
+                        />
+                      </motion.div>
+                    </motion.div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Action Buttons */}
+              <motion.div
+                className="flex justify-end gap-3"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55, duration: 0.4 }}
+              >
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  Save Changes
-                </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => navigate("/myspace")}
+                  >
+                    Cancel
+                  </Button>
+                </motion.div>
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Button
+                    type="submit"
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <span className="inline-flex items-center gap-2">
+                        <Spinner className="size-4" />
+                        Saving...
+                      </span>
+                    ) : (
+                      "Save Changes"
+                    )}
+                  </Button>
+                </motion.div>
               </motion.div>
             </motion.div>
-          </motion.div>
 
-          {/* Right Column - Profile Visibility */}
-          <motion.div
-            className="space-y-4"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.35, duration: 0.5 }}
-          >
+            {/* Right Column - Profile Visibility */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.4 }}
+              className="space-y-4"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.35, duration: 0.5 }}
             >
-              <Card className="border border-gray-200">
-                <CardContent className="p-6">
-                  <h3 className="font-semibold text-gray-900 mb-6">
-                    Profile Visibility
-                  </h3>
-                  <motion.div
-                    className="space-y-6"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{
-                      delay: 0.45,
-                      staggerChildren: 0.08,
-                      duration: 0.4,
-                    }}
-                  >
-                    {Object.entries(visibilitySettings).map(
-                      ([key, section], index) => (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.4 }}
+              >
+                <Card className="border border-gray-200">
+                  <CardContent className="p-6">
+                    <h3 className="font-semibold text-gray-900 mb-6">
+                      Profile Visibility
+                    </h3>
+                    <motion.div
+                      className="space-y-6"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{
+                        delay: 0.45,
+                        staggerChildren: 0.08,
+                        duration: 0.4,
+                      }}
+                    >
+                      {[
+                        { key: "profileVisibility", label: "Your Profile" },
+                        { key: "contactVisibility", label: "Contact Details" },
+                        { key: "socialLinksVisibility", label: "Social Links" },
+                        {
+                          key: "contributionsVisibility",
+                          label: "Contribution Activities",
+                        },
+                      ].map(({ key, label }) => (
                         <motion.div
                           key={key}
                           className="space-y-3"
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{
-                            delay: 0.45 + index * 0.08,
+                            delay: 0.45,
                             duration: 0.4,
                           }}
                         >
                           <p className="text-sm font-medium text-gray-700">
-                            {section.title}
+                            {label}
                           </p>
                           <motion.div
                             className="flex gap-2"
@@ -710,7 +735,7 @@ export default function EditProfile() {
                               duration: 0.3,
                             }}
                           >
-                            {section.options.map((option) => (
+                            {["public", "members", "private"].map((option) => (
                               <motion.div
                                 key={option}
                                 whileHover={{ scale: 1.05 }}
@@ -724,50 +749,46 @@ export default function EditProfile() {
                                 }}
                               >
                                 <Button
+                                  type="button"
                                   size="sm"
                                   variant={
-                                    section.currentVisibility === option
+                                    watch(key as keyof EditProfileFormData) ===
+                                    option
                                       ? "default"
                                       : "outline"
                                   }
-                                  className={`text-xs font-medium transition-all ${section.currentVisibility === option
-                                    ? "bg-blue-600 hover:bg-blue-700 text-white"
-                                    : ""
-                                    }`}
+                                  className={`text-xs font-medium transition-all ${
+                                    watch(key as keyof EditProfileFormData) ===
+                                    option
+                                      ? "bg-blue-600 hover:bg-blue-700 text-white"
+                                      : ""
+                                  }`}
                                   onClick={() =>
                                     toggleVisibility(
-                                      key,
-                                      option as
-                                      | "Public"
-                                      | "Members"
-                                      | "Private",
+                                      key as
+                                        | "profileVisibility"
+                                        | "contactVisibility"
+                                        | "socialLinksVisibility"
+                                        | "contributionsVisibility",
+                                      option,
                                     )
                                   }
                                 >
-                                  {option}
+                                  {option.charAt(0).toUpperCase() +
+                                    option.slice(1)}
                                 </Button>
                               </motion.div>
                             ))}
                           </motion.div>
-                          {section.currentVisibility === "Private" && (
-                            <motion.p
-                              className="text-xs text-gray-500"
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ delay: 0.2, duration: 0.3 }}
-                            >
-                              Visibility restricted: Only you can see this item
-                            </motion.p>
-                          )}
                         </motion.div>
-                      ),
-                    )}
-                  </motion.div>
-                </CardContent>
-              </Card>
+                      ))}
+                    </motion.div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             </motion.div>
           </motion.div>
-        </motion.div>
+        </Form>
       </div>
     </motion.div>
   );
