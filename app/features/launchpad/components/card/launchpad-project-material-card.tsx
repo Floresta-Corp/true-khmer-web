@@ -1,5 +1,5 @@
 import { Paperclip, Plus } from "lucide-react";
-import { useId } from "react";
+import { useId, useRef } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import LaunchpadMaterialComponent from "../launchpad-material-component";
@@ -18,6 +18,7 @@ export default function LaunchpadProjectMaterialCard({
 }: LaunchpadProjectMaterialCardProps) {
   const inputId = useId();
   const errorId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleAddFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const incoming = Array.from(event.target.files ?? []);
@@ -49,16 +50,16 @@ export default function LaunchpadProjectMaterialCard({
         required: true,
         action: (
           <>
-            <label htmlFor={inputId} className="cursor-pointer">
-              <Button
-                type="button"
-                variant="outline"
-                className="h-10 bg-gray-100 hover:bg-gray-200 border-none"
-              >
-                <Plus /> Add file
-              </Button>
-            </label>
+            <Button
+              type="button"
+              variant="outline"
+              className="h-10 bg-gray-100 hover:bg-gray-200 border-none"
+              onClick={() => inputRef.current?.click()}
+            >
+              <Plus /> Add file
+            </Button>
             <input
+              ref={inputRef}
               id={inputId}
               type="file"
               multiple
