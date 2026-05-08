@@ -37,7 +37,7 @@ export async function voteForumAnswer(
 }
 
 export async function myPublishForumAnswer(request: Request) {
-  const result = await apiRequestWithSession<MyAnswerItem>(
+  const result = await apiRequestWithSession<MyAnswersResponse>(
     request,
     `/forum/answer/my-answers`,
     {

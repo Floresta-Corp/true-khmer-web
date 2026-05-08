@@ -17,14 +17,13 @@ type TabType = "questions" | "answers";
 
 export default function WorkSpaceCard({ questions, answer }: Props) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = (searchParams.get("tab") as TabType) || "questions";
+  const rawTab = searchParams.get("tab");
+  const activeTab: TabType =
+    rawTab === "questions" || rawTab === "answers" ? rawTab : "questions";
 
   const setActiveTab = (tab: TabType) => {
     setSearchParams({ tab });
   };
-  if (!questions || questions.length === 0) {
-    return <p className="text-sm text-[#64748b]">No questions posted yet.</p>;
-  }
 
   const questionCount = questions.length;
   const answerCount = answer.length;

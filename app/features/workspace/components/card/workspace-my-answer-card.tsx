@@ -20,6 +20,8 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
     ? resolveImageURL(answer.author.avatarKey)
     : "";
 
+  const questionId = answer.question?.id;
+
   return (
     <motion.article
       className="w-full rounded-xl sm:rounded-2xl bg-white p-4 sm:p-5 lg:p-6 shadow-[0px_4px_24px_0px_rgba(0,0,0,0.04)] mb-2"
@@ -61,7 +63,7 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
           <div className="flex items-center justify-end">
             <div className="flex h-[26.25px] w-[59.5px] items-center gap-1.75">
               <AddAnswerDialog
-                questionId={answer?.question?.id}
+                questionId={questionId}
                 isEditing
                 data={{ id: answer?.id ?? "", body: answer?.body ?? "" }}
                 trigger={
@@ -99,7 +101,7 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
           REPLYING TO:
         </p>
         <Link
-          to={`/forum/detail/${answer?.question?.id}`}
+          to={`/forum/detail/${questionId}`}
           className="text-base sm:text-lg font-semibold text-[#1f2937] hover:text-blue-600 transition-colors"
         >
           {answer?.question?.title || "Question unavailable"}
@@ -116,14 +118,14 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
       {/* Footer with reply count */}
       <div className="flex items-center justify-between pt-3 border-t border-[#f3f4f6]">
         <Link
-          to={`/forum/detail/${answer?.question?.id}`}
+          to={`/forum/detail/${questionId}`}
           className="group inline-flex items-center gap-2 text-sm font-medium text-[#6b7280] hover:text-blue-600 transition-colors"
         >
           <MessageCircle
             size={18}
             className="group-hover:text-blue-600 transition-colors"
           />
-          <span>{answer?.replyCount || ""} replies in thread</span>
+          <span>{answer?.replyCount ?? 0} replies in thread</span>
         </Link>
       </div>
     </motion.article>
