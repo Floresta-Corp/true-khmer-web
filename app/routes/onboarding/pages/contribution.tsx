@@ -86,15 +86,15 @@ export default function OnboardingContributionPage() {
   }
 
   return (
-    <div className="min-h-screen overflow-hidden bg-white text-[#111827]">
+    <div className="min-h-screen overflow-x-hidden bg-white text-[#111827]">
       <OnboardingHeader title="How You'll Engage" titlePosition="right" />
 
-      <main className="relative flex min-h-[calc(100vh-60px)] items-start justify-center overflow-hidden px-6 py-10 font-['Inter'] sm:px-10 md:px-16 lg:px-24 xl:px-80">
+      <main className="relative flex min-h-[calc(100svh-65px)] justify-center overflow-x-hidden px-4 py-10 font-['Inter'] sm:px-6 md:px-10 lg:px-16 min-[900px]:h-[calc(100svh-65px)] min-[900px]:min-h-0 min-[900px]:overflow-hidden min-[900px]:py-[67px]">
         <OnboardingRomdoulCorners />
 
         <Form
           method="post"
-          className="relative z-10 flex w-full max-w-191 flex-col items-start gap-10 py-0"
+          className="relative z-10 flex w-full max-w-191 flex-col items-start gap-8 pb-6 sm:pb-8 min-[900px]:h-full min-[900px]:justify-between min-[900px]:gap-8 min-[900px]:pb-0"
         >
           {selected.map((key) => (
             <input key={key} type="hidden" name="selected" value={key} />
@@ -108,76 +108,80 @@ export default function OnboardingContributionPage() {
             />
           ))}
 
-          <OnboardingStepIntro
-            centered
-            currentStep={3}
-            totalSteps={4}
-            stepLabel="How You'll Engage"
-            stepBadgeClassName="rounded-full border border-black/10 px-3.75 py-2"
-            stepTextClassName="text-xs uppercase tracking-widest text-[#2F6FE4]"
-            titleClassName="text-[26.25px] font-semibold leading-[31.5px] tracking-[-0.6563px] text-[#1D283A]"
-            descriptionClassName="text-[14px] font-normal leading-5.25 text-[#99A1AF]"
-            title={
-              <>
-                How do you <span className="text-[#2894FA]">plan</span> to use
-                the True Khmer App?
-              </>
-            }
-            description={
-              <>
-                This helps us personalize your experience.
-                <br className="hidden sm:block" />
-                You can explore everything and add or remove roles anytime.
-              </>
-            }
-          />
-
-          {featuredContributionCard ? (
-            <SelectableContributionCard
-              key={featuredContributionCard.key}
-              title={featuredContributionCard.title}
-              description={featuredContributionCard.description}
-              icon={featuredContributionCard.icon}
-              selected={selected.includes(featuredContributionCard.key)}
-              onClick={() => toggleCard(featuredContributionCard.key)}
-              layout="featured"
-              className="tk-fade-up-1"
+          <div className="flex w-full flex-col items-start gap-6 sm:gap-8 min-[900px]:gap-10">
+            <OnboardingStepIntro
+              centered
+              currentStep={3}
+              totalSteps={4}
+              stepLabel="How You'll Engage"
+              stepBadgeClassName="rounded-full border border-black/10 px-3.75 py-2"
+              stepTextClassName="text-xs uppercase tracking-widest text-[#2F6FE4]"
+              titleClassName="text-2xl font-semibold leading-8 text-[#1D283A] sm:text-[26.25px] sm:leading-[31.5px]"
+              descriptionClassName="text-[14px] font-normal leading-5.25 text-[#99A1AF]"
+              title={
+                <>
+                  How do you <span className="text-[#2894FA]">plan</span> to
+                  use the True Khmer App?
+                </>
+              }
+              description={
+                <>
+                  This helps us personalize your experience.
+                  <br className="hidden sm:block" />
+                  You can explore everything and add or remove roles anytime.
+                </>
+              }
             />
-          ) : null}
 
-          <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {standardContributionCards.map((card, index) => (
+            {featuredContributionCard ? (
               <SelectableContributionCard
-                key={card.key}
-                title={card.title}
-                description={card.description}
-                icon={card.icon}
-                selected={selected.includes(card.key)}
-                onClick={() => toggleCard(card.key)}
-                className={
-                  index === 0
-                    ? "tk-fade-up-1"
-                    : index === 1
-                      ? "tk-fade-up-2"
-                      : "tk-fade-up-3"
-                }
+                key={featuredContributionCard.key}
+                title={featuredContributionCard.title}
+                description={featuredContributionCard.description}
+                icon={featuredContributionCard.icon}
+                selected={selected.includes(featuredContributionCard.key)}
+                onClick={() => toggleCard(featuredContributionCard.key)}
+                layout="featured"
+                className="tk-fade-up-1"
               />
-            ))}
-          </div>
+            ) : null}
 
-          <p className="tk-fade-up-2 text-sm font-normal italic leading-5.25 text-[#99A1AF]">
-            Pick at least 1 to continue
-          </p>
+            <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {standardContributionCards.map((card, index) => (
+                <SelectableContributionCard
+                  key={card.key}
+                  title={card.title}
+                  description={card.description}
+                  icon={card.icon}
+                  selected={selected.includes(card.key)}
+                  onClick={() => toggleCard(card.key)}
+                  className={
+                    index === 0
+                      ? "tk-fade-up-1"
+                      : index === 1
+                        ? "tk-fade-up-2"
+                        : "tk-fade-up-3"
+                  }
+                />
+              ))}
+            </div>
 
-          <div className="tk-fade-up-2">
-            <OnboardingFormError message={actionData?.errors?.form} />
+            <p className="tk-fade-up-2 text-sm font-normal italic leading-5.25 text-[#99A1AF]">
+              Pick at least 1 to continue
+            </p>
+
+            {actionData?.errors?.form ? (
+              <div className="tk-fade-up-2">
+                <OnboardingFormError message={actionData.errors.form} />
+              </div>
+            ) : null}
           </div>
 
           <OnboardingBackContinueActions
             backTo="/onboarding/interest"
             continueDisabled={!canContinue}
             containerClassName="tk-fade-up-3 mt-2"
-            continueButtonClassName="min-w-[144px] justify-center"
+            continueButtonClassName="justify-center sm:min-w-[144px]"
           />
         </Form>
       </main>

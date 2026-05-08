@@ -19,7 +19,7 @@ export type OnboardingContributionOption = {
 export const onboardingContributionOptions: OnboardingContributionOption[] = [
   {
     key: "community_member",
-    title: "Community Member",
+    title: "Basic Activities",
     description:
       "Browse events, join projects, search and apply for volunteering opportunities, engage in community discussions, and earn points along the way.",
     iconKey: "community_member",

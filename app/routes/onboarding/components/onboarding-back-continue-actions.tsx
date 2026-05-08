@@ -27,7 +27,7 @@ export function OnboardingBackContinueActions({
   return (
     <div
       className={cn(
-        "inline-flex w-full items-start justify-between",
+        "flex w-full flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-start sm:justify-between",
         containerClassName,
       )}
     >
