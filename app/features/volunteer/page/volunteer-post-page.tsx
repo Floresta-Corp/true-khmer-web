@@ -22,10 +22,7 @@ import {
 } from "~/services/volunteer/volunteer-types";
 import type { loader } from "../routes/volunteer.create";
 import type { VolunteerPostPage1Errors } from "./volunteer-post-page-1";
-import type {
-  VolunteerPostPage2Errors,
-  VolunteerRoleErrors,
-} from "./volunteer-post-page-2";
+import type { VolunteerPostPage2Errors } from "./volunteer-post-page-2";
 
 export default function VolunteerPostPage() {
   const { locations, categories } = useLoaderData<typeof loader>();

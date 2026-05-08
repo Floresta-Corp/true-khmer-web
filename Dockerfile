@@ -16,6 +16,9 @@ FROM oven/bun:1-alpine AS build-env
 
 ARG VITE_R2_PUBLIC_BASE_URL
 ARG VITE_PLUMPI_WEB
+ARG API_BASE_URL
+ARG SESSION_SECRET
+ARG PLUMPI_ENDPOINT
 
 COPY . /app/
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
@@ -33,6 +36,7 @@ ARG API_BASE_URL
 ENV API_BASE_URL=$API_BASE_URL
 ARG PLUMPI_ENDPOINT
 ENV PLUMPI_ENDPOINT=$PLUMPI_ENDPOINT
+ARG SESSION_SECRET
 ENV SESSION_SECRET=$SESSION_SECRET
 
 COPY --from=production-dependencies-env /app/node_modules /app/node_modules

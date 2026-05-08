@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Input } from "~/components/ui/input";
 import { Calendar } from "lucide-react";
 
@@ -10,52 +10,117 @@ import {
 } from "~/components/ui/input-group";
 import FieldLabel from "~/components/field-label";
 import SectionInputCard from "~/components/section-input-card";
+import { SelectOption } from "~/components/ui/select-option";
 
 const PROJECT_LOGO_PLACEHOLDER = "/placeholder/images.svg";
 
-export default function LaunchpadProjectDetailInputCard() {
+interface LaunchpadProjectDetailInputCardProps {
+  name: string;
+  categoryId: string;
+  cityId: string;
+  deadline: string;
+  logoFile: File | null;
+  coverFile: File | null;
+  categories: { id: string; name: string }[];
+  cities: { id: string; name: string }[];
+  errors?: {
+    name?: string;
+    categoryId?: string;
+    cityId?: string;
+    deadline?: string;
+    logoFile?: string;
+    coverFile?: string;
+  };
+  onNameChange: (value: string) => void;
+  onCategoryChange: (value: string) => void;
+  onCityChange: (value: string) => void;
+  onDeadlineChange: (value: string) => void;
+  onLogoChange: (file: File | null) => void;
+  onCoverChange: (file: File | null) => void;
+}
+
+function toDateTimeLocal(value: string) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  const timezoneOffsetMs = date.getTimezoneOffset() * 60 * 1000;
+  const local = new Date(date.getTime() - timezoneOffsetMs);
+  return local.toISOString().slice(0, 16);
+}
+
+export default function LaunchpadProjectDetailInputCard({
+  name,
+  categoryId,
+  cityId,
+  deadline,
+  logoFile,
+  coverFile,
+  categories,
+  cities,
+  errors,
+  onNameChange,
+  onCategoryChange,
+  onCityChange,
+  onDeadlineChange,
+  onLogoChange,
+  onCoverChange,
+}: LaunchpadProjectDetailInputCardProps) {
+  const projectNameErrorId = useId();
+  const categoryErrorId = useId();
+  const cityErrorId = useId();
+  const deadlineErrorId = useId();
   const projectLogoInputId = useId();
   const projectCoverInputId = useId();
-  const [projectLogoPreview, setProjectLogoPreview] = useState<
-    string | undefined
-  >(PROJECT_LOGO_PLACEHOLDER);
+  const logoErrorId = useId();
+  const coverErrorId = useId();
+  const [projectLogoPreview, setProjectLogoPreview] = useState(
+    PROJECT_LOGO_PLACEHOLDER,
+  );
   const [projectCoverPreview, setProjectCoverPreview] = useState<
     string | undefined
   >(undefined);
-  const [date, setDate] = useState<Date | undefined>(undefined);
+
+  useEffect(() => {
+    if (!logoFile) {
+      setProjectLogoPreview(PROJECT_LOGO_PLACEHOLDER);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(logoFile);
+    setProjectLogoPreview(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [logoFile]);
+
+  useEffect(() => {
+    if (!coverFile) {
+      setProjectCoverPreview(undefined);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(coverFile);
+    setProjectCoverPreview(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [coverFile]);
 
   const handleProjectLogoChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.currentTarget.files?.[0];
-    if (!file) {
-      setProjectLogoPreview(PROJECT_LOGO_PLACEHOLDER);
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setProjectLogoPreview(reader.result);
-      }
-    };
-    reader.readAsDataURL(file);
+    onLogoChange(file ?? null);
+    event.currentTarget.value = "";
   };
 
   const handleCoverChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.currentTarget.files?.[0];
-    if (!file) {
-      setProjectCoverPreview(undefined);
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setProjectCoverPreview(reader.result);
-      }
-    };
-    reader.readAsDataURL(file);
+    onCoverChange(file ?? null);
+    event.currentTarget.value = "";
   };
 
   return (
@@ -69,35 +134,80 @@ export default function LaunchpadProjectDetailInputCard() {
       <div className="space-y-3">
         <FieldLabel>Project name</FieldLabel>
         <Input
+          value={name}
+          onChange={(event) => onNameChange(event.target.value)}
+          aria-invalid={Boolean(errors?.name)}
+          aria-describedby={errors?.name ? projectNameErrorId : undefined}
           placeholder="e.g., Digital Literacy for Artisans"
           className="h-12.5 rounded-xl px-4 border-none bg-[#F8FAFC]"
         />
+        {errors?.name ? (
+          <p id={projectNameErrorId} className="text-xs text-red-500">
+            {errors.name}
+          </p>
+        ) : null}
       </div>
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2">
           <FieldLabel>Industry</FieldLabel>
-          <Input
+          <SelectOption
+            id="launchpad-categoryId"
+            data={categories}
+            defaultValue={categoryId}
+            onChange={onCategoryChange}
+            ariaInvalid={Boolean(errors?.categoryId)}
+            ariaDescribedBy={errors?.categoryId ? categoryErrorId : undefined}
             placeholder="e.g., Education"
-            className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
+            triggerClassName="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
           />
+          {errors?.categoryId ? (
+            <p id={categoryErrorId} className="text-xs text-red-500">
+              {errors.categoryId}
+            </p>
+          ) : null}
         </div>
         <div className="space-y-3">
           <FieldLabel>Location</FieldLabel>
-          <Input
+          <SelectOption
+            id="launchpad-cityId"
+            data={cities}
+            defaultValue={cityId}
+            onChange={onCityChange}
+            ariaInvalid={Boolean(errors?.cityId)}
+            ariaDescribedBy={errors?.cityId ? cityErrorId : undefined}
             placeholder="e.g., Phnom Penh"
-            className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
+            triggerClassName="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
           />
+          {errors?.cityId ? (
+            <p id={cityErrorId} className="text-xs text-red-500">
+              {errors.cityId}
+            </p>
+          ) : null}
         </div>
       </div>
 
       <div className="space-y-3">
         <FieldLabel>Application deadline</FieldLabel>
         <InputGroup className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]">
-          <InputGroupInput type="date" />
+          <InputGroupInput
+            type="datetime-local"
+            value={toDateTimeLocal(deadline)}
+            aria-invalid={Boolean(errors?.deadline)}
+            aria-describedby={errors?.deadline ? deadlineErrorId : undefined}
+            onChange={(event) => {
+              const value = event.target.value;
+              onDeadlineChange(value ? new Date(value).toISOString() : "");
+            }}
+          />
           <InputGroupAddon>
             <Calendar />
           </InputGroupAddon>
         </InputGroup>
+        {errors?.deadline ? (
+          <p id={deadlineErrorId} className="text-xs text-red-500">
+            {errors.deadline}
+          </p>
+        ) : null}
       </div>
       <div className="space-y-3">
         <FieldLabel>Project Logo</FieldLabel>
@@ -121,9 +231,16 @@ export default function LaunchpadProjectDetailInputCard() {
             type="file"
             accept="image/*"
             className="sr-only"
+            aria-invalid={Boolean(errors?.logoFile)}
+            aria-describedby={errors?.logoFile ? logoErrorId : undefined}
             onChange={handleProjectLogoChange}
           />
         </div>
+        {errors?.logoFile ? (
+          <p id={logoErrorId} className="text-xs text-red-500">
+            {errors.logoFile}
+          </p>
+        ) : null}
       </div>
       <div className="space-y-3">
         <FieldLabel>Project Cover Image</FieldLabel>
@@ -157,9 +274,16 @@ export default function LaunchpadProjectDetailInputCard() {
             type="file"
             accept="image/*"
             className="sr-only"
+            aria-invalid={Boolean(errors?.coverFile)}
+            aria-describedby={errors?.coverFile ? coverErrorId : undefined}
             onChange={handleCoverChange}
           />
         </div>
+        {errors?.coverFile ? (
+          <p id={coverErrorId} className="text-xs text-red-500">
+            {errors.coverFile}
+          </p>
+        ) : null}
 
         {/* <Input
           id={projectCoverPreview}

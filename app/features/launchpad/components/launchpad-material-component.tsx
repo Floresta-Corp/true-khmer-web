@@ -5,10 +5,12 @@ interface LaunchpadMaterialComponentProps {
   data: {
     name: string;
   };
+  onRemove?: () => void;
 }
 
 export default function LaunchpadMaterialComponent({
   data,
+  onRemove,
 }: LaunchpadMaterialComponentProps) {
   return (
     <div className="flex items-center border border-[#F3F4F6] rounded-lg px-4 py-2">
@@ -16,6 +18,9 @@ export default function LaunchpadMaterialComponent({
       <Button
         variant={"outline"}
         className="cursor-pointer border-none bg-transparent"
+        type="button"
+        onClick={onRemove}
+        aria-label={`Remove file ${data.name}`}
       >
         <Trash size={14} className="text-destructive" />
       </Button>

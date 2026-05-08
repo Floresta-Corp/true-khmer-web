@@ -2,6 +2,12 @@ import { type LucideIcon } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 
+const contributionCardBaseClassName =
+  "h-auto w-full cursor-pointer items-stretch justify-start whitespace-normal rounded-2xl border border-slate-200 bg-white p-4 text-left text-slate-700 shadow-sm transition-colors hover:border-slate-300 hover:bg-white hover:text-slate-700 motion-reduce:transition-none";
+
+const contributionCardSelectedClassName =
+  "border-blue-300 bg-blue-50 ring-1 ring-inset ring-blue-300/40";
+
 type SelectableContributionCardProps = {
   title: string;
   description: string;
@@ -30,20 +36,18 @@ export function SelectableContributionCard({
       onClick={onClick}
       aria-pressed={selected}
       className={cn(
-        "h-auto w-full cursor-pointer items-stretch justify-start whitespace-normal rounded-2xl border border-[#E1E7EF] bg-white p-4 text-left text-[#23324B] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] transition-colors hover:bg-white hover:text-[#23324B] motion-reduce:transition-none",
-        selected
-          ? "border-[#93C5FD] bg-[#EEF5FF] shadow-[inset_0_0_0_1px_rgba(147,197,253,0.35)]"
-          : "hover:border-[#D6DFEC]",
-        isFeatured ? "min-h-34.5" : "min-h-47",
+        contributionCardBaseClassName,
+        selected ? contributionCardSelectedClassName : null,
+        isFeatured ? "min-h-34.5" : "min-h-40 sm:min-h-47",
         className,
       )}
     >
       <div className="flex h-full w-full flex-col items-start gap-2">
-        <Icon size={32} className="text-[#2894FA]" />
-        <h3 className="text-[16px] font-bold leading-7 text-[#344256]">
+        <Icon size={32} className="text-blue-500" />
+        <h3 className="text-[16px] font-bold leading-7 text-slate-700">
           {title}
         </h3>
-        <p className="text-sm font-normal leading-5 text-[#62748E]">
+        <p className="text-sm font-normal leading-5 text-slate-500">
           {description}
         </p>
       </div>

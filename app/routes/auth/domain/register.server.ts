@@ -13,6 +13,7 @@ import {
 } from "~/services/auth.server";
 import { redirectIfAuthenticated } from "~/lib/server/route-guards.server";
 import { sanitizeRedirectPath } from "~/lib/redirects";
+import { getPasswordValidationError } from "./password-validation";
 
 const USER_ALREADY_EXISTS_CODE = "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL";
 
@@ -62,10 +63,8 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!phoneNumber) errors.phoneNumber = "Phone number is required";
   if (!gender) errors.gender = "Gender is required";
   if (!occupation) errors.occupation = "Occupation is required";
-  if (!password) errors.password = "Password is required";
-  else if (password.length < 8) {
-    errors.password = "Password must be at least 8 characters";
-  }
+  const passwordError = getPasswordValidationError(password);
+  if (passwordError) errors.password = passwordError;
 
   if (Object.keys(errors).length > 0) {
     return { errors: withRegisterFormError(errors) };

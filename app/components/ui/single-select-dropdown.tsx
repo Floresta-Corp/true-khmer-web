@@ -37,6 +37,7 @@ type SingleSelectDropdownProps = {
   contentClassName?: string;
   className?: string;
   ariaInvalid?: boolean;
+  ariaDescribedBy?: string;
 };
 
 export function SingleSelectDropdown({
@@ -58,6 +59,7 @@ export function SingleSelectDropdown({
   contentClassName,
   className,
   ariaInvalid = false,
+  ariaDescribedBy,
 }: SingleSelectDropdownProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -99,6 +101,7 @@ export function SingleSelectDropdown({
             disabled={disabled}
             variant="outline"
             aria-invalid={ariaInvalid}
+            aria-describedby={ariaDescribedBy}
             className={cn(
               "h-11 w-full justify-between rounded-lg border-transparent bg-[#F8FAFC] px-3 text-[12.25px] font-medium text-[#1E293B] shadow-none hover:bg-[#F8FAFC] focus-visible:ring-[#2F6FE4]/30",
               open && "bg-white text-[#475569] shadow-[0_0_0_1px_#D6E4FF]",

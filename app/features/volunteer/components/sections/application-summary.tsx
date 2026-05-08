@@ -22,7 +22,7 @@ export default function ApplicationSummary({
   );
 
   return (
-    <aside className="rounded-[14px] border border-[#e1e7ef] bg-white p-8 h-fit xl:sticky xl:top-24">
+    <aside className="rounded-[14px] border border-[#e1e7ef] bg-white p-8 h-fit">
       <h2 className="text-lg font-semibold tracking-[-0.44px] text-[#030213]">
         Application Summary
       </h2>
@@ -94,9 +94,6 @@ function ActionButtons({ roles, selectedRoleId }: ActionButtonsProps) {
         roles={roles}
         initialRoleId={selectedRoleId}
       />
-      {/* <Button variant="outline" className="h-10 w-full text-sm font-medium">
-        Save for Later
-      </Button> */}
     </div>
   );
 }

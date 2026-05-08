@@ -118,8 +118,6 @@ export default function ForumDetailPage() {
     useLoaderData<typeof loader>();
   const displayedRelatedDiscussions = MOCK_RELATED_DISCUSSIONS;
 
-  console.log(answers);
-
   if (!question) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f8fafc]">

@@ -4,11 +4,52 @@ import LaunchpadProjectDetailInputCard from "../components/card/launchpad-projec
 import { useEffect } from "react";
 
 interface LaunchpadPostPage1Props {
+  name: string;
+  categoryId: string;
+  cityId: string;
+  deadline: string;
+  logoFile: File | null;
+  coverFile: File | null;
+  description: string;
+  categories: { id: string; name: string }[];
+  cities: { id: string; name: string }[];
+  errors?: {
+    name?: string;
+    categoryId?: string;
+    cityId?: string;
+    deadline?: string;
+    logoFile?: string;
+    coverFile?: string;
+  };
+  onNameChange: (value: string) => void;
+  onCategoryChange: (value: string) => void;
+  onCityChange: (value: string) => void;
+  onDeadlineChange: (value: string) => void;
+  onLogoChange: (file: File | null) => void;
+  onCoverChange: (file: File | null) => void;
+  onDescriptionChange: (value: string) => void;
   onSaveClicked?: () => void;
   onCancelClicked?: () => void;
 }
 
 export default function LaunchpadPostPage1({
+  name,
+  categoryId,
+  cityId,
+  deadline,
+  logoFile,
+  coverFile,
+  description,
+  categories,
+  cities,
+  errors,
+  onNameChange,
+  onCategoryChange,
+  onCityChange,
+  onDeadlineChange,
+  onLogoChange,
+  onCoverChange,
+  onDescriptionChange,
   onSaveClicked,
   onCancelClicked,
 }: LaunchpadPostPage1Props) {
@@ -25,8 +66,27 @@ export default function LaunchpadPostPage1({
   }, []);
   return (
     <div className="flex flex-col gap-8 pb-10">
-      <LaunchpadProjectDetailInputCard />
-      <LaunchpadAboutProjectCard />
+      <LaunchpadProjectDetailInputCard
+        name={name}
+        categoryId={categoryId}
+        cityId={cityId}
+        deadline={deadline}
+        logoFile={logoFile}
+        coverFile={coverFile}
+        categories={categories}
+        cities={cities}
+        errors={errors}
+        onNameChange={onNameChange}
+        onCategoryChange={onCategoryChange}
+        onCityChange={onCityChange}
+        onDeadlineChange={onDeadlineChange}
+        onLogoChange={onLogoChange}
+        onCoverChange={onCoverChange}
+      />
+      <LaunchpadAboutProjectCard
+        value={description}
+        onChange={onDescriptionChange}
+      />
       <div className="flex items-center justify-between">
         <Button
           variant="outline"

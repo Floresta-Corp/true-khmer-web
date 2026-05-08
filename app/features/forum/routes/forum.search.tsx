@@ -33,6 +33,26 @@ export default function ForumSearchPage() {
 
   const isLoadingMore = isLoading && (questionList ?? []).length > 0;
 
+  // When filters are applied but data is empty, trigger fetcher to load data
+  useEffect(() => {
+    const hasFilters =
+      search ||
+      searchParams.get("categoryId") ||
+      searchParams.get("tagId") ||
+      searchParams.get("sortBy") !== "mostRelevant" ||
+      searchParams.get("isUnanswered") === "true" ||
+      searchParams.get("isTrending") === "true";
+
+    if (
+      hasFilters &&
+      data.questions.length === 0 &&
+      fetcher.state === "idle" &&
+      !fetcher.data
+    ) {
+      fetcher.load(window.location.pathname + window.location.search);
+    }
+  }, [data, fetcher.state, fetcher.data, search, searchParams]);
+
   const buildSearchQuery = useCallback(
     (cursor?: string) => {
       const params = new URLSearchParams(searchParams);
@@ -47,8 +67,8 @@ export default function ForumSearchPage() {
   useEffect(() => {
     if (data?.questions) {
       setQuestionList(data.questions);
-      setHasMore(data.pagination?.hasMore);
-      setNextCursor(data.pagination?.nextCursor ?? undefined);
+      setHasMore(data.pagination.hasMore);
+      setNextCursor(data.pagination.nextCursor ?? undefined);
     }
   }, [data]);
 
