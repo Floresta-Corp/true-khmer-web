@@ -187,6 +187,11 @@ export default function LoginPage() {
             }}
           >
             <input type="hidden" name="redirectTo" value={redirectTo} />
+            <input
+              type="hidden"
+              name="rememberMe"
+              value={rememberMe ? "true" : "false"}
+            />
 
             <div className="space-y-2">
               <Label

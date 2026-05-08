@@ -4,6 +4,7 @@ import {
   commitSession,
   destroySession,
   getSession,
+  isAutoRefreshEnabled,
 } from "~/lib/server/session.server";
 import { refreshAccessToken } from "~/services/auth.server";
 
@@ -140,7 +141,9 @@ export async function apiRequestWithSession<T, K extends object = JsonObject>(
   let setCookie: string | undefined;
 
   if (response.status === 401) {
-    if (!refreshToken) throw new AuthSessionExpiredError();
+    if (!refreshToken || !isAutoRefreshEnabled(session)) {
+      throw new AuthSessionExpiredError();
+    }
 
     try {
       const refreshed = await refreshAccessToken(refreshToken, request);

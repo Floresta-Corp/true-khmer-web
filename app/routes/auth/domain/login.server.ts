@@ -33,6 +33,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const email = String(formData.get("email") || "");
   const password = String(formData.get("password") || "");
+  const rememberMe = formData.get("rememberMe") === "true";
   const redirectTo = sanitizeRedirectPath(
     formData.get("redirectTo")?.toString(),
   );
@@ -51,7 +52,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const postLoginPath = onboardingState.completed
       ? redirectTo
       : destinationFromOnboardingState(onboardingState);
-    return createUserSession(auth, postLoginPath);
+    return createUserSession(auth, postLoginPath, { rememberMe });
   } catch (error) {
     if (error instanceof AuthApiError) {
       if (isUnverifiedAccountError(error)) {
