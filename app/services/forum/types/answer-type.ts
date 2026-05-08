@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AuthorSchema } from "./question-type";
+import { AuthorSchema, QuestionSchema } from "./question-type";
 import { ViewerVoteSchema } from "~/services/types";
 
 export const CreateAnswerInputSchema = z.object({
@@ -26,7 +26,7 @@ export const ReplyToAnswerSchema = z.object({
   author: AuthorSchema,
   body: z.string(),
   status: AnswerStatusSchema,
-  upvoteCount: z.number(),
+  upvoteCount: z.number(), 
   downvoteCount: z.number(),
   createdAt: z.string(),
   updatedAt: z.string(),

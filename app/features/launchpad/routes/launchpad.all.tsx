@@ -5,11 +5,16 @@ import {
   useFetcher,
 } from "react-router";
 import { useState, useCallback, useEffect, useRef } from "react";
+import { Search } from "lucide-react";
+import { Input } from "~/components/ui/input";
+
 import { GetLaunchpadProjectsPaginated } from "~/services/launchpad/server/launchpad.opportunities.server";
 import { getPublicLaunchpadCategories } from "~/services/launchpad/server/launchpad.categories.server";
 import type { LaunchpadOpportunity } from "~/services/launchpad/types/project";
 import type { Category } from "~/services/launchpad/types/category";
+import type { VolunteerCategory } from "~/services/volunteer/types/category";
 import LaunchpadProjectCard from "../components/card/launchpad-project-card";
+import LaunchpadProjectCardSkeleton from "../components/card/launchpad-project-card-skeleton";
 import { CategoryCard } from "~/components/category-card";
 import BackToButton from "~/components/back-to-button";
 import { motion, useReducedMotion } from "motion/react";
@@ -23,23 +28,26 @@ export async function loader({ request }: { request: Request }) {
   const search = url.searchParams.get("search") || undefined;
   const cursor = url.searchParams.get("cursor") || undefined;
 
-  const [{ launchpads, nextCursor }, categoriesRes] = await Promise.all([
-    GetLaunchpadProjectsPaginated(request, {
-      limit: PAGE_SIZE,
-      categoryId,
-      cityId,
-      search,
-      cursor,
-      sortBy: "newest",
-    }),
-    getPublicLaunchpadCategories(request),
-  ]);
+  const [{ launchpads, nextCursor, cities }, categoriesRes] = await Promise.all(
+    [
+      GetLaunchpadProjectsPaginated(request, {
+        limit: PAGE_SIZE,
+        categoryId,
+        cityId,
+        search,
+        cursor,
+        sortBy: "newest",
+      }),
+      getPublicLaunchpadCategories(request),
+    ],
+  );
 
   return {
     projects: launchpads,
     nextCursor,
     categories: categoriesRes?.data?.categories ?? [],
     categoryId: categoryId ?? null,
+    cities: cities ?? [],
   };
 }
 
@@ -56,6 +64,7 @@ export default function LaunchpadAllPage() {
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const activeCategoryId = searchParams.get("categoryId");
+  const activeCityId = searchParams.get("cityId") || undefined;
 
   // Accumulated projects — reset when category changes
   const [allProjects, setAllProjects] = useState<LaunchpadOpportunity[]>(
@@ -64,6 +73,35 @@ export default function LaunchpadAllPage() {
   const [nextCursor, setNextCursor] = useState<string | null>(
     initialData.nextCursor,
   );
+
+  const [searchValue, setSearchValue] = useState(
+    searchParams.get("search") || "",
+  );
+  const activeCity = initialData.cities?.find((c) => c.id === activeCityId);
+
+  const handleSearch = (value: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (value) {
+      params.set("search", value);
+    } else {
+      params.delete("search");
+    }
+    params.delete("cursor"); // Reset pagination on new search
+    setSearchParams(params, { replace: true });
+    fetcher.load(`/launchpad/all?${params.toString()}`);
+  };
+
+  const handleCityChange = (cityId: string | undefined) => {
+    const params = new URLSearchParams(searchParams);
+    if (cityId) {
+      params.set("cityId", cityId);
+    } else {
+      params.delete("cityId");
+    }
+    params.delete("cursor"); // Reset pagination on filter change
+    setSearchParams(params, { replace: true });
+    fetcher.load(`/launchpad/all?${params.toString()}`);
+  };
 
   // When the loader re-runs (category change navigates), reset accumulated list
   useEffect(() => {
@@ -125,6 +163,15 @@ export default function LaunchpadAllPage() {
       next.delete("cursor");
       return next;
     });
+    // Refetch with new category
+    const params = new URLSearchParams(searchParams);
+    if (categoryId) {
+      params.set("categoryId", categoryId);
+    } else {
+      params.delete("categoryId");
+    }
+    params.delete("cursor");
+    fetcher.load(`/launchpad/all?${params.toString()}`);
   };
 
   return (
@@ -143,6 +190,56 @@ export default function LaunchpadAllPage() {
         </motion.div>
         <h1 className="text-3xl font-bold">All Projects</h1>
 
+        {/* Search and Location filters */}
+        <div className="flex w-full flex-col items-stretch gap-4 sm:flex-row sm:items-center md:gap-5">
+          <div className="flex min-h-11 flex-1 items-center rounded-xl border border-[#e2e8f0] bg-white px-0 py-0">
+            <Search className="ml-4 mr-2.5 size-[17.5px] shrink-0 text-[#99a1af]" />
+            <Input
+              type="search"
+              value={searchValue}
+              onChange={(e) => {
+                setSearchValue(e.target.value);
+                if (e.target.value === "") {
+                  handleSearch("");
+                }
+              }}
+              placeholder="Search projects..."
+              className="h-8 flex-1 border-0 bg-transparent px-0 py-0 text-sm font-medium text-[#364153] placeholder:font-normal placeholder:text-[#99a1af] focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
+            <button
+              type="button"
+              onClick={() => handleSearch(searchValue)}
+              className="mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+            >
+              <Search className="size-4" />
+            </button>
+          </div>
+          {/* TODO: Enable city picker once API is ready */}
+          {/* <DropdownMenu>
+            <DropdownMenuTrigger className="flex h-11 items-center justify-between gap-1.5 rounded-xl border border-[#e2e8f0] bg-white px-4 text-sm font-medium text-[#364153] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:w-52">
+              {activeCity?.name || "All Cities"}
+              <ChevronDown className="size-4 shrink-0 text-[#364153]/65" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuItem
+                onClick={() => handleCityChange(undefined)}
+                className={!activeCityId ? "font-semibold" : ""}
+              >
+                All Cities
+              </DropdownMenuItem>
+              {initialData.cities?.map((city) => (
+                <DropdownMenuItem
+                  key={city.id}
+                  onClick={() => handleCityChange(city.id)}
+                  className={activeCityId === city.id ? "font-semibold" : ""}
+                >
+                  {city.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu> */}
+        </div>
+
         {/* Category grid */}
         {initialData.categories.length > 0 && (
           <div className="w-full flex snap-x snap-mandatory gap-3.5 overflow-x-auto px-1 pb-1 md:grid md:grid-cols-3 md:gap-3.5 md:overflow-visible md:px-0 lg:grid-cols-4 xl:grid-cols-6">
@@ -152,9 +249,6 @@ export default function LaunchpadAllPage() {
                 <div
                   key={category.id}
                   className="shrink-0 snap-start md:min-w-0 md:shrink md:w-full cursor-pointer"
-                  onClick={() =>
-                    handleCategoryClick(isActive ? null : category.id)
-                  }
                 >
                   <CategoryCard
                     category={{
@@ -170,19 +264,20 @@ export default function LaunchpadAllPage() {
           </div>
         )}
 
-        {/* Divider */}
-        <div className="border-t border-gray-100 mb-8" />
-
         {/* Project grid */}
-        {allProjects.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-            {allProjects.map((item) => (
-              <LaunchpadProjectCard
-                key={item.id}
-                item={item}
-                onOpenOpportunity={onOpenOpportunity}
-              />
-            ))}
+        {allProjects.length > 0 || fetcher.state === "loading" ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 px-0 py-0 md:px-0 lg:px-0">
+            {fetcher.state === "loading" && !allProjects.length
+              ? Array.from({ length: 6 }).map((_, i) => (
+                  <LaunchpadProjectCardSkeleton key={`skeleton-${i}`} />
+                ))
+              : allProjects.map((item) => (
+                  <LaunchpadProjectCard
+                    key={item.id}
+                    item={item}
+                    onOpenOpportunity={onOpenOpportunity}
+                  />
+                ))}
           </div>
         ) : (
           <div className="text-center py-20">

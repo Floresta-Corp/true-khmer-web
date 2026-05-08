@@ -14,7 +14,6 @@ export const questionSortBySchema = z.enum([
 ]);
 
 export type QuestionSortBy = z.infer<typeof questionSortBySchema>;
-
 export const ForumQuestionStatusSchema = z.enum(["DRAFT", "PUBLISHED"]);
 export type ForumQuestionStatus = z.infer<typeof ForumQuestionStatusSchema>;
 
