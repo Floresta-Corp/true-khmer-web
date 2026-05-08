@@ -4,7 +4,7 @@ import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL, cn } from "~/lib/utils";
-import type { CategoriesPicker, Question } from "~/services/forum/types";
+import type { Question } from "~/services/forum/types";
 
 type Props = {
   question: Question;
