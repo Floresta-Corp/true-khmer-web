@@ -5,7 +5,7 @@ import {
   updateAnswerById,
 } from "~/services/forum/server";
 import type { Route } from "./+types/workspace";
-import WorkSpaceCard from "../components/card/workspace-card";
+import WorkSpacePage from "../components/pages/workspace-page";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const qa = await myPublishForumQuestion(request);
@@ -14,7 +14,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const an = await myPublishForumAnswer(request);
   const answers = an?.data?.answers || [];
 
-  return { questions, answer: answers };
+  return { questions, answers };
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -70,11 +70,11 @@ export async function action({ request }: Route.ActionArgs) {
   }
 }
 
-export default function WorkspacePage({ loaderData }: Route.ComponentProps) {
+export default function WorkspacePage({ loaderData }: Route.MetaArgs) {
   return (
-    <WorkSpaceCard
+    <WorkSpacePage
       questions={loaderData.questions}
-      answer={loaderData.answer}
+      answers={loaderData.answers}
     />
   );
 }

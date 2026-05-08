@@ -5,9 +5,9 @@ import {
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import type {
   CreateForumQuestionInput,
+  GetMyQuestionResponse,
   GetQuestionPaginationResponse,
   GetQuestionResponse,
-  Question,
   QuestionSortBy,
 } from "../forum-types";
 import type { VoteIntent } from "~/services/types";
@@ -39,7 +39,7 @@ export async function createForumQuestion(
 }
 
 export async function myPublishForumQuestion(request: Request) {
-  const result = await apiRequestWithSession<GetQuestionResponse>(
+  const result = await apiRequestWithSession<GetMyQuestionResponse>(
     request,
     `/forum/questions/my-questions`,
     {

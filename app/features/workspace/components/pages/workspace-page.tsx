@@ -1,32 +1,27 @@
-import type {
-  Answer,
-  CategoriesPicker,
-  MyAnswerItem,
-  Question,
-} from "~/services/forum/types";
-import WorkspaceQuestionItem from "./workspace-question-card";
-import WorkspaceAnswerItem from "./workspace-my-answer-card";
+import type { MyAnswerItem, Question } from "~/services/forum/types";
+import WorkspaceQuestionItem from "../card/workspace-question-card";
+import WorkspaceAnswerItem from "../card/workspace-my-answer-card";
 import { useSearchParams } from "react-router";
 
 type Props = {
   questions: Question[];
-  answer: MyAnswerItem[];
-};
+  answers: MyAnswerItem[];
+}
 
 type TabType = "questions" | "answers";
 
-export default function WorkSpaceCard({ questions, answer }: Props) {
+export default function WorkSpacePage({ questions, answers }: Props) {
   const [searchParams, setSearchParams] = useSearchParams();
   const rawTab = searchParams.get("tab");
   const activeTab: TabType =
     rawTab === "questions" || rawTab === "answers" ? rawTab : "questions";
 
   const setActiveTab = (tab: TabType) => {
-    setSearchParams({ tab });
+    setSearchParams({ tab }, { replace: true });
   };
 
   const questionCount = questions.length;
-  const answerCount = answer.length;
+  const answerCount = answers.length;
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
@@ -96,7 +91,7 @@ export default function WorkSpaceCard({ questions, answer }: Props) {
             <p className="text-sm text-[#64748b]">No questions posted yet.</p>
           )
         ) : answerCount > 0 ? (
-          answer?.map((answer, index) => (
+          answers.map((answer, index) => (
             <WorkspaceAnswerItem
               key={answer.id}
               answer={answer}
