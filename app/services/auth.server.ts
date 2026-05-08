@@ -74,16 +74,83 @@ export type AuthErrorDetails = {
 
 type AuthErrorResponse = {
   code?: string;
-  details?: AuthErrorDetails;
+  details?: AuthErrorDetails & {
+    fieldErrors?: Record<string, unknown>;
+    errors?: unknown;
+  };
   error?: string;
-  fieldErrors?: Record<string, string>;
-  message?: string;
+  fieldErrors?: Record<string, unknown>;
+  message?: unknown;
   otpSent?: boolean;
+  errors?: unknown;
 };
 
-function isStringRecord(value: unknown): value is Record<string, string> {
+function isRecord(value: unknown): value is Record<string, unknown> {
   if (!value || typeof value !== "object") return false;
-  return Object.values(value).every((entry) => typeof entry === "string");
+  return !Array.isArray(value);
+}
+
+function normalizeAuthMessageValue(value: unknown): string | undefined {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) return undefined;
+
+    if (
+      (trimmed.startsWith("[") && trimmed.endsWith("]")) ||
+      (trimmed.startsWith("{") && trimmed.endsWith("}"))
+    ) {
+      try {
+        const parsed = JSON.parse(trimmed) as unknown;
+        const parsedMessage = normalizeAuthMessageValue(parsed);
+        if (parsedMessage) return parsedMessage;
+      } catch {
+        // Fall through to the raw string when the API message only looks like JSON.
+      }
+    }
+
+    return trimmed;
+  }
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => normalizeAuthMessageValue(entry))
+      .filter((entry): entry is string => !!entry)
+      .join(" ");
+  }
+  if (isRecord(value)) {
+    const preferredValue =
+      value.message ??
+      value.error ??
+      value.detail ??
+      value.description ??
+      value.errors;
+    const normalizedPreferred = normalizeAuthMessageValue(preferredValue);
+    if (normalizedPreferred) return normalizedPreferred;
+
+    return Object.values(value)
+      .map((entry) => normalizeAuthMessageValue(entry))
+      .filter((entry): entry is string => !!entry)
+      .join(" ");
+  }
+
+  return undefined;
+}
+
+function normalizeFieldErrors(value: unknown) {
+  if (!isRecord(value)) return undefined;
+
+  const normalized = Object.entries(value).reduce<Record<string, string>>(
+    (errors, [field, errorValue]) => {
+      const message = normalizeAuthMessageValue(errorValue);
+      if (message) errors[field] = message;
+      return errors;
+    },
+    {},
+  );
+
+  return Object.keys(normalized).length > 0 ? normalized : undefined;
 }
 
 function normalizeAuthErrorDetails(data: AuthErrorResponse): AuthErrorDetails {
@@ -92,8 +159,14 @@ function normalizeAuthErrorDetails(data: AuthErrorResponse): AuthErrorDetails {
 
   return {
     code: nestedDetails?.code ?? data.code,
-    fieldErrors: isStringRecord(fieldErrors) ? fieldErrors : undefined,
-    message: nestedDetails?.message ?? data.message ?? data.error,
+    fieldErrors: normalizeFieldErrors(fieldErrors),
+    message: normalizeAuthMessageValue(
+      nestedDetails?.message ??
+        data.message ??
+        data.error ??
+        nestedDetails?.errors ??
+        data.errors,
+    ),
     otpSent: nestedDetails?.otpSent ?? data.otpSent,
   };
 }
@@ -162,7 +235,12 @@ export function formatAuthMessage(message?: string) {
       : rule.replacement;
   }
 
-  const sentence = normalized.charAt(0).toUpperCase() + normalized.slice(1);
+  const readableMessage = normalized
+    .replace(/\bfirstName\b/g, "First name")
+    .replace(/\blastName\b/g, "Last name")
+    .replace(/\bphoneNumber\b/g, "Phone number");
+  const sentence =
+    readableMessage.charAt(0).toUpperCase() + readableMessage.slice(1);
 
   return /[.!?]$/.test(sentence) ? sentence : `${sentence}.`;
 }

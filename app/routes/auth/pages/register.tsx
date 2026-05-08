@@ -17,6 +17,7 @@ import {
   action as registerAction,
   loader as registerLoader,
 } from "~/routes/auth/domain/register.server";
+import { getPasswordValidationError } from "~/routes/auth/domain/password-validation";
 import type { RegisterActionData } from "~/routes/auth/domain/auth.types";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
@@ -152,6 +153,7 @@ export default function RegisterPage() {
   const [gender, setGender] = useState("");
   const [occupation, setOccupation] = useState("");
   const [agreeToDirectory, setAgreeToDirectory] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
 
   const redirectTo = sanitizeRedirectPath(searchParams.get("redirectTo"));
@@ -168,6 +170,10 @@ export default function RegisterPage() {
     : "";
   const passwordsMatch =
     confirmPassword.trim() !== "" && password === confirmPassword;
+  const clientPasswordError =
+    passwordTouched || password.trim() !== ""
+      ? getPasswordValidationError(password)
+      : undefined;
 
   useEffect(() => {
     if (confirmPassword.trim() !== "" && !passwordsMatch) {
@@ -182,7 +188,7 @@ export default function RegisterPage() {
     firstName.trim() !== "" &&
     lastName.trim() !== "" &&
     email.trim() !== "" &&
-    password.trim() !== "" &&
+    !getPasswordValidationError(password) &&
     passwordsMatch &&
     contactNumber.trim() !== "" &&
     gender.trim() !== "" &&
@@ -190,6 +196,13 @@ export default function RegisterPage() {
     agreeToDirectory;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    const passwordError = getPasswordValidationError(password);
+    if (passwordError) {
+      event.preventDefault();
+      setPasswordTouched(true);
+      return;
+    }
+
     if (password !== confirmPassword) {
       event.preventDefault();
       setConfirmPasswordError("Passwords do not match");
@@ -320,11 +333,12 @@ export default function RegisterPage() {
             }
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            onBlur={() => setPasswordTouched(true)}
             placeholder="••••••••"
-            showToggle={false}
-            error={actionData?.errors?.password}
+            error={clientPasswordError ?? actionData?.errors?.password}
             labelClassName="text-sm font-semibold leading-5 text-zinc-900"
-            inputClassName={registerInputClasses}
+            inputClassName={cn(registerInputClasses, "pr-11")}
+            toggleClassName="right-2 h-8 w-8 text-[#899CC9] hover:text-[#6F86B3]"
           />
 
           <PasswordField
@@ -340,10 +354,10 @@ export default function RegisterPage() {
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
             placeholder="••••••••"
-            showToggle={false}
             error={confirmPasswordError}
             labelClassName="text-sm font-semibold leading-5 text-zinc-900"
-            inputClassName={registerInputClasses}
+            inputClassName={cn(registerInputClasses, "pr-11")}
+            toggleClassName="right-2 h-8 w-8 text-[#899CC9] hover:text-[#6F86B3]"
           />
 
           <div className="space-y-2">
