@@ -34,6 +34,7 @@ export const UploadApplicationDocumentSchema = z.object({
   opportunityId: z.string(),
   files: z.array(
     z.object({
+      fileName: z.string(),
       contentType: z.string(),
       fileSize: z.number(),
     }),
@@ -42,6 +43,12 @@ export const UploadApplicationDocumentSchema = z.object({
 export type UploadApplicationDocumentInput = z.infer<
   typeof UploadApplicationDocumentSchema
 >;
+
+export const SupportingDocumentSchema = z.object({
+  name: z.string(),
+  key: z.string(),
+});
+export type SupportingDocument = z.infer<typeof SupportingDocumentSchema>;
 
 export const UploadApplicationDocumentResponseSchema = z.object({
   ok: z.boolean(),
@@ -53,7 +60,7 @@ export const UploadApplicationDocumentResponseSchema = z.object({
         "Content-Length": z.string(),
         "Content-Type": z.string(),
       }),
-      supportingDocumentKey: z.string(),
+      supportingDocument: SupportingDocumentSchema,
       expiresInSeconds: z.number(),
     }),
   ),
