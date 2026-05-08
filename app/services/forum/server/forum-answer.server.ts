@@ -7,12 +7,15 @@ import type {
   CreateAnswerInput,
   DeleteAnswerResponse,
   GetAnswersResponse,
+  MyAnswerItem,
+  MyAnswersResponse,
   UpdateAnswerInput,
   UpsertAnswerResponse,
   VoteAnswerResponse,
 } from "../forum-types";
 import {
   CreateAnswerInputSchema,
+  MyAnswersResponseSchema,
   UpdateAnswerInputSchema,
 } from "../forum-types";
 import type { VoteIntent } from "~/services/types";
@@ -29,6 +32,18 @@ export async function voteForumAnswer(
     method: "POST",
     body: { voteType },
   });
+
+  return result;
+}
+
+export async function myPublishForumAnswer(request: Request) {
+  const result = await apiRequestWithSession<MyAnswerItem>(
+    request,
+    `/forum/answer/my-answers`,
+    {
+      method: "GET",
+    },
+  );
 
   return result;
 }

@@ -7,6 +7,7 @@ import type {
   CreateForumQuestionInput,
   GetQuestionPaginationResponse,
   GetQuestionResponse,
+  Question,
   QuestionSortBy,
 } from "../forum-types";
 import type { VoteIntent } from "~/services/types";
@@ -34,6 +35,17 @@ export async function createForumQuestion(
     body: payload,
   });
 
+  return result;
+}
+
+export async function myPublishForumQuestion(request: Request) {
+  const result = await apiRequestWithSession<GetQuestionResponse>(
+    request,
+    `/forum/questions/my-questions`,
+    {
+      method: "GET",
+    },
+  );
   return result;
 }
 
