@@ -49,10 +49,10 @@ export default [
 
     layout("layout/workspace-layout.tsx", [
       route("workspace", "features/workspace/routes/workspace.tsx"),
-      route(
-        "manage-post",
-        "features/workspace/manage-posting/routes/manage-post.tsx",
-      ),
+      // route(
+      //   "manage-post",
+      //   "features/workspace/manage-posting/routes/manage-post.tsx",
+      // ),
     ]),
   ]),
   route("onboarding", "routes/onboarding/pages/layout.tsx", [
