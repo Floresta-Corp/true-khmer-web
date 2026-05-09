@@ -16,7 +16,7 @@ export function RecentActivityList({
   maxItems = 5,
   onActivityClick,
 }: RecentActivityListProps) {
-  const displayedActivities = activities.slice(0, maxItems);
+  const displayedActivities = activities.slice(0, Math.max(0, maxItems));
 
   if (!activities || activities.length === 0) {
     return (

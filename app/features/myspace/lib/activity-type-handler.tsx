@@ -74,7 +74,7 @@ export const getActivityTypeConfig = (
     },
     forum_answer_downvoted: {
       icon: ThumbsDown,
-      bgColor: "#0C0B0B",
+      bgColor: "#fef2f2",
       iconColor: "#ef4444",
       label: "Downvoted an answer",
     },

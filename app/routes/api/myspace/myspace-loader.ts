@@ -16,14 +16,17 @@ interface MyspaceLoaderData {
 export async function MyspaceLoader({ request }: MyspaceRoute.LoaderArgs) {
   await requireAuthenticatedUser(request);
   const userId = await getUserId(request);
-  const [meResult, activitiesResult] = await Promise.all([
+  const [meResult, activitiesResult] = await Promise.allSettled([
     GetMyspaceMe(request),
     GetRecentActivity(request),
   ]);
 
   return {
     userId,
-    me: meResult.data.profile,
-    recentActivities: activitiesResult.data.activities,
+    me: meResult.status === "fulfilled" ? meResult.value.data.profile : null,
+    recentActivities:
+      activitiesResult.status === "fulfilled"
+        ? activitiesResult.value.data.activities
+        : [],
   } satisfies MyspaceLoaderData;
 }

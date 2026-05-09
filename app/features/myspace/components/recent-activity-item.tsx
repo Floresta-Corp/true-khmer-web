@@ -20,7 +20,9 @@ export function RecentActivityItem({
   const Icon = config.icon;
 
   return (
-    <div
+    <button
+      type="button"
+      disabled={!onClick}
       onClick={onClick}
       className="flex items-start gap-3 p-4 rounded-xl border border-[#f1f5f9] hover:bg-[#f8fafc] transition-colors cursor-pointer group"
     >
@@ -51,6 +53,6 @@ export function RecentActivityItem({
         </p>
         <ChevronRight className="h-4 w-4 text-[#94a3b8] opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
-    </div>
+    </button>
   );
 }
