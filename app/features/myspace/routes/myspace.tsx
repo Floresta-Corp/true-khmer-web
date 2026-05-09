@@ -28,10 +28,8 @@ import { RecentActivityList } from "../components/recent-activity-list";
 
 export const loader = MyspaceLoader;
 
-export default function MySpacePage({ loaderData }: Route.MetaArgs) {
+export default function MySpacePage({ loaderData }: Route.ComponentProps) {
   const { me, recentActivities } = loaderData;
-
-  console.log(recentActivities);
 
   if (!me) {
     return (
@@ -49,6 +47,8 @@ export default function MySpacePage({ loaderData }: Route.MetaArgs) {
     me.socialLinks.linkedin ||
     me.socialLinks.twitter ||
     me.socialLinks.facebook;
+
+  console.log(me);
 
   return (
     <div className="min-h-screen bg-background">
