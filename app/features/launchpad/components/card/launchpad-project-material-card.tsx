@@ -63,6 +63,7 @@ export default function LaunchpadProjectMaterialCard({
               id={inputId}
               type="file"
               multiple
+              accept="application/pdf"
               className="sr-only"
               aria-invalid={Boolean(error)}
               aria-describedby={error ? errorId : undefined}

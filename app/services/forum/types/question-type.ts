@@ -68,3 +68,9 @@ export const CreateForumQuestionInputSchema = z.object({
 export type CreateForumQuestionInput = z.infer<
   typeof CreateForumQuestionInputSchema
 >;
+
+export const GetMyQuestionResponseSchema = z.object({
+  ok: z.boolean(),
+  questions: z.array(QuestionSchema),
+});
+export type GetMyQuestionResponse = z.infer<typeof GetMyQuestionResponseSchema>;

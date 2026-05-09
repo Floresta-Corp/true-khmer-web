@@ -41,8 +41,8 @@ export default function NestedReplyCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 6 }}
       transition={{ duration: 0.18, ease: "easeOut" }}
-      onMouseOver={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
       className="w-full rounded-xl bg-[#fffefe] border border-slate-200 px-5 py-5 shadow-[0px_1px_2px_rgba(15,23,42,0.04)]"
     >
       <div className="flex w-full items-start justify-between gap-3">
