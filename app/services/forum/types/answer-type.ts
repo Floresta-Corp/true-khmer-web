@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { AuthorSchema } from "./question-type";
-import { ViewerVoteSchema } from "~/services/types";
+import { AuthorSchema, QuestionSchema } from "./question-type";
+import { BasicJoinSchema, ViewerVoteSchema } from "~/services/types";
+import { CategorySchema } from "./category-type";
 
 export const CreateAnswerInputSchema = z.object({
   questionId: z.string(),
@@ -41,6 +42,7 @@ export const AnswerSchema = z.lazy(() =>
   z.object({
     id: z.string(),
     questionId: z.string(),
+    question: QuestionSchema,
     authorId: z.string(),
     body: z.string(),
     upvoteCount: z.number(),
@@ -55,9 +57,57 @@ export const AnswerSchema = z.lazy(() =>
     status: AnswerStatusSchema,
     author: AuthorSchema,
     // Use z.lazy here to defer the reference to AnswerSchema
-    repliedAnswers: z.array(ReplyToAnswerSchema).nullable(),
+    repliedAnswers: z.array(ReplyToAnswerSchema).nullable().optional(),
   }),
 );
+
+const MyAnswerQuestionSchema = z.object({
+  id: z.string(),
+  categoryId: z.string(),
+  category: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+    })
+    .nullable()
+    .optional(),
+  title: z.string(),
+  body: z.string(),
+  status: z.string(),
+  answerCount: z.number(),
+  upvoteCount: z.number(),
+  downvoteCount: z.number(),
+  bestAnswerId: z.string().nullable(),
+  bestAnswerSelectedAt: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+// 2. The Answer schema that matches your JSON exactly
+export const MyAnswerItemSchema = z.object({
+  id: z.string(),
+  body: z.string(),
+  author: AuthorSchema,
+  upvoteCount: z.number(),
+  downvoteCount: z.number(),
+  replyCount: z.number(),
+  score: z.number(),
+  viewerVote: ViewerVoteSchema,
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  status: z.string(),
+  replyTo: z.string().nullable(),
+  question: MyAnswerQuestionSchema.optional(),
+  repliedAnswers: z.array(z.any()).nullable().optional(),
+});
+
+// 3. The final Response schema
+export const MyAnswersResponseSchema = z.object({
+  ok: z.boolean(),
+  answers: z.array(MyAnswerItemSchema),
+});
+
+export type MyAnswersResponse = z.infer<typeof MyAnswersResponseSchema>;
+export type MyAnswerItem = z.infer<typeof MyAnswerItemSchema>;
 
 // 2. You MUST define the type explicitly for recursive schemas
 export type Answer = z.infer<typeof AnswerSchema>;

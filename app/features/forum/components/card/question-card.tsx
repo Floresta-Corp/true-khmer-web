@@ -47,8 +47,8 @@ export default function QuestionCard({
         duration: prefersReducedMotion ? 0 : 0.1,
         delay: prefersReducedMotion ? 0 : index * 0.02,
       }}
-      onMouseOver={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
     >
       {/* Header with author info */}
       <div className="flex justify-between items-start mb-3 sm:mb-5 gap-2">

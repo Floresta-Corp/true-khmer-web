@@ -67,8 +67,8 @@ function AnswerComponent({
             delay: index * 0.06,
             ease: [0.25, 0.1, 0.25, 1],
           }}
-          onMouseOver={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
+          onHoverStart={() => setIsHovered(true)}
+          onHoverEnd={() => setIsHovered(false)}
         >
           <div className="flex w-full items-start justify-between gap-3">
             <div className="flex items-center gap-3">

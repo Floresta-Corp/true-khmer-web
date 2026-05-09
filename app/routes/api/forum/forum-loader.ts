@@ -19,7 +19,8 @@ import {
 import type { Route as ForumRoute } from "../../../features/forum/routes/+types/forum";
 import { getUserId } from "../../../lib/server/session.server";
 
-const LIMIT = 5;
+const LIMIT = 10;
+
 type ForumListLoaderData = {
   data: GetQuestionPaginationResponse;
   categories: Category[];

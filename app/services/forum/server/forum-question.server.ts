@@ -5,6 +5,7 @@ import {
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import type {
   CreateForumQuestionInput,
+  GetMyQuestionResponse,
   GetQuestionPaginationResponse,
   GetQuestionResponse,
   QuestionSortBy,
@@ -34,6 +35,17 @@ export async function createForumQuestion(
     body: payload,
   });
 
+  return result;
+}
+
+export async function myForumQuestion(request: Request) {
+  const result = await apiRequestWithSession<GetMyQuestionResponse>(
+    request,
+    `/forum/questions/my-questions`,
+    {
+      method: "GET",
+    },
+  );
   return result;
 }
 
