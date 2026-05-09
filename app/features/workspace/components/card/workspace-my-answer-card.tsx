@@ -3,11 +3,13 @@ import { Link } from "react-router";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL } from "~/lib/utils";
-import type { Answer, MyAnswerItem, Question } from "~/services/forum/types";
+import type { MyAnswerItem } from "~/services/forum/types";
 import { motion } from "framer-motion";
 import DeleteAnswerDialog from "~/features/forum/components/dialog/delete-answer-dialog";
 import { Button } from "~/components/ui/button";
 import AddAnswerDialog from "~/features/forum/components/dialog/add-answer-dialog";
+import { useState } from "react";
+import SlideToLeftHoverAnimation from "~/components/slide-to-left-hover-animation";
 
 type Props = {
   answer: MyAnswerItem;
@@ -19,7 +21,7 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
   const profileImage = answer?.author?.avatarKey
     ? resolveImageURL(answer.author.avatarKey)
     : "";
-
+  const [isHovered, setIsHovered] = useState(false);
   const questionId = answer.question?.id;
 
   return (
@@ -27,6 +29,12 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
       className="w-full rounded-xl sm:rounded-2xl bg-white p-4 sm:p-5 lg:p-6 shadow-[0px_4px_24px_0px_rgba(0,0,0,0.04)] mb-2"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
+      onHoverStart={() => {
+        setIsHovered(true);
+      }}
+      onHoverEnd={() => {
+        setIsHovered(false);
+      }}
       transition={{
         duration: 0.3,
         delay: index * 0.07,
@@ -61,7 +69,8 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
         {/* Edit / Delete buttons */}
         <div className="flex items-center gap-1.5 shrink-0">
           <div className="flex items-center justify-end">
-            <div className="flex h-[26.25px] w-[59.5px] items-center gap-1.75">
+            {/* <div className="flex h-[26.25px] w-[59.5px] items-center gap-1.75"> */}
+            <SlideToLeftHoverAnimation isHovered={isHovered}>
               <AddAnswerDialog
                 questionId={questionId}
                 isEditing
@@ -90,7 +99,9 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
                   </Button>
                 }
               />
-            </div>
+            </SlideToLeftHoverAnimation>
+
+            {/* </div> */}
           </div>
         </div>
       </div>

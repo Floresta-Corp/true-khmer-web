@@ -1,6 +1,12 @@
 import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
-import type { Route } from "../../+types";
-import { deleteAnswerById, updateAnswerById } from "~/services/forum/server";
+import type { Route } from "project-types/workspace/routes/+types/workspace";
+import {
+  deleteAnswerById,
+  updateAnswerById,
+  updateForumQuestion,
+} from "~/services/forum/server";
+import { deleteQuestionAction } from "~/services/forum/action";
+import { validateCreateForumPostForm } from "~/services/forum/validation";
 
 export async function workSpaceAction({ request }: Route.ActionArgs) {
   await requireAuthenticatedUser(request);
@@ -53,5 +59,30 @@ export async function workSpaceAction({ request }: Route.ActionArgs) {
     }
 
     return deleteAnswerById(request, answerId);
+  }
+
+  if (method === "DELETE") {
+    return deleteQuestionAction(request, formData);
+  }
+
+  const validation = validateCreateForumPostForm(formData);
+  if (!validation.success) {
+    return {
+      ok: false,
+      message: validation.message,
+      fieldErrors: validation.fieldErrors,
+    };
+  }
+
+  if (method === "PATCH") {
+    const questionId = String(formData.get("questionId") ?? "").trim();
+    if (!questionId) {
+      return {
+        ok: false,
+        message: "Question ID is required for updating.",
+      };
+    }
+
+    return updateForumQuestion(request, questionId, validation.data);
   }
 }

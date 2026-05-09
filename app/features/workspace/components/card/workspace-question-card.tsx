@@ -1,17 +1,30 @@
 import { motion } from "framer-motion";
+import { Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router";
+import SlideToLeftHoverAnimation from "~/components/slide-to-left-hover-animation";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
+import AskQuestionDialog from "~/features/forum/components/dialog/ask-question-dialog";
+import DeleteQuestionDialog from "~/features/forum/components/dialog/delete-question-dialog";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL, cn } from "~/lib/utils";
 import type { Question } from "~/services/forum/types";
+import type { BasicJoinType } from "~/services/types";
 
 type Props = {
   question: Question;
   index?: number;
+  categories?: BasicJoinType[];
 };
 
-export default function WorkspaceQuestionItem({ question, index = 0 }: Props) {
+export default function WorkspaceQuestionItem({
+  question,
+  index = 0,
+  categories,
+}: Props) {
+  const [isHovered, setIsHovered] = useState(false);
   const createdAgoLabel = formatMinutesOrHoursAgo(question.createdAt);
   const profileImage = question.author?.avatarKey
     ? resolveImageURL(question.author.avatarKey)
@@ -25,6 +38,12 @@ export default function WorkspaceQuestionItem({ question, index = 0 }: Props) {
         duration: 0.3,
         delay: index * 0.07,
         ease: [0.25, 0.1, 0.25, 1],
+      }}
+      onHoverStart={() => {
+        setIsHovered(true);
+      }}
+      onHoverEnd={() => {
+        setIsHovered(false);
       }}
       className="w-full rounded-xl sm:rounded-2xl bg-white p-4 sm:p-4 lg:p-6 shadow-[0px_4px_24px_0px_rgba(0,0,0,0.04)] mb-2"
     >
@@ -65,7 +84,7 @@ export default function WorkspaceQuestionItem({ question, index = 0 }: Props) {
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           <div className="flex items-center justify-end">
-            {/* <div className="flex h-[26.25px] w-[59.5px] items-center gap-1.75">
+            <SlideToLeftHoverAnimation isHovered={isHovered}>
               <AskQuestionDialog
                 categories={(categories ?? []).filter(
                   (category) => category.id !== "all-categories",
@@ -98,7 +117,7 @@ export default function WorkspaceQuestionItem({ question, index = 0 }: Props) {
                   </Button>
                 }
               />
-            </div> */}
+            </SlideToLeftHoverAnimation>
           </div>
         </div>
       </div>
