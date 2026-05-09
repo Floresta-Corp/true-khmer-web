@@ -3,19 +3,19 @@ import { Card } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 import LaunchpadSubmitApplicationDialog from "../dialog/launchpad-submit-application-dialog";
 
-const data = {
+interface ProjectSummaryData {
   projectSummary: {
-    location: "Phnom Penh",
+    location: string;
     applicants: {
-      status: "6 spots open",
-      count: 6,
-    },
-    deadline: "2026-04-12",
-  },
-};
+      status: string;
+      count: number;
+    };
+    deadline: string;
+  };
+}
 
 interface LaunchpadProjectSummaryCardProps {
-  data?: typeof data;
+  data?: ProjectSummaryData;
   launchpadId?: string;
   launchpadName?: string;
 }
@@ -51,18 +51,28 @@ export default function LaunchpadProjectSummaryCard({
           </div>
         </div>
         <div className="flex flex-col gap-4 mt-7">
-          <LaunchpadSubmitApplicationDialog
-            trigger={
-              <Button
-                variant="default"
-                className="w-full rounded-lg py-5 bg-[#2F6FE4]"
-              >
-                Apply Now
-              </Button>
-            }
-            launchpadId={launchpadId ?? ""}
-            launchpadName={launchpadName}
-          />
+          {launchpadId ? (
+            <LaunchpadSubmitApplicationDialog
+              trigger={
+                <Button
+                  variant="default"
+                  className="w-full rounded-lg py-5 bg-[#2F6FE4]"
+                >
+                  Apply Now
+                </Button>
+              }
+              launchpadId={launchpadId}
+              launchpadName={launchpadName}
+            />
+          ) : (
+            <Button
+              disabled
+              variant="default"
+              className="w-full rounded-lg py-5 bg-[#2F6FE4] opacity-50"
+            >
+              Apply Now
+            </Button>
+          )}
           <Button className="bg-white rounded-lg py-5" variant="outline">
             Save for Later
           </Button>

@@ -193,7 +193,10 @@ export async function launchpadApplyAction({ request }: ActionFunctionArgs) {
       await uploadToStorage(presign, file);
 
       // Sanitize file name - remove path separators and control characters
-      const sanitizedName = file.name.replace(/[/\\[\]Control-]/g, "").slice(0, 255);
+      const sanitizedName = file.name
+        .replace(/[\/\\[\]\x00-\x1f\x7f]/g, "")
+        .trim()
+        .slice(0, 255);
 
       return { key, sanitizedName };
     });
