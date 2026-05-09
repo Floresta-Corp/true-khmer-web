@@ -5,7 +5,6 @@ import {
 import {
   UploadApplicationDocumentSchema,
   ApplyApplicationInputSchema,
-  type ApplyApplicationInput,
   type UploadApplicationDocumentInput,
 } from "~/services/volunteer/types";
 import type { Route as VolunteerDetailRoute } from "project-types/volunteer/routes/+types/volunteer.$id";
@@ -63,11 +62,11 @@ export async function VolunteerDetailAction({
 
         const dataStr = formData.get("data");
         if (!dataStr) throw new Error("Missing data field");
-        const data: ApplyApplicationInput = JSON.parse(dataStr.toString());
+        const data = JSON.parse(dataStr.toString()) as Record<string, unknown>;
 
         const applyInput = ApplyApplicationInputSchema.parse({
           ...data,
-          supportingDocument: supportingDocuments,
+          supportingDocuments,
         });
 
         try {

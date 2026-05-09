@@ -1,11 +1,17 @@
 import * as z from "zod";
 import { RoleSchema } from "./opportunities";
 
+export const SupportingDocumentSchema = z.object({
+  name: z.string(),
+  key: z.string(),
+});
+export type SupportingDocument = z.infer<typeof SupportingDocumentSchema>;
+
 export const ApplyApplicationInputSchema = z.object({
   roleId: z.string(),
   availability: z.string(),
   relevantExperience: z.string(),
-  supportingDocumentKeys: z.array(z.string()),
+  supportingDocuments: z.array(SupportingDocumentSchema),
 });
 export type ApplyApplicationInput = z.infer<typeof ApplyApplicationInputSchema>;
 
@@ -15,7 +21,7 @@ export const ApplicationSchema = z.object({
   role: RoleSchema,
   availability: z.string(),
   relevantExperience: z.string(),
-  supportingDocumentKeys: z.array(z.string()),
+  supportingDocuments: z.array(SupportingDocumentSchema),
   status: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -43,12 +49,6 @@ export const UploadApplicationDocumentSchema = z.object({
 export type UploadApplicationDocumentInput = z.infer<
   typeof UploadApplicationDocumentSchema
 >;
-
-export const SupportingDocumentSchema = z.object({
-  name: z.string(),
-  key: z.string(),
-});
-export type SupportingDocument = z.infer<typeof SupportingDocumentSchema>;
 
 export const UploadApplicationDocumentResponseSchema = z.object({
   ok: z.boolean(),
