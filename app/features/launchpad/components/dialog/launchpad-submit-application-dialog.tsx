@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
-import { Link, useFetcher } from "react-router";
+import { useFetcher, useNavigate } from "react-router";
 import { CheckCircle2, FileText, Globe, User, X } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
@@ -37,6 +37,7 @@ export default function LaunchpadSubmitApplicationDialog({
   roles = [],
 }: LaunchpadSubmitApplicationDialogProps) {
   const fetcher = useFetcher<ApplyFetcherData>();
+  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const roleOptions = roles.map((r) => ({ id: r.id, name: r.title }));
@@ -46,23 +47,39 @@ export default function LaunchpadSubmitApplicationDialog({
   const [roleKey, setRoleKey] = useState(0);
 
   useEffect(() => {
-    setRoleId(selectedRoleId ?? roleOptions[0]?.id ?? "");
-  }, [selectedRoleId]);
+    const defaultId = selectedRoleId ?? roleOptions[0]?.id ?? "";
+    if (defaultId && defaultId !== roleId) {
+      setRoleId(defaultId);
+    }
+  }, [selectedRoleId, roles]);
   const [motivation, setMotivation] = useState("");
   const [portfolioUrl, setPortfolioUrl] = useState("");
   const [documents, setDocuments] = useState<File[]>([]);
   const [open, setOpen] = useState(false);
+  const [justSubmitted, setJustSubmitted] = useState(false);
 
   const selectedRole = roles.find((r) => r.id === roleId);
   const isSubmitting = fetcher.state !== "idle";
-  const isSuccess = fetcher.data?.success === true;
+  const isSuccess = justSubmitted || fetcher.data?.success === true;
   const errorMessage = fetcher.data?.error;
+
+  useEffect(() => {
+    if (fetcher.data?.success) {
+      setJustSubmitted(true);
+    }
+  }, [fetcher.data?.success]);
 
   useEffect(() => {
     if (errorMessage) {
       setRoleKey((k) => k + 1);
     }
   }, [errorMessage]);
+
+  useEffect(() => {
+    if (open) {
+      setJustSubmitted(false);
+    }
+  }, [open]);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
@@ -116,6 +133,7 @@ export default function LaunchpadSubmitApplicationDialog({
       setPortfolioUrl("");
       setDocuments([]);
       setRoleId(selectedRoleId ?? roleOptions[0]?.id ?? "");
+      setJustSubmitted(false);
     }
   }
 
@@ -135,6 +153,10 @@ export default function LaunchpadSubmitApplicationDialog({
             roleName={selectedRole?.title ?? ""}
             projectName={launchpadName ?? ""}
             onClose={() => setOpen(false)}
+            onViewApplications={() => {
+              setOpen(false);
+              navigate("/my-applications");
+            }}
           />
         ) : (
           <>
@@ -304,10 +326,12 @@ function SuccessState({
   roleName,
   projectName,
   onClose,
+  onViewApplications,
 }: {
   roleName: string;
   projectName: string;
   onClose: () => void;
+  onViewApplications: () => void;
 }) {
   return (
     <div className="flex flex-col items-center gap-5 text-center">
@@ -333,17 +357,17 @@ function SuccessState({
       <div className="flex w-full flex-col gap-2.5">
         <Button
           className="h-11 w-full rounded-lg bg-[#2F6FE4] text-sm font-semibold text-white hover:bg-[#245cc2]"
-          onClick={onClose}
+          onClick={onViewApplications}
         >
           View My Application
         </Button>
-        <Link
-          to="/launchpad"
+        <Button
+          variant="outline"
           onClick={onClose}
-          className="flex h-11 w-full items-center justify-center rounded-lg border border-[#E1E7EF] bg-white text-sm font-medium text-[#1D283A] hover:bg-[#F8FAFC]"
+          className="h-11 w-full rounded-lg border border-[#E1E7EF] bg-white text-sm font-medium text-[#1D283A] hover:bg-[#F8FAFC]"
         >
           Explore More Projects
-        </Link>
+        </Button>
       </div>
     </div>
   );

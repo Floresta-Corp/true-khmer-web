@@ -16,10 +16,14 @@ const data = {
 
 interface LaunchpadProjectSummaryCardProps {
   data?: typeof data;
+  launchpadId?: string;
+  launchpadName?: string;
 }
 
 export default function LaunchpadProjectSummaryCard({
   data,
+  launchpadId,
+  launchpadName,
 }: LaunchpadProjectSummaryCardProps) {
   return (
     <Card className="bg-white p-6 h-fit xl:sticky xl:top-24">
@@ -56,6 +60,8 @@ export default function LaunchpadProjectSummaryCard({
                 Apply Now
               </Button>
             }
+            launchpadId={launchpadId ?? ""}
+            launchpadName={launchpadName}
           />
           <Button className="bg-white rounded-lg py-5" variant="outline">
             Save for Later

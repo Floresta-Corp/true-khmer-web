@@ -111,12 +111,7 @@ function findKeyDeep(value: unknown, depth = 0): string | null {
 
 async function uploadToStorage(upload: PresignedUpload, file: File) {
   const headers = new Headers(upload.requiredHeaders ?? {});
-  if (!headers.has("Content-Type") && file.type) {
-    headers.set("Content-Type", file.type);
-  }
-  if (!headers.has("Content-Length")) {
-    headers.set("Content-Length", String(file.size));
-  }
+  headers.set("Content-Type", file.type || "application/octet-stream");
   const response = await fetch(upload.uploadUrl, {
     method: upload.method || "PUT",
     headers,
@@ -160,10 +155,22 @@ export async function launchpadApplyAction({ request }: ActionFunctionArgs) {
       .getAll("documentFiles")
       .filter((v): v is File => v instanceof File && v.size > 0);
 
+    if (documentFiles.length > 5) {
+      return { error: "Maximum 5 documents allowed" };
+    }
+
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    for (const file of documentFiles) {
+      if (file.size > MAX_FILE_SIZE) {
+        return { error: "Each document must be under 10MB" };
+      }
+    }
+
     const documentKeys: string[] = [];
     const documentNames: string[] = [];
 
-    for (const file of documentFiles) {
+    // Upload files in parallel for better performance
+    const uploadPromises = documentFiles.map(async (file) => {
       const presignRes = await uploadApplicationDocumentPresign(
         request,
         launchpadId,
@@ -175,17 +182,26 @@ export async function launchpadApplyAction({ request }: ActionFunctionArgs) {
 
       const presign = resolvePresignedUpload(presignRes.data);
       if (!presign) {
-        return { error: "Unable to get document upload URL" };
+        throw new Error("Unable to get document upload URL");
       }
 
       const key = findKeyDeep(presign) ?? findKeyDeep(presignRes.data);
       if (!key) {
-        return { error: "Unable to get document storage key" };
+        throw new Error("Unable to get document storage key");
       }
 
       await uploadToStorage(presign, file);
+
+      // Sanitize file name - remove path separators and control characters
+      const sanitizedName = file.name.replace(/[/\\[\]Control-]/g, "").slice(0, 255);
+
+      return { key, sanitizedName };
+    });
+
+    const results = await Promise.all(uploadPromises);
+    for (const { key, sanitizedName } of results) {
       documentKeys.push(key);
-      documentNames.push(file.name);
+      documentNames.push(sanitizedName);
     }
 
     await applyForLaunchpadRole(request, launchpadId, {
