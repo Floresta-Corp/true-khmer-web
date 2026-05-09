@@ -1,5 +1,6 @@
 import { Users } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import LaunchpadSubmitApplicationDialog from "../dialog/launchpad-submit-application-dialog";
 
 interface CollaborationCardProps {
   data: {
@@ -8,10 +9,16 @@ interface CollaborationCardProps {
     details: string;
     availableSpot: number;
   };
+  launchpadId: string;
+  launchpadName?: string;
+  roles?: Array<{ id: string; title: string }>;
 }
 
 export default function LaunchpadCollaborationCard({
   data,
+  launchpadId,
+  launchpadName,
+  roles = [],
 }: CollaborationCardProps) {
   const spotLabel = data.availableSpot === 1 ? "Spot" : "Spots";
 
@@ -32,9 +39,17 @@ export default function LaunchpadCollaborationCard({
           {data.availableSpot} {spotLabel}
         </p>
       </div>
-      <Button className="h-8 bg-blue-500 px-4 text-sm font-medium hover:bg-blue-600">
-        Apply
-      </Button>
+      <LaunchpadSubmitApplicationDialog
+        launchpadId={launchpadId}
+        launchpadName={launchpadName}
+        selectedRoleId={data.id}
+        roles={roles}
+        trigger={
+          <Button className="h-8 bg-blue-500 px-4 text-sm font-medium hover:bg-blue-600">
+            Apply
+          </Button>
+        }
+      />
     </div>
   );
 }
