@@ -38,7 +38,7 @@ export async function createForumQuestion(
   return result;
 }
 
-export async function myPublishForumQuestion(request: Request) {
+export async function myForumQuestion(request: Request) {
   const result = await apiRequestWithSession<GetMyQuestionResponse>(
     request,
     `/forum/questions/my-questions`,

@@ -1,5 +1,5 @@
 import { useSearchParams } from "react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { MyAnswerItem, Question } from "~/services/forum/types";
 import WorkspaceSkeleton from "../workspace-skeleton";
 import WorkspaceQuestionItem from "../card/workspace-question-card";
@@ -20,18 +20,16 @@ export default function WorkSpacePage({ questions, answers }: Props) {
     rawTab === "questions" || rawTab === "answers" ? rawTab : "questions";
 
   const [isLoading, setIsLoading] = useState(false);
-  const [prevTab, setPrevTab] = useState<TabType>(activeTab);
-
+  const isFirstRender = useRef(true);
   useEffect(() => {
-    if (activeTab !== prevTab) {
-      setIsLoading(true);
-      const timer = setTimeout(() => {
-        setIsLoading(false);
-        setPrevTab(activeTab);
-      }, 400);
-      return () => clearTimeout(timer);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
     }
-  }, [activeTab, prevTab]);
+    setIsLoading(true);
+    const timer = setTimeout(() => setIsLoading(false), 400);
+    return () => clearTimeout(timer);
+  }, [activeTab]);
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
