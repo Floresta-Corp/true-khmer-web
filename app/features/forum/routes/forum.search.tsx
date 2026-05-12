@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "motion/react";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { ForumSearchLoader } from "~/routes/api/forum/forum-search/forum-search-loader";
 import ForumSearchHeader from "../components/sections/forum-search-header";

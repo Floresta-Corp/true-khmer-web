@@ -3,6 +3,7 @@ import { Button } from "~/components/ui/button";
 import { formatDate, formatTime } from "~/features/events/lib/event-formatters";
 import type { EventData } from "./event-card";
 import type { Organizer } from "~/features/events/lib/event-types";
+import { Card } from "~/components/ui/card";
 
 interface EventDetailSidebarProps {
   event: EventData;
@@ -17,7 +18,7 @@ export function EventDetailSidebar({
     <div className="w-full lg:w-80 shrink-0">
       <div className="lg:sticky lg:top-24 space-y-5">
         {/* Overview Card */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-6">
+        <Card className="bg-white rounded-2xl p-6 shadow-none">
           <h3 className="text-base font-bold text-gray-900 mb-3">Overview</h3>
           {event.excerpt && (
             <p className="text-sm text-gray-500 leading-relaxed mb-5">
@@ -68,11 +69,11 @@ export function EventDetailSidebar({
               </div>
             </div>
           ) : null}
-        </div>
+        </Card>
 
         {/* About the Organizer */}
         {organizer && (
-          <div className="bg-white rounded-2xl border border-gray-100 p-6">
+          <Card className="bg-white rounded-2xl shadow-none p-6">
             <h3 className="text-base font-bold text-gray-900 mb-4">
               About the Organizer
             </h3>
@@ -108,7 +109,7 @@ export function EventDetailSidebar({
               <Flag className="w-3.5 h-3.5" />
               Report
             </Button>
-          </div>
+          </Card>
         )}
       </div>
     </div>

@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
 import { Pencil, Trash2 } from "lucide-react";
+import { motion } from "motion/react";
 import { useState } from "react";
 import { Link } from "react-router";
 import SlideToLeftHoverAnimation from "~/components/slide-to-left-hover-animation";

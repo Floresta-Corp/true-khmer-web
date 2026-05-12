@@ -7,20 +7,33 @@ import type { Question } from "~/services/forum/forum-types";
 interface ShareQuestionDialogProps {
   question: Question;
   trigger: React.ReactNode;
+  /** optional answer id to include in the share link (without the "answer-" prefix) */
+  answerId?: string | null;
 }
 
 export default function ShareQuestionDialog({
   question,
   trigger,
+  answerId = null,
 }: ShareQuestionDialogProps) {
   if (!question) return null;
 
   const [isCopied, setIsCopied] = useState(false);
 
+  const hashPart = (() => {
+    if (answerId) return `#answer-${answerId}`;
+    if (typeof window !== "undefined" && window.location.hash)
+      return window.location.hash;
+    return "";
+  })();
+
   const shareUrl =
     typeof window !== "undefined"
-      ? new URL(`/forum/detail/${question.id}`, window.location.origin).href
-      : `/forum/detail/${question.id}`;
+      ? new URL(
+          `/forum/detail/${question.id}${hashPart}`,
+          window.location.origin,
+        ).href
+      : `/forum/detail/${question.id}${hashPart}`;
 
   const handleCopy = async () => {
     try {

@@ -38,7 +38,7 @@ const fadeUp = {
   }),
 };
 
-// // ─── Mock data for related discussions ───────────────────────────────────────
+// ─── Mock data for related discussions ───────────────────────────────────────
 // const MOCK_RELATED_DISCUSSIONS = [
 //   {
 //     id: "mock-1",
@@ -115,6 +115,7 @@ const fadeUp = {
 export default function ForumDetailPage() {
   const { question, bestAnswer, answers, userId, reportReasons } =
     useLoaderData<typeof loader>();
+
   // const displayedRelatedDiscussions = MOCK_RELATED_DISCUSSIONS;
 
   if (!question) {
@@ -145,7 +146,7 @@ export default function ForumDetailPage() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] w-full">
-      <main className="mx-auto w-full px-4 pb-10 md:px-10 xl:px-30 pt-8">
+      <main className="max-w-300 mx-auto w-full px-4 pb-10 md:px-10 lg:px-6 pt-8">
         {/* Back nav + actions */}
         <motion.div
           className="mb-8 flex items-center justify-between"
@@ -260,7 +261,7 @@ export default function ForumDetailPage() {
             )}
           </div>
 
-          {/* <motion.aside
+          {/*<motion.aside
             className="hidden lg:block w-full xl:w-64 xl:shrink-0"
             variants={fadeUp}
             initial="hidden"

@@ -2,7 +2,7 @@ import { useLoaderData, useNavigate } from "react-router";
 import type { Route } from "./+types/events.$id";
 import { AlertCircle, ArrowLeft } from "lucide-react";
 import { useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { ImageGallery } from "~/components/image-lightbox";
@@ -166,7 +166,7 @@ export default function EventDetailPage() {
                   transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
                 >
                   {/* About this event */}
-                  <Card>
+                  <Card className="shadow-none rounded-2xl">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-lg">
                         About this event

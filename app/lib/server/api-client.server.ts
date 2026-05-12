@@ -209,7 +209,9 @@ export async function apiRequestPublic<T, K extends object = JsonObject>(
 function isLoginRedirectResponse(error: unknown): error is Response {
   if (!(error instanceof Response)) return false;
   const location = error.headers.get("Location") ?? "";
-  return error.status >= 300 && error.status < 400 && location.startsWith("/login");
+  return (
+    error.status >= 300 && error.status < 400 && location.startsWith("/login")
+  );
 }
 
 export async function apiRequestWithOptionalSession<

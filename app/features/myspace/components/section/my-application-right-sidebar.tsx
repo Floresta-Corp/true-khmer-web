@@ -2,8 +2,8 @@ import MyApplicationActivitySummaryCard from "../cards/my-application-activity-s
 
 export default function MyApplicationRightSidebar() {
   return (
-    <div>
+    <>
       <MyApplicationActivitySummaryCard />
-    </div>
+    </>
   );
 }

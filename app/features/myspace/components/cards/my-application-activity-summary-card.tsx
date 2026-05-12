@@ -5,14 +5,9 @@ import {
   Loader,
   Rocket,
 } from "lucide-react";
+import { useLoaderData } from "react-router";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
-
-const summaryData = [
-  { label: "PENDING", value: 2 },
-  { label: "ACTIVE", value: 12 },
-  { label: "COMPLETED", value: 8 },
-  { label: "ARCHIVED", value: 2 },
-];
+import type { loader } from "../../routes/my-applications";
 
 const StatusIcon = (label: string) => {
   switch (label) {
@@ -51,6 +46,20 @@ const StatusIcon = (label: string) => {
 };
 
 export default function MyApplicationActivitySummaryCard() {
+  const { myApplication } = useLoaderData<typeof loader>();
+  const pending =
+    Number(myApplication.summary.SUBMITTED) +
+    Number(myApplication.summary.UNDER_REVIEW);
+
+  const active =
+    Number(myApplication.summary.APPROVED) +
+    Number(myApplication.summary.CONFIRMED);
+  const summaryData = [
+    { label: "PENDING", value: pending },
+    { label: "ACTIVE", value: active },
+    { label: "COMPLETED", value: myApplication.summary.COMPLETED },
+    { label: "ARCHIVED", value: myApplication.summary.WITHDRAWN },
+  ];
   return (
     <Card className="shadow-none rounded-2xl">
       <CardHeader className="font-bold text-[20px]">
@@ -64,9 +73,11 @@ export default function MyApplicationActivitySummaryCard() {
               className="bg-slate-100 p-4 flex items-center gap-3 rounded-[16px]"
             >
               {StatusIcon(v.label)}
-              <div className="font-bold">
-                <p>{v.label}</p>
-                <p>{v.value >= 10 ? v.value : `0${v.value}`}</p>
+              <div>
+                <p className="font-semibold text-[#4D5D73]">{v.label}</p>
+                <p className="font-bold">
+                  {v.value >= 10 ? v.value : `0${v.value}`}
+                </p>
               </div>
             </div>
           );

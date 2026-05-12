@@ -1,9 +1,8 @@
 import { useLoaderData, useFetcher, useSearchParams } from "react-router";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "motion/react";
 import ForumHeader from "../components/sections/forum-header";
 import ForumContent from "../components/sections/forum-content";
 import type { Route } from "./+types/forum";
-import { useReducedMotion } from "framer-motion";
 import type {
   CategoriesPicker,
   GetQuestionPaginationResponse,
