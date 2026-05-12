@@ -1,6 +1,5 @@
 import { useLoaderData, useFetcher, useSearchParams } from "react-router";
-import { motion } from "framer-motion";
-import { useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "motion/react";
 import type {
   CategoriesPicker,
   GetQuestionPaginationResponse,

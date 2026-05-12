@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Funnel, X } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "motion/react";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio";
 import type { CategoriesPicker } from "~/services/forum/forum-types";
 import SortByRadioGroup from "./sort-by-radio-group";

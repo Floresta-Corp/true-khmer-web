@@ -38,7 +38,7 @@ const fadeUp = {
   }),
 };
 
-// // ─── Mock data for related discussions ───────────────────────────────────────
+// ─── Mock data for related discussions ───────────────────────────────────────
 // const MOCK_RELATED_DISCUSSIONS = [
 //   {
 //     id: "mock-1",
@@ -115,6 +115,7 @@ const fadeUp = {
 export default function ForumDetailPage() {
   const { question, bestAnswer, answers, userId, reportReasons } =
     useLoaderData<typeof loader>();
+
   // const displayedRelatedDiscussions = MOCK_RELATED_DISCUSSIONS;
 
   if (!question) {

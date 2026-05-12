@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Pencil, Trash2 } from "lucide-react";
 import ForumReportDialog, {
   ReportDialogType,

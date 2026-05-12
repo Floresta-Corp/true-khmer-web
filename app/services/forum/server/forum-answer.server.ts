@@ -7,7 +7,6 @@ import type {
   CreateAnswerInput,
   DeleteAnswerResponse,
   GetAnswersResponse,
-  MyAnswerItem,
   MyAnswersResponse,
   UpdateAnswerInput,
   UpsertAnswerResponse,
@@ -51,11 +50,15 @@ export async function myForumAnswer(request: Request) {
 export async function getAnswersByQuestionId(
   request: Request,
   questionId: string,
+  sortBy?: string | null,
 ) {
   try {
+    const path =
+      `/forum/answer/get-answers/${questionId}` +
+      (sortBy ? `?sortBy=${encodeURIComponent(sortBy)}` : "");
     const result = await apiRequestWithSession<GetAnswersResponse>(
       request,
-      `/forum/answer/get-answers/${questionId}`,
+      path,
       {
         method: "GET",
       },
@@ -73,11 +76,15 @@ export async function getAnswersByQuestionId(
 export async function getPublicAnswersByQuestionId(
   request: Request,
   questionId: string,
+  sortBy?: string | null,
 ) {
   try {
+    const path =
+      `/forum/public/answer/get-answers/${questionId}` +
+      (sortBy ? `?sortBy=${encodeURIComponent(sortBy)}` : "");
     const result = await apiRequestWithOptionalSession<GetAnswersResponse>(
       request,
-      `/forum/public/answer/get-answers/${questionId}`,
+      path,
       {
         method: "GET",
       },

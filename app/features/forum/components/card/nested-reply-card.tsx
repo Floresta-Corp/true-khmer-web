@@ -1,5 +1,5 @@
 import { Pencil, Trash2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import AnswerVoteComponent from "../answer-vote-component";
 import { Button } from "~/components/ui/button";
 import { resolveImageURL } from "~/lib/utils";

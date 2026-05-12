@@ -32,17 +32,20 @@ export async function forumDetailLoader({
 
   const userId = await getUserId(request);
 
+  const url = new URL(request.url);
+  const sortBy = url.searchParams.get("sortBy") ?? undefined;
+
   const [questionResult, answersResult, reportReasonsResult] =
     await Promise.all(
       userId
         ? [
             getQuestionById(request, questionId),
-            getAnswersByQuestionId(request, questionId),
+            getAnswersByQuestionId(request, questionId, sortBy),
             GetPublicReportType(request),
           ]
         : [
             getPublicQuestionById(request, questionId),
-            getPublicAnswersByQuestionId(request, questionId),
+            getPublicAnswersByQuestionId(request, questionId, sortBy),
             GetPublicReportType(request),
           ],
     );

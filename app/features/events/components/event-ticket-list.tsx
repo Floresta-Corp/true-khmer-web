@@ -33,7 +33,7 @@ export function EventTicketList({
       </p>
 
       {ticketStatus === "SOLD_OUT" ? (
-        <Card>
+        <Card className="shadow-none rounded-2xl">
           <CardContent className="pt-6 text-center">
             <p className="text-red-500 font-semibold text-lg mb-1">Sold Out</p>
             <p className="text-sm text-muted-foreground">
@@ -53,9 +53,10 @@ export function EventTicketList({
             return (
               <Card
                 key={tier.id}
-                className={`transition-colors ${
-                  isSoldOut ? "opacity-60" : "hover:border-blue-200"
-                }`}
+                className={cn(
+                  "shadow-none rounded-2xl transition-colors",
+                  isSoldOut ? "opacity-60" : "hover:border-blue-200",
+                )}
               >
                 <CardContent className="p-5">
                   <div className="flex items-center gap-4">
@@ -144,7 +145,7 @@ export function EventTicketList({
           })}
         </div>
       ) : (
-        <Card>
+        <Card className="shadow-none rounded-2xl">
           <CardContent className="pt-6 text-center">
             <p className="text-gray-500 font-semibold text-lg mb-1">
               No Tickets Available
