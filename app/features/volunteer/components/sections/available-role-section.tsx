@@ -49,7 +49,7 @@ function RoleCard({ role, roles }: RoleCardProps) {
   return (
     <AccordionItem
       value={role.id}
-      className="overflow-hidden rounded-[16px] border border-gray-100"
+      className="overflow-hidden rounded-[16px] border border-gray-200"
     >
       <AccordionTrigger className="px-5.25 py-4 text-left no-underline hover:no-underline [&>svg]:size-[17.5px] [&>svg]:text-[#2f6fe4] bg-[#f8fafc] rounded-none ">
         <div className="flex items-center justify-between w-full">

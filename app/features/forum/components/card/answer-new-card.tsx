@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { Award, MessageCircle, Pencil, Trash2 } from "lucide-react";
 import AnswerVoteComponent from "../answer-vote-component";
 import { Separator } from "~/components/ui/separator";
@@ -17,6 +17,7 @@ import CommentWrapper from "../comment-wrapper";
 import SlideToLeftHoverAnimation from "~/components/slide-to-left-hover-animation";
 import MarkBestAnswerDialog from "../dialog/mark-best-answer-dialog";
 import { useState } from "react";
+import { useLocation } from "react-router";
 import {
   Accordion,
   AccordionContent,
@@ -49,17 +50,20 @@ function AnswerComponent({
   const imageUrl = resolveImageURL(answer.author.avatarKey);
   const replyCount = answer.replyCount;
   const [isHovered, setIsHovered] = useState(false);
+  const location = useLocation();
+  const id = decodeURIComponent(location.hash.replace(/^#/, ""));
 
   return (
     <Accordion
       type="single"
       collapsible
       className="w-full"
-      defaultValue={replyCount > 0 ? "replies" : undefined}
+      defaultValue={answer.id === id ? "replies" : undefined}
     >
       <AccordionItem value="replies">
         <motion.article
-          className="flex flex-col gap-4 border rounded-xl bg-white p-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] z-10"
+          id={`answer-${answer.id}`}
+          className="z-10 flex flex-col gap-4 rounded-3xl border border-[#f3f4f6] bg-white p-6 shadow-none"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{

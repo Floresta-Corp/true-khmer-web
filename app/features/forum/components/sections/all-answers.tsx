@@ -1,18 +1,76 @@
-import { motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { motion } from "motion/react";
 import AnswerNewCard from "../card/answer-new-card";
 import type { Answer } from "~/services/forum/forum-types";
 import type { loader } from "../../routes/forum.$id";
-import { useLoaderData } from "react-router";
-import { Button } from "~/components/ui/button";
+import { useLoaderData, useFetcher, useLocation } from "react-router";
+import { useEffect, useState } from "react";
+import SortDropdown from "~/components/ui/sort-dropdown";
+import AnswerCardSkeleton from "../card/answer-card-skeleton";
 
 interface AllAnswersProps {
   answers: Answer[];
 }
 
+type SortValue = "popular" | "newest" | "oldest";
+
+const SORT_OPTIONS = [
+  { label: "Popular", value: "popular" },
+  { label: "Newest", value: "newest" },
+  { label: "Oldest", value: "oldest" },
+];
+
 export default function AllAnswers({ answers }: AllAnswersProps) {
   const { userId, reportReasons, question } = useLoaderData<typeof loader>();
-  const answersKey = answers.map(a => a.id + (a.repliedAnswers?.map(r => r.id).join(',') ?? '')).join('|');
+  const fetcher = useFetcher();
+  const location = useLocation();
+  const isLoading = fetcher.state === "loading";
+
+  const answersKey = (fetcher.data?.answers ?? answers)
+    .map(
+      (a: Answer) =>
+        a.id + (a.repliedAnswers?.map((r) => r.id).join(",") ?? ""),
+    )
+    .join("|");
+
+  // derive initial sort from query string (use `sortBy`)
+  const search = new URLSearchParams(location.search);
+  const initialSort = (search.get("sortBy") as SortValue) || "popular";
+  const [selectedSort, setSelectedSort] = useState<SortValue>(initialSort);
+
+  const handleSortChange = (value: SortValue) => {
+    setSelectedSort(value);
+    // preserve other query params
+    const params = new URLSearchParams(location.search);
+    params.set("sortBy", value);
+    const query = params.toString();
+    const path = `${location.pathname}${query ? `?${query}` : ""}${location.hash ?? ""}`;
+
+    // update browser URL (adds a history entry) without navigating
+    if (typeof window !== "undefined") {
+      try {
+        window.history.pushState({}, "", path);
+      } catch (_) {
+        /* ignore */
+      }
+    }
+
+    // trigger route loader reload via fetcher (this will call the forum detail loader)
+    fetcher.load(path);
+  };
+
+  // sync selected sort when URL changes (back/forward, direct nav)
+  useEffect(() => {
+    const p = new URLSearchParams(location.search).get(
+      "sortBy",
+    ) as SortValue | null;
+    setSelectedSort(p ?? "popular");
+  }, [location.search]);
+
+  const displayedAnswers: Answer[] = fetcher.data?.answers ?? answers;
+  const skeletonCount = Math.max(
+    displayedAnswers.length || answers.length || 3,
+    3,
+  );
 
   return (
     <motion.section
@@ -24,43 +82,49 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
       {/* Heading */}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-medium leading-6.75 text-[#2c2f31]">
-          All {answers.length} Answers
+          All {displayedAnswers.length} Answers
         </h2>
         <div className="flex items-center gap-3">
           <p className="text-sm font-semibold leading-5 text-[#595c5e]">
             Sort by:
           </p>
-          <Button
-            variant={"default"}
-            type="button"
+
+          <SortDropdown
+            value={selectedSort}
+            onChange={(v) => handleSortChange(v as SortValue)}
+            options={SORT_OPTIONS}
             className="inline-flex bg-transparent items-center text-base font-semibold leading-6 text-[#0050d4]"
-          >
-            Popular
-            <ChevronDown size={13.5} className="text-[#0050d4]" />
-          </Button>
+          />
         </div>
       </div>
 
       {/* Answer list */}
       <div className="flex flex-col gap-6" key={answersKey}>
-        {answers.map((answer, i) => {
-          const isCurrentAuthor = userId === answer.author.id ? true : false;
-          return (
-            <AnswerNewCard
-              userId={userId}
-              key={answer.id}
-              answer={answer}
-              index={i}
-              isCurrentAuthor={isCurrentAuthor}
-              isAuthenticated={Boolean(userId)}
-              isQuestionAuthor={userId === question?.author.id}
-              reportReasons={reportReasons.reportingTypes.map((v) => ({
-                id: v.id,
-                reason: v.type,
-              }))}
-            />
-          );
-        })}
+        {isLoading
+          ? Array.from({ length: skeletonCount }).map((_, index) => (
+              <AnswerCardSkeleton key={`answer-skeleton-${index}`} />
+            ))
+          : displayedAnswers.map((answer, i) => {
+              const isCurrentAuthor =
+                userId === answer.author.id ? true : false;
+              return (
+                <AnswerNewCard
+                  userId={userId}
+                  key={answer.id}
+                  answer={answer}
+                  index={i}
+                  isCurrentAuthor={isCurrentAuthor}
+                  isAuthenticated={Boolean(userId)}
+                  isQuestionAuthor={userId === question?.author.id}
+                  reportReasons={
+                    reportReasons?.reportingTypes.map((v) => ({
+                      id: v.id,
+                      reason: v.type,
+                    })) ?? []
+                  }
+                />
+              );
+            })}
       </div>
     </motion.section>
   );

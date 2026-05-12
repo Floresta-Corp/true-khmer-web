@@ -58,7 +58,12 @@ export default function AskQuestionDialog({
   // const [searchParams, setSearchParams] = useSearchParams();
   const redirectTo = `${location.pathname}${location.search}`;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
-  const submittedTags = [...tags, tagInput.trim()].filter(Boolean);
+  const submittedTags = (() => {
+    const typed = tagInput.trim();
+    const combined = typed ? [...tags, typed] : tags;
+    // Ensure we never submit more than 5 tags
+    return combined.slice(0, 5).filter(Boolean);
+  })();
 
   useEffect(() => {
     if (open) {
@@ -71,6 +76,12 @@ export default function AskQuestionDialog({
     const nextTag = rawValue.trim();
 
     if (!nextTag) {
+      return;
+    }
+
+    // Prevent adding more than 5 tags
+    if (tags.length >= 5) {
+      toast.error("You can add up to 5 tags only.");
       return;
     }
 
@@ -187,7 +198,7 @@ export default function AskQuestionDialog({
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
         showCloseButton={false}
-        className="max-w-[calc(100%-1rem)] gap-4 overflow-hidden rounded-lg border border-[#e2e8f0] p-6 shadow-lg sm:max-w-130"
+        className="max-w-[calc(100%-1rem)] gap-4 overflow-hidden rounded-2xl border border-[#e2e8f0] p-6 shadow-lg sm:max-w-130"
       >
         <DialogClose>
           <Button
@@ -273,45 +284,54 @@ export default function AskQuestionDialog({
             </Label>
 
             <input type="hidden" name="tags" value={submittedTags.join(", ")} />
-            {tags.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <Badge
-                    key={tag}
-                    variant="outline"
-                    className="inline-flex rounded-md bg-[#edf2f7] px-2.5 py-1 text-xs font-medium text-[#344256]"
-                  >
-                    <span>{tag}</span>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setTags((currentTags) =>
-                          currentTags.filter(
-                            (currentTag) => currentTag !== tag,
-                          ),
-                        )
-                      }
-                      className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full text-[#64748b] hover:bg-[#d6deea] hover:text-[#0f1729]"
-                      aria-label={`Remove tag ${tag}`}
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            ) : null}
             <Input
-              placeholder="Type a tag and press Enter"
+              placeholder={
+                tags.length >= 5
+                  ? "Maximum 5 tags added"
+                  : "Type a tag and press Enter"
+              }
               value={tagInput}
               onChange={(event) => setTagInput(event.target.value)}
               onKeyDown={handleTagKeyDown}
               aria-invalid={Boolean(fieldErrors?.tags)}
+              disabled={tags.length >= 5}
               className="h-11 rounded-lg border-transparent bg-[#f8fafc] text-sm text-[#344256] placeholder:text-[#9eacc0] focus-visible:border-[#2f6fe4] focus-visible:ring-0 focus-visible:ring-offset-0 aria-invalid:border-red-500"
             />
             {fieldErrors?.tags ? (
               <p className="text-xs text-red-600">{fieldErrors.tags}</p>
-            ) : null}
+            ) : (
+              <p className="text-xs text-gray-500">
+                {Math.max(0, 5 - tags.length)} tag
+                {Math.max(0, 5 - tags.length) === 1 ? "" : "s"} left
+              </p>
+            )}
           </div>
+
+          {tags.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <Badge
+                  key={tag}
+                  variant="outline"
+                  className="inline-flex rounded-md bg-[#edf2f7] px-2.5 py-1 text-xs font-medium text-[#344256]"
+                >
+                  <span>{tag}</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setTags((currentTags) =>
+                        currentTags.filter((currentTag) => currentTag !== tag),
+                      )
+                    }
+                    className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full text-[#64748b] hover:bg-[#d6deea] hover:text-[#0f1729]"
+                    aria-label={`Remove tag ${tag}`}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+          ) : null}
 
           <div className="flex justify-end gap-2 pt-2">
             <DialogClose>

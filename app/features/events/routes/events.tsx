@@ -1,6 +1,6 @@
 import { useLoaderData, Link } from "react-router";
 import { useState, useMemo, useEffect } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "motion/react";
 import type { Route } from "./+types/events";
 import {
   EventCard,

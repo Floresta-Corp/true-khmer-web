@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "motion/react";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { ForumSearchLoader } from "~/routes/api/forum/forum-search/forum-search-loader";
 import ForumSearchHeader from "../components/sections/forum-search-header";
@@ -10,6 +10,10 @@ import ForumSearchAction from "~/routes/api/forum/forum-search/forum-search-acti
 
 export const loader = ForumSearchLoader;
 export const action = ForumSearchAction;
+
+export function meta() {
+  return [{ title: "Search Discussions | True Khmer" }];
+}
 
 export default function ForumSearchPage() {
   const { data, categories } = useLoaderData<typeof loader>();

@@ -2,14 +2,13 @@ import WorkSpacePage from "../components/pages/workspace-page";
 import { workSpaceAction } from "~/routes/api/workspace/work-space-action";
 import { workSpaceLoader } from "~/routes/api/workspace/work-space-loader";
 
-
 export const action = workSpaceAction;
 export const loader = workSpaceLoader;
 
-export default function WorkspacePage() {
-  
+export function meta() {
+  return [{ title: "Workspace | True Khmer" }];
+}
 
-  return (
-    <WorkSpacePage/>
-  );
+export default function WorkspacePage() {
+  return <WorkSpacePage />;
 }

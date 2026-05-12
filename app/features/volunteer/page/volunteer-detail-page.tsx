@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "motion/react";
 import type { Opportunity } from "~/services/volunteer/types/opportunities";
 import EmptyPost from "../components/empty-post";
 import OpportunityCover from "../components/sections/opportunity-cover";

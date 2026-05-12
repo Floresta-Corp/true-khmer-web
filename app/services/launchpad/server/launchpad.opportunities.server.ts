@@ -44,6 +44,11 @@ export async function GetLaunchpadProjects(
   }
 }
 
+type City = {
+  id: string;
+  name: string;
+};
+
 export async function GetLaunchpadProjectsPaginated(
   request: Request,
   params: {
@@ -54,7 +59,11 @@ export async function GetLaunchpadProjectsPaginated(
     search?: string | null;
     sortBy?: "newest" | "oldest";
   } = {},
-): Promise<{ launchpads: LaunchpadOpportunity[]; nextCursor: string | null }> {
+): Promise<{
+  launchpads: LaunchpadOpportunity[];
+  nextCursor: string | null;
+  cities: City[];
+}> {
   try {
     const query = new URLSearchParams();
     query.set("limit", String(params.limit ?? 9));
@@ -72,10 +81,11 @@ export async function GetLaunchpadProjectsPaginated(
     return {
       launchpads: result.data.launchpads,
       nextCursor: result.data.nextCursor,
+      cities: result.data.cities ?? [],
     };
   } catch (error) {
     if (error instanceof ProtectedApiError && error.status === 404) {
-      return { launchpads: [], nextCursor: null };
+      return { launchpads: [], nextCursor: null, cities: [] };
     }
     throw error;
   }

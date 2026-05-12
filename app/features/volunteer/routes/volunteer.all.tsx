@@ -17,6 +17,10 @@ import { useState } from "react";
 
 export const loader = volunteerLoader;
 
+export function meta() {
+  return [{ title: "All Volunteer Opportunities | True Khmer" }];
+}
+
 export default function VolunteerAllPage() {
   const { categories, userId, locations, opportunities } =
     useLoaderData<typeof loader>();
