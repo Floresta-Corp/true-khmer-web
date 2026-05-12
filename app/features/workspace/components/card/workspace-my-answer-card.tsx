@@ -24,7 +24,7 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
   const [isHovered, setIsHovered] = useState(false);
   const questionId = answer.question?.id;
 
-  if (!questionId) return null;
+  if (!answer.id) return null;
 
   return (
     <motion.article
