@@ -63,7 +63,7 @@ export default function LaunchpadSubmitApplicationDialog({
   const isSuccess = justSubmitted || fetcher.data?.success === true;
   const errorMessage = fetcher.data?.error;
   const motivationLength = motivation.trim().length;
-  const showMotivationWarning = motivationLength > 0 && motivationLength < 10;
+  const showMotivationWarning = motivationLength > 0 && motivationLength < 5;
 
   useEffect(() => {
     if (fetcher.data?.success) {
@@ -215,13 +215,13 @@ export default function LaunchpadSubmitApplicationDialog({
                   onChange={(e) => setMotivation(e.target.value.slice(0, 2000))}
                   placeholder="Share what excites you about this project and what you bring to the team."
                   required
-                  minLength={10}
+                  minLength={5}
                   rows={3}
                   className="w-full resize-none rounded-lg border-0 bg-[#F8FAFC] px-3 py-2.5 text-xs text-[#344256] outline-none placeholder:text-[#9EACC0] focus:ring-0"
                 />
                 {showMotivationWarning && (
                   <p className="text-xs text-red-500">
-                    Please type at least 10 characters.
+                    Please type at least 5 characters.
                   </p>
                 )}
               </div>
@@ -314,7 +314,7 @@ export default function LaunchpadSubmitApplicationDialog({
                 </DialogClose>
                 <Button
                   type="submit"
-                  disabled={isSubmitting || !roleId || motivationLength < 10}
+                  disabled={isSubmitting || !roleId || motivationLength < 5}
                   className="h-10 rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white hover:bg-[#245cc2] disabled:opacity-50"
                 >
                   {isSubmitting ? "Submitting…" : "Submit application"}
