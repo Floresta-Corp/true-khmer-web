@@ -1,5 +1,5 @@
 import { ChevronRight } from "lucide-react";
-import type { RecentActivity } from "~/services/myspace/types/myspace-me";
+import type { RecentActivity } from "~/services/myspace/types/myspace-me-type";
 import {
   getActivityTypeConfig,
   getActivityIconColor,
@@ -24,7 +24,7 @@ export function RecentActivityItem({
       type="button"
       disabled={!onClick}
       onClick={onClick}
-      className="flex items-start gap-3 p-4 rounded-xl border border-[#f1f5f9] hover:bg-[#f8fafc] transition-colors cursor-pointer group"
+      className="w-full flex items-center gap-3 p-4 rounded-xl border border-[#f1f5f9] hover:bg-[#f8fafc] transition-colors cursor-pointer group"
     >
       {/* Icon Container */}
       <div
@@ -35,7 +35,7 @@ export function RecentActivityItem({
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 text-start">
         <p className="text-sm font-semibold text-[#030213] line-clamp-1">
           {activity.title}
         </p>
@@ -51,8 +51,8 @@ export function RecentActivityItem({
         <p className="text-xs text-[#9eacc0] whitespace-nowrap">
           {formatMinutesOrHoursAgo(activity.createdAt)}
         </p>
-        <ChevronRight className="h-4 w-4 text-[#94a3b8] opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
+      <ChevronRight className="h-4 w-4 text-[#94a3b8] opacity-0 group-hover:opacity-100 transition-opacity" />
     </button>
   );
 }

@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { useLoaderData, useNavigate, useSubmit, Form } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import type { ChangeEvent } from "react";
+import { useLoaderData, useNavigate, useFetcher, Form } from "react-router";
+import { toast } from "sonner";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,10 +30,8 @@ import { Separator } from "~/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Spinner } from "~/components/ui/spinner";
 import { resolveImageURL } from "~/lib/utils";
-import {
-  EditProfileLoader,
-  EditProfileAction,
-} from "~/routes/api/myspace/edit-profile-loader";
+import { EditProfileLoader } from "~/routes/api/myspace/edit-profile-loader";
+import { EditProfileAction } from "~/routes/api/myspace/edit-profile-action";
 
 export const loader = EditProfileLoader;
 export const action = EditProfileAction;
@@ -71,8 +71,26 @@ export function meta() {
 export default function EditProfile() {
   const { me } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
-  const submit = useSubmit();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const fetcher = useFetcher();
+  const wasSubmitting = useRef(false);
+
+  useEffect(() => {
+    if (fetcher.state === "submitting") {
+      wasSubmitting.current = true;
+    }
+
+    if (wasSubmitting.current && fetcher.state === "idle" && fetcher.data) {
+      wasSubmitting.current = false;
+      const result = fetcher.data;
+
+      if (result?.ok) {
+        toast.success("Profile updated successfully!");
+        navigate("/myspace");
+      } else {
+        toast.error(result?.message ?? "Failed to update profile.");
+      }
+    }
+  }, [fetcher.state, fetcher.data]);
 
   const defaultValues: EditProfileFormData = {
     firstName: me?.user.firstName || "",
@@ -111,7 +129,46 @@ export default function EditProfile() {
   const skills = watch("skills");
   const [newSkill, setNewSkill] = useState("");
 
-  const avatarUrl = resolveImageURL(me?.profile.avatarKey || undefined);
+  const initialAvatarUrl = resolveImageURL(me?.profile.avatarKey || undefined);
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(
+    initialAvatarUrl,
+  );
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const avatarObjectUrlRef = useRef<string | null>(null);
+
+  const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.currentTarget.files?.[0] ?? null;
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file.");
+      return;
+    }
+
+    // Revoke previous object URL
+    if (avatarObjectUrlRef.current) {
+      URL.revokeObjectURL(avatarObjectUrlRef.current);
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    avatarObjectUrlRef.current = objectUrl;
+    setAvatarUrl(objectUrl);
+    setAvatarFile(file);
+
+    // Optionally set avatarKey to file name so the form knows something changed
+    try {
+      setValue("avatarKey", file.name);
+    } catch (err) {
+      // setValue might not be available yet in some edge cases; ignore
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (avatarObjectUrlRef.current) {
+        URL.revokeObjectURL(avatarObjectUrlRef.current);
+      }
+    };
+  }, []);
 
   const handleAddSkill = () => {
     if (newSkill.trim() && !skills.includes(newSkill)) {
@@ -129,9 +186,8 @@ export default function EditProfile() {
   };
 
   const onSubmit = (data: EditProfileFormData) => {
-    setIsSubmitting(true);
-
     const formData = new FormData();
+    formData.append("actionType", "edit-profile");
     formData.append("firstName", data.firstName);
     formData.append("lastName", data.lastName);
     formData.append("gender", data.gender);
@@ -153,9 +209,12 @@ export default function EditProfile() {
     formData.append("socialLinksVisibility", data.socialLinksVisibility);
     formData.append("contributionsVisibility", data.contributionsVisibility);
 
-    submit(formData, {
-      method: "post",
-      action: "/profile/edit",
+    if (avatarFile) {
+      formData.append("avatar", avatarFile);
+    }
+
+    fetcher.submit(formData, {
+      method: "PATCH",
     });
   };
 
@@ -220,7 +279,7 @@ export default function EditProfile() {
           </motion.div>
         </motion.div>
 
-        <Form method="post" onSubmit={handleSubmit(onSubmit)}>
+        <Form method="PATCH" onSubmit={handleSubmit(onSubmit)}>
           <motion.div
             className="grid grid-cols-1 lg:grid-cols-3 gap-8"
             initial={{ opacity: 0 }}
@@ -278,15 +337,17 @@ export default function EditProfile() {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                           >
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              className="gap-2 text-sm"
-                            >
+                            <label className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded text-sm cursor-pointer">
                               <Upload className="h-4 w-4" />
-                              Upload new image
-                            </Button>
+                              <span>Upload new image</span>
+                              <input
+                                id="avatarUploadInput"
+                                type="file"
+                                accept="image/*"
+                                className="sr-only"
+                                onChange={handleUpload}
+                              />
+                            </label>
                           </motion.div>
                           <motion.div
                             whileHover={{ scale: 1.05 }}
@@ -662,9 +723,9 @@ export default function EditProfile() {
                   <Button
                     type="submit"
                     className="bg-blue-600 hover:bg-blue-700 text-white"
-                    disabled={isSubmitting}
+                    disabled={fetcher.state !== "idle"}
                   >
-                    {isSubmitting ? (
+                    {fetcher.state !== "idle" ? (
                       <span className="inline-flex items-center gap-2">
                         <Spinner className="size-4" />
                         Saving...

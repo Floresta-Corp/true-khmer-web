@@ -1,1 +1,2 @@
-export * from "./myspace-me";
+export * from "./myspace-me-type";
+export * from "./my-application-type";

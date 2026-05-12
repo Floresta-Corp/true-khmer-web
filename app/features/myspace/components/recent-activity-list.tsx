@@ -1,7 +1,7 @@
 import React from "react";
 import { Clock, ChevronRight } from "lucide-react";
 import { Link } from "react-router";
-import type { RecentActivity } from "~/services/myspace/types/myspace-me";
+import type { RecentActivity } from "~/services/myspace/types/myspace-me-type";
 import { RecentActivityItem } from "./recent-activity-item";
 import { Card, CardTitle } from "~/components/ui/card";
 

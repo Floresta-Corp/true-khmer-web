@@ -22,7 +22,10 @@ export async function GetRecentActivity(request: Request) {
   );
 }
 
-export async function UpdateMyspace(request: Request, payload: UpdateMySpaceInput) {
+export async function UpdateMyspace(
+  request: Request,
+  payload: UpdateMySpaceInput,
+) {
   return await apiRequestWithSession<UpdateMySpaceResponse, UpdateMySpaceInput>(
     request,
     "/me",
