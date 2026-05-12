@@ -5,7 +5,7 @@ import {
 import {
   UploadApplicationDocumentSchema,
   ApplyApplicationInputSchema,
-  type ApplyApplicationInput,
+  type UploadApplicationDocumentInput,
 } from "~/services/volunteer/types";
 import type { Route as VolunteerDetailRoute } from "project-types/volunteer/routes/+types/volunteer.$id";
 import {
@@ -22,20 +22,21 @@ export async function VolunteerDetailAction({
   const actionType = formData.get("actionType");
   if (actionType === "apply-application") {
     const files = formData.getAll("files") as File[];
+    const input: UploadApplicationDocumentInput = {
+      opportunityId: id,
+      files: files.map((file) => ({
+        fileName: file.name,
+        contentType: file.type,
+        fileSize: file.size,
+      })),
+    };
     try {
-      const input = UploadApplicationDocumentSchema.parse({
-        opportunityId: id,
-        files: files.map((file) => ({
-          contentType: file.type,
-          fileSize: file.size,
-        })),
-      });
-
+      const validatedInput = UploadApplicationDocumentSchema.parse(input);
       try {
-        const result = await uploadDocumentApplication(request, input);
+        const result = await uploadDocumentApplication(request, validatedInput);
         const upload = result.data.uploads;
 
-        const supportingDocumentKeys = await Promise.all(
+        const supportingDocuments = await Promise.all(
           files.map(async (file, index) => {
             const uploadInput = upload[index];
 
@@ -52,17 +53,20 @@ export async function VolunteerDetailAction({
               throw new Error("Failed to upload file");
             }
 
-            return uploadInput.supportingDocumentKey;
+            return {
+              name: uploadInput.supportingDocument.name,
+              key: uploadInput.supportingDocument.key,
+            };
           }),
         );
 
         const dataStr = formData.get("data");
         if (!dataStr) throw new Error("Missing data field");
-        const data: ApplyApplicationInput = JSON.parse(dataStr.toString());
+        const data = JSON.parse(dataStr.toString()) as Record<string, unknown>;
 
         const applyInput = ApplyApplicationInputSchema.parse({
           ...data,
-          supportingDocumentKeys,
+          supportingDocuments,
         });
 
         try {

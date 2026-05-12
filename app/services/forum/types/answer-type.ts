@@ -27,7 +27,7 @@ export const ReplyToAnswerSchema = z.object({
   author: AuthorSchema,
   body: z.string(),
   status: AnswerStatusSchema,
-  upvoteCount: z.number(),
+  upvoteCount: z.number(), 
   downvoteCount: z.number(),
   createdAt: z.string(),
   updatedAt: z.string(),
