@@ -125,10 +125,12 @@ export default function AnswerCard({
                   title={answer.body}
                   id={answer.id}
                   type={ReportDialogType.ANSWER}
-                  reportReasons={reportReasons.reportingTypes.map((v) => ({
-                    id: v.id,
-                    reason: v.type,
-                  }))}
+                  reportReasons={
+                    reportReasons?.reportingTypes.map((v) => ({
+                      id: v.id,
+                      reason: v.type,
+                    })) || []
+                  }
                   isAuthenticated={isAuthenticated}
                 />
               )}

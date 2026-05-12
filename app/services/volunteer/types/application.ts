@@ -1,11 +1,17 @@
 import * as z from "zod";
 import { RoleSchema } from "./opportunities";
 
+export const SupportingDocumentSchema = z.object({
+  name: z.string(),
+  key: z.string(),
+});
+export type SupportingDocument = z.infer<typeof SupportingDocumentSchema>;
+
 export const ApplyApplicationInputSchema = z.object({
   roleId: z.string(),
   availability: z.string(),
   relevantExperience: z.string(),
-  supportingDocumentKeys: z.array(z.string()),
+  supportingDocuments: z.array(SupportingDocumentSchema),
 });
 export type ApplyApplicationInput = z.infer<typeof ApplyApplicationInputSchema>;
 
@@ -15,7 +21,7 @@ export const ApplicationSchema = z.object({
   role: RoleSchema,
   availability: z.string(),
   relevantExperience: z.string(),
-  supportingDocumentKeys: z.array(z.string()),
+  supportingDocuments: z.array(SupportingDocumentSchema),
   status: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -34,6 +40,7 @@ export const UploadApplicationDocumentSchema = z.object({
   opportunityId: z.string(),
   files: z.array(
     z.object({
+      fileName: z.string(),
       contentType: z.string(),
       fileSize: z.number(),
     }),
@@ -53,7 +60,7 @@ export const UploadApplicationDocumentResponseSchema = z.object({
         "Content-Length": z.string(),
         "Content-Type": z.string(),
       }),
-      supportingDocumentKey: z.string(),
+      supportingDocument: SupportingDocumentSchema,
       expiresInSeconds: z.number(),
     }),
   ),

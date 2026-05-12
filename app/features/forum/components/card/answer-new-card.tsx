@@ -51,12 +51,7 @@ function AnswerComponent({
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <Accordion
-      type="single"
-      collapsible
-      className="w-full"
-      defaultValue={replyCount > 0 ? "replies" : undefined}
-    >
+    <Accordion type="single" collapsible className="w-full">
       <AccordionItem value="replies">
         <motion.article
           className="flex flex-col gap-4 border rounded-xl bg-white p-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] z-10"

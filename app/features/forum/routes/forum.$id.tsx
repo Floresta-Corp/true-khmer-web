@@ -1,5 +1,5 @@
 import { Link, useLoaderData } from "react-router";
-import { MessageSquare, Share2 } from "lucide-react";
+import { MessageCircle, Share2 } from "lucide-react";
 import { motion } from "framer-motion";
 import QuestionVoteComponent from "../components/question-vote-component";
 import AllAnswers from "../components/sections/all-answers";
@@ -7,7 +7,6 @@ import type { Route } from "./+types/forum.$id";
 import { forumDetailLoader } from "~/routes/api/forum/forum-detail/forum-detail-loader";
 import { forumDetailAction } from "~/routes/api/forum/forum-detail/forum-detail-action";
 import BackToButton from "~/components/back-to-button";
-import RelatedDiscussionsCard from "../components/card/related-discussions-card";
 import ForumDetailQuestionHeader from "../components/forum-detail-question-header";
 import ReplyBox from "../components/reply-box";
 import ShareQuestionDialog from "../components/dialog/share-question-dialog";
@@ -39,84 +38,84 @@ const fadeUp = {
   }),
 };
 
-// ─── Mock data for related discussions ───────────────────────────────────────
-const MOCK_RELATED_DISCUSSIONS = [
-  {
-    id: "mock-1",
-    title: "Best practices for carbon-aware computing in 2026",
-    body: "Mock discussion",
-    status: "PUBLISHED" as const,
-    answerCount: 15,
-    upvoteCount: 45,
-    downvoteCount: 2,
-    score: 43,
-    viewerVote: "NONE" as const,
-    viewerSave: false,
-    bestAnswerId: null,
-    bestAnswerSelectedAt: null,
-    category: { id: "cat-1", name: "Sustainability" },
-    author: {
-      id: "auth-1",
-      name: "John Developer",
-      avatarKey: "mock-avatar-1",
-    },
-    tags: [{ id: "tag-1", name: "carbon" }],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "mock-2",
-    title: "How to measure digital sustainability metrics",
-    body: "Mock discussion",
-    status: "PUBLISHED" as const,
-    answerCount: 15,
-    upvoteCount: 32,
-    downvoteCount: 1,
-    score: 31,
-    viewerVote: "NONE" as const,
-    viewerSave: false,
-    bestAnswerId: null,
-    bestAnswerSelectedAt: null,
-    category: { id: "cat-1", name: "Sustainability" },
-    author: {
-      id: "auth-2",
-      name: "Jane Smith",
-      avatarKey: "mock-avatar-2",
-    },
-    tags: [{ id: "tag-2", name: "metrics" }],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "mock-3",
-    title: "Green coding frameworks comparison",
-    body: "Mock discussion",
-    status: "PUBLISHED" as const,
-    answerCount: 15,
-    upvoteCount: 28,
-    downvoteCount: 0,
-    score: 28,
-    viewerVote: "NONE" as const,
-    viewerSave: false,
-    bestAnswerId: null,
-    bestAnswerSelectedAt: null,
-    category: { id: "cat-2", name: "Development" },
-    author: {
-      id: "auth-3",
-      name: "Alex Code",
-      avatarKey: "mock-avatar-3",
-    },
-    tags: [{ id: "tag-3", name: "frameworks" }],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+// // ─── Mock data for related discussions ───────────────────────────────────────
+// const MOCK_RELATED_DISCUSSIONS = [
+//   {
+//     id: "mock-1",
+//     title: "Best practices for carbon-aware computing in 2026",
+//     body: "Mock discussion",
+//     status: "PUBLISHED" as const,
+//     answerCount: 15,
+//     upvoteCount: 45,
+//     downvoteCount: 2,
+//     score: 43,
+//     viewerVote: "NONE" as const,
+//     viewerSave: false,
+//     bestAnswerId: null,
+//     bestAnswerSelectedAt: null,
+//     category: { id: "cat-1", name: "Sustainability" },
+//     author: {
+//       id: "auth-1",
+//       name: "John Developer",
+//       avatarKey: "mock-avatar-1",
+//     },
+//     tags: [{ id: "tag-1", name: "carbon" }],
+//     createdAt: new Date().toISOString(),
+//     updatedAt: new Date().toISOString(),
+//   },
+//   {
+//     id: "mock-2",
+//     title: "How to measure digital sustainability metrics",
+//     body: "Mock discussion",
+//     status: "PUBLISHED" as const,
+//     answerCount: 15,
+//     upvoteCount: 32,
+//     downvoteCount: 1,
+//     score: 31,
+//     viewerVote: "NONE" as const,
+//     viewerSave: false,
+//     bestAnswerId: null,
+//     bestAnswerSelectedAt: null,
+//     category: { id: "cat-1", name: "Sustainability" },
+//     author: {
+//       id: "auth-2",
+//       name: "Jane Smith",
+//       avatarKey: "mock-avatar-2",
+//     },
+//     tags: [{ id: "tag-2", name: "metrics" }],
+//     createdAt: new Date().toISOString(),
+//     updatedAt: new Date().toISOString(),
+//   },
+//   {
+//     id: "mock-3",
+//     title: "Green coding frameworks comparison",
+//     body: "Mock discussion",
+//     status: "PUBLISHED" as const,
+//     answerCount: 15,
+//     upvoteCount: 28,
+//     downvoteCount: 0,
+//     score: 28,
+//     viewerVote: "NONE" as const,
+//     viewerSave: false,
+//     bestAnswerId: null,
+//     bestAnswerSelectedAt: null,
+//     category: { id: "cat-2", name: "Development" },
+//     author: {
+//       id: "auth-3",
+//       name: "Alex Code",
+//       avatarKey: "mock-avatar-3",
+//     },
+//     tags: [{ id: "tag-3", name: "frameworks" }],
+//     createdAt: new Date().toISOString(),
+//     updatedAt: new Date().toISOString(),
+//   },
+// ];
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 export default function ForumDetailPage() {
   const { question, bestAnswer, answers, userId, reportReasons } =
     useLoaderData<typeof loader>();
-  const displayedRelatedDiscussions = MOCK_RELATED_DISCUSSIONS;
+  // const displayedRelatedDiscussions = MOCK_RELATED_DISCUSSIONS;
 
   if (!question) {
     return (
@@ -198,7 +197,7 @@ export default function ForumDetailPage() {
                     <QuestionVoteComponent question={question} />
 
                     <div className="inline-flex items-center gap-2 text-xs font-medium leading-4.5 sm:text-sm sm:leading-5.25">
-                      <MessageSquare className="h-5 w-5" />
+                      <MessageCircle className="h-5 w-5" />
                       <span>{question.answerCount} answers</span>
                     </div>
 
@@ -269,7 +268,7 @@ export default function ForumDetailPage() {
             custom={1}
           >
             <RelatedDiscussionsCard discussions={displayedRelatedDiscussions} />
-          </motion.aside>*/}
+          </motion.aside> */}
         </section>
       </main>
     </div>

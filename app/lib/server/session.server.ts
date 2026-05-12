@@ -10,16 +10,24 @@ if (!process.env.SESSION_SECRET) {
   );
 }
 
+const sessionCookie = {
+  name: "__session",
+  httpOnly: true,
+  path: "/",
+  sameSite: "lax" as const,
+  secrets: [SESSION_SECRET],
+  secure: false,
+};
+
 const sessionStorage = createCookieSessionStorage({
   cookie: {
-    name: "__session",
-    httpOnly: true,
+    ...sessionCookie,
     maxAge: 60 * 60 * 24 * 30,
-    path: "/",
-    sameSite: "lax",
-    secrets: [SESSION_SECRET],
-    secure: false,
   },
+});
+
+const browserSessionStorage = createCookieSessionStorage({
+  cookie: sessionCookie,
 });
 
 export async function getSession(request: Request) {
@@ -76,6 +84,7 @@ export async function getUserId(request: Request): Promise<string | null> {
 export async function createUserSession(
   auth: AuthTokensResponse,
   redirectTo: string,
+  options: { rememberMe?: boolean } = {},
 ) {
   const session = await sessionStorage.getSession();
   const user = auth.user;
@@ -85,6 +94,7 @@ export async function createUserSession(
 
   session.set("accessToken", auth.accessToken);
   session.set("refreshToken", auth.refreshToken);
+  session.set("rememberMe", options.rememberMe === true);
   session.set("user", user);
 
   session.set("userId", user.id);
@@ -97,7 +107,9 @@ export async function createUserSession(
 
   return redirect(redirectTo, {
     headers: {
-      "Set-Cookie": await commitSession(session),
+      "Set-Cookie": options.rememberMe
+        ? await commitSession(session)
+        : await browserSessionStorage.commitSession(session),
     },
   });
 }
@@ -110,4 +122,10 @@ export async function getAccessToken(request: Request) {
 export async function getRefreshToken(request: Request) {
   const session = await getSession(request);
   return session.get("refreshToken") as string | undefined;
+}
+
+export function isAutoRefreshEnabled(
+  session: Awaited<ReturnType<typeof getSession>>,
+) {
+  return session.get("rememberMe") === true;
 }
