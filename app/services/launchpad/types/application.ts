@@ -34,7 +34,7 @@ export type ApplicationDocumentPresignResponse = z.infer<
 
 export const ApplyRoleInputSchema = z.object({
   launchpadRoleId: z.string().regex(UUID_PATTERN),
-  motivation: z.string().min(10).max(2000),
+  motivation: z.string().min(5).max(2000),
   portfolio: z.string().url().max(255).optional(),
   documentKeys: z.array(z.string()).max(5).default([]),
   documentNames: z.array(z.string()).max(5).default([]),

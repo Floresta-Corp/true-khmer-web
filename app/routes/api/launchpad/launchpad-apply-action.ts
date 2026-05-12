@@ -141,9 +141,9 @@ export async function launchpadApplyAction({ request }: ActionFunctionArgs) {
   if (
     !motivation ||
     typeof motivation !== "string" ||
-    motivation.trim().length < 10
+    motivation.trim().length < 5
   ) {
-    return { error: "Motivation must be at least 10 characters" };
+    return { error: "Motivation must be at least 5 characters" };
   }
   const portfolioValue =
     typeof portfolio === "string" && portfolio.trim()
