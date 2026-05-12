@@ -7,6 +7,10 @@ import { useLoaderData, useNavigate } from "react-router";
 
 export const loader = volunteerLoader;
 
+export function meta() {
+  return [{ title: "Volunteer Opportunities | True Khmer" }];
+}
+
 export default function VolunteerPage() {
   const { categories, opportunities, locations } =
     useLoaderData<typeof loader>();

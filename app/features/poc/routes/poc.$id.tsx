@@ -7,6 +7,10 @@ import {
 } from "~/features/poc/components/sections";
 import PocWatchVideoSection from "../components/sections/watch-video-section";
 
+export function meta() {
+  return [{ title: "People of Cambodia Story | True Khmer" }];
+}
+
 export default function PeopleOfCambodiaDetailPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"video" | "story">("video");

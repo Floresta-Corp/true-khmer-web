@@ -5,6 +5,7 @@ import type { loader } from "../../routes/forum.$id";
 import { useLoaderData, useFetcher, useLocation } from "react-router";
 import { useEffect, useState } from "react";
 import SortDropdown from "~/components/ui/sort-dropdown";
+import AnswerCardSkeleton from "../card/answer-card-skeleton";
 
 interface AllAnswersProps {
   answers: Answer[];
@@ -22,6 +23,7 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
   const { userId, reportReasons, question } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const location = useLocation();
+  const isLoading = fetcher.state === "loading";
 
   const answersKey = (fetcher.data?.answers ?? answers)
     .map(
@@ -65,6 +67,10 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
   }, [location.search]);
 
   const displayedAnswers: Answer[] = fetcher.data?.answers ?? answers;
+  const skeletonCount = Math.max(
+    displayedAnswers.length || answers.length || 3,
+    3,
+  );
 
   return (
     <motion.section
@@ -94,26 +100,31 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
 
       {/* Answer list */}
       <div className="flex flex-col gap-6" key={answersKey}>
-        {displayedAnswers.map((answer, i) => {
-          const isCurrentAuthor = userId === answer.author.id ? true : false;
-          return (
-            <AnswerNewCard
-              userId={userId}
-              key={answer.id}
-              answer={answer}
-              index={i}
-              isCurrentAuthor={isCurrentAuthor}
-              isAuthenticated={Boolean(userId)}
-              isQuestionAuthor={userId === question?.author.id}
-              reportReasons={
-                reportReasons?.reportingTypes.map((v) => ({
-                  id: v.id,
-                  reason: v.type,
-                })) ?? []
-              }
-            />
-          );
-        })}
+        {isLoading
+          ? Array.from({ length: skeletonCount }).map((_, index) => (
+              <AnswerCardSkeleton key={`answer-skeleton-${index}`} />
+            ))
+          : displayedAnswers.map((answer, i) => {
+              const isCurrentAuthor =
+                userId === answer.author.id ? true : false;
+              return (
+                <AnswerNewCard
+                  userId={userId}
+                  key={answer.id}
+                  answer={answer}
+                  index={i}
+                  isCurrentAuthor={isCurrentAuthor}
+                  isAuthenticated={Boolean(userId)}
+                  isQuestionAuthor={userId === question?.author.id}
+                  reportReasons={
+                    reportReasons?.reportingTypes.map((v) => ({
+                      id: v.id,
+                      reason: v.type,
+                    })) ?? []
+                  }
+                />
+              );
+            })}
       </div>
     </motion.section>
   );

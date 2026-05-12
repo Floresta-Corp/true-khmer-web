@@ -11,6 +11,10 @@ import ForumSearchAction from "~/routes/api/forum/forum-search/forum-search-acti
 export const loader = ForumSearchLoader;
 export const action = ForumSearchAction;
 
+export function meta() {
+  return [{ title: "Search Discussions | True Khmer" }];
+}
+
 export default function ForumSearchPage() {
   const { data, categories } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();

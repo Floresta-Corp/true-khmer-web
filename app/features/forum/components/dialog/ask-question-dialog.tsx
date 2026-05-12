@@ -198,7 +198,7 @@ export default function AskQuestionDialog({
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
         showCloseButton={false}
-        className="max-w-[calc(100%-1rem)] gap-4 overflow-hidden rounded-lg border border-[#e2e8f0] p-6 shadow-lg sm:max-w-130"
+        className="max-w-[calc(100%-1rem)] gap-4 overflow-hidden rounded-2xl border border-[#e2e8f0] p-6 shadow-lg sm:max-w-130"
       >
         <DialogClose>
           <Button

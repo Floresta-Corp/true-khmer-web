@@ -3,6 +3,10 @@ import {
   RecommendedStoriesSection,
 } from "~/features/poc/components/sections";
 
+export function meta() {
+  return [{ title: "People of Cambodia | True Khmer" }];
+}
+
 export default function PeopleOfCambodiaPage() {
   const handleWatchVideo = () => {
     // Handle video play

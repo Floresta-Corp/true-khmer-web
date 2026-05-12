@@ -21,6 +21,10 @@ const LIMIT = 10;
 export const loader = forumListloader;
 export const action = forumListAction;
 
+export function meta() {
+  return [{ title: "Forum Discussions | True Khmer" }];
+}
+
 function getTabQueryFlags(tab: ForumQuestionTab) {
   if (tab === "topRated") {
     return { isTrending: "true", isUnanswered: undefined };

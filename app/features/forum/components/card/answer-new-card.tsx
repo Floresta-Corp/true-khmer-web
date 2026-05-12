@@ -63,7 +63,7 @@ function AnswerComponent({
       <AccordionItem value="replies">
         <motion.article
           id={`answer-${answer.id}`}
-          className="flex flex-col gap-4 border rounded-xl bg-white p-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] z-10"
+          className="z-10 flex flex-col gap-4 rounded-3xl border border-[#f3f4f6] bg-white p-6 shadow-none"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{

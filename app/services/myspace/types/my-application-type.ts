@@ -13,13 +13,13 @@ export const OpportunitySchema = z.object({
 export type Opportunity = z.infer<typeof OpportunitySchema>;
 
 export const SummarySchema = z.object({
-  SUBMITTED: z.number(),
-  UNDER_REVIEW: z.number(),
+  PENDING: z.number(),
   APPROVED: z.number(),
   DECLINED: z.number(),
-  CONFIRMED: z.number(),
+  ACTIVE: z.number(),
   COMPLETED: z.number(),
   WITHDRAWN: z.number(),
+  ARCHIVED: z.number(),
 });
 export type Summary = z.infer<typeof SummarySchema>;
 

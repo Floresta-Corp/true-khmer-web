@@ -49,7 +49,7 @@ export default function ShareQuestionDialog({
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
 
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent className="sm:max-w-sm rounded-2xl">
         <div>
           <div className="flex items-center gap-1.5 text-lg font-semibold">
             <Share2 size={15} />

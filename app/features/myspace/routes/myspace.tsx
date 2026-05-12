@@ -13,6 +13,10 @@ import { TopRankingCard } from "../components/myspace-top-ranking-card";
 
 export const loader = MyspaceLoader;
 
+export function meta() {
+  return [{ title: "MySpace | True Khmer" }];
+}
+
 export default function MySpacePage({ loaderData }: Route.ComponentProps) {
   const { me, recentActivities } = loaderData;
 

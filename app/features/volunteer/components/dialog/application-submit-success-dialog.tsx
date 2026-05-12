@@ -21,7 +21,7 @@ export default function ApplicationSubmitSuccessDialog({
 }: ApplicationSubmitSuccessDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[320px] gap-5 rounded-[14px] border-[0.8px] border-[#d0fae5] bg-[#ecfdf5] px-4.25 py-5.5 shadow-none [&>button]:right-3.25 [&>button]:top-3.25 [&>button]:rounded-full [&>button]:p-1.5 [&>button]:text-[#99a1af] [&>button]:opacity-100 [&>button]:hover:bg-transparent [&>button]:hover:text-[#99a1af]">
+      <DialogContent className="w-[320px] gap-5 rounded-2xl border-[0.8px] border-[#d0fae5] bg-[#ecfdf5] px-4.25 py-5.5 [&>button]:right-3.25 [&>button]:top-3.25 [&>button]:rounded-full [&>button]:p-1.5 [&>button]:text-[#99a1af] [&>button]:opacity-100 [&>button]:hover:bg-transparent [&>button]:hover:text-[#99a1af]">
         <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-[#00bc7d] shadow-[0px_10px_15px_0px_rgba(0,188,125,0.2),0px_4px_6px_0px_rgba(0,188,125,0.2)]">
           <CircleCheck className="size-7 text-white" />
         </div>

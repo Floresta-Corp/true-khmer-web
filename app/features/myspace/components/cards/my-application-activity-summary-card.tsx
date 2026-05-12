@@ -5,9 +5,11 @@ import {
   Loader,
   Rocket,
 } from "lucide-react";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useNavigation } from "react-router";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
+import { Skeleton } from "~/components/ui/skeleton";
 import type { loader } from "../../routes/my-applications";
+import { Spinner } from "~/components/ui/spinner";
 
 const StatusIcon = (label: string) => {
   switch (label) {
@@ -47,18 +49,19 @@ const StatusIcon = (label: string) => {
 
 export default function MyApplicationActivitySummaryCard() {
   const { myApplication } = useLoaderData<typeof loader>();
-  const pending =
-    Number(myApplication.summary.SUBMITTED) +
-    Number(myApplication.summary.UNDER_REVIEW);
+  const navigation = useNavigation();
+  const isLoading = navigation.state === "loading";
+  const summary = myApplication.summary;
+  const pending = Number(summary.PENDING || 0);
+  const active = Number(summary.ACTIVE || 0);
+  const completed = Number(summary.COMPLETED || 0);
+  const withdrawn = Number(summary.WITHDRAWN || 0);
 
-  const active =
-    Number(myApplication.summary.APPROVED) +
-    Number(myApplication.summary.CONFIRMED);
   const summaryData = [
     { label: "PENDING", value: pending },
     { label: "ACTIVE", value: active },
-    { label: "COMPLETED", value: myApplication.summary.COMPLETED },
-    { label: "ARCHIVED", value: myApplication.summary.WITHDRAWN },
+    { label: "COMPLETED", value: completed },
+    { label: "ARCHIVED", value: withdrawn },
   ];
   return (
     <Card className="shadow-none rounded-2xl">
@@ -73,11 +76,17 @@ export default function MyApplicationActivitySummaryCard() {
               className="bg-slate-100 p-4 flex items-center gap-3 rounded-[16px]"
             >
               {StatusIcon(v.label)}
-              <div>
-                <p className="font-semibold text-[#4D5D73]">{v.label}</p>
-                <p className="font-bold">
-                  {v.value >= 10 ? v.value : `0${v.value}`}
+              <div className="flex flex-col justify-between">
+                <p className="font-semibold text-[#4D5D73] text-[12px]">
+                  {v.label}
                 </p>
+                {isLoading ? (
+                  <Spinner className="size-4.5 mt-1.5" />
+                ) : (
+                  <p className="font-bold text-[18px]">
+                    {v.value >= 10 ? v.value : `0${v.value}`}
+                  </p>
+                )}
               </div>
             </div>
           );
