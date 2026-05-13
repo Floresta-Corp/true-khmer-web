@@ -8,13 +8,17 @@ type Props = {
 
 export default function PostingPagination({ total, showing }: Props) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const currentPage = Number(searchParams.get("page") ?? "1");
-  const totalPages = Math.ceil(total / 10);
+  const totalPages = Math.max(1, Math.ceil(total / 10));
+  const rawPage = Number.parseInt(searchParams.get("page") ?? "1", 10);
+  const currentPage =
+    Number.isFinite(rawPage) && rawPage > 0 ? Math.min(rawPage, totalPages) : 1;
 
   const goToPage = (page: number) => {
+    const nextPage = Math.min(Math.max(page, 1), totalPages);
     setSearchParams((prev) => {
-      prev.set("page", String(page));
-      return prev;
+      const next = new URLSearchParams(prev);
+      next.set("page", String(nextPage));
+      return next;
     });
   };
 

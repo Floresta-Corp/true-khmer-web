@@ -84,7 +84,7 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
             <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-tighter sm:tracking-widest">
               Applicants
             </span>
-            <span className="text-lg sm:text-2xl font-black text-slate-900 leading-none mt-1">
+            <span className="text-lg sm:text-2xl font-semibold text-slate-900 leading-none mt-1">
               {posting.applicantCount}
             </span>
           </div>
@@ -93,21 +93,21 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
             <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-tighter sm:tracking-widest">
               Views
             </span>
-            <span className="text-lg sm:text-2xl font-black text-slate-900 leading-none mt-1">
+            <span className="text-lg sm:text-2xl font-semibold text-slate-900 leading-none mt-1">
               {posting.views > 999
                 ? `${(posting.views / 1000).toFixed(1)}k`
                 : posting.views}
             </span>
           </div>
 
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-tighter sm:tracking-widest">
               Capacity
             </span>
             <span className="text-lg sm:text-2xl font-black text-slate-900 leading-none mt-1">
               {posting.capacity}
             </span>
-          </div>
+          </div> */}
         </div>
 
         {/* Action Button Section */}
