@@ -35,7 +35,7 @@ export default function LaunchpadJoinProjectCard({
   };
 
   return (
-    <Card className="rounded-2xl border-[#E7ECF3] bg-white p-5">
+    <Card className="rounded-2xl border-[#E7ECF3] bg-white p-5 shadow-none">
       <div className="text-[28px] leading-8.5 font-semibold text-[#0F1729]">
         Join this project
       </div>

@@ -1,8 +1,10 @@
 import type { Route as EditProfileRoute } from "project-types/myspace/routes/+types/edit-profile";
+import { resourceLimits } from "worker_threads";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
 import { UpdateMyspace } from "~/services/myspace/server/me.server";
 import type { UpdateMySpaceInput } from "~/services/myspace/types";
+import { UploadAvatarPresign } from "~/services/uploads-avatar-presign.server";
 
 export async function EditProfileAction({
   request,
@@ -44,7 +46,7 @@ export async function EditProfileAction({
   const contributionsVisibility =
     String(formData.get("contributionsVisibility") ?? "").trim() || "public";
 
-  const payload: UpdateMySpaceInput = {
+  let payload: UpdateMySpaceInput = {
     firstName,
     lastName,
     gender,
@@ -71,6 +73,42 @@ export async function EditProfileAction({
     },
   };
 
+  console.log({ payload });
+
+  const avatarFile = formData.get("avatarFile") as File;
+
+  console.log({ avatarFile });
+  if (avatarFile) {
+    try {
+      const result = await UploadAvatarPresign(request, {
+        contentType: avatarFile.type,
+        fileName: avatarFile.name,
+        fileSize: avatarFile.size,
+      });
+      if (result.data.ok) {
+        const upload = result.data.upload;
+        console.log({ upload });
+        try {
+          const uploadResult = await fetch(upload.uploadUrl, {
+            method: upload.method,
+            body: avatarFile,
+            headers: upload.requiredHeaders,
+          });
+          if (uploadResult.ok && uploadResult.status === 200) {
+            payload = {
+              ...payload,
+              avatarKey: upload.avatarKey,
+            };
+          }
+        } catch (err) {
+          console.error("upload to R2 Error");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  console.log({ payload });
   try {
     const result = await UpdateMyspace(request, payload);
     return result.data;
@@ -81,7 +119,6 @@ export async function EditProfileAction({
         message: error.message || "Failed to update profile.",
       };
     }
-
     return {
       ok: false,
       message: "Failed to update profile.",

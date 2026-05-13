@@ -56,6 +56,7 @@ export const OpportunitySchema = z.object({
   coverImageUrl: z.string().nullish(),
   benefits: z.array(z.string()),
   status: z.string(),
+  viewerSave: z.boolean(),
   publishedAt: z.string().nullish(),
   organizer: OrganizerSchema,
   createdBy: z.string(),

@@ -3,7 +3,7 @@ import { Award, MessageCircle, Pencil, Trash2 } from "lucide-react";
 import AnswerVoteComponent from "../answer-vote-component";
 import { Separator } from "~/components/ui/separator";
 import { Button } from "~/components/ui/button";
-import { resolveImageURL } from "~/lib/utils";
+import { resolveImageURL, cn } from "~/lib/utils";
 import type { Answer } from "~/services/forum/forum-types";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import AddAnswerDialog from "../dialog/add-answer-dialog";
@@ -16,7 +16,7 @@ import NestedReplyCard from "./nested-reply-card";
 import CommentWrapper from "../comment-wrapper";
 import SlideToLeftHoverAnimation from "~/components/slide-to-left-hover-animation";
 import MarkBestAnswerDialog from "../dialog/mark-best-answer-dialog";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router";
 import {
   Accordion,
@@ -24,6 +24,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
+import { highlightAnswerClassName } from "../../utils";
 
 interface AnswerNewCardProps {
   answer: Answer;
@@ -51,19 +52,45 @@ function AnswerComponent({
   const replyCount = answer.replyCount;
   const [isHovered, setIsHovered] = useState(false);
   const location = useLocation();
-  const id = decodeURIComponent(location.hash.replace(/^#/, ""));
+  const id = decodeURIComponent(location.hash.replace(/^#answer-/, ""));
+  const cardRef = useRef<HTMLElement>(null);
+  const isHighlighted = id === answer.id;
+  const [showAnimation, setShowAnimation] = useState(false);
+
+  const openAccordion =
+    answer.repliedAnswers?.some((a) => id === a.id) || id === answer.id
+      ? "replies"
+      : undefined;
+
+  useEffect(() => {
+    if (isHighlighted && cardRef.current) {
+      setTimeout(() => {
+        cardRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 100);
+      setShowAnimation(true);
+      const timer = setTimeout(() => setShowAnimation(false), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isHighlighted]);
 
   return (
     <Accordion
       type="single"
       collapsible
       className="w-full"
-      defaultValue={answer.id === id ? "replies" : undefined}
+      defaultValue={openAccordion}
     >
       <AccordionItem value="replies">
         <motion.article
+          ref={cardRef}
           id={`answer-${answer.id}`}
-          className="z-10 flex flex-col gap-4 rounded-3xl border border-[#f3f4f6] bg-white p-6 shadow-none"
+          className={cn(
+            "z-10 flex flex-col gap-4 rounded-3xl border border-[#f3f4f6] bg-white p-6 shadow-none",
+            showAnimation && highlightAnswerClassName,
+          )}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{

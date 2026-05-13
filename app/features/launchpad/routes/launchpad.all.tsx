@@ -153,17 +153,6 @@ export default function LaunchpadAllPage() {
   );
 
   const handleCategoryClick = (categoryId: string | null) => {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      if (categoryId) {
-        next.set("categoryId", categoryId);
-      } else {
-        next.delete("categoryId");
-      }
-      next.delete("cursor");
-      return next;
-    });
-    // Refetch with new category
     const params = new URLSearchParams(searchParams);
     if (categoryId) {
       params.set("categoryId", categoryId);
@@ -171,6 +160,7 @@ export default function LaunchpadAllPage() {
       params.delete("categoryId");
     }
     params.delete("cursor");
+    setSearchParams(params, { replace: true });
     fetcher.load(`/launchpad/all?${params.toString()}`);
   };
 
@@ -249,6 +239,7 @@ export default function LaunchpadAllPage() {
                 <div
                   key={category.id}
                   className="shrink-0 snap-start md:min-w-0 md:shrink md:w-full cursor-pointer"
+                  onClick={() => handleCategoryClick(category.id)}
                 >
                   <CategoryCard
                     category={{

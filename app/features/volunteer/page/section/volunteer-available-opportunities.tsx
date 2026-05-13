@@ -6,6 +6,7 @@ import type { Opportunity } from "~/services/volunteer/volunteer-types";
 import { format } from "date-fns";
 import { motion } from "motion/react";
 import OpportunityCardSkeleton from "../../components/sections/opportunity-card-skeleton";
+import { useState } from "react";
 
 const volunteerPlaceholderImage = "/images/volunteer-placeholder.svg";
 
@@ -14,6 +15,7 @@ function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
     opportunity.coverImageKey,
     volunteerPlaceholderImage,
   );
+  const [isHovered, setIsHovered] = useState(false);
 
   const progress =
     opportunity.capacity > 0
@@ -23,8 +25,14 @@ function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
         )
       : 0;
 
+  console.log(opportunity.viewerSave);
+
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-[14px] border border-[#f3f4f6] bg-white p-px shadow-[0px_10px_30px_-15px_rgba(0,0,0,0.05)]">
+    <motion.article
+      className="flex h-full flex-col overflow-hidden rounded-[14px] border border-[#f3f4f6] bg-white p-px shadow-[0px_10px_30px_-15px_rgba(0,0,0,0.05)]"
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+    >
       <div className="relative h-39.25 w-full overflow-hidden p-3.5">
         <img
           src={image}
@@ -35,15 +43,22 @@ function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
         <span className="relative inline-flex rounded-xl border border-white/20 bg-white/95 px-2.25 py-1 text-[10px] font-semibold tracking-[-0.13px] text-[#2f6fe4]">
           {opportunity.category.name}
         </span>
-        {/* <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          aria-label="Save opportunity"
-          className="relative float-right flex size-[31.5px] items-center justify-center rounded-2xl bg-white/95 text-[#9aa2af] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)]"
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : 20 }}
+          transition={{ duration: 0.2 }}
+          className="relative float-right"
         >
-          <Heart className="size-3.5" />
-        </Button> */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label="Save opportunity"
+            className="cursor-pointer flex size-[31.5px] items-center justify-center rounded-2xl bg-white/95 text-[#9aa2af] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)]"
+          >
+            <Heart className="size-3.5" />
+          </Button>
+        </motion.div>
       </div>
 
       <div className="flex flex-1 flex-col gap-6 p-5">
@@ -108,7 +123,7 @@ function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
           </Button>
         </Link>
       </div>
-    </article>
+    </motion.article>
   );
 }
 

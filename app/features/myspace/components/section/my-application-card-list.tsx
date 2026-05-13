@@ -1,24 +1,18 @@
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { useLoaderData } from "react-router";
 import { cn } from "~/lib/utils";
 import { Card, CardContent } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
 import { Calendar, Clock, MapPin } from "lucide-react";
 import type { loader } from "../../routes/my-applications";
-import type { Application } from "~/services/myspace/types/my-application-type";
+import { MyApplicationActions } from "../my-application-actions";
 import { resolveImageURL } from "~/lib/utils";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
 } from "~/components/ui/accordion";
+import type { Application } from "~/services/myspace/myspace-type";
 
 function getSourceTypeStyle(sourceType: string) {
   switch (sourceType.toUpperCase()) {
@@ -105,6 +99,10 @@ function ApplicationCard({ app, index }: { app: Application; index: number }) {
   const statusStyle = getStatusStyle(app.status);
   const sourceTypeStyle = getSourceTypeStyle(app.sourceType);
   const image = resolveImageURL(app.imageKey || "");
+  const showActionButtons =
+    app.status === "COMPLETED" ||
+    app.status === "WITHDRAWN" ||
+    app.status === "DECLINED";
 
   return (
     <motion.div
@@ -153,36 +151,9 @@ function ApplicationCard({ app, index }: { app: Application; index: number }) {
                   >
                     {statusStyle.label}
                   </span>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 rounded-lg hover:bg-gray-100"
-                        aria-label="More options"
-                      >
-                        <svg
-                          width="4"
-                          height="16"
-                          viewBox="0 0 4 16"
-                          fill="none"
-                          className="text-gray-500"
-                        >
-                          <circle cx="2" cy="2" r="2" fill="currentColor" />
-                          <circle cx="2" cy="8" r="2" fill="currentColor" />
-                          <circle cx="2" cy="14" r="2" fill="currentColor" />
-                        </svg>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="min-w-40">
-                      <DropdownMenuItem>View Details</DropdownMenuItem>
-                      <DropdownMenuItem>Edit Application</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-red-600">
-                        Withdraw Application
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  {showActionButtons && (
+                    <MyApplicationActions applicationId={app.id} />
+                  )}
                 </div>
               </div>
 
@@ -246,12 +217,14 @@ function ApplicationCard({ app, index }: { app: Application; index: number }) {
 
 export default function MyApplicationCardList() {
   const { myApplication } = useLoaderData<typeof loader>();
-  console.log(myApplication);
+
   return (
     <div className="flex flex-col gap-4">
-      {myApplication.applications.map((app, index) => (
-        <ApplicationCard key={app.id} app={app} index={index} />
-      ))}
+      <AnimatePresence mode="wait">
+        {myApplication.applications.map((app, index) => (
+          <ApplicationCard key={app.id} app={app} index={index} />
+        ))}
+      </AnimatePresence>
     </div>
   );
 }

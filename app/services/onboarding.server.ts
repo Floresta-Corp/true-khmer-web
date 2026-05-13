@@ -327,7 +327,10 @@ function setCachedOnboardingState(key: string, state: OnboardingState) {
     expiresAt: now + ONBOARDING_STATE_CACHE_TTL_MS,
   });
 
-  trimCacheToMaxEntries(onboardingStateCache, ONBOARDING_STATE_CACHE_MAX_ENTRIES);
+  trimCacheToMaxEntries(
+    onboardingStateCache,
+    ONBOARDING_STATE_CACHE_MAX_ENTRIES,
+  );
 }
 
 function extractOptionItems(
@@ -481,9 +484,7 @@ export function onboardingPathForStep(step: number) {
 }
 
 export function destinationFromOnboardingState(state: OnboardingState) {
-  return state.completed
-    ? "/home"
-    : onboardingPathForStep(state.currentStep);
+  return state.completed ? "/home" : onboardingPathForStep(state.currentStep);
 }
 
 export async function getOnboardingState(

@@ -116,8 +116,6 @@ export default function ForumDetailPage() {
   const { question, bestAnswer, answers, userId, reportReasons } =
     useLoaderData<typeof loader>();
 
-  // const displayedRelatedDiscussions = MOCK_RELATED_DISCUSSIONS;
-
   if (!question) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f8fafc]">

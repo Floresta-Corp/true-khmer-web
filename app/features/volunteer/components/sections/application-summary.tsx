@@ -66,9 +66,9 @@ function SummaryDetails({
         </span>
       </div>
       <div>
-        <label className="mb-2 block">Role of interest</label>
         <SingleSelectDropdown
           id="role-selection"
+          label="Role of interest"
           value={selectedRoleId}
           onValueChange={setSelectedRoleId}
           options={volunteer.roles.map((r) => ({
