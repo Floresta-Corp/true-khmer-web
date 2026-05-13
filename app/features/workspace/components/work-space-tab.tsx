@@ -1,5 +1,5 @@
 import { useSearchParams } from "react-router";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { cn } from "~/lib/utils";
 
 type TabType = "questions" | "answers";
@@ -45,7 +45,7 @@ export default function WorkspaceTabs({ questionCount, answerCount }: Props) {
             {/* The Count Badge - Needs z-20 to stay above the slider */}
             <span
               className={cn(
-                "relative z-20 flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-md text-[10px] sm:text-xs font-bold transition-colors duration-300",
+                "relative z-20 flex items-center justify-center min-w-5 h-5 px-1.5 rounded-md text-[10px] sm:text-xs font-bold transition-colors duration-300",
                 isActive
                   ? "bg-blue-600 text-white"
                   : "bg-gray-200 dark:bg-slate-800 text-slate-500",

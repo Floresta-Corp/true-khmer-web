@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { useState } from "react";
 import type { SourceType } from "~/services/manage-post/types";
 import type { loader } from "../../routes/manage-post";

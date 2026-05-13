@@ -10,7 +10,7 @@ import type {
   ApplicantStatus,
   TimeFilter,
 } from "../data/manage-post-detail-type";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import {
   Table,
   TableBody,
@@ -19,7 +19,6 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import PostingPagination from "../manage-post-pagination";
 
 const TIME_FILTERS: { label: string; value: TimeFilter }[] = [
   { label: "Today", value: "today" },
