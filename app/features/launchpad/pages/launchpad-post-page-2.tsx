@@ -22,6 +22,7 @@ interface LaunchpadPostPage2Props {
   telegramUsername: string;
   emailError?: string;
   phoneNumberError?: string;
+  telegramUsernameError?: string;
   onRolesChange: (roles: LaunchpadRoleInput[]) => void;
   onMaterialDocumentsChange: (files: File[]) => void;
   onEmailChange: (value: string) => void;
@@ -42,6 +43,7 @@ export default function LaunchpadPostPage2({
   telegramUsername,
   emailError,
   phoneNumberError,
+  telegramUsernameError,
   onRolesChange,
   onMaterialDocumentsChange,
   onEmailChange,
@@ -173,6 +175,7 @@ export default function LaunchpadPostPage2({
         telegramUsername={telegramUsername}
         emailError={emailError}
         phoneNumberError={phoneNumberError}
+        telegramUsernameError={telegramUsernameError}
         onEmailChange={onEmailChange}
         onPhoneNumberChange={onPhoneNumberChange}
         onTelegramUsernameChange={onTelegramUsernameChange}

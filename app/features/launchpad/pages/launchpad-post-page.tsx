@@ -33,7 +33,10 @@ type RoleErrors = {
   materialDocuments?: string;
   email?: string;
   phoneNumber?: string;
+  telegramUsername?: string;
 };
+
+type ApiFieldErrors = Record<string, string>;
 
 function isValidEmail(value: string) {
   return /^\S+@\S+\.\S+$/.test(value.trim());
@@ -48,6 +51,7 @@ export default function LaunchpadPostPage() {
     error?: string;
     success?: boolean;
     redirectTo?: string;
+    fieldErrors?: ApiFieldErrors;
   }>();
   const prefersReducedMotion = useReducedMotion();
   const state =
@@ -58,6 +62,27 @@ export default function LaunchpadPostPage() {
   const store = useLaunchpadCreateStore();
   const [detailErrors, setDetailErrors] = useState<DetailErrors>({});
   const [roleErrors, setRoleErrors] = useState<RoleErrors>({});
+
+  const mapRoleFieldErrors = (fieldErrors?: ApiFieldErrors): RoleErrors => {
+    if (!fieldErrors) return {};
+
+    const mapped: RoleErrors = {};
+
+    if (fieldErrors.role) mapped.role = fieldErrors.role;
+    if (fieldErrors.materialDocuments) {
+      mapped.materialDocuments = fieldErrors.materialDocuments;
+    }
+    if (fieldErrors.materialDocumentName) {
+      mapped.materialDocuments = fieldErrors.materialDocumentName;
+    }
+    if (fieldErrors.email) mapped.email = fieldErrors.email;
+    if (fieldErrors.phoneNumber) mapped.phoneNumber = fieldErrors.phoneNumber;
+    if (fieldErrors.telegramUsername) {
+      mapped.telegramUsername = fieldErrors.telegramUsername;
+    }
+
+    return mapped;
+  };
 
   useEffect(() => {
     void store.rehydrateFiles();
@@ -76,8 +101,25 @@ export default function LaunchpadPostPage() {
         toast.success("Launchpad project published successfully");
         store.reset();
         navigate(fetcher.data.redirectTo);
-      } else if (fetcher.data.error) {
-        toast.error(fetcher.data.error);
+      } else {
+        const mappedRoleErrors = mapRoleFieldErrors(fetcher.data.fieldErrors);
+
+        if (Object.keys(mappedRoleErrors).length > 0) {
+          setRoleErrors((previous) => ({
+            ...previous,
+            ...mappedRoleErrors,
+          }));
+
+          const firstFieldError = Object.values(mappedRoleErrors)[0];
+          if (firstFieldError) {
+            toast.error(firstFieldError);
+            return;
+          }
+        }
+
+        if (fetcher.data.error) {
+          toast.error(fetcher.data.error);
+        }
       }
     }
   }, [fetcher.state, fetcher.data, navigate]);
@@ -293,6 +335,7 @@ export default function LaunchpadPostPage() {
                   telegramUsername={store.telegramUsername}
                   emailError={roleErrors.email}
                   phoneNumberError={roleErrors.phoneNumber}
+                  telegramUsernameError={roleErrors.telegramUsername}
                   onRolesChange={(roles) => store.setRoles(roles)}
                   onMaterialDocumentsChange={(files) =>
                     store.setMaterialDocuments(files)
