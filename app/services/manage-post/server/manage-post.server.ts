@@ -18,8 +18,10 @@ export async function myManagePost(request: Request, params: ManagePostParams) {
   if (params.search) queryParams.set("search", params.search);
   if (params.source) queryParams.set("source", params.source);
   if (params.status) queryParams.set("status", params.status);
-  if (params.page) queryParams.set("page", params.page.toString());
-  if (params.limit) queryParams.set("limit", params.limit.toString());
+  if (params.page !== undefined)
+    queryParams.set("page", params.page.toString());
+  if (params.limit !== undefined)
+    queryParams.set("limit", params.limit.toString());
 
   const result = await apiRequestWithSession<ManagePostResponse>(
     request,

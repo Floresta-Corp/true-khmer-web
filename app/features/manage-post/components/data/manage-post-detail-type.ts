@@ -13,7 +13,7 @@ export type Applicant = {
 export type PostingDetail = {
   id: string;
   title: string;
-  status: "active" | "draft" | "filled";
+  status: "active" | "draft" | "filled" | "ended";
   postedAgo: string;
   pending: number;
   totalApplicants: number;

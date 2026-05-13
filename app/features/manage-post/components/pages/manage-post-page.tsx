@@ -1,6 +1,11 @@
 import WorkSpacePageLayout from "~/layout/workspace-page-layout";
 import PostingPagination from "../manage-post-pagination";
-import { useFetcher, useLoaderData, useSearchParams } from "react-router";
+import {
+  useFetcher,
+  useLoaderData,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
 import ManagePostCard from "../card/manage-post-card";
 import ManagePostCardSkeleton from "../manage-post-skeleton";
 import ManagePostFilters from "../card/manage-post-filter";
@@ -16,10 +21,9 @@ export default function ManagePostingPage() {
   const search = searchParams.get("search") ?? "";
 
   const { postings, pagination } = useLoaderData<typeof loader>();
-  const fetcher = useFetcher();
 
-  const isLoading =
-    fetcher.state === "loading" || fetcher.state === "submitting";
+  const navigation = useNavigation();
+  const isLoading = navigation.state === "loading";
 
   const filtered = postings.filter((p) => {
     if (activeTab !== "ALL" && p.sourceType !== activeTab) return false;

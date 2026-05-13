@@ -12,8 +12,9 @@ import { cn } from "~/lib/utils";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import type { SourceType } from "~/services/manage-post/types";
+import type { loader } from "../../routes/manage-post";
 
-export type TabType = "all" | SourceType;
+type TabType = "ALL" | SourceType;
 
 const TABS = [
   { label: "All", value: "ALL" },

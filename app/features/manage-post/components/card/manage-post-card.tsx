@@ -6,11 +6,11 @@ import { cn } from "~/lib/utils";
 import { motion } from "framer-motion";
 import type {
   ManagePost,
+  ManagePostStatus,
   SourceType,
-  Status,
 } from "~/services/manage-post/types";
 
-const STATUS_STYLES: Record<Status, string> = {
+const STATUS_STYLES: Record<ManagePostStatus, string> = {
   ACTIVE: "bg-green-100 text-green-700 border-green-200",
   DRAFT: "bg-amber-100 text-amber-700 border-amber-200",
   FILLED: "bg-blue-100 text-blue-700 border-blue-200",
@@ -37,19 +37,17 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
         damping: 20,
         delay: index * 0.05,
       }}
+      className="h-full"
     >
-      <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-100 p-4 sm:p-5 lg:p-6 flex flex-col gap-4 sm:gap-5 lg:gap-6 hover:shadow-lg hover:shadow-gray-200/50 transition-all duration-300 relative group">
-        {/* More Options Button */}
-        <button className="absolute top-4 right-4 sm:top-5 sm:right-5 text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-50 transition-colors">
-          <MoreHorizontal size={16} className="sm:hidden" />
-          <MoreHorizontal size={18} className="hidden sm:block" />
+      <div className="flex flex-col h-full bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 hover:shadow-xl hover:shadow-gray-200/40 transition-all duration-300 relative group">
+        <button className="absolute top-3 right-3 sm:top-5 sm:right-5 text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-50 transition-colors z-10">
+          <MoreHorizontal size={20} />
         </button>
 
-        {/* Badges */}
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap mb-1">
           <Badge
             className={cn(
-              "px-2 sm:px-2.5 py-0.5 text-[10px] font-bold border-none rounded-full uppercase tracking-wider hover:bg-gray-50",
+              "px-2.5 py-0.5 text-[10px] font-black border-none rounded-full uppercase tracking-widest shadow-sm",
               STATUS_STYLES[posting.status],
             )}
           >
@@ -57,75 +55,75 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
           </Badge>
           <Badge
             className={cn(
-              "px-2 sm:p-1.5 py-0.5 text-[10px] font-semibold border-none rounded-full uppercase tracking-wider flex items-center gap-1 sm:gap-1.5 hover:bg-gray-50",
+              "px-2.5 py-0.5 text-[10px] font-bold border-none rounded-full uppercase tracking-widest flex items-center gap-1.5 shadow-sm",
               TYPE_STYLES[posting.sourceType],
             )}
           >
             {posting.sourceType === "PROJECT" ? (
-              <Rocket size={11} className="opacity-80" />
+              <Rocket size={12} />
             ) : (
-              <HandHeart size={11} className="opacity-80" />
+              <HandHeart size={12} />
             )}
             {posting.sourceType}
           </Badge>
         </div>
 
-        {/* Content */}
-        <div className="space-y-1.5 sm:space-y-2 pr-6 sm:pr-8">
-          <Link to={`/manage-post/${posting.id}`}>
-            <h3 className="text-base sm:text-lg lg:text-xl font-bold text-slate-800 leading-tight hover:text-blue-600 transition-colors">
+        <div className="flex-grow space-y-2 mt-2 pr-6">
+          <Link to={`/manage-post/${posting.id}`} className="block">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-800 leading-tight hover:text-blue-600 transition-colors line-clamp-1 sm:line-clamp-2">
               {posting.title}
             </h3>
           </Link>
-          <p className="text-[13px] sm:text-[14px] text-slate-500 line-clamp-2 leading-relaxed">
+          <p className="text-sm text-slate-500 line-clamp-2 leading-relaxed italic sm:not-italic">
             {posting.description ?? "No description provided."}
           </p>
         </div>
 
-        {/* Stats */}
-        <div className="flex gap-6 sm:gap-12 border-t border-slate-100 pt-4 sm:pt-5">
-          <div className="space-y-1">
-            <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 border-t border-slate-100 pt-5 mt-5">
+          <div className="flex flex-col">
+            <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-tighter sm:tracking-widest">
               Applicants
-            </p>
-            <p className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-none">
+            </span>
+            <span className="text-lg sm:text-2xl font-black text-slate-900 leading-none mt-1">
               {posting.applicantCount}
-            </p>
+            </span>
           </div>
 
-          <div className="space-y-1">
-            <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+          <div className="flex flex-col border-x border-slate-50 px-2 sm:px-0">
+            <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-tighter sm:tracking-widest">
               Views
-            </p>
-            <p className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-none">
-              {posting.views.toLocaleString()}
-            </p>
+            </span>
+            <span className="text-lg sm:text-2xl font-black text-slate-900 leading-none mt-1">
+              {posting.views > 999
+                ? `${(posting.views / 1000).toFixed(1)}k`
+                : posting.views}
+            </span>
           </div>
 
-          <div className="space-y-1">
-            <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+          <div className="flex flex-col">
+            <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-tighter sm:tracking-widest">
               Capacity
-            </p>
-            <p className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-none">
+            </span>
+            <span className="text-lg sm:text-2xl font-black text-slate-900 leading-none mt-1">
               {posting.capacity}
-            </p>
+            </span>
           </div>
         </div>
 
-        {/* Action Button */}
-        <div className="mt-auto">
+        {/* Action Button Section */}
+        <div className="mt-6">
           {posting.status === "FILLED" || posting.status === "ENDED" ? (
             <Button
               variant="outline"
-              className="w-full h-9 sm:h-11 text-[13px] sm:text-[14px] font-bold text-slate-600 border-slate-200 hover:bg-slate-50 rounded-lg sm:rounded-xl"
+              className="w-full h-10 sm:h-12 text-sm font-bold text-slate-600 border-slate-200 hover:bg-slate-50 rounded-xl transition-all"
               asChild
             >
               <Link to={`/manage-post/${posting.id}/report`}>View Report</Link>
             </Button>
           ) : (
             <Button
-              variant="secondary"
-              className="w-full h-9 sm:h-11 text-[13px] sm:text-[14px] font-bold text-blue-500 bg-blue-50/50 hover:bg-blue-100/70 border-none rounded-lg sm:rounded-xl transition-colors"
+              variant="default"
+              className="w-full h-10 sm:h-12 text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md shadow-blue-200 transition-all active:scale-[0.98]"
               asChild
             >
               <Link to={`/manage-post/${posting.id}`}>Manage Posting</Link>

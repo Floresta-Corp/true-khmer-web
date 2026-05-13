@@ -4,7 +4,7 @@ import type { PropsWithChildren } from "react";
 interface WorkSpacePageLayoutProps extends PropsWithChildren {
   title: string;
   subtitle: string;
-  action: React.ReactNode;
+  action?: React.ReactNode;
 }
 
 export default function WorkSpacePageLayout({
