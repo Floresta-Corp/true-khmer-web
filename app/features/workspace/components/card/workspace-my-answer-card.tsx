@@ -4,7 +4,7 @@ import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL } from "~/lib/utils";
 import type { MyAnswerItem } from "~/services/forum/types";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import DeleteAnswerDialog from "~/features/forum/components/dialog/delete-answer-dialog";
 import { Button } from "~/components/ui/button";
 import AddAnswerDialog from "~/features/forum/components/dialog/add-answer-dialog";
@@ -23,6 +23,8 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
     : "";
   const [isHovered, setIsHovered] = useState(false);
   const questionId = answer.question?.id;
+
+  if (!answer.id) return null;
 
   return (
     <motion.article
@@ -112,7 +114,7 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
           REPLYING TO:
         </p>
         <Link
-          to={`/forum/detail/${questionId}`}
+          to={`/forum/detail/${questionId}#answer-${answer?.id ?? ""}`}
           className="text-base sm:text-lg font-semibold text-[#1f2937] hover:text-blue-600 transition-colors"
         >
           {answer?.question?.title || "Question unavailable"}
@@ -129,7 +131,7 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
       {/* Footer with reply count */}
       <div className="flex items-center justify-between pt-3 border-t border-[#f3f4f6]">
         <Link
-          to={`/forum/detail/${questionId}`}
+          to={`/forum/detail/${questionId}#answer-${answer?.id ?? ""}`}
           className="group inline-flex items-center gap-2 text-sm font-medium text-[#6b7280] hover:text-blue-600 transition-colors"
         >
           <MessageCircle

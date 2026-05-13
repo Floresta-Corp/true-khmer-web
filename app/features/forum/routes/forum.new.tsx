@@ -1,6 +1,5 @@
 import { useLoaderData, useFetcher, useSearchParams } from "react-router";
-import { motion } from "framer-motion";
-import { useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "motion/react";
 import type {
   CategoriesPicker,
   GetQuestionPaginationResponse,
@@ -21,6 +20,10 @@ const LIMIT = 10;
 
 export const loader = forumListloader;
 export const action = forumListAction;
+
+export function meta() {
+  return [{ title: "Forum Discussions | True Khmer" }];
+}
 
 function getTabQueryFlags(tab: ForumQuestionTab) {
   if (tab === "topRated") {

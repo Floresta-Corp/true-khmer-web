@@ -7,7 +7,6 @@ import type {
   CreateAnswerInput,
   DeleteAnswerResponse,
   GetAnswersResponse,
-  MyAnswerItem,
   MyAnswersResponse,
   UpdateAnswerInput,
   UpsertAnswerResponse,
@@ -15,7 +14,6 @@ import type {
 } from "../forum-types";
 import {
   CreateAnswerInputSchema,
-  MyAnswersResponseSchema,
   UpdateAnswerInputSchema,
 } from "../forum-types";
 import type { VoteIntent } from "~/services/types";
@@ -32,7 +30,6 @@ export async function voteForumAnswer(
     method: "POST",
     body: { voteType },
   });
-
   return result;
 }
 
@@ -47,15 +44,18 @@ export async function myForumAnswer(request: Request) {
 
   return result;
 }
-
 export async function getAnswersByQuestionId(
   request: Request,
   questionId: string,
+  sortBy?: string | null,
 ) {
   try {
+    const path =
+      `/forum/answer/get-answers/${questionId}` +
+      (sortBy ? `?sortBy=${encodeURIComponent(sortBy)}` : "");
     const result = await apiRequestWithSession<GetAnswersResponse>(
       request,
-      `/forum/answer/get-answers/${questionId}`,
+      path,
       {
         method: "GET",
       },
@@ -73,22 +73,24 @@ export async function getAnswersByQuestionId(
 export async function getPublicAnswersByQuestionId(
   request: Request,
   questionId: string,
+  sortBy?: string | null,
 ) {
   try {
+    const path =
+      `/forum/public/answer/get-answers/${questionId}` +
+      (sortBy ? `?sortBy=${encodeURIComponent(sortBy)}` : "");
     const result = await apiRequestWithOptionalSession<GetAnswersResponse>(
       request,
-      `/forum/public/answer/get-answers/${questionId}`,
+      path,
       {
         method: "GET",
       },
     );
-
     return result;
   } catch (error) {
     if (error instanceof ProtectedApiError && error.status === 404) {
       return null;
     }
-
     throw error;
   }
 }
@@ -98,11 +100,9 @@ export async function createAnswerByQuestionId(
   body: CreateAnswerInput,
 ) {
   const parsedBody = CreateAnswerInputSchema.safeParse(body);
-
   if (!parsedBody.success) {
     throw new Error("Invalid create answer payload");
   }
-
   const result = await apiRequestWithSession<UpsertAnswerResponse>(
     request,
     "/forum/answer/create-answer",
@@ -111,7 +111,6 @@ export async function createAnswerByQuestionId(
       body: parsedBody.data,
     },
   );
-
   return result;
 }
 
@@ -148,6 +147,7 @@ export async function deleteAnswerById(request: Request, answerId: string) {
 
   return result;
 }
+
 export async function getMyAnswers(request: Request) {
   const result = await apiRequestWithSession<GetAnswersResponse>(
     request,

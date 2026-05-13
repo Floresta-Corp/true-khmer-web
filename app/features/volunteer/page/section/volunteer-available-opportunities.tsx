@@ -4,7 +4,7 @@ import { Button } from "~/components/ui/button";
 import { resolveImageURL } from "~/lib/utils";
 import type { Opportunity } from "~/services/volunteer/volunteer-types";
 import { format } from "date-fns";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import OpportunityCardSkeleton from "../../components/sections/opportunity-card-skeleton";
 
 const volunteerPlaceholderImage = "/images/volunteer-placeholder.svg";

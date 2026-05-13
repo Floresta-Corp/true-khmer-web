@@ -119,7 +119,7 @@ export default function ForumReportDialog({
 
       <DialogContent
         showCloseButton={false}
-        className="flex max-h-[90dvh] w-[calc(100%-1.5rem)] max-w-160 flex-col gap-4 overflow-hidden rounded-lg border border-[#e2e8f0] bg-white p-4 shadow-lg sm:p-6"
+        className="flex max-h-[90dvh] w-[calc(100%-1.5rem)] max-w-160 flex-col gap-4 overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white p-4 shadow-lg sm:p-6"
       >
         {/* Close */}
         <DialogClose>

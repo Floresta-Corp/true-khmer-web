@@ -63,7 +63,7 @@ export default function DeleteAnswerDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>{trigger}</DialogTrigger>
 
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-w-sm rounded-2xl">
         <DialogTitle>Delete answer?</DialogTitle>
         <DialogDescription>
           This action cannot be undone. Your answer will be permanently removed.
