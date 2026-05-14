@@ -1,11 +1,6 @@
 import WorkSpacePageLayout from "~/layout/workspace-page-layout";
 import PostingPagination from "../manage-post-pagination";
-import {
-  useFetcher,
-  useLoaderData,
-  useNavigation,
-  useSearchParams,
-} from "react-router";
+import { useLoaderData, useNavigation } from "react-router";
 import ManagePostCard from "../card/manage-post-card";
 import ManagePostCardSkeleton from "../manage-post-skeleton";
 import ManagePostFilters from "../card/manage-post-filter";
@@ -14,24 +9,10 @@ import CreateOpportunityDialog from "../dialog/manage-post-button";
 import PostingNewCard from "../card/manage-new-post";
 
 export default function ManagePostingPage() {
-  const [searchParams] = useSearchParams();
-
-  const activeTab = searchParams.get("tab") ?? "ALL";
-  const status = searchParams.get("status") ?? "ALL";
-  const search = searchParams.get("search") ?? "";
-
   const { postings, pagination } = useLoaderData<typeof loader>();
 
   const navigation = useNavigation();
   const isLoading = navigation.state === "loading";
-
-  const filtered = postings.filter((p) => {
-    if (activeTab !== "ALL" && p.sourceType !== activeTab) return false;
-    if (status !== "ALL" && p.status !== status) return false;
-    if (search && !p.title.toLowerCase().includes(search.toLowerCase()))
-      return false;
-    return true;
-  });
 
   return (
     <WorkSpacePageLayout
@@ -50,7 +31,7 @@ export default function ManagePostingPage() {
           ))
         ) : (
           <>
-            {filtered.map((posting: any, index: number) => (
+            {postings.map((posting: any, index: number) => (
               <ManagePostCard
                 key={posting.id}
                 index={index}
@@ -65,7 +46,7 @@ export default function ManagePostingPage() {
       <div className="mt-10">
         <PostingPagination
           total={pagination?.total ?? postings.length}
-          showing={filtered.length}
+          showing={postings.length}
         />
       </div>
     </WorkSpacePageLayout>

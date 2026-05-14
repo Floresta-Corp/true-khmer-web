@@ -65,18 +65,18 @@ export default function ManagePostingDetailTable({ applicants }: Props) {
     );
   };
 
-  const getTimeRangeFilter = (filter: TimeFilter): ((date: string) => boolean) => {
+  const getTimeRangeFilter = (
+    filter: TimeFilter,
+  ): ((date: string) => boolean) => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const weekAgo = new Date(today);
     weekAgo.setDate(weekAgo.getDate() - 7);
-    const monthAgo = new Date(today);
-    monthAgo.setMonth(monthAgo.getMonth() - 1);
 
     return (dateStr: string) => {
       const date = new Date(dateStr);
-      if (isNaN(date.getTime())) return true; // Invalid date, include it
-      
+      if (isNaN(date.getTime())) return false; // Invalid date, exclude it
+
       switch (filter) {
         case "today":
           return date >= today && date < new Date(today.getTime() + 86400000);
@@ -97,9 +97,9 @@ export default function ManagePostingDetailTable({ applicants }: Props) {
       ? a.name.toLowerCase().includes(search.toLowerCase()) ||
         a.email.toLowerCase().includes(search.toLowerCase())
       : true;
-    
+
     const matchesTime = timeFilterFn(a.appliedOn);
-    
+
     return matchesSearch && matchesTime;
   });
 

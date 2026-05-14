@@ -21,11 +21,16 @@ const TABS = [
   { label: "Projects", value: "PROJECT" },
 ];
 
+const VALID_TABS = ["ALL", "VOLUNTEER", "PROJECT"] as const;
+
+function isValidTab(value: string | null): value is TabType {
+  return value !== null && VALID_TABS.includes(value as TabType);
+}
+
 export default function ManagePostFilters() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const fetcher = useFetcher();
-
-  const activeTab = (searchParams.get("tab") as TabType) ?? "ALL";
+  const rawTab = searchParams.get("tab");
+  const activeTab = isValidTab(rawTab) ? rawTab : "ALL";
   const status = searchParams.get("status") ?? "ALL";
   const [searchInput, setSearchInput] = useState(
     searchParams.get("search") ?? "",
@@ -39,7 +44,6 @@ export default function ManagePostFilters() {
       params.set("tab", tab);
     }
     setSearchParams(params, { replace: true });
-    fetcher.load(`/manage-post?${params.toString()}`);
   };
 
   const handleStatusChange = (val: string) => {
@@ -50,7 +54,6 @@ export default function ManagePostFilters() {
       params.set("status", val);
     }
     setSearchParams(params, { replace: true });
-    fetcher.load(`/manage-post?${params.toString()}`);
   };
 
   const handleSearch = (value: string) => {
@@ -61,7 +64,6 @@ export default function ManagePostFilters() {
       params.delete("search");
     }
     setSearchParams(params, { replace: true });
-    fetcher.load(`/manage-post?${params.toString()}`);
   };
 
   return (
