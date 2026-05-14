@@ -1,0 +1,67 @@
+import type { Route } from "project-types/manage-post/routes/+types/manage-post";
+import z from "zod";
+import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { getUserId } from "~/lib/server/session.server";
+import { myManagePost } from "~/services/manage-post/server";
+import {
+  PostingFilterSchema,
+  PostingTypeSchema,
+  type ManagePost,
+  type ManagePostPagination,
+} from "~/services/manage-post/types";
+
+type ManagePostLoaderData = {
+  postings: ManagePost[];
+  pagination: ManagePostPagination | null;
+  userId: string | null;
+};
+
+export async function managePostLoader({ request }: Route.LoaderArgs) {
+  await requireAuthenticatedUser(request);
+  const userId = await getUserId(request);
+
+  if (!userId) {
+    return {
+      postings: [],
+      pagination: null,
+      userId: null,
+    } satisfies ManagePostLoaderData;
+  }
+
+  const url = new URL(request.url);
+
+  const typeParam = url.searchParams.get("type");
+  const filterParam = url.searchParams.get("filter");
+
+  const typeResult = typeParam ? PostingTypeSchema.safeParse(typeParam) : null;
+  const filterResult = filterParam
+    ? PostingFilterSchema.safeParse(filterParam)
+    : null;
+
+  const type =
+    typeResult?.success && typeResult.data !== "all"
+      ? typeResult.data
+      : undefined;
+  const filter =
+    filterResult?.success && filterResult.data !== "all"
+      ? filterResult.data
+      : undefined;
+
+  const pageParam = url.searchParams.get("page");
+  const page = pageParam
+    ? z.coerce.number().int().positive().safeParse(pageParam).data
+    : undefined;
+
+  const result = await myManagePost(request, {
+    search: url.searchParams.get("search") ?? undefined,
+    type,
+    filter,
+    page,
+  });
+
+  return {
+    postings: result?.data?.postings ?? [],
+    pagination: result?.data?.pagination ?? null,
+    userId,
+  } satisfies ManagePostLoaderData;
+}

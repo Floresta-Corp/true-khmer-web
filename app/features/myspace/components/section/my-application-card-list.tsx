@@ -246,7 +246,6 @@ function ApplicationCard({ app, index }: { app: Application; index: number }) {
 
 export default function MyApplicationCardList() {
   const { myApplication } = useLoaderData<typeof loader>();
-  console.log(myApplication);
   return (
     <div className="flex flex-col gap-4">
       {myApplication.applications.map((app, index) => (

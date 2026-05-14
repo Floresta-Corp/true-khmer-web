@@ -1,0 +1,54 @@
+import WorkSpacePageLayout from "~/layout/workspace-page-layout";
+import PostingPagination from "../manage-post-pagination";
+import { useLoaderData, useNavigation } from "react-router";
+import ManagePostCard from "../card/manage-post-card";
+import ManagePostCardSkeleton from "../manage-post-skeleton";
+import ManagePostFilters from "../card/manage-post-filter";
+import type { loader } from "../../routes/manage-post";
+import CreateOpportunityDialog from "../dialog/manage-post-button";
+import PostingNewCard from "../card/manage-new-post";
+
+export default function ManagePostingPage() {
+  const { postings, pagination } = useLoaderData<typeof loader>();
+
+  const navigation = useNavigation();
+  const isLoading = navigation.state === "loading";
+
+  return (
+    <WorkSpacePageLayout
+      title="Manage Posting"
+      subtitle="Manage and monitor your active community opportunities postings."
+      action={<CreateOpportunityDialog />}
+    >
+      <div className="-mt-8">
+        <ManagePostFilters />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {isLoading ? (
+          Array.from({ length: 6 }).map((_, i) => (
+            <ManagePostCardSkeleton key={i} />
+          ))
+        ) : (
+          <>
+            {postings.map((posting: any, index: number) => (
+              <ManagePostCard
+                key={posting.id}
+                index={index}
+                posting={posting}
+              />
+            ))}
+            <PostingNewCard />
+          </>
+        )}
+      </div>
+
+      <div className="mt-10">
+        <PostingPagination
+          total={pagination?.total ?? postings.length}
+          showing={postings.length}
+        />
+      </div>
+    </WorkSpacePageLayout>
+  );
+}
