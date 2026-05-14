@@ -217,7 +217,6 @@ function ApplicationCard({ app, index }: { app: Application; index: number }) {
 
 export default function MyApplicationCardList() {
   const { myApplication } = useLoaderData<typeof loader>();
-
   return (
     <div className="flex flex-col gap-4">
       <AnimatePresence mode="wait">

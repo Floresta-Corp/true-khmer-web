@@ -1,6 +1,6 @@
 import { Link, useLoaderData } from "react-router";
 import { MessageCircle, Share2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import QuestionVoteComponent from "../components/question-vote-component";
 import AllAnswers from "../components/sections/all-answers";
 import type { Route } from "./+types/forum.$id";
