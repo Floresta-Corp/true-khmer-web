@@ -150,7 +150,7 @@ export async function SaveVolunteerOpportunity(
 ) {
   return await apiRequestWithSession<{ ok: boolean; message: string }>(
     request,
-    `/volunteer/save-opportunities/${opportunityId}`,
+    `/volunteer/save-opportunity/${opportunityId}`,
     {
       method: "POST",
     },
@@ -163,7 +163,7 @@ export async function UnsaveVolunteerOpportunity(
 ) {
   return await apiRequestWithSession<{ ok: boolean; message: string }>(
     request,
-    `/volunteer/save-opportunities/${opportunityId}`,
+    `/volunteer/save-opportunity/${opportunityId}`,
     {
       method: "DELETE",
     },

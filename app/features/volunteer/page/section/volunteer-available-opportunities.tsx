@@ -1,21 +1,30 @@
 import { Calendar, Clock, Heart, MapPin, Timer } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useFetcher } from "react-router";
 import { Button } from "~/components/ui/button";
-import { resolveImageURL } from "~/lib/utils";
+import { cn, resolveImageURL } from "~/lib/utils";
 import type { Opportunity } from "~/services/volunteer/volunteer-types";
 import { format } from "date-fns";
 import { motion } from "motion/react";
 import OpportunityCardSkeleton from "../../components/sections/opportunity-card-skeleton";
-import { useState } from "react";
-
+import { useEffect, useRef, useState } from "react";
+import { Spinner } from "~/components/ui/spinner";
 const volunteerPlaceholderImage = "/images/volunteer-placeholder.svg";
 
-function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
+function OpportunityCard({
+  opportunity,
+  onMutationComplete,
+}: {
+  opportunity: Opportunity;
+  onMutationComplete?: () => void;
+}) {
   const image = resolveImageURL(
     opportunity.coverImageKey,
     volunteerPlaceholderImage,
   );
+  const fetcher = useFetcher();
   const [isHovered, setIsHovered] = useState(false);
+  const didNotifyRef = useRef(false);
+  const loading = fetcher.state === "loading" || fetcher.state === "submitting";
 
   const progress =
     opportunity.capacity > 0
@@ -25,7 +34,33 @@ function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
         )
       : 0;
 
-  console.log(opportunity.viewerSave);
+  const handleOnSaveClicked = () => {
+    didNotifyRef.current = false;
+
+    if (opportunity.viewerSave) {
+      fetcher.submit(
+        { opportunityId: opportunity.id, actionType: "unsave-opportunity" },
+        { method: "DELETE" },
+      );
+    } else {
+      fetcher.submit(
+        {
+          opportunityId: opportunity.id,
+          actionType: "save-opportunity",
+        },
+        { method: "POST" },
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (fetcher.state !== "idle" || !fetcher.data?.ok || didNotifyRef.current) {
+      return;
+    }
+
+    didNotifyRef.current = true;
+    onMutationComplete?.();
+  }, [fetcher.state, fetcher.data, onMutationComplete]);
 
   return (
     <motion.article
@@ -55,8 +90,17 @@ function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
             size="icon"
             aria-label="Save opportunity"
             className="cursor-pointer flex size-[31.5px] items-center justify-center rounded-2xl bg-white/95 text-[#9aa2af] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)]"
+            onClick={handleOnSaveClicked}
           >
-            <Heart className="size-3.5" />
+            {loading ? (
+              <Spinner />
+            ) : (
+              <Heart
+                className={cn("size-3.5", {
+                  "fill-blue-600 text-blue-600": opportunity.viewerSave,
+                })}
+              />
+            )}
           </Button>
         </motion.div>
       </div>
@@ -132,6 +176,7 @@ interface VolunteerAvailableOpportunitiesProps {
   showHeader?: boolean;
   className?: string;
   isLoading?: boolean;
+  onMutationComplete?: () => void;
 }
 
 export function VolunteerAvailableOpportunities({
@@ -139,6 +184,7 @@ export function VolunteerAvailableOpportunities({
   showHeader = true,
   className = "",
   isLoading = false,
+  onMutationComplete,
 }: VolunteerAvailableOpportunitiesProps) {
   return (
     <section
@@ -171,7 +217,11 @@ export function VolunteerAvailableOpportunities({
         ) : opportunities.length > 0 ? (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
             {opportunities.map((opportunity) => (
-              <OpportunityCard key={opportunity.id} opportunity={opportunity} />
+              <OpportunityCard
+                key={opportunity.id}
+                opportunity={opportunity}
+                onMutationComplete={onMutationComplete}
+              />
             ))}
           </div>
         ) : (

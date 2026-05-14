@@ -5,7 +5,7 @@ import {
   UnsaveVolunteerOpportunity,
 } from "~/services/volunteer/server";
 
-export async function VolunteerAction({ request }: Route.ActionArgs) {
+export async function volunteerAction({ request }: Route.ActionArgs) {
   await requireAuthenticatedUser(request);
   const formData = await request.formData();
   const actionType = formData.get("actionType")?.toString();
