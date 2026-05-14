@@ -54,7 +54,7 @@ export default function ManagePostingDetailTable({ applicants }: Props) {
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev);
-        if (!value || value === "all-time") {
+        if (!value || (key === "time" && value === "all-time")) {
           next.delete(key);
         } else {
           next.set(key, value);
@@ -65,12 +65,43 @@ export default function ManagePostingDetailTable({ applicants }: Props) {
     );
   };
 
-  const filtered = applicants.filter((a) =>
-    search
+  const getTimeRangeFilter = (filter: TimeFilter): ((date: string) => boolean) => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const weekAgo = new Date(today);
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const monthAgo = new Date(today);
+    monthAgo.setMonth(monthAgo.getMonth() - 1);
+
+    return (dateStr: string) => {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return true; // Invalid date, include it
+      
+      switch (filter) {
+        case "today":
+          return date >= today && date < new Date(today.getTime() + 86400000);
+        case "this-week":
+          return date >= weekAgo;
+        case "all-time":
+          return true;
+        default:
+          return true;
+      }
+    };
+  };
+
+  const timeFilterFn = getTimeRangeFilter(timeFilter);
+
+  const filtered = applicants.filter((a) => {
+    const matchesSearch = search
       ? a.name.toLowerCase().includes(search.toLowerCase()) ||
         a.email.toLowerCase().includes(search.toLowerCase())
-      : true,
-  );
+      : true;
+    
+    const matchesTime = timeFilterFn(a.appliedOn);
+    
+    return matchesSearch && matchesTime;
+  });
 
   return (
     <>
@@ -205,6 +236,7 @@ export default function ManagePostingDetailTable({ applicants }: Props) {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 bg-blue-100/60 text-blue-500 hover:text-gray-600"
+                        aria-label="Send message"
                       >
                         <Send size={14} />
                       </Button>
@@ -212,6 +244,7 @@ export default function ManagePostingDetailTable({ applicants }: Props) {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-gray-400 hover:text-gray-600"
+                        aria-label="Compose email"
                       >
                         <Mail size={14} />
                       </Button>
@@ -219,6 +252,7 @@ export default function ManagePostingDetailTable({ applicants }: Props) {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-gray-400 hover:text-gray-600"
+                        aria-label="More actions"
                       >
                         <MoreVertical size={14} />
                       </Button>
