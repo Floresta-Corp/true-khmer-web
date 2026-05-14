@@ -27,6 +27,7 @@ export const RoleSchema = z.object({
   responsibilities: z.array(z.string()),
   requirements: z.array(z.string()),
   displayOrder: z.number(),
+  viewerApplied: z.boolean(),
 });
 export type Role = z.infer<typeof RoleSchema>;
 
@@ -52,8 +53,8 @@ export const OpportunitySchema = z.object({
   applicationDeadline: z.string(),
   applicationCount: z.number(),
   capacity: z.number(),
+  totalView: z.number(),
   coverImageKey: z.string(),
-  coverImageUrl: z.string().nullish(),
   benefits: z.array(z.string()),
   status: z.string(),
   viewerSave: z.boolean(),
@@ -215,7 +216,9 @@ export const formDataVolunteerInput = z.object({
     phone: z.string().nullish(),
     websiteUrl: z.string().url().nullish(),
   }),
-  roles: z.array(RoleSchema.omit({ displayOrder: true, id: true })),
+  roles: z.array(
+    RoleSchema.omit({ displayOrder: true, id: true, viewerApplied: true }),
+  ),
   coverImageKey: z
     .object({
       file: z.any().nullish(),

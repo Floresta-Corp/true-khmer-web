@@ -39,7 +39,8 @@ export default function VolunteerApplicationDialog({
   roles,
   initialRoleId,
   trigger,
-}: VolunteerApplicationDialogProps) {
+  disableApplyButton,
+}: VolunteerApplicationDialogProps & { disableApplyButton?: boolean }) {
   const { id: opportunityId } = useParams();
   const fetcher = useFetcher();
   const [open, setOpen] = useState(false);
@@ -152,7 +153,10 @@ export default function VolunteerApplicationDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button className="h-10 w-full bg-[#2f6fe4] text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]">
+          <Button
+            disabled={disableApplyButton}
+            className="h-10 w-full bg-[#2f6fe4] text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]"
+          >
             Apply Now
           </Button>
         )}

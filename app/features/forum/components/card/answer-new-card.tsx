@@ -88,7 +88,7 @@ function AnswerComponent({
           ref={cardRef}
           id={`answer-${answer.id}`}
           className={cn(
-            "z-10 flex flex-col gap-4 rounded-3xl border border-[#f3f4f6] bg-white p-6 shadow-none",
+            "z-10 flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-none",
             showAnimation && highlightAnswerClassName,
           )}
           initial={{ opacity: 0, y: 12 }}

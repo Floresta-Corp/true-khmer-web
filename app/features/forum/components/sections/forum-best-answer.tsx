@@ -1,5 +1,4 @@
 import { Award } from "lucide-react";
-
 import type { Answer, Question } from "~/services/forum/forum-types";
 import AnswerNewCard from "../card/answer-new-card";
 import { useLoaderData } from "react-router";

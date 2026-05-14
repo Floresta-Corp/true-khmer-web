@@ -9,13 +9,14 @@ import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
 
 interface ApplicationSummaryProps {
   volunteer: Opportunity;
-
+  disableApplyButton?: boolean;
   totalCapacity: number;
 }
 
 export default function ApplicationSummary({
   volunteer,
   totalCapacity,
+  disableApplyButton,
 }: ApplicationSummaryProps) {
   const [selectedRoleId, setSelectedRoleId] = useState(
     volunteer.roles[0]?.id || "",
@@ -33,7 +34,11 @@ export default function ApplicationSummary({
         selectedRoleId={selectedRoleId}
         setSelectedRoleId={setSelectedRoleId}
       />
-      <ActionButtons roles={volunteer.roles} selectedRoleId={selectedRoleId} />
+      <ActionButtons
+        roles={volunteer.roles}
+        selectedRoleId={selectedRoleId}
+        disableApplyButton={disableApplyButton}
+      />
     </aside>
   );
 }
@@ -67,6 +72,7 @@ function SummaryDetails({
       </div>
       <div>
         <SingleSelectDropdown
+          triggerClassName="mt-2"
           id="role-selection"
           label="Role of interest"
           value={selectedRoleId}
@@ -85,14 +91,21 @@ function SummaryDetails({
 interface ActionButtonsProps {
   roles: Role[];
   selectedRoleId: string;
+  disableApplyButton?: boolean;
 }
 
-function ActionButtons({ roles, selectedRoleId }: ActionButtonsProps) {
+function ActionButtons({
+  roles,
+  selectedRoleId,
+  disableApplyButton,
+}: ActionButtonsProps & { disableApplyButton?: boolean }) {
+  const find = roles.find((r) => r.id === selectedRoleId);
   return (
     <div className="mt-6 space-y-3.5">
       <VolunteerApplicationDialog
         roles={roles}
         initialRoleId={selectedRoleId}
+        disableApplyButton={disableApplyButton || find?.viewerApplied}
       />
     </div>
   );

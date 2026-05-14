@@ -16,6 +16,5 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export default function VolunteerOpportunityDetail() {
-  const { volunteer } = useLoaderData<typeof loader>();
-  return <VolunteerDetailPage volunteer={volunteer} />;
+  return <VolunteerDetailPage />;
 }
