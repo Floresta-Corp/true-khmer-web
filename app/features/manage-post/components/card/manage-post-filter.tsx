@@ -12,7 +12,6 @@ import { cn } from "~/lib/utils";
 import { motion } from "motion/react";
 import { useState } from "react";
 import type { SourceType } from "~/services/manage-post/types";
-import type { loader } from "../../routes/manage-post";
 
 type TabType = "ALL" | SourceType;
 
