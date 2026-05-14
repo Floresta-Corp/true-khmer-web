@@ -68,7 +68,7 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
           </Badge>
         </div>
 
-        <div className="flex-grow space-y-2 mt-2 pr-6">
+        <div className="grow space-y-2 mt-2 pr-6">
           <Link to={`/manage-post/${posting.id}`} className="block">
             <h3 className="text-lg sm:text-xl font-bold text-slate-800 leading-tight hover:text-blue-600 transition-colors line-clamp-1 sm:line-clamp-2">
               {posting.title}

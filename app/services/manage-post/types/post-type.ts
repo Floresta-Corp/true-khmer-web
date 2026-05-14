@@ -6,6 +6,18 @@ export type SourceType = z.infer<typeof SourceTypeSchema>;
 export const StatusSchema = z.enum(["ACTIVE", "DRAFT", "ENDED", "FILLED"]);
 export type ManagePostStatus = z.infer<typeof StatusSchema>;
 
+export const PostingTypeSchema = z.enum(["all", "projects", "volunteer"]);
+export type PostingType = z.infer<typeof PostingTypeSchema>;
+
+export const PostingFilterSchema = z.enum([
+  "all",
+  "active",
+  "draft",
+  "ended",
+  "filled",
+]);
+export type PostingFilter = z.infer<typeof PostingFilterSchema>;
+
 export const PaginationSchema = z.object({
   hasNextPage: z.boolean(),
   hasPreviousPage: z.boolean(),

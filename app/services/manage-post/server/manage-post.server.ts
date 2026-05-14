@@ -1,14 +1,10 @@
 import { apiRequestWithSession } from "~/lib/server/api-client.server";
-import type {
-  ManagePostResponse,
-  ManagePostStatus,
-  SourceType,
-} from "../types";
+import type { ManagePostResponse, PostingFilter, PostingType } from "../types";
 
 export interface ManagePostParams {
   search?: string;
-  status?: ManagePostStatus;
-  source?: SourceType;
+  filter?: PostingFilter;
+  type?: PostingType;
   page?: number;
   limit?: number;
 }
@@ -16,8 +12,8 @@ export interface ManagePostParams {
 export async function myManagePost(request: Request, params: ManagePostParams) {
   const queryParams = new URLSearchParams();
   if (params.search) queryParams.set("search", params.search);
-  if (params.source) queryParams.set("source", params.source);
-  if (params.status) queryParams.set("status", params.status);
+  if (params.type) queryParams.set("type", params.type);
+  if (params.filter) queryParams.set("filter", params.filter);
   if (params.page !== undefined)
     queryParams.set("page", params.page.toString());
   if (params.limit !== undefined)

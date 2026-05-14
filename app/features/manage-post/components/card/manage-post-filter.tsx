@@ -11,47 +11,64 @@ import {
 import { cn } from "~/lib/utils";
 import { motion } from "motion/react";
 import { useState } from "react";
-import type { SourceType } from "~/services/manage-post/types";
 
-type TabType = "ALL" | SourceType;
+type TabType = "all" | "projects" | "volunteer";
 
 const TABS = [
-  { label: "All", value: "ALL" },
-  { label: "Volunteer", value: "VOLUNTEER" },
-  { label: "Projects", value: "PROJECT" },
+  { label: "All", value: "all" },
+  { label: "Volunteer", value: "volunteer" },
+  { label: "Projects", value: "projects" },
 ];
 
-const VALID_TABS = ["ALL", "VOLUNTEER", "PROJECT"] as const;
+const VALID_TABS = ["all", "volunteer", "projects"] as const;
 
 function isValidTab(value: string | null): value is TabType {
   return value !== null && VALID_TABS.includes(value as TabType);
 }
 
+const VALID_STATUS_VALUES = [
+  "all",
+  "active",
+  "draft",
+  "filled",
+  "ended",
+] as const;
+
+function isValidStatus(
+  value: string | null,
+): value is (typeof VALID_STATUS_VALUES)[number] {
+  return (
+    value !== null &&
+    VALID_STATUS_VALUES.includes(value as (typeof VALID_STATUS_VALUES)[number])
+  );
+}
+
 export default function ManagePostFilters() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const rawTab = searchParams.get("tab");
-  const activeTab = isValidTab(rawTab) ? rawTab : "ALL";
-  const status = searchParams.get("status") ?? "ALL";
+  const rawType = searchParams.get("type");
+  const activeType = isValidTab(rawType) ? rawType : "all";
+  const rawFilter = searchParams.get("filter");
+  const filter = isValidStatus(rawFilter) ? rawFilter : "all";
   const [searchInput, setSearchInput] = useState(
     searchParams.get("search") ?? "",
   );
 
-  const handleTabChange = (tab: string) => {
+  const handleTypeChange = (type: string) => {
     const params = new URLSearchParams(searchParams);
-    if (!tab || tab === "ALL") {
-      params.delete("tab");
+    if (!type || type === "all") {
+      params.delete("type");
     } else {
-      params.set("tab", tab);
+      params.set("type", type);
     }
     setSearchParams(params, { replace: true });
   };
 
-  const handleStatusChange = (val: string) => {
+  const handleFilterChange = (value: string) => {
     const params = new URLSearchParams(searchParams);
-    if (!val || val === "ALL") {
-      params.delete("status");
+    if (!value || value === "all") {
+      params.delete("filter");
     } else {
-      params.set("status", val);
+      params.set("filter", value);
     }
     setSearchParams(params, { replace: true });
   };
@@ -73,13 +90,13 @@ export default function ManagePostFilters() {
           {TABS.map((tab) => (
             <button
               key={tab.value}
-              onClick={() => handleTabChange(tab.value)}
+              onClick={() => handleTypeChange(tab.value)}
               className="relative px-5 py-1.5 text-[14px] font-bold transition-colors duration-300 cursor-pointer z-10"
             >
               <span
                 className={cn(
                   "relative z-20",
-                  activeTab === tab.value
+                  activeType === tab.value
                     ? "text-blue-600 dark:text-white"
                     : "text-gray-500",
                 )}
@@ -87,7 +104,7 @@ export default function ManagePostFilters() {
                 {tab.label}
               </span>
 
-              {activeTab === tab.value && (
+              {activeType === tab.value && (
                 <motion.div
                   layoutId="activeTabBackground"
                   className="absolute inset-0 bg-white dark:bg-slate-800 rounded-lg shadow-sm z-10"
@@ -98,16 +115,16 @@ export default function ManagePostFilters() {
           ))}
         </div>
 
-        <Select value={status} onValueChange={handleStatusChange}>
+        <Select value={filter} onValueChange={handleFilterChange}>
           <SelectTrigger className="w-35 h-10 text-[14px] font-medium border-slate-200 bg-white rounded-xl focus:ring-blue-500/20">
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder="Filter" />
           </SelectTrigger>
           <SelectContent className="rounded-xl border-slate-200">
-            <SelectItem value="ALL">All Status</SelectItem>
-            <SelectItem value="ACTIVE">Active</SelectItem>
-            <SelectItem value="DRAFT">Draft</SelectItem>
-            <SelectItem value="FILLED">Filled</SelectItem>
-            <SelectItem value="ENDED">Ended</SelectItem>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="draft">Draft</SelectItem>
+            <SelectItem value="filled">Filled</SelectItem>
+            <SelectItem value="ended">Ended</SelectItem>
           </SelectContent>
         </Select>
       </div>

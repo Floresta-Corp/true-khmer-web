@@ -4,8 +4,8 @@ import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
 import { getUserId } from "~/lib/server/session.server";
 import { myManagePost } from "~/services/manage-post/server";
 import {
-  SourceTypeSchema,
-  StatusSchema,
+  PostingFilterSchema,
+  PostingTypeSchema,
   type ManagePost,
   type ManagePostPagination,
 } from "~/services/manage-post/types";
@@ -30,15 +30,22 @@ export async function managePostLoader({ request }: Route.LoaderArgs) {
 
   const url = new URL(request.url);
 
-  const tabParam = url.searchParams.get("tab");
-  const statusParam = url.searchParams.get("status");
+  const typeParam = url.searchParams.get("type");
+  const filterParam = url.searchParams.get("filter");
 
-  const source = tabParam
-    ? SourceTypeSchema.safeParse(tabParam).data
-    : undefined;
-  const status = statusParam
-    ? StatusSchema.safeParse(statusParam).data
-    : undefined;
+  const typeResult = typeParam ? PostingTypeSchema.safeParse(typeParam) : null;
+  const filterResult = filterParam
+    ? PostingFilterSchema.safeParse(filterParam)
+    : null;
+
+  const type =
+    typeResult?.success && typeResult.data !== "all"
+      ? typeResult.data
+      : undefined;
+  const filter =
+    filterResult?.success && filterResult.data !== "all"
+      ? filterResult.data
+      : undefined;
 
   const pageParam = url.searchParams.get("page");
   const page = pageParam
@@ -47,8 +54,8 @@ export async function managePostLoader({ request }: Route.LoaderArgs) {
 
   const result = await myManagePost(request, {
     search: url.searchParams.get("search") ?? undefined,
-    source,
-    status,
+    type,
+    filter,
     page,
   });
 
