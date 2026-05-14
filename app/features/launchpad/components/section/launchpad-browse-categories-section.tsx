@@ -31,9 +31,10 @@ export function LaunchpadBrowseCategoriesSection() {
                 <CategoryCard
                   category={{
                     ...category,
-                    displayOrder: category.roleCount,
+                    displayOrder: category.totalLaunchpad,
                     updatedBy: category.updatedBy ?? undefined,
                   }}
+                  displayName="projects"
                 />
               </div>
             );
