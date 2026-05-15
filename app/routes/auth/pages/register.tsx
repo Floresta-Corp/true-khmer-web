@@ -412,6 +412,7 @@ export default function RegisterPage() {
             placeholder="Strategist"
             autoComplete="organization-title"
             error={actionData?.errors?.occupation}
+            required
           />
 
           <div className="space-y-2 pl-1">

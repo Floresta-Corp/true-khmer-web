@@ -6,10 +6,10 @@ import {
   useActionData,
   useLoaderData,
 } from "react-router";
-import { OnboardingHeader } from "~/routes/onboarding/components/onboarding-header";
 import { OnboardingBackContinueActions } from "~/routes/onboarding/components/onboarding-back-continue-actions";
 import { OnboardingFormError } from "~/routes/onboarding/components/onboarding-form-error";
 import { InterestSelector } from "~/routes/onboarding/components/interest-selector";
+import { OnboardingPageShell } from "~/routes/onboarding/components/onboarding-page-shell";
 import { OnboardingRomdoulCorners } from "~/routes/onboarding/components/onboarding-romdoul-corners";
 import { OnboardingStepIntro } from "~/routes/onboarding/components/onboarding-step-intro";
 import type { Route } from "./+types/interest";
@@ -114,82 +114,76 @@ export default function OnboardingInterestPage() {
   }
 
   return (
-    <div className="min-h-screen overflow-hidden bg-white text-[#111827]">
-      <OnboardingHeader
-        title="Interest"
-        rightText="Skip this step"
-        rightTo="/onboarding/contribution"
-      />
+    <OnboardingPageShell
+      headerTitle="Interest"
+      headerRightText="Skip this step"
+      headerRightTo="/onboarding/contribution"
+      mainClassName="items-center px-6 pt-8 pb-12 sm:px-10 md:px-16 lg:px-24 xl:px-80 xl:pt-10"
+    >
+      <OnboardingRomdoulCorners />
 
-      <main className="relative flex min-h-[calc(100vh-60px)] items-start justify-center overflow-hidden px-6 pt-8 pb-12 sm:px-10 md:px-16 lg:px-24 xl:px-80 xl:pt-10">
-        <OnboardingRomdoulCorners />
-
-        <Form
-          method="post"
-          className="relative z-10 flex w-full max-w-xl flex-col items-start gap-10 py-0"
-        >
-          {selected.map((id) => (
-            <input key={id} type="hidden" name="selected" value={id} />
-          ))}
-          {savedInterestIds.map((id) => (
-            <input
-              key={`initial-${id}`}
-              type="hidden"
-              name="initialSelected"
-              value={id}
-            />
-          ))}
-
-          <OnboardingStepIntro
-            currentStep={2}
-            totalSteps={4}
-            stepLabel="Your Interests"
-            stepBadgeClassName="rounded-full border border-black/10 px-3.75 py-2"
-            stepTextClassName="text-xs uppercase tracking-widest text-[#2F6FE4]"
-            titleClassName="text-[26.25px] font-semibold leading-[31.5px] tracking-[-0.6563px] text-[#030213]"
-            descriptionClassName="text-[14px] font-normal leading-5.25 text-[#99A1AF]"
-            title={
-              <>
-                What <span className="text-[#2894FA]">drives you</span> forward?
-              </>
-            }
-            description={
-              <>
-                Select your areas of interest. We&apos;ll use this to
-                personalize your feed, suggest projects, and match you with
-                opportunities.
-              </>
-            }
+      <Form
+        method="post"
+        className="relative z-10 flex w-full max-w-xl flex-col items-start gap-10 py-0"
+      >
+        {selected.map((id) => (
+          <input key={id} type="hidden" name="selected" value={id} />
+        ))}
+        {savedInterestIds.map((id) => (
+          <input
+            key={`initial-${id}`}
+            type="hidden"
+            name="initialSelected"
+            value={id}
           />
+        ))}
 
-          <InterestSelector
-            interests={interests}
-            selectedIds={selected}
-            onToggle={toggleInterest}
-            className="tk-fade-up-1"
-          />
+        <OnboardingStepIntro
+          currentStep={2}
+          totalSteps={4}
+          stepLabel="Your Interests"
+          stepBadgeClassName="rounded-full border border-black/10 px-3.75 py-2"
+          stepTextClassName="text-xs uppercase tracking-widest text-[#2F6FE4]"
+          titleClassName="text-[26.25px] font-semibold leading-[31.5px] tracking-[-0.6563px] text-[#030213]"
+          descriptionClassName="text-[14px] font-normal leading-5.25 text-[#99A1AF]"
+          title={
+            <>
+              What <span className="text-[#2894FA]">drives you</span> forward?
+            </>
+          }
+          description={
+            <>
+              Select your areas of interest. We&apos;ll use this to personalize
+              your feed, suggest projects, and match you with opportunities.
+            </>
+          }
+        />
 
-          {interestsError ? (
-            <p className="tk-fade-up-1 text-sm text-red-500">
-              {interestsError}
-            </p>
-          ) : null}
+        <InterestSelector
+          interests={interests}
+          selectedIds={selected}
+          onToggle={toggleInterest}
+          className="tk-fade-up-1"
+        />
 
-          <p className="tk-fade-up-2 self-stretch text-sm font-normal italic leading-5.25 text-[#99A1AF]">
-            Pick at least 2. You can update these anytime later.
-          </p>
+        {interestsError ? (
+          <p className="tk-fade-up-1 text-sm text-red-500">{interestsError}</p>
+        ) : null}
 
-          <div className="tk-fade-up-2">
-            <OnboardingFormError message={actionData?.errors?.form} />
-          </div>
+        <p className="tk-fade-up-2 self-stretch text-sm font-normal italic leading-5.25 text-[#99A1AF]">
+          Pick at least 2. You can update these anytime later.
+        </p>
 
-          <OnboardingBackContinueActions
-            backTo="/onboarding/profile"
-            continueDisabled={!canContinue}
-            containerClassName="tk-fade-up-3"
-          />
-        </Form>
-      </main>
-    </div>
+        <div className="tk-fade-up-2">
+          <OnboardingFormError message={actionData?.errors?.form} />
+        </div>
+
+        <OnboardingBackContinueActions
+          backTo="/onboarding/profile"
+          continueDisabled={!canContinue}
+          containerClassName="tk-fade-up-3"
+        />
+      </Form>
+    </OnboardingPageShell>
   );
 }
