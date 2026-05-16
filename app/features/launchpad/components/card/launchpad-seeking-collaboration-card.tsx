@@ -23,7 +23,13 @@ export default function LaunchpadSeekingCollaborationCard({
       </div>
       <div className="grid grid-cols-1 gap-3.5">
         {collaborationData.map((v) => (
-          <LaunchpadCollaborationCard key={v.id} data={v} />
+          <LaunchpadCollaborationCard
+            key={v.id}
+            data={v}
+            launchpadId={project.id}
+            launchpadName={project.name}
+            roles={project.roles}
+          />
         ))}
       </div>
     </Card>

@@ -1,4 +1,9 @@
-import { useEffect, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useState,
+  type ComponentProps,
+  type FormEvent,
+} from "react";
 import { Form, Link, useActionData, useSearchParams } from "react-router";
 import {
   getCountries,
@@ -41,15 +46,15 @@ export function meta() {
   return [{ title: "Register | True Khmer" }];
 }
 
-type RegisterTextFieldProps = {
+type RegisterTextFieldProps = Omit<
+  ComponentProps<typeof Input>,
+  "id" | "name" | "value" | "placeholder" | "onChange" | "className"
+> & {
   id: string;
   name?: string;
   label: string;
   value: string;
   placeholder: string;
-  required?: boolean;
-  type?: string;
-  autoComplete?: string;
   error?: string | null;
   onChange: (value: string) => void;
 };
@@ -112,6 +117,7 @@ function RegisterTextField({
   autoComplete,
   error,
   onChange,
+  ...inputProps
 }: RegisterTextFieldProps) {
   return (
     <div className="space-y-2">
@@ -123,10 +129,12 @@ function RegisterTextField({
         name={name ?? id}
         type={type}
         autoComplete={autoComplete}
+        required={required}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         className={registerInputClasses}
+        {...inputProps}
       />
       {error ? <p className="text-xs text-red-500">{error}</p> : null}
     </div>
@@ -412,6 +420,7 @@ export default function RegisterPage() {
             placeholder="Strategist"
             autoComplete="organization-title"
             error={actionData?.errors?.occupation}
+            required
           />
 
           <div className="space-y-2 pl-1">

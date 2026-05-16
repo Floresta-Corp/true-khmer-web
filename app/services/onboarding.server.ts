@@ -121,7 +121,7 @@ type GetOnboardingStateOptions = {
   forceFresh?: boolean;
 };
 
-// Location/interest options are relatively static and expensive to fetch,
+// Interest options are relatively static and expensive to fetch,
 // so we cache them for longer (10 minutes) to reduce backend load.
 const OPTIONS_CACHE_TTL_MS = 10 * 60 * 1000;
 
@@ -134,12 +134,9 @@ const ONBOARDING_STATE_CACHE_TTL_MS = 15 * 1000;
 // server processes.
 const CACHE_SWEEP_INTERVAL_MS = 60 * 1000;
 const OPTIONS_CACHE_MAX_ENTRIES = 1000;
-const CITIES_CACHE_MAX_ENTRIES = 2000;
 const ONBOARDING_STATE_CACHE_MAX_ENTRIES = 2000;
 
-const countriesCache = new Map<string, CacheEntry<OnboardingOption>>();
 const interestsCache = new Map<string, CacheEntry<OnboardingInterestOption>>();
-const citiesCache = new Map<string, CacheEntry<OnboardingOption>>();
 const onboardingStateCache = new Map<string, OnboardingStateCacheEntry>();
 let nextCacheSweepAt = Date.now() + CACHE_SWEEP_INTERVAL_MS;
 
@@ -247,9 +244,7 @@ function sweepExpiredEntries<TEntry extends ExpiringCacheEntry>(
 function maybeSweepExpiredCaches(now = Date.now()) {
   if (now < nextCacheSweepAt) return;
 
-  sweepExpiredEntries(countriesCache, now);
   sweepExpiredEntries(interestsCache, now);
-  sweepExpiredEntries(citiesCache, now);
   sweepExpiredEntries(onboardingStateCache, now);
 
   nextCacheSweepAt = now + CACHE_SWEEP_INTERVAL_MS;
@@ -327,7 +322,10 @@ function setCachedOnboardingState(key: string, state: OnboardingState) {
     expiresAt: now + ONBOARDING_STATE_CACHE_TTL_MS,
   });
 
-  trimCacheToMaxEntries(onboardingStateCache, ONBOARDING_STATE_CACHE_MAX_ENTRIES);
+  trimCacheToMaxEntries(
+    onboardingStateCache,
+    ONBOARDING_STATE_CACHE_MAX_ENTRIES,
+  );
 }
 
 function extractOptionItems(
@@ -481,9 +479,7 @@ export function onboardingPathForStep(step: number) {
 }
 
 export function destinationFromOnboardingState(state: OnboardingState) {
-  return state.completed
-    ? "/home"
-    : onboardingPathForStep(state.currentStep);
+  return state.completed ? "/home" : onboardingPathForStep(state.currentStep);
 }
 
 export async function getOnboardingState(
@@ -543,20 +539,11 @@ export async function getOnboardingStateWithToken(
 export async function getCountries(
   request: Request,
 ): Promise<ApiResult<OnboardingOption[]>> {
-  const key = await userCacheKey(request);
-  const cached = getCachedOptions(countriesCache, key);
-
-  if (cached) {
-    return { data: cached };
-  }
-
   const result = await apiRequestWithSession<OptionContainer>(
     request,
     "/onboarding/locations/countries",
   );
   const data = normalizeOptions(result.data, "countries");
-
-  setCachedOptions(countriesCache, key, data);
 
   return {
     data,
@@ -569,20 +556,11 @@ export async function getCities(request: Request, countryId: string) {
     throw new Error("countryId is required");
   }
 
-  const key = `${await userCacheKey(request)}:${countryId}`;
-  const cached = getCachedOptions(citiesCache, key);
-
-  if (cached) {
-    return { data: cached };
-  }
-
   const result = await apiRequestWithSession<OptionContainer>(
     request,
     `/onboarding/locations/cities?countryId=${encodeURIComponent(countryId)}`,
   );
   const data = normalizeOptions(result.data, "cities");
-
-  setCachedOptions(citiesCache, key, data, CITIES_CACHE_MAX_ENTRIES);
 
   return {
     data,

@@ -10,6 +10,7 @@ interface LaunchpadContactDetailCardProps {
   telegramUsername: string;
   emailError?: string;
   phoneNumberError?: string;
+  telegramUsernameError?: string;
   onEmailChange: (value: string) => void;
   onPhoneNumberChange: (value: string) => void;
   onTelegramUsernameChange: (value: string) => void;
@@ -21,12 +22,14 @@ export default function LaunchpadContactDetailCard({
   telegramUsername,
   emailError,
   phoneNumberError,
+  telegramUsernameError,
   onEmailChange,
   onPhoneNumberChange,
   onTelegramUsernameChange,
 }: LaunchpadContactDetailCardProps) {
   const emailErrorId = useId();
   const phoneErrorId = useId();
+  const telegramErrorId = useId();
 
   return (
     <SectionInputCard
@@ -79,8 +82,15 @@ export default function LaunchpadContactDetailCard({
           value={telegramUsername}
           onChange={(event) => onTelegramUsernameChange(event.target.value)}
           placeholder="@username"
+          aria-invalid={Boolean(telegramUsernameError)}
+          aria-describedby={telegramUsernameError ? telegramErrorId : undefined}
           className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
         />
+        {telegramUsernameError ? (
+          <p id={telegramErrorId} className="text-xs text-red-500">
+            {telegramUsernameError}
+          </p>
+        ) : null}
       </div>
     </SectionInputCard>
   );
