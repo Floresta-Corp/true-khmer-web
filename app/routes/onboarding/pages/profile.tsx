@@ -8,9 +8,9 @@ import {
   data,
   redirect,
 } from "react-router";
-import { OnboardingHeader } from "~/routes/onboarding/components/onboarding-header";
 import { OnboardingBackContinueActions } from "~/routes/onboarding/components/onboarding-back-continue-actions";
 import { OnboardingFormError } from "~/routes/onboarding/components/onboarding-form-error";
+import { OnboardingPageShell } from "~/routes/onboarding/components/onboarding-page-shell";
 import { OnboardingRomdoulCorners } from "~/routes/onboarding/components/onboarding-romdoul-corners";
 import { OnboardingStepIntro } from "~/routes/onboarding/components/onboarding-step-intro";
 import { ProfilePhotoUpload } from "~/routes/onboarding/components/profile-photo-upload";
@@ -259,181 +259,174 @@ export default function OnboardingProfilePage() {
   }
 
   return (
-    <div className="min-h-screen overflow-hidden bg-white text-[#111827]">
-      <OnboardingHeader
-        title="Profile"
-        rightText="Skip this step"
-        rightTo="/onboarding/interest"
-      />
+    <OnboardingPageShell
+      headerTitle="Profile"
+      headerRightText="Skip this step"
+      headerRightTo="/onboarding/interest"
+      mainClassName="items-center px-6 py-8 sm:px-10 md:px-16 lg:px-24 xl:px-80 xl:py-10"
+    >
+      <OnboardingRomdoulCorners />
 
-      <main className="relative flex min-h-[calc(100vh-60px)] items-start justify-center overflow-hidden bg-white px-6 py-8 font-['Inter'] sm:px-10 md:px-16 lg:px-24 xl:px-80 xl:py-10">
-        <OnboardingRomdoulCorners />
+      <Form
+        method="post"
+        className="relative z-10 flex w-full max-w-lg flex-col gap-10 py-6"
+      >
+        <input type="hidden" name="countryId" value={selectedCountryId} />
+        <input type="hidden" name="cityId" value={selectedCityId} />
+        <input type="hidden" name="avatarKey" value={avatarKey} />
+        <input
+          type="hidden"
+          name="initialCountryId"
+          value={savedProfile.countryId}
+        />
+        <input type="hidden" name="initialCityId" value={savedProfile.cityId} />
+        <input type="hidden" name="initialBio" value={savedProfile.bio} />
+        <input
+          type="hidden"
+          name="initialAvatarKey"
+          value={savedProfile.avatarKey}
+        />
 
-        <Form
-          method="post"
-          className="relative z-10 flex w-full max-w-lg flex-col gap-10 py-6"
-        >
-          <input type="hidden" name="countryId" value={selectedCountryId} />
-          <input type="hidden" name="cityId" value={selectedCityId} />
-          <input type="hidden" name="avatarKey" value={avatarKey} />
-          <input
-            type="hidden"
-            name="initialCountryId"
-            value={savedProfile.countryId}
+        <OnboardingStepIntro
+          currentStep={1}
+          totalSteps={4}
+          stepLabel="Your Identity"
+          stepBadgeClassName="rounded-full border border-black/10 px-3.75 py-2"
+          stepTextClassName="text-xs uppercase tracking-widest text-[#2F6FE4]"
+          titleClassName="text-[26.25px] font-semibold leading-[31.5px] tracking-[-0.6563px] text-[#030213]"
+          title={
+            <>
+              Build your <span className="text-[#2894FA]">profile</span>
+            </>
+          }
+          description="This is how the community sees you."
+          descriptionClassName="text-sm font-medium leading-5 text-[#99A1AF]"
+        />
+
+        <div className="tk-fade-up-1 space-y-10">
+          <ProfilePhotoUpload
+            avatarPreviewUrl={avatarPreviewUrl}
+            placeholderInitials={placeholderInitials}
+            isUploading={isUploading}
+            uploadProgress={uploadProgress}
+            avatarKey={avatarKey}
+            uploadError={uploadError}
+            onAvatarChange={handleAvatarChange}
           />
-          <input
-            type="hidden"
-            name="initialCityId"
-            value={savedProfile.cityId}
-          />
-          <input type="hidden" name="initialBio" value={savedProfile.bio} />
-          <input
-            type="hidden"
-            name="initialAvatarKey"
-            value={savedProfile.avatarKey}
-          />
 
-          <OnboardingStepIntro
-            currentStep={1}
-            totalSteps={4}
-            stepLabel="Your Identity"
-            stepBadgeClassName="rounded-full border border-black/10 px-3.75 py-2"
-            stepTextClassName="text-xs uppercase tracking-widest text-[#2F6FE4]"
-            titleClassName="text-[26.25px] font-semibold leading-[31.5px] tracking-[-0.6563px] text-[#030213]"
-            title={
-              <>
-                Build your <span className="text-[#2894FA]">profile</span>
-              </>
-            }
-            description="This is how the community sees you."
-            descriptionClassName="text-sm font-medium leading-5 text-[#99A1AF]"
-          />
-
-          <div className="tk-fade-up-1 space-y-10">
-            <ProfilePhotoUpload
-              avatarPreviewUrl={avatarPreviewUrl}
-              placeholderInitials={placeholderInitials}
-              isUploading={isUploading}
-              uploadProgress={uploadProgress}
-              avatarKey={avatarKey}
-              uploadError={uploadError}
-              onAvatarChange={handleAvatarChange}
-            />
-
-            <div className="space-y-5">
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="onboarding-country-trigger"
-                    className="text-sm font-bold leading-5.25 text-[#364153]"
-                  >
-                    Country
-                  </Label>
-                  <SingleSelectDropdown
-                    id="onboarding-country"
-                    value={selectedCountryId}
-                    onValueChange={handleCountryChange}
-                    options={countryOptions}
-                    placeholder="Select country"
-                    searchable
-                    allowClear
-                    clearLabel="Select country"
-                    emptyText="No countries found"
-                    triggerClassName="text-sm font-medium text-[#65758B]"
-                    contentClassName="rounded-xl p-2"
-                  />
-                  {actionData?.errors?.countryId ? (
-                    <p className="text-xs text-red-500">
-                      {actionData.errors.countryId}
-                    </p>
-                  ) : null}
-                </div>
-
-                <div className="space-y-3">
-                  <Label
-                    htmlFor="onboarding-city-trigger"
-                    className="text-sm font-bold leading-5.25 text-[#364153]"
-                  >
-                    City/State
-                  </Label>
-                  <SingleSelectDropdown
-                    id="onboarding-city"
-                    value={selectedCityId}
-                    onValueChange={(nextCityId) =>
-                      setProfileForm((current) => ({
-                        ...current,
-                        cityId: nextCityId,
-                      }))
-                    }
-                    options={citySelectOptions}
-                    placeholder={
-                      selectedCountryId ? "Select city" : "Select country first"
-                    }
-                    disabled={!selectedCountryId}
-                    loading={citiesFetcher.state === "loading"}
-                    searchable
-                    emptyText={
-                      selectedCountryId
-                        ? "No cities found"
-                        : "Select country first"
-                    }
-                    triggerClassName="text-sm font-medium text-[#65758B]"
-                    contentClassName="rounded-xl p-2"
-                  />
-                  {actionData?.errors?.cityId ? (
-                    <p className="text-xs text-red-500">
-                      {actionData.errors.cityId}
-                    </p>
-                  ) : null}
-                </div>
+          <div className="space-y-5">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div className="space-y-3">
+                <Label
+                  htmlFor="onboarding-country-trigger"
+                  className="text-sm font-bold leading-5.25 text-[#364153]"
+                >
+                  Country
+                </Label>
+                <SingleSelectDropdown
+                  id="onboarding-country"
+                  value={selectedCountryId}
+                  onValueChange={handleCountryChange}
+                  options={countryOptions}
+                  placeholder="Select country"
+                  searchable
+                  allowClear
+                  clearLabel="Select country"
+                  emptyText="No countries found"
+                  triggerClassName="text-sm font-medium text-[#65758B]"
+                  contentClassName="rounded-xl p-2"
+                />
+                {actionData?.errors?.countryId ? (
+                  <p className="text-xs text-red-500">
+                    {actionData.errors.countryId}
+                  </p>
+                ) : null}
               </div>
-
-              {countriesError ? (
-                <p className="text-xs text-red-500">{countriesError}</p>
-              ) : null}
-
-              {citiesError ? (
-                <p className="text-xs text-red-500">{citiesError}</p>
-              ) : null}
 
               <div className="space-y-3">
                 <Label
-                  htmlFor="onboarding-profile-bio"
-                  className="text-sm leading-5.25 text-[#364153]"
+                  htmlFor="onboarding-city-trigger"
+                  className="text-sm font-bold leading-5.25 text-[#364153]"
                 >
-                  <span className="font-bold">Short Bio</span>{" "}
-                  <span className="font-normal">(optional)</span>
+                  City/State
                 </Label>
-                <Textarea
-                  id="onboarding-profile-bio"
-                  name="bio"
-                  value={profileForm.bio}
-                  onChange={(event) =>
+                <SingleSelectDropdown
+                  id="onboarding-city"
+                  value={selectedCityId}
+                  onValueChange={(nextCityId) =>
                     setProfileForm((current) => ({
                       ...current,
-                      bio: event.target.value,
+                      cityId: nextCityId,
                     }))
                   }
-                  rows={3}
-                  className="h-20 w-full resize-none rounded-md border-transparent bg-[#F1F5F980] px-3 py-2 text-sm font-normal leading-5 text-[#62748E] placeholder:text-[#94A3B8] focus-visible:border-[#2F6FE4]/40 focus-visible:ring-[#2F6FE4]/20"
-                  placeholder="Tell the community a little about yourself - what you do, what you care about, what you're building..."
+                  options={citySelectOptions}
+                  placeholder={
+                    selectedCountryId ? "Select city" : "Select country first"
+                  }
+                  disabled={!selectedCountryId}
+                  loading={citiesFetcher.state === "loading"}
+                  searchable
+                  emptyText={
+                    selectedCountryId
+                      ? "No cities found"
+                      : "Select country first"
+                  }
+                  triggerClassName="text-sm font-medium text-[#65758B]"
+                  contentClassName="rounded-xl p-2"
                 />
+                {actionData?.errors?.cityId ? (
+                  <p className="text-xs text-red-500">
+                    {actionData.errors.cityId}
+                  </p>
+                ) : null}
               </div>
             </div>
 
-            <OnboardingFormError
-              message={actionData?.errors?.form}
-              preserveLineBreaks
-            />
+            {countriesError ? (
+              <p className="text-xs text-red-500">{countriesError}</p>
+            ) : null}
+
+            {citiesError ? (
+              <p className="text-xs text-red-500">{citiesError}</p>
+            ) : null}
+
+            <div className="space-y-3">
+              <Label
+                htmlFor="onboarding-profile-bio"
+                className="text-sm leading-5.25 text-[#364153]"
+              >
+                <span className="font-bold">Short Bio</span>{" "}
+                <span className="font-normal">(optional)</span>
+              </Label>
+              <Textarea
+                id="onboarding-profile-bio"
+                name="bio"
+                value={profileForm.bio}
+                onChange={(event) =>
+                  setProfileForm((current) => ({
+                    ...current,
+                    bio: event.target.value,
+                  }))
+                }
+                rows={3}
+                className="h-20 w-full resize-none rounded-md border-transparent bg-[#F1F5F980] px-3 py-2 text-sm font-normal leading-5 text-[#62748E] placeholder:text-[#94A3B8] focus-visible:border-[#2F6FE4]/40 focus-visible:ring-[#2F6FE4]/20"
+                placeholder="Tell the community a little about yourself - what you do, what you care about, what you're building..."
+              />
+            </div>
           </div>
 
-          <OnboardingBackContinueActions
-            backTo="/onboarding"
-            continueDisabled={!canContinue || isSubmitting}
-            containerClassName="tk-fade-up-2"
+          <OnboardingFormError
+            message={actionData?.errors?.form}
+            preserveLineBreaks
           />
-        </Form>
-      </main>
-    </div>
+        </div>
+
+        <OnboardingBackContinueActions
+          backTo="/onboarding"
+          continueDisabled={!canContinue || isSubmitting}
+          containerClassName="tk-fade-up-2"
+        />
+      </Form>
+    </OnboardingPageShell>
   );
 }

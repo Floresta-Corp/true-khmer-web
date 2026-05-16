@@ -6,7 +6,7 @@ const contributionCardBaseClassName =
   "h-auto w-full cursor-pointer items-stretch justify-start whitespace-normal rounded-2xl border border-slate-200 bg-white p-4 text-left text-slate-700 shadow-sm transition-colors hover:border-slate-300 hover:bg-white hover:text-slate-700 motion-reduce:transition-none";
 
 const contributionCardSelectedClassName =
-  "border-blue-300 bg-blue-50 ring-1 ring-inset ring-blue-300/40";
+  "border-blue-300 bg-blue-50 ring-1 ring-inset ring-blue-300/40 hover:border-blue-400 hover:bg-blue-100 hover:text-slate-700 hover:ring-blue-400/60";
 
 type SelectableContributionCardProps = {
   title: string;
