@@ -106,7 +106,7 @@ export default function ManagePostFilters() {
 
               {activeType === tab.value && (
                 <motion.div
-                  layoutId="activeTabBackground"
+                  layoutId="applicantsActiveTab"
                   className="absolute inset-0 bg-white dark:bg-slate-800 rounded-lg shadow-sm z-10"
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />

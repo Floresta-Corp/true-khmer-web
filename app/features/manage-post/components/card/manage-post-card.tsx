@@ -21,6 +21,7 @@ const TYPE_STYLES: Record<SourceType, string> = {
   PROJECT: "bg-purple-100 text-purple-700 border-purple-200",
   VOLUNTEER: "bg-pink-100 text-pink-700 border-pink-200",
 };
+
 type Props = {
   posting: ManagePost;
   index: number;
@@ -69,7 +70,10 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
         </div>
 
         <div className="grow space-y-2 mt-2 pr-6">
-          <Link to={`/manage-post/${posting.id}`} className="block">
+          <Link
+            to={`/manage-post/${posting.sourceType.toLowerCase()}/${posting.id}`}
+            className="block"
+          >
             <h3 className="text-lg sm:text-xl font-bold text-slate-800 leading-tight hover:text-blue-600 transition-colors line-clamp-1 sm:line-clamp-2">
               {posting.title}
             </h3>

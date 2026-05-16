@@ -5,18 +5,40 @@ import {
   Users,
   ClipboardClock,
 } from "lucide-react";
-import type { PostingDetail } from "../data/manage-post-detail-type";
+import { useFetchers, useLoaderData } from "react-router";
+import type { loader } from "../../routes/manage-post.$sourceType.$id";
+import { useEffect, useRef } from "react";
 
-type Props = {
-  detail: PostingDetail;
-};
+export default function ManagePostingDetailStats() {
+  const { postDetail } = useLoaderData<typeof loader>();
+  const fetchers = useFetchers();
 
-export default function ManagePostingDetailStats({ detail }: Props) {
-  const { pending, totalApplicants, recruitmentGoal } = detail;
+  const recruited = postDetail?.stats?.recruited ?? 0;
+  const capacity = postDetail?.posting?.capacity ?? 0;
+
+  // Track a local "floor" so the count never drops below what we've approved
+  const localApprovedRef = useRef(recruited);
+
+  // In-flight approvals
+  const pendingApprovals = fetchers.filter(
+    (f) => f.state !== "idle" && f.formData?.get("statusAction") === "approve",
+  ).length;
+
+  // Once loader revalidates with a higher number, update our floor
+  useEffect(() => {
+    if (recruited > localApprovedRef.current) {
+      localApprovedRef.current = recruited;
+    }
+  }, [recruited]);
+
+  // Use whichever is higher: server value, our local floor, or optimistic
+  const optimisticRecruited = Math.min(
+    Math.max(recruited, localApprovedRef.current) + pendingApprovals,
+    capacity,
+  );
+
   const progress = Math.min(
-    recruitmentGoal.target > 0
-      ? Math.round((recruitmentGoal.current / recruitmentGoal.target) * 100)
-      : 0,
+    capacity > 0 ? Math.round((optimisticRecruited / capacity) * 100) : 0,
     100,
   );
 
@@ -26,10 +48,10 @@ export default function ManagePostingDetailStats({ detail }: Props) {
       <div className="bg-white rounded-[24px] border border-gray-100 p-6 flex justify-between items-start relative overflow-hidden h-40 shadow-sm">
         <div className="relative z-20">
           <p className="text-md font-bold text-gray-400 uppercase tracking-[0.15em] mb-4">
-            Pending
+            {postDetail?.posting?.status}
           </p>
           <p className="text-4xl font-bold text-gray-900 tracking-tight">
-            {pending}
+            {postDetail?.stats?.totalApplicants}
           </p>
         </div>
         <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-400 relative z-20">
@@ -48,7 +70,7 @@ export default function ManagePostingDetailStats({ detail }: Props) {
             Total Applicants
           </p>
           <p className="text-4xl font-bold text-white tracking-tight">
-            {totalApplicants}
+            {postDetail?.stats?.recruited}
           </p>
         </div>
         <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white relative z-20">
@@ -63,7 +85,7 @@ export default function ManagePostingDetailStats({ detail }: Props) {
             strokeWidth={2}
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/0 via-blue-600/0 to-black/5 z-10 pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-br from-blue-600/0 via-blue-600/0 to-black/5 z-10 pointer-events-none" />
       </div>
 
       {/* 3. Recruitment Goal Card */}
@@ -73,13 +95,13 @@ export default function ManagePostingDetailStats({ detail }: Props) {
             Recruitment Goal
           </p>
           <p className="text-4xl font-bold text-slate-800 mb-5 tracking-tighter">
-            {recruitmentGoal.current}{" "}
-            <span className="text-slate-300 font-light mx-0.5">/</span>{" "}
-            <span className="text-slate-400">{recruitmentGoal.target}</span>
+            {optimisticRecruited}
+            <span className="text-slate-300 font-light mx-0.5">/</span>
+            <span className="text-slate-400">{capacity}</span>
           </p>
           <div className="w-full bg-slate-100 rounded-full h-2 relative overflow-hidden">
             <div
-              className="bg-blue-600 h-full rounded-full transition-all duration-700 ease-out shadow-[0_0_8px_rgba(37,99,235,0.3)]"
+              className="bg-blue-600 h-full rounded-full  duration-700 "
               style={{ width: `${progress}%` }}
             />
           </div>

@@ -1,8 +1,7 @@
-import { useParams } from "react-router";
+import { useLoaderData } from "react-router";
 import { Clock, Pencil, Share2 } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import { MOCK_POSTING_DETAIL } from "../components/data/manage-post-detail-data";
 
 import {
   Breadcrumb,
@@ -12,12 +11,14 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
-import ManagePostingDetailStats from "../components/section/posting-detail-stats";
-import ManagePostingDetailTable from "../components/section/posting-detail-table";
+import type { loader } from "../../routes/manage-post.$sourceType.$id";
+import ManagePostingDetailStats from "../section/posting-detail-stats";
+import ManagePostingDetailTable from "../section/posting-detail-table";
+import { formatDate } from "~/features/events/lib/event-formatters";
+import type { PostingType } from "~/services/manage-post/types";
 
 export default function PostingDetailPage() {
-  const { id } = useParams();
-  const detail = MOCK_POSTING_DETAIL;
+  const { postDetail, pagination, userId } = useLoaderData<typeof loader>();
 
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-10 lg:py-12">
@@ -32,7 +33,7 @@ export default function PostingDetailPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>{detail.title}</BreadcrumbPage>
+              <BreadcrumbPage>{postDetail?.posting?.title}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -42,15 +43,15 @@ export default function PostingDetailPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold text-gray-900 mb-1.5">
-            {detail.title}
+            {postDetail?.posting?.title}
           </h1>
           <div className="flex items-center gap-2 mt-2.5">
             <Clock size={13} className="text-gray-400" />
             <span className="text-sm text-gray-400">
-              Posted {detail.postedAgo}
+              Posted {formatDate(postDetail?.posting.createdAt ?? "-")}
             </span>
             <Badge className="bg-green-100 text-green-700 border-green-200 capitalize text-xs font-medium ml-1">
-              {detail.status}
+              {postDetail?.posting.status}
             </Badge>
           </div>
         </div>
@@ -71,11 +72,15 @@ export default function PostingDetailPage() {
 
       <div className="mt-8">
         {/* Stats */}
-        <ManagePostingDetailStats detail={detail} />
+        <ManagePostingDetailStats />
       </div>
 
       {/* Table */}
-      <ManagePostingDetailTable applicants={detail.applicants} />
+      <ManagePostingDetailTable
+        applicants={postDetail?.applicants ?? []}
+        postingId={postDetail?.posting.id ?? ""}
+        sourceType={(postDetail?.posting.sourceType ?? "") as PostingType}
+      />
     </div>
   );
 }
