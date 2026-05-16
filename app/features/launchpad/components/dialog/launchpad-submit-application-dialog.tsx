@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { useFetcher, useNavigate } from "react-router";
 import { CheckCircle2, FileText, Globe, User, X } from "lucide-react";
+import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -12,9 +13,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import { Input } from "~/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "~/components/ui/input-group";
 import { Separator } from "~/components/ui/separator";
 import { SelectOption } from "~/components/ui/select-option";
+import { Textarea } from "~/components/ui/textarea";
 
 interface LaunchpadSubmitApplicationDialogProps {
   trigger: ReactNode;
@@ -26,7 +32,99 @@ interface LaunchpadSubmitApplicationDialogProps {
 
 interface ApplyFetcherData {
   success?: boolean;
-  error?: string;
+  error?: string | { name?: string; message?: string };
+}
+
+const launchpadApplicationSchema = z.object({
+  motivation: z
+    .string()
+    .trim()
+    .min(5, "Please type at least 5 characters.")
+    .max(2000, "Motivation must be 2000 characters or fewer."),
+  portfolioUrl: z
+    .string()
+    .trim()
+    .max(255, "Portfolio URL must be 255 characters or fewer.")
+    .superRefine((value, context) => {
+      if (!value) {
+        return;
+      }
+
+      try {
+        const url = new URL(value);
+        if (url.protocol !== "https:") {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Portfolio must use HTTPS.",
+          });
+        }
+      } catch {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Please enter a valid URL that starts with https://.",
+        });
+      }
+    }),
+});
+
+type LaunchpadApplicationErrors = Partial<
+  Record<keyof z.infer<typeof launchpadApplicationSchema>, string>
+>;
+
+function getErrorMessage(error: ApplyFetcherData["error"]): string {
+  if (!error) {
+    return "";
+  }
+
+  if (typeof error === "string") {
+    return error;
+  }
+
+  const message = error.message;
+  if (!message) {
+    return error.name ?? "";
+  }
+
+  try {
+    const parsed = JSON.parse(message);
+
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      const firstIssue = parsed[0];
+      if (firstIssue && typeof firstIssue.message === "string") {
+        return firstIssue.message;
+      }
+    }
+  } catch {
+    // Fall back to the raw message if it is not JSON.
+  }
+
+  return message;
+}
+
+function getLaunchpadApplicationErrors(values: {
+  motivation: string;
+  portfolioUrl: string;
+}): LaunchpadApplicationErrors {
+  const parsed = launchpadApplicationSchema.safeParse(values);
+  if (parsed.success) {
+    return {};
+  }
+
+  const errors: LaunchpadApplicationErrors = {};
+
+  for (const issue of parsed.error.issues) {
+    const field = issue.path[0];
+
+    if (field === "motivation" && !errors.motivation) {
+      errors.motivation = issue.message;
+    }
+
+    if (field === "portfolioUrl" && !errors.portfolioUrl) {
+      errors.portfolioUrl = issue.message;
+    }
+  }
+
+  return errors;
 }
 
 export default function LaunchpadSubmitApplicationDialog({
@@ -54,6 +152,9 @@ export default function LaunchpadSubmitApplicationDialog({
   }, [selectedRoleId, roles]);
   const [motivation, setMotivation] = useState("");
   const [portfolioUrl, setPortfolioUrl] = useState("");
+  const [clientErrors, setClientErrors] = useState<LaunchpadApplicationErrors>(
+    {},
+  );
   const [documents, setDocuments] = useState<File[]>([]);
   const [open, setOpen] = useState(false);
   const [justSubmitted, setJustSubmitted] = useState(false);
@@ -61,9 +162,11 @@ export default function LaunchpadSubmitApplicationDialog({
   const selectedRole = roles.find((r) => r.id === roleId);
   const isSubmitting = fetcher.state !== "idle";
   const isSuccess = justSubmitted || fetcher.data?.success === true;
-  const errorMessage = fetcher.data?.error;
-  const motivationLength = motivation.trim().length;
-  const showMotivationWarning = motivationLength > 0 && motivationLength < 5;
+  const errorMessage = getErrorMessage(fetcher.data?.error);
+  const isFormValid = launchpadApplicationSchema.safeParse({
+    motivation,
+    portfolioUrl,
+  }).success;
 
   useEffect(() => {
     if (fetcher.data?.success) {
@@ -82,6 +185,16 @@ export default function LaunchpadSubmitApplicationDialog({
       setJustSubmitted(false);
     }
   }, [open]);
+
+  function validateCurrentValues(nextValues?: {
+    motivation: string;
+    portfolioUrl: string;
+  }) {
+    const values = nextValues ?? { motivation, portfolioUrl };
+    const errors = getLaunchpadApplicationErrors(values);
+    setClientErrors(errors);
+    return errors;
+  }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
@@ -111,6 +224,12 @@ export default function LaunchpadSubmitApplicationDialog({
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    const errors = validateCurrentValues();
+    if (Object.keys(errors).length > 0) {
+      return;
+    }
+
     const formData = new FormData();
     formData.set("launchpadId", launchpadId);
     formData.set("launchpadRoleId", roleId);
@@ -133,6 +252,7 @@ export default function LaunchpadSubmitApplicationDialog({
     if (!next) {
       setMotivation("");
       setPortfolioUrl("");
+      setClientErrors({});
       setDocuments([]);
       setRoleId(selectedRoleId ?? roleOptions[0]?.id ?? "");
       setJustSubmitted(false);
@@ -210,18 +330,31 @@ export default function LaunchpadSubmitApplicationDialog({
                 <p className="text-xs leading-4.5 font-medium text-[#364153]">
                   Why do you want to join this project?
                 </p>
-                <textarea
+                <Textarea
                   value={motivation}
-                  onChange={(e) => setMotivation(e.target.value.slice(0, 2000))}
+                  onChange={(e) => {
+                    const nextValue = e.target.value.slice(0, 2000);
+                    setMotivation(nextValue);
+                    if (clientErrors.motivation) {
+                      setClientErrors((previous) => ({
+                        ...previous,
+                        motivation: getLaunchpadApplicationErrors({
+                          motivation: nextValue,
+                          portfolioUrl,
+                        }).motivation,
+                      }));
+                    }
+                  }}
+                  onBlur={() => validateCurrentValues()}
                   placeholder="Share what excites you about this project and what you bring to the team."
                   required
-                  minLength={5}
                   rows={3}
+                  aria-invalid={Boolean(clientErrors.motivation)}
                   className="w-full resize-none rounded-lg border-0 bg-[#F8FAFC] px-3 py-2.5 text-xs text-[#344256] outline-none placeholder:text-[#9EACC0] focus:ring-0"
                 />
-                {showMotivationWarning && (
+                {clientErrors.motivation && (
                   <p className="text-xs text-red-500">
-                    Please type at least 5 characters.
+                    {clientErrors.motivation}
                   </p>
                 )}
               </div>
@@ -230,18 +363,39 @@ export default function LaunchpadSubmitApplicationDialog({
                 <p className="text-xs leading-4.5 font-medium text-[#364153]">
                   Portfolio
                 </p>
-                <div className="flex h-11 items-center gap-2 rounded-lg bg-[#F8FAFC] px-3">
-                  <Globe className="size-4 shrink-0 text-[#9EACC0]" />
-                  <Input
+                <InputGroup className="h-11 rounded-lg bg-[#F8FAFC]">
+                  <InputGroupAddon>
+                    <Globe className="size-4 shrink-0 text-[#9EACC0]" />
+                  </InputGroupAddon>
+                  <InputGroupInput
                     type="url"
                     value={portfolioUrl}
-                    onChange={(e) =>
-                      setPortfolioUrl(e.target.value.slice(0, 255))
-                    }
+                    onChange={(e) => {
+                      const nextValue = (
+                        e.target as HTMLInputElement
+                      ).value.slice(0, 255);
+                      setPortfolioUrl(nextValue);
+                      if (clientErrors.portfolioUrl) {
+                        setClientErrors((previous) => ({
+                          ...previous,
+                          portfolioUrl: getLaunchpadApplicationErrors({
+                            motivation,
+                            portfolioUrl: nextValue,
+                          }).portfolioUrl,
+                        }));
+                      }
+                    }}
+                    onBlur={() => validateCurrentValues()}
+                    aria-invalid={Boolean(clientErrors.portfolioUrl)}
                     placeholder="https://..."
-                    className="h-full border-0 bg-transparent p-0 text-xs text-[#344256] shadow-none placeholder:text-xs placeholder:text-[#9EACC0] focus-visible:ring-0"
+                    className="h-full bg-transparent p-0 text-xs text-[#344256] placeholder:text-[#9EACC0] focus-visible:ring-0"
                   />
-                </div>
+                </InputGroup>
+                {clientErrors.portfolioUrl && (
+                  <p className="text-xs text-red-500">
+                    {clientErrors.portfolioUrl}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -314,7 +468,7 @@ export default function LaunchpadSubmitApplicationDialog({
                 </DialogClose>
                 <Button
                   type="submit"
-                  disabled={isSubmitting || !roleId || motivationLength < 5}
+                  disabled={isSubmitting || !roleId || !isFormValid}
                   className="h-10 rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white hover:bg-[#245cc2] disabled:opacity-50"
                 >
                   {isSubmitting ? "Submitting…" : "Submit application"}
