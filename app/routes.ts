@@ -84,4 +84,5 @@ export default [
     "routes/api/api.uploads.avatar.presign.tsx",
   ),
   route("api/me", "routes/api/api.me.tsx"),
+  route("api/launchpad/apply", "routes/api/api.launchpad.apply.ts"),
 ] satisfies RouteConfig;

@@ -69,6 +69,8 @@ export default function LaunchpadJoinProjectCard({
       </div>
 
       <LaunchpadSubmitApplicationDialog
+        launchpadId={project.id}
+        launchpadName={project.name}
         selectedRoleId={selectedRoleId}
         roles={project.roles}
         trigger={
