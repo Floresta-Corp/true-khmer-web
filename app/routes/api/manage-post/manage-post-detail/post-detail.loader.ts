@@ -46,14 +46,7 @@ export async function managePostDetailLoader({
   const sourceType = sourceTypeResult.data;
 
   const rangeType = url.searchParams.get("range");
-  const rangeResult = rangeType
-    ? PostingApplicantRange.safeParse(rangeType)
-    : null;
-
-  const type =
-    rangeResult?.success && rangeResult.data !== "all_time"
-      ? rangeResult.data
-      : undefined;
+  const range = PostingApplicantRange.safeParse(rangeType).data ?? "all_time";
 
   const pageParam = url.searchParams.get("page");
   const page = pageParam
@@ -64,7 +57,7 @@ export async function managePostDetailLoader({
     request,
     {
       search: url.searchParams.get("search") ?? undefined,
-      range: type,
+      range,
       page,
     },
     sourceType,
@@ -73,7 +66,7 @@ export async function managePostDetailLoader({
 
   return {
     postDetail: result?.data?.detail ?? null,
-    pagination: result?.data?.detail.pagination ?? null,
+    pagination: result?.data?.detail?.pagination ?? null,
     userId,
   } satisfies ManagePostDetailLoaderData;
 }

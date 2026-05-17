@@ -42,6 +42,7 @@ export default function ApplicantStatusChangeButton({
   const isServerFinalized = [
     "APPROVED",
     "CONFIRMED",
+    "COMPLETED",
     "DECLINED",
     "WITHDRAWN",
   ].includes(applicant?.status?.toUpperCase());

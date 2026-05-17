@@ -18,7 +18,7 @@ import { formatDate } from "~/features/events/lib/event-formatters";
 import type { PostingType } from "~/services/manage-post/types";
 
 export default function PostingDetailPage() {
-  const { postDetail, pagination, userId } = useLoaderData<typeof loader>();
+  const { postDetail } = useLoaderData<typeof loader>();
 
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-10 lg:py-12">
@@ -50,7 +50,7 @@ export default function PostingDetailPage() {
             <span className="text-sm text-gray-400">
               Posted {formatDate(postDetail?.posting.createdAt ?? "-")}
             </span>
-            <Badge className="bg-green-100 text-green-700 border-green-200 capitalize text-xs font-medium ml-1">
+            <Badge className="bg-green-100 text-green-700 border-green-200 hover:bg-gray-100 capitalize text-xs font-medium ml-1">
               {postDetail?.posting.status}
             </Badge>
           </div>

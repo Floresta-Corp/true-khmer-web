@@ -1,5 +1,5 @@
 import { useFetcher, useSearchParams } from "react-router";
-import { Send, Mail, MoreVertical } from "lucide-react";
+import { Send, Mail, MoreVertical, Phone } from "lucide-react";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -30,10 +30,11 @@ function isValidTab(value: string | null): value is RangeType {
 }
 
 const STATUS_STYLES: Record<ApplicantStatusAction, string> = {
-  approve: "bg-green-100 text-green-700 border-green-200",
-  decline: "bg-red-100 text-red-700 border-red-200",
-  submitted: "bg-amber-100 text-amber-700 border-amber-200",
-  under_review: "bg-purple-100 text-purple-700 border-purple-200",
+  approve: "bg-green-100 text-green-700 border-green-200 hover:bg-gray-100",
+  decline: "bg-red-100 text-red-700 border-red-200 hover:bg-gray-100",
+  submitted: "bg-amber-100 text-amber-700 border-amber-200 hover:bg-gray-100",
+  under_review:
+    "bg-purple-100 text-purple-700 border-purple-200 hover:bg-gray-100",
 };
 
 const STATUS_LABELS: Record<ApplicantStatusAction, string> = {
@@ -70,11 +71,6 @@ export default function ManagePostingDetailTable({
   const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(
     null,
   );
-
-  const [searchParams] = useSearchParams();
-  const rawType = searchParams.get("range");
-  const activeType = isValidTab(rawType) ? rawType : "all_time";
-  const searchQuery = searchParams.get("search") ?? "";
   const fetcher = useFetcher();
 
   const getDisplayStatus = (applicant: Applicant): ApplicantStatusAction => {
@@ -98,35 +94,7 @@ export default function ManagePostingDetailTable({
       fetcher.submit(formData, { method: "POST" });
     }
   };
-  const filteredApplicants = (applicants ?? []).filter((applicant) => {
-    const appliedAt = new Date(applicant.appliedAt);
-    const now = new Date();
 
-    if (activeType === "today") {
-      const isToday =
-        appliedAt.getDate() === now.getDate() &&
-        appliedAt.getMonth() === now.getMonth() &&
-        appliedAt.getFullYear() === now.getFullYear();
-      if (!isToday) return false;
-    }
-
-    if (activeType === "this_week") {
-      const startOfWeek = new Date(now);
-      startOfWeek.setDate(now.getDate() - now.getDay());
-      startOfWeek.setHours(0, 0, 0, 0);
-      if (appliedAt < startOfWeek) return false;
-    }
-
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const matchesName = applicant.candidate.name?.toLowerCase().includes(q);
-      const matchesEmail = applicant.candidate.email?.toLowerCase().includes(q);
-      const matchesRole = applicant.role.title?.toLowerCase().includes(q);
-      if (!matchesName && !matchesEmail && !matchesRole) return false;
-    }
-
-    return true;
-  });
   const syncedApplicant = selectedApplicant
     ? (applicants.find((a) => a.id === selectedApplicant.id) ??
       selectedApplicant)
@@ -137,17 +105,10 @@ export default function ManagePostingDetailTable({
     "statusAction",
   ) as ApplicantStatusAction | null;
 
-  // 🔍 DEBUG - remove after fixing
-  console.log("[Table fetcher state]", fetcher.state);
-  console.log("[Table pending]", { pendingApplicationId, pendingStatus });
-  console.log(
-    "[Applicants from loader]",
-    applicants.map((a) => ({ id: a.id, status: a.status })),
-  );
-
   return (
     <>
       <ApplicantTabRange />
+
       <div className="bg-white rounded-2xl border border-gray-100 p-2.5 flex flex-col gap-4">
         <div className="overflow-x-auto rounded-2xl">
           <Table>
@@ -171,7 +132,7 @@ export default function ManagePostingDetailTable({
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-gray-50">
-              {filteredApplicants.map((applicant) => {
+              {(applicants ?? []).map((applicant) => {
                 const displayStatus = getDisplayStatus(applicant);
                 return (
                   <TableRow
@@ -218,27 +179,34 @@ export default function ManagePostingDetailTable({
                     </TableCell>
                     <TableCell className="py-4">
                       <div className="flex justify-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 bg-blue-100/60 text-blue-500 hover:text-gray-600"
-                          aria-label="Send message"
-                        >
-                          <Send size={14} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-gray-400 hover:text-gray-600"
-                          aria-label="Compose email"
-                        >
-                          <Mail size={14} />
-                        </Button>
+                        {applicant.candidate.email && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 bg-blue-100/60 text-blue-500 hover:bg-blue-100 hover:text-blue-600"
+                            aria-label="Compose email"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Mail size={14} />
+                          </Button>
+                        )}
+                        {applicant.candidate.telegramUsername && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 bg-sky-100/60 text-sky-500 hover:bg-sky-100 hover:text-sky-600"
+                            aria-label="Telegram"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Send size={14} />
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-gray-400 hover:text-gray-600"
                           aria-label="More actions"
+                          onClick={() => handleRowClick(applicant)}
                         >
                           <MoreVertical size={14} />
                         </Button>
@@ -248,7 +216,7 @@ export default function ManagePostingDetailTable({
                 );
               })}
 
-              {filteredApplicants.length === 0 && (
+              {(applicants ?? []).length === 0 && (
                 <TableRow>
                   <TableCell
                     colSpan={5}

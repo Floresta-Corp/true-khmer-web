@@ -15,23 +15,25 @@ export default function ManagePostingDetailStats() {
 
   const recruited = postDetail?.stats?.recruited ?? 0;
   const capacity = postDetail?.posting?.capacity ?? 0;
-
-  // Track a local "floor" so the count never drops below what we've approved
+  const postingId = postDetail?.posting?.id;
   const localApprovedRef = useRef(recruited);
+  const previousPostingIdRef = useRef(postingId);
 
-  // In-flight approvals
   const pendingApprovals = fetchers.filter(
     (f) => f.state !== "idle" && f.formData?.get("statusAction") === "approve",
   ).length;
 
-  // Once loader revalidates with a higher number, update our floor
   useEffect(() => {
-    if (recruited > localApprovedRef.current) {
+    if (postingId !== previousPostingIdRef.current) {
+      previousPostingIdRef.current = postingId;
+      localApprovedRef.current = recruited;
+    } else if (recruited < localApprovedRef.current) {
+      localApprovedRef.current = recruited;
+    } else if (recruited > localApprovedRef.current) {
       localApprovedRef.current = recruited;
     }
-  }, [recruited]);
+  }, [recruited, postingId]);
 
-  // Use whichever is higher: server value, our local floor, or optimistic
   const optimisticRecruited = Math.min(
     Math.max(recruited, localApprovedRef.current) + pendingApprovals,
     capacity,
@@ -51,7 +53,7 @@ export default function ManagePostingDetailStats() {
             {postDetail?.posting?.status}
           </p>
           <p className="text-4xl font-bold text-gray-900 tracking-tight">
-            {postDetail?.stats?.totalApplicants}
+            {postDetail?.stats?.recruited}
           </p>
         </div>
         <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-400 relative z-20">
@@ -70,7 +72,7 @@ export default function ManagePostingDetailStats() {
             Total Applicants
           </p>
           <p className="text-4xl font-bold text-white tracking-tight">
-            {postDetail?.stats?.recruited}
+            {postDetail?.stats?.totalApplicants}
           </p>
         </div>
         <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white relative z-20">

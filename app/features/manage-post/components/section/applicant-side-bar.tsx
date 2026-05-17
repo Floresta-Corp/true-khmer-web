@@ -15,10 +15,11 @@ import type {
 import ApplicantStatusChangeButton from "./applicant-change-status-button";
 
 const STATUS_STYLES: Record<ApplicantStatusAction, string> = {
-  approve: "bg-green-100 text-green-700 border-green-200",
-  decline: "bg-red-100 text-red-700 border-red-200",
-  under_review: "bg-purple-100 text-purple-700 border-purple-200",
-  submitted: "bg-amber-100 text-amber-700 border-amber-200",
+  approve: "bg-green-100 text-green-700 border-green-200 hover:bg-gray-100",
+  decline: "bg-red-100 text-red-700 border-red-200 hover:bg-gray-100",
+  under_review:
+    "bg-purple-100 text-purple-700 border-purple-200 hover:bg-gray-100",
+  submitted: "bg-amber-100 text-amber-700 border-amber-200 hover:bg-gray-100",
 };
 
 const STATUS_LABELS: Record<ApplicantStatusAction, string> = {
@@ -41,7 +42,6 @@ export default function ApplicantSideBar({
   postingId,
   sourceType,
 }: Props) {
-  // Add this at the top of applicant-side-bar.tsx, same as in the table
   const normalizeStatus = (status: string): ApplicantStatusAction => {
     const map: Record<string, ApplicantStatusAction> = {
       SUBMITTED: "submitted",
@@ -111,6 +111,7 @@ export default function ApplicantSideBar({
                 </div>
               </div>
               <button
+                type="button"
                 onClick={onClose}
                 className="p-1.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
               >
@@ -223,7 +224,7 @@ export default function ApplicantSideBar({
                         className="flex items-center justify-between px-3 py-2.5 rounded-xl border border-gray-100 bg-gray-50"
                       >
                         <a
-                          href={doc?.name}
+                          href={doc?.key}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-2 text-sm text-gray-700"
@@ -236,10 +237,10 @@ export default function ApplicantSideBar({
                           target="_blank"
                           rel="noopener noreferrer"
                           download={doc.name}
+                          aria-label={`Download ${doc.name}`}
+                          className="text-gray-400 hover:text-blue-500 transition-colors"
                         >
-                          <button className="text-gray-400 hover:text-blue-500 transition-colors">
-                            <Download size={14} />
-                          </button>
+                          <Download size={14} />
                         </a>
                       </div>
                     ))}

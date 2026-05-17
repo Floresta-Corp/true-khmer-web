@@ -11,11 +11,9 @@ export async function getApplicantDetail(
   postingId: string,
   applicationId: string,
 ) {
-  // const queryParams = new URLSearchParams();
-
   const result = await apiRequestWithSession<DetailCandidateResponse>(
     request,
-    `/v1/workspace/manage-posting/${sourceType}/${postingId}/${applicationId}`,
+    `/workspace/manage-posting/${sourceType}/${postingId}/${applicationId}`,
     {
       method: "GET",
     },

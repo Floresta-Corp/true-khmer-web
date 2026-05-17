@@ -22,6 +22,15 @@ const TYPE_STYLES: Record<SourceType, string> = {
   VOLUNTEER: "bg-pink-100 text-pink-700 border-pink-200",
 };
 
+const SOURCE_TYPE_TO_PATH: Record<SourceType, string> = {
+  PROJECT: "projects",
+  VOLUNTEER: "volunteer",
+};
+
+function normalizePostingSource(sourceType: SourceType): string {
+  return SOURCE_TYPE_TO_PATH[sourceType];
+}
+
 type Props = {
   posting: ManagePost;
   index: number;
@@ -71,7 +80,7 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
 
         <div className="grow space-y-2 mt-2 pr-6">
           <Link
-            to={`/manage-post/${posting.sourceType.toLowerCase()}/${posting.id}`}
+            to={`/manage-post/${normalizePostingSource(posting.sourceType)}/${posting.id}`}
             className="block"
           >
             <h3 className="text-lg sm:text-xl font-bold text-slate-800 leading-tight hover:text-blue-600 transition-colors line-clamp-1 sm:line-clamp-2">

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router";
-import type { Applicant } from "~/services/manage-post/types";
 import { motion } from "motion/react";
 import { Search } from "lucide-react";
 import { Input } from "~/components/ui/input";
@@ -15,21 +14,25 @@ const RANGE = [
 ];
 
 const VALID_RANGE = ["today", "this_week", "all_time"] as const;
-function isValidTab(value: string | null): value is RangeType {
+function isValidRange(value: string | null): value is RangeType {
   return value !== null && VALID_RANGE.includes(value as RangeType);
 }
 
 export default function ApplicantTabRange() {
   const [searchParams, setSearchParams] = useSearchParams();
   const rawType = searchParams.get("range");
-  const activeType = isValidTab(rawType) ? rawType : "all_time";
+  const activeType = isValidRange(rawType) ? rawType : "all_time";
   const [searchInput, setSearchInput] = useState(
     searchParams.get("search") ?? "",
   );
 
-  const handleTypeChange = (type: string) => {
+  const handleTypeChange = (range: string) => {
     const params = new URLSearchParams(searchParams);
-    params.set("range", type);
+    if (!range || range === "all_time") {
+      params.delete("range");
+    } else {
+      params.set("range", range);
+    }
     setSearchParams(params, { replace: true });
   };
 
@@ -51,7 +54,6 @@ export default function ApplicantTabRange() {
           All Applicants
         </h2>
 
-        {/* Added 'isolate' to prevent internal layout elements from jumping context */}
         <div className="flex gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl shadow-inner w-max relative isolate">
           {RANGE.map((range) => {
             const isActive = activeType === range.value;

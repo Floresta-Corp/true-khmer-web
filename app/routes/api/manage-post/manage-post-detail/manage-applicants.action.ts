@@ -1,9 +1,11 @@
 import type { Route } from "project-types/manage-post/routes/+types/manage-post.$sourceType.$id";
 import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
 import { updateApplicantStatus } from "~/services/manage-post/server";
-import type {
-  ApplicantStatusAction,
-  PostSourceType,
+import {
+  ApplicantStatusActionSchema,
+  PostingSourceSchema,
+  type ApplicantStatusAction,
+  type PostSourceType,
 } from "~/services/manage-post/types";
 
 export async function manageApplicantAction({
@@ -23,13 +25,19 @@ export async function manageApplicantAction({
     return { success: false, error: "Missing required fields" };
   }
 
+  const sourceTypeResult = PostingSourceSchema.safeParse(sourceType);
+  const statusActionResult =
+    ApplicantStatusActionSchema.safeParse(statusAction);
+  if (!sourceTypeResult.success || !statusActionResult.success || !postingId) {
+    return { success: false, error: "Invalid request parameters" };
+  }
   try {
     const result = await updateApplicantStatus(
       request,
-      sourceType as PostSourceType,
+      sourceTypeResult.data as PostSourceType,
       postingId,
       applicationId,
-      statusAction as ApplicantStatusAction,
+      statusActionResult.data as ApplicantStatusAction,
     );
     return { success: true, data: result };
   } catch (error: any) {

@@ -28,7 +28,7 @@ export async function getManagePostDetail(
 
   const result = await apiRequestWithSession<ManagePostDetailResponse>(
     request,
-    `/workspace/manage-posting/${sourceType}/${postingId}`,
+    `/workspace/manage-posting/${sourceType}/${postingId}?${queryParams.toString()}`,
     {
       method: "GET",
     },
