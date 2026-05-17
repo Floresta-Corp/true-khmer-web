@@ -69,7 +69,9 @@ const launchpadApplicationSchema = z.object({
 
 type LaunchpadApplicationErrors = Partial<
   Record<keyof z.infer<typeof launchpadApplicationSchema>, string>
->;
+> & {
+  documents?: string;
+};
 
 function getErrorMessage(error: ApplyFetcherData["error"]): string {
   if (!error) {
@@ -166,7 +168,7 @@ export default function LaunchpadSubmitApplicationDialog({
   const isFormValid = launchpadApplicationSchema.safeParse({
     motivation,
     portfolioUrl,
-  }).success;
+  }).success && documents.length > 0;
 
   useEffect(() => {
     if (fetcher.data?.success) {
@@ -192,13 +194,35 @@ export default function LaunchpadSubmitApplicationDialog({
   }) {
     const values = nextValues ?? { motivation, portfolioUrl };
     const errors = getLaunchpadApplicationErrors(values);
-    setClientErrors(errors);
-    return errors;
+
+    // Check if at least one document is required
+    if (documents.length === 0) {
+      const newErrors = {
+        ...errors,
+        documents: "Please upload at least one supporting document.",
+      };
+      setClientErrors(newErrors);
+      return newErrors;
+    } else {
+      // Clear document error if it exists
+      const { documents: _, ...cleanedErrors } = errors;
+      setClientErrors(cleanedErrors);
+      return cleanedErrors;
+    }
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
-    setDocuments((prev) => [...prev, ...files].slice(0, 5));
+    if (files.length > 0) {
+      setDocuments((prev) => [...prev, ...files].slice(0, 5));
+      // Clear document error when a file is added
+      if (clientErrors.documents) {
+        setClientErrors((prev) => {
+          const { documents: _, ...rest } = prev;
+          return rest;
+        });
+      }
+    }
     e.target.value = "";
   }
 
@@ -219,7 +243,17 @@ export default function LaunchpadSubmitApplicationDialog({
   }
 
   function removeDocument(index: number) {
-    setDocuments((prev) => prev.filter((_, i) => i !== index));
+    setDocuments((prev) => {
+      const next = prev.filter((_, i) => i !== index);
+      // Show error if no documents remain
+      if (next.length === 0 && prev.length > 0) {
+        setClientErrors((prevErrors) => ({
+          ...prevErrors,
+          documents: "Please upload at least one supporting document.",
+        }));
+      }
+      return next;
+    });
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -453,6 +487,11 @@ export default function LaunchpadSubmitApplicationDialog({
                       </div>
                     ))}
                   </div>
+                )}
+                {clientErrors.documents && (
+                  <p className="text-xs text-red-500">
+                    {clientErrors.documents}
+                  </p>
                 )}
               </div>
 

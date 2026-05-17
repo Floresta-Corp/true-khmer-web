@@ -173,3 +173,21 @@ export async function uploadLaunchpadDocumentPresign(
     body,
   });
 }
+
+export async function saveLaunchpad(
+  request: Request,
+  launchpadId: string,
+): Promise<void> {
+  await apiRequestWithSession(request, `/launchpad/save/${launchpadId}`, {
+    method: "POST",
+  });
+}
+
+export async function unsaveLaunchpad(
+  request: Request,
+  launchpadId: string,
+): Promise<void> {
+  await apiRequestWithSession(request, `/launchpad/save/${launchpadId}`, {
+    method: "DELETE",
+  });
+}

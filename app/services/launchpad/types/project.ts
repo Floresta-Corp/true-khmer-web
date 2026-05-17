@@ -42,6 +42,7 @@ export const LaunchpadOpportunitySchema = z.object({
   category: CategorySchema,
   city: CitySchema,
   totalRoles: z.number(),
+  isSaved: z.boolean().default(false),
 });
 
 export type LaunchpadOpportunity = z.infer<typeof LaunchpadOpportunitySchema>;
@@ -73,6 +74,7 @@ export const GetLaunchpadResponseSchema = z.object({
   ok: z.boolean(),
   launchpads: z.array(LaunchpadOpportunitySchema),
   nextCursor: z.string().nullable(),
+  cities: z.array(CitySchema).optional(),
 });
 
 export type GetLaunchpadResponse = z.infer<typeof GetLaunchpadResponseSchema>;
