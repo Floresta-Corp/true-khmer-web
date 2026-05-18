@@ -7,15 +7,15 @@ import { motion } from "motion/react";
 import type {
   ManagePost,
   ManagePostStatus,
-  PostingFilter,
   SourceType,
 } from "~/services/manage-post/types";
 
 const STATUS_STYLES: Record<ManagePostStatus, string> = {
   ACTIVE: "bg-green-100 text-green-700 border-green-200",
   DRAFT: "bg-amber-100 text-amber-700 border-amber-200",
-  FILLED: "bg-blue-100 text-blue-700 border-blue-200",
-  ENDED: "bg-gray-100 text-gray-600 border-gray-200",
+  COMPLETED: "bg-blue-100 text-blue-700 border-blue-200",
+  PUBLISHED: "bg-amber-100 text-amber-700 border-amber-200",
+  CLOSED: "bg-gray-100 text-gray-600 border-gray-200",
 };
 
 const TYPE_STYLES: Record<SourceType, string> = {
@@ -121,7 +121,7 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
 
         {/* stopPropagation so buttons don't double-navigate */}
         <div className="mt-6" onClick={(e) => e.stopPropagation()}>
-          {posting.status === "FILLED" || posting.status === "ENDED" ? (
+          {posting.status === "COMPLETED" || posting.status === "CLOSED" ? (
             <Button
               variant="outline"
               className="w-full h-10 sm:h-12 text-sm font-bold text-slate-600 border-slate-200 hover:bg-slate-50 rounded-xl transition-all"
@@ -131,9 +131,9 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
             </Button>
           ) : (
             <Button
-              variant="default"
               asChild
-              className="w-full h-10 sm:h-12 text-sm font-bold bg-white hover:bg-blue-600 text-blue-600 hover:text-white border border-blue-200 hover:border-transparent rounded-xl shadow-sm transition-all duration-200 active:scale-[0.98]"
+              variant="ghost"
+              className="w-full h-10 sm:h-12 text-sm font-bold bg-white hover:bg-blue-600 text-blue-500/60 hover:text-white border border-blue-200 rounded-xl shadow-sm transition-all duration-200 active:scale-[0.98]"
             >
               <Link to={cardHref}>Manage Posting</Link>
             </Button>

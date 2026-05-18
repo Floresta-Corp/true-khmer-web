@@ -15,7 +15,19 @@ import type { loader } from "../../routes/manage-post.$sourceType.$id";
 import ManagePostingDetailStats from "../section/posting-detail-stats";
 import ManagePostingDetailTable from "../section/posting-detail-table";
 import { formatDate } from "~/features/events/lib/event-formatters";
-import type { PostingType } from "~/services/manage-post/types";
+import type {
+  ManagePostStatus,
+  PostingType,
+} from "~/services/manage-post/types";
+import { cn } from "~/lib/utils";
+
+const STATUS_STYLES: Record<ManagePostStatus, string> = {
+  ACTIVE: "bg-green-100 text-green-700 border-green-200 hover:bg-gray-100",
+  DRAFT: "bg-amber-100 text-amber-700 border-amber-200 hover:bg-gray-100",
+  COMPLETED: "bg-blue-100 text-blue-700 border-blue-200 hover:bg-gray-100",
+  PUBLISHED: "bg-amber-100 text-amber-700 border-amber-200 hover:bg-gray-100",
+  CLOSED: "bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-100",
+};
 
 export default function PostingDetailPage() {
   const { postDetail } = useLoaderData<typeof loader>();
@@ -50,8 +62,17 @@ export default function PostingDetailPage() {
             <span className="text-sm text-gray-400">
               Posted {formatDate(postDetail?.posting.createdAt ?? "-")}
             </span>
-            <Badge className="bg-green-100 text-green-700 border-green-200 hover:bg-gray-100 capitalize text-xs font-medium ml-1">
-              {postDetail?.posting.status}
+            <Badge
+              className={cn(
+                "px-2.5 py-0.5 text-[10px] font-black border-none rounded-full uppercase tracking-widest shadow-sm",
+
+                STATUS_STYLES[
+                  (postDetail?.posting?.status?.toUpperCase() ??
+                    "DRAFT") as ManagePostStatus
+                ],
+              )}
+            >
+              {postDetail?.posting?.status}
             </Badge>
           </div>
         </div>

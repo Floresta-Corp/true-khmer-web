@@ -27,12 +27,13 @@ type RangeType = "today" | "this_week" | "all_time";
 const VALID_RANGE = ["today", "this_week", "all_time"] as const;
 
 const STATUS_STYLES: Record<ApplicantStatusAction, string> = {
-  approve: "bg-green-100 text-green-700 border-green-200",
-  confirmed: "bg-green-100 text-green-700 border-green-200",
-  completed: "bg-blue-100 text-blue-700 border-blue-200",
-  decline: "bg-red-100 text-red-700 border-red-200",
-  submitted: "bg-amber-100 text-amber-700 border-amber-200",
-  under_review: "bg-purple-100 text-purple-700 border-purple-200",
+  approve: "bg-green-100 text-green-700 border-green-200 hover:bg-gray-100",
+  confirmed: "bg-green-100 text-green-700 border-green-200 hover:bg-gray-100",
+  completed: "bg-blue-100 text-blue-700 border-blue-200 hover:bg-gray-100",
+  decline: "bg-red-100 text-red-700 border-red-200 hover:bg-gray-100",
+  submitted: "bg-amber-100 text-amber-700 border-amber-200 hover:bg-gray-100",
+  under_review:
+    "bg-purple-100 text-purple-700 border-purple-200 hover:bg-gray-100",
 };
 
 const STATUS_LABELS: Record<ApplicantStatusAction, string> = {

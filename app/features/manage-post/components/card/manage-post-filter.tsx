@@ -30,8 +30,9 @@ const VALID_STATUS_VALUES = [
   "all",
   "active",
   "draft",
-  "filled",
-  "ended",
+  "closed",
+  "completed",
+  "published",
 ] as const;
 
 function isValidStatus(
@@ -123,8 +124,9 @@ export default function ManagePostFilters() {
             <SelectItem value="all">All</SelectItem>
             <SelectItem value="active">Active</SelectItem>
             <SelectItem value="draft">Draft</SelectItem>
-            <SelectItem value="filled">Filled</SelectItem>
-            <SelectItem value="ended">Ended</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="closed">Closed</SelectItem>
+            <SelectItem value="published">Published</SelectItem>
           </SelectContent>
         </Select>
       </div>
