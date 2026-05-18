@@ -41,12 +41,15 @@ export const ApplyRoleInputSchema = z.object({
       const trimmed = value.trim();
       return trimmed.length === 0 ? undefined : trimmed;
     }, z.string().url().max(255).optional())
-    .refine((value) => {
-      if (!value) return true;
-      return value.startsWith("https://");
-    }, {
-      message: "Portfolio must use HTTPS",
-    }),
+    .refine(
+      (value) => {
+        if (!value) return true;
+        return value.toLowerCase().startsWith("https://");
+      },
+      {
+        message: "Portfolio must use HTTPS",
+      },
+    ),
   documentKeys: z.array(z.string()).max(5).optional().default([]),
   documentNames: z.array(z.string()).max(5).optional().default([]),
 });
