@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from "react-router";
-import MySpaceSideBar from "~/components/myspace-sidebar";
+import WorkSpaceSideBar from "~/components/workspace-sidebar";
 import {
   SidebarInset,
   SidebarProvider,
@@ -32,7 +32,7 @@ export default function AppLayout() {
     <TooltipProvider>
       <SidebarProvider>
         <div className="flex min-h-[calc(100vh-4rem)] w-full">
-          <MySpaceSideBar />
+          <WorkSpaceSideBar />
           <SidebarInset className="flex-1 flex flex-col bg-[#f8fafc]">
             {/* <header className="flex h-14 items-center border-b bg-white p-4 lg:px-6 shrink-0">
             </header> */}

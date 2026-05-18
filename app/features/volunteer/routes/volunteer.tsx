@@ -3,9 +3,11 @@ import { VolunteerCategoriesSection } from "../page/section/volunteer-categories
 import { motion, useReducedMotion } from "motion/react";
 import VolunteerHeader from "../page/section/volunteer-header";
 import { volunteerLoader } from "~/routes/api/volunteer/volunteer-loader";
-import { useLoaderData, useNavigate } from "react-router";
+import { useLoaderData, useNavigate, useRevalidator } from "react-router";
+import { volunteerAction } from "~/routes/api/volunteer/volunteer-action";
 
 export const loader = volunteerLoader;
+export const action = volunteerAction;
 
 export function meta() {
   return [{ title: "Volunteer Opportunities | True Khmer" }];
@@ -15,8 +17,10 @@ export default function VolunteerPage() {
   const { categories, opportunities, locations } =
     useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const revalidator = useRevalidator();
   const prefersReducedMotion = useReducedMotion();
   const duration = prefersReducedMotion ? 0 : 0.35;
+  const reloadOpportunities = () => revalidator.revalidate();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -49,7 +53,10 @@ export default function VolunteerPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration, delay: prefersReducedMotion ? 0 : 0.16 }}
       >
-        <VolunteerAvailableOpportunities opportunities={opportunities ?? []} />
+        <VolunteerAvailableOpportunities
+          opportunities={opportunities ?? []}
+          onMutationComplete={() => reloadOpportunities()}
+        />
       </motion.div>
     </div>
   );

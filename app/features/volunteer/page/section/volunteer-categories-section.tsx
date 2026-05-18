@@ -43,10 +43,17 @@ export function VolunteerCategoriesSection({
               className="shrink-0 snap-start md:min-w-0 md:shrink md:w-full"
             >
               <CategoryCard
-                category={category}
                 onClick={() => onClickCategory?.(category.id)}
                 className={cardClassName}
                 active={category.id === activeCategoryId}
+                category={{
+                  ...category,
+                  displayOrder: category.opportunityCount,
+                  updatedBy: category.updatedBy ?? undefined,
+                }}
+                displayName={
+                  (category?.opportunityCount || 0) > 1 ? "listings" : "listing"
+                }
               />
             </div>
           ))}

@@ -17,7 +17,7 @@ export default function LaunchpadSeekingCollaborationCard({
   }));
 
   return (
-    <Card className="rounded-2xl border-[#E7ECF3] bg-white p-6">
+    <Card className="rounded-2xl border-[#E7ECF3] bg-white p-6 shadow-none">
       <div className="mb-5 text-xl font-semibold text-[#0F1729]">
         Seeking Collaboration
       </div>

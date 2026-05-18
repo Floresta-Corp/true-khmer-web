@@ -13,7 +13,7 @@ import { Button } from "~/components/ui/button";
 import type { VolunteerCategory } from "~/services/volunteer/types";
 
 interface CategoryCardProps {
-  category: VolunteerCategory;
+  category: VolunteerCategory ;
   onClick?: (categoryId: string) => void;
   active?: boolean;
   className?: string;

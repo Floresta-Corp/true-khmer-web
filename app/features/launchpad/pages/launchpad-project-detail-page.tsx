@@ -60,7 +60,7 @@ export default function LaunchpadProjectDetailPage() {
                 delay: prefersReducedMotion ? 0 : 0.1,
               }}
             >
-              <Card className="overflow-hidden rounded-2xl border-[#E7ECF3] bg-white">
+              <Card className="overflow-hidden rounded-2xl border-[#E7ECF3] bg-white shadow-none">
                 <LaunchpadProjectCoverCard project={project} />
                 <LaunchpadProjectDetailCard project={project} />
               </Card>

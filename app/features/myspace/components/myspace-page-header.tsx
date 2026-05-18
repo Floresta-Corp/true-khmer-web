@@ -13,7 +13,7 @@ export function PageHeader() {
       </div>
       <div className="flex items-center gap-2">
         <Link to={"/edit-profile"}>
-          <Button variant="default" className="h-9 bg-blue-600">
+          <Button variant="default" className="h-9 bg-blue-600 cursor-pointer">
             Edit profile
           </Button>
         </Link>

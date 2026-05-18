@@ -4,9 +4,13 @@ import type { Opportunity } from "~/services/volunteer/types/opportunities";
 
 interface AvailableRolesCardProps {
   roles: Opportunity["roles"];
+  hideApplyButton?: boolean;
 }
 
-export default function AvailableRolesCard({ roles }: AvailableRolesCardProps) {
+export default function AvailableRolesCard({
+  roles,
+  hideApplyButton,
+}: AvailableRolesCardProps) {
   return (
     <article className="rounded-[14px] border border-[#e1e7ef] bg-white p-8">
       <div className="flex items-center gap-3.5">
@@ -17,7 +21,11 @@ export default function AvailableRolesCard({ roles }: AvailableRolesCardProps) {
       </div>
 
       <div className="mt-4">
-        <AvailableRolesSection roles={roles} showHeader={false} />
+        <AvailableRolesSection
+          roles={roles}
+          showHeader={false}
+          hideApplyButton={hideApplyButton}
+        />
       </div>
     </article>
   );

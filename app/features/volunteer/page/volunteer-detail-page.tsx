@@ -1,5 +1,4 @@
 import { motion, useReducedMotion } from "motion/react";
-import type { Opportunity } from "~/services/volunteer/types/opportunities";
 import EmptyPost from "../components/empty-post";
 import OpportunityCover from "../components/sections/opportunity-cover";
 import OpportunityDetailsGrid from "../components/sections/opportunity-details-grid";
@@ -10,22 +9,24 @@ import ProjectImpactSection from "../components/sections/project-impact-section"
 import OrganizerCard from "../components/sections/organizer-card";
 import ApplicationSummary from "../components/sections/application-summary";
 import BackToButton from "~/components/back-to-button";
+import { useLoaderData } from "react-router";
+import type { loader } from "../routes/volunteer.$id";
 
-interface VolunteerDetailPageProps {
-  volunteer?: Opportunity;
-}
+interface VolunteerDetailPageProps {}
 
-export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
+export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
+  const { userId, volunteer } = useLoaderData<typeof loader>();
+  const prefersReducedMotion = useReducedMotion();
+
   if (!volunteer) {
     return <EmptyPost />;
   }
 
-  const prefersReducedMotion = useReducedMotion();
-
-  const totalCapacity = volunteer.roles.reduce(
+  const totalCapacity = volunteer?.roles.reduce(
     (sum, role) => sum + role.capacity,
     0,
   );
+  const hideApplyButton = volunteer.organizer.id === userId;
 
   return (
     <main className="min-h-screen bg-white px-6 py-10 md:px-12 lg:px-28">
@@ -62,7 +63,10 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
               </div>
             </motion.article>
 
-            <AvailableRolesCard roles={volunteer.roles} />
+            <AvailableRolesCard
+              roles={volunteer.roles}
+              hideApplyButton={hideApplyButton}
+            />
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -99,22 +103,25 @@ export function VolunteerDetailPage({ volunteer }: VolunteerDetailPageProps) {
             ></motion.div>
           </section>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{
-              duration: prefersReducedMotion ? 0 : 0.3,
-              delay: prefersReducedMotion ? 0 : 0.1,
-            }}
-            className="lg:sticky lg:top-24 flex flex-col gap-6"
-          >
-            <ApplicationSummary
-              volunteer={volunteer}
-              totalCapacity={totalCapacity}
-            />
-            <OrganizerCard volunteer={volunteer} />
-          </motion.div>
+          <div className="self-start lg:sticky lg:top-24">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{
+                duration: prefersReducedMotion ? 0 : 0.3,
+                delay: prefersReducedMotion ? 0 : 0.1,
+              }}
+              className="flex flex-col gap-6"
+            >
+              <ApplicationSummary
+                volunteer={volunteer}
+                totalCapacity={totalCapacity}
+                disableApplyButton={hideApplyButton}
+              />
+              <OrganizerCard volunteer={volunteer} />
+            </motion.div>
+          </div>
         </div>
       </div>
     </main>

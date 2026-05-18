@@ -63,7 +63,7 @@ export default function ManagePostingDetailStats({ detail }: Props) {
             strokeWidth={2}
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/0 via-blue-600/0 to-black/5 z-10 pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-br from-blue-600/0 via-blue-600/0 to-black/5 z-10 pointer-events-none" />
       </div>
 
       {/* 3. Recruitment Goal Card */}
