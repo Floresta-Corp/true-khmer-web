@@ -56,12 +56,17 @@ export function OpportunityCard({
   };
 
   useEffect(() => {
-    if (fetcher.state !== "idle" || !fetcher.data?.ok || didNotifyRef.current) {
+    if (fetcher.state !== "idle" || didNotifyRef.current) {
       return;
     }
 
-    didNotifyRef.current = true;
-    onMutationComplete?.();
+    if (fetcher.data?.ok) {
+      didNotifyRef.current = true;
+      onMutationComplete?.();
+    } else if (fetcher.data && !fetcher.data.ok) {
+      // Handle error case - could show toast, log, etc.
+      didNotifyRef.current = true;
+    }
   }, [fetcher.state, fetcher.data, onMutationComplete]);
 
   return (

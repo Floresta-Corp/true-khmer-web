@@ -52,13 +52,19 @@ function AnswerComponent({
   const replyCount = answer.replyCount;
   const [isHovered, setIsHovered] = useState(false);
   const location = useLocation();
-  const id = decodeURIComponent(location.hash.replace(/^#answer-/, ""));
+  let id: string | null = null;
+  const match = location.hash.match(/^#answer-([A-Za-z0-9-_]+)$/);
+  try {
+    id = match ? decodeURIComponent(match[1]) : null;
+  } catch {
+    id = null;
+  }
   const cardRef = useRef<HTMLElement>(null);
-  const isHighlighted = id === answer.id;
+  const isHighlighted = id !== null && id === answer.id;
   const [showAnimation, setShowAnimation] = useState(false);
 
   const openAccordion =
-    answer.repliedAnswers?.some((a) => id === a.id) || id === answer.id
+    (id && answer.repliedAnswers?.some((a) => id === a.id)) || id === answer.id
       ? "replies"
       : undefined;
 

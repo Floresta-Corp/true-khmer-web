@@ -6,7 +6,7 @@ import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 
 export default function MyApplicationPendingApprove() {
-  const [SearchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { myApplication } = useLoaderData<typeof loader>();
   const summary = myApplication.summary;
   console.log(summary);

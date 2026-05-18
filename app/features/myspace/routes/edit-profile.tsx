@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import { useLoaderData, useNavigate, useFetcher, Form } from "react-router";
 import { toast } from "sonner";
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -205,8 +204,6 @@ export default function EditProfile() {
       { shouldValidate: true },
     );
   };
-
-  console.log({ avatarFile, avatarUrl });
 
   const onSubmit = (data: EditProfileFormData) => {
     const formData = new FormData();

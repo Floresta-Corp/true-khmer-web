@@ -1,5 +1,4 @@
 import type { Route as EditProfileRoute } from "project-types/myspace/routes/+types/edit-profile";
-import { resourceLimits } from "worker_threads";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
 import { UpdateMyspace } from "~/services/myspace/server/me.server";
@@ -73,11 +72,8 @@ export async function EditProfileAction({
     },
   };
 
-  console.log({ payload });
-
   const avatarFile = formData.get("avatarFile") as File;
 
-  console.log({ avatarFile });
   if (avatarFile) {
     try {
       const result = await UploadAvatarPresign(request, {
@@ -85,30 +81,29 @@ export async function EditProfileAction({
         fileName: avatarFile.name,
         fileSize: avatarFile.size,
       });
-      if (result.data.ok) {
-        const upload = result.data.upload;
-        console.log({ upload });
-        try {
-          const uploadResult = await fetch(upload.uploadUrl, {
-            method: upload.method,
-            body: avatarFile,
-            headers: upload.requiredHeaders,
-          });
-          if (uploadResult.ok && uploadResult.status === 200) {
-            payload = {
-              ...payload,
-              avatarKey: upload.avatarKey,
-            };
-          }
-        } catch (err) {
-          console.error("upload to R2 Error");
-        }
+      if (!result.data.ok) {
+        return { ok: false, message: "Failed to prepare avatar upload." };
       }
+      const upload = result.data.upload;
+      const uploadResult = await fetch(upload.uploadUrl, {
+        method: upload.method,
+        body: avatarFile,
+        headers: upload.requiredHeaders,
+        signal: AbortSignal.timeout(30_000),
+      });
+      if (!uploadResult.ok) {
+        console.error("avatar upload failed", {
+          status: uploadResult.status,
+          url: upload.uploadUrl,
+        });
+        return { ok: false, message: "Failed to upload avatar image." };
+      }
+      payload = { ...payload, avatarKey: upload.avatarKey };
     } catch (err) {
-      console.error(err);
+      console.error("Avatar upload failed", err);
+      return { ok: false, message: "Failed to upload avatar image." };
     }
   }
-  console.log({ payload });
   try {
     const result = await UpdateMyspace(request, payload);
     return result.data;

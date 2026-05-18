@@ -18,12 +18,17 @@ export async function volunteerAction({ request }: Route.ActionArgs) {
     };
   }
 
-  if (actionType === "save-opportunity") {
-    const result = await SaveVolunteerOpportunity(request, opportunityId);
-    return result.data;
-  } else if (actionType === "unsave-opportunity") {
-    const result = await UnsaveVolunteerOpportunity(request, opportunityId);
-    return result.data;
+  try {
+    if (actionType === "save-opportunity") {
+      const result = await SaveVolunteerOpportunity(request, opportunityId);
+      return result?.data ?? { ok: false, message: "Unexpected response format" };
+    } else if (actionType === "unsave-opportunity") {
+      const result = await UnsaveVolunteerOpportunity(request, opportunityId);
+      return result?.data ?? { ok: false, message: "Unexpected response format" };
+    }
+    return { ok: false, message: "Invalid action type" };
+  } catch (error) {
+    console.error("Volunteer action error:", error);
+    return { ok: false, message: "Failed to process request" };
   }
-  return { ok: false, message: "Invalid action type" };
 }

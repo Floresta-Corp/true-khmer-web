@@ -12,7 +12,6 @@ import { GetLaunchpadProjectsPaginated } from "~/services/launchpad/server/launc
 import { getPublicLaunchpadCategories } from "~/services/launchpad/server/launchpad.categories.server";
 import type { LaunchpadOpportunity } from "~/services/launchpad/types/project";
 import type { Category } from "~/services/launchpad/types/category";
-import type { VolunteerCategory } from "~/services/volunteer/types/category";
 import LaunchpadProjectCard from "../components/card/launchpad-project-card";
 import LaunchpadProjectCardSkeleton from "../components/card/launchpad-project-card-skeleton";
 import { CategoryCard } from "~/components/category-card";
@@ -88,7 +87,6 @@ export default function LaunchpadAllPage() {
     }
     params.delete("cursor"); // Reset pagination on new search
     setSearchParams(params, { replace: true });
-    fetcher.load(`/launchpad/all?${params.toString()}`);
   };
 
   const handleCityChange = (cityId: string | undefined) => {
@@ -100,7 +98,6 @@ export default function LaunchpadAllPage() {
     }
     params.delete("cursor"); // Reset pagination on filter change
     setSearchParams(params, { replace: true });
-    fetcher.load(`/launchpad/all?${params.toString()}`);
   };
 
   // When the loader re-runs (category change navigates), reset accumulated list
@@ -161,7 +158,6 @@ export default function LaunchpadAllPage() {
     }
     params.delete("cursor");
     setSearchParams(params, { replace: true });
-    fetcher.load(`/launchpad/all?${params.toString()}`);
   };
 
   return (
@@ -238,13 +234,22 @@ export default function LaunchpadAllPage() {
               return (
                 <div
                   key={category.id}
-                  className="shrink-0 snap-start md:min-w-0 md:shrink md:w-full cursor-pointer"
+                  className="shrink-0 snap-start md:min-w-0 md:shrink md:w-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={isActive}
                   onClick={() => handleCategoryClick(category.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      handleCategoryClick(category.id);
+                    }
+                  }}
                 >
                   <CategoryCard
                     category={{
                       ...category,
-                      displayOrder: category.roleCount,
+                      displayOrder: category.totalLaunchpad,
                       updatedBy: category.updatedBy ?? undefined,
                     }}
                     active={isActive}
