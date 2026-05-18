@@ -168,7 +168,7 @@ export default function LaunchpadSubmitApplicationDialog({
   const isFormValid = launchpadApplicationSchema.safeParse({
     motivation,
     portfolioUrl,
-  }).success && documents.length > 0;
+  }).success;
 
   useEffect(() => {
     if (fetcher.data?.success) {
@@ -194,21 +194,8 @@ export default function LaunchpadSubmitApplicationDialog({
   }) {
     const values = nextValues ?? { motivation, portfolioUrl };
     const errors = getLaunchpadApplicationErrors(values);
-
-    // Check if at least one document is required
-    if (documents.length === 0) {
-      const newErrors = {
-        ...errors,
-        documents: "Please upload at least one supporting document.",
-      };
-      setClientErrors(newErrors);
-      return newErrors;
-    } else {
-      // Clear document error if it exists
-      const { documents: _, ...cleanedErrors } = errors;
-      setClientErrors(cleanedErrors);
-      return cleanedErrors;
-    }
+    setClientErrors(errors);
+    return errors;
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -244,15 +231,7 @@ export default function LaunchpadSubmitApplicationDialog({
 
   function removeDocument(index: number) {
     setDocuments((prev) => {
-      const next = prev.filter((_, i) => i !== index);
-      // Show error if no documents remain
-      if (next.length === 0 && prev.length > 0) {
-        setClientErrors((prevErrors) => ({
-          ...prevErrors,
-          documents: "Please upload at least one supporting document.",
-        }));
-      }
-      return next;
+      return prev.filter((_, i) => i !== index);
     });
   }
 
