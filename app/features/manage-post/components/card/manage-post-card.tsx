@@ -7,6 +7,7 @@ import { motion } from "motion/react";
 import type {
   ManagePost,
   ManagePostStatus,
+  PostingFilter,
   SourceType,
 } from "~/services/manage-post/types";
 

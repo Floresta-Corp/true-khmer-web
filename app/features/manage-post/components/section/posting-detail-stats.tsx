@@ -11,11 +11,17 @@ import { useEffect, useRef } from "react";
 
 export default function ManagePostingDetailStats() {
   const { postDetail } = useLoaderData<typeof loader>();
+
   const fetchers = useFetchers();
 
-  const recruited = postDetail?.stats?.recruited ?? 0;
+  const recruited =
+    (postDetail?.stats?.statuses?.APPROVED ?? 0) +
+    (postDetail?.stats?.statuses?.CONFIRMED ?? 0) +
+    (postDetail?.stats?.statuses?.COMPLETED ?? 0);
+
   const capacity = postDetail?.posting?.capacity ?? 0;
   const postingId = postDetail?.posting?.id;
+
   const localApprovedRef = useRef(recruited);
   const previousPostingIdRef = useRef(postingId);
 
@@ -26,8 +32,6 @@ export default function ManagePostingDetailStats() {
   useEffect(() => {
     if (postingId !== previousPostingIdRef.current) {
       previousPostingIdRef.current = postingId;
-      localApprovedRef.current = recruited;
-    } else if (recruited < localApprovedRef.current) {
       localApprovedRef.current = recruited;
     } else if (recruited > localApprovedRef.current) {
       localApprovedRef.current = recruited;

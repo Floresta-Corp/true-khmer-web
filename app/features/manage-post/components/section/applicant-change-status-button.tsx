@@ -1,7 +1,5 @@
 import { useFetcher } from "react-router";
-import { X } from "lucide-react";
-import { motion } from "motion/react";
-import { cn } from "~/lib/utils";
+
 import type {
   Applicant,
   ApplicationStatus,
@@ -38,7 +36,9 @@ export default function ApplicantStatusChangeButton({
   const pendingAction = fetcher.formData?.get("statusAction");
 
   const isFinalPending =
-    pendingAction === "approve" || pendingAction === "decline";
+    fetcher.state !== "idle" &&
+    (pendingAction === "approve" || pendingAction === "decline");
+
   const isServerFinalized = [
     "APPROVED",
     "CONFIRMED",
@@ -47,7 +47,7 @@ export default function ApplicantStatusChangeButton({
     "WITHDRAWN",
   ].includes(applicant?.status?.toUpperCase());
 
-  const isFinalStatus = isFinalPending || isServerFinalized;
+  const isFinalStatus = isServerFinalized;
 
   const displayAction: "approve" | "decline" = isFinalPending
     ? (pendingAction as "approve" | "decline")
@@ -76,7 +76,9 @@ export default function ApplicantStatusChangeButton({
             onClick={() => handleStatusChange("approve")}
             disabled={isLoading}
           >
-            {fetcher.state === "submitting" ? "Saving..." : "Approve"}
+            {isFinalPending && pendingAction === "approve"
+              ? "Saving..."
+              : "Approve"}
           </Button>
 
           <Button
@@ -85,7 +87,9 @@ export default function ApplicantStatusChangeButton({
             onClick={() => handleStatusChange("decline")}
             disabled={isLoading}
           >
-            Decline
+            {isFinalPending && pendingAction === "decline"
+              ? "Saving..."
+              : "Decline"}
           </Button>
         </>
       )}
