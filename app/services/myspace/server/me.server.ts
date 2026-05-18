@@ -4,6 +4,8 @@ import type {
   GetRecentActivityResponse,
   UpdateMySpaceInput,
   UpdateMySpaceResponse,
+  Country,
+  City,
 } from "../types";
 
 export async function GetMyspaceMe(request: Request) {
@@ -35,3 +37,24 @@ export async function UpdateMyspace(
     },
   );
 }
+
+export async function GetCountries(request: Request) {
+  return await apiRequestWithSession<{ ok: boolean; countries: Country[] }>(
+    request,
+    "/onboarding/locations/countries",
+    {
+      method: "GET",
+    },
+  );
+}
+
+export async function GetCities(request: Request, countryId: string) {
+  return await apiRequestWithSession<{ ok: boolean; cities: City[] }>(
+    request,
+    `/onboarding/locations/cities?countryId=${encodeURIComponent(countryId)}`,
+    {
+      method: "GET",
+    },
+  );
+}
+

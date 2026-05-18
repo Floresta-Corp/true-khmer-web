@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "motion/react";
 import { useFetcher, useLoaderData, useSearchParams } from "react-router";
+import { useCallback } from "react";
 import { Search } from "lucide-react";
 import { Input } from "~/components/ui/input";
 import {
@@ -14,8 +15,10 @@ import { VolunteerAvailableOpportunities } from "../page/section/volunteer-avail
 import { volunteerLoader } from "~/routes/api/volunteer/volunteer-loader";
 import { CategoryCard } from "~/components/category-card";
 import { useState } from "react";
+import { volunteerAction } from "~/routes/api/volunteer/volunteer-action";
 
 export const loader = volunteerLoader;
+export const action = volunteerAction;
 
 export function meta() {
   return [{ title: "All Volunteer Opportunities | True Khmer" }];
@@ -39,6 +42,9 @@ export default function VolunteerAllPage() {
     searchParams.get("search") || "",
   );
   const activeLocation = locations?.find((l) => l.id === activeLocationId);
+  const reloadOpportunities = useCallback(() => {
+    fetcher.load(`/volunteer/all?${searchParams.toString()}`);
+  }, [fetcher, searchParams]);
 
   const handleSearch = (value: string) => {
     const params = new URLSearchParams(searchParams);
@@ -159,7 +165,6 @@ export default function VolunteerAllPage() {
                   className="shrink-0 snap-start md:min-w-0 md:shrink md:w-full cursor-pointer"
                 >
                   <CategoryCard
-                    category={v}
                     onClick={() => {
                       const params = new URLSearchParams(searchParams);
                       if (v.id === activeCategoryId) {
@@ -171,6 +176,14 @@ export default function VolunteerAllPage() {
                       fetcher.load(`/volunteer/all?${params.toString()}`);
                     }}
                     active={v.id === activeCategoryId}
+                    category={{
+                      ...v,
+                      displayOrder: v.opportunityCount,
+                      updatedBy: v.updatedBy ?? undefined,
+                    }}
+                    displayName={
+                      (v?.opportunityCount || 0) > 1 ? "listings" : "listing"
+                    }
                   />
                 </div>
               ))}
@@ -188,6 +201,7 @@ export default function VolunteerAllPage() {
             className="w-full px-0 py-0 md:px-0 lg:px-0"
             opportunities={filteredOpportunities ?? []}
             isLoading={isLoading}
+            onMutationComplete={reloadOpportunities}
           />
         </motion.div>
       </div>

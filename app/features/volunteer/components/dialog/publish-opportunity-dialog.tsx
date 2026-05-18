@@ -60,7 +60,7 @@ export default function PublishOpportunitySuccessDialog({
                   onOpenChange(false);
                 }}
               >
-                Create another Opportunities
+                Explore More Opportunities
               </Button>
             </Link>
           </div>

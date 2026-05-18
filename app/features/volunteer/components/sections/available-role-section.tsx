@@ -12,10 +12,12 @@ import VolunteerApplicationDialog from "../dialog/volunteer-application-dialog";
 interface AvailableRolesSectionProps {
   roles: Role[];
   showHeader?: boolean;
+  hideApplyButton?: boolean;
 }
 
 export default function AvailableRolesSection({
   roles,
+  hideApplyButton,
   showHeader = true,
 }: AvailableRolesSectionProps) {
   return (
@@ -33,7 +35,12 @@ export default function AvailableRolesSection({
         defaultValue={[roles[0].id]}
       >
         {roles.map((role) => (
-          <RoleCard key={role.id} role={role} roles={roles} />
+          <RoleCard
+            key={role.id}
+            role={role}
+            roles={roles}
+            hideApplyButton={hideApplyButton}
+          />
         ))}
       </Accordion>
     </div>
@@ -43,9 +50,10 @@ export default function AvailableRolesSection({
 interface RoleCardProps {
   role: Role;
   roles: Role[];
+  hideApplyButton?: boolean;
 }
 
-function RoleCard({ role, roles }: RoleCardProps) {
+function RoleCard({ role, roles, hideApplyButton }: RoleCardProps) {
   return (
     <AccordionItem
       value={role.id}
@@ -74,17 +82,24 @@ function RoleCard({ role, roles }: RoleCardProps) {
           <RequirementsSection items={role.requirements} />
         </div>
 
-        <div className="my-7.25 flex justify-end pt-7.25">
-          <VolunteerApplicationDialog
-            roles={roles}
-            initialRoleId={role.id}
-            trigger={
-              <Button className="h-10 w-full bg-[#1c5dd4] px-6 text-sm font-medium text-[#f8fafc] hover:bg-[#184fb0]">
-                Apply for this Role
-              </Button>
-            }
-          />
-        </div>
+        {!hideApplyButton ? (
+          <div className="my-7.25 flex justify-end pt-7.25">
+            <VolunteerApplicationDialog
+              roles={roles}
+              initialRoleId={role.id}
+              trigger={
+                <Button
+                  disabled={role.viewerApplied}
+                  className="h-10 w-full bg-[#1c5dd4] px-6 text-sm font-medium text-[#f8fafc] hover:bg-[#184fb0]"
+                >
+                  Apply for this Role
+                </Button>
+              }
+            />
+          </div>
+        ) : (
+          <div className="mb-3" />
+        )}
       </AccordionContent>
     </AccordionItem>
   );

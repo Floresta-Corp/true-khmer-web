@@ -13,7 +13,7 @@ export async function MyApplicationLoader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const queryParams: MyApplicationQueryParams = {};
   for (const [key, value] of url.searchParams.entries()) {
-    if (key === "tab" || key === "status") {
+    if (key === "tab" || key === "filter") {
       queryParams[key] = value;
     }
   }

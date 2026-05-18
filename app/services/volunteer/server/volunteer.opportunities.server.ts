@@ -144,3 +144,28 @@ export async function uploadOpportunityCoverImage(
     body: body,
   });
 }
+export async function SaveVolunteerOpportunity(
+  request: Request,
+  opportunityId: string,
+) {
+  return await apiRequestWithSession<{ ok: boolean; message: string }>(
+    request,
+    `/volunteer/save-opportunity/${opportunityId}`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function UnsaveVolunteerOpportunity(
+  request: Request,
+  opportunityId: string,
+) {
+  return await apiRequestWithSession<{ ok: boolean; message: string }>(
+    request,
+    `/volunteer/save-opportunity/${opportunityId}`,
+    {
+      method: "DELETE",
+    },
+  );
+}

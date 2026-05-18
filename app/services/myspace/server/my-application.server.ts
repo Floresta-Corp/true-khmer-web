@@ -3,7 +3,7 @@ import type { GetMyApplicationResponse } from "../types";
 
 export interface MyApplicationQueryParams {
   tab?: string;
-  status?: string;
+  filter?: string;
 }
 
 export async function getMyApplicationResponse(
@@ -14,8 +14,8 @@ export async function getMyApplicationResponse(
   if (queryParams.tab) {
     searchParams.set("type", queryParams.tab);
   }
-  if (queryParams.status) {
-    searchParams.set("status", queryParams.status);
+  if (queryParams.filter) {
+    searchParams.set("filter", queryParams.filter);
   }
   const url = `/my-application?${searchParams.toString()}`;
 

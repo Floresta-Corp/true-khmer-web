@@ -1,5 +1,4 @@
-import { useLoaderData, useSearchParams } from "react-router";
-import { useEffect, useRef, useState } from "react";
+import { useLoaderData, useNavigation, useSearchParams } from "react-router";
 import type { loader } from "../../routes/workspace";
 import WorkspaceSkeleton from "../workspace-skeleton";
 import WorkspaceQuestionItem from "../card/workspace-question-card";
@@ -13,23 +12,14 @@ type TabType = "questions" | "answers";
 
 export default function WorkSpacePage({}: Props) {
   const { categories, answers, questions } = useLoaderData<typeof loader>();
+  const navigation = useNavigation();
   const [searchParams] = useSearchParams();
   const rawTab = searchParams.get("tab");
   const activeTab: TabType =
     rawTab === "questions" || rawTab === "answers" ? rawTab : "questions";
 
-  const [isLoading, setIsLoading] = useState(false);
-  const isFirstRender = useRef(true);
-
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 400);
-    return () => clearTimeout(timer);
-  }, [activeTab]);
+  const isLoading =
+    navigation.state === "loading" || navigation.state === "submitting";
 
   return (
     <WorkSpacePageLayout

@@ -3,6 +3,7 @@ import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
 import { UpdateMyspace } from "~/services/myspace/server/me.server";
 import type { UpdateMySpaceInput } from "~/services/myspace/types";
+import { UploadAvatarPresign } from "~/services/uploads-avatar-presign.server";
 
 export async function EditProfileAction({
   request,
@@ -44,7 +45,7 @@ export async function EditProfileAction({
   const contributionsVisibility =
     String(formData.get("contributionsVisibility") ?? "").trim() || "public";
 
-  const payload: UpdateMySpaceInput = {
+  let payload: UpdateMySpaceInput = {
     firstName,
     lastName,
     gender,
@@ -71,6 +72,38 @@ export async function EditProfileAction({
     },
   };
 
+  const avatarFile = formData.get("avatarFile") as File;
+
+  if (avatarFile) {
+    try {
+      const result = await UploadAvatarPresign(request, {
+        contentType: avatarFile.type,
+        fileName: avatarFile.name,
+        fileSize: avatarFile.size,
+      });
+      if (!result.data.ok) {
+        return { ok: false, message: "Failed to prepare avatar upload." };
+      }
+      const upload = result.data.upload;
+      const uploadResult = await fetch(upload.uploadUrl, {
+        method: upload.method,
+        body: avatarFile,
+        headers: upload.requiredHeaders,
+        signal: AbortSignal.timeout(30_000),
+      });
+      if (!uploadResult.ok) {
+        console.error("avatar upload failed", {
+          status: uploadResult.status,
+          url: upload.uploadUrl,
+        });
+        return { ok: false, message: "Failed to upload avatar image." };
+      }
+      payload = { ...payload, avatarKey: upload.avatarKey };
+    } catch (err) {
+      console.error("Avatar upload failed", err);
+      return { ok: false, message: "Failed to upload avatar image." };
+    }
+  }
   try {
     const result = await UpdateMyspace(request, payload);
     return result.data;
@@ -81,7 +114,6 @@ export async function EditProfileAction({
         message: error.message || "Failed to update profile.",
       };
     }
-
     return {
       ok: false,
       message: "Failed to update profile.",

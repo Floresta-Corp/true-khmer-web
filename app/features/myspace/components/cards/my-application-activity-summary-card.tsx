@@ -49,8 +49,6 @@ const StatusIcon = (label: string) => {
 
 export default function MyApplicationActivitySummaryCard() {
   const { myApplication } = useLoaderData<typeof loader>();
-  const navigation = useNavigation();
-  const isLoading = navigation.state === "loading";
   const summary = myApplication.summary;
   const pending = Number(summary.PENDING || 0);
   const active = Number(summary.ACTIVE || 0);
@@ -80,13 +78,9 @@ export default function MyApplicationActivitySummaryCard() {
                 <p className="font-semibold text-[#4D5D73] text-[12px]">
                   {v.label}
                 </p>
-                {isLoading ? (
-                  <Spinner className="size-4.5 mt-1.5" />
-                ) : (
-                  <p className="font-bold text-[18px]">
-                    {v.value >= 10 ? v.value : `0${v.value}`}
-                  </p>
-                )}
+                <span className="font-bold text-[18px]">
+                  {v.value >= 10 ? v.value : `0${v.value}`}
+                </span>
               </div>
             </div>
           );

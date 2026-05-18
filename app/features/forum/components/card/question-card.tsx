@@ -40,7 +40,7 @@ export default function QuestionCard({
 
   return (
     <motion.article
-      className="w-full rounded-2xl bg-white p-4 shadow-[0px_4px_24px_0px_rgba(0,0,0,0.04)] sm:p-6"
+      className="w-full rounded-2xl bg-white p-4 shadow-[0px_4px_24px_0px_rgba(0,0,0,0.04)] sm:p-6 border border-slate-200"
       initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
