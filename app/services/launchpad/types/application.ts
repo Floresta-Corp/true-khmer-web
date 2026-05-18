@@ -35,11 +35,18 @@ export type ApplicationDocumentPresignResponse = z.infer<
 export const ApplyRoleInputSchema = z.object({
   launchpadRoleId: z.string().regex(UUID_PATTERN),
   motivation: z.string().min(5).max(2000),
-  portfolio: z.preprocess((value) => {
-    if (typeof value !== "string") return value;
-    const trimmed = value.trim();
-    return trimmed.length === 0 ? undefined : trimmed;
-  }, z.string().url().max(255).optional()),
+  portfolio: z
+    .preprocess((value) => {
+      if (typeof value !== "string") return value;
+      const trimmed = value.trim();
+      return trimmed.length === 0 ? undefined : trimmed;
+    }, z.string().url().max(255).optional())
+    .refine((value) => {
+      if (!value) return true;
+      return value.startsWith("https://");
+    }, {
+      message: "Portfolio must use HTTPS",
+    }),
   documentKeys: z.array(z.string()).max(5).optional().default([]),
   documentNames: z.array(z.string()).max(5).optional().default([]),
 });
