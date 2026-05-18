@@ -1,11 +1,19 @@
-import { X, FileText, Download, Mail, Phone } from "lucide-react";
+import {
+  X,
+  FileText,
+  Download,
+  Mail,
+  Phone,
+  ArrowRight,
+  DownloadIcon,
+} from "lucide-react";
 import { Send } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import { formatDate } from "~/features/events/lib/event-formatters";
-import { cn } from "~/lib/utils";
+import { cn, resolveImageURL } from "~/lib/utils";
 import type {
   Applicant,
   ApplicantStatusAction,
@@ -16,6 +24,8 @@ import ApplicantStatusChangeButton from "./applicant-change-status-button";
 
 const STATUS_STYLES: Record<ApplicantStatusAction, string> = {
   approve: "bg-green-100 text-green-700 border-green-200 hover:bg-gray-100",
+  completed: "bg-green-100 text-green-700 border-green-200 hover:bg-gray-100",
+  confirmed: "bg-green-100 text-green-700 border-green-200 hover:bg-gray-100",
   decline: "bg-red-100 text-red-700 border-red-200 hover:bg-gray-100",
   under_review:
     "bg-purple-100 text-purple-700 border-purple-200 hover:bg-gray-100",
@@ -24,6 +34,8 @@ const STATUS_STYLES: Record<ApplicantStatusAction, string> = {
 
 const STATUS_LABELS: Record<ApplicantStatusAction, string> = {
   approve: "Approved",
+  completed: "Completed",
+  confirmed: "Confirmed",
   decline: "Declined",
   submitted: "Submitted",
   under_review: "Under Review",
@@ -42,6 +54,24 @@ export default function ApplicantSideBar({
   postingId,
   sourceType,
 }: Props) {
+  const supportingDocs = applicant?.volunteer?.supportingDocuments as
+    | { key: string; name: string }[]
+    | undefined;
+
+  const documentData = supportingDocs?.map((doc, index) => {
+    const docKey = typeof doc === "object" ? doc.key : doc;
+    const docName = typeof doc === "object" ? doc.name : doc;
+
+    const fallbackName = docKey?.split("/").pop();
+
+    return {
+      id: `file-${index}`,
+      key: docKey,
+      name: docName || fallbackName || `Document ${index + 1}`,
+      sizeLabel: "PDF",
+    };
+  });
+
   const normalizeStatus = (status: string): ApplicantStatusAction => {
     const map: Record<string, ApplicantStatusAction> = {
       SUBMITTED: "submitted",
@@ -212,48 +242,35 @@ export default function ApplicantSideBar({
               )}
 
               {/* Supporting Documents */}
-              {applicant.volunteer?.supportingDocuments?.length > 0 && (
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
-                    Attached Files
-                  </p>
-                  <div className="flex flex-col gap-2">
-                    {applicant.volunteer.supportingDocuments.map((doc) => (
-                      <div
-                        key={doc.key}
-                        className="flex items-center justify-between px-3 py-2.5 rounded-xl border border-gray-100 bg-gray-50"
-                      >
-                        <a
-                          href={doc?.key}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm text-gray-700"
-                        >
-                          <FileText size={14} className="text-blue-400" />
-                          {doc.name}
-                        </a>
-                        <a
-                          href={doc.key}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          download={doc.name}
-                          aria-label={`Download ${doc.name}`}
-                          className="text-gray-400 hover:text-blue-500 transition-colors"
-                        >
-                          <Download size={14} />
-                        </a>
-                      </div>
-                    ))}
+              {documentData?.map((file) => (
+                <a
+                  key={file.id}
+                  href={resolveImageURL(file.key)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-3 rounded-xl border border-[#E7ECF3] p-3 transition-all hover:bg-slate-50"
+                >
+                  <div className="flex size-9 items-center justify-center rounded-lg border border-[#E7ECF3] bg-white">
+                    <Download size={16} className="text-blue-500" />
                   </div>
-                </div>
-              )}
+                  <div className="flex-1">
+                    <div className="line-clamp-1 text-sm font-medium text-[#0F1729]">
+                      {file?.name}
+                    </div>
+                    <div className="text-xs font-semibold text-[#99A1AF]">
+                      {file.sizeLabel}
+                    </div>
+                  </div>
+                  <DownloadIcon className="text-[#D1D5DC]" size={16} />
+                </a>
+              ))}
             </div>
 
             {/* Accept / Decline */}
             <ApplicantStatusChangeButton
               applicant={applicant}
               currentStatus={
-                normalizeStatus(applicant.status) as ApplicationStatus
+                normalizeStatus(applicant.status) as ApplicantStatusAction
               }
               applicationId={applicant.id}
               postingId={postingId}

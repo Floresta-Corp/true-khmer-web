@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { HandHeart, MoreHorizontal, Rocket } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -38,6 +38,9 @@ type Props = {
 };
 
 export default function ManagePostCard({ posting, index = 0 }: Props) {
+  const navigate = useNavigate();
+  const cardHref = `/manage-post/${normalizePostingSource(posting.sourceType)}/${posting.id}`;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -50,8 +53,14 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
       }}
       className="h-full"
     >
-      <div className="flex flex-col h-full bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 hover:shadow-xl hover:shadow-gray-200/40 transition-all duration-300 relative group">
-        <button className="absolute top-3 right-3 sm:top-5 sm:right-5 text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-50 transition-colors z-10">
+      <div
+        onClick={() => navigate(cardHref)}
+        className="flex flex-col h-full bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 hover:shadow-xl hover:shadow-gray-200/40 transition-all duration-300 relative group cursor-pointer"
+      >
+        <button
+          onClick={(e) => e.stopPropagation()}
+          className="absolute top-3 right-3 sm:top-5 sm:right-5 text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-50 transition-colors z-10"
+        >
           <MoreHorizontal size={20} />
         </button>
 
@@ -80,14 +89,9 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
         </div>
 
         <div className="grow space-y-2 mt-2 pr-6">
-          <Link
-            to={`/manage-post/${normalizePostingSource(posting.sourceType)}/${posting.id}`}
-            className="block"
-          >
-            <h3 className="text-lg sm:text-xl font-bold text-slate-800 leading-tight hover:text-blue-600 transition-colors line-clamp-1 sm:line-clamp-2">
-              {posting.title}
-            </h3>
-          </Link>
+          <h3 className="text-lg sm:text-xl font-bold text-slate-800 leading-tight group-hover:text-blue-600 transition-colors line-clamp-1 sm:line-clamp-2">
+            {posting.title}
+          </h3>
           <p className="text-sm text-slate-500 line-clamp-2 leading-relaxed italic sm:not-italic">
             {posting.description ?? "No description provided."}
           </p>
@@ -113,19 +117,10 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
                 : posting.views}
             </span>
           </div>
-
-          {/* <div className="flex flex-col">
-            <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-tighter sm:tracking-widest">
-              Capacity
-            </span>
-            <span className="text-lg sm:text-2xl font-black text-slate-900 leading-none mt-1">
-              {posting.capacity}
-            </span>
-          </div> */}
         </div>
 
-        {/* Action Button Section */}
-        <div className="mt-6">
+        {/* stopPropagation so buttons don't double-navigate */}
+        <div className="mt-6" onClick={(e) => e.stopPropagation()}>
           {posting.status === "FILLED" || posting.status === "ENDED" ? (
             <Button
               variant="outline"
@@ -137,10 +132,9 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
           ) : (
             <Button
               variant="default"
-              className="w-full h-10 sm:h-12 text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md shadow-blue-200 transition-all active:scale-[0.98]"
-              asChild
+              className="w-full h-10 sm:h-12 text-sm font-bold bg-white hover:bg-blue-600 text-blue-600 hover:text-white border border-blue-200 hover:border-transparent rounded-xl shadow-sm transition-all duration-200 active:scale-[0.98]"
             >
-              <Link to={`/manage-post/${posting.id}`}>Manage Posting</Link>
+              <Link to={cardHref}>Manage Posting</Link>
             </Button>
           )}
         </div>

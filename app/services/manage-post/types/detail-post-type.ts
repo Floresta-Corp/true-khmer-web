@@ -12,9 +12,6 @@ export const ApplicantStatusSchema = z.enum([
 ]);
 export type ApplicantStatus = z.infer<typeof ApplicantStatusSchema>;
 
-// export const SourceTypeSchema = z.enum(["PROJECT", "VOLUNTEER"]);
-// export type SourceType = z.infer<typeof SourceTypeSchema>;
-
 export const PostingStatusSchema = z.enum([
   "ACTIVE",
   "DRAFT",
@@ -42,6 +39,8 @@ export const ApplicantStatusActionSchema = z.enum([
   "under_review",
   "approve",
   "decline",
+  "confirmed",
+  "completed",
   "submitted",
 ]);
 

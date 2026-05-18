@@ -1,17 +1,30 @@
 import { useFetcher } from "react-router";
-
 import type {
   Applicant,
-  ApplicationStatus,
+  ApplicantStatusAction,
 } from "~/services/manage-post/types";
 import { Button } from "~/components/ui/button";
 
 type Props = {
-  currentStatus: ApplicationStatus;
+  currentStatus: ApplicantStatusAction;
   postingId: string;
   applicationId: string;
   sourceType: string;
   applicant: Applicant;
+};
+
+// What the BACKEND returns as applicant.status
+const FINALIZED_APPROVED = ["APPROVED", "CONFIRMED", "COMPLETED"] as const;
+const FINALIZED_DECLINED = ["DECLINED", "WITHDRAWN"] as const;
+
+const displayLabel: Record<string, string> = {
+  APPROVED: "approved",
+  CONFIRMED: "confirmed",
+  COMPLETED: "completed",
+  DECLINED: "declined",
+  WITHDRAWN: "withdrawn",
+  UNDER_REVIEW: "under review",
+  SUBMITTED: "submitted",
 };
 
 export default function ApplicantStatusChangeButton({
@@ -25,35 +38,33 @@ export default function ApplicantStatusChangeButton({
     const formData = new FormData();
     formData.append("applicationId", applicationId);
     formData.append("statusAction", statusAction);
-
     fetcher.submit(formData, {
       method: "POST",
       action: window.location.pathname,
     });
   };
 
-  const normalizedStatus = applicant?.status?.toUpperCase();
-  const pendingAction = fetcher.formData?.get("statusAction");
-
+  const pendingAction = fetcher.formData?.get("statusAction") as
+    | "approve"
+    | "decline"
+    | null;
   const isFinalPending =
     fetcher.state !== "idle" &&
     (pendingAction === "approve" || pendingAction === "decline");
 
-  const isServerFinalized = [
-    "APPROVED",
-    "CONFIRMED",
-    "COMPLETED",
-    "DECLINED",
-    "WITHDRAWN",
-  ].includes(applicant?.status?.toUpperCase());
+  const normalizedStatus = applicant?.status?.toUpperCase();
+  const isServerApproved = (FINALIZED_APPROVED as readonly string[]).includes(
+    normalizedStatus,
+  );
+  const isServerDeclined = (FINALIZED_DECLINED as readonly string[]).includes(
+    normalizedStatus,
+  );
+  const isServerFinalized = isServerApproved || isServerDeclined;
 
-  const isFinalStatus = isServerFinalized;
+  const isFinalStatus = isServerFinalized || isFinalPending;
 
-  const displayAction: "approve" | "decline" = isFinalPending
-    ? (pendingAction as "approve" | "decline")
-    : normalizedStatus === "DECLINED" || normalizedStatus === "WITHDRAWN"
-      ? "decline"
-      : "approve";
+  const isApprovedSide =
+    isServerApproved || (!isServerDeclined && pendingAction === "approve");
 
   return (
     <div className="mt-auto p-6 flex flex-col gap-2 border-t border-gray-100">
@@ -61,11 +72,14 @@ export default function ApplicantStatusChangeButton({
         <p className="text-center text-sm text-gray-400">
           This applicant has been{" "}
           <span
-            className={
-              displayAction === "approve" ? "text-emerald-600" : "text-red-500"
-            }
+            className={isApprovedSide ? "text-emerald-600" : "text-red-500"}
           >
-            {displayAction === "approve" ? "approved" : "declined"}
+            {isFinalPending
+              ? pendingAction === "approve"
+                ? "approved"
+                : "declined"
+              : (displayLabel[normalizedStatus] ??
+                normalizedStatus?.toLowerCase())}
           </span>
           .
         </p>
