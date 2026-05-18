@@ -10,7 +10,7 @@ import type { loader } from "../../routes/manage-post.$sourceType.$id";
 export default function ManagePostingDetailStats() {
   const { postDetail } = useLoaderData<typeof loader>();
 
-  const totalApplicant = postDetail?.stats?.totalApplicants ?? 0;
+  const totalApplicant = postDetail?.stats?.statuses.APPROVED ?? 0;
 
   const capacity = postDetail?.posting?.capacity ?? 0;
 
@@ -23,7 +23,7 @@ export default function ManagePostingDetailStats() {
         <div className="relative z-20">
           <p className="text-md font-bold text-white/70 uppercase tracking-[0.15em] mb-4">
             Pending
-            {postDetail?.stats?.pending ?? ""}
+            {/* {postDetail?.stats?.pending ?? ""} */}
           </p>
           <p className="text-4xl font-bold text-white tracking-tight">
             {postDetail?.posting?.applicantCount}
@@ -54,7 +54,7 @@ export default function ManagePostingDetailStats() {
             Total Applicants
           </p>
           <p className="text-4xl font-bold text-gray-900 tracking-tight">
-            {postDetail?.stats?.totalApplicants ?? 12}
+            {postDetail?.stats?.totalApplicants ?? 0}
           </p>
           <p className="text-xs font-semibold text-emerald-500 mt-2">
             +12% this week
@@ -100,7 +100,7 @@ export default function ManagePostingDetailStats() {
             Recruitment Goal
           </p>
           <p className="text-4xl font-bold text-gray-900 tracking-tight">
-            {postDetail?.stats?.capacity ?? ""}
+            {postDetail?.stats?.statuses?.APPROVED}
           </p>
           <p className="text-xs font-semibold text-amber-500 mt-2">
             {remaining} to go
