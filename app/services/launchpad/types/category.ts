@@ -7,7 +7,7 @@ export const CategorySchema = z.object({
   iconKey: z.string(),
   displayOrder: z.number(),
   status: z.string(),
-  roleCount: z.number(),
+  totalLaunchpad: z.number(),
   createdBy: z.string(),
   updatedBy: z.string().nullish(),
   createdAt: z.string(),

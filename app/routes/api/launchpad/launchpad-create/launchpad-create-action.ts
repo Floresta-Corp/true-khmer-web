@@ -1,4 +1,5 @@
 import type { ActionFunctionArgs } from "react-router";
+import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
 import {
   createLaunchpad,
@@ -162,6 +163,53 @@ function getUploadKey(upload: unknown): string | null {
   return findUploadKeyDeep(upload);
 }
 
+function parseValidationFieldErrors(
+  details: unknown,
+): Record<string, string> | null {
+  if (!isRecord(details) || !isRecord(details.error)) {
+    return null;
+  }
+
+  const message = details.error.message;
+  if (typeof message !== "string") {
+    return null;
+  }
+
+  try {
+    const parsedIssues = JSON.parse(message);
+    if (!Array.isArray(parsedIssues)) {
+      return null;
+    }
+
+    const entries = parsedIssues
+      .map((issue) => {
+        if (!isRecord(issue) || typeof issue.message !== "string") {
+          return null;
+        }
+
+        const issuePath = issue.path;
+        if (Array.isArray(issuePath) && typeof issuePath[0] === "string") {
+          return [issuePath[0], issue.message] as const;
+        }
+
+        if (typeof issuePath === "string") {
+          return [issuePath, issue.message] as const;
+        }
+
+        return null;
+      })
+      .filter((entry): entry is readonly [string, string] => entry !== null);
+
+    if (entries.length === 0) {
+      return null;
+    }
+
+    return Object.fromEntries(entries);
+  } catch {
+    return null;
+  }
+}
+
 async function uploadToStorage(upload: LaunchpadPresignedUpload, file: File) {
   const headers = new Headers(upload.requiredHeaders ?? {});
 
@@ -315,6 +363,14 @@ export async function launchpadCreateAction({ request }: ActionFunctionArgs) {
     };
   } catch (error) {
     console.error("Failed to create launchpad:", error);
+
+    if (error instanceof ProtectedApiError) {
+      return {
+        error: error.message || "Failed to create launchpad. Please try again.",
+        fieldErrors: parseValidationFieldErrors(error.details) ?? undefined,
+      };
+    }
+
     return { error: "Failed to create launchpad. Please try again." };
   }
 }

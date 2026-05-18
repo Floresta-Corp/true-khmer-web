@@ -17,6 +17,7 @@ interface CategoryCardProps {
   onClick?: (categoryId: string) => void;
   active?: boolean;
   className?: string;
+  displayName?: string;
 }
 
 function BuildCategoryIcon({
@@ -48,6 +49,7 @@ export function CategoryCard({
   onClick,
   active,
   className,
+  displayName,
 }: CategoryCardProps) {
   const { iconKey, name, displayOrder } = category;
   return (
@@ -67,7 +69,7 @@ export function CategoryCard({
       <div className="flex flex-col items-start gap-[3.5px]">
         <h3 className="text-sm font-bold leading-3.5 text-[#030213]">{name}</h3>
         <p className="text-xs font-medium leading-4.5 text-[#99a1af]">
-          {displayOrder} roles
+          {displayOrder} {displayName ? displayName : "roles"}
         </p>
       </div>
     </Button>
