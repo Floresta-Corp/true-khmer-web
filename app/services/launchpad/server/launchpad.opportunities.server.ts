@@ -178,16 +178,26 @@ export async function saveLaunchpad(
   request: Request,
   launchpadId: string,
 ): Promise<void> {
-  await apiRequestWithSession(request, `/launchpad/save/${launchpadId}`, {
-    method: "POST",
-  });
+  const encodedLaunchpadId = encodeURIComponent(launchpadId);
+  await apiRequestWithSession(
+    request,
+    `/launchpad/save/${encodedLaunchpadId}`,
+    {
+      method: "POST",
+    },
+  );
 }
 
 export async function unsaveLaunchpad(
   request: Request,
   launchpadId: string,
 ): Promise<void> {
-  await apiRequestWithSession(request, `/launchpad/save/${launchpadId}`, {
-    method: "DELETE",
-  });
+  const encodedLaunchpadId = encodeURIComponent(launchpadId);
+  await apiRequestWithSession(
+    request,
+    `/launchpad/save/${encodedLaunchpadId}`,
+    {
+      method: "DELETE",
+    },
+  );
 }

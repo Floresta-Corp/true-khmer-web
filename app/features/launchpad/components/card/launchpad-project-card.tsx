@@ -19,6 +19,7 @@ export default function LaunchpadProjectCard({
   onOpenOpportunity,
 }: LaunchpadProjectCardProps) {
   const fetcher = useFetcher<{ ok: boolean; saved: boolean }>();
+  const isSubmitting = fetcher.state !== "idle";
 
   // Optimistic: if a submission is in-flight, use its intent; otherwise use item.isSaved
   const optimisticSaved =
@@ -28,6 +29,11 @@ export default function LaunchpadProjectCard({
 
   const handleHeartClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+
+    if (isSubmitting) {
+      return;
+    }
+
     fetcher.submit(
       { launchpadId: item.id, intent: optimisticSaved ? "unsave" : "save" },
       { method: "POST", action: "/api/launchpad/save" },
@@ -68,6 +74,7 @@ export default function LaunchpadProjectCard({
             optimisticSaved ? "Remove from favorites" : "Save to favorites"
           }
           onClick={handleHeartClick}
+          disabled={isSubmitting}
         />
       </div>
       <Card
