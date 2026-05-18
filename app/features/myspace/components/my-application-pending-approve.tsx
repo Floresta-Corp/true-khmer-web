@@ -1,44 +1,56 @@
-import { ChevronRight, Vote } from "lucide-react";
+import { ArrowRight, Clock3, Vote } from "lucide-react";
 import { motion } from "motion/react";
-import { useLoaderData } from "react-router";
+import { Link, useLoaderData, useSearchParams } from "react-router";
 import type { loader } from "../routes/my-applications";
+import { Button } from "~/components/ui/button";
+import { Badge } from "~/components/ui/badge";
 
 export default function MyApplicationPendingApprove() {
+  const [SearchParams, setSearchParams] = useSearchParams();
   const { myApplication } = useLoaderData<typeof loader>();
   const summary = myApplication.summary;
+  console.log(summary);
+  const handleReviewClicked = () => {
+    setSearchParams({ filter: "approved" });
+  };
   return (
     <motion.div
       hidden={summary.APPROVED > 0 ? false : true}
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm"
+      className="overflow-hidden"
     >
-      <div className="flex items-center gap-4 text-center md:text-left">
-        <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600">
-          <Vote size={24} />
-        </div>
-        <div>
-          <div className="flex items-center justify-center md:justify-start gap-2">
-            <h3 className="text-lg font-bold text-amber-900 dark:text-amber-400 tracking-tight">
-              {summary.APPROVED} Approve Applications
-            </h3>
-            <span className="px-2 py-0.5 bg-amber-200 dark:bg-amber-900/50 text-amber-900 dark:text-amber-400 text-[10px] font-black rounded-full">
-              ACTION NEEDED
-            </span>
+      <div className="bg-white dark:bg-slate-900 border border-orange-100 dark:border-orange-900/30 rounded-[28px] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none transition-all">
+        <div className="bg-orange-50/50 dark:bg-orange-950/10 px-8 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/40 rounded-xl flex items-center justify-center text-orange-600 dark:text-orange-400 shrink-0">
+              <Clock3 size={20} />
+            </div>
+            <div>
+              <div className="flex items-center gap-3 mb-0.5">
+                <h2 className="text-[17px] font-bold text-gray-900 dark:text-orange-50 tracking-tight">
+                  Confirmation Required
+                </h2>
+                <Badge className="bg-orange-600 text-white hover:bg-orange-700 border-none px-2 py-0.5 text-[10px] font-bold rounded-full flex items-center gap-1 shadow-sm shadow-orange-200">
+                  {summary.APPROVED} Pending
+                </Badge>
+              </div>
+              <p className="text-[12px] text-gray-500 dark:text-orange-400/60 font-medium">
+                Please finalize your participation for approved requests.
+              </p>
+            </div>
           </div>
-          {/*<p className="text-sm text-amber-700/70 dark:text-amber-400/60 mt-1">
-            There are 7 user verification requests waiting for manual
-            validation.
-          </p>*/}
+          <div className="flex items-center gap-4 w-full sm:w-auto">
+            <Button
+              onClick={handleReviewClicked}
+              className="h-10 rounded-full px-6 text-[12px] font-bold bg-orange-600 hover:bg-orange-700 text-white transition-all flex items-center gap-2 grow sm:grow-0"
+            >
+              Review
+              <ArrowRight size={14} />
+            </Button>
+          </div>
         </div>
       </div>
-      <button
-        // onClick={() => onAction?.("kyc")}
-        className="w-full md:w-auto px-8 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-amber-600/20 flex items-center justify-center gap-2"
-      >
-        Review Applications
-        <ChevronRight size={16} />
-      </button>
     </motion.div>
   );
 }

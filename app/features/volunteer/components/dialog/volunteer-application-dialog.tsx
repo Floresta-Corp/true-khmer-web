@@ -2,10 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useFetcher, useParams } from "react-router";
 import { toast } from "sonner";
 import type { Role } from "~/services/volunteer/types/opportunities";
-import {
-  validateVolunteerApplicationData,
-  validateVolunteerApplicationFiles,
-} from "../../lib/volunteer-validation";
+import { validateVolunteerApplicationData } from "../../lib/volunteer-validation";
 import { User, FileText } from "lucide-react";
 import {
   Dialog,
@@ -118,10 +115,7 @@ export default function VolunteerApplicationDialog({
   };
 
   const handleSubmit = () => {
-    const dataErrors = validateVolunteerApplicationData(formData);
-    const fileErrors = validateVolunteerApplicationFiles(files);
-
-    const validationErrors = { ...dataErrors, ...fileErrors };
+    const validationErrors = validateVolunteerApplicationData(formData);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -139,9 +133,12 @@ export default function VolunteerApplicationDialog({
     };
 
     submitData.append("data", JSON.stringify(submitPayload));
-    files.forEach((file) => {
-      submitData.append("files", file);
-    });
+
+    if (files && files.length > 0) {
+      files.forEach((file) => {
+        submitData.append("files", file);
+      });
+    }
 
     fetcher.submit(submitData, {
       method: "POST",
@@ -185,7 +182,7 @@ export default function VolunteerApplicationDialog({
           </div>
 
           <div className="space-y-2 mb-6">
-            <p className="text-sm font-medium leading-5.25 text-[#65758b]">
+            <p className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">
               Which role are you applying for?
             </p>
             <SingleSelectDropdown
@@ -216,9 +213,9 @@ export default function VolunteerApplicationDialog({
           <div className="space-y-2 mb-6">
             <label
               htmlFor="availability"
-              className="text-[13px] font-semibold leading-[19.5px] text-[#364153]"
+              className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1"
             >
-              Your Availability
+              Why do you want to join this project?
             </label>
             <Textarea
               id="availability"
@@ -248,9 +245,9 @@ export default function VolunteerApplicationDialog({
           <div className="space-y-2 mb-5">
             <label
               htmlFor="experience"
-              className="text-[13px] font-semibold leading-[19.5px] text-[#364153]"
+              className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1"
             >
-              Relevant Experience
+              Relevant experience
             </label>
             <Textarea
               id="experience"
@@ -287,7 +284,7 @@ export default function VolunteerApplicationDialog({
               multiple
             />
             <p className={`text-sm font-medium leading-5.25`}>
-              Supporting Documents
+              Supporting Documents (Optional)
             </p>
             <Button
               type="button"

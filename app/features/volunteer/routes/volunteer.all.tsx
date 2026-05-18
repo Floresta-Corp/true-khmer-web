@@ -165,7 +165,6 @@ export default function VolunteerAllPage() {
                   className="shrink-0 snap-start md:min-w-0 md:shrink md:w-full cursor-pointer"
                 >
                   <CategoryCard
-                    category={v}
                     onClick={() => {
                       const params = new URLSearchParams(searchParams);
                       if (v.id === activeCategoryId) {
@@ -177,6 +176,14 @@ export default function VolunteerAllPage() {
                       fetcher.load(`/volunteer/all?${params.toString()}`);
                     }}
                     active={v.id === activeCategoryId}
+                    category={{
+                      ...v,
+                      displayOrder: v.opportunityCount,
+                      updatedBy: v.updatedBy ?? undefined,
+                    }}
+                    displayName={
+                      (v?.opportunityCount || 0) > 1 ? "listings" : "listing"
+                    }
                   />
                 </div>
               ))}
