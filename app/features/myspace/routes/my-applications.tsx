@@ -1,7 +1,6 @@
 import { MyApplicationLoader } from "~/routes/api/myspace/my-application-loader";
 import MyApplicationHeader from "../components/section/my-application-header";
 import MyApplicationRightSidebar from "../components/section/my-application-right-sidebar";
-import { useLoaderData } from "react-router";
 import MyApplicationCardList from "../components/section/my-application-card-list";
 import MyAppicationMainContentHeader from "../components/section/my-application-main-content-header";
 import MyApplicationPendingApprove from "../components/my-application-pending-approve";

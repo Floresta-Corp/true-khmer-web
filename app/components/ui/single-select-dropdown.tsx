@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
 import { cn } from "~/lib/utils";
 
 export type SingleSelectOption = {
@@ -38,6 +39,8 @@ type SingleSelectDropdownProps = {
   className?: string;
   ariaInvalid?: boolean;
   ariaDescribedBy?: string;
+  icon?: React.ReactNode;
+  label?: string;
 };
 
 export function SingleSelectDropdown({
@@ -60,6 +63,8 @@ export function SingleSelectDropdown({
   className,
   ariaInvalid = false,
   ariaDescribedBy,
+  icon,
+  label,
 }: SingleSelectDropdownProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -90,7 +95,8 @@ export function SingleSelectDropdown({
   }
 
   return (
-    <>
+    <div className={cn("w-full", label && "space-y-2")}>
+      {label && <Label htmlFor={id}>{label}</Label>}
       {name ? <input id={id} type="hidden" name={name} value={value} /> : null}
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
@@ -103,20 +109,27 @@ export function SingleSelectDropdown({
             aria-invalid={ariaInvalid}
             aria-describedby={ariaDescribedBy}
             className={cn(
-              "h-11 w-full justify-between rounded-lg border-transparent bg-[#F8FAFC] px-3 text-[12.25px] font-medium text-[#1E293B] shadow-none hover:bg-[#F8FAFC] focus-visible:ring-[#2F6FE4]/30",
-              open && "bg-white text-[#475569] shadow-[0_0_0_1px_#D6E4FF]",
+              "flex h-10 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none ring-offset-background transition-colors placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate",
               triggerClassName,
+              open && "ring-2 ring-ring ring-offset-2",
               className,
             )}
           >
-            <span className={cn("truncate", !selected && "text-[#C8D6E5]")}>
-              {selected?.label ?? placeholder}
-            </span>
+            <div className="flex items-center gap-2 overflow-hidden">
+              {icon}
+              <span
+                className={cn(
+                  "truncate",
+                  !selected && "text-muted-foreground font-normal",
+                )}
+              >
+                {selected?.label ?? placeholder}
+              </span>
+            </div>
             <ChevronDown
-              size={16}
               className={cn(
-                "shrink-0 text-[#B7C3D6] transition-transform duration-200 ease-out",
-                open && "rotate-180 text-[#2F6FE4]",
+                "h-4 w-4 shrink-0 opacity-50 transition-transform duration-200",
+                open && "rotate-180 opacity-100",
               )}
             />
           </Button>
@@ -124,14 +137,14 @@ export function SingleSelectDropdown({
         <DropdownMenuContent
           align="start"
           className={cn(
-            "max-h-72 overflow-y-auto rounded-lg border border-[#E2E8F0] bg-white p-1",
+            "relative z-50 max-h-72 min-w-32 overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md",
             contentClassName,
           )}
           style={menuWidth ? { width: `${menuWidth}px` } : undefined}
         >
-          <DropdownMenuGroup>
+          <DropdownMenuGroup className="p-1">
             {menuLabel ? (
-              <DropdownMenuLabel className="text-xs font-semibold text-[#64748B]">
+              <DropdownMenuLabel className="px-2 py-1.5 text-sm font-semibold">
                 {menuLabel}
               </DropdownMenuLabel>
             ) : null}
@@ -186,6 +199,6 @@ export function SingleSelectDropdown({
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
-    </>
+    </div>
   );
 }

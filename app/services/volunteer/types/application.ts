@@ -11,7 +11,7 @@ export const ApplyApplicationInputSchema = z.object({
   roleId: z.string(),
   availability: z.string(),
   relevantExperience: z.string(),
-  supportingDocuments: z.array(SupportingDocumentSchema),
+  supportingDocuments: z.array(SupportingDocumentSchema).optional(),
 });
 export type ApplyApplicationInput = z.infer<typeof ApplyApplicationInputSchema>;
 

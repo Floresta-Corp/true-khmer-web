@@ -35,7 +35,7 @@ export default function LaunchpadAuthorCard({
   const emailLink = project.email ? `mailto:${project.email}` : undefined;
 
   return (
-    <Card className="rounded-2xl border-[#E7ECF3] bg-white p-5">
+    <Card className="rounded-2xl border-[#E7ECF3] bg-white p-5 shadow-none">
       <div className="mb-4 text-sm font-medium text-[#6A7282]">Posted by</div>
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
