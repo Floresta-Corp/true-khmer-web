@@ -6,6 +6,7 @@ import {
   Phone,
   ArrowRight,
   DownloadIcon,
+  Check,
 } from "lucide-react";
 import { Send } from "lucide-react";
 import { motion } from "motion/react";
@@ -54,6 +55,8 @@ export default function ApplicantSideBar({
   postingId,
   sourceType,
 }: Props) {
+  const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
+
   const supportingDocs = applicant?.volunteer?.supportingDocuments as
     | { key: string; name: string }[]
     | undefined;
@@ -84,6 +87,13 @@ export default function ApplicantSideBar({
     };
     return map[status?.toUpperCase()] ?? "submitted";
   };
+
+  const roles = applicant?.roles ?? [];
+  const hasMultipleRoles = roles.length > 1;
+
+  const overallStatus = normalizeStatus(applicant?.status ?? "submitted");
+
+  const isNew = overallStatus === "submitted";
 
   return (
     <>
@@ -130,14 +140,20 @@ export default function ApplicantSideBar({
                   <p className="text-sm text-gray-400">
                     {applicant.candidate.email}
                   </p>
-                  <Badge
-                    className={cn(
-                      "text-xs font-semibold border mt-1",
-                      STATUS_STYLES[normalizeStatus(applicant.status)],
-                    )}
-                  >
-                    {STATUS_LABELS[normalizeStatus(applicant.status)]}
-                  </Badge>
+                  {isNew ? (
+                    <Badge className="bg-blue-500 text-white border-0 hover:bg-blue-600 text-xs mt-1">
+                      NEW
+                    </Badge>
+                  ) : (
+                    <Badge
+                      className={cn(
+                        "text-xs font-semibold border mt-1",
+                        STATUS_STYLES[overallStatus],
+                      )}
+                    >
+                      {STATUS_LABELS[overallStatus]}
+                    </Badge>
+                  )}
                 </div>
               </div>
               <button
@@ -196,19 +212,145 @@ export default function ApplicantSideBar({
               </a>
             </div>
 
-            <div className="flex flex-col gap-6 p-6">
-              {/* Role Applied */}
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">
-                  Role Applied
-                </p>
-                <Badge className="bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-50 text-sm">
-                  {applicant.role.title}
-                </Badge>
-              </div>
+            <div className="flex flex-col gap-4 p-6">
+              {/* Roles Applied — multi-role & single-role */}
+              {hasMultipleRoles ? (
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">
+                    Roles Applied ({roles.length})
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    {roles.map((role) => {
+                      const isSelected = selectedRoleId === role.roleId;
+                      const isTopPick =
+                        applicant.topPick === role.roleId ||
+                        applicant.topPick === role.title;
+
+                      const isApproved = role.status === "APPROVED";
+                      const isDeclined =
+                        role.status === "DECLINED" ||
+                        role.status === "WITHDRAWN";
+                      const isFinalized = isApproved || isDeclined;
+
+                      return (
+                        <button
+                          key={role.roleId}
+                          type="button"
+                          onClick={() =>
+                            !isFinalized &&
+                            setSelectedRoleId(isSelected ? null : role.roleId)
+                          }
+                          disabled={isFinalized}
+                          className={cn(
+                            "flex items-center gap-3 w-full rounded-xl border px-4 py-3 text-left transition-all",
+                            isApproved
+                              ? "border-green-300 bg-green-50 cursor-default"
+                              : isDeclined
+                                ? "border-gray-200 bg-gray-50 opacity-50 cursor-default"
+                                : isSelected
+                                  ? "border-blue-300 bg-blue-50"
+                                  : "border-gray-200 bg-white hover:bg-gray-50",
+                          )}
+                        >
+                          {/*  status indicator */}
+                          <div
+                            className={cn(
+                              "shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors",
+                              isApproved
+                                ? "border-green-500 bg-green-500"
+                                : isDeclined
+                                  ? "border-gray-300 bg-gray-300"
+                                  : isSelected
+                                    ? "border-blue-500 bg-blue-500"
+                                    : "border-gray-300 bg-white",
+                            )}
+                          >
+                            {isApproved && (
+                              <Check
+                                className="w-3 h-3 text-white"
+                                strokeWidth={3}
+                              />
+                            )}
+                            {isDeclined && (
+                              <X
+                                className="w-3 h-3 text-white"
+                                strokeWidth={3}
+                              />
+                            )}
+                            {!isFinalized && isSelected && (
+                              <div className="w-2 h-2 rounded-full bg-white" />
+                            )}
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={cn(
+                                  "text-sm font-semibold truncate",
+                                  isApproved
+                                    ? "text-green-700"
+                                    : isDeclined
+                                      ? "text-gray-400"
+                                      : "text-gray-900",
+                                )}
+                              >
+                                {role.title}
+                              </span>
+                              {isTopPick && (
+                                <span className="shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 border border-amber-200">
+                                  Top Pick
+                                </span>
+                              )}
+                              {isApproved && (
+                                <span className="shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-green-100 text-green-600 border border-green-200">
+                                  Approved
+                                </span>
+                              )}
+                              {isDeclined && (
+                                <span className="shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-gray-100 text-gray-400 border border-gray-200">
+                                  Declined
+                                </span>
+                              )}
+                            </div>
+                            {role.description && (
+                              <p className="text-xs text-gray-400 mt-0.5 truncate">
+                                {role.description}
+                              </p>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Only show info note if not yet finalized */}
+                  {!roles.some((r) => r.status === "APPROVED") && (
+                    <div className="mt-3 flex gap-2 rounded-xl bg-gray-50 border border-gray-200 p-3">
+                      <span className="shrink-0 w-5 h-5 rounded-full bg-gray-200 text-gray-500 text-[11px] font-bold flex items-center justify-center">
+                        i
+                      </span>
+                      <p className="text-xs text-gray-500 leading-relaxed">
+                        Note: You can only approve one role for this candidate.
+                        Once a role is approved, all other applications from
+                        this candidate will be automatically declined.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* Single role — original display */
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">
+                    Role Applied
+                  </p>
+                  <Badge className="bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-50 text-sm">
+                    {roles[0]?.title}
+                  </Badge>
+                </div>
+              )}
 
               {/* Applied On */}
-              <div>
+              <div className="bg-gray-50 p-4 rounded-2xl ">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">
                   Applied On
                 </p>
@@ -219,8 +361,8 @@ export default function ApplicantSideBar({
 
               {/* Relevant Experience (volunteer) */}
               {applicant.volunteer?.relevantExperience && (
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">
+                <div className="bg-gray-50 p-4 rounded-2xl">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
                     Relevant Experience
                   </p>
                   <p className="text-sm text-gray-600 leading-relaxed">
@@ -231,7 +373,7 @@ export default function ApplicantSideBar({
 
               {/* Motivation (project) */}
               {applicant.project?.motivation && (
-                <div>
+                <div className="bg-gray-50 p-4 rounded-2xl">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">
                     Motivation
                   </p>
@@ -239,6 +381,24 @@ export default function ApplicantSideBar({
                     {applicant.project.motivation}
                   </p>
                 </div>
+              )}
+              {/* portfolio */}
+              {applicant.project?.portfolio && (
+                <>
+                  <div className="bg-gray-50 p-4 rounded-2xl">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">
+                      Portfolio
+                    </p>
+                    <a
+                      href={applicant.project.portfolio}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline break-all"
+                    >
+                      {applicant.project.portfolio}
+                    </a>
+                  </div>
+                </>
               )}
 
               {/* Supporting Documents */}
@@ -269,12 +429,11 @@ export default function ApplicantSideBar({
             {/* Accept / Decline */}
             <ApplicantStatusChangeButton
               applicant={applicant}
-              currentStatus={
-                normalizeStatus(applicant.status) as ApplicantStatusAction
-              }
-              applicationId={applicant.id}
+              currentStatus={overallStatus as ApplicantStatusAction}
+              applicationId={applicant.roles?.[0]?.applicationId ?? ""}
               postingId={postingId}
               sourceType={sourceType}
+              selectedRoleId={hasMultipleRoles ? selectedRoleId : undefined}
             />
           </>
         )}

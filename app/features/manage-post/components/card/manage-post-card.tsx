@@ -133,7 +133,7 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
             <Button
               asChild
               variant="ghost"
-              className="w-full h-10 sm:h-12 text-sm font-bold bg-white hover:bg-blue-600 text-blue-500/60 hover:text-white border border-blue-200 rounded-xl shadow-sm transition-all duration-200 active:scale-[0.98]"
+              className="w-full h-10 sm:h-12 text-sm font-bold bg-white hover:bg-blue-600 text-blue-500 hover:text-white border border-blue-200 rounded-xl shadow-sm transition-all duration-200 active:scale-[0.98]"
             >
               <Link to={cardHref}>Manage Posting</Link>
             </Button>

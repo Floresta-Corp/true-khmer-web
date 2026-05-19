@@ -4,16 +4,15 @@ import type {
   ApplicantStatusAction,
 } from "~/services/manage-post/types";
 import { Button } from "~/components/ui/button";
-
 type Props = {
   currentStatus: ApplicantStatusAction;
   postingId: string;
   applicationId: string;
   sourceType: string;
   applicant: Applicant;
+  selectedRoleId?: string | null;
 };
 
-// What the BACKEND returns as applicant.status
 const FINALIZED_APPROVED = ["APPROVED", "CONFIRMED", "COMPLETED"] as const;
 const FINALIZED_DECLINED = ["DECLINED", "WITHDRAWN"] as const;
 
@@ -26,20 +25,30 @@ const displayLabel: Record<string, string> = {
   UNDER_REVIEW: "under review",
   SUBMITTED: "submitted",
 };
-
 export default function ApplicantStatusChangeButton({
   applicationId,
   applicant,
+  selectedRoleId,
 }: Props) {
   const fetcher = useFetcher();
   const isLoading = fetcher.state !== "idle";
 
+  const hasMultipleRoles = (applicant?.roles?.length ?? 0) > 1;
+
+  const resolvedApplicationId = hasMultipleRoles
+    ? (applicant.roles?.find((r) => r.roleId === selectedRoleId)
+        ?.applicationId ?? null)
+    : applicationId;
+
   const handleStatusChange = (statusAction: "approve" | "decline") => {
+    if (!resolvedApplicationId) return;
+
     const formData = new FormData();
-    formData.append("applicationId", applicationId);
+    formData.append("applicationId", resolvedApplicationId);
     formData.append("statusAction", statusAction);
     fetcher.submit(formData, {
       method: "POST",
+      // applicationId: applicant.id,
       action: window.location.pathname,
     });
   };
@@ -60,11 +69,11 @@ export default function ApplicantStatusChangeButton({
     normalizedStatus,
   );
   const isServerFinalized = isServerApproved || isServerDeclined;
-
   const isFinalStatus = isServerFinalized || isFinalPending;
-
   const isApprovedSide =
     isServerApproved || (!isServerDeclined && pendingAction === "approve");
+
+  const declineDisabled = isLoading || !resolvedApplicationId;
 
   return (
     <div className="mt-auto p-6 flex flex-col gap-2 border-t border-gray-100">
@@ -86,14 +95,20 @@ export default function ApplicantStatusChangeButton({
       ) : (
         <>
           <Button
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl h-11"
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl h-11"
             onClick={() => handleStatusChange("approve")}
-            disabled={isLoading}
+            disabled={declineDisabled}
           >
             {isFinalPending && pendingAction === "approve"
               ? "Saving..."
               : "Approve"}
           </Button>
+
+          {hasMultipleRoles && !selectedRoleId && (
+            <p className="text-center text-xs text-gray-400">
+              Select a role above to approve
+            </p>
+          )}
 
           <Button
             variant="ghost"

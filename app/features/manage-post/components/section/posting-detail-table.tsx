@@ -71,10 +71,14 @@ export default function ManagePostingDetailTable({
   const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(
     null,
   );
+
   const fetcher = useFetcher();
 
   const getDisplayStatus = (applicant: Applicant): ApplicantStatusAction => {
-    if (applicant.id === pendingApplicationId && pendingStatus) {
+    if (
+      applicant.roles?.[0]?.applicationId === pendingApplicantId &&
+      pendingStatus
+    ) {
       return pendingStatus;
     }
     return normalizeStatus(applicant.status);
@@ -87,20 +91,27 @@ export default function ManagePostingDetailTable({
     const alreadyActioned = ["approve", "decline", "under_review"].includes(
       normalized,
     );
+
     if (!alreadyActioned) {
+      const applicationId = applicant.roles?.[0]?.applicationId;
+      if (!applicationId) return;
+
       const formData = new FormData();
-      formData.append("applicationId", applicant.id);
+      formData.append("applicationId", applicationId);
       formData.append("statusAction", "under_review");
       fetcher.submit(formData, { method: "POST" });
     }
   };
 
   const syncedApplicant = selectedApplicant
-    ? (applicants.find((a) => a.id === selectedApplicant.id) ??
-      selectedApplicant)
+    ? (applicants.find(
+        (a) =>
+          a.roles?.[0]?.applicationId ===
+          selectedApplicant.roles?.[0]?.applicationId,
+      ) ?? selectedApplicant)
     : null;
 
-  const pendingApplicationId = fetcher.formData?.get("applicationId");
+  const pendingApplicantId = fetcher.formData?.get("applicationId");
   const pendingStatus = fetcher.formData?.get(
     "statusAction",
   ) as ApplicantStatusAction | null;
@@ -136,7 +147,7 @@ export default function ManagePostingDetailTable({
                 const displayStatus = getDisplayStatus(applicant);
                 return (
                   <TableRow
-                    key={applicant.id}
+                    key={applicant.candidate.id}
                     onClick={() => handleRowClick(applicant)}
                     className="hover:bg-gray-50/50 transition-colors cursor-pointer"
                   >
@@ -160,9 +171,30 @@ export default function ManagePostingDetailTable({
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className="text-sm font-medium bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-50">
-                        {applicant.role.title}
-                      </Badge>
+                      {(() => {
+                        const approvedRole = applicant.roles?.find(
+                          (r) => r.status === "APPROVED",
+                        );
+                        const primaryRole =
+                          approvedRole ?? applicant.roles?.[0];
+                        const otherRoles =
+                          applicant.roles?.filter((r) => r !== primaryRole) ??
+                          [];
+
+                        return (
+                          <div className="flex flex-col gap-1">
+                            <Badge className="text-sm font-medium bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-50 w-fit">
+                              {primaryRole?.title}
+                            </Badge>
+                            {otherRoles.length > 0 && (
+                              <span className="text-xs text-gray-400">
+                                + {otherRoles.length} other role
+                                {otherRoles.length > 1 ? "s" : ""}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </TableCell>
                     <TableCell className="text-sm text-gray-500">
                       {formatDate(applicant.appliedAt)}

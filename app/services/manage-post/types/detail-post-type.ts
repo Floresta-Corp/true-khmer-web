@@ -81,8 +81,13 @@ export const ProjectSchema = z.object({
 export type Project = z.infer<typeof ProjectSchema>;
 
 export const RoleSchema = z.object({
-  id: z.string(),
+  applicationId: z.string(),
+  appliedAt: z.string(),
+  description: z.union([z.null(), z.string()]),
+  roleId: z.string(),
+  status: ApplicantStatusSchema,
   title: z.string(),
+  updatedAt: z.string(),
 });
 export type Role = z.infer<typeof RoleSchema>;
 
@@ -108,6 +113,7 @@ export const PostingSchema = z.object({
   createdAt: z.string(),
   deadline: z.union([z.null(), z.string()]),
   description: z.union([z.null(), z.string()]),
+  filled: z.boolean(),
   id: z.string(),
   imageKey: z.union([z.null(), z.string()]),
   sourceType: PostingTypeSchema,
@@ -148,12 +154,12 @@ export const ApplicantSchema = z.object({
   appliedAt: z.string(),
   candidate: CandidateSchema,
   contact: ContactSchema,
-  id: z.string(),
-  project: ProjectSchema,
-  role: RoleSchema,
-  status: ApplicantStatusActionSchema,
+  project: ProjectSchema.nullable(),
+  roles: z.array(RoleSchema),
+  status: ApplicantStatusSchema,
+  topPick: z.union([z.null(), z.string()]),
   updatedAt: z.string(),
-  volunteer: VolunteerSchema,
+  volunteer: VolunteerSchema.nullable(),
 });
 export type Applicant = z.infer<typeof ApplicantSchema>;
 
