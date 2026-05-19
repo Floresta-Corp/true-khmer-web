@@ -51,8 +51,8 @@ export default [
       route("workspace", "features/workspace/routes/workspace.tsx"),
       route("manage-post", "features/manage-post/routes/manage-post.tsx"),
       route(
-        "manage-post/:id",
-        "features/manage-post/routes/manage-post.$id.tsx",
+        "manage-post/:sourceType/:postingId",
+        "features/manage-post/routes/manage-post.$sourceType.$id.tsx",
       ),
     ]),
   ]),

@@ -3,7 +3,13 @@ import * as z from "zod";
 export const SourceTypeSchema = z.enum(["PROJECT", "VOLUNTEER"]);
 export type SourceType = z.infer<typeof SourceTypeSchema>;
 
-export const StatusSchema = z.enum(["ACTIVE", "DRAFT", "ENDED", "FILLED"]);
+export const StatusSchema = z.enum([
+  "ACTIVE",
+  "CLOSED",
+  "COMPLETED",
+  "DRAFT",
+  "PUBLISHED",
+]);
 export type ManagePostStatus = z.infer<typeof StatusSchema>;
 
 export const PostingTypeSchema = z.enum(["all", "projects", "volunteer"]);
@@ -13,8 +19,9 @@ export const PostingFilterSchema = z.enum([
   "all",
   "active",
   "draft",
-  "ended",
-  "filled",
+  "closed",
+  "completed",
+  "published",
 ]);
 export type PostingFilter = z.infer<typeof PostingFilterSchema>;
 
