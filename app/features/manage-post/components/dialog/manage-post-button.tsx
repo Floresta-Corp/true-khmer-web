@@ -31,7 +31,7 @@ export default function CreateOpportunityDialog({
     <Dialog>
       <DialogTrigger asChild>
         {trigger || (
-          <Button className="bg-blue-600 hover:bg-blue-700 text-[14px] text-white rounded-xl gap-2 font-semibold p-6">
+          <Button className="bg-blue-600 hover:bg-blue-700 cursor-pointer text-[14px] text-white rounded-xl gap-2 font-semibold p-6 shadow-lg shadow-brand-blue/20 hover:scale-[1.02] active:scale-95 transition-all w-full sm:w-auto whitespace-nowrap">
             <Plus size={18} strokeWidth={2.5} />
             New Opportunity
           </Button>

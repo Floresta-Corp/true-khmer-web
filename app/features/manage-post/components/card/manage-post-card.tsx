@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { HandHeart, MoreHorizontal, Rocket } from "lucide-react";
+import { Briefcase, HandHeart, MoreHorizontal, Rocket } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
@@ -19,8 +19,8 @@ const STATUS_STYLES: Record<ManagePostStatus, string> = {
 };
 
 const TYPE_STYLES: Record<SourceType, string> = {
-  PROJECT: "bg-purple-100 text-purple-700 border-purple-200",
-  VOLUNTEER: "bg-pink-100 text-pink-700 border-pink-200",
+  PROJECT: "bg-blue-100 text-blue-700 border-blue-200",
+  VOLUNTEER: "bg-indigo-100 text-indigo-700 border-indigo-200",
 };
 
 const SOURCE_TYPE_TO_PATH: Record<SourceType, string> = {
@@ -64,28 +64,34 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
           <MoreHorizontal size={20} />
         </button>
 
-        <div className="flex gap-2 flex-wrap mb-1">
-          <Badge
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div
+              className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                posting.sourceType === "PROJECT"
+                  ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20"
+                  : "bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20"
+              }`}
+            >
+              {posting.sourceType === "PROJECT" ? (
+                <Briefcase size={18} />
+              ) : (
+                <HandHeart size={18} />
+              )}
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
+              {posting.sourceType === "PROJECT" ? "Project" : "Volunteer"}
+            </span>
+          </div>
+          <div className="w-px h-3 bg-gray-200 dark:bg-slate-800 mx-0.5" />
+          <span
             className={cn(
-              "px-2.5 py-0.5 text-[10px] font-black border-none rounded-full uppercase tracking-widest shadow-sm",
+              "px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase border transition-all pointer-events-none",
               STATUS_STYLES[posting.status],
             )}
           >
             {posting.status}
-          </Badge>
-          <Badge
-            className={cn(
-              "px-2.5 py-0.5 text-[10px] font-bold border-none rounded-full uppercase tracking-widest flex items-center gap-1.5 shadow-sm",
-              TYPE_STYLES[posting.sourceType],
-            )}
-          >
-            {posting.sourceType === "PROJECT" ? (
-              <Rocket size={12} />
-            ) : (
-              <HandHeart size={12} />
-            )}
-            {posting.sourceType}
-          </Badge>
+          </span>
         </div>
 
         <div className="grow space-y-2 mt-2 pr-6">
@@ -119,7 +125,6 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
           </div>
         </div>
 
-        {/* stopPropagation so buttons don't double-navigate */}
         <div className="mt-6" onClick={(e) => e.stopPropagation()}>
           {posting.status === "COMPLETED" || posting.status === "CLOSED" ? (
             <Button
@@ -133,7 +138,7 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
             <Button
               asChild
               variant="ghost"
-              className="w-full h-10 sm:h-12 text-sm font-bold bg-white hover:bg-blue-600 text-blue-500 hover:text-white border border-blue-200 rounded-xl shadow-sm transition-all duration-200 active:scale-[0.98]"
+              className="w-full h-10 sm:h-12 text-sm font-bold bg-gray-50 group-hover:bg-blue-600 text-gray-500 group-hover:text-white rounded-xl transition-all duration-200 active:scale-[0.98]"
             >
               <Link to={cardHref}>Manage Posting</Link>
             </Button>

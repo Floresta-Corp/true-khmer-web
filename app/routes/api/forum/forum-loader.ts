@@ -7,6 +7,8 @@ import {
   getPublicTrendingTags,
   getMyAnswers,
   GetPublicReportType,
+  myForumQuestion,
+  myForumAnswer,
 } from "~/services/forum/server";
 import {
   questionSortBySchema,
@@ -28,6 +30,8 @@ type ForumListLoaderData = {
   tags: Tag[];
   answers: Answer[];
   reportReasons: GetPublicReportTypeResponse;
+  questionCount: number;
+  answerCount: number;
 };
 
 export async function forumListloader({ request }: ForumRoute.LoaderArgs) {
@@ -81,6 +85,12 @@ export async function forumListloader({ request }: ForumRoute.LoaderArgs) {
     answers = queryAnswer?.data?.answers.answers || [];
   }
 
+  const [qa, an] = userId
+    ? await Promise.all([myForumQuestion(request), myForumAnswer(request)])
+    : [null, null];
+  const questionCount = qa?.data?.questions?.length ?? 0;
+  const answerCount = an?.data?.answers?.length ?? 0;
+
   return {
     data: question.data,
     categories: categoriesResult.data.categories,
@@ -88,5 +98,7 @@ export async function forumListloader({ request }: ForumRoute.LoaderArgs) {
     tags: tags.data.tags,
     answers,
     reportReasons: reportReasons.data as GetPublicReportTypeResponse,
+    questionCount,
+    answerCount,
   } satisfies ForumListLoaderData;
 }
