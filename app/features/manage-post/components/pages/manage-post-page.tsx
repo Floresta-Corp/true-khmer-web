@@ -26,7 +26,7 @@ export default function ManagePostingPage() {
       subtitle="Manage and monitor your active community opportunities postings."
       action={<CreateOpportunityDialog />}
     >
-      <div className="mb-10 -mt-5 max-w-auto">
+      <div className="mb-10 -mt-5 max-w-none">
         <ManagePostFilters />
       </div>
 
