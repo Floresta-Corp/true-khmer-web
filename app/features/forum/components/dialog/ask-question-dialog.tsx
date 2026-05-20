@@ -1,4 +1,10 @@
-import { type KeyboardEvent, useEffect, useRef, useState } from "react";
+import {
+  type KeyboardEvent,
+  type ChangeEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "sonner";
 import { Plus, X } from "lucide-react";
 import { Link, useFetcher, useLocation, useRevalidator } from "react-router";
@@ -15,6 +21,12 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import CategoriesPicker from "../categories-picker";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  CreateForumQuestionInputSchema,
+  type CreateForumQuestionInput,
+} from "~/services/forum/types/question-type";
 import type {
   CategoriesPicker as CategoryOption,
   Question,
@@ -37,24 +49,37 @@ export default function AskQuestionDialog({
   data,
   trigger,
 }: AskQuestionDialogProps) {
-  const fetcher = useFetcher();
   const location = useLocation();
-  const isSubmitting = fetcher.state !== "idle";
-  const actionData = fetcher.data as
-    | {
-        data?: { ok?: boolean; question?: unknown };
-        fieldErrors?: ForumPostFormFieldErrors;
-        message?: string;
-      }
-    | undefined;
-  const fieldErrors = actionData?.fieldErrors;
+  const revalidator = useRevalidator();
+
+  const form = useForm<CreateForumQuestionInput>({
+    resolver: zodResolver(CreateForumQuestionInputSchema),
+    defaultValues: {
+      title: data?.title ?? "",
+      body: data?.body ?? "",
+      categoryId: data?.category?.id ?? "",
+      tags: data?.tags?.map((t) => t.name).filter(Boolean) ?? [],
+      status: "PUBLISHED",
+      imageKey: null,
+    },
+  });
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    setError,
+    reset,
+    formState: { errors, isSubmitting },
+  } = form;
   const [open, setOpen] = useState(false);
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>(
     () => data?.tags?.map((tag) => tag.name).filter(Boolean) ?? [],
   );
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const wasSubmitting = useRef(false);
-  const revalidator = useRevalidator();
   // const [searchParams, setSearchParams] = useSearchParams();
   const redirectTo = `${location.pathname}${location.search}`;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
@@ -65,12 +90,116 @@ export default function AskQuestionDialog({
     return combined.slice(0, 5).filter(Boolean);
   })();
 
+  // Keep react-hook-form tags in sync with local tags state
+  useEffect(() => {
+    setValue("tags", submittedTags);
+  }, [submittedTags, setValue]);
+
+  const fetcher = useFetcher();
+  const isBusy = fetcher.state !== "idle" || isSubmitting;
+  const fetcherReady = useRef(false);
+
+  const onSubmit = async (values: CreateForumQuestionInput) => {
+    return new Promise<void>((resolve) => {
+      const fd = new FormData();
+      if (isEditing) {
+        fd.append("questionId", String(data?.id ?? ""));
+      }
+      fd.append("status", values.status);
+      fd.append("categoryId", values.categoryId);
+      fd.append("title", values.title);
+      fd.append("body", values.body);
+      (values.tags ?? []).forEach((tag) => fd.append("tags", tag));
+
+      if (selectedFile) {
+        fd.append("image", selectedFile);
+      }
+
+      const method = isEditing ? "PATCH" : "POST";
+      fetcherReady.current = true;
+      fetcher.submit(fd, {
+        method,
+        encType: "multipart/form-data",
+      });
+
+      // Resolve when fetcher returns to idle
+      const checkIdle = () => {
+        if (fetcher.state === "idle" && fetcherReady.current) {
+          fetcherReady.current = false;
+          resolve();
+        } else {
+          requestAnimationFrame(checkIdle);
+        }
+      };
+      requestAnimationFrame(checkIdle);
+    });
+  };
+
+  useEffect(() => {
+    if (fetcher.state === "submitting") {
+      wasSubmitting.current = true;
+    }
+    if (wasSubmitting.current && fetcher.state === "idle" && fetcher.data) {
+      wasSubmitting.current = false;
+      const result = fetcher.data as any;
+      const isSuccess =
+        result?.data?.ok === true || result?.data?.question != null;
+      const hasFieldErrors =
+        result?.fieldErrors &&
+        Object.values(result.fieldErrors).some((value) => Boolean(value));
+
+      if (isSuccess) {
+        setOpen(false);
+        revalidator.revalidate();
+        toast.success(
+          isEditing
+            ? "Question updated successfully!"
+            : "Question posted successfully!",
+        );
+        reset();
+        if (preview) {
+          URL.revokeObjectURL(preview);
+          setPreview(null);
+          setSelectedFile(null);
+        }
+      } else if (hasFieldErrors) {
+        Object.entries(result.fieldErrors || {}).forEach(([key, value]) => {
+          setError(key as any, { type: "server", message: String(value) });
+        });
+        toast.error(result?.message ?? "Please check the form and try again.");
+      } else {
+        toast.error(
+          result?.message ?? "Failed to post question. Please try again.",
+        );
+      }
+    }
+  }, [
+    fetcher.state,
+    fetcher.data,
+    isEditing,
+    revalidator,
+    reset,
+    setError,
+    preview,
+  ]);
+
   useEffect(() => {
     if (open) {
       setTags(data?.tags?.map((tag) => tag.name).filter(Boolean) ?? []);
       setTagInput("");
+      // reset file selection and previews when opening
+      setSelectedFile(null);
+      if (preview) URL.revokeObjectURL(preview);
+      setPreview(null);
     }
   }, [data?.id, open]);
+
+  useEffect(() => {
+    return () => {
+      // cleanup object URL on unmount
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
 
   const addTag = (rawValue: string) => {
     const nextTag = rawValue.trim();
@@ -125,60 +254,7 @@ export default function AskQuestionDialog({
     );
   }
 
-  useEffect(() => {
-    if (fetcher.state === "submitting") {
-      wasSubmitting.current = true;
-    }
-    if (wasSubmitting.current && fetcher.state === "idle" && fetcher.data) {
-      wasSubmitting.current = false;
-      const result = fetcher.data as any;
-      const isSuccess =
-        result?.data?.ok === true || result?.data?.question != null;
-      const hasFieldErrors =
-        result?.fieldErrors &&
-        Object.values(result.fieldErrors).some((value) => Boolean(value));
-
-      if (isSuccess) {
-        setOpen(false);
-
-        // if (isEditing) {
-        //   const nextParams = new URLSearchParams(searchParams);
-        //   const hasCursorParams =
-        //     nextParams.has("cursor") || nextParams.has("limit");
-
-        //   if (hasCursorParams) {
-        //     nextParams.delete("cursor");
-        //     nextParams.delete("limit");
-        //     setSearchParams(nextParams, { replace: true });
-        //   }
-
-        //   if (typeof window !== "undefined") {
-        //     window.scrollTo({ top: 0, behavior: "smooth" });
-        //   }
-        // }
-
-        // Always revalidate after success so list data is refreshed from page 1.
-        revalidator.revalidate();
-
-        toast.success(
-          isEditing
-            ? "Question updated successfully!"
-            : "Question posted successfully!",
-        );
-      } else if (hasFieldErrors) {
-        toast.error(result?.message ?? "Please check the form and try again.");
-      } else {
-        toast.error("Failed to post question. Please try again.");
-      }
-    }
-  }, [
-    fetcher.state,
-    fetcher.data,
-    isEditing,
-    revalidator,
-    // searchParams,
-    // setSearchParams,
-  ]);
+  // use fetcher.submit for server actions
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -222,7 +298,8 @@ export default function AskQuestionDialog({
 
         <div className="-mx-6 border-t border-[#e2e8f0]" />
 
-        <fetcher.Form
+        <form
+          onSubmit={handleSubmit(onSubmit)}
           key={data?.id ?? "create-question"}
           className="flex flex-col gap-2"
           method={isEditing ? "patch" : "post"}
@@ -234,30 +311,35 @@ export default function AskQuestionDialog({
           <div className="flex flex-col gap-2">
             <Label className="text-xs leading-4.5 font-medium text-[#364153]">
               Question title
+              <span className="ml-1 text-red-600">*</span>
             </Label>
             <Input
-              name="title"
+              {...register("title")}
               placeholder="What are the best resources for learning Khmer business law?"
-              defaultValue={data?.title ?? ""}
-              aria-invalid={Boolean(fieldErrors?.title)}
+              aria-invalid={Boolean(errors.title)}
               className="h-11 rounded-lg border-transparent bg-[#f8fafc] text-sm text-[#344256] placeholder:text-[#9eacc0] focus-visible:border-[#2f6fe4] focus-visible:ring-0 focus-visible:ring-offset-0 aria-invalid:border-red-500"
             />
-            {fieldErrors?.title ? (
-              <p className="text-xs text-red-600">{fieldErrors.title}</p>
+            {errors.title ? (
+              <p className="text-xs text-red-600">{errors.title.message}</p>
             ) : null}
           </div>
 
           <div className="flex flex-col gap-2">
             <Label className="text-xs leading-4.5 font-medium text-[#364153]">
               Category
+              <span className="ml-1 text-red-600">*</span>
             </Label>
             <CategoriesPicker
               name="categoryId"
               categories={categories}
               defaultValue={data?.category?.id}
+              required
+              onChange={(c) => setValue("categoryId", c.id)}
             />
-            {fieldErrors?.categoryId ? (
-              <p className="text-xs text-red-600">{fieldErrors.categoryId}</p>
+            {errors.categoryId ? (
+              <p className="text-xs text-red-600">
+                {errors.categoryId.message}
+              </p>
             ) : null}
           </div>
 
@@ -266,16 +348,72 @@ export default function AskQuestionDialog({
               Discussion Details
             </Label>
             <Textarea
-              name="body"
+              {...register("body")}
               placeholder="What are the best resources for learning Khmer business law?"
-              defaultValue={data?.body ?? ""}
-              aria-invalid={Boolean(fieldErrors?.body)}
+              aria-invalid={Boolean(errors.body)}
               className="h-30 overflow-x-auto max-w-full text-wrap rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm text-[#344256] placeholder:text-[#9eacc0] outline-none focus:border-[#2f6fe4] aria-invalid:border-red-500"
               rows={1}
             />
-            {fieldErrors?.body ? (
-              <p className="text-xs text-red-600">{fieldErrors.body}</p>
+            {errors.body ? (
+              <p className="text-xs text-red-600">{errors.body.message}</p>
             ) : null}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Label className="text-xs leading-4.5 font-medium text-[#364153]">
+              Add Media (Photo/Video)
+            </Label>
+            {preview ? (
+              <div className="mt-2 flex gap-2">
+                <div className="group relative w-56 aspect-video overflow-hidden rounded-lg border-2 border-dashed border-[#d1d5db] bg-transparent hover:border-[#2f6fe4] focus-within:border-[#2f6fe4]">
+                  <img
+                    src={preview}
+                    alt={`preview`}
+                    className="h-full w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (preview) URL.revokeObjectURL(preview);
+                      setSelectedFile(null);
+                      setPreview(null);
+                    }}
+                    className="absolute right-1 top-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/80 text-[#64748b] hover:bg-white"
+                    aria-label="Remove image"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <label
+                htmlFor="images-upload"
+                className="group flex w-56 aspect-video cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-[#d1d5db] bg-transparent px-18 text-center hover:border-[#2f6fe4] focus-within:border-[#2f6fe4]"
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#2f6fe4] shadow-sm">
+                    <Plus className="h-5 w-5" />
+                  </div>
+                  <span className="text-xs font-medium text-[#9eacc0]">
+                    ADD MEDIA
+                  </span>
+                </div>
+                <input
+                  id="images-upload"
+                  type="file"
+                  name="images"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files ? e.target.files[0] : null;
+                    // revoke previous preview
+                    if (preview) URL.revokeObjectURL(preview);
+                    setSelectedFile(file);
+                    setPreview(file ? URL.createObjectURL(file) : null);
+                  }}
+                  className="sr-only"
+                />
+              </label>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">
@@ -283,7 +421,7 @@ export default function AskQuestionDialog({
               Tags
             </Label>
 
-            <input type="hidden" name="tags" value={submittedTags.join(", ")} />
+            <input type="hidden" {...register("tags")} />
             <Input
               placeholder={
                 tags.length >= 5
@@ -293,12 +431,12 @@ export default function AskQuestionDialog({
               value={tagInput}
               onChange={(event) => setTagInput(event.target.value)}
               onKeyDown={handleTagKeyDown}
-              aria-invalid={Boolean(fieldErrors?.tags)}
+              aria-invalid={Boolean(errors.tags)}
               disabled={tags.length >= 5}
               className="h-11 rounded-lg border-transparent bg-[#f8fafc] text-sm text-[#344256] placeholder:text-[#9eacc0] focus-visible:border-[#2f6fe4] focus-visible:ring-0 focus-visible:ring-offset-0 aria-invalid:border-red-500"
             />
-            {fieldErrors?.tags ? (
-              <p className="text-xs text-red-600">{fieldErrors.tags}</p>
+            {errors.tags ? (
+              <p className="text-xs text-red-600">{errors.tags.message}</p>
             ) : (
               <p className="text-xs text-gray-500">
                 {Math.max(0, 5 - tags.length)} tag
@@ -339,7 +477,7 @@ export default function AskQuestionDialog({
                 type="button"
                 variant="outline"
                 className="h-8 rounded-lg border-[#e1e7ef] px-3 text-sm font-medium text-[#1d283a]"
-                disabled={isSubmitting}
+                disabled={isBusy}
               >
                 Cancel
               </Button>
@@ -347,22 +485,22 @@ export default function AskQuestionDialog({
             {isEditing ? (
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isBusy}
                 className="h-8 rounded-lg bg-[#2f6fe4] px-3 text-sm font-medium text-white hover:bg-[#245fca]"
               >
-                {isSubmitting ? "Updating..." : "Update question"}
+                {isBusy ? "Updating..." : "Update question"}
               </Button>
             ) : (
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isBusy}
                 className="h-8 rounded-lg bg-[#2f6fe4] px-3 text-sm font-medium text-white hover:bg-[#245fca]"
               >
-                {isSubmitting ? "Posting..." : "Post question"}
+                {isBusy ? "Posting..." : "Post question"}
               </Button>
             )}
           </div>
-        </fetcher.Form>
+        </form>
       </DialogContent>
     </Dialog>
   );

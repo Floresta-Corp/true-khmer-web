@@ -13,6 +13,7 @@ import ShareQuestionDialog from "../dialog/share-question-dialog";
 import QuestionVoteComponent from "../question-vote-component";
 import MobileAuthorOptions from "../mobile-author-options";
 import { motion, useReducedMotion } from "motion/react";
+import { ImageLightbox } from "~/components/image-lightbox";
 
 interface QuestionCardProps {
   question: Question;
@@ -37,6 +38,7 @@ export default function QuestionCard({
 
   const isCurrentAuthor = Boolean(userId) && userId === question.author.id;
   const [isHovered, setIsHovered] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   return (
     <motion.article
@@ -155,6 +157,32 @@ export default function QuestionCard({
       <p className="text-xs sm:text-sm text-[#65758b] mb-3 sm:mb-4 line-clamp-2 leading-relaxed">
         {question.body}
       </p>
+
+      {question.imageKey && (
+        <>
+          <button
+            type="button"
+            onClick={() => setLightboxIndex(0)}
+            className="w-full p-0 bg-transparent"
+            aria-label="Open image preview"
+          >
+            <img
+              src={resolveImageURL(question.imageKey)}
+              alt="Question image"
+              className="aspect-video object-cover rounded-xl sm:mb-4 w-full"
+            />
+          </button>
+
+          {lightboxIndex !== null && (
+            <ImageLightbox
+              images={[resolveImageURL(question.imageKey)]}
+              initialIndex={lightboxIndex}
+              alt={question.title}
+              onClose={() => setLightboxIndex(null)}
+            />
+          )}
+        </>
+      )}
 
       {/* Tags */}
       {question.tags.length > 0 && (

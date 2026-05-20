@@ -5,6 +5,9 @@ import {
 import * as z from "zod";
 import { PaginationSchema } from "~/services/types";
 
+export const CommitmentLabelEnum = z.enum(["Light", "Regular", "Intensive"]);
+export type CommitmentLabel = z.infer<typeof CommitmentLabelEnum>;
+
 export const CategorySchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -43,27 +46,22 @@ export type Organizer = z.infer<typeof OrganizerSchema>;
 
 export const OpportunitySchema = z.object({
   id: z.string(),
-  category: CategorySchema,
-  location: CategorySchema,
   title: z.string(),
   overview: z.string(),
-  communityImpact: z.string().nullish(),
-  durationLabel: z.string(),
-  commitmentLabel: z.string(),
+  startDate: z.string().nullish(),
+  endDate: z.string().nullish(),
+  commitmentLabel: CommitmentLabelEnum.nullable(),
+  commitmentDescription: z.string().nullish(),
   applicationDeadline: z.string(),
   applicationCount: z.number(),
   capacity: z.number(),
+  filled: z.boolean(),
   totalView: z.number(),
   coverImageKey: z.string(),
-  benefits: z.array(z.string()),
-  status: z.string(),
-  viewerSave: z.boolean(),
-  publishedAt: z.string().nullish(),
-  organizer: OrganizerSchema,
-  createdBy: z.string(),
   createdAt: z.string(),
-  updatedAt: z.string(),
-  roles: z.array(RoleSchema),
+  viewerSave: z.boolean(),
+  category: CategorySchema,
+  location: CategorySchema,
 });
 export type Opportunity = z.infer<typeof OpportunitySchema>;
 
@@ -76,12 +74,49 @@ export type GetVolunteerOpportunitiesResponse = z.infer<
   typeof GetVolunteerOpportunitiesResponseSchema
 >;
 
+export const OpportunityDetailSchema = z.object({
+  id: z.string(),
+  category: CategorySchema,
+  location: CategorySchema,
+  title: z.string(),
+  overview: z.string(),
+  communityImpact: z.string().nullish(),
+  startDate: z.string().nullish(),
+  endDate: z.string().nullish(),
+  commitmentLabel: CommitmentLabelEnum.nullable(),
+  commitmentDescription: z.string().nullish(),
+  applicationDeadline: z.string(),
+  applicationCount: z.number(),
+  capacity: z.number(),
+  filled: z.boolean(),
+  totalView: z.number(),
+  coverImageKey: z.string(),
+  benefits: z.array(z.string()),
+  status: z.string(),
+  publishedAt: z.string().nullish(),
+  organizer: OrganizerSchema,
+  createdBy: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  viewerSave: z.boolean(),
+  roles: z.array(RoleSchema),
+});
+export type OpportunityDetail = z.infer<typeof OpportunityDetailSchema>;
+
 export const GetVolunteerOpportunityByIdResponseSchema = z.object({
   ok: z.boolean(),
-  opportunity: OpportunitySchema,
+  opportunity: OpportunityDetailSchema,
 });
 export type GetVolunteerOpportunityByIdResponse = z.infer<
   typeof GetVolunteerOpportunityByIdResponseSchema
+>;
+
+export const GetVolunteerOpportunityDetailResponseSchema = z.object({
+  ok: z.boolean(),
+  opportunity: OpportunityDetailSchema,
+});
+export type GetVolunteerOpportunityDetailResponse = z.infer<
+  typeof GetVolunteerOpportunityDetailResponseSchema
 >;
 
 export const PostVolunteerInputSchema = z.object({
@@ -94,6 +129,9 @@ export const PostVolunteerInputSchema = z.object({
   endDate: z.string(),
   durationLabel: z.string(),
   commitmentLabel: z.string(),
+  startDate: z.string().nullish(),
+  endDate: z.string().nullish(),
+  commitmentDescription: z.string().nullish(),
   applicationDeadline: z.string(),
   benefits: z.array(z.string()),
   contact: ContactSchema,
@@ -140,8 +178,8 @@ export const RoleInputSchema = z.object({
   title: z.string(),
   commitmentLabel: z.string(),
   capacity: z.number(),
-  responsibilities: z.array(z.string()),
-  requirements: z.array(z.string()),
+  responsibilities: z.array(z.string()).min(2).optional(),
+  requirements: z.array(z.string()).min(2).optional(),
 });
 export type RoleInput = z.infer<typeof RoleInputSchema>;
 
@@ -153,6 +191,9 @@ export const VolunteerOpportunityInputSchema = z.object({
   startDate: z.string().min(1),
   endDate: z.string().min(1),
   commitmentLabel: z.string().nullish(),
+  startDate: z.string().nullish(),
+  endDate: z.string().nullish(),
+  commitmentDescription: z.string().nullish(),
   applicationDeadline: z.string(),
   communityImpact: z.string().nullish(),
   benefits: z.array(z.string()).nullish(),
@@ -168,6 +209,7 @@ export const CreateVolunteerOpportunityResponseSchema = z.object({
   ok: z.boolean(),
   opportunity: OpportunitySchema,
 });
+
 export type CreateVolunteerOpportunityResponse = z.infer<
   typeof CreateVolunteerOpportunityResponseSchema
 >;

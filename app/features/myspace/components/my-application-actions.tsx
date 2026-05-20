@@ -9,7 +9,7 @@ import {
 
 interface MyApplicationActionsProps {
   applicationId: string;
-  onArchive: (applicationId: string) => void;
+  onArchive?: (applicationId: string) => void;
 }
 
 export function MyApplicationActions({

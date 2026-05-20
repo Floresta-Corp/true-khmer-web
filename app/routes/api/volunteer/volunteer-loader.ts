@@ -22,6 +22,8 @@ export async function volunteerLoader({ request }: VolunteerRoute.LoaderArgs) {
   const limit = url.searchParams.get("limit");
   const search = url.searchParams.get("search")?.trim() || undefined;
 
+  console.log(limit);
+
   const filter = {
     cursor,
     locationId,
@@ -45,6 +47,7 @@ export async function volunteerLoader({ request }: VolunteerRoute.LoaderArgs) {
   return {
     categories: categories?.data?.categories,
     opportunities: opportunities?.data?.opportunities,
+    pagination: opportunities?.data?.pagination,
     locations: locations?.data?.locations,
     userId: userId,
   } satisfies VolunteerLoaderData;
@@ -56,6 +59,9 @@ interface VolunteerLoaderData {
     | undefined;
   opportunities:
     | (GetVolunteerOpportunitiesResponse["opportunities"] | undefined)
+    | undefined;
+  pagination:
+    | (GetVolunteerOpportunitiesResponse["pagination"] | undefined)
     | undefined;
   locations:
     | (GetVolunteerLocationsResponse["locations"] | undefined)

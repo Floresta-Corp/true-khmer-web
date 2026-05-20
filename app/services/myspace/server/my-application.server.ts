@@ -1,5 +1,9 @@
 import { apiRequestWithSession } from "~/lib/server/api-client.server";
-import type { GetMyApplicationResponse } from "../types";
+import type {
+  ApplicationArchiveAction,
+  ApplicationStatusAction,
+  GetMyApplicationResponse,
+} from "../types";
 
 export interface MyApplicationQueryParams {
   tab?: string;
@@ -26,5 +30,56 @@ export async function getMyApplicationResponse(
       method: "GET",
     },
   );
+  return result;
+}
+
+export async function getMyApplicationDetailResponse(
+  request: Request,
+  sourceType: string,
+  applicationId: string,
+) {
+  const url = `/my-application/${encodeURIComponent(
+    sourceType,
+  )}/${encodeURIComponent(applicationId)}`;
+
+  const result = await apiRequestWithSession(request, url, {
+    method: "GET",
+  });
+  return result;
+}
+
+export async function postMyApplicationChangeStatus(
+  request: Request,
+  sourceType: string,
+  applicationId: string,
+  statusAction: ApplicationStatusAction,
+) {
+  const url = `/my-application/${encodeURIComponent(
+    sourceType,
+  )}/${encodeURIComponent(applicationId)}/change-status/${encodeURIComponent(
+    statusAction,
+  )}`;
+
+  const result = await apiRequestWithSession(request, url, {
+    method: "POST",
+  });
+  return result;
+}
+
+export async function postMyApplicationArchiveAction(
+  request: Request,
+  sourceType: string,
+  applicationId: string,
+  archiveAction: ApplicationArchiveAction,
+) {
+  const url = `/my-application/${encodeURIComponent(
+    sourceType,
+  )}/${encodeURIComponent(applicationId)}/archive/${encodeURIComponent(
+    archiveAction,
+  )}`;
+
+  const result = await apiRequestWithSession(request, url, {
+    method: "POST",
+  });
   return result;
 }

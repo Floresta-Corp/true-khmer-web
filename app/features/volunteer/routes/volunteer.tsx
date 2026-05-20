@@ -14,13 +14,15 @@ export function meta() {
 }
 
 export default function VolunteerPage() {
-  const { categories, opportunities, locations } =
+  const { categories, opportunities, locations, pagination } =
     useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const prefersReducedMotion = useReducedMotion();
   const duration = prefersReducedMotion ? 0 : 0.35;
   const reloadOpportunities = () => revalidator.revalidate();
+
+  console.log(opportunities, opportunities?.length);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -55,6 +57,7 @@ export default function VolunteerPage() {
       >
         <VolunteerAvailableOpportunities
           opportunities={opportunities ?? []}
+          pagination={pagination}
           onMutationComplete={() => reloadOpportunities()}
         />
       </motion.div>

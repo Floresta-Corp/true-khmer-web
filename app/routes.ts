@@ -46,6 +46,10 @@ export default [
     route("myspace", "features/myspace/routes/myspace.tsx"),
     route("edit-profile", "features/myspace/routes/edit-profile.tsx"),
     route("my-applications", "features/myspace/routes/my-applications.tsx"),
+    route(
+      "my-applications/detail/:sourceType/:id",
+      "features/myspace/routes/my-application.$sourceType.$id.tsx",
+    ),
 
     layout("layout/workspace-layout.tsx", [
       route("workspace", "features/workspace/routes/workspace.tsx"),
@@ -55,6 +59,7 @@ export default [
         "features/manage-post/routes/manage-post.$sourceType.$id.tsx",
       ),
     ]),
+    route("notifications", "features/notifications/routes/notifications.tsx"),
   ]),
   route("onboarding", "routes/onboarding/pages/layout.tsx", [
     index("routes/onboarding/pages/index.tsx"),
