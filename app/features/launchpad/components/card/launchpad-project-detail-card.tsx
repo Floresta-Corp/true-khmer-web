@@ -21,7 +21,7 @@ export default function LaunchpadProjectDetailCard({
   };
 
   return (
-    <section className="bg-white p-6">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-start gap-x-10 gap-y-4">
         <div>
           <div className="pb-1 text-[11px] font-medium uppercase tracking-wide text-[#9EACC0]">
@@ -50,13 +50,13 @@ export default function LaunchpadProjectDetailCard({
       </div>
       <Separator className="my-5 bg-[#E7ECF3]" />
       <div>
-        <div className="mb-3 text-xl font-semibold text-[#0F1729]">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight">
           Project Overview
-        </div>
-        <p className="whitespace-pre-line text-sm leading-6 text-[#6A7282]">
+        </h2>
+        <p className="text-gray-600 dark:text-slate-400 leading-relaxed mb-4 text-lg">
           {project.description}
         </p>
       </div>
-    </section>
+    </div >
   );
 }

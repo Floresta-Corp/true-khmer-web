@@ -34,9 +34,9 @@ import CommitmentSection from "../components/sections/commitment-section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import AvailableRolesSection from "../components/sections/available-role-section";
 
-interface VolunteerDetailPageProps {}
+interface VolunteerDetailPageProps { }
 
-export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
+export function VolunteerDetailPage({ }: VolunteerDetailPageProps) {
   const { userId, volunteer } = useLoaderData<typeof loader>();
   const prefersReducedMotion = useReducedMotion();
   const fetcher = useFetcher();
@@ -93,7 +93,7 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
     "rounded-none px-4 pb-3 text-sm font-medium text-[#65758b] transition-colors hover:text-blue-600 data-[state=active]:text-blue-600 data-[state=active]:after:bg-[#2f6fe4]";
 
   return (
-    <main className="min-h-screen bg-white px-6 py-10 md:px-12 lg:px-28">
+    <main className="min-h-screen bg-slate-50 px-6 py-10 md:px-12 lg:px-28 bg-gray-50">
       <div className="mx-auto flex w-full max-w-304 flex-col gap-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
