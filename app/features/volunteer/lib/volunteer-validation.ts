@@ -45,11 +45,15 @@ const VolunteerDateRangeSchema = z
     }
   });
 
+type ValidateDetailMode = "continue" | "submit";
+
 export const validateDetailStep = (
   formData: FormDataVolunteerInput,
+  mode: ValidateDetailMode = "submit",
 ): VolunteerPostPage1Errors => {
   const errors: VolunteerPostPage1Errors = {};
 
+  // Fields required for both continue and submit
   if (!hasText(formData.title)) {
     errors.title = "Opportunity title is required.";
   }
@@ -59,6 +63,7 @@ export const validateDetailStep = (
   if (!hasText(formData.locationId)) {
     errors.locationId = "Location is required.";
   }
+
   const dateRangeResult = VolunteerDateRangeSchema.safeParse({
     startDate: formData.startDate,
     endDate: formData.endDate,
@@ -68,22 +73,12 @@ export const validateDetailStep = (
       dateRangeResult.error.issues[0]?.message ??
       "Please select a valid date range.";
   }
-  if (!hasText(formData.commitmentLabel)) {
-    errors.commitmentLabel = "Commitment is required.";
-  }
-  if (!hasText(formData.applicationDeadline)) {
-    errors.applicationDeadline = "Application deadline is required.";
-  }
-  if (!formData.coverImageKey?.value) {
-    errors.coverImageKey = "Main event cover is required.";
-  }
-  if (!hasText(formData.overview)) {
-    errors.overview = "Overview is required.";
-  }
 
+  // Benefits: require at least one benefit for continue and submit
   if (formData.benefits.length === 0) {
     errors.benefitErrors = ["At least one benefit is required."];
   } else {
+    // Validate each benefit item is non-empty (both continue and submit)
     const benefitErrors = formData.benefits.map((benefit) =>
       hasText(benefit) ? "" : "Benefit is required.",
     );
@@ -92,6 +87,24 @@ export const validateDetailStep = (
     }
   }
 
+  // Require overview and commitmentLabel even for continue flow
+  if (!hasText(formData.commitmentLabel)) {
+    errors.commitmentLabel = "Commitment is required.";
+  }
+  if (!hasText(formData.overview)) {
+    errors.overview = "Overview is required.";
+  }
+
+  if (mode === "submit") {
+    if (!hasText(formData.applicationDeadline)) {
+      errors.applicationDeadline = "Application deadline is required.";
+    }
+  }
+
+  // Require cover image for both continue and submit flows so upload shows errors
+  if (!formData.coverImageKey?.value) {
+    errors.coverImageKey = "Main event cover is required.";
+  }
   return errors;
 };
 
