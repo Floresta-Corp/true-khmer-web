@@ -33,6 +33,7 @@ import type {
 } from "~/services/forum/forum-types";
 import type { ForumPostFormFieldErrors } from "~/services/forum/validation";
 import { Textarea } from "~/components/ui/textarea";
+import { resolveImageURL } from "~/lib/utils";
 
 interface AskQuestionDialogProps {
   categories: CategoryOption[];
@@ -60,7 +61,7 @@ export default function AskQuestionDialog({
       categoryId: data?.category?.id ?? "",
       tags: data?.tags?.map((t) => t.name).filter(Boolean) ?? [],
       status: "PUBLISHED",
-      imageKey: null,
+      imageKey: data?.imageKey ?? null,
     },
   });
 
@@ -79,6 +80,8 @@ export default function AskQuestionDialog({
   );
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [existingImageKey, setExistingImageKey] = useState<string | null>(null);
+  const [removeExistingImage, setRemoveExistingImage] = useState(false);
   const wasSubmitting = useRef(false);
   // const [searchParams, setSearchParams] = useSearchParams();
   const redirectTo = `${location.pathname}${location.search}`;
@@ -111,6 +114,14 @@ export default function AskQuestionDialog({
       fd.append("body", values.body);
       (values.tags ?? []).forEach((tag) => fd.append("tags", tag));
 
+      // handle existing image
+      if (removeExistingImage) {
+        fd.append("removeImage", "true");
+      } else if (existingImageKey && !selectedFile) {
+        fd.append("imageKey", existingImageKey);
+      }
+
+      // handle new uploaded file
       if (selectedFile) {
         fd.append("image", selectedFile);
       }
@@ -157,11 +168,13 @@ export default function AskQuestionDialog({
             : "Question posted successfully!",
         );
         reset();
-        if (preview) {
+        if (preview && !existingImageKey) {
           URL.revokeObjectURL(preview);
-          setPreview(null);
-          setSelectedFile(null);
         }
+        setPreview(null);
+        setSelectedFile(null);
+        setExistingImageKey(null);
+        setRemoveExistingImage(false);
       } else if (hasFieldErrors) {
         Object.entries(result.fieldErrors || {}).forEach(([key, value]) => {
           setError(key as any, { type: "server", message: String(value) });
@@ -189,17 +202,24 @@ export default function AskQuestionDialog({
       setTagInput("");
       // reset file selection and previews when opening
       setSelectedFile(null);
+      setRemoveExistingImage(false);
       if (preview) URL.revokeObjectURL(preview);
       setPreview(null);
+      // set existing image preview when editing
+      if (isEditing && data?.imageKey) {
+        setExistingImageKey(data.imageKey);
+        setPreview(resolveImageURL(data.imageKey));
+      } else {
+        setExistingImageKey(null);
+      }
     }
-  }, [data?.id, open]);
+  }, [data?.id, open, isEditing]);
 
   useEffect(() => {
     return () => {
-      // cleanup object URL on unmount
-      if (preview) URL.revokeObjectURL(preview);
+      if (preview && !existingImageKey) URL.revokeObjectURL(preview);
     };
-  }, [preview]);
+  }, [preview, existingImageKey]);
 
   const addTag = (rawValue: string) => {
     const nextTag = rawValue.trim();
@@ -368,13 +388,19 @@ export default function AskQuestionDialog({
                 <div className="group relative w-56 aspect-video overflow-hidden rounded-lg border-2 border-dashed border-[#d1d5db] bg-transparent hover:border-[#2f6fe4] focus-within:border-[#2f6fe4]">
                   <img
                     src={preview}
-                    alt={`preview`}
+                    alt={existingImageKey ? "existing image" : "preview"}
                     className="h-full w-full object-cover"
                   />
                   <button
                     type="button"
                     onClick={() => {
-                      if (preview) URL.revokeObjectURL(preview);
+                      if (existingImageKey) {
+                        setRemoveExistingImage(true);
+                        setExistingImageKey(null);
+                      }
+                      if (preview && !existingImageKey) {
+                        URL.revokeObjectURL(preview);
+                      }
                       setSelectedFile(null);
                       setPreview(null);
                     }}
@@ -405,10 +431,12 @@ export default function AskQuestionDialog({
                   accept="image/*"
                   onChange={(e) => {
                     const file = e.target.files ? e.target.files[0] : null;
-                    // revoke previous preview
-                    if (preview) URL.revokeObjectURL(preview);
+                    if (preview && !existingImageKey) {
+                      URL.revokeObjectURL(preview);
+                    }
                     setSelectedFile(file);
                     setPreview(file ? URL.createObjectURL(file) : null);
+                    setRemoveExistingImage(false);
                   }}
                   className="sr-only"
                 />

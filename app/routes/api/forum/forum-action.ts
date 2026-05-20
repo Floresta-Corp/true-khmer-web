@@ -153,6 +153,13 @@ export async function forumListAction({ request }: ForumRoute.ActionArgs) {
   }
 
   const file = formData.get("image") as File | null;
+  const removeImage = String(formData.get("removeImage") ?? "").trim() === "true";
+
+  // handle image removal
+  if (removeImage && method === "PATCH") {
+    formData.set("imageKey", "");
+  }
+
   if (file) {
     try {
       const presignResult = await presignForumQuestionImage(request, {
