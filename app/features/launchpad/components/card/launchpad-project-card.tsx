@@ -1,13 +1,13 @@
-import { MapPin, Share2, Heart, Eye } from "lucide-react";
+import { MapPin, Share2, Heart, Eye, Bookmark } from "lucide-react";
 import { Card } from "~/components/ui/card";
 
 import IconButton from "~/components/icon-button";
-import {} from "~/components/ui/skeleton";
 import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
 import type { LaunchpadOpportunity } from "~/services/launchpad/types/project";
-import { resolveImageURL } from "~/lib/utils";
+import { cn, resolveImageURL } from "~/lib/utils";
 import { ShareLaunchpadDialog } from "../dialog/share-launchpad-dialog";
+import { useFetcher } from "react-router";
 
 interface LaunchpadProjectCardProps {
   item: LaunchpadOpportunity;
@@ -18,6 +18,28 @@ export default function LaunchpadProjectCard({
   item,
   onOpenOpportunity,
 }: LaunchpadProjectCardProps) {
+  const fetcher = useFetcher<{ ok: boolean; saved: boolean }>();
+  const isSubmitting = fetcher.state !== "idle";
+
+  // Optimistic: if a submission is in-flight, use its intent; otherwise use item.isSaved
+  const optimisticSaved =
+    fetcher.state !== "idle"
+      ? fetcher.formData?.get("intent") === "save"
+      : item.isSaved;
+
+  const handleSaveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (isSubmitting) {
+      return;
+    }
+
+    fetcher.submit(
+      { launchpadId: item.id, intent: optimisticSaved ? "unsave" : "save" },
+      { method: "POST", action: "/api/launchpad/save" },
+    );
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
@@ -42,7 +64,24 @@ export default function LaunchpadProjectCard({
             />
           }
         />
-        <IconButton icon={<Heart className="size-3.5" />} />
+        <IconButton
+          className={cn(
+            "cursor-pointer flex size-[31.5px] items-center justify-center rounded-2xl bg-white/95 text-[#9aa2af] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)]",
+            { "bg-blue-600": optimisticSaved },
+          )}
+          icon={
+            <Bookmark
+              className={cn("size-3.5", {
+                " fill-white text-white": optimisticSaved,
+              })}
+            />
+          }
+          ariaLabel={
+            optimisticSaved ? "Remove from favorites" : "Save to favorites"
+          }
+          onClick={handleSaveClick}
+          disabled={isSubmitting}
+        />
       </div>
       <Card
         role="button"
