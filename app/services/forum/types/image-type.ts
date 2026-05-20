@@ -1,8 +1,14 @@
 import * as z from "zod";
 
 export const ForumQuestionImagePresignInputSchema = z.object({
-  contentType: z.string(),
-  fileSize: z.number(),
+  contentType: z
+    .string()
+    .regex(/^image\/(png|jpe?g|webp|gif)$/i, "Unsupported image type"),
+  fileSize: z
+    .number()
+    .int()
+    .positive()
+    .max(5 * 1024 * 1024, "Image must be 5MB or smaller"),
 });
 
 export type ForumQuestionImagePresignInput = z.infer<
