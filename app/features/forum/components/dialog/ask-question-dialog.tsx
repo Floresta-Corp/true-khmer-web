@@ -102,48 +102,32 @@ export default function AskQuestionDialog({
   const isBusy = fetcher.state !== "idle" || isSubmitting;
   const fetcherReady = useRef(false);
 
-  const onSubmit = async (values: CreateForumQuestionInput) => {
-    return new Promise<void>((resolve) => {
-      const fd = new FormData();
-      if (isEditing) {
-        fd.append("questionId", String(data?.id ?? ""));
-      }
-      fd.append("status", values.status);
-      fd.append("categoryId", values.categoryId);
-      fd.append("title", values.title);
-      fd.append("body", values.body);
-      (values.tags ?? []).forEach((tag) => fd.append("tags", tag));
+  const onSubmit = (values: CreateForumQuestionInput) => {
+    const fd = new FormData();
+    if (isEditing) {
+      fd.append("questionId", String(data?.id ?? ""));
+    }
+    fd.append("status", values.status);
+    fd.append("categoryId", values.categoryId);
+    fd.append("title", values.title);
+    fd.append("body", values.body);
+    (values.tags ?? []).forEach((tag) => fd.append("tags", tag));
 
-      // handle existing image
-      if (removeExistingImage) {
-        fd.append("removeImage", "true");
-      } else if (existingImageKey && !selectedFile) {
-        fd.append("imageKey", existingImageKey);
-      }
+    if (removeExistingImage) {
+      fd.append("removeImage", "true");
+    } else if (existingImageKey && !selectedFile) {
+      fd.append("imageKey", existingImageKey);
+    }
 
-      // handle new uploaded file
-      if (selectedFile) {
-        fd.append("image", selectedFile);
-      }
+    if (selectedFile) {
+      fd.append("image", selectedFile);
+    }
 
-      const method = isEditing ? "PATCH" : "POST";
-      fetcherReady.current = true;
-      fetcher.submit(fd, {
-        method,
-        encType: "multipart/form-data",
-      });
-
-      // Resolve when fetcher returns to idle
-      const checkIdle = () => {
-        if (fetcher.state === "idle" && fetcherReady.current) {
-          fetcherReady.current = false;
-          resolve();
-        } else {
-          requestAnimationFrame(checkIdle);
-        }
-      };
-      requestAnimationFrame(checkIdle);
+    fetcher.submit(fd, {
+      method: isEditing ? "PATCH" : "POST",
+      encType: "multipart/form-data",
     });
+  };
   };
 
   useEffect(() => {
