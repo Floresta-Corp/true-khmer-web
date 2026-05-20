@@ -14,14 +14,14 @@ const statusLabels: Record<StatusTab, string> = {
 
 export default function ApplicationStatusTabFilter() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const statusParam = searchParams.get("status");
+  const statusParam = searchParams.get("filter");
   const activeStatus: StatusTab = statusItems.includes(statusParam as StatusTab)
     ? (statusParam as StatusTab)
     : "all";
 
   const handleStatusChange = (value: StatusTab) => {
     const nextParams = new URLSearchParams(searchParams);
-    nextParams.set("status", value);
+    nextParams.set("filter", value);
     setSearchParams(nextParams, { replace: true });
   };
 
@@ -35,7 +35,7 @@ export default function ApplicationStatusTabFilter() {
           <TabsTrigger
             key={status}
             value={status}
-            className={`rounded-xl px-2.5 py-1.5 text-xs font-medium transition-colors data-[state=active]:bg-[#F0F6FF] data-[state=active]:text-[#0F59E2] data-[state=inactive]:text-[#5E6D82]`}
+            className={`cursor-pointer rounded-xl px-2.5 py-1.5 text-xs font-medium transition-colors data-[state=active]:bg-[#F0F6FF] data-[state=active]:text-[#0F59E2] data-[state=inactive]:text-[#5E6D82]`}
           >
             {statusLabels[status]}
           </TabsTrigger>

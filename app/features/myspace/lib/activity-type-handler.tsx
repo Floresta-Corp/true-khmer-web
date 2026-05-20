@@ -110,7 +110,14 @@ export const getActivityTypeConfig = (
     },
   };
 
-  return configs[type];
+  return (
+    configs[type] || {
+      icon: Lightbulb,
+      bgColor: "#f8fafc",
+      iconColor: "#64748b",
+      label: "Activity",
+    }
+  );
 };
 
 export const getActivityIconColor = (type: RecentActivityType): string => {

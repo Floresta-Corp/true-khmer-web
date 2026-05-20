@@ -2,9 +2,48 @@ import type { FormDataVolunteerInput } from "~/services/volunteer/types";
 import type { VolunteerPostPage1Errors } from "../page/volunteer-post-page-1";
 import type { VolunteerPostPage2Errors } from "../page/volunteer-post-page-2";
 import { z } from "zod";
+import { isBefore, isValid, parseISO } from "date-fns";
 
 const hasText = (value: unknown): value is string =>
   typeof value === "string" && value.trim().length > 0;
+
+const VolunteerDateRangeSchema = z
+  .object({
+    startDate: z.string().min(1, "Start date is required."),
+    endDate: z.string().min(1, "End date is required."),
+  })
+  .superRefine((value, context) => {
+    const startDate = parseISO(value.startDate);
+    const endDate = parseISO(value.endDate);
+
+    if (!isValid(startDate)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["startDate"],
+        message: "Start date must be valid.",
+      });
+    }
+
+    if (!isValid(endDate)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["endDate"],
+        message: "End date must be valid.",
+      });
+    }
+
+    if (
+      isValid(startDate) &&
+      isValid(endDate) &&
+      isBefore(endDate, startDate)
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["endDate"],
+        message: "End date must be on or after the start date.",
+      });
+    }
+  });
 
 export const validateDetailStep = (
   formData: FormDataVolunteerInput,
@@ -20,8 +59,14 @@ export const validateDetailStep = (
   if (!hasText(formData.locationId)) {
     errors.locationId = "Location is required.";
   }
-  if (!hasText(formData.durationLabel)) {
-    errors.durationLabel = "Duration is required.";
+  const dateRangeResult = VolunteerDateRangeSchema.safeParse({
+    startDate: formData.startDate,
+    endDate: formData.endDate,
+  });
+  if (!dateRangeResult.success) {
+    errors.dateRange =
+      dateRangeResult.error.issues[0]?.message ??
+      "Please select a valid date range.";
   }
   if (!hasText(formData.commitmentLabel)) {
     errors.commitmentLabel = "Commitment is required.";
@@ -122,7 +167,7 @@ export const validateRoleStep = (
     errors.contact = contactErrors;
   }
   return errors;
-}
+};
 
 export const VolunteerApplicationDataSchema = z.object({
   roleId: z.string().min(1, "Role is required"),
@@ -157,29 +202,27 @@ export const validateVolunteerApplicationData = (
   return errors;
 };
 
-const ALLOWED_FILE_TYPES = [
-  "application/pdf",
-];
+const ALLOWED_FILE_TYPES = ["application/pdf"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 5MB
 
 export const validateVolunteerApplicationFiles = (
   files: unknown[],
 ): Record<string, string> => {
-  if (!files || files.length === 0) return { files: "At least one supporting document is required" };
+  if (!files || files.length === 0)
+    return { files: "At least one supporting document is required" };
 
-  if (files.length > 3) return {files: "Maximum 3 files can be uploaded"}
+  if (files.length > 3) return { files: "Maximum 3 files can be uploaded" };
 
-    for (const file of files) {
-      if (file instanceof File) {
-        if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-          return { files: "Only PDF files are allowed" };
-        }
-        if (file.size > MAX_FILE_SIZE) {
-          return { files: "Each file must be less than 10MB" };
-        }
+  for (const file of files) {
+    if (file instanceof File) {
+      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+        return { files: "Only PDF files are allowed" };
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        return { files: "Each file must be less than 10MB" };
       }
     }
+  }
 
   return {};
 };
-

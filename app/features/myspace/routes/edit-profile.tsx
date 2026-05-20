@@ -2,12 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import { useLoaderData, useNavigate, useFetcher, Form } from "react-router";
 import { toast } from "sonner";
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
-  Upload,
+  Image,
   Trash2,
   MapPin,
   Calendar,
@@ -16,7 +15,9 @@ import {
   Linkedin,
   Twitter,
   Facebook,
-  MessageSquare,
+  User,
+  Briefcase,
+  Send,
 } from "lucide-react";
 import { motion } from "motion/react";
 import BackToButton from "~/components/back-to-button";
@@ -25,9 +26,15 @@ import { Card, CardContent } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "~/components/ui/input-group";
 import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
 import { Spinner } from "~/components/ui/spinner";
 import { resolveImageURL } from "~/lib/utils";
 import { EditProfileLoader } from "~/routes/api/myspace/edit-profile-loader";
@@ -69,7 +76,7 @@ export function meta() {
 }
 
 export default function EditProfile() {
-  const { me } = useLoaderData<typeof loader>();
+  const { me, countries, cities } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const fetcher = useFetcher();
   const wasSubmitting = useRef(false);
@@ -127,6 +134,9 @@ export default function EditProfile() {
   });
 
   const skills = watch("skills");
+  const countryId = watch("countryId");
+  const cityId = watch("cityId");
+  const gender = watch("gender");
   const [newSkill, setNewSkill] = useState("");
 
   const initialAvatarUrl = resolveImageURL(me?.profile.avatarKey || undefined);
@@ -153,12 +163,22 @@ export default function EditProfile() {
     avatarObjectUrlRef.current = objectUrl;
     setAvatarUrl(objectUrl);
     setAvatarFile(file);
+  };
 
-    // Optionally set avatarKey to file name so the form knows something changed
-    try {
-      setValue("avatarKey", file.name);
-    } catch (err) {
-      // setValue might not be available yet in some edge cases; ignore
+  const handleDeleteAvatar = () => {
+    if (avatarObjectUrlRef.current) {
+      URL.revokeObjectURL(avatarObjectUrlRef.current);
+      avatarObjectUrlRef.current = null;
+    }
+    setAvatarUrl(undefined);
+    setAvatarFile(null);
+    setValue("avatarKey", "");
+
+    const input = document.getElementById(
+      "avatarUploadInput",
+    ) as HTMLInputElement;
+    if (input) {
+      input.value = "";
     }
   };
 
@@ -210,11 +230,12 @@ export default function EditProfile() {
     formData.append("contributionsVisibility", data.contributionsVisibility);
 
     if (avatarFile) {
-      formData.append("avatar", avatarFile);
+      formData.append("avatarFile", avatarFile);
     }
 
     fetcher.submit(formData, {
       method: "PATCH",
+      encType: "multipart/form-data",
     });
   };
 
@@ -337,17 +358,23 @@ export default function EditProfile() {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                           >
-                            <label className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded text-sm cursor-pointer">
-                              <Upload className="h-4 w-4" />
-                              <span>Upload new image</span>
-                              <input
-                                id="avatarUploadInput"
-                                type="file"
-                                accept="image/*"
-                                className="sr-only"
-                                onChange={handleUpload}
-                              />
-                            </label>
+                            <Button
+                              asChild
+                              variant="outline"
+                              className="gap-2 text-sm h-8.5 rounded-xl cursor-pointer"
+                            >
+                              <label>
+                                <Image className="h-4 w-4" />
+                                <span>Upload new image</span>
+                                <input
+                                  id="avatarUploadInput"
+                                  type="file"
+                                  accept="image/*"
+                                  className="sr-only"
+                                  onChange={handleUpload}
+                                />
+                              </label>
+                            </Button>
                           </motion.div>
                           <motion.div
                             whileHover={{ scale: 1.05 }}
@@ -356,8 +383,9 @@ export default function EditProfile() {
                             <Button
                               type="button"
                               variant="outline"
-                              size="sm"
-                              className="gap-2 text-sm"
+                              className="gap-2 text-sm h-8.5 rounded-xl cursor-pointer"
+                              onClick={handleDeleteAvatar}
+                              disabled={!avatarUrl}
                             >
                               <Trash2 className="h-4 w-4" />
                               Delete current image
@@ -378,11 +406,17 @@ export default function EditProfile() {
                     >
                       <motion.div className="space-y-2" variants={itemVariants}>
                         <Label htmlFor="firstName">First name</Label>
-                        <Input
-                          id="firstName"
-                          {...register("firstName")}
-                          placeholder="First name"
-                        />
+                        <InputGroup className="h-10">
+                          <InputGroupAddon className="bg-transparent border-none">
+                            <User className="size-3.5 text-gray-400" />
+                          </InputGroupAddon>
+                          <InputGroupInput
+                            id="firstName"
+                            {...register("firstName")}
+                            placeholder="First name"
+                            className="text-sm"
+                          />
+                        </InputGroup>
                         {errors.firstName && (
                           <p className="text-xs text-red-500">
                             {errors.firstName.message}
@@ -391,11 +425,17 @@ export default function EditProfile() {
                       </motion.div>
                       <motion.div className="space-y-2" variants={itemVariants}>
                         <Label htmlFor="lastName">Last name</Label>
-                        <Input
-                          id="lastName"
-                          {...register("lastName")}
-                          placeholder="Last name"
-                        />
+                        <InputGroup className="h-10">
+                          <InputGroupAddon className="bg-transparent border-none">
+                            <User className="size-3.5 text-gray-400" />
+                          </InputGroupAddon>
+                          <InputGroupInput
+                            id="lastName"
+                            {...register("lastName")}
+                            placeholder="Last name"
+                            className="text-sm"
+                          />
+                        </InputGroup>
                         {errors.lastName && (
                           <p className="text-xs text-red-500">
                             {errors.lastName.message}
@@ -412,29 +452,91 @@ export default function EditProfile() {
                     >
                       <motion.div className="space-y-2" variants={itemVariants}>
                         <Label htmlFor="occupation">Occupation</Label>
-                        <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2">
-                          <span className="text-gray-400">🎯</span>
-                          <input
+                        <InputGroup className="h-10">
+                          <InputGroupAddon className="bg-transparent border-none">
+                            <Briefcase className="size-3.5 text-gray-400" />
+                          </InputGroupAddon>
+                          <InputGroupInput
                             id="occupation"
-                            type="text"
                             {...register("occupation")}
                             placeholder="Job title"
-                            className="flex-1 outline-none text-sm bg-transparent"
+                            className="text-sm"
                           />
-                        </div>
+                        </InputGroup>
                       </motion.div>
-                      <motion.div className="space-y-2" variants={itemVariants}>
-                        <Label
-                          htmlFor="countryId"
-                          className="flex items-center gap-2"
-                        >
-                          <MapPin className="h-4 w-4" />
-                          Location
-                        </Label>
-                        <Input
+
+                      <motion.div variants={itemVariants}>
+                        <SingleSelectDropdown
+                          id="gender"
+                          label="Gender"
+                          value={gender ?? ""}
+                          onValueChange={(val) =>
+                            setValue("gender", val, { shouldValidate: true })
+                          }
+                          options={[
+                            { value: "male", label: "Male" },
+                            { value: "female", label: "Female" },
+                            { value: "other", label: "Other" },
+                          ]}
+                          placeholder="Select gender"
+                          icon={<User className="size-3.5 text-gray-400" />}
+                        />
+                        {errors.gender && (
+                          <p className="text-xs text-red-500 mt-2">
+                            {errors.gender.message}
+                          </p>
+                        )}
+                      </motion.div>
+                    </motion.div>
+
+                    <motion.div
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-6"
+                      variants={containerVariants}
+                      initial="hidden"
+                      animate="visible"
+                    >
+                      <motion.div variants={itemVariants}>
+                        <SingleSelectDropdown
                           id="countryId"
-                          {...register("countryId")}
-                          placeholder="Country"
+                          label="Country"
+                          value={countryId ?? ""}
+                          onValueChange={(val) => {
+                            setValue("countryId", val, {
+                              shouldValidate: true,
+                            });
+                            setValue("cityId", "", { shouldValidate: true });
+                            navigate(`?countryId=${val}`, {
+                              preventScrollReset: true,
+                            });
+                          }}
+                          options={countries.map((c) => ({
+                            value: c.id,
+                            label: c.name,
+                          }))}
+                          placeholder="Select country"
+                          searchable={true}
+                          searchPlaceholder="Search country..."
+                          icon={<MapPin className="size-3.5 text-gray-400" />}
+                        />
+                      </motion.div>
+
+                      <motion.div variants={itemVariants}>
+                        <SingleSelectDropdown
+                          id="cityId"
+                          label="City"
+                          value={cityId ?? ""}
+                          onValueChange={(val) =>
+                            setValue("cityId", val, { shouldValidate: true })
+                          }
+                          options={cities.map((c) => ({
+                            value: c.id,
+                            label: c.name,
+                          }))}
+                          placeholder="Select city"
+                          disabled={!countryId}
+                          searchable={true}
+                          searchPlaceholder="Search city..."
+                          icon={<MapPin className="size-3.5 text-gray-400" />}
                         />
                       </motion.div>
                     </motion.div>
@@ -445,7 +547,10 @@ export default function EditProfile() {
                       initial="hidden"
                       animate="visible"
                     >
-                      <motion.div className="space-y-2" variants={itemVariants}>
+                      <motion.div
+                        className="space-y-2 col-span-2"
+                        variants={itemVariants}
+                      >
                         <Label
                           htmlFor="dateOfBirth"
                           className="flex items-center gap-2"
@@ -458,25 +563,8 @@ export default function EditProfile() {
                           type="date"
                           {...register("dateOfBirth")}
                           placeholder="Date"
+                          className="h-10"
                         />
-                      </motion.div>
-                      <motion.div className="space-y-2" variants={itemVariants}>
-                        <Label htmlFor="gender">Gender</Label>
-                        <select
-                          id="gender"
-                          {...register("gender")}
-                          className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                        >
-                          <option value="">Select gender</option>
-                          <option value="male">Male</option>
-                          <option value="female">Female</option>
-                          <option value="other">Other</option>
-                        </select>
-                        {errors.gender && (
-                          <p className="text-xs text-red-500">
-                            {errors.gender.message}
-                          </p>
-                        )}
                       </motion.div>
                     </motion.div>
 
@@ -491,7 +579,7 @@ export default function EditProfile() {
                         id="bio"
                         {...register("bio")}
                         placeholder="Tell us about yourself"
-                        rows={4}
+                        rows={6}
                       />
                     </motion.div>
                   </CardContent>
@@ -520,9 +608,14 @@ export default function EditProfile() {
                           }
                         }}
                         placeholder="Add a skill (e.g. Graphic Design)"
-                        className="text-sm"
+                        className="text-sm h-10"
                       />
-                      <Button type="button" onClick={handleAddSkill}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleAddSkill}
+                        className="h-10 cursor-pointer"
+                      >
                         Add
                       </Button>
                     </div>
@@ -584,13 +677,14 @@ export default function EditProfile() {
                           htmlFor="website"
                           className="flex items-center gap-2"
                         >
-                          <Globe className="h-4 w-4" />
+                          <Globe className="h-4 w-4 text-blue-600" />
                           Website
                         </Label>
                         <Input
                           id="website"
                           {...register("website")}
-                          placeholder="Website URL"
+                          className="h-10"
+                          placeholder="https://truekhmer.org"
                         />
                       </motion.div>
                       <motion.div className="space-y-2" variants={itemVariants}>
@@ -598,13 +692,14 @@ export default function EditProfile() {
                           htmlFor="linkedin"
                           className="flex items-center gap-2"
                         >
-                          <Linkedin className="h-4 w-4" />
+                          <Linkedin className="h-4 w-4 text-blue-600" />
                           LinkedIn
                         </Label>
                         <Input
                           id="linkedin"
                           {...register("linkedin")}
-                          placeholder="LinkedIn URL"
+                          placeholder="LinkedIn Profile URL"
+                          className="h-10"
                         />
                       </motion.div>
                     </motion.div>
@@ -619,13 +714,14 @@ export default function EditProfile() {
                           htmlFor="twitter"
                           className="flex items-center gap-2"
                         >
-                          <Twitter className="h-4 w-4" />
+                          <Twitter className="h-4 w-4 text-blue-600" />
                           Twitter
                         </Label>
                         <Input
                           id="twitter"
                           {...register("twitter")}
-                          placeholder="Twitter URL"
+                          placeholder="Twitter Profile URL"
+                          className="h-10"
                         />
                       </motion.div>
                       <motion.div className="space-y-2" variants={itemVariants}>
@@ -633,13 +729,14 @@ export default function EditProfile() {
                           htmlFor="facebook"
                           className="flex items-center gap-2"
                         >
-                          <Facebook className="h-4 w-4" />
+                          <Facebook className="h-4 w-4 text-blue-600" />
                           Facebook
                         </Label>
                         <Input
                           id="facebook"
                           {...register("facebook")}
-                          placeholder="Facebook URL"
+                          placeholder="Facebook Profile URL"
+                          className="h-10"
                         />
                       </motion.div>
                     </motion.div>
@@ -669,28 +766,40 @@ export default function EditProfile() {
                           htmlFor="telegramUsername"
                           className="flex items-center gap-2"
                         >
-                          <MessageSquare className="h-4 w-4" />
+                          <Send className="h-4 w-4 text-blue-600" />
                           Telegram username
                         </Label>
-                        <Input
-                          id="telegramUsername"
-                          {...register("telegramUsername")}
-                          placeholder="@username"
-                        />
+                        <InputGroup className="h-10">
+                          <InputGroupAddon className="bg-blue-gray-50 border-r border-input px-3 text-sm font-medium text-gray-600">
+                            @
+                          </InputGroupAddon>
+                          <InputGroupInput
+                            id="telegramUsername"
+                            {...register("telegramUsername")}
+                            placeholder="username"
+                            className="text-sm"
+                          />
+                        </InputGroup>
                       </motion.div>
                       <motion.div className="space-y-2" variants={itemVariants}>
                         <Label
                           htmlFor="phoneNumber"
                           className="flex items-center gap-2"
                         >
-                          <Phone className="h-4 w-4" />
+                          <Phone className="h-4 w-4 text-blue-600" />
                           Phone number
                         </Label>
-                        <Input
-                          id="phoneNumber"
-                          {...register("phoneNumber")}
-                          placeholder="+855 12 345 678"
-                        />
+                        <InputGroup className="h-10">
+                          <InputGroupAddon className="bg-blue-gray-50 border-r border-input px-3 text-sm font-medium text-gray-600">
+                            +855
+                          </InputGroupAddon>
+                          <InputGroupInput
+                            id="phoneNumber"
+                            {...register("phoneNumber")}
+                            placeholder="12 345 678"
+                            className="text-sm"
+                          />
+                        </InputGroup>
                       </motion.div>
                     </motion.div>
                   </CardContent>
@@ -711,6 +820,7 @@ export default function EditProfile() {
                   <Button
                     type="button"
                     variant="outline"
+                    className="cursor-pointer h-10"
                     onClick={() => navigate("/myspace")}
                   >
                     Cancel
@@ -722,7 +832,7 @@ export default function EditProfile() {
                 >
                   <Button
                     type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="cursor-pointer H-10 bg-blue-600 hover:bg-blue-700 text-white h-10"
                     disabled={fetcher.state !== "idle"}
                   >
                     {fetcher.state !== "idle" ? (

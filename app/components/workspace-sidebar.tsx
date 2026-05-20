@@ -1,10 +1,8 @@
 import {
-  Briefcase,
+  Calendar,
   ClipboardList,
-  Menu,
   MessagesSquare,
   Sparkles,
-  X,
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router";
@@ -15,10 +13,8 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator,
   useSidebar,
 } from "~/components/ui/sidebar";
 import { cn } from "~/lib/utils";
@@ -45,14 +41,14 @@ const primaryItems: SidebarItem[] = [
     icon: ClipboardList,
   },
   {
-    id: "opportunities",
-    label: "Opportunities",
-    to: "/volunteer",
-    icon: Briefcase,
+    id: "myevents",
+    label: "My Events",
+    to: "/my-events",
+    icon: Calendar,
   },
 ];
 
-export default function MySpaceSideBar() {
+export default function WorkSpaceSideBar() {
   const location = useLocation();
   const { setOpenMobile, isMobile } = useSidebar();
 
@@ -75,7 +71,7 @@ export default function MySpaceSideBar() {
                 <SidebarMenuButton
                   asChild
                   isActive={location.pathname === item.to}
-                  className="p-5 data-[active=true]:bg-blue-50 data-[active=true]:text-blue-600"
+                  className="p-5 data-[active=true]:ring data-[active=true]:ring-blue-500 data-[active=true]:bg-blue-50 data-[active=true]:text-blue-600 transition-all text-[12px] font-normal"
                 >
                   <Link
                     to={item.to}

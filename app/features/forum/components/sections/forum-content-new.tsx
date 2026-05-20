@@ -74,7 +74,7 @@ export default function ForumContentNew({
                       key={`${tab.label}-${tab.value}`}
                       type="button"
                       onClick={() => setActiveTab(tab.value)}
-                      className={`rounded-full px-6 py-2.5 text-sm font-medium transition-colors ${
+                      className={`cursor-pointer rounded-full px-6 py-2.5 text-sm font-medium transition-colors ${
                         isActive
                           ? "bg-[#0050d4] text-[#f1f2ff]"
                           : "bg-[#eef1f3] text-[#595c5e] hover:bg-[#e2e8f0]"

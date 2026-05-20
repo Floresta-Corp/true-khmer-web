@@ -1,6 +1,6 @@
 import WorkSpacePageLayout from "~/layout/workspace-page-layout";
 import PostingPagination from "../manage-post-pagination";
-import { useLoaderData, useNavigation } from "react-router";
+import { useLoaderData, useNavigation, useSearchParams } from "react-router";
 import ManagePostCard from "../card/manage-post-card";
 import ManagePostCardSkeleton from "../manage-post-skeleton";
 import ManagePostFilters from "../card/manage-post-filter";
@@ -9,10 +9,16 @@ import CreateOpportunityDialog from "../dialog/manage-post-button";
 import PostingNewCard from "../card/manage-new-post";
 
 export default function ManagePostingPage() {
+  const [searchParams] = useSearchParams();
+  const search = searchParams.get("search");
   const { postings, pagination } = useLoaderData<typeof loader>();
 
   const navigation = useNavigation();
   const isLoading = navigation.state === "loading";
+
+  const result = postings.filter((v) =>
+    v.title.toLowerCase().includes(search?.toLowerCase() ?? ""),
+  );
 
   return (
     <WorkSpacePageLayout
@@ -31,7 +37,7 @@ export default function ManagePostingPage() {
           ))
         ) : (
           <>
-            {postings.map((posting: any, index: number) => (
+            {result.map((posting: any, index: number) => (
               <ManagePostCard
                 key={posting.id}
                 index={index}

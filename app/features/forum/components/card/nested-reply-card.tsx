@@ -2,17 +2,19 @@ import { Pencil, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
 import AnswerVoteComponent from "../answer-vote-component";
 import { Button } from "~/components/ui/button";
-import { resolveImageURL } from "~/lib/utils";
+import { resolveImageURL, cn } from "~/lib/utils";
 import type { Answer } from "~/services/forum/forum-types";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import AddAnswerDialog from "../dialog/add-answer-dialog";
 import DeleteAnswerDialog from "../dialog/delete-answer-dialog";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router";
 import SlideToLeftHoverAnimation from "~/components/slide-to-left-hover-animation";
 import ForumReportDialog, {
   ReportDialogType,
   type ReportReasonData,
 } from "../dialog/forum-report-dialog";
+import { highlightAnswerClassName } from "../../utils";
 
 type RepliedAnswer = NonNullable<Answer["repliedAnswers"]>[number];
 
@@ -34,16 +36,40 @@ export default function NestedReplyCard({
   const formattedDate = formatMinutesOrHoursAgo(repliedAnswer.createdAt);
   const imageUrl = resolveImageURL(repliedAnswer.author.avatarKey);
   const [isHovered, setIsHovered] = useState(false);
+  const location = useLocation();
+  const cardRef = useRef<HTMLElement>(null);
+  const id = decodeURIComponent(location.hash.replace(/^#answer-/, ""));
+  const isHighlighted = id === repliedAnswer.id;
+  const [showAnimation, setShowAnimation] = useState(false);
+
+  useEffect(() => {
+    if (isHighlighted && cardRef.current) {
+      setTimeout(() => {
+        cardRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 100);
+      setShowAnimation(true);
+      const timer = setTimeout(() => setShowAnimation(false), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isHighlighted]);
 
   return (
     <motion.article
+      ref={cardRef}
+      id={`answer-${repliedAnswer.id}`}
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 6 }}
       transition={{ duration: 0.18, ease: "easeOut" }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className="w-full rounded-xl bg-[#fffefe] border border-slate-200 px-5 py-5 shadow-[0px_1px_2px_rgba(15,23,42,0.04)]"
+      className={cn(
+        "w-full rounded-xl bg-[#fffefe] border border-slate-200 px-5 py-5 shadow-[0px_1px_2px_rgba(15,23,42,0.04)]",
+        showAnimation && highlightAnswerClassName,
+      )}
     >
       <div className="flex w-full items-start justify-between gap-3">
         <div className="flex items-center gap-3">

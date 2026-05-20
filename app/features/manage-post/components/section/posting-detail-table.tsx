@@ -1,16 +1,9 @@
-import { useSearchParams } from "react-router";
-import { Search, Send, Mail, MoreVertical } from "lucide-react";
-import { Avatar, AvatarFallback } from "~/components/ui/avatar";
+import { useFetcher, useSearchParams } from "react-router";
+import { Send, Mail, MoreVertical, Phone } from "lucide-react";
+import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
-import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
-import type {
-  Applicant,
-  ApplicantStatus,
-  TimeFilter,
-} from "../data/manage-post-detail-type";
-import { motion } from "motion/react";
 import {
   Table,
   TableBody,
@@ -19,151 +12,116 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import type {
+  Applicant,
+  ApplicantStatusAction,
+  PostingType,
+} from "~/services/manage-post/types";
+import { useState } from "react";
+import ApplicantTabRange from "./applicant-tab-range";
+import { formatDate } from "~/features/events/lib/event-formatters";
+import ApplicantSideBar from "./applicant-side-bar";
 
-const TIME_FILTERS: { label: string; value: TimeFilter }[] = [
-  { label: "Today", value: "today" },
-  { label: "This Week", value: "this-week" },
-  { label: "All Time", value: "all-time" },
-];
+type RangeType = "today" | "this_week" | "all_time";
 
-const STATUS_STYLES: Record<ApplicantStatus, string> = {
-  new: "bg-blue-50 text-blue-600 border-blue-100",
-  "in-review": "bg-amber-50 text-amber-600 border-amber-100",
-  passed: "bg-green-50 text-green-600 border-green-100",
-  rejected: "bg-red-50 text-red-600 border-red-100",
+const VALID_RANGE = ["today", "this_week", "all_time"] as const;
+
+const STATUS_STYLES: Record<ApplicantStatusAction, string> = {
+  approve: "bg-green-100 text-green-700 border-green-200 hover:bg-gray-100",
+  confirmed: "bg-green-100 text-green-700 border-green-200 hover:bg-gray-100",
+  completed: "bg-blue-100 text-blue-700 border-blue-200 hover:bg-gray-100",
+  decline: "bg-red-100 text-red-700 border-red-200 hover:bg-gray-100",
+  submitted: "bg-amber-100 text-amber-700 border-amber-200 hover:bg-gray-100",
+  under_review:
+    "bg-purple-100 text-purple-700 border-purple-200 hover:bg-gray-100",
 };
 
-const STATUS_LABELS: Record<ApplicantStatus, string> = {
-  new: "New",
-  "in-review": "In-Review",
-  passed: "Passed",
-  rejected: "Rejected",
+const STATUS_LABELS: Record<ApplicantStatusAction, string> = {
+  approve: "Approved",
+  confirmed: "Confirmed",
+  completed: "Completed",
+  decline: "Declined",
+  submitted: "Submitted",
+  under_review: "Under Review",
+};
+const normalizeStatus = (status: string): ApplicantStatusAction => {
+  const map: Record<string, ApplicantStatusAction> = {
+    SUBMITTED: "submitted",
+    UNDER_REVIEW: "under_review",
+    APPROVED: "approve",
+    CONFIRMED: "approve",
+    COMPLETED: "approve",
+    DECLINED: "decline",
+    WITHDRAWN: "decline",
+  };
+  return map[status?.toUpperCase()] ?? "submitted";
 };
 
 type Props = {
   applicants: Applicant[];
+  postingId: string;
+  sourceType: PostingType;
 };
 
-export default function ManagePostingDetailTable({ applicants }: Props) {
-  const [searchParams, setSearchParams] = useSearchParams();
+export default function ManagePostingDetailTable({
+  applicants,
+  postingId,
+  sourceType,
+}: Props) {
+  const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(
+    null,
+  );
 
-  const timeFilter = (searchParams.get("time") as TimeFilter) ?? "all-time";
-  const search = searchParams.get("search") ?? "";
+  const fetcher = useFetcher();
 
-  const setParam = (key: string, value: string) => {
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        if (!value || (key === "time" && value === "all-time")) {
-          next.delete(key);
-        } else {
-          next.set(key, value);
-        }
-        return next;
-      },
-      { replace: true },
+  const getDisplayStatus = (applicant: Applicant): ApplicantStatusAction => {
+    if (
+      applicant.roles?.[0]?.applicationId === pendingApplicantId &&
+      pendingStatus
+    ) {
+      return pendingStatus;
+    }
+    return normalizeStatus(applicant.status);
+  };
+
+  const handleRowClick = (applicant: Applicant) => {
+    setSelectedApplicant(applicant);
+
+    const normalized = normalizeStatus(applicant.status);
+    const alreadyActioned = ["approve", "decline", "under_review"].includes(
+      normalized,
     );
+
+    if (!alreadyActioned) {
+      const applicationId = applicant.roles?.[0]?.applicationId;
+      if (!applicationId) return;
+
+      const formData = new FormData();
+      formData.append("applicationId", applicationId);
+      formData.append("statusAction", "under_review");
+      fetcher.submit(formData, { method: "POST" });
+    }
   };
 
-  const getTimeRangeFilter = (
-    filter: TimeFilter,
-  ): ((date: string) => boolean) => {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const weekAgo = new Date(today);
-    weekAgo.setDate(weekAgo.getDate() - 7);
+  const syncedApplicant = selectedApplicant
+    ? (applicants.find(
+        (a) =>
+          a.roles?.[0]?.applicationId ===
+          selectedApplicant.roles?.[0]?.applicationId,
+      ) ?? selectedApplicant)
+    : null;
 
-    return (dateStr: string) => {
-      const date = new Date(dateStr);
-      if (isNaN(date.getTime())) return false; // Invalid date, exclude it
-
-      switch (filter) {
-        case "today":
-          return date >= today && date < new Date(today.getTime() + 86400000);
-        case "this-week":
-          return date >= weekAgo;
-        case "all-time":
-          return true;
-        default:
-          return true;
-      }
-    };
-  };
-
-  const timeFilterFn = getTimeRangeFilter(timeFilter);
-
-  const filtered = applicants.filter((a) => {
-    const matchesSearch = search
-      ? a.name.toLowerCase().includes(search.toLowerCase()) ||
-        a.email.toLowerCase().includes(search.toLowerCase())
-      : true;
-
-    const matchesTime = timeFilterFn(a.appliedOn);
-
-    return matchesSearch && matchesTime;
-  });
+  const pendingApplicantId = fetcher.formData?.get("applicationId");
+  const pendingStatus = fetcher.formData?.get(
+    "statusAction",
+  ) as ApplicantStatusAction | null;
 
   return (
     <>
-      <div className="flex items-center justify-between gap-4 flex-wrap p-8">
-        {/* Left Side: Title and Tabs Group */}
-        <div className="flex items-center gap-6">
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-            All Applicants
-          </h2>
+      <ApplicantTabRange />
 
-          <div className="flex gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl shadow-inner w-max relative">
-            {TIME_FILTERS.map((f) => {
-              const isActive = timeFilter === f.value;
-
-              return (
-                <button
-                  key={f.value}
-                  onClick={() => setParam("time", f.value)}
-                  className={cn(
-                    "relative px-4 py-1.5 rounded-lg text-[13px] font-bold transition-colors duration-300 cursor-pointer outline-none",
-                    isActive
-                      ? "text-blue-600 dark:text-white"
-                      : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300",
-                  )}
-                >
-                  <span className="relative z-20">{f.label}</span>
-
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeTimeFilter"
-                      className="absolute inset-0 bg-white dark:bg-slate-800 rounded-lg shadow-sm"
-                      style={{ zIndex: 10 }}
-                      transition={{
-                        type: "spring",
-                        bounce: 0.2,
-                        duration: 0.6,
-                      }}
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Right Side: Search Bar */}
-        <div className="relative flex-1 max-w-md min-w-70">
-          <Search
-            size={16}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-          />
-          <Input
-            className="h-10 pl-11 pr-4 text-[13px] border-slate-200 bg-white rounded-xl focus-visible:ring-blue-500/20 placeholder:text-slate-400 placeholder:font-medium transition-all shadow-sm"
-            placeholder="Search postings name"
-            value={search}
-            onChange={(e) => setParam("search", e.target.value)}
-          />
-        </div>
-      </div>
       <div className="bg-white rounded-2xl border border-gray-100 p-2.5 flex flex-col gap-4">
-        {/* Table */}
-        <div className="overflow-x-auto rounded-2xl ">
+        <div className="overflow-x-auto rounded-2xl">
           <Table>
             <TableHeader className="bg-slate-50 dark:bg-slate-900/50 border-b border-gray-100 text-[12px] font-bold uppercase tracking-widest">
               <TableRow className="hover:bg-transparent">
@@ -185,85 +143,132 @@ export default function ManagePostingDetailTable({ applicants }: Props) {
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-gray-50">
-              {filtered.map((applicant) => (
-                <TableRow
-                  key={applicant.id}
-                  className="hover:bg-gray-50/50 transition-colors"
-                >
-                  {/* Candidate */}
-                  <TableCell className="p-4">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-9 w-9 border border-gray-100">
-                        <AvatarFallback className="text-xs font-semibold bg-gray-100 text-gray-600">
-                          {applicant.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-[15px] font-semibold text-gray-900">
-                          {applicant.name}
-                        </p>
-                        <p className="text-sm text-gray-400">
-                          {applicant.email}
-                        </p>
+              {(applicants ?? []).map((applicant) => {
+                const displayStatus = getDisplayStatus(applicant);
+                return (
+                  <TableRow
+                    key={applicant.candidate.id}
+                    onClick={() => handleRowClick(applicant)}
+                    className="hover:bg-gray-50/50 transition-colors cursor-pointer"
+                  >
+                    <TableCell className="p-4">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="border border-[#f3f4f6] shrink-0 h-10 w-10">
+                          <AvatarImage
+                            src={applicant.candidate.avatarUrl || ""}
+                            alt={applicant.candidate.name || "User"}
+                            className="object-cover"
+                          />
+                        </Avatar>
+                        <div>
+                          <p className="text-[15px] font-semibold text-gray-900">
+                            {applicant.candidate.name}
+                          </p>
+                          <p className="text-sm text-gray-400">
+                            {applicant.candidate.email}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  {/* Role */}
-                  <TableCell>
-                    <Badge className="text-sm font-medium bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-50">
-                      {applicant.role}
-                    </Badge>
-                  </TableCell>
-                  {/* Applied On */}
-                  <TableCell className="text-sm text-gray-500">
-                    {applicant.appliedOn}
-                  </TableCell>
-                  {/* Status */}
-                  <TableCell>
-                    <Badge
-                      className={cn("text-sm", STATUS_STYLES[applicant.status])}
-                    >
-                      {STATUS_LABELS[applicant.status]}
-                    </Badge>
-                  </TableCell>
-                  {/* Contact */}
-                  <TableCell className="py-4">
-                    <div className="flex justify-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 bg-blue-100/60 text-blue-500 hover:text-gray-600"
-                        aria-label="Send message"
+                    </TableCell>
+                    <TableCell>
+                      {(() => {
+                        const approvedRole = applicant.roles?.find(
+                          (r) => r.status === "APPROVED",
+                        );
+                        const primaryRole =
+                          approvedRole ?? applicant.roles?.[0];
+                        const otherRoles =
+                          applicant.roles?.filter((r) => r !== primaryRole) ??
+                          [];
+
+                        return (
+                          <div className="flex flex-col gap-1">
+                            <Badge className="text-sm font-medium bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-50 w-fit">
+                              {primaryRole?.title}
+                            </Badge>
+                            {otherRoles.length > 0 && (
+                              <span className="text-xs text-gray-400">
+                                + {otherRoles.length} other role
+                                {otherRoles.length > 1 ? "s" : ""}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-500">
+                      {formatDate(applicant.appliedAt)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        className={cn(
+                          "text-xs font-semibold border capitalize",
+                          STATUS_STYLES[displayStatus],
+                        )}
                       >
-                        <Send size={14} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-gray-400 hover:text-gray-600"
-                        aria-label="Compose email"
-                      >
-                        <Mail size={14} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-gray-400 hover:text-gray-600"
-                        aria-label="More actions"
-                      >
-                        <MoreVertical size={14} />
-                      </Button>
-                    </div>
+                        {STATUS_LABELS[displayStatus]}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="py-4">
+                      <div className="flex justify-center gap-2">
+                        {applicant.candidate.email && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 bg-blue-100/60 text-blue-500 hover:bg-blue-100 hover:text-blue-600"
+                            aria-label="Compose email"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Mail size={14} />
+                          </Button>
+                        )}
+                        {applicant.candidate.telegramUsername && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 bg-sky-100/60 text-sky-500 hover:bg-sky-100 hover:text-sky-600"
+                            aria-label="Telegram"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Send size={14} />
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-gray-400 hover:text-gray-600"
+                          aria-label="More actions"
+                          onClick={() => handleRowClick(applicant)}
+                        >
+                          <MoreVertical size={14} />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+
+              {(applicants ?? []).length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    className="h-32 text-center text-slate-400"
+                  >
+                    No applicants found for this project.
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </div>
       </div>
+
+      <ApplicantSideBar
+        applicant={syncedApplicant}
+        onClose={() => setSelectedApplicant(null)}
+        postingId={postingId}
+        sourceType={sourceType}
+      />
     </>
   );
 }

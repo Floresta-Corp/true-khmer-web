@@ -96,6 +96,13 @@ export default function VolunteerPostPage() {
             behavior: prefersReducedMotion ? "auto" : "smooth",
             block: "center",
           });
+        } else if (firstError === "dateRange") {
+          document
+            .querySelector("#opportunity-date-range-trigger")
+            ?.scrollIntoView({
+              behavior: prefersReducedMotion ? "auto" : "smooth",
+              block: "center",
+            });
         } else {
           document.querySelector('[aria-invalid="true"]')?.scrollIntoView({
             behavior: prefersReducedMotion ? "auto" : "smooth",
@@ -147,6 +154,7 @@ export default function VolunteerPostPage() {
     setDetailErrors((prev) => {
       const next = { ...prev };
       if (field === "benefits") delete next.benefitErrors;
+      if (field === "startDate" || field === "endDate") delete next.dateRange;
       if (field in next) delete next[field as keyof VolunteerPostPage1Errors];
       return next;
     });
