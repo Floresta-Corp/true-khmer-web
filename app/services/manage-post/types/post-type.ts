@@ -4,11 +4,16 @@ export const SourceTypeSchema = z.enum(["PROJECT", "VOLUNTEER"]);
 export type SourceType = z.infer<typeof SourceTypeSchema>;
 
 export const StatusSchema = z.enum([
-  "ACTIVE",
-  "CLOSED",
+  // "ACTIVE",
+  // "CLOSED",
+  // "COMPLETED",
+  // "DRAFT",
+  // "PUBLISHED",
+
   "COMPLETED",
   "DRAFT",
-  "PUBLISHED",
+  "IN_PROGRESS",
+  "LIVE",
 ]);
 export type ManagePostStatus = z.infer<typeof StatusSchema>;
 
@@ -16,12 +21,21 @@ export const PostingTypeSchema = z.enum(["all", "projects", "volunteer"]);
 export type PostingType = z.infer<typeof PostingTypeSchema>;
 
 export const PostingFilterSchema = z.enum([
+  // "all",
+  // "active",
+  // "draft",
+  // "closed",
+  // "completed",
+  // "published",
+
   "all",
   "active",
+  "live",
   "draft",
+  "in_progress",
   "closed",
   "completed",
-  "published",
+  "filled",
 ]);
 export type PostingFilter = z.infer<typeof PostingFilterSchema>;
 

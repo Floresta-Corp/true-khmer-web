@@ -13,10 +13,14 @@ export const ApplicantStatusSchema = z.enum([
 export type ApplicantStatus = z.infer<typeof ApplicantStatusSchema>;
 
 export const PostingStatusSchema = z.enum([
-  "ACTIVE",
+  // "ACTIVE",
+  // "DRAFT",
+  // "ENDED",
+  // "FILLED",
+  "COMPLETED",
   "DRAFT",
-  "ENDED",
-  "FILLED",
+  "IN_PROGRESS",
+  "LIVE",
 ]);
 export type PostingStatus = z.infer<typeof PostingStatusSchema>;
 

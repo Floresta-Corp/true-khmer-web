@@ -21,7 +21,7 @@ export default function ManagePostingDetailStats() {
       {/* 1. Pending Card */}
       <div className="bg-[#4F5FE8] rounded-[24px] p-6 flex justify-between items-start relative overflow-hidden h-40 shadow-lg shadow-indigo-500/20">
         <div className="relative z-20">
-          <p className="text-md font-bold text-white/70 uppercase tracking-[0.15em] mb-4">
+          <p className="text-base font-bold text-white/70 uppercase tracking-[0.15em] mb-4">
             Pending
             {/* {postDetail?.stats?.pending ?? ""} */}
           </p>
@@ -50,7 +50,7 @@ export default function ManagePostingDetailStats() {
       {/* 2. Total Applicants */}
       <div className="bg-white rounded-[24px] border border-gray-100 p-6 flex justify-between items-start relative overflow-hidden h-40 shadow-sm">
         <div className="relative z-20">
-          <p className="text-md font-bold text-gray-400 uppercase tracking-[0.15em] mb-4">
+          <p className="text-base font-bold text-gray-400 uppercase tracking-[0.15em] mb-4">
             Total Applicants
           </p>
           <p className="text-4xl font-bold text-gray-900 tracking-tight">
@@ -73,7 +73,7 @@ export default function ManagePostingDetailStats() {
       {/* 3. Total Views */}
       <div className="bg-white rounded-[24px] border border-gray-100 p-6 flex justify-between items-start relative overflow-hidden h-40 shadow-sm">
         <div className="relative z-20">
-          <p className="text-md font-bold text-gray-400 uppercase tracking-[0.15em] mb-4">
+          <p className="text-base font-bold text-gray-400 uppercase tracking-[0.15em] mb-4">
             Total Views
           </p>
           <p className="text-4xl font-bold text-gray-900 tracking-tight">
@@ -96,7 +96,7 @@ export default function ManagePostingDetailStats() {
       {/* 4. Recruitment Goal */}
       <div className="bg-white rounded-[24px] border border-gray-100 p-6 flex justify-between items-start relative overflow-hidden h-40 shadow-sm">
         <div className="relative z-20">
-          <p className="text-md font-bold text-gray-400 uppercase tracking-[0.15em] mb-4">
+          <p className="text-base font-bold text-gray-400 uppercase tracking-[0.15em] mb-4">
             Recruitment Goal
           </p>
           <p className="text-4xl font-bold text-gray-900 tracking-tight">
