@@ -30,7 +30,7 @@ export function MyApplicationActions({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-40">
         <DropdownMenuItem
-          onSelect={() => onArchive(applicationId)}
+          onSelect={() => onArchive?.(applicationId)}
           className="text-gray-600 text-sm flex items-center gap-2"
         >
           <Archive size={14} />

@@ -2,6 +2,7 @@ import {
   type KeyboardEvent,
   type ChangeEvent,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -58,7 +59,7 @@ export default function AskQuestionDialog({
     defaultValues: {
       title: data?.title ?? "",
       body: data?.body ?? "",
-      categoryId: data?.category?.id ?? "",
+      categoryId: data?.category?.id ?? categories[0]?.id ?? "",
       tags: data?.tags?.map((t) => t.name).filter(Boolean) ?? [],
       status: "PUBLISHED",
       imageKey: data?.imageKey ?? null,
@@ -86,12 +87,13 @@ export default function AskQuestionDialog({
   // const [searchParams, setSearchParams] = useSearchParams();
   const redirectTo = `${location.pathname}${location.search}`;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
-  const submittedTags = (() => {
+
+  const submittedTags = useMemo(() => {
     const typed = tagInput.trim();
     const combined = typed ? [...tags, typed] : tags;
     // Ensure we never submit more than 5 tags
     return combined.slice(0, 5).filter(Boolean);
-  })();
+  }, [tags, tagInput]);
 
   // Keep react-hook-form tags in sync with local tags state
   useEffect(() => {
@@ -128,7 +130,6 @@ export default function AskQuestionDialog({
       encType: "multipart/form-data",
     });
   };
-  };
 
   useEffect(() => {
     if (fetcher.state === "submitting") {
@@ -138,7 +139,10 @@ export default function AskQuestionDialog({
       wasSubmitting.current = false;
       const result = fetcher.data as any;
       const isSuccess =
-        result?.data?.ok === true || result?.data?.question != null;
+        result?.ok === true ||
+        result?.data?.ok === true ||
+        result?.question != null ||
+        result?.data?.question != null;
       const hasFieldErrors =
         result?.fieldErrors &&
         Object.values(result.fieldErrors).some((value) => Boolean(value));
@@ -178,10 +182,19 @@ export default function AskQuestionDialog({
     reset,
     setError,
     preview,
+    existingImageKey,
   ]);
 
   useEffect(() => {
     if (open) {
+      reset({
+        title: data?.title ?? "",
+        body: data?.body ?? "",
+        categoryId: data?.category?.id ?? categories[0]?.id ?? "",
+        tags: data?.tags?.map((t) => t.name).filter(Boolean) ?? [],
+        status: "PUBLISHED",
+        imageKey: data?.imageKey ?? null,
+      });
       setTags(data?.tags?.map((tag) => tag.name).filter(Boolean) ?? []);
       setTagInput("");
       // reset file selection and previews when opening
@@ -197,7 +210,7 @@ export default function AskQuestionDialog({
         setExistingImageKey(null);
       }
     }
-  }, [data?.id, open, isEditing]);
+  }, [data, open, isEditing, reset, categories]);
 
   useEffect(() => {
     return () => {
@@ -262,7 +275,7 @@ export default function AskQuestionDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         {trigger || (
           <Button
             variant={"default"}
@@ -280,7 +293,7 @@ export default function AskQuestionDialog({
         showCloseButton={false}
         className="max-w-[calc(100%-1rem)] gap-4 overflow-hidden rounded-2xl border border-[#e2e8f0] p-6 shadow-lg sm:max-w-130"
       >
-        <DialogClose>
+        <DialogClose asChild>
           <Button
             variant="ghost"
             size="icon-sm"
@@ -484,7 +497,7 @@ export default function AskQuestionDialog({
           ) : null}
 
           <div className="flex justify-end gap-2 pt-2">
-            <DialogClose>
+            <DialogClose asChild>
               <Button
                 type="button"
                 variant="outline"
@@ -517,3 +530,4 @@ export default function AskQuestionDialog({
     </Dialog>
   );
 }
+

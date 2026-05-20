@@ -24,13 +24,25 @@ export async function VolunteerDetailAction({
   const actionType = formData.get("actionType");
 
   if (actionType === "save-opportunity") {
-    const result = await SaveVolunteerOpportunity(request, id);
-    return result?.data ?? { ok: false, message: "Unexpected response format" };
+    try {
+      const result = await SaveVolunteerOpportunity(request, id);
+      return transformActionResponse(
+        result?.data ?? { ok: false, message: "Unexpected response format" },
+      );
+    } catch (error) {
+      return transformActionResponse(error);
+    }
   }
 
   if (actionType === "unsave-opportunity") {
-    const result = await UnsaveVolunteerOpportunity(request, id);
-    return result?.data ?? { ok: false, message: "Unexpected response format" };
+    try {
+      const result = await UnsaveVolunteerOpportunity(request, id);
+      return transformActionResponse(
+        result?.data ?? { ok: false, message: "Unexpected response format" },
+      );
+    } catch (error) {
+      return transformActionResponse(error);
+    }
   }
 
   if (actionType === "apply-application") {
