@@ -50,25 +50,21 @@ function PaleInput({
 
 interface RoleDetailsFormProps {
   title: string;
-  commitmentLabel: string;
   capacity: number;
   errors?: VolunteerRoleErrors;
   onTitleChange: (value: string) => void;
-  onCommitmentChange: (value: string) => void;
   onCapacityChange: (value: number) => void;
 }
 
 export default function RoleDetailsForm({
   title,
-  commitmentLabel,
   capacity,
   errors,
   onTitleChange,
-  onCommitmentChange,
   onCapacityChange,
 }: RoleDetailsFormProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-2">
       <div className="space-y-2">
         <SectionLabel>Role title</SectionLabel>
         <PaleInput
@@ -80,23 +76,6 @@ export default function RoleDetailsForm({
         />
         {errors?.title && (
           <p className="text-xs text-red-500">{errors.title}</p>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <SectionLabel>Commitment</SectionLabel>
-        <div className="relative">
-          <Clock3 className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#99a1af]" />
-          <PaleInput
-            placeholder="e.g., flexible"
-            value={commitmentLabel}
-            onChange={onCommitmentChange}
-            ariaInvalid={Boolean(errors?.commitmentLabel)}
-            className="pl-9"
-          />
-        </div>
-        {errors?.commitmentLabel && (
-          <p className="text-xs text-red-500">{errors.commitmentLabel}</p>
         )}
       </div>
 

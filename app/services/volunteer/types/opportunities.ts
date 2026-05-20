@@ -259,7 +259,12 @@ export const formDataVolunteerInput = z.object({
     websiteUrl: z.string().url().nullish(),
   }),
   roles: z.array(
-    RoleSchema.omit({ displayOrder: true, id: true, viewerApplied: true }),
+    RoleSchema.omit({
+      displayOrder: true,
+      id: true,
+      viewerApplied: true,
+      commitmentLabel: true,
+    }),
   ),
   coverImageKey: z
     .object({

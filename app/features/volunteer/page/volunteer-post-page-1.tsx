@@ -95,6 +95,8 @@ interface VolunteerPostPage1Props {
     field: K,
     value: FormDataVolunteerInput[K],
   ) => void;
+  onCoverImageSelect: (file: File) => void;
+  onCoverImageClear: () => void;
   onContinueToRole: () => void;
   locations: { id: string; name: string }[];
   categories: { id: string; name: string }[];
@@ -105,6 +107,8 @@ export default function VolunteerPostPage1({
   errors,
   setDetailErrors,
   onUpdateField,
+  onCoverImageSelect,
+  onCoverImageClear,
   onContinueToRole,
   locations,
   categories,
@@ -302,11 +306,11 @@ export default function VolunteerPostPage1({
               id="coverImageKey"
               tabIndex={-1}
               className={cn(
-                  "relative flex aspect-video cursor-pointer flex-col items-center justify-center rounded-2xl bg-[#fafafa] px-4 py-3 text-center",
-                  errors?.coverImageKey
-                    ? "border border-red-500 ring-4 ring-red-200"
-                    : "border border-dashed border-[#e5e5e5]",
-                )}
+                "relative flex aspect-video cursor-pointer flex-col items-center justify-center rounded-2xl bg-[#fafafa] px-4 py-3 text-center",
+                errors?.coverImageKey
+                  ? "border border-red-500 ring-4 ring-red-200"
+                  : "border border-dashed border-[#e5e5e5]",
+              )}
               aria-invalid={Boolean(errors?.coverImageKey)}
               aria-describedby={
                 errors?.coverImageKey ? "coverImageKey-error" : undefined
@@ -328,6 +332,7 @@ export default function VolunteerPostPage1({
                         e.preventDefault();
                         onUpdateField("coverImageKey", { file: null, value: "" });
                         setDetailErrors((prev) => ({ ...prev, coverImageKey: undefined }));
+                        onCoverImageClear();
                         if (fileInputRef.current) fileInputRef.current.value = "";
                       }}
                     />
@@ -388,7 +393,7 @@ export default function VolunteerPostPage1({
       </section>
 
       <CommitmentSection
-        commitmentLabel={formData.commitmentLabel}
+        commitmentLabel={formData.commitmentLabel ?? ""}
         commitmentDescription={formData.commitmentDescription ?? ""}
         onChangeLabel={(value) => onUpdateField("commitmentLabel", value)}
         onChangeDescription={(value) =>

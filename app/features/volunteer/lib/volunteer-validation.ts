@@ -121,9 +121,7 @@ export const validateRoleStep = (
     if (!hasText(role.title)) {
       roleError.title = "Role title is required.";
     }
-    if (!hasText(role.commitmentLabel)) {
-      roleError.commitmentLabel = "Commitment is required.";
-    }
+
     if (!(typeof role.capacity === "number" && role.capacity > 0)) {
       roleError.capacity = "Capacity must be at least 1.";
     }

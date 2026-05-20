@@ -24,9 +24,8 @@ export type VolunteerPostPage2Errors = {
   };
 };
 
-type DraftRole = {
+export type DraftRole = {
   title: string;
-  commitmentLabel: string;
   capacity: number;
   responsibilities: string[];
   requirements: string[];
@@ -34,7 +33,6 @@ type DraftRole = {
 
 const emptyDraft: DraftRole = {
   title: "",
-  commitmentLabel: "",
   capacity: 1,
   responsibilities: [""],
   requirements: [""],
@@ -68,6 +66,14 @@ export default function VolunteerPostPage2({
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
+  const isBlankRole = (role: FormDataVolunteerInput["roles"][number]) =>
+    !role.title.trim() &&
+    role.capacity === 1 &&
+    role.responsibilities.length === 1 &&
+    !role.responsibilities[0]?.trim() &&
+    role.requirements.length === 1 &&
+    !role.requirements[0]?.trim();
+
   useEffect(() => {
     if (fetcher.data?.success) {
       setIsPublishModalOpen(true);
@@ -98,7 +104,7 @@ export default function VolunteerPostPage2({
     });
   }, []);
 
-  const hasSavedRoles = formData.roles.length > 0;
+  const hasSavedRoles = formData.roles.some((role) => !isBlankRole(role));
   const currentRoleErrors = hasSavedRoles ? undefined : errors?.roleErrors?.[0];
 
   const updateContactField = (
@@ -131,7 +137,7 @@ export default function VolunteerPostPage2({
         if (i === editingIndex) {
           return {
             title: draftRole.title,
-            commitmentLabel: draftRole.commitmentLabel,
+
             capacity: draftRole.capacity,
             responsibilities: draftRole.responsibilities,
             requirements: draftRole.requirements,
@@ -151,7 +157,7 @@ export default function VolunteerPostPage2({
     const role = formData.roles[index];
     setDraftRole({
       title: role.title,
-      commitmentLabel: role.commitmentLabel,
+
       capacity: role.capacity,
       responsibilities: role.responsibilities,
       requirements: role.requirements,
