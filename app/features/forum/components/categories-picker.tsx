@@ -13,12 +13,16 @@ interface CategoriesPickerProps {
   name: string;
   categories: CategoryOption[];
   defaultValue?: string;
+  required?: boolean;
+  onChange?: (category: CategoryOption) => void;
 }
 
 export default function CategoriesPicker({
   name,
   categories,
   defaultValue = "",
+  required = false,
+  onChange,
 }: CategoriesPickerProps) {
   const defaultCategory =
     categories.find((c) => c.id === defaultValue) || categories[0] || null;
@@ -39,7 +43,12 @@ export default function CategoriesPicker({
 
   return (
     <>
-      <input type="hidden" name={name} value={selectedCategory?.id || ""} />
+      <input
+        type="hidden"
+        name={name}
+        value={selectedCategory?.id || ""}
+        required={required}
+      />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -58,7 +67,10 @@ export default function CategoriesPicker({
           {categories.map((category) => (
             <DropdownMenuItem
               key={category.id}
-              onSelect={() => setSelectedCategory(category)}
+              onSelect={() => {
+                setSelectedCategory(category);
+                onChange?.(category);
+              }}
               className="rounded-md px-3 py-2 text-sm font-medium text-[#344256] focus:bg-[#f8fafc] focus:text-[#344256]"
             >
               {category.name}

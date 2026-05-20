@@ -59,15 +59,13 @@ function RoleCard({ role, roles, hideApplyButton }: RoleCardProps) {
       value={role.id}
       className="overflow-hidden rounded-[16px] border border-gray-200"
     >
-      <AccordionTrigger className="px-5.25 py-4 text-left no-underline hover:no-underline [&>svg]:size-[17.5px] [&>svg]:text-[#2f6fe4] bg-[#f8fafc] rounded-none ">
+      <AccordionTrigger className="px-5.25 py-4 text-left no-underline hover:no-underline [&>svg]:size-[17.5px] [&>svg]:text-[#2f6fe4] rounded-none ">
         <div className="flex items-center justify-between w-full">
           <div>
             <h3 className="text-[16px] font-bold text-[#0a0a0a]">
               {role.title}
             </h3>
             <p className="mt-1 flex items-center gap-2 text-[14px] font-medium text-[#99A1AF]">
-              {role.commitmentLabel}
-              <span className="size-[3.5px] rounded-full bg-[#d1d5dc]" />
               <span className="text-[#009966] text-[14px] font-medium">
                 {role.capacity} spots open
               </span>
@@ -76,7 +74,7 @@ function RoleCard({ role, roles, hideApplyButton }: RoleCardProps) {
         </div>
       </AccordionTrigger>
 
-      <AccordionContent className="px-5.25 pt-7.25 bg-[#f8fafc] rounded-b-[16px] border-t border-[#0000001A]">
+      <AccordionContent className="px-5.25 pt-7.25 rounded-b-[16px] border-t border-[#0000001A]">
         <div className="grid gap-5 lg:grid-cols-2">
           <ResponsibilitiesSection items={role.responsibilities} />
           <RequirementsSection items={role.requirements} />
@@ -119,7 +117,7 @@ function ResponsibilitiesSection({ items }: ResponsibilitiesSectionProps) {
         {items.map((item) => (
           <li
             key={item}
-            className="flex items-start gap-2 text-sm font-medium leading-[22.75px] text-[#4a5565]"
+            className="flex gap-3 text-sm text-gray-600 dark:text-slate-300"
           >
             <CheckCircle2 className="mt-0.5 size-[17.5px] shrink-0 text-[#009966]" />
             {item}
@@ -144,7 +142,7 @@ function RequirementsSection({ items }: RequirementsSectionProps) {
         {items.map((item) => (
           <li
             key={item}
-            className="flex items-start gap-2 text-sm font-medium leading-[22.75px] text-[#4a5565]"
+            className="flex gap-3 text-sm text-gray-600 dark:text-slate-300"
           >
             <CheckCircle2 className="mt-0.5 size-[17.5px] shrink-0 text-[#009966]" />
             {item}

@@ -1,46 +1,73 @@
 import { MapPin, Clock3, Calendar, Users } from "lucide-react";
 import type { Opportunity } from "~/services/volunteer/types/opportunities";
+import { format } from "date-fns";
 
 interface OpportunityDetailsGridProps {
   volunteer: Opportunity;
+  hideIcon?: boolean;
 }
 
 export default function OpportunityDetailsGrid({
   volunteer,
+  hideIcon = false,
 }: OpportunityDetailsGridProps) {
-  const applicants = `${volunteer.applicationCount}/${volunteer.capacity}`;
+  function formatDateRange(start?: string | null, end?: string | null) {
+    if (!start && !end) return volunteer?.commitmentLabel ?? "Full week";
+    if (start && end) {
+      const s = new Date(start);
+      const e = new Date(end);
+      if (isNaN(s.getTime()) || isNaN(e.getTime()))
+        return volunteer?.commitmentLabel ?? "Full week";
+      // If same year, show `M dd - M dd, yyyy` (e.g., 11 15 - 11 20, 2026)
+      if (s.getFullYear() === e.getFullYear()) {
+        return `${format(s, "M dd")} - ${format(e, "M dd, yyyy")}`;
+      }
+      // Different years: show full years on both
+      return `${format(s, "M dd, yyyy")} - ${format(e, "M dd, yyyy")}`;
+    }
+    // Only start or only end present
+    const single = start ? new Date(start) : new Date(end as string);
+    if (isNaN(single.getTime()))
+      return volunteer?.commitmentLabel ?? "Full week";
+    return format(single, "M dd, yyyy");
+  }
+
+  const fields: {
+    key: string;
+    label: string;
+    icon: React.ComponentType<any>;
+    value: React.ReactNode;
+  }[] = [
+    {
+      key: "location",
+      label: "Location",
+      icon: MapPin,
+      value: volunteer?.location.name ?? "Siem Reap",
+    },
+    {
+      key: "duration",
+      label: "Duration",
+      icon: Clock3,
+      value: formatDateRange(volunteer?.startDate, volunteer?.endDate),
+    },
+  ];
+
   return (
-    <div className="grid gap-6 border-b border-[#f9fafb] pb-5.5 pt-5.25 sm:grid-cols-2 lg:grid-cols-4">
-      <div className="space-y-1">
-        <p className="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.12px] text-[#99a1af]">
-          <MapPin className="size-[10.5px]" /> Location
-        </p>
-        <p className="text-sm font-semibold text-[#4a5565]">
-          {volunteer?.location.name ?? "Siem Reap"}
-        </p>
-      </div>
-      <div className="space-y-1">
-        <p className="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.12px] text-[#99a1af]">
-          <Clock3 className="size-[10.5px]" /> Commitment
-        </p>
-        <p className="text-sm font-semibold text-[#4a5565]">
-          {volunteer?.commitmentLabel ?? "Full week"}
-        </p>
-      </div>
-      <div className="space-y-1">
-        <p className="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.12px] text-[#99a1af]">
-          <Calendar className="size-[10.5px]" /> Duration
-        </p>
-        <p className="text-sm font-semibold text-[#4a5565]">
-          {volunteer?.durationLabel ?? "1 week"}
-        </p>
-      </div>
-      <div className="space-y-1">
-        <p className="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.12px] text-[#99a1af]">
-          <Users className="size-[10.5px]" /> Applicants
-        </p>
-        <p className="text-sm font-semibold text-[#4a5565]">{applicants}</p>
-      </div>
+    <div className="grid gap-6 border-b border-[#f9fafb] sm:grid-cols-2 lg:grid-cols-4">
+      {fields.map((field) => {
+        const Icon = field.icon;
+        return (
+          <div className="space-y-1" key={field.key}>
+            <p className="flex items-center gap-1.5 text-[10px] text-xs font-bold text-gray-400 uppercase tracking-widest leading-tight mb-1">
+              {!hideIcon && <Icon className="size-[10.5px]" />}
+              {field.label}
+            </p>
+            <p className="font-bold text-gray-900 dark:text-white">
+              {field.value}
+            </p>
+          </div>
+        );
+      })}
     </div>
   );
 }

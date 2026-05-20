@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
-import { useLoaderData } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import { cn } from "~/lib/utils";
 import { Card, CardContent } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
@@ -13,6 +13,7 @@ import {
   AccordionItem,
 } from "~/components/ui/accordion";
 import type { Application } from "~/services/myspace/myspace-type";
+import EmptyApplicationCard from "./empty-application-card";
 
 function getSourceTypeStyle(sourceType: string) {
   switch (sourceType.toUpperCase()) {
@@ -109,9 +110,9 @@ function ApplicationCard({ app, index }: { app: Application; index: number }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 16 }}
-      transition={{ duration: 0.5, delay: index * 0.1, ease: "easeOut" }}
+      transition={{ duration: 0.15, delay: index * 0.03, ease: "easeInOut" }}
     >
-      <Card className="w-full bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+      <Card className="w-full cursor-pointer bg-white rounded-2xl overflow-hidden shadow-none hover:shadow-md transition-shadow">
         <CardContent className="p-6 space-y-4">
           <div className="flex gap-4">
             {/* Image Section */}
@@ -139,7 +140,12 @@ function ApplicationCard({ app, index }: { app: Application; index: number }) {
               <div className="flex justify-between items-start gap-4">
                 <div className="space-y-2">
                   <h3 className="text-[22px] leading-8.25 font-bold text-gray-800">
-                    {app.title}
+                    <Link
+                      to={`/my-applications/detail/${app.sourceType}/${app.id}`}
+                      className="inline-block rounded-sm transition-all duration-200 hover:text-blue-600 hover:underline hover:underline-offset-4 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    >
+                      {app.title}
+                    </Link>
                   </h3>
                   <p className="text-sm font-medium text-gray-500">
                     Applied {formatDate(app.appliedAt)}
@@ -220,9 +226,13 @@ export default function MyApplicationCardList() {
   return (
     <div className="flex flex-col gap-4">
       <AnimatePresence mode="wait">
-        {myApplication.applications.map((app, index) => (
-          <ApplicationCard key={app.id} app={app} index={index} />
-        ))}
+        {myApplication.applications.length > 0 ? (
+          myApplication.applications.map((app, index) => (
+            <ApplicationCard key={app.id} app={app} index={index} />
+          ))
+        ) : (
+          <EmptyApplicationCard />
+        )}
       </AnimatePresence>
     </div>
   );

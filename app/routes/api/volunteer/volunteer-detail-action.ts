@@ -1,6 +1,8 @@
 import {
   uploadDocumentApplication,
   ApplyApplication,
+  SaveVolunteerOpportunity,
+  UnsaveVolunteerOpportunity,
 } from "~/services/volunteer/server";
 import {
   UploadApplicationDocumentSchema,
@@ -20,6 +22,29 @@ export async function VolunteerDetailAction({
   const id = params.id;
   const formData = await request.formData();
   const actionType = formData.get("actionType");
+
+  if (actionType === "save-opportunity") {
+    try {
+      const result = await SaveVolunteerOpportunity(request, id);
+      return transformActionResponse(
+        result?.data ?? { ok: false, message: "Unexpected response format" },
+      );
+    } catch (error) {
+      return transformActionResponse(error);
+    }
+  }
+
+  if (actionType === "unsave-opportunity") {
+    try {
+      const result = await UnsaveVolunteerOpportunity(request, id);
+      return transformActionResponse(
+        result?.data ?? { ok: false, message: "Unexpected response format" },
+      );
+    } catch (error) {
+      return transformActionResponse(error);
+    }
+  }
+
   if (actionType === "apply-application") {
     const rawFiles = formData.getAll("files") as unknown[];
     const files = rawFiles.filter(

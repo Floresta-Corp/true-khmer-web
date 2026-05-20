@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type {
   Opportunity,
+  OpportunityDetail,
   Role,
 } from "~/services/volunteer/types/opportunities";
 import VolunteerApplicationDialog from "../dialog/volunteer-application-dialog";
@@ -8,7 +9,7 @@ import { formatDate } from "date-fns";
 import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
 
 interface ApplicationSummaryProps {
-  volunteer: Opportunity;
+  volunteer: OpportunityDetail;
   disableApplyButton?: boolean;
   totalCapacity: number;
 }

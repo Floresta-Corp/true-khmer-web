@@ -1,8 +1,8 @@
-import { Calendar, Clock, Heart, MapPin } from "lucide-react";
+import { Bookmark, Calendar, Clock, Eye, Heart, MapPin } from "lucide-react";
 import { Link, useFetcher } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
-import { cn, resolveImageURL } from "~/lib/utils";
+import { cn, formatCompactNumber, resolveImageURL } from "~/lib/utils";
 import type { Opportunity } from "~/services/volunteer/volunteer-types";
 import { format } from "date-fns";
 import { motion } from "motion/react";
@@ -96,15 +96,18 @@ export function OpportunityCard({
             variant="ghost"
             size="icon"
             aria-label="Save opportunity"
-            className="cursor-pointer flex size-[31.5px] items-center justify-center rounded-2xl bg-white/95 text-[#9aa2af] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)]"
+            className={cn(
+              "cursor-pointer flex size-[31.5px] items-center justify-center rounded-2xl bg-white/95 text-[#9aa2af] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)] transition-colors",
+              { "bg-blue-600": opportunity.viewerSave },
+            )}
             onClick={handleOnSaveClicked}
           >
             {loading ? (
               <Spinner />
             ) : (
-              <Heart
+              <Bookmark
                 className={cn("size-3.5", {
-                  "fill-blue-600 text-blue-600": opportunity.viewerSave,
+                  "fill-white text-white": opportunity.viewerSave,
                 })}
               />
             )}
@@ -126,21 +129,28 @@ export function OpportunityCard({
           <div className="grid grid-cols-3 gap-1.75 font-semibold">
             <div className="flex items-center gap-[5.25px] text-[11px] text-[#4a5565]">
               <Calendar size={13.5} className="text-blue-500" />
-              <span>{format(opportunity.createdAt, "MMM, yyyy")}</span>
-            </div>
-            <div className="flex items-center gap-[5.25px] text-[11px] text-[#4a5565]">
-              <Clock size={13.5} className="text-blue-500" />
-              <span>{opportunity.durationLabel}</span>
+              <span>
+                {opportunity.startDate && opportunity.endDate
+                  ? `${format(opportunity.startDate, "MMM dd")} - ${format(opportunity.endDate, "MMM dd")}`
+                  : "Date TBD"}
+              </span>
             </div>
             <div className="flex items-center gap-[5.25px] text-[11px]">
               <MapPin size={13.5} className="text-blue-500" />
               <span>{opportunity.location.name}</span>
             </div>
+            <div className="flex items-center gap-[5.25px] text-[11px]">
+              <Eye size={13.5} className="text-blue-500" />
+              <span>
+                {formatCompactNumber(opportunity.totalView)}{" "}
+                {opportunity.totalView > 1 ? "views" : "view"}
+              </span>
+            </div>
           </div>
 
           <div className="flex flex-col gap-1.75">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium leading-4.5 text-[#4a5565]">
+              <span className="text-[10px] uppercase font-medium text-gray-400">
                 Spots filled
               </span>
               <span className="text-xs font-black leading-4.5 text-[#2f6fe4]">
@@ -156,23 +166,26 @@ export function OpportunityCard({
               />
             </div>
           </div>
-          <div className="flex items-center gap-2 text-[11px] font-medium">
-            <p className="text-gray-400">Application close:</p>
-            <p className="text-gray-500">
-              {format(opportunity.applicationDeadline, "dd/MM/yyyy")}
-            </p>
-          </div>
         </div>
 
-        <Link to={`/volunteer/detail/${opportunity.id}`}>
-          <Button
-            type="button"
-            variant="outline"
-            className="h-9 w-full text-sm font-medium"
-          >
-            Apply
-          </Button>
-        </Link>
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-[10px] font-bold uppercase text-gray-500">
+              Closing
+            </div>
+            <div className="text-[12px] font-medium">
+              {format(opportunity.applicationDeadline, "MMM dd, yyyy")}
+            </div>
+          </div>
+          <Link to={`/volunteer/detail/${opportunity.id}`}>
+            <Button
+              type="button"
+              className="h-9 cursor-pointer rounded-full border border-slate-300 bg-white px-6 text-xs font-semibold text-blue-600 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50"
+            >
+              Apply Now
+            </Button>
+          </Link>
+        </div>
       </div>
     </motion.article>
   );

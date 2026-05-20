@@ -14,7 +14,7 @@ export function meta() {
 }
 
 export default function VolunteerPage() {
-  const { categories, opportunities, locations } =
+  const { categories, opportunities, locations, pagination } =
     useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const revalidator = useRevalidator();
@@ -55,6 +55,7 @@ export default function VolunteerPage() {
       >
         <VolunteerAvailableOpportunities
           opportunities={opportunities ?? []}
+          pagination={pagination}
           onMutationComplete={() => reloadOpportunities()}
         />
       </motion.div>

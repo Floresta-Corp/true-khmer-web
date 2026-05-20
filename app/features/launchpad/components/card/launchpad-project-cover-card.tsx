@@ -14,7 +14,7 @@ export default function LaunchpadProjectCoverCard({
 
   return (
     <section
-      className="relative h-72 w-full overflow-hidden border-b border-[#E7ECF3] p-6 md:h-80 md:p-8"
+      className="relative h-72 w-full overflow-hidden rounded-3xl border border-[#E7ECF3] p-6 md:h-80 md:p-8"
       style={{
         backgroundImage: coverImageUrl
           ? `linear-gradient(180deg, rgba(7, 20, 53, 0.24) 0%, rgba(7, 20, 53, 0.75) 100%), url('${coverImageUrl}')`

@@ -13,6 +13,7 @@ import {
   deleteAnswerById,
   updateAnswerById,
   SubmitReport,
+  presignForumQuestionImage,
 } from "~/services/forum/server";
 import { validateCreateForumPostForm } from "~/services/forum/validation";
 import type { Route as ForumRoute } from "project-types/forum/routes/+types/forum.new";
@@ -149,6 +150,55 @@ export async function forumListAction({ request }: ForumRoute.ActionArgs) {
 
   if (method === "DELETE") {
     return deleteQuestionAction(request, formData);
+  }
+
+  const file = formData.get("image") as File | null;
+  const removeImage = String(formData.get("removeImage") ?? "").trim() === "true";
+
+  // handle image removal
+  if (removeImage && method === "PATCH") {
+    formData.set("imageKey", "");
+  }
+
+  if (file) {
+    try {
+      const presignResult = await presignForumQuestionImage(request, {
+        contentType: file.type,
+        fileSize: file.size,
+      });
+
+      if (!presignResult?.data?.ok) {
+        return {
+          ok: false,
+          message: "Failed to presign image upload.",
+        };
+      }
+
+      const upload = presignResult.data.upload;
+      const uploadResult = await fetch(upload.uploadUrl, {
+        method: upload.method,
+        headers: upload.requiredHeaders,
+        body: file,
+        signal: AbortSignal.timeout(30_000),
+      });
+
+      if (!uploadResult.ok) {
+        return {
+          ok: false,
+          message: "Failed to upload image to storage provider.",
+        };
+      }
+
+      // only set imageKey once when upload succeeds
+      formData.set("imageKey", upload.imageKey);
+    } catch (err) {
+      // handle unexpected errors during presign/upload
+      console.error("Error uploading image:", err);
+      return {
+        ok: false,
+        message: "An error occurred while uploading the image.",
+      };
+    }
   }
 
   const validation = validateCreateForumPostForm(formData);

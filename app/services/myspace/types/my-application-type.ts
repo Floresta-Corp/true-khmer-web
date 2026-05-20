@@ -45,3 +45,6 @@ export const GetMyApplicationResponseSchema = z.object({
 export type GetMyApplicationResponse = z.infer<
   typeof GetMyApplicationResponseSchema
 >;
+
+export type ApplicationStatusAction = "confirm" | "decline" | "withdraw";
+export type ApplicationArchiveAction = "archive" | "unarchive";

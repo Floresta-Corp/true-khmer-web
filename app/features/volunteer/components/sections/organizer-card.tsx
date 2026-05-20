@@ -2,12 +2,12 @@ import { ChevronUp, Globe, Mail, Send, Phone } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { resolveImageURL } from "~/lib/utils";
 import type {
-  Opportunity,
+  OpportunityDetail,
   Organizer,
 } from "~/services/volunteer/types/opportunities";
 
 interface OrganizerCardProps {
-  volunteer: Opportunity;
+  volunteer: OpportunityDetail;
 }
 
 export default function OrganizerCard({ volunteer }: OrganizerCardProps) {

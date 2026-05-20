@@ -29,6 +29,7 @@ export const QuestionSchema = z.object({
   status: ForumQuestionStatusSchema,
   answerCount: z.number(),
   upvoteCount: z.number(),
+  imageKey: z.string().nullable(),
   downvoteCount: z.number(),
   score: z.number(),
   viewerVote: ViewerVoteSchema,
@@ -63,6 +64,7 @@ export const CreateForumQuestionInputSchema = z.object({
   title: z.string(),
   body: z.string(),
   tags: z.array(z.string()),
+  imageKey: z.string().nullable(),
   status: ForumQuestionStatusSchema,
 });
 export type CreateForumQuestionInput = z.infer<

@@ -25,7 +25,7 @@ export function meta() {
 }
 
 export default function VolunteerAllPage() {
-  const { categories, userId, locations, opportunities } =
+  const { categories, userId, locations, opportunities, pagination } =
     useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
   const fetcher = useFetcher();
@@ -35,6 +35,8 @@ export default function VolunteerAllPage() {
   const activeLocationId = searchParams.get("locationId") || undefined;
   const isLoading =
     fetcher.state === "loading" || fetcher.state === "submitting";
+  const filteredPagination =
+    (fetcher.data?.pagination as typeof pagination) ?? pagination;
   const filteredOpportunities =
     (fetcher.data?.opportunities as typeof opportunities) ?? opportunities;
 
@@ -79,7 +81,7 @@ export default function VolunteerAllPage() {
             duration: prefersReducedMotion ? 0 : 0.3,
           }}
         >
-          <BackToButton to={"/volunteer"} />
+          <BackToButton to={"/volunteer"} text="Back to Opportunities" />
         </motion.div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -89,8 +91,37 @@ export default function VolunteerAllPage() {
             duration: prefersReducedMotion ? 0 : 0.3,
             delay: prefersReducedMotion ? 0 : 0.08,
           }}
+          className="flex items-end gap-4"
         >
-          <h1 className="text-3xl font-bold">All Volunteer</h1>
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold mb-3">Volunteer Opportunities</h1>
+            <p>Found {filteredOpportunities?.length} opportunities</p>
+          </div>
+          <div className="flex min-h-11 flex-1 items-center rounded-xl border border-[#e2e8f0] bg-white px-0 py-0">
+            <Search className="ml-4 mr-2.5 size-[17.5px] shrink-0 text-[#99a1af]" />
+            <Input
+              type="search"
+              value={searchValue}
+              onChange={(e) => {
+                setSearchValue(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSearch(searchValue);
+                }
+              }}
+              placeholder="Search opportunities..."
+              className="h-8 mr-2 border-0 bg-transparent px-0 py-0 text-sm font-medium text-[#364153] placeholder:font-normal placeholder:text-[#99a1af] focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
+
+            <button
+              type="button"
+              onClick={() => handleSearch(searchValue)}
+              className="mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+            >
+              <Search className="size-4" />
+            </button>
+          </div>
         </motion.div>
 
         <motion.div
@@ -99,31 +130,6 @@ export default function VolunteerAllPage() {
           transition={{ duration, delay: prefersReducedMotion ? 0 : 0.16 }}
         >
           <div className="flex w-full flex-col items-stretch gap-4 sm:flex-row sm:items-center md:gap-5">
-            <div className="flex min-h-11 flex-1 items-center rounded-xl border border-[#e2e8f0] bg-white px-0 py-0">
-              <Search className="ml-4 mr-2.5 size-[17.5px] shrink-0 text-[#99a1af]" />
-              <Input
-                type="search"
-                value={searchValue}
-                onChange={(e) => {
-                  setSearchValue(e.target.value);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleSearch(searchValue);
-                  }
-                }}
-                placeholder="Search opportunities..."
-                className="h-8 mr-2 border-0 bg-transparent px-0 py-0 text-sm font-medium text-[#364153] placeholder:font-normal placeholder:text-[#99a1af] focus-visible:ring-0 focus-visible:ring-offset-0"
-              />
-
-              <button
-                type="button"
-                onClick={() => handleSearch(searchValue)}
-                className="mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white hover:bg-blue-700"
-              >
-                <Search className="size-4" />
-              </button>
-            </div>
             <DropdownMenu>
               <DropdownMenuTrigger className="flex h-11 items-center justify-between gap-1.5 rounded-xl border border-[#e2e8f0] bg-white px-4 text-sm font-medium text-[#364153] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:w-52">
                 {activeLocation?.name || "All Locations"}
@@ -200,6 +206,7 @@ export default function VolunteerAllPage() {
             showHeader={false}
             className="w-full px-0 py-0 md:px-0 lg:px-0"
             opportunities={filteredOpportunities ?? []}
+            pagination={filteredPagination}
             isLoading={isLoading}
             onMutationComplete={reloadOpportunities}
           />
