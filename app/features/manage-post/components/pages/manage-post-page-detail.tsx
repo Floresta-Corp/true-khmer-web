@@ -120,9 +120,7 @@ export default function PostingDetailPage() {
             </button>
           </div>
 
-          <button
-            className={`p-3 border border-gray-200 hover:border-blue-600 rounded-xl transition-all flex items-center justify-center ? "bg-gray-100 dark:bg-slate-800 text-brand-blue hover:border-blue-600" : "text-gray-400 hover:text-brand-blue hover:border-brand-blue"}`}
-          >
+          <button className="p-3 border border-gray-200 hover:border-blue-600 rounded-xl transition-all flex items-center justify-center text-gray-400 hover:text-blue-600">
             <MoreHorizontal size={20} />
           </button>
         </div>
