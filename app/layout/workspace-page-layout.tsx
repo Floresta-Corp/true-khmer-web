@@ -14,8 +14,8 @@ export default function WorkSpacePageLayout({
   children,
 }: WorkSpacePageLayoutProps) {
   return (
-    <>
-      <div className="px-4 py-8 sm:px-6 lg:px-10 lg:py-12">
+    <div className="max-w-7xl w-full mx-auto">
+      <div className="p-4 sm:p-8 md:p-10 overflow-y-auto">
         {/* Header Container */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
@@ -32,7 +32,9 @@ export default function WorkSpacePageLayout({
         </div>
       </div>
 
-      <main className="flex-1 px-4 sm:px-6 lg:px-10 pb-12">{children}</main>
-    </>
+      <main className="flex-1 px-4 sm:px-6 md:px-6 lg:px-8 pb-12">
+        {children}
+      </main>
+    </div>
   );
 }
