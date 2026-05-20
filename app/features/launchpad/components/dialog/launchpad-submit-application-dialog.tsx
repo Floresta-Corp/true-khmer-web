@@ -69,7 +69,9 @@ const launchpadApplicationSchema = z.object({
 
 type LaunchpadApplicationErrors = Partial<
   Record<keyof z.infer<typeof launchpadApplicationSchema>, string>
->;
+> & {
+  documents?: string;
+};
 
 function getErrorMessage(error: ApplyFetcherData["error"]): string {
   if (!error) {
@@ -198,7 +200,16 @@ export default function LaunchpadSubmitApplicationDialog({
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
-    setDocuments((prev) => [...prev, ...files].slice(0, 5));
+    if (files.length > 0) {
+      setDocuments((prev) => [...prev, ...files].slice(0, 5));
+      // Clear document error when a file is added
+      if (clientErrors.documents) {
+        setClientErrors((prev) => {
+          const { documents: _, ...rest } = prev;
+          return rest;
+        });
+      }
+    }
     e.target.value = "";
   }
 
@@ -219,7 +230,9 @@ export default function LaunchpadSubmitApplicationDialog({
   }
 
   function removeDocument(index: number) {
-    setDocuments((prev) => prev.filter((_, i) => i !== index));
+    setDocuments((prev) => {
+      return prev.filter((_, i) => i !== index);
+    });
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -453,6 +466,11 @@ export default function LaunchpadSubmitApplicationDialog({
                       </div>
                     ))}
                   </div>
+                )}
+                {clientErrors.documents && (
+                  <p className="text-xs text-red-500">
+                    {clientErrors.documents}
+                  </p>
                 )}
               </div>
 

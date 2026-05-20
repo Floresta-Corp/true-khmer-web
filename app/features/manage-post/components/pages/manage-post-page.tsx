@@ -26,11 +26,11 @@ export default function ManagePostingPage() {
       subtitle="Manage and monitor your active community opportunities postings."
       action={<CreateOpportunityDialog />}
     >
-      <div className="-mt-8">
+      <div className="mb-10 -mt-5 max-w-none">
         <ManagePostFilters />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
         {isLoading ? (
           Array.from({ length: 6 }).map((_, i) => (
             <ManagePostCardSkeleton key={i} />

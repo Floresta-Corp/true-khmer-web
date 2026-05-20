@@ -15,10 +15,11 @@ export async function uploadApplicationDocumentPresign(
   launchpadId: string,
   input: ApplicationDocumentPresignInput,
 ) {
+  const encodedLaunchpadId = encodeURIComponent(launchpadId);
   const body = ApplicationDocumentPresignInputSchema.parse(input);
   return apiRequestWithSession<ApplicationDocumentPresignResponse>(
     request,
-    `/launchpad/${launchpadId}/applications/document/presign`,
+    `/launchpad/${encodedLaunchpadId}/applications/document/presign`,
     {
       method: "POST",
       body,
@@ -31,10 +32,11 @@ export async function applyForLaunchpadRole(
   launchpadId: string,
   input: ApplyRoleInput,
 ) {
+  const encodedLaunchpadId = encodeURIComponent(launchpadId);
   const body = ApplyRoleInputSchema.parse(input);
   return apiRequestWithSession<ApplyRoleResponse>(
     request,
-    `/launchpad/${launchpadId}/applications`,
+    `/launchpad/${encodedLaunchpadId}/applications`,
     {
       method: "POST",
       body,

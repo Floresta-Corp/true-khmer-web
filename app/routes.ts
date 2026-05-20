@@ -90,4 +90,5 @@ export default [
   ),
   route("api/me", "routes/api/api.me.tsx"),
   route("api/launchpad/apply", "routes/api/api.launchpad.apply.ts"),
+  route("api/launchpad/save", "routes/api/api.launchpad.save.ts"),
 ] satisfies RouteConfig;
