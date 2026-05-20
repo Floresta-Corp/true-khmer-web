@@ -22,8 +22,6 @@ export default function VolunteerPage() {
   const duration = prefersReducedMotion ? 0 : 0.35;
   const reloadOpportunities = () => revalidator.revalidate();
 
-  console.log(opportunities, opportunities?.length);
-
   return (
     <div className="min-h-screen bg-gray-50">
       <motion.div

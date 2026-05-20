@@ -9,7 +9,6 @@ export default function MyApplicationPendingApprove() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { myApplication } = useLoaderData<typeof loader>();
   const summary = myApplication.summary;
-  console.log(summary);
   const handleReviewClicked = () => {
     setSearchParams({ filter: "approved" });
   };

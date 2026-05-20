@@ -7,7 +7,6 @@ interface CommitmentSectionProps {
 export default function CommitmentSection({
   volunteer,
 }: CommitmentSectionProps) {
-  console.log(volunteer);
   return (
     <div className="bg-gray-50/50 dark:bg-slate-800/20 rounded-2xl p-6 border border-gray-100 dark:border-slate-800">
       <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight flex items-center gap-2">

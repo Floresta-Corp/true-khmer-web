@@ -22,8 +22,6 @@ export async function volunteerLoader({ request }: VolunteerRoute.LoaderArgs) {
   const limit = url.searchParams.get("limit");
   const search = url.searchParams.get("search")?.trim() || undefined;
 
-  console.log(limit);
-
   const filter = {
     cursor,
     locationId,
@@ -35,15 +33,15 @@ export async function volunteerLoader({ request }: VolunteerRoute.LoaderArgs) {
   const userId = await getUserId(request);
   const [categories, opportunities, locations] = userId
     ? await Promise.all([
-        getVolunteerCategories(request),
-        getVolunteerOpportunities(request, filter),
-        getVolunteerLocations(request),
-      ])
+      getVolunteerCategories(request),
+      getVolunteerOpportunities(request, filter),
+      getVolunteerLocations(request),
+    ])
     : await Promise.all([
-        getPublicVolunteerCategories(request),
-        getPublicVolunteerOpportunities(request, filter),
-        getPublicVolunteerLocations(request),
-      ]);
+      getPublicVolunteerCategories(request),
+      getPublicVolunteerOpportunities(request, filter),
+      getPublicVolunteerLocations(request),
+    ]);
   return {
     categories: categories?.data?.categories,
     opportunities: opportunities?.data?.opportunities,
@@ -55,16 +53,16 @@ export async function volunteerLoader({ request }: VolunteerRoute.LoaderArgs) {
 
 interface VolunteerLoaderData {
   categories:
-    | (GetVolunteerCategoriesResponse["categories"] | undefined)
-    | undefined;
+  | (GetVolunteerCategoriesResponse["categories"] | undefined)
+  | undefined;
   opportunities:
-    | (GetVolunteerOpportunitiesResponse["opportunities"] | undefined)
-    | undefined;
+  | (GetVolunteerOpportunitiesResponse["opportunities"] | undefined)
+  | undefined;
   pagination:
-    | (GetVolunteerOpportunitiesResponse["pagination"] | undefined)
-    | undefined;
+  | (GetVolunteerOpportunitiesResponse["pagination"] | undefined)
+  | undefined;
   locations:
-    | (GetVolunteerLocationsResponse["locations"] | undefined)
-    | undefined;
+  | (GetVolunteerLocationsResponse["locations"] | undefined)
+  | undefined;
   userId: string | null;
 }
