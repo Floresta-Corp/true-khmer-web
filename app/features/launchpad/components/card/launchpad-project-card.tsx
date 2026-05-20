@@ -1,11 +1,11 @@
-import { MapPin, Share2, Heart, Eye } from "lucide-react";
+import { MapPin, Share2, Heart, Eye, Bookmark } from "lucide-react";
 import { Card } from "~/components/ui/card";
 
 import IconButton from "~/components/icon-button";
 import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
 import type { LaunchpadOpportunity } from "~/services/launchpad/types/project";
-import { resolveImageURL } from "~/lib/utils";
+import { cn, resolveImageURL } from "~/lib/utils";
 import { ShareLaunchpadDialog } from "../dialog/share-launchpad-dialog";
 import { useFetcher } from "react-router";
 
@@ -27,7 +27,7 @@ export default function LaunchpadProjectCard({
       ? fetcher.formData?.get("intent") === "save"
       : item.isSaved;
 
-  const handleHeartClick = (e: React.MouseEvent) => {
+  const handleSaveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
     if (isSubmitting) {
@@ -65,15 +65,21 @@ export default function LaunchpadProjectCard({
           }
         />
         <IconButton
+          className={cn(
+            "cursor-pointer flex size-[31.5px] items-center justify-center rounded-2xl bg-white/95 text-[#9aa2af] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)]",
+            { "bg-blue-600": optimisticSaved },
+          )}
           icon={
-            <Heart
-              className={`size-3.5 ${optimisticSaved ? "fill-red-500 text-red-500" : "fill-none"}`}
+            <Bookmark
+              className={cn("size-3.5", {
+                " fill-white text-white": optimisticSaved,
+              })}
             />
           }
           ariaLabel={
             optimisticSaved ? "Remove from favorites" : "Save to favorites"
           }
-          onClick={handleHeartClick}
+          onClick={handleSaveClick}
           disabled={isSubmitting}
         />
       </div>
