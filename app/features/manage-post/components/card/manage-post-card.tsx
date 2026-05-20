@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { Briefcase, HandHeart, MoreHorizontal, Rocket } from "lucide-react";
-import { Badge } from "~/components/ui/badge";
+import { Briefcase, HandHeart, MoreHorizontal } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { motion } from "motion/react";
@@ -127,21 +126,23 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
 
         <div className="mt-6" onClick={(e) => e.stopPropagation()}>
           {posting.status === "COMPLETED" || posting.status === "CLOSED" ? (
-            <Button
-              variant="outline"
-              className="w-full h-10 sm:h-12 text-sm font-bold text-slate-600 border-slate-200 hover:bg-slate-50 rounded-xl transition-all"
-              asChild
-            >
-              <Link to={`/manage-post/${posting.id}/report`}>View Report</Link>
-            </Button>
+            <Link to={`/manage-post/${posting.id}/report`}>
+              <Button
+                variant="outline"
+                className="w-full cursor-pointer h-10 sm:h-12 text-sm font-bold text-slate-600 border-slate-200 hover:bg-blue-600 hover:text-white rounded-xl transition-all"
+              >
+                View Report
+              </Button>
+            </Link>
           ) : (
-            <Button
-              asChild
-              variant="ghost"
-              className="w-full h-10 sm:h-12 text-sm font-bold bg-gray-50 group-hover:bg-blue-600 text-gray-500 group-hover:text-white rounded-xl transition-all duration-200 active:scale-[0.98]"
-            >
-              <Link to={cardHref}>Manage Posting</Link>
-            </Button>
+            <Link to={cardHref}>
+              <Button
+                variant="ghost"
+                className="w-full cursor-pointer h-10 sm:h-12 text-sm font-bold bg-gray-50 text-gray-500 rounded-xl transition-all hover:bg-blue-600 hover:text-white duration-200 active:scale-[0.98]"
+              >
+                Manage Posting
+              </Button>
+            </Link>
           )}
         </div>
       </div>
