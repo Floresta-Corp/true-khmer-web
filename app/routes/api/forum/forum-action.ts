@@ -179,6 +179,7 @@ export async function forumListAction({ request }: ForumRoute.ActionArgs) {
         method: upload.method,
         headers: upload.requiredHeaders,
         body: file,
+        signal: AbortSignal.timeout(30_000),
       });
 
       if (!uploadResult.ok) {
