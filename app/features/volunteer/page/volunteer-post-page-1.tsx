@@ -23,13 +23,14 @@ import { Input } from "~/components/ui/input";
 import { SelectOption } from "~/components/ui/select-option";
 import { Textarea } from "~/components/ui/textarea";
 import VolunteerDatePickerField from "~/features/volunteer/components/volunteer-date-picker-field";
+import VolunteerDateRangeField from "../components/volunteer-date-range-field";
 import type { FormDataVolunteerInput } from "~/services/volunteer/types";
 
 export type VolunteerPostPage1Errors = {
   title?: string;
   categoryId?: string;
   locationId?: string;
-  durationLabel?: string;
+  dateRange?: string;
   commitmentLabel?: string;
   applicationDeadline?: string;
   coverImageKey?: string;
@@ -257,46 +258,17 @@ export default function VolunteerPostPage1({
             </div>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
-            <div className="space-y-2">
-              <FieldLabel>Duration</FieldLabel>
-              <div className="relative">
-                <CalendarIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#99a1af]" />
-                <Input
-                  name="durationLabel"
-                  value={formData.durationLabel || ""}
-                  onChange={(e) =>
-                    onUpdateField("durationLabel", e.target.value)
-                  }
-                  placeholder="e.g., 3 months"
-                  aria-invalid={Boolean(errors?.durationLabel)}
-                  className={`h-11 rounded-lg bg-[#F8FAFC] pl-9 text-sm font-medium text-[#364153] placeholder:text-[#C8D6E5] ${errors?.durationLabel ? "border-red-500" : "border-transparent"}`}
-                />
-              </div>
-              {errors?.durationLabel ? (
-                <p className="text-xs text-red-500">{errors.durationLabel}</p>
-              ) : null}
-            </div>
-
-            <div className="space-y-2">
-              <FieldLabel>Commitment</FieldLabel>
-              <div className="relative">
-                <Clock3 className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#99a1af]" />
-                <Input
-                  name="commitmentLabel"
-                  value={formData.commitmentLabel || ""}
-                  onChange={(e) =>
-                    onUpdateField("commitmentLabel", e.target.value)
-                  }
-                  placeholder="e.g., 5 hours/week"
-                  aria-invalid={Boolean(errors?.commitmentLabel)}
-                  className={`h-11 rounded-lg bg-[#F8FAFC] pl-9 pr-9 text-sm font-medium text-[#364153] placeholder:text-[#C8D6E5] ${errors?.commitmentLabel ? "border-red-500" : "border-transparent"}`}
-                />
-              </div>
-              {errors?.commitmentLabel ? (
-                <p className="text-xs text-red-500">{errors.commitmentLabel}</p>
-              ) : null}
-            </div>
+          <div className="space-y-2">
+            <FieldLabel>Start from - End at</FieldLabel>
+            <VolunteerDateRangeField
+              startDate={formData.startDate}
+              endDate={formData.endDate}
+              onChange={({ startDate, endDate }) => {
+                onUpdateField("startDate", startDate);
+                onUpdateField("endDate", endDate);
+              }}
+              error={errors?.dateRange}
+            />
           </div>
 
           <div className="space-y-2">
