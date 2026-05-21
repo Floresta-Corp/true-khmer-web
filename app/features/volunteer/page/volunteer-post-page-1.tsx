@@ -1,11 +1,4 @@
-import {
-  Calendar as CalendarIcon,
-  Clock3,
-  Gift,
-  ImageIcon,
-  Sparkle,
-  Trash2,
-} from "lucide-react";
+import { Clock3, Gift, ImageIcon, Sparkle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AnimatePresence, motion } from "motion/react";
 import {
@@ -209,6 +202,8 @@ export default function VolunteerPostPage1({
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const [previewHovered, setPreviewHovered] = useState(false);
+
   return (
     <div className="flex flex-col gap-8">
       <section className="rounded-2xl border border-[#E1E7EF] bg-white p-6">
@@ -317,27 +312,47 @@ export default function VolunteerPostPage1({
               }
             >
               {formData.coverImageKey?.value ? (
-                <>
+                <motion.div
+                  onHoverStart={() => setPreviewHovered(true)}
+                  onHoverEnd={() => setPreviewHovered(false)}
+                >
                   <img
                     src={formData.coverImageKey.value}
                     alt="Selected cover"
                     className="h-full w-full rounded-xl object-cover"
                   />
-                  <span className="absolute top-3 right-3 z-10">
+                  <motion.span
+                    className="absolute top-3 right-3 z-10"
+                    initial={{ y: -8, opacity: 0 }}
+                    animate={
+                      previewHovered
+                        ? { y: 0, opacity: 1 }
+                        : { y: -8, opacity: 0 }
+                    }
+                    transition={{ duration: 0.18 }}
+                    style={{ pointerEvents: previewHovered ? "auto" : "none" }}
+                  >
                     <IconButton
                       icon={<Trash2 className="h-4 w-4" />}
                       ariaLabel="Clear cover image"
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
-                        onUpdateField("coverImageKey", { file: null, value: "" });
-                        setDetailErrors((prev) => ({ ...prev, coverImageKey: undefined }));
+                        onUpdateField("coverImageKey", {
+                          file: null,
+                          value: "",
+                        });
+                        setDetailErrors((prev) => ({
+                          ...prev,
+                          coverImageKey: undefined,
+                        }));
                         onCoverImageClear();
-                        if (fileInputRef.current) fileInputRef.current.value = "";
+                        if (fileInputRef.current)
+                          fileInputRef.current.value = "";
                       }}
                     />
-                  </span>
-                </>
+                  </motion.span>
+                </motion.div>
               ) : (
                 <>
                   <ImageIcon className="size-8 text-[#a3a3a3]" />

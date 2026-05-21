@@ -58,10 +58,12 @@ export default function VolunteerDateRangeField({
             {displayValue}
           </Button>
         </PopoverTrigger>
-        <PopoverContent align="start" className="w-auto p-0">
+        <PopoverContent align="start" className="w-auto p-2 flex justify-start">
           <Calendar
+            defaultMonth={new Date()}
             mode="range"
             selected={selectedRange}
+            numberOfMonths={2}
             onSelect={(range) =>
               onChange({
                 startDate: range?.from ? range.from.toISOString() : "",

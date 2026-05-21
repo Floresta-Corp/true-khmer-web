@@ -2,15 +2,17 @@ import { AnimatePresence, motion } from "motion/react";
 import RoleItem from "./role-item";
 import type { FormDataVolunteerInput } from "~/services/volunteer/types";
 
+const safeTrim = (value?: string | null) => (value ?? "").trim();
+
 const isBlankRole = (
   role: FormDataVolunteerInput["roles"][number],
 ) =>
-  !role.title.trim() &&
+  !safeTrim(role.title) &&
   role.capacity === 1 &&
   role.responsibilities.length === 1 &&
-  !role.responsibilities[0]?.trim() &&
+  !safeTrim(role.responsibilities[0]) &&
   role.requirements.length === 1 &&
-  !role.requirements[0]?.trim();
+  !safeTrim(role.requirements[0]);
 
 interface RolesListProps {
   roles: FormDataVolunteerInput["roles"];

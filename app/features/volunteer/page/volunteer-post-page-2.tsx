@@ -38,6 +38,8 @@ const emptyDraft: DraftRole = {
   requirements: [""],
 };
 
+const safeTrim = (value?: string | null) => (value ?? "").trim();
+
 interface VolunteerPostPage2Props {
   formData: FormDataVolunteerInput;
   errors?: VolunteerPostPage2Errors;
@@ -67,12 +69,12 @@ export default function VolunteerPostPage2({
   const formRef = useRef<HTMLDivElement>(null);
 
   const isBlankRole = (role: FormDataVolunteerInput["roles"][number]) =>
-    !role.title.trim() &&
+    !safeTrim(role.title) &&
     role.capacity === 1 &&
     role.responsibilities.length === 1 &&
-    !role.responsibilities[0]?.trim() &&
+    !safeTrim(role.responsibilities[0]) &&
     role.requirements.length === 1 &&
-    !role.requirements[0]?.trim();
+    !safeTrim(role.requirements[0]);
 
   useEffect(() => {
     if (fetcher.data?.success) {

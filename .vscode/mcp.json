@@ -1,20 +1,8 @@
 {
   "servers": {
-    "console-ninja": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "-c",
-        "node ~/.console-ninja/mcp/"
-      ],
-      "type": "stdio"
-    },
     "shadcn": {
       "command": "npx",
-      "args": [
-        "shadcn@latest",
-        "mcp"
-      ]
+      "args": ["shadcn@latest", "mcp"]
     }
   },
   "inputs": []

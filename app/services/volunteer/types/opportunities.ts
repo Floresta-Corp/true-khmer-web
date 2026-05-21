@@ -173,10 +173,9 @@ export type ContactInput = z.infer<typeof ContactInputSchema>;
 
 export const RoleInputSchema = z.object({
   title: z.string(),
-  commitmentLabel: z.string(),
   capacity: z.number(),
-  responsibilities: z.array(z.string()).min(2).optional(),
-  requirements: z.array(z.string()).min(2).optional(),
+  responsibilities: z.array(z.string()).min(1).optional(),
+  requirements: z.array(z.string()).min(1).optional(),
 });
 export type RoleInput = z.infer<typeof RoleInputSchema>;
 
@@ -240,7 +239,7 @@ export type UploadOpportunityCoverImageResponse = z.infer<
   typeof UploadOpportunityCoverImageResponseSchema
 >;
 
-export const formDataVolunteerInput = z.object({
+export const formDataVolunteerInputSchema = z.object({
   categoryId: z.string(),
   locationId: z.string(),
   title: z.string(),
@@ -273,7 +272,9 @@ export const formDataVolunteerInput = z.object({
     })
     .nullish(),
 });
-export type FormDataVolunteerInput = z.infer<typeof formDataVolunteerInput>;
+export type FormDataVolunteerInput = z.infer<
+  typeof formDataVolunteerInputSchema
+>;
 
 // export const initialFormDataVolunteerInput: FormDataVolunteerInput = {
 //   categoryId: "",
