@@ -299,7 +299,19 @@ export default function VolunteerPostPage1({
             </FieldLabel>
             <label
               id="coverImageKey"
-              tabIndex={-1}
+              tabIndex={0}
+              role="button"
+              htmlFor="coverImageKey-input"
+              onKeyDown={(e) => {
+                if (
+                  e.key === "Enter" ||
+                  e.key === " " ||
+                  e.key === "Spacebar"
+                ) {
+                  e.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
               className={cn(
                 "relative flex aspect-video cursor-pointer flex-col items-center justify-center rounded-2xl bg-[#fafafa] px-4 py-3 text-center",
                 errors?.coverImageKey
@@ -371,11 +383,13 @@ export default function VolunteerPostPage1({
               )}
 
               <input
+                id="coverImageKey-input"
                 ref={fileInputRef}
                 hidden
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
+                aria-required={true}
               />
             </label>
             {errors?.coverImageKey ? (
@@ -402,7 +416,9 @@ export default function VolunteerPostPage1({
             hasError={Boolean(errors?.overview)}
           />
           {errors?.overview ? (
-            <p className="mt-2 text-xs text-red-500">{errors.overview}</p>
+            <p id="overview-error" className="mt-2 text-xs text-red-500">
+              {errors.overview}
+            </p>
           ) : null}
         </div>
       </section>

@@ -67,7 +67,7 @@ export default function BenefitsSection({
                     hasError={Boolean(benefitErrors && benefitErrors[idx])}
                   />
                   {benefitErrors && benefitErrors[idx] ? (
-                    <p className="mt-1 text-xs text-red-500">
+                    <p id={`benefit-${benefit.id}-error`} className="mt-1 text-xs text-red-500">
                       {benefitErrors[idx]}
                     </p>
                   ) : null}
