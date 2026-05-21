@@ -4,7 +4,6 @@ import {
   MessagesSquare,
   Sparkles,
 } from "lucide-react";
-import { useState } from "react";
 import { Link, useLocation } from "react-router";
 import { Button } from "~/components/ui/button";
 import {
@@ -17,7 +16,6 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "~/components/ui/sidebar";
-import { cn } from "~/lib/utils";
 
 type SidebarItem = {
   id: string;
@@ -29,16 +27,16 @@ type SidebarItem = {
 
 const primaryItems: SidebarItem[] = [
   {
-    id: "discussion",
-    label: "My Discussions",
-    to: "/workspace",
-    icon: MessagesSquare,
-  },
-  {
     id: "managepost",
     label: "Manage Posting",
     to: "/manage-post",
     icon: ClipboardList,
+  },
+  {
+    id: "discussion",
+    label: "My Discussions",
+    to: "/workspace",
+    icon: MessagesSquare,
   },
   {
     id: "myevents",
@@ -71,13 +69,13 @@ export default function WorkSpaceSideBar() {
                 <SidebarMenuButton
                   asChild
                   isActive={location.pathname === item.to}
-                  className="p-5 data-[active=true]:ring data-[active=true]:ring-blue-500 data-[active=true]:bg-blue-50 data-[active=true]:text-blue-600 transition-all text-[12px] font-normal"
+                  className="p-5 rounded-xl data-[active=true]:bg-blue-50 data-[active=true]:text-blue-600 transition-all text-[12px] font-normal"
                 >
                   <Link
                     to={item.to}
                     onClick={() => isMobile && setOpenMobile(false)}
                   >
-                    <item.icon className="h-5 w-5 shrink-0" />
+                    <item.icon className="size-5 shrink-0" />
                     <span className="text-base">{item.label}</span>
                   </Link>
                 </SidebarMenuButton>

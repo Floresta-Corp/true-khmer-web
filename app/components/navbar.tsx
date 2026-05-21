@@ -21,7 +21,7 @@ interface NavbarProps {
 }
 
 const navLinks = [
-  { to: "/workspace", label: "Workspace", icon: LayoutDashboard },
+  { to: "/manage-post", label: "Workspace", icon: LayoutDashboard },
   { to: "/home", label: "Home", icon: House },
   // { to: "/dashboard", label: "My Journey", icon: Compass },
   { to: "/forum", label: "Forum", icon: MessagesSquare },

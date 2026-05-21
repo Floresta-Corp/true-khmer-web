@@ -37,7 +37,7 @@ const STATUS_STYLES: Record<ManagePostStatus, string> = {
   CLOSED: "bg-gray-100 text-gray-600 border-gray-200",
 };
 
-export default function PostingDetailPage() {
+export default function ManagePostingDetailPage() {
   const { postDetail } = useLoaderData<typeof loader>();
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-10 lg:py-12">
