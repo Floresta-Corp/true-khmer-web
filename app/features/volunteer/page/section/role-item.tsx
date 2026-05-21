@@ -2,6 +2,8 @@ import { Pencil, Trash2 } from "lucide-react";
 import IconButton from "~/components/icon-button";
 import type { FormDataVolunteerInput } from "~/services/volunteer/types";
 
+const safeTrim = (value?: string | null) => (value ?? "").trim();
+
 interface RoleItemProps {
   role: FormDataVolunteerInput["roles"][number];
   roleIndex: number;
@@ -27,19 +29,16 @@ export default function RoleItem({
     >
       <div className="flex-1">
         <p className="text-sm font-semibold text-[#344256]">
-          {role.title.trim() || `Role ${roleIndex + 1}`}
+          {safeTrim(role.title) || `Role ${roleIndex + 1}`}
         </p>
-        <p className="mt-1 text-xs text-[#65758b]">
-          {role.commitmentLabel.trim() || "No commitment yet"} | Capacity{" "}
-          {role.capacity}
-        </p>
+        <p className="mt-1 text-xs text-[#65758b]">{role.capacity}</p>
 
-        {role.responsibilities.filter((r) => r.trim()).length > 0 && (
+        {role.responsibilities.filter((r) => safeTrim(r)).length > 0 && (
           <div className="mt-2 text-[10px]">
             <p className="font-bold">Responsibilities</p>
             <div className="mt-1 flex flex-col flex-wrap gap-1">
               {role.responsibilities
-                .filter((r) => r.trim())
+                .filter((r) => safeTrim(r))
                 .slice(0, 3)
                 .map((r, i) => (
                   <span
@@ -49,21 +48,21 @@ export default function RoleItem({
                     {r}
                   </span>
                 ))}
-              {role.responsibilities.filter((r) => r.trim()).length > 3 && (
+              {role.responsibilities.filter((r) => safeTrim(r)).length > 3 && (
                 <span className="rounded-full px-2 py-0.5 text-[10px] text-[#2A4A7B]">
-                  +{role.responsibilities.filter((r) => r.trim()).length - 3}
+                  +{role.responsibilities.filter((r) => safeTrim(r)).length - 3}
                 </span>
               )}
             </div>
           </div>
         )}
 
-        {role.requirements.filter((r) => r.trim()).length > 0 && (
+        {role.requirements.filter((r) => safeTrim(r)).length > 0 && (
           <div className="mt-2 text-[10px]">
             <p className="font-bold">Requirement</p>
             <div className="mt-1 flex flex-col flex-wrap gap-1">
               {role.requirements
-                .filter((r) => r.trim())
+                .filter((r) => safeTrim(r))
                 .slice(0, 3)
                 .map((r, i) => (
                   <span
@@ -73,9 +72,9 @@ export default function RoleItem({
                     {r}
                   </span>
                 ))}
-              {role.requirements.filter((r) => r.trim()).length > 3 && (
+              {role.requirements.filter((r) => safeTrim(r)).length > 3 && (
                 <span className="rounded-full px-2 py-0.5 text-[10px] text-[#92400E]">
-                  +{role.requirements.filter((r) => r.trim()).length - 3}
+                  +{role.requirements.filter((r) => safeTrim(r)).length - 3}
                 </span>
               )}
             </div>

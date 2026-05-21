@@ -125,9 +125,6 @@ export const PostVolunteerInputSchema = z.object({
   title: z.string(),
   overview: z.string(),
   communityImpact: z.string().nullish(),
-  startDate: z.string(),
-  endDate: z.string(),
-  durationLabel: z.string(),
   commitmentLabel: z.string(),
   startDate: z.string().nullish(),
   endDate: z.string().nullish(),
@@ -176,10 +173,9 @@ export type ContactInput = z.infer<typeof ContactInputSchema>;
 
 export const RoleInputSchema = z.object({
   title: z.string(),
-  commitmentLabel: z.string(),
   capacity: z.number(),
-  responsibilities: z.array(z.string()).min(2).optional(),
-  requirements: z.array(z.string()).min(2).optional(),
+  responsibilities: z.array(z.string()).min(1).optional(),
+  requirements: z.array(z.string()).min(1).optional(),
 });
 export type RoleInput = z.infer<typeof RoleInputSchema>;
 
@@ -191,8 +187,6 @@ export const VolunteerOpportunityInputSchema = z.object({
   startDate: z.string().min(1),
   endDate: z.string().min(1),
   commitmentLabel: z.string().nullish(),
-  startDate: z.string().nullish(),
-  endDate: z.string().nullish(),
   commitmentDescription: z.string().nullish(),
   applicationDeadline: z.string(),
   communityImpact: z.string().nullish(),
@@ -245,7 +239,7 @@ export type UploadOpportunityCoverImageResponse = z.infer<
   typeof UploadOpportunityCoverImageResponseSchema
 >;
 
-export const formDataVolunteerInput = z.object({
+export const formDataVolunteerInputSchema = z.object({
   categoryId: z.string(),
   locationId: z.string(),
   title: z.string(),
@@ -254,6 +248,7 @@ export const formDataVolunteerInput = z.object({
   startDate: z.string(),
   endDate: z.string(),
   commitmentLabel: z.string(),
+  commitmentDescription: z.string().nullish(),
   applicationDeadline: z.string(),
   benefits: z.array(z.string()),
   contact: z.object({
@@ -263,7 +258,12 @@ export const formDataVolunteerInput = z.object({
     websiteUrl: z.string().url().nullish(),
   }),
   roles: z.array(
-    RoleSchema.omit({ displayOrder: true, id: true, viewerApplied: true }),
+    RoleSchema.omit({
+      displayOrder: true,
+      id: true,
+      viewerApplied: true,
+      commitmentLabel: true,
+    }),
   ),
   coverImageKey: z
     .object({
@@ -272,7 +272,9 @@ export const formDataVolunteerInput = z.object({
     })
     .nullish(),
 });
-export type FormDataVolunteerInput = z.infer<typeof formDataVolunteerInput>;
+export type FormDataVolunteerInput = z.infer<
+  typeof formDataVolunteerInputSchema
+>;
 
 // export const initialFormDataVolunteerInput: FormDataVolunteerInput = {
 //   categoryId: "",
@@ -314,17 +316,18 @@ export const initialFormDataVolunteerInput: FormDataVolunteerInput = {
   startDate: "",
   endDate: "",
   commitmentLabel: "",
+  commitmentDescription: "",
   applicationDeadline: "",
-  benefits: [],
+  benefits: [""],
   contact: {
     email: "",
     telegramUsername: null,
-    phone: "",
+    phone: null,
     websiteUrl: null,
   },
   roles: [],
   coverImageKey: {
-    file: "",
+    file: null,
     value: "",
   },
 };
