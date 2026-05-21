@@ -4,14 +4,12 @@ interface FormActionsProps {
   onBack: () => void;
   onSubmit: () => void;
   isSubmitting: boolean;
-  error?: string;
 }
 
 export default function FormActions({
   onBack,
   onSubmit,
   isSubmitting,
-  error,
 }: FormActionsProps) {
   return (
     <div className="flex flex-col gap-4">

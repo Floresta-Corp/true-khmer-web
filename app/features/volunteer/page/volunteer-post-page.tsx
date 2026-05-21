@@ -41,6 +41,7 @@ export default function VolunteerPostPage() {
   const [formData, setFormData] = useState<FormDataVolunteerInput>(
     initialFormDataVolunteerInput,
   );
+  const coverImageFileRef = useRef<File | null>(null);
   const [detailErrors, setDetailErrors] = useState<VolunteerPostPage1Errors>(
     {},
   );
@@ -103,6 +104,19 @@ export default function VolunteerPostPage() {
               behavior: prefersReducedMotion ? "auto" : "smooth",
               block: "center",
             });
+        } else if (firstError === "coverImageKey") {
+          const el = document.querySelector(
+            "#coverImageKey",
+          ) as HTMLElement | null;
+          if (el) {
+            el.scrollIntoView({
+              behavior: prefersReducedMotion ? "auto" : "smooth",
+              block: "center",
+            });
+            try {
+              el.focus();
+            } catch {}
+          }
         } else {
           document.querySelector('[aria-invalid="true"]')?.scrollIntoView({
             behavior: prefersReducedMotion ? "auto" : "smooth",
@@ -264,13 +278,20 @@ export default function VolunteerPostPage() {
               errors={detailErrors}
               setDetailErrors={setDetailErrors}
               onUpdateField={updateField}
+              onCoverImageSelect={(file) => {
+                coverImageFileRef.current = file;
+              }}
+              onCoverImageClear={() => {
+                coverImageFileRef.current = null;
+              }}
               onContinueToRole={() => {
-                const errors = validateDetailStep(formData);
+                const errors = validateDetailStep(formData, "continue");
                 if (Object.keys(errors).length > 0) {
                   setDetailErrors(errors);
                   return;
                 }
                 setDetailErrors({});
+                console.log({ errors, detailErrors });
                 setState(ProgressState.ROLE);
               }}
               locations={locations?.locations ?? []}
