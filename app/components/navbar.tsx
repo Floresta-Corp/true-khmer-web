@@ -90,15 +90,17 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                 >
                   <Mail className="h-4 w-4" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative size-8.75 rounded-full border border-[#f1f5f9] bg-white text-[#344256] hover:bg-[#f8fafc] hover:text-[#0f172a]"
-                  aria-label="Notifications"
-                >
-                  <Bell className="h-3.5 w-3.5" />
-                  <span className="absolute top-2 right-2 h-1.75 w-1.75 rounded-full border border-white bg-[#fb2c36]" />
-                </Button>
+                <Link to="/notifications">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="relative size-8.75 rounded-full border border-[#f1f5f9] bg-white text-[#344256] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+                    aria-label="Notifications"
+                  >
+                    <Bell className="h-3.5 w-3.5" />
+                    <span className="absolute top-2 right-2 h-1.75 w-1.75 rounded-full border border-white bg-[#fb2c36]" />
+                  </Button>
+                </Link>
 
                 {/* User dropdown */}
                 <ProfileDropDown user={user} />

@@ -35,6 +35,22 @@ export function debounce<TArgs extends unknown[]>(
   return debounced;
 }
 
+export function formatCompactNumber(value: number): string {
+  const absValue = Math.abs(value);
+
+  if (absValue >= 1_000_000) {
+    const compactValue = value / 1_000_000;
+    return `${compactValue % 1 === 0 ? compactValue.toFixed(0) : compactValue.toFixed(1)}M`;
+  }
+
+  if (absValue >= 1_000) {
+    const compactValue = value / 1_000;
+    return `${compactValue % 1 === 0 ? compactValue.toFixed(0) : compactValue.toFixed(1)}K`;
+  }
+
+  return value.toString();
+}
+
 export function resolveImageURL(url?: string, fallback?: string) {
   if (!url) {
     return fallback || "";

@@ -8,7 +8,8 @@ import LaunchpadPresentationCard from "../components/card/launchpad-presentation
 import LaunchpadAuthorCard from "../components/card/launchpad-author-card";
 import BackToButton from "~/components/back-to-button";
 import IconButton from "~/components/icon-button";
-import { Card } from "~/components/ui/card";
+import { Card, CardContent } from "~/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import type { LaunchpadDetail } from "~/services/launchpad/types/project";
 import LaunchpadJoinProjectCard from "../components/card/launchpad-join-project-card";
 import { ShareLaunchpadDialog } from "../components/dialog/share-launchpad-dialog";
@@ -18,8 +19,11 @@ export default function LaunchpadProjectDetailPage() {
   const project = useLoaderData<LaunchpadDetail>();
   const prefersReducedMotion = useReducedMotion();
 
+  const tabItemClassName =
+    "rounded-none px-4 pb-3 text-sm font-medium text-[#65758b] transition-colors hover:text-blue-600 data-[state=active]:text-blue-600 data-[state=active]:after:bg-[#2f6fe4]";
+
   return (
-    <main className="min-h-screen bg-[#F5F7FB] px-4 py-8 sm:px-6 lg:px-10">
+    <main className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-10">
       <div className="mx-auto flex w-full max-w-304 flex-col gap-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -50,43 +54,57 @@ export default function LaunchpadProjectDetailPage() {
         </motion.div>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_360px]">
-          <section className="flex flex-col gap-6">
-            <motion.div
+          <section className="flex min-w-0 flex-col gap-6">
+            <motion.article
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               transition={{
                 duration: prefersReducedMotion ? 0 : 0.3,
-                delay: prefersReducedMotion ? 0 : 0.1,
+                delay: prefersReducedMotion ? 0 : 0.05,
               }}
+              className="flex flex-col gap-8 overflow-hidden rounded-3xl bg-white"
             >
-              <Card className="overflow-hidden rounded-2xl border-[#E7ECF3] bg-white shadow-none">
-                <LaunchpadProjectCoverCard project={project} />
-                <LaunchpadProjectDetailCard project={project} />
-              </Card>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{
-                duration: prefersReducedMotion ? 0 : 0.3,
-                delay: prefersReducedMotion ? 0 : 0.15,
-              }}
-            >
-              <LaunchpadSeekingCollaborationCard project={project} />
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{
-                duration: prefersReducedMotion ? 0 : 0.3,
-                delay: prefersReducedMotion ? 0 : 0.2,
-              }}
-            >
-              <LaunchpadPresentationCard project={project} />
-            </motion.div>
+              <LaunchpadProjectCoverCard project={project} />
+            </motion.article>
+
+            <Tabs defaultValue="details">
+              <TabsList variant="line" className="transition-all">
+                <TabsTrigger value="details" className={tabItemClassName}>
+                  Details
+                </TabsTrigger>
+                <TabsTrigger value="open-roles" className={tabItemClassName}>
+                  Open Roles
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="details" className="mt-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  transition={{ duration: prefersReducedMotion ? 0 : 0.25 }}
+                >
+                  <Card className="rounded-3xl bg-white shadow-none border-[#E7ECF3]">
+                    <CardContent className="p-6 space-y-12">
+                      <LaunchpadProjectDetailCard project={project} />
+                      <LaunchpadPresentationCard project={project} />
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </TabsContent>
+
+              <TabsContent value="open-roles" className="mt-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  transition={{ duration: prefersReducedMotion ? 0 : 0.25 }}
+                >
+                  <LaunchpadSeekingCollaborationCard project={project} />
+                </motion.div>
+              </TabsContent>
+            </Tabs>
           </section>
 
           <section className="flex flex-col gap-4 lg:sticky lg:top-6 lg:h-fit">

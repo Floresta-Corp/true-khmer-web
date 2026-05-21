@@ -109,21 +109,30 @@ function AnswerComponent({
         >
           <div className="flex w-full items-start justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#dfe3e6]">
-                <img
-                  src={imageUrl}
-                  alt={answer.author.name ?? "Author avatar"}
-                  className="h-full w-full object-cover"
-                />
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#dfe3e6]">
+                  <img
+                    src={imageUrl}
+                    alt={answer.author.name ?? "Author avatar"}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <p className="text-base font-semibold leading-6 text-[#2c2f31]">
+                    {answer.author.name}
+                  </p>
+                  <span className="text-xs leading-4 text-[#595c5e]">
+                    {formattedDate}
+                  </span>
+                </div>
               </div>
-              <div className="flex flex-col">
-                <p className="text-base font-semibold leading-6 text-[#2c2f31]">
-                  {answer.author.name}
-                </p>
-                <span className="text-xs leading-4 text-[#595c5e]">
-                  {formattedDate}
-                </span>
-              </div>
+              {isCurrentAuthor && (
+                <div>
+                  <div className="px-1.5 py-0.5 bg-brand-light-blue dark:bg-brand-blue/20 text-brand-blue text-[10px] font-bold rounded uppercase tracking-widest border border-brand-blue/10">
+                    Author
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-2">

@@ -17,7 +17,7 @@ export type ViewerVote = z.infer<typeof ViewerVoteSchema>;
 export const PaginationSchema = z.object({
   limit: z.number(),
   hasMore: z.boolean(),
-  nextCursor: z.null(),
+  nextCursor: z.string().nullable(),
 });
 export type Pagination = z.infer<typeof PaginationSchema>;
 

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useLoaderData } from "react-router";
 import { MessageCircle, Share2 } from "lucide-react";
 import { motion } from "motion/react";
@@ -12,6 +13,8 @@ import ReplyBox from "../components/reply-box";
 import ShareQuestionDialog from "../components/dialog/share-question-dialog";
 // import MobileAuthorOptions from "../components/mobile-author-options";
 import ForumBestAnswer from "../components/sections/forum-best-answer";
+import { resolveImageURL } from "~/lib/utils";
+import { ImageLightbox } from "~/components/image-lightbox";
 
 export const loader = forumDetailLoader;
 export const action = forumDetailAction;
@@ -115,6 +118,7 @@ const fadeUp = {
 export default function ForumDetailPage() {
   const { question, bestAnswer, answers, userId, reportReasons } =
     useLoaderData<typeof loader>();
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   if (!question) {
     return (
@@ -182,6 +186,32 @@ export default function ForumDetailPage() {
                 <p className="mt-4 text-base leading-6.75 text-[#595c5e] sm:mt-6 sm:text-lg sm:leading-9">
                   {question.body}
                 </p>
+
+                {question.imageKey ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setLightboxIndex(0)}
+                      className="mt-5 w-full cursor-pointer rounded-xl bg-transparent p-0"
+                      aria-label="Open image preview"
+                    >
+                      <img
+                        src={resolveImageURL(question.imageKey)}
+                        alt={question.title}
+                        className="w-full aspect-video rounded-xl object-cover"
+                      />
+                    </button>
+
+                    {lightboxIndex !== null && (
+                      <ImageLightbox
+                        images={[resolveImageURL(question.imageKey)]}
+                        initialIndex={lightboxIndex}
+                        alt={question.title}
+                        onClose={() => setLightboxIndex(null)}
+                      />
+                    )}
+                  </>
+                ) : null}
 
                 {question.tags?.length > 0 && (
                   <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium leading-4.5 text-[#8a93a3] sm:text-sm sm:leading-5.25">

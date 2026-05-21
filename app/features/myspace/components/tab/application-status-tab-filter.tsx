@@ -15,9 +15,18 @@ const statusLabels: Record<StatusTab, string> = {
 export default function ApplicationStatusTabFilter() {
   const [searchParams, setSearchParams] = useSearchParams();
   const statusParam = searchParams.get("filter");
-  const activeStatus: StatusTab = statusItems.includes(statusParam as StatusTab)
-    ? (statusParam as StatusTab)
-    : "all";
+  let activeStatus: StatusTab | "";
+  if (statusParam === null) {
+    // No filter param -> default to All
+    activeStatus = "all";
+  } else if (statusParam === "archived") {
+    // Archived filter should not activate the status tabs
+    activeStatus = "";
+  } else {
+    activeStatus = statusItems.includes(statusParam as StatusTab)
+      ? (statusParam as StatusTab)
+      : "";
+  }
 
   const handleStatusChange = (value: StatusTab) => {
     const nextParams = new URLSearchParams(searchParams);

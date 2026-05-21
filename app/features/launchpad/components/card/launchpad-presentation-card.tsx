@@ -1,5 +1,4 @@
 import { ArrowRight, Download } from "lucide-react";
-import { Card } from "~/components/ui/card";
 import { resolveImageURL } from "~/lib/utils";
 import type { LaunchpadDetail } from "~/services/launchpad/types/project";
 
@@ -25,7 +24,7 @@ export default function LaunchpadPresentationCard({
   }
 
   return (
-    <Card className="flex flex-col gap-4 rounded-2xl border-[#E7ECF3] bg-white p-6 shadow-none">
+    <div className="flex flex-col gap-4">
       <div className="text-xl font-semibold text-[#0F1729]">Presentation</div>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {documentData.map((file) => (
@@ -51,6 +50,6 @@ export default function LaunchpadPresentationCard({
           </a>
         ))}
       </div>
-    </Card>
+    </div>
   );
 }

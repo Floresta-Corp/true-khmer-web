@@ -81,9 +81,10 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
     >
       {/* Heading */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-medium leading-6.75 text-[#2c2f31]">
-          All {displayedAnswers.length} Answers
-        </h2>
+        <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white flex gap-3">
+          All Answers{" "}
+          <p className="text-slate-400">({displayedAnswers.length})</p>
+        </h3>
         <div className="flex items-center gap-3">
           <p className="text-sm font-semibold leading-5 text-[#595c5e]">
             Sort by:

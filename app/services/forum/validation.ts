@@ -1,4 +1,7 @@
-import type { CreateForumQuestionInput, ForumQuestionStatus } from "./forum-types";
+import type {
+  CreateForumQuestionInput,
+  ForumQuestionStatus,
+} from "./forum-types";
 import { z } from "zod";
 
 export type ForumPostFormFieldErrors = Partial<
@@ -8,12 +11,12 @@ export type ForumPostFormFieldErrors = Partial<
 type ValidateForumPostFormResult =
   | { success: true; data: CreateForumQuestionInput }
   | {
-    success: false;
-    fieldErrors: ForumPostFormFieldErrors;
-    message: string;
-  };
+      success: false;
+      fieldErrors: ForumPostFormFieldErrors;
+      message: string;
+    };
 
-const createForumPostSchema = z.object({
+export const createForumPostSchema = z.object({
   categoryId: z.string().min(1, "Please select a category."),
   title: z
     .string()
@@ -26,6 +29,7 @@ const createForumPostSchema = z.object({
   tags: z
     .array(z.string().trim().min(1))
     .max(5, "You can add up to 5 tags only."),
+  imageKey: z.string().nullable(),
   status: z.enum(["DRAFT", "PUBLISHED"]),
 });
 
@@ -71,17 +75,21 @@ export function parseCreateForumPostForm(
   formData: FormData,
 ): CreateForumQuestionInput {
   const statusRaw = String(formData.get("status") ?? "PUBLISHED").toUpperCase();
-  const status: ForumQuestionStatus = statusRaw === "DRAFT" ? "DRAFT" : "PUBLISHED";
+  const status: ForumQuestionStatus =
+    statusRaw === "DRAFT" ? "DRAFT" : "PUBLISHED";
   const categoryId = String(formData.get("categoryId") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
   const tags = parseTags(formData);
+  const imageKeyRaw = String(formData.get("imageKey") ?? "").trim();
+  const imageKey: string | null = imageKeyRaw === "" ? null : imageKeyRaw;
 
   return {
     categoryId,
     title,
     body,
     tags,
+    imageKey,
     status,
   };
 }

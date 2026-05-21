@@ -3,12 +3,15 @@ import {
   apiRequestWithSession,
 } from "~/lib/server/api-client.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
-import type {
-  CreateForumQuestionInput,
-  GetMyQuestionResponse,
-  GetQuestionPaginationResponse,
-  GetQuestionResponse,
-  QuestionSortBy,
+import {
+  type CreateForumQuestionInput,
+  type GetMyQuestionResponse,
+  type GetQuestionPaginationResponse,
+  type GetQuestionResponse,
+  type QuestionSortBy,
+  type ForumQuestionImagePresignInput,
+  type ForumQuestionImagePresignResponse,
+  ForumQuestionImagePresignInputSchema,
 } from "../forum-types";
 import type { VoteIntent } from "~/services/types";
 
@@ -210,6 +213,23 @@ export async function addSaveQuestion(request: Request, questionId: string) {
       method: "POST",
     },
   );
+
+  return result;
+}
+
+export async function presignForumQuestionImage(
+  request: Request,
+  input: ForumQuestionImagePresignInput,
+) {
+  const body = ForumQuestionImagePresignInputSchema.parse(input);
+
+  const result = await apiRequestWithSession<
+    ForumQuestionImagePresignResponse,
+    ForumQuestionImagePresignInput
+  >(request, "/forum/questions/image/presign", {
+    method: "POST",
+    body,
+  });
 
   return result;
 }

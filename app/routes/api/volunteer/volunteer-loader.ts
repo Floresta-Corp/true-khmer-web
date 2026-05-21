@@ -33,18 +33,19 @@ export async function volunteerLoader({ request }: VolunteerRoute.LoaderArgs) {
   const userId = await getUserId(request);
   const [categories, opportunities, locations] = userId
     ? await Promise.all([
-        getVolunteerCategories(request),
-        getVolunteerOpportunities(request, filter),
-        getVolunteerLocations(request),
-      ])
+      getVolunteerCategories(request),
+      getVolunteerOpportunities(request, filter),
+      getVolunteerLocations(request),
+    ])
     : await Promise.all([
-        getPublicVolunteerCategories(request),
-        getPublicVolunteerOpportunities(request, filter),
-        getPublicVolunteerLocations(request),
-      ]);
+      getPublicVolunteerCategories(request),
+      getPublicVolunteerOpportunities(request, filter),
+      getPublicVolunteerLocations(request),
+    ]);
   return {
     categories: categories?.data?.categories,
     opportunities: opportunities?.data?.opportunities,
+    pagination: opportunities?.data?.pagination,
     locations: locations?.data?.locations,
     userId: userId,
   } satisfies VolunteerLoaderData;
@@ -52,13 +53,16 @@ export async function volunteerLoader({ request }: VolunteerRoute.LoaderArgs) {
 
 interface VolunteerLoaderData {
   categories:
-    | (GetVolunteerCategoriesResponse["categories"] | undefined)
-    | undefined;
+  | (GetVolunteerCategoriesResponse["categories"] | undefined)
+  | undefined;
   opportunities:
-    | (GetVolunteerOpportunitiesResponse["opportunities"] | undefined)
-    | undefined;
+  | (GetVolunteerOpportunitiesResponse["opportunities"] | undefined)
+  | undefined;
+  pagination:
+  | (GetVolunteerOpportunitiesResponse["pagination"] | undefined)
+  | undefined;
   locations:
-    | (GetVolunteerLocationsResponse["locations"] | undefined)
-    | undefined;
+  | (GetVolunteerLocationsResponse["locations"] | undefined)
+  | undefined;
   userId: string | null;
 }
