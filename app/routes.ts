@@ -91,4 +91,11 @@ export default [
   route("api/me", "routes/api/api.me.tsx"),
   route("api/launchpad/apply", "routes/api/api.launchpad.apply.ts"),
   route("api/launchpad/save", "routes/api/api.launchpad.save.ts"),
+  route("api/notifications", "routes/api/api.notifications.ts"),
+  route("api/notifications/stream", "routes/api/api.notifications.stream.ts"),
+  route("api/notifications/read", "routes/api/api.notifications.read.ts"),
+  route(
+    "api/notifications/read/all",
+    "routes/api/api.notifications.read.all.ts",
+  ),
 ] satisfies RouteConfig;

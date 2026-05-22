@@ -4,7 +4,6 @@ import {
   MessagesSquare,
   Sparkles,
 } from "lucide-react";
-import { useState } from "react";
 import { Link, useLocation } from "react-router";
 import { Button } from "~/components/ui/button";
 import {
@@ -17,7 +16,6 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "~/components/ui/sidebar";
-import { cn } from "~/lib/utils";
 
 type SidebarItem = {
   id: string;

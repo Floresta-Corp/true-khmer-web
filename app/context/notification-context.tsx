@@ -1,0 +1,185 @@
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import { toast } from "sonner";
+import {
+  Bell,
+  MessageSquare,
+  Trophy,
+  Clock,
+  Briefcase,
+  Zap,
+  Star,
+  User,
+} from "lucide-react";
+
+export interface ApiNotification {
+  id: string;
+  title: string;
+  body: string;
+  imageUrl: string | null;
+  icon: string;
+  type: string;
+  data: Record<string, string> | null;
+  isRead: boolean;
+  readAt: string | null;
+  createdAt: string;
+}
+
+export type NotificationType =
+  | "profile_view"
+  | "new_message"
+  | "achievement"
+  | "event_reminder"
+  | "application"
+  | "launchpad_update"
+  | "points"
+  | "system";
+
+export const NOTIFICATION_ICON_MAP: Record<NotificationType, string> = {
+  profile_view: "User",
+  new_message: "MessageSquare",
+  achievement: "Trophy",
+  event_reminder: "Clock",
+  application: "Briefcase",
+  launchpad_update: "Zap",
+  points: "Star",
+  system: "Bell",
+};
+
+export const NOTIFICATION_ICON_BG_MAP: Record<NotificationType, string> = {
+  event_reminder: "bg-yellow-50",
+  application: "bg-green-50",
+  achievement: "bg-gray-50",
+  points: "bg-yellow-50",
+  system: "bg-gray-50",
+  launchpad_update: "bg-indigo-50",
+  new_message: "bg-blue-50",
+  profile_view: "bg-blue-100",
+};
+
+// Helper function to get icon component from icon name
+const getIconComponent = (iconName: string): React.ReactNode => {
+  switch (iconName) {
+    case "User":
+      return <User className="h-5 w-5" />;
+    case "MessageSquare":
+      return <MessageSquare className="h-5 w-5" />;
+    case "Trophy":
+      return <Trophy className="h-5 w-5" />;
+    case "Clock":
+      return <Clock className="h-5 w-5" />;
+    case "Briefcase":
+      return <Briefcase className="h-5 w-5" />;
+    case "Zap":
+      return <Zap className="h-5 w-5" />;
+    case "Star":
+      return <Star className="h-5 w-5" />;
+    case "Bell":
+      return <Bell className="h-5 w-5" />;
+    default:
+      return <User className="h-5 w-5" />; // fallback
+  }
+};
+
+interface NotificationContextValue {
+  unreadCount: number;
+  setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
+  recentNotifications: ApiNotification[];
+  setRecentNotifications: React.Dispatch<
+    React.SetStateAction<ApiNotification[]>
+  >;
+}
+
+const defaultValue: NotificationContextValue = {
+  unreadCount: 0,
+  setUnreadCount: () => {},
+  recentNotifications: [],
+  setRecentNotifications: () => {},
+};
+
+const NotificationContext =
+  createContext<NotificationContextValue>(defaultValue);
+
+export function useNotifications() {
+  return useContext(NotificationContext);
+}
+
+interface Props {
+  children: ReactNode;
+  /** Pass false for unauthenticated users to skip SSE entirely */
+  enabled?: boolean;
+}
+
+export function NotificationProvider({ children, enabled = true }: Props) {
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [recentNotifications, setRecentNotifications] = useState<
+    ApiNotification[]
+  >([]);
+  const esRef = useRef<EventSource | null>(null);
+  const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Fetch initial unread count
+  useEffect(() => {
+    if (!enabled) return;
+    fetch("/notifications?limit=1&page=1")
+      .then((r) => r.json())
+      .then((d) => {
+        if (typeof d?.unreadCount === "number") setUnreadCount(d.unreadCount);
+      })
+      .catch(() => {});
+  }, [enabled]);
+
+  // Global SSE → toasts, always active for authenticated users
+  useEffect(() => {
+    if (!enabled) return;
+
+    function connect() {
+      const es = new EventSource("/api/notifications/stream");
+      esRef.current = es;
+
+      es.addEventListener("notification", (e) => {
+        try {
+          const notif = JSON.parse(e.data) as ApiNotification;
+          toast(notif.title, { description: notif.body, duration: 5000 });
+          setUnreadCount((c) => c + 1);
+          setRecentNotifications((prev) => [notif, ...prev.slice(0, 9)]);
+        } catch {
+          // ignore parse errors
+        }
+      });
+
+      es.addEventListener("ping", () => {});
+
+      es.onerror = () => {
+        es.close();
+        retryRef.current = setTimeout(connect, 3_000);
+      };
+    }
+
+    connect();
+
+    return () => {
+      if (retryRef.current) clearTimeout(retryRef.current);
+      esRef.current?.close();
+    };
+  }, [enabled]);
+
+  return (
+    <NotificationContext.Provider
+      value={{
+        unreadCount,
+        setUnreadCount,
+        recentNotifications,
+        setRecentNotifications,
+      }}
+    >
+      {children}
+    </NotificationContext.Provider>
+  );
+}
