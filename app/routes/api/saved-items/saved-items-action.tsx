@@ -7,8 +7,23 @@ export async function savedItemsAction({ request }: ActionFunctionArgs) {
   await requireAuthenticatedUser(request);
 
   const formData = await request.formData();
-  const actionType = formData.get("actionType") as string;
-  const opportunityId = formData.get("opportunityId") as string;
+  const rawActionType = formData.get("actionType");
+  const rawOpportunityId = formData.get("opportunityId");
+
+  if (
+    typeof rawActionType !== "string" ||
+    !rawActionType ||
+    typeof rawOpportunityId !== "string" ||
+    !rawOpportunityId
+  ) {
+    return Response.json(
+      { ok: false, error: "Missing or invalid actionType or opportunityId" },
+      { status: 400 },
+    );
+  }
+
+  const actionType: string = rawActionType;
+  const opportunityId: string = rawOpportunityId;
 
   const intent = actionType === "save-opportunity" ? "save" : "unsave";
 

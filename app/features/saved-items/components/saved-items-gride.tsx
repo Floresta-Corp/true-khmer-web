@@ -45,6 +45,13 @@ export default function SavedItemsGrid({
   savedLaunchpads,
   categories,
 }: SavedGridProps) {
+  const navigate = useNavigate();
+  const onOpenOpportunity = useCallback(
+    (item: LaunchpadOpportunity) => {
+      navigate(`/launchpad/detail/${item.id}`);
+    },
+    [navigate],
+  );
   const showForum = activeFilter === "all" || activeFilter === "forum";
   const showVolunteer = activeFilter === "all" || activeFilter === "volunteer";
   const showLaunchpad = activeFilter === "all" || activeFilter === "launchpad";
@@ -56,13 +63,6 @@ export default function SavedItemsGrid({
   if (visibleCount === 0) {
     return <EmptyState activeFilter={activeFilter} />;
   }
-  const navigate = useNavigate();
-  const onOpenOpportunity = useCallback(
-    (item: LaunchpadOpportunity) => {
-      navigate(`/launchpad/detail/${item.id}`);
-    },
-    [navigate],
-  );
 
   return (
     <AnimatePresence mode="popLayout">

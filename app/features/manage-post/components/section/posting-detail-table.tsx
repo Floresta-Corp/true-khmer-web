@@ -295,7 +295,7 @@ export default function ManagePostingDetailTable({
               {(applicants ?? []).length === 0 && (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={6}
                     className="h-32 text-center text-slate-400 text-sm"
                   >
                     No applicants found for this project.

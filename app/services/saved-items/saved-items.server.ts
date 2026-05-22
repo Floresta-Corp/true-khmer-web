@@ -100,14 +100,15 @@ export async function setSavedItem(
       ? addSaveQuestion(request, id)
       : deleteSaveQuestion(request, id);
   }
-
   if (type === "volunteer") {
     return intent === "save"
       ? SaveVolunteerOpportunity(request, id)
       : UnsaveVolunteerOpportunity(request, id);
   }
-
-  return intent === "save"
-    ? saveLaunchpad(request, id)
-    : unsaveLaunchpad(request, id);
+  if (type === "launchpad") {
+    return intent === "save"
+      ? saveLaunchpad(request, id)
+      : unsaveLaunchpad(request, id);
+  }
+  throw new Response("Unsupported saved item type", { status: 400 });
 }

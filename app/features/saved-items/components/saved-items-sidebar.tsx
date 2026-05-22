@@ -11,7 +11,7 @@ import SavedItemsFilter from "./saved-item-filter";
 const FILTERS = [
   { id: "all" as const, label: "All", icon: Bookmark },
   { id: "forum" as const, label: "Forum", icon: MessageSquare },
-  { id: "event" as const, label: "Events", icon: Calendar },
+  // { id: "event" as const, label: "Events", icon: Calendar },
   { id: "volunteer" as const, label: "Volunteer", icon: HandHeart },
   { id: "launchpad" as const, label: "Launchpad", icon: Briefcase },
 ];

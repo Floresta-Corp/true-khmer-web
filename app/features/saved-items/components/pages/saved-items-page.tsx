@@ -8,7 +8,18 @@ export default function SaveItemPage() {
   const { forums, volunteers, launchpads } = useLoaderData<typeof loader>();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeFilter = (searchParams.get("type") ?? "all") as FilterId;
+  const typeParam = searchParams.get("type");
+  const allowed: FilterId[] = [
+    "all",
+    "forum",
+    "volunteer",
+    "launchpad",
+    "event",
+  ];
+  const activeFilter: FilterId =
+    typeParam && allowed.includes(typeParam as FilterId)
+      ? (typeParam as FilterId)
+      : "all";
 
   const handleFilterChange = (id: FilterId) => {
     setSearchParams({ type: id });

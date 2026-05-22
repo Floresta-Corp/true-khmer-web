@@ -15,6 +15,7 @@ const FILTER = [
   { label: "New", value: "new" },
   { label: "In Review", value: "in_review" },
   { label: "Approved", value: "approved" },
+  { label: "Confirmed", value: "confirmed" },
   { label: "Declined", value: "declined" },
 ];
 

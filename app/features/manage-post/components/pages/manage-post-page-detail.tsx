@@ -76,7 +76,7 @@ export default function PostingDetailPage() {
             </div>
 
             {/* Title: Wraps on mobile, truncates cleanly on large displays if needed */}
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight wrap-break-words">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight wrap-break-word">
               {postDetail?.posting?.title}
             </h1>
 
