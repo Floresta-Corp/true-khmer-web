@@ -1,6 +1,6 @@
-import { ArrowRight, Clock3, Vote } from "lucide-react";
+import { ArrowRight, Clock3 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { Link, useLoaderData, useSearchParams } from "react-router";
+import { useLoaderData, useSearchParams } from "react-router";
 import type { loader } from "../routes/my-applications";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
@@ -10,7 +10,7 @@ export default function MyApplicationPendingApprove() {
   const { myApplication } = useLoaderData<typeof loader>();
   const summary = myApplication.summary;
   const handleReviewClicked = () => {
-    setSearchParams({ filter: "approved" });
+    setSearchParams({ filter: "approved" }, { replace: true });
   };
   return (
     <AnimatePresence mode="wait">

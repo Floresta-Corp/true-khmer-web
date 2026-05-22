@@ -14,13 +14,12 @@ interface CollaborationCardProps {
   launchpadId: string;
   launchpadName?: string;
   roles?: Array<{ id: string; title: string }>;
+  hideApplyButton?: boolean;
 }
 
 export default function LaunchpadCollaborationCard({
   data,
-  launchpadId,
-  launchpadName,
-  roles = [],
+  hideApplyButton,
 }: CollaborationCardProps) {
   const { addRole, removeRole, setTopPick, isRoleSelected, isTopPick } =
     useLaunchpadSelectedRoles();
@@ -46,77 +45,79 @@ export default function LaunchpadCollaborationCard({
           {data.availableSpot} {spotLabel}
         </p>
       </div>
-      <div className="flex items-center gap-1.5">
-        <Button
-          className={cn(
-            "h-8 px-4 text-sm font-medium hover:bg-blue-600",
-            selected ? "bg-[#1c5dd4]" : "bg-blue-500",
-          )}
-          onClick={() => {
-            if (!selected) addRole(data.id);
-            else removeRole(data.id);
-          }}
-        >
-          <AnimatePresence mode="wait">
-            <motion.span
-              key={selected ? "selected" : "select"}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.15 }}
-            >
-              {selected ? "Selected" : "Select"}
-            </motion.span>
+      {!hideApplyButton && (
+        <div className="flex items-center gap-1.5">
+          <Button
+            className={cn(
+              "h-8 px-4 text-sm font-medium hover:bg-blue-600",
+              selected ? "bg-[#1c5dd4]" : "bg-blue-500",
+            )}
+            onClick={() => {
+              if (!selected) addRole(data.id);
+              else removeRole(data.id);
+            }}
+          >
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={selected ? "selected" : "select"}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.15 }}
+              >
+                {selected ? "Selected" : "Select"}
+              </motion.span>
+            </AnimatePresence>
+          </Button>
+          <AnimatePresence>
+            {selected && (
+              <motion.div
+                key="top-pick-btn"
+                initial={{ opacity: 0, x: -12, width: 0 }}
+                animate={{ opacity: 1, x: 0, width: "auto" }}
+                exit={{ opacity: 0, x: 12, width: 0 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <Button
+                  type="button"
+                  variant={topPick ? "default" : "outline"}
+                  className={cn(
+                    "h-8 px-2 text-xs",
+                    topPick
+                      ? "bg-[#2f6fe4] text-white hover:bg-[#245fca]"
+                      : "border-[#e1e7ef] text-[#65758b] hover:bg-[#f8fafc]",
+                  )}
+                  onClick={() => setTopPick(data.id)}
+                >
+                  <Star className={cn("size-3.5", topPick && "fill-white")} />
+                </Button>
+              </motion.div>
+            )}
           </AnimatePresence>
-        </Button>
-        <AnimatePresence>
-          {selected && (
-            <motion.div
-              key="top-pick-btn"
-              initial={{ opacity: 0, x: -12, width: 0 }}
-              animate={{ opacity: 1, x: 0, width: "auto" }}
-              exit={{ opacity: 0, x: 12, width: 0 }}
-              transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="overflow-hidden"
-            >
-              <Button
-                type="button"
-                variant={topPick ? "default" : "outline"}
-                className={cn(
-                  "h-8 px-2 text-xs",
-                  topPick
-                    ? "bg-[#2f6fe4] text-white hover:bg-[#245fca]"
-                    : "border-[#e1e7ef] text-[#65758b] hover:bg-[#f8fafc]",
-                )}
-                onClick={() => setTopPick(data.id)}
+          <AnimatePresence>
+            {selected && (
+              <motion.div
+                key="remove-btn"
+                initial={{ opacity: 0, x: -12, width: 0 }}
+                animate={{ opacity: 1, x: 0, width: "auto" }}
+                exit={{ opacity: 0, x: 12, width: 0 }}
+                transition={{ duration: 0.2, ease: "easeInOut", delay: 0.05 }}
+                className="overflow-hidden"
               >
-                <Star className={cn("size-3.5", topPick && "fill-white")} />
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <AnimatePresence>
-          {selected && (
-            <motion.div
-              key="remove-btn"
-              initial={{ opacity: 0, x: -12, width: 0 }}
-              animate={{ opacity: 1, x: 0, width: "auto" }}
-              exit={{ opacity: 0, x: 12, width: 0 }}
-              transition={{ duration: 0.2, ease: "easeInOut", delay: 0.05 }}
-              className="overflow-hidden"
-            >
-              <Button
-                type="button"
-                variant="outline"
-                className="h-8 px-2 text-xs border-red-200 text-red-500 hover:bg-red-50"
-                onClick={() => removeRole(data.id)}
-              >
-                Remove
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  className="h-8 px-2 text-xs border-red-200 text-red-500 hover:bg-red-50"
+                  onClick={() => removeRole(data.id)}
+                >
+                  Remove
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 }

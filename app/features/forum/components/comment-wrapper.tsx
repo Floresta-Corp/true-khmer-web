@@ -1,5 +1,3 @@
-import React from "react";
-
 interface CommentWrapperProps {
   children: React.ReactNode;
   isReply?: boolean;

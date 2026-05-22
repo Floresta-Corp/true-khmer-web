@@ -150,7 +150,10 @@ export async function VolunteerDetailAction({
       try {
         const validatedInput = UploadApplicationDocumentSchema.parse(input);
         try {
-          const result = await uploadDocumentApplication(request, validatedInput);
+          const result = await uploadDocumentApplication(
+            request,
+            validatedInput,
+          );
           const upload = result.data.uploads;
 
           supportingDocuments = await Promise.all(

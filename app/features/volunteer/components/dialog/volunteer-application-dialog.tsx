@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useFetcher, useParams } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { useFetcher, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import type { Role } from "~/services/volunteer/types/opportunities";
 import { BatchApplyApplicationInputSchema } from "~/services/volunteer/types/application";
@@ -19,6 +19,7 @@ interface VolunteerApplicationDialogProps {
   roles: Role[];
   selectedRoleIds: string[];
   topPickRoleId: string | null;
+  opportunityTitle: string;
   trigger?: React.ReactNode;
 }
 
@@ -31,12 +32,11 @@ interface ApiError {
   };
 }
 
-type ApplicationResponse = { success: true } | ({ success: false } & ApiError);
-
 export default function VolunteerApplicationDialog({
   roles,
   selectedRoleIds,
   topPickRoleId,
+  opportunityTitle,
   trigger,
 }: VolunteerApplicationDialogProps & { disableApplyButton?: boolean }) {
   const { id: opportunityId } = useParams();
@@ -162,12 +162,11 @@ export default function VolunteerApplicationDialog({
   };
 
   const selectedRoles = roles.filter((r) => selectedRoleIds.includes(r.id));
+  const navigate = useNavigate();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger}
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
 
       <DialogContent className="min-w-lg rounded-[14px] border border-[#e1e7ef] p-0 [&>button]:right-6 [&>button]:top-5.5 [&>button]:rounded-full [&>button]:p-1.5 [&>button]:text-[#99a1af] [&>button]:opacity-100">
         <div className="border-b border-[#f3f4f6] px-6 pb-3.75 pt-5 mb-6">
@@ -362,7 +361,9 @@ export default function VolunteerApplicationDialog({
 
       <ApplicationSubmitSuccessDialog
         open={successDialogOpen}
+        onViewPost={() => navigate("/my-applications")}
         onOpenChange={setSuccessDialogOpen}
+        applicationName={opportunityTitle}
       />
     </Dialog>
   );

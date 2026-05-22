@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Button } from "~/components/ui/button";
 import QuestionCardSkeleton from "../card/question-card-skeleton";
 import ForumTopCategoriesCard from "../card/forum-top-categories-card";
@@ -59,6 +60,25 @@ export default function ForumContentNew({
   isLoading,
 }: ForumContentNewProps) {
   const { userId } = useLoaderData<typeof loader>();
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasMore || isLoading) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && onLoadMore) {
+          onLoadMore();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, isLoading, onLoadMore]);
+
   return (
     <section className="bg-[#f8fafc] px-4 py-10 md:px-10 lg:px-30">
       <div className="mx-auto flex w-full max-w-300 gap-10">
@@ -120,15 +140,18 @@ export default function ForumContentNew({
 
           {hasMore && (
             <div className="flex justify-center pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onLoadMore}
-                disabled={isLoading}
-                className="h-10 rounded-xl border-[#dbe3ee] px-6"
-              >
-                {isLoading ? "Loading..." : "Load more discussions"}
-              </Button>
+              {isLoading ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled
+                  className="h-10 rounded-xl border-[#dbe3ee] px-6"
+                >
+                  Loading...
+                </Button>
+              ) : (
+                <div ref={sentinelRef} className="h-10" />
+              )}
             </div>
           )}
         </div>

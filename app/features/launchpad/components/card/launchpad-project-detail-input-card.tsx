@@ -1,18 +1,39 @@
 import { useEffect, useId, useState } from "react";
+import { toast } from "sonner";
 import { Input } from "~/components/ui/input";
 import { Calendar } from "lucide-react";
-
 import { cn } from "~/lib/utils";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "~/components/ui/input-group";
 import FieldLabel from "~/components/field-label";
 import SectionInputCard from "~/components/section-input-card";
 import { SelectOption } from "~/components/ui/select-option";
+import VolunteerDatePickerField from "~/features/volunteer/components/volunteer-date-picker-field";
 
 const PROJECT_LOGO_PLACEHOLDER = "/placeholder/images.svg";
+
+const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const ALLOWED_IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp"]);
+const LOGO_MAX_FILE_SIZE = 5 * 1024 * 1024;
+const COVER_MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+function isSupportedImageFile(file: File | null) {
+  if (!file) return false;
+  if (ALLOWED_IMAGE_TYPES.has(file.type)) return true;
+  const extension = file.name.split(".").pop()?.toLowerCase();
+  return !!extension && ALLOWED_IMAGE_EXTENSIONS.has(extension);
+}
+
+function getImageFileError(
+  file: File | null,
+  maxFileSize: number,
+  label: string,
+) {
+  if (!file) return `${label} is required.`;
+  if (!isSupportedImageFile(file))
+    return "Invalid file type. Use JPG, JPEG, PNG, or WebP.";
+  if (file.size > maxFileSize)
+    return `${label} must be ${maxFileSize / (1024 * 1024)}MB or smaller.`;
+  return null;
+}
 
 interface LaunchpadProjectDetailInputCardProps {
   name: string;
@@ -112,14 +133,26 @@ export default function LaunchpadProjectDetailInputCard({
   const handleProjectLogoChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    const file = event.currentTarget.files?.[0];
-    onLogoChange(file ?? null);
+    const file = event.currentTarget.files?.[0] ?? null;
+    const error = getImageFileError(file, LOGO_MAX_FILE_SIZE, "Project logo");
+    if (error) {
+      toast.error(error);
+      onLogoChange(null);
+    } else {
+      onLogoChange(file);
+    }
     event.currentTarget.value = "";
   };
 
   const handleCoverChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.currentTarget.files?.[0];
-    onCoverChange(file ?? null);
+    const file = event.currentTarget.files?.[0] ?? null;
+    const error = getImageFileError(file, COVER_MAX_FILE_SIZE, "Project cover");
+    if (error) {
+      toast.error(error);
+      onCoverChange(null);
+    } else {
+      onCoverChange(file);
+    }
     event.currentTarget.value = "";
   };
 
@@ -188,26 +221,12 @@ export default function LaunchpadProjectDetailInputCard({
 
       <div className="space-y-3">
         <FieldLabel>Application deadline</FieldLabel>
-        <InputGroup className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]">
-          <InputGroupInput
-            type="datetime-local"
-            value={toDateTimeLocal(deadline)}
-            aria-invalid={Boolean(errors?.deadline)}
-            aria-describedby={errors?.deadline ? deadlineErrorId : undefined}
-            onChange={(event) => {
-              const value = event.target.value;
-              onDeadlineChange(value ? new Date(value).toISOString() : "");
-            }}
-          />
-          <InputGroupAddon>
-            <Calendar />
-          </InputGroupAddon>
-        </InputGroup>
-        {errors?.deadline ? (
-          <p id={deadlineErrorId} className="text-xs text-red-500">
-            {errors.deadline}
-          </p>
-        ) : null}
+        <VolunteerDatePickerField
+          value={deadline}
+          onChange={(value) => onDeadlineChange(value)}
+          error={errors?.deadline}
+          placeholder="Select application deadline"
+        />
       </div>
       <div className="space-y-3">
         <FieldLabel>Project Logo</FieldLabel>
@@ -229,13 +248,16 @@ export default function LaunchpadProjectDetailInputCard({
           <input
             id={projectLogoInputId}
             type="file"
-            accept="image/*"
+            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
             className="sr-only"
             aria-invalid={Boolean(errors?.logoFile)}
             aria-describedby={errors?.logoFile ? logoErrorId : undefined}
             onChange={handleProjectLogoChange}
           />
         </div>
+        <p className="text-[11px] text-gray-400">
+          JPG, JPEG, PNG, or WebP • 5MB max
+        </p>
         {errors?.logoFile ? (
           <p id={logoErrorId} className="text-xs text-red-500">
             {errors.logoFile}
@@ -263,7 +285,8 @@ export default function LaunchpadProjectDetailInputCard({
                     Click to upload
                   </div>
                   <div className="text-[11px] text-gray-400 w-53.75">
-                    JPG or PNG • 3MB max Recommended size: 1280 × 720 px (16:9)
+                    JPG, JPEG, PNG, or WebP • 10MB max Recommended size: 1280 ×
+                    720 px (16:9)
                   </div>
                 </div>
               )}
@@ -272,13 +295,16 @@ export default function LaunchpadProjectDetailInputCard({
           <input
             id={projectCoverInputId}
             type="file"
-            accept="image/*"
+            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
             className="sr-only"
             aria-invalid={Boolean(errors?.coverFile)}
             aria-describedby={errors?.coverFile ? coverErrorId : undefined}
             onChange={handleCoverChange}
           />
         </div>
+        <p className="text-[11px] text-gray-400">
+          JPG, JPEG, PNG, or WebP • 10MB max
+        </p>
         {errors?.coverFile ? (
           <p id={coverErrorId} className="text-xs text-red-500">
             {errors.coverFile}

@@ -1,4 +1,4 @@
-import { Star, Trash2, Send } from "lucide-react";
+import { Star, Trash2, Send, Info } from "lucide-react";
 import type {
   OpportunityDetail,
   Role,
@@ -13,15 +13,17 @@ import { AnimatePresence, motion } from "motion/react";
 interface ApplicationSummaryProps {
   volunteer: OpportunityDetail;
   disableApplyButton?: boolean;
+  disableButtonMessage?: string;
   totalCapacity: number;
   onApplyNoRoles?: () => void;
-  isActiveTabOpenRoles?: boolean; 
+  isActiveTabOpenRoles?: boolean;
 }
 
 export default function ApplicationSummary({
   volunteer,
   totalCapacity,
   disableApplyButton,
+  disableButtonMessage,
   onApplyNoRoles,
   isActiveTabOpenRoles,
 }: ApplicationSummaryProps) {
@@ -56,8 +58,10 @@ export default function ApplicationSummary({
         selectedRoleIds={selectedRoleIds}
         topPickRoleId={topPickRoleId}
         disableApplyButton={disableApplyButton || hasAnyApplied}
+        disableButtonMessage={disableButtonMessage}
         onApplyNoRoles={onApplyNoRoles}
         isActiveTabOpenRoles={isActiveTabOpenRoles}
+        opportunityTitle={volunteer.title}
       />
     </aside>
   );
@@ -103,7 +107,7 @@ function SummaryDetails({
             <h3 className="text-[15px] font-bold text-[#0f172a]">
               Selected Roles
             </h3>
-            <span className="flex h-[22px] min-w-[22px] items-center justify-center rounded bg-[#f1f5f9] px-1.5 text-[12px] font-semibold text-[#475569]">
+            <span className="flex h-5.5 min-w-5.5 items-center justify-center rounded bg-[#f1f5f9] px-1.5 text-[12px] font-semibold text-[#475569]">
               {selectedRoles.length}
             </span>
           </div>
@@ -113,7 +117,7 @@ function SummaryDetails({
         </div>
 
         {selectedRoles.length === 0 ? (
-          <div className="flex h-[88px] items-center justify-center rounded-[14px] border border-dashed border-[#e2e8f0] bg-[#fafafa]">
+          <div className="flex h-22 items-center justify-center rounded-[14px] border border-dashed border-[#e2e8f0] bg-[#fafafa]">
             <span className="text-[13px] text-[#94a3b8]">
               No roles selected yet
             </span>
@@ -156,7 +160,7 @@ function SummaryDetails({
                         "group flex size-8 items-center justify-center rounded-full transition-colors",
                         topPickRoleId === role.id
                           ? "bg-white text-[#f59e0b] hover:bg-[#f59f0b30]"
-                          : "text-[#94a3b8] hover:bg-gray-100 hover:text-gray-500",
+                          : "hover:bg-gray-100 hover:text-[#f59e0b]",
                       )}
                       title="Mark as Top Pick"
                     >
@@ -167,14 +171,14 @@ function SummaryDetails({
                         )}
                       />
                     </button>
-                    <button
-                      type="button"
+                    <Button
+                      variant={"ghost"}
                       onClick={() => removeRole(role.id)}
-                      className="flex size-8 items-center justify-center rounded-full overflow-hidden transition-colors text-[#cbd5e1] hover:bg-red-50 hover:text-red-500"
+                      className="flex size-8 items-center justify-center rounded-full overflow-hidden transition-colors hover:bg-red-50 hover:text-red-500"
                       title="Remove"
                     >
                       <Trash2 className="size-4" />
-                    </button>
+                    </Button>
                   </div>
                 </motion.div>
               ))}
@@ -193,7 +197,8 @@ interface ActionButtonsProps {
   disableApplyButton?: boolean;
   onApplyNoRoles?: () => void;
   isActiveTabOpenRoles?: boolean;
-  
+  disableButtonMessage?: string;
+  opportunityTitle: string;
 }
 
 function ActionButtons({
@@ -203,7 +208,8 @@ function ActionButtons({
   disableApplyButton,
   onApplyNoRoles,
   isActiveTabOpenRoles,
-  
+  opportunityTitle,
+  disableButtonMessage,
 }: ActionButtonsProps) {
   const isNoRolesSelected = selectedRoleIds.length === 0;
 
@@ -219,7 +225,7 @@ function ActionButtons({
             transition={{ duration: 0.2 }}
           >
             <Button
-              disabled={disableApplyButton}
+              // disabled={disableApplyButton}
               onClick={onApplyNoRoles}
               className="h-10 w-full bg-[#2f6fe4] text-sm font-medium text-[#f8fafc] hover:bg-[#245fca] gap-2"
             >
@@ -234,22 +240,33 @@ function ActionButtons({
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            {
-              <VolunteerApplicationDialog
-                roles={roles}
-                selectedRoleIds={selectedRoleIds}
-                topPickRoleId={topPickRoleId}
-                trigger={
-                  <Button
-                    disabled={disableApplyButton || isNoRolesSelected}
-                    className="h-10 w-full bg-[#2f6fe4] text-sm font-medium text-[#f8fafc] hover:bg-[#245fca] gap-2"
-                  >
-                    <Send className="size-4" />
-                    Apply Now
-                  </Button>
-                }
-              />
-            }
+            <VolunteerApplicationDialog
+              roles={roles}
+              selectedRoleIds={selectedRoleIds}
+              topPickRoleId={topPickRoleId}
+              opportunityTitle={opportunityTitle}
+              trigger={
+                <Button
+                  disabled={disableApplyButton || isNoRolesSelected}
+                  className="h-10 w-full bg-[#2f6fe4] text-sm font-medium text-[#f8fafc] hover:bg-[#245fca] gap-2"
+                >
+                  <Send className="size-4" />
+                  Apply Now
+                </Button>
+              }
+            />
+          </motion.div>
+        )}
+        {disableApplyButton && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="py-1.5 px-3 rounded-lg bg-amber-100 flex items-center gap-3 text-gray-500"
+          >
+            <Info className="size-6" />
+            <p className="text-xs">{disableButtonMessage}</p>
           </motion.div>
         )}
       </AnimatePresence>

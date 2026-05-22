@@ -1,6 +1,6 @@
-import { Clock3, Gift, ImageIcon, Sparkle, Trash2 } from "lucide-react";
+import { ImageIcon, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import {
   type Dispatch,
   type SetStateAction,
