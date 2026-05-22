@@ -1,7 +1,4 @@
-import {
-  apiRequestWithSession,
-  ProtectedApiError,
-} from "~/lib/server/api-client.server";
+import { apiRequestWithSession } from "~/lib/server/api-client.server";
 import {
   UnsaveVolunteerOpportunity,
   SaveVolunteerOpportunity,
@@ -16,76 +13,66 @@ import {
 } from "~/services/launchpad/server/launchpad.opportunities.server";
 import type { Question } from "~/services/forum/forum-types";
 import type { Opportunity } from "~/services/volunteer/volunteer-types";
-import type { LaunchpadOpportunity } from "~/services/launchpad/types/project";
+import type { LaunchpadOpportunity } from "~/services/launchpad/types";
+import type {
+  GetSavedLaunchpadOpportunitiesResponse,
+  GetSavedVolunteerOpportunitiesResponse,
+  GetSaveForumQuestionResponse,
+} from "./saved-items-types";
 
-type SavedCollectionResponse<T> = {
-  ok?: boolean;
-  data?: unknown;
-  items?: T[];
-  questions?: T[];
-  opportunities?: T[];
-  launchpads?: T[];
-  saved?: T[];
-};
-
-function readCollection<T>(
-  response: SavedCollectionResponse<T>,
-  keys: Array<keyof SavedCollectionResponse<T>>,
-): T[] {
-  for (const key of keys) {
-    const value = response[key];
-    if (Array.isArray(value)) {
-      return value;
-    }
-  }
-
-  if (response.data && typeof response.data === "object") {
-    return readCollection(response.data as SavedCollectionResponse<T>, keys);
-  }
-
-  return [];
+export async function getSavedForums(request: Request) {
+  return await apiRequestWithSession<GetSaveForumQuestionResponse>(
+    request,
+    "/forum/questions/saved",
+    { method: "GET" },
+  );
 }
 
-async function getSavedCollection<T>(
-  request: Request,
-  path: string,
-  keys: Array<keyof SavedCollectionResponse<T>>,
-) {
-  try {
-    const result = await apiRequestWithSession<SavedCollectionResponse<T>>(
-      request,
-      path,
-      { method: "GET" },
-    );
-    return readCollection(result.data, keys);
-  } catch (error) {
-    if (error instanceof ProtectedApiError && error.status === 404) {
-      return [];
-    }
-
-    throw error;
-  }
+export async function getSavedVolunteers(request: Request) {
+  return await apiRequestWithSession<GetSavedVolunteerOpportunitiesResponse>(
+    request,
+    "/volunteer/saved",
+    { method: "GET" },
+  );
 }
 
-export async function getSavedItems(request: Request) {
-  const [forums, volunteers, launchpads] = await Promise.all([
-    getSavedCollection<Question>(request, "/forum/questions/saved", [
-      "questions",
-      "items",
-      "saved",
-    ]),
-    getSavedCollection<Opportunity>(request, "/volunteer/saved", [
-      "opportunities",
-      "items",
-      "saved",
-    ]),
-    getSavedCollection<LaunchpadOpportunity>(request, "/launchpad/saved", [
-      "launchpads",
-      "items",
-      "saved",
-    ]),
-  ]);
+export async function getSavedLaunchpads(request: Request) {
+  return await apiRequestWithSession<GetSavedLaunchpadOpportunitiesResponse>(
+    request,
+    "/launchpad/saved",
+    { method: "GET" },
+  );
+}
 
+export async function getSavedItems(request: Request, type?: string) {
+  let forums: Question[] = [];
+  let volunteers: Opportunity[] = [];
+  let launchpads: LaunchpadOpportunity[] = [];
+  if (type) {
+    switch (type) {
+      case "forum":
+        const forumResult = await getSavedForums(request);
+        forums = forumResult.data.questions;
+
+      case "volunteer":
+        const volunteerResult = await getSavedVolunteers(request);
+        volunteers = volunteerResult.data.opportunities;
+
+      case "launchpad":
+        const launchpadResult = await getSavedLaunchpads(request);
+        launchpads = launchpadResult.data.launchpads;
+
+      case "all":
+        const forumResultAll = await getSavedForums(request);
+        const volunteerResultAll = await getSavedVolunteers(request);
+        const launchpadResultAll = await getSavedLaunchpads(request);
+        forums = forumResultAll.data.questions;
+        volunteers = volunteerResultAll.data.opportunities;
+        launchpads = launchpadResultAll.data.launchpads;
+      default:
+        break;
+    }
+  }
   return { forums, volunteers, launchpads };
 }
 

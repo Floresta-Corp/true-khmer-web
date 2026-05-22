@@ -6,7 +6,11 @@ export async function savedItemsLoader({ request }: { request: Request }) {
   const url = new URL(request.url);
   const type = url.searchParams.get("type") ?? "all";
   try {
-    const { forums, volunteers, launchpads } = await getSavedItems(request);
+    const { forums, volunteers, launchpads } = await getSavedItems(
+      request,
+      type,
+    );
+
     return { forums, volunteers, launchpads, activeType: type };
   } catch (error) {
     if (error instanceof AuthSessionExpiredError) {

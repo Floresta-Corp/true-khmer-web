@@ -6,7 +6,6 @@ import type { loader } from "../../routes/saved-items";
 
 export default function SaveItemPage() {
   const { forums, volunteers, launchpads } = useLoaderData<typeof loader>();
-
   const [searchParams, setSearchParams] = useSearchParams();
   const typeParam = searchParams.get("type");
   const allowed: FilterId[] = [
@@ -22,7 +21,7 @@ export default function SaveItemPage() {
       : "all";
 
   const handleFilterChange = (id: FilterId) => {
-    setSearchParams({ type: id });
+    setSearchParams({ type: id }, { replace: true });
   };
 
   return (
