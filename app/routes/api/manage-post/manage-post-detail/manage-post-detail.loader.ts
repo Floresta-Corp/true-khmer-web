@@ -61,7 +61,7 @@ export async function managePostDetailLoader({
       page,
     },
     sourceType,
-    params.postingId,
+    params.id,
   );
 
   return {

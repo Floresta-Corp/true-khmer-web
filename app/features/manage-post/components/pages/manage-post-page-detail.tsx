@@ -1,24 +1,12 @@
-import { useLoaderData } from "react-router";
+import { Link, useLoaderData, useParams } from "react-router";
 import {
   Briefcase,
   CalendarRange,
-  Clock,
   HandHeart,
   MoreHorizontal,
   Pencil,
   Share2,
 } from "lucide-react";
-import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
-
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "~/components/ui/breadcrumb";
 import type { loader } from "../../routes/manage-post.$sourceType.$id";
 import ManagePostingDetailStats from "../section/posting-detail-stats";
 import ManagePostingDetailTable from "../section/posting-detail-table";
@@ -28,6 +16,7 @@ import type {
   PostingType,
 } from "~/services/manage-post/types";
 import { cn } from "~/lib/utils";
+import BackToButton from "~/components/back-to-button";
 
 const STATUS_STYLES: Record<ManagePostStatus, string> = {
   ACTIVE: "bg-green-100 text-green-700 border-green-200",
@@ -39,23 +28,15 @@ const STATUS_STYLES: Record<ManagePostStatus, string> = {
 
 export default function ManagePostingDetailPage() {
   const { postDetail } = useLoaderData<typeof loader>();
+  const { sourceType, id } = useParams();
+  const sourceTypeRoute = sourceType === "projects" ? "launchpad" : "volunteer";
+  console.log(id);
+  const editRoute = `/${sourceTypeRoute}/edit/${id}`;
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-10 lg:py-12">
       {/* Breadcrumb */}
       <div className="mb-6">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/manage-post">
-                Manage Posting
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>{postDetail?.posting?.title}</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <BackToButton to={"/manage-post"} />
       </div>
 
       {/* Header */}
@@ -110,10 +91,13 @@ export default function ManagePostingDetailPage() {
 
         {/* Right: actions */}
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <button className="flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-brand-blue/20 hover:scale-[1.02] active:scale-95 transition-all w-full sm:w-auto whitespace-nowrap">
+          <Link
+            to={editRoute}
+            className="flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-brand-blue/20 hover:scale-[1.02] active:scale-95 transition-all w-full sm:w-auto whitespace-nowrap"
+          >
             <Pencil size={18} />
             Edit Posting
-          </button>
+          </Link>
           <div>
             <button className="p-3 border border-gray-200 dark:border-slate-800 rounded-xl text-gray-400 hover:text-brand-blue hover:text-blue-600 hover:border-blue-600 transition-all flex items-center justify-center">
               <Share2 size={20} />
