@@ -28,11 +28,10 @@ function isValidTab(value: string | null): value is TabType {
 
 const VALID_STATUS_VALUES = [
   "all",
-  "active",
   "live",
   "draft",
   "in_progress",
-  "closed",
+  "canceled",
   "completed",
   "filled",
 ] as const;
@@ -124,11 +123,10 @@ export default function ManagePostFilters() {
           </SelectTrigger>
           <SelectContent className="rounded-xl border-slate-200">
             <SelectItem value="all">All</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
             <SelectItem value="live">Live</SelectItem>
             <SelectItem value="draft">Draft</SelectItem>
             <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="closed">Closed</SelectItem>
+            <SelectItem value="canceled">Canceled</SelectItem>
             <SelectItem value="in_progress">In progress</SelectItem>
             <SelectItem value="filled">Filled</SelectItem>
           </SelectContent>

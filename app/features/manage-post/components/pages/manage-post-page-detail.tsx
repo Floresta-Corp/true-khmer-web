@@ -2,23 +2,11 @@ import { useLoaderData } from "react-router";
 import {
   Briefcase,
   CalendarRange,
-  Clock,
   HandHeart,
   MoreHorizontal,
   Pencil,
   Share2,
 } from "lucide-react";
-import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
-
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "~/components/ui/breadcrumb";
 import type { loader } from "../../routes/manage-post.$sourceType.$id";
 import ManagePostingDetailStats from "../section/posting-detail-stats";
 import ManagePostingDetailTable from "../section/posting-detail-table";
@@ -28,45 +16,33 @@ import type {
   PostingType,
 } from "~/services/manage-post/types";
 import { cn } from "~/lib/utils";
+import BackToButton from "~/components/back-to-button";
 
 const STATUS_STYLES: Record<ManagePostStatus, string> = {
-  // ACTIVE: "bg-green-100 text-green-700 border-green-200",
-  // DRAFT: "bg-amber-100 text-amber-700 border-amber-200",
-  // COMPLETED: "bg-blue-100 text-blue-700 border-blue-200",
-  // PUBLISHED: "bg-amber-100 text-amber-700 border-amber-200",
-  // CLOSED: "bg-gray-100 text-gray-600 border-gray-200",
-  LIVE: "bg-green-100 text-green-700 border-green-200",
-  DRAFT: "bg-amber-100 text-amber-700 border-amber-200",
-  COMPLETED: "bg-blue-100 text-blue-700 border-blue-200",
+  LIVE: "bg-blue-100 text-blue-700 border-blue-200",
+  DRAFT: "bg-gray-100 text-gray-700 border-gray-200",
+  COMPLETED: "bg-green-100 text-green-700 border-green-200",
   IN_PROGRESS: "bg-amber-100 text-amber-700 border-amber-200",
+  CANCELED: "bg-red-100 text-red-700 border-red-200",
+  FILLED: "bg-blue-100 text-blue-700 border-blue-200",
 };
 
 export default function PostingDetailPage() {
   const { postDetail } = useLoaderData<typeof loader>();
+
   return (
-    <div className="max-w-7xl w-full mx-auto">
-      <div className="p-4 sm:p-8 md:p-10 overflow-y-auto">
+    <div className="max-w-7xl w-full mx-auto max-h-dvh">
+      <div className="p-4 sm:p-8 md:p-10">
         {/* Breadcrumb */}
-        <div className="mb-6 ">
-          <Breadcrumb>
-            <BreadcrumbList className="text-base">
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/manage-post">
-                  Manage Posting
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{postDetail?.posting?.title}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+        <div className="mb-6">
+          <BackToButton to="/manage-post" />
         </div>
 
-        {/* Header */}
-        <div className="flex items-start justify-between gap-6">
-          <div className="flex flex-col gap-3 min-w-0">
-            <div className="flex items-center gap-3">
+        {/* Header Layout: Stacked on mobile, side-by-side on desktop */}
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+          {/* Left: Metadata & Title */}
+          <div className="flex flex-col gap-3 min-w-0 w-full">
+            <div className="flex flex-wrap items-center gap-3">
               <div
                 className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
                   postDetail?.posting?.sourceType === "projects"
@@ -99,8 +75,8 @@ export default function PostingDetailPage() {
               </span>
             </div>
 
-            {/* Title */}
-            <h1 className="text-3xl font-bold text-gray-900 leading-tight truncate">
+            {/* Title: Wraps on mobile, truncates cleanly on large displays if needed */}
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight wrap-break-words">
               {postDetail?.posting?.title}
             </h1>
 
@@ -113,21 +89,22 @@ export default function PostingDetailPage() {
             </div>
           </div>
 
-          {/* Right: actions */}
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <button className="flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-brand-blue/20 hover:scale-[1.02] active:scale-95 transition-all w-full sm:w-auto whitespace-nowrap">
+          {/* Right: Actions block */}
+          {/* Mobile: Full-width stacked edit button, icons row below it. Desktop: Compact inline row */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto shrink-0">
+            <button className="flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-600/20 hover:scale-[1.02] active:scale-95 transition-all w-full sm:w-auto whitespace-nowrap order-1 sm:order-0">
               <Pencil size={18} />
               Edit Posting
             </button>
-            <div>
-              <button className="p-3 border border-gray-200 dark:border-slate-800 rounded-xl text-gray-400 hover:text-brand-blue hover:text-blue-600 hover:border-blue-600 transition-all flex items-center justify-center">
+
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-end sm:justify-start">
+              <button className="p-3 border border-gray-200 dark:border-slate-800 rounded-xl text-gray-400 hover:text-blue-600 hover:border-blue-600 transition-all flex items-center justify-center flex-1 sm:flex-none">
                 <Share2 size={20} />
               </button>
+              <button className="p-3 border border-gray-200 hover:border-blue-600 rounded-xl transition-all flex items-center justify-center text-gray-400 hover:text-blue-600 flex-1 sm:flex-none">
+                <MoreHorizontal size={20} />
+              </button>
             </div>
-
-            <button className="p-3 border border-gray-200 hover:border-blue-600 rounded-xl transition-all flex items-center justify-center text-gray-400 hover:text-blue-600">
-              <MoreHorizontal size={20} />
-            </button>
           </div>
         </div>
 
@@ -135,11 +112,14 @@ export default function PostingDetailPage() {
           <ManagePostingDetailStats />
         </div>
 
-        <ManagePostingDetailTable
-          applicants={postDetail?.applicants ?? []}
-          postingId={postDetail?.posting?.id ?? ""}
-          sourceType={(postDetail?.posting?.sourceType ?? "") as PostingType}
-        />
+        {/* Note: Ensure this table container handles internal scrolling if it's wide */}
+        <div className="mt-6 overflow-x-auto">
+          <ManagePostingDetailTable
+            applicants={postDetail?.applicants ?? []}
+            postingId={postDetail?.posting?.id ?? ""}
+            sourceType={(postDetail?.posting?.sourceType ?? "") as PostingType}
+          />
+        </div>
       </div>
     </div>
   );

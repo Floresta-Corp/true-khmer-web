@@ -1,13 +1,13 @@
 import { apiRequestWithSession } from "~/lib/server/api-client.server";
 import type {
-  ApplicantRange,
+  ApplicantFilter,
   ManagePostDetailResponse,
   PostSourceType,
 } from "../types/detail-post-type";
 
 export interface ManagePostDetailParams {
   search?: string;
-  range?: ApplicantRange;
+  filter?: ApplicantFilter;
   page?: number;
   limit?: number;
 }
@@ -20,7 +20,7 @@ export async function getManagePostDetail(
 ) {
   const queryParams = new URLSearchParams();
   if (params.search) queryParams.set("search", params.search);
-  if (params.range) queryParams.set("range", params.range);
+  if (params.filter) queryParams.set("filter", params.filter);
   if (params.page !== undefined)
     queryParams.set("page", params.page.toString());
   if (params.limit !== undefined)

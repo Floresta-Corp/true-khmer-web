@@ -11,16 +11,12 @@ import type {
 import ManagePostOption from "../dropdown/manage-post-option";
 
 const STATUS_STYLES: Record<ManagePostStatus, string> = {
-  LIVE: "bg-green-100 text-green-700 border-green-200",
-  DRAFT: "bg-amber-100 text-amber-700 border-amber-200",
-  COMPLETED: "bg-blue-100 text-blue-700 border-blue-200",
+  COMPLETED: "bg-green-100 text-green-700 border-green-200",
+  DRAFT: "bg-gray-100 text-gray-700 border-gray-200",
+  LIVE: "bg-blue-100 text-blue-700 border-blue-200",
   IN_PROGRESS: "bg-amber-100 text-amber-700 border-amber-200",
-  // CLOSED: "bg-gray-100 text-gray-600 border-gray-200",
-};
-
-const TYPE_STYLES: Record<SourceType, string> = {
-  PROJECT: "bg-blue-100 text-blue-700 border-blue-200",
-  VOLUNTEER: "bg-indigo-100 text-indigo-700 border-indigo-200",
+  CANCELED: "bg-red-100 text-red-700 border-red-200",
+  FILLED: "bg-blue-100 text-blue-700 border-blue-200",
 };
 
 const SOURCE_TYPE_TO_PATH: Record<SourceType, string> = {

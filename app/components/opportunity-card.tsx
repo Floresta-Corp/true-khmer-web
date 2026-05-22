@@ -50,7 +50,7 @@ export function OpportunityCard({
           opportunityId: opportunity.id,
           actionType: "save-opportunity",
         },
-        { method: "POST" },
+        { method: "POST", action: "/saved-items" },
       );
     }
   };

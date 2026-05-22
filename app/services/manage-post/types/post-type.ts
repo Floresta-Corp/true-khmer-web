@@ -10,8 +10,10 @@ export const StatusSchema = z.enum([
   // "DRAFT",
   // "PUBLISHED",
 
-  "COMPLETED",
   "DRAFT",
+  "CANCELED",
+  "FILLED",
+  "COMPLETED",
   "IN_PROGRESS",
   "LIVE",
 ]);
@@ -29,11 +31,10 @@ export const PostingFilterSchema = z.enum([
   // "published",
 
   "all",
-  "active",
   "live",
   "draft",
   "in_progress",
-  "closed",
+  "canceled",
   "completed",
   "filled",
 ]);
@@ -55,6 +56,7 @@ export const ManagePostSchema = z.object({
   createdAt: z.string(),
   deadline: z.union([z.null(), z.string()]),
   description: z.union([z.null(), z.string()]),
+  filled: z.boolean(),
   id: z.string(),
   imageKey: z.union([z.null(), z.string()]),
   sourceType: SourceTypeSchema,
