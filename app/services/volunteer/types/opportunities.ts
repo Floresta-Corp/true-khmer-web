@@ -184,9 +184,9 @@ export const VolunteerOpportunityInputSchema = z.object({
   locationId: z.string(),
   title: z.string(),
   overview: z.string(),
-  startDate: z.string().min(1),
-  endDate: z.string().min(1),
   commitmentLabel: z.string().nullish(),
+  startDate: z.string().min(1).nullish(),
+  endDate: z.string().min(1).nullish(),
   commitmentDescription: z.string().nullish(),
   applicationDeadline: z.string(),
   communityImpact: z.string().nullish(),
@@ -275,37 +275,6 @@ export const formDataVolunteerInputSchema = z.object({
 export type FormDataVolunteerInput = z.infer<
   typeof formDataVolunteerInputSchema
 >;
-
-// export const initialFormDataVolunteerInput: FormDataVolunteerInput = {
-//   categoryId: "",
-//   locationId: "",
-//   title: "",
-//   overview: "",
-//   communityImpact: null,
-//   durationLabel: "",
-//   commitmentLabel: "",
-//   applicationDeadline: "",
-//   benefits: [""],
-//   contact: {
-//     email: "",
-//     telegramUsername: null,
-//     phone: null,
-//     websiteUrl: null,
-//   },
-//   roles: [
-//     {
-//       title: "",
-//       commitmentLabel: "",
-//       capacity: 1,
-//       responsibilities: [""],
-//       requirements: [""],
-//     },
-//   ],
-//   coverImageKey: {
-//     file: null,
-//     value: "",
-//   },
-// };
 
 export const initialFormDataVolunteerInput: FormDataVolunteerInput = {
   categoryId: "",

@@ -1,12 +1,14 @@
 import {
   uploadDocumentApplication,
   ApplyApplication,
+  ApplyBatchApplication,
   SaveVolunteerOpportunity,
   UnsaveVolunteerOpportunity,
 } from "~/services/volunteer/server";
 import {
   UploadApplicationDocumentSchema,
   ApplyApplicationInputSchema,
+  BatchApplyApplicationInputSchema,
   type UploadApplicationDocumentInput,
 } from "~/services/volunteer/types";
 import type { Route as VolunteerDetailRoute } from "project-types/volunteer/routes/+types/volunteer.$id";
@@ -117,6 +119,83 @@ export async function VolunteerDetailAction({
         const result = await ApplyApplication(request, applyInput);
         if (result === null) {
           return errorActionResponse("Failed to submit application");
+        }
+        return transformActionResponse(result);
+      } catch (applyError) {
+        return transformActionResponse(applyError);
+      }
+    } catch (error) {
+      return transformActionResponse(error);
+    }
+  }
+  // New batch apply action
+  if (actionType === "apply-batch-application") {
+    const rawFiles = formData.getAll("files") as unknown[];
+    const files = rawFiles.filter(
+      (f): f is File => f instanceof File && (f as File).size > 0,
+    );
+
+    let supportingDocuments: { name: string; key: string }[] = [];
+
+    if (files.length > 0) {
+      const input: UploadApplicationDocumentInput = {
+        opportunityId: id,
+        files: files.map((file) => ({
+          fileName: file.name,
+          contentType: file.type,
+          fileSize: file.size,
+        })),
+      };
+
+      try {
+        const validatedInput = UploadApplicationDocumentSchema.parse(input);
+        try {
+          const result = await uploadDocumentApplication(request, validatedInput);
+          const upload = result.data.uploads;
+
+          supportingDocuments = await Promise.all(
+            files.map(async (file, index) => {
+              const uploadInput = upload[index];
+              const uploadCloudflaredResult = await fetch(
+                `${upload[index].uploadUrl}`,
+                {
+                  headers: uploadInput.requiredHeaders,
+                  method: uploadInput.method,
+                  body: file,
+                },
+              );
+
+              if (!uploadCloudflaredResult.ok) {
+                throw new Error("Failed to upload file");
+              }
+
+              return {
+                name: uploadInput.supportingDocument.name,
+                key: uploadInput.supportingDocument.key,
+              };
+            }),
+          );
+        } catch (error) {
+          return transformActionResponse(error);
+        }
+      } catch (error) {
+        return transformActionResponse(error);
+      }
+    }
+
+    const dataStr = formData.get("data");
+    if (!dataStr) return errorActionResponse("Missing data field");
+    const data = JSON.parse(dataStr.toString()) as Record<string, unknown>;
+
+    try {
+      const applyInput = BatchApplyApplicationInputSchema.parse({
+        ...data,
+        supportingDocuments,
+      });
+      try {
+        const result = await ApplyBatchApplication(request, applyInput);
+        if (result === null) {
+          return errorActionResponse("Failed to submit batch application");
         }
         return transformActionResponse(result);
       } catch (applyError) {

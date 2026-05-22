@@ -1,5 +1,3 @@
-import { Play } from "lucide-react";
-
 interface HeaderSectionProps {
   onWatchVideo?: () => void;
   onViewDetails?: () => void;

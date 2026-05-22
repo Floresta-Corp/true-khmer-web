@@ -107,7 +107,7 @@ export default function LaunchpadProjectDetailPage() {
             </Tabs>
           </section>
 
-          <section className="flex flex-col gap-4 lg:sticky lg:top-6 lg:h-fit">
+          <section className="flex flex-col gap-4 lg:sticky lg:top-26 lg:h-fit">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

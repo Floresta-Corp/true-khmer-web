@@ -1,4 +1,4 @@
-import { Users, CheckCircle2 } from "lucide-react";
+import { Users, CheckCircle2, Star } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Accordion,
@@ -7,7 +7,9 @@ import {
   AccordionContent,
 } from "~/components/ui/accordion";
 import type { Role } from "~/services/volunteer/types/opportunities";
-import VolunteerApplicationDialog from "../dialog/volunteer-application-dialog";
+import { useVolunteerSelectedRoles } from "../../../../stores/selected-volunteer-roles-store";
+import { cn } from "~/lib/utils";
+import { AnimatePresence, motion } from "motion/react";
 
 interface AvailableRolesSectionProps {
   roles: Role[];
@@ -53,7 +55,13 @@ interface RoleCardProps {
   hideApplyButton?: boolean;
 }
 
-function RoleCard({ role, roles, hideApplyButton }: RoleCardProps) {
+function RoleCard({ role, hideApplyButton }: RoleCardProps) {
+  const { addRole, removeRole, setTopPick, isRoleSelected, isTopPick } =
+    useVolunteerSelectedRoles();
+
+  const selected = isRoleSelected(role.id);
+  const topPick = isTopPick(role.id);
+
   return (
     <AccordionItem
       value={role.id}
@@ -81,19 +89,84 @@ function RoleCard({ role, roles, hideApplyButton }: RoleCardProps) {
         </div>
 
         {!hideApplyButton ? (
-          <div className="my-7.25 flex justify-end pt-7.25">
-            <VolunteerApplicationDialog
-              roles={roles}
-              initialRoleId={role.id}
-              trigger={
-                <Button
-                  disabled={role.viewerApplied}
-                  className="h-10 w-full bg-[#1c5dd4] px-6 text-sm font-medium text-[#f8fafc] hover:bg-[#184fb0]"
-                >
-                  Apply for this Role
-                </Button>
-              }
-            />
+          <div className="my-7.25 flex justify-end pt-7.25 w-full">
+            <div className="flex items-center gap-2 w-full">
+              <Button
+                disabled={role.viewerApplied}
+                className={cn(
+                  "h-10 flex-1 bg-[#1c5dd4] px-6 text-sm font-medium text-[#f8fafc] hover:bg-[#184fb0]",
+                  role.viewerApplied && "opacity-50",
+                  !selected && "w-full",
+                )}
+                onClick={() => {
+                  if (!selected) addRole(role.id);
+                }}
+              >
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={selected ? "selected" : "select"}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    {selected ? "Selected" : "Select Role"}
+                  </motion.span>
+                </AnimatePresence>
+              </Button>
+              <AnimatePresence>
+                {selected && (
+                  <motion.div
+                    key="top-pick-btn"
+                    initial={{ opacity: 0, x: -16, width: 0 }}
+                    animate={{ opacity: 1, x: 0, width: "auto" }}
+                    exit={{ opacity: 0, x: 16, width: 0 }}
+                    transition={{ duration: 0.2, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
+                    <Button
+                      type="button"
+                      variant={topPick ? "default" : "outline"}
+                      className={cn(
+                        "h-10 px-3 text-sm",
+                        topPick
+                          ? "bg-[#2f6fe4] text-white hover:bg-[#245fca]"
+                          : "border-[#e1e7ef] text-[#65758b] hover:bg-[#f8fafc]",
+                      )}
+                      onClick={() => setTopPick(role.id)}
+                    >
+                      <Star
+                        className={cn(
+                          "size-4",
+                          topPick && "fill-white",
+                        )}
+                      />
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <AnimatePresence>
+                {selected && (
+                  <motion.div
+                    key="remove-btn"
+                    initial={{ opacity: 0, x: -16, width: 0 }}
+                    animate={{ opacity: 1, x: 0, width: "auto" }}
+                    exit={{ opacity: 0, x: 16, width: 0 }}
+                    transition={{ duration: 0.2, ease: "easeInOut", delay: 0.05 }}
+                    className="overflow-hidden"
+                  >
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      className="h-10 px-3 text-sm"
+                      onClick={() => removeRole(role.id)}
+                    >
+                      Remove
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         ) : (
           <div className="mb-3" />

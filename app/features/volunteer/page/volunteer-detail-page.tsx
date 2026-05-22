@@ -41,6 +41,7 @@ export function VolunteerDetailPage({ }: VolunteerDetailPageProps) {
   const prefersReducedMotion = useReducedMotion();
   const fetcher = useFetcher();
   const [isSaved, setIsSaved] = useState(volunteer?.viewerSave ?? false);
+  const [activeTab, setActiveTab] = useState("details");
   const saving = fetcher.state === "loading" || fetcher.state === "submitting";
 
   if (!volunteer) {
@@ -93,7 +94,7 @@ export function VolunteerDetailPage({ }: VolunteerDetailPageProps) {
     "rounded-none px-4 pb-3 text-sm font-medium text-[#65758b] transition-colors hover:text-blue-600 data-[state=active]:text-blue-600 data-[state=active]:after:bg-[#2f6fe4]";
 
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-10 md:px-12 lg:px-28 bg-gray-50">
+    <main className="min-h-screen bg-slate-50 px-6 py-10 md:px-12 lg:px-28">
       <div className="mx-auto flex w-full max-w-304 flex-col gap-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -177,7 +178,7 @@ export function VolunteerDetailPage({ }: VolunteerDetailPageProps) {
               <OpportunityCover volunteer={volunteer} />
             </motion.article>
 
-            <Tabs defaultValue="details">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList variant="line" className="transition-all ">
                 <TabsTrigger value="details" className={tabItemClassName}>
                   Details
@@ -235,7 +236,7 @@ export function VolunteerDetailPage({ }: VolunteerDetailPageProps) {
             </Tabs>
           </section>
 
-          <div className="self-start lg:sticky lg:top-24">
+          <div className="self-start lg:sticky lg:top-28">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -250,6 +251,8 @@ export function VolunteerDetailPage({ }: VolunteerDetailPageProps) {
                 volunteer={volunteer}
                 totalCapacity={totalCapacity}
                 disableApplyButton={hideApplyButton}
+                onApplyNoRoles={() => setActiveTab("open-roles")}
+                isActiveTabOpenRoles={activeTab === "open-roles"}
               />
               <OrganizerCard volunteer={volunteer} />
             </motion.div>

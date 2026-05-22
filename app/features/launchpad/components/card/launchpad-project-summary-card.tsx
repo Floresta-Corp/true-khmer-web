@@ -2,6 +2,7 @@ import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 import LaunchpadSubmitApplicationDialog from "../dialog/launchpad-submit-application-dialog";
+import { useLaunchpadSelectedRoles } from "../../../../stores/selected-launchpad-roles-store";
 
 interface ProjectSummaryData {
   projectSummary: {
@@ -25,6 +26,8 @@ export default function LaunchpadProjectSummaryCard({
   launchpadId,
   launchpadName,
 }: LaunchpadProjectSummaryCardProps) {
+  const { selectedRoleIds, topPickRoleId } = useLaunchpadSelectedRoles();
+
   return (
     <Card className="bg-white p-6 h-fit xl:sticky xl:top-24">
       <div>Project Summary</div>
@@ -56,6 +59,7 @@ export default function LaunchpadProjectSummaryCard({
               trigger={
                 <Button
                   variant="default"
+                  disabled={selectedRoleIds.length === 0}
                   className="w-full rounded-lg py-5 bg-[#2F6FE4]"
                 >
                   Apply Now
@@ -63,6 +67,8 @@ export default function LaunchpadProjectSummaryCard({
               }
               launchpadId={launchpadId}
               launchpadName={launchpadName}
+              selectedRoleIds={selectedRoleIds}
+              topPickRoleId={topPickRoleId}
             />
           ) : (
             <Button
