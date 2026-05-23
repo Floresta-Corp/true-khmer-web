@@ -40,6 +40,13 @@ export const PostingFilterSchema = z.enum([
 ]);
 export type PostingFilter = z.infer<typeof PostingFilterSchema>;
 
+export const UpdateManagePostSchema = z.enum([
+  "cancel",
+  "delete",
+  "mark_complete",
+]);
+export type UpdateManagePostResponse = z.infer<typeof UpdateManagePostSchema>;
+
 export const PaginationSchema = z.object({
   hasNextPage: z.boolean(),
   hasPreviousPage: z.boolean(),

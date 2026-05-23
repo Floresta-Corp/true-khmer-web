@@ -19,6 +19,18 @@ const STATUS_STYLES: Record<ManagePostStatus, string> = {
   FILLED: "bg-blue-100 text-blue-700 border-blue-200",
 };
 
+const normalizeStatus = (status: ManagePostStatus): string => {
+  const statusMap: Record<ManagePostStatus, string> = {
+    DRAFT: "draft",
+    COMPLETED: "completed",
+    LIVE: "live",
+    IN_PROGRESS: "in progress",
+    CANCELED: "canceled",
+    FILLED: "filled",
+  };
+
+  return statusMap[status] ?? status.toLowerCase().replace("_", " ");
+};
 const SOURCE_TYPE_TO_PATH: Record<SourceType, string> = {
   PROJECT: "projects",
   VOLUNTEER: "volunteer",
@@ -53,7 +65,11 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
         onClick={() => navigate(cardHref)}
         className="flex flex-col h-full bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 hover:shadow-xl hover:shadow-gray-200/40 transition-all duration-300 relative group cursor-pointer"
       >
-        <ManagePostOption />
+        {/* <ManagePostOption
+          status={posting.status}
+          sourceType={posting.sourceType}
+          postingId={posting.id}
+        /> */}
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
@@ -81,7 +97,7 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
               STATUS_STYLES[posting.status],
             )}
           >
-            {posting.status}
+            {normalizeStatus(posting.status)}
           </span>
         </div>
 

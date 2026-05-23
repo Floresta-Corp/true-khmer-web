@@ -13,10 +13,13 @@ import ManagePostingDetailTable from "../section/posting-detail-table";
 import { formatDate } from "~/features/events/lib/event-formatters";
 import type {
   ManagePostStatus,
+  PostingFilter,
   PostingType,
+  SourceType,
 } from "~/services/manage-post/types";
 import { cn } from "~/lib/utils";
 import BackToButton from "~/components/back-to-button";
+import ManagePostOption from "../dropdown/manage-post-option";
 
 const STATUS_STYLES: Record<ManagePostStatus, string> = {
   LIVE: "bg-blue-100 text-blue-700 border-blue-200",
@@ -31,7 +34,6 @@ export default function ManagePostingDetailPage() {
   const { postDetail } = useLoaderData<typeof loader>();
   const { sourceType, id } = useParams();
   const sourceTypeRoute = sourceType === "projects" ? "launchpad" : "volunteer";
-  console.log(id);
   const editRoute = `/${sourceTypeRoute}/edit/${id}`;
   return (
     <div className="max-w-7xl w-full mx-auto max-h-dvh">
@@ -93,23 +95,28 @@ export default function ManagePostingDetailPage() {
           </div>
 
           {/* Right: actions */}
-          <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="flex items-center gap-3 w-full sm:w-auto shrink-0 md:self-start">
+            {/* Edit Button */}
             <Link
               to={editRoute}
-              className="flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-brand-blue/20 hover:scale-[1.02] active:scale-95 transition-all w-full sm:w-auto whitespace-nowrap"
+              className="flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-brand-blue/20 hover:scale-[1.02] active:scale-95 transition-all w-full sm:w-auto whitespace-nowrap h-11"
             >
               <Pencil size={18} />
               Edit Posting
             </Link>
-            <div>
-              <button className="p-3 border border-gray-200 dark:border-slate-800 rounded-xl text-gray-400 hover:text-brand-blue hover:text-blue-600 hover:border-blue-600 transition-all flex items-center justify-center">
-                <Share2 size={20} />
-              </button>
-            </div>
 
-            <button className="p-3 border border-gray-200 hover:border-blue-600 rounded-xl transition-all flex items-center justify-center text-gray-400 hover:text-blue-600">
-              <MoreHorizontal size={20} />
+            {/* Share Button */}
+            <button className="h-11 w-11 border border-gray-200 dark:border-slate-800 rounded-xl text-gray-400 hover:text-blue-600 hover:border-blue-600 transition-all flex items-center justify-center shrink-0 bg-white dark:bg-slate-900">
+              <Share2 size={20} />
             </button>
+
+            <div className="shrink-0 h-11 w-11 relative">
+              <ManagePostOption
+                status={postDetail?.posting?.status as ManagePostStatus}
+                sourceType={postDetail?.posting?.sourceType as SourceType}
+                postingId={postDetail?.posting?.id ?? ""}
+              />
+            </div>
           </div>
         </div>
 

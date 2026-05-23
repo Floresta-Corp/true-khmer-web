@@ -83,7 +83,6 @@ export default function ApplicantActionButton({
               className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-green-600 cursor-pointer focus:text-green-600 focus:bg-green-50"
               onClick={(e) => handleAction(e, "approve")}
             >
-              <ThumbsUp size={14} />
               Approve
             </DropdownMenuItem>
             <DropdownMenuItem

@@ -55,9 +55,18 @@ export default function SavedItemsGrid({
     [navigate],
   );
 
+  const visibleForums =
+    activeFilter === "all" || activeFilter === "forum" ? savedForums : [];
+  const visibleVolunteers =
+    activeFilter === "all" || activeFilter === "volunteer"
+      ? savedVolunteers
+      : [];
+  const visibleLaunchpads =
+    activeFilter === "all" || activeFilter === "launchpad"
+      ? savedLaunchpads
+      : [];
   const totalItems =
-    savedForums.length + savedVolunteers.length + savedLaunchpads.length;
-
+    visibleForums.length + visibleVolunteers.length + visibleLaunchpads.length;
   return (
     <AnimatePresence mode="popLayout" initial={false}>
       {totalItems === 0 ? (
@@ -74,13 +83,12 @@ export default function SavedItemsGrid({
             visible: { transition: { staggerChildren: 0.06 } },
           }}
         >
-          {savedForums.map((question) => (
+          {visibleForums.map((question) => (
             <motion.div key={`forum-${question.id}`}>
               <QuestionCard question={question} categories={categories} />
             </motion.div>
           ))}
-
-          {savedVolunteers.map((opportunity) => (
+          {visibleVolunteers.map((opportunity) => (
             <motion.div key={`volunteer-${opportunity.id}`}>
               <OpportunityCard
                 opportunity={opportunity}
@@ -88,8 +96,7 @@ export default function SavedItemsGrid({
               />
             </motion.div>
           ))}
-
-          {savedLaunchpads.map((project) => (
+          {visibleLaunchpads.map((project) => (
             <motion.div key={`launchpad-${project.id}`}>
               <LaunchpadProjectCard
                 item={project}
