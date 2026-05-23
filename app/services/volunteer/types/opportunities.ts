@@ -172,6 +172,7 @@ export const ContactInputSchema = z.object({
 export type ContactInput = z.infer<typeof ContactInputSchema>;
 
 export const RoleInputSchema = z.object({
+  id: z.string().optional(),
   title: z.string(),
   capacity: z.number(),
   responsibilities: z.array(z.string()).min(1).optional(),

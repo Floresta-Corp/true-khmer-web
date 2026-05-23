@@ -1,10 +1,10 @@
-import { managePostDetailLoader } from "~/routes/api/manage-post/manage-post-detail/post-detail.loader";
-import PostingDetailPage from "../components/pages/manage-post-page-detail";
-import { manageApplicantAction } from "~/routes/api/manage-post/manage-post-detail/manage-applicants.action";
+import ManagePostingDetailPage from "../components/pages/manage-post-page-detail";
+import { managePostDetailLoader } from "~/routes/api/manage-post/manage-post-detail/manage-post-detail.loader";
+import { managePostDetailAction } from "~/routes/api/manage-post/manage-post-detail/manage-post-detail.action";
 
 export const loader = managePostDetailLoader;
-export const action = manageApplicantAction;
+export const action = managePostDetailAction;
 
 export default function ManagePostDetailPage() {
-  return <PostingDetailPage />;
+  return <ManagePostingDetailPage />;
 }
