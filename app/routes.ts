@@ -30,6 +30,10 @@ export default [
         "volunteer/detail/:id",
         "features/volunteer/routes/volunteer.$id.tsx",
       ),
+      route(
+        "volunteer/edit/:id",
+        "features/volunteer/routes/volunteer.edit.$id.tsx",
+      ),
       route("poc", "features/poc/routes/poc.tsx"),
       route("poc/detail/:id", "features/poc/routes/poc.$id.tsx"),
       route("launchpad", "features/launchpad/routes/launchpad.tsx"),
@@ -56,7 +60,7 @@ export default [
       route("workspace", "features/workspace/routes/workspace.tsx"),
       route("manage-post", "features/manage-post/routes/manage-post.tsx"),
       route(
-        "manage-post/:sourceType/:postingId",
+        "manage-post/:sourceType/:id",
         "features/manage-post/routes/manage-post.$sourceType.$id.tsx",
       ),
     ]),

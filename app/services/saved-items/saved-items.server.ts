@@ -1,24 +1,18 @@
 import { apiRequestWithSession } from "~/lib/server/api-client.server";
-import {
-  UnsaveVolunteerOpportunity,
-  SaveVolunteerOpportunity,
-} from "~/services/volunteer/server/volunteer.opportunities.server";
-import {
-  addSaveQuestion,
-  deleteSaveQuestion,
-} from "~/services/forum/server/forum-question.server";
-import {
-  saveLaunchpad,
-  unsaveLaunchpad,
-} from "~/services/launchpad/server/launchpad.opportunities.server";
-import type { Question } from "~/services/forum/forum-types";
-import type { Opportunity } from "~/services/volunteer/volunteer-types";
-import type { LaunchpadOpportunity } from "~/services/launchpad/types";
+
 import type {
+  FilterSavedItem,
+  GetSavedItemsResponse,
   GetSavedLaunchpadOpportunitiesResponse,
   GetSavedVolunteerOpportunitiesResponse,
   GetSaveForumQuestionResponse,
 } from "./saved-items-types";
+
+export interface SavedItemsParams {
+  filter?: FilterSavedItem;
+  page?: number;
+  limit?: number;
+}
 
 export async function getSavedForums(request: Request) {
   return await apiRequestWithSession<GetSaveForumQuestionResponse>(
@@ -44,58 +38,23 @@ export async function getSavedLaunchpads(request: Request) {
   );
 }
 
-export async function getSavedItems(request: Request, type?: string) {
-  let forums: Question[] = [];
-  let volunteers: Opportunity[] = [];
-  let launchpads: LaunchpadOpportunity[] = [];
-  if (type) {
-    switch (type) {
-      case "forum":
-        const forumResult = await getSavedForums(request);
-        forums = forumResult.data.questions;
-
-      case "volunteer":
-        const volunteerResult = await getSavedVolunteers(request);
-        volunteers = volunteerResult.data.opportunities;
-
-      case "launchpad":
-        const launchpadResult = await getSavedLaunchpads(request);
-        launchpads = launchpadResult.data.launchpads;
-
-      case "all":
-        const forumResultAll = await getSavedForums(request);
-        const volunteerResultAll = await getSavedVolunteers(request);
-        const launchpadResultAll = await getSavedLaunchpads(request);
-        forums = forumResultAll.data.questions;
-        volunteers = volunteerResultAll.data.opportunities;
-        launchpads = launchpadResultAll.data.launchpads;
-      default:
-        break;
-    }
-  }
-  return { forums, volunteers, launchpads };
-}
-
-export async function setSavedItem(
+export async function getSavedItems(
   request: Request,
-  type: "forum" | "volunteer" | "launchpad",
-  id: string,
-  intent: "save" | "unsave",
+  params: SavedItemsParams,
 ) {
-  if (type === "forum") {
-    return intent === "save"
-      ? addSaveQuestion(request, id)
-      : deleteSaveQuestion(request, id);
-  }
-  if (type === "volunteer") {
-    return intent === "save"
-      ? SaveVolunteerOpportunity(request, id)
-      : UnsaveVolunteerOpportunity(request, id);
-  }
-  if (type === "launchpad") {
-    return intent === "save"
-      ? saveLaunchpad(request, id)
-      : unsaveLaunchpad(request, id);
-  }
-  throw new Response("Unsupported saved item type", { status: 400 });
+  const queryParams = new URLSearchParams();
+  if (params.filter) queryParams.set("filter", params.filter);
+  if (params.page !== undefined)
+    queryParams.set("page", params.page.toString());
+  if (params.limit !== undefined)
+    queryParams.set("limit", params.limit.toString());
+
+  const result = await apiRequestWithSession<GetSavedItemsResponse>(
+    request,
+    `/me/saved?${queryParams.toString()}`,
+    {
+      method: "GET",
+    },
+  );
+  return result;
 }

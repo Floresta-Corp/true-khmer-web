@@ -1,28 +1,55 @@
 import { useLoaderData, useSearchParams } from "react-router";
-import type { FilterId } from "../saved-item-filter";
-import SavedItemsGrid from "../saved-items-gride";
 import SavedItemsSidebar from "../saved-items-sidebar";
 import type { loader } from "../../routes/saved-items";
+import type { FilterId } from "../saved-item-filter";
+import type { Question } from "~/services/forum/forum-types";
+import type { Opportunity } from "~/services/volunteer/volunteer-types";
+import type { LaunchpadOpportunity } from "~/services/launchpad/types/project";
+import SavedItemsGrid from "../saved-items-gride";
+
+const VALID_FILTERS: FilterId[] = [
+  "all",
+  "forum",
+  "volunteer",
+  "launchpad",
+  "event",
+];
 
 export default function SaveItemPage() {
-  const { forums, volunteers, launchpads } = useLoaderData<typeof loader>();
+  const { saveItem } = useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const typeParam = searchParams.get("type");
-  const allowed: FilterId[] = [
-    "all",
-    "forum",
-    "volunteer",
-    "launchpad",
-    "event",
-  ];
-  const activeFilter: FilterId =
-    typeParam && allowed.includes(typeParam as FilterId)
-      ? (typeParam as FilterId)
-      : "all";
+
+  // 1. Clean & safe filter extraction
+  const rawFilter = searchParams.get("filter");
+  const activeFilter = VALID_FILTERS.includes(rawFilter as FilterId)
+    ? (rawFilter as FilterId)
+    : "all";
 
   const handleFilterChange = (id: FilterId) => {
-    setSearchParams({ type: id }, { replace: true });
+    const params = new URLSearchParams(searchParams);
+    if (id === "all") {
+      params.delete("filter");
+    } else {
+      params.set("filter", id);
+    }
+    setSearchParams(params, { replace: true });
   };
+
+  // 2. Single-pass categorization (No more triple .filter().map() loops)
+  const forums: Question[] = [];
+  const volunteers: Opportunity[] = [];
+  const launchpads: LaunchpadOpportunity[] = [];
+
+  for (const saved of saveItem) {
+    if (saved.type === "forum") {
+      // Cast to unknown first to clear the slate for TypeScript
+      forums.push(saved.item as unknown as Question);
+    } else if (saved.type === "volunteer") {
+      volunteers.push(saved.item as unknown as Opportunity);
+    } else if (saved.type === "project") {
+      launchpads.push(saved.item as unknown as LaunchpadOpportunity);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -32,7 +59,7 @@ export default function SaveItemPage() {
             activeFilter={activeFilter}
             onFilterChange={handleFilterChange}
             counts={{
-              all: forums.length + volunteers.length + launchpads.length,
+              all: saveItem.length,
               forum: forums.length,
               event: 0,
               volunteer: volunteers.length,

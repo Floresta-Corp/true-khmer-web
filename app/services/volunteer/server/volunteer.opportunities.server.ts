@@ -116,6 +116,21 @@ export async function getOpportunityById(
   }
 }
 
+export async function updateVolunteerOpportunity(
+  request: Request,
+  id: string,
+  input: VolunteerOpportunityInput,
+) {
+  const body = VolunteerOpportunityInputSchema.parse(input);
+  return await apiRequestWithSession<
+    CreateVolunteerOpportunityResponse,
+    VolunteerOpportunityInput
+  >(request, `/volunteer/opportunities/${id}`, {
+    method: "PATCH",
+    body,
+  });
+}
+
 export async function createVolunteerOpportunity(
   request: Request,
   input: VolunteerOpportunityInput,

@@ -25,6 +25,7 @@ function EmptyState({ activeFilter }: { activeFilter: FilterId }) {
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
       className="rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-16 text-center"
     >
       <Tag className="mx-auto mb-4 size-10 text-slate-300" />
@@ -43,64 +44,44 @@ export default function SavedItemsGrid({
   savedForums,
   savedVolunteers,
   savedLaunchpads,
-  categories,
+  categories = [],
 }: SavedGridProps) {
   const navigate = useNavigate();
+
   const onOpenOpportunity = useCallback(
     (item: LaunchpadOpportunity) => {
       navigate(`/launchpad/detail/${item.id}`);
     },
     [navigate],
   );
-  const showForum = activeFilter === "all" || activeFilter === "forum";
-  const showVolunteer = activeFilter === "all" || activeFilter === "volunteer";
-  const showLaunchpad = activeFilter === "all" || activeFilter === "launchpad";
-  const visibleCount =
-    (showForum ? savedForums.length : 0) +
-    (showVolunteer ? savedVolunteers.length : 0) +
-    (showLaunchpad ? savedLaunchpads.length : 0);
 
-  if (visibleCount === 0) {
-    return <EmptyState activeFilter={activeFilter} />;
-  }
+  const totalItems =
+    savedForums.length + savedVolunteers.length + savedLaunchpads.length;
 
   return (
-    <AnimatePresence mode="popLayout">
-      <motion.div
-        key={activeFilter}
-        className="grid grid-cols-1 md:grid-cols-2 gap-6 xl:gap-8"
-        initial="hidden"
-        animate="visible"
-        exit="hidden"
-        variants={{
-          hidden: {},
-          visible: { transition: { staggerChildren: 0.06 } },
-        }}
-      >
-        {showForum &&
-          savedForums.map((question) => (
-            <motion.div
-              key={`forum-${question.id}`}
-              variants={{
-                hidden: { opacity: 0, y: 16 },
-                visible: { opacity: 1, y: 0 },
-              }}
-              transition={{ duration: 0.22, ease: "easeOut" }}
-            >
-              <QuestionCard question={question} categories={categories ?? []} />
+    <AnimatePresence mode="popLayout" initial={false}>
+      {totalItems === 0 ? (
+        <EmptyState key="empty-state" activeFilter={activeFilter} />
+      ) : (
+        <motion.div
+          key="grid-content"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 xl:gap-8"
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.06 } },
+          }}
+        >
+          {savedForums.map((question) => (
+            <motion.div key={`forum-${question.id}`}>
+              <QuestionCard question={question} categories={categories} />
             </motion.div>
           ))}
 
-        {showVolunteer &&
-          savedVolunteers.map((opportunity) => (
-            <motion.div
-              key={`volunteer-${opportunity.id}`}
-              variants={{
-                hidden: { opacity: 0, y: 16 },
-                visible: { opacity: 1, y: 0 },
-              }}
-              transition={{ duration: 0.22, ease: "easeOut" }}
-            >
+          {savedVolunteers.map((opportunity) => (
+            <motion.div key={`volunteer-${opportunity.id}`}>
               <OpportunityCard
                 opportunity={opportunity}
                 onMutationComplete={() => {}}
@@ -108,24 +89,16 @@ export default function SavedItemsGrid({
             </motion.div>
           ))}
 
-        {showLaunchpad &&
-          savedLaunchpads.map((project) => (
-            <motion.div
-              key={`launchpad-${project.id}`}
-              variants={{
-                hidden: { opacity: 0, y: 16 },
-                visible: { opacity: 1, y: 0 },
-              }}
-              transition={{ duration: 0.22, ease: "easeOut" }}
-            >
+          {savedLaunchpads.map((project) => (
+            <motion.div key={`launchpad-${project.id}`}>
               <LaunchpadProjectCard
-                key={project.id}
                 item={project}
                 onOpenOpportunity={onOpenOpportunity}
               />
             </motion.div>
           ))}
-      </motion.div>
+        </motion.div>
+      )}
     </AnimatePresence>
   );
 }

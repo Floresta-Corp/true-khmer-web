@@ -1,4 +1,4 @@
-import { useLoaderData } from "react-router";
+import { Link, useLoaderData, useParams } from "react-router";
 import {
   Briefcase,
   CalendarRange,
@@ -27,9 +27,12 @@ const STATUS_STYLES: Record<ManagePostStatus, string> = {
   FILLED: "bg-blue-100 text-blue-700 border-blue-200",
 };
 
-export default function PostingDetailPage() {
+export default function ManagePostingDetailPage() {
   const { postDetail } = useLoaderData<typeof loader>();
-
+  const { sourceType, id } = useParams();
+  const sourceTypeRoute = sourceType === "projects" ? "launchpad" : "volunteer";
+  console.log(id);
+  const editRoute = `/${sourceTypeRoute}/edit/${id}`;
   return (
     <div className="max-w-7xl w-full mx-auto max-h-dvh">
       <div className="p-4 sm:p-8 md:p-10">
@@ -89,22 +92,24 @@ export default function PostingDetailPage() {
             </div>
           </div>
 
-          {/* Right: Actions block */}
-          {/* Mobile: Full-width stacked edit button, icons row below it. Desktop: Compact inline row */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto shrink-0">
-            <button className="flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-600/20 hover:scale-[1.02] active:scale-95 transition-all w-full sm:w-auto whitespace-nowrap order-1 sm:order-0">
+          {/* Right: actions */}
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <Link
+              to={editRoute}
+              className="flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-brand-blue/20 hover:scale-[1.02] active:scale-95 transition-all w-full sm:w-auto whitespace-nowrap"
+            >
               <Pencil size={18} />
               Edit Posting
-            </button>
-
-            <div className="flex items-center gap-3 w-full sm:w-auto justify-end sm:justify-start">
-              <button className="p-3 border border-gray-200 dark:border-slate-800 rounded-xl text-gray-400 hover:text-blue-600 hover:border-blue-600 transition-all flex items-center justify-center flex-1 sm:flex-none">
+            </Link>
+            <div>
+              <button className="p-3 border border-gray-200 dark:border-slate-800 rounded-xl text-gray-400 hover:text-brand-blue hover:text-blue-600 hover:border-blue-600 transition-all flex items-center justify-center">
                 <Share2 size={20} />
               </button>
-              <button className="p-3 border border-gray-200 hover:border-blue-600 rounded-xl transition-all flex items-center justify-center text-gray-400 hover:text-blue-600 flex-1 sm:flex-none">
-                <MoreHorizontal size={20} />
-              </button>
             </div>
+
+            <button className="p-3 border border-gray-200 hover:border-blue-600 rounded-xl transition-all flex items-center justify-center text-gray-400 hover:text-blue-600">
+              <MoreHorizontal size={20} />
+            </button>
           </div>
         </div>
 

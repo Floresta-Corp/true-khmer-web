@@ -3,7 +3,6 @@ import EmptyPost from "../components/empty-post";
 import OpportunityCover from "../components/sections/opportunity-cover";
 import OpportunityDetailsGrid from "../components/sections/opportunity-details-grid";
 import ProjectOverviewSection from "../components/sections/project-overview-section";
-import AvailableRolesCard from "../components/sections/available-roles-card";
 import BenefitsSection from "../components/sections/benefit-section";
 import CommunityImpactSection from "../components/sections/project-impact-section";
 import OrganizerCard from "../components/sections/organizer-card";
@@ -34,9 +33,9 @@ import CommitmentSection from "../components/sections/commitment-section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import AvailableRolesSection from "../components/sections/available-role-section";
 
-interface VolunteerDetailPageProps { }
+interface VolunteerDetailPageProps {}
 
-export function VolunteerDetailPage({ }: VolunteerDetailPageProps) {
+export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
   const { userId, volunteer } = useLoaderData<typeof loader>();
   const prefersReducedMotion = useReducedMotion();
   const fetcher = useFetcher();
