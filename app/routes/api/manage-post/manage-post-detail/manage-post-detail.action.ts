@@ -8,14 +8,14 @@ import {
   type PostSourceType,
 } from "~/services/manage-post/types";
 
-export async function manageApplicantAction({
+export async function managePostDetailAction({
   request,
   params,
 }: Route.ActionArgs) {
   await requireAuthenticatedUser(request);
 
   const sourceType = params.sourceType;
-  const postingId = params.postingId;
+  const postingId = params.id;
 
   const formData = await request.formData();
   const applicationId = String(formData.get("applicationId") ?? "").trim();

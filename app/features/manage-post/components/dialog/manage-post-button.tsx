@@ -73,7 +73,7 @@ export default function CreateOpportunityDialog({
           <Button
             disabled={!selected}
             onClick={handleConfirm}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 text-white px-8 py-7 rounded-2xl font-bold text-base shadow-lg shadow-blue-600/20 transition-all active:scale-95"
+            className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 text-white px-8 py-7 rounded-2xl font-bold text-base shadow-blue-600/20 transition-all active:scale-95"
           >
             Confirm and Continue to Form
           </Button>
