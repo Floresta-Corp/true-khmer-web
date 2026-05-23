@@ -16,10 +16,9 @@ const VALID_FILTERS: FilterId[] = [
 ];
 
 export default function SaveItemPage() {
-  const { saveItem } = useLoaderData<typeof loader>();
+  const { saveItem, count } = useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // 1. Clean & safe filter extraction
   const rawFilter = searchParams.get("filter");
   const activeFilter = VALID_FILTERS.includes(rawFilter as FilterId)
     ? (rawFilter as FilterId)
@@ -35,14 +34,12 @@ export default function SaveItemPage() {
     setSearchParams(params, { replace: true });
   };
 
-  // 2. Single-pass categorization (No more triple .filter().map() loops)
   const forums: Question[] = [];
   const volunteers: Opportunity[] = [];
   const launchpads: LaunchpadOpportunity[] = [];
 
   for (const saved of saveItem) {
     if (saved.type === "forum") {
-      // Cast to unknown first to clear the slate for TypeScript
       forums.push(saved.item as unknown as Question);
     } else if (saved.type === "volunteer") {
       volunteers.push(saved.item as unknown as Opportunity);
@@ -59,11 +56,11 @@ export default function SaveItemPage() {
             activeFilter={activeFilter}
             onFilterChange={handleFilterChange}
             counts={{
-              all: saveItem.length,
-              forum: forums.length,
+              all: count?.all,
+              forum: count?.forum,
               event: 0,
-              volunteer: volunteers.length,
-              launchpad: launchpads.length,
+              volunteer: count?.volunteer,
+              launchpad: count?.project, // backend uses "project", sidebar uses "launchpad"
             }}
           />
 

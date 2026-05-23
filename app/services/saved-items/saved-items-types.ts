@@ -136,6 +136,14 @@ export const ItemItemSchema = z.object({
 });
 export type ItemItem = z.infer<typeof ItemItemSchema>;
 
+export const CountSaveItemSchema = z.object({
+  all: z.number(),
+  forum: z.number(),
+  project: z.number(),
+  volunteer: z.number(),
+});
+export type CountSavedItemResponse = z.infer<typeof CountSaveItemSchema>;
+
 export const ItemElementSchema = z.object({
   item: ItemItemSchema,
   savedAt: z.coerce.date(),
@@ -144,6 +152,7 @@ export const ItemElementSchema = z.object({
 export type ItemElement = z.infer<typeof ItemElementSchema>;
 
 export const GetSavedItemsSchema = z.object({
+  counts: CountSaveItemSchema,
   items: z.array(ItemElementSchema),
   ok: z.boolean(),
   pagination: PaginationSchema,

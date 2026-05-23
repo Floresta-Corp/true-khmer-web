@@ -4,7 +4,7 @@ import { getSavedItems } from "~/services/saved-items/saved-items.server";
 import type { Route } from "project-types/saved-items/routes/+types/saved-items";
 import {
   FilterSavedItemSchema,
-  type GetSavedItemsResponse,
+  type CountSavedItemResponse,
   type ItemElement,
 } from "~/services/saved-items/saved-items-types";
 import type { Pagination } from "~/services/types";
@@ -14,6 +14,7 @@ import z from "zod";
 type SavedItemsLoaderData = {
   saveItem: ItemElement[];
   userId: string | null;
+  count: CountSavedItemResponse;
   pagination: Pagination | null;
 };
 
@@ -26,6 +27,7 @@ export async function savedItemsLoader({ request }: Route.LoaderArgs) {
       saveItem: [],
       userId: null,
       pagination: null,
+      count: { all: 0, forum: 0, project: 0, volunteer: 0 },
     } satisfies SavedItemsLoaderData;
   }
 
@@ -50,6 +52,12 @@ export async function savedItemsLoader({ request }: Route.LoaderArgs) {
   return {
     saveItem: result?.data?.items ?? [],
     pagination: result?.data?.pagination ?? null,
+    count: result?.data?.counts ?? {
+      all: 0,
+      forum: 0,
+      project: 0,
+      volunteer: 0,
+    },
     userId,
   } satisfies SavedItemsLoaderData;
 }
