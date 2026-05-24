@@ -43,6 +43,7 @@ export const LaunchpadOpportunitySchema = z.object({
   city: CitySchema,
   totalRoles: z.number(),
   isSaved: z.boolean().default(false),
+  savedAt: z.coerce.date(),
 });
 
 export type LaunchpadOpportunity = z.infer<typeof LaunchpadOpportunitySchema>;

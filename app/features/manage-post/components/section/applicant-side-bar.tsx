@@ -222,9 +222,7 @@ export default function ApplicantSideBar({
                   <div className="flex flex-col gap-2">
                     {roles.map((role) => {
                       const isSelected = selectedRoleId === role.roleId;
-                      const isTopPick =
-                        applicant.topPick === role.roleId ||
-                        applicant.topPick === role.title;
+                      const isTopPick = applicant.topPick === role.roleId;
 
                       const isApproved = role.status === "APPROVED";
                       const isDeclined =

@@ -295,8 +295,6 @@ export default function VolunteerEditPage() {
       coverImageKey: coverImageValue,
     };
 
-    console.log(dataToSubmit);
-
     submitFormData.append("data", JSON.stringify(dataToSubmit));
 
     if (formData.coverImageKey?.file) {
@@ -309,8 +307,6 @@ export default function VolunteerEditPage() {
     });
     return true;
   };
-
-  console.log({ formData });
 
   return (
     <div className="min-h-screen w-full bg-white">

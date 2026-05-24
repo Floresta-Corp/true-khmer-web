@@ -13,10 +13,13 @@ export const ApplicantStatusSchema = z.enum([
 export type ApplicantStatus = z.infer<typeof ApplicantStatusSchema>;
 
 export const PostingStatusSchema = z.enum([
-  "ACTIVE",
+  // "ACTIVE",
   "DRAFT",
-  "ENDED",
+  "CANCELED",
   "FILLED",
+  "COMPLETED",
+  "IN_PROGRESS",
+  "LIVE",
 ]);
 export type PostingStatus = z.infer<typeof PostingStatusSchema>;
 
@@ -46,9 +49,16 @@ export const ApplicantStatusActionSchema = z.enum([
 
 export type ApplicantStatusAction = z.infer<typeof ApplicantStatusActionSchema>;
 
-export const PostingApplicantRange = z.enum(["today", "this_week", "all_time"]);
+export const PostingApplicantFilter = z.enum([
+  "all",
+  "new",
+  "in_review",
+  "approved",
+  "confirmed",
+  "declined",
+]);
 
-export type ApplicantRange = z.infer<typeof PostingApplicantRange>;
+export type ApplicantFilter = z.infer<typeof PostingApplicantFilter>;
 
 export const PostingSourceSchema = z.enum(["volunteer", "projects"]);
 
@@ -117,7 +127,7 @@ export const PostingSchema = z.object({
   id: z.string(),
   imageKey: z.union([z.null(), z.string()]),
   sourceType: PostingTypeSchema,
-  status: StatusSchema,
+  status: PostingStatusSchema,
   title: z.string(),
   views: z.number(),
 });
@@ -154,12 +164,12 @@ export const ApplicantSchema = z.object({
   appliedAt: z.string(),
   candidate: CandidateSchema,
   contact: ContactSchema,
-  project: ProjectSchema.nullable(),
+  project: ProjectSchema,
   roles: z.array(RoleSchema),
   status: ApplicantStatusSchema,
   topPick: z.union([z.null(), z.string()]),
   updatedAt: z.string(),
-  volunteer: VolunteerSchema.nullable(),
+  volunteer: VolunteerSchema,
 });
 export type Applicant = z.infer<typeof ApplicantSchema>;
 

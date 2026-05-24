@@ -42,7 +42,7 @@ export function OpportunityCard({
     if (opportunity.viewerSave) {
       fetcher.submit(
         { opportunityId: opportunity.id, actionType: "unsave-opportunity" },
-        { method: "DELETE" },
+        { method: "DELETE", action: "/saved-items" },
       );
     } else {
       fetcher.submit(
@@ -50,7 +50,7 @@ export function OpportunityCard({
           opportunityId: opportunity.id,
           actionType: "save-opportunity",
         },
-        { method: "POST" },
+        { method: "POST", action: "/saved-items" },
       );
     }
   };
