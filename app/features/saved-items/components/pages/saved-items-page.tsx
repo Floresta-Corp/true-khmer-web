@@ -84,8 +84,8 @@ export default function SaveItemPage() {
 
     if (lastFetchUrl.current.includes("cursor=")) {
       setSaveItem((prev) => {
-        const existing = new Set(prev.map((i) => i.item.id));
-        const newItems = data.saveItem.filter((i) => !existing.has(i.item.id));
+        const existing = new Set(prev.map((i) => `${i.type}:${i.item.id}`));
+        const newItems = data.saveItem.filter((i) => !existing.has(`${i.type}:${i.item.id}`));
         return [...prev, ...newItems];
       });
     } else {
@@ -99,6 +99,7 @@ export default function SaveItemPage() {
 
   const loadMore = useCallback(() => {
     if (fetcher.state === "loading" || !hasMore || !nextCursor) return;
+    if (activeFilter === "event") return;
 
     const params = new URLSearchParams();
     if (activeFilter !== "all") params.set("filter", activeFilter);
@@ -140,6 +141,8 @@ export default function SaveItemPage() {
     if (id !== "all") params.set("filter", id);
 
     setSearchParams(params, { replace: true, preventScrollReset: true });
+
+    if (id === "event") return;
 
     const url = `/saved-items?${params.toString()}`;
     lastFetchUrl.current = url;
