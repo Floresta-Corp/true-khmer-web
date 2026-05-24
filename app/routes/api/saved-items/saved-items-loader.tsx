@@ -39,14 +39,11 @@ export async function savedItemsLoader({ request }: Route.LoaderArgs) {
     ? FilterSavedItemSchema.safeParse(mappedFilter)
     : null;
   const filter = filterResult?.success ? filterResult.data : undefined;
-  const pageParam = url.searchParams.get("page");
-  const page = pageParam
-    ? z.coerce.number().int().positive().safeParse(pageParam).data
-    : undefined;
+  const cursor = url.searchParams.get("cursor") || undefined;
 
   const result = await getSavedItems(request, {
     filter,
-    page,
+    cursor,
   });
 
   return {

@@ -7,8 +7,13 @@ import type { FilterId } from "./saved-item-filter";
 import { OpportunityCard } from "~/components/opportunity-card";
 import QuestionCard from "~/features/forum/components/card/question-card";
 import LaunchpadProjectCard from "~/features/launchpad/components/card/launchpad-project-card";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router";
+
+type SavedCardItem =
+  | { type: "forum"; data: Question }
+  | { type: "volunteer"; data: Opportunity }
+  | { type: "launchpad"; data: LaunchpadOpportunity };
 
 interface SavedGridProps {
   activeFilter: FilterId;
@@ -16,18 +21,47 @@ interface SavedGridProps {
   savedVolunteers: Opportunity[];
   savedLaunchpads: LaunchpadOpportunity[];
   categories?: CategoriesPicker[];
+  isLoading?: boolean;
+}
+
+const itemAnim = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, scale: 0.95, transition: { duration: 0.15 } },
+  transition: { duration: 0.2, ease: "easeOut" },
+} as const;
+
+function SkeletonCard() {
+  return (
+    <div className="animate-pulse rounded-2xl border border-slate-100 bg-white p-5">
+      <div className="mb-3 h-40 rounded-xl bg-slate-100" />
+      <div className="mb-2 h-4 w-3/4 rounded bg-slate-100" />
+      <div className="mb-4 h-3 w-full rounded bg-slate-100" />
+      <div className="flex gap-2">
+        <div className="h-6 w-16 rounded-full bg-slate-100" />
+        <div className="h-6 w-16 rounded-full bg-slate-100" />
+      </div>
+    </div>
+  );
+}
+
+function SkeletonGrid() {
+  return (
+    <div className="columns-2 gap-6">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={`skel-${i}`} className="mb-6 break-inside-avoid">
+          <SkeletonCard />
+        </div>
+      ))}
+    </div>
+  );
 }
 
 function EmptyState({ activeFilter }: { activeFilter: FilterId }) {
   const label = activeFilter === "all" ? "items" : activeFilter;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      className="rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-16 text-center"
-    >
+    <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-16 text-center">
       <Tag className="mx-auto mb-4 size-10 text-slate-300" />
       <p className="text-base font-semibold text-slate-700">
         No saved {label} yet.
@@ -35,8 +69,37 @@ function EmptyState({ activeFilter }: { activeFilter: FilterId }) {
       <p className="mt-2 text-sm text-slate-400">
         Saved content will appear here after you bookmark it.
       </p>
-    </motion.div>
+    </div>
   );
+}
+
+function CardRenderer({
+  item,
+  categories,
+  onOpenOpportunity,
+}: {
+  item: SavedCardItem;
+  categories: CategoriesPicker[];
+  onOpenOpportunity: (item: LaunchpadOpportunity) => void;
+}) {
+  switch (item.type) {
+    case "forum":
+      return <QuestionCard question={item.data} categories={categories} />;
+    case "volunteer":
+      return (
+        <OpportunityCard
+          opportunity={item.data}
+          onMutationComplete={() => {}}
+        />
+      );
+    case "launchpad":
+      return (
+        <LaunchpadProjectCard
+          item={item.data}
+          onOpenOpportunity={onOpenOpportunity}
+        />
+      );
+  }
 }
 
 export default function SavedItemsGrid({
@@ -45,6 +108,7 @@ export default function SavedItemsGrid({
   savedVolunteers,
   savedLaunchpads,
   categories = [],
+  isLoading = false,
 }: SavedGridProps) {
   const navigate = useNavigate();
 
@@ -55,57 +119,61 @@ export default function SavedItemsGrid({
     [navigate],
   );
 
-  const visibleForums =
-    activeFilter === "all" || activeFilter === "forum" ? savedForums : [];
-  const visibleVolunteers =
-    activeFilter === "all" || activeFilter === "volunteer"
-      ? savedVolunteers
-      : [];
-  const visibleLaunchpads =
-    activeFilter === "all" || activeFilter === "launchpad"
-      ? savedLaunchpads
-      : [];
-  const totalItems =
-    visibleForums.length + visibleVolunteers.length + visibleLaunchpads.length;
+  const allItems = useMemo(() => {
+    const items: SavedCardItem[] = [];
+
+    if (activeFilter === "all" || activeFilter === "forum") {
+      savedForums.forEach((q) => items.push({ type: "forum", data: q }));
+    }
+    if (activeFilter === "all" || activeFilter === "volunteer") {
+      savedVolunteers.forEach((o) =>
+        items.push({ type: "volunteer", data: o }),
+      );
+    }
+    if (activeFilter === "all" || activeFilter === "launchpad") {
+      savedLaunchpads.forEach((p) =>
+        items.push({ type: "launchpad", data: p }),
+      );
+    }
+
+    return items;
+  }, [activeFilter, savedForums, savedVolunteers, savedLaunchpads]);
+
+  if (isLoading) {
+    return <SkeletonGrid />;
+  }
+
+  if (allItems.length === 0) {
+    return (
+      <motion.div
+        layout
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+      >
+        <EmptyState activeFilter={activeFilter} />
+      </motion.div>
+    );
+  }
+
   return (
     <AnimatePresence mode="popLayout" initial={false}>
-      {totalItems === 0 ? (
-        <EmptyState key="empty-state" activeFilter={activeFilter} />
-      ) : (
-        <motion.div
-          key="grid-content"
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 xl:gap-8"
-          initial="hidden"
-          animate="visible"
-          exit="hidden"
-          variants={{
-            hidden: {},
-            visible: { transition: { staggerChildren: 0.06 } },
-          }}
-        >
-          {visibleForums.map((question) => (
-            <motion.div key={`forum-${question.id}`}>
-              <QuestionCard question={question} categories={categories} />
-            </motion.div>
-          ))}
-          {visibleVolunteers.map((opportunity) => (
-            <motion.div key={`volunteer-${opportunity.id}`}>
-              <OpportunityCard
-                opportunity={opportunity}
-                onMutationComplete={() => {}}
-              />
-            </motion.div>
-          ))}
-          {visibleLaunchpads.map((project) => (
-            <motion.div key={`launchpad-${project.id}`}>
-              <LaunchpadProjectCard
-                item={project}
-                onOpenOpportunity={onOpenOpportunity}
-              />
-            </motion.div>
-          ))}
-        </motion.div>
-      )}
+      <motion.div layout className="columns-2 gap-6">
+        {allItems.map((item) => (
+          <motion.div
+            key={`${item.type}-${item.data.id}`}
+            layout
+            {...itemAnim}
+            className="mb-6 break-inside-avoid"
+          >
+            <CardRenderer
+              item={item}
+              categories={categories}
+              onOpenOpportunity={onOpenOpportunity}
+            />
+          </motion.div>
+        ))}
+      </motion.div>
     </AnimatePresence>
   );
 }

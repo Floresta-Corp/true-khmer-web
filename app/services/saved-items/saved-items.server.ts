@@ -10,7 +10,7 @@ import type {
 
 export interface SavedItemsParams {
   filter?: FilterSavedItem;
-  page?: number;
+  cursor?: string;
   limit?: number;
 }
 
@@ -44,8 +44,7 @@ export async function getSavedItems(
 ) {
   const queryParams = new URLSearchParams();
   if (params.filter) queryParams.set("filter", params.filter);
-  if (params.page !== undefined)
-    queryParams.set("page", params.page.toString());
+  if (params.cursor) queryParams.set("cursor", params.cursor);
   if (params.limit !== undefined)
     queryParams.set("limit", params.limit.toString());
 
