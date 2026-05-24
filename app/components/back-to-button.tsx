@@ -11,14 +11,13 @@ export default function BackToButton({ text, to }: BackToButtonProps) {
   const navigate = useNavigate();
 
   const goBack = () => {
-    if (to) {
-      navigate(to);
+    if (window.history.length > 1) {
+      navigate(-1);
     } else {
-      if (window.history.length > 1) {
-        navigate(-1);
-      }
+      navigate(to);
     }
   };
+
   return (
     <Button
       variant="link"

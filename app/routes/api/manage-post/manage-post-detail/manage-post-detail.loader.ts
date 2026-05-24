@@ -4,7 +4,7 @@ import { getUserId } from "~/lib/server/session.server";
 import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
 import { getManagePostDetail } from "~/services/manage-post/server/manage-post-detail.server";
 import {
-  PostingApplicantRange,
+  PostingApplicantFilter,
   PostingSourceSchema,
   type PostDetailPagination,
   type PostingDetail,
@@ -45,8 +45,8 @@ export async function managePostDetailLoader({
 
   const sourceType = sourceTypeResult.data;
 
-  const rangeType = url.searchParams.get("range");
-  const range = PostingApplicantRange.safeParse(rangeType).data ?? "all_time";
+  const filterType = url.searchParams.get("filter");
+  const filter = PostingApplicantFilter.safeParse(filterType).data ?? "all";
 
   const pageParam = url.searchParams.get("page");
   const page = pageParam
@@ -57,7 +57,7 @@ export async function managePostDetailLoader({
     request,
     {
       search: url.searchParams.get("search") ?? undefined,
-      range,
+      filter,
       page,
     },
     sourceType,

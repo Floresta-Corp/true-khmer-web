@@ -1,5 +1,11 @@
 import { apiRequestWithSession } from "~/lib/server/api-client.server";
-import type { ManagePostResponse, PostingFilter, PostingType } from "../types";
+import type {
+  ManagePostResponse,
+  PostingFilter,
+  PostingType,
+  PostSourceType,
+  UpdateManagePostResponse,
+} from "../types";
 
 export interface ManagePostParams {
   search?: string;
@@ -24,6 +30,23 @@ export async function myManagePost(request: Request, params: ManagePostParams) {
     `/workspace/manage-posting?${queryParams.toString()}`,
     {
       method: "GET",
+    },
+  );
+
+  return result;
+}
+
+export async function updateManagePost(
+  request: Request,
+  sourceType: PostSourceType,
+  postingId: string,
+  postingAction: UpdateManagePostResponse,
+) {
+  const result = await apiRequestWithSession<ManagePostResponse>(
+    request,
+    `/v1/workspace/manage-posting/${sourceType}/${postingId}/action/${postingAction}`,
+    {
+      method: "POST",
     },
   );
 

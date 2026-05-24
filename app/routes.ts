@@ -54,6 +54,7 @@ export default [
       "my-applications/detail/:sourceType/:id",
       "features/myspace/routes/my-application.$sourceType.$id.tsx",
     ),
+    route("saved-items", "features/saved-items/routes/saved-items.tsx"),
 
     layout("layout/workspace-layout.tsx", [
       route("workspace", "features/workspace/routes/workspace.tsx"),
