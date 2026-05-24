@@ -1,10 +1,28 @@
 import { apiRequestWithSession } from "~/lib/server/api-client.server";
 import type {
   ApplicationArchiveAction,
+  ApplicationSourceType,
   ApplicationStatusAction,
   GetMyApplicationResponse,
 } from "../types";
+import {
+  MyApplicationSourceTypeSchema,
+  MyApplicationArchiveActionSchema,
+  MyApplicationStatusActionSchema,
+  type MyApplicationSourceType,
+} from "../types/my-application-type";
 
+function normalizeMyApplicationSourceType(
+  sourceType: MyApplicationSourceType,
+) {
+  return sourceType === "project" ? "projects" : sourceType;
+}
+
+function normalizeMyApplicationArchiveAction(
+  archiveAction: ApplicationArchiveAction,
+) {
+  return MyApplicationArchiveActionSchema.parse(archiveAction);
+}
 export interface MyApplicationQueryParams {
   tab?: string;
   filter?: string;
@@ -54,10 +72,15 @@ export async function postMyApplicationChangeStatus(
   applicationId: string,
   statusAction: ApplicationStatusAction,
 ) {
+  const parsedSourceType = MyApplicationSourceTypeSchema.parse(sourceType);
+  const parsedStatusAction =
+    MyApplicationStatusActionSchema.parse(statusAction);
+  const normalizedSourceType =
+    normalizeMyApplicationSourceType(parsedSourceType);
   const url = `/my-application/${encodeURIComponent(
-    sourceType,
+    normalizedSourceType,
   )}/${encodeURIComponent(applicationId)}/change-status/${encodeURIComponent(
-    statusAction,
+    parsedStatusAction,
   )}`;
 
   const result = await apiRequestWithSession(request, url, {
@@ -72,10 +95,32 @@ export async function postMyApplicationArchiveAction(
   applicationId: string,
   archiveAction: ApplicationArchiveAction,
 ) {
-  const url = `/my-application/${encodeURIComponent(
-    sourceType,
-  )}/${encodeURIComponent(applicationId)}/archive/${encodeURIComponent(
+  const parsedSourceType = MyApplicationSourceTypeSchema.parse(sourceType);
+  return moveToArchived(
+    request,
+    parsedSourceType,
+    applicationId,
     archiveAction,
+  );
+}
+
+export async function moveToArchived(
+  request: Request,
+  sourceType: ApplicationSourceType,
+  applicationId: string,
+  archiveAction: ApplicationArchiveAction,
+) {
+  const parsedSourceType = MyApplicationSourceTypeSchema.parse(sourceType);
+  const normalizedSourceType = normalizeMyApplicationSourceType(
+    parsedSourceType,
+  );
+  const normalizedArchiveAction = normalizeMyApplicationArchiveAction(
+    archiveAction,
+  );
+  const url = `/my-application/${encodeURIComponent(
+    normalizedSourceType,
+  )}/${encodeURIComponent(applicationId)}/archive/${encodeURIComponent(
+    normalizedArchiveAction,
   )}`;
 
   const result = await apiRequestWithSession(request, url, {

@@ -56,6 +56,32 @@ export const ApplyRoleInputSchema = z.object({
 
 export type ApplyRoleInput = z.infer<typeof ApplyRoleInputSchema>;
 
+export const ApplyBatchRoleInputSchema = z.object({
+  motivation: z.string().min(5).max(2000),
+  portfolio: z
+    .preprocess((value) => {
+      if (typeof value !== "string") return value;
+      const trimmed = value.trim();
+      return trimmed.length === 0 ? undefined : trimmed;
+    }, z.string().url().max(255).optional())
+    .refine(
+      (value) => {
+        if (!value) return true;
+        return value.toLowerCase().startsWith("https://");
+      },
+      {
+        message: "Portfolio must use HTTPS",
+      },
+    ),
+  documentKeys: z.array(z.string()).max(5).default([]),
+  documentNames: z.array(z.string()).max(5).default([]),
+  topPickRoleId: z.string().regex(UUID_PATTERN).nullable(),
+  relevantExperience: z.string().min(5).max(2000),
+  launchpadRoleIds: z.array(z.string().regex(UUID_PATTERN)).min(1),
+});
+
+export type ApplyBatchRoleInput = z.infer<typeof ApplyBatchRoleInputSchema>;
+
 export const ApplyRoleResponseSchema = z
   .object({
     ok: z.boolean(),

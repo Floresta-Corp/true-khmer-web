@@ -1,7 +1,15 @@
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { useFetcher, useNavigate } from "react-router";
-import { CheckCircle2, FileText, Globe, Send, Star, User, X } from "lucide-react";
+import {
+  CheckCircle2,
+  FileText,
+  Globe,
+  Send,
+  Star,
+  User,
+  X,
+} from "lucide-react";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import {
@@ -42,6 +50,11 @@ const launchpadApplicationSchema = z.object({
     .trim()
     .min(5, "Please type at least 5 characters.")
     .max(2000, "Motivation must be 2000 characters or fewer."),
+  relevantExperience: z
+    .string()
+    .trim()
+    .min(5, "Please type at least 5 characters.")
+    .max(2000, "Relevant experience must be 2000 characters or fewer."),
   portfolioUrl: z
     .string()
     .trim()
@@ -106,6 +119,7 @@ function getErrorMessage(error: ApplyFetcherData["error"]): string {
 
 function getLaunchpadApplicationErrors(values: {
   motivation: string;
+  relevantExperience: string;
   portfolioUrl: string;
 }): LaunchpadApplicationErrors {
   const parsed = launchpadApplicationSchema.safeParse(values);
@@ -120,6 +134,10 @@ function getLaunchpadApplicationErrors(values: {
 
     if (field === "motivation" && !errors.motivation) {
       errors.motivation = issue.message;
+    }
+
+    if (field === "relevantExperience" && !errors.relevantExperience) {
+      errors.relevantExperience = issue.message;
     }
 
     if (field === "portfolioUrl" && !errors.portfolioUrl) {
@@ -143,6 +161,7 @@ export default function LaunchpadSubmitApplicationDialog({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [motivation, setMotivation] = useState("");
+  const [relevantExperience, setRelevantExperience] = useState("");
   const [portfolioUrl, setPortfolioUrl] = useState("");
   const [clientErrors, setClientErrors] = useState<LaunchpadApplicationErrors>(
     {},
@@ -151,12 +170,15 @@ export default function LaunchpadSubmitApplicationDialog({
   const [open, setOpen] = useState(false);
   const [justSubmitted, setJustSubmitted] = useState(false);
 
-  const selectedRole = roles.find((r) => r.id === topPickRoleId) ?? roles.find((r) => r.id === selectedRoleIds[0]);
+  const selectedRole =
+    roles.find((r) => r.id === topPickRoleId) ??
+    roles.find((r) => r.id === selectedRoleIds[0]);
   const isSubmitting = fetcher.state !== "idle";
   const isSuccess = justSubmitted || fetcher.data?.success === true;
   const errorMessage = getErrorMessage(fetcher.data?.error);
   const isFormValid = launchpadApplicationSchema.safeParse({
     motivation,
+    relevantExperience,
     portfolioUrl,
   }).success;
 
@@ -174,9 +196,14 @@ export default function LaunchpadSubmitApplicationDialog({
 
   function validateCurrentValues(nextValues?: {
     motivation: string;
+    relevantExperience: string;
     portfolioUrl: string;
   }) {
-    const values = nextValues ?? { motivation, portfolioUrl };
+    const values = nextValues ?? {
+      motivation,
+      relevantExperience,
+      portfolioUrl,
+    };
     const errors = getLaunchpadApplicationErrors(values);
     setClientErrors(errors);
     return errors;
@@ -234,11 +261,12 @@ export default function LaunchpadSubmitApplicationDialog({
     const formData = new FormData();
     formData.set("launchpadId", launchpadId);
     formData.set("launchpadRoleId", topPickRoleId ?? selectedRoleIds[0] ?? "");
-    formData.set("roleIds", JSON.stringify(selectedRoleIds));
+    formData.set("launchpadRoleIds", JSON.stringify(selectedRoleIds));
     if (topPickRoleId) {
       formData.set("topPickRoleId", topPickRoleId);
     }
     formData.set("motivation", motivation);
+    formData.set("relevantExperience", relevantExperience);
     if (portfolioUrl.trim()) {
       formData.set("portfolio", portfolioUrl.trim());
     }
@@ -247,7 +275,7 @@ export default function LaunchpadSubmitApplicationDialog({
     }
     fetcher.submit(formData, {
       method: "POST",
-      action: "/api/launchpad/apply",
+      action: "/api/launchpad/batch-apply",
       encType: "multipart/form-data",
     });
   }
@@ -256,6 +284,7 @@ export default function LaunchpadSubmitApplicationDialog({
     setOpen(next);
     if (!next) {
       setMotivation("");
+      setRelevantExperience("");
       setPortfolioUrl("");
       setClientErrors({});
       setDocuments([]);
@@ -366,6 +395,7 @@ export default function LaunchpadSubmitApplicationDialog({
                         ...previous,
                         motivation: getLaunchpadApplicationErrors({
                           motivation: nextValue,
+                          relevantExperience,
                           portfolioUrl,
                         }).motivation,
                       }));
@@ -381,6 +411,40 @@ export default function LaunchpadSubmitApplicationDialog({
                 {clientErrors.motivation && (
                   <p className="text-xs text-red-500">
                     {clientErrors.motivation}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-xs leading-4.5 font-medium text-[#364153]">
+                  Relevant Experience
+                </p>
+                <Textarea
+                  value={relevantExperience}
+                  onChange={(e) => {
+                    const nextValue = e.target.value.slice(0, 2000);
+                    setRelevantExperience(nextValue);
+                    if (clientErrors.relevantExperience) {
+                      setClientErrors((previous) => ({
+                        ...previous,
+                        relevantExperience: getLaunchpadApplicationErrors({
+                          motivation,
+                          relevantExperience: nextValue,
+                          portfolioUrl,
+                        }).relevantExperience,
+                      }));
+                    }
+                  }}
+                  onBlur={() => validateCurrentValues()}
+                  placeholder="Tell us about the experience that makes you a strong fit for these roles."
+                  required
+                  rows={3}
+                  aria-invalid={Boolean(clientErrors.relevantExperience)}
+                  className="w-full resize-none rounded-lg border-0 bg-[#F8FAFC] px-3 py-2.5 text-xs text-[#344256] outline-none placeholder:text-[#9EACC0] focus:ring-0"
+                />
+                {clientErrors.relevantExperience && (
+                  <p className="text-xs text-red-500">
+                    {clientErrors.relevantExperience}
                   </p>
                 )}
               </div>
@@ -406,6 +470,7 @@ export default function LaunchpadSubmitApplicationDialog({
                           ...previous,
                           portfolioUrl: getLaunchpadApplicationErrors({
                             motivation,
+                            relevantExperience,
                             portfolioUrl: nextValue,
                           }).portfolioUrl,
                         }));
@@ -499,7 +564,9 @@ export default function LaunchpadSubmitApplicationDialog({
                 </DialogClose>
                 <Button
                   type="submit"
-                  disabled={isSubmitting || selectedRoleIds.length === 0 || !isFormValid}
+                  disabled={
+                    isSubmitting || selectedRoleIds.length === 0 || !isFormValid
+                  }
                   className="h-10 rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white hover:bg-[#245cc2] disabled:opacity-50 gap-2"
                 >
                   <Send className="size-4" />

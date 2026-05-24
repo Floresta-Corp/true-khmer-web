@@ -46,5 +46,32 @@ export type GetMyApplicationResponse = z.infer<
   typeof GetMyApplicationResponseSchema
 >;
 
-export type ApplicationStatusAction = "confirm" | "decline" | "withdraw";
-export type ApplicationArchiveAction = "archive" | "unarchive";
+export const MyApplicationSourceTypeSchema = z.enum([
+  "volunteer",
+  "project",
+  "projects",
+]);
+export type MyApplicationSourceType = z.infer<
+  typeof MyApplicationSourceTypeSchema
+>;
+
+export const MyApplicationStatusActionSchema = z.enum([
+  "confirm",
+  "decline",
+  "withdraw",
+]);
+export type MyApplicationStatusAction = z.infer<
+  typeof MyApplicationStatusActionSchema
+>;
+
+export const MyApplicationArchiveActionSchema = z.enum([
+  "archive",
+  "unarchive",
+]);
+export type MyApplicationArchiveAction = z.infer<
+  typeof MyApplicationArchiveActionSchema
+>;
+
+export type ApplicationSourceType = MyApplicationSourceType;
+export type ApplicationStatusAction = MyApplicationStatusAction;
+export type ApplicationArchiveAction = MyApplicationArchiveAction;

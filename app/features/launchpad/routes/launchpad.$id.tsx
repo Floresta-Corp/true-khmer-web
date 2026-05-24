@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { LaunchpadDetailLoader } from "~/routes/api/launchpad/launchpad-detail-loader";
+import { LaunchpadDetailLoader } from "~/routes/api/launchpad/launchpad-detail/launchpad-detail-loader";
 import type { Route } from "./+types/launchpad.$id";
 import LaunchpadDetailPage from "../pages/launchpad-detail-page";
 import { useLaunchpadSelectedRoles } from "~/stores/selected-launchpad-roles-store";

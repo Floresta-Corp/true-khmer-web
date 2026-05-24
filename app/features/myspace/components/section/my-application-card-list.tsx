@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
-import { Link, useLoaderData } from "react-router";
+import { Link, useFetcher, useLoaderData } from "react-router";
 import { cn } from "~/lib/utils";
 import { Card, CardContent } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
@@ -7,11 +7,6 @@ import { Calendar, Clock, MapPin } from "lucide-react";
 import type { loader } from "../../routes/my-applications";
 import { MyApplicationActions } from "../my-application-actions";
 import { resolveImageURL } from "~/lib/utils";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-} from "~/components/ui/accordion";
 import type { Application } from "~/services/myspace/myspace-type";
 import EmptyApplicationCard from "./empty-application-card";
 
@@ -44,16 +39,16 @@ function getStatusStyle(status: string) {
       };
     case "UNDER_REVIEW":
       return {
-        bg: "bg-amber-100",
-        text: "text-amber-800",
-        border: "border-amber-200",
+        bg: "bg-blue-100",
+        text: "text-blue-800",
+        border: "border-blue-200",
         label: "Under Review",
       };
     case "APPROVED":
       return {
-        bg: "bg-blue-100",
-        text: "text-blue-800",
-        border: "border-blue-200",
+        bg: "bg-emerald-100",
+        text: "text-emerald-800",
+        border: "border-emerald-200",
         label: "Approved",
       };
     case "DECLINED":
@@ -65,16 +60,16 @@ function getStatusStyle(status: string) {
       };
     case "COMPLETED":
       return {
-        bg: "bg-gray-100",
-        text: "text-gray-800",
-        border: "border-gray-200",
+        bg: "bg-emerald-100",
+        text: "text-emerald-800",
+        border: "border-emerald-200",
         label: "Completed",
       };
     case "WITHDRAWN":
       return {
-        bg: "bg-slate-100",
-        text: "text-slate-800",
-        border: "border-slate-200",
+        bg: "bg-gray-100",
+        text: "text-gray-800",
+        border: "border-gray-200",
         label: "Withdrawn",
       };
     default:
@@ -96,14 +91,78 @@ function formatDate(dateString: string | null): string {
   });
 }
 
+function ApprovedActionPanel({
+  onDecline,
+  onAccept,
+  isSubmitting,
+}: {
+  onDecline: () => void;
+  onAccept: () => void;
+  isSubmitting: boolean;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12, scale: 0.985 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 12, scale: 0.985 }}
+      transition={{ duration: 0.22, ease: "easeOut" }}
+      className="flex flex-col gap-4 rounded-2xl border border-[#D8E7FF] bg-[#EFF6FF] p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-5"
+    >
+      <div className="space-y-1.5">
+        <p className="text-sm font-semibold text-[#2763F6] sm:text-[15px]">
+          Congratulations! You&apos;ve been approved.
+        </p>
+        <p className="max-w-md text-sm leading-6 text-[#64748B]">
+          Please confirm your participation to finalize the application.
+        </p>
+      </div>
+
+      <div className="flex items-center justify-end gap-3 sm:shrink-0">
+        <Button
+          type="button"
+          variant="outline"
+          disabled={isSubmitting}
+          onClick={onDecline}
+          className="h-11 rounded-xl border border-[#CBD5E1] bg-white px-6 text-sm font-semibold text-[#111827] shadow-none hover:bg-[#F8FAFC]"
+        >
+          Decline
+        </Button>
+        <Button
+          type="button"
+          disabled={isSubmitting}
+          onClick={onAccept}
+          className="h-11 rounded-xl bg-[#2F6FE4] px-6 text-sm font-semibold text-white shadow-[0px_12px_24px_-10px_rgba(47,111,228,0.85)] hover:bg-[#245cc2]"
+        >
+          Accept
+        </Button>
+      </div>
+    </motion.div>
+  );
+}
+
 function ApplicationCard({ app, index }: { app: Application; index: number }) {
+  const fetcher = useFetcher();
   const statusStyle = getStatusStyle(app.status);
   const sourceTypeStyle = getSourceTypeStyle(app.sourceType);
   const image = resolveImageURL(app.imageKey || "");
+  const normalizedSourceType = app.sourceType.toLowerCase();
   const showActionButtons =
     app.status === "COMPLETED" ||
     app.status === "WITHDRAWN" ||
     app.status === "DECLINED";
+  const isApproved = app.status.toUpperCase() === "APPROVED";
+
+  function handleChangeStatus(statusAction: "confirm" | "decline") {
+    const formData = new FormData();
+    formData.set("sourceType", normalizedSourceType);
+    formData.set("applicationId", app.id);
+    formData.set("statusAction", statusAction);
+
+    fetcher.submit(formData, {
+      method: "POST",
+      action: "/api/myspace/my-application/change-status",
+    });
+  }
 
   return (
     <motion.div
@@ -112,7 +171,7 @@ function ApplicationCard({ app, index }: { app: Application; index: number }) {
       exit={{ opacity: 0, y: 16 }}
       transition={{ duration: 0.15, delay: index * 0.03, ease: "easeInOut" }}
     >
-      <Card className="w-full cursor-pointer bg-white rounded-2xl overflow-hidden shadow-none hover:shadow-md transition-shadow">
+      <Card className="w-full cursor-pointer bg-white rounded-2xl overflow-hidden shadow-none">
         <CardContent className="p-6 space-y-4">
           <div className="flex gap-4">
             {/* Image Section */}
@@ -158,7 +217,7 @@ function ApplicationCard({ app, index }: { app: Application; index: number }) {
                     {statusStyle.label}
                   </span>
                   {showActionButtons && (
-                    <MyApplicationActions applicationId={app.id} />
+                    <MyApplicationActions application={app} />
                   )}
                 </div>
               </div>
@@ -180,41 +239,16 @@ function ApplicationCard({ app, index }: { app: Application; index: number }) {
               </div>
             </div>
           </div>
-          <Accordion
-            type="single"
-            collapsible
-            defaultValue={
-              app.status.toUpperCase() === "APPROVED" ? "approve" : undefined
-            }
-          >
-            <AccordionItem value="approve">
-              <AccordionContent className="space-y-4">
-                <div className="bg-[#EFF6FF] border border-[#DBEAFE] rounded-xl p-4">
-                  <p className="text-sm font-semibold text-blue-600">
-                    Congratulations! You've passed.
-                  </p>
-                  <p className="text-sm text-slate-600 mt-1">
-                    Please confirm your participation to finalize the
-                    application.
-                  </p>
-                </div>
-                <div>
-                  <hr />
-                </div>
-                <div className="flex items-center justify-end gap-3">
-                  <Button
-                    variant={"outline"}
-                    className="h-10.5 px-7 border border-[#CBD5E1] text-[#475569] rounded-xl"
-                  >
-                    Decline
-                  </Button>
-                  <Button className="h-10.5 px-7 bg-blue-600 rounded-xl">
-                    Accept
-                  </Button>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+          <AnimatePresence initial={false} mode="wait">
+            {isApproved ? (
+              <ApprovedActionPanel
+                key="approved-actions"
+                isSubmitting={fetcher.state !== "idle"}
+                onDecline={() => handleChangeStatus("decline")}
+                onAccept={() => handleChangeStatus("confirm")}
+              />
+            ) : null}
+          </AnimatePresence>
         </CardContent>
       </Card>
     </motion.div>

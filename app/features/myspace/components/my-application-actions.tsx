@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Archive, EllipsisVertical } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
@@ -6,15 +7,32 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import type { Application } from "~/services/myspace/types";
 
 interface MyApplicationActionsProps {
-  applicationId: string;
-  onArchive?: (applicationId: string) => void;
+  application: Application;
+}
+
+interface ActionMenuItemProps {
+  icon: ReactNode;
+  text: string;
+  onClick?: () => void;
+}
+
+function ActionMenuItem({ icon, text, onClick }: ActionMenuItemProps) {
+  return (
+    <DropdownMenuItem
+      onClick={onClick}
+      className="flex items-center gap-2 rounded-xl text-sm text-gray-600"
+    >
+      {icon}
+      {text}
+    </DropdownMenuItem>
+  );
 }
 
 export function MyApplicationActions({
-  applicationId,
-  onArchive,
+  application,
 }: MyApplicationActionsProps) {
   return (
     <DropdownMenu>
@@ -28,14 +46,8 @@ export function MyApplicationActions({
           <EllipsisVertical />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-40">
-        <DropdownMenuItem
-          onSelect={() => onArchive?.(applicationId)}
-          className="text-gray-600 text-sm flex items-center gap-2"
-        >
-          <Archive size={14} />
-          <span>move to archived</span>
-        </DropdownMenuItem>
+      <DropdownMenuContent align="end" className="min-w-40 rounded-xl p-1">
+        <ActionMenuItem icon={<Archive size={14} />} text="Archive" />
       </DropdownMenuContent>
     </DropdownMenu>
   );

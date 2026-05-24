@@ -8,6 +8,7 @@ import { Badge } from "~/components/ui/badge";
 export default function MyApplicationPendingApprove() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { myApplication } = useLoaderData<typeof loader>();
+  const filter = searchParams.get("filter");
   const summary = myApplication.summary;
   const handleReviewClicked = () => {
     setSearchParams({ filter: "approved" }, { replace: true });
@@ -45,8 +46,9 @@ export default function MyApplicationPendingApprove() {
               </div>
               <div className="flex items-center gap-4 w-full sm:w-auto">
                 <Button
+                  disabled={filter === "approved"}
                   onClick={handleReviewClicked}
-                  className="h-10 rounded-full px-6 text-[12px] font-bold bg-orange-600 hover:bg-orange-700 text-white transition-all flex items-center gap-2 grow sm:grow-0"
+                  className="cursor-pointer h-10 rounded-full px-6 text-[12px] font-bold bg-orange-600 hover:bg-orange-700 text-white transition-all flex items-center gap-2 grow sm:grow-0"
                 >
                   Review
                   <ArrowRight size={14} />
