@@ -72,6 +72,7 @@ export default function ForumContentNew({
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && onLoadMore) {
+          observer.unobserve(el);
           onLoadMore();
         }
       },

@@ -78,7 +78,10 @@ export const ApplyBatchRoleInputSchema = z.object({
   topPickRoleId: z.string().regex(UUID_PATTERN).nullable(),
   relevantExperience: z.string().min(5).max(2000),
   launchpadRoleIds: z.array(z.string().regex(UUID_PATTERN)).min(1),
-});
+}).refine(
+  (data) => data.topPickRoleId === null || data.launchpadRoleIds.includes(data.topPickRoleId),
+  { message: "topPickRoleId must be null or one of the launchpadRoleIds" },
+);
 
 export type ApplyBatchRoleInput = z.infer<typeof ApplyBatchRoleInputSchema>;
 

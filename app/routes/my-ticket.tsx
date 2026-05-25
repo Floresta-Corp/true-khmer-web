@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Calendar, Ticket } from "lucide-react";
 import BackToButton from "~/components/back-to-button";
@@ -108,7 +108,15 @@ function TicketCard({ ticket }: { ticket: TicketItem }) {
 export default function MyTicketPage() {
   const prefersReducedMotion = useReducedMotion();
   const [activeTab, setActiveTab] = useState<"upcoming" | "past">("upcoming");
-  const tickets = SAMPLE_TICKETS;
+  const tickets = useMemo(
+    () =>
+      SAMPLE_TICKETS.filter((t) => {
+        const date = new Date(t.date).getTime();
+        const now = Date.now();
+        return activeTab === "upcoming" ? date >= now : date < now;
+      }),
+    [activeTab],
+  );
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-10">

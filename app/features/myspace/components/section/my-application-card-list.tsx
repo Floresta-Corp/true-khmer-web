@@ -201,7 +201,7 @@ function ApplicationCard({ app, index }: { app: Application; index: number }) {
                   <h3 className="text-[22px] leading-8.25 font-bold text-gray-800">
                     <Link
                       to={`/my-applications/detail/${
-                        app.sourceType === "project"
+                        app.sourceType.toLowerCase() === "project"
                           ? "projects"
                           : app.sourceType.toLowerCase()
                       }/${app.id}`}

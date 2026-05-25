@@ -32,9 +32,10 @@ export const useLaunchpadSelectedRoles = create<LaunchpadSelectedRolesState>((se
   },
 
   setTopPick: (roleId: string) => {
-    set((state) => ({
-      topPickRoleId: state.topPickRoleId === roleId ? null : roleId,
-    }));
+    set((state) => {
+      if (!state.selectedRoleIds.includes(roleId)) return {};
+      return { topPickRoleId: state.topPickRoleId === roleId ? null : roleId };
+    });
   },
 
   isRoleSelected: (roleId: string) => {

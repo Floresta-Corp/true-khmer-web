@@ -19,11 +19,18 @@ export async function action({ request }: ActionFunctionArgs) {
     return Response.json({ ok: false, error: "Missing status action" }, { status: 400 });
   }
 
+  const VALID_STATUS_ACTIONS = ["confirm", "decline", "withdraw"] as const;
+  type ValidStatusAction = (typeof VALID_STATUS_ACTIONS)[number];
+  if (!(VALID_STATUS_ACTIONS as readonly string[]).includes(statusAction)) {
+    return Response.json({ ok: false, error: "Invalid status action" }, { status: 400 });
+  }
+  const validatedAction: ValidStatusAction = statusAction as ValidStatusAction;
+
   const result = await postMyApplicationChangeStatus(
     request,
     sourceType,
     applicationId,
-    statusAction as "confirm" | "decline" | "withdraw",
+    validatedAction,
   );
 
   return Response.json(result.data, { status: 200 });

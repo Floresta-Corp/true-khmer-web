@@ -107,7 +107,12 @@ export async function VolunteerDetailAction({
 
     const dataStr = formData.get("data");
     if (!dataStr) return errorActionResponse("Missing data field");
-    const data = JSON.parse(dataStr.toString()) as Record<string, unknown>;
+    let data: Record<string, unknown>;
+    try {
+      data = JSON.parse(dataStr.toString());
+    } catch {
+      return errorActionResponse("Invalid JSON in data field");
+    }
 
     try {
       const applyInput = ApplyApplicationInputSchema.parse({
@@ -188,7 +193,12 @@ export async function VolunteerDetailAction({
 
     const dataStr = formData.get("data");
     if (!dataStr) return errorActionResponse("Missing data field");
-    const data = JSON.parse(dataStr.toString()) as Record<string, unknown>;
+    let data: Record<string, unknown>;
+    try {
+      data = JSON.parse(dataStr.toString());
+    } catch {
+      return errorActionResponse("Invalid JSON in data field");
+    }
 
     try {
       const applyInput = BatchApplyApplicationInputSchema.parse({
