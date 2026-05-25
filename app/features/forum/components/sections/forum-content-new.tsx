@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { Button } from "~/components/ui/button";
 import QuestionCardSkeleton from "../card/question-card-skeleton";
 import ForumTopCategoriesCard from "../card/forum-top-categories-card";
@@ -61,6 +62,8 @@ export default function ForumContentNew({
 }: ForumContentNewProps) {
   const { userId } = useLoaderData<typeof loader>();
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+  const d = prefersReducedMotion ? 0 : 1;
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -83,9 +86,13 @@ export default function ForumContentNew({
     <section className="bg-[#f8fafc] px-4 py-10 md:px-10 lg:px-30">
       <div className="mx-auto flex w-full max-w-300 gap-10">
         <div className="flex min-w-0 flex-1 flex-col gap-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 * d, ease: "easeOut" }}
+            className="flex flex-wrap items-center justify-between gap-3"
+          >
             <div className="flex flex-wrap items-center gap-2">
-              {/* Tabs: inline on sm+, dropdown on xs */}
               <div className="hidden sm:flex flex-wrap items-center gap-2">
                 {tabItems.map((tab) => {
                   const isActive = activeTab === tab.value;
@@ -120,26 +127,57 @@ export default function ForumContentNew({
                 onSelect={setSortBy}
               />
             </div>
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col gap-5">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 * d, delay: 0.1 * d }}
+            className="flex flex-col gap-5"
+          >
             {isLoading && questions?.length === 0
               ? Array.from({ length: 4 }).map((_, index) => (
-                  <QuestionCardSkeleton key={`question-skeleton-${index}`} />
+                  <motion.div
+                    key={`question-skeleton-${index}`}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.35 * d,
+                      delay: (0.1 + index * 0.06) * d,
+                      ease: "easeOut",
+                    }}
+                  >
+                    <QuestionCardSkeleton />
+                  </motion.div>
                 ))
               : questions?.map((question, index) => (
-                  <QuestionCard
+                  <motion.div
                     key={question.id}
-                    question={question}
-                    userId={userId ?? undefined}
-                    categories={categories}
-                    index={index}
-                  />
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.35 * d,
+                      delay: (0.1 + index * 0.06) * d,
+                      ease: "easeOut",
+                    }}
+                  >
+                    <QuestionCard
+                      question={question}
+                      userId={userId ?? undefined}
+                      categories={categories}
+                      index={index}
+                    />
+                  </motion.div>
                 ))}
-          </div>
+          </motion.div>
 
           {hasMore && (
-            <div className="flex justify-center pt-2">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 * d, delay: 0.3 * d }}
+              className="flex justify-center pt-2"
+            >
               {isLoading ? (
                 <Button
                   type="button"
@@ -152,23 +190,47 @@ export default function ForumContentNew({
               ) : (
                 <div ref={sentinelRef} className="h-10" />
               )}
-            </div>
+            </motion.div>
           )}
         </div>
 
         <aside className="hidden w-70 shrink-0 lg:block space-y-5">
-          <YourActivitiesCard />
-          <ForumTopCategoriesCard
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onCategorySelect={onCategorySelect}
-          />
-          <TrendingTopics
-            tags={tags}
-            selectedTagId={selectedTagId}
-            onTagSelect={onTagSelect}
-          />
-          <ForumRightSidebar hideGuidelines />
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 * d, delay: 0.15 * d, ease: "easeOut" }}
+          >
+            <YourActivitiesCard />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 * d, delay: 0.25 * d, ease: "easeOut" }}
+          >
+            <ForumTopCategoriesCard
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onCategorySelect={onCategorySelect}
+            />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 * d, delay: 0.35 * d, ease: "easeOut" }}
+          >
+            <TrendingTopics
+              tags={tags}
+              selectedTagId={selectedTagId}
+              onTagSelect={onTagSelect}
+            />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 * d, delay: 0.45 * d, ease: "easeOut" }}
+          >
+            <ForumRightSidebar hideGuidelines />
+          </motion.div>
         </aside>
       </div>
     </section>

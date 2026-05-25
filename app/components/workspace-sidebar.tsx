@@ -68,7 +68,7 @@ export default function WorkSpaceSideBar() {
               <SidebarMenuItem key={item.id}>
                 <SidebarMenuButton
                   asChild
-                  isActive={location.pathname === item.to}
+                  isActive={location.pathname.startsWith(item.to)}
                   className="p-5 rounded-xl data-[active=true]:bg-blue-50 data-[active=true]:text-blue-600 transition-all text-[12px] font-normal"
                 >
                   <Link

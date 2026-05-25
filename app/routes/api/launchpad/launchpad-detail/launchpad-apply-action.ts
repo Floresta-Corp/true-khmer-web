@@ -281,6 +281,9 @@ async function submitBatchLaunchpadApplication(
   const legacyRoleIds = readStringArrayField(formData, "roleIds");
   const submittedRoleIds =
     launchpadRoleIds.length > 0 ? launchpadRoleIds : legacyRoleIds;
+  const normalizedRoleIds = Array.from(
+    new Set(submittedRoleIds.map((roleId) => roleId.trim()).filter(Boolean)),
+  );
 
   if (!launchpadId || typeof launchpadId !== "string") {
     return { error: "Missing launchpad ID" };
@@ -299,7 +302,7 @@ async function submitBatchLaunchpadApplication(
   ) {
     return { error: "Relevant experience must be at least 5 characters" };
   }
-  if (submittedRoleIds.length === 0) {
+  if (normalizedRoleIds.length === 0) {
     return { error: "Select at least one role" };
   }
 
@@ -341,7 +344,7 @@ async function submitBatchLaunchpadApplication(
     documentNames,
     topPickRoleId: topPickRoleIdValue,
     relevantExperience: relevantExperience.trim(),
-    launchpadRoleIds: submittedRoleIds,
+    launchpadRoleIds: normalizedRoleIds,
   });
 
   return { success: true };

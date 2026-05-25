@@ -200,7 +200,11 @@ function ApplicationCard({ app, index }: { app: Application; index: number }) {
                 <div className="space-y-2">
                   <h3 className="text-[22px] leading-8.25 font-bold text-gray-800">
                     <Link
-                      to={`/my-applications/detail/${app.sourceType}/${app.id}`}
+                      to={`/my-applications/detail/${
+                        app.sourceType === "project"
+                          ? "projects"
+                          : app.sourceType.toLowerCase()
+                      }/${app.id}`}
                       className="inline-block rounded-sm transition-all duration-200 hover:text-blue-600 hover:underline hover:underline-offset-4 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                     >
                       {app.title}
