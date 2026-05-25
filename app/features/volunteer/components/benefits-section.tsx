@@ -1,4 +1,3 @@
-import React from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Trash2 } from "lucide-react";
 import IconButton from "~/components/icon-button";

@@ -2,6 +2,11 @@ import type { ActionFunctionArgs } from "react-router";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
 import {
+  errorActionResponse,
+  successActionResponse,
+  transformActionResponse,
+} from "~/lib/server/action-response.server";
+import {
   createLaunchpad,
   uploadLaunchpadCoverPresign,
   uploadLaunchpadDocumentPresign,
@@ -13,6 +18,15 @@ import {
 } from "~/services/launchpad/types/create";
 
 type UnknownRecord = Record<string, unknown>;
+type LaunchpadCreateActionResponse =
+  | {
+      success: true;
+      redirectTo: string;
+    }
+  | {
+      error: string;
+      fieldErrors?: Record<string, string>;
+    };
 
 function isRecord(value: unknown): value is UnknownRecord {
   return typeof value === "object" && value !== null;
@@ -210,6 +224,23 @@ function parseValidationFieldErrors(
   }
 }
 
+function toLaunchpadCreateActionResponse(
+  result:
+    | ReturnType<typeof successActionResponse>
+    | ReturnType<typeof errorActionResponse>,
+): LaunchpadCreateActionResponse {
+  if (result.ok) {
+    return {
+      success: true,
+      redirectTo: (result.data as { redirectTo: string }).redirectTo,
+    };
+  }
+
+  return {
+    error: result.error ?? "Failed to create launchpad. Please try again.",
+  };
+}
+
 async function uploadToStorage(upload: LaunchpadPresignedUpload, file: File) {
   const headers = new Headers(upload.requiredHeaders ?? {});
 
@@ -238,12 +269,16 @@ export async function launchpadCreateAction({ request }: ActionFunctionArgs) {
   const actionType = formData.get("actionType");
 
   if (actionType !== "create-launchpad") {
-    return { error: "Invalid action type" };
+    return toLaunchpadCreateActionResponse(
+      errorActionResponse("Invalid action type"),
+    );
   }
 
   const dataStr = formData.get("data");
   if (!dataStr || typeof dataStr !== "string") {
-    return { error: "Invalid launchpad form data" };
+    return toLaunchpadCreateActionResponse(
+      errorActionResponse("Invalid launchpad form data"),
+    );
   }
 
   try {
@@ -259,19 +294,27 @@ export async function launchpadCreateAction({ request }: ActionFunctionArgs) {
       .filter((value): value is File => value instanceof File);
 
     if (!logoFile) {
-      return { error: "Project logo is required" };
+      return toLaunchpadCreateActionResponse(
+        errorActionResponse("Project logo is required"),
+      );
     }
 
     if (!coverFile) {
-      return { error: "Project cover is required" };
+      return toLaunchpadCreateActionResponse(
+        errorActionResponse("Project cover is required"),
+      );
     }
 
     if (documentFiles.length === 0) {
-      return { error: "At least one material document is required" };
+      return toLaunchpadCreateActionResponse(
+        errorActionResponse("At least one material document is required"),
+      );
     }
 
     if (documentFiles.length > 5) {
-      return { error: "Maximum 5 material documents are allowed" };
+      return toLaunchpadCreateActionResponse(
+        errorActionResponse("Maximum 5 material documents are allowed"),
+      );
     }
 
     const [logoRes, coverRes] = await Promise.all([
@@ -293,7 +336,9 @@ export async function launchpadCreateAction({ request }: ActionFunctionArgs) {
         "[PRESIGN SHAPE ERROR] Could not resolve presigned upload from API response.",
         { logoResolved: !!logoPresign, coverResolved: !!coverPresign },
       );
-      return { error: "Unable to get logo/cover upload payload" };
+      return toLaunchpadCreateActionResponse(
+        errorActionResponse("Unable to get logo/cover upload payload"),
+      );
     }
 
     const logoKey = getUploadKey(logoPresign) ?? getUploadKey(logoRes.data);
@@ -304,7 +349,9 @@ export async function launchpadCreateAction({ request }: ActionFunctionArgs) {
         "[KEY ERROR] Could not extract storage key from presign response.",
         { logoKeyFound: !!logoKey, coverKeyFound: !!coverKey },
       );
-      return { error: "Unable to get logo/cover upload key" };
+      return toLaunchpadCreateActionResponse(
+        errorActionResponse("Unable to get logo/cover upload key"),
+      );
     }
 
     await Promise.all([
@@ -325,7 +372,11 @@ export async function launchpadCreateAction({ request }: ActionFunctionArgs) {
         console.error(
           "[DOC PRESIGN SHAPE ERROR] Could not resolve presigned upload from document API response.",
         );
-        return { error: "Unable to get a material document upload payload" };
+        return toLaunchpadCreateActionResponse(
+          errorActionResponse(
+            "Unable to get a material document upload payload",
+          ),
+        );
       }
 
       const documentKey =
@@ -334,7 +385,9 @@ export async function launchpadCreateAction({ request }: ActionFunctionArgs) {
         console.error(
           "[DOC KEY ERROR] Could not extract storage key from document presign response.",
         );
-        return { error: "Unable to get a material document upload key" };
+        return toLaunchpadCreateActionResponse(
+          errorActionResponse("Unable to get a material document upload key"),
+        );
       }
 
       await uploadToStorage(documentPresign, documentFile);
@@ -355,22 +408,37 @@ export async function launchpadCreateAction({ request }: ActionFunctionArgs) {
     });
 
     const launchpadId = result.data.launchpad?.id;
-    return {
-      success: true,
-      redirectTo: launchpadId
-        ? `/launchpad/detail/${launchpadId}`
-        : "/launchpad",
-    };
+    return toLaunchpadCreateActionResponse(
+      successActionResponse({
+        redirectTo: launchpadId
+          ? `/launchpad/detail/${launchpadId}`
+          : "/launchpad",
+      }),
+    );
   } catch (error) {
     console.error("Failed to create launchpad:", error);
 
     if (error instanceof ProtectedApiError) {
+      const transformedError = transformActionResponse(error);
       return {
-        error: error.message || "Failed to create launchpad. Please try again.",
+        ...toLaunchpadCreateActionResponse(
+          transformedError.ok
+            ? successActionResponse({ redirectTo: "/launchpad" })
+            : errorActionResponse(
+                transformedError.error ||
+                  "Failed to create launchpad. Please try again.",
+              ),
+        ),
+        error:
+          transformedError.error ||
+          error.message ||
+          "Failed to create launchpad. Please try again.",
         fieldErrors: parseValidationFieldErrors(error.details) ?? undefined,
       };
     }
 
-    return { error: "Failed to create launchpad. Please try again." };
+    return toLaunchpadCreateActionResponse(
+      errorActionResponse("Failed to create launchpad. Please try again."),
+    );
   }
 }

@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "motion/react";
 import { useLoaderData } from "react-router";
+import { useState } from "react";
 import { EllipsisVertical } from "lucide-react";
 import LaunchpadProjectDetailCard from "../components/card/launchpad-project-detail-card";
 import LaunchpadProjectCoverCard from "../components/card/launchpad-project-cover-card";
@@ -10,15 +11,21 @@ import BackToButton from "~/components/back-to-button";
 import IconButton from "~/components/icon-button";
 import { Card, CardContent } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import type { LaunchpadDetail } from "~/services/launchpad/types/project";
+import type { loader } from "../routes/launchpad.$id";
 import LaunchpadJoinProjectCard from "../components/card/launchpad-join-project-card";
 import { ShareLaunchpadDialog } from "../components/dialog/share-launchpad-dialog";
 import { Share2 } from "lucide-react";
 
-export default function LaunchpadProjectDetailPage() {
-  const project = useLoaderData<LaunchpadDetail>();
+export default function LaunchpadDetailPage() {
+  const { project, userId } = useLoaderData<typeof loader>();
+  const hideApplyButton = project.createdBy.id === userId;
   const prefersReducedMotion = useReducedMotion();
-
+  const [activeTab, setActiveTab] = useState<"details" | "open-roles">(
+    "details",
+  );
+  const handleTabChange = (value: string) => {
+    setActiveTab(value === "open-roles" ? "open-roles" : "details");
+  };
   const tabItemClassName =
     "rounded-none px-4 pb-3 text-sm font-medium text-[#65758b] transition-colors hover:text-blue-600 data-[state=active]:text-blue-600 data-[state=active]:after:bg-[#2f6fe4]";
 
@@ -68,7 +75,7 @@ export default function LaunchpadProjectDetailPage() {
               <LaunchpadProjectCoverCard project={project} />
             </motion.article>
 
-            <Tabs defaultValue="details">
+            <Tabs value={activeTab} onValueChange={handleTabChange}>
               <TabsList variant="line" className="transition-all">
                 <TabsTrigger value="details" className={tabItemClassName}>
                   Details
@@ -86,7 +93,7 @@ export default function LaunchpadProjectDetailPage() {
                   transition={{ duration: prefersReducedMotion ? 0 : 0.25 }}
                 >
                   <Card className="rounded-3xl bg-white shadow-none border-[#E7ECF3]">
-                    <CardContent className="p-6 space-y-12">
+                    <CardContent className="p-10 space-y-8">
                       <LaunchpadProjectDetailCard project={project} />
                       <LaunchpadPresentationCard project={project} />
                     </CardContent>
@@ -101,13 +108,16 @@ export default function LaunchpadProjectDetailPage() {
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: prefersReducedMotion ? 0 : 0.25 }}
                 >
-                  <LaunchpadSeekingCollaborationCard project={project} />
+                  <LaunchpadSeekingCollaborationCard
+                    project={project}
+                    hideApplyButton={hideApplyButton}
+                  />
                 </motion.div>
               </TabsContent>
             </Tabs>
           </section>
 
-          <section className="flex flex-col gap-4 lg:sticky lg:top-6 lg:h-fit">
+          <section className="flex flex-col gap-4 lg:sticky lg:top-26 lg:h-fit">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -117,7 +127,14 @@ export default function LaunchpadProjectDetailPage() {
                 delay: prefersReducedMotion ? 0 : 0.2,
               }}
             >
-              <LaunchpadJoinProjectCard project={project} />
+              <LaunchpadJoinProjectCard
+                project={project}
+                userId={userId}
+                isActiveTabOpenRoles={activeTab === "open-roles"}
+                onApplyNoRoles={() => setActiveTab("open-roles")}
+                disableApplyButton={hideApplyButton}
+                disableButtonMessage="You cannot apply for this project as you are the creator"
+              />
             </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}

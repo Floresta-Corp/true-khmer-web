@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AlertTriangle, Flag, X } from "lucide-react";
 import { Link, useFetcher, useLocation } from "react-router";
 import { Button } from "~/components/ui/button";

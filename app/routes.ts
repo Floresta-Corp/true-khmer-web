@@ -13,6 +13,7 @@ export default [
       route("about", "routes/about.tsx"),
       route("dashboard", "routes/dashboard.tsx"),
       route("profile", "routes/profile.tsx"),
+      route("messages", "routes/messages.tsx"),
       route("forum", "features/forum/routes/forum.new.tsx"),
       route("forum-old", "features/forum/routes/forum.tsx"),
       route("forum/search", "features/forum/routes/forum.search.tsx"),
@@ -50,14 +51,16 @@ export default [
     route("myspace", "features/myspace/routes/myspace.tsx"),
     route("edit-profile", "features/myspace/routes/edit-profile.tsx"),
     route("my-applications", "features/myspace/routes/my-applications.tsx"),
+    route("my-ticket", "routes/my-ticket.tsx"),
     route(
-      "my-applications/detail/:sourceType/:id",
-      "features/myspace/routes/my-application.$sourceType.$id.tsx",
+      "my-applications/detail/:sourceType/:applicationId",
+      "features/myspace/routes/my-application.$sourceType.$applicationId.tsx",
     ),
     route("saved-items", "features/saved-items/routes/saved-items.tsx"),
 
     layout("layout/workspace-layout.tsx", [
       route("workspace", "features/workspace/routes/workspace.tsx"),
+      route("my-events", "features/workspace/routes/my-events.tsx"),
       route("manage-post", "features/manage-post/routes/manage-post.tsx"),
       route(
         "manage-post/:sourceType/:id",
@@ -95,5 +98,10 @@ export default [
   ),
   route("api/me", "routes/api/api.me.tsx"),
   route("api/launchpad/apply", "routes/api/api.launchpad.apply.ts"),
+  route("api/launchpad/batch-apply", "routes/api/api.launchpad.batch-apply.ts"),
   route("api/launchpad/save", "routes/api/api.launchpad.save.ts"),
+  route(
+    "api/myspace/my-application/change-status",
+    "routes/api/api.myspace.my-application.change-status.tsx",
+  ),
 ] satisfies RouteConfig;

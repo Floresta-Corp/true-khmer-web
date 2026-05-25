@@ -3,17 +3,16 @@ import {
   Briefcase,
   CalendarRange,
   HandHeart,
-  MoreHorizontal,
   Pencil,
   Share2,
 } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
 import type { loader } from "../../routes/manage-post.$sourceType.$id";
 import ManagePostingDetailStats from "../section/posting-detail-stats";
 import ManagePostingDetailTable from "../section/posting-detail-table";
 import { formatDate } from "~/features/events/lib/event-formatters";
 import type {
   ManagePostStatus,
-  PostingFilter,
   PostingType,
   SourceType,
 } from "~/services/manage-post/types";
@@ -30,23 +29,41 @@ const STATUS_STYLES: Record<ManagePostStatus, string> = {
   FILLED: "bg-blue-100 text-blue-700 border-blue-200",
 };
 
+const ease = [0.25, 0.1, 0.25, 1] as const;
+
 export default function ManagePostingDetailPage() {
   const { postDetail } = useLoaderData<typeof loader>();
   const { sourceType, id } = useParams();
+  const prefersReducedMotion = useReducedMotion();
   const sourceTypeRoute = sourceType === "projects" ? "launchpad" : "volunteer";
   const editRoute = `/${sourceTypeRoute}/edit/${id}`;
+
+  const fadeUp = (delay: number) => ({
+    initial: { opacity: 0, y: 16 },
+    animate: { opacity: 1, y: 0 },
+    transition: {
+      duration: prefersReducedMotion ? 0 : 0.45,
+      delay: prefersReducedMotion ? 0 : delay,
+      ease,
+    },
+  });
+
   return (
-    <div className="max-w-7xl w-full mx-auto max-h-dvh">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
+      className="max-w-7xl w-full mx-auto max-h-dvh"
+    >
       <div className="p-4 sm:p-8 md:p-10">
-        {/* Breadcrumb */}
-        <div className="mb-6">
+        <motion.div className="mb-6" {...fadeUp(0.05)}>
           <BackToButton to="/manage-post" />
-        </div>
+        </motion.div>
 
         {/* Header Layout: Stacked on mobile, side-by-side on desktop */}
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
           {/* Left: Metadata & Title */}
-          <div className="flex flex-col gap-3 min-w-0 w-full">
+          <motion.div {...fadeUp(0.15)} className="flex flex-col gap-3 min-w-0 w-full">
             <div className="flex flex-wrap items-center gap-3">
               <div
                 className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
@@ -86,16 +103,19 @@ export default function ManagePostingDetailPage() {
             </h1>
 
             {/* Date */}
-            <div className="flex items-center gap-2 text-sm text-gray-400">
+            <motion.div {...fadeUp(0.2)} className="flex items-center gap-2 text-sm text-gray-400">
               <CalendarRange size={13} />
               <span>
                 Posted {formatDate(postDetail?.posting?.createdAt ?? "-")}
               </span>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Right: actions */}
-          <div className="flex items-center gap-3 w-full sm:w-auto shrink-0 md:self-start">
+          <motion.div
+            {...fadeUp(0.2)}
+            className="flex items-center gap-3 w-full sm:w-auto shrink-0 md:self-start"
+          >
             {/* Edit Button */}
             <Link
               to={editRoute}
@@ -117,22 +137,22 @@ export default function ManagePostingDetailPage() {
                 postingId={postDetail?.posting?.id ?? ""}
               />
             </div>
-          </div>
+          </motion.div>
         </div>
 
-        <div className="mt-10">
+        <motion.div {...fadeUp(0.3)} className="mt-10">
           <ManagePostingDetailStats />
-        </div>
+        </motion.div>
 
         {/* Note: Ensure this table container handles internal scrolling if it's wide */}
-        <div className="mt-6 overflow-x-auto">
+        <motion.div {...fadeUp(0.4)} className="mt-6 overflow-x-auto">
           <ManagePostingDetailTable
             applicants={postDetail?.applicants ?? []}
             postingId={postDetail?.posting?.id ?? ""}
             sourceType={(postDetail?.posting?.sourceType ?? "") as PostingType}
           />
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

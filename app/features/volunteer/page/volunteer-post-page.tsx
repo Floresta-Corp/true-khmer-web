@@ -291,7 +291,6 @@ export default function VolunteerPostPage() {
                   return;
                 }
                 setDetailErrors({});
-                console.log({ errors, detailErrors });
                 setState(ProgressState.ROLE);
               }}
               locations={locations?.locations ?? []}

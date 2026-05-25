@@ -4,10 +4,12 @@ import type { LaunchpadDetail } from "~/services/launchpad/types/project";
 
 interface LaunchpadSeekingCollaborationCardProps {
   project: LaunchpadDetail;
+  hideApplyButton?: boolean;
 }
 
 export default function LaunchpadSeekingCollaborationCard({
   project,
+  hideApplyButton,
 }: LaunchpadSeekingCollaborationCardProps) {
   const collaborationData = project.roles.map((role) => ({
     id: role.id,
@@ -29,6 +31,7 @@ export default function LaunchpadSeekingCollaborationCard({
             launchpadId={project.id}
             launchpadName={project.name}
             roles={project.roles}
+            hideApplyButton={hideApplyButton}
           />
         ))}
       </div>

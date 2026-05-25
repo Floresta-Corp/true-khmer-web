@@ -1,4 +1,4 @@
-import { Users, CheckCircle2 } from "lucide-react";
+import { Users, CheckCircle2, Star } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Accordion,
@@ -7,18 +7,23 @@ import {
   AccordionContent,
 } from "~/components/ui/accordion";
 import type { Role } from "~/services/volunteer/types/opportunities";
-import VolunteerApplicationDialog from "../dialog/volunteer-application-dialog";
+import { useVolunteerSelectedRoles } from "../../../../stores/selected-volunteer-roles-store";
+import { cn } from "~/lib/utils";
+import { AnimatePresence, motion } from "motion/react";
+import { useLocation, useNavigate } from "react-router";
 
 interface AvailableRolesSectionProps {
   roles: Role[];
   showHeader?: boolean;
   hideApplyButton?: boolean;
+  userId: string | null;
 }
 
 export default function AvailableRolesSection({
   roles,
   hideApplyButton,
   showHeader = true,
+  userId,
 }: AvailableRolesSectionProps) {
   return (
     <div className="space-y-5">
@@ -40,6 +45,7 @@ export default function AvailableRolesSection({
             role={role}
             roles={roles}
             hideApplyButton={hideApplyButton}
+            userId={userId}
           />
         ))}
       </Accordion>
@@ -51,15 +57,39 @@ interface RoleCardProps {
   role: Role;
   roles: Role[];
   hideApplyButton?: boolean;
+  userId: string | null;
 }
 
-function RoleCard({ role, roles, hideApplyButton }: RoleCardProps) {
+function RoleCard({ role, hideApplyButton, userId }: RoleCardProps) {
+  const {
+    addRole,
+    removeRole,
+    setTopPick,
+    isRoleSelected,
+    isTopPick,
+    selectedRoleIds,
+  } = useVolunteerSelectedRoles();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const selected = isRoleSelected(role.id);
+  const topPick = isTopPick(role.id);
+
+  const handleSelectRole = () => {
+    if (!userId) {
+      const redirectTo = `${location.pathname}${location.search}`;
+      navigate(`/login?redirectTo=${encodeURIComponent(redirectTo)}`);
+      return;
+    }
+    addRole(role.id);
+  };
+  
   return (
     <AccordionItem
       value={role.id}
       className="overflow-hidden rounded-[16px] border border-gray-200"
     >
-      <AccordionTrigger className="px-5.25 py-4 text-left no-underline hover:no-underline [&>svg]:size-[17.5px] [&>svg]:text-[#2f6fe4] rounded-none ">
+      <AccordionTrigger className="px-5.25 py-4 text-left no-underline hover:no-underline [&>svg]:size-[17.5px] [&>svg]:text-[#2f6fe4] rounded-none items-center">
         <div className="flex items-center justify-between w-full">
           <div>
             <h3 className="text-[16px] font-bold text-[#0a0a0a]">
@@ -81,19 +111,98 @@ function RoleCard({ role, roles, hideApplyButton }: RoleCardProps) {
         </div>
 
         {!hideApplyButton ? (
-          <div className="my-7.25 flex justify-end pt-7.25">
-            <VolunteerApplicationDialog
-              roles={roles}
-              initialRoleId={role.id}
-              trigger={
-                <Button
-                  disabled={role.viewerApplied}
-                  className="h-10 w-full bg-[#1c5dd4] px-6 text-sm font-medium text-[#f8fafc] hover:bg-[#184fb0]"
+          <div className="my-7.25 pt-7.25 w-full pb-3">
+            <div className="flex items-center gap-2 w-full">
+              <Button
+                disabled={role.viewerApplied}
+                className={cn(
+                  "h-10 flex-1 bg-[#1c5dd4] px-6 text-sm font-medium text-[#f8fafc] hover:bg-[#184fb0]",
+                  role.viewerApplied && "opacity-50",
+                  !selected && "w-full",
+                )}
+                onClick={handleSelectRole}
+              >
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={selected ? "selected" : "select"}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    {selected ? "Selected" : "Select Role"}
+                  </motion.span>
+                </AnimatePresence>
+              </Button>
+              <AnimatePresence>
+                {selected && (
+                  <motion.div
+                    key="top-pick-btn"
+                    initial={{ opacity: 0, x: -16, width: 0 }}
+                    animate={{ opacity: 1, x: 0, width: "auto" }}
+                    exit={{ opacity: 0, x: 16, width: 0 }}
+                    transition={{ duration: 0.2, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
+                    <Button
+                      type="button"
+                      variant={topPick ? "default" : "outline"}
+                      className={cn(
+                        "h-10 px-3 text-sm",
+                        topPick
+                          ? "bg-[#2f6fe4] text-white hover:bg-[#245fca]"
+                          : "border-[#e1e7ef] text-[#65758b] hover:bg-[#f8fafc]",
+                      )}
+                      onClick={() => setTopPick(role.id)}
+                    >
+                      <Star className={cn("size-4", topPick && "fill-white")} />
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <AnimatePresence>
+                {selected && (
+                  <motion.div
+                    key="remove-btn"
+                    initial={{ opacity: 0, x: -16, width: 0 }}
+                    animate={{ opacity: 1, x: 0, width: "auto" }}
+                    exit={{ opacity: 0, x: 16, width: 0 }}
+                    transition={{
+                      duration: 0.2,
+                      ease: "easeInOut",
+                      delay: 0.05,
+                    }}
+                    className="overflow-hidden"
+                  >
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      className="h-10 px-3 text-sm"
+                      onClick={() => removeRole(role.id)}
+                    >
+                      Remove
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+            <AnimatePresence>
+              {role.viewerApplied && (
+                <motion.div
+                  key="applied-notice"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 6 }}
+                  transition={{ duration: 0.18 }}
+                  className="mt-3 py-2 px-3 bg-emerald-500 text-white font-semibold rounded-lg"
                 >
-                  Apply for this Role
-                </Button>
-              }
-            />
+                  <p className="flex items-center gap-1.5 text-xs">
+                    <CheckCircle2 className="size-4" />
+                    You have already applied for this role
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ) : (
           <div className="mb-3" />

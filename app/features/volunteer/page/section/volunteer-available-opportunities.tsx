@@ -153,15 +153,18 @@ export function VolunteerAvailableOpportunities({
             </div>
 
             {hasMore && (
-              <div ref={sentinelRef} className="flex justify-center py-4">
-                {loading && (
-                  <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-                    {Array.from({ length: 3 }).map((_, index) => (
-                      <OpportunityCardSkeleton
-                        key={`loading-skeleton-${index}`}
-                      />
-                    ))}
-                  </div>
+              <div className="flex justify-center pt-2">
+                {loading ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled
+                    className="h-10 rounded-xl border-[#dbe3ee] px-6"
+                  >
+                    Loading...
+                  </Button>
+                ) : (
+                  <div ref={sentinelRef} className="h-10" />
                 )}
               </div>
             )}

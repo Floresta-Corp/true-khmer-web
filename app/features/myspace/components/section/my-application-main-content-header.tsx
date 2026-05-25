@@ -1,10 +1,11 @@
 import { motion } from "motion/react";
-import { Link, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 import { cn } from "~/lib/utils";
 import ApplicationStatusTabFilter from "../tab/application-status-tab-filter";
 import ApplicationTabFilter from "../tab/application-tab-filter";
 import { Button } from "~/components/ui/button";
 import { Archive } from "lucide-react";
+import { useCallback } from "react";
 
 const tabItems = [
   { label: "All", value: "all" },
@@ -27,18 +28,32 @@ export default function MyAppicationMainContentHeader() {
     : isTabItem(tabParam)
       ? tabParam
       : "all";
-  const handleTabChange = (value: TabItem) => {
-    const nextParams = new URLSearchParams(searchParams);
-    nextParams.set("tab", value);
-    nextParams.delete("filter");
-    setSearchParams(nextParams, { replace: true });
-  };
 
-  const handleArchivedClick = () => {
-    const nextParams = new URLSearchParams(searchParams);
-    nextParams.set("filter", "archived");
-    setSearchParams(nextParams, { replace: true });
-  };
+  const handleTabChange = useCallback(
+    (value: TabItem) => {
+      setSearchParams(
+        (prev) => {
+          const nextParams = new URLSearchParams(prev);
+          nextParams.set("tab", value);
+          nextParams.delete("filter");
+          return nextParams;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
+  );
+
+  const handleArchivedClick = useCallback(() => {
+    setSearchParams(
+      (prev) => {
+        const nextParams = new URLSearchParams(prev);
+        nextParams.set("filter", "archived");
+        return nextParams;
+      },
+      { replace: true },
+    );
+  }, [setSearchParams]);
 
   return (
     <motion.div

@@ -1,4 +1,3 @@
-import React from "react";
 import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
 
 function CommitmentLabelSelect({
