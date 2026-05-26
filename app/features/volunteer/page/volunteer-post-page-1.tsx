@@ -1,13 +1,6 @@
-import {
-  Calendar as CalendarIcon,
-  Clock3,
-  Gift,
-  ImageIcon,
-  Sparkle,
-  Trash2,
-} from "lucide-react";
+import { ImageIcon, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import {
   type Dispatch,
   type SetStateAction,
@@ -24,7 +17,11 @@ import { SelectOption } from "~/components/ui/select-option";
 import { Textarea } from "~/components/ui/textarea";
 import VolunteerDatePickerField from "~/features/volunteer/components/volunteer-date-picker-field";
 import VolunteerDateRangeField from "../components/volunteer-date-range-field";
+import BenefitsSection from "../components/benefits-section";
+import CommitmentSection from "../components/commitment-section";
+import ImpactSection from "../components/impact-section";
 import type { FormDataVolunteerInput } from "~/services/volunteer/types";
+import { cn } from "~/lib/utils";
 
 export type VolunteerPostPage1Errors = {
   title?: string;
@@ -67,12 +64,18 @@ function CustomTextarea({
     <Textarea
       ref={textareaRef}
       id={id}
-      rows={rows}
+      className={cn(
+        "w-full rounded-lg bg-[#F8FAFC] px-4 py-3 text-sm font-medium leading-5 text-[#364153] placeholder:text-[#C8D6E5] focus:outline-none focus:ring-2 focus:ring-ring",
+        hasError
+          ? "border-red-500 ring-1 ring-red-200"
+          : "border border-transparent",
+      )}
       placeholder={placeholder}
       value={value}
-      aria-invalid={hasError}
       onChange={handleChange}
-      className="w-full rounded-lg border border-transparent bg-[#F8FAFC] px-4 py-3 text-sm font-medium leading-5 text-[#364153] placeholder:text-[#C8D6E5] focus:outline-none focus:ring-2 focus:ring-ring"
+      rows={rows}
+      aria-invalid={hasError}
+      aria-describedby={hasError ? `${id}-error` : undefined}
     />
   );
 }
@@ -85,6 +88,8 @@ interface VolunteerPostPage1Props {
     field: K,
     value: FormDataVolunteerInput[K],
   ) => void;
+  onCoverImageSelect: (file: File) => void;
+  onCoverImageClear: () => void;
   onContinueToRole: () => void;
   locations: { id: string; name: string }[];
   categories: { id: string; name: string }[];
@@ -95,6 +100,8 @@ export default function VolunteerPostPage1({
   errors,
   setDetailErrors,
   onUpdateField,
+  onCoverImageSelect,
+  onCoverImageClear,
   onContinueToRole,
   locations,
   categories,
@@ -195,6 +202,8 @@ export default function VolunteerPostPage1({
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const [previewHovered, setPreviewHovered] = useState(false);
+
   return (
     <div className="flex flex-col gap-8">
       <section className="rounded-2xl border border-[#E1E7EF] bg-white p-6">
@@ -258,39 +267,104 @@ export default function VolunteerPostPage1({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <FieldLabel>Start from - End at</FieldLabel>
-            <VolunteerDateRangeField
-              startDate={formData.startDate}
-              endDate={formData.endDate}
-              onChange={({ startDate, endDate }) => {
-                onUpdateField("startDate", startDate);
-                onUpdateField("endDate", endDate);
-              }}
-              error={errors?.dateRange}
-            />
+          <div className="grid gap-5 md:grid-cols-2">
+            <div className="space-y-2">
+              <FieldLabel>Start from - End at</FieldLabel>
+              <VolunteerDateRangeField
+                startDate={formData.startDate}
+                endDate={formData.endDate}
+                onChange={({ startDate, endDate }) => {
+                  onUpdateField("startDate", startDate);
+                  onUpdateField("endDate", endDate);
+                }}
+                error={errors?.dateRange}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <FieldLabel>Application deadline</FieldLabel>
+              <VolunteerDatePickerField
+                value={formData.applicationDeadline}
+                onChange={(value) =>
+                  onUpdateField("applicationDeadline", value)
+                }
+                error={errors?.applicationDeadline}
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
-            <FieldLabel>Application deadline</FieldLabel>
-            <VolunteerDatePickerField
-              value={formData.applicationDeadline}
-              onChange={(value) => onUpdateField("applicationDeadline", value)}
-              error={errors?.applicationDeadline}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <FieldLabel className="mb-3 text-[13px] font-semibold leading-[19.5px] text-[#344256]">
+            <FieldLabel className="mb-3.5 text-[13px] font-semibold leading-[19.5px] text-[#344256]">
               Cover Image
             </FieldLabel>
-            <label className="flex h-37 w-fit cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[#e5e5e5] bg-[#fafafa] px-4 py-3 text-center">
+            <label
+              id="coverImageKey"
+              tabIndex={0}
+              role="button"
+              htmlFor="coverImageKey-input"
+              onKeyDown={(e) => {
+                if (
+                  e.key === "Enter" ||
+                  e.key === " " ||
+                  e.key === "Spacebar"
+                ) {
+                  e.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
+              className={cn(
+                "relative flex aspect-video cursor-pointer flex-col items-center justify-center rounded-2xl bg-[#fafafa] px-4 py-3 text-center",
+                errors?.coverImageKey
+                  ? "border border-red-500 ring-4 ring-red-200"
+                  : "border border-dashed border-[#e5e5e5]",
+              )}
+              aria-invalid={Boolean(errors?.coverImageKey)}
+              aria-describedby={
+                errors?.coverImageKey ? "coverImageKey-error" : undefined
+              }
+            >
               {formData.coverImageKey?.value ? (
-                <img
-                  src={formData.coverImageKey.value}
-                  alt="Selected cover"
-                  className="h-full w-full rounded-xl object-cover"
-                />
+                <motion.div
+                  onHoverStart={() => setPreviewHovered(true)}
+                  onHoverEnd={() => setPreviewHovered(false)}
+                >
+                  <img
+                    src={formData.coverImageKey.value}
+                    alt="Selected cover"
+                    className="h-full w-full rounded-xl object-cover"
+                  />
+                  <motion.span
+                    className="absolute top-3 right-3 z-10"
+                    initial={{ y: -8, opacity: 0 }}
+                    animate={
+                      previewHovered
+                        ? { y: 0, opacity: 1 }
+                        : { y: -8, opacity: 0 }
+                    }
+                    transition={{ duration: 0.18 }}
+                    style={{ pointerEvents: previewHovered ? "auto" : "none" }}
+                  >
+                    <IconButton
+                      icon={<Trash2 className="h-4 w-4" />}
+                      ariaLabel="Clear cover image"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        onUpdateField("coverImageKey", {
+                          file: null,
+                          value: "",
+                        });
+                        setDetailErrors((prev) => ({
+                          ...prev,
+                          coverImageKey: undefined,
+                        }));
+                        onCoverImageClear();
+                        if (fileInputRef.current)
+                          fileInputRef.current.value = "";
+                      }}
+                    />
+                  </motion.span>
+                </motion.div>
               ) : (
                 <>
                   <ImageIcon className="size-8 text-[#a3a3a3]" />
@@ -309,15 +383,19 @@ export default function VolunteerPostPage1({
               )}
 
               <input
+                id="coverImageKey-input"
                 ref={fileInputRef}
                 hidden
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
+                aria-required={true}
               />
             </label>
             {errors?.coverImageKey ? (
-              <p className="text-xs text-red-500">{errors.coverImageKey}</p>
+              <p id="coverImageKey-error" className="mt-2 text-xs text-red-500">
+                {errors.coverImageKey}
+              </p>
             ) : null}
           </div>
         </div>
@@ -338,78 +416,38 @@ export default function VolunteerPostPage1({
             hasError={Boolean(errors?.overview)}
           />
           {errors?.overview ? (
-            <p className="mt-2 text-xs text-red-500">{errors.overview}</p>
+            <p id="overview-error" className="mt-2 text-xs text-red-500">
+              {errors.overview}
+            </p>
           ) : null}
         </div>
       </section>
 
-      <section className="rounded-2xl border border-[#E1E7EF] bg-white p-6">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <h3 className="flex items-center gap-3 text-[22px] font-bold leading-8.25 text-[#344256]">
-            <Gift className="size-6 text-blue-600" />
-            Benefits
-          </h3>
-          <Button
-            type="button"
-            variant="ghost"
-            className="h-auto px-0 py-0 text-xs font-semibold leading-4.5 text-[#2F6FE4] hover:text-[#245fca]"
-            onClick={handleAddBenefit}
-          >
-            + Add point
-          </Button>
-        </div>
-        <div className="mt-3 space-y-3">
-          <AnimatePresence mode="popLayout">
-            {benefits.map((benefit) => (
-              <motion.div
-                key={benefit.id}
-                layout
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
-                className="space-y-1"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="flex-1">
-                    <CustomTextarea
-                      placeholder="e.g., Certificate of completion, networking, skill development"
-                      rows={2}
-                      value={benefit.value}
-                      onChange={(value) =>
-                        handleBenefitChange(benefit.id, value)
-                      }
-                    />
-                  </div>
-                  {benefits.length > 1 && (
-                    <IconButton
-                      ariaLabel={`Remove benefit row ${benefit.id}`}
-                      icon={<Trash2 className="size-4 text-red-500" />}
-                      onClick={() => handleRemoveBenefit(benefit.id)}
-                      className="border"
-                    />
-                  )}
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      </section>
+      <CommitmentSection
+        commitmentLabel={formData.commitmentLabel ?? ""}
+        commitmentDescription={formData.commitmentDescription ?? ""}
+        onChangeLabel={(value) => onUpdateField("commitmentLabel", value)}
+        onChangeDescription={(value) =>
+          onUpdateField("commitmentDescription", value)
+        }
+        commitmentLabelError={errors?.commitmentLabel}
+        CustomTextarea={CustomTextarea}
+      />
 
-      <section className="rounded-2xl border border-[#E1E7EF] bg-white p-6">
-        <h3 className="flex items-center gap-3 text-[22px] font-bold leading-8.25 text-[#344256]">
-          <Sparkle className="size-6 text-blue-600" />
-          Community Impact
-        </h3>
-        <div className="mt-3">
-          <CustomTextarea
-            placeholder="What change will volunteers help create?"
-            rows={3}
-            value={formData.communityImpact ?? ""}
-            onChange={handleCommunityImpactChange}
-          />
-        </div>
-      </section>
+      <BenefitsSection
+        benefits={benefits}
+        benefitErrors={errors?.benefitErrors}
+        onAdd={handleAddBenefit}
+        onChange={handleBenefitChange}
+        onRemove={handleRemoveBenefit}
+        CustomTextarea={CustomTextarea}
+      />
+
+      <ImpactSection
+        value={formData.communityImpact ?? ""}
+        onChange={handleCommunityImpactChange}
+        CustomTextarea={CustomTextarea}
+      />
 
       <div className="flex items-center justify-between border-t border-[#F3F4F6] pt-5 pb-5">
         <Button

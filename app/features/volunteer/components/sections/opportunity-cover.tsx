@@ -20,14 +20,16 @@ export default function OpportunityCover({ volunteer }: OpportunityCoverProps) {
     },
   ];
   return (
-    <div className="overflow-hidden rounded-t-3xl border border-[#e1e7ef]">
-      <div className="relative h-100 px-5.25 pb-5.25 pt-50.5">
-        <img
-          src={image}
-          alt="Temple restoration volunteers"
-          className="absolute inset-0 size-full object-cover"
-        />
-        <div className="absolute bottom-0 left-0 p-10 flex min-w-0 flex-col gap-3">
+    <div className="overflow-hidden rounded-t-3xl">
+      <div className="relative h-100 px-5.25 pb-5.25 pt-50.5 overflow-hidden">
+        <div className="absolute inset-0 size-full after:content-[''] after:absolute after:inset-0 after:bg-linear-to-t after:from-black/30 after:via-black/30 after:via-0% after:to-transparent after:from-0% after:to-50% after:pointer-events-none">
+          <img
+            src={image}
+            alt={volunteer.title}
+            className="size-full object-cover"
+          />
+        </div>
+        <div className="absolute bottom-8 left-8 flex min-w-0 flex-col gap-3">
           <div className="flex items-center gap-2">
             {label.map((v) => (
               <span

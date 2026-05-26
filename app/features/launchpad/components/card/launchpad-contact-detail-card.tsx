@@ -41,7 +41,7 @@ export default function LaunchpadContactDetailCard({
     >
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2">
-          <FieldLabel>Email address</FieldLabel>
+          <FieldLabel required>Email address</FieldLabel>
           <Input
             type="email"
             value={email}
@@ -59,7 +59,7 @@ export default function LaunchpadContactDetailCard({
         </div>
 
         <div className="space-y-2">
-          <FieldLabel>Phone number</FieldLabel>
+          <FieldLabel required>Phone number</FieldLabel>
           <Input
             value={phoneNumber}
             onChange={(event) => onPhoneNumberChange(event.target.value)}

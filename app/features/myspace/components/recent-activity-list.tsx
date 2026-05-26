@@ -1,4 +1,3 @@
-import React from "react";
 import { Clock, ChevronRight } from "lucide-react";
 import { Link } from "react-router";
 import type { RecentActivity } from "~/services/myspace/types/myspace-me-type";

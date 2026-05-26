@@ -15,7 +15,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "True Khmer" },
-    { name: "description", content: "Welcome to True Khmer - Your Khmer Community Platform" },
+    {
+      name: "description",
+      content: "Welcome to True Khmer - Your Khmer Community Platform",
+    },
   ];
 }
 
@@ -40,8 +43,9 @@ export default function Home() {
             Khmer Community Platform
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Connect, grow, and make an impact with the Khmer community worldwide.
-            Join thousands of members building a stronger tomorrow together.
+            Connect, grow, and make an impact with the Khmer community
+            worldwide. Join thousands of members building a stronger tomorrow
+            together.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Link to={user ? "/myspace" : "/register"}>
@@ -115,7 +119,11 @@ export default function Home() {
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.4 + index * 0.1, ease: "easeOut" }}
+                transition={{
+                  duration: 0.4,
+                  delay: 0.4 + index * 0.1,
+                  ease: "easeOut",
+                }}
               >
                 <Card className="p-4 text-center">
                   <Avatar className="h-16 w-16 mx-auto mb-3">
@@ -140,13 +148,12 @@ export default function Home() {
             Ready to Join the Community?
           </h2>
           <p className="text-muted-foreground max-w-lg mx-auto">
-            Create your profile, connect with others, and start making an impact today.
+            Create your profile, connect with others, and start making an impact
+            today.
           </p>
           <div className="pt-4">
             <Link to={user ? "/myspace" : "/register"}>
-              <Button size="lg">
-                {user ? "Go to My Space" : "Join Now"}
-              </Button>
+              <Button size="lg">{user ? "Go to My Space" : "Join Now"}</Button>
             </Link>
           </div>
         </motion.section>

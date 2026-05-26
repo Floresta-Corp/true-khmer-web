@@ -48,7 +48,7 @@ export default function LaunchpadProjectDetailCard({
           </div>
         </div>
       </div>
-      <Separator className="my-5 bg-[#E7ECF3]" />
+      <Separator />
       <div>
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight">
           Project Overview
@@ -57,6 +57,6 @@ export default function LaunchpadProjectDetailCard({
           {project.description}
         </p>
       </div>
-    </div >
+    </div>
   );
 }

@@ -3,14 +3,13 @@ import EmptyPost from "../components/empty-post";
 import OpportunityCover from "../components/sections/opportunity-cover";
 import OpportunityDetailsGrid from "../components/sections/opportunity-details-grid";
 import ProjectOverviewSection from "../components/sections/project-overview-section";
-import AvailableRolesCard from "../components/sections/available-roles-card";
 import BenefitsSection from "../components/sections/benefit-section";
 import CommunityImpactSection from "../components/sections/project-impact-section";
 import OrganizerCard from "../components/sections/organizer-card";
 import ApplicationSummary from "../components/sections/application-summary";
 import BackToButton from "~/components/back-to-button";
 import { Card, CardContent } from "~/components/ui/card";
-import { useLoaderData, useFetcher } from "react-router";
+import { useLoaderData, useFetcher, useSearchParams } from "react-router";
 import type { loader } from "../routes/volunteer.$id";
 import {
   Bookmark,
@@ -33,14 +32,21 @@ import { useState } from "react";
 import CommitmentSection from "../components/sections/commitment-section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import AvailableRolesSection from "../components/sections/available-role-section";
+import { Separator } from "~/components/ui/separator";
 
-interface VolunteerDetailPageProps { }
+interface VolunteerDetailPageProps {}
 
-export function VolunteerDetailPage({ }: VolunteerDetailPageProps) {
+export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
   const { userId, volunteer } = useLoaderData<typeof loader>();
   const prefersReducedMotion = useReducedMotion();
   const fetcher = useFetcher();
   const [isSaved, setIsSaved] = useState(volunteer?.viewerSave ?? false);
+  const [activeTab, setActiveTab] = useState<"details" | "open-roles">(
+    "details",
+  );
+  const handleTabChange = (value: string) => {
+    setActiveTab(value === "open-roles" ? "open-roles" : "details");
+  };
   const saving = fetcher.state === "loading" || fetcher.state === "submitting";
 
   if (!volunteer) {
@@ -93,7 +99,7 @@ export function VolunteerDetailPage({ }: VolunteerDetailPageProps) {
     "rounded-none px-4 pb-3 text-sm font-medium text-[#65758b] transition-colors hover:text-blue-600 data-[state=active]:text-blue-600 data-[state=active]:after:bg-[#2f6fe4]";
 
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-10 md:px-12 lg:px-28 bg-gray-50">
+    <main className="min-h-screen bg-slate-50 px-6 py-10 md:px-12 lg:px-28">
       <div className="mx-auto flex w-full max-w-304 flex-col gap-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -177,7 +183,7 @@ export function VolunteerDetailPage({ }: VolunteerDetailPageProps) {
               <OpportunityCover volunteer={volunteer} />
             </motion.article>
 
-            <Tabs defaultValue="details">
+            <Tabs value={activeTab} onValueChange={handleTabChange}>
               <TabsList variant="line" className="transition-all ">
                 <TabsTrigger value="details" className={tabItemClassName}>
                   Details
@@ -195,8 +201,9 @@ export function VolunteerDetailPage({ }: VolunteerDetailPageProps) {
                   transition={{ duration: prefersReducedMotion ? 0 : 0.25 }}
                 >
                   <Card className="rounded-3xl bg-white shadow-none">
-                    <CardContent className="p-6 [&_h2]:text-xl [&_h3]:text-xl [&_h2]:font-semibold [&_h3]:font-semibold space-y-12">
+                    <CardContent className="p-10 [&_h2]:text-xl [&_h3]:text-xl [&_h2]:font-semibold [&_h3]:font-semibold space-y-8">
                       <OpportunityDetailsGrid volunteer={volunteer} hideIcon />
+                      <Separator />
 
                       <ProjectOverviewSection volunteer={volunteer} />
 
@@ -204,11 +211,13 @@ export function VolunteerDetailPage({ }: VolunteerDetailPageProps) {
 
                       <BenefitsSection volunteer={volunteer} compact hideIcon />
 
-                      <CommunityImpactSection
-                        volunteer={volunteer}
-                        compact
-                        hideIcon
-                      />
+                      {volunteer.communityImpact && (
+                        <CommunityImpactSection
+                          volunteer={volunteer}
+                          compact
+                          hideIcon
+                        />
+                      )}
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -227,6 +236,7 @@ export function VolunteerDetailPage({ }: VolunteerDetailPageProps) {
                         roles={(volunteer as any).roles}
                         showHeader
                         hideApplyButton={hideApplyButton}
+                        userId={userId}
                       />
                     </CardContent>
                   </Card>
@@ -235,7 +245,7 @@ export function VolunteerDetailPage({ }: VolunteerDetailPageProps) {
             </Tabs>
           </section>
 
-          <div className="self-start lg:sticky lg:top-24">
+          <div className="self-start lg:sticky lg:top-28">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -250,6 +260,9 @@ export function VolunteerDetailPage({ }: VolunteerDetailPageProps) {
                 volunteer={volunteer}
                 totalCapacity={totalCapacity}
                 disableApplyButton={hideApplyButton}
+                disableButtonMessage="You cannot apply for this opportunity as you are the organizer"
+                onApplyNoRoles={() => setActiveTab("open-roles")}
+                isActiveTabOpenRoles={activeTab === "open-roles"}
               />
               <OrganizerCard volunteer={volunteer} />
             </motion.div>

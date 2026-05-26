@@ -20,9 +20,12 @@ export default function CreateOpportunityDialog({
   const [selected, setSelected] = useState<"volunteer" | "project" | null>(
     null,
   );
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleConfirm = () => {
+    if (!selected || isLoading) return;
+    setIsLoading(true);
     if (selected === "volunteer") navigate("/volunteer/create");
     if (selected === "project") navigate("/launchpad/create");
   };
@@ -71,11 +74,33 @@ export default function CreateOpportunityDialog({
         {/* Footer Button from image_65e293.png */}
         <div className="flex justify-end pt-4">
           <Button
-            disabled={!selected}
+            disabled={!selected || isLoading}
             onClick={handleConfirm}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 text-white px-8 py-7 rounded-2xl font-bold text-base shadow-lg shadow-blue-600/20 transition-all active:scale-95"
+            className={`relative cursor-pointer overflow-hidden rounded-2xl py-7 font-bold text-base text-white transition-[width,background-color,color] duration-300 ease-out disabled:bg-slate-200 disabled:text-slate-400 ${
+              isLoading
+                ? "w-55 bg-blue-600 hover:bg-blue-700"
+                : "w-80 bg-blue-600 hover:bg-blue-700"
+            }`}
           >
-            Confirm and Continue to Form
+            <span
+              className={`block transition-all duration-300 ${
+                isLoading
+                  ? "translate-y-1 opacity-0"
+                  : "translate-y-0 opacity-100"
+              }`}
+            >
+              Confirm and Continue to Form
+            </span>
+
+            <span
+              className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${
+                isLoading
+                  ? "translate-y-0 opacity-100"
+                  : "-translate-y-1 opacity-0"
+              }`}
+            >
+              Loading...
+            </span>
           </Button>
         </div>
       </DialogContent>

@@ -21,7 +21,7 @@ interface NavbarProps {
 }
 
 const navLinks = [
-  { to: "/workspace", label: "Workspace", icon: LayoutDashboard },
+  { to: "/manage-post", label: "Workspace", icon: LayoutDashboard },
   { to: "/home", label: "Home", icon: House },
   // { to: "/dashboard", label: "My Journey", icon: Compass },
   { to: "/forum", label: "Forum", icon: MessagesSquare },
@@ -85,10 +85,13 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                 <Button
                   variant="ghost"
                   size="icon"
+                  asChild
                   className="size-9 rounded-full border border-[#f1f5f9] bg-white text-[#344256] hover:bg-[#f8fafc] hover:text-[#0f172a]"
                   aria-label="Messages"
                 >
-                  <Mail className="h-4 w-4" />
+                  <Link to="/messages">
+                    <Mail className="h-4 w-4" />
+                  </Link>
                 </Button>
                 <NotificationBell />
                 {/* User dropdown */}

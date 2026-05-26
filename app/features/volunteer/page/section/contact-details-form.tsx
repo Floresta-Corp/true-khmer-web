@@ -1,5 +1,4 @@
 import { Mail, Phone, Send } from "lucide-react";
-import React from "react";
 import {
   InputGroup,
   InputGroupAddon,

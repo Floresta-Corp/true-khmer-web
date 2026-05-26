@@ -1,23 +1,55 @@
 import type { Route } from "project-types/manage-post/routes/+types/manage-post.$sourceType.$id";
+import type { ActionFunctionArgs } from "react-router";
 import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
-import { updateApplicantStatus } from "~/services/manage-post/server";
+import {
+  updateApplicantStatus,
+  updateManagePost,
+} from "~/services/manage-post/server";
 import {
   ApplicantStatusActionSchema,
   PostingSourceSchema,
   type ApplicantStatusAction,
   type PostSourceType,
+  type UpdateManagePostResponse,
 } from "~/services/manage-post/types";
-
-export async function manageApplicantAction({
+const PATH_TO_SOURCE_TYPE: Record<string, string> = {
+  projects: "PROJECT",
+  volunteer: "VOLUNTEER",
+};
+export async function managePostDetailAction({
   request,
   params,
 }: Route.ActionArgs) {
   await requireAuthenticatedUser(request);
 
   const sourceType = params.sourceType;
-  const postingId = params.postingId;
+  const postingId = params.id;
 
   const formData = await request.formData();
+  const postingAction = formData.get(
+    "postingAction",
+  ) as UpdateManagePostResponse | null;
+
+  // Handle posting-level actions (from ManagePostOption)
+  if (postingAction) {
+    const normalizedSourceType = PATH_TO_SOURCE_TYPE[sourceType ?? ""];
+    const sourceTypeResult =
+      PostingSourceSchema.safeParse(normalizedSourceType);
+
+    if (!sourceTypeResult.success || !postingId) {
+      return { success: false, error: "Invalid request parameters" };
+    }
+
+    const result = await updateManagePost(
+      request,
+      sourceTypeResult.data as PostSourceType,
+      postingId,
+      postingAction,
+    );
+    return { success: true, data: result };
+  }
+
+  // Handle applicant status actions (existing logic)
   const applicationId = String(formData.get("applicationId") ?? "").trim();
   const statusAction = String(formData.get("statusAction") ?? "").trim();
 
@@ -31,6 +63,7 @@ export async function manageApplicantAction({
   if (!sourceTypeResult.success || !statusActionResult.success || !postingId) {
     return { success: false, error: "Invalid request parameters" };
   }
+
   try {
     const result = await updateApplicantStatus(
       request,

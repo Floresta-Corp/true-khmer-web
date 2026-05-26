@@ -27,16 +27,16 @@ type SidebarItem = {
 
 const primaryItems: SidebarItem[] = [
   {
-    id: "discussion",
-    label: "My Discussions",
-    to: "/workspace",
-    icon: MessagesSquare,
-  },
-  {
     id: "managepost",
     label: "Manage Posting",
     to: "/manage-post",
     icon: ClipboardList,
+  },
+  {
+    id: "discussion",
+    label: "My Discussions",
+    to: "/workspace",
+    icon: MessagesSquare,
   },
   {
     id: "myevents",
@@ -68,14 +68,14 @@ export default function WorkSpaceSideBar() {
               <SidebarMenuItem key={item.id}>
                 <SidebarMenuButton
                   asChild
-                  isActive={location.pathname === item.to}
-                  className="p-5 data-[active=true]:ring data-[active=true]:ring-blue-500 data-[active=true]:bg-blue-50 data-[active=true]:text-blue-600 transition-all text-[12px] font-normal"
+                  isActive={location.pathname.startsWith(item.to)}
+                  className="p-5 rounded-xl data-[active=true]:bg-blue-50 data-[active=true]:text-blue-600 transition-all text-[12px] font-normal"
                 >
                   <Link
                     to={item.to}
                     onClick={() => isMobile && setOpenMobile(false)}
                   >
-                    <item.icon className="h-5 w-5 shrink-0" />
+                    <item.icon className="size-5 shrink-0" />
                     <span className="text-base">{item.label}</span>
                   </Link>
                 </SidebarMenuButton>

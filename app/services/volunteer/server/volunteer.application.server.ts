@@ -4,8 +4,10 @@ import {
 } from "~/lib/server/api-client.server";
 import {
   ApplyApplicationInputSchema,
+  BatchApplyApplicationInputSchema,
   UploadApplicationDocumentSchema,
   type ApplyApplicationInput,
+  type BatchApplyApplicationInput,
   type ApplyApplicationResponse,
   type UploadApplicationDocumentInput,
   type UploadApplicationDocumentResponse,
@@ -47,3 +49,28 @@ export async function uploadDocumentApplication(
     body,
   });
 }
+
+export async function ApplyBatchApplication(
+  request: Request,
+  input: BatchApplyApplicationInput,
+) {
+  const body = BatchApplyApplicationInputSchema.parse(input);
+  try {
+    const result = await apiRequestWithSession<ApplyApplicationResponse>(
+      request,
+      "/volunteer/applications/batch",
+      {
+        method: "POST",
+        body,
+      },
+    );
+    return result;
+  } catch (error) {
+    if (error instanceof ProtectedApiError && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+

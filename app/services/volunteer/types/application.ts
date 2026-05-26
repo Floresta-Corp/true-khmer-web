@@ -13,6 +13,16 @@ export const ApplyApplicationInputSchema = z.object({
   relevantExperience: z.string(),
   supportingDocuments: z.array(SupportingDocumentSchema).optional(),
 });
+
+// Batch apply input schema extends the standard apply input with topPickRoleId and multiple roleIds
+export const BatchApplyApplicationInputSchema = ApplyApplicationInputSchema.omit({ roleId: true }).extend({
+  topPickRoleId: z.string().nullable(),
+  roleIds: z.array(z.string()).nonempty(),
+}).refine(
+  (data) => data.topPickRoleId === null || data.roleIds.includes(data.topPickRoleId),
+  { message: "topPickRoleId must be null or one of the selected roleIds" },
+);
+export type BatchApplyApplicationInput = z.infer<typeof BatchApplyApplicationInputSchema>;
 export type ApplyApplicationInput = z.infer<typeof ApplyApplicationInputSchema>;
 
 export const ApplicationSchema = z.object({

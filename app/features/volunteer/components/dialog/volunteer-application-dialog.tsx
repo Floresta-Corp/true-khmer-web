@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useFetcher, useParams } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { useFetcher, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import type { Role } from "~/services/volunteer/types/opportunities";
-import { validateVolunteerApplicationData } from "../../lib/volunteer-validation";
-import { User, FileText } from "lucide-react";
+import { BatchApplyApplicationInputSchema } from "~/services/volunteer/types/application";
+import { User, FileText, Star } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,13 +11,15 @@ import {
   DialogClose,
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
-import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
 import { Textarea } from "~/components/ui/textarea";
 import ApplicationSubmitSuccessDialog from "./application-submit-success-dialog";
+import { cn } from "~/lib/utils";
 
 interface VolunteerApplicationDialogProps {
   roles: Role[];
-  initialRoleId?: string;
+  selectedRoleIds: string[];
+  topPickRoleId: string | null;
+  opportunityTitle: string;
   trigger?: React.ReactNode;
 }
 
@@ -30,19 +32,17 @@ interface ApiError {
   };
 }
 
-type ApplicationResponse = { success: true } | ({ success: false } & ApiError);
-
 export default function VolunteerApplicationDialog({
   roles,
-  initialRoleId,
+  selectedRoleIds,
+  topPickRoleId,
+  opportunityTitle,
   trigger,
-  disableApplyButton,
 }: VolunteerApplicationDialogProps & { disableApplyButton?: boolean }) {
   const { id: opportunityId } = useParams();
   const fetcher = useFetcher();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
-    roleId: initialRoleId || roles[0]?.id || "",
     availability: "",
     relevantExperience: "",
   });
@@ -61,7 +61,6 @@ export default function VolunteerApplicationDialog({
       if (data.ok) {
         toast.success("Application submitted successfully");
         setFormData({
-          roleId: initialRoleId || roles[0]?.id || "",
           availability: "",
           relevantExperience: "",
         });
@@ -73,7 +72,7 @@ export default function VolunteerApplicationDialog({
         toast.error(data.error);
       }
     }
-  }, [fetcher.state, fetcher.data, initialRoleId, roles]);
+  }, [fetcher.state, fetcher.data]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
@@ -115,19 +114,35 @@ export default function VolunteerApplicationDialog({
   };
 
   const handleSubmit = () => {
-    const validationErrors = validateVolunteerApplicationData(formData);
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
+    if (selectedRoleIds.length === 0) {
+      toast.error("Please select at least one role");
+      return;
+    }
+
+    const validationResult = BatchApplyApplicationInputSchema.safeParse({
+      roleIds: selectedRoleIds,
+      topPickRoleId: topPickRoleId,
+      availability: formData.availability,
+      relevantExperience: formData.relevantExperience,
+    });
+    if (!validationResult.success) {
+      const fieldErrors: Record<string, string> = {};
+      validationResult.error.issues.forEach((issue) => {
+        const path = issue.path[0] as string;
+        fieldErrors[path] = issue.message;
+      });
+      setErrors(fieldErrors);
       return;
     }
 
     setErrors({});
     const submitData = new FormData();
-    submitData.append("actionType", "apply-application");
+    submitData.append("actionType", "apply-batch-application");
 
     const submitPayload = {
       opportunityId,
-      roleId: formData.roleId,
+      roleIds: selectedRoleIds,
+      topPickRoleId: topPickRoleId,
       availability: formData.availability,
       relevantExperience: formData.relevantExperience,
     };
@@ -146,18 +161,12 @@ export default function VolunteerApplicationDialog({
     });
   };
 
+  const selectedRoles = roles.filter((r) => selectedRoleIds.includes(r.id));
+  const navigate = useNavigate();
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button
-            disabled={disableApplyButton}
-            className="h-10 w-full bg-[#2f6fe4] text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]"
-          >
-            Apply Now
-          </Button>
-        )}
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
 
       <DialogContent className="min-w-lg rounded-[14px] border border-[#e1e7ef] p-0 [&>button]:right-6 [&>button]:top-5.5 [&>button]:rounded-full [&>button]:p-1.5 [&>button]:text-[#99a1af] [&>button]:opacity-100">
         <div className="border-b border-[#f3f4f6] px-6 pb-3.75 pt-5 mb-6">
@@ -181,34 +190,40 @@ export default function VolunteerApplicationDialog({
             </div>
           </div>
 
-          <div className="space-y-2 mb-6">
-            <p className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">
-              Which role are you applying for?
-            </p>
-            <SingleSelectDropdown
-              id="role-selection"
-              value={formData.roleId}
-              onValueChange={(val) => {
-                setFormData((prev) => ({ ...prev, roleId: val }));
-                setErrors((prev) => {
-                  const next = { ...prev };
-                  delete next.roleId;
-                  return next;
-                });
-              }}
-              options={roles.map((r) => ({
-                value: r.id,
-                label: r.title,
-              }))}
-              placeholder="Select a role"
-              aria-invalid={!!errors.roleId}
-            />
-            {errors.roleId && (
-              <p className="text-[11px] font-medium text-red-500">
-                {errors.roleId}
+          {selectedRoles.length > 0 && (
+            <div className="space-y-2 mb-6">
+              <p className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">
+                Roles of Interest
               </p>
-            )}
-          </div>
+              <div className="space-y-2">
+                {selectedRoles.map((role) => (
+                  <div
+                    key={role.id}
+                    className={cn(
+                      "flex items-center justify-between rounded-lg border px-3 py-2 text-sm",
+                      topPickRoleId === role.id
+                        ? "border-[#2f6fe4] bg-[#f0f6ff]"
+                        : "border-[#e1e7ef] bg-[#f8fafc]",
+                    )}
+                  >
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      {topPickRoleId === role.id && (
+                        <Star className="size-3.5 shrink-0 fill-[#2f6fe4] text-[#2f6fe4]" />
+                      )}
+                      <span className="truncate font-medium text-[#030213]">
+                        {role.title}
+                      </span>
+                      {topPickRoleId === role.id && (
+                        <span className="shrink-0 text-[10px] font-semibold text-[#2f6fe4] uppercase">
+                          Top Pick
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2 mb-6">
             <label
@@ -346,7 +361,9 @@ export default function VolunteerApplicationDialog({
 
       <ApplicationSubmitSuccessDialog
         open={successDialogOpen}
+        onViewPost={() => navigate("/my-applications")}
         onOpenChange={setSuccessDialogOpen}
+        applicationName={opportunityTitle}
       />
     </Dialog>
   );

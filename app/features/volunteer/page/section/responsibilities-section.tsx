@@ -1,9 +1,8 @@
-import { Plus, Trash2 } from "lucide-react";
-import React from "react";
+import {  Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import IconButton from "~/components/icon-button";
 import { Input } from "~/components/ui/input";
-import type { VolunteerPostPage2Errors } from "../volunteer-post-page-2";
+
 
 interface SectionLabelProps {
   children: string;

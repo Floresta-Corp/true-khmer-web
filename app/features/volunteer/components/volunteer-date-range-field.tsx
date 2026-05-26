@@ -42,7 +42,7 @@ export default function VolunteerDateRangeField({
     : placeholder;
 
   return (
-    <div className="relative">
+    <div>
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -50,7 +50,7 @@ export default function VolunteerDateRangeField({
             type="button"
             variant="outline"
             aria-invalid={Boolean(error)}
-            className={`h-11 w-full justify-start rounded-lg bg-[#F8FAFC] pl-9 pr-3 text-left text-sm font-medium shadow-none hover:bg-[#F8FAFC] ${
+            className={`relative h-11 w-full justify-start rounded-lg bg-[#F8FAFC] pl-9 pr-3 text-left text-sm font-medium shadow-none hover:bg-[#F8FAFC] ${
               selectedRange?.from ? "text-[#364153]" : "text-[#C8D6E5]"
             } ${error ? "border-red-500" : "border-transparent"}`}
           >
@@ -58,10 +58,12 @@ export default function VolunteerDateRangeField({
             {displayValue}
           </Button>
         </PopoverTrigger>
-        <PopoverContent align="start" className="w-auto p-0">
+        <PopoverContent align="start" className="w-auto p-2 flex justify-start">
           <Calendar
+            defaultMonth={new Date()}
             mode="range"
             selected={selectedRange}
+            numberOfMonths={2}
             onSelect={(range) =>
               onChange({
                 startDate: range?.from ? range.from.toISOString() : "",

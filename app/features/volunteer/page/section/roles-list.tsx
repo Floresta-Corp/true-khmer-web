@@ -2,6 +2,18 @@ import { AnimatePresence, motion } from "motion/react";
 import RoleItem from "./role-item";
 import type { FormDataVolunteerInput } from "~/services/volunteer/types";
 
+const safeTrim = (value?: string | null) => (value ?? "").trim();
+
+const isBlankRole = (
+  role: FormDataVolunteerInput["roles"][number],
+) =>
+  !safeTrim(role.title) &&
+  role.capacity === 1 &&
+  role.responsibilities.length === 1 &&
+  !safeTrim(role.responsibilities[0]) &&
+  role.requirements.length === 1 &&
+  !safeTrim(role.requirements[0]);
+
 interface RolesListProps {
   roles: FormDataVolunteerInput["roles"];
   editingIndex: number | null;
@@ -18,10 +30,10 @@ export default function RolesList({
   return (
     <section className="space-y-3.5">
       <h4 className="text-sm font-semibold text-[#65758b]">
-        Roles added ({roles.length})
+        Roles added ({roles.some((role) => !isBlankRole(role)) ? roles.length : 0})
       </h4>
 
-      {roles.length === 0 ? (
+      {roles.length === 0 || (roles.length === 1 && isBlankRole(roles[0])) ? (
         <div className="rounded-2xl border border-[#e5e7eb] bg-[#f8fafc] p-6 text-sm font-medium text-[#99a1af]">
           No roles added yet. Define at least one role so volunteers know how to
           contribute.

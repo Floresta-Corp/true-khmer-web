@@ -19,6 +19,11 @@ enum State {
   ROLE = "Role",
 }
 
+const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const ALLOWED_IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp"]);
+const LOGO_MAX_FILE_SIZE = 5 * 1024 * 1024;
+const COVER_MAX_FILE_SIZE = 10 * 1024 * 1024;
+
 type DetailErrors = {
   name?: string;
   categoryId?: string;
@@ -40,6 +45,38 @@ type ApiFieldErrors = Record<string, string>;
 
 function isValidEmail(value: string) {
   return /^\S+@\S+\.\S+$/.test(value.trim());
+}
+
+function isSupportedImageFile(file: File | null) {
+  if (!file) return false;
+
+  if (ALLOWED_IMAGE_TYPES.has(file.type)) {
+    return true;
+  }
+
+  const extension = file.name.split(".").pop()?.toLowerCase();
+  return !!extension && ALLOWED_IMAGE_EXTENSIONS.has(extension);
+}
+
+function getImageFileError(
+  file: File | null,
+  maxFileSize: number,
+  fileLabel: string,
+) {
+  if (!file) {
+    return `${fileLabel} is required.`;
+  }
+
+  if (!isSupportedImageFile(file)) {
+    return "Invalid file type. Use JPG, JPEG, PNG, or WebP.";
+  }
+
+  if (file.size > maxFileSize) {
+    const maxSizeInMb = maxFileSize / (1024 * 1024);
+    return `${fileLabel} must be ${maxSizeInMb}MB or smaller.`;
+  }
+
+  return null;
 }
 
 export default function LaunchpadPostPage() {
@@ -146,8 +183,20 @@ export default function LaunchpadPostPage() {
     if (!store.categoryId.trim()) errors.categoryId = "Category is required.";
     if (!store.cityId.trim()) errors.cityId = "City is required.";
     if (!store.deadline.trim()) errors.deadline = "Deadline is required.";
-    if (!store.logoFile) errors.logoFile = "Project logo is required.";
-    if (!store.coverFile) errors.coverFile = "Project cover is required.";
+
+    const logoFileError = getImageFileError(
+      store.logoFile,
+      LOGO_MAX_FILE_SIZE,
+      "Project logo",
+    );
+    if (logoFileError) errors.logoFile = logoFileError;
+
+    const coverFileError = getImageFileError(
+      store.coverFile,
+      COVER_MAX_FILE_SIZE,
+      "Project cover",
+    );
+    if (coverFileError) errors.coverFile = coverFileError;
 
     setDetailErrors(errors);
     if (Object.keys(errors).length > 0) {
@@ -177,10 +226,24 @@ export default function LaunchpadPostPage() {
       detailValidationErrors.cityId = "City is required.";
     if (!store.deadline.trim())
       detailValidationErrors.deadline = "Deadline is required.";
-    if (!store.logoFile)
-      detailValidationErrors.logoFile = "Project logo is required.";
-    if (!store.coverFile)
-      detailValidationErrors.coverFile = "Project cover is required.";
+
+    const logoFileError = getImageFileError(
+      store.logoFile,
+      LOGO_MAX_FILE_SIZE,
+      "Project logo",
+    );
+    if (logoFileError) {
+      detailValidationErrors.logoFile = logoFileError;
+    }
+
+    const coverFileError = getImageFileError(
+      store.coverFile,
+      COVER_MAX_FILE_SIZE,
+      "Project cover",
+    );
+    if (coverFileError) {
+      detailValidationErrors.coverFile = coverFileError;
+    }
 
     if (Object.keys(detailValidationErrors).length > 0) {
       setDetailErrors(detailValidationErrors);

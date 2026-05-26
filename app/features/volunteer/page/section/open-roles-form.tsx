@@ -4,16 +4,7 @@ import RoleDetailsForm from "./role-details-form";
 import ResponsibilitiesSection from "./responsibilities-section";
 import RequirementsSection from "./requirements-section";
 
-import type { VolunteerRoleErrors } from "../volunteer-post-page-2";
-
-type DraftRole = {
-  title: string;
-  commitmentLabel: string;
-  capacity: number;
-  responsibilities: string[];
-  requirements: string[];
-};
-
+import type { DraftRole, VolunteerRoleErrors } from "../volunteer-post-page-2";
 interface OpenRolesFormProps {
   draftRole: DraftRole;
   editingIndex: number | null;
@@ -77,13 +68,9 @@ export default function OpenRolesForm({
       <div className="mt-5 space-y-5">
         <RoleDetailsForm
           title={draftRole.title}
-          commitmentLabel={draftRole.commitmentLabel}
           capacity={draftRole.capacity}
           errors={errors}
           onTitleChange={(value) => onDraftChange("title", value)}
-          onCommitmentChange={(value) =>
-            onDraftChange("commitmentLabel", value)
-          }
           onCapacityChange={(value) => onDraftChange("capacity", value)}
         />
 

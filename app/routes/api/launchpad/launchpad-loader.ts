@@ -3,6 +3,7 @@ import { GetLaunchpadProjects } from "~/services/launchpad/server/launchpad.oppo
 import { getPublicLaunchpadCategories } from "~/services/launchpad/server/launchpad.categories.server";
 import { getPublicVolunteerLocations } from "~/services/volunteer/server/volunteer.location.server";
 import type { Category } from "~/services/launchpad/types/category";
+import type { Location } from "~/services/volunteer/types/location";
 
 interface LaunchpadLoaderData {
   projects: Awaited<ReturnType<typeof GetLaunchpadProjects>>;

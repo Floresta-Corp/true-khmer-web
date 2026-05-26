@@ -4,11 +4,18 @@ export const SourceTypeSchema = z.enum(["PROJECT", "VOLUNTEER"]);
 export type SourceType = z.infer<typeof SourceTypeSchema>;
 
 export const StatusSchema = z.enum([
-  "ACTIVE",
-  "CLOSED",
-  "COMPLETED",
+  // "ACTIVE",
+  // "CLOSED",
+  // "COMPLETED",
+  // "DRAFT",
+  // "PUBLISHED",
+
   "DRAFT",
-  "PUBLISHED",
+  "CANCELED",
+  "FILLED",
+  "COMPLETED",
+  "IN_PROGRESS",
+  "LIVE",
 ]);
 export type ManagePostStatus = z.infer<typeof StatusSchema>;
 
@@ -16,14 +23,29 @@ export const PostingTypeSchema = z.enum(["all", "projects", "volunteer"]);
 export type PostingType = z.infer<typeof PostingTypeSchema>;
 
 export const PostingFilterSchema = z.enum([
+  // "all",
+  // "active",
+  // "draft",
+  // "closed",
+  // "completed",
+  // "published",
+
   "all",
-  "active",
+  "live",
   "draft",
-  "closed",
+  "in_progress",
+  "canceled",
   "completed",
-  "published",
+  "filled",
 ]);
 export type PostingFilter = z.infer<typeof PostingFilterSchema>;
+
+export const UpdateManagePostSchema = z.enum([
+  "cancel",
+  "delete",
+  "mark_complete",
+]);
+export type UpdateManagePostResponse = z.infer<typeof UpdateManagePostSchema>;
 
 export const PaginationSchema = z.object({
   hasNextPage: z.boolean(),
@@ -41,6 +63,7 @@ export const ManagePostSchema = z.object({
   createdAt: z.string(),
   deadline: z.union([z.null(), z.string()]),
   description: z.union([z.null(), z.string()]),
+  filled: z.boolean(),
   id: z.string(),
   imageKey: z.union([z.null(), z.string()]),
   sourceType: SourceTypeSchema,
