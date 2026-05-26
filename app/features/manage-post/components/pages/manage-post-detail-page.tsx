@@ -24,7 +24,7 @@ const STATUS_STYLES: Record<ManagePostStatus, string> = {
   LIVE: "bg-blue-100 text-blue-700 border-blue-200",
   DRAFT: "bg-gray-100 text-gray-700 border-gray-200",
   COMPLETED: "bg-green-100 text-green-700 border-green-200",
-  IN_PROGRESS: "bg-amber-100 text-amber-700 border-amber-200",
+  IN_PROGRESS: "bg-indigo-100 text-indigo-700 border-indigo-200",
   CANCELED: "bg-red-100 text-red-700 border-red-200",
   FILLED: "bg-blue-100 text-blue-700 border-blue-200",
 };
@@ -53,7 +53,7 @@ export default function ManagePostingDetailPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
-      className="max-w-7xl w-full mx-auto max-h-dvh"
+      className="max-w-7xl w-full mx-auto max-h-full"
     >
       <div className="p-4 sm:p-8 md:p-10">
         <motion.div className="mb-6" {...fadeUp(0.05)}>
@@ -63,7 +63,10 @@ export default function ManagePostingDetailPage() {
         {/* Header Layout: Stacked on mobile, side-by-side on desktop */}
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
           {/* Left: Metadata & Title */}
-          <motion.div {...fadeUp(0.15)} className="flex flex-col gap-3 min-w-0 w-full">
+          <motion.div
+            {...fadeUp(0.15)}
+            className="flex flex-col gap-3 min-w-0 w-full"
+          >
             <div className="flex flex-wrap items-center gap-3">
               <div
                 className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
@@ -103,7 +106,10 @@ export default function ManagePostingDetailPage() {
             </h1>
 
             {/* Date */}
-            <motion.div {...fadeUp(0.2)} className="flex items-center gap-2 text-sm text-gray-400">
+            <motion.div
+              {...fadeUp(0.2)}
+              className="flex items-center gap-2 text-sm text-gray-400"
+            >
               <CalendarRange size={13} />
               <span>
                 Posted {formatDate(postDetail?.posting?.createdAt ?? "-")}

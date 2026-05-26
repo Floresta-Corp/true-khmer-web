@@ -27,7 +27,8 @@ import ApplicantActionButton from "./applicant-action-btn";
 const STATUS_STYLES: Record<ApplicantStatusAction, string> = {
   approve: "bg-green-100 text-green-700 border-green-200 ",
   confirmed: "bg-green-100 text-green-700 border-green-200 ",
-  completed: "bg-blue-100 text-blue-700 border-blue-200 ",
+  completed: "bg-green-100 text-green-700 border-green-200 ",
+  new: "bg-blue-100 text-blue-700 border-blue-200 ",
   decline: "bg-red-100 text-red-700 border-red-200 ",
   submitted: "bg-amber-100 text-amber-700 border-amber-200 ",
   under_review: "bg-purple-100 text-purple-700 border-purple-200 ",
@@ -38,21 +39,23 @@ const STATUS_LABELS: Record<ApplicantStatusAction, string> = {
   confirmed: "Confirmed",
   completed: "Completed",
   decline: "Declined",
+  new: "New",
   submitted: "Submitted",
   under_review: "Under Review",
 };
 
 const normalizeStatus = (status: string): ApplicantStatusAction => {
   const map: Record<string, ApplicantStatusAction> = {
-    SUBMITTED: "submitted",
+    SUBMITTED: "new",
     UNDER_REVIEW: "under_review",
     APPROVED: "approve",
-    CONFIRMED: "approve",
-    COMPLETED: "approve",
+    CONFIRMED: "confirmed",
+    COMPLETED: "completed",
+    NEW: "new",
     DECLINED: "decline",
     WITHDRAWN: "decline",
   };
-  return map[status?.toUpperCase()] ?? "submitted";
+  return map[status?.toUpperCase()] ?? "new";
 };
 
 type Props = {
@@ -99,9 +102,13 @@ export default function ManagePostingDetailTable({
   const handleRowClick = (applicant: Applicant) => {
     setSelectedApplicant(applicant);
     const normalized = normalizeStatus(applicant.status);
-    const alreadyActioned = ["approve", "decline", "under_review"].includes(
-      normalized,
-    );
+    const alreadyActioned = [
+      "approve",
+      "confirmed",
+      "completed",
+      "decline",
+      "under_review",
+    ].includes(normalized);
 
     if (!alreadyActioned) {
       const applicationId = applicant.roles?.[0]?.applicationId;
@@ -214,8 +221,10 @@ export default function ManagePostingDetailTable({
 
                     <TableCell className="px-5 py-3.5">
                       {(() => {
-                        const approvedRole = applicant.roles?.find(
-                          (r) => r.status === "APPROVED",
+                        const approvedRole = applicant.roles?.find((r) =>
+                          ["APPROVED", "CONFIRMED", "COMPLETED"].includes(
+                            r.status,
+                          ),
                         );
                         const primaryRole =
                           approvedRole ?? applicant.roles?.[0];

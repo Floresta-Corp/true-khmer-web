@@ -9,6 +9,7 @@ import { MyApplicationActions } from "../my-application-actions";
 import { resolveImageURL } from "~/lib/utils";
 import type { Application } from "~/services/myspace/myspace-type";
 import EmptyApplicationCard from "./empty-application-card";
+import ApplicationStatusConfirmDialog from "../application-status-confirm-dialog";
 
 function getSourceTypeStyle(sourceType: string) {
   switch (sourceType.toUpperCase()) {
@@ -118,23 +119,35 @@ function ApprovedActionPanel({
       </div>
 
       <div className="flex items-center justify-end gap-3 sm:shrink-0">
-        <Button
-          type="button"
-          variant="outline"
-          disabled={isSubmitting}
-          onClick={onDecline}
-          className="h-11 rounded-xl border border-[#CBD5E1] bg-white px-6 text-sm font-semibold text-[#111827] shadow-none hover:bg-[#F8FAFC]"
-        >
-          Decline
-        </Button>
-        <Button
-          type="button"
-          disabled={isSubmitting}
-          onClick={onAccept}
-          className="h-11 rounded-xl bg-[#2F6FE4] px-6 text-sm font-semibold text-white shadow-[0px_12px_24px_-10px_rgba(47,111,228,0.85)] hover:bg-[#245cc2]"
-        >
-          Accept
-        </Button>
+        <ApplicationStatusConfirmDialog
+          action="decline"
+          isSubmitting={isSubmitting}
+          onConfirm={onDecline}
+          trigger={
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isSubmitting}
+              className="h-11 rounded-xl border border-[#CBD5E1] bg-white px-6 text-sm font-semibold text-[#111827] shadow-none hover:bg-[#F8FAFC]"
+            >
+              Decline
+            </Button>
+          }
+        />
+        <ApplicationStatusConfirmDialog
+          action="accept"
+          isSubmitting={isSubmitting}
+          onConfirm={onAccept}
+          trigger={
+            <Button
+              type="button"
+              disabled={isSubmitting}
+              className="h-11 rounded-xl bg-[#2F6FE4] px-6 text-sm font-semibold text-white shadow-[0px_12px_24px_-10px_rgba(47,111,228,0.85)] hover:bg-[#245cc2]"
+            >
+              Accept
+            </Button>
+          }
+        />
       </div>
     </motion.div>
   );
