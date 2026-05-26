@@ -135,10 +135,12 @@ export default function NotificationsList({
                 </div>
 
                 {/* Mark read button + unread bar */}
-                {!notif.isRead && (
+                {!notif.isRead && onMarkRead && (
                   <>
                     <button
-                      onClick={() => onMarkRead?.(notif.id)}
+                      type="button"
+                      onClick={() => onMarkRead(notif.id)}
+                      aria-label={`Mark "${notif.title}" as read`}
                       title="Mark as read"
                       className="shrink-0 z-10 text-blue-400 hover:text-blue-600"
                     >

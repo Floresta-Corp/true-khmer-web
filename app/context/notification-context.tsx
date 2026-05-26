@@ -4,7 +4,9 @@ import {
   useEffect,
   useRef,
   useState,
+  type Dispatch,
   type ReactNode,
+  type SetStateAction,
 } from "react";
 import { toast } from "sonner";
 import {
@@ -64,7 +66,7 @@ export const NOTIFICATION_ICON_BG_MAP: Record<NotificationType, string> = {
 };
 
 // Helper function to get icon component from icon name
-const getIconComponent = (iconName: string): React.ReactNode => {
+const getIconComponent = (iconName: string): ReactNode => {
   switch (iconName) {
     case "User":
       return <User className="h-5 w-5" />;
@@ -89,11 +91,9 @@ const getIconComponent = (iconName: string): React.ReactNode => {
 
 interface NotificationContextValue {
   unreadCount: number;
-  setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
+  setUnreadCount: Dispatch<SetStateAction<number>>;
   recentNotifications: ApiNotification[];
-  setRecentNotifications: React.Dispatch<
-    React.SetStateAction<ApiNotification[]>
-  >;
+  setRecentNotifications: Dispatch<SetStateAction<ApiNotification[]>>;
 }
 
 const defaultValue: NotificationContextValue = {
@@ -127,7 +127,7 @@ export function NotificationProvider({ children, enabled = true }: Props) {
   // Fetch initial unread count
   useEffect(() => {
     if (!enabled) return;
-    fetch("/notifications?limit=1&page=1")
+    fetch("/api/notifications?limit=1&page=1")
       .then((r) => r.json())
       .then((d) => {
         if (typeof d?.unreadCount === "number") setUnreadCount(d.unreadCount);

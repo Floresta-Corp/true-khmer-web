@@ -86,22 +86,24 @@ export default function NotificationBell() {
     }
   }, [loadFetcher.data, setRecentNotifications, setUnreadCount]);
 
-  // Keep local unread badge in sync with context (SSE updates)
+  // Keep local UI in sync with context updates such as SSE pushes.
   useEffect(() => {
+    setLocalNotifications(recentNotifications);
     setLocalUnreadCount(unreadCount);
-  }, [unreadCount]);
+  }, [recentNotifications, unreadCount]);
 
   function handleMarkAllRead() {
     if (!localNotifications.some((n) => !n.isRead)) return;
+    const readAt = new Date().toISOString();
+    const nextNotifications = localNotifications.map((n) => ({
+      ...n,
+      isRead: true,
+      readAt,
+    }));
 
     // Optimistic update
-    setLocalNotifications((prev) =>
-      prev.map((n) => ({
-        ...n,
-        isRead: true,
-        readAt: new Date().toISOString(),
-      })),
-    );
+    setLocalNotifications(nextNotifications);
+    setRecentNotifications(nextNotifications);
     setLocalUnreadCount(0);
     setUnreadCount(0);
 
@@ -122,11 +124,15 @@ export default function NotificationBell() {
           variant="ghost"
           size="icon"
           className="relative size-8.75 rounded-full border border-[#f1f5f9] bg-white text-[#344256] hover:bg-[#f8fafc] hover:text-[#0f172a]"
-          aria-label="Notifications"
+          aria-label={
+            localUnreadCount > 0
+              ? `Notifications, ${localUnreadCount} unread`
+              : "Notifications"
+          }
         >
           <Bell className="h-3.5 w-3.5" />
           {localUnreadCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full border border-white bg-[#fb2c36]" />
+            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full border border-white bg-[`#fb2c36`]" />
           )}
         </Button>
       </PopoverTrigger>

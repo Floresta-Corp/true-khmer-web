@@ -7,9 +7,18 @@ export async function action({ request }: ActionFunctionArgs) {
       notificationIds: string[];
     };
 
-    if (!notificationIds?.length) {
+    if (
+      !Array.isArray(notificationIds) ||
+      notificationIds.length === 0 ||
+      !notificationIds.every(
+        (id) => typeof id === "string" && id.trim().length > 0,
+      )
+    ) {
       return Response.json(
-        { ok: false, error: "notificationIds is required" },
+        {
+          ok: false,
+          error: "notificationIds must be an array of non-empty strings",
+        },
         { status: 400 },
       );
     }

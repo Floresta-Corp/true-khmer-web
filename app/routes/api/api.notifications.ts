@@ -5,11 +5,23 @@ import {
   markAllNotificationsRead,
 } from "~/services/notifications.server";
 
+function readPositiveInteger(
+  value: string | null,
+  fallback: number,
+): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    return fallback;
+  }
+
+  return Math.floor(parsed);
+}
+
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
     const url = new URL(request.url);
-    const page = Number(url.searchParams.get("page") ?? 1);
-    const limit = Number(url.searchParams.get("limit") ?? 20);
+    const page = readPositiveInteger(url.searchParams.get("page"), 1);
+    const limit = readPositiveInteger(url.searchParams.get("limit"), 20);
     const unreadOnly = url.searchParams.get("unreadOnly") === "true";
     const type = url.searchParams.get("type");
     const archived = url.searchParams.get("archived") === "true";
@@ -48,10 +60,7 @@ export async function action({ request }: ActionFunctionArgs) {
     // Support both new intent-based format and legacy PATCH format
     const intent = body.intent;
 
-    if (
-      intent === "markAllRead" ||
-      (request.method === "POST" && !body.notificationIds)
-    ) {
+    if (intent === "markAllRead") {
       const result = await markAllNotificationsRead(request);
       return Response.json(result);
     }
