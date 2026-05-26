@@ -44,6 +44,8 @@ interface LaunchpadProjectDetailInputCardProps {
   coverFile: File | null;
   categories: { id: string; name: string }[];
   cities: { id: string; name: string }[];
+  existingLogoUrl?: string;
+  existingCoverUrl?: string;
   errors?: {
     name?: string;
     categoryId?: string;
@@ -79,6 +81,8 @@ export default function LaunchpadProjectDetailInputCard({
   coverFile,
   categories,
   cities,
+  existingLogoUrl,
+  existingCoverUrl,
   errors,
   onNameChange,
   onCategoryChange,
@@ -103,32 +107,38 @@ export default function LaunchpadProjectDetailInputCard({
   >(undefined);
 
   useEffect(() => {
-    if (!logoFile) {
-      setProjectLogoPreview(PROJECT_LOGO_PLACEHOLDER);
+    if (logoFile) {
+      const objectUrl = URL.createObjectURL(logoFile);
+      setProjectLogoPreview(objectUrl);
+      return () => {
+        URL.revokeObjectURL(objectUrl);
+      };
+    }
+
+    if (existingLogoUrl) {
+      setProjectLogoPreview(existingLogoUrl);
       return;
     }
 
-    const objectUrl = URL.createObjectURL(logoFile);
-    setProjectLogoPreview(objectUrl);
-
-    return () => {
-      URL.revokeObjectURL(objectUrl);
-    };
-  }, [logoFile]);
+    setProjectLogoPreview(PROJECT_LOGO_PLACEHOLDER);
+  }, [logoFile, existingLogoUrl]);
 
   useEffect(() => {
-    if (!coverFile) {
-      setProjectCoverPreview(undefined);
+    if (coverFile) {
+      const objectUrl = URL.createObjectURL(coverFile);
+      setProjectCoverPreview(objectUrl);
+      return () => {
+        URL.revokeObjectURL(objectUrl);
+      };
+    }
+
+    if (existingCoverUrl) {
+      setProjectCoverPreview(existingCoverUrl);
       return;
     }
 
-    const objectUrl = URL.createObjectURL(coverFile);
-    setProjectCoverPreview(objectUrl);
-
-    return () => {
-      URL.revokeObjectURL(objectUrl);
-    };
-  }, [coverFile]);
+    setProjectCoverPreview(undefined);
+  }, [coverFile, existingCoverUrl]);
 
   const handleProjectLogoChange = (
     event: React.ChangeEvent<HTMLInputElement>,

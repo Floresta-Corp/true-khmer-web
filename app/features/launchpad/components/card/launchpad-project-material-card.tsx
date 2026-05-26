@@ -1,18 +1,25 @@
-import { Paperclip, Plus } from "lucide-react";
+import { Paperclip, Plus, ExternalLink } from "lucide-react";
 import { useId, useRef } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import LaunchpadMaterialComponent from "../launchpad-material-component";
 import SectionInputCard from "~/components/section-input-card";
 
+interface ExistingDocument {
+  name: string;
+  url?: string;
+}
+
 interface LaunchpadProjectMaterialCardProps {
   files: File[];
+  existingDocuments?: ExistingDocument[];
   error?: string;
   onChange: (files: File[]) => void;
 }
 
 export default function LaunchpadProjectMaterialCard({
   files,
+  existingDocuments,
   error,
   onChange,
 }: LaunchpadProjectMaterialCardProps) {
@@ -74,6 +81,24 @@ export default function LaunchpadProjectMaterialCard({
       }}
       hideSeparator
     >
+      {existingDocuments?.map((doc, index) => (
+        <div
+          key={`existing-${doc.name}-${index}`}
+          className="flex items-center border border-[#F3F4F6] rounded-lg px-4 py-2"
+        >
+          <div className="flex-1">{doc.name}</div>
+          {doc.url ? (
+            <a
+              href={doc.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:text-blue-700"
+            >
+              <ExternalLink size={14} />
+            </a>
+          ) : null}
+        </div>
+      ))}
       {files?.map((file, index) => (
         <LaunchpadMaterialComponent
           key={`${file.name}-${index}`}

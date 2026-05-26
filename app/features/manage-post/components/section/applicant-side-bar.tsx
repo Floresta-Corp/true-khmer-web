@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Send } from "lucide-react";
 import { motion } from "motion/react";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import { formatDate } from "~/features/events/lib/event-formatters";
@@ -90,10 +90,27 @@ export default function ApplicantSideBar({
 
   const roles = applicant?.roles ?? [];
   const hasMultipleRoles = roles.length > 1;
-
   const overallStatus = normalizeStatus(applicant?.status ?? "submitted");
-
   const isNew = overallStatus === "submitted";
+
+  const volunteerInfo = [
+    {
+      title: "Applied On",
+      value: formatDate(applicant?.appliedAt || ""),
+      hide: false,
+    },
+    {
+      title: "Why do you want to join this project?",
+      value: applicant?.volunteer?.availability,
+      hide: false,
+    },
+    {
+      title: "Relevant Experience",
+      value: applicant?.volunteer?.relevantExperience,
+      valueClass: "text-gray-600 leading-relaxed",
+      hide: !applicant?.volunteer?.relevantExperience,
+    },
+  ];
 
   return (
     <>
@@ -347,27 +364,22 @@ export default function ApplicantSideBar({
                 </div>
               )}
 
-              {/* Applied On */}
-              <div className="bg-gray-50 p-4 rounded-2xl ">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">
-                  Applied On
-                </p>
-                <p className="text-sm text-gray-700">
-                  {formatDate(applicant.appliedAt)}
-                </p>
-              </div>
-
-              {/* Relevant Experience (volunteer) */}
-              {applicant.volunteer?.relevantExperience && (
-                <div className="bg-gray-50 p-4 rounded-2xl">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
-                    Relevant Experience
-                  </p>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {applicant.volunteer.relevantExperience}
-                  </p>
-                </div>
-              )}
+              {volunteerInfo.map((info, idx) => (
+                <Fragment key={idx}>
+                  {info.hide ? null : (
+                    <div className="bg-gray-50 p-4 rounded-2xl ">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">
+                        {info.title}
+                      </p>
+                      <p
+                        className={cn("text-sm text-gray-700", info.valueClass)}
+                      >
+                        {info.value}
+                      </p>
+                    </div>
+                  )}
+                </Fragment>
+              ))}
 
               {/* Motivation (project) */}
               {applicant.project?.motivation && (

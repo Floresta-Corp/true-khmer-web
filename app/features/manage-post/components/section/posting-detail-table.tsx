@@ -114,14 +114,6 @@ export default function ManagePostingDetailTable({
     }
   };
 
-  const syncedApplicant = selectedApplicant
-    ? (applicants.find(
-        (a) =>
-          a.roles?.[0]?.applicationId ===
-          selectedApplicant.roles?.[0]?.applicationId,
-      ) ?? selectedApplicant)
-    : null;
-
   const pendingApplicantId = fetcher.formData?.get("applicationId");
   const pendingStatus = fetcher.formData?.get(
     "statusAction",
@@ -184,11 +176,11 @@ export default function ManagePostingDetailTable({
             </TableHeader>
 
             <TableBody className="divide-y divide-slate-50 dark:divide-slate-900">
-              {(applicants ?? []).map((applicant) => {
+              {(applicants ?? []).map((applicant, idx) => {
                 const displayStatus = getDisplayStatus(applicant);
                 return (
                   <TableRow
-                    key={applicant.candidate.id}
+                    key={`${applicant.candidate.id} ${idx}`}
                     onClick={() => handleRowClick(applicant)}
                     className="hover:bg-slate-50/40 dark:hover:bg-slate-900/20 transition-colors cursor-pointer"
                   >
@@ -308,7 +300,7 @@ export default function ManagePostingDetailTable({
       </div>
 
       <ApplicantSideBar
-        applicant={syncedApplicant}
+        applicant={selectedApplicant}
         onClose={() => setSelectedApplicant(null)}
         postingId={postingId}
         sourceType={sourceType}

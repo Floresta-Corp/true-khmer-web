@@ -63,7 +63,10 @@ export default function ManagePostingDetailPage() {
         {/* Header Layout: Stacked on mobile, side-by-side on desktop */}
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
           {/* Left: Metadata & Title */}
-          <motion.div {...fadeUp(0.15)} className="flex flex-col gap-3 min-w-0 w-full">
+          <motion.div
+            {...fadeUp(0.15)}
+            className="flex flex-col gap-3 min-w-0 w-full"
+          >
             <div className="flex flex-wrap items-center gap-3">
               <div
                 className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
@@ -103,7 +106,10 @@ export default function ManagePostingDetailPage() {
             </h1>
 
             {/* Date */}
-            <motion.div {...fadeUp(0.2)} className="flex items-center gap-2 text-sm text-gray-400">
+            <motion.div
+              {...fadeUp(0.2)}
+              className="flex items-center gap-2 text-sm text-gray-400"
+            >
               <CalendarRange size={13} />
               <span>
                 Posted {formatDate(postDetail?.posting?.createdAt ?? "-")}
