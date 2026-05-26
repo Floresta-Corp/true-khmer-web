@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { Briefcase, HandHeart } from "lucide-react";
+import { BookUser, Briefcase, ClipboardList, HandHeart } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { motion } from "motion/react";
@@ -14,7 +14,7 @@ const STATUS_STYLES: Record<ManagePostStatus, string> = {
   COMPLETED: "bg-green-100 text-green-700 border-green-200",
   DRAFT: "bg-gray-100 text-gray-700 border-gray-200",
   LIVE: "bg-blue-100 text-blue-700 border-blue-200",
-  IN_PROGRESS: "bg-amber-100 text-amber-700 border-amber-200",
+  IN_PROGRESS: "bg-indigo-100 text-indigo-700 border-indigo-200",
   CANCELED: "bg-red-100 text-red-700 border-red-200",
   FILLED: "bg-blue-100 text-blue-700 border-blue-200",
 };
@@ -65,11 +65,13 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
         onClick={() => navigate(cardHref)}
         className="flex flex-col h-full bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 hover:shadow-xl hover:shadow-gray-200/40 transition-all duration-300 relative group cursor-pointer"
       >
-        {/* <ManagePostOption
-          status={posting.status}
-          sourceType={posting.sourceType}
-          postingId={posting.id}
-        /> */}
+        <div className="absolute right-4 top-4 z-10">
+          <ManagePostOption
+            status={posting.status}
+            sourceType={posting.sourceType}
+            postingId={posting.id}
+          />
+        </div>
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
@@ -136,10 +138,13 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
           {posting.status === "COMPLETED" ? (
             <Button
               variant="outline"
-              className="w-full h-10 sm:h-12 text-sm font-bold text-slate-600 border-slate-200 hover:bg-slate-50 rounded-xl transition-all"
+              className="w-full h-10 sm:h-12 text-sm font-bold text-slate-600 border-slate-200 rounded-xl transition-all hover:bg-blue-600 hover:text-white duration-200 active:scale-[0.98]"
               asChild
             >
-              <Link to={`/manage-post/${posting.id}/report`}>View Report</Link>
+              <Link to={cardHref}>
+                <ClipboardList />
+                View Report
+              </Link>
             </Button>
           ) : (
             <Link to={cardHref}>

@@ -14,7 +14,7 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { useFetcher, useNavigate, useParams } from "react-router";
+import { useFetcher, useNavigate } from "react-router";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -23,14 +23,22 @@ import {
 } from "~/components/ui/dropdown-menu";
 import type {
   ManagePostStatus,
+  PostingType,
   SourceType,
   UpdateManagePostResponse,
 } from "~/services/manage-post/types";
 
 type Props = {
   status: ManagePostStatus;
-  sourceType: SourceType;
+  sourceType: SourceType | PostingType;
   postingId: string;
+};
+
+const SOURCE_TYPE_TO_ROUTE: Record<string, "projects" | "volunteer"> = {
+  PROJECT: "projects",
+  projects: "projects",
+  VOLUNTEER: "volunteer",
+  volunteer: "volunteer",
 };
 
 export default function ManagePostOption({
@@ -40,14 +48,20 @@ export default function ManagePostOption({
 }: Props) {
   const fetcher = useFetcher();
   const navigate = useNavigate();
-  const { sourceType: sourceTypeParam } = useParams();
 
+  const managePostSourceType = SOURCE_TYPE_TO_ROUTE[sourceType] ?? "volunteer";
   const sourceTypeRoute =
-    sourceTypeParam === "projects" ? "launchpad" : "volunteer";
+    managePostSourceType === "projects" ? "launchpad" : "volunteer";
   const editRoute = `/${sourceTypeRoute}/edit/${postingId}`;
 
   const handleAction = (postingAction: UpdateManagePostResponse) => {
-    fetcher.submit({ postingAction }, { method: "POST" });
+    fetcher.submit(
+      { postingAction },
+      {
+        method: "POST",
+        action: `/manage-post/${managePostSourceType}/${postingId}`,
+      },
+    );
   };
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -59,7 +73,7 @@ export default function ManagePostOption({
       <DropdownMenuTrigger asChild>
         <button
           onClick={(e) => e.stopPropagation()}
-          className="h-11 w-11 rounded-2xl text-gray-400 hover:text-gray-600 flex items-center justify-center shrink-0 border cursor-pointer"
+          className="h-11 w-11 rounded-xl  text-gray-400 bg-white hover:text-blue-600 hover:border-blue-600 flex items-center justify-center shrink-0 cursor-pointer"
         >
           <MoreHorizontal size={20} />
         </button>
@@ -80,14 +94,14 @@ export default function ManagePostOption({
               Edit Posting
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => handleAction("cancel")}
+              // onClick={() => handleAction("cancel")}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
             >
               <CalendarClock size={16} className="text-slate-400" />
               Extend Deadline
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => handleAction("cancel")}
+              onClick={() => handleAction("close")}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
             >
               <X size={16} className="text-slate-400" />
@@ -121,7 +135,7 @@ export default function ManagePostOption({
               Edit Posting
             </DropdownMenuItem>
             <DropdownMenuItem
-              // onClick={() => handleAction("")}
+              // onClick={() => handleAction("reopen_recruitment")}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
             >
               <UserCheck size={16} className="text-slate-400" />
@@ -161,16 +175,10 @@ export default function ManagePostOption({
               <Globe size={16} className="text-slate-400" />
               Publish
             </DropdownMenuItem>
-            <DropdownMenuItem
-              // onClick={() => handleAction("")}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
-            >
-              <Copy size={16} className="text-slate-400" />
-              Duplicate
-            </DropdownMenuItem>
+
             <DropdownMenuSeparator className="my-1" />
             <DropdownMenuItem
-              // onClick={() => handleAction("")}
+              onClick={() => handleAction("delete")}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-red-500 font-medium focus:text-red-500 focus:bg-red-50"
             >
               <Trash2 size={16} />
@@ -195,13 +203,7 @@ export default function ManagePostOption({
               <Star size={16} className="text-slate-400" />
               Rate Participants
             </DropdownMenuItem>
-            <DropdownMenuItem
-              // onClick={() => handleAction("")}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
-            >
-              <Copy size={16} className="text-slate-400" />
-              Duplicate Posting
-            </DropdownMenuItem>
+
             <DropdownMenuSeparator className="my-1" />
             <DropdownMenuItem
               // onClick={() => handleAction("")}
@@ -209,6 +211,18 @@ export default function ManagePostOption({
             >
               <Archive size={16} className="text-slate-400" />
               Archive Project
+            </DropdownMenuItem>
+          </>
+        )}
+
+        {status === "CANCELED" && (
+          <>
+            <DropdownMenuItem
+              onClick={() => handleAction("delete")}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-red-500 font-medium focus:text-red-500 focus:bg-red-50"
+            >
+              <Trash2 size={16} />
+              Delete Posting
             </DropdownMenuItem>
           </>
         )}

@@ -44,7 +44,23 @@ export async function updateManagePost(
 ) {
   const result = await apiRequestWithSession<ManagePostResponse>(
     request,
-    `/v1/workspace/manage-posting/${sourceType}/${postingId}/action/${postingAction}`,
+    `/workspace/manage-posting/${sourceType}/${postingId}/action/${postingAction}`,
+    {
+      method: "POST",
+    },
+  );
+
+  return result;
+}
+
+export async function updateManagePostExtendDate(
+  request: Request,
+  sourceType: PostSourceType,
+  postingId: string,
+) {
+  const result = await apiRequestWithSession<ManagePostResponse>(
+    request,
+    `/workspace/manage-posting/${sourceType}/${postingId}/extend-deadline`,
     {
       method: "POST",
     },
