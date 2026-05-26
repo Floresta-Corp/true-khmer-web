@@ -23,7 +23,7 @@ const displayLabel: Record<string, string> = {
   DECLINED: "declined",
   WITHDRAWN: "withdrawn",
   UNDER_REVIEW: "under review",
-  SUBMITTED: "submitted",
+  SUBMITTED: "new",
 };
 export default function ApplicantStatusChangeButton({
   applicationId,
@@ -138,7 +138,7 @@ export default function ApplicantStatusChangeButton({
             variant="ghost"
             className="w-full text-red-500 hover:text-red-600 hover:bg-red-50 font-semibold rounded-xl h-11"
             onClick={() => handleStatusChange("decline")}
-            disabled={isLoading}
+            disabled={declineDisabled}
           >
             {isFinalPending && pendingAction === "decline"
               ? "Saving..."

@@ -1,10 +1,7 @@
 import {
-  Search,
   HeartHandshake,
-  MessageSquare,
   CalendarDays,
   CheckCircle2,
-  Eye,
   ScanSearch,
 } from "lucide-react";
 import { useLoaderData } from "react-router";
@@ -13,7 +10,9 @@ import type { loader } from "../../routes/manage-post.$sourceType.$id";
 export default function ManagePostingDetailStats() {
   const { postDetail } = useLoaderData<typeof loader>();
 
-  const totalApplicant = postDetail?.stats?.statuses?.CONFIRMED ?? 0;
+  const totalApplicant =
+    (postDetail?.stats?.statuses?.CONFIRMED ?? 0) +
+    (postDetail?.stats?.statuses?.COMPLETED ?? 0);
 
   const capacity = postDetail?.posting?.capacity ?? 0;
 
@@ -30,13 +29,13 @@ export default function ManagePostingDetailStats() {
           <p className="text-[14px] font-semibold text-white/70  tracking-wider mb-4">
             Pending
           </p>
-          <p className="text-4xl font-bold text-white tracking-tight">
-            {postDetail?.stats?.pending ?? 0}
-          </p>
         </div>
 
         {/* Bottom text + watermark */}
         <div className="absolute bottom-4 left-6 z-20 pointer-events-none">
+          <p className="text-4xl font-bold text-white tracking-tight">
+            {postDetail?.stats?.pending ?? 0}
+          </p>
           <span className="text-white/75 text-xs font-medium">
             Requires immediate review
           </span>
@@ -51,18 +50,15 @@ export default function ManagePostingDetailStats() {
           <p className="text-[14px] font-semibold text-gray-400 tracking-wider mb-4">
             Total Applicants
           </p>
-
-          <div className="flex items-baseline gap-2">
-            <p className="text-4xl font-bold text-gray-900 tracking-tight">
-              {postDetail?.stats?.totalApplicants ?? 0}
-            </p>
-
-            <span className="text-xs font-semibold text-emerald-500">
-              +12% this week
-            </span>
-          </div>
         </div>
-
+        <div className="absolute bottom-4 left-6 z-20 pointer-events-none">
+          <p className="text-4xl font-bold text-black tracking-tight">
+            {postDetail?.stats?.totalApplicants ?? 0}
+          </p>
+          <span className="text-green-500 text-xs font-medium">
+            +12% this week
+          </span>
+        </div>
         <HeartHandshake
           size={120}
           className="absolute -bottom-4 -right-4 text-violet-400 opacity-[0.10] -rotate-12 pointer-events-none"
@@ -86,33 +82,33 @@ export default function ManagePostingDetailStats() {
           >
             Recruitment Goal
           </p>
+        </div>
 
-          <div className="flex items-baseline gap-3">
-            <p
-              className={`text-4xl font-semibold tracking-tight ${
-                isGoalReached ? "text-emerald-900" : "text-gray-900"
+        <div className="absolute bottom-4 left-6 z-20 gap-3">
+          <p
+            className={`text-4xl font-semibold tracking-tight ${
+              isGoalReached ? "text-emerald-900" : "text-gray-900"
+            }`}
+          >
+            {totalApplicant}{" "}
+            <span
+              className={`text-lg font-medium ${
+                isGoalReached ? "text-emerald-600" : "text-gray-400"
               }`}
             >
-              {totalApplicant}{" "}
-              <span
-                className={`text-lg font-medium ${
-                  isGoalReached ? "text-emerald-600" : "text-gray-400"
-                }`}
-              >
-                / {capacity}
-              </span>
-            </p>
+              / {capacity}
+            </span>
+          </p>
 
-            {isGoalReached ? (
-              <span className="text-xs font-bold text-emerald-600 flex items-center gap-1 animate-pulse self-center">
-                Goal Achieved!
-              </span>
-            ) : (
-              <span className="text-xs font-semibold text-amber-500">
-                {remaining > 0 ? remaining : 0} to go
-              </span>
-            )}
-          </div>
+          {isGoalReached ? (
+            <span className="text-xs font-bold text-emerald-600 flex items-center gap-1 animate-pulse self-center">
+              Goal Achieved!
+            </span>
+          ) : (
+            <span className="text-xs font-semibold text-amber-500">
+              {remaining > 0 ? remaining : 0} to go
+            </span>
+          )}
         </div>
 
         {/* Conditional Large Watermark Icon */}
@@ -137,16 +133,12 @@ export default function ManagePostingDetailStats() {
           <p className="text-[14px] font-semibold text-gray-400 tracking-wider mb-4">
             Total Views
           </p>
-
-          <div className="flex items-baseline gap-2">
-            <p className="text-4xl font-bold text-gray-900 tracking-tight">
-              {postDetail?.posting?.views ?? 0}
-            </p>
-
-            <span className="text-xs font-semibold text-emerald-500">
-              +450 today
-            </span>
-          </div>
+        </div>
+        <div className="absolute bottom-4 left-6 z-20 pointer-events-none">
+          <p className="text-4xl font-bold text-black tracking-tight">
+            {postDetail?.posting?.views ?? 0}
+          </p>
+          <span className="text-green-500 text-xs font-medium">+450 today</span>
         </div>
 
         <ScanSearch

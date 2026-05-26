@@ -25,6 +25,7 @@ import ApplicantStatusChangeButton from "./applicant-change-status-button";
 
 const STATUS_STYLES: Record<ApplicantStatusAction, string> = {
   approve: "bg-green-100 text-green-700 border-green-200 hover:bg-gray-100",
+  new: "bg-blue-100 text-blue-700 border-blue-200 hover:bg-gray-100",
   completed: "bg-green-100 text-green-700 border-green-200 hover:bg-gray-100",
   confirmed: "bg-green-100 text-green-700 border-green-200 hover:bg-gray-100",
   decline: "bg-red-100 text-red-700 border-red-200 hover:bg-gray-100",
@@ -36,6 +37,7 @@ const STATUS_STYLES: Record<ApplicantStatusAction, string> = {
 const STATUS_LABELS: Record<ApplicantStatusAction, string> = {
   approve: "Approved",
   completed: "Completed",
+  new: "New",
   confirmed: "Confirmed",
   decline: "Declined",
   submitted: "Submitted",
@@ -77,23 +79,24 @@ export default function ApplicantSideBar({
 
   const normalizeStatus = (status: string): ApplicantStatusAction => {
     const map: Record<string, ApplicantStatusAction> = {
-      SUBMITTED: "submitted",
+      SUBMITTED: "new",
       UNDER_REVIEW: "under_review",
       APPROVED: "approve",
       CONFIRMED: "confirmed",
       COMPLETED: "completed",
+      NEW: "new",
       DECLINED: "decline",
       WITHDRAWN: "decline",
     };
-    return map[status?.toUpperCase()] ?? "submitted";
+    return map[status?.toUpperCase()] ?? "new";
   };
 
   const roles = applicant?.roles ?? [];
   const hasMultipleRoles = roles.length > 1;
+  const isTopPick = applicant?.topPick === roles?.[0]?.roleId;
+  const overallStatus = normalizeStatus(applicant?.status ?? "new");
 
-  const overallStatus = normalizeStatus(applicant?.status ?? "submitted");
-
-  const isNew = overallStatus === "submitted";
+  const isNew = overallStatus === "new";
 
   return (
     <>
@@ -222,7 +225,6 @@ export default function ApplicantSideBar({
                   <div className="flex flex-col gap-2">
                     {roles.map((role) => {
                       const isSelected = selectedRoleId === role.roleId;
-                      const isTopPick = applicant.topPick === role.roleId;
 
                       const isApproved = [
                         "APPROVED",
@@ -348,12 +350,25 @@ export default function ApplicantSideBar({
               ) : (
                 /* Single role — original display */
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
                     Role Applied
                   </p>
-                  <Badge className="bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-50 text-sm">
-                    {roles[0]?.title}
-                  </Badge>
+
+                  <div className="flex items-center gap-4 p-5 rounded-2xl border border-gray-100 bg-white shadow-sm max-w-xl">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold truncate ">
+                          {roles[0]?.title}
+                        </span>
+
+                        {isTopPick && (
+                          <span className="shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 border border-amber-200">
+                            Top Pick
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -366,15 +381,14 @@ export default function ApplicantSideBar({
                   {formatDate(applicant.appliedAt)}
                 </p>
               </div>
-
-              {/* Relevant Experience (volunteer) */}
-              {applicant.volunteer?.relevantExperience && (
+              {/* availability */}
+              {applicant.volunteer?.availability && (
                 <div className="bg-gray-50 p-4 rounded-2xl">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
                     Relevant Experience
                   </p>
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    {applicant.volunteer.relevantExperience}
+                    {applicant.volunteer.availability}
                   </p>
                 </div>
               )}

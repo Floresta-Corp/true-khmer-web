@@ -46,7 +46,7 @@ const STATUS_LABELS: Record<ApplicantStatusAction, string> = {
 
 const normalizeStatus = (status: string): ApplicantStatusAction => {
   const map: Record<string, ApplicantStatusAction> = {
-    SUBMITTED: "submitted",
+    SUBMITTED: "new",
     UNDER_REVIEW: "under_review",
     APPROVED: "approve",
     CONFIRMED: "confirmed",

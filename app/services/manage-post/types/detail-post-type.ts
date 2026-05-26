@@ -9,6 +9,7 @@ export const ApplicantStatusSchema = z.enum([
   "SUBMITTED",
   "UNDER_REVIEW",
   "WITHDRAWN",
+  "NEW",
 ]);
 export type ApplicantStatus = z.infer<typeof ApplicantStatusSchema>;
 
