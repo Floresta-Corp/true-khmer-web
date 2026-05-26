@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useLoaderData, useFetcher } from "react-router";
-import { loader } from "~/features/notifications/routes/notifications";
 import { formatDistanceToNow } from "date-fns";
 import NotificationsList, {
   type NotificationItem,
@@ -19,6 +18,7 @@ import {
   Star,
   User,
 } from "lucide-react";
+import type { loader } from "../../routes/notifications";
 
 interface NotificationsData {
   ok: boolean;
