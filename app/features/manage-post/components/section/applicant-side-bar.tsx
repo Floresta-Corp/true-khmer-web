@@ -80,8 +80,8 @@ export default function ApplicantSideBar({
       SUBMITTED: "submitted",
       UNDER_REVIEW: "under_review",
       APPROVED: "approve",
-      CONFIRMED: "approve",
-      COMPLETED: "approve",
+      CONFIRMED: "confirmed",
+      COMPLETED: "completed",
       DECLINED: "decline",
       WITHDRAWN: "decline",
     };
@@ -224,7 +224,11 @@ export default function ApplicantSideBar({
                       const isSelected = selectedRoleId === role.roleId;
                       const isTopPick = applicant.topPick === role.roleId;
 
-                      const isApproved = role.status === "APPROVED";
+                      const isApproved = [
+                        "APPROVED",
+                        "CONFIRMED",
+                        "COMPLETED",
+                      ].includes(role.status);
                       const isDeclined =
                         role.status === "DECLINED" ||
                         role.status === "WITHDRAWN";
@@ -301,7 +305,11 @@ export default function ApplicantSideBar({
                               )}
                               {isApproved && (
                                 <span className="shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-green-100 text-green-600 border border-green-200">
-                                  Approved
+                                  {role.status === "CONFIRMED"
+                                    ? "Confirmed"
+                                    : role.status === "COMPLETED"
+                                      ? "Completed"
+                                      : "Approved"}
                                 </span>
                               )}
                               {isDeclined && (
@@ -322,7 +330,9 @@ export default function ApplicantSideBar({
                   </div>
 
                   {/* Only show info note if not yet finalized */}
-                  {!roles.some((r) => r.status === "APPROVED") && (
+                  {!roles.some((r) =>
+                    ["APPROVED", "CONFIRMED", "COMPLETED"].includes(r.status),
+                  ) && (
                     <div className="mt-3 flex gap-2 rounded-xl bg-gray-50 border border-gray-200 p-3">
                       <span className="shrink-0 w-5 h-5 rounded-full bg-gray-200 text-gray-500 text-[11px] font-bold flex items-center justify-center">
                         i

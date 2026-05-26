@@ -3,7 +3,9 @@ import {
   HeartHandshake,
   MessageSquare,
   CalendarDays,
-  CheckCircle2, // Added for the goal-reached state
+  CheckCircle2,
+  Eye,
+  ScanSearch,
 } from "lucide-react";
 import { useLoaderData } from "react-router";
 import type { loader } from "../../routes/manage-post.$sourceType.$id";
@@ -11,7 +13,7 @@ import type { loader } from "../../routes/manage-post.$sourceType.$id";
 export default function ManagePostingDetailStats() {
   const { postDetail } = useLoaderData<typeof loader>();
 
-  const totalApplicant = postDetail?.stats?.statuses?.APPROVED ?? 0;
+  const totalApplicant = postDetail?.stats?.statuses?.CONFIRMED ?? 0;
 
   const capacity = postDetail?.posting?.capacity ?? 0;
 
@@ -23,17 +25,14 @@ export default function ManagePostingDetailStats() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
       {/* 1. Pending Card */}
-      <div className="bg-[#4F5FE8] rounded-[24px] p-6 flex justify-between items-start relative overflow-hidden h-40 shadow-lg shadow-indigo-500/20">
+      <div className="bg-[#4F5FE8] rounded-[24px] p-6 flex justify-between items-start relative overflow-hidden h-40 shadow-indigo-500/20">
         <div className="relative z-20">
-          <p className="text-base font-bold text-white/70 uppercase tracking-[0.15em] mb-4">
+          <p className="text-[14px] font-semibold text-white/70  tracking-wider mb-4">
             Pending
           </p>
           <p className="text-4xl font-bold text-white tracking-tight">
             {postDetail?.stats?.pending ?? 0}
           </p>
-        </div>
-        <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white relative z-20">
-          <MessageSquare size={20} strokeWidth={2.5} />
         </div>
 
         {/* Bottom text + watermark */}
@@ -42,56 +41,31 @@ export default function ManagePostingDetailStats() {
             Requires immediate review
           </span>
         </div>
-        <MessageSquare
-          size={130}
-          className="absolute -bottom-4 -right-4 text-white opacity-[0.08] pointer-events-none"
-          strokeWidth={1.5}
-        />
+
         <div className="absolute inset-0 bg-linear-to-br from-indigo-600/0 via-indigo-600/0 to-black/10 z-10 pointer-events-none" />
       </div>
 
       {/* 2. Total Applicants */}
-      <div className="bg-white rounded-[24px] border border-gray-100 p-6 flex justify-between items-start relative overflow-hidden h-40 shadow-sm">
+      <div className="bg-white rounded-[24px] border border-gray-100 p-6 flex justify-between items-start relative overflow-hidden h-40 ">
         <div className="relative z-20">
-          <p className="text-base font-bold text-gray-400 uppercase tracking-[0.15em] mb-4">
+          <p className="text-[14px] font-semibold text-gray-400 tracking-wider mb-4">
             Total Applicants
           </p>
-          <p className="text-4xl font-bold text-gray-900 tracking-tight">
-            {postDetail?.stats?.totalApplicants ?? 0}
-          </p>
-          <p className="text-xs font-semibold text-emerald-500 mt-2">
-            +12% this week
-          </p>
+
+          <div className="flex items-baseline gap-2">
+            <p className="text-4xl font-bold text-gray-900 tracking-tight">
+              {postDetail?.stats?.totalApplicants ?? 0}
+            </p>
+
+            <span className="text-xs font-semibold text-emerald-500">
+              +12% this week
+            </span>
+          </div>
         </div>
-        <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center text-violet-400 relative z-20">
-          <HeartHandshake size={20} strokeWidth={2.5} />
-        </div>
+
         <HeartHandshake
           size={120}
-          className="absolute -bottom-4 -right-4 text-violet-400 opacity-[0.10] rotate-12 pointer-events-none"
-          strokeWidth={1.5}
-        />
-      </div>
-
-      {/* 3. Total Views */}
-      <div className="bg-white rounded-[24px] border border-gray-100 p-6 flex justify-between items-start relative overflow-hidden h-40 shadow-sm">
-        <div className="relative z-20">
-          <p className="text-base font-bold text-gray-400 uppercase tracking-[0.15em] mb-4">
-            Total Views
-          </p>
-          <p className="text-4xl font-bold text-gray-900 tracking-tight">
-            {postDetail?.posting?.views ?? 0}
-          </p>
-          <p className="text-xs font-semibold text-emerald-500 mt-2">
-            +450 today
-          </p>
-        </div>
-        <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-green-500 relative z-20">
-          <Search size={20} strokeWidth={2.5} />
-        </div>
-        <Search
-          size={120}
-          className="absolute -bottom-4 -right-4 text-green-500 opacity-[0.10] rotate-12 pointer-events-none"
+          className="absolute -bottom-4 -right-4 text-violet-400 opacity-[0.10] -rotate-12 pointer-events-none"
           strokeWidth={1.5}
         />
       </div>
@@ -101,55 +75,44 @@ export default function ManagePostingDetailStats() {
         className={`rounded-[24px] border p-6 flex justify-between items-start relative overflow-hidden h-40 transition-all duration-300 ${
           isGoalReached
             ? "bg-emerald-50 border-emerald-200 shadow-md shadow-emerald-500/5"
-            : "bg-white border-gray-100 shadow-sm"
+            : "bg-white border-gray-100 "
         }`}
       >
         <div className="relative z-20">
           <p
-            className={`text-base font-bold uppercase tracking-[0.15em] mb-4 ${
+            className={`text-[14px] font-semibold tracking-wider mb-4 ${
               isGoalReached ? "text-emerald-700/70" : "text-gray-400"
             }`}
           >
             Recruitment Goal
           </p>
-          <p
-            className={`text-4xl font-bold tracking-tight ${
-              isGoalReached ? "text-emerald-900" : "text-gray-900"
-            }`}
-          >
-            {totalApplicant}{" "}
-            <span
-              className={`text-lg font-medium ${isGoalReached ? "text-emerald-600" : "text-gray-400"}`}
+
+          <div className="flex items-baseline gap-3">
+            <p
+              className={`text-4xl font-semibold tracking-tight ${
+                isGoalReached ? "text-emerald-900" : "text-gray-900"
+              }`}
             >
-              / {capacity}
-            </span>
-          </p>
-
-          {/* Conditional Subtext */}
-          {isGoalReached ? (
-            <p className="text-xs font-bold text-emerald-600 mt-2 flex items-center gap-1 animate-pulse">
-              Goal Achieved!
+              {totalApplicant}{" "}
+              <span
+                className={`text-lg font-medium ${
+                  isGoalReached ? "text-emerald-600" : "text-gray-400"
+                }`}
+              >
+                / {capacity}
+              </span>
             </p>
-          ) : (
-            <p className="text-xs font-semibold text-amber-500 mt-2">
-              {remaining > 0 ? remaining : 0} to go
-            </p>
-          )}
-        </div>
 
-        {/* Conditional Mini Icon */}
-        <div
-          className={`w-10 h-10 rounded-xl flex items-center justify-center relative z-20 transition-colors ${
-            isGoalReached
-              ? "bg-emerald-500 text-white"
-              : "bg-amber-50 text-amber-500"
-          }`}
-        >
-          {isGoalReached ? (
-            <CheckCircle2 size={20} strokeWidth={2.5} />
-          ) : (
-            <CalendarDays size={20} strokeWidth={2.5} />
-          )}
+            {isGoalReached ? (
+              <span className="text-xs font-bold text-emerald-600 flex items-center gap-1 animate-pulse self-center">
+                Goal Achieved!
+              </span>
+            ) : (
+              <span className="text-xs font-semibold text-amber-500">
+                {remaining > 0 ? remaining : 0} to go
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Conditional Large Watermark Icon */}
@@ -166,6 +129,31 @@ export default function ManagePostingDetailStats() {
             strokeWidth={1.5}
           />
         )}
+      </div>
+
+      {/* 3. Total Views */}
+      <div className="bg-white rounded-[24px] border border-gray-100 p-6 flex justify-between items-start relative overflow-hidden h-40 ">
+        <div className="relative z-20">
+          <p className="text-[14px] font-semibold text-gray-400 tracking-wider mb-4">
+            Total Views
+          </p>
+
+          <div className="flex items-baseline gap-2">
+            <p className="text-4xl font-bold text-gray-900 tracking-tight">
+              {postDetail?.posting?.views ?? 0}
+            </p>
+
+            <span className="text-xs font-semibold text-emerald-500">
+              +450 today
+            </span>
+          </div>
+        </div>
+
+        <ScanSearch
+          size={120}
+          className="absolute -bottom-4 -right-4 text-green-500 opacity-[0.10] -rotate-12 pointer-events-none"
+          strokeWidth={1.5}
+        />
       </div>
     </div>
   );

@@ -45,6 +45,7 @@ export const ApplicantStatusActionSchema = z.enum([
   "confirmed",
   "completed",
   "submitted",
+  "new",
 ]);
 
 export type ApplicantStatusAction = z.infer<typeof ApplicantStatusActionSchema>;
@@ -125,6 +126,7 @@ export const PostingSchema = z.object({
   description: z.union([z.null(), z.string()]),
   filled: z.boolean(),
   id: z.string(),
+  isEditable: z.boolean(),
   imageKey: z.union([z.null(), z.string()]),
   sourceType: PostingTypeSchema,
   status: PostingStatusSchema,
