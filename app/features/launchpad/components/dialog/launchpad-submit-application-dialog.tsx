@@ -309,7 +309,10 @@ export default function LaunchpadSubmitApplicationDialog({
           <SuccessState
             roleName={selectedRole?.title ?? ""}
             projectName={launchpadName ?? ""}
-            onClose={() => setOpen(false)}
+            onClose={() => {
+              setOpen(false);
+              navigate("/launchpad");
+            }}
             onViewApplications={() => {
               setOpen(false);
               navigate("/my-applications");
