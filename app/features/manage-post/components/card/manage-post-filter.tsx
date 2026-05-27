@@ -1,4 +1,3 @@
-import { useSearchParams, useFetcher, useLoaderData } from "react-router";
 import { Search } from "lucide-react";
 import { Input } from "~/components/ui/input";
 import {
@@ -11,9 +10,16 @@ import {
 import { cn } from "~/lib/utils";
 import { motion } from "motion/react";
 import { useState } from "react";
-
 type TabType = "all" | "projects" | "volunteer";
 
+type FilterType =
+  | "all"
+  | "live"
+  | "draft"
+  | "in_progress"
+  | "canceled"
+  | "completed"
+  | "filled";
 const TABS = [
   { label: "All", value: "all" },
   { label: "Volunteer", value: "volunteer" },
@@ -21,70 +27,23 @@ const TABS = [
 ];
 
 const VALID_TABS = ["all", "volunteer", "projects"] as const;
+type Props = {
+  activeType: TabType;
+  filter: FilterType;
+  searchInput: string;
+  onTypeChange: (type: TabType) => void;
+  onFilterChange: (value: FilterType) => void;
+  onSearchChange: (value: string) => void;
+};
 
-function isValidTab(value: string | null): value is TabType {
-  return value !== null && VALID_TABS.includes(value as TabType);
-}
-
-const VALID_STATUS_VALUES = [
-  "all",
-  "live",
-  "draft",
-  "in_progress",
-  "canceled",
-  "completed",
-  "filled",
-] as const;
-
-function isValidStatus(
-  value: string | null,
-): value is (typeof VALID_STATUS_VALUES)[number] {
-  return (
-    value !== null &&
-    VALID_STATUS_VALUES.includes(value as (typeof VALID_STATUS_VALUES)[number])
-  );
-}
-
-export default function ManagePostFilters() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const rawType = searchParams.get("type");
-  const activeType = isValidTab(rawType) ? rawType : "all";
-  const rawFilter = searchParams.get("filter");
-  const filter = isValidStatus(rawFilter) ? rawFilter : "all";
-  const [searchInput, setSearchInput] = useState(
-    searchParams.get("search") ?? "",
-  );
-
-  const handleTypeChange = (type: string) => {
-    const params = new URLSearchParams(searchParams);
-    if (!type || type === "all") {
-      params.delete("type");
-    } else {
-      params.set("type", type);
-    }
-    setSearchParams(params, { replace: true });
-  };
-
-  const handleFilterChange = (value: string) => {
-    const params = new URLSearchParams(searchParams);
-    if (!value || value === "all") {
-      params.delete("filter");
-    } else {
-      params.set("filter", value);
-    }
-    setSearchParams(params, { replace: true });
-  };
-
-  const handleSearch = (value: string) => {
-    const params = new URLSearchParams(searchParams);
-    if (value) {
-      params.set("search", value);
-    } else {
-      params.delete("search");
-    }
-    setSearchParams(params, { replace: true });
-  };
-
+export default function ManagePostFilters({
+  activeType,
+  filter,
+  searchInput,
+  onTypeChange,
+  onFilterChange,
+  onSearchChange,
+}: Props) {
   return (
     <div className="flex items-center justify-between gap-4 flex-wrap w-full m-4">
       <div className="flex items-center gap-3">
@@ -92,7 +51,7 @@ export default function ManagePostFilters() {
           {TABS.map((tab) => (
             <button
               key={tab.value}
-              onClick={() => handleTypeChange(tab.value)}
+              onClick={() => onTypeChange(tab.value as TabType)}
               className="relative px-5 py-1.5 text-[14px] font-bold transition-colors duration-300 cursor-pointer z-10"
             >
               <span
@@ -117,8 +76,11 @@ export default function ManagePostFilters() {
           ))}
         </div>
 
-        <Select value={filter} onValueChange={handleFilterChange}>
-          <SelectTrigger className="w-28 md:w-35 lg:w-35 h-10 text-[14px] font-medium border-slate-200 bg-white rounded-xl focus:ring-blue-500/20">
+        <Select
+          value={filter}
+          onValueChange={(value) => onFilterChange(value as FilterType)}
+        >
+          <SelectTrigger className="w-35 h-10 text-[14px] font-medium border-slate-200 bg-white rounded-xl focus:ring-blue-500/20">
             <SelectValue placeholder="Filter" />
           </SelectTrigger>
           <SelectContent className="rounded-xl border-slate-200">
@@ -143,8 +105,7 @@ export default function ManagePostFilters() {
           placeholder="Search postings name..."
           value={searchInput}
           onChange={(e) => {
-            setSearchInput(e.target.value);
-            handleSearch(e.target.value);
+            onSearchChange(e.target.value);
           }}
         />
       </div>

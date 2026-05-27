@@ -13,6 +13,8 @@ interface LaunchpadPostPage1Props {
   description: string;
   categories: { id: string; name: string }[];
   cities: { id: string; name: string }[];
+  existingLogoUrl?: string;
+  existingCoverUrl?: string;
   errors?: {
     name?: string;
     categoryId?: string;
@@ -42,6 +44,8 @@ export default function LaunchpadPostPage1({
   description,
   categories,
   cities,
+  existingLogoUrl,
+  existingCoverUrl,
   errors,
   onNameChange,
   onCategoryChange,
@@ -75,6 +79,8 @@ export default function LaunchpadPostPage1({
         coverFile={coverFile}
         categories={categories}
         cities={cities}
+        existingLogoUrl={existingLogoUrl}
+        existingCoverUrl={existingCoverUrl}
         errors={errors}
         onNameChange={onNameChange}
         onCategoryChange={onCategoryChange}
