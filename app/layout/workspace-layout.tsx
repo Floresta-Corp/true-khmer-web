@@ -24,16 +24,14 @@ import { useIsMobile } from "~/hooks/use-mobile";
 //   },
 // };
 
-export default function AppLayout() {
-  const location = useLocation();
-
+export default function WorkspaceLayout() {
   const isMobile = useIsMobile();
   return (
     <TooltipProvider>
       <SidebarProvider>
-        <div className="flex min-h-[calc(100vh-4rem)] w-full">
+        <div className="flex h-screen w-full">
           <WorkSpaceSideBar />
-          <SidebarInset className="flex-1 flex flex-col bg-[#f8fafc]">
+          <SidebarInset className="flex-1 flex flex-col bg-[#f8fafc] min-h-[calc(100vh-68px)] overflow-y-auto">
             {/* <header className="flex h-14 items-center border-b bg-white p-4 lg:px-6 shrink-0">
             </header> */}
             {/* Only show trigger on mobile */}

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import WorkSpacePageLayout from "~/layout/workspace-page-layout";
 import { Card, CardContent } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
@@ -273,160 +274,146 @@ export default function MyEventsPage() {
   }, [search, showArchived, statusFilter]);
 
   return (
-    <main className="min-h-screen bg-[#EEF4FB] px-4 py-8 sm:px-6 lg:px-10">
-      <div className="mx-auto w-full max-w-7xl">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: prefersReducedMotion ? 0 : 0.25 }}
-          className="flex items-start justify-between gap-4"
-        >
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-[#0F172A] sm:text-[42px]">
-              My Events
-            </h1>
-            <p className="mt-2 text-sm text-[#6B7C93] sm:text-base">
-              Manage all your events in one place
-            </p>
+    <WorkSpacePageLayout
+      title="My Events"
+      subtitle="Manage all your events in one place"
+      action={
+        <Button className="h-11 rounded-xl bg-[#2F6FE4] px-4 text-sm font-medium text-white shadow-none hover:bg-[#245fce]">
+          <Plus className="mr-2 size-4" />
+          New Event
+        </Button>
+      }
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: prefersReducedMotion ? 0 : 0.28,
+          delay: prefersReducedMotion ? 0 : 0.04,
+        }}
+        className="mt-2 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between"
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#0F172A] shadow-sm hover:bg-white">
+            <span className="inline-flex items-center gap-2">
+              <span className="size-2 rounded-full bg-[#FF4D4F]" />
+              Live
+            </span>
+          </Badge>
+
+          <div className="flex flex-wrap items-center gap-1 rounded-full bg-white p-1 shadow-sm">
+            {STATUS_TABS.map((tab) => {
+              const active = statusFilter === tab.key;
+
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setStatusFilter(tab.key)}
+                  className={cn(
+                    "rounded-full px-3 py-2 text-sm font-medium transition-colors",
+                    active
+                      ? "bg-[#EFF5FF] text-[#2F6FE4]"
+                      : "text-[#6B7280] hover:text-[#182031]",
+                  )}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
 
-          <Button className="h-11 rounded-xl bg-[#2F6FE4] px-4 text-sm font-medium text-white shadow-none hover:bg-[#245fce]">
-            <Plus className="mr-2 size-4" />
-            New Event
-          </Button>
-        </motion.div>
+          <button
+            type="button"
+            onClick={() => setShowArchived((value) => !value)}
+            className={cn(
+              "inline-flex h-10 items-center gap-2 rounded-full border border-transparent bg-white px-4 text-sm font-medium shadow-sm transition-colors",
+              showArchived
+                ? "text-[#2F6FE4]"
+                : "text-[#64748B] hover:text-[#182031]",
+            )}
+          >
+            <Archive className="size-4" />
+            Archived
+          </button>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: prefersReducedMotion ? 0 : 0.28,
-            delay: prefersReducedMotion ? 0 : 0.04,
-          }}
-          className="mt-8 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between"
-        >
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#0F172A] shadow-sm hover:bg-white">
-              <span className="inline-flex items-center gap-2">
-                <span className="size-2 rounded-full bg-[#FF4D4F]" />
-                Live
-              </span>
-            </Badge>
+        <div className="flex flex-col gap-3 md:flex-row md:items-center">
+          <div className="relative w-full md:w-90">
+            <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#C3CEDA]" />
+            <Input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search..."
+              className="h-11 rounded-full border-white bg-white pl-11 pr-4 shadow-sm placeholder:text-[#C3CEDA]"
+            />
+          </div>
 
-            <div className="flex flex-wrap items-center gap-1 rounded-full bg-white p-1 shadow-sm">
-              {STATUS_TABS.map((tab) => {
-                const active = statusFilter === tab.key;
-
-                return (
-                  <button
-                    key={tab.key}
-                    type="button"
-                    onClick={() => setStatusFilter(tab.key)}
-                    className={cn(
-                      "rounded-full px-3 py-2 text-sm font-medium transition-colors",
-                      active
-                        ? "bg-[#EFF5FF] text-[#2F6FE4]"
-                        : "text-[#6B7280] hover:text-[#182031]",
-                    )}
-                  >
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </div>
-
+          <div className="inline-flex h-11 items-center rounded-full bg-white p-1 shadow-sm">
             <button
               type="button"
-              onClick={() => setShowArchived((value) => !value)}
+              onClick={() => setViewMode("grid")}
               className={cn(
-                "inline-flex h-10 items-center gap-2 rounded-full border border-transparent bg-white px-4 text-sm font-medium shadow-sm transition-colors",
-                showArchived
-                  ? "text-[#2F6FE4]"
-                  : "text-[#64748B] hover:text-[#182031]",
+                "inline-flex size-9 items-center justify-center rounded-full transition-colors",
+                viewMode === "grid"
+                  ? "bg-[#EFF5FF] text-[#2F6FE4]"
+                  : "text-[#94A3B8] hover:text-[#182031]",
               )}
+              aria-label="Grid view"
             >
-              <Archive className="size-4" />
-              Archived
+              <LayoutGrid className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("list")}
+              className={cn(
+                "inline-flex size-9 items-center justify-center rounded-full transition-colors",
+                viewMode === "list"
+                  ? "bg-[#EFF5FF] text-[#2F6FE4]"
+                  : "text-[#94A3B8] hover:text-[#182031]",
+              )}
+              aria-label="List view"
+            >
+              <List className="size-4" />
             </button>
           </div>
+        </div>
+      </motion.div>
 
-          <div className="flex flex-col gap-3 md:flex-row md:items-center">
-            <div className="relative w-full md:w-90">
-              <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#C3CEDA]" />
-              <Input
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search..."
-                className="h-11 rounded-full border-white bg-white pl-11 pr-4 shadow-sm placeholder:text-[#C3CEDA]"
-              />
-            </div>
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: prefersReducedMotion ? 0 : 0.3,
+          delay: prefersReducedMotion ? 0 : 0.08,
+        }}
+        className={cn(
+          "mt-5 grid gap-4",
+          viewMode === "grid"
+            ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-4"
+            : "grid-cols-1",
+        )}
+      >
+        {filteredEvents.map((event, index) => (
+          <motion.div
+            key={event.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: prefersReducedMotion ? 0 : 0.24,
+              delay: prefersReducedMotion ? 0 : index * 0.03,
+            }}
+          >
+            <EventCard event={event} viewMode={viewMode} />
+          </motion.div>
+        ))}
 
-            <div className="inline-flex h-11 items-center rounded-full bg-white p-1 shadow-sm">
-              <button
-                type="button"
-                onClick={() => setViewMode("grid")}
-                className={cn(
-                  "inline-flex size-9 items-center justify-center rounded-full transition-colors",
-                  viewMode === "grid"
-                    ? "bg-[#EFF5FF] text-[#2F6FE4]"
-                    : "text-[#94A3B8] hover:text-[#182031]",
-                )}
-                aria-label="Grid view"
-              >
-                <LayoutGrid className="size-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode("list")}
-                className={cn(
-                  "inline-flex size-9 items-center justify-center rounded-full transition-colors",
-                  viewMode === "list"
-                    ? "bg-[#EFF5FF] text-[#2F6FE4]"
-                    : "text-[#94A3B8] hover:text-[#182031]",
-                )}
-                aria-label="List view"
-              >
-                <List className="size-4" />
-              </button>
-            </div>
+        {filteredEvents.length === 0 && (
+          <div className="col-span-full rounded-2xl border border-dashed border-[#D8E3F4] bg-white px-6 py-16 text-center text-[#6B7C93] shadow-sm">
+            No events match the current filters.
           </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: prefersReducedMotion ? 0 : 0.3,
-            delay: prefersReducedMotion ? 0 : 0.08,
-          }}
-          className={cn(
-            "mt-5 grid gap-4",
-            viewMode === "grid"
-              ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-4"
-              : "grid-cols-1",
-          )}
-        >
-          {filteredEvents.map((event, index) => (
-            <motion.div
-              key={event.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: prefersReducedMotion ? 0 : 0.24,
-                delay: prefersReducedMotion ? 0 : index * 0.03,
-              }}
-            >
-              <EventCard event={event} viewMode={viewMode} />
-            </motion.div>
-          ))}
-
-          {filteredEvents.length === 0 && (
-            <div className="col-span-full rounded-2xl border border-dashed border-[#D8E3F4] bg-white px-6 py-16 text-center text-[#6B7C93] shadow-sm">
-              No events match the current filters.
-            </div>
-          )}
-        </motion.div>
-      </div>
-    </main>
+        )}
+      </motion.div>
+    </WorkSpacePageLayout>
   );
 }

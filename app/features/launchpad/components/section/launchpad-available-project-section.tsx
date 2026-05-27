@@ -4,6 +4,7 @@ import LaunchpadProjectCard from "../card/launchpad-project-card";
 import { useLoaderData, useNavigate } from "react-router";
 import type { LaunchpadOpportunity } from "~/services/launchpad/types/project";
 import type { loader } from "~/features/launchpad/routes/launchpad";
+import { ForumPageLayout } from "~/features/forum/components/forum-page-layout";
 
 const PAGE_SIZE = 9;
 
@@ -22,27 +23,26 @@ export function LaunchpadAvailableProjectsSection() {
 
   return (
     <section className="w-full bg-white px-4 sm:px-6 md:px-12 lg:px-[121.5px]">
-      <div className="mx-auto w-full max-w-304">
-        <header className="py-10 flex items-center justify-between">
-          <div className="text-3xl font-bold">All Projects</div>
-          <Button
-            className="cursor-pointer"
-            variant={"outline"}
-            onClick={() => navigate("/launchpad/all")}
-          >
-            View All
-          </Button>
-        </header>
+      <div className="mx-auto w-full max-w-304"></div>
+      <header className="py-10 flex items-center justify-between">
+        <div className="text-3xl font-bold">All Projects</div>
+        <Button
+          className="cursor-pointer"
+          variant={"outline"}
+          onClick={() => navigate("/launchpad/all")}
+        >
+          View All
+        </Button>
+      </header>
 
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3 gap-x-5 gap-y-6 pb-10">
-          {displayedProjects.map((item) => (
-            <LaunchpadProjectCard
-              key={item.id}
-              item={item}
-              onOpenOpportunity={onOpenOpportunity}
-            />
-          ))}
-        </div>
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3 gap-x-5 gap-y-6 pb-10">
+        {displayedProjects.map((item) => (
+          <LaunchpadProjectCard
+            key={item.id}
+            item={item}
+            onOpenOpportunity={onOpenOpportunity}
+          />
+        ))}
       </div>
     </section>
   );

@@ -1,3 +1,4 @@
+import { Search } from "lucide-react";
 import { Link, useFetcher, useLocation } from "react-router";
 import { Button } from "~/components/ui/button";
 import type { Opportunity } from "~/services/volunteer/volunteer-types";
@@ -170,8 +171,28 @@ export function VolunteerAvailableOpportunities({
             )}
           </>
         ) : (
-          <div className="rounded-[14px] border border-dashed border-[#e5e7eb] bg-white px-6 py-12 text-center text-sm font-medium text-[#6b7280]">
-            No opportunities are available right now.
+          <div className="flex min-h-96 items-center justify-center rounded-[18px] border border-dashed border-[#e5e7eb] bg-white px-6 py-12 text-center">
+            <div className="flex max-w-sm flex-col items-center gap-4">
+              <div className="flex size-14 items-center justify-center rounded-full border border-[#edf2f7] bg-[#fafbff] text-[#cbd5e1] shadow-[0px_6px_18px_rgba(15,23,42,0.04)]">
+                <Search className="size-6" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-bold text-[#020618]">
+                  No opportunities found
+                </h3>
+                <p className="text-sm leading-6 text-[#64748b]">
+                  Try broadening your search or switching categories to see more
+                  results.
+                </p>
+              </div>
+              <Button
+                asChild
+                variant="outline"
+                className="h-10 rounded-full border-[#dbe3ee] bg-white px-5 text-sm font-semibold text-[#364153] shadow-[0px_4px_14px_rgba(15,23,42,0.04)] hover:bg-[#f8fafc]"
+              >
+                <Link to="/volunteer/all">Clear Search &amp; Browse All</Link>
+              </Button>
+            </div>
           </div>
         )}
       </div>

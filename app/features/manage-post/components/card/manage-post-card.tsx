@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { BookUser, Briefcase, ClipboardList, HandHeart } from "lucide-react";
+import { Briefcase, ClipboardList, HandHeart } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { motion } from "motion/react";

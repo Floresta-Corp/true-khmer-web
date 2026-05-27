@@ -7,7 +7,6 @@ import {
 import { Input } from "~/components/ui/input";
 import type { VolunteerPostPage2Errors } from "../volunteer-post-page-2";
 import type { FormDataVolunteerInput } from "~/services/volunteer/types";
-import React from "react";
 
 interface PaleInputProps {
   placeholder: string;

@@ -2,6 +2,7 @@ import {
   Calendar,
   ClipboardList,
   MessagesSquare,
+  Plus,
   Sparkles,
 } from "lucide-react";
 import { Link, useLocation } from "react-router";
@@ -53,7 +54,7 @@ export default function WorkSpaceSideBar() {
   return (
     <Sidebar
       collapsible={isMobile ? "offcanvas" : "none"}
-      className="border-r bg-white"
+      className="border-r bg-white h-screen"
     >
       <SidebarContent className="p-2">
         <SidebarGroup>
@@ -83,14 +84,17 @@ export default function WorkSpaceSideBar() {
             ))}
           </SidebarMenu>
         </SidebarGroup>
+        <SidebarGroup className="p-2">
+          <Button
+            variant={"outline"}
+            disabled
+            className="w-full h-14 mb-4 flex items-center justify-center gap-2 px-4 py-4 border-2 border-dashed border-gray-100 dark:border-slate-800 rounded-2xl text-gray-300 dark:text-slate-600 cursor-not-allowed transition-all opacity-60"
+          >
+            <Plus size={18} />
+            <span className="text-sm font-bold">Enable new role</span>
+          </Button>
+        </SidebarGroup>
       </SidebarContent>
-
-      <SidebarFooter className="p-4">
-        <Button variant="outline" className="w-full gap-2">
-          <Sparkles className="h-4 w-4" />
-          New Roles
-        </Button>
-      </SidebarFooter>
     </Sidebar>
   );
 }
