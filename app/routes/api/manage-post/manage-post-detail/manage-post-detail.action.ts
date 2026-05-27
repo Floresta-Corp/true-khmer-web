@@ -1,5 +1,4 @@
 import type { Route } from "project-types/manage-post/routes/+types/manage-post.$sourceType.$id";
-import type { ActionFunctionArgs } from "react-router";
 import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
 import {
   updateApplicantStatus,
@@ -8,14 +7,11 @@ import {
 import {
   ApplicantStatusActionSchema,
   PostingSourceSchema,
+  UpdateManagePostSchema,
   type ApplicantStatusAction,
   type PostSourceType,
-  type UpdateManagePostResponse,
 } from "~/services/manage-post/types";
-const PATH_TO_SOURCE_TYPE: Record<string, string> = {
-  projects: "PROJECT",
-  volunteer: "VOLUNTEER",
-};
+
 export async function managePostDetailAction({
   request,
   params,
@@ -26,17 +22,19 @@ export async function managePostDetailAction({
   const postingId = params.id;
 
   const formData = await request.formData();
-  const postingAction = formData.get(
-    "postingAction",
-  ) as UpdateManagePostResponse | null;
+  const postingAction = formData.get("postingAction");
+  const extendDateAction = formData.get("extend-deadline");
 
   // Handle posting-level actions (from ManagePostOption)
   if (postingAction) {
-    const normalizedSourceType = PATH_TO_SOURCE_TYPE[sourceType ?? ""];
-    const sourceTypeResult =
-      PostingSourceSchema.safeParse(normalizedSourceType);
+    const sourceTypeResult = PostingSourceSchema.safeParse(sourceType);
+    const postingActionResult = UpdateManagePostSchema.safeParse(postingAction);
 
-    if (!sourceTypeResult.success || !postingId) {
+    if (
+      !sourceTypeResult.success ||
+      !postingActionResult.success ||
+      !postingId
+    ) {
       return { success: false, error: "Invalid request parameters" };
     }
 
@@ -44,10 +42,12 @@ export async function managePostDetailAction({
       request,
       sourceTypeResult.data as PostSourceType,
       postingId,
-      postingAction,
+      postingActionResult.data,
     );
     return { success: true, data: result };
   }
+
+  // handle extend deadline action (from Manage Post Option)
 
   // Handle applicant status actions (existing logic)
   const applicationId = String(formData.get("applicationId") ?? "").trim();

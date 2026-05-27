@@ -20,7 +20,7 @@ type Props = {
 };
 
 const isActioned = (status: ApplicantStatusAction) =>
-  ["approve", "confirmed", "completed", "decline"].includes(status);
+  ["confirmed", "completed", "decline"].includes(status);
 
 export default function ApplicantActionButton({
   applicant,
@@ -79,12 +79,14 @@ export default function ApplicantActionButton({
         {!isActioned(displayStatus) && applicant.roles.length === 1 && (
           <>
             <DropdownMenuSeparator className="my-1" />
-            <DropdownMenuItem
-              className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-green-600 cursor-pointer focus:text-green-600 focus:bg-green-50"
-              onClick={(e) => handleAction(e, "approve")}
-            >
-              Approve
-            </DropdownMenuItem>
+            {displayStatus !== "approve" && (
+              <DropdownMenuItem
+                className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-green-600 cursor-pointer focus:text-green-600 focus:bg-green-50"
+                onClick={(e) => handleAction(e, "approve")}
+              >
+                Approve
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem
               className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-red-500 cursor-pointer focus:text-red-500 focus:bg-red-50"
               onClick={(e) => handleAction(e, "decline")}
