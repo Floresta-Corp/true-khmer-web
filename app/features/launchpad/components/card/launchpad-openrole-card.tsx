@@ -12,10 +12,12 @@ interface LaunchpadOpenRoleCardProps {
   capacity: number;
   description: string;
   roleError?: string;
+  editingIndex: number | null;
   onNameChange: (value: string) => void;
   onCapacityChange: (value: number) => void;
   onDescriptionChange: (value: string) => void;
   onAddRole: () => void;
+  onCancelEdit: () => void;
 }
 
 export default function LaunchpadOpenRoleCard({
@@ -23,10 +25,12 @@ export default function LaunchpadOpenRoleCard({
   capacity,
   description,
   roleError,
+  editingIndex,
   onNameChange,
   onCapacityChange,
   onDescriptionChange,
   onAddRole,
+  onCancelEdit,
 }: LaunchpadOpenRoleCardProps) {
   const roleErrorId = useId();
 
@@ -73,14 +77,26 @@ export default function LaunchpadOpenRoleCard({
             className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
           />
         </div>
-        <Button
-          type="button"
-          onClick={onAddRole}
-          aria-describedby={roleError ? roleErrorId : undefined}
-          className="cursor-pointer col-span-2 h-10 bg-blue-500 hover:bg-blue-600"
-        >
-          <Plus /> Add role
-        </Button>
+        <div className="col-span-2 flex items-center gap-3">
+          <Button
+            type="button"
+            onClick={onAddRole}
+            aria-describedby={roleError ? roleErrorId : undefined}
+            className="cursor-pointer h-10 bg-blue-500 hover:bg-blue-600"
+          >
+            <Plus /> {editingIndex !== null ? "Save Changes" : "Add role"}
+          </Button>
+          {editingIndex !== null && (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onCancelEdit}
+              className="cursor-pointer h-10 text-[#99a1af]"
+            >
+              Cancel
+            </Button>
+          )}
+        </div>
         {roleError ? (
           <p id={roleErrorId} className="text-xs text-red-500">
             {roleError}

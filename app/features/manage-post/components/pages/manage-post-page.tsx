@@ -1,24 +1,117 @@
 import WorkSpacePageLayout from "~/layout/workspace-page-layout";
 import PostingPagination from "../manage-post-pagination";
-import { useLoaderData, useNavigation, useSearchParams } from "react-router";
+import { useFetcher, useLoaderData, useSearchParams } from "react-router";
 import ManagePostCard from "../card/manage-post-card";
 import ManagePostCardSkeleton from "../manage-post-skeleton";
 import ManagePostFilters from "../card/manage-post-filter";
 import type { loader } from "../../routes/manage-post";
 import CreateOpportunityDialog from "../dialog/manage-post-button";
 import { Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+
+type TabType = "all" | "projects" | "volunteer";
+
+type FilterType =
+  | "all"
+  | "live"
+  | "draft"
+  | "in_progress"
+  | "canceled"
+  | "completed"
+  | "filled";
+
+const VALID_TABS = ["all", "volunteer", "projects"] as const;
+const VALID_STATUS_VALUES = [
+  "all",
+  "live",
+  "draft",
+  "in_progress",
+  "canceled",
+  "completed",
+  "filled",
+] as const;
+
+function isValidTab(value: string | null): value is TabType {
+  return value !== null && VALID_TABS.includes(value as TabType);
+}
+
+function isValidStatus(value: string | null): value is FilterType {
+  return (
+    value !== null &&
+    VALID_STATUS_VALUES.includes(value as (typeof VALID_STATUS_VALUES)[number])
+  );
+}
 
 export default function ManagePostingPage() {
-  const [searchParams] = useSearchParams();
-  const search = searchParams.get("search");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const fetcher = useFetcher<typeof loader>();
   const { postings, pagination } = useLoaderData<typeof loader>();
-
-  const navigation = useNavigation();
-  const isLoading = navigation.state === "loading";
-
-  const result = postings.filter((v) =>
-    v.title.toLowerCase().includes(search?.toLowerCase() ?? ""),
+  const [activeType, setActiveType] = useState<TabType>(() => {
+    const rawType = searchParams.get("type");
+    return isValidTab(rawType) ? rawType : "all";
+  });
+  const [filter, setFilter] = useState<FilterType>(() => {
+    const rawFilter = searchParams.get("filter");
+    return isValidStatus(rawFilter) ? rawFilter : "all";
+  });
+  const [searchInput, setSearchInput] = useState(
+    searchParams.get("search") ?? "",
   );
+
+  const isLoading = fetcher.state === "loading";
+
+  useEffect(() => {
+    const rawType = searchParams.get("type");
+    const nextType = isValidTab(rawType) ? rawType : "all";
+    const rawFilter = searchParams.get("filter");
+    const nextFilter = isValidStatus(rawFilter) ? rawFilter : "all";
+    const nextSearch = searchParams.get("search") ?? "";
+
+    setActiveType(nextType);
+    setFilter(nextFilter);
+    setSearchInput(nextSearch);
+  }, [searchParams]);
+
+  const applySearchParams = (nextParams: URLSearchParams) => {
+    setSearchParams(nextParams, { replace: true });
+    fetcher.load(`/manage-post?${nextParams.toString()}`);
+  };
+
+  const handleTypeChange = (type: TabType) => {
+    setActiveType(type);
+    const nextParams = new URLSearchParams(searchParams);
+    if (!type || type === "all") {
+      nextParams.delete("type");
+    } else {
+      nextParams.set("type", type);
+    }
+    applySearchParams(nextParams);
+  };
+
+  const handleFilterChange = (value: FilterType) => {
+    setFilter(value);
+    const nextParams = new URLSearchParams(searchParams);
+    if (!value || value === "all") {
+      nextParams.delete("filter");
+    } else {
+      nextParams.set("filter", value);
+    }
+    applySearchParams(nextParams);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchInput(value);
+    const nextParams = new URLSearchParams(searchParams);
+    if (value) {
+      nextParams.set("search", value);
+    } else {
+      nextParams.delete("search");
+    }
+    applySearchParams(nextParams);
+  };
+
+  const currentPostings = fetcher.data?.postings ?? postings;
+  const currentPagination = fetcher.data?.pagination ?? pagination;
 
   return (
     <WorkSpacePageLayout
@@ -27,7 +120,14 @@ export default function ManagePostingPage() {
       action={<CreateOpportunityDialog />}
     >
       <div className="mb-10 -mt-5 max-w-none">
-        <ManagePostFilters />
+        <ManagePostFilters
+          activeType={activeType}
+          filter={filter}
+          searchInput={searchInput}
+          onTypeChange={handleTypeChange}
+          onFilterChange={handleFilterChange}
+          onSearchChange={handleSearchChange}
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
@@ -37,7 +137,7 @@ export default function ManagePostingPage() {
           ))
         ) : (
           <>
-            {result.map((posting: any, index: number) => (
+            {currentPostings.map((posting: any, index: number) => (
               <ManagePostCard
                 key={posting.id}
                 index={index}
@@ -70,8 +170,8 @@ export default function ManagePostingPage() {
 
       <div className="mt-10">
         <PostingPagination
-          total={pagination?.total ?? postings.length}
-          showing={postings.length}
+          total={currentPagination?.total ?? currentPostings.length}
+          showing={currentPostings.length}
         />
       </div>
     </WorkSpacePageLayout>

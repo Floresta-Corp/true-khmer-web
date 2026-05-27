@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { useEffect } from "react";
 import { Separator } from "~/components/ui/separator";
 import LaunchpadOpenRoleCard from "../components/card/launchpad-openrole-card";
 import LaunchpadProjectMaterialCard from "../components/card/launchpad-project-material-card";
 import LaunchpadContactDetailCard from "../components/card/launchpad-contact-detail-card";
+import LaunchpadRolesList from "../components/launchpad-roles-list";
 import { Button } from "~/components/ui/button";
-import { useEffect } from "react";
 
 type LaunchpadRoleInput = {
   name: string;
@@ -12,10 +13,22 @@ type LaunchpadRoleInput = {
   description: string;
 };
 
+interface ExistingDocument {
+  name: string;
+  url?: string;
+}
+
+const emptyDraft: LaunchpadRoleInput = {
+  name: "",
+  capacity: 1,
+  description: "",
+};
+
 interface LaunchpadPostPage2Props {
   roles: LaunchpadRoleInput[];
   roleError?: string;
   materialDocuments: File[];
+  existingMaterialDocuments?: ExistingDocument[];
   materialDocumentError?: string;
   email: string;
   phoneNumber: string;
@@ -23,7 +36,9 @@ interface LaunchpadPostPage2Props {
   emailError?: string;
   phoneNumberError?: string;
   telegramUsernameError?: string;
+  originalRoles?: LaunchpadRoleInput[];
   onRolesChange: (roles: LaunchpadRoleInput[]) => void;
+  onResetRoles?: () => void;
   onMaterialDocumentsChange: (files: File[]) => void;
   onEmailChange: (value: string) => void;
   onPhoneNumberChange: (value: string) => void;
@@ -37,6 +52,7 @@ export default function LaunchpadPostPage2({
   roles,
   roleError,
   materialDocuments,
+  existingMaterialDocuments,
   materialDocumentError,
   email,
   phoneNumber,
@@ -44,7 +60,9 @@ export default function LaunchpadPostPage2({
   emailError,
   phoneNumberError,
   telegramUsernameError,
+  originalRoles,
   onRolesChange,
+  onResetRoles,
   onMaterialDocumentsChange,
   onEmailChange,
   onPhoneNumberChange,
@@ -53,11 +71,8 @@ export default function LaunchpadPostPage2({
   onPublishedClicked,
   isSubmitting = false,
 }: LaunchpadPostPage2Props) {
-  const [draftRole, setDraftRole] = useState<LaunchpadRoleInput>({
-    name: "",
-    capacity: 1,
-    description: "",
-  });
+  const [draftRole, setDraftRole] = useState<LaunchpadRoleInput>(emptyDraft);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia(
@@ -76,35 +91,73 @@ export default function LaunchpadPostPage2({
       return;
     }
 
-    onRolesChange([
-      ...roles,
-      {
-        name: draftRole.name.trim(),
-        capacity: Number.isFinite(draftRole.capacity) ? draftRole.capacity : 1,
-        description: draftRole.description,
-      },
-    ]);
+    if (editingIndex !== null) {
+      const updatedRoles = roles.map((role, i) =>
+        i === editingIndex
+          ? {
+              name: draftRole.name.trim(),
+              capacity: Number.isFinite(draftRole.capacity) ? draftRole.capacity : 1,
+              description: draftRole.description,
+            }
+          : role,
+      );
+      onRolesChange(updatedRoles);
+      setEditingIndex(null);
+    } else {
+      onRolesChange([
+        ...roles,
+        {
+          name: draftRole.name.trim(),
+          capacity: Number.isFinite(draftRole.capacity) ? draftRole.capacity : 1,
+          description: draftRole.description,
+        },
+      ]);
+    }
 
+    setDraftRole(emptyDraft);
+  };
+
+  const handleEditRole = (index: number) => {
+    const role = roles[index];
     setDraftRole({
-      name: "",
-      capacity: 1,
-      description: "",
+      name: role.name,
+      capacity: role.capacity,
+      description: role.description,
     });
+    setEditingIndex(index);
   };
 
   const handleRemoveRole = (index: number) => {
     onRolesChange(roles.filter((_, itemIndex) => itemIndex !== index));
+    if (editingIndex === index) {
+      setEditingIndex(null);
+      setDraftRole(emptyDraft);
+    } else if (editingIndex !== null && editingIndex > index) {
+      setEditingIndex(editingIndex - 1);
+    }
   };
 
-  const count = roles.length;
+  const handleCancelEdit = () => {
+    setEditingIndex(null);
+    setDraftRole(emptyDraft);
+  };
 
   return (
     <div className="space-y-8">
+      <LaunchpadRolesList
+        roles={roles}
+        originalRoles={originalRoles}
+        editingIndex={editingIndex}
+        onResetRoles={onResetRoles}
+        onRolesChange={onRolesChange}
+        onEditRole={handleEditRole}
+      />
       <LaunchpadOpenRoleCard
         name={draftRole.name}
         capacity={draftRole.capacity}
         description={draftRole.description}
         roleError={roleError}
+        editingIndex={editingIndex}
         onNameChange={(value) =>
           setDraftRole((prev) => ({
             ...prev,
@@ -124,48 +177,12 @@ export default function LaunchpadPostPage2({
           }))
         }
         onAddRole={handleAddRole}
+        onCancelEdit={handleCancelEdit}
       />
-      <div className="gap-2">
-        <div className="pb-1">Roles added ({count})</div>
-        {count === 0 ? (
-          <div className="w-full p-6 bg-[#F8FAFC] rounded-xl">
-            No roles added yet. Add at least one so collaborators know how to
-            contribute.
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {roles.map((role, index) => (
-              <div
-                key={`${role.name}-${index}`}
-                className="w-full rounded-xl border border-[#E1E7EF] p-4"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="font-medium">{role.name}</div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="text-destructive"
-                    onClick={() => handleRemoveRole(index)}
-                  >
-                    Remove
-                  </Button>
-                </div>
-                <div className="text-sm text-[#65758B]">
-                  Capacity: {role.capacity}
-                </div>
-                {role.description ? (
-                  <div className="text-sm text-[#65758B]">
-                    {role.description}
-                  </div>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
       <Separator />
       <LaunchpadProjectMaterialCard
         files={materialDocuments}
+        existingDocuments={existingMaterialDocuments}
         error={materialDocumentError}
         onChange={onMaterialDocumentsChange}
       />

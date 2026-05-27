@@ -95,6 +95,10 @@ export default function VolunteerEditPage() {
     () => mapOpportunityToFormData(volunteer),
     [volunteer],
   );
+  const originalRoles = useMemo(
+    () => initialFormData.roles,
+    [initialFormData],
+  );
   const [formData, setFormData] =
     useState<FormDataVolunteerInput>(initialFormData);
   const coverImageFileRef = useRef<File | null>(null);
@@ -330,9 +334,11 @@ export default function VolunteerEditPage() {
             <VolunteerPostPage2
               formData={formData}
               errors={roleErrors}
+              originalRoles={originalRoles}
               onUpdateField={updateField}
               onBackToDetails={() => setState(ProgressState.DETAIL)}
               onSubmit={handleSubmit}
+              onResetRoles={() => updateField("roles", originalRoles as any)}
               isSubmitting={fetcher.state === "submitting"}
             />
           </FormContainer>

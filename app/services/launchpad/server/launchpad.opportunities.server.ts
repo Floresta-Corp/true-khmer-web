@@ -12,12 +12,14 @@ import type {
 import {
   LaunchpadCreateInputSchema,
   LaunchpadPresignInputSchema,
+  LaunchpadUpdateInputSchema,
   type LaunchpadCoverPresignResponse,
   type LaunchpadCreateInput,
   type LaunchpadCreateResponse,
   type LaunchpadDocumentPresignResponse,
   type LaunchpadLogoPresignResponse,
   type LaunchpadPresignInput,
+  type LaunchpadUpdateInput,
 } from "../types/create";
 
 export async function GetLaunchpadProjects(
@@ -186,6 +188,19 @@ export async function saveLaunchpad(
       method: "POST",
     },
   );
+}
+
+export async function updateLaunchpad(
+  request: Request,
+  id: string,
+  input: LaunchpadUpdateInput,
+) {
+  const body = LaunchpadUpdateInputSchema.parse(input);
+  const encodedId = encodeURIComponent(id);
+  return apiRequestWithSession(request, `/launchpad/${encodedId}`, {
+    method: "PATCH",
+    body,
+  });
 }
 
 export async function unsaveLaunchpad(

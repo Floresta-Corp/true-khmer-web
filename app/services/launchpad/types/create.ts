@@ -37,6 +37,41 @@ export const LaunchpadCreateInputSchema = z
 
 export type LaunchpadCreateInput = z.infer<typeof LaunchpadCreateInputSchema>;
 
+const LaunchpadUpdateRoleInputSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1).max(100),
+  capacity: z.number().int().gt(0).max(1000),
+  description: z.string().nullable().optional(),
+});
+
+export const LaunchpadUpdateInputSchema = z
+  .object({
+    name: z.string().min(1).max(120),
+    description: z.string().nullable().optional(),
+    categoryId: z.string().regex(UUID_PATTERN),
+    cityId: z.string().regex(UUID_PATTERN),
+    deadline: z.string().datetime({ offset: true }),
+    logoKey: z.string().min(1).max(255),
+    coverKey: z.string().min(1).max(255),
+    role: z.array(LaunchpadUpdateRoleInputSchema).min(1),
+    materialDocumentKey: z.array(z.string().min(1)).min(1).max(5),
+    materialDocumentName: z.array(z.string().min(1)).min(1).max(5),
+    phoneNumber: z.string().min(1),
+    email: z.string().email().max(255),
+    telegramUsername: z.string().nullable().optional(),
+  })
+  .refine(
+    (data) =>
+      data.materialDocumentKey.length === data.materialDocumentName.length,
+    {
+      message:
+        "materialDocumentKey and materialDocumentName must have the same number of entries.",
+      path: ["materialDocumentName"],
+    },
+  );
+
+export type LaunchpadUpdateInput = z.infer<typeof LaunchpadUpdateInputSchema>;
+
 export const LaunchpadCreateDraftInputSchema = z.object({
   categoryId: z.string().regex(UUID_PATTERN),
   cityId: z.string().regex(UUID_PATTERN),

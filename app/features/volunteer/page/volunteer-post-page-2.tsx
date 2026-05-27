@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useFetcher } from "react-router";
+import { Button } from "~/components/ui/button";
 import RolesList from "./section/roles-list";
 import OpenRolesForm from "./section/open-roles-form";
 import ContactDetailsForm from "./section/contact-details-form";
@@ -43,21 +44,25 @@ const safeTrim = (value?: string | null) => (value ?? "").trim();
 interface VolunteerPostPage2Props {
   formData: FormDataVolunteerInput;
   errors?: VolunteerPostPage2Errors;
+  originalRoles?: DraftRole[];
   onUpdateField: <K extends keyof FormDataVolunteerInput>(
     field: K,
     value: FormDataVolunteerInput[K],
   ) => void;
   onBackToDetails: () => void;
   onSubmit: () => void | boolean | Promise<void> | Promise<boolean>;
+  onResetRoles?: () => void;
   isSubmitting: boolean;
 }
 
 export default function VolunteerPostPage2({
   formData,
   errors,
+  originalRoles,
   onUpdateField,
   onBackToDetails,
   onSubmit,
+  onResetRoles,
   isSubmitting,
 }: VolunteerPostPage2Props) {
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
@@ -184,6 +189,9 @@ export default function VolunteerPostPage2({
     setDraftRole(emptyDraft);
   };
 
+  const [state, setState] = useState(true);
+  const [input, setInput] = useState("");
+
   return (
     <div className="flex flex-col gap-8">
       <RolesList
@@ -191,6 +199,8 @@ export default function VolunteerPostPage2({
         editingIndex={editingIndex}
         onEditRole={handleEditRole}
         onRemoveRole={handleRemoveRole}
+        originalRoles={originalRoles}
+        onResetRoles={onResetRoles}
       />
 
       <div ref={formRef}>
