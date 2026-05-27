@@ -66,7 +66,7 @@ export async function markNotificationsRead(
     request,
     `/notifications/read`,
     {
-      method: "POST",
+      method: "PATCH",
       body: { notificationIds },
     },
   );
@@ -81,7 +81,7 @@ export async function markAllNotificationsRead(
     request,
     `/notifications/read/all`,
     {
-      method: "POST",
+      method: "PATCH",
     },
   );
 
