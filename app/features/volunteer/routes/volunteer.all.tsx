@@ -114,8 +114,9 @@ export default function VolunteerAllPage() {
 
   const handleSearch = () => {
     const params = new URLSearchParams(searchParams);
-    if (searchQuery) {
-      params.set("search", searchQuery);
+    const currentSearch = searchValue.trim();
+    if (currentSearch) {
+      params.set("search", currentSearch);
     } else {
       params.delete("search");
     }

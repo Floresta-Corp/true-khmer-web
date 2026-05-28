@@ -6,7 +6,7 @@ export default function WorkspaceSkeleton() {
       {Array.from({ length: 3 }).map((_, i) => (
         <div
           key={i}
-          className="w-full rounded-xl sm:rounded-2xl bg-white p-4 sm:p-5 lg:p-6 shadow-[0px_4px_24px_0px_rgba(0,0,0,0.04)]"
+          className="w-full rounded-xl sm:rounded-2xl bg-white p-4 sm:p-5 lg:p-6 border"
         >
           {/* Header */}
           <div className="flex items-center gap-2.5 mb-4">

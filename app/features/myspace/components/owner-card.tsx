@@ -15,18 +15,27 @@ function ActionLink({
   icon,
   bgColor,
   enabled,
+  ariaLabel,
 }: {
   href?: string;
   icon: React.ReactNode;
   bgColor: string;
   enabled: boolean;
+  ariaLabel?: string;
 }) {
+  // Validate: when enabled, an accessible label must be provided
+  if (enabled && !ariaLabel) {
+    throw new Error('ActionLink: "ariaLabel" is required when "enabled" is true');
+  }
+
   if (enabled && href) {
     return (
       <a
         href={href}
         target="_blank"
         rel="noreferrer"
+        aria-label={ariaLabel}
+        title={ariaLabel}
         className={`inline-flex size-8 items-center justify-center rounded-lg border border-[#E7ECF3] ${bgColor} text-[#2F6FE4] transition-colors hover:bg-[#DFEBFF]`}
       >
         {icon}
@@ -38,6 +47,8 @@ function ActionLink({
     <button
       type="button"
       disabled
+      aria-label={ariaLabel}
+      title={ariaLabel}
       className={`inline-flex size-8 items-center justify-center rounded-lg border border-[#E7ECF3] ${bgColor} text-[#2F6FE4] opacity-50`}
     >
       {icon}
@@ -80,18 +91,21 @@ export function OwnerCard({
               icon={<Send className="size-3.5" />}
               bgColor="bg-[#EDF4FF]"
               enabled={!!telegram}
+              ariaLabel={telegram ? `Message ${name} on Telegram` : undefined}
             />
             <ActionLink
               href={phone}
               icon={<PhoneCall className="size-3.5" />}
               bgColor="bg-white"
               enabled={!!phone}
+              ariaLabel={phone ? `Call ${name}` : undefined}
             />
             <ActionLink
               href={email}
               icon={<Mail className="size-3.5" />}
               bgColor="bg-white"
               enabled={!!email}
+              ariaLabel={email ? `Email ${name}` : undefined}
             />
           </div>
         </div>

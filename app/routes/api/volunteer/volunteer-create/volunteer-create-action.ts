@@ -37,7 +37,7 @@ export async function volunteerCreateAction({ request }: ActionFunctionArgs) {
           body: file,
         });
 
-        if (uploadResult.ok && uploadResult.status === 200) {
+        if (uploadResult.ok) {
           const parsed = JSON.parse(dataStr);
           parsed.coverImageKey = upload.coverImageKey;
           const validated = VolunteerOpportunityInputSchema.parse(parsed);

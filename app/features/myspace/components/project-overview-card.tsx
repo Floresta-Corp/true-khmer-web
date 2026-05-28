@@ -28,9 +28,9 @@ export function ProjectOverviewCard({
               Responsibilities
             </h3>
             <ul className="space-y-3">
-              {responsibilities.map((item) => (
+              {responsibilities.map((item, index) => (
                 <li
-                  key={item}
+                  key={(item as any)?.id ?? `${item}-${index}`}
                   className="flex items-start gap-2.5 text-[14px] leading-6 text-[#556071]"
                 >
                   <span className="mt-1 inline-flex size-4 shrink-0 items-center justify-center rounded-full border border-emerald-400 text-emerald-500">
@@ -47,9 +47,9 @@ export function ProjectOverviewCard({
               Requirements
             </h3>
             <ul className="space-y-3">
-              {requirements.map((item) => (
+              {requirements.map((item, index) => (
                 <li
-                  key={item}
+                  key={(item as any)?.id ?? `${item}-${index}`}
                   className="flex items-start gap-2.5 text-[14px] leading-6 text-[#556071]"
                 >
                   <span className="mt-1 inline-flex size-4 shrink-0 items-center justify-center rounded-full border border-emerald-400 text-emerald-500">

@@ -2,9 +2,16 @@ import { motion, useReducedMotion } from "motion/react";
 import { Card, CardContent } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
 
+export interface TimelineEntry {
+  id?: string;
+  appliedAt?: string | null;
+  date?: string | null;
+}
+
 export interface StatusTimelineProps {
   activeStep: number;
   appliedAt?: string | null;
+  timeline?: TimelineEntry[];
 }
 
 function formatDate(dateString?: string | null) {
@@ -25,19 +32,31 @@ const STEPS = [
   { label: "Completed" },
 ];
 
-export function StatusTimeline({ activeStep, appliedAt }: StatusTimelineProps) {
+export function StatusTimeline({
+  activeStep,
+  appliedAt,
+  timeline,
+}: StatusTimelineProps) {
   const prefersReducedMotion = useReducedMotion();
-  const steps = STEPS.map((step, index) => ({
-    ...step,
-    date:
-      index === 0
-        ? formatDate(appliedAt)
-        : index === 1
-          ? "Oct 18, 2023"
-          : index === 2
-            ? "Pending"
-            : "Next Step",
-  }));
+  const steps = STEPS.map((step, index) => {
+    const entry = timeline?.[index];
+    const rawDate =
+      entry?.appliedAt ?? entry?.date ?? (index === 0 ? appliedAt : undefined);
+
+    const date = rawDate
+      ? formatDate(rawDate)
+      : index === 2
+        ? "Pending"
+        : index === 3
+          ? "Next Step"
+          : "TBD";
+
+    return {
+      ...step,
+      date,
+      id: entry?.id,
+    };
+  });
 
   const progress = Math.max(0, Math.min((activeStep - 1) / 3, 1));
 
@@ -68,7 +87,7 @@ export function StatusTimeline({ activeStep, appliedAt }: StatusTimelineProps) {
 
               return (
                 <div
-                  key={step.label}
+                  key={step.id ?? step.label}
                   className="flex flex-col items-center text-center"
                 >
                   <div
