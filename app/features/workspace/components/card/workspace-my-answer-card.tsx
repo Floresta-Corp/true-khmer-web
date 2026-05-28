@@ -28,7 +28,7 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
 
   return (
     <motion.article
-      className="w-full rounded-xl sm:rounded-2xl bg-white p-4 sm:p-5 lg:p-6 mb-2 border border-slate-200"
+      className="w-full rounded-xl sm:rounded-2xl bg-white p-4 sm:p-5 lg:p-6 border border-slate-200"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       onHoverStart={() => {

@@ -1,7 +1,6 @@
 import { Link, useLocation } from "react-router";
 import { Button } from "~/components/ui/button";
 import {
-  Bell,
   Mail,
   LayoutDashboard,
   HeartHandshake,
@@ -11,6 +10,7 @@ import {
   BriefcaseBusiness,
   TvMinimalPlay,
 } from "lucide-react";
+import NotificationBellPopOver from "~/components/notification-bell-pop-over";
 import { cn } from "~/lib/utils";
 import type { AuthenticatedUser } from "~/lib/server/types";
 import ProfileDropDown from "./profile-dropdown";
@@ -93,19 +93,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                     <Mail className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative size-8.75 rounded-full border border-[#f1f5f9] bg-white text-[#344256] hover:bg-[#f8fafc] hover:text-[#0f172a]"
-                  aria-label="Notifications"
-                  asChild
-                >
-                  <Link to="/notifications">
-                    <Bell className="h-3.5 w-3.5" />
-                    <span className="absolute top-2 right-2 h-1.75 w-1.75 rounded-full border border-white bg-[#fb2c36]" />
-                  </Link>
-                </Button>
-
+                <NotificationBellPopOver />
                 {/* User dropdown */}
                 <ProfileDropDown user={user} />
               </>

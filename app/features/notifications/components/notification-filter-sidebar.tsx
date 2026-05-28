@@ -7,7 +7,6 @@ type NotificationFilterItem = {
   label: string;
   to: string;
   icon: React.ComponentType<{ className?: string }>;
-  count?: number;
 };
 
 const filterItems: NotificationFilterItem[] = [
@@ -20,34 +19,40 @@ const filterItems: NotificationFilterItem[] = [
   {
     id: "unread",
     label: "Unread",
-    to: "/notifications?filter=unread",
+    to: "/notifications?unreadOnly=true",
     icon: Inbox,
-    count: 2,
   },
   {
     id: "volunteer",
     label: "Volunteer",
-    to: "/notifications?filter=volunteer",
+    to: "/notifications?type=application",
     icon: Users,
   },
   {
-    id: "projects",
+    id: "launchpad",
     label: "Projects",
-    to: "/notifications?filter=projects",
+    to: "/notifications?type=launchpad_update",
     icon: Zap,
   },
   {
     id: "archived",
     label: "Archived",
-    to: "/notifications?filter=archived",
+    to: "/notifications?archived=true",
     icon: Archive,
   },
 ];
 
-export default function NotificationFilterSidebar() {
+interface NotificationFilterSidebarProps {
+  unreadCount: number;
+}
+
+export default function NotificationFilterSidebar({
+  unreadCount,
+}: NotificationFilterSidebarProps) {
   const location = useLocation();
 
   const renderFilterButton = (item: NotificationFilterItem) => {
+    const count = item.id === "unread" ? unreadCount : 0;
     const currentPath = location.pathname;
     const currentSearch = new URLSearchParams(location.search);
     const [targetPath, targetQuery = ""] = item.to.split("?");
@@ -62,6 +67,7 @@ export default function NotificationFilterSidebar() {
         : Array.from(targetSearch.entries()).every(
             ([k, v]) => currentSearch.get(k) === v,
           ));
+
     return (
       <Link
         key={item.id}
@@ -74,9 +80,9 @@ export default function NotificationFilterSidebar() {
       >
         <item.icon className="h-4 w-4 shrink-0" />
         <span className="text-sm font-semibold leading-6">{item.label}</span>
-        {item.count !== undefined && item.count > 0 && (
+        {count > 0 && (
           <span className="ml-auto flex items-center justify-center h-5 min-w-5 rounded-full bg-red-600 text-white text-xs font-semibold">
-            {item.count}
+            {count}
           </span>
         )}
       </Link>
