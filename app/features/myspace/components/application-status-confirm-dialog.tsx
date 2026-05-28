@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Loader2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -52,11 +53,16 @@ export default function ApplicationStatusConfirmDialog({
             onClick={onConfirm}
             className={
               isDecline
-                ? "bg-red-600 text-white hover:bg-red-700"
-                : "bg-[#2F6FE4] text-white hover:bg-[#245cc2]"
+                ? "bg-red-600 text-white hover:bg-red-700 disabled:opacity-70"
+                : "bg-[#2F6FE4] text-white hover:bg-[#245cc2] disabled:opacity-70"
             }
           >
-            Confirm
+            {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+            {isSubmitting
+              ? isDecline
+                ? "Declining..."
+                : "Confirming..."
+              : "Confirm"}
           </Button>
         </DialogFooter>
       </DialogContent>

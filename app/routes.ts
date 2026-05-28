@@ -104,6 +104,13 @@ export default [
   route("api/launchpad/apply", "routes/api/api.launchpad.apply.ts"),
   route("api/launchpad/batch-apply", "routes/api/api.launchpad.batch-apply.ts"),
   route("api/launchpad/save", "routes/api/api.launchpad.save.ts"),
+  route("api/notifications", "routes/api/api.notifications.ts"),
+  route("api/notifications/stream", "routes/api/api.notifications.stream.ts"),
+  route("api/notifications/read", "routes/api/api.notifications.read.ts"),
+  route(
+    "api/notifications/read/all",
+    "routes/api/api.notifications.read.all.ts",
+  ),
   route(
     "api/myspace/my-application/change-status",
     "routes/api/api.myspace.my-application.change-status.tsx",
