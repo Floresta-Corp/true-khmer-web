@@ -1,6 +1,6 @@
 import { VolunteerAvailableOpportunities } from "../page/section/volunteer-available-opportunities";
 import { VolunteerCategoriesSection } from "../page/section/volunteer-categories-section";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import VolunteerHeader from "../page/section/volunteer-header";
 import { volunteerLoader } from "~/routes/api/volunteer/volunteer-loader";
 import { useLoaderData, useNavigate, useRevalidator } from "react-router";
@@ -19,58 +19,62 @@ export default function VolunteerPage() {
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const prefersReducedMotion = useReducedMotion();
-  const duration = prefersReducedMotion ? 0 : 0.35;
+  const duration = prefersReducedMotion ? 0 : 0.24;
+  const sectionDelay = prefersReducedMotion ? 0 : 0.03;
   const reloadOpportunities = () => revalidator.revalidate();
 
   return (
-    <AnimatePresence mode="wait">
+    <motion.main
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration, ease: "easeOut" as const }}
+      className="min-h-screen bg-gray-50"
+    >
       <motion.div
-        key="volunteer-page"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0, transition: { duration: 0.2, ease: "easeInOut" as const } }}
-        transition={{ duration: 0.3, ease: "easeInOut" as const }}
-        className="min-h-screen bg-gray-50"
+        initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration, delay: 0, ease: "easeOut" as const }}
+        className="will-change-transform"
       >
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -12, transition: { duration: 0.2, ease: "easeInOut" as const } }}
-          transition={{ duration, delay: 0, ease: "easeInOut" as const }}
-        >
-          <VolunteerHeader locations={locations || []} />
-        </motion.div>
+        <VolunteerHeader locations={locations || []} />
+      </motion.div>
 
-        {categories && categories.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12, transition: { duration: 0.2, ease: "easeInOut" as const } }}
-            transition={{ duration, delay: prefersReducedMotion ? 0 : 0.08, ease: "easeInOut" as const }}
-            className="lg:pt-17.5"
-          >
-            <VolunteerCategoriesSection
-              categories={categories || []}
-              onClickCategory={(v) => {
-                navigate(`/volunteer/all?categoryId=${v}`);
-              }}
-            />
-          </motion.div>
-        )}
-
+      {categories && categories.length > 0 && (
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -12, transition: { duration: 0.2, ease: "easeInOut" as const } }}
-          transition={{ duration, delay: prefersReducedMotion ? 0 : 0.16, ease: "easeInOut" as const }}
+          transition={{
+            duration,
+            delay: sectionDelay,
+            ease: "easeOut" as const,
+          }}
+          className="lg:pt-17.5 will-change-transform"
         >
-          <VolunteerAvailableOpportunities
-            opportunities={opportunities ?? []}
-            pagination={pagination}
-            onMutationComplete={() => reloadOpportunities()}
+          <VolunteerCategoriesSection
+            categories={categories || []}
+            onClickCategory={(v) => {
+              navigate(`/volunteer/all?categoryId=${v}`);
+            }}
           />
         </motion.div>
+      )}
+
+      <motion.div
+        initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration,
+          delay: sectionDelay * 2,
+          ease: "easeOut" as const,
+        }}
+        className="will-change-transform"
+      >
+        <VolunteerAvailableOpportunities
+          opportunities={opportunities ?? []}
+          pagination={pagination}
+          onMutationComplete={() => reloadOpportunities()}
+        />
       </motion.div>
-    </AnimatePresence>
+    </motion.main>
   );
 }

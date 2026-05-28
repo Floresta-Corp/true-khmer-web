@@ -38,7 +38,8 @@ export default function VolunteerAllPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const fetcher = useFetcher();
   const prefersReducedMotion = useReducedMotion();
-  const duration = prefersReducedMotion ? 0 : 0.35;
+  const duration = prefersReducedMotion ? 0 : 0.24;
+  const sectionDelay = prefersReducedMotion ? 0 : 0.03;
   const activeCategoryId = searchParams.get("categoryId") || undefined;
   const activeLocationId = searchParams.get("locationId") || undefined;
   const activeCommitmentLabel =
@@ -174,34 +175,35 @@ export default function VolunteerAllPage() {
     <main className="min-h-screen bg-[#F5F7FB] px-4 py-8 sm:px-6 lg:px-10">
       <div className="mx-auto flex w-full max-w-304 flex-col gap-6">
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration, delay: 0, ease: "easeInOut" as const }}
+          transition={{ duration, delay: 0, ease: "easeOut" as const }}
+          className="will-change-transform"
         >
           <BackToButton to={"/volunteer"} text="Back to Opportunities" />
         </motion.div>
 
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
               duration,
-              delay: prefersReducedMotion ? 0 : 0.08,
-              ease: "easeInOut" as const,
+              delay: sectionDelay,
+              ease: "easeOut" as const,
             }}
-            className="space-y-2"
+            className="space-y-2 will-change-transform"
           >
             <h1 className="text-[clamp(1.9rem,3vw,2.5rem)] font-bold leading-tight text-[#020618]">
               Volunteer Opportunities
             </h1>
             <motion.p
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
                 duration,
-                delay: prefersReducedMotion ? 0 : 0.08,
-                ease: "easeInOut" as const,
+                delay: sectionDelay,
+                ease: "easeOut" as const,
               }}
               className="text-sm font-medium text-[#64748b] sm:text-[15px]"
             >
@@ -210,18 +212,18 @@ export default function VolunteerAllPage() {
           </motion.div>
 
           <motion.form
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
               duration,
-              delay: prefersReducedMotion ? 0 : 0.08,
-              ease: "easeInOut" as const,
+              delay: sectionDelay,
+              ease: "easeOut" as const,
             }}
             onSubmit={(event) => {
               event.preventDefault();
               handleSearch();
             }}
-            className="flex w-full max-w-md items-center rounded-full border border-[#e2e8f0] bg-white px-3 shadow-[0px_1px_2px_rgba(15,23,42,0.04)] lg:w-md"
+            className="flex w-full max-w-md items-center rounded-full border border-[#e2e8f0] bg-white px-3 shadow-[0px_1px_2px_rgba(15,23,42,0.04)] lg:w-md will-change-transform"
           >
             <Search className="ml-1 mr-2.5 size-[17.5px] shrink-0 text-[#94a3b8]" />
             <Input
@@ -238,14 +240,14 @@ export default function VolunteerAllPage() {
 
         <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
           <motion.aside
-            initial={{ opacity: 0, x: -16 }}
+            initial={{ opacity: 0, x: prefersReducedMotion ? 0 : -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{
               duration,
-              delay: prefersReducedMotion ? 0 : 0.12,
-              ease: "easeInOut" as const,
+              delay: sectionDelay * 2,
+              ease: "easeOut" as const,
             }}
-            className="rounded-[18px] border border-[#edf2f7] bg-white p-5 shadow-[0px_10px_30px_rgba(15,23,42,0.03)]"
+            className="rounded-[18px] border border-[#edf2f7] bg-white p-5 shadow-[0px_10px_30px_rgba(15,23,42,0.03)] will-change-transform"
           >
             <div className="flex items-center justify-between gap-4">
               <h2 className="text-sm font-bold text-[#020618]">Filters</h2>
@@ -440,14 +442,14 @@ export default function VolunteerAllPage() {
           </motion.aside>
 
           <motion.section
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
               duration,
-              delay: prefersReducedMotion ? 0 : 0.16,
-              ease: "easeInOut" as const,
+              delay: sectionDelay * 3,
+              ease: "easeOut" as const,
             }}
-            className="min-w-0"
+            className="min-w-0 will-change-transform"
           >
             <VolunteerAvailableOpportunities
               showHeader={false}
