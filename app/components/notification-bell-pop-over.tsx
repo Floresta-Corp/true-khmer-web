@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useFetcher } from "react-router";
+import { Link, useFetcher, useNavigate } from "react-router";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "~/components/ui/button";
 import {
@@ -47,7 +47,7 @@ const ICON_STYLE_MAP: Record<NotificationIconName, { bg: string; fg: string }> =
     Bell: { bg: "bg-gray-100", fg: "text-gray-600" },
   };
 
-export default function NotificationBell() {
+export default function NotificationBellPopOver() {
   const {
     unreadCount,
     setUnreadCount,
@@ -59,7 +59,6 @@ export default function NotificationBell() {
   const [localNotifications, setLocalNotifications] =
     useState<ApiNotification[]>(recentNotifications);
   const [localUnreadCount, setLocalUnreadCount] = useState(unreadCount);
-
   const loadFetcher = useFetcher<{
     notifications: ApiNotification[];
     unreadCount: number;
@@ -132,7 +131,7 @@ export default function NotificationBell() {
         >
           <Bell className="h-3.5 w-3.5" />
           {localUnreadCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full border border-white bg-[`#fb2c36`]" />
+            <span className="absolute top-1.5 right-1.5 size-1.5 animate-ping rounded-full bg-[#fb2c36]" />
           )}
         </Button>
       </PopoverTrigger>
@@ -157,7 +156,7 @@ export default function NotificationBell() {
           {localUnreadCount > 0 && (
             <button
               onClick={handleMarkAllRead}
-              className="flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700"
+              className="cursor-pointer flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-500"
             >
               <CheckCircle2 className="h-3.5 w-3.5" />
               Mark all as read

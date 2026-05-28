@@ -77,8 +77,9 @@ export default function NotificationsList({
           <div className="flex gap-2.5 items-center">
             {unreadCount > 0 && (
               <Button
+                variant={"default"}
                 onClick={onMarkAllRead}
-                className="bg-blue-600 h-8.5 hover:bg-primary-dark text-white rounded-2xl px-5 py-2 text-xs font-semibold gap-2 shadow-lg"
+                className="cursor-pointer bg-blue-600 hover:bg-blue-700 h-8.5  text-white rounded-2xl px-5 py-2 text-xs font-semibold"
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 Mark all as read
@@ -156,14 +157,15 @@ export default function NotificationsList({
                       <div className="flex items-center">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <button
+                            <Button
+                              variant="ghost"
                               type="button"
                               aria-label={`Open actions for "${notif.title}"`}
                               title="Notification read actions"
-                              className="flex  items-center justify-center rounded-full cursor-pointer text-black hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                              className="flex items-center justify-center rounded-full cursor-pointer text-black hover:bg-gray-100 hover:text-gray-600 transition-colors"
                             >
                               <EllipsisVertical className="h-4.5 w-4.5" />
-                            </button>
+                            </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-40 p-1">
                             <DropdownMenuItem

@@ -162,7 +162,9 @@ export default function NotificationPage() {
     // Optimistic update
     setData((prev) => {
       if (!prev) return prev;
-      const wasUnread = prev.notifications.some((n) => n.id === id && !n.isRead);
+      const wasUnread = prev.notifications.some(
+        (n) => n.id === id && !n.isRead,
+      );
       const readAt = new Date().toISOString();
 
       return {

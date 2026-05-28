@@ -10,7 +10,7 @@ import {
   BriefcaseBusiness,
   TvMinimalPlay,
 } from "lucide-react";
-import NotificationBell from "~/components/notification-bell";
+import NotificationBellPopOver from "~/components/notification-bell-pop-over";
 import { cn } from "~/lib/utils";
 import type { AuthenticatedUser } from "~/lib/server/types";
 import ProfileDropDown from "./profile-dropdown";
@@ -93,7 +93,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                     <Mail className="h-4 w-4" />
                   </Link>
                 </Button>
-                <NotificationBell />
+                <NotificationBellPopOver />
                 {/* User dropdown */}
                 <ProfileDropDown user={user} />
               </>
