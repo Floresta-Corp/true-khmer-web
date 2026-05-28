@@ -4,6 +4,7 @@ import LaunchpadProjectCard from "../card/launchpad-project-card";
 import { useLoaderData, useNavigate } from "react-router";
 import type { LaunchpadOpportunity } from "~/services/launchpad/types/project";
 import type { loader } from "~/features/launchpad/routes/launchpad";
+import { ForumPageLayout } from "~/features/forum/components/forum-page-layout";
 
 const PAGE_SIZE = 9;
 

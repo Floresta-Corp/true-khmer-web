@@ -45,7 +45,7 @@ export default function WorkspaceQuestionItem({
       onHoverEnd={() => {
         setIsHovered(false);
       }}
-      className="w-full rounded-xl sm:rounded-2xl bg-white p-4 sm:p-4 lg:p-6 mb-2 border border-slate-200"
+      className="w-full rounded-xl sm:rounded-2xl bg-white p-4 sm:p-4 lg:p-6 border border-slate-200"
     >
       <div className="flex justify-between items-start mb-3 gap-2">
         <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">

@@ -29,9 +29,9 @@ export default function VolunteerPostPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const fetcher = useFetcher<{
+    ok?: boolean;
     error?: string;
-    success?: boolean;
-    redirectTo?: string;
+    data?: { redirectTo?: string };
   }>();
   const state =
     searchParams.get("state")?.toLowerCase() === "role"
@@ -151,10 +151,10 @@ export default function VolunteerPostPage() {
   // Handle fetcher response
   useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data) {
-      if (fetcher.data.success && fetcher.data.redirectTo) {
+      if (fetcher.data.ok && fetcher.data.data?.redirectTo) {
         toast.success("Volunteer opportunity published successfully");
-        navigate(fetcher.data.redirectTo);
-      } else if (fetcher.data.error) {
+        navigate(fetcher.data.data.redirectTo);
+      } else if (!fetcher.data.ok && fetcher.data.error) {
         toast.error(fetcher.data.error);
       }
     }

@@ -1,6 +1,7 @@
 import { type ActionFunctionArgs } from "react-router";
 import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
+import { transformActionResponse, mapZodError } from "~/lib/server/action-response.server";
 import {
   createVolunteerOpportunity,
   uploadOpportunityCoverImage,
@@ -17,88 +18,65 @@ export async function volunteerCreateAction({ request }: ActionFunctionArgs) {
     const file = formData.get("file");
 
     if (!dataStr || typeof dataStr !== "string") {
-      return { error: "Invalid form data" };
+      return { ok: false, error: "Invalid form data" };
     }
 
-    let coverImageKey: string | undefined;
-
-    if (file && file instanceof File && file.size > 0) {
-      try {
+    try {
+      if (file && file instanceof File && file.size > 0) {
         const { data } = await uploadOpportunityCoverImage(request, {
           contentType: file.type,
           fileSize: file.size,
         });
         const upload = data.upload;
-        if (!upload.uploadUrl) return { error: "Failed to get upload URL" };
-        try {
-          const uploadResult = await fetch(upload.uploadUrl, {
-            headers: upload.requiredHeaders,
-            method: upload.method,
-            body: file,
-          });
+        if (!upload.uploadUrl)
+          return { ok: false, error: "Failed to get upload URL" };
 
-          if (uploadResult.ok && uploadResult.status === 200) {
-            coverImageKey = upload.coverImageKey;
-          } else {
-            return { error: "Failed to upload cover image" };
+        const uploadResult = await fetch(upload.uploadUrl, {
+          headers: upload.requiredHeaders,
+          method: upload.method,
+          body: file,
+        });
+
+        if (uploadResult.ok) {
+          const parsed = JSON.parse(dataStr);
+          parsed.coverImageKey = upload.coverImageKey;
+          const validated = VolunteerOpportunityInputSchema.parse(parsed);
+          const result = await createVolunteerOpportunity(request, validated);
+          if (result?.data?.opportunity?.id) {
+            return {
+              ok: true,
+              data: { redirectTo: `/volunteer/detail/${result.data.opportunity.id}` },
+            };
           }
-        } catch (uploadError) {
-          console.error("Failed to upload cover image:", uploadError);
-          return { error: "Failed to upload cover image" };
+          return { ok: true, data: { redirectTo: "/volunteer" } };
         }
-      } catch (error) {
-        console.error("Failed to upload cover image:", error);
-        return { error: "Failed to upload cover image" };
+        return { ok: false, error: "Failed to upload cover image" };
       }
-    }
 
-    try {
       const data = JSON.parse(dataStr);
-      if (coverImageKey) {
-        data.coverImageKey = coverImageKey;
-      }
-
       const parsed = VolunteerOpportunityInputSchema.parse(data);
       const result = await createVolunteerOpportunity(request, parsed);
 
       if (result?.data?.opportunity?.id) {
         return {
-          success: true,
-          redirectTo: `/volunteer/detail/${result.data.opportunity.id}`,
+          ok: true,
+          data: { redirectTo: `/volunteer/detail/${result.data.opportunity.id}` },
         };
       }
 
-      return { success: true, redirectTo: "/volunteer" };
+      return { ok: true, data: { redirectTo: "/volunteer" } };
     } catch (error) {
       if (error instanceof ProtectedApiError) {
-        const details = error.details as
-          | { error?: { message?: string } }
-          | undefined;
-        if (details?.error?.message) {
-          try {
-            const parsedErrors = JSON.parse(details.error.message);
-            if (Array.isArray(parsedErrors) && parsedErrors.length > 0) {
-              const firstError = parsedErrors[0];
-              if (
-                firstError &&
-                typeof firstError === "object" &&
-                "message" in firstError &&
-                typeof (firstError as { message?: unknown }).message ===
-                  "string"
-              ) {
-                return { error: (firstError as { message: string }).message };
-              }
-            }
-          } catch {
-            return { error: error.message || "Failed to create opportunity" };
-          }
-        }
-        return { error: error.message || "Failed to create opportunity" };
+        return transformActionResponse<{ redirectTo: string }>(error);
+      }
+      const zodMessage = mapZodError(error);
+      if (zodMessage) {
+        return { ok: false, error: zodMessage };
       }
       console.error("Failed to create volunteer opportunity:", error);
-      return { error: "Failed to create opportunity" };
+      return { ok: false, error: "Failed to create opportunity" };
     }
   }
 
-  return { error: "Invalid action type" };
+  return { ok: false, error: "Invalid action type" };
 }

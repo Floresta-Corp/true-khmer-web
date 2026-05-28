@@ -13,6 +13,7 @@ import type {
   CountSavedItemResponse,
   ItemElement,
 } from "~/services/saved-items/saved-items-types";
+import { ForumPageLayout } from "~/features/forum/components/forum-page-layout";
 
 const VALID_FILTERS: FilterId[] = [
   "all",
@@ -85,7 +86,9 @@ export default function SaveItemPage() {
     if (lastFetchUrl.current.includes("cursor=")) {
       setSaveItem((prev) => {
         const existing = new Set(prev.map((i) => `${i.type}:${i.item.id}`));
-        const newItems = data.saveItem.filter((i) => !existing.has(`${i.type}:${i.item.id}`));
+        const newItems = data.saveItem.filter(
+          (i) => !existing.has(`${i.type}:${i.item.id}`),
+        );
         return [...prev, ...newItems];
       });
     } else {
@@ -150,63 +153,71 @@ export default function SaveItemPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:pt-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: prefersReducedMotion ? 0 : 0.5, ease: "easeOut" }}
-          className="flex flex-col gap-10 lg:flex-row"
-        >
-          <SavedItemsSidebar
-            activeFilter={activeFilter}
-            onFilterChange={handleFilterChange}
-            counts={{
-              all: count?.all,
-              forum: count?.forum,
-              event: 0,
-              volunteer: count?.volunteer,
-              launchpad: count?.project,
+    // <div className="min-h-screen bg-gray-50 pb-20">
+    //   <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:pt-12">
+    <ForumPageLayout>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          duration: prefersReducedMotion ? 0 : 0.5,
+          ease: "easeOut",
+        }}
+        className="flex flex-col gap-10 lg:flex-row"
+      >
+        <SavedItemsSidebar
+          activeFilter={activeFilter}
+          onFilterChange={handleFilterChange}
+          counts={{
+            all: count?.all,
+            forum: count?.forum,
+            event: 0,
+            volunteer: count?.volunteer,
+            launchpad: count?.project,
+          }}
+        />
+
+        <main className="min-w-0 flex-1">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: prefersReducedMotion ? 0 : 0.5,
+              delay: prefersReducedMotion ? 0 : 0.15,
+              ease: "easeOut",
             }}
+            className="mb-10 lg:mb-16"
+          >
+            <h1 className="mb-2 text-4xl font-bold tracking-tight text-slate-950 lg:text-5xl">
+              Saved Items
+            </h1>
+            <p className="text-[15px] font-medium text-slate-500 sm:text-base">
+              Managing all your saved items across the platform.
+            </p>
+          </motion.div>
+
+          <SavedItemsGrid
+            activeFilter={activeFilter}
+            savedForums={forums}
+            savedVolunteers={volunteers}
+            savedLaunchpads={launchpads}
+            isLoading={
+              fetcher.state !== "idle" &&
+              !lastFetchUrl.current.includes("cursor=")
+            }
           />
 
-          <main className="min-w-0 flex-1">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: prefersReducedMotion ? 0 : 0.5,
-                delay: prefersReducedMotion ? 0 : 0.15,
-                ease: "easeOut",
-              }}
-              className="mb-10 lg:mb-16"
-            >
-              <h1 className="mb-2 text-4xl font-bold tracking-tight text-slate-950 lg:text-5xl">
-                Saved Items
-              </h1>
-              <p className="text-[15px] font-medium text-slate-500 sm:text-base">
-                Managing all your saved items across the platform.
-              </p>
-            </motion.div>
-
-            <SavedItemsGrid
-              activeFilter={activeFilter}
-              savedForums={forums}
-              savedVolunteers={volunteers}
-              savedLaunchpads={launchpads}
-              isLoading={fetcher.state !== "idle" && !lastFetchUrl.current.includes("cursor=")}
-            />
-
-            {hasMore && (
-              <div ref={sentinelRef} className="flex justify-center py-8">
-                {fetcher.state === "loading" && (
-                  <Loader2 className="size-6 animate-spin text-slate-400" />
-                )}
-              </div>
-            )}
-          </main>
-        </motion.div>
-      </div>
-    </div>
+          {hasMore && (
+            <div ref={sentinelRef} className="flex justify-center py-8">
+              {fetcher.state === "loading" && (
+                <Loader2 className="size-6 animate-spin text-slate-400" />
+              )}
+            </div>
+          )}
+        </main>
+      </motion.div>
+      {/* </div>
+    </div> */}
+    </ForumPageLayout>
   );
 }

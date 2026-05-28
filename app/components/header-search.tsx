@@ -100,7 +100,7 @@ export default function HeaderSearch({
         <Button
           size="lg"
           className={cn(
-            "cursor-pointer h-14 min-w-0 gap-1.5 rounded-lg bg-[#2f6fe4] px-6 text-sm font-medium text-[#f8fafc] hover:bg-[#245fca] md:min-w-47.75 md:w-auto",
+            "cursor-pointer h-14 min-w-0 gap-1.5 rounded-[18px] bg-[#2f6fe4] px-6 text-sm font-medium text-[#f8fafc] shadow-[0_8px_24px_rgba(15,23,42,0.04)] hover:bg-[#245fca] md:min-w-47.75 md:w-auto",
             `w-[${buttonWidth || "150px"}]`,
           )}
         >

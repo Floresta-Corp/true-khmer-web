@@ -3,6 +3,7 @@ import type {
   ApplicationArchiveAction,
   ApplicationSourceType,
   ApplicationStatusAction,
+  GetMyApplicationDetailResponse,
   GetMyApplicationResponse,
 } from "../types";
 import {
@@ -60,9 +61,13 @@ export async function getMyApplicationDetailResponse(
     sourceType,
   )}/${encodeURIComponent(applicationId)}`;
 
-  const result = await apiRequestWithSession(request, url, {
-    method: "GET",
-  });
+  const result = await apiRequestWithSession<GetMyApplicationDetailResponse>(
+    request,
+    url,
+    {
+      method: "GET",
+    },
+  );
   return result;
 }
 
