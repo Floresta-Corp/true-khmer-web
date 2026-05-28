@@ -110,7 +110,7 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
           </div>
           <span
             className={cn(
-              "ml-auto rounded-full border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-wider transition-all pointer-events-none",
+              "ml-auto rounded-full border px-3.5 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all pointer-events-none",
               !isCompleted && "mr-12",
               STATUS_STYLES[posting.status],
             )}
@@ -154,7 +154,7 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
                 Roles
               </span>
               <span className="mt-1 text-2xl font-semibold leading-none text-black">
-                {/* will apply after the api is done */}
+                {posting.roleCount}
               </span>
             </div>
 
@@ -174,7 +174,7 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
                 Progress
               </span>
               <span className="mt-1 text-2xl font-semibold leading-none text-black">
-                {posting.applicantCount}/{posting.capacity}
+                {posting.confirmedCount}/{posting.capacity}
               </span>
             </div>
           </div>

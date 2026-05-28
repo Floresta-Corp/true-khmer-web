@@ -24,7 +24,7 @@ export default function ManagePostingDetailStats() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
       {/* 1. Pending Card */}
-      <div className="bg-blue-600/75 rounded-[24px] p-6 flex justify-between items-start relative overflow-hidden h-40 ">
+      <div className="bg-blue-500 rounded-[24px] p-6 flex justify-between items-start relative overflow-hidden h-40 ">
         <div className="relative z-20">
           <p className="text-[14px] font-semibold text-white/70  tracking-wider mb-4">
             Pending

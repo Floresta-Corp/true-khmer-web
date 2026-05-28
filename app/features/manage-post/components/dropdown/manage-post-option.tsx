@@ -134,13 +134,13 @@ export default function ManagePostOption({
               <Pencil size={16} className="text-slate-400" />
               Edit Posting
             </DropdownMenuItem>
-            <DropdownMenuItem
+            {/* <DropdownMenuItem
               // onClick={() => handleAction("reopen_recruitment")}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
             >
               <UserCheck size={16} className="text-slate-400" />
               Reopen Recruitment
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
             <DropdownMenuItem
               onClick={() => handleAction("mark_complete")}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-green-600 font-medium"

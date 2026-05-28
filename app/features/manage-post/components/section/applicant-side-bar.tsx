@@ -1,6 +1,6 @@
 import { X, Download, DownloadIcon, Check } from "lucide-react";
 import { motion } from "motion/react";
-import { Fragment, useState } from "react";
+import { Fragment, type ReactNode, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import { formatDate } from "~/features/events/lib/event-formatters";
@@ -38,6 +38,14 @@ type Props = {
   postingId: string;
   sourceType: PostingType;
   onClose: () => void;
+};
+
+type ApplicantInfoItem = {
+  title: string;
+  value?: string;
+  valueClass?: string;
+  hide: boolean;
+  link?: ReactNode;
 };
 
 export default function ApplicantSideBar({
@@ -82,26 +90,24 @@ export default function ApplicantSideBar({
 
   const roles = applicant?.roles ?? [];
   const hasMultipleRoles = roles.length > 1;
-  const isRoleTopPick = (role?: (typeof roles)[number]) =>
-    Boolean(
-      role &&
-        applicant?.topPick &&
-        [role.roleId, role.applicationId, role.title].includes(
-          applicant.topPick,
-        ),
-    );
+  const isRoleTopPick = (role?: (typeof roles)[number]) => {
+    if (!role || !applicant?.topPick) return false;
+    return [role.roleId, role.applicationId].includes(applicant.topPick);
+  };
   const overallStatus = normalizeStatus(applicant?.status ?? "new");
+  const normalizedSourceType = sourceType.toLowerCase();
+  const isVolunteerPosting = normalizedSourceType === "volunteer";
 
   const isNew = overallStatus === "new";
 
-  const volunteerInfo = [
+  const volunteerInfo: ApplicantInfoItem[] = [
     {
       title: "Applied On",
       value: formatDate(applicant?.appliedAt || ""),
       hide: false,
     },
     {
-      title: "Why do you want to join this project?",
+      title: "Availability",
       value: applicant?.volunteer?.availability,
       hide: false,
     },
@@ -112,6 +118,36 @@ export default function ApplicantSideBar({
       hide: !applicant?.volunteer?.relevantExperience,
     },
   ];
+
+  const projectInfo: ApplicantInfoItem[] = [
+    {
+      title: "Applied On",
+      value: formatDate(applicant?.appliedAt || ""),
+      hide: false,
+    },
+    {
+      title: "Why do you want to join this project?",
+      value: applicant?.project?.motivation,
+      hide: !applicant?.project?.motivation,
+    },
+    {
+      title: "Portfolio",
+      value: applicant?.project?.portfolio,
+      valueClass: "text-gray-600 leading-relaxed",
+      hide: !applicant?.project?.portfolio,
+      link: (
+        <a
+          href={applicant?.project?.portfolio}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:underline break-all"
+        >
+          {applicant?.project?.portfolio}
+        </a>
+      ),
+    },
+  ];
+  const applicantInfo = isVolunteerPosting ? volunteerInfo : projectInfo;
 
   return (
     <>
@@ -361,10 +397,7 @@ export default function ApplicantSideBar({
                             />
                           )}
                           {isDeclined && (
-                            <X
-                              className="w-3 h-3 text-white"
-                              strokeWidth={3}
-                            />
+                            <X className="w-3 h-3 text-white" strokeWidth={3} />
                           )}
                         </div>
 
@@ -414,7 +447,7 @@ export default function ApplicantSideBar({
                 </div>
               )}
 
-              {volunteerInfo.map((info, idx) => (
+              {applicantInfo.map((info, idx) => (
                 <Fragment key={idx}>
                   {info.hide ? null : (
                     <div className="bg-gray-50 p-4 rounded-2xl ">
@@ -424,42 +457,12 @@ export default function ApplicantSideBar({
                       <p
                         className={cn("text-sm text-gray-700", info.valueClass)}
                       >
-                        {info.value}
+                        {info.link ?? info.value}
                       </p>
                     </div>
                   )}
                 </Fragment>
               ))}
-
-              {/* Motivation (project) */}
-              {applicant.project?.motivation && (
-                <div className="bg-gray-50 p-4 rounded-2xl">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">
-                    Motivation
-                  </p>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {applicant.project.motivation}
-                  </p>
-                </div>
-              )}
-              {/* portfolio */}
-              {applicant.project?.portfolio && (
-                <>
-                  <div className="bg-gray-50 p-4 rounded-2xl">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">
-                      Portfolio
-                    </p>
-                    <a
-                      href={applicant.project.portfolio}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline break-all"
-                    >
-                      {applicant.project.portfolio}
-                    </a>
-                  </div>
-                </>
-              )}
 
               {/* Supporting Documents */}
               {documentData?.map((file) => (

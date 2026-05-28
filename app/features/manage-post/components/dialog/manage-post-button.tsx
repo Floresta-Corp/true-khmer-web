@@ -11,7 +11,6 @@ import {
 import { Button } from "~/components/ui/button";
 import { Briefcase, HandHeart, Plus } from "lucide-react";
 import OptionCard from "./manage-post-btn-option";
-import { motion } from "motion/react";
 
 export default function CreateOpportunityDialog({
   trigger,

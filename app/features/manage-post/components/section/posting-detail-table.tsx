@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useFetcher, useSearchParams } from "react-router";
-import { Send, Mail, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
 import {
@@ -23,6 +22,7 @@ import ApplicantTabRange from "./applicant-tab-filter";
 import { formatDate } from "~/features/events/lib/event-formatters";
 import ApplicantSideBar from "./applicant-side-bar";
 import ApplicantActionButton from "./applicant-action-btn";
+import ApplicantContactBtn from "./applicant-contact-btn";
 
 const STATUS_STYLES: Record<ApplicantStatusAction, string> = {
   approve: "bg-green-100 text-green-700 border-green-200 ",
@@ -256,31 +256,10 @@ export default function ManagePostingDetailTable({
                     </TableCell>
 
                     <TableCell
-                      className="px-5 py-3.5"
+                      className="size-10"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="flex   gap-1.5">
-                        {applicant.candidate.email && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 bg-slate-50 text-slate-500 hover:bg-blue-50 hover:text-blue-600 dark:bg-slate-900"
-                            aria-label="Compose email"
-                          >
-                            <Mail size={14} />
-                          </Button>
-                        )}
-                        {applicant.candidate.telegramUsername && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 bg-slate-50 text-slate-500 hover:bg-sky-50 hover:text-sky-600 dark:bg-slate-900"
-                            aria-label="Telegram"
-                          >
-                            <Send size={14} />
-                          </Button>
-                        )}
-                      </div>
+                      <ApplicantContactBtn candidate={applicant.candidate} />
                     </TableCell>
                     <TableCell className="text-right">
                       <ApplicantActionButton

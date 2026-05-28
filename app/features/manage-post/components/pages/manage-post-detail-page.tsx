@@ -35,7 +35,13 @@ export default function ManagePostingDetailPage() {
   const { postDetail } = useLoaderData<typeof loader>();
   const { sourceType, id } = useParams();
   const prefersReducedMotion = useReducedMotion();
-  const sourceTypeRoute = sourceType === "projects" ? "launchpad" : "volunteer";
+  const postingSourceType = postDetail?.posting?.sourceType ?? sourceType;
+  const isProjectPosting =
+    postingSourceType === "PROJECT" || postingSourceType === "projects";
+  const managePostSourceType: PostingType = isProjectPosting
+    ? "projects"
+    : "volunteer";
+  const sourceTypeRoute = isProjectPosting ? "launchpad" : "volunteer";
   const editRoute = `/${sourceTypeRoute}/edit/${id}`;
 
   const fadeUp = (delay: number) => ({
@@ -70,21 +76,19 @@ export default function ManagePostingDetailPage() {
             <div className="flex flex-wrap items-center gap-3">
               <div
                 className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                  postDetail?.posting?.sourceType === "projects"
+                  isProjectPosting
                     ? "bg-blue-50 text-blue-600"
                     : "bg-indigo-50 text-indigo-600"
                 }`}
               >
-                {postDetail?.posting?.sourceType === "projects" ? (
+                {isProjectPosting ? (
                   <Briefcase size={18} />
                 ) : (
                   <HandHeart size={18} />
                 )}
               </div>
               <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
-                {postDetail?.posting?.sourceType === "projects"
-                  ? "Project"
-                  : "Volunteer"}
+                {isProjectPosting ? "Project" : "Volunteer"}
               </span>
               <div className="w-px h-4 bg-gray-200" />
               <span
@@ -155,7 +159,7 @@ export default function ManagePostingDetailPage() {
           <ManagePostingDetailTable
             applicants={postDetail?.applicants ?? []}
             postingId={postDetail?.posting?.id ?? ""}
-            sourceType={(postDetail?.posting?.sourceType ?? "") as PostingType}
+            sourceType={managePostSourceType}
           />
         </motion.div>
       </div>
