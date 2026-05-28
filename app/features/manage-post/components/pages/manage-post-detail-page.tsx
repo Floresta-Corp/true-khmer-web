@@ -53,9 +53,9 @@ export default function ManagePostingDetailPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
-      className="max-w-7xl w-full mx-auto max-h-full"
+      className="max-w-7xl w-full mx-auto "
     >
-      <div className="p-4 sm:p-8 md:p-10">
+      <div className="p-4 sm:p-8 pb-24 md:p-10">
         <motion.div className="mb-6" {...fadeUp(0.05)}>
           <BackToButton to="/manage-post" />
         </motion.div>
@@ -132,9 +132,9 @@ export default function ManagePostingDetailPage() {
             </Link>
 
             {/* Share Button */}
-            <button className="h-11 w-11 border border-gray-200 dark:border-slate-800 rounded-xl text-gray-400 hover:text-blue-600 hover:border-blue-600 transition-all flex items-center justify-center shrink-0 bg-white dark:bg-slate-900">
+            {/* <button className="h-11 w-11 border border-gray-200 dark:border-slate-800 rounded-xl text-gray-400 hover:text-blue-600 hover:border-blue-600 transition-all flex items-center justify-center shrink-0 bg-white dark:bg-slate-900">
               <Share2 size={20} />
-            </button>
+            </button> */}
 
             <div className="shrink-0 h-11 w-11 relative">
               <ManagePostOption

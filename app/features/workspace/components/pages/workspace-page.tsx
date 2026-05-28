@@ -5,10 +5,30 @@ import WorkspaceQuestionItem from "../card/workspace-question-card";
 import WorkspaceAnswerItem from "../card/workspace-my-answer-card";
 import WorkspaceTabs from "../work-space-tab";
 import WorkSpacePageLayout from "~/layout/workspace-page-layout";
+import { MessageCircleQuestion, Search } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 type Props = {};
 
 type TabType = "questions" | "answers";
+
+function EmptyWorkspaceState({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-16 text-center">
+      <Icon className="mx-auto mb-4 size-10 text-slate-300" />
+      <p className="text-base font-semibold text-slate-700">{title}</p>
+      <p className="mt-2 text-sm text-slate-400">{description}</p>
+    </div>
+  );
+}
 
 export default function WorkSpacePage({}: Props) {
   const { categories, answers, questions } = useLoaderData<typeof loader>();
@@ -46,7 +66,11 @@ export default function WorkSpacePage({}: Props) {
                 />
               ))
             ) : (
-              <p className="text-sm text-[#64748b]">No questions posted yet.</p>
+              <EmptyWorkspaceState
+                icon={MessageCircleQuestion}
+                title="No questions posted yet."
+                description="Questions you start in the forum will appear here."
+              />
             )
           ) : answers.length > 0 ? (
             answers.map((answer, index) => (
@@ -57,7 +81,11 @@ export default function WorkSpacePage({}: Props) {
               />
             ))
           ) : (
-            <p className="text-sm text-[#64748b]">No answers posted yet.</p>
+            <EmptyWorkspaceState
+              icon={Search}
+              title="No answers posted yet."
+              description="Answers you share with the community will appear here."
+            />
           )}
         </div>
       </div>

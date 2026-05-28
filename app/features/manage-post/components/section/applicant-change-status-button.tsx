@@ -1,9 +1,11 @@
 import { useFetcher } from "react-router";
+import { CircleCheck } from "lucide-react";
 import type {
   Applicant,
   ApplicantStatusAction,
 } from "~/services/manage-post/types";
 import { Button } from "~/components/ui/button";
+import ApplicantContactPopover from "./applicant-contact-popover";
 type Props = {
   currentStatus: ApplicantStatusAction;
   postingId: string;
@@ -85,48 +87,58 @@ export default function ApplicantStatusChangeButton({
   const declineDisabled = isLoading || !resolvedApplicationId;
 
   return (
-    <div className="mt-auto p-6 flex flex-col gap-2 border-t border-gray-100">
+    <div className="mt-auto flex flex-col gap-3 border-t border-gray-100 p-6">
       {isPendingCandidateConfirmation && !isFinalPending ? (
         <>
           <p className="text-center text-sm text-gray-400">
             This applicant has been{" "}
             <span className="text-emerald-600">approved</span>.
           </p>
-          <Button
-            variant="ghost"
-            className="w-full text-red-500 hover:text-red-600 hover:bg-red-50 font-semibold rounded-xl h-11"
-            onClick={() => handleStatusChange("decline")}
-            disabled={declineDisabled}
-          >
-            Decline
-          </Button>
+          <div className="grid grid-cols-2 gap-3">
+            <ApplicantContactPopover candidate={applicant.candidate} />
+            <Button
+              variant="outline"
+              className="h-11 w-full rounded-xl border-red-200 font-semibold text-red-500 hover:bg-red-50 hover:text-red-600"
+              onClick={() => handleStatusChange("decline")}
+              disabled={declineDisabled}
+            >
+              Decline
+            </Button>
+          </div>
         </>
       ) : isFinalStatus ? (
-        <p className="text-center text-sm text-gray-400">
-          This applicant has been{" "}
-          <span
-            className={isApprovedSide ? "text-emerald-600" : "text-red-500"}
-          >
-            {isFinalPending
-              ? pendingAction === "approve"
-                ? "approved"
-                : "declined"
-              : (displayLabel[normalizedStatus] ??
-                normalizedStatus?.toLowerCase())}
-          </span>
-          .
-        </p>
+        <>
+          <ApplicantContactPopover candidate={applicant.candidate} />
+          <p className="text-center text-sm text-gray-400">
+            This applicant has been{" "}
+            <span
+              className={isApprovedSide ? "text-emerald-600" : "text-red-500"}
+            >
+              {isFinalPending
+                ? pendingAction === "approve"
+                  ? "approved"
+                  : "declined"
+                : (displayLabel[normalizedStatus] ??
+                  normalizedStatus?.toLowerCase())}
+            </span>
+            .
+          </p>
+        </>
       ) : (
         <>
-          <Button
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl h-11"
-            onClick={() => handleStatusChange("approve")}
-            disabled={approveDisabled}
-          >
-            {isFinalPending && pendingAction === "approve"
-              ? "Saving..."
-              : "Approve"}
-          </Button>
+          <div className="grid grid-cols-2 gap-3">
+            <ApplicantContactPopover candidate={applicant.candidate} />
+            <Button
+              className="h-11 w-full rounded-xl bg-blue-600 font-semibold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={() => handleStatusChange("approve")}
+              disabled={approveDisabled}
+            >
+              <CircleCheck className="size-4" />
+              {isFinalPending && pendingAction === "approve"
+                ? "Saving..."
+                : "Process"}
+            </Button>
+          </div>
 
           {hasMultipleRoles && !selectedRoleId && (
             <p className="text-center text-xs text-gray-400">
@@ -136,7 +148,7 @@ export default function ApplicantStatusChangeButton({
 
           <Button
             variant="ghost"
-            className="w-full text-red-500 hover:text-red-600 hover:bg-red-50 font-semibold rounded-xl h-11"
+            className="h-10 w-full rounded-xl font-semibold text-red-500 hover:bg-red-50 hover:text-red-600"
             onClick={() => handleStatusChange("decline")}
             disabled={declineDisabled}
           >

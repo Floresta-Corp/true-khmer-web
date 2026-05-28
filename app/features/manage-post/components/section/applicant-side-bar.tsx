@@ -1,14 +1,4 @@
-import {
-  X,
-  FileText,
-  Download,
-  Mail,
-  Phone,
-  ArrowRight,
-  DownloadIcon,
-  Check,
-} from "lucide-react";
-import { Send } from "lucide-react";
+import { X, Download, DownloadIcon, Check } from "lucide-react";
 import { motion } from "motion/react";
 import { Fragment, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -18,7 +8,6 @@ import { cn, resolveImageURL } from "~/lib/utils";
 import type {
   Applicant,
   ApplicantStatusAction,
-  ApplicationStatus,
   PostingType,
 } from "~/services/manage-post/types";
 import ApplicantStatusChangeButton from "./applicant-change-status-button";
@@ -93,7 +82,14 @@ export default function ApplicantSideBar({
 
   const roles = applicant?.roles ?? [];
   const hasMultipleRoles = roles.length > 1;
-  const isTopPick = applicant?.topPick === roles?.[0]?.roleId;
+  const isRoleTopPick = (role?: (typeof roles)[number]) =>
+    Boolean(
+      role &&
+        applicant?.topPick &&
+        [role.roleId, role.applicationId, role.title].includes(
+          applicant.topPick,
+        ),
+    );
   const overallStatus = normalizeStatus(applicant?.status ?? "new");
 
   const isNew = overallStatus === "new";
@@ -187,53 +183,6 @@ export default function ApplicantSideBar({
               </button>
             </div>
 
-            {/* Contact Actions */}
-            <div className="grid grid-cols-3 gap-2 p-4 border-b border-gray-100">
-              <a
-                href={`mailto:${applicant.candidate.email}`}
-                className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-gray-50 hover:bg-blue-50 hover:text-blue-600 text-gray-500 transition-colors text-xs font-medium"
-              >
-                <Mail size={16} />
-                Email
-              </a>
-
-              <a
-                href={
-                  applicant.candidate.telegramUsername
-                    ? `https://t.me/${applicant.candidate.telegramUsername.replace("@", "")}`
-                    : undefined
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(
-                  "flex flex-col items-center gap-1.5 py-3 rounded-xl bg-gray-50 text-xs font-medium transition-colors",
-                  applicant.candidate.telegramUsername
-                    ? "hover:bg-blue-50 hover:text-blue-600 text-gray-500"
-                    : "opacity-40 cursor-not-allowed text-gray-400 pointer-events-none",
-                )}
-              >
-                <Send size={16} />
-                Telegram
-              </a>
-
-              <a
-                href={
-                  applicant.candidate.phoneNumber
-                    ? `tel:${applicant.candidate.phoneNumber}`
-                    : undefined
-                }
-                className={cn(
-                  "flex flex-col items-center gap-1.5 py-3 rounded-xl bg-gray-50 text-xs font-medium transition-colors",
-                  applicant.candidate.phoneNumber
-                    ? "hover:bg-blue-50 hover:text-blue-600 text-gray-500"
-                    : "opacity-40 cursor-not-allowed text-gray-400 pointer-events-none",
-                )}
-              >
-                <Phone size={16} />
-                Phone
-              </a>
-            </div>
-
             <div className="flex flex-col gap-4 p-6">
               {/* Roles Applied — multi-role & single-role */}
               {hasMultipleRoles ? (
@@ -244,6 +193,7 @@ export default function ApplicantSideBar({
                   <div className="flex flex-col gap-2">
                     {roles.map((role) => {
                       const isSelected = selectedRoleId === role.roleId;
+                      const isTopPick = isRoleTopPick(role);
 
                       const isApproved = [
                         "APPROVED",
@@ -367,27 +317,100 @@ export default function ApplicantSideBar({
                   )}
                 </div>
               ) : (
-                /* Single role — original display */
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
                     Role Applied
                   </p>
 
-                  <div className="flex items-center gap-4 p-5 rounded-2xl border border-gray-100 bg-white shadow-sm max-w-xl">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold truncate ">
-                          {roles[0]?.title}
-                        </span>
+                  {roles.map((role) => {
+                    const isTopPick = isRoleTopPick(role);
+                    const isApproved = [
+                      "APPROVED",
+                      "CONFIRMED",
+                      "COMPLETED",
+                    ].includes(role.status);
+                    const isDeclined =
+                      role.status === "DECLINED" || role.status === "WITHDRAWN";
 
-                        {isTopPick && (
-                          <span className="shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 border border-amber-200">
-                            Top Pick
-                          </span>
+                    return (
+                      <div
+                        key={role.roleId}
+                        className={cn(
+                          "flex items-center gap-3 w-full rounded-xl border px-4 py-3 text-left transition-all",
+                          isApproved
+                            ? "border-green-300 bg-green-50"
+                            : isDeclined
+                              ? "border-gray-200 bg-gray-50 opacity-50"
+                              : "border-gray-200 bg-white",
                         )}
+                      >
+                        <div
+                          className={cn(
+                            "shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center",
+                            isApproved
+                              ? "border-green-500 bg-green-500"
+                              : isDeclined
+                                ? "border-gray-300 bg-gray-300"
+                                : "border-gray-300 bg-white",
+                          )}
+                        >
+                          {isApproved && (
+                            <Check
+                              className="w-3 h-3 text-white"
+                              strokeWidth={3}
+                            />
+                          )}
+                          {isDeclined && (
+                            <X
+                              className="w-3 h-3 text-white"
+                              strokeWidth={3}
+                            />
+                          )}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={cn(
+                                "text-sm font-semibold truncate",
+                                isApproved
+                                  ? "text-green-700"
+                                  : isDeclined
+                                    ? "text-gray-400"
+                                    : "text-gray-900",
+                              )}
+                            >
+                              {role.title}
+                            </span>
+                            {isTopPick && (
+                              <span className="shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 border border-amber-200">
+                                Top Pick
+                              </span>
+                            )}
+                            {isApproved && (
+                              <span className="shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-green-100 text-green-600 border border-green-200">
+                                {role.status === "CONFIRMED"
+                                  ? "Confirmed"
+                                  : role.status === "COMPLETED"
+                                    ? "Completed"
+                                    : "Approved"}
+                              </span>
+                            )}
+                            {isDeclined && (
+                              <span className="shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-gray-100 text-gray-400 border border-gray-200">
+                                Declined
+                              </span>
+                            )}
+                          </div>
+                          {role.description && (
+                            <p className="text-xs text-gray-400 mt-0.5 truncate">
+                              {role.description}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    );
+                  })}
                 </div>
               )}
 
