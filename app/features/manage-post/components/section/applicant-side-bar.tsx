@@ -1,6 +1,6 @@
 import { X, Download, DownloadIcon, Check } from "lucide-react";
 import { motion } from "motion/react";
-import { Fragment, type ReactNode, useState } from "react";
+import { Fragment, type ReactNode, useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import { formatDate } from "~/features/events/lib/event-formatters";
@@ -9,8 +9,11 @@ import type {
   Applicant,
   ApplicantStatusAction,
   PostingType,
+  PostSourceType,
 } from "~/services/manage-post/types";
+import ApplicantNoteAction from "./applicant-note-action";
 import ApplicantStatusChangeButton from "./applicant-change-status-button";
+import { useFetcher } from "react-router";
 
 const STATUS_STYLES: Record<ApplicantStatusAction, string> = {
   approve: "bg-green-100 text-green-700 border-green-200 hover:bg-gray-100",
@@ -37,7 +40,9 @@ type Props = {
   applicant: Applicant | null;
   postingId: string;
   sourceType: PostingType;
+  onApplicantNoteSaved?: (candidateId: string, note: string) => void;
   onClose: () => void;
+  candidateId: string;
 };
 
 type ApplicantInfoItem = {
@@ -51,14 +56,15 @@ type ApplicantInfoItem = {
 export default function ApplicantSideBar({
   applicant,
   onClose,
+  onApplicantNoteSaved,
   postingId,
   sourceType,
+  candidateId,
 }: Props) {
   const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
 
-  const supportingDocs = applicant?.volunteer?.supportingDocuments as
-    | { key: string; name: string }[]
-    | undefined;
+  const supportingDocs = applicant?.submissions?.[0]?.volunteer
+    ?.supportingDocuments as { key: string; name: string }[] | undefined;
 
   const documentData = supportingDocs?.map((doc, index) => {
     const docKey = typeof doc === "object" ? doc.key : doc;
@@ -88,67 +94,93 @@ export default function ApplicantSideBar({
     return map[status?.toUpperCase()] ?? "new";
   };
 
-  const roles = applicant?.roles ?? [];
+  const roles = applicant?.submissions?.[0]?.roles ?? [];
   const hasMultipleRoles = roles.length > 1;
   const isRoleTopPick = (role?: (typeof roles)[number]) => {
-    if (!role || !applicant?.topPick) return false;
-    return [role.roleId, role.applicationId].includes(applicant.topPick);
+    if (!role || !applicant?.submissions[0]?.topPick) return false;
+    return Boolean(
+      [role.roleId, role.applicationId].find(
+        (id) => id === applicant.submissions[0].topPick,
+      ),
+    );
   };
-  const overallStatus = normalizeStatus(applicant?.status ?? "new");
+  const overallStatus = normalizeStatus(applicant?.overallStatus ?? "new");
   const normalizedSourceType = sourceType.toLowerCase();
   const isVolunteerPosting = normalizedSourceType === "volunteer";
 
   const isNew = overallStatus === "new";
 
+  // console.log("Sidebar reading note:", applicant?.privateNote);
+
   const volunteerInfo: ApplicantInfoItem[] = [
     {
       title: "Applied On",
-      value: formatDate(applicant?.appliedAt || ""),
+      value: formatDate(applicant?.submissions?.[0]?.appliedAt || ""),
       hide: false,
     },
     {
       title: "Availability",
-      value: applicant?.volunteer?.availability,
+      value: applicant?.submissions?.[0]?.volunteer?.availability,
       hide: false,
     },
     {
       title: "Relevant Experience",
-      value: applicant?.volunteer?.relevantExperience,
+      value: applicant?.submissions?.[0]?.volunteer?.relevantExperience,
       valueClass: "text-gray-600 leading-relaxed",
-      hide: !applicant?.volunteer?.relevantExperience,
+      hide: !applicant?.submissions?.[0]?.volunteer?.relevantExperience,
     },
   ];
 
   const projectInfo: ApplicantInfoItem[] = [
     {
       title: "Applied On",
-      value: formatDate(applicant?.appliedAt || ""),
+      value: formatDate(applicant?.submissions?.[0]?.appliedAt || ""),
       hide: false,
     },
     {
       title: "Why do you want to join this project?",
-      value: applicant?.project?.motivation,
-      hide: !applicant?.project?.motivation,
+      value: applicant?.submissions?.[0]?.project?.motivation,
+      hide: !applicant?.submissions?.[0]?.project?.motivation,
     },
     {
       title: "Portfolio",
-      value: applicant?.project?.portfolio,
+      value: applicant?.submissions?.[0]?.project?.portfolio,
       valueClass: "text-gray-600 leading-relaxed",
-      hide: !applicant?.project?.portfolio,
+      hide: !applicant?.submissions?.[0]?.project?.portfolio,
       link: (
         <a
-          href={applicant?.project?.portfolio}
+          href={applicant?.submissions?.[0]?.project?.portfolio}
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-600 hover:underline break-all"
         >
-          {applicant?.project?.portfolio}
+          {applicant?.submissions?.[0]?.project?.portfolio}
         </a>
       ),
     },
   ];
+
+  const noteFetcher = useFetcher<{ note: string } | null>();
+  useEffect(() => {
+    if (!applicant?.candidate?.id) return;
+
+    console.log("Fetching note with:", {
+      sourceType: normalizedSourceType,
+      postingId,
+      candidateId: applicant.candidate.id,
+    });
+
+    noteFetcher.load(
+      `/api/candidate-note?sourceType=${normalizedSourceType}&postingId=${postingId}&candidateId=${candidateId}`,
+    );
+  }, [applicant?.candidate?.id]);
+
+  const existingNote =
+    (noteFetcher.data as string | null) ?? applicant?.privateNote?.note ?? "";
+
   const applicantInfo = isVolunteerPosting ? volunteerInfo : projectInfo;
 
+  // console.log("SIDEBAR RAW PROP:", applicant?.privateNote?.note);
   return (
     <>
       {/* Backdrop */}
@@ -220,6 +252,44 @@ export default function ApplicantSideBar({
             </div>
 
             <div className="flex flex-col gap-4 p-6">
+              <div className="flex items-center justify-around rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                {/* Submissions Stat */}
+                <div className="flex flex-col items-center justify-center flex-1 text-center">
+                  <span className="text-sm font-semibold text-gray-900">
+                    {applicant?.submissionCount ?? "0"}
+                  </span>
+                  <span className="mt-1 text-[9px] font-semibold uppercase tracking-wider text-gray-400">
+                    Submissions
+                  </span>
+                </div>
+
+                {/* Divider */}
+                <div className="h-10 w-px bg-gray-100" />
+
+                {/* Roles Applied Stat */}
+                <div className="flex flex-col items-center justify-center flex-1 text-center">
+                  <span className="text-sm font-semibold text-gray-900">
+                    {applicant?.totalRoleApplied ?? "0"}
+                  </span>
+                  <span className="mt-1 text-[9px] font-semibold uppercase tracking-wider text-gray-400">
+                    Roles Applied
+                  </span>
+                </div>
+
+                {/* Divider */}
+                <div className="h-10 w-px bg-gray-100" />
+
+                {/* Overall Status Stat */}
+                <div className="flex flex-col items-center justify-center flex-1 text-center">
+                  <span className="text-xs font-semibold ">
+                    {STATUS_LABELS[overallStatus]}
+                  </span>
+                  <span className="mt-1 text-[9px] font-semibold uppercase tracking-wider text-gray-400">
+                    Overall Status
+                  </span>
+                </div>
+              </div>
+
               {/* Roles Applied — multi-role & single-role */}
               {hasMultipleRoles ? (
                 <div>
@@ -463,7 +533,6 @@ export default function ApplicantSideBar({
                   )}
                 </Fragment>
               ))}
-
               {/* Supporting Documents */}
               {documentData?.map((file) => (
                 <a
@@ -487,13 +556,26 @@ export default function ApplicantSideBar({
                   <DownloadIcon className="text-[#D1D5DC]" size={16} />
                 </a>
               ))}
+
+              {/* Private Note */}
+              <ApplicantNoteAction
+                sourceType={normalizedSourceType as PostSourceType}
+                postingId={postingId}
+                candidateId={applicant.candidate.id}
+                existingNote={existingNote}
+                onSaved={(note) =>
+                  onApplicantNoteSaved?.(applicant.candidate.id, note)
+                }
+              />
             </div>
 
             {/* Accept / Decline */}
             <ApplicantStatusChangeButton
               applicant={applicant}
               currentStatus={overallStatus as ApplicantStatusAction}
-              applicationId={applicant.roles?.[0]?.applicationId ?? ""}
+              applicationId={
+                applicant.submissions?.[0]?.roles?.[0]?.applicationId ?? ""
+              }
               postingId={postingId}
               sourceType={sourceType}
               selectedRoleId={hasMultipleRoles ? selectedRoleId : undefined}

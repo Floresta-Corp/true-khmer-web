@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFetcher, useSearchParams } from "react-router";
 import { Search } from "lucide-react";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
@@ -72,6 +72,12 @@ export default function ManagePostingDetailTable({
   const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(
     null,
   );
+  const [localApplicants, setLocalApplicants] = useState(applicants ?? []);
+
+  useEffect(() => {
+    setLocalApplicants(applicants ?? []);
+  }, [applicants]);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const fetcher = useFetcher();
 
@@ -91,17 +97,18 @@ export default function ManagePostingDetailTable({
 
   const getDisplayStatus = (applicant: Applicant): ApplicantStatusAction => {
     if (
-      applicant.roles?.[0]?.applicationId === pendingApplicantId &&
+      applicant.submissions[0].roles?.[0]?.applicationId ===
+        pendingApplicantId &&
       pendingStatus
     ) {
       return pendingStatus;
     }
-    return normalizeStatus(applicant.status);
+    return normalizeStatus(applicant.overallStatus);
   };
 
   const handleRowClick = (applicant: Applicant) => {
     setSelectedApplicant(applicant);
-    const normalized = normalizeStatus(applicant.status);
+    const normalized = normalizeStatus(applicant.overallStatus);
     const alreadyActioned = [
       "approve",
       "confirmed",
@@ -111,7 +118,7 @@ export default function ManagePostingDetailTable({
     ].includes(normalized);
 
     if (!alreadyActioned) {
-      const applicationId = applicant.roles?.[0]?.applicationId;
+      const applicationId = applicant.submissions[0].roles?.[0]?.applicationId;
       if (!applicationId) return;
 
       const formData = new FormData();
@@ -183,7 +190,7 @@ export default function ManagePostingDetailTable({
             </TableHeader>
 
             <TableBody className="divide-y divide-slate-50 dark:divide-slate-900">
-              {(applicants ?? []).map((applicant, idx) => {
+              {(localApplicants ?? []).map((applicant, idx) => {
                 const displayStatus = getDisplayStatus(applicant);
                 return (
                   <TableRow
@@ -213,16 +220,18 @@ export default function ManagePostingDetailTable({
 
                     <TableCell className="px-5 py-3.5">
                       {(() => {
-                        const approvedRole = applicant.roles?.find((r) =>
-                          ["APPROVED", "CONFIRMED", "COMPLETED"].includes(
-                            r.status,
-                          ),
-                        );
+                        const approvedRole =
+                          applicant.submissions[0].roles?.find((r) =>
+                            ["APPROVED", "CONFIRMED", "COMPLETED"].includes(
+                              r.status,
+                            ),
+                          );
                         const primaryRole =
-                          approvedRole ?? applicant.roles?.[0];
+                          approvedRole ?? applicant.submissions[0].roles?.[0];
                         const otherRoles =
-                          applicant.roles?.filter((r) => r !== primaryRole) ??
-                          [];
+                          applicant.submissions[0].roles?.filter(
+                            (r) => r !== primaryRole,
+                          ) ?? [];
 
                         return (
                           <div className="flex flex-col gap-0.5">
@@ -241,7 +250,7 @@ export default function ManagePostingDetailTable({
                     </TableCell>
 
                     <TableCell className="px-5 py-3.5 text-sm  text-slate-500 whitespace-nowrap">
-                      {formatDate(applicant.appliedAt)}
+                      {formatDate(applicant.submissions[0].appliedAt)}
                     </TableCell>
 
                     <TableCell className="px-5 py-3.5">
@@ -272,7 +281,7 @@ export default function ManagePostingDetailTable({
                 );
               })}
 
-              {(applicants ?? []).length === 0 && (
+              {(localApplicants ?? []).length === 0 && (
                 <TableRow>
                   <TableCell
                     colSpan={6}
@@ -288,10 +297,15 @@ export default function ManagePostingDetailTable({
       </div>
 
       <ApplicantSideBar
-        applicant={selectedApplicant}
+        applicant={
+          localApplicants.find(
+            (a) => a.candidate.id === selectedApplicant?.candidate.id,
+          ) ?? null
+        }
         onClose={() => setSelectedApplicant(null)}
         postingId={postingId}
         sourceType={sourceType}
+        candidateId={selectedApplicant?.candidate.id ?? ""}
       />
     </div>
   );

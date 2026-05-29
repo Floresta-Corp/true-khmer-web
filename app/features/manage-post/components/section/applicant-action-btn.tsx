@@ -34,11 +34,11 @@ export default function ApplicantActionButton({
     statusAction: "approve" | "decline",
   ) => {
     e.stopPropagation();
-    if (applicant.roles.length !== 1) {
+    if (applicant.submissions[0]?.roles.length !== 1) {
       onViewDetail(applicant);
       return;
     }
-    const applicationId = applicant.roles[0]?.applicationId;
+    const applicationId = applicant.submissions[0]?.roles[0]?.applicationId;
     if (!applicationId) return;
 
     const formData = new FormData();
@@ -76,25 +76,26 @@ export default function ApplicantActionButton({
           View Full Detail
         </DropdownMenuItem>
 
-        {!isActioned(displayStatus) && applicant.roles.length === 1 && (
-          <>
-            <DropdownMenuSeparator className="my-1" />
-            {displayStatus !== "approve" && (
+        {!isActioned(displayStatus) &&
+          applicant.submissions[0]?.roles.length === 1 && (
+            <>
+              <DropdownMenuSeparator className="my-1" />
+              {displayStatus !== "approve" && (
+                <DropdownMenuItem
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-green-600 cursor-pointer focus:text-green-600 focus:bg-green-50"
+                  onClick={(e) => handleAction(e, "approve")}
+                >
+                  Approve
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
-                className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-green-600 cursor-pointer focus:text-green-600 focus:bg-green-50"
-                onClick={(e) => handleAction(e, "approve")}
+                className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-red-500 cursor-pointer focus:text-red-500 focus:bg-red-50"
+                onClick={(e) => handleAction(e, "decline")}
               >
-                Approve
+                Decline
               </DropdownMenuItem>
-            )}
-            <DropdownMenuItem
-              className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-red-500 cursor-pointer focus:text-red-500 focus:bg-red-50"
-              onClick={(e) => handleAction(e, "decline")}
-            >
-              Decline
-            </DropdownMenuItem>
-          </>
-        )}
+            </>
+          )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
