@@ -157,13 +157,17 @@ export default function SavedItemsGrid({
   }
 
   return (
-    <AnimatePresence mode="popLayout" initial={false}>
+    <AnimatePresence mode="wait" initial={true}>
       <motion.div layout className="columns-2 gap-6">
-        {allItems.map((item) => (
+        {allItems.map((item, idx) => (
           <motion.div
             key={`${item.type}-${item.data.id}`}
             layout
             {...itemAnim}
+            animate={{
+              ...itemAnim.animate,
+              transition: { ...itemAnim.transition, delay: 0.03 * idx },
+            }}
             className="mb-6 break-inside-avoid"
           >
             <CardRenderer

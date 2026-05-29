@@ -6,7 +6,7 @@ import LaunchpadProjectDetailCard from "../components/card/launchpad-project-det
 import LaunchpadProjectCoverCard from "../components/card/launchpad-project-cover-card";
 import LaunchpadSeekingCollaborationCard from "../components/card/launchpad-seeking-collaboration-card";
 import LaunchpadPresentationCard from "../components/card/launchpad-presentation-card";
-import LaunchpadAuthorCard from "../components/card/launchpad-author-card";
+import AuthorCard from "~/components/author-card";
 import BackToButton from "~/components/back-to-button";
 import IconButton from "~/components/icon-button";
 import { Card, CardContent } from "~/components/ui/card";
@@ -15,6 +15,17 @@ import type { loader } from "../routes/launchpad.$id";
 import LaunchpadJoinProjectCard from "../components/card/launchpad-join-project-card";
 import { ShareLaunchpadDialog } from "../components/dialog/share-launchpad-dialog";
 import { Share2 } from "lucide-react";
+import { resolveImageURL } from "~/lib/utils";
+
+function formatPostedProjectCount(count: number): string {
+  if (count >= 1000) return "1000+";
+  if (count >= 500) return "500+";
+  if (count >= 200) return "200+";
+  if (count >= 100) return "100+";
+  if (count >= 50) return "50+";
+  if (count >= 10) return "10+";
+  return "1+";
+}
 
 export default function LaunchpadDetailPage() {
   const { project, userId } = useLoaderData<typeof loader>();
@@ -25,6 +36,17 @@ export default function LaunchpadDetailPage() {
   );
   const handleTabChange = (value: string) => {
     setActiveTab(value === "open-roles" ? "open-roles" : "details");
+  };
+  const authorCardProps = {
+    name: project.createdBy.name,
+    avatarUrl: resolveImageURL(project.createdBy.avatarKey || undefined),
+    postedLabel: `${formatPostedProjectCount(project.createdBy.launchpadCount)} projects posted`,
+    telegramUrl: project.telegramUsername
+      ? `https://t.me/${project.telegramUsername.replace("@", "")}`
+      : undefined,
+    phoneUrl: project.phoneNumber ? `tel:${project.phoneNumber}` : undefined,
+    emailUrl: project.email ? `mailto:${project.email}` : undefined,
+    authorId: project.createdBy.id,
   };
   const tabItemClassName =
     "rounded-none px-4 pb-3 text-sm font-medium text-[#65758b] transition-colors hover:text-blue-600 data-[state=active]:text-blue-600 data-[state=active]:after:bg-[#2f6fe4]";
@@ -145,7 +167,7 @@ export default function LaunchpadDetailPage() {
                 delay: prefersReducedMotion ? 0 : 0.25,
               }}
             >
-              <LaunchpadAuthorCard project={project} />
+              <AuthorCard {...authorCardProps} />
             </motion.div>
           </section>
         </div>

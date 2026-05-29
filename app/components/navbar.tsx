@@ -10,6 +10,7 @@ import {
   BriefcaseBusiness,
   TvMinimalPlay,
 } from "lucide-react";
+import type { ComponentType, SVGProps } from "react";
 import NotificationBellPopOver from "~/components/notification-bell-pop-over";
 import { cn } from "~/lib/utils";
 import type { AuthenticatedUser } from "~/lib/server/types";
@@ -20,20 +21,34 @@ interface NavbarProps {
   loginRedirectTo?: string;
 }
 
-const navLinks = [
-  { to: "/manage-post", label: "Workspace", icon: LayoutDashboard },
-  { to: "/home", label: "Home", icon: House },
-  // { to: "/dashboard", label: "My Journey", icon: Compass },
-  { to: "/forum", label: "Forum", icon: MessagesSquare },
-  // { to: "/forumv2", label: "Forum V2", icon: MessageSquare },
-  { to: "/events", label: "Events", icon: Calendar },
-  { to: "/volunteer", label: "Volunteer", icon: HeartHandshake },
-  { to: "/launchpad", label: "Launchpad", icon: BriefcaseBusiness },
-  { to: "/poc", label: "POC", icon: TvMinimalPlay },
-];
+type NavLink = {
+  to: string;
+  label: string;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
+  hide?: boolean;
+};
 
 export function Navbar({ user, loginRedirectTo }: NavbarProps) {
   const location = useLocation();
+
+  const navLinks: NavLink[] = [
+    {
+      to: "/manage-post",
+      label: "Workspace",
+      icon: LayoutDashboard,
+      hide: !user,
+    },
+    { to: "/home", label: "Home", icon: House },
+    // { to: "/dashboard", label: "My Journey", icon: Compass },
+    { to: "/forum", label: "Forum", icon: MessagesSquare },
+    // { to: "/forumv2", label: "Forum V2", icon: MessageSquare },
+    { to: "/events", label: "Events", icon: Calendar },
+    { to: "/volunteer", label: "Volunteer", icon: HeartHandshake },
+    { to: "/launchpad", label: "Launchpad", icon: BriefcaseBusiness },
+    { to: "/poc", label: "POC", icon: TvMinimalPlay, hide: true  },
+  ];
+
+  console.log(user);
 
   return (
     <>
@@ -57,6 +72,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
               const isActive = location.pathname.startsWith(link.to)
                 ? true
                 : false;
+              if (link.hide) return null;
               return (
                 <Link
                   key={link.to}

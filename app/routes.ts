@@ -51,6 +51,7 @@ export default [
         "launchpad/edit/:id",
         "features/launchpad/routes/launchpad.edit.$id.tsx",
       ),
+      route("profile/:id", "features/profile/routes/profile.$id.tsx"),
     ]),
     route("myspace", "features/myspace/routes/myspace.tsx"),
     route("edit-profile", "features/myspace/routes/edit-profile.tsx"),
