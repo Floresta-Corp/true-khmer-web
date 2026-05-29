@@ -5,7 +5,8 @@ import type { Opportunity } from "~/services/volunteer/volunteer-types";
 import type { Pagination } from "~/services/types";
 import OpportunityCardSkeleton from "../../components/sections/opportunity-card-skeleton";
 import { OpportunityCard } from "~/components/opportunity-card";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 const DEFAULT_LIMIT = 6;
 
@@ -31,6 +32,7 @@ export function VolunteerAvailableOpportunities({
   const location = useLocation();
   const fetcher = useFetcher();
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   const [items, setItems] = useState<Opportunity[]>(initialOpportunities);
   const [hasMore, setHasMore] = useState(
@@ -43,6 +45,51 @@ export function VolunteerAvailableOpportunities({
 
   const loading = fetcher.state === "loading" || fetcher.state === "submitting";
   const isLoading = externalLoading || loading;
+  const cardStagger = prefersReducedMotion ? 0 : 0.03;
+  const cardDuration = prefersReducedMotion ? 0 : 0.2;
+
+  const listVariants = useMemo(
+    () => ({
+      hidden: {},
+      show: {
+        transition: {
+          staggerChildren: cardStagger,
+          delayChildren: prefersReducedMotion ? 0 : 0.01,
+        },
+      },
+    }),
+    [cardStagger, prefersReducedMotion],
+  );
+
+  const cardVariants = useMemo(
+    () => ({
+      hidden: {
+        opacity: 0,
+        y: prefersReducedMotion ? 0 : 18,
+        scale: prefersReducedMotion ? 1 : 0.98,
+      },
+      show: (index: number) => ({
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: {
+          duration: cardDuration,
+          ease: "easeOut" as const,
+          delay: prefersReducedMotion ? 0 : index * 0.008,
+        },
+      }),
+      exit: {
+        opacity: 0,
+        y: prefersReducedMotion ? 0 : -12,
+        scale: prefersReducedMotion ? 1 : 0.98,
+        transition: {
+          duration: cardDuration,
+          ease: "easeIn" as const,
+        },
+      },
+    }),
+    [cardDuration, prefersReducedMotion],
+  );
 
   useEffect(() => {
     setItems(initialOpportunities);
@@ -143,15 +190,32 @@ export function VolunteerAvailableOpportunities({
           </div>
         ) : items.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {items.map((opportunity) => (
-                <OpportunityCard
-                  key={opportunity.id}
-                  opportunity={opportunity}
-                  onMutationComplete={onMutationComplete}
-                />
-              ))}
-            </div>
+            <motion.div
+              className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3"
+              variants={listVariants}
+              initial="hidden"
+              animate="show"
+            >
+              <AnimatePresence initial={true} mode="popLayout">
+                {items.map((opportunity, index) => (
+                  <motion.div
+                    key={opportunity.id}
+                    custom={index}
+                    variants={cardVariants}
+                    initial="hidden"
+                    animate="show"
+                    exit="exit"
+                    layout="position"
+                    style={{ willChange: "transform, opacity" }}
+                  >
+                    <OpportunityCard
+                      opportunity={opportunity}
+                      onMutationComplete={onMutationComplete}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
 
             {hasMore && (
               <div className="flex justify-center pt-2">
