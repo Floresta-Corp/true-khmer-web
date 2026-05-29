@@ -48,8 +48,6 @@ export default function ApplicantNoteAction({
     setNoteText(existingNote ?? "");
   }, [existingNote]);
 
-  console.log(" SIDEBAR PROP:", existingNote, "LOCAL STATE:", noteText);
-
   return (
     <div className="mt-3 border-t border-gray-150/60 dark:border-slate-800/60 pt-5">
       <div className="flex items-center justify-between mb-3">
@@ -68,13 +66,13 @@ export default function ApplicantNoteAction({
               {savedNote}
             </p>
             <div className="mt-3 flex justify-end">
-              <button
+              <Button
                 onClick={() => setEditMode(true)}
                 className="text-xs font-bold text-brand-blue hover:underline flex items-center gap-1.5"
               >
                 <Pencil size={12} />
                 Edit Note
-              </button>
+              </Button>
             </div>
           </div>
         ) : (

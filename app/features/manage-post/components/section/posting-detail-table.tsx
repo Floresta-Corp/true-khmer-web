@@ -97,7 +97,7 @@ export default function ManagePostingDetailTable({
 
   const getDisplayStatus = (applicant: Applicant): ApplicantStatusAction => {
     if (
-      applicant.submissions[0].roles?.[0]?.applicationId ===
+      applicant.submissions[0]?.roles?.[0]?.applicationId ===
         pendingApplicantId &&
       pendingStatus
     ) {
@@ -250,7 +250,7 @@ export default function ManagePostingDetailTable({
                     </TableCell>
 
                     <TableCell className="px-5 py-3.5 text-sm  text-slate-500 whitespace-nowrap">
-                      {formatDate(applicant.submissions[0].appliedAt)}
+                      {formatDate(applicant.submissions[0].appliedAt ?? "")}
                     </TableCell>
 
                     <TableCell className="px-5 py-3.5">

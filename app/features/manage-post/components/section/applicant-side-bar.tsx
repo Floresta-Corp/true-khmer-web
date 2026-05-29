@@ -160,27 +160,18 @@ export default function ApplicantSideBar({
     },
   ];
 
-  const noteFetcher = useFetcher<{ note: string } | null>();
+  const noteFetcher = useFetcher<string | null>();
   useEffect(() => {
     if (!applicant?.candidate?.id) return;
-
-    console.log("Fetching note with:", {
-      sourceType: normalizedSourceType,
-      postingId,
-      candidateId: applicant.candidate.id,
-    });
-
     noteFetcher.load(
       `/api/candidate-note?sourceType=${normalizedSourceType}&postingId=${postingId}&candidateId=${candidateId}`,
     );
-  }, [applicant?.candidate?.id]);
+  }, [applicant?.candidate?.id, candidateId, postingId, normalizedSourceType]);
 
-  const existingNote =
-    (noteFetcher.data as string | null) ?? applicant?.privateNote?.note ?? "";
+  const existingNote = noteFetcher.data ?? applicant?.privateNote?.note ?? "";
 
   const applicantInfo = isVolunteerPosting ? volunteerInfo : projectInfo;
 
-  // console.log("SIDEBAR RAW PROP:", applicant?.privateNote?.note);
   return (
     <>
       {/* Backdrop */}
