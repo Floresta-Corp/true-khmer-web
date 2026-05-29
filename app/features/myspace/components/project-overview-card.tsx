@@ -1,66 +1,87 @@
+import { Check } from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 
 export interface ProjectOverviewCardProps {
   overview: string;
+  sourceType: "volunteer" | "projects";
   responsibilities: string[];
   requirements: string[];
 }
 
 export function ProjectOverviewCard({
   overview,
+  sourceType,
   responsibilities,
   requirements,
 }: ProjectOverviewCardProps) {
   return (
     <Card className="rounded-[28px] border-[#E7ECF3] bg-white shadow-none">
       <CardContent className="p-6 sm:p-8">
-        <h2 className="text-[20px] font-semibold tracking-tight text-[#182031]">
-          Project Overview
+        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+          About this Role
         </h2>
-        <p className="mt-4 text-[15px] leading-7 text-[#556071]">{overview}</p>
+        <p className="mt-4 text-[14px] font-medium leading-7 text-slate-600 dark:text-slate-400">
+          {overview}
+        </p>
 
-        <Separator className="my-7 bg-[#EEF2F7]" />
+        {sourceType === "volunteer" && (
+          <>
+            <Separator className="my-7 bg-[#EEF2F7]" />
 
-        <div className="grid gap-8 md:grid-cols-2">
-          <div>
-            <h3 className="mb-4 text-[15px] font-semibold text-[#182031]">
-              Responsibilities
-            </h3>
-            <ul className="space-y-3">
-              {responsibilities.map((item, index) => (
-                <li
-                  key={(item as any)?.id ?? `${item}-${index}`}
-                  className="flex items-start gap-2.5 text-[14px] leading-6 text-[#556071]"
-                >
-                  <span className="mt-1 inline-flex size-4 shrink-0 items-center justify-center rounded-full border border-emerald-400 text-emerald-500">
-                    <span className="size-1.5 rounded-full bg-emerald-500" />
-                  </span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="rounded-2xl border border-slate-100/50 bg-slate-50 p-5 dark:border-slate-800/50 dark:bg-slate-800/30">
+                <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+                  Core Responsibilities
+                </h3>
+                {responsibilities.length > 0 ? (
+                  <ul className="space-y-3">
+                    {responsibilities.map((item, index) => (
+                      <li
+                        key={`${item}-${index}`}
+                        className="flex items-start gap-3 text-xs font-medium leading-6 text-slate-600 dark:text-slate-400"
+                      >
+                        <span className="mt-1 inline-flex size-3.5 shrink-0 items-center justify-center rounded-full border-2 border-emerald-500 text-emerald-500">
+                          <Check className="size-2.5" strokeWidth={3} />
+                        </span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-xs font-medium text-slate-400">
+                    No responsibilities have been provided yet.
+                  </p>
+                )}
+              </div>
 
-          <div>
-            <h3 className="mb-4 text-[15px] font-semibold text-[#182031]">
-              Requirements
-            </h3>
-            <ul className="space-y-3">
-              {requirements.map((item, index) => (
-                <li
-                  key={(item as any)?.id ?? `${item}-${index}`}
-                  className="flex items-start gap-2.5 text-[14px] leading-6 text-[#556071]"
-                >
-                  <span className="mt-1 inline-flex size-4 shrink-0 items-center justify-center rounded-full border border-emerald-400 text-emerald-500">
-                    <span className="size-1.5 rounded-full bg-emerald-500" />
-                  </span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+              <div className="rounded-2xl border border-slate-100/50 bg-slate-50 p-5 dark:border-slate-800/50 dark:bg-slate-800/30">
+                <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+                  Prerequisites / Criteria
+                </h3>
+                {requirements.length > 0 ? (
+                  <ul className="space-y-3">
+                    {requirements.map((item, index) => (
+                      <li
+                        key={`${item}-${index}`}
+                        className="flex items-start gap-3 text-xs font-medium leading-6 text-slate-600 dark:text-slate-400"
+                      >
+                        <span className="mt-1 inline-flex size-3.5 shrink-0 items-center justify-center rounded-full border-2 border-[#1A73E8] text-[#1A73E8]">
+                          <Check className="size-2.5" strokeWidth={3} />
+                        </span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-xs font-medium text-slate-400">
+                    No requirements have been provided yet.
+                  </p>
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );

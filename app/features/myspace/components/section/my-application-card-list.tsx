@@ -1,91 +1,60 @@
-import { motion, AnimatePresence } from "motion/react";
-import { Link, useFetcher, useLoaderData } from "react-router";
-import { cn } from "~/lib/utils";
-import { Card, CardContent } from "~/components/ui/card";
+import { AnimatePresence, motion } from "motion/react";
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
+import {
+  BadgeCheck,
+  Calendar,
+  Clock,
+  MapPin,
+  MoreVertical,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { Calendar, Clock, MapPin } from "lucide-react";
+import { Card, CardContent } from "~/components/ui/card";
+import { Skeleton } from "~/components/ui/skeleton";
+import { cn, resolveImageURL } from "~/lib/utils";
+import type {
+  Application,
+  ApplicationRoleSummary,
+  MyApplicationRequestSourceType,
+} from "~/services/myspace/types";
 import type { loader } from "../../routes/my-applications";
-import { MyApplicationActions } from "../my-application-actions";
-import { resolveImageURL } from "~/lib/utils";
-import type { Application } from "~/services/myspace/myspace-type";
-import EmptyApplicationCard from "./empty-application-card";
 import ApplicationStatusConfirmDialog from "../application-status-confirm-dialog";
+import { MyApplicationActions } from "../my-application-actions";
+import EmptyApplicationCard from "./empty-application-card";
 
-function getSourceTypeStyle(sourceType: string) {
-  switch (sourceType.toUpperCase()) {
-    case "PROJECT":
-      return {
-        bg: "bg-[#EFF6FF]",
-        border: "border-[#ACC5F4]",
-        text: "text-blue-600",
-      };
-    case "VOLUNTEER":
-    default:
-      return {
-        bg: "bg-emerald-50",
-        border: "border-emerald-200",
-        text: "text-emerald-700",
-      };
-  }
+function normalizeSourceType(
+  sourceType: Application["sourceType"],
+): MyApplicationRequestSourceType {
+  return sourceType === "PROJECT" ? "projects" : "volunteer";
 }
 
-function getStatusStyle(status: string) {
-  switch (status.toUpperCase()) {
-    case "CONFIRMED":
-      return {
-        bg: "bg-emerald-100",
-        text: "text-emerald-800",
-        border: "border-emerald-200",
-        label: "Confirmed",
-      };
-    case "UNDER_REVIEW":
-      return {
-        bg: "bg-blue-100",
-        text: "text-blue-800",
-        border: "border-blue-200",
-        label: "Under Review",
-      };
-    case "APPROVED":
-      return {
-        bg: "bg-emerald-100",
-        text: "text-emerald-800",
-        border: "border-emerald-200",
-        label: "Approved",
-      };
-    case "DECLINED":
-      return {
-        bg: "bg-red-100",
-        text: "text-red-800",
-        border: "border-red-200",
-        label: "Declined",
-      };
-    case "COMPLETED":
-      return {
-        bg: "bg-emerald-100",
-        text: "text-emerald-800",
-        border: "border-emerald-200",
-        label: "Completed",
-      };
-    case "WITHDRAWN":
-      return {
-        bg: "bg-gray-100",
-        text: "text-gray-800",
-        border: "border-gray-200",
-        label: "Withdrawn",
-      };
+function getApplicationHref(app: Application) {
+  return `/my-applications/detail/${normalizeSourceType(app.sourceType)}/${app.opportunityId}`;
+}
+
+function getSourceTypeStyle(sourceType: Application["sourceType"]) {
+  switch (sourceType.toUpperCase()) {
+    case "PROJECT":
+    case "PROJECTS":
+      return "bg-[#E8F0FE] text-[#1A73E8]";
+    case "VOLUNTEER":
     default:
-      return {
-        bg: "bg-gray-100",
-        text: "text-gray-800",
-        border: "border-gray-200",
-        label: status,
-      };
+      return "bg-[#E6F4EA] text-[#1E8E3E]";
   }
 }
 
 function formatDate(dateString: string | null): string {
   if (!dateString) return "TBD";
-  return new Date(dateString).toLocaleDateString("en-US", {
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return dateString;
+
+  return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -93,194 +62,313 @@ function formatDate(dateString: string | null): string {
 }
 
 function ApprovedActionPanel({
-  onDecline,
-  onAccept,
+  role,
+  sourceType,
   isSubmitting,
 }: {
-  onDecline: () => void;
-  onAccept: () => void;
+  role: ApplicationRoleSummary;
+  sourceType: Application["sourceType"];
   isSubmitting: boolean;
 }) {
+  const fetcher = useFetcher();
+
+  function handleChangeStatus(statusAction: "confirm" | "decline") {
+    const formData = new FormData();
+    formData.set("actionType", "change-status");
+    formData.set("sourceType", normalizeSourceType(sourceType));
+    formData.set("applicationId", role.applicationId);
+    formData.set("statusAction", statusAction);
+
+    fetcher.submit(formData, {
+      method: "POST",
+    });
+  }
+
+  const submitting = isSubmitting || fetcher.state !== "idle";
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12, scale: 0.985 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 12, scale: 0.985 }}
       transition={{ duration: 0.22, ease: "easeOut" }}
-      className="flex flex-col gap-4 rounded-2xl border border-[#D8E7FF] bg-[#EFF6FF] p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-5"
+      className="rounded-2xl border border-blue-100 bg-[#F4F8FF] p-5 dark:border-blue-900/20 dark:bg-blue-900/10"
     >
-      <div className="space-y-1.5">
-        <p className="text-sm font-semibold text-[#2763F6] sm:text-[15px]">
-          Congratulations! You&apos;ve been approved.
-        </p>
-        <p className="max-w-md text-sm leading-6 text-[#64748B]">
-          Please confirm your participation to finalize the application.
-        </p>
-      </div>
-
-      <div className="flex items-center justify-end gap-3 sm:shrink-0">
-        <ApplicationStatusConfirmDialog
-          action="decline"
-          isSubmitting={isSubmitting}
-          onConfirm={onDecline}
-          trigger={
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isSubmitting}
-              className="h-11 rounded-xl border border-[#CBD5E1] bg-white px-6 text-sm font-semibold text-[#111827] shadow-none hover:bg-[#F8FAFC]"
-            >
-              Decline
-            </Button>
-          }
-        />
-        <ApplicationStatusConfirmDialog
-          action="accept"
-          isSubmitting={isSubmitting}
-          onConfirm={onAccept}
-          trigger={
-            <Button
-              type="button"
-              disabled={isSubmitting}
-              className="h-11 rounded-xl bg-[#2F6FE4] px-6 text-sm font-semibold text-white shadow-[0px_12px_24px_-10px_rgba(47,111,228,0.85)] hover:bg-[#245cc2]"
-            >
-              Accept
-            </Button>
-          }
-        />
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div className="space-y-1">
+          <p className="text-sm font-bold text-[#1A73E8] dark:text-blue-400">
+            Congratulations! You&apos;ve been approved.
+          </p>
+          <p className="text-[13px] font-medium text-[#5F6368] dark:text-slate-400">
+            Please confirm your participation to finalize the application.
+          </p>
+        </div>
+        <div className="flex items-center justify-end gap-3">
+          <ApplicationStatusConfirmDialog
+            action="decline"
+            isSubmitting={submitting}
+            onConfirm={() => handleChangeStatus("decline")}
+            trigger={
+              <Button
+                type="button"
+                variant="outline"
+                disabled={submitting}
+                className="h-10 rounded-xl border-[#DADCE0] bg-white px-6 text-[13px] font-bold text-[#5F6368] shadow-none hover:bg-gray-50"
+              >
+                Decline
+              </Button>
+            }
+          />
+          <ApplicationStatusConfirmDialog
+            action="accept"
+            isSubmitting={submitting}
+            onConfirm={() => handleChangeStatus("confirm")}
+            trigger={
+              <Button
+                type="button"
+                disabled={submitting}
+                className="h-10 rounded-xl bg-[#1A73E8] px-6 text-[13px] font-bold text-white shadow-lg shadow-blue-200 transition-all hover:bg-[#1557B0] dark:shadow-none"
+              >
+                Accept
+              </Button>
+            }
+          />
+        </div>
       </div>
     </motion.div>
   );
 }
 
-function ApplicationCard({ app, index }: { app: Application; index: number }) {
-  const fetcher = useFetcher();
-  const statusStyle = getStatusStyle(app.status);
-  const sourceTypeStyle = getSourceTypeStyle(app.sourceType);
-  const image = resolveImageURL(app.imageKey || "");
-  const normalizedSourceType = app.sourceType.toLowerCase();
-  const showActionButtons =
-    app.status === "COMPLETED" ||
-    app.status === "WITHDRAWN" ||
-    app.status === "DECLINED";
-  const isApproved = app.status.toUpperCase() === "APPROVED";
+function ApplicationGroupCard({
+  application,
+  showApprovedActionPanel,
+}: {
+  application: Application;
+  showApprovedActionPanel: boolean;
+}) {
+  const archiveFetcher = useFetcher();
+  const targetHref = getApplicationHref(application);
+  const image = resolveImageURL(
+    application.imageKey || "",
+    "/images/volunteer-placeholder.svg",
+  );
+  const pendingRole = application.approvedRole;
+  const canArchive = ["COMPLETED", "WITHDRAWN", "DECLINED"].includes(
+    application.status,
+  );
 
-  function handleChangeStatus(statusAction: "confirm" | "decline") {
+  function handleArchive() {
+    if (archiveFetcher.state !== "idle") return;
+
     const formData = new FormData();
-    formData.set("sourceType", normalizedSourceType);
-    formData.set("applicationId", app.id);
-    formData.set("statusAction", statusAction);
+    formData.set("actionType", "archive");
+    formData.set("sourceType", normalizeSourceType(application.sourceType));
+    formData.set("opportunityId", application.opportunityId);
+    formData.set("archiveAction", "archive");
 
-    fetcher.submit(formData, {
+    archiveFetcher.submit(formData, {
       method: "POST",
-      action: "/api/myspace/my-application/change-status",
     });
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 16 }}
-      transition={{ duration: 0.15, delay: index * 0.03, ease: "easeInOut" }}
-    >
-      <Card className="w-full cursor-pointer bg-white rounded-2xl overflow-hidden shadow-none">
-        <CardContent className="p-6 space-y-4">
-          <div className="flex gap-4">
-            {/* Image Section */}
-            <div className="relative shrink-0">
+    <div>
+      <Card className="relative overflow-hidden rounded-[28px] border border-[#E0E3E7] bg-white p-0 shadow-none transition-all hover:bg-[#F8F9FA] dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/50">
+        <CardContent className="space-y-5 p-5 sm:p-6">
+          <div className="absolute right-5 top-5 z-10">
+            <MyApplicationActions
+              application={application}
+              detailsHref={targetHref}
+              canArchive={canArchive}
+              isArchiving={archiveFetcher.state !== "idle"}
+              onArchive={handleArchive}
+              trigger={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-9 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  aria-label="More options"
+                >
+                  <MoreVertical className="size-4" />
+                </Button>
+              }
+            />
+          </div>
+
+          <Link
+            to={targetHref}
+            className="group flex w-full flex-col items-start gap-6 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 sm:flex-row sm:items-center sm:gap-8"
+            aria-label={`View application detail for ${
+              application.opportunityTitle || "application"
+            }`}
+          >
+            <div className="relative h-[135px] w-full shrink-0 overflow-hidden rounded-[20px] border border-gray-100/80 bg-slate-50 sm:w-[240px] dark:border-slate-800 dark:bg-slate-950">
               <img
                 src={image}
-                alt={app.title}
-                className="w-62.75 h-39.75 object-cover rounded-lg"
+                alt={application.opportunityTitle}
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
               />
-              {/* Category Badge */}
               <span
                 className={cn(
-                  "absolute top-3 left-3 px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wide border",
-                  sourceTypeStyle.bg,
-                  sourceTypeStyle.border,
-                  sourceTypeStyle.text,
+                  "absolute left-3 top-3 rounded-lg px-2.5 py-1 text-[9px] font-black uppercase tracking-widest shadow-sm",
+                  getSourceTypeStyle(application.sourceType),
                 )}
               >
-                {app.sourceType}
+                {application.sourceType}
               </span>
             </div>
 
-            {/* Content Section */}
-            <div className="flex-1 flex flex-col">
-              <div className="flex justify-between items-start gap-4">
-                <div className="space-y-2">
-                  <h3 className="text-[22px] leading-8.25 font-bold text-gray-800">
-                    <Link
-                      to={`/my-applications/detail/${
-                        app.sourceType.toLowerCase() === "project"
-                          ? "projects"
-                          : app.sourceType.toLowerCase()
-                      }/${app.id}`}
-                      className="inline-block rounded-sm transition-all duration-200 hover:text-blue-600 hover:underline hover:underline-offset-4 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                    >
-                      {app.title}
-                    </Link>
-                  </h3>
-                  <p className="text-sm font-medium text-gray-500">
-                    Applied {formatDate(app.appliedAt)}
-                  </p>
+            <div className="min-w-0 flex-1 pr-10 sm:pr-12">
+              <div className="flex flex-col gap-1">
+                <div className="flex flex-wrap items-start gap-x-3 gap-y-2">
+                  <h2 className="text-2xl font-bold leading-tight tracking-tight text-[#111827] transition-colors group-hover:text-[#1A73E8] dark:text-white">
+                    {application.opportunityTitle || "Application"}
+                  </h2>
+                  {pendingRole ? (
+                    <span className="mt-1 inline-flex rounded-md bg-[#E6F4EA] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[#1E8E3E]">
+                      Approved
+                    </span>
+                  ) : null}
                 </div>
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`px-3 py-1 ${statusStyle.bg} ${statusStyle.text} border ${statusStyle.border} rounded-full text-xs font-bold uppercase tracking-wide`}
-                  >
-                    {statusStyle.label}
-                  </span>
-                  {showActionButtons && (
-                    <MyApplicationActions application={app} />
-                  )}
+                {pendingRole ? (
+                  <div className="space-y-0.5">
+                    <p className="text-[13px] font-bold text-[#1A73E8] dark:text-blue-400">
+                      Approved Role: {pendingRole.title}
+                    </p>
+                    <p className="text-xs font-medium text-[#5F6368] dark:text-slate-500">
+                      Applied {formatDate(pendingRole.appliedAt)}
+                    </p>
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-medium text-gray-500 dark:text-slate-500">
+                <div className="flex items-center gap-2">
+                  <Calendar className="size-4 text-[#BDC1C6]" />
+                  <span>{formatDate(application.deadline)}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="size-4 text-[#BDC1C6]" />
+                  <span>TBD</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <MapPin className="size-4 text-[#BDC1C6]" />
+                  <span>{application.location?.name ?? "TBD"}</span>
                 </div>
               </div>
 
-              {/* Meta Info */}
-              <div className="flex flex-col pt-4">
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <Calendar className="w-4 h-4" />
-                  <span>{formatDate(app.deadline)}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <Clock className="w-4 h-4" />
-                  <span>TBD</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <MapPin className="w-4 h-4" />
-                  <span>{app.location.name}</span>
-                </div>
+              <div className="mt-5 flex flex-wrap items-center gap-2.5">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F1F3F4] px-3 py-1 text-[11px] font-bold text-[#5F6368] dark:bg-slate-800 dark:text-slate-300">
+                  <BadgeCheck className="size-3.5 text-blue-500" />
+                  {application.totalRoleApplied} applied{" "}
+                  {application.totalRoleApplied === 1 ? "role" : "roles"}
+                </span>
+                {application.needAttention ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/60 bg-emerald-50 px-3 py-1 text-[11px] font-black text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-400">
+                    <Sparkles className="size-3 text-emerald-500" />
+                    Offer Received
+                  </span>
+                ) : null}
               </div>
+
             </div>
-          </div>
+          </Link>
+
           <AnimatePresence initial={false} mode="wait">
-            {isApproved ? (
+            {pendingRole && showApprovedActionPanel ? (
               <ApprovedActionPanel
-                key="approved-actions"
-                isSubmitting={fetcher.state !== "idle"}
-                onDecline={() => handleChangeStatus("decline")}
-                onAccept={() => handleChangeStatus("confirm")}
+                key={`approved-${pendingRole.applicationId}`}
+                role={pendingRole}
+                sourceType={application.sourceType}
+                isSubmitting={false}
               />
             ) : null}
           </AnimatePresence>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
+  );
+}
+
+function ApplicationGroupCardSkeleton() {
+  return (
+    <div>
+      <Card className="relative overflow-hidden rounded-[28px] border border-[#E0E3E7] bg-white p-0 shadow-none dark:border-slate-800 dark:bg-slate-900">
+        <CardContent className="p-5 sm:p-6">
+          <div className="flex w-full flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-8">
+            <Skeleton className="h-[135px] w-full shrink-0 rounded-[20px] sm:w-[240px]" />
+
+            <div className="w-full min-w-0 flex-1 space-y-4 pr-10 sm:pr-12">
+              <div className="space-y-2">
+                <Skeleton className="h-7 w-4/5 max-w-[520px] rounded-xl" />
+                <Skeleton className="h-4 w-44 rounded-lg" />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-4">
+                <Skeleton className="h-5 w-28 rounded-lg" />
+                <Skeleton className="h-5 w-20 rounded-lg" />
+                <Skeleton className="h-5 w-32 rounded-lg" />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2.5">
+                <Skeleton className="h-7 w-32 rounded-full" />
+                <Skeleton className="h-7 w-36 rounded-full" />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
 export default function MyApplicationCardList() {
   const { myApplication } = useLoaderData<typeof loader>();
+  const navigation = useNavigation();
+  const [searchParams] = useSearchParams();
+  const applications = myApplication.applications ?? [];
+  const showApprovedActionPanel = searchParams.get("filter") === "approved";
+  const isFiltering =
+    navigation.state === "loading" &&
+    navigation.location?.pathname === "/my-applications";
+
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       <AnimatePresence mode="wait">
-        {myApplication.applications.length > 0 ? (
-          myApplication.applications.map((app, index) => (
-            <ApplicationCard key={app.id} app={app} index={index} />
-          ))
+        {isFiltering ? (
+          <motion.div
+            key="my-application-loading"
+            className="flex flex-col gap-5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.16 }}
+          >
+            {Array.from({ length: Math.max(applications.length, 3) }).map(
+              (_, index) => (
+                <ApplicationGroupCardSkeleton
+                  key={`application-skeleton-${index}`}
+                />
+              ),
+            )}
+          </motion.div>
+        ) : applications.length > 0 ? (
+          <motion.div
+            key="my-application-results"
+            className="flex flex-col gap-5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+          >
+            {applications.map((application) => (
+              <ApplicationGroupCard
+                key={application.opportunityId}
+                application={application}
+                showApprovedActionPanel={showApprovedActionPanel}
+              />
+            ))}
+          </motion.div>
         ) : (
           <EmptyApplicationCard />
         )}

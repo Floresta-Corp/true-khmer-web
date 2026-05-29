@@ -57,8 +57,8 @@ export default [
     route("my-applications", "features/myspace/routes/my-applications.tsx"),
     route("my-ticket", "routes/my-ticket.tsx"),
     route(
-      "my-applications/detail/:sourceType/:applicationId",
-      "features/myspace/routes/my-application.$sourceType.$applicationId.tsx",
+      "my-applications/detail/:sourceType/:postingId",
+      "features/myspace/routes/my-application.$sourceType.$postingId.tsx",
     ),
     route("saved-items", "features/saved-items/routes/saved-items.tsx"),
 
@@ -110,9 +110,5 @@ export default [
   route(
     "api/notifications/read/all",
     "routes/api/api.notifications.read.all.ts",
-  ),
-  route(
-    "api/myspace/my-application/change-status",
-    "routes/api/api.myspace.my-application.change-status.tsx",
   ),
 ] satisfies RouteConfig;
