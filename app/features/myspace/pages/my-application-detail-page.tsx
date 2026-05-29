@@ -83,6 +83,7 @@ function StatusSummary({
   actions,
   isSubmitting,
   canArchive,
+  isArchived,
   isArchiving,
   onStatusAction,
   onArchive,
@@ -96,6 +97,7 @@ function StatusSummary({
   };
   isSubmitting: boolean;
   canArchive: boolean;
+  isArchived: boolean;
   isArchiving: boolean;
   onStatusAction: (action: "confirm" | "decline" | "withdraw") => void;
   onArchive: () => void;
@@ -130,8 +132,10 @@ function StatusSummary({
                 ? "bg-emerald-600 text-white"
                 : isCompleted || isConfirmed
                   ? "bg-blue-100 text-blue-600"
-                  : isClosed || isWithdrawn
+                  : isClosed
                     ? "bg-red-50 text-red-600"
+                  : isWithdrawn
+                    ? "bg-slate-100 text-slate-500"
                     : "bg-slate-100 text-slate-600",
             )}
           >
@@ -247,21 +251,25 @@ function StatusSummary({
             <Button
               type="button"
               variant="ghost"
-              disabled={!canArchive || isArchiving}
+              disabled={(!isArchived && !canArchive) || isArchiving}
               onClick={onArchive}
               className={cn(
                 "h-10 rounded-xl font-bold",
-                canArchive
+                canArchive || isArchived
                   ? "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
                   : "text-slate-400",
               )}
             >
               <Archive className="size-4" />
-              {canArchive
+              {isArchived
                 ? isArchiving
-                  ? "Archiving..."
-                  : "Archive"
-                : "Archive unavailable"}
+                  ? "Unarchiving..."
+                  : "Unarchive"
+                : canArchive
+                  ? isArchiving
+                    ? "Archiving..."
+                    : "Archive"
+                  : "Archive unavailable"}
             </Button>
           )}
         </div>
@@ -355,7 +363,7 @@ export default function MyApplicationDetailPage() {
     formData.set("actionType", "archive");
     formData.set("sourceType", sourceType);
     formData.set("opportunityId", postingId);
-    formData.set("archiveAction", "archive");
+    formData.set("archiveAction", detail.archived ? "unarchive" : "archive");
 
     archiveFetcher.submit(formData, {
       method: "POST",
@@ -463,7 +471,7 @@ export default function MyApplicationDetailPage() {
         </motion.div>
 
         <div className="grid gap-8 lg:grid-cols-[340px_minmax(0,1fr)]">
-          <section className="flex flex-col gap-6 lg:sticky lg:top-8 lg:h-fit">
+          <section className="order-2 flex flex-col gap-6 lg:sticky lg:top-8 lg:order-1 lg:h-fit">
             <motion.div
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
@@ -504,7 +512,7 @@ export default function MyApplicationDetailPage() {
             </motion.div>
           </section>
 
-          <section className="flex min-w-0 flex-col gap-6">
+          <section className="order-1 flex min-w-0 flex-col gap-6 lg:order-2">
             <motion.div
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
@@ -519,6 +527,7 @@ export default function MyApplicationDetailPage() {
                 actions={selectedRole?.actions}
                 isSubmitting={fetcher.state !== "idle"}
                 canArchive={detail.canArchive}
+                isArchived={detail.archived}
                 isArchiving={archiveFetcher.state !== "idle"}
                 onStatusAction={handleStatusAction}
                 onArchive={handleArchive}

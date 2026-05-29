@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 
@@ -41,9 +41,7 @@ export function ProjectOverviewCard({
                         key={`${item}-${index}`}
                         className="flex items-start gap-3 text-xs font-medium leading-6 text-slate-600 dark:text-slate-400"
                       >
-                        <span className="mt-1 inline-flex size-3.5 shrink-0 items-center justify-center rounded-full border-2 border-emerald-500 text-emerald-500">
-                          <Check className="size-2.5" strokeWidth={3} />
-                        </span>
+                        <CheckCircle2 className="mt-0.5 size-[17.5px] shrink-0 text-[#009966]" />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -66,9 +64,7 @@ export function ProjectOverviewCard({
                         key={`${item}-${index}`}
                         className="flex items-start gap-3 text-xs font-medium leading-6 text-slate-600 dark:text-slate-400"
                       >
-                        <span className="mt-1 inline-flex size-3.5 shrink-0 items-center justify-center rounded-full border-2 border-[#1A73E8] text-[#1A73E8]">
-                          <Check className="size-2.5" strokeWidth={3} />
-                        </span>
+                        <CheckCircle2 className="mt-0.5 size-[17.5px] shrink-0 text-[#009966]" />
                         <span>{item}</span>
                       </li>
                     ))}

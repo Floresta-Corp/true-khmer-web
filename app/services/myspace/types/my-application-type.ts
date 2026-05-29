@@ -21,12 +21,29 @@ export type MyApplicationStatusGroup = z.infer<
   typeof MyApplicationStatusGroupSchema
 >;
 
+export const MyApplicationTimelineSchema = z.object({
+  submitted: z.string().nullable(),
+  underReview: z.string().nullable(),
+  approved: z.string().nullable(),
+  declined: z.object({
+    at: z.string().nullable(),
+    by: z.enum(["POSTER", "APPLICANT", "SYSTEM"]).nullable(),
+  }),
+  confirmed: z.string().nullable(),
+  completed: z.string().nullable(),
+  withdrawn: z.string().nullable(),
+});
+export type MyApplicationTimeline = z.infer<
+  typeof MyApplicationTimelineSchema
+>;
+
 export const MyApplicationRoleSchema = z.object({
   applicationId: z.string(),
   roleId: z.string(),
   title: z.string(),
   status: MyApplicationStatusGroupSchema,
   appliedAt: z.string(),
+  timeline: MyApplicationTimelineSchema,
 });
 export type MyApplicationRole = z.infer<typeof MyApplicationRoleSchema>;
 
@@ -37,10 +54,14 @@ export const MyApplicationItemSchema = z.object({
   imageKey: z.string().nullable(),
   appliedAt: z.string(),
   deadline: z.string().nullable(),
+  startDate: z.string().nullable().optional(),
+  endDate: z.string().nullable().optional(),
   status: MyApplicationStatusGroupSchema,
   needAttention: z.boolean(),
   totalRoleApplied: z.number().int().nonnegative(),
+  canArchive: z.boolean(),
   filled: z.boolean(),
+  archivedAt: z.string().nullable(),
   category: MyApplicationReferenceSchema.nullable(),
   location: MyApplicationReferenceSchema.nullable(),
   roles: z.array(MyApplicationRoleSchema),
@@ -112,21 +133,6 @@ export const MyApplicationArchiveActionSchema = z.enum([
 ]);
 export type MyApplicationArchiveAction = z.infer<
   typeof MyApplicationArchiveActionSchema
->;
-
-export const MyApplicationTimelineSchema = z.object({
-  submitted: z.string().nullable(),
-  underReview: z.string().nullable(),
-  approved: z.string().nullable(),
-  declined: z.object({
-    at: z.string().nullable(),
-    by: z.enum(["POSTER", "APPLICANT", "SYSTEM"]).nullable(),
-  }),
-  confirmed: z.string().nullable(),
-  completed: z.string().nullable(),
-});
-export type MyApplicationTimeline = z.infer<
-  typeof MyApplicationTimelineSchema
 >;
 
 export const MyApplicationRoleDetailSchema = z.object({

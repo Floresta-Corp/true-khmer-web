@@ -42,7 +42,7 @@ function getCompactStatus(status: string) {
     case "WITHDRAWN":
       return {
         label: "Withdrawn",
-        className: "border-slate-100 bg-slate-50 text-slate-500 hover:bg-slate-50",
+        className: "border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-50",
       };
     case "DECLINED":
       return {
@@ -80,6 +80,8 @@ export function AppliedRoleCard({
             const isSelected = role.applicationId === selectedApplicationId;
             const needsAction = role.status.toUpperCase() === "APPROVED";
             const isDeclined = role.status === "DECLINED";
+            const isWithdrawn = role.status === "WITHDRAWN";
+            const isInactive = isDeclined || isWithdrawn;
             const statusStyle = getCompactStatus(role.status);
 
             return (
@@ -93,16 +95,20 @@ export function AppliedRoleCard({
                     ? needsAction
                       ? "border-amber-500 bg-amber-50/30 ring-1 ring-amber-500/30 dark:border-amber-800 dark:bg-amber-950/10"
                       : isDeclined
-                        ? "border-blue-500 bg-white ring-1 ring-blue-500/20 dark:border-blue-800 dark:bg-slate-900"
-                      : "border-blue-500 bg-blue-50/10 ring-1 ring-blue-500/20 dark:border-blue-800 dark:bg-blue-950/10"
+                        ? "border-red-500 bg-red-50/20 ring-1 ring-red-500/20 dark:border-red-900 dark:bg-red-950/10"
+                      : isWithdrawn
+                        ? "border-slate-400 bg-slate-50 ring-1 ring-slate-300 dark:border-slate-700 dark:bg-slate-800/30"
+                        : "border-blue-500 bg-blue-50/10 ring-1 ring-blue-500/20 dark:border-blue-800 dark:bg-blue-950/10"
                     : needsAction
                       ? "border-amber-200 bg-amber-50/10 hover:border-amber-300 dark:border-amber-900/50 dark:bg-amber-950/5"
                       : isDeclined
                         ? "border-red-100 bg-white hover:border-red-200 hover:bg-red-50/20 dark:border-red-950/40 dark:bg-slate-900 dark:hover:bg-red-950/10"
+                      : isWithdrawn
+                        ? "border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/40"
                       : "border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/40",
                 )}
               >
-                {isSelected || isDeclined ? (
+                {isSelected || isInactive ? (
                   <div
                     className={cn(
                       "absolute bottom-0 left-0 top-0 w-1.5",
@@ -110,12 +116,19 @@ export function AppliedRoleCard({
                         ? "bg-amber-500"
                         : isDeclined
                           ? "bg-red-500"
+                        : isWithdrawn
+                          ? "bg-slate-400"
                           : "bg-blue-600",
                     )}
                   />
                 ) : null}
-                {isDeclined ? (
-                  <span className="absolute right-3 top-3 size-2 rounded-full bg-red-500" />
+                {isInactive ? (
+                  <span
+                    className={cn(
+                      "absolute right-3 top-3 size-2 rounded-full",
+                      isDeclined ? "bg-red-500" : "bg-slate-400",
+                    )}
+                  />
                 ) : null}
                 {needsAction ? (
                   <span className="absolute right-3 top-3 flex size-2">
@@ -131,7 +144,9 @@ export function AppliedRoleCard({
                       ? needsAction
                         ? "text-amber-700 dark:text-amber-400"
                         : isDeclined
-                          ? "text-slate-900 dark:text-slate-100"
+                          ? "text-red-600 dark:text-red-400"
+                        : isWithdrawn
+                          ? "text-slate-500 dark:text-slate-400"
                         : "text-blue-600 dark:text-blue-400"
                       : "text-slate-800 dark:text-slate-200",
                   )}

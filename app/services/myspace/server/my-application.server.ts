@@ -20,11 +20,6 @@ import {
   MyApplicationStatusActionResponseSchema,
 } from "../types/my-application-type";
 
-function normalizeMyApplicationArchiveAction(
-  archiveAction: ApplicationArchiveAction,
-) {
-  return MyApplicationArchiveActionSchema.parse(archiveAction);
-}
 export interface MyApplicationQueryParams {
   type?: MyApplicationListType;
   filter?: MyApplicationFilter;
@@ -115,29 +110,12 @@ export async function postMyApplicationArchiveAction(
 ) {
   const parsedSourceType =
     MyApplicationRequestSourceTypeSchema.parse(sourceType);
-  return moveToArchived(
-    request,
-    parsedSourceType,
-    opportunityId,
-    archiveAction,
-  );
-}
-
-export async function moveToArchived(
-  request: Request,
-  sourceType: ApplicationSourceType,
-  opportunityId: string,
-  archiveAction: ApplicationArchiveAction,
-) {
-  const parsedSourceType =
-    MyApplicationRequestSourceTypeSchema.parse(sourceType);
-  const normalizedArchiveAction = normalizeMyApplicationArchiveAction(
-    archiveAction,
-  );
+  const parsedArchiveAction =
+    MyApplicationArchiveActionSchema.parse(archiveAction);
   const url = `/my-application/${encodeURIComponent(
     parsedSourceType,
   )}/${encodeURIComponent(opportunityId)}/archive/${encodeURIComponent(
-    normalizedArchiveAction,
+    parsedArchiveAction,
   )}`;
 
   const result = await apiRequestWithSession<MyApplicationArchiveActionResponse>(

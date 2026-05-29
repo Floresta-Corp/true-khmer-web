@@ -38,6 +38,12 @@ function getApplicationHref(app: Application) {
   return `/my-applications/detail/${normalizeSourceType(app.sourceType)}/${app.opportunityId}`;
 }
 
+function getListingHref(app: Application) {
+  return app.sourceType === "PROJECT"
+    ? `/launchpad/detail/${app.opportunityId}`
+    : `/volunteer/detail/${app.opportunityId}`;
+}
+
 function getSourceTypeStyle(sourceType: Application["sourceType"]) {
   switch (sourceType.toUpperCase()) {
     case "PROJECT":
@@ -59,6 +65,24 @@ function formatDate(dateString: string | null): string {
     day: "numeric",
     year: "numeric",
   });
+}
+
+function formatDateRange(
+  startDate: string | null | undefined,
+  endDate: string | null | undefined,
+) {
+  if (!startDate && !endDate) return "TBD";
+
+  const formattedStartDate = startDate ? formatDate(startDate) : null;
+  const formattedEndDate = endDate ? formatDate(endDate) : null;
+
+  if (formattedStartDate && formattedEndDate) {
+    return formattedStartDate === formattedEndDate
+      ? formattedStartDate
+      : `${formattedStartDate} - ${formattedEndDate}`;
+  }
+
+  return formattedStartDate ?? formattedEndDate ?? "TBD";
 }
 
 function ApprovedActionPanel({
@@ -139,23 +163,14 @@ function ApprovedActionPanel({
   );
 }
 
-function ApplicationGroupCard({
+function ApplicationCardActions({
   application,
-  showApprovedActionPanel,
 }: {
   application: Application;
-  showApprovedActionPanel: boolean;
 }) {
   const archiveFetcher = useFetcher();
   const targetHref = getApplicationHref(application);
-  const image = resolveImageURL(
-    application.imageKey || "",
-    "/images/volunteer-placeholder.svg",
-  );
-  const pendingRole = application.approvedRole;
-  const canArchive = ["COMPLETED", "WITHDRAWN", "DECLINED"].includes(
-    application.status,
-  );
+  const isArchived = Boolean(application.archivedAt);
 
   function handleArchive() {
     if (archiveFetcher.state !== "idle") return;
@@ -164,7 +179,7 @@ function ApplicationGroupCard({
     formData.set("actionType", "archive");
     formData.set("sourceType", normalizeSourceType(application.sourceType));
     formData.set("opportunityId", application.opportunityId);
-    formData.set("archiveAction", "archive");
+    formData.set("archiveAction", isArchived ? "unarchive" : "archive");
 
     archiveFetcher.submit(formData, {
       method: "POST",
@@ -172,28 +187,128 @@ function ApplicationGroupCard({
   }
 
   return (
+    <div className="absolute right-5 top-5 z-10">
+      <MyApplicationActions
+        application={application}
+        detailsHref={targetHref}
+        listingHref={getListingHref(application)}
+        canArchive={application.canArchive}
+        isArchived={isArchived}
+        isArchiving={archiveFetcher.state !== "idle"}
+        onArchive={handleArchive}
+        trigger={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-9 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            aria-label="More options"
+          >
+            <MoreVertical className="size-4" />
+          </Button>
+        }
+      />
+    </div>
+  );
+}
+
+function ApplicationGroupCard({ application }: { application: Application }) {
+  const targetHref = getApplicationHref(application);
+  const image = resolveImageURL(
+    application.imageKey || "",
+    "/images/volunteer-placeholder.svg",
+  );
+
+  return (
+    <div>
+      <Card className="relative overflow-hidden rounded-2xl border-none bg-white p-0 shadow-none ring-1 ring-foreground/10 transition-all hover:bg-slate-50/70 active:scale-[0.995] sm:h-[184px] dark:bg-slate-900 dark:hover:bg-slate-800/50">
+        <CardContent className="h-full p-6">
+          <ApplicationCardActions application={application} />
+
+          <Link
+            to={targetHref}
+            className="group flex h-full w-full flex-col items-start gap-6 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 sm:flex-row sm:items-center sm:gap-8"
+            aria-label={`View application detail for ${
+              application.opportunityTitle || "application"
+            }`}
+          >
+            <div className="relative h-[135px] w-full shrink-0 overflow-hidden rounded-[20px] border border-gray-100/80 bg-slate-50 sm:w-[240px] dark:border-slate-800 dark:bg-slate-950">
+              <img
+                src={image}
+                alt={application.opportunityTitle}
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+              />
+              <span
+                className={cn(
+                  "absolute left-3 top-3 rounded-lg px-2.5 py-1 text-[9px] font-black uppercase tracking-widest shadow-sm",
+                  getSourceTypeStyle(application.sourceType),
+                )}
+              >
+                {application.sourceType}
+              </span>
+            </div>
+
+            <div className="flex h-full min-w-0 flex-1 flex-col justify-center pr-10 sm:pr-12">
+              <div className="flex flex-col gap-1">
+                <h2 className="line-clamp-2 text-2xl font-bold leading-tight tracking-tight text-[#111827] transition-colors group-hover:text-[#1A73E8] dark:text-white">
+                  {application.opportunityTitle || "Application"}
+                </h2>
+              </div>
+
+              <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-medium text-gray-500 dark:text-slate-500">
+                <div className="flex items-center gap-2">
+                  <Calendar className="size-4 text-[#BDC1C6]" />
+                  <span>{formatDate(application.deadline)}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="size-4 text-[#BDC1C6]" />
+                  <span>
+                    {formatDateRange(application.startDate, application.endDate)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <MapPin className="size-4 text-[#BDC1C6]" />
+                  <span>{application.location?.name ?? "TBD"}</span>
+                </div>
+              </div>
+
+              <div className="mt-5 flex flex-wrap items-center gap-2.5">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F1F3F4] px-3 py-1 text-[11px] font-bold text-[#5F6368] dark:bg-slate-800 dark:text-slate-300">
+                  <BadgeCheck className="size-3.5 text-blue-500" />
+                  {application.totalRoleApplied} applied{" "}
+                  {application.totalRoleApplied === 1 ? "role" : "roles"}
+                </span>
+                {application.needAttention ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/60 bg-emerald-50 px-3 py-1 text-[11px] font-black text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-400">
+                    <Sparkles className="size-3 text-emerald-500" />
+                    Offer Received
+                  </span>
+                ) : null}
+              </div>
+            </div>
+          </Link>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function ApplicationApprovedCard({
+  application,
+}: {
+  application: Application;
+}) {
+  const targetHref = getApplicationHref(application);
+  const image = resolveImageURL(
+    application.imageKey || "",
+    "/images/volunteer-placeholder.svg",
+  );
+  const pendingRole = application.approvedRole;
+
+  return (
     <div>
       <Card className="relative overflow-hidden rounded-[28px] border border-[#E0E3E7] bg-white p-0 shadow-none transition-all hover:bg-[#F8F9FA] dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/50">
         <CardContent className="space-y-5 p-5 sm:p-6">
-          <div className="absolute right-5 top-5 z-10">
-            <MyApplicationActions
-              application={application}
-              detailsHref={targetHref}
-              canArchive={canArchive}
-              isArchiving={archiveFetcher.state !== "idle"}
-              onArchive={handleArchive}
-              trigger={
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-9 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                  aria-label="More options"
-                >
-                  <MoreVertical className="size-4" />
-                </Button>
-              }
-            />
-          </div>
+          <ApplicationCardActions application={application} />
 
           <Link
             to={targetHref}
@@ -249,7 +364,9 @@ function ApplicationGroupCard({
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="size-4 text-[#BDC1C6]" />
-                  <span>TBD</span>
+                  <span>
+                    {formatDateRange(application.startDate, application.endDate)}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="size-4 text-[#BDC1C6]" />
@@ -270,20 +387,19 @@ function ApplicationGroupCard({
                   </span>
                 ) : null}
               </div>
-
             </div>
           </Link>
 
-          <AnimatePresence initial={false} mode="wait">
-            {pendingRole && showApprovedActionPanel ? (
+          {pendingRole ? (
+            <AnimatePresence initial={false} mode="wait">
               <ApprovedActionPanel
                 key={`approved-${pendingRole.applicationId}`}
                 role={pendingRole}
                 sourceType={application.sourceType}
                 isSubmitting={false}
               />
-            ) : null}
-          </AnimatePresence>
+            </AnimatePresence>
+          ) : null}
         </CardContent>
       </Card>
     </div>
@@ -327,7 +443,7 @@ export default function MyApplicationCardList() {
   const navigation = useNavigation();
   const [searchParams] = useSearchParams();
   const applications = myApplication.applications ?? [];
-  const showApprovedActionPanel = searchParams.get("filter") === "approved";
+  const isApprovedFilter = searchParams.get("filter") === "approved";
   const isFiltering =
     navigation.state === "loading" &&
     navigation.location?.pathname === "/my-applications";
@@ -361,13 +477,19 @@ export default function MyApplicationCardList() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
           >
-            {applications.map((application) => (
-              <ApplicationGroupCard
-                key={application.opportunityId}
-                application={application}
-                showApprovedActionPanel={showApprovedActionPanel}
-              />
-            ))}
+            {applications.map((application) =>
+              isApprovedFilter ? (
+                <ApplicationApprovedCard
+                  key={application.opportunityId}
+                  application={application}
+                />
+              ) : (
+                <ApplicationGroupCard
+                  key={application.opportunityId}
+                  application={application}
+                />
+              ),
+            )}
           </motion.div>
         ) : (
           <EmptyApplicationCard />

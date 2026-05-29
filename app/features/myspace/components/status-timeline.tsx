@@ -86,7 +86,9 @@ export function StatusTimeline({
   const terminalStep = {
     label: terminalLabel,
     subtext: terminalSubtext,
-    date: formatDate(timeline?.declined?.at),
+    date: formatDate(
+      isWithdrawn ? timeline?.withdrawn : timeline?.declined?.at,
+    ),
     icon: Ban,
   };
   const terminalSteps = wasApprovedBeforeTerminal
@@ -155,7 +157,7 @@ export function StatusTimeline({
               "absolute top-6 hidden h-0.5 rounded-full md:block",
               trackInsetClass,
               inactive
-                ? "bg-gradient-to-r from-blue-500 via-emerald-500 to-red-300"
+                ? "bg-gradient-to-r from-blue-500 to-red-400"
                 : "bg-gradient-to-r from-blue-500 to-green-500",
             )}
           />

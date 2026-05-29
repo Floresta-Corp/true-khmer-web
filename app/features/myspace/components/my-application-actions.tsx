@@ -1,10 +1,9 @@
 import type { ReactNode } from "react";
 import {
   Archive,
+  ArchiveRestore,
   ExternalLink,
-  Mail,
   MoreVertical,
-  Trash2,
 } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
@@ -19,8 +18,10 @@ import type { Application } from "~/services/myspace/types";
 interface MyApplicationActionsProps {
   application: Application;
   detailsHref?: string;
+  listingHref?: string;
   trigger?: ReactNode;
   canArchive?: boolean;
+  isArchived?: boolean;
   isArchiving?: boolean;
   onArchive?: () => void;
 }
@@ -55,15 +56,15 @@ function ActionMenuItem({
 export function MyApplicationActions({
   application,
   detailsHref,
+  listingHref,
   trigger,
   canArchive,
+  isArchived,
   isArchiving,
   onArchive,
 }: MyApplicationActionsProps) {
-  const isTerminal = ["COMPLETED", "WITHDRAWN", "DECLINED"].includes(
-    application.status.toUpperCase(),
-  );
-  const isArchiveEnabled = canArchive ?? isTerminal;
+  const archived = isArchived ?? Boolean(application.archivedAt);
+  const isArchiveEnabled = archived || (canArchive ?? application.canArchive);
 
   return (
     <DropdownMenu>
@@ -91,29 +92,39 @@ export function MyApplicationActions({
             </Link>
           </DropdownMenuItem>
         ) : null}
+        {listingHref ? (
+          <DropdownMenuItem asChild>
+            <Link
+              to={listingHref}
+              className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-[13px] font-bold text-slate-600 focus:bg-[#F8F9FA] dark:text-slate-300 dark:focus:bg-slate-800"
+            >
+              <ExternalLink className="size-4" />
+              View Listing Post
+            </Link>
+          </DropdownMenuItem>
+        ) : null}
         <ActionMenuItem
-          icon={<ExternalLink className="size-4" />}
-          text="View Listing Post"
-          disabled
-        />
-        <ActionMenuItem
-          icon={<Mail className="size-4" />}
-          text="Contact Organizer"
-          disabled
-        />
-        <ActionMenuItem
-          icon={<Archive className="size-4" />}
-          text={isArchiveEnabled ? "Archive" : "Archive when completed"}
+          icon={
+            archived ? (
+              <ArchiveRestore className="size-4" />
+            ) : (
+              <Archive className="size-4" />
+            )
+          }
+          text={
+            archived
+              ? isArchiving
+                ? "Unarchiving..."
+                : "Unarchive"
+              : isArchiveEnabled
+                ? isArchiving
+                  ? "Archiving..."
+                  : "Archive"
+                : "Archive"
+          }
           disabled={!isArchiveEnabled || isArchiving}
           onClick={onArchive}
         />
-        {isTerminal ? (
-          <ActionMenuItem
-            icon={<Trash2 className="size-4" />}
-            text="Delete"
-            disabled
-          />
-        ) : null}
       </DropdownMenuContent>
     </DropdownMenu>
   );
