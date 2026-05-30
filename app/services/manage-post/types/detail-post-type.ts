@@ -84,6 +84,21 @@ export const ContactSchema = z.object({
 });
 export type Contact = z.infer<typeof ContactSchema>;
 
+export const PrivateNoteSchema = z.object({
+  createdAt: z.string(),
+  createdBy: z.string(),
+  id: z.string(),
+  note: z.string(),
+  updatedAt: z.string(),
+  updatedBy: z.string(),
+});
+export type PrivateNote = z.infer<typeof PrivateNoteSchema>;
+
+export const PrivateNoteInputSchema = z.object({
+  note: z.string(),
+});
+export type PrivateNoteInput = z.infer<typeof PrivateNoteInputSchema>;
+
 export const ProjectSchema = z.object({
   documentKeys: z.array(z.string()),
   documentNames: z.array(z.string()),
@@ -154,6 +169,17 @@ export const VolunteerSchema = z.object({
 });
 export type ManageVolunteer = z.infer<typeof VolunteerSchema>;
 
+export const SubmissionSchema = z.object({
+  appliedAt: z.string(),
+  project: ProjectSchema,
+  roles: z.array(RoleSchema),
+  submissionKey: z.string(),
+  topPick: z.union([z.null(), z.string()]),
+  updatedAt: z.string(),
+  volunteer: VolunteerSchema,
+});
+export type Submission = z.infer<typeof SubmissionSchema>;
+
 export const StatsSchema = z.object({
   capacity: z.number(),
   pending: z.number(),
@@ -164,15 +190,15 @@ export const StatsSchema = z.object({
 export type Stats = z.infer<typeof StatsSchema>;
 
 export const ApplicantSchema = z.object({
-  appliedAt: z.string(),
   candidate: CandidateSchema,
   contact: ContactSchema,
-  project: ProjectSchema,
-  roles: z.array(RoleSchema),
-  status: ApplicantStatusSchema,
-  topPick: z.union([z.null(), z.string()]),
+  lastAppliedAt: z.string(),
+  overallStatus: ApplicantStatusSchema,
+  privateNote: PrivateNoteSchema.nullable(),
+  submissionCount: z.number(),
+  submissions: z.array(SubmissionSchema),
+  totalRoleApplied: z.number(),
   updatedAt: z.string(),
-  volunteer: VolunteerSchema,
 });
 export type Applicant = z.infer<typeof ApplicantSchema>;
 

@@ -71,7 +71,7 @@ export default function CreateOpportunityDialog({
           />
         </div>
 
-        {/* Footer Button from image_65e293.png */}
+        {/* Footer Button  */}
         <div className="flex justify-end pt-4">
           <Button
             disabled={!selected || isLoading}
