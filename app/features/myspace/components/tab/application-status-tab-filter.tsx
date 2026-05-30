@@ -63,6 +63,7 @@ export default function ApplicationStatusTabFilter() {
 
       <button
         type="button"
+        aria-pressed={statusParam === "archived"}
         onClick={handleArchivedClick}
         className={cn(
           "inline-flex h-12 items-center gap-2 rounded-xl px-2 text-xs font-bold transition-colors",

@@ -64,7 +64,8 @@ export function MyApplicationActions({
   onArchive,
 }: MyApplicationActionsProps) {
   const archived = isArchived ?? Boolean(application.archivedAt);
-  const isArchiveEnabled = archived || (canArchive ?? application.canArchive);
+  const isArchiveEnabled =
+    Boolean(onArchive) && (archived || (canArchive ?? application.canArchive));
 
   return (
     <DropdownMenu>

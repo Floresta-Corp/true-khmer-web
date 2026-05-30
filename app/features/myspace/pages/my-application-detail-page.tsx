@@ -10,8 +10,9 @@ import {
   PartyPopper,
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useFetcher, useLoaderData } from "react-router";
+import { toast } from "sonner";
 import BackToButton from "~/components/back-to-button";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -288,6 +289,10 @@ export default function MyApplicationDetailPage() {
   } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const archiveFetcher = useFetcher();
+  const pendingStatusAction = useRef<
+    "confirm" | "decline" | "withdraw" | null
+  >(null);
+  const pendingArchiveAction = useRef<"archive" | "unarchive" | null>(null);
   const prefersReducedMotion = useReducedMotion();
   const [copiedPostingLink, setCopiedPostingLink] = useState(false);
 
@@ -302,6 +307,55 @@ export default function MyApplicationDetailPage() {
   useEffect(() => {
     setSelectedApplicationId(initialSelectedApplicationId);
   }, [initialSelectedApplicationId]);
+
+  useEffect(() => {
+    if (
+      fetcher.state !== "idle" ||
+      !fetcher.data ||
+      !pendingStatusAction.current
+    ) {
+      return;
+    }
+
+    const action = pendingStatusAction.current;
+    pendingStatusAction.current = null;
+
+    if (fetcher.data.ok) {
+      const successMessages = {
+        confirm: "Participation confirmed.",
+        decline: "Offer declined.",
+        withdraw: "Application withdrawn.",
+      };
+      toast.success(successMessages[action]);
+      return;
+    }
+
+    toast.error(fetcher.data.error ?? "Unable to update this application.");
+  }, [fetcher.data, fetcher.state]);
+
+  useEffect(() => {
+    if (
+      archiveFetcher.state !== "idle" ||
+      !archiveFetcher.data ||
+      !pendingArchiveAction.current
+    ) {
+      return;
+    }
+
+    const action = pendingArchiveAction.current;
+    pendingArchiveAction.current = null;
+
+    if (archiveFetcher.data.ok) {
+      toast.success(
+        action === "archive" ? "Application archived." : "Application restored.",
+      );
+      return;
+    }
+
+    toast.error(
+      archiveFetcher.data.error ?? "Unable to update the archive status.",
+    );
+  }, [archiveFetcher.data, archiveFetcher.state]);
 
   const selectedRole =
     roles.find((role) => role.applicationId === selectedApplicationId) ??
@@ -350,6 +404,7 @@ export default function MyApplicationDetailPage() {
     formData.set("sourceType", sourceType);
     formData.set("applicationId", selectedRole.applicationId);
     formData.set("statusAction", statusAction);
+    pendingStatusAction.current = statusAction;
 
     fetcher.submit(formData, {
       method: "POST",
@@ -359,11 +414,13 @@ export default function MyApplicationDetailPage() {
   function handleArchive() {
     if (archiveFetcher.state !== "idle") return;
 
+    const archiveAction = detail.archived ? "unarchive" : "archive";
     const formData = new FormData();
     formData.set("actionType", "archive");
     formData.set("sourceType", sourceType);
     formData.set("opportunityId", postingId);
-    formData.set("archiveAction", detail.archived ? "unarchive" : "archive");
+    formData.set("archiveAction", archiveAction);
+    pendingArchiveAction.current = archiveAction;
 
     archiveFetcher.submit(formData, {
       method: "POST",
@@ -377,16 +434,23 @@ export default function MyApplicationDetailPage() {
 
     try {
       await navigator.clipboard.writeText(shareUrl);
+      toast.success("Link copied to clipboard!");
     } catch {
-      const textarea = document.createElement("textarea");
-      textarea.value = shareUrl;
-      textarea.setAttribute("readonly", "");
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = shareUrl;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        toast.success("Link copied to clipboard!");
+      } catch {
+        toast.error("Failed to copy link");
+        return;
+      }
     }
 
     setCopiedPostingLink(true);
