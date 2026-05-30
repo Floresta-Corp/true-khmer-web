@@ -3,7 +3,11 @@ import {
   getMyApplicationResponse,
   type MyApplicationQueryParams,
 } from "~/services/myspace/server/my-application.server";
-import type { GetMyApplicationResponse } from "~/services/myspace/types";
+import {
+  MyApplicationFilterSchema,
+  MyApplicationListTypeSchema,
+  type GetMyApplicationResponse,
+} from "~/services/myspace/types";
 
 interface MyApplicationLoaderResponse {
   myApplication: GetMyApplicationResponse;
@@ -11,12 +15,14 @@ interface MyApplicationLoaderResponse {
 
 export async function MyApplicationLoader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
-  const queryParams: MyApplicationQueryParams = {};
-  for (const [key, value] of url.searchParams.entries()) {
-    if (key === "tab" || key === "filter") {
-      queryParams[key] = value;
-    }
-  }
+  const typeParam = url.searchParams.get("tab") || "all";
+  const filterParam = url.searchParams.get("filter") || "all";
+  const type = MyApplicationListTypeSchema.safeParse(typeParam);
+  const filter = MyApplicationFilterSchema.safeParse(filterParam);
+  const queryParams = {
+    type: type.success ? type.data : "all",
+    filter: filter.success ? filter.data : "all",
+  } satisfies MyApplicationQueryParams;
 
   const myApplicationResult = await getMyApplicationResponse(
     request,
