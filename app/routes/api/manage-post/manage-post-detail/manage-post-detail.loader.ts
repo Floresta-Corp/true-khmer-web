@@ -9,11 +9,14 @@ import {
   type PostDetailPagination,
   type PostingDetail,
 } from "~/services/manage-post/types/detail-post-type";
+import type { DetailCandidateResponse } from "~/services/manage-post/types";
+import { getCandidateNote } from "~/services/manage-post/server";
 
 type ManagePostDetailLoaderData = {
   postDetail: PostingDetail | null;
   pagination: PostDetailPagination | null;
   userId: string | null;
+  candidateNote: DetailCandidateResponse | null;
 };
 
 export async function managePostDetailLoader({
@@ -28,6 +31,7 @@ export async function managePostDetailLoader({
       postDetail: null,
       pagination: null,
       userId: null,
+      candidateNote: null,
     } satisfies ManagePostDetailLoaderData;
   }
 
@@ -40,6 +44,7 @@ export async function managePostDetailLoader({
       postDetail: null,
       pagination: null,
       userId,
+      candidateNote: null,
     } satisfies ManagePostDetailLoaderData;
   }
 
@@ -53,20 +58,25 @@ export async function managePostDetailLoader({
     ? z.coerce.number().int().positive().safeParse(pageParam).data
     : undefined;
 
-  const result = await getManagePostDetail(
-    request,
-    {
-      search: url.searchParams.get("search") ?? undefined,
-      filter,
-      page,
-    },
-    sourceType,
-    params.id,
-  );
+  const candidateId = url.searchParams.get("candidateId");
+
+  // run both requests if candidateId is present
+  const [result, candidateNoteResult] = await Promise.all([
+    getManagePostDetail(
+      request,
+      { search: url.searchParams.get("search") ?? undefined, filter, page },
+      sourceType,
+      params.id,
+    ),
+    candidateId
+      ? getCandidateNote(request, sourceType, params.id, candidateId)
+      : Promise.resolve(null),
+  ]);
 
   return {
     postDetail: result?.data?.detail ?? null,
     pagination: result?.data?.detail?.pagination ?? null,
     userId,
+    candidateNote: candidateNoteResult?.data ?? null,
   } satisfies ManagePostDetailLoaderData;
 }
