@@ -112,8 +112,4 @@ export default [
     "routes/api/api.notifications.read.all.ts",
   ),
   route("api/candidate-note", "routes/api/api.candidate-note.ts"),
-  route(
-    "api/myspace/my-application/change-status",
-    "routes/api/api.myspace.my-application.change-status.tsx",
-  ),
 ] satisfies RouteConfig;
