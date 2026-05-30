@@ -1,6 +1,6 @@
 import { Pencil, Save } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useFetcher, useRevalidator } from "react-router";
+import { useFetcher } from "react-router";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import type { PostSourceType } from "~/services/manage-post/types";
@@ -27,8 +27,6 @@ export default function ApplicantNoteAction({
   const isSubmitting = fetcher.state !== "idle";
   const hasChanges = noteText !== savedNote;
 
-  const revalidator = useRevalidator();
-
   useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data) {
       const data = fetcher.data as { success?: boolean; error?: string };
@@ -36,7 +34,6 @@ export default function ApplicantNoteAction({
         setSavedNote(noteText);
         toast.success("Confidential note saved successfully.");
         setEditMode(false);
-        revalidator.revalidate();
       } else if (data.error) {
         toast.error(data.error);
       }
@@ -67,8 +64,9 @@ export default function ApplicantNoteAction({
             </p>
             <div className="mt-3 flex justify-end">
               <Button
+                variant="outline"
                 onClick={() => setEditMode(true)}
-                className="text-xs font-bold text-brand-blue hover:underline flex items-center gap-1.5"
+                className="text-xs font-bold text-brand-blue hover:underline cursor-pointer flex items-center gap-1.5"
               >
                 <Pencil size={12} />
                 Edit Note
@@ -97,7 +95,7 @@ export default function ApplicantNoteAction({
                       setNoteText(savedNote);
                       setEditMode(false);
                     }}
-                    className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:bg-gray-200/80 transition-all"
+                    className="px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:bg-gray-200/80 transition-all"
                   >
                     Cancel
                   </Button>
@@ -106,7 +104,7 @@ export default function ApplicantNoteAction({
                   type="submit"
                   // onClick={handleSave}
                   disabled={isSubmitting}
-                  className="px-5 py-1.5 rounded-lg text-xs font-black tracking-wide bg-brand-blue text-white bg-blue-500 transition-all shadow-sm disabled:opacity-50"
+                  className="px-5 py-1.5 rounded-lg text-xs font-semibold tracking-wide cursor-pointer bg-brand-blue text-white bg-blue-500 transition-all shadow-sm disabled:opacity-50"
                 >
                   <Save className="size-3.5 mr-1 inline-block" />
                   {isSubmitting ? "Saving..." : "Save Note"}
