@@ -1,6 +1,8 @@
 import type { Route } from "project-types/manage-post/routes/+types/manage-post.$sourceType.$id";
+import { data } from "react-router";
 import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
 import {
+  updateApplicantNote,
   updateApplicantStatus,
   updateManagePost,
 } from "~/services/manage-post/server";
@@ -10,6 +12,7 @@ import {
   UpdateManagePostSchema,
   type ApplicantStatusAction,
   type PostSourceType,
+  type PrivateNoteInput,
 } from "~/services/manage-post/types";
 
 export async function managePostDetailAction({
@@ -22,8 +25,71 @@ export async function managePostDetailAction({
   const postingId = params.id;
 
   const formData = await request.formData();
+  const actionType = String(formData.get("actionType") ?? "").trim();
+  // const body = String(formData.get("body") ?? "").trim();
+  // const method = request.method.toUpperCase();
+
+  const allowedActionTypes = new Set([
+    "postingAction",
+    "note",
+    "change-status",
+  ]);
+
+  if (actionType && !allowedActionTypes.has(actionType)) {
+    return {
+      ok: false,
+      message: "Unsupported action.",
+    };
+  }
+
   const postingAction = formData.get("postingAction");
-  const extendDateAction = formData.get("extend-deadline");
+
+  // Handle candidate note update
+  if (actionType === "note") {
+    const candidateId = String(formData.get("candidateId") ?? "").trim();
+    const sourceType = String(formData.get("sourceType") ?? "").trim();
+    const postingId = String(formData.get("postingId") ?? "").trim();
+    const note = String(formData.get("note") ?? "").trim();
+
+    if (!candidateId) {
+      return data(
+        { ok: false, message: "Candidate ID is required." },
+        { status: 400 },
+      );
+    }
+
+    if (!postingId) {
+      return data(
+        { ok: false, message: "Posting ID is required." },
+        { status: 400 },
+      );
+    }
+
+    const body: PrivateNoteInput = {
+      note: note,
+    };
+
+    try {
+      const res = await updateApplicantNote(
+        request,
+        sourceType as PostSourceType,
+        postingId,
+        candidateId,
+        body,
+      );
+
+      if (res && res.data?.applicant?.privateNote) {
+        return data({ success: true, ok: true });
+      }
+
+      return data({ success: false, ok: false }, { status: 400 });
+    } catch (err) {
+      return data(
+        { success: false, ok: false, error: "An unexpected error occurred." },
+        { status: 500 },
+      );
+    }
+  }
 
   // Handle posting-level actions (from ManagePostOption)
   if (postingAction) {
@@ -46,8 +112,6 @@ export async function managePostDetailAction({
     );
     return { success: true, data: result };
   }
-
-  // handle extend deadline action (from Manage Post Option)
 
   // Handle applicant status actions (existing logic)
   const applicationId = String(formData.get("applicationId") ?? "").trim();

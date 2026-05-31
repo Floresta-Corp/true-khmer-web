@@ -80,7 +80,7 @@ export default function ManagePostFilters({
           value={filter}
           onValueChange={(value) => onFilterChange(value as FilterType)}
         >
-          <SelectTrigger className="w-35 h-10 text-[14px] font-medium border-slate-200 bg-white rounded-xl focus:ring-blue-500/20">
+          <SelectTrigger className="w-25 md:w-35 lg:w-35 h-10 text-[14px] font-medium border-slate-200 bg-white rounded-xl focus:ring-blue-500/20">
             <SelectValue placeholder="Filter" />
           </SelectTrigger>
           <SelectContent className="rounded-xl border-slate-200">

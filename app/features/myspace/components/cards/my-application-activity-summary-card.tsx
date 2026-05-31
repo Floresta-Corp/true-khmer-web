@@ -1,47 +1,34 @@
-import {
-  Archive,
-  ArrowRightCircle,
-  CircleCheck,
-  Loader,
-  Rocket,
-} from "lucide-react";
-import { useLoaderData, useNavigation } from "react-router";
+import { Archive, CheckCircle2, Clock3, Zap } from "lucide-react";
+import { useLoaderData } from "react-router";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
-import { Skeleton } from "~/components/ui/skeleton";
 import type { loader } from "../../routes/my-applications";
-import { Spinner } from "~/components/ui/spinner";
 
 const StatusIcon = (label: string) => {
   switch (label) {
     case "PENDING":
       return (
-        <div className="text-[#8B5CF6] bg-[#F3E8FF] p-2.75 rounded-xl">
-          <Loader size={22} />
+        <div className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-purple-100 text-purple-600 transition-transform group-hover:scale-105">
+          <Clock3 size={22} />
         </div>
       );
     case "ACTIVE":
       return (
-        <div className="text-[#2563EB] bg-[#DBEAFE] p-2.75 rounded-xl">
-          <Rocket size={22} />
+        <div className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-blue-100 text-blue-600 transition-transform group-hover:scale-105">
+          <Zap size={22} />
         </div>
       );
 
     case "COMPLETED":
       return (
-        <div className="text-[#15803D] bg-[#DCFCE7] p-2.75 rounded-xl">
-          <CircleCheck size={22} />
+        <div className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-green-100 text-green-600 transition-transform group-hover:scale-105">
+          <CheckCircle2 size={22} />
         </div>
       );
     case "ARCHIVED":
-      return (
-        <div className="text-[#64748B] bg-gray-200 p-2.75 rounded-xl">
-          <Archive size={22} />
-        </div>
-      );
     default:
       return (
-        <div className="text-slate-600 bg-slate-300 p-2.75 rounded-xl">
-          <ArrowRightCircle size={22} />
+        <div className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-gray-100 text-gray-500 transition-transform group-hover:scale-105">
+          <Archive size={22} />
         </div>
       );
   }
@@ -53,32 +40,32 @@ export default function MyApplicationActivitySummaryCard() {
   const pending = Number(summary.PENDING || 0);
   const active = Number(summary.ACTIVE || 0);
   const completed = Number(summary.COMPLETED || 0);
-  const withdrawn = Number(summary.WITHDRAWN || 0);
+  const archived = Number(summary.ARCHIVED || 0);
 
   const summaryData = [
     { label: "PENDING", value: pending },
     { label: "ACTIVE", value: active },
     { label: "COMPLETED", value: completed },
-    { label: "ARCHIVED", value: withdrawn },
+    { label: "ARCHIVED", value: archived },
   ];
   return (
-    <Card className="shadow-none rounded-2xl">
-      <CardHeader className="font-bold text-[20px]">
+    <Card className="rounded-[32px] border border-[#E0E3E7] bg-white shadow-[0_8px_30px_rgba(60,64,67,0.035)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+      <CardHeader className="px-6 pb-0 pt-6 text-[18px] font-bold text-[#202124] dark:text-white sm:px-8 sm:pt-8">
         Activity Summary
       </CardHeader>
-      <CardContent className="flex gap-4 flex-col">
+      <CardContent className="grid gap-4 p-6 sm:grid-cols-2 sm:p-8 lg:grid-cols-1">
         {summaryData.map((v) => {
           return (
             <div
               key={v.label}
-              className="bg-slate-100 p-4 flex items-center gap-3 rounded-[16px]"
+              className="group flex min-h-[76px] items-center gap-4 rounded-2xl bg-[#F8F9FA] p-4 transition-all hover:bg-[#F1F3F4] dark:bg-slate-800/50 dark:hover:bg-slate-800"
             >
               {StatusIcon(v.label)}
               <div className="flex flex-col justify-between">
-                <p className="font-semibold text-[#4D5D73] text-[12px]">
+                <p className="text-[10px] font-black uppercase tracking-[0.1em] text-[#80868B]">
                   {v.label}
                 </p>
-                <span className="font-bold text-[18px]">
+                <span className="text-[20px] font-bold leading-tight text-[#202124] dark:text-white">
                   {v.value >= 10 ? v.value : `0${v.value}`}
                 </span>
               </div>
