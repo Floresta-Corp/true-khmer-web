@@ -12,7 +12,7 @@ export default [
       route("home", "routes/home.tsx"),
       route("about", "routes/about.tsx"),
       route("dashboard", "routes/dashboard.tsx"),
-      route("profile", "routes/profile.tsx"),
+      route("profile", "routes/onboarding-profile.tsx"),
       route("messages", "routes/messages.tsx"),
       route("forum", "features/forum/routes/forum.new.tsx"),
       route("forum-old", "features/forum/routes/forum.tsx"),
@@ -76,7 +76,7 @@ export default [
   ]),
   route("onboarding", "routes/onboarding/pages/layout.tsx", [
     index("routes/onboarding/pages/index.tsx"),
-    route("profile", "routes/onboarding/pages/profile.tsx"),
+    route("profile", "routes/onboarding/pages/onboarding-profile.tsx"),
     route("interest", "routes/onboarding/pages/interest.tsx"),
     route("contribution", "routes/onboarding/pages/contribution.tsx"),
     route("tier", "routes/onboarding/pages/tier.tsx"),
