@@ -1,6 +1,6 @@
 import * as React from "react";
-import { useSearchParams } from "react-router";
-import { Eye, Link2, MoreVertical } from "lucide-react";
+import { Link, useSearchParams } from "react-router";
+import { Eye, Link2, MoreVertical, PenLine } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import {
@@ -58,21 +58,30 @@ export function PageHeader() {
   };
 
   return (
-    <div className="flex items-start justify-between">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">
-          {isPublicView ? "Public Profile" : "Profile"}
+    <div className="flex items-end justify-between mb-10">
+      <div className="space-y-1">
+        <h1 className="text-3xl sm:text-[40px] font-extrabold text-slate-900 dark:text-white mb-2 leading-tight tracking-tight">
+          {isPublicView ? "Public Profile" : "My Space"}
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-slate-500 dark:text-slate-400 font-medium text-base sm:text-lg">
           {isPublicView
-            ? "This is the public view others can see and share."
-            : "Manage how you appear to your team and what others see on your public profile."}
+            ? "This is how you appear to other members of the Khmer community."
+            : "Visualize your growth and community contributions."}
         </p>
       </div>
       <div className="flex items-center gap-2">
+        <Button variant="outline" className="h-12 rounded-xl px-5" asChild>
+          <Link to="/edit-profile">
+            <PenLine /> <p className="font-semibold">Edit Profile</p>
+          </Link>
+        </Button>
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="icon" className="h-9 w-9">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-12 w-12 rounded-xl cursor-pointer"
+            >
               <MoreVertical className="h-5 w-5" />
             </Button>
           </PopoverTrigger>

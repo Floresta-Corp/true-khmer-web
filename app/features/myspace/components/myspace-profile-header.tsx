@@ -26,9 +26,9 @@ export function ProfileHeader({
   socialLinks,
 }: ProfileHeaderProps) {
   return (
-    <Card className="bg-white flex gap-8 items-start overflow-clip p-8 relative rounded-xl">
+    <Card className="bg-white flex gap-8 items-center overflow-clip p-8 relative rounded-3xl shadow-none">
       <div className="flex flex-col items-start shrink-0">
-        <div className="bg-white border-8 border-[#f5f7f9] flex flex-col items-start justify-center overflow-clip p-2 rounded-[24px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] size-40">
+        <div className="flex flex-col items-start justify-center overflow-clip p-2 rounded-[24px] size-40">
           {avatarUrl ? (
             <img
               src={avatarUrl}
