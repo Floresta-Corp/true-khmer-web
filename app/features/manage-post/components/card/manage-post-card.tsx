@@ -1,7 +1,13 @@
-import { Link, useNavigate } from "react-router";
-import { Briefcase, ClipboardList, HandHeart } from "lucide-react";
+import { Link, useLoaderData, useNavigate } from "react-router";
+import {
+  Briefcase,
+  ClipboardList,
+  HandHeart,
+  Target,
+  UsersRound,
+} from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { cn } from "~/lib/utils";
+import { cn, resolveImageURL } from "~/lib/utils";
 import { motion } from "motion/react";
 import type {
   ManagePost,
@@ -31,6 +37,12 @@ const normalizeStatus = (status: ManagePostStatus): string => {
 
   return statusMap[status] ?? status.toLowerCase().replace("_", " ");
 };
+
+const ACTION_LABELS: Record<SourceType, string> = {
+  PROJECT: "Manage Recruitment",
+  VOLUNTEER: "Review Volunteers",
+};
+
 const SOURCE_TYPE_TO_PATH: Record<SourceType, string> = {
   PROJECT: "projects",
   VOLUNTEER: "volunteer",
@@ -48,6 +60,8 @@ type Props = {
 export default function ManagePostCard({ posting, index = 0 }: Props) {
   const navigate = useNavigate();
   const cardHref = `/manage-post/${normalizePostingSource(posting.sourceType)}/${posting.id}`;
+  const imageUrl = resolveImageURL(posting.imageKey ?? undefined);
+  const isCompleted = posting.status === "COMPLETED";
 
   return (
     <motion.div
@@ -63,23 +77,25 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
     >
       <div
         onClick={() => navigate(cardHref)}
-        className="flex flex-col h-full bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 hover:shadow-xl hover:shadow-gray-200/40 transition-all duration-300 relative group cursor-pointer"
+        className="group relative flex h-full cursor-pointer flex-col rounded-2xl border border-gray-100 bg-white p-3 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-gray-200/60"
       >
-        <div className="absolute right-4 top-4 z-10">
-          <ManagePostOption
-            status={posting.status}
-            sourceType={posting.sourceType}
-            postingId={posting.id}
-          />
-        </div>
+        {!isCompleted && (
+          <div className="absolute right-5  z-10">
+            <ManagePostOption
+              status={posting.status}
+              sourceType={posting.sourceType}
+              postingId={posting.id}
+            />
+          </div>
+        )}
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 p-1">
           <div className="flex items-center gap-3">
             <div
-              className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+              className={`flex size-9 items-center justify-center rounded-xl border ${
                 posting.sourceType === "PROJECT"
-                  ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20"
-                  : "bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20"
+                  ? "border-blue-100 bg-blue-50 text-blue-600"
+                  : "border-blue-100 bg-blue-50 text-blue-600"
               }`}
             >
               {posting.sourceType === "PROJECT" ? (
@@ -88,73 +104,102 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
                 <HandHeart size={18} />
               )}
             </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
+            <span className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-900">
               {posting.sourceType === "PROJECT" ? "Project" : "Volunteer"}
             </span>
           </div>
-          <div className="w-px h-3 bg-gray-200 dark:bg-slate-800 mx-0.5" />
           <span
             className={cn(
-              "px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase border transition-all pointer-events-none",
+              "ml-auto rounded-full border px-3.5 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all pointer-events-none",
+              !isCompleted && "mr-12",
               STATUS_STYLES[posting.status],
             )}
           >
-            {normalizeStatus(posting.status)}
+            {normalizeStatus(posting.status).replace(" ", "-")}
           </span>
         </div>
 
-        <div className="grow space-y-2 mt-2 pr-6">
-          <h3 className="text-lg sm:text-xl font-bold text-slate-800 leading-tight group-hover:text-blue-600 transition-colors line-clamp-1 sm:line-clamp-2">
+        <div className="mt-5 aspect-[2.55/1] overflow-hidden rounded-2xl bg-slate-100">
+          {imageUrl ? (
+            <img
+              src={imageUrl}
+              alt={posting.title}
+              className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          ) : (
+            <div className="flex size-full items-center justify-center bg-linear-to-br from-blue-50 via-slate-100 to-emerald-50 text-blue-500">
+              {posting.sourceType === "PROJECT" ? (
+                <Briefcase size={34} />
+              ) : (
+                <HandHeart size={34} />
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-5 min-h-19 grow space-y-2">
+          <h3 className="line-clamp-1 text-xl font-bold leading-tight text-black transition-colors group-hover:text-blue-600">
             {posting.title}
           </h3>
-          <p className="text-sm text-slate-500 line-clamp-2 leading-relaxed italic sm:not-italic">
+          <p className="line-clamp-2 text-sm leading-relaxed text-slate-400">
             {posting.description ?? "No description provided."}
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 sm:gap-4 border-t border-slate-100 pt-5 mt-5">
-          <div className="flex flex-col">
-            <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-tighter sm:tracking-widest">
-              Applicants
-            </span>
-            <span className="text-lg sm:text-2xl font-semibold text-slate-900 leading-none mt-1">
-              {posting.applicantCount}
-            </span>
-          </div>
+        <div className="mt-5 border-t border-slate-100 pt-4">
+          <div className="grid grid-cols-3">
+            <div className="flex flex-col items-center">
+              <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-slate-500">
+                <UsersRound className="size-3 " />
+                Roles
+              </span>
+              <span className="mt-1 text-2xl font-semibold leading-none text-black">
+                {posting.roleCount}
+              </span>
+            </div>
 
-          <div className="flex flex-col border-x border-slate-50 px-2 sm:px-0">
-            <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-tighter sm:tracking-widest">
-              Views
-            </span>
-            <span className="text-lg sm:text-2xl font-semibold text-slate-900 leading-none mt-1">
-              {posting.views > 999
-                ? `${(posting.views / 1000).toFixed(1)}k`
-                : posting.views}
-            </span>
+            <div className="flex flex-col items-center border-x border-slate-200">
+              <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-slate-500">
+                <UsersRound className="size-3 " />
+                Applicants
+              </span>
+              <span className="mt-1 text-2xl font-semibold leading-none text-black">
+                {posting.applicantCount}
+              </span>
+            </div>
+
+            <div className="flex flex-col items-center">
+              <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-slate-500">
+                <Target className="size-3 " />
+                Progress
+              </span>
+              <span className="mt-1 text-2xl font-semibold leading-none text-black">
+                {posting.confirmedCount}/{posting.capacity}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="mt-6" onClick={(e) => e.stopPropagation()}>
-          {posting.status === "COMPLETED" ? (
+        <div className="mt-5" onClick={(e) => e.stopPropagation()}>
+          {isCompleted ? (
             <Button
               variant="outline"
-              className="w-full h-10 sm:h-12 text-sm font-bold text-slate-600 border-slate-200 rounded-xl transition-all hover:bg-blue-600 hover:text-white duration-200 active:scale-[0.98]"
+              className="h-10 w-full rounded-xl border-slate-200 bg-slate-50 text-sm font-semibold  tracking-wider text-slate-600 transition-all hover:bg-blue-600 hover:text-white active:scale-[0.98]"
               asChild
             >
               <Link to={cardHref}>
-                <ClipboardList />
+                <ClipboardList className="size-4" />
                 View Report
               </Link>
             </Button>
           ) : (
-            <Link to={cardHref}>
-              <Button
-                variant="ghost"
-                className="w-full cursor-pointer h-10 sm:h-12 text-sm font-bold bg-gray-50 text-gray-500 rounded-xl transition-all hover:bg-blue-600 hover:text-white duration-200 active:scale-[0.98]"
-              >
-                Manage Posting
-              </Button>
-            </Link>
+            <Button
+              variant="outline"
+              className="h-10 w-full rounded-xl border-slate-200 bg-slate-50 text-sm font-semibold  tracking-wider text-slate-500 transition-all hover:bg-blue-600 hover:text-white active:scale-[0.98]"
+              asChild
+            >
+              <Link to={cardHref}>{ACTION_LABELS[posting.sourceType]}</Link>
+            </Button>
           )}
         </div>
       </div>

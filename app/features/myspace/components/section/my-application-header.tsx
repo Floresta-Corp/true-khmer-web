@@ -1,11 +1,11 @@
 export default function MyApplicationHeader() {
   return (
-    <div>
-      <p className="text-[40px] font-bold leading-15 text-[#030213]">
-        My Application
+    <div className="space-y-2">
+      <p className="text-4xl font-bold tracking-tight text-[#202124] sm:text-[42px]">
+        My Applications
       </p>
-      <p className="text-lg font-medium leading-6.75 text-[#4d5d73]">
-        Keep track of your submitted applications and project involveement
+      <p className="max-w-2xl text-base font-medium leading-7 text-[#5F6368]">
+        Keep track of your submitted applications and project involvement.
       </p>
     </div>
   );
