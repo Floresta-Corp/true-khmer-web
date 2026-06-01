@@ -76,8 +76,18 @@ export default function ManagePostingDetailTable({
   const [blockedCandidateIds, setBlockedCandidateIds] = useState<Set<string>>(
     () => {
       if (typeof window === "undefined") return new Set();
-      const stored = localStorage.getItem(`blocked-${postingId}`);
-      return stored ? new Set(JSON.parse(stored)) : new Set();
+      try {
+        const raw = localStorage.getItem(`blocked-${postingId}`);
+        const arr = raw ? JSON.parse(raw) : [];
+        return new Set(
+          Array.isArray(arr)
+            ? arr.filter((x): x is string => typeof x === "string")
+            : [],
+        );
+      } catch {
+        localStorage.removeItem(`blocked-${postingId}`);
+        return new Set();
+      }
     },
   );
   useEffect(() => {

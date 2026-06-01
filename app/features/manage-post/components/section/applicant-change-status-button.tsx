@@ -17,7 +17,7 @@ type Props = {
   sourceType: string;
   applicant: Applicant;
   selectedRoleId?: string | null;
-  onDeclined?: (applicationId: string, options: { blocked: boolean }) => void;
+  onDeclined?: (candidateId: string, options: { blocked: boolean }) => void;
 };
 
 type DialogMode = "process" | "confirm-approve" | "confirm-decline" | null;
@@ -58,6 +58,10 @@ export default function ApplicantStatusChangeButton({
     string | null
   >(selectedRoleId ?? roles[0]?.roleId ?? null);
 
+  useEffect(() => {
+    setSelectedDialogRoleId(selectedRoleId ?? roles[0]?.roleId ?? null);
+  }, [selectedRoleId, applicant.candidate.id]);
+
   const resolvedApplicationId = hasMultipleRoles
     ? (roles.find((r) => r.roleId === selectedDialogRoleId)?.applicationId ??
       approvedRole?.applicationId ??
@@ -89,7 +93,6 @@ export default function ApplicantStatusChangeButton({
   const handleApprove = () => {
     if (!resolvedApplicationId) return;
     const formData = new FormData();
-    formData.append("statusAction", "approve");
     formData.append("applicationId", resolvedApplicationId);
     formData.append("statusAction", "approve");
     fetcher.submit(formData, {
@@ -101,6 +104,7 @@ export default function ApplicantStatusChangeButton({
 
   const lastSubmittedAction = useRef<"decline" | "approve" | null>(null);
   const lastBlockFutureApply = useRef(false);
+  const lastDeclinedCandidateId = useRef<string | null>(null);
 
   const openReprocess = () => {
     const approvedRoleId = roles.find((r) =>
@@ -123,6 +127,7 @@ export default function ApplicantStatusChangeButton({
 
     lastSubmittedAction.current = "decline";
     lastBlockFutureApply.current = blockFutureApply;
+    lastDeclinedCandidateId.current = applicant.candidate.id;
 
     fetcher.submit(formData, {
       method: "POST",
@@ -137,19 +142,25 @@ export default function ApplicantStatusChangeButton({
     setDialogMode("confirm-decline");
   };
 
+  const onDeclinedRef = useRef(onDeclined);
+  useEffect(() => {
+    onDeclinedRef.current = onDeclined;
+  }, [onDeclined]);
+
   useEffect(() => {
     if (
       fetcher.state === "idle" &&
       fetcher.data?.ok === true &&
       lastSubmittedAction.current === "decline"
     ) {
-      onDeclined?.(applicant.candidate.id, {
+      onDeclinedRef.current?.(lastDeclinedCandidateId.current!, {
         blocked: lastBlockFutureApply.current,
       });
       lastSubmittedAction.current = null;
+      lastDeclinedCandidateId.current = null;
+      lastBlockFutureApply.current = false;
     }
   }, [fetcher.state, fetcher.data]);
-
   return (
     <>
       <AnimatePresence>

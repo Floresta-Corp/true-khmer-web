@@ -73,7 +73,7 @@ export default function ApplicantNoteAction({
             </div>
           </div>
         ) : (
-          <div className=" border-gray-200 dark:border-slate-800 rounded-2xl ">
+          <div className="border-gray-200 dark:border-slate-800 rounded-2xl ">
             <input type="hidden" name="actionType" value="note" />
             <input type="hidden" name="candidateId" value={candidateId} />
             <input type="hidden" name="sourceType" value={sourceType} />
