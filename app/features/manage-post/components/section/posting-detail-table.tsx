@@ -19,7 +19,7 @@ import type {
   PostingType,
 } from "~/services/manage-post/types";
 import ApplicantTabRange from "./applicant-tab-filter";
-import { formatDate } from "~/features/events/lib/event-formatters";
+import { formatDateMonthYear } from "~/features/events/lib/event-formatters";
 import ApplicantSideBar from "./applicant-side-bar";
 import ApplicantActionButton from "./applicant-action-btn";
 import ApplicantContactBtn from "./applicant-contact-btn";
@@ -73,7 +73,13 @@ export default function ManagePostingDetailTable({
     null,
   );
   const [localApplicants, setLocalApplicants] = useState(applicants ?? []);
-
+  const [blockedCandidateIds, setBlockedCandidateIds] = useState<Set<string>>(
+    () => {
+      if (typeof window === "undefined") return new Set();
+      const stored = localStorage.getItem(`blocked-${postingId}`);
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    },
+  );
   useEffect(() => {
     setLocalApplicants(applicants ?? []);
   }, [applicants]);
@@ -192,6 +198,10 @@ export default function ManagePostingDetailTable({
             <TableBody className="divide-y divide-slate-50 dark:divide-slate-900">
               {(localApplicants ?? []).map((applicant, idx) => {
                 const displayStatus = getDisplayStatus(applicant);
+                const isBlocked = blockedCandidateIds.has(
+                  applicant.candidate.id,
+                );
+
                 return (
                   <TableRow
                     key={`${applicant.candidate.id} ${idx}`}
@@ -208,9 +218,17 @@ export default function ManagePostingDetailTable({
                           />
                         </Avatar>
                         <div className="min-w-0">
-                          <p className="text-[14px] font-semibold text-slate-900 dark:text-slate-100 truncate">
-                            {applicant.candidate.name}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-[14px] font-semibold text-slate-900 dark:text-slate-100 truncate">
+                              {applicant.candidate.name}
+                            </p>
+                            {isBlocked && (
+                              <span className="shrink-0 text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-md bg-red-100 text-red-600 border border-red-200">
+                                Blocked
+                              </span>
+                            )}
+                          </div>
+
                           <p className="text-xs text-slate-400 truncate">
                             {applicant.candidate.email}
                           </p>
@@ -250,7 +268,9 @@ export default function ManagePostingDetailTable({
                     </TableCell>
 
                     <TableCell className="px-5 py-3.5 text-sm  text-slate-500 whitespace-nowrap">
-                      {formatDate(applicant.submissions[0].appliedAt ?? "")}
+                      {formatDateMonthYear(
+                        applicant.submissions[0].appliedAt ?? "",
+                      )}
                     </TableCell>
 
                     <TableCell className="px-5 py-3.5">
@@ -306,6 +326,25 @@ export default function ManagePostingDetailTable({
         postingId={postingId}
         sourceType={sourceType}
         candidateId={selectedApplicant?.candidate.id ?? ""}
+        onApplicantDeclined={(candidateId, { blocked }) => {
+          setLocalApplicants((current) =>
+            current.map((a) =>
+              a.candidate.id === candidateId
+                ? { ...a, overallStatus: "DECLINED" }
+                : a,
+            ),
+          );
+          if (blocked) {
+            setBlockedCandidateIds((prev) => {
+              const next = new Set(prev).add(candidateId);
+              localStorage.setItem(
+                `blocked-${postingId}`,
+                JSON.stringify([...next]),
+              );
+              return next;
+            });
+          }
+        }}
       />
     </div>
   );

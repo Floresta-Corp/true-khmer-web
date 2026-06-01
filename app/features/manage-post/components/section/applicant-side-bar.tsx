@@ -3,7 +3,10 @@ import { motion } from "motion/react";
 import { Fragment, type ReactNode, useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
-import { formatDate } from "~/features/events/lib/event-formatters";
+import {
+  formatDate,
+  formatDateMonthYear,
+} from "~/features/events/lib/event-formatters";
 import { cn, resolveImageURL } from "~/lib/utils";
 import type {
   Applicant,
@@ -14,16 +17,16 @@ import type {
 import ApplicantNoteAction from "./applicant-note-action";
 import ApplicantStatusChangeButton from "./applicant-change-status-button";
 import { useFetcher } from "react-router";
+import { Button } from "~/components/ui/button";
 
 const STATUS_STYLES: Record<ApplicantStatusAction, string> = {
-  approve: "bg-green-100 text-green-700 border-green-200 hover:bg-gray-100",
-  new: "bg-blue-100 text-blue-700 border-blue-200 hover:bg-gray-100",
-  completed: "bg-green-100 text-green-700 border-green-200 hover:bg-gray-100",
-  confirmed: "bg-green-100 text-green-700 border-green-200 hover:bg-gray-100",
-  decline: "bg-red-100 text-red-700 border-red-200 hover:bg-gray-100",
-  under_review:
-    "bg-purple-100 text-purple-700 border-purple-200 hover:bg-gray-100",
-  submitted: "bg-amber-100 text-amber-700 border-amber-200 hover:bg-gray-100",
+  approve: "bg-green-100 text-green-700 border-green-200 ",
+  new: "bg-blue-100 text-blue-700 border-blue-200 ",
+  completed: "bg-green-100 text-green-700 border-green-200 ",
+  confirmed: "bg-green-100 text-green-700 border-green-200 ",
+  decline: "bg-red-100 text-red-700 border-red-200 ",
+  under_review: "bg-purple-100 text-purple-700 border-purple-200 ",
+  submitted: "bg-amber-100 text-amber-700 border-amber-200 ",
 };
 
 const STATUS_LABELS: Record<ApplicantStatusAction, string> = {
@@ -41,10 +44,13 @@ type Props = {
   postingId: string;
   sourceType: PostingType;
   onApplicantNoteSaved?: (candidateId: string, note: string) => void;
+  onApplicantDeclined?: (
+    candidateId: string,
+    options: { blocked: boolean },
+  ) => void;
   onClose: () => void;
   candidateId: string;
 };
-
 type ApplicantInfoItem = {
   title: string;
   value?: string;
@@ -56,6 +62,7 @@ type ApplicantInfoItem = {
 export default function ApplicantSideBar({
   applicant,
   onClose,
+  onApplicantDeclined,
   onApplicantNoteSaved,
   postingId,
   sourceType,
@@ -110,12 +117,10 @@ export default function ApplicantSideBar({
 
   const isNew = overallStatus === "new";
 
-  // console.log("Sidebar reading note:", applicant?.privateNote);
-
   const volunteerInfo: ApplicantInfoItem[] = [
     {
       title: "Applied On",
-      value: formatDate(applicant?.submissions?.[0]?.appliedAt || ""),
+      value: formatDateMonthYear(applicant?.submissions?.[0]?.appliedAt || ""),
       hide: false,
     },
     {
@@ -134,7 +139,7 @@ export default function ApplicantSideBar({
   const projectInfo: ApplicantInfoItem[] = [
     {
       title: "Applied On",
-      value: formatDate(applicant?.submissions?.[0]?.appliedAt || ""),
+      value: formatDateMonthYear(applicant?.submissions?.[0]?.appliedAt || ""),
       hide: false,
     },
     {
@@ -180,7 +185,7 @@ export default function ApplicantSideBar({
         animate={{ opacity: applicant ? 1 : 0 }}
         onClick={onClose}
         className={cn(
-          "fixed inset-0 bg-black/20 z-40 transition-all",
+          "fixed inset-0 bg-black/20 backdrop-blur-xs z-40 transition-all",
           applicant ? "pointer-events-auto" : "pointer-events-none",
         )}
       />
@@ -190,12 +195,12 @@ export default function ApplicantSideBar({
         initial={{ x: "100%" }}
         animate={{ x: applicant ? 0 : "100%" }}
         transition={{ type: "spring", bounce: 0.1, duration: 0.4 }}
-        className="fixed top-0 right-0 h-full w-95 bg-white shadow-2xl z-50 flex flex-col overflow-y-auto"
+        className="fixed top-0 right-0 h-full w-95 bg-white shadow-2xl z-50 flex pb-5 flex-col overflow-y-auto"
       >
         {applicant && (
           <>
             {/* Header */}
-            <div className="flex items-start justify-between p-6 border-b border-gray-100">
+            <div className="flex items-start justify-between px-6 py-4 border-b border-gray-100">
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12 border border-gray-100">
                   <AvatarImage
@@ -218,13 +223,13 @@ export default function ApplicantSideBar({
                     {applicant.candidate.email}
                   </p>
                   {isNew ? (
-                    <Badge className="bg-blue-500 text-white border-0 hover:bg-blue-600 text-xs mt-1">
+                    <Badge className="bg-blue-100 text-blue-700 border-blue-200 hover:bg-gray-100 text-xs mt-1">
                       NEW
                     </Badge>
                   ) : (
                     <Badge
                       className={cn(
-                        "text-xs font-semibold border mt-1",
+                        "text-xs font-semibold border mt-1 pointer-events-none",
                         STATUS_STYLES[overallStatus],
                       )}
                     >
@@ -233,48 +238,60 @@ export default function ApplicantSideBar({
                   )}
                 </div>
               </div>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
                 onClick={onClose}
                 className="p-1.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <X size={16} />
-              </button>
+              </Button>
             </div>
 
-            <div className="flex flex-col gap-4 p-6">
-              <div className="flex items-center justify-around rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+            <div className="flex flex-col gap-4  px-6 py-4">
+              <div className="flex items-center justify-around rounded-xl border border-gray-100 bg-white p-2">
                 {/* Submissions Stat */}
                 <div className="flex flex-col items-center justify-center flex-1 text-center">
-                  <span className="text-sm font-semibold text-gray-900">
-                    {applicant?.submissionCount ?? "0"}
-                  </span>
+                  <div className="flex h-8 items-center justify-center">
+                    <span className="text-sm font-semibold text-gray-900">
+                      {applicant?.submissionCount ?? "0"}
+                    </span>
+                  </div>
                   <span className="mt-1 text-[9px] font-semibold uppercase tracking-wider text-gray-400">
                     Submissions
                   </span>
                 </div>
 
-                {/* Divider */}
                 <div className="h-10 w-px bg-gray-100" />
 
                 {/* Roles Applied Stat */}
                 <div className="flex flex-col items-center justify-center flex-1 text-center">
-                  <span className="text-sm font-semibold text-gray-900">
-                    {applicant?.totalRoleApplied ?? "0"}
-                  </span>
+                  <div className="flex h-8 items-center justify-center">
+                    <span className="text-sm font-semibold text-gray-900">
+                      {applicant?.totalRoleApplied ?? "0"}
+                    </span>
+                  </div>
                   <span className="mt-1 text-[9px] font-semibold uppercase tracking-wider text-gray-400">
                     Roles Applied
                   </span>
                 </div>
 
-                {/* Divider */}
                 <div className="h-10 w-px bg-gray-100" />
 
                 {/* Overall Status Stat */}
                 <div className="flex flex-col items-center justify-center flex-1 text-center">
-                  <span className="text-xs font-semibold ">
-                    {STATUS_LABELS[overallStatus]}
-                  </span>
+                  <div className="flex h-8 items-center justify-center">
+                    <span
+                      className={cn(
+                        "text-xs font-semibold",
+                        STATUS_STYLES[overallStatus]
+                          ?.split(" ")
+                          .filter((c) => c.includes("text-"))
+                          .join(" "),
+                      )}
+                    >
+                      {STATUS_LABELS[overallStatus]}
+                    </span>
+                  </div>
                   <span className="mt-1 text-[9px] font-semibold uppercase tracking-wider text-gray-400">
                     Overall Status
                   </span>
@@ -397,7 +414,6 @@ export default function ApplicantSideBar({
                     })}
                   </div>
 
-                  {/* Only show info note if not yet finalized */}
                   {!roles.some((r) =>
                     ["APPROVED", "CONFIRMED", "COMPLETED"].includes(r.status),
                   ) && (
@@ -511,7 +527,7 @@ export default function ApplicantSideBar({
               {applicantInfo.map((info, idx) => (
                 <Fragment key={idx}>
                   {info.hide ? null : (
-                    <div className="bg-gray-50 p-4 rounded-2xl ">
+                    <div className="  border p-4 rounded-2xl ">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">
                         {info.title}
                       </p>
@@ -570,6 +586,7 @@ export default function ApplicantSideBar({
               postingId={postingId}
               sourceType={sourceType}
               selectedRoleId={hasMultipleRoles ? selectedRoleId : undefined}
+              onDeclined={onApplicantDeclined}
             />
           </>
         )}

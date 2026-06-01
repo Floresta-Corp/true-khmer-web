@@ -5,6 +5,7 @@ import type {
   PostSourceType,
   PrivateNoteInput,
 } from "../types";
+import type { DeclineApplicantParams } from "~/routes/api/manage-post/manage-post-detail/manage-post-detail.action";
 
 export async function getApplicantDetail(
   request: Request,
@@ -33,6 +34,27 @@ export async function updateApplicantStatus(
   const result = await apiRequestWithSession<DetailCandidateResponse>(
     request,
     `/workspace/manage-posting/${sourceType}/${postingId}/${applicationId}/change-status/${statusAction}`,
+    {
+      method: "POST",
+    },
+  );
+
+  return result;
+}
+
+export async function declineApplicantStatus(
+  request: Request,
+  sourceType: PostSourceType,
+  postingId: string,
+  applicationId: string,
+  params: DeclineApplicantParams,
+) {
+  const queryParams = new URLSearchParams();
+  if (params.declineAll) queryParams.set("declineAll", "true");
+  if (params.blockFutureApply) queryParams.set("blockFutureApply", "true");
+  const result = await apiRequestWithSession<DetailCandidateResponse>(
+    request,
+    `/workspace/manage-posting/${sourceType}/${postingId}/${applicationId}/decline?${queryParams.toString()}`,
     {
       method: "POST",
     },
