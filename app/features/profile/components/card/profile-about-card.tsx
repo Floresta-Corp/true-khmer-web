@@ -26,7 +26,7 @@ export default function ProfileAboutCard({
             return (
               <span
                 key={key}
-                className="inline-flex items-center px-3 py-1 border bg-slate-100 dark:bg-blue-900/40 dark:text-blue-400 rounded-full text-sm font-semibold"
+                className="inline-flex items-center px-3 py-1 border bg-slate-50 dark:bg-blue-900/40 dark:text-blue-400 rounded-full text-sm font-semibold"
               >
                 {name}
               </span>
