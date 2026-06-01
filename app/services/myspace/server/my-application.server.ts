@@ -3,30 +3,26 @@ import type {
   ApplicationArchiveAction,
   ApplicationSourceType,
   ApplicationStatusAction,
+  MyApplicationArchiveActionResponse,
   GetMyApplicationDetailResponse,
   GetMyApplicationResponse,
+  MyApplicationFilter,
+  MyApplicationListType,
+  MyApplicationStatusActionResponse,
 } from "../types";
 import {
-  MyApplicationSourceTypeSchema,
+  MyApplicationRequestSourceTypeSchema,
   MyApplicationArchiveActionSchema,
   MyApplicationStatusActionSchema,
-  type MyApplicationSourceType,
+  GetMyApplicationResponseSchema,
+  GetMyApplicationDetailResponseSchema,
+  MyApplicationArchiveActionResponseSchema,
+  MyApplicationStatusActionResponseSchema,
 } from "../types/my-application-type";
 
-function normalizeMyApplicationSourceType(
-  sourceType: MyApplicationSourceType,
-) {
-  return sourceType === "project" ? "projects" : sourceType;
-}
-
-function normalizeMyApplicationArchiveAction(
-  archiveAction: ApplicationArchiveAction,
-) {
-  return MyApplicationArchiveActionSchema.parse(archiveAction);
-}
 export interface MyApplicationQueryParams {
-  tab?: string;
-  filter?: string;
+  type?: MyApplicationListType;
+  filter?: MyApplicationFilter;
 }
 
 export async function getMyApplicationResponse(
@@ -34,8 +30,8 @@ export async function getMyApplicationResponse(
   queryParams: MyApplicationQueryParams,
 ) {
   const searchParams = new URLSearchParams();
-  if (queryParams.tab) {
-    searchParams.set("type", queryParams.tab);
+  if (queryParams.type) {
+    searchParams.set("type", queryParams.type);
   }
   if (queryParams.filter) {
     searchParams.set("filter", queryParams.filter);
@@ -49,17 +45,20 @@ export async function getMyApplicationResponse(
       method: "GET",
     },
   );
-  return result;
+  return {
+    ...result,
+    data: GetMyApplicationResponseSchema.parse(result.data),
+  };
 }
 
 export async function getMyApplicationDetailResponse(
   request: Request,
-  sourceType: string,
-  applicationId: string,
+  sourceType: ApplicationSourceType,
+  postingId: string,
 ) {
   const url = `/my-application/${encodeURIComponent(
     sourceType,
-  )}/${encodeURIComponent(applicationId)}`;
+  )}/${encodeURIComponent(postingId)}`;
 
   const result = await apiRequestWithSession<GetMyApplicationDetailResponse>(
     request,
@@ -68,68 +67,66 @@ export async function getMyApplicationDetailResponse(
       method: "GET",
     },
   );
-  return result;
+  return {
+    ...result,
+    data: GetMyApplicationDetailResponseSchema.parse(result.data),
+  };
 }
 
 export async function postMyApplicationChangeStatus(
   request: Request,
-  sourceType: string,
+  sourceType: ApplicationSourceType,
   applicationId: string,
   statusAction: ApplicationStatusAction,
 ) {
-  const parsedSourceType = MyApplicationSourceTypeSchema.parse(sourceType);
+  const parsedSourceType =
+    MyApplicationRequestSourceTypeSchema.parse(sourceType);
   const parsedStatusAction =
     MyApplicationStatusActionSchema.parse(statusAction);
-  const normalizedSourceType =
-    normalizeMyApplicationSourceType(parsedSourceType);
   const url = `/my-application/${encodeURIComponent(
-    normalizedSourceType,
+    parsedSourceType,
   )}/${encodeURIComponent(applicationId)}/change-status/${encodeURIComponent(
     parsedStatusAction,
   )}`;
 
-  const result = await apiRequestWithSession(request, url, {
-    method: "POST",
-  });
-  return result;
+  const result = await apiRequestWithSession<MyApplicationStatusActionResponse>(
+    request,
+    url,
+    {
+      method: "POST",
+    },
+  );
+  return {
+    ...result,
+    data: MyApplicationStatusActionResponseSchema.parse(result.data),
+  };
 }
 
 export async function postMyApplicationArchiveAction(
   request: Request,
-  sourceType: string,
-  applicationId: string,
-  archiveAction: ApplicationArchiveAction,
-) {
-  const parsedSourceType = MyApplicationSourceTypeSchema.parse(sourceType);
-  return moveToArchived(
-    request,
-    parsedSourceType,
-    applicationId,
-    archiveAction,
-  );
-}
-
-export async function moveToArchived(
-  request: Request,
   sourceType: ApplicationSourceType,
-  applicationId: string,
+  opportunityId: string,
   archiveAction: ApplicationArchiveAction,
 ) {
-  const parsedSourceType = MyApplicationSourceTypeSchema.parse(sourceType);
-  const normalizedSourceType = normalizeMyApplicationSourceType(
-    parsedSourceType,
-  );
-  const normalizedArchiveAction = normalizeMyApplicationArchiveAction(
-    archiveAction,
-  );
+  const parsedSourceType =
+    MyApplicationRequestSourceTypeSchema.parse(sourceType);
+  const parsedArchiveAction =
+    MyApplicationArchiveActionSchema.parse(archiveAction);
   const url = `/my-application/${encodeURIComponent(
-    normalizedSourceType,
-  )}/${encodeURIComponent(applicationId)}/archive/${encodeURIComponent(
-    normalizedArchiveAction,
+    parsedSourceType,
+  )}/${encodeURIComponent(opportunityId)}/archive/${encodeURIComponent(
+    parsedArchiveAction,
   )}`;
 
-  const result = await apiRequestWithSession(request, url, {
-    method: "POST",
-  });
-  return result;
+  const result = await apiRequestWithSession<MyApplicationArchiveActionResponse>(
+    request,
+    url,
+    {
+      method: "POST",
+    },
+  );
+  return {
+    ...result,
+    data: MyApplicationArchiveActionResponseSchema.parse(result.data),
+  };
 }

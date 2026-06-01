@@ -15,7 +15,7 @@ export default function ApplicationTabFilter({
   onTabChange,
 }: TabButtonGroupProps) {
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center gap-1 rounded-2xl border border-transparent bg-[#F1F3F4] p-1 dark:border-slate-800 dark:bg-slate-950">
       {tabs.map((tab) => {
         const isActive = activeTab === tab.value;
         return (
@@ -23,10 +23,10 @@ export default function ApplicationTabFilter({
             key={`${tab.label}-${tab.value}`}
             type="button"
             onClick={() => onTabChange(tab.value)}
-            className={`rounded-full px-6 py-2.5 text-sm font-medium transition-colors ${
+            className={`rounded-xl px-5 py-2.5 text-xs font-bold transition-all ${
               isActive
-                ? "bg-[#0050d4] text-[#f1f2ff]"
-                : "bg-[#eef1f3] text-[#595c5e] hover:bg-[#e2e8f0]"
+                ? "bg-white text-[#1A73E8] shadow-sm dark:bg-slate-900 dark:text-blue-400"
+                : "text-[#5F6368] hover:bg-white/50 dark:text-slate-400 dark:hover:bg-slate-900/50"
             }`}
           >
             {tab.label}
