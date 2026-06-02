@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useFetcher, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 import { Search } from "lucide-react";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
@@ -95,8 +95,6 @@ export default function ManagePostingDetailTable({
   }, [applicants]);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const fetcher = useFetcher();
-
   const [searchInput, setSearchInput] = useState(
     searchParams.get("search") ?? "",
   );
@@ -112,46 +110,16 @@ export default function ManagePostingDetailTable({
   };
 
   const getDisplayStatus = (applicant: Applicant): ApplicantStatusAction => {
-    if (
-      applicant.submissions[0]?.roles?.[0]?.applicationId ===
-        pendingApplicantId &&
-      pendingStatus
-    ) {
-      return pendingStatus;
-    }
     return normalizeStatus(applicant.overallStatus);
   };
 
   const handleRowClick = (applicant: Applicant) => {
     setSelectedApplicant(applicant);
-    const normalized = normalizeStatus(applicant.overallStatus);
-    const alreadyActioned = [
-      "approve",
-      "confirmed",
-      "completed",
-      "decline",
-      "under_review",
-    ].includes(normalized);
-
-    if (!alreadyActioned) {
-      const applicationId = applicant.submissions[0].roles?.[0]?.applicationId;
-      if (!applicationId) return;
-
-      const formData = new FormData();
-      formData.append("applicationId", applicationId);
-      formData.append("statusAction", "under_review");
-      fetcher.submit(formData, { method: "POST" });
-    }
   };
-
-  const pendingApplicantId = fetcher.formData?.get("applicationId");
-  const pendingStatus = fetcher.formData?.get(
-    "statusAction",
-  ) as ApplicantStatusAction | null;
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Tabs sit neatly isolated above the table block */}
+      {/* filter applicant  */}
       <ApplicantTabRange />
 
       {/* Embedded Title, Search, and Data Box Header */}
@@ -188,10 +156,10 @@ export default function ManagePostingDetailTable({
                   Applicant
                 </TableHead>
                 <TableHead className="text-slate-500 h-11 px-5">
-                  Applied For
+                  Submission
                 </TableHead>
                 <TableHead className="text-slate-500 h-11 px-5">
-                  Applied Date
+                  Applied for
                 </TableHead>
                 <TableHead className="text-slate-500  h-11 px-5">
                   Status
@@ -248,39 +216,64 @@ export default function ManagePostingDetailTable({
 
                     <TableCell className="px-5 py-3.5">
                       {(() => {
-                        const approvedRole =
-                          applicant.submissions[0].roles?.find((r) =>
-                            ["APPROVED", "CONFIRMED", "COMPLETED"].includes(
-                              r.status,
-                            ),
+                        const submissionCount =
+                          applicant.submissionCount ??
+                          applicant.submissions.length;
+                        const totalRoles =
+                          applicant.totalRoleApplied ??
+                          applicant.submissions.reduce(
+                            (total, submission) =>
+                              total + submission.roles.length,
+                            0,
                           );
-                        const primaryRole =
-                          approvedRole ?? applicant.submissions[0].roles?.[0];
-                        const otherRoles =
-                          applicant.submissions[0].roles?.filter(
-                            (r) => r !== primaryRole,
-                          ) ?? [];
 
                         return (
                           <div className="flex flex-col gap-0.5">
                             <span className="text-[14px] font-semibold text-slate-800 dark:text-slate-200">
-                              {primaryRole?.title || "N/A"}
+                              {submissionCount} submission
+                              {submissionCount > 1 ? "s" : ""}
                             </span>
-                            {otherRoles.length > 0 && (
-                              <span className="text-[11px] text-slate-400 font-medium">
-                                + {otherRoles.length} other role
-                                {otherRoles.length > 1 ? "s" : ""}
-                              </span>
-                            )}
+
+                            <span className="text-[11px] text-slate-400 font-medium">
+                              {formatDateMonthYear(
+                                applicant.lastAppliedAt ??
+                                  applicant.submissions[0]?.appliedAt ??
+                                  "",
+                              )}
+                            </span>
                           </div>
                         );
                       })()}
                     </TableCell>
 
                     <TableCell className="px-5 py-3.5 text-sm  text-slate-500 whitespace-nowrap">
-                      {formatDateMonthYear(
-                        applicant.submissions[0].appliedAt ?? "",
-                      )}
+                      {(() => {
+                        const totalRoles =
+                          applicant.totalRoleApplied ??
+                          applicant.submissions.reduce(
+                            (total, submission) =>
+                              total + submission.roles.length,
+                            0,
+                          );
+
+                        return (
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-semibold text-black">
+                              {applicant.submissions.length > 0
+                                ? applicant.submissions.map((s) =>
+                                    s.roles.map((r) => r.title),
+                                  )[0]?.[0]
+                                : "N/A"}
+                            </span>
+                            {totalRoles > 0 && (
+                              <span className="text-[11px] text-slate-400 font-medium">
+                                {totalRoles} other
+                                {totalRoles > 1 ? "s" : ""} roles
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </TableCell>
 
                     <TableCell className="px-5 py-3.5">

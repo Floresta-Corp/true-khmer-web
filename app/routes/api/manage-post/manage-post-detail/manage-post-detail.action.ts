@@ -175,9 +175,18 @@ export async function managePostDetailAction({
 
   // Handle applicant status actions
   const applicationId = String(formData.get("applicationId") ?? "").trim();
+  const applicationIds = formData
+    .getAll("applicationIds")
+    .map((id) => String(id).trim())
+    .filter(Boolean);
   const statusAction = String(formData.get("statusAction") ?? "").trim();
+  const targetApplicationIds = applicationIds.length
+    ? applicationIds
+    : applicationId
+      ? [applicationId]
+      : [];
 
-  if (!applicationId || !statusAction) {
+  if (!targetApplicationIds.length || !statusAction) {
     return { success: false, error: "Missing required fields" };
   }
 
@@ -189,14 +198,18 @@ export async function managePostDetailAction({
   }
 
   try {
-    const result = await updateApplicantStatus(
-      request,
-      sourceTypeResult.data as PostSourceType,
-      postingId,
-      applicationId,
-      statusActionResult.data as ApplicantStatusAction,
+    const result = await Promise.all(
+      targetApplicationIds.map((targetApplicationId) =>
+        updateApplicantStatus(
+          request,
+          sourceTypeResult.data as PostSourceType,
+          postingId,
+          targetApplicationId,
+          statusActionResult.data as ApplicantStatusAction,
+        ),
+      ),
     );
-    return { success: true, data: result };
+    return { success: true, data: applicationIds.length ? result : result[0] };
   } catch (error: any) {
     if (error?.status === 409) {
       return { success: false, error: error?.details?.error };

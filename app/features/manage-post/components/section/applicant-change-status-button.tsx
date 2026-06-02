@@ -16,7 +16,6 @@ type Props = {
   applicationId: string;
   sourceType: string;
   applicant: Applicant;
-  selectedRoleId?: string | null;
   onDeclined?: (candidateId: string, options: { blocked: boolean }) => void;
 };
 
@@ -38,7 +37,6 @@ const displayLabel: Record<string, string> = {
 export default function ApplicantStatusChangeButton({
   applicationId,
   applicant,
-  selectedRoleId,
   onDeclined,
 }: Props) {
   const fetcher = useFetcher();
@@ -47,7 +45,8 @@ export default function ApplicantStatusChangeButton({
   const [blockFutureApply, setBlockFutureApply] = useState(false);
 
   const isLoading = fetcher.state !== "idle";
-  const roles = applicant?.submissions[0]?.roles ?? [];
+  const roles =
+    applicant?.submissions.flatMap((submission) => submission.roles) ?? [];
   const hasMultipleRoles = roles.length > 1;
 
   const approvedRole = roles.find((r) =>
@@ -56,11 +55,11 @@ export default function ApplicantStatusChangeButton({
 
   const [selectedDialogRoleId, setSelectedDialogRoleId] = useState<
     string | null
-  >(selectedRoleId ?? roles[0]?.roleId ?? null);
+  >(roles[0]?.roleId ?? null);
 
   useEffect(() => {
-    setSelectedDialogRoleId(selectedRoleId ?? roles[0]?.roleId ?? null);
-  }, [selectedRoleId, applicant.candidate.id]);
+    setSelectedDialogRoleId(roles[0]?.roleId ?? null);
+  }, [applicant.candidate.id]);
 
   const resolvedApplicationId = hasMultipleRoles
     ? (roles.find((r) => r.roleId === selectedDialogRoleId)?.applicationId ??
@@ -537,11 +536,6 @@ export default function ApplicantStatusChangeButton({
               </Button>
             </div>
 
-            {hasMultipleRoles && !selectedRoleId && (
-              <p className="text-center text-xs text-gray-400">
-                Select a role above to continue
-              </p>
-            )}
           </>
         )}
       </div>
