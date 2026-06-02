@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 import BackToButton from "~/components/back-to-button";
 import ProfileAboutCard from "../components/card/profile-about-card";
 import ProfileHeaderCard from "../components/card/profile-header-card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 export default function ProfileDetailPage() {
   const { profile } = useLoaderData<typeof loader>();
@@ -52,10 +53,42 @@ export default function ProfileDetailPage() {
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <ProfileAboutCard
-          about={profile.profile.bio ?? ""}
-          skills={profile.skills}
-        />
+        <Tabs defaultValue="forum">
+          <div className="w-full border-b mb-8">
+            <TabsList className="bg-transparent" variant={"line"}>
+              <TabsTrigger
+                className="font-bold data-active:text-blue-600 data-active:after:bg-blue-600"
+                value={"about"}
+              >
+                About
+              </TabsTrigger>
+              <TabsTrigger
+                className="font-bold data-active:text-blue-600 data-active:after:bg-blue-600"
+                value={"forum"}
+              >
+                Forum ({profile.postedCounts.forum})
+              </TabsTrigger>
+              <TabsTrigger
+                className="font-bold data-active:text-blue-600 data-active:after:bg-blue-600"
+                value={"volunteer"}
+              >
+                Volunteer ({profile.postedCounts.volunteer})
+              </TabsTrigger>
+              <TabsTrigger
+                className="font-bold data-active:text-blue-600 data-active:after:bg-blue-600"
+                value={"projects"}
+              >
+                Projects ({profile.postedCounts.project})
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          <TabsContent value={"about"}>
+            <ProfileAboutCard
+              about={profile.profile.bio ?? ""}
+              skills={profile.skills}
+            />
+          </TabsContent>
+        </Tabs>
       </motion.div>
     </motion.div>
   );

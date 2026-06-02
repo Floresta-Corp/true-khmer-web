@@ -4,9 +4,13 @@ import AuthorCard from "~/components/author-card";
 
 interface OrganizerCardProps {
   volunteer: OpportunityDetail;
+  userId?: string;
 }
 
-export default function OrganizerCard({ volunteer }: OrganizerCardProps) {
+export default function OrganizerCard({
+  volunteer,
+  userId,
+}: OrganizerCardProps) {
   const organizer = volunteer.organizer;
 
   const avatarUrl = resolveImageURL(
@@ -38,6 +42,7 @@ export default function OrganizerCard({ volunteer }: OrganizerCardProps) {
       phoneUrl={phoneUrl}
       emailUrl={emailUrl}
       authorId={organizer.id}
+      isAuthor={userId === organizer.id ? true : false}
     />
   );
 }

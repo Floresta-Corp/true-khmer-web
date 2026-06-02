@@ -1,6 +1,8 @@
-import { Globe, Mail, MapPin, Pin } from "lucide-react";
+import { Globe, Mail, MapPin, Plus } from "lucide-react";
+import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { resolveImageURL } from "~/lib/utils";
+import ProfileCardPopover from "./profile-card-popover";
 
 interface ProfileHeaderCardProps {
   profileImage?: string;
@@ -40,7 +42,7 @@ export default function ProfileHeaderCard({
           />
         </div>
 
-        <div className="text-left select-text">
+        <div className="text-left select-text flex-1">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
             <h2 className="text-2xl sm:text-[28px] font-extrabold text-slate-900 dark:text-white leading-tight tracking-tight">
               {profileName}
@@ -59,17 +61,30 @@ export default function ProfileHeaderCard({
             {occupation}
           </p>
         </div>
+        <div className="flex items-center gap-3">
+          <Button className="bg-blue-600 h-11 px-5 rounded-full font-bold">
+            Message
+          </Button>
+          <Button
+            variant="outline"
+            className="h-11 px-5 rounded-full font-bold"
+          >
+            <Plus />
+            Follow
+          </Button>
+          <ProfileCardPopover />
+        </div>
       </div>
       <div className="border-t border-slate-200/60 dark:border-slate-800/60 px-6 py-4 sm:px-8 bg-white/40 dark:bg-slate-950/20 flex flex-wrap gap-x-5 gap-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
         {cityName && countryName && (
           <div className="flex items-center gap-1.5">
-            <MapPin size={15} />
+            <MapPin size={14} />
             <span className="font-bold">{`${cityName}, ${countryName}`}</span>
           </div>
         )}
         {email && (
           <div className="flex items-center gap-1.5">
-            <Mail size={15} />
+            <Mail size={14} />
             <a
               href={`mailto:${email}`}
               className="font-bold text-blue-600 hover:underline wrap-break-word"
@@ -80,7 +95,7 @@ export default function ProfileHeaderCard({
         )}
         {website && (
           <div className="flex items-center gap-1.5">
-            <Globe size={15} />
+            <Globe size={14} />
             <a
               href={websiteUrl}
               target="_blank"

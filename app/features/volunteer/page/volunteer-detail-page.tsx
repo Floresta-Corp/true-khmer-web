@@ -264,7 +264,7 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
                 onApplyNoRoles={() => setActiveTab("open-roles")}
                 isActiveTabOpenRoles={activeTab === "open-roles"}
               />
-              <OrganizerCard volunteer={volunteer} />
+              <OrganizerCard volunteer={volunteer} userId={userId ?? ""} />
             </motion.div>
           </div>
         </div>

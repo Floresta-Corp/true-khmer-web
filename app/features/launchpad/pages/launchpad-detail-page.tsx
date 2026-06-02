@@ -167,7 +167,10 @@ export default function LaunchpadDetailPage() {
                 delay: prefersReducedMotion ? 0 : 0.25,
               }}
             >
-              <AuthorCard {...authorCardProps} />
+              <AuthorCard
+                {...authorCardProps}
+                isAuthor={userId === project.createdBy.id ? true : false}
+              />
             </motion.div>
           </section>
         </div>

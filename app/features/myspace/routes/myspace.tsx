@@ -1,3 +1,4 @@
+import * as React from "react";
 import { motion } from "motion/react";
 import { MyspaceLoader } from "~/routes/api/myspace/myspace-loader";
 import type { Route } from "./+types/myspace";
@@ -11,6 +12,7 @@ import { AchievementsCard } from "../components/myspace-achievements-card";
 import { PointsChartCard } from "../components/myspace-points-chart-card";
 // import { TopRankingCard } from "../components/myspace-top-ranking-card";
 import { ForumPageLayout } from "~/features/forum/components/forum-page-layout";
+import { useSearchParams } from "react-router";
 
 export const loader = MyspaceLoader;
 
@@ -20,6 +22,16 @@ export function meta() {
 
 export default function MySpacePage({ loaderData }: Route.ComponentProps) {
   const { me, recentActivities } = loaderData;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [viewMode, setViewMode] = React.useState<"myview" | "public">(
+    searchParams.get("view") === "public" ? "public" : "myview",
+  );
+
+  React.useEffect(() => {
+    const searchViewMode =
+      searchParams.get("view") === "public" ? "public" : "myview";
+    setViewMode(searchViewMode);
+  }, [searchParams]);
 
   if (!me) {
     return (
@@ -28,6 +40,22 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
       </div>
     );
   }
+
+  const isPublicView = viewMode === "public";
+
+  const handleToggleView = () => {
+    const nextViewMode = isPublicView ? "myview" : "public";
+    setViewMode(nextViewMode);
+    setSearchParams((currentParams) => {
+      const nextParams = new URLSearchParams(currentParams);
+      if (nextViewMode === "public") {
+        nextParams.set("view", "public");
+      } else {
+        nextParams.delete("view");
+      }
+      return nextParams;
+    });
+  };
 
   const displayName =
     me.user.displayName || `${me.user.firstName} ${me.user.lastName}`;
@@ -44,7 +72,10 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
         >
-          <PageHeader />
+          <PageHeader
+            isPublicView={isPublicView}
+            onToggleView={handleToggleView}
+          />
         </motion.div>
 
         <motion.div

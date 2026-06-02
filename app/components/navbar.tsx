@@ -45,10 +45,8 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
     { to: "/events", label: "Events", icon: Calendar },
     { to: "/volunteer", label: "Volunteer", icon: HeartHandshake },
     { to: "/launchpad", label: "Launchpad", icon: BriefcaseBusiness },
-    { to: "/poc", label: "POC", icon: TvMinimalPlay, hide: true  },
+    { to: "/poc", label: "POC", icon: TvMinimalPlay, hide: true },
   ];
-
-  console.log(user);
 
   return (
     <>

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Link, useSearchParams } from "react-router";
+import { Link } from "react-router";
 import { Eye, Link2, MoreVertical, PenLine } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
@@ -9,39 +9,14 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 
-export function PageHeader() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [viewMode, setViewMode] = React.useState<"myview" | "public">(
-    searchParams.get("view") === "public" ? "public" : "myview",
-  );
+export function PageHeader({
+  isPublicView,
+  onToggleView,
+}: {
+  isPublicView: boolean;
+  onToggleView: () => void;
+}) {
   const [open, setOpen] = React.useState(false);
-
-  React.useEffect(() => {
-    const searchViewMode =
-      searchParams.get("view") === "public" ? "public" : "myview";
-
-    setViewMode(searchViewMode);
-  }, [searchParams]);
-
-  const isPublicView = viewMode === "public";
-
-  const handleToggleView = () => {
-    const nextViewMode = isPublicView ? "myview" : "public";
-
-    setViewMode(nextViewMode);
-    setSearchParams((currentParams) => {
-      const nextParams = new URLSearchParams(currentParams);
-
-      if (nextViewMode === "public") {
-        nextParams.set("view", "public");
-      } else {
-        nextParams.delete("view");
-      }
-
-      return nextParams;
-    });
-    setOpen(false);
-  };
 
   const handleShareProfileLink = async () => {
     const shareUrl = new URL(window.location.href);
@@ -90,7 +65,10 @@ export function PageHeader() {
               type="button"
               variant="ghost"
               className="h-10 w-full justify-start gap-2 px-3 font-normal"
-              onClick={handleToggleView}
+              onClick={() => {
+                onToggleView();
+                setOpen(false);
+              }}
             >
               <Eye className="h-4 w-4" />
               {isPublicView ? "View My Profile" : "View Public Profile"}

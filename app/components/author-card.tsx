@@ -1,6 +1,7 @@
 import { Mail, PhoneCall, Send } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
+import ProfileLinkWrapper from "./profile-link-wrapper";
 
 export interface AuthorCardProps {
   name: string;
@@ -10,6 +11,7 @@ export interface AuthorCardProps {
   phoneUrl?: string;
   emailUrl?: string;
   authorId?: string | number;
+  isAuthor?: boolean;
 }
 
 export default function AuthorCard({
@@ -20,6 +22,7 @@ export default function AuthorCard({
   phoneUrl,
   emailUrl,
   authorId,
+  isAuthor,
 }: AuthorCardProps) {
   const profileName = name;
   const profileImage = avatarUrl;
@@ -39,12 +42,9 @@ export default function AuthorCard({
               <div>
                 <p className="whitespace-nowrap text-[16px] font-semibold leading-4">
                   {authorId ? (
-                    <Link
-                      to={`/profile/${authorId}`}
-                      className="hover:text-blue-600 hover:underline transition-all"
-                    >
+                    <ProfileLinkWrapper authorId={authorId} isAuthor={isAuthor}>
                       {profileName}
-                    </Link>
+                    </ProfileLinkWrapper>
                   ) : (
                     profileName
                   )}
