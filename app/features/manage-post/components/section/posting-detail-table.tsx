@@ -90,6 +90,25 @@ export default function ManagePostingDetailTable({
       }
     },
   );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = localStorage.getItem(`blocked-${postingId}`);
+      const arr = raw ? JSON.parse(raw) : [];
+      setBlockedCandidateIds(
+        new Set(
+          Array.isArray(arr)
+            ? arr.filter((x): x is string => typeof x === "string")
+            : [],
+        ),
+      );
+    } catch {
+      localStorage.removeItem(`blocked-${postingId}`);
+      setBlockedCandidateIds(new Set());
+    }
+  }, [postingId]);
+
   useEffect(() => {
     setLocalApplicants(applicants ?? []);
   }, [applicants]);
@@ -219,13 +238,6 @@ export default function ManagePostingDetailTable({
                         const submissionCount =
                           applicant.submissionCount ??
                           applicant.submissions.length;
-                        const totalRoles =
-                          applicant.totalRoleApplied ??
-                          applicant.submissions.reduce(
-                            (total, submission) =>
-                              total + submission.roles.length,
-                            0,
-                          );
 
                         return (
                           <div className="flex flex-col gap-0.5">

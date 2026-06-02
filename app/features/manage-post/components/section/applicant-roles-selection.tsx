@@ -53,9 +53,12 @@ export default function ApplicantRolesSelection({
     useState(defaultSubmissionKey);
   const reviewedSubmissionKeys = useRef<Set<string>>(new Set());
 
+  const pendingSubmissionKeyRef = useRef<string | null>(null);
+
   useEffect(() => {
     setOpenSubmissionKey(defaultSubmissionKey);
     reviewedSubmissionKeys.current.clear();
+    pendingSubmissionKeyRef.current = null;
   }, [applicant.candidate.id, defaultSubmissionKey]);
 
   useEffect(() => {
@@ -75,7 +78,7 @@ export default function ApplicantRolesSelection({
 
     if (!applicationIds.length) return;
 
-    reviewedSubmissionKeys.current.add(openSubmissionKey);
+    pendingSubmissionKeyRef.current = openSubmissionKey;
     const formData = new FormData();
     applicationIds.forEach((applicationId) =>
       formData.append("applicationIds", applicationId),
@@ -83,6 +86,19 @@ export default function ApplicantRolesSelection({
     formData.append("statusAction", "under_review");
     fetcher.submit(formData, { method: "POST" });
   }, [applicant.submissions, fetcher, openSubmissionKey]);
+
+  useEffect(() => {
+    if (
+      fetcher.state === "idle" &&
+      fetcher.data &&
+      (fetcher.data as any).success !== false
+    ) {
+      if (pendingSubmissionKeyRef.current) {
+        reviewedSubmissionKeys.current.add(pendingSubmissionKeyRef.current);
+        pendingSubmissionKeyRef.current = null;
+      }
+    }
+  }, [fetcher.state, fetcher.data]);
 
   return (
     <div>

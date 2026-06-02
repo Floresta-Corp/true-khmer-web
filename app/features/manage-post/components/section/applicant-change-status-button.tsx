@@ -23,6 +23,7 @@ type DialogMode = "process" | "confirm-approve" | "confirm-decline" | null;
 
 const FINALIZED_APPROVED = ["CONFIRMED", "COMPLETED"] as const;
 const FINALIZED_DECLINED = ["DECLINED", "WITHDRAWN"] as const;
+const FINAL_STATUSES = ["DECLINED", "CONFIRMED", "COMPLETED", "APPROVED"];
 
 const displayLabel: Record<string, string> = {
   APPROVED: "approved",
@@ -53,12 +54,14 @@ export default function ApplicantStatusChangeButton({
     ["APPROVED", "CONFIRMED", "COMPLETED"].includes(r.status),
   );
 
+  const firstActiveRole = roles.find((r) => !FINAL_STATUSES.includes(r.status));
+
   const [selectedDialogRoleId, setSelectedDialogRoleId] = useState<
     string | null
-  >(roles[0]?.roleId ?? null);
+  >(firstActiveRole?.roleId ?? null);
 
   useEffect(() => {
-    setSelectedDialogRoleId(roles[0]?.roleId ?? null);
+    setSelectedDialogRoleId(firstActiveRole?.roleId ?? null);
   }, [applicant.candidate.id]);
 
   const resolvedApplicationId = hasMultipleRoles
@@ -68,7 +71,9 @@ export default function ApplicantStatusChangeButton({
     : applicationId;
 
   const resolvedRole =
-    roles.find((r) => r.applicationId === resolvedApplicationId) ?? roles[0];
+    roles.find((r) => r.applicationId === resolvedApplicationId) ??
+    firstActiveRole ??
+    roles[0];
 
   const isFinalPending =
     fetcher.state !== "idle" &&
@@ -160,6 +165,7 @@ export default function ApplicantStatusChangeButton({
       lastBlockFutureApply.current = false;
     }
   }, [fetcher.state, fetcher.data]);
+
   return (
     <>
       <AnimatePresence>
@@ -294,7 +300,8 @@ export default function ApplicantStatusChangeButton({
                       isLoading ||
                       !resolvedApplicationId ||
                       (hasMultipleRoles && !selectedDialogRoleId) ||
-                      resolvedRole?.status === "APPROVED"
+                      (resolvedRole?.status &&
+                        FINAL_STATUSES.includes(resolvedRole.status))
                     }
                     className="py-8 rounded-xl bg-green-500 text-white cursor-pointer font-semibold hover:bg-green-600 transition-all shadow-green-500/20 disabled:opacity-50"
                   >
@@ -535,7 +542,6 @@ export default function ApplicantStatusChangeButton({
                 {isFinalPending || isDeclining ? "Processing..." : "Process"}
               </Button>
             </div>
-
           </>
         )}
       </div>
