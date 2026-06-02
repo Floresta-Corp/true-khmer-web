@@ -11,6 +11,7 @@ import { AchievementsCard } from "../components/myspace-achievements-card";
 import { PointsChartCard } from "../components/myspace-points-chart-card";
 // import { TopRankingCard } from "../components/myspace-top-ranking-card";
 import { ForumPageLayout } from "~/features/forum/components/forum-page-layout";
+import MyspaceBioCard from "../components/myspace-bio-card";
 
 export const loader = MyspaceLoader;
 
@@ -58,7 +59,10 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
             firstName={me.user.firstName}
             lastName={me.user.lastName}
             occupation={me.user.occupation}
-            bio={me.profile.bio}
+            // bio={me.profile.bio}
+            location={me.profile?.country?.name || null}
+            email={me.user.email}
+            tier={me.progress.tier.name}
             socialLinks={me.socialLinks}
           />
         </motion.div>
@@ -68,10 +72,14 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
         >
-          <StatsCards
+          {/* <StatsCards
             totalPoints={me.progress.totalPoints}
             tier={me.progress.tier}
             rank={me.progress.rank}
+          /> */}
+          <MyspaceBioCard
+            bio={me.profile.bio || "No bio available."}
+            skills={me.skills.map((skill) => skill.name)}
           />
         </motion.div>
 
