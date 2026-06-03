@@ -12,6 +12,7 @@ function readPositiveInteger(value: string | null, fallback: number): number {
 }
 
 const ZERO_UNREAD_COUNTS = {
+  forum: 0,
   profile_view: 0,
   new_message: 0,
   achievement: 0,

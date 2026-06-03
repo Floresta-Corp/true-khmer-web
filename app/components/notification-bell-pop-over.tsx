@@ -8,44 +8,19 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { cn } from "~/lib/utils";
-import {
-  useNotifications,
-  type ApiNotification,
-} from "~/context/notification-context";
+import { useNotifications } from "~/context/notification-context";
 import { Skeleton } from "~/components/ui/skeleton";
+import { Bell, CheckCircle2 } from "lucide-react";
 import {
-  Bell,
-  CheckCircle2,
-  User,
-  MessageSquare,
-  Trophy,
-  Clock,
-  Briefcase,
-  Zap,
-  Star,
-} from "lucide-react";
-
-type NotificationIconName =
-  | "User"
-  | "MessageSquare"
-  | "Trophy"
-  | "Clock"
-  | "Briefcase"
-  | "Zap"
-  | "Star"
-  | "Bell";
-
-const ICON_STYLE_MAP: Record<NotificationIconName, { bg: string; fg: string }> =
-  {
-    User: { bg: "bg-[#D5EDFF]", fg: "text-[#2F6FE4]" },
-    MessageSquare: { bg: "bg-[#D5EDFF]", fg: "text-[#2F6FE4]" },
-    Trophy: { bg: "bg-[#D5EDFF]", fg: "text-[#2F6FE4]" },
-    Clock: { bg: "bg-[#FFDB430D]", fg: "text-[#FFB366]" },
-    Briefcase: { bg: "bg-[#F0FDF4]", fg: "text-[#1FC16B]" },
-    Zap: { bg: "bg-[#D5EDFF]", fg: "text-[#2F6FE4]" },
-    Star: { bg: "bg-amber-50", fg: "text-amber-500" },
-    Bell: { bg: "bg-gray-100", fg: "text-gray-600" },
-  };
+  NOTIFICATION_ICON_STYLE_MAP,
+  NotificationTypeIcon,
+} from "~/components/notification-type-icon";
+import {
+  getNotificationEventType,
+  getNotificationRoute,
+  resolveNotificationIcon,
+  type ApiNotification,
+} from "~/services/notifications.types";
 
 export default function NotificationBellPopOver() {
   const {
@@ -64,6 +39,7 @@ export default function NotificationBellPopOver() {
     unreadCount: number;
   }>();
   const actionFetcher = useFetcher();
+  const navigate = useNavigate();
 
   // Load notifications via server when popover opens
   useEffect(() => {
@@ -114,6 +90,35 @@ export default function NotificationBellPopOver() {
         encType: "application/json",
       },
     );
+  }
+
+  function handleNotificationClick(notification: ApiNotification) {
+    if (!notification.isRead) {
+      const readAt = new Date().toISOString();
+      const nextNotifications = localNotifications.map((item) =>
+        item.id === notification.id ? { ...item, isRead: true, readAt } : item,
+      );
+
+      setLocalNotifications(nextNotifications);
+      setRecentNotifications(nextNotifications);
+      setLocalUnreadCount((count) => Math.max(count - 1, 0));
+      setUnreadCount((count) => Math.max(count - 1, 0));
+
+      actionFetcher.submit(
+        { notificationIds: [notification.id] },
+        {
+          method: "POST",
+          action: "/api/notifications/read",
+          encType: "application/json",
+        },
+      );
+    }
+
+    const route = getNotificationRoute(notification);
+    if (route) {
+      setOpen(false);
+      navigate(route);
+    }
   }
 
   return (
@@ -187,28 +192,19 @@ export default function NotificationBellPopOver() {
             </div>
           ) : (
             localNotifications.map((notif) => {
-              const iconName = (notif.icon || "User") as NotificationIconName;
-              const iconStyle =
-                ICON_STYLE_MAP[iconName] ?? ICON_STYLE_MAP["User"];
-              const IconComponents: Record<
-                NotificationIconName,
-                React.ReactNode
-              > = {
-                User: <User className="h-4 w-4" />,
-                MessageSquare: <MessageSquare className="h-4 w-4" />,
-                Trophy: <Trophy className="h-4 w-4" />,
-                Clock: <Clock className="h-4 w-4" />,
-                Briefcase: <Briefcase className="h-4 w-4" />,
-                Zap: <Zap className="h-4 w-4" />,
-                Star: <Star className="h-4 w-4" />,
-                Bell: <Bell className="h-4 w-4" />,
-              };
+              const iconName = resolveNotificationIcon(
+                notif.type,
+                getNotificationEventType(notif),
+              );
+              const iconStyle = NOTIFICATION_ICON_STYLE_MAP[iconName];
 
               return (
-                <div
+                <button
+                  type="button"
                   key={notif.id}
+                  onClick={() => handleNotificationClick(notif)}
                   className={cn(
-                    "flex items-start gap-3 px-4 py-3 border-b border-gray-100 last:border-b-0",
+                    "flex w-full cursor-pointer items-start gap-3 border-b border-gray-100 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-slate-50",
                     !notif.isRead && "bg-blue-50",
                   )}
                 >
@@ -220,7 +216,10 @@ export default function NotificationBellPopOver() {
                       iconStyle.fg,
                     )}
                   >
-                    {IconComponents[iconName] ?? IconComponents["User"]}
+                    <NotificationTypeIcon
+                      iconName={iconName}
+                      className="size-4"
+                    />
                   </div>
 
                   {/* Content */}
@@ -237,12 +236,12 @@ export default function NotificationBellPopOver() {
                       {notif.body}
                     </p>
                     <p className="text-[10px] text-gray-400 mt-1">
-                      {formatDistanceToNow(new Date(notif.createdAt), {
+                      {formatDistanceToNow(new Date(notif.updatedAt), {
                         addSuffix: true,
                       })}
                     </p>
                   </div>
-                </div>
+                </button>
               );
             })
           )}
