@@ -266,18 +266,17 @@ export default function ApplicantStatusChangeButton({
                     })}
                   </div>
 
-                  {hasMultipleRoles && (
-                    <div className="flex gap-2 rounded-xl bg-amber-50 border border-amber-200 p-3 mt-1">
-                      <TriangleAlert
-                        className="text-amber-500 shrink-0 mt-0.5"
-                        size={14}
-                      />
-                      <p className="text-xs text-amber-700 leading-relaxed">
-                        Note: You can only approve one application per
-                        candidate.
-                      </p>
-                    </div>
-                  )}
+                  {/* {hasMultipleRoles && ( */}
+                  <div className="flex gap-2 rounded-xl bg-amber-50 border border-amber-200 p-3 mt-1">
+                    <TriangleAlert
+                      className="text-amber-500 shrink-0 mt-0.5"
+                      size={14}
+                    />
+                    <p className="text-xs text-amber-700 leading-relaxed">
+                      Note: You can only approve one application per candidate.
+                    </p>
+                  </div>
+                  {/* )} */}
                 </div>
 
                 <div className="h-px bg-gray-100" />
@@ -289,12 +288,15 @@ export default function ApplicantStatusChangeButton({
                     variant="ghost"
                     onClick={openDeclineConfirm}
                     disabled={isLoading || !resolvedApplicationId}
-                    className="py-8 rounded-xl border cursor-pointer border-red-200 bg-red-50 text-red-600 font-semibold hover:bg-red-100 transition-all disabled:opacity-50"
+                    className="py-6 h-auto rounded-2xl border cursor-pointer border-red-200 bg-red-50/50 text-red-600 font-bold hover:bg-red-100 transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1.5"
                   >
-                    <X className="size-4 mr-1.5" />
-                    Decline Application
+                    <X className="size-4 text-red-500" strokeWidth={2.5} />
+                    <span className="text-sm">Decline Application</span>
                   </Button>
+
                   <Button
+                    type="button"
+                    variant="ghost"
                     onClick={() => setDialogMode("confirm-approve")}
                     disabled={
                       isLoading ||
@@ -303,10 +305,13 @@ export default function ApplicantStatusChangeButton({
                       (resolvedRole?.status &&
                         FINAL_STATUSES.includes(resolvedRole.status))
                     }
-                    className="py-8 rounded-xl bg-green-500 text-white cursor-pointer font-semibold hover:bg-green-600 transition-all shadow-green-500/20 disabled:opacity-50"
+                    className="py-6 h-auto rounded-2xl border cursor-pointer border-emerald-200 bg-emerald-50/50 text-emerald-600 font-bold hover:bg-emerald-100 transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1.5"
                   >
-                    <CircleCheck className="size-4 mr-1.5" />
-                    Approve Application
+                    <CircleCheck
+                      className="size-4 text-emerald-500"
+                      strokeWidth={2.5}
+                    />
+                    <span className="text-sm">Approve Application</span>
                   </Button>
                 </div>
 
