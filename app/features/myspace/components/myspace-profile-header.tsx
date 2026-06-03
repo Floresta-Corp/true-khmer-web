@@ -76,13 +76,7 @@ export function ProfileHeader({
 
   return (
     <div className="rounded-[24px] overflow-hidden border border-[#e2e8f0] shadow-sm flex flex-col bg-white">
-      {/* 1. Top Section: Cool Gradient Background */}
-      <div
-        className="px-8 py-7 flex items-center gap-6"
-        style={{
-          background: "linear-gradient(135deg, #f1f5f9 0%, #f8fafc 100%)",
-        }}
-      >
+      <div className="px-8 py-7 flex items-center gap-6 bg-linear-to-br from-[#deeefe] to-[#f8fafc]">
         {/* Avatar with Custom Border & Glow */}
         <div className="shrink-0 bg-white size-20 rounded-full relative p-0.5">
           <div className="w-full h-full rounded-full overflow-hidden">
@@ -104,29 +98,20 @@ export function ProfileHeader({
         </div>
 
         {/* Name + Tier + Occupation */}
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1">
           <div className="flex items-center gap-3 flex-wrap">
             <span className="font-bold text-[24px] tracking-tight text-[#1e2329]">
               {displayName}
             </span>
 
             {tier && (
-              <span
-                className="text-[10px] font-black tracking-wider px-3 py-1 rounded-full text-white"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #e5b25d 0%, #c9933b 100%)",
-                  boxShadow: "0 1px 3px rgba(201, 147, 59, 0.2)",
-                }}
-              >
+              <span className="text-[10px] font-black tracking-wider px-3 py-1 rounded-full text-white bg-linear-to-br from-[#e5b25d] to-[#c9933b]">
                 {tier.toUpperCase()}
               </span>
             )}
           </div>
           {occupation && (
-            <p className="text-[14px] font-medium text-[#64748b]">
-              {occupation}
-            </p>
+            <p className="text-[14px] font-semibold ">{occupation}</p>
           )}
         </div>
       </div>
@@ -134,8 +119,7 @@ export function ProfileHeader({
       {/* 2. Crisp Divider Line */}
       <div className="h-px bg-[#e2e8f0]" />
 
-      {/* 3. Bottom Section: Solid White Background for Social Media Links */}
-      <div className="bg-white px-8 py-4 flex flex-wrap gap-x-6 gap-y-2 items-center">
+      <div className="bg-white px-8 py-4 flex flex-wrap gap-x-6 gap-y-2 items-center bg-linear-to-br from-[#ecf5ff] to-[#f8fafc]">
         {infoLinks.map((link, i) =>
           link?.href ? (
             <a
@@ -143,10 +127,10 @@ export function ProfileHeader({
               href={link?.href}
               target={link?.external ? "_blank" : undefined}
               rel={link?.external ? "noopener noreferrer" : undefined}
-              className="flex items-center gap-2 text-[13px] font-medium text-[#475569] hover:text-[#2563eb] transition-colors min-w-0"
+              className="flex items-center gap-2 text-[13px] font-semibold text-blue-500 hover:underline transition-colors min-w-0"
             >
               {link?.icon}
-              <span className="truncate max-w-[220px]">
+              <span className="truncate max-w-55">
                 {link?.label}
                 {link?.external && (
                   <span className="text-[10px] ml-0.5 opacity-60">↗</span>
@@ -156,7 +140,7 @@ export function ProfileHeader({
           ) : (
             <div
               key={i}
-              className="flex items-center gap-2 text-[13px] font-medium text-[#475569]"
+              className="flex items-center gap-2 text-[13px] font-semibold text-[#475569]"
             >
               {link?.icon ?? ""}
               <span>{link?.label}</span>

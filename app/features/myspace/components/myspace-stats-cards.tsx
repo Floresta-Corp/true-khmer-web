@@ -1,60 +1,54 @@
-import { Card, CardDescription, CardTitle } from "~/components/ui/card";
-import { Star, Award, Trophy } from "lucide-react";
+import { Sparkles, Trophy } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Separator } from "~/components/ui/separator";
+import type { Tier } from "~/services/myspace/types";
 
-interface Tier {
-  name: string;
-}
-
-interface StatsCardsProps {
+interface ActivityStatsProps {
   totalPoints: number;
   tier: Tier;
   rank: string | null;
 }
 
-export function StatsCards({ totalPoints, tier, rank }: StatsCardsProps) {
+export function StatsCards({ totalPoints, tier, rank }: ActivityStatsProps) {
   return (
-    <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-      <Card className="flex h-full flex-col items-start rounded-2xl bg-white p-6 shadow-[0px_4px_10px_rgba(0,0,0,0.03)]">
-        <div className="flex w-full items-center justify-between pb-4">
-          <CardDescription className="text-base font-medium text-[#595c5e]">
-            Impact Points
-          </CardDescription>
-          <Star className="h-4.25 w-4.25 shrink-0 text-[#f59e0b]" />
-        </div>
-        <CardTitle className="w-full text-[32px] font-bold leading-12 text-[#1d283a]">
-          {totalPoints}
+    <Card className="w-full rounded-[24px] border border-slate-100 bg-white p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.02)]">
+      <CardHeader className="p-0 pb-5">
+        <CardTitle className="text-base flex items-center gap-2 font-semibold tracking-tight text-[#0f172a]">
+          <Trophy className="text-yellow-500" /> Community Standing
         </CardTitle>
-      </Card>
+        <Separator />
+      </CardHeader>
 
-      <Card className="flex h-full flex-col items-start justify-between rounded-2xl bg-white p-6 shadow-[0px_4px_10px_rgba(0,0,0,0.03)]">
-        <div className="flex w-full items-center justify-between pb-4">
-          <CardDescription className="text-base font-medium text-[#595c5e]">
-            Current Tier
-          </CardDescription>
-          <Award className="h-5.25 w-4 shrink-0 text-[#cd7f32]" />
+      <CardContent className="grid grid-cols-3 gap-4 p-0">
+        {/* points */}
+        <div className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-[#f8fafc] py-5 px-4 text-center">
+          <span className="text-sm lg:text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">
+            Points
+          </span>
+          <span className="text-xl font-semibold text-[#2563eb]">
+            {totalPoints}
+          </span>
         </div>
-        <CardTitle className="w-full text-[32px] font-bold leading-12 text-[#1d283a]">
-          {tier.name}
-        </CardTitle>
-        <div className="mt-6 flex w-full flex-col gap-2">
-          <div className="h-2 w-full rounded-full bg-[#f1f5f9]" />
-          <p className="text-[10px] leading-3.75 text-[#94a3b8]">
-            Next tier: Silver (100 pts)
-          </p>
-        </div>
-      </Card>
 
-      <Card className="flex h-full flex-col items-start rounded-2xl bg-white p-6 shadow-[0px_4px_20px_0px_rgba(0,0,0,0.03)]">
-        <div className="flex w-full items-center justify-between pb-4">
-          <CardDescription className="text-base font-medium text-[#595c5e]">
-            Current Rank
-          </CardDescription>
-          <Trophy className="h-5 w-5 shrink-0 text-[#fbbf24]" />
+        {/* rank Card */}
+        <div className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-[#f8fafc] py-5 px-4 text-center">
+          <span className="text-sm lg:text-[10px] font-semibold uppercase tracking-wider text-[#94a3b8]">
+            Rank
+          </span>
+          <span className="text-xl font-semibold ">#{rank || "#-"}</span>
         </div>
-        <CardTitle className="w-full text-[32px] font-bold leading-12 text-[#0f172a]">
-          {rank || "#-"}
-        </CardTitle>
-      </Card>
-    </div>
+
+        {/* tier Card */}
+        <div className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-[#f8fafc] py-5 px-4 text-center">
+          <span className="text-sm lg:text-[10px] flex items-center gap-1.5 font-bold uppercase tracking-wider text-[#94a3b8]">
+            Tier
+            <Sparkles className="size-3 text-yellow-500" />
+          </span>
+          <span className="text-lg font-semibold text-[#0f172a]">
+            {tier.name}
+          </span>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
