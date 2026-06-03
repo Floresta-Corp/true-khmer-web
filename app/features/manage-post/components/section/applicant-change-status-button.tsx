@@ -192,7 +192,7 @@ export default function ApplicantStatusChangeButton({
                 {/* Header */}
                 <div className="flex items-start justify-between">
                   <div>
-                    <h2 className="text-base font-bold text-gray-900">
+                    <h2 className="text-base font-bold text-gray-900 ">
                       Process Application
                     </h2>
                     <p className="text-sm text-gray-400 mt-0.5">
@@ -284,18 +284,18 @@ export default function ApplicantStatusChangeButton({
                 {/* Actions */}
                 <div className="grid grid-cols-2 gap-3">
                   <Button
-                    type="button"
                     variant="ghost"
                     onClick={openDeclineConfirm}
                     disabled={isLoading || !resolvedApplicationId}
-                    className="py-6 h-auto rounded-2xl border cursor-pointer border-red-200 bg-red-50/50 text-red-600 font-bold hover:bg-red-100 transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1.5"
+                    className="py-6 h-auto rounded-2xl border cursor-pointer border-red-200 bg-red-50/50  font-bold hover:bg-red-100 transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1.5"
                   >
-                    <X className="size-4 text-red-500" strokeWidth={2.5} />
-                    <span className="text-sm">Decline Application</span>
+                    <X className="size-5 text-red-500" strokeWidth={2.5} />
+                    <span className="text-sm text-red-600">
+                      Decline Application
+                    </span>
                   </Button>
 
                   <Button
-                    type="button"
                     variant="ghost"
                     onClick={() => setDialogMode("confirm-approve")}
                     disabled={
@@ -305,13 +305,15 @@ export default function ApplicantStatusChangeButton({
                       (resolvedRole?.status &&
                         FINAL_STATUSES.includes(resolvedRole.status))
                     }
-                    className="py-6 h-auto rounded-2xl border cursor-pointer border-emerald-200 bg-emerald-50/50 text-emerald-600 font-bold hover:bg-emerald-100 transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1.5"
+                    className="py-6 h-auto rounded-2xl border cursor-pointer border-emerald-200 bg-emerald-50/50 font-bold hover:bg-emerald-100 transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1.5"
                   >
                     <CircleCheck
-                      className="size-4 text-emerald-500"
+                      className="size-5 text-emerald-500 "
                       strokeWidth={2.5}
                     />
-                    <span className="text-sm">Approve Application</span>
+                    <span className="text-sm text-emerald-600 ">
+                      Approve Application
+                    </span>
                   </Button>
                 </div>
 
@@ -346,11 +348,11 @@ export default function ApplicantStatusChangeButton({
                     </h2>
                     <p className="text-sm text-gray-500 mt-1 leading-relaxed">
                       Are you sure you want to approve the application of{" "}
-                      <span className="font-bold text-gray-900">
+                      <span className="font-semibold text-gray-900">
                         {applicant.candidate.name}
                       </span>{" "}
                       for the role of{" "}
-                      <span className="font-bold text-gray-900">
+                      <span className="font-semibold text-gray-900">
                         {resolvedRole?.title}
                       </span>
                       ?
@@ -358,18 +360,18 @@ export default function ApplicantStatusChangeButton({
                   </div>
                 </div>
 
-                {hasMultipleRoles && (
-                  <div className="flex gap-2.5 rounded-xl bg-amber-50 border border-amber-200 p-3.5">
-                    <TriangleAlert
-                      className="text-amber-500 shrink-0 mt-0.5"
-                      size={15}
-                    />
-                    <p className="text-xs text-amber-700 leading-relaxed">
-                      Other pending applications will be marked as declined
-                      automatically.
-                    </p>
-                  </div>
-                )}
+                {/* {hasMultipleRoles && ( */}
+                <div className="flex gap-2.5 rounded-xl bg-amber-50 border border-amber-200 p-3.5">
+                  <TriangleAlert
+                    className="text-amber-500 shrink-0 mt-0.5"
+                    size={15}
+                  />
+                  <p className="text-xs text-amber-700  font-semibold leading-relaxed">
+                    Other pending applications will be marked as declined
+                    automatically.
+                  </p>
+                </div>
+                {/* )} */}
 
                 <div className="h-px bg-gray-100" />
 
@@ -509,7 +511,7 @@ export default function ApplicantStatusChangeButton({
             <div className="grid grid-cols-2 gap-3">
               <ApplicantContactPopover candidate={applicant.candidate} />
               <Button
-                className="h-11 w-full rounded-xl border border-red-200 bg-red-50 text-red-600 font-semibold hover:bg-red-100 transition-all"
+                className="h-11 w-full rounded-xl border cursor-pointer border-red-200 bg-red-50 text-red-600 font-semibold hover:bg-red-100 transition-all"
                 onClick={openReprocess}
                 disabled={isLoading}
               >

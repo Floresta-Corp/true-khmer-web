@@ -268,6 +268,8 @@ export default function ManagePostingDetailTable({
                             0,
                           );
 
+                        const otherRoles = Math.max(0, totalRoles - 1);
+
                         return (
                           <div className="flex flex-col gap-0.5">
                             <span className="font-semibold text-black">
@@ -277,10 +279,10 @@ export default function ManagePostingDetailTable({
                                   )[0]?.[0]
                                 : "N/A"}
                             </span>
-                            {totalRoles > 0 && (
+                            {otherRoles > 0 && (
                               <span className="text-[11px] text-slate-400 font-medium">
-                                {totalRoles} other
-                                {totalRoles > 1 ? "s" : ""} roles
+                                {otherRoles} other{otherRoles > 1 ? "s" : ""}{" "}
+                                roles
                               </span>
                             )}
                           </div>
