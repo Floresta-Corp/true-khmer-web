@@ -35,7 +35,9 @@ export function StatsCards({ totalPoints, tier, rank }: ActivityStatsProps) {
           <span className="text-sm lg:text-[10px] font-semibold uppercase tracking-wider text-[#94a3b8]">
             Rank
           </span>
-          <span className="text-xl font-semibold ">#{rank || "#-"}</span>
+          <span className="text-xl font-semibold ">
+            {rank ? `#${rank}` : "-"}
+          </span>
         </div>
 
         {/* tier Card */}
