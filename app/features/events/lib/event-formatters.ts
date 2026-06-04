@@ -11,6 +11,18 @@ export function formatDate(dateString: string): string {
   });
 }
 
+export function formatDateMonthYear(dateString: string): string {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return "Invalid date";
+  }
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 export function formatTime(dateString: string): string {
   const date = new Date(dateString);
   if (isNaN(date.getTime())) {

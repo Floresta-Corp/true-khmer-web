@@ -58,23 +58,22 @@ export default function ApplicantNoteAction({
 
       <fetcher.Form method="POST" className="w-full">
         {!editMode && savedNote ? (
-          <div className="bg-blue-50/10 dark:bg-blue-950/10 border border-gray-150 dark:border-slate-800/60 rounded-2xl p-4">
+          <div className="border border-gray-150 rounded-2xl p-4">
             <p className="text-sm text-gray-850 dark:text-gray-100 font-sans leading-relaxed whitespace-pre-wrap">
               {savedNote}
             </p>
             <div className="mt-3 flex justify-end">
               <Button
-                variant="outline"
                 onClick={() => setEditMode(true)}
-                className="text-xs font-bold text-brand-blue hover:underline cursor-pointer flex items-center gap-1.5"
+                className="text-xs font-bold text-blue-500 bg-white hover:underline cursor-pointer flex items-center gap-1.5"
               >
-                <Pencil size={12} />
+                <Pencil size={8} />
                 Edit Note
               </Button>
             </div>
           </div>
         ) : (
-          <div className="bg-blue-200/10 dark:bg-blue-950/5 border border-dashed border-gray-200 dark:border-slate-800 rounded-2xl p-4">
+          <div className="border-gray-200 dark:border-slate-800 rounded-2xl ">
             <input type="hidden" name="actionType" value="note" />
             <input type="hidden" name="candidateId" value={candidateId} />
             <input type="hidden" name="sourceType" value={sourceType} />
@@ -106,7 +105,6 @@ export default function ApplicantNoteAction({
                   disabled={isSubmitting}
                   className="px-5 py-1.5 rounded-lg text-xs font-semibold tracking-wide cursor-pointer bg-brand-blue text-white bg-blue-500 transition-all shadow-sm disabled:opacity-50"
                 >
-                  <Save className="size-3.5 mr-1 inline-block" />
                   {isSubmitting ? "Saving..." : "Save Note"}
                 </Button>
               </div>
