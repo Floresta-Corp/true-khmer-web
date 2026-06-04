@@ -1,4 +1,5 @@
 import { Hash } from "lucide-react";
+import { Card } from "~/components/ui/card";
 import { Toggle } from "~/components/ui/toggle";
 import type { Tag } from "~/services/forum/forum-types";
 
@@ -18,7 +19,7 @@ export default function TrendingTopics({
   }
 
   return (
-    <div className="bg-white border border-[#f1f5f9] rounded-2xl p-5 w-full">
+    <Card className="bg-white border shadow-none rounded-2xl p-5 w-full">
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
         <Hash className="w-6 h-6 text-[#344256]" />
@@ -45,6 +46,6 @@ export default function TrendingTopics({
           </Toggle>
         ))}
       </div>
-    </div>
+    </Card>
   );
 }

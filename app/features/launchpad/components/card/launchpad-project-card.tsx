@@ -54,11 +54,12 @@ export default function LaunchpadProjectCard({
 
   return (
     <div className="relative">
-      <div className="absolute top-3 right-3 z-10 flex gap-1.5">
+      <div className="absolute top-4.5 right-4.5 z-10 flex gap-1.5">
         <ShareLaunchpadDialog
           projectId={item.id}
           trigger={
             <IconButton
+              className="border border-gray-100 size-8"
               icon={<Share2 className="size-3.5" />}
               ariaLabel="Share project"
             />
@@ -66,7 +67,7 @@ export default function LaunchpadProjectCard({
         />
         <IconButton
           className={cn(
-            "cursor-pointer flex size-[31.5px] items-center justify-center rounded-2xl bg-white/95 text-[#9aa2af] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)]",
+            "cursor-pointer flex size-8 items-center justify-center rounded-2xl border border-gray-100",
             { "bg-blue-600": optimisticSaved },
           )}
           icon={
@@ -93,7 +94,7 @@ export default function LaunchpadProjectCard({
             onOpenOpportunity(item);
           }
         }}
-        className="cursor-pointer flex h-95 flex-col p-5 rounded-2xl bg-white transition-all hover:shadow-lg hover:-translate-y-0.5"
+        className="cursor-pointer flex h-95 flex-col p-5 rounded-2xl bg-white transition-all hover:shadow-lg hover:-translate-y-0.5 shadow-none"
       >
         <div className="flex items-center justify-between pb-3">
           <div className="flex gap-1 items-baseline text-blue-500">
@@ -112,7 +113,7 @@ export default function LaunchpadProjectCard({
           <div className="text-md leading-0 font-semibold">{item.name}</div>
         </div>
         <div className="flex flex-1 flex-col justify-between">
-          <div>{item.description}</div>
+          <div className="line-clamp-4">{item.description}</div>
           <div className="rounded-xl px-4 py-2 flex justify-between items-center bg-[#F8FAFB]">
             <div className="text-sm text-[#99A1AF] uppercase font-medium">
               seeking:
