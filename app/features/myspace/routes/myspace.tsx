@@ -100,19 +100,20 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
+          >
+            <AchievementsCard badges={me.badges} />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
           >
             <RecentActivityList
               activities={recentActivities || []}
               maxItems={5}
             />
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
-          >
-            <AchievementsCard />
           </motion.div>
         </div>
       </aside>

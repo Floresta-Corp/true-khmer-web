@@ -11,7 +11,7 @@ interface ActivityStatsProps {
 
 export function StatsCards({ totalPoints, tier, rank }: ActivityStatsProps) {
   return (
-    <Card className="w-full rounded-[24px] border border-slate-100 bg-white p-6 shadow-[0px_4px_20px_rgba(0,0,0,0.02)]">
+    <Card className="w-full rounded-3xl border bg-white p-6 ">
       <CardHeader className="p-0 pb-5">
         <CardTitle className="text-base flex items-center gap-2 font-semibold tracking-tight text-[#0f172a]">
           <Trophy className="text-yellow-500" /> Community Standing
@@ -21,7 +21,7 @@ export function StatsCards({ totalPoints, tier, rank }: ActivityStatsProps) {
 
       <CardContent className="grid grid-cols-3 gap-4 p-0">
         {/* points */}
-        <div className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-[#f8fafc] py-5 px-4 text-center">
+        <div className="flex flex-col items-center justify-center gap-2 rounded-3xl bg-[#f8fafc] py-5 px-4 text-center">
           <span className="text-sm lg:text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">
             Points
           </span>
@@ -31,7 +31,7 @@ export function StatsCards({ totalPoints, tier, rank }: ActivityStatsProps) {
         </div>
 
         {/* rank Card */}
-        <div className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-[#f8fafc] py-5 px-4 text-center">
+        <div className="flex flex-col items-center justify-center gap-2 rounded-3xl bg-[#f8fafc] py-5 px-4 text-center">
           <span className="text-sm lg:text-[10px] font-semibold uppercase tracking-wider text-[#94a3b8]">
             Rank
           </span>
@@ -41,7 +41,7 @@ export function StatsCards({ totalPoints, tier, rank }: ActivityStatsProps) {
         </div>
 
         {/* tier Card */}
-        <div className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-[#f8fafc] py-5 px-4 text-center">
+        <div className="flex flex-col items-center justify-center gap-2 rounded-3xl  bg-[#f8fafc] py-5 px-4 text-center">
           <span className="text-sm lg:text-[10px] flex items-center gap-1.5 font-bold uppercase tracking-wider text-[#94a3b8]">
             Tier
             <Sparkles className="size-3 text-yellow-500" />

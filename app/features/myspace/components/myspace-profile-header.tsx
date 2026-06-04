@@ -75,7 +75,7 @@ export function ProfileHeader({
   ].filter(Boolean) as LinkItem[];
 
   return (
-    <div className="rounded-[24px] overflow-hidden border border-[#e2e8f0] shadow-sm flex flex-col bg-white">
+    <div className="rounded-3xl overflow-hidden border  flex flex-col bg-white">
       <div className="px-8 py-7 flex items-center gap-6 bg-linear-to-br from-[#deeefe] to-[#f8fafc]">
         <div className="shrink-0 bg-white size-20 rounded-full relative p-0.5">
           <div className="w-full h-full rounded-full overflow-hidden">
@@ -118,7 +118,7 @@ export function ProfileHeader({
       {/* 2. Crisp Divider Line */}
       <div className="h-px bg-[#e2e8f0]" />
 
-      <div className="bg-white px-8 py-4 flex flex-wrap gap-x-6 gap-y-2 items-center bg-linear-to-br from-[#ecf5ff] to-[#f8fafc]">
+      <div className="bg-white px-8 py-4 flex flex-wrap gap-x-6 gap-y-2 items-center bg-linear-to-br from-blue-50/70 to-[#f8fafc]">
         {infoLinks.map((link, i) =>
           link?.href ? (
             <a

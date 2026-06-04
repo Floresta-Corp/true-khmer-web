@@ -8,14 +8,14 @@ interface MyspaceBioCardProps {
 
 export default function MyspaceBioCard({ bio, skills }: MyspaceBioCardProps) {
   return (
-    <Card className="rounded-2xl border border-slate-200 bg-white shadow-[0px_4px_10px_rgba(0,0,0,0.03)]">
+    <Card className="rounded-3xl border border-slate-200 bg-white ">
       <CardHeader className="space-y-4 p-6  border-slate-100">
         <CardTitle className="text-xl font-bold text-slate-900">
           About
         </CardTitle>
         <Separator />
         {/* space-y-4 handles the gap between paragraphs nicely */}
-        <div className="max-w-3xl text-sm leading-6 text-slate-700 space-y-4">
+        <div className="max-w-3xl text-sm leading-6 text-slate-600 font-semibold space-y-4">
           {bio}
         </div>
       </CardHeader>
