@@ -8,9 +8,7 @@ interface ProjectOverviewSectionProps {
 export default function ProjectOverviewSection({
   volunteer,
 }: ProjectOverviewSectionProps) {
-  const overview =
-    volunteer?.overview ??
-    "Join the Khmer Heritage Trust in a critical mission to preserve our nation's architectural history. We are looking for dedicated volunteers to help document and protect delicate 10th-century carvings at lesser-known temple sites in the Siem Reap region. Your work will directly contribute to the digital archives used by global scholars and local preservationists.";
+  const overview = volunteer?.overview ?? "";
 
   return (
     <div className="space-y-3.5">
