@@ -2,6 +2,7 @@ import type { Route } from "project-types/manage-post/routes/+types/manage-post.
 import { data } from "react-router";
 import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
 import {
+  declineApplicantStatus,
   updateApplicantNote,
   updateApplicantStatus,
   updateManagePost,
@@ -15,6 +16,11 @@ import {
   type PrivateNoteInput,
 } from "~/services/manage-post/types";
 
+export type DeclineApplicantParams = {
+  declineAll?: boolean;
+  blockFutureApply?: boolean;
+};
+
 export async function managePostDetailAction({
   request,
   params,
@@ -26,14 +32,8 @@ export async function managePostDetailAction({
 
   const formData = await request.formData();
   const actionType = String(formData.get("actionType") ?? "").trim();
-  // const body = String(formData.get("body") ?? "").trim();
-  // const method = request.method.toUpperCase();
 
-  const allowedActionTypes = new Set([
-    "postingAction",
-    "note",
-    "change-status",
-  ]);
+  const allowedActionTypes = new Set(["note", "change-status", "decline"]);
 
   if (actionType && !allowedActionTypes.has(actionType)) {
     return {
@@ -113,11 +113,80 @@ export async function managePostDetailAction({
     return { success: true, data: result };
   }
 
-  // Handle applicant status actions (existing logic)
-  const applicationId = String(formData.get("applicationId") ?? "").trim();
-  const statusAction = String(formData.get("statusAction") ?? "").trim();
+  // handle applicant decline action
+  const declineAction = formData.get("decline");
+  if (declineAction) {
+    const applicationId = String(formData.get("applicationId") ?? "").trim();
 
-  if (!applicationId || !statusAction) {
+    const params: DeclineApplicantParams = {
+      declineAll: formData.get("declineAll") === "true",
+      blockFutureApply: formData.get("blockFutureApply") === "true",
+    };
+
+    if (!applicationId) {
+      return data(
+        { ok: false, message: "Application ID is required." },
+        { status: 400 },
+      );
+    }
+
+    if (!postingId) {
+      return data(
+        { ok: false, message: "Posting ID is required." },
+        { status: 400 },
+      );
+    }
+
+    const sourceTypeResult = PostingSourceSchema.safeParse(sourceType);
+    if (!sourceTypeResult.success) {
+      return data(
+        { ok: false, message: "Invalid source type." },
+        { status: 400 },
+      );
+    }
+
+    try {
+      const res = await declineApplicantStatus(
+        request,
+        sourceTypeResult.data as PostSourceType,
+        postingId,
+        applicationId,
+        params,
+      );
+
+      if (res?.data) {
+        return data({ ok: true, success: true });
+      }
+
+      return data({ ok: false, success: false }, { status: 400 });
+    } catch (error: any) {
+      if (error?.status === 409) {
+        return data(
+          { ok: false, success: false, error: error?.details?.error },
+          { status: 409 },
+        );
+      }
+      return data(
+        { ok: false, success: false, error: "An unexpected error occurred." },
+        { status: 500 },
+      );
+    }
+  }
+
+  // Handle applicant status actions
+  const applicationId = String(formData.get("applicationId") ?? "").trim();
+  const applicationIds = formData
+    .getAll("applicationIds")
+    .map((id) => String(id).trim())
+    .filter(Boolean);
+  const statusAction = String(formData.get("statusAction") ?? "").trim();
+  const targetApplicationIds = applicationIds.length
+    ? applicationIds
+    : applicationId
+      ? [applicationId]
+      : [];
+
+  if (!targetApplicationIds.length || !statusAction) {
     return { success: false, error: "Missing required fields" };
   }
 
@@ -129,14 +198,18 @@ export async function managePostDetailAction({
   }
 
   try {
-    const result = await updateApplicantStatus(
-      request,
-      sourceTypeResult.data as PostSourceType,
-      postingId,
-      applicationId,
-      statusActionResult.data as ApplicantStatusAction,
+    const result = await Promise.all(
+      targetApplicationIds.map((targetApplicationId) =>
+        updateApplicantStatus(
+          request,
+          sourceTypeResult.data as PostSourceType,
+          postingId,
+          targetApplicationId,
+          statusActionResult.data as ApplicantStatusAction,
+        ),
+      ),
     );
-    return { success: true, data: result };
+    return { success: true, data: applicationIds.length ? result : result[0] };
   } catch (error: any) {
     if (error?.status === 409) {
       return { success: false, error: error?.details?.error };
