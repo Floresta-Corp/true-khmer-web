@@ -9,11 +9,14 @@ import {
   formatAuthMessage,
   getAuthErrorCode,
   getAuthFieldError,
+  loginWithGoogle,
   registerUser,
 } from "~/services/auth.server";
 import { redirectIfAuthenticated } from "~/lib/server/route-guards.server";
 import { sanitizeRedirectPath } from "~/lib/redirects";
 import { getPasswordValidationError } from "./password-validation";
+import { createUserSession } from "~/lib/server/session.server";
+import { destinationFromAuthFlow } from "./auth-flow.server";
 
 const USER_ALREADY_EXISTS_CODE = "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL";
 
@@ -43,6 +46,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
+  const intent = String(formData.get("intent") || "");
   const firstName = String(formData.get("firstName") || "");
   const lastName = String(formData.get("lastName") || "");
   const email = String(formData.get("email") || "");
@@ -53,6 +57,33 @@ export async function action({ request }: ActionFunctionArgs) {
   const redirectTo = sanitizeRedirectPath(
     formData.get("redirectTo")?.toString(),
   );
+
+  if (intent === "google") {
+    const idToken = String(formData.get("idToken") || "").trim();
+    if (!idToken) {
+      return { errors: { form: "Google sign-in was not completed." } };
+    }
+
+    try {
+      const auth = await loginWithGoogle(idToken, request);
+      const destination = auth.authFlow
+        ? destinationFromAuthFlow(auth.authFlow)
+        : redirectTo;
+      return createUserSession(auth, destination);
+    } catch (error) {
+      if (error instanceof AuthApiError) {
+        return { errors: { form: formatAuthMessage(error.message) } };
+      }
+      return {
+        errors: {
+          form:
+            error instanceof Error
+              ? formatAuthMessage(`Google sign-in failed: ${error.message}`)
+              : "Google sign-in failed. Please try again.",
+        },
+      };
+    }
+  }
 
   const errors: RegisterErrors = {};
 

@@ -114,6 +114,36 @@ export async function createUserSession(
   });
 }
 
+export async function updateUserSession(
+  request: Request,
+  user: AuthTokensResponse["user"],
+  redirectTo: string,
+) {
+  const session = await getSession(request);
+  if (!user.id) {
+    throw new Error("Cannot update user session: user.id is missing.");
+  }
+
+  session.set("user", user);
+  session.set("userId", user.id);
+  session.set("email", user.email);
+  session.set(
+    "name",
+    user.name ?? [user.firstName, user.lastName].filter(Boolean).join(" "),
+  );
+  session.set("avatar", user.avatar);
+
+  const rememberMe = session.get("rememberMe") === true;
+
+  return redirect(redirectTo, {
+    headers: {
+      "Set-Cookie": rememberMe
+        ? await commitSession(session)
+        : await browserSessionStorage.commitSession(session),
+    },
+  });
+}
+
 export async function getAccessToken(request: Request) {
   const session = await getSession(request);
   return session.get("accessToken") as string | undefined;

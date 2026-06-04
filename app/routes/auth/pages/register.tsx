@@ -12,7 +12,7 @@ import {
 } from "libphonenumber-js";
 import { FormDivider } from "~/routes/auth/components/form-divider";
 import { FormError } from "~/routes/auth/components/form-error";
-import { GoogleButton } from "~/routes/auth/components/google-button";
+import { GoogleAuthButton } from "~/routes/auth/components/google-auth-button";
 import {
   AuthPageShell,
   RegisterBrandPanel,
@@ -163,6 +163,7 @@ export default function RegisterPage() {
   const [agreeToDirectory, setAgreeToDirectory] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
+  const [googleError, setGoogleError] = useState("");
 
   const redirectTo = sanitizeRedirectPath(searchParams.get("redirectTo"));
   const selectedPhoneCountry =
@@ -271,9 +272,11 @@ export default function RegisterPage() {
           </Button>
         </div>
 
-        <GoogleButton className="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3 text-base font-semibold text-[#111827] shadow-sm hover:bg-[#F9FAFB]">
-          Log in with Google
-        </GoogleButton>
+        <GoogleAuthButton
+          className="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3 text-base font-semibold text-[#111827] shadow-sm hover:bg-[#F9FAFB]"
+          redirectTo={redirectTo}
+          onError={setGoogleError}
+        />
 
         <FormDivider
           label="or"
@@ -282,6 +285,7 @@ export default function RegisterPage() {
           labelClassName="text-sm font-normal normal-case tracking-normal text-[#4B5563]"
         />
 
+        <FormError message={googleError} />
         <FormError message={formError} />
 
         <Form method="post" className="space-y-6" onSubmit={handleSubmit}>

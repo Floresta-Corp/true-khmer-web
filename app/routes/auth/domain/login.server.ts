@@ -10,6 +10,7 @@ import {
   getAuthErrorMessage,
   getAuthFieldError,
   loginUser,
+  loginWithGoogle,
 } from "~/services/auth.server";
 import { createUserSession } from "~/lib/server/session.server";
 import {
@@ -18,6 +19,7 @@ import {
 } from "~/services/onboarding.server";
 import { redirectIfAuthenticated } from "~/lib/server/route-guards.server";
 import { sanitizeRedirectPath } from "~/lib/redirects";
+import { destinationFromAuthFlow } from "./auth-flow.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const authRedirect = await redirectIfAuthenticated(request);
@@ -31,12 +33,40 @@ function isUnverifiedAccountError(error: AuthApiError) {
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
+  const intent = String(formData.get("intent") || "");
   const email = String(formData.get("email") || "");
   const password = String(formData.get("password") || "");
   const rememberMe = formData.get("rememberMe") === "true";
   const redirectTo = sanitizeRedirectPath(
     formData.get("redirectTo")?.toString(),
   );
+
+  if (intent === "google") {
+    const idToken = String(formData.get("idToken") || "").trim();
+    if (!idToken) {
+      return { errors: { form: "Google sign-in was not completed." } };
+    }
+
+    try {
+      const auth = await loginWithGoogle(idToken, request);
+      const destination = auth.authFlow
+        ? destinationFromAuthFlow(auth.authFlow)
+        : redirectTo;
+      return createUserSession(auth, destination, { rememberMe });
+    } catch (error) {
+      if (error instanceof AuthApiError) {
+        return { errors: { form: error.message } };
+      }
+      return {
+        errors: {
+          form:
+            error instanceof Error
+              ? `Google sign-in failed: ${error.message}`
+              : "Google sign-in failed. Please try again.",
+        },
+      };
+    }
+  }
 
   const errors: LoginErrors = {};
   if (!email) errors.email = "Email is required";
