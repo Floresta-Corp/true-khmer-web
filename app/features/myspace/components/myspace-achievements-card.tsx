@@ -54,17 +54,6 @@ const categoryStyles: Record<MyspaceBadge["category"], BadgeStyle> = {
   },
 };
 
-const slugStyles: Record<string, Partial<BadgeStyle>> = {
-  builder: {
-    icon: Rocket,
-    colorClassName: "text-[#2f75ff]",
-  },
-  "profile-complete": {
-    icon: BadgeCheck,
-    colorClassName: "text-[#16a34a]",
-  },
-};
-
 export function AchievementsCard({ badges }: AchievementsCardProps) {
   const previewBadges = badges.slice(0, 4);
 
@@ -106,7 +95,7 @@ export function AchievementsCard({ badges }: AchievementsCardProps) {
         )}
       </Card>
 
-      <DialogContent className="max-h-[86vh] overflow-hidden rounded-[28px] border-none p-0 shadow-2xl sm:max-w-180 [&>button]:right-5 [&>button]:top-5 [&>button]:rounded-full [&>button]:border [&>button]:border-[#e6ebf2] [&>button]:bg-white [&>button]:text-[#94a3b8]">
+      <DialogContent className="max-h-[86vh] overflow-hidden rounded-3xl border-none p-0  sm:max-w-180 [&>button]:right-5 [&>button]:top-5 [&>button]:rounded-full [&>button]:border [&>button]:border-[#e6ebf2] [&>button]:bg-white [&>button]:text-[#94a3b8]">
         <div className="overflow-y-auto p-5 sm:p-8">
           <DialogHeader className="mb-6 border-b border-[#edf1f6] pb-5">
             <div className="flex items-start gap-4 pr-10">
@@ -139,8 +128,8 @@ function BadgePreviewTile({ badge }: { badge: MyspaceBadge }) {
   const { icon: Icon, colorClassName } = getBadgeStyle(badge);
 
   return (
-    <div className="flex min-h-27.5 flex-col items-center justify-center rounded-2xl border border-[#eef2f7] bg-[#f8fafc] px-3 py-4 text-center">
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#eef2f7] bg-white shadow-sm">
+    <div className="flex min-h-27.5 flex-col items-center justify-center rounded-3xl border border-[#eef2f7] bg-[#f8fafc] px-3 py-4 text-center">
+      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#eef2f7] bg-white ">
         <Icon className={cn("h-5 w-5", colorClassName)} />
       </div>
       <h3 className="max-w-full text-sm font-extrabold leading-5 text-[#0f172a]">
@@ -157,8 +146,8 @@ function BadgePortfolioTile({ badge }: { badge: MyspaceBadge }) {
   const { icon: Icon, colorClassName } = getBadgeStyle(badge);
 
   return (
-    <div className="flex min-h-41 gap-4 rounded-2xl border border-[#e2e8f0] bg-white p-5">
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#eef2f7] bg-white shadow-sm">
+    <div className="flex min-h-41 gap-4 rounded-3xl border border-[#e2e8f0] bg-white p-5">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-3xl border border-[#eef2f7] bg-white">
         <Icon className={cn("h-6 w-6", colorClassName)} />
       </div>
 
@@ -189,7 +178,6 @@ function BadgePortfolioTile({ badge }: { badge: MyspaceBadge }) {
 function getBadgeStyle(badge: MyspaceBadge): BadgeStyle {
   return {
     ...categoryStyles[badge.category],
-    ...slugStyles[badge.slug],
   };
 }
 

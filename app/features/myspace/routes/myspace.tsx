@@ -2,11 +2,9 @@ import { motion } from "motion/react";
 import { MyspaceLoader } from "~/routes/api/myspace/myspace-loader";
 import type { Route } from "./+types/myspace";
 import { resolveImageURL } from "~/lib/utils";
-import { RecentActivityList } from "../components/recent-activity-list";
 import { PageHeader } from "../components/myspace-page-header";
 import { ProfileHeader } from "../components/myspace-profile-header";
 import { AchievementsCard } from "../components/myspace-achievements-card";
-import { PointsChartCard } from "../components/myspace-points-chart-card";
 import { ForumPageLayout } from "~/features/forum/components/forum-page-layout";
 import MyspaceBioCard from "../components/myspace-bio-card";
 import { StatsCards } from "../components/myspace-stats-cards";
@@ -74,13 +72,24 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
           />
         </motion.div>
 
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
         >
           <PointsChartCard />
         </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
+        >
+          <RecentActivityList
+            activities={recentActivities || []}
+            maxItems={5}
+          />
+        </motion.div> */}
       </div>
 
       <aside className="lg:col-span-4">
@@ -103,17 +112,6 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
             transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
           >
             <AchievementsCard badges={me.badges} />
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
-          >
-            <RecentActivityList
-              activities={recentActivities || []}
-              maxItems={5}
-            />
           </motion.div>
         </div>
       </aside>
