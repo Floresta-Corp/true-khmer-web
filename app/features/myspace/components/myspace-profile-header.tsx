@@ -77,7 +77,6 @@ export function ProfileHeader({
   return (
     <div className="rounded-[24px] overflow-hidden border border-[#e2e8f0] shadow-sm flex flex-col bg-white">
       <div className="px-8 py-7 flex items-center gap-6 bg-linear-to-br from-[#deeefe] to-[#f8fafc]">
-        {/* Avatar with Custom Border & Glow */}
         <div className="shrink-0 bg-white size-20 rounded-full relative p-0.5">
           <div className="w-full h-full rounded-full overflow-hidden">
             {avatarUrl ? (
@@ -105,7 +104,7 @@ export function ProfileHeader({
             </span>
 
             {tier && (
-              <span className="text-[10px] font-black tracking-wider px-3 py-1 rounded-full text-white bg-linear-to-br from-[#e5b25d] to-[#c9933b]">
+              <span className="text-[10px] font-black tracking-wider px-3 py-1 rounded-full text-white bg-[#e5b25d] ">
                 {tier.toUpperCase()}
               </span>
             )}
