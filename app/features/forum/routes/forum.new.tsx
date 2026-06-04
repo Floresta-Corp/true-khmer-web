@@ -87,7 +87,7 @@ export default function ForumNewPage() {
     initialTagId || undefined,
   );
   const [sortBy, setSortBy] = useState<QuestionSortBy>(
-    initialSortBy.success ? initialSortBy.data : "mostRelevant",
+    initialSortBy.success ? initialSortBy.data : "newest",
   );
   const [activeTab, setActiveTab] = useState<ForumQuestionTab>(initialTab);
   const prefersReducedMotion = useReducedMotion();

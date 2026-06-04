@@ -1,3 +1,4 @@
+import ExpandableText from "~/components/expandable-text";
 import { Separator } from "~/components/ui/separator";
 import type { LaunchpadDetail } from "~/services/launchpad/types/project";
 
@@ -53,9 +54,7 @@ export default function LaunchpadProjectDetailCard({
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight">
           Project Overview
         </h2>
-        <p className="text-gray-600 dark:text-slate-400 leading-relaxed mb-4 text-lg">
-          {project.description}
-        </p>
+        <ExpandableText className="mb-4">{project.description}</ExpandableText>
       </div>
     </div>
   );

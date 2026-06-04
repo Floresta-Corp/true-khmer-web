@@ -22,7 +22,7 @@ jobs:
           password: ${{ secrets.LOCAL_REGISTRY_PASSWORD }}
 
       - name: Build and Push
-        run: curl -s -L https://dokploy-build-loffy-api.bongit.net/qEnwNk01ZXJ6lTnkHUOmC | bash
+        run: curl -s -L https://dokploy-build-loffy-api.bongit.net/0jdwMy_oOCIUhYjEEr3Pz | bash
       - name: Deploy to Dokploy
         run: |
-          curl --request GET 'https://dokploy.bongit.net/api/deploy/wGlcAOqT5RZfFGDviHtIs'
+          curl --request GET 'https://dokploy.bongit.net/api/deploy/-grOIaoT0mxC0unbi8Cg4'
