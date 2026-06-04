@@ -1,5 +1,6 @@
 import type { Route } from "project-types/manage-post/routes/+types/manage-post.$sourceType.$id";
 import { data } from "react-router";
+import z from "zod";
 import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
 import {
   updateApplicantNote,
@@ -27,8 +28,8 @@ export async function managePostDetailAction({
 
   const formData = await request.formData();
   const actionType = String(formData.get("actionType") ?? "").trim();
-  // const body = String(formData.get("body") ?? "").trim();
-  // const method = request.method.toUpperCase();
+
+  const DeadlineDatetimeSchema = z.string().datetime({ offset: true });
 
   const allowedActionTypes = new Set([
     "postingAction",
@@ -57,7 +58,8 @@ export async function managePostDetailAction({
       );
     }
 
-    if (!deadline || Number.isNaN(new Date(deadline).getTime())) {
+    const deadlineResult = DeadlineDatetimeSchema.safeParse(deadline);
+    if (!deadlineResult.success) {
       return data(
         { success: false, ok: false, error: "Please select a valid deadline." },
         { status: 400 },
@@ -78,7 +80,7 @@ export async function managePostDetailAction({
         {
           success: false,
           ok: false,
-          error: error?.message ?? "Unable to extend deadline.",
+          error: "Unable to extend deadline.",
         },
         { status: error?.status ?? 500 },
       );

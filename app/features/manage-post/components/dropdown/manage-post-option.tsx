@@ -156,6 +156,7 @@ export default function ManagePostOption({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
+            aria-label="Open posting actions"
             onClick={(e) => e.stopPropagation()}
             className="h-11 w-11 rounded-xl  text-gray-400 bg-white hover:text-blue-600 hover:border-blue-600 flex items-center justify-center shrink-0 cursor-pointer"
           >
