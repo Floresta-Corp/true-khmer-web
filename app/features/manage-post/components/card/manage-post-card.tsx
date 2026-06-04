@@ -82,9 +82,11 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
         {!isCompleted && (
           <div className="absolute right-5  z-10">
             <ManagePostOption
+              title={posting.title}
               status={posting.status}
               sourceType={posting.sourceType}
               postingId={posting.id}
+              currentDeadline={posting.deadline}
             />
           </div>
         )}

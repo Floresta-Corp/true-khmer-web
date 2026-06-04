@@ -57,12 +57,14 @@ export async function updateManagePostExtendDate(
   request: Request,
   sourceType: PostSourceType,
   postingId: string,
+  deadline: string,
 ) {
   const result = await apiRequestWithSession<ManagePostResponse>(
     request,
     `/workspace/manage-posting/${sourceType}/${postingId}/extend-deadline`,
     {
       method: "POST",
+      body: { deadline },
     },
   );
 

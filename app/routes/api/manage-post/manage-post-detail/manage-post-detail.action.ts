@@ -5,6 +5,7 @@ import {
   updateApplicantNote,
   updateApplicantStatus,
   updateManagePost,
+  updateManagePostExtendDate,
 } from "~/services/manage-post/server";
 import {
   ApplicantStatusActionSchema,
@@ -33,6 +34,7 @@ export async function managePostDetailAction({
     "postingAction",
     "note",
     "change-status",
+    "extend-deadline",
   ]);
 
   if (actionType && !allowedActionTypes.has(actionType)) {
@@ -43,6 +45,45 @@ export async function managePostDetailAction({
   }
 
   const postingAction = formData.get("postingAction");
+
+  if (actionType === "extend-deadline") {
+    const deadline = String(formData.get("deadline") ?? "").trim();
+    const sourceTypeResult = PostingSourceSchema.safeParse(sourceType);
+
+    if (!sourceTypeResult.success || !postingId) {
+      return data(
+        { success: false, ok: false, error: "Invalid request parameters." },
+        { status: 400 },
+      );
+    }
+
+    if (!deadline || Number.isNaN(new Date(deadline).getTime())) {
+      return data(
+        { success: false, ok: false, error: "Please select a valid deadline." },
+        { status: 400 },
+      );
+    }
+
+    try {
+      const result = await updateManagePostExtendDate(
+        request,
+        sourceTypeResult.data as PostSourceType,
+        postingId,
+        deadline,
+      );
+
+      return data({ success: true, ok: true, data: result });
+    } catch (error: any) {
+      return data(
+        {
+          success: false,
+          ok: false,
+          error: error?.message ?? "Unable to extend deadline.",
+        },
+        { status: error?.status ?? 500 },
+      );
+    }
+  }
 
   // Handle candidate note update
   if (actionType === "note") {
