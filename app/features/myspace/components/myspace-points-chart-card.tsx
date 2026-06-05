@@ -14,7 +14,7 @@ const chartBars = [
 
 export function PointsChartCard() {
   return (
-    <Card className="relative overflow-clip rounded-xl bg-white p-8 shadow-[0px_4px_10px_rgba(0,0,0,0.03)]">
+    <Card className="relative overflow-clip rounded-3xl bg-white p-8  ">
       <div className="flex w-full items-center justify-between pb-8">
         <CardTitle className="text-[20px] font-bold leading-7 text-[#2c2f31]">
           Points Earned Over Time

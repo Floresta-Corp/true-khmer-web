@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+export const CategorySchema = z.enum([
+  "COLLABORATION",
+  "KNOWLEDGE",
+  "LAUNCHPAD",
+  "ONBOARDING",
+  "VOLUNTEER",
+]);
+export type Category = z.infer<typeof CategorySchema>;
+
 export const VisibilitySchema = z.object({
   profile: z.string(),
   contact: z.string(),
@@ -75,7 +84,17 @@ export const UserSchema = z.object({
 });
 export type User = z.infer<typeof UserSchema>;
 
+export const BadgeSchema = z.object({
+  awardedAt: z.string(),
+  category: CategorySchema,
+  description: z.string(),
+  name: z.string(),
+  slug: z.string(),
+});
+export type Badge = z.infer<typeof BadgeSchema>;
+
 export const ProfileSchema = z.object({
+  badges: z.array(BadgeSchema),
   user: UserSchema,
   profile: ProfileInfoSchema,
   skills: z.array(SkillSchema),
