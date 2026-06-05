@@ -33,7 +33,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import VolunteerDateRangeField from "~/features/volunteer/components/volunteer-date-range-field";
 import VolunteerDatePickerField from "~/features/volunteer/components/volunteer-date-picker-field";
 import type {
   ManagePostStatus,
@@ -71,8 +70,6 @@ export default function ManagePostOption({
     error?: string;
   }>();
   const navigate = useNavigate();
-
-  console.log("RECEIVED TITLE PROPS:", title); // <--- Add this
   const [deadlineDialogOpen, setDeadlineDialogOpen] = useState(false);
   const [deadline, setDeadline] = useState("");
   const [deadlineError, setDeadlineError] = useState<string>();
@@ -82,7 +79,6 @@ export default function ManagePostOption({
   const sourceTypeRoute =
     managePostSourceType === "projects" ? "launchpad" : "volunteer";
   const editRoute = `/${sourceTypeRoute}/edit/${postingId}`;
-  const isVolunteerPosting = managePostSourceType === "volunteer";
 
   const handleAction = (postingAction: UpdateManagePostResponse) => {
     fetcher.submit(
@@ -118,7 +114,7 @@ export default function ManagePostOption({
     wasExtendingDeadline.current = true;
     extendDeadlineFetcher.submit(
       {
-        actionType: "extend-deadline",
+        actionType: "extend-application-deadline",
         deadline,
       },
       {
@@ -215,14 +211,14 @@ export default function ManagePostOption({
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
-                  setDeadline("");
+                  setDeadline(currentDeadline ?? "");
                   setDeadlineError(undefined);
                   setDeadlineDialogOpen(true);
                 }}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
               >
                 <CalendarClock size={16} className="text-slate-400" />
-                Extend Deadline
+                Extend Application Deadline
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => handleAction("mark_complete")}
@@ -318,7 +314,9 @@ export default function ManagePostOption({
           className="max-w-md rounded-2xl p-6"
         >
           <DialogHeader>
-            <DialogTitle className="text-lg">Extend Deadline</DialogTitle>
+            <DialogTitle className="text-lg">
+              Extend Application Deadline
+            </DialogTitle>
             <DialogDescription>
               Select the new application deadline for
               <span className="font-bold "> "{title}".</span>
@@ -326,28 +324,15 @@ export default function ManagePostOption({
           </DialogHeader>
 
           <div className="space-y-2">
-            {isVolunteerPosting ? (
-              <VolunteerDateRangeField
-                startDate={currentDeadline || undefined}
-                endDate={deadline || undefined}
-                onChange={({ startDate, endDate }) => {
-                  setDeadline(endDate || startDate);
-                  setDeadlineError(undefined);
-                }}
-                error={deadlineError}
-                placeholder="Select new deadline"
-              />
-            ) : (
-              <VolunteerDatePickerField
-                value={deadline}
-                onChange={(value) => {
-                  setDeadline(value);
-                  setDeadlineError(undefined);
-                }}
-                error={deadlineError}
-                placeholder="Select new deadline"
-              />
-            )}
+            <VolunteerDatePickerField
+              value={deadline}
+              onChange={(value) => {
+                setDeadline(value);
+                setDeadlineError(undefined);
+              }}
+              error={deadlineError}
+              placeholder="Select new deadline"
+            />
           </div>
 
           <DialogFooter className="mt-2 border-0 bg-transparent p-3 ">

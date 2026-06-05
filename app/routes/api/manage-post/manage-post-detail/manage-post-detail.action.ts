@@ -42,7 +42,7 @@ export async function managePostDetailAction({
     "note",
     "change-status",
     "decline",
-    "extend-deadline",
+    "extend-application-deadline",
   ]);
 
   if (actionType && !allowedActionTypes.has(actionType)) {
@@ -54,7 +54,7 @@ export async function managePostDetailAction({
 
   const postingAction = formData.get("postingAction");
 
-  if (actionType === "extend-deadline") {
+  if (actionType === "extend-application-deadline") {
     const deadline = String(formData.get("deadline") ?? "").trim();
     const sourceTypeResult = PostingSourceSchema.safeParse(sourceType);
 
