@@ -79,9 +79,8 @@ export default function ApplicantContactPopover({ candidate }: Props) {
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          type="button"
           variant="outline"
-          className="h-11 w-full rounded-xl border-blue-500 bg-white text-sm font-bold text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+          className="h-11 w-full cursor-pointer rounded-xl border-blue-500 bg-white text-sm font-bold text-blue-600 hover:bg-blue-50 hover:text-blue-700"
         >
           <Mail className="size-4" />
           Contact

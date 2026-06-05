@@ -33,7 +33,7 @@ export function PageHeader({
   };
 
   return (
-    <div className="flex items-end justify-between mb-10">
+    <div className="flex items-end justify-between">
       <div className="space-y-1">
         <h1 className="text-3xl sm:text-[40px] font-extrabold text-slate-900 dark:text-white mb-2 leading-tight tracking-tight">
           {isPublicView ? "Public Profile" : "My Space"}

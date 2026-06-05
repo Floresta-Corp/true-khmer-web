@@ -9,85 +9,9 @@ import {
   type SetStateAction,
 } from "react";
 import { toast } from "sonner";
-import {
-  Bell,
-  MessageSquare,
-  Trophy,
-  Clock,
-  Briefcase,
-  Zap,
-  Star,
-  User,
-} from "lucide-react";
+import type { ApiNotification } from "~/services/notifications.types";
 
-export interface ApiNotification {
-  id: string;
-  title: string;
-  body: string;
-  imageUrl: string | null;
-  icon: string;
-  type: string;
-  data: Record<string, string> | null;
-  isRead: boolean;
-  readAt: string | null;
-  createdAt: string;
-}
-
-export type NotificationType =
-  | "profile_view"
-  | "new_message"
-  | "achievement"
-  | "event_reminder"
-  | "application"
-  | "launchpad_update"
-  | "points"
-  | "system";
-
-export const NOTIFICATION_ICON_MAP: Record<NotificationType, string> = {
-  profile_view: "User",
-  new_message: "MessageSquare",
-  achievement: "Trophy",
-  event_reminder: "Clock",
-  application: "Briefcase",
-  launchpad_update: "Zap",
-  points: "Star",
-  system: "Bell",
-};
-
-export const NOTIFICATION_ICON_BG_MAP: Record<NotificationType, string> = {
-  event_reminder: "bg-yellow-50",
-  application: "bg-green-50",
-  achievement: "bg-gray-50",
-  points: "bg-yellow-50",
-  system: "bg-gray-50",
-  launchpad_update: "bg-indigo-50",
-  new_message: "bg-blue-50",
-  profile_view: "bg-blue-100",
-};
-
-// Helper function to get icon component from icon name
-const getIconComponent = (iconName: string): ReactNode => {
-  switch (iconName) {
-    case "User":
-      return <User className="h-5 w-5" />;
-    case "MessageSquare":
-      return <MessageSquare className="h-5 w-5" />;
-    case "Trophy":
-      return <Trophy className="h-5 w-5" />;
-    case "Clock":
-      return <Clock className="h-5 w-5" />;
-    case "Briefcase":
-      return <Briefcase className="h-5 w-5" />;
-    case "Zap":
-      return <Zap className="h-5 w-5" />;
-    case "Star":
-      return <Star className="h-5 w-5" />;
-    case "Bell":
-      return <Bell className="h-5 w-5" />;
-    default:
-      return <User className="h-5 w-5" />; // fallback
-  }
-};
+export type { ApiNotification } from "~/services/notifications.types";
 
 interface NotificationContextValue {
   unreadCount: number;

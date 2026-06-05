@@ -1,5 +1,4 @@
-import { Linkedin, Facebook, Twitter, Globe } from "lucide-react";
-import { Card } from "~/components/ui/card";
+import { Linkedin, Facebook, Twitter, Globe, MapPin, Mail } from "lucide-react";
 
 interface ProfileHeaderProps {
   displayName: string;
@@ -7,7 +6,9 @@ interface ProfileHeaderProps {
   firstName: string;
   lastName: string;
   occupation: string | null;
-  bio: string | null;
+  tier?: string | null;
+  location: string | null;
+  email: string | null;
   socialLinks: {
     linkedin?: string | null;
     facebook?: string | null;
@@ -16,102 +17,136 @@ interface ProfileHeaderProps {
   };
 }
 
+interface LinkItem {
+  icon: React.ReactNode;
+  label: string;
+  href: string | null;
+  external?: boolean;
+  isText?: boolean;
+}
+
 export function ProfileHeader({
   displayName,
   avatarUrl,
   firstName,
   lastName,
   occupation,
-  bio,
   socialLinks,
+  tier,
+  location,
+  email,
 }: ProfileHeaderProps) {
+  const infoLinks = [
+    location && {
+      icon: <MapPin className="size-3.5 shrink-0 text-[#8a94a6]" />,
+      label: location,
+      href: null,
+      isText: true,
+    },
+    email && {
+      icon: <Mail className="size-3.5 shrink-0 text-[#8a94a6]" />,
+      label: email,
+      href: `mailto:${email}`,
+    },
+    socialLinks.website && {
+      icon: <Globe className="size-3.5 shrink-0 text-[#8a94a6]" />,
+      label: socialLinks.website.replace(/^https?:\/\//, ""),
+      href: socialLinks.website,
+      external: true,
+    },
+    socialLinks.linkedin && {
+      icon: <Linkedin className="size-3.5 shrink-0 text-[#8a94a6]" />,
+      label: socialLinks.linkedin.replace(/^https?:\/\//, ""),
+      href: socialLinks.linkedin,
+      external: true,
+    },
+    socialLinks.facebook && {
+      icon: <Facebook className="size-3.5 shrink-0 text-[#8a94a6]" />,
+      label: socialLinks.facebook.replace(/^https?:\/\//, ""),
+      href: socialLinks.facebook,
+      external: true,
+    },
+    socialLinks.twitter && {
+      icon: <Twitter className="size-3.5 shrink-0 text-[#8a94a6]" />,
+      label: socialLinks.twitter.replace(/^https?:\/\//, ""),
+      href: socialLinks.twitter,
+      external: true,
+    },
+  ].filter(Boolean) as LinkItem[];
+
   return (
-    <Card className="bg-white flex gap-8 items-center overflow-clip p-8 relative rounded-3xl shadow-none">
-      <div className="flex flex-col items-start shrink-0">
-        <div className="flex flex-col items-start justify-center overflow-clip p-2 rounded-[24px] size-40">
-          {avatarUrl ? (
-            <img
-              src={avatarUrl}
-              alt={displayName}
-              className="object-cover size-full rounded-[24px]"
-            />
-          ) : (
-            <div className="size-full bg-gray-200 rounded-[24px] flex items-center justify-center">
-              <span className="text-2xl font-bold text-gray-500">
-                {firstName[0]}
-                {lastName[0]}
+    <div className="rounded-3xl overflow-hidden border  flex flex-col bg-white">
+      <div className="px-8 py-7 flex items-center gap-6 bg-linear-to-br from-[#deeefe] to-[#f8fafc]">
+        <div className="shrink-0 bg-white size-20 rounded-full relative p-0.5">
+          <div className="w-full h-full rounded-full overflow-hidden">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={displayName}
+                className="object-cover size-full"
+              />
+            ) : (
+              <div className="size-full bg-indigo-100 flex items-center justify-center">
+                <span className="text-xl font-bold text-indigo-500">
+                  {firstName[0]}
+                  {lastName[0]}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Name + Tier + Occupation */}
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="font-bold text-[24px] tracking-tight text-[#1e2329]">
+              {displayName}
+            </span>
+
+            {tier && (
+              <span className="text-[10px] font-black tracking-wider px-3 py-1 rounded-full text-white bg-[#e5b25d] ">
+                {tier.toUpperCase()}
               </span>
-            </div>
+            )}
+          </div>
+          {occupation && (
+            <p className="text-[14px] font-semibold ">{occupation}</p>
           )}
         </div>
       </div>
-      <div className="flex flex-1 flex-col gap-4 items-start min-w-0">
-        <div className="flex flex-col gap-3 w-full">
-          <div className="flex items-start w-full">
-            <div className="flex flex-1 flex-col gap-2 justify-center min-w-0">
-              <p className="font-bold text-[26px] leading-9.75 text-[#2c2f31] whitespace-nowrap">
-                {displayName}
-              </p>
-              <p className="font-medium text-[18px] leading-6.75 text-[#65758b] whitespace-nowrap">
-                {occupation || "No occupation set"}
-              </p>
+
+      {/* 2. Crisp Divider Line */}
+      <div className="h-px bg-[#e2e8f0]" />
+
+      <div className="bg-white px-8 py-4 flex flex-wrap gap-x-6 gap-y-2 items-center bg-linear-to-br from-blue-50/70 to-[#f8fafc]">
+        {infoLinks.map((link, i) =>
+          link?.href ? (
+            <a
+              key={i}
+              href={link?.href}
+              target={link?.external ? "_blank" : undefined}
+              rel={link?.external ? "noopener noreferrer" : undefined}
+              className="flex items-center gap-2 text-[13px] font-semibold text-blue-500 hover:underline transition-colors min-w-0"
+            >
+              {link?.icon}
+              <span className="truncate max-w-55">
+                {link?.label}
+                {link?.external && (
+                  <span className="text-[10px] ml-0.5 opacity-60">↗</span>
+                )}
+              </span>
+            </a>
+          ) : (
+            <div
+              key={i}
+              className="flex items-center gap-2 text-[13px] font-semibold text-[#475569]"
+            >
+              {link?.icon ?? ""}
+              <span>{link?.label}</span>
             </div>
-          </div>
-          <div className="flex flex-col items-start max-w-xl w-full">
-            <p className="font-medium text-[14px] leading-5.25 text-[#595c5e]">
-              {bio || "No bio set"}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-end w-full">
-          <div className="flex gap-2 items-center">
-            {socialLinks.linkedin && (
-              <a
-                href={socialLinks.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-[#f1f5f9] rounded-full flex items-center justify-center size-8 hover:bg-[#e9f0ff] transition-colors"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="size-4" />
-              </a>
-            )}
-            {socialLinks.facebook && (
-              <a
-                href={socialLinks.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-[#f1f5f9] rounded-full flex items-center justify-center size-8 hover:bg-[#e9f0ff] transition-colors"
-                aria-label="Facebook"
-              >
-                <Facebook className="size-4" />
-              </a>
-            )}
-            {socialLinks.twitter && (
-              <a
-                href={socialLinks.twitter}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-[#f1f5f9] rounded-full flex items-center justify-center size-8 hover:bg-[#e9f0ff] transition-colors"
-                aria-label="Twitter"
-              >
-                <Twitter className="size-4" />
-              </a>
-            )}
-            {socialLinks.website && (
-              <a
-                href={socialLinks.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-[#f1f5f9] rounded-full flex items-center justify-center size-8 hover:bg-[#e9f0ff] transition-colors"
-                aria-label="Website"
-              >
-                <Globe className="size-4" />
-              </a>
-            )}
-          </div>
-        </div>
+          ),
+        )}
       </div>
-    </Card>
+    </div>
   );
 }

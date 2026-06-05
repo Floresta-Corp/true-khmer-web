@@ -1,35 +1,5 @@
 import { apiRequestWithSession } from "~/lib/server/api-client.server";
-
-export type ApiNotification = {
-  id: string;
-  title: string;
-  body: string;
-  imageUrl: string | null;
-  icon: string;
-  type: string;
-  data: Record<string, string> | null;
-  isRead: boolean;
-  readAt: string | null;
-  createdAt: string;
-};
-
-export type NotificationsResult = {
-  ok: boolean;
-  notifications: ApiNotification[];
-  total: number;
-  page: number;
-  limit: number;
-  unreadCounts: {
-    profile_view: number;
-    new_message: number;
-    achievement: number;
-    event_reminder: number;
-    application: number;
-    launchpad_update: number;
-    points: number;
-    system: number;
-  };
-};
+import type { NotificationsResult } from "./notifications.types";
 
 export type MarkAsReadResult = {
   ok: boolean;

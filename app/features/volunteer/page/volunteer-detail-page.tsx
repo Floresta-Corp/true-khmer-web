@@ -204,13 +204,9 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
                     <CardContent className="p-10 [&_h2]:text-xl [&_h3]:text-xl [&_h2]:font-semibold [&_h3]:font-semibold space-y-8">
                       <OpportunityDetailsGrid volunteer={volunteer} hideIcon />
                       <Separator />
-
                       <ProjectOverviewSection volunteer={volunteer} />
-
                       <CommitmentSection volunteer={volunteer} />
-
                       <BenefitsSection volunteer={volunteer} compact hideIcon />
-
                       {volunteer.communityImpact && (
                         <CommunityImpactSection
                           volunteer={volunteer}

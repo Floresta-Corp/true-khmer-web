@@ -23,6 +23,18 @@ function formatDate(dateString?: string | null) {
 
 function getCompactStatus(status: string) {
   switch (status.toUpperCase()) {
+    case "SUBMITTED":
+      return {
+        label: "Submitted",
+        className:
+          "border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-50 dark:bg-blue-900/20 dark:hover:bg-blue-900/20",
+      };
+    case "UNDER_REVIEW":
+      return {
+        label: "Reviewing",
+        className:
+          "border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-50 dark:bg-blue-900/20 dark:hover:bg-blue-900/20",
+      };
     case "APPROVED":
       return {
         label: "Action Required",
@@ -51,7 +63,7 @@ function getCompactStatus(status: string) {
       };
     default:
       return {
-        label: "Submitted",
+        label: status.replaceAll("_", " "),
         className:
           "border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-50 dark:bg-blue-900/20 dark:hover:bg-blue-900/20",
       };

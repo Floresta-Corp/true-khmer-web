@@ -17,6 +17,7 @@ export interface NotificationItem {
   category?: string;
   timeAgo: string;
   isRead: boolean;
+  webRoute?: string | null;
   icon: React.ReactNode;
   iconBgColor: string;
   iconColor: string;
@@ -28,6 +29,7 @@ interface NotificationsListProps {
   totalCount?: number;
   onMarkAllRead?: () => void;
   onMarkRead?: (id: string) => void;
+  onNotificationClick?: (notification: NotificationItem) => void;
   onLoadMore?: () => void;
   isLoading?: boolean;
   isInitialLoading?: boolean;
@@ -56,6 +58,7 @@ export default function NotificationsList({
   totalCount = 0,
   onMarkAllRead,
   onMarkRead,
+  onNotificationClick,
   onLoadMore,
   isLoading = false,
   isInitialLoading = false,
@@ -114,32 +117,38 @@ export default function NotificationsList({
                   !notif.isRead ? "bg-blue-50/50" : ""
                 }`}
               >
-                {/* Icon */}
-                <div
-                  className={`flex items-center justify-center shrink-0 w-12 h-12 rounded-full ${notif.iconBgColor} ${notif.iconColor}`}
+                <button
+                  type="button"
+                  onClick={() => onNotificationClick?.(notif)}
+                  className="flex min-w-0 flex-1 cursor-pointer items-start gap-4 text-left"
                 >
-                  {notif.icon}
-                </div>
-
-                {/* Content Area */}
-                <div className="flex-1 min-w-0 pr-4">
-                  {/* Title + Category */}
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="truncate text-[15px] font-semibold text-gray-900 leading-snug">
-                      {notif.title}
-                    </h3>
-                    {notif.category && (
-                      <span className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded bg-gray-100 text-gray-700 text-[11px] font-semibold">
-                        {notif.category}
-                      </span>
-                    )}
+                  {/* Icon */}
+                  <div
+                    className={`flex items-center justify-center shrink-0 w-12 h-12 rounded-full ${notif.iconBgColor} ${notif.iconColor}`}
+                  >
+                    {notif.icon}
                   </div>
 
-                  {/* Description */}
-                  <p className="truncate text-sm font-normal text-gray-500 leading-normal">
-                    {notif.description}
-                  </p>
-                </div>
+                  {/* Content Area */}
+                  <div className="flex-1 min-w-0 pr-4">
+                    {/* Title + Category */}
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="truncate text-[15px] font-semibold text-gray-900 leading-snug">
+                        {notif.title}
+                      </h3>
+                      {notif.category && (
+                        <span className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded bg-gray-100 text-gray-700 text-[11px] font-semibold">
+                          {notif.category}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Description */}
+                    <p className="truncate text-sm font-normal text-gray-500 leading-normal">
+                      {notif.description}
+                    </p>
+                  </div>
+                </button>
 
                 <div className="shrink-0 flex flex-col items-end justify-between h-12 min-w-17.5">
                   {/*  Unread Dot or Dropdown Menu on Hover */}
