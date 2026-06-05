@@ -8,7 +8,7 @@ export default function YourActivitiesCard() {
     useLoaderData<typeof forumListloader>();
 
   return (
-    <Card className="rounded-2xl border border-[#f1f5f9] bg-white p-5 shadow-none">
+    <Card className="rounded-2xl border bg-white p-5 shadow-none">
       <CardContent className="space-y-[10.5px] p-0">
         <div className="flex items-center justify-between">
           <p className="text-sm font-medium leading-5.25 text-[#030213]">
