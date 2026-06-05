@@ -198,13 +198,19 @@ export default function ForumContentNew({
       </div>
 
       <aside className="hidden w-70 shrink-0 lg:block space-y-5">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35 * d, delay: 0.15 * d, ease: "easeOut" }}
-        >
-          <YourActivitiesCard />
-        </motion.div>
+        {userId && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.35 * d,
+              delay: 0.15 * d,
+              ease: "easeOut",
+            }}
+          >
+            <YourActivitiesCard />
+          </motion.div>
+        )}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}

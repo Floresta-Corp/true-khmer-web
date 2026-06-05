@@ -14,8 +14,8 @@ interface QuestionSortByDropdownProps {
 }
 
 const sortByItems: Array<{ label: string; value: QuestionSortBy }> = [
-  { label: "Most relevant", value: "mostRelevant" },
   { label: "Newest", value: "newest" },
+  { label: "Most relevant", value: "mostRelevant" },
   { label: "Oldest", value: "oldest" },
   { label: "Most voted", value: "mostVoted" },
   { label: "Most answered", value: "mostAnswered" },

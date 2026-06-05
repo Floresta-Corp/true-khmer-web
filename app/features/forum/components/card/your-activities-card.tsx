@@ -4,9 +4,9 @@ import { Card, CardContent } from "~/components/ui/card";
 import type { forumListloader } from "~/routes/api/forum/forum-loader";
 
 export default function YourActivitiesCard() {
-  const { questionCount, answerCount, userId } =
+  const { questionCount, answerCount } =
     useLoaderData<typeof forumListloader>();
-  if (!userId) return null;
+
   return (
     <Card className="rounded-2xl border border-[#f1f5f9] bg-white p-5 shadow-none">
       <CardContent className="space-y-[10.5px] p-0">
