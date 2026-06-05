@@ -93,6 +93,12 @@ function readString(value: unknown) {
   return typeof value === "string" ? value : "";
 }
 
+function readRecord(value: unknown) {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
 export default function CompleteSignUpPage() {
   const { user } = useLoaderData<typeof loader>();
   const actionData = useActionData<CompleteSignUpActionData>();
@@ -105,7 +111,7 @@ export default function CompleteSignUpPage() {
     user.phoneNumber?.replace(/^\+855/, "") ?? "",
   );
   const [occupation, setOccupation] = useState(user.occupation ?? "");
-  const [gender, setGender] = useState(user.gender ?? "");
+  const [gender, setGender] = useState("");
   const [memberAgreementAccepted, setMemberAgreementAccepted] = useState(false);
 
   const selectedPhoneCountry =
@@ -134,10 +140,11 @@ export default function CompleteSignUpPage() {
       user.email.split("@")[0];
     return name.trim();
   }, [firstName, lastName, user.email, user.name]);
+  const userProfile = readRecord(user.profile);
   const avatarUrl =
     readString(user.avatar) ||
-    readString(user.profile?.avatarUrl) ||
-    readString(user.profile?.avatarKey);
+    readString(userProfile.avatarUrl) ||
+    readString(userProfile.avatarKey);
   const initials = displayName
     .split(/\s+/)
     .map((part) => part[0])
@@ -146,11 +153,11 @@ export default function CompleteSignUpPage() {
     .toUpperCase();
 
   return (
-    <main className="min-h-screen bg-white px-6 py-5 text-[#0F172A] sm:px-8">
-      <div className="mx-auto w-full max-w-[448px]">
+    <main className="flex min-h-screen items-center bg-white px-6 py-5 text-[#0F172A] sm:px-8">
+      <div className="mx-auto w-full max-w-md">
         <header className="space-y-2">
           <h1 className="text-[32px] font-extrabold leading-10 tracking-[-0.02em] text-[#0F172A]">
-            Complete Your Profile
+            Complete Your Registration
           </h1>
           <p className="text-[15px] leading-6 text-[#64748B]">
             Finish your required details to activate your verified account.
@@ -160,7 +167,7 @@ export default function CompleteSignUpPage() {
         <section className="mt-7 overflow-hidden rounded-2xl border border-[#CFE0F7] bg-[#EFF6FF] shadow-[0_1px_3px_rgba(15,23,42,0.12)]">
           <div className="flex items-center gap-4 px-5 py-5">
             <div className="relative">
-              <Avatar className="size-[52px] border-2 border-white shadow-sm">
+              <Avatar className="size-13 border-2 border-white shadow-sm">
                 <AvatarImage src={avatarUrl || undefined} alt="" />
                 <AvatarFallback className="bg-[#2F6FE4] text-sm font-bold text-white">
                   {initials}
@@ -197,9 +204,14 @@ export default function CompleteSignUpPage() {
               <Info className="size-4" />
               Email & account verified automatically
             </p>
-            <Link to="/logout" className="text-[#1D4ED8] hover:text-[#164CB0]">
-              Not you? Switch
-            </Link>
+            <Form method="post" action="/logout">
+              <button
+                type="submit"
+                className="cursor-pointer text-[#1D4ED8] hover:text-[#164CB0]"
+              >
+                Not you? Switch
+              </button>
+            </Form>
           </div>
         </section>
 
@@ -325,7 +337,7 @@ export default function CompleteSignUpPage() {
               onValueChange={setGender}
               className="flex flex-wrap gap-6"
             >
-              {["male", "female", "other"].map((value) => (
+              {["male", "female"].map((value) => (
                 <Label
                   key={value}
                   className="flex items-center gap-2 text-sm font-bold capitalize leading-5 text-[#334155]"
@@ -359,7 +371,7 @@ export default function CompleteSignUpPage() {
           <Button
             type="submit"
             disabled={!isCompleteEnabled || isSubmitting}
-            className="h-[52px] w-full rounded-[14px] bg-[#2F6FE4] text-sm font-bold text-white shadow-[0_8px_18px_rgba(47,111,228,0.24)] transition-colors hover:bg-[#1F62DF] disabled:bg-[#2F6FE4] disabled:opacity-50"
+            className="h-13 w-full rounded-[14px] bg-[#2F6FE4] text-sm font-bold text-white shadow-[0_8px_18px_rgba(47,111,228,0.24)] transition-colors hover:bg-[#1F62DF] disabled:bg-[#2F6FE4] disabled:opacity-50"
           >
             {isSubmitting
               ? "Completing Registration..."

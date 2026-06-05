@@ -9,7 +9,7 @@ import {
   formatAuthMessage,
   getAuthFieldError,
   requestPasswordReset,
-} from "~/services/auth.server";
+} from "~/services/auth/api.server";
 import { redirectIfAuthenticated } from "~/lib/server/route-guards.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {

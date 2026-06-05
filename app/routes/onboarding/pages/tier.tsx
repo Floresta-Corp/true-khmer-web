@@ -45,13 +45,13 @@ export default function OnboardingTierPage() {
     <OnboardingPageShell
       headerTitle="Your Tier"
       headerTitlePosition="right"
-      mainClassName="items-center px-6 py-10 sm:px-8 sm:py-10 md:px-12 lg:px-20 xl:px-80"
+      mainClassName="items-center justify-center px-4 py-6 sm:px-6 sm:py-8 lg:px-20"
     >
       <OnboardingRomdoulCorners />
 
       <Form
         method="post"
-        className="relative z-10 flex w-full max-w-121.5 flex-col gap-10 pb-6 sm:pb-8"
+        className="relative z-10 flex w-full max-w-lg flex-col gap-5 sm:gap-6 lg:gap-8"
       >
         <OnboardingStepIntro
           currentStep={4}
@@ -82,9 +82,11 @@ export default function OnboardingTierPage() {
           <OnboardingTierPathCard />
         </div>
 
-        <div className="tk-fade-up-2">
-          <OnboardingFormError message={actionData?.errors?.form} />
-        </div>
+        {actionData?.errors?.form ? (
+          <div className="tk-fade-up-2">
+            <OnboardingFormError message={actionData.errors.form} />
+          </div>
+        ) : null}
 
         <OnboardingBackContinueActions
           backTo="/onboarding/contribution"

@@ -11,12 +11,8 @@ import {
   getAuthFieldError,
   loginUser,
   loginWithGoogle,
-} from "~/services/auth.server";
+} from "~/services/auth/api.server";
 import { createUserSession } from "~/lib/server/session.server";
-import {
-  destinationFromOnboardingState,
-  getOnboardingStateWithToken,
-} from "~/services/onboarding.server";
 import { redirectIfAuthenticated } from "~/lib/server/route-guards.server";
 import { sanitizeRedirectPath } from "~/lib/redirects";
 import { destinationFromAuthFlow } from "./auth-flow.server";
@@ -75,13 +71,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     const auth = await loginUser(email, password, request);
-    const onboardingState = await getOnboardingStateWithToken(
-      request,
-      auth.accessToken,
-    );
-    const postLoginPath = onboardingState.completed
-      ? redirectTo
-      : destinationFromOnboardingState(onboardingState);
+    const postLoginPath = destinationFromAuthFlow(auth.authFlow, redirectTo);
     return createUserSession(auth, postLoginPath, { rememberMe });
   } catch (error) {
     if (error instanceof AuthApiError) {

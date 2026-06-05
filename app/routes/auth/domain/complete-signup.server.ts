@@ -8,7 +8,7 @@ import {
   completeSignUp,
   formatAuthMessage,
   getAuthFieldError,
-} from "~/services/auth.server";
+} from "~/services/auth/api.server";
 import {
   getAccessToken,
   updateUserSession,
@@ -16,19 +16,24 @@ import {
 import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
 import { destinationFromAuthFlow } from "./auth-flow.server";
 import type { CompleteSignUpErrors } from "./auth.types";
+import {
+  getAuthSession,
+  invalidateAuthSessionCacheForRequest,
+} from "~/services/auth/session.server";
+import { routeForAccessState } from "~/lib/server/auth/access-control.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const user = await requireAuthenticatedUser(request);
+  await requireAuthenticatedUser(request);
+  const { session, setCookie } = await getAuthSession(request);
 
-  if (user.signupCompletedAt) {
-    if (!user.onboardingCompletedAt) {
-      throw redirect("/onboarding/profile");
-    }
-
-    throw redirect("/");
+  if (session.authFlow.accessState !== "SIGNUP_REQUIRED") {
+    throw redirect(
+      routeForAccessState(session.authFlow.accessState),
+      setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
+    );
   }
 
-  return { user };
+  return { user: session.user };
 }
 
 function withCompleteSignUpFormError(
@@ -83,6 +88,8 @@ export async function action({ request }: ActionFunctionArgs) {
       accessToken,
       request,
     );
+
+    await invalidateAuthSessionCacheForRequest(request);
 
     return updateUserSession(
       request,

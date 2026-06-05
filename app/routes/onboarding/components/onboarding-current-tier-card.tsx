@@ -2,26 +2,24 @@ import { Landmark, Sprout, TrendingDown } from "lucide-react";
 
 export function OnboardingCurrentTierCard() {
   return (
-    <div className="w-full rounded-2xl border border-[#ACDCFF] bg-linear-to-b from-[#32A8FF1A] to-[#82CAFF03] px-4 py-5">
-      <div className="flex flex-col items-center gap-4">
-        <div className="flex w-28.75 flex-col items-center gap-1">
-          <div className="flex size-15 items-center justify-center rounded-full bg-[#D5EDFF] text-[#2F6FE4]">
-            <Landmark size={30} />
+    <div className="w-full rounded-2xl border border-[#ACDCFF] bg-linear-to-b from-[#32A8FF1A] to-[#82CAFF03] px-4 py-4 sm:py-5">
+      <div className="flex flex-col items-center gap-3 sm:gap-4">
+        <div className="flex flex-col items-center gap-1">
+          <div className="flex size-12 items-center justify-center rounded-full bg-[#D5EDFF] text-[#2F6FE4] sm:size-15">
+            <Landmark className="size-6 sm:size-7.5" />
           </div>
           <p className="text-center text-xs font-normal leading-5 text-[#344256]">
             Your Current Tier
           </p>
-          <p className="text-center text-[24px] font-bold leading-9 text-[#2F6FE4]">
+          <p className="text-center text-xl font-bold leading-7 text-[#2F6FE4] sm:text-2xl sm:leading-9">
             Neary
           </p>
         </div>
 
-        <p className="max-w-101 text-center text-xs font-normal leading-4 text-[#111111] sm:text-sm sm:leading-5">
-          You are a citizen of the True Khmer community.
-          <br />
-          Participate, help others, and contribute to projects to
-          <br />
-          earn your way to Yothea (Warrior) and beyond.
+        <p className="max-w-sm text-center text-xs font-normal leading-4 text-[#111111] sm:text-sm sm:leading-5">
+          You are a citizen of the True Khmer community. Participate, help
+          others, and contribute to projects to earn your way to Yothea
+          (Warrior) and beyond.
         </p>
 
         <div className="inline-flex flex-wrap items-center justify-center gap-2">

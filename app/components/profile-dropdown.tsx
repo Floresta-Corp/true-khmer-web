@@ -16,7 +16,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { Separator } from "./ui/separator";
-import { Avatar, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import type { AuthenticatedUser } from "~/lib/server/types";
 import { cn, resolveImageURL } from "~/lib/utils";
@@ -29,25 +29,38 @@ function ProfileAvatar({
   className,
   profileImage,
   displayName,
+  initials,
 }: {
   className?: string;
   profileImage?: string;
   displayName?: string;
+  initials: string;
 }) {
   return (
     <Avatar className={cn(className)}>
       <AvatarImage
-        src={profileImage}
+        src={profileImage || undefined}
         alt={displayName}
         className="object-center"
       />
+      <AvatarFallback className="bg-[#EFF6FF] text-xs font-semibold text-[#2F6FE4]">
+        {initials}
+      </AvatarFallback>
     </Avatar>
   );
 }
 
 export default function ProfileDropDown({ user }: ProfileDropDownProps) {
   const displayName = user?.name || user?.email?.split("@")[0] || "User";
-  const profileImage = resolveImageURL(user?.profile?.avatarKey);
+  const initials = displayName
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+  const profileImage =
+    resolveImageURL(user?.profile?.avatarUrl || undefined) ||
+    resolveImageURL(user?.profile?.avatarKey || user?.avatar);
 
   return (
     <DropdownMenu>
@@ -61,6 +74,7 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
             className="size-9 rounded-full object-cover"
             profileImage={profileImage}
             displayName={displayName}
+            initials={initials}
           />
           <span className="absolute bottom-0 right-0 size-3 rounded-full bg-white p-0.5 flex items-center justify-center">
             <ChevronDown className="size-1.75 text-[#64748b]" />
@@ -77,10 +91,13 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
         <div className="flex items-center gap-2 pb-2 pt-3 px-3">
           <Avatar className="size-7 border border-[#f9fafb]">
             <AvatarImage
-              src={profileImage}
+              src={profileImage || undefined}
               alt={displayName}
               className="object-cover"
             />
+            <AvatarFallback className="bg-[#EFF6FF] text-[10px] font-semibold text-[#2F6FE4]">
+              {initials}
+            </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
             <span className="text-xs font-semibold text-[#344256] leading-3">

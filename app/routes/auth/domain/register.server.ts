@@ -11,7 +11,7 @@ import {
   getAuthFieldError,
   loginWithGoogle,
   registerUser,
-} from "~/services/auth.server";
+} from "~/services/auth/api.server";
 import { redirectIfAuthenticated } from "~/lib/server/route-guards.server";
 import { sanitizeRedirectPath } from "~/lib/redirects";
 import { getPasswordValidationError } from "./password-validation";

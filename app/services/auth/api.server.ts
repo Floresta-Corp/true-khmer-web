@@ -1,4 +1,5 @@
 import { resolveApiBase } from "~/lib/server/api-base.server";
+import type { AuthFlow } from "~/lib/server/auth/access-control.server";
 
 export type BackendUser = {
   id?: string;
@@ -26,13 +27,6 @@ export type AuthTokensResponse = {
   refreshToken: string;
   user: AuthenticatedBackendUser;
   authFlow?: AuthFlow;
-};
-
-export type AuthFlow = {
-  isNewUser: boolean;
-  requiresSignupCompletion: boolean;
-  requiresOnboarding: boolean;
-  nextStep: "COMPLETE_SIGNUP" | "ONBOARDING" | "APP";
 };
 
 type RegisterRequest = {

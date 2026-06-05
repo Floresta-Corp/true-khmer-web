@@ -1,6 +1,6 @@
 import { createCookieSessionStorage } from "react-router";
 import { redirect } from "react-router";
-import type { AuthTokensResponse } from "~/services/auth.server";
+import type { AuthTokensResponse } from "~/services/auth/api.server";
 import type { AuthenticatedUser } from "./types";
 const SESSION_SECRET = process.env.SESSION_SECRET ?? crypto.randomUUID();
 
