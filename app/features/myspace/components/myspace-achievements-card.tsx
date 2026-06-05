@@ -59,7 +59,7 @@ export function AchievementsCard({ badges }: AchievementsCardProps) {
 
   return (
     <Dialog>
-      <Card className="relative overflow-hidden rounded-3xl border  bg-white p-6 ">
+      <Card className="relative overflow-hidden rounded-3xl border shadow-none bg-white p-6 ">
         <div className="mb-4 flex items-center justify-between gap-3 border-b pb-4">
           <CardTitle className="text-base flex items-center gap-2 font-semibold tracking-tight text-[#0f172a]">
             <Award className="h-5 w-5 text-indigo-400 " />

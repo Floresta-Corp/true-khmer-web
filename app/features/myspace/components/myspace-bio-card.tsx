@@ -8,7 +8,7 @@ interface MyspaceBioCardProps {
 
 export default function MyspaceBioCard({ bio, skills }: MyspaceBioCardProps) {
   return (
-    <Card className="rounded-3xl border border-slate-200 bg-white ">
+    <Card className="rounded-3xl border shadow-none bg-white ">
       <CardHeader className="space-y-4 p-6  border-slate-100">
         <CardTitle className="text-xl font-bold text-slate-900">
           About

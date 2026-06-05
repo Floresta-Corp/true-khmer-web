@@ -11,7 +11,7 @@ interface ActivityStatsProps {
 
 export function StatsCards({ totalPoints, tier, rank }: ActivityStatsProps) {
   return (
-    <Card className="w-full rounded-3xl border bg-white p-6 ">
+    <Card className="w-full rounded-3xl border shadow-none bg-white p-6 ">
       <CardHeader className="p-0 pb-5">
         <CardTitle className="text-base flex items-center gap-2 font-semibold tracking-tight text-[#0f172a]">
           <Trophy className="text-yellow-500" /> Community Standing
