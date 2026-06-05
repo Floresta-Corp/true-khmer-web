@@ -109,8 +109,9 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
             <span className="text-sm font-semibold">Enable new role</span>
           </DropdownMenuItem>
         </div>
+        */}
 
-        <Separator className="bg-[#f3f4f6]" /> */}
+        <Separator className="bg-[#f3f4f6]" />
         {/* Action List */}
         <div className="flex flex-col gap-1 py-1 px-1">
           <DropdownMenuItem

@@ -53,7 +53,7 @@ export default function ProfileDetailPage() {
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <Tabs defaultValue="forum">
+        <Tabs defaultValue="about">
           <div className="w-full border-b mb-8">
             <TabsList className="bg-transparent" variant={"line"}>
               <TabsTrigger
