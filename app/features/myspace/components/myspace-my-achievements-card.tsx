@@ -54,15 +54,15 @@ const categoryStyles: Record<MyspaceBadge["category"], BadgeStyle> = {
   },
 };
 
-export function AchievementsCard({ badges }: AchievementsCardProps) {
+export function MyAchievementsCard({ badges }: AchievementsCardProps) {
   const previewBadges = badges.slice(0, 4);
 
   return (
     <Dialog>
       <Card className="relative overflow-hidden rounded-3xl border shadow-none bg-white p-6 ">
-        <div className="mb-4 flex items-center justify-between gap-3 border-b pb-4">
+        <div className="flex items-center justify-between gap-3 border-b pb-1 mb-5">
           <CardTitle className="text-base flex items-center gap-2 font-semibold tracking-tight text-[#0f172a]">
-            <Award className="h-5 w-5 text-indigo-400 " />
+            <Award className="text-indigo-400 size-4.5" />
             My Achievements
           </CardTitle>
 

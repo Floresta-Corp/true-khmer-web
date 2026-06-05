@@ -4,10 +4,10 @@ import type { Route } from "./+types/myspace";
 import { resolveImageURL } from "~/lib/utils";
 import { PageHeader } from "../components/myspace-page-header";
 import { ProfileHeader } from "../components/myspace-profile-header";
-import { AchievementsCard } from "../components/myspace-achievements-card";
+import { MyAchievementsCard } from "../components/myspace-my-achievements-card";
 import { ForumPageLayout } from "~/features/forum/components/forum-page-layout";
 import MyspaceBioCard from "../components/myspace-bio-card";
-import { StatsCards } from "../components/myspace-stats-cards";
+import { CommunityStandingCard } from "../components/myspace-community-standing-cards";
 
 export const loader = MyspaceLoader;
 
@@ -16,7 +16,7 @@ export function meta() {
 }
 
 export default function MySpacePage({ loaderData }: Route.ComponentProps) {
-  const { me, recentActivities } = loaderData;
+  const { me } = loaderData;
 
   if (!me) {
     return (
@@ -99,7 +99,7 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
           >
-            <StatsCards
+            <CommunityStandingCard
               totalPoints={me.progress.totalPoints}
               tier={me.progress.tier}
               rank={me.progress.rank}
@@ -111,7 +111,7 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
           >
-            <AchievementsCard badges={me.badges} />
+            <MyAchievementsCard badges={me.badges} />
           </motion.div>
         </div>
       </aside>
