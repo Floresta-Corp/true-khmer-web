@@ -103,6 +103,8 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
               totalPoints={me.progress.totalPoints}
               tier={me.progress.tier}
               rank={me.progress.rank}
+              nextTier={me.progress.nextTier}
+              pointsUntilNextTier={me.progress.pointsUntilNextTier}
             />
           </motion.div>
 
