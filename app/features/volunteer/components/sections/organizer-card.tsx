@@ -12,7 +12,6 @@ export default function OrganizerCard({
   userId,
 }: OrganizerCardProps) {
   const organizer = volunteer.organizer;
-
   const avatarUrl = resolveImageURL(
     organizer.avatarUrl || undefined,
     "/avatar_placeholer.webp",
@@ -31,15 +30,9 @@ export default function OrganizerCard({
     ? `tel:+855${organizer.contact.phone.replace(/^\+?855/, "")}`
     : undefined;
 
-  const phoneUrl = organizer.contact.phone
-    ? `tel:+855${organizer.contact.phone.replace(/^\+?855/, "")}`
-    : undefined;
-
-  const emailUrl = organizer.contact.email 
+  const emailUrl = organizer.contact.email
     ? `mailto:${organizer.contact.email}`
     : undefined;
-
-  return (
 
   return (
     <AuthorCard
