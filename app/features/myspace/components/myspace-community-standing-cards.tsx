@@ -79,7 +79,7 @@ export function CommunityStandingCard({
 
           <Progress
             value={progressPercentage}
-            className="h-2 bg-[#e8f0ff] [&_[data-slot=progress-indicator]]:bg-[#0ea5ff]"
+            className="h-2 bg-[#e8f0ff] [&_[data-slot=progress-indicator]]:bg-blue-500"
           />
 
           <div className="flex items-center justify-between gap-3">
