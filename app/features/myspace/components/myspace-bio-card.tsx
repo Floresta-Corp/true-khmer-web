@@ -1,3 +1,4 @@
+import SkillBadgeComponent from "~/components/skill-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 
@@ -26,12 +27,7 @@ export default function MyspaceBioCard({ bio, skills }: MyspaceBioCardProps) {
         {skills.length > 0 ? (
           <div className="mt-4 flex flex-wrap gap-2">
             {skills.map((skill, index) => (
-              <span
-                key={index}
-                className="rounded-full border border-slate-100 bg-slate-50/50 px-4 py-2 text-xs font-medium text-slate-800"
-              >
-                {skill}
-              </span>
+              <SkillBadgeComponent key={index} skill={skill} />
             ))}
           </div>
         ) : (

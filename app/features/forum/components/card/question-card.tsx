@@ -14,6 +14,7 @@ import QuestionVoteComponent from "../question-vote-component";
 import MobileAuthorOptions from "../mobile-author-options";
 import { motion, useReducedMotion } from "motion/react";
 import { ImageLightbox } from "~/components/image-lightbox";
+import ProfileLinkWrapper from "~/components/profile-link-wrapper";
 
 interface QuestionCardProps {
   question: Question;
@@ -64,9 +65,13 @@ export default function QuestionCard({
           </Avatar>
           <div className="flex flex-col gap-0.5 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <p className="text-xs sm:text-sm font-semibold text-[#344256] truncate">
+              <ProfileLinkWrapper
+                authorId={question.author.id}
+                isAuthor={userId === question.author.id ? true : false}
+                className="text-xs sm:text-sm font-semibold text-[#344256] truncate"
+              >
                 {question.author.name}
-              </p>
+              </ProfileLinkWrapper>
               <span className="hidden text-[#d1d5db] sm:inline">·</span>
               <Link
                 to={`/forum?categoryId=${question.category.id}`}
