@@ -28,7 +28,7 @@ export default function AuthorCard({
   const profileImage = avatarUrl;
 
   return (
-    <article className="rounded-[14px] border border-[#e1e7ef] bg-[#F9FAFB] p-4 h-26.5">
+    <article className="rounded-[14px] border border-[`#e1e7ef`] bg-[`#F9FAFB`] p-4 h-[6.625rem]">
       <div className="flex items-center gap-5">
         <div className="flex-1">
           <p className="text-sm font-medium text-gray-700 mb-3">Posted By</p>
