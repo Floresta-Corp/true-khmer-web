@@ -3,30 +3,21 @@ import type { MouseEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import {
   Archive,
+  Calendar,
   CalendarClock,
   CheckCircle,
-  Copy,
   Globe,
   MoreHorizontal,
   Pencil,
-  Share2,
   Star,
   Trash2,
-  UserCheck,
   Users,
   X,
 } from "lucide-react";
 import { useFetcher, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "~/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter } from "~/components/ui/dialog";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -40,6 +31,9 @@ import type {
   SourceType,
   UpdateManagePostResponse,
 } from "~/services/manage-post/types";
+import { Separator } from "~/components/ui/separator";
+import { formatDateMonthYear } from "~/features/events/lib/event-formatters";
+import { addDays, isValid } from "date-fns";
 
 type Props = {
   status: ManagePostStatus;
@@ -55,6 +49,12 @@ const SOURCE_TYPE_TO_ROUTE: Record<string, "projects" | "volunteer"> = {
   VOLUNTEER: "volunteer",
   volunteer: "volunteer",
 };
+
+const PRESET_DATE = [
+  { label: "+7 days", days: 7 },
+  { label: "+14 days", days: 14 },
+  { label: "+30 days", days: 30 },
+];
 
 export default function ManagePostOption({
   status,
@@ -147,6 +147,12 @@ export default function ManagePostOption({
     );
   }, [extendDeadlineFetcher.data, extendDeadlineFetcher.state]);
 
+  const [pickerKey, setPickerKey] = useState(0);
+  function applyPreset(base: string | null | undefined, days: number): string {
+    const from = base && isValid(new Date(base)) ? new Date(base) : new Date();
+    return addDays(from, days).toISOString();
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -218,7 +224,7 @@ export default function ManagePostOption({
                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
               >
                 <CalendarClock size={16} className="text-slate-400" />
-                Extend Application Deadline
+                Extend Deadline
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => handleAction("mark_complete")}
@@ -311,20 +317,39 @@ export default function ManagePostOption({
       <Dialog open={deadlineDialogOpen} onOpenChange={setDeadlineDialogOpen}>
         <DialogContent
           onClick={(e) => e.stopPropagation()}
-          className="max-w-md rounded-2xl p-6"
+          className="max-w-md rounded-2xl py-8 px-6"
         >
-          <DialogHeader>
-            <DialogTitle className="text-lg">
-              Extend Application Deadline
-            </DialogTitle>
-            <DialogDescription>
-              Select the new application deadline for
-              <span className="font-bold "> "{title}".</span>
-            </DialogDescription>
-          </DialogHeader>
+          <div className="flex items-start gap-4">
+            <div className="shrink-0 w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center">
+              <Calendar className="text-blue-600" size={22} />
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-gray-900">
+                Confirm Application Deadline
+              </h2>
+              <p className="text-sm text-gray-500 mt-1 leading-relaxed">
+                {title}
+              </p>
+            </div>
+          </div>
+          <Separator />
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 ">
+            <div className="flex justify-between text-sm font-semibold text-slate-500  mb-1">
+              <span>Current Deadline</span>
+              <span className="font-bold text-slate-700 dark:text-slate-300">
+                {currentDeadline
+                  ? formatDateMonthYear(currentDeadline)
+                  : "No deadline set"}
+              </span>
+            </div>
+          </div>
+          <span className="font-semibold tracking-wide text-sm text-gray-700">
+            New Deadline <span className="text-red-500">*</span>
+          </span>
 
           <div className="space-y-2">
             <VolunteerDatePickerField
+              key={pickerKey}
               value={deadline}
               onChange={(value) => {
                 setDeadline(value);
@@ -333,6 +358,32 @@ export default function ManagePostOption({
               error={deadlineError}
               placeholder="Select new deadline"
             />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Quick presets (from today)
+            </span>
+            <div className="flex gap-2">
+              {PRESET_DATE.map(({ label, days }) => (
+                <Button
+                  key={days}
+                  onClick={() => {
+                    const base =
+                      deadline && isValid(new Date(deadline))
+                        ? new Date(deadline)
+                        : new Date();
+                    const newDeadline = addDays(base, days).toISOString();
+                    setDeadline(newDeadline);
+                    setDeadlineError(undefined);
+                    setPickerKey((k) => k + 1);
+                  }}
+                  className="flex-1 h-9 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-colors cursor-pointer"
+                >
+                  {label}
+                </Button>
+              ))}
+            </div>
           </div>
 
           <DialogFooter className="mt-2 border-0 bg-transparent p-3 ">
