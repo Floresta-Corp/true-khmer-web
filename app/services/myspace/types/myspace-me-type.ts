@@ -45,7 +45,7 @@ export type NextTier = z.infer<typeof NextTierSchema>;
 
 export const ProgressSchema = z.object({
   nextTier: z.union([NextTierSchema, z.null()]),
-  pointsUntilNextTier: z.number(),
+  pointsUntilNextTier: z.number().nonnegative(),
   totalPoints: z.number(),
   rank: z.string().nullable(),
   tier: TierSchema,
