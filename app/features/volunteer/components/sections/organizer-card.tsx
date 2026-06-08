@@ -31,7 +31,15 @@ export default function OrganizerCard({
     ? `tel:+855${organizer.contact.phone.replace(/^\+?855/, "")}`
     : undefined;
 
-  const emailUrl = `mailto:${organizer.contact.email}`;
+  const phoneUrl = organizer.contact.phone
+    ? `tel:+855${organizer.contact.phone.replace(/^\+?855/, "")}`
+    : undefined;
+
+  const emailUrl = organizer.contact.email 
+    ? `mailto:${organizer.contact.email}`
+    : undefined;
+
+  return (
 
   return (
     <AuthorCard
