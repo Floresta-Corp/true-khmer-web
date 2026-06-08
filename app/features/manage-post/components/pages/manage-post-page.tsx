@@ -1,6 +1,6 @@
 import WorkSpacePageLayout from "~/layout/workspace-page-layout";
 import PostingPagination from "../manage-post-pagination";
-import { useFetcher, useLoaderData, useSearchParams } from "react-router";
+import { useLoaderData, useNavigation, useSearchParams } from "react-router";
 import ManagePostCard from "../card/manage-post-card";
 import ManagePostCardSkeleton from "../manage-post-skeleton";
 import ManagePostFilters from "../card/manage-post-filter";
@@ -45,7 +45,7 @@ function isValidStatus(value: string | null): value is FilterType {
 
 export default function ManagePostingPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const fetcher = useFetcher<typeof loader>();
+  const navigation = useNavigation();
   const { postings, pagination } = useLoaderData<typeof loader>();
   const [activeType, setActiveType] = useState<TabType>(() => {
     const rawType = searchParams.get("type");
@@ -59,7 +59,9 @@ export default function ManagePostingPage() {
     searchParams.get("search") ?? "",
   );
 
-  const isLoading = fetcher.state === "loading";
+  const isLoading =
+    navigation.state === "loading" &&
+    navigation.location?.pathname === "/manage-post";
 
   useEffect(() => {
     const rawType = searchParams.get("type");
@@ -75,7 +77,6 @@ export default function ManagePostingPage() {
 
   const applySearchParams = (nextParams: URLSearchParams) => {
     setSearchParams(nextParams, { replace: true });
-    fetcher.load(`/manage-post?${nextParams.toString()}`);
   };
 
   const handleTypeChange = (type: TabType) => {
@@ -86,6 +87,7 @@ export default function ManagePostingPage() {
     } else {
       nextParams.set("type", type);
     }
+    nextParams.delete("page");
     applySearchParams(nextParams);
   };
 
@@ -97,6 +99,7 @@ export default function ManagePostingPage() {
     } else {
       nextParams.set("filter", value);
     }
+    nextParams.delete("page");
     applySearchParams(nextParams);
   };
 
@@ -108,11 +111,9 @@ export default function ManagePostingPage() {
     } else {
       nextParams.delete("search");
     }
+    nextParams.delete("page");
     applySearchParams(nextParams);
   };
-
-  const currentPostings = fetcher.data?.postings ?? postings;
-  const currentPagination = fetcher.data?.pagination ?? pagination;
 
   return (
     <WorkSpacePageLayout
@@ -138,7 +139,7 @@ export default function ManagePostingPage() {
           ))
         ) : (
           <>
-            {currentPostings.map((posting: any, index: number) => (
+            {postings.map((posting: any, index: number) => (
               <ManagePostCard
                 key={posting.id}
                 index={index}
@@ -178,8 +179,9 @@ export default function ManagePostingPage() {
 
       <div className="mt-10 pb-10">
         <PostingPagination
-          total={currentPagination?.total ?? currentPostings.length}
-          showing={currentPostings.length}
+          total={pagination?.total ?? postings.length}
+          totalPages={pagination?.totalPages}
+          pageSize={pagination?.limit ?? 6}
         />
       </div>
     </WorkSpacePageLayout>
