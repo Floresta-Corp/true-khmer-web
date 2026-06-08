@@ -137,7 +137,7 @@ export function SingleSelectDropdown({
         <DropdownMenuContent
           align="start"
           className={cn(
-            "relative z-50 max-h-72 min-w-32 overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md",
+            "relative z-50 min-w-32 overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md",
             contentClassName,
           )}
           style={menuWidth ? { width: `${menuWidth}px` } : undefined}
@@ -165,37 +165,39 @@ export function SingleSelectDropdown({
               </div>
             ) : null}
 
-            {allowClear ? (
-              <DropdownMenuCheckboxItem
-                checked={value === ""}
-                onSelect={(event) => {
-                  event.preventDefault();
-                  handleSelect("");
-                }}
-              >
-                {clearLabel}
-              </DropdownMenuCheckboxItem>
-            ) : null}
-
-            {loading ? (
-              <p className="px-2 py-2 text-sm text-[#64748B]">Loading...</p>
-            ) : filteredOptions.length > 0 ? (
-              filteredOptions.map((option) => (
+            <div className="max-h-56 overflow-x-hidden overflow-y-auto overscroll-contain">
+              {allowClear ? (
                 <DropdownMenuCheckboxItem
-                  key={option.value}
-                  checked={value === option.value}
-                  disabled={option.disabled}
+                  checked={value === ""}
                   onSelect={(event) => {
                     event.preventDefault();
-                    handleSelect(option.value);
+                    handleSelect("");
                   }}
                 >
-                  {option.label}
+                  {clearLabel}
                 </DropdownMenuCheckboxItem>
-              ))
-            ) : (
-              <p className="px-2 py-2 text-sm text-[#64748B]">{emptyText}</p>
-            )}
+              ) : null}
+
+              {loading ? (
+                <p className="px-2 py-2 text-sm text-[#64748B]">Loading...</p>
+              ) : filteredOptions.length > 0 ? (
+                filteredOptions.map((option) => (
+                  <DropdownMenuCheckboxItem
+                    key={option.value}
+                    checked={value === option.value}
+                    disabled={option.disabled}
+                    onSelect={(event) => {
+                      event.preventDefault();
+                      handleSelect(option.value);
+                    }}
+                  >
+                    {option.label}
+                  </DropdownMenuCheckboxItem>
+                ))
+              ) : (
+                <p className="px-2 py-2 text-sm text-[#64748B]">{emptyText}</p>
+              )}
+            </div>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
