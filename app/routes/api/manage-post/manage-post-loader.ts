@@ -1,6 +1,6 @@
 import type { Route } from "project-types/manage-post/routes/+types/manage-post";
 import z from "zod";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import { getUserId } from "~/lib/server/session.server";
 import { myManagePost } from "~/services/manage-post/server";
 import {
@@ -17,7 +17,7 @@ type ManagePostLoaderData = {
 };
 
 export async function managePostLoader({ request }: Route.LoaderArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
   const userId = await getUserId(request);
 
   if (!userId) {

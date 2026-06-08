@@ -1,5 +1,5 @@
 import { type ActionFunctionArgs } from "react-router";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { transformActionResponse, mapZodError } from "~/lib/server/action-response.server";
 import {
@@ -9,7 +9,7 @@ import {
 import { VolunteerOpportunityInputSchema } from "~/services/volunteer/volunteer-types";
 
 export async function volunteerCreateAction({ request }: ActionFunctionArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
   const formData = await request.formData();
   const actionType = formData.get("actionType");
 

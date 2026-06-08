@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import { getUserId } from "~/lib/server/session.server";
 import { getMyApplicationDetailResponse } from "~/services/myspace/server/my-application.server";
 import type {
@@ -21,7 +21,7 @@ export async function MyApplicationDetailLoader({
   request,
   params,
 }: LoaderFunctionArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
 
   const sourceType = params.sourceType;
   const postingId = params.postingId;

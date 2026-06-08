@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "react-router";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import {
   uploadApplicationDocumentPresign,
   applyForLaunchpadRole,
@@ -351,7 +351,7 @@ async function submitBatchLaunchpadApplication(
 }
 
 export async function launchpadApplyAction({ request }: ActionFunctionArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
   const formData = await request.formData();
   try {
     const hasBatchFields =
@@ -375,7 +375,7 @@ export async function launchpadApplyAction({ request }: ActionFunctionArgs) {
 }
 
 export async function batchApplyAction({ request }: ActionFunctionArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
   const formData = await request.formData();
   try {
     return await submitBatchLaunchpadApplication(request, formData);

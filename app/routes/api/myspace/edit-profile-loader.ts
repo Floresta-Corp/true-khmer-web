@@ -1,5 +1,5 @@
 import type { Route as EditProfileRoute } from "project-types/myspace/routes/+types/edit-profile";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import { getUserId } from "~/lib/server/session.server";
 import {
   GetMyspaceMe,
@@ -20,7 +20,7 @@ export async function EditProfileLoader({
 }: EditProfileRoute.LoaderArgs) {
   const url = new URL(request.url);
   const searchParams = new URLSearchParams(url.searchParams.toString());
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
   const userId = await getUserId(request);
   const meResult = await GetMyspaceMe(request);
 

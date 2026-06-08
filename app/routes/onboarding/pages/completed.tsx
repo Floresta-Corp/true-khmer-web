@@ -3,10 +3,10 @@ import { data, Link } from "react-router";
 import { OnboardingPageShell } from "~/routes/onboarding/components/onboarding-page-shell";
 import { OnboardingRomdoulCorners } from "~/routes/onboarding/components/onboarding-romdoul-corners";
 import type { Route } from "./+types/completed";
-import { requireCompletedPageAccess } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const guard = await requireCompletedPageAccess(request);
+  const guard = await requireUser(request, { forceFresh: true });
   if (guard.setCookie) {
     return data(null, { headers: { "Set-Cookie": guard.setCookie } });
   }

@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "react-router";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import {
   saveLaunchpad,
   unsaveLaunchpad,
@@ -7,7 +7,7 @@ import {
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 
 export async function LaunchpadSaveAction({ request }: ActionFunctionArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
 
   const formData = await request.formData();
   const launchpadId = formData.get("launchpadId");

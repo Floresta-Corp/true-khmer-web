@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs } from "react-router";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import {
   errorActionResponse,
   successActionResponse,
@@ -264,7 +264,7 @@ async function uploadToStorage(upload: LaunchpadPresignedUpload, file: File) {
 }
 
 export async function launchpadCreateAction({ request }: ActionFunctionArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
   const formData = await request.formData();
   const actionType = formData.get("actionType");
 

@@ -1,4 +1,4 @@
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import { getMyApplicationDetailResponse } from "~/services/myspace/server/my-application.server";
 import { GetMyApplicationDetailResponseSchema } from "~/services/myspace/types/my-application-type";
 
@@ -17,7 +17,7 @@ export async function myApplicationDetailLoader({
   request: Request;
   params: { sourceType?: string; id?: string };
 }) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
 
   const sourceType = params.sourceType;
   const applicationId = params.id;

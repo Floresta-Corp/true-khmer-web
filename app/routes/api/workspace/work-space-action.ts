@@ -1,4 +1,4 @@
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import type { Route } from "project-types/workspace/routes/+types/workspace";
 import {
   deleteAnswerById,
@@ -9,7 +9,7 @@ import { deleteQuestionAction } from "~/services/forum/action";
 import { validateCreateForumPostForm } from "~/services/forum/validation";
 
 export async function workSpaceAction({ request }: Route.ActionArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
   const formData = await request.formData();
   const actionType = String(formData.get("actionType") ?? "").trim();
   const method = request.method.toUpperCase();

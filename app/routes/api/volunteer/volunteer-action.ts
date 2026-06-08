@@ -1,12 +1,12 @@
 import type { Route } from "project-types/volunteer/routes/+types/volunteer";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import {
   SaveVolunteerOpportunity,
   UnsaveVolunteerOpportunity,
 } from "~/services/volunteer/server";
 
 export async function volunteerAction({ request }: Route.ActionArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
   const formData = await request.formData();
   const actionType = formData.get("actionType")?.toString();
   const opportunityId = formData.get("opportunityId")?.toString();

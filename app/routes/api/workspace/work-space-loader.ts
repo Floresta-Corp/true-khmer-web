@@ -7,7 +7,7 @@ import type { Question, MyAnswerItem } from "~/services/forum/forum-types";
 import { getUserId } from "~/lib/server/session.server";
 import type { Route } from "project-types/workspace/routes/+types/workspace";
 import type { BasicJoinType } from "~/services/types";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 
 type MyWorkSpaceLoaderData = {
   questions: Question[];
@@ -17,7 +17,7 @@ type MyWorkSpaceLoaderData = {
 };
 
 export async function workSpaceLoader({ request }: Route.LoaderArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
   const userId = await getUserId(request);
 
   if (!userId) {

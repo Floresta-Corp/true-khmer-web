@@ -1,4 +1,4 @@
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import {
   parseVoteAction,
   submitVoteAction,
@@ -20,7 +20,7 @@ import type { Route as ForumRoute } from "project-types/forum/routes/+types/foru
 import type { SubmitReportInput } from "~/services/forum/forum-types";
 
 export async function forumListAction({ request }: ForumRoute.ActionArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
   const formData = await request.formData();
   const actionType = String(formData.get("actionType") ?? "").trim();
   const method = request.method.toUpperCase();

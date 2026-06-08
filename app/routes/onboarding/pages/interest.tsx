@@ -16,7 +16,7 @@ import type { Route } from "./+types/interest";
 import { getInterests, saveStep2Interests } from "~/services/onboarding.server";
 import { AuthSessionExpiredError } from "~/lib/server/api-client.server";
 import { destroySession, getSession } from "~/lib/server/session.server";
-import { requireOnboardingIncomplete } from "~/lib/server/route-guards.server";
+import { requireOnboarding } from "~/lib/server/route-guards.server";
 import {
   isInterestInputUnchanged,
   parseInterestForm,
@@ -60,7 +60,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const guard = await requireOnboardingIncomplete(request);
+  const guard = await requireOnboarding(request);
   const guardSetCookie = guard.setCookie;
   const cookieHeader = (setCookie?: string) => {
     const headerValue = setCookie ?? guardSetCookie;

@@ -1,5 +1,5 @@
 import { type ActionFunctionArgs } from "react-router";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { transformActionResponse, mapZodError } from "~/lib/server/action-response.server";
 import {
@@ -14,7 +14,7 @@ export async function volunteerEditAction({
 }: ActionFunctionArgs) {
   const id = params.id;
   if (!id) return { ok: false, error: "Missing opportunity id" };
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
   const formData = await request.formData();
   const actionType = formData.get("actionType");
 

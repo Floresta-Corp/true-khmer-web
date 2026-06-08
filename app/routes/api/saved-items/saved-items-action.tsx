@@ -1,7 +1,7 @@
 // saved-items-action.ts
 import type { ActionFunctionArgs } from "react-router";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import {} from "~/services/saved-items/saved-items.server";
 import {
   SaveVolunteerOpportunity,
@@ -9,7 +9,7 @@ import {
 } from "~/services/volunteer/server";
 
 export async function savedItemsAction({ request }: ActionFunctionArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
 
   const formData = await request.formData();
   const rawActionType = formData.get("actionType");

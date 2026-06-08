@@ -4,7 +4,7 @@ import {
   errorActionResponse,
   transformActionResponse,
 } from "~/lib/server/action-response.server";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import {
   postMyApplicationArchiveAction,
   postMyApplicationChangeStatus,
@@ -16,7 +16,7 @@ import {
 } from "~/services/myspace/types";
 
 export async function MyApplicationAction({ request }: ActionFunctionArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
 
   const formData = await request.formData();
   const actionType = String(formData.get("actionType") ?? "");

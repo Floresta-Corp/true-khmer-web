@@ -6,7 +6,7 @@ import {
 } from "~/services/volunteer/server/volunteer.opportunities.server";
 import { getVolunteerCategories } from "~/services/volunteer/server/volunteer.categories.server";
 import { getVolunteerLocations } from "~/services/volunteer/server/volunteer.location.server";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import type { GetVolunteerCategoriesResponse } from "~/services/volunteer/volunteer-types";
 import type { GetVolunteerLocationsResponse } from "~/services/volunteer/types/location";
 
@@ -21,7 +21,7 @@ export default async function volunteerEditLoader({
   request,
   params,
 }: VolunteerRoute.LoaderArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
   const userId = await getUserId(request);
 
   const [volunteer, locations, categories] = await Promise.all([

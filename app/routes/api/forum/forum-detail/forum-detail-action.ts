@@ -1,4 +1,4 @@
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import {
   parseVoteAction,
@@ -23,7 +23,7 @@ export async function forumDetailAction({
   request,
   params,
 }: ForumDetailRoute.ActionArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
 
   const formData = await request.formData();
   const method = request.method.toUpperCase();

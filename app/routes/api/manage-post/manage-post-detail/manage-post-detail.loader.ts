@@ -1,7 +1,7 @@
 import type { Route } from "project-types/manage-post/routes/+types/manage-post.$sourceType.$id";
 import z from "zod";
 import { getUserId } from "~/lib/server/session.server";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import { getManagePostDetail } from "~/services/manage-post/server/manage-post-detail.server";
 import {
   PostingApplicantFilter,
@@ -23,7 +23,7 @@ export async function managePostDetailLoader({
   request,
   params,
 }: Route.LoaderArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
   const userId = await getUserId(request);
 
   if (!userId) {

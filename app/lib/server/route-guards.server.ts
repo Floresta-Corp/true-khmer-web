@@ -29,6 +29,10 @@ type OnboardingGuardResult = GuardResult & {
   state: OnboardingState;
 };
 
+type GuardOptions = {
+  forceFresh?: boolean;
+};
+
 export type OptionalUserResult = {
   user: AuthenticatedUser | null;
   setCookie?: string;
@@ -87,7 +91,9 @@ async function redirectForGuardError(error: unknown, request: Request) {
   return null;
 }
 
-export async function requireAuthenticatedUser(
+// Use for auth-flow pages/actions that only need a logged-in session.
+// This does not check whether signup or onboarding is complete.
+export async function requireAuthUser(
   request: Request,
 ): Promise<AuthenticatedUser> {
   const user = await getSessionUser(request);
@@ -98,6 +104,8 @@ export async function requireAuthenticatedUser(
   return user as AuthenticatedUser;
 }
 
+// Use for public app routes. Anonymous users are allowed, but logged-in users
+// must be ACTIVE or they are redirected to their required signup/onboarding step.
 export async function getOptionalUser(
   request: Request,
 ): Promise<OptionalUserResult> {
@@ -141,10 +149,39 @@ export async function redirectIfAuthenticated(request: Request) {
   }
 }
 
-export async function requireOnboardingIncomplete(
+// Use for /complete-signup only. The user must be logged in and currently
+// required to complete signup.
+export async function requireSignupCompletion(
+  request: Request,
+): Promise<GuardResult> {
+  await requireAuthUser(request);
+
+  try {
+    const { session, setCookie } = await getAuthSession(request);
+    if (session.authFlow.accessState !== "SIGNUP_REQUIRED") {
+      throw redirectWithCookie(
+        routeForAccessState(session.authFlow.accessState),
+        setCookie,
+      );
+    }
+
+    return {
+      user: authenticatedUserFromSessionUser(session.user),
+      setCookie,
+    };
+  } catch (error) {
+    const redirectResponse = await redirectForGuardError(error, request);
+    if (redirectResponse) throw redirectResponse;
+    throw error;
+  }
+}
+
+// Use for /onboarding only. The user must be logged in and currently required
+// to complete onboarding.
+export async function requireOnboarding(
   request: Request,
 ): Promise<OnboardingGuardResult> {
-  const localUser = await requireAuthenticatedUser(request);
+  const localUser = await requireAuthUser(request);
 
   try {
     const authSessionResult = await getAuthSession(request);
@@ -174,37 +211,17 @@ export async function requireOnboardingIncomplete(
   }
 }
 
-export async function requireUser(request: Request): Promise<GuardResult> {
-  await requireAuthenticatedUser(request);
-
-  try {
-    const { session, setCookie } = await getAuthSession(request);
-    if (session.authFlow.accessState !== "ACTIVE") {
-      throw redirectWithCookie(
-        routeForAccessState(session.authFlow.accessState),
-        setCookie,
-      );
-    }
-
-    return {
-      user: authenticatedUserFromSessionUser(session.user),
-      setCookie,
-    };
-  } catch (error) {
-    const redirectResponse = await redirectForGuardError(error, request);
-    if (redirectResponse) throw redirectResponse;
-    throw error;
-  }
-}
-
-export async function requireCompletedPageAccess(
+// Use for normal protected app routes/actions. The user must be logged in and
+// backend /auth/session must say the account is ACTIVE.
+export async function requireUser(
   request: Request,
+  options: GuardOptions = {},
 ): Promise<GuardResult> {
-  await requireAuthenticatedUser(request);
+  await requireAuthUser(request);
 
   try {
     const { session, setCookie } = await getAuthSession(request, {
-      forceFresh: true,
+      forceFresh: options.forceFresh,
     });
     if (session.authFlow.accessState !== "ACTIVE") {
       throw redirectWithCookie(

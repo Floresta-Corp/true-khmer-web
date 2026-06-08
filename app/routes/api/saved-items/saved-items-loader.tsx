@@ -8,7 +8,7 @@ import {
   type ItemElement,
 } from "~/services/saved-items/saved-items-types";
 import type { Pagination } from "~/services/types";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import { getUserId } from "~/lib/server/session.server";
 import z from "zod";
 type SavedItemsLoaderData = {
@@ -19,7 +19,7 @@ type SavedItemsLoaderData = {
 };
 
 export async function savedItemsLoader({ request }: Route.LoaderArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
   const userId = await getUserId(request);
 
   if (!userId) {

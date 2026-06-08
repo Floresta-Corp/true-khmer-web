@@ -1,6 +1,6 @@
 import type { Profile, RecentActivity } from "~/services/myspace/types";
 import type { Route as MyspaceRoute } from "project-types/myspace/routes/+types/myspace";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import { getUserId } from "~/lib/server/session.server";
 import {
   GetMyspaceMe,
@@ -14,7 +14,7 @@ interface MyspaceLoaderData {
 }
 
 export async function MyspaceLoader({ request }: MyspaceRoute.LoaderArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
   const userId = await getUserId(request);
   const [meResult, activitiesResult] = await Promise.allSettled([
     GetMyspaceMe(request),

@@ -8,7 +8,7 @@ import { OnboardingStepIntro } from "~/routes/onboarding/components/onboarding-s
 import { SelectableContributionCard } from "~/routes/onboarding/components/selectable-contribution-card";
 import { saveStep3Contributions } from "~/services/onboarding.server";
 import type { Route } from "./+types/contribution";
-import { requireOnboardingIncomplete } from "~/lib/server/route-guards.server";
+import { requireOnboarding } from "~/lib/server/route-guards.server";
 import { onboardingContributionCards } from "~/routes/onboarding/domain/contribution/contribution-cards";
 import {
   isContributionInputUnchanged,
@@ -29,7 +29,7 @@ const standardContributionCards = onboardingContributionCards.filter(
 );
 
 export async function action({ request }: Route.ActionArgs) {
-  const guard = await requireOnboardingIncomplete(request);
+  const guard = await requireOnboarding(request);
   const guardSetCookie = guard.setCookie;
   const cookieHeader = (setCookie?: string) => {
     const headerValue = setCookie ?? guardSetCookie;

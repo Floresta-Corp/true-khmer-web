@@ -1,5 +1,5 @@
 import type { Route as ForumRoute } from "project-types/forum/routes/+types/forum.search";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import {
   deleteQuestionAction,
   parseVoteAction,
@@ -12,7 +12,7 @@ import { validateCreateForumPostForm } from "~/services/forum/validation";
 export default async function ForumSearchAction({
   request,
 }: ForumRoute.ActionArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
   const formData = await request.formData();
   const actionType = String(formData.get("actionType") ?? "").trim();
   const method = request.method.toUpperCase();

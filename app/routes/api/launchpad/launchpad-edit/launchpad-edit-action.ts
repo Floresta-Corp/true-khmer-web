@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs } from "react-router";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import {
   errorActionResponse,
   successActionResponse,
@@ -269,7 +269,7 @@ export async function launchpadEditAction({
     );
   }
 
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
   const formData = await request.formData();
   const actionType = formData.get("actionType");
 

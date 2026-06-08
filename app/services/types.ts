@@ -22,7 +22,6 @@ export const PaginationSchema = z.object({
 export type Pagination = z.infer<typeof PaginationSchema>;
 
 export const FileInputSchema = z.object({
-  fileName: z.string(),
   contentType: z.string(),
   fileSize: z.number(),
 });

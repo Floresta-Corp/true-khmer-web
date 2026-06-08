@@ -11,10 +11,10 @@ import {
   readSavedInterests,
   readSavedProfile,
 } from "~/services/onboarding.server";
-import { requireOnboardingIncomplete } from "~/lib/server/route-guards.server";
+import { requireOnboarding } from "~/lib/server/route-guards.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const guard = await requireOnboardingIncomplete(request);
+  const guard = await requireOnboarding(request);
   const url = new URL(request.url);
   const destination = destinationFromOnboardingState(guard.state);
   const referer = request.headers.get("referer");

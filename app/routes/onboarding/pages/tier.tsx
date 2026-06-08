@@ -8,11 +8,11 @@ import { OnboardingStepIntro } from "~/routes/onboarding/components/onboarding-s
 import { OnboardingTierPathCard } from "~/routes/onboarding/components/onboarding-tier-path-card";
 import type { Route } from "./+types/tier";
 import { saveStep4Complete } from "~/services/onboarding.server";
-import { requireOnboardingIncomplete } from "~/lib/server/route-guards.server";
+import { requireOnboarding } from "~/lib/server/route-guards.server";
 import { handleOnboardingActionError } from "~/routes/onboarding/domain/shared/onboarding-action-error.server";
 
 export async function action({ request }: Route.ActionArgs) {
-  const guard = await requireOnboardingIncomplete(request);
+  const guard = await requireOnboarding(request);
   const guardSetCookie = guard.setCookie;
   const cookieHeader = (setCookie?: string) => {
     const headerValue = setCookie ?? guardSetCookie;

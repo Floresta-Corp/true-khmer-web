@@ -72,6 +72,26 @@ export function authenticatedUserFromSessionUser(
     email,
     emailVerified: readBoolean(userRecord.emailVerified),
     name,
+    firstName: readString(userRecord.firstName) || undefined,
+    lastName: readString(userRecord.lastName) || undefined,
+    gender: readString(userRecord.gender) || undefined,
+    occupation: readString(userRecord.occupation) || null,
+    phoneNumber: readString(userRecord.phoneNumber) || null,
+    signupCompletedAt:
+      readString(userRecord.signupCompletedAt) ||
+      (userRecord.signupCompletedAt instanceof Date
+        ? userRecord.signupCompletedAt
+        : null),
+    onboardingStep:
+      typeof userRecord.onboardingStep === "number"
+        ? userRecord.onboardingStep
+        : undefined,
+    onboardingCompletedAt:
+      readString(userRecord.onboardingCompletedAt) ||
+      (userRecord.onboardingCompletedAt instanceof Date
+        ? userRecord.onboardingCompletedAt
+        : null),
+    avatar: readString(userRecord.avatar) || undefined,
     profile: profileFromSessionUser(userRecord, name),
   };
 }

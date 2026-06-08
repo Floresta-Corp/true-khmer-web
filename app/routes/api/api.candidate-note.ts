@@ -1,10 +1,10 @@
 import type { Route } from "project-types/manage-post/routes/+types/manage-post.$sourceType.$id";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import { getCandidateNote } from "~/services/manage-post/server";
 import { PostingSourceSchema } from "~/services/manage-post/types/detail-post-type";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
 
   const url = new URL(request.url);
   const sourceType = url.searchParams.get("sourceType");

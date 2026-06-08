@@ -1,6 +1,6 @@
 import type { Route } from "project-types/manage-post/routes/+types/manage-post.$sourceType.$id";
 import { data } from "react-router";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import {
   declineApplicantStatus,
   updateApplicantNote,
@@ -25,7 +25,7 @@ export async function managePostDetailAction({
   request,
   params,
 }: Route.ActionArgs) {
-  await requireAuthenticatedUser(request);
+  await requireUser(request);
 
   const sourceType = params.sourceType;
   const postingId = params.id;
