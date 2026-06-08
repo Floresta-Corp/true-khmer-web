@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
+import { Card } from "~/components/ui/card";
 
 interface Contributor {
   name: string;
@@ -74,7 +75,7 @@ export default function ForumRightSidebar({
   return (
     <div className="flex flex-col gap-5 max-w-sm">
       {/* Top Contributors */}
-      <div className="bg-white border border-[#f1f5f9] rounded-2xl p-5 w-full">
+      <Card className="bg-white border shadow-none rounded-2xl p-5 w-full">
         <h3 className="font-bold text-lg leading-6.75 text-[#344256] mb-4 flex items-center gap-2">
           <span className="text-lg">⭐</span>
           Top Contributors
@@ -112,11 +113,11 @@ export default function ForumRightSidebar({
         >
           View all top 10
         </Button>
-      </div>
+      </Card>
 
       {/* Community Guidelines */}
       {!hideGuidelines && (
-        <div className="bg-white border border-[#f1f5f9] rounded-2xl p-5 w-full">
+        <Card className="bg-white border shadow-none rounded-2xl p-5 w-full">
           <h3 className="font-bold text-lg leading-6.75 text-[#344256] mb-4">
             Community Guidelines
           </h3>
@@ -134,7 +135,7 @@ export default function ForumRightSidebar({
               </li>
             ))}
           </ol>
-        </div>
+        </Card>
       )}
     </div>
   );

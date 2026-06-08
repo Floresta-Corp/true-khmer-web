@@ -19,7 +19,7 @@ export function RecentActivityList({
 
   if (!activities || activities.length === 0) {
     return (
-      <Card className="overflow-clip rounded-xl bg-white p-8 shadow-[0px_4px_10px_rgba(0,0,0,0.03)]">
+      <Card className="overflow-clip rounded-3xl bg-white p-8 ">
         <div className="pb-8">
           <CardTitle className="text-[20px] font-semibold leading-7 text-[#111c2d]">
             Recent Activity
@@ -56,7 +56,7 @@ export function RecentActivityList({
   }
 
   return (
-    <Card className="overflow-clip rounded-xl bg-white p-8 shadow-[0px_4px_10px_rgba(0,0,0,0.03)]">
+    <Card className="overflow-clip rounded-3xl bg-white p-8">
       <div className="pb-8">
         <CardTitle className="text-[20px] font-semibold leading-7 text-[#111c2d]">
           Recent Activity

@@ -14,7 +14,7 @@ import { OnboardingPageShell } from "~/routes/onboarding/components/onboarding-p
 import { OnboardingRomdoulCorners } from "~/routes/onboarding/components/onboarding-romdoul-corners";
 import { OnboardingStepIntro } from "~/routes/onboarding/components/onboarding-step-intro";
 import { ProfilePhotoUpload } from "~/routes/onboarding/components/profile-photo-upload";
-import type { Route } from "./+types/profile";
+
 import {
   getCountries,
   saveStep1Profile,
@@ -40,6 +40,7 @@ import { handleOnboardingActionError } from "~/routes/onboarding/domain/shared/o
 import { Label } from "~/components/ui/label";
 import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
 import { Textarea } from "~/components/ui/textarea";
+import type { Route } from "./+types/onboarding-profile";
 
 type CitiesFetcherData = {
   success: boolean;

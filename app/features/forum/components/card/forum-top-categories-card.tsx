@@ -1,4 +1,5 @@
 import { Button } from "~/components/ui/button";
+import { Card } from "~/components/ui/card";
 import type { CategoriesPicker } from "~/services/forum/forum-types";
 
 export interface ForumTopCategoriesCardProps {
@@ -13,7 +14,7 @@ export default function ForumTopCategoriesCard({
   onCategorySelect,
 }: ForumTopCategoriesCardProps) {
   return (
-    <div className="bg-white border border-[#f1f5f9] rounded-2xl p-5 w-full">
+    <Card className="bg-white border shadow-none rounded-2xl p-5 w-full">
       <div className="mb-4">
         <h3 className="font-bold text-lg leading-6.75 text-[#344256]">
           Categories
@@ -57,6 +58,6 @@ export default function ForumTopCategoriesCard({
           );
         })}
       </div>
-    </div>
+    </Card>
   );
 }

@@ -5,7 +5,6 @@ import OpportunityDetailsGrid from "../components/sections/opportunity-details-g
 import ProjectOverviewSection from "../components/sections/project-overview-section";
 import BenefitsSection from "../components/sections/benefit-section";
 import CommunityImpactSection from "../components/sections/project-impact-section";
-import OrganizerCard from "../components/sections/organizer-card";
 import ApplicationSummary from "../components/sections/application-summary";
 import BackToButton from "~/components/back-to-button";
 import { Card, CardContent } from "~/components/ui/card";
@@ -33,6 +32,7 @@ import CommitmentSection from "../components/sections/commitment-section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import AvailableRolesSection from "../components/sections/available-role-section";
 import { Separator } from "~/components/ui/separator";
+import OrganizerCard from "../components/sections/organizer-card";
 
 interface VolunteerDetailPageProps {}
 
@@ -149,13 +149,13 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuItem
+                {/* <DropdownMenuItem
                   onClick={handleCopyLink}
                   className="cursor-pointer gap-2"
                 >
                   <LinkIcon className="size-3.5" />
                   Copy Link
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                 <DropdownMenuItem
                   onClick={handleReport}
                   className="cursor-pointer gap-2"
@@ -204,13 +204,9 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
                     <CardContent className="p-10 [&_h2]:text-xl [&_h3]:text-xl [&_h2]:font-semibold [&_h3]:font-semibold space-y-8">
                       <OpportunityDetailsGrid volunteer={volunteer} hideIcon />
                       <Separator />
-
                       <ProjectOverviewSection volunteer={volunteer} />
-
                       <CommitmentSection volunteer={volunteer} />
-
                       <BenefitsSection volunteer={volunteer} compact hideIcon />
-
                       {volunteer.communityImpact && (
                         <CommunityImpactSection
                           volunteer={volunteer}
@@ -264,7 +260,7 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
                 onApplyNoRoles={() => setActiveTab("open-roles")}
                 isActiveTabOpenRoles={activeTab === "open-roles"}
               />
-              <OrganizerCard volunteer={volunteer} />
+              <OrganizerCard volunteer={volunteer} userId={userId ?? ""} />
             </motion.div>
           </div>
         </div>

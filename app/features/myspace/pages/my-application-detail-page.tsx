@@ -120,7 +120,7 @@ function StatusSummary({
       className={cn(
         "rounded-3xl shadow-none",
         isApproved
-          ? "border-emerald-200 bg-gradient-to-r from-emerald-50 via-emerald-50/60 to-white dark:border-emerald-900/40 dark:from-emerald-950/20 dark:via-emerald-950/10 dark:to-slate-900"
+          ? "border-emerald-200 bg-linear-to-r from-emerald-50 via-emerald-50/60 to-white dark:border-emerald-900/40 dark:from-emerald-950/20 dark:via-emerald-950/10 dark:to-slate-900"
           : "border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900",
       )}
     >

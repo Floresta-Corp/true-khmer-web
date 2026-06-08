@@ -57,7 +57,11 @@ function VolunteerSearchForm({
     <motion.form
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12, transition: { duration: 0.2 * dur, ease: "easeInOut" as const } }}
+      exit={{
+        opacity: 0,
+        y: -12,
+        transition: { duration: 0.2 * dur, ease: "easeInOut" as const },
+      }}
       transition={{
         duration: 0.55 * dur,
         delay: 0.2 * dur,
@@ -84,7 +88,7 @@ function VolunteerSearchForm({
         <Button
           type="submit"
           size="lg"
-          className="h-12 rounded-[16px] bg-[#2463eb] px-6 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(36,99,235,0.18)] transition-transform duration-200 hover:-translate-y-px hover:bg-[#1d56d2]"
+          className="cursor-pointer h-12 rounded-[16px] bg-[#2463eb] px-6 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(36,99,235,0.18)] transition-transform duration-200 hover:-translate-y-px hover:bg-[#1d56d2]"
           style={{ transitionDuration: dur ? "200ms" : "0ms" }}
         >
           Explore
@@ -99,7 +103,11 @@ function VolunteerPostButton({ to, dur }: { to: string; dur: number }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12, transition: { duration: 0.2 * dur, ease: "easeInOut" as const } }}
+      exit={{
+        opacity: 0,
+        y: -12,
+        transition: { duration: 0.2 * dur, ease: "easeInOut" as const },
+      }}
       transition={{
         duration: 0.55 * dur,
         delay: 0.35 * dur,
@@ -172,7 +180,10 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
     <motion.section
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.2, ease: "easeInOut" as const } }}
+      exit={{
+        opacity: 0,
+        transition: { duration: 0.2, ease: "easeInOut" as const },
+      }}
       transition={{ duration: 0.4 * dur, ease: "easeInOut" as const }}
       className="relative flex w-full justify-center overflow-hidden px-4 py-16 sm:px-6 sm:py-20 lg:py-24"
     >
@@ -182,7 +193,11 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20, transition: { duration: 0.2, ease: "easeInOut" as const } }}
+          exit={{
+            opacity: 0,
+            y: -20,
+            transition: { duration: 0.2, ease: "easeInOut" as const },
+          }}
           transition={{
             duration: 0.7 * dur,
             ease: easings.enter,
@@ -213,7 +228,11 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16, transition: { duration: 0.2, ease: "easeInOut" as const } }}
+            exit={{
+              opacity: 0,
+              y: -16,
+              transition: { duration: 0.2, ease: "easeInOut" as const },
+            }}
             transition={{
               duration: 0.6 * dur,
               delay: 0.15 * dur,
@@ -237,7 +256,11 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12, transition: { duration: 0.2, ease: "easeInOut" as const } }}
+            exit={{
+              opacity: 0,
+              y: -12,
+              transition: { duration: 0.2, ease: "easeInOut" as const },
+            }}
             transition={{
               duration: 0.5 * dur,
               delay: 0.3 * dur,

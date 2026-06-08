@@ -14,12 +14,14 @@ import {
   BookmarkCheck,
   Settings,
   LogOut,
+  Moon,
 } from "lucide-react";
 import { Separator } from "./ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import type { AuthenticatedUser } from "~/lib/server/types";
 import { cn, resolveImageURL } from "~/lib/utils";
+import { Toggle } from "./ui/toggle";
 
 interface ProfileDropDownProps {
   user: AuthenticatedUser;
@@ -82,14 +84,14 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-50 pb-3 rounded-2xl border border-[#e2e8f0] px-0 pt-0 shadow-[0_16px_40px_rgba(15,23,42,0.12)]"
+        className="min-w-[288px] pb-3 rounded-2xl border border-[#e2e8f0] px-0 pt-0 shadow-[0_16px_40px_rgba(15,23,42,0.12)]"
         align="end"
         sideOffset={8}
         forceMount
       >
         {/* Profile Section */}
-        <div className="flex items-center gap-2 pb-2 pt-3 px-3">
-          <Avatar className="size-7 border border-[#f9fafb]">
+        <div className="flex items-center gap-3 py-8 px-5">
+          <Avatar className="size-11 border border-[#f9fafb]">
             <AvatarImage
               src={profileImage || undefined}
               alt={displayName}
@@ -99,22 +101,32 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
               {initials}
             </AvatarFallback>
           </Avatar>
-          <div className="flex flex-col">
-            <span className="text-xs font-semibold text-[#344256] leading-3">
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-semibold text-[#344256] leading-3">
               {displayName}
             </span>
-            <span className="text-[10px] text-[#65758b] leading-3">
+            <span className="text-sm font-semibold text-[#65758b] leading-3">
               {user.email}
             </span>
           </div>
         </div>
-        <Separator className="bg-[#f3f4f6]" />
+        {/* <Separator className="bg-[#f3f4f6]" />
+        <div className="p-1">
+          <DropdownMenuItem className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256]">
+            <Moon className="size-5 shrink-0" />
+            <span className="text-sm font-semibold">Dark Mode</span>
+            <Toggle />
+          </DropdownMenuItem>
+        </div> */}
+        {/* THIS IS TURN OFF FOR NOW */}
+        {/* <Separator className="bg-[#f3f4f6]" />
         <div className="p-1">
           <DropdownMenuItem className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]">
-            <CirclePlus className="size-4 shrink-0" />
-            <span>Enable new role</span>
+            <CirclePlus className="size-5 shrink-0" />
+            <span className="text-sm font-semibold">Enable new role</span>
           </DropdownMenuItem>
         </div>
+        */}
 
         <Separator className="bg-[#f3f4f6]" />
         {/* Action List */}
@@ -124,8 +136,8 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
             className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
           >
             <Link to="/myspace" className="flex gap-3 items-center w-full">
-              <UserRound className="size-4 shrink-0" />
-              <span>My space</span>
+              <UserRound className="size-5 shrink-0" />
+              <span className="text-sm font-semibold">My space</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -136,8 +148,8 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
               to="/my-applications"
               className="flex gap-3 items-center w-full"
             >
-              <FileUser className="size-4 shrink-0" />
-              <span>My applications</span>
+              <FileUser className="size-5 shrink-0" />
+              <span className="text-sm font-semibold">My applications</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -145,8 +157,8 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
             className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
           >
             <Link to="/my-ticket" className="flex gap-3 items-center w-full">
-              <Ticket className="size-4 shrink-0" />
-              <span>My tickets</span>
+              <Ticket className="size-5 shrink-0" />
+              <span className="text-sm font-semibold">My tickets</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -154,8 +166,8 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
             className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
           >
             <Link to="/saved-items" className="flex gap-3 items-center w-full">
-              <BookmarkCheck className="size-4 shrink-0" />
-              <span>Saved items</span>
+              <BookmarkCheck className="size-5 shrink-0" />
+              <span className="text-sm font-semibold">Saved items</span>
             </Link>
           </DropdownMenuItem>
         </div>
@@ -166,21 +178,21 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
             className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
           >
             <Link to="/settings" className="flex gap-3 items-center w-full">
-              <Settings className="size-4 shrink-0" />
-              <span>Account settings</span>
+              <Settings className="size-5 shrink-0" />
+              <span className="text-sm font-semibold">Account settings</span>
             </Link>
           </DropdownMenuItem>
           <Form method="post" action="/logout" id="logout-form">
             <DropdownMenuItem
-              className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#fb3748] cursor-pointer hover:bg-[#fbeaec]"
+              className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#fb3748] hover:text-[#fb3748] cursor-pointer hover:bg-[#fbeaec]"
               onSelect={() => {
                 (
                   document.getElementById("logout-form") as HTMLFormElement
                 )?.requestSubmit();
               }}
             >
-              <LogOut className="size-4 shrink-0" />
-              <span>Log out</span>
+              <LogOut className="size-5 shrink-0" />
+              <span className="text-sm font-semibold">Log out</span>
             </DropdownMenuItem>
           </Form>
         </div>

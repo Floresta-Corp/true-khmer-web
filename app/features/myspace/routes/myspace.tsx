@@ -1,16 +1,15 @@
+import * as React from "react";
 import { motion } from "motion/react";
 import { MyspaceLoader } from "~/routes/api/myspace/myspace-loader";
 import type { Route } from "./+types/myspace";
 import { resolveImageURL } from "~/lib/utils";
-import { RecentActivityList } from "../components/recent-activity-list";
-import { ShareProfileCard } from "../components/myspace-share-profile-card";
 import { PageHeader } from "../components/myspace-page-header";
 import { ProfileHeader } from "../components/myspace-profile-header";
-import { StatsCards } from "../components/myspace-stats-cards";
-import { AchievementsCard } from "../components/myspace-achievements-card";
-import { PointsChartCard } from "../components/myspace-points-chart-card";
-// import { TopRankingCard } from "../components/myspace-top-ranking-card";
+import { MyAchievementsCard } from "../components/myspace-my-achievements-card";
 import { ForumPageLayout } from "~/features/forum/components/forum-page-layout";
+import { useSearchParams } from "react-router";
+import MyspaceBioCard from "../components/myspace-bio-card";
+import { CommunityStandingCard } from "../components/myspace-community-standing-cards";
 
 export const loader = MyspaceLoader;
 
@@ -19,7 +18,17 @@ export function meta() {
 }
 
 export default function MySpacePage({ loaderData }: Route.ComponentProps) {
-  const { me, recentActivities } = loaderData;
+  const { me } = loaderData;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [viewMode, setViewMode] = React.useState<"myview" | "public">(
+    searchParams.get("view") === "public" ? "public" : "myview",
+  );
+
+  React.useEffect(() => {
+    const searchViewMode =
+      searchParams.get("view") === "public" ? "public" : "myview";
+    setViewMode(searchViewMode);
+  }, [searchParams]);
 
   if (!me) {
     return (
@@ -29,22 +38,38 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
     );
   }
 
+  const isPublicView = viewMode === "public";
+
+  const handleToggleView = () => {
+    const nextViewMode = isPublicView ? "myview" : "public";
+    setViewMode(nextViewMode);
+    setSearchParams((currentParams) => {
+      const nextParams = new URLSearchParams(currentParams);
+      if (nextViewMode === "public") {
+        nextParams.set("view", "public");
+      } else {
+        nextParams.delete("view");
+      }
+      return nextParams;
+    });
+  };
+
   const displayName =
     me.user.displayName || `${me.user.firstName} ${me.user.lastName}`;
   const avatarUrl = resolveImageURL(me.profile.avatarKey || undefined);
 
   return (
-    // <div className="min-h-screen bg-background">
-    //   <div className="max-w-300 mx-auto px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-1 lg:grid-cols-12 gap-6">
     <ForumPageLayout contentClassName="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <div className="lg:col-span-12 space-y-6">
-        {/*<div className="lg:col-span-9 space-y-6">*/}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
         >
-          <PageHeader />
+          <PageHeader
+            isPublicView={isPublicView}
+            onToggleView={handleToggleView}
+          />
         </motion.div>
 
         <motion.div
@@ -58,32 +83,27 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
             firstName={me.user.firstName}
             lastName={me.user.lastName}
             occupation={me.user.occupation}
-            bio={me.profile.bio}
+            location={me.profile?.country?.name || null}
+            email={me.user.email}
+            tier={me.progress.tier.name}
             socialLinks={me.socialLinks}
           />
         </motion.div>
+      </div>
 
+      <div className="lg:col-span-8 gap-3 flex flex-col">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
         >
-          <StatsCards
-            totalPoints={me.progress.totalPoints}
-            tier={me.progress.tier}
-            rank={me.progress.rank}
+          <MyspaceBioCard
+            bio={me.profile.bio || "No bio available."}
+            skills={me.skills.map((skill) => skill.name)}
           />
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
-        >
-          <AchievementsCard />
-        </motion.div>
-
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
@@ -94,36 +114,40 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
+          transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
         >
           <RecentActivityList
             activities={recentActivities || []}
-            maxItems={20}
+            maxItems={5}
           />
-        </motion.div>
+        </motion.div> */}
       </div>
 
-      {/*<aside className="lg:col-span-3">
-          <div className="space-y-6">
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
-            >
-              <ShareProfileCard />
-            </motion.div>
+      <aside className="lg:col-span-4">
+        <div className="grid gap-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+          >
+            <CommunityStandingCard
+              totalPoints={me.progress.totalPoints}
+              tier={me.progress.tier}
+              rank={me.progress.rank}
+              nextTier={me.progress.nextTier}
+              pointsUntilNextTier={me.progress.pointsUntilNextTier}
+            />
+          </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
-            >
-              <TopRankingCard />
-            </motion.div>
-          </div>
-        </aside>*/}
-      {/* </div>
-    </div> */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
+          >
+            <MyAchievementsCard badges={me.badges} />
+          </motion.div>
+        </div>
+      </aside>
     </ForumPageLayout>
   );
 }

@@ -96,7 +96,7 @@ export default function LaunchpadJoinProjectCard({
           </div>
         ) : (
           <div className="space-y-2">
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence mode="wait">
               {selectedRoles.map((role) => (
                 <motion.div
                   key={role.id}

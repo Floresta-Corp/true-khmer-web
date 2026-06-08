@@ -25,6 +25,7 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 import { highlightAnswerClassName } from "../../utils";
+import ProfileLinkWrapper from "~/components/profile-link-wrapper";
 
 interface AnswerNewCardProps {
   answer: Answer;
@@ -118,9 +119,13 @@ function AnswerComponent({
                   />
                 </div>
                 <div className="flex flex-col">
-                  <p className="text-base font-semibold leading-6 text-[#2c2f31]">
+                  <ProfileLinkWrapper
+                    className="text-base font-semibold leading-6 text-[#2c2f31]"
+                    authorId={answer.author.id}
+                    isAuthor={isCurrentAuthor}
+                  >
                     {answer.author.name}
-                  </p>
+                  </ProfileLinkWrapper>
                   <span className="text-xs leading-4 text-[#595c5e]">
                     {formattedDate}
                   </span>

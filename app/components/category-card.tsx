@@ -13,7 +13,7 @@ import { Button } from "~/components/ui/button";
 import type { VolunteerCategory } from "~/services/volunteer/types";
 
 interface CategoryCardProps {
-  category: VolunteerCategory ;
+  category: VolunteerCategory;
   onClick?: (categoryId: string) => void;
   active?: boolean;
   className?: string;
@@ -58,8 +58,8 @@ export function CategoryCard({
       type="button"
       variant="ghost"
       className={cn(
-        "cursor-pointer h-17 w-52.5 justify-start gap-3.5 rounded-[28px] border bg-white px-3.75 py-0 text-left shadow-none hover:bg-white md:w-full md:min-w-0",
-        active ? "border-blue-300 bg-blue-50" : "border-[#f3f4f6]",
+        "border border-gray-100 cursor-pointer h-17 w-52.5 justify-start gap-3.5 rounded-[28px] bg-white px-3.75 py-0 text-left shadow-none hover:bg-white md:w-full md:min-w-0",
+        active ? "border-blue-300 bg-blue-50" : "",
         className,
       )}
     >

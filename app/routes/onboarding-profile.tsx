@@ -1,5 +1,4 @@
 import { data, useLoaderData } from "react-router";
-import type { Route } from "./+types/profile";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { Card, CardContent } from "~/components/ui/card";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
@@ -22,6 +21,7 @@ import {
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { useState } from "react";
+import type { Route } from "./+types/onboarding-profile";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const guard = await requireUser(request);
@@ -46,7 +46,7 @@ const profileTabs = [
 
 type TabId = (typeof profileTabs)[number]["id"];
 
-export default function ProfilePage() {
+export default function onBoardingProfilePage() {
   const { user } = useLoaderData<typeof loader>();
   const [activeTab, setActiveTab] = useState<TabId>("info");
 

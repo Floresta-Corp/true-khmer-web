@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+export const CategorySchema = z.enum([
+  "COLLABORATION",
+  "KNOWLEDGE",
+  "LAUNCHPAD",
+  "ONBOARDING",
+  "VOLUNTEER",
+]);
+export type Category = z.infer<typeof CategorySchema>;
+
 export const VisibilitySchema = z.object({
   profile: z.string(),
   contact: z.string(),
@@ -25,7 +34,18 @@ export const TierSchema = z.object({
 });
 export type Tier = z.infer<typeof TierSchema>;
 
+export const NextTierSchema = z.object({
+  id: z.string(),
+  minPoints: z.number(),
+  name: z.string(),
+  rankOrder: z.number(),
+  slug: z.string(),
+});
+export type NextTier = z.infer<typeof NextTierSchema>;
+
 export const ProgressSchema = z.object({
+  nextTier: z.union([NextTierSchema, z.null()]),
+  pointsUntilNextTier: z.number().nonnegative(),
   totalPoints: z.number(),
   rank: z.string().nullable(),
   tier: TierSchema,
@@ -75,7 +95,17 @@ export const UserSchema = z.object({
 });
 export type User = z.infer<typeof UserSchema>;
 
+export const BadgeSchema = z.object({
+  awardedAt: z.string(),
+  category: CategorySchema,
+  description: z.string(),
+  name: z.string(),
+  slug: z.string(),
+});
+export type Badge = z.infer<typeof BadgeSchema>;
+
 export const ProfileSchema = z.object({
+  badges: z.array(BadgeSchema),
   user: UserSchema,
   profile: ProfileInfoSchema,
   skills: z.array(SkillSchema),
