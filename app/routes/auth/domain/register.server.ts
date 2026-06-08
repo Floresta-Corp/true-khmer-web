@@ -60,6 +60,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (intent === "google") {
     const idToken = String(formData.get("idToken") || "").trim();
+    const rememberMe = formData.get("rememberMe") !== "false";
     if (!idToken) {
       return { errors: { form: "Google sign-in was not completed." } };
     }
@@ -69,7 +70,7 @@ export async function action({ request }: ActionFunctionArgs) {
       const destination = auth.authFlow
         ? destinationFromAuthFlow(auth.authFlow)
         : redirectTo;
-      return createUserSession(auth, destination);
+      return createUserSession(auth, destination, { rememberMe });
     } catch (error) {
       if (error instanceof AuthApiError) {
         return { errors: { form: formatAuthMessage(error.message) } };

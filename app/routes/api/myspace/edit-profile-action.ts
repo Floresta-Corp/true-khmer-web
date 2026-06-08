@@ -1,6 +1,6 @@
-import { data } from "react-router";
 import type { Route as EditProfileRoute } from "project-types/myspace/routes/+types/edit-profile";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { commitSession, getSession } from "~/lib/server/session.server";
 import { invalidateAuthSessionCacheForRequest } from "~/services/auth/session.server";
@@ -66,7 +66,18 @@ async function syncUpdatedProfileToSession(request: Request, profile: Profile) {
 export async function EditProfileAction({
   request,
 }: EditProfileRoute.ActionArgs) {
-  await requireUser(request);
+  const auth = await requireUser(request);
+  let setCookie: string | undefined;
+  const respond = <T>(payload: T) =>
+    withAuthData(
+      {
+        setCookie: [auth.setCookie, setCookie].filter(
+          (cookie): cookie is string => Boolean(cookie),
+        ),
+      },
+      payload,
+    );
+
   const formData = await request.formData();
 
   const firstName = String(formData.get("firstName") ?? "").trim();
@@ -131,8 +142,6 @@ export async function EditProfileAction({
   };
 
   const avatarFile = formData.get("avatarFile") as File;
-  let setCookie: string | undefined;
-
   if (avatarFile) {
     try {
       const result = await UploadAvatarPresign(request, {
@@ -141,7 +150,10 @@ export async function EditProfileAction({
       });
       if (result.setCookie) setCookie = result.setCookie;
       if (!result.data.ok) {
-        return { ok: false, message: "Failed to prepare avatar upload." };
+        return respond({
+          ok: false,
+          message: "Failed to prepare avatar upload.",
+        });
       }
       const upload = result.data.upload;
       const uploadResult = await fetch(upload.uploadUrl, {
@@ -155,12 +167,18 @@ export async function EditProfileAction({
           status: uploadResult.status,
           url: upload.uploadUrl,
         });
-        return { ok: false, message: "Failed to upload avatar image." };
+        return respond({
+          ok: false,
+          message: "Failed to upload avatar image.",
+        });
       }
       payload = { ...payload, avatarKey: upload.avatarKey };
     } catch (err) {
       console.error("Avatar upload failed", err);
-      return { ok: false, message: "Failed to upload avatar image." };
+      return respond({
+        ok: false,
+        message: "Failed to upload avatar image.",
+      });
     }
   }
   try {
@@ -176,21 +194,18 @@ export async function EditProfileAction({
       );
     }
 
-    return data(
-      result.data,
-      setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
-    );
+    return respond(result.data);
   } catch (error) {
     if (error instanceof ProtectedApiError) {
-      return {
+      return respond({
         ok: false,
         message: error.message || "Failed to update profile.",
-      };
+      });
     }
-    return {
+    return respond({
       ok: false,
       message: "Failed to update profile.",
       error: error,
-    };
+    });
   }
 }

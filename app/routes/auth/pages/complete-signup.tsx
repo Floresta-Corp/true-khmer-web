@@ -10,6 +10,7 @@ import { Check, Info } from "lucide-react";
 import {
   getCountries,
   getCountryCallingCode,
+  parsePhoneNumberFromString,
   type CountryCode,
 } from "libphonenumber-js";
 import {
@@ -99,16 +100,49 @@ function readRecord(value: unknown) {
     : {};
 }
 
+function initialPhoneInput(phoneNumber?: string | null) {
+  if (!phoneNumber) {
+    return { country: "KH" as CountryCode, contactNumber: "" };
+  }
+
+  const parsed = parsePhoneNumberFromString(phoneNumber);
+  if (parsed) {
+    return {
+      country: parsed.country ?? ("KH" as CountryCode),
+      contactNumber: parsed.nationalNumber,
+    };
+  }
+
+  const digits = phoneNumber.replace(/[^\d+]/g, "");
+  const matchedOption = phoneCountryOptions
+    .slice()
+    .sort((first, second) => second.dialCode.length - first.dialCode.length)
+    .find((option) => digits.startsWith(option.dialCode));
+
+  return {
+    country: matchedOption?.country ?? ("KH" as CountryCode),
+    contactNumber: matchedOption
+      ? digits.slice(matchedOption.dialCode.length)
+      : digits.replace(/^\+\d{1,3}/, ""),
+  };
+}
+
 export default function CompleteSignUpPage() {
   const { user } = useLoaderData<typeof loader>();
   const actionData = useActionData<CompleteSignUpActionData>();
   const navigation = useNavigation();
+  const initialPhone = useMemo(
+    () => initialPhoneInput(user.phoneNumber),
+    [user.phoneNumber],
+  );
 
   const [firstName, setFirstName] = useState(user.firstName ?? "");
   const [lastName, setLastName] = useState(user.lastName ?? "");
-  const [phoneCountry, setPhoneCountry] = useState<CountryCode>("KH");
+  const [phoneCountry, setPhoneCountry] = useState<CountryCode>(
+    initialPhone.country,
+  );
   const [contactNumber, setContactNumber] = useState(
-    user.phoneNumber?.replace(/^\+855/, "") ?? "",
+    initialPhone.contactNumber,
   );
   const [occupation, setOccupation] = useState(user.occupation ?? "");
   const [gender, setGender] = useState("");

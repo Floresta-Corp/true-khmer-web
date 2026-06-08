@@ -1,7 +1,7 @@
 import type { Route } from "project-types/manage-post/routes/+types/manage-post.$sourceType.$id";
 import z from "zod";
-import { getUserId } from "~/lib/server/session.server";
 import { requireUser } from "~/lib/server/route-guards.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import { getManagePostDetail } from "~/services/manage-post/server/manage-post-detail.server";
 import {
   PostingApplicantFilter,
@@ -23,16 +23,16 @@ export async function managePostDetailLoader({
   request,
   params,
 }: Route.LoaderArgs) {
-  await requireUser(request);
-  const userId = await getUserId(request);
+  const auth = await requireUser(request);
+  const userId = auth.user.id;
 
   if (!userId) {
-    return {
+    return withAuthData(auth, {
       postDetail: null,
       pagination: null,
       userId: null,
       candidateNote: null,
-    } satisfies ManagePostDetailLoaderData;
+    } satisfies ManagePostDetailLoaderData);
   }
 
   const url = new URL(request.url);
@@ -40,12 +40,12 @@ export async function managePostDetailLoader({
   const sourceTypeResult = PostingSourceSchema.safeParse(params.sourceType);
 
   if (!sourceTypeResult.success) {
-    return {
+    return withAuthData(auth, {
       postDetail: null,
       pagination: null,
       userId,
       candidateNote: null,
-    } satisfies ManagePostDetailLoaderData;
+    } satisfies ManagePostDetailLoaderData);
   }
 
   const sourceType = sourceTypeResult.data;
@@ -73,10 +73,10 @@ export async function managePostDetailLoader({
       : Promise.resolve(null),
   ]);
 
-  return {
+  return withAuthData(auth, {
     postDetail: result?.data?.detail ?? null,
     pagination: result?.data?.detail?.pagination ?? null,
     userId,
     candidateNote: candidateNoteResult?.data ?? null,
-  } satisfies ManagePostDetailLoaderData;
+  } satisfies ManagePostDetailLoaderData);
 }

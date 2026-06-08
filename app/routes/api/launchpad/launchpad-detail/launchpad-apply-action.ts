@@ -1,11 +1,12 @@
 import type { ActionFunctionArgs } from "react-router";
+import { ProtectedApiError } from "~/lib/server/api-client.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
 import {
   uploadApplicationDocumentPresign,
   applyForLaunchpadRole,
   applyForLaunchpadRolesBatch,
 } from "~/services/launchpad/server/launchpad.applications.server";
-import { ProtectedApiError } from "~/lib/server/api-client.server";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -351,7 +352,7 @@ async function submitBatchLaunchpadApplication(
 }
 
 export async function launchpadApplyAction({ request }: ActionFunctionArgs) {
-  await requireUser(request);
+  const auth = await requireUser(request);
   const formData = await request.formData();
   try {
     const hasBatchFields =
@@ -359,34 +360,42 @@ export async function launchpadApplyAction({ request }: ActionFunctionArgs) {
       readStringArrayField(formData, "roleIds").length > 0 ||
       typeof formData.get("relevantExperience") === "string";
 
-    return hasBatchFields
+    const result = hasBatchFields
       ? await submitBatchLaunchpadApplication(request, formData)
       : await submitSingleLaunchpadApplication(request, formData);
+    return withAuthData(auth, result);
   } catch (error) {
     console.error("Failed to submit application:", error);
     if (error instanceof ProtectedApiError) {
-      return {
+      return withAuthData(auth, {
         error:
           error.message || "Failed to submit application. Please try again.",
-      };
+      });
     }
-    return { error: "Failed to submit application. Please try again." };
+    return withAuthData(auth, {
+      error: "Failed to submit application. Please try again.",
+    });
   }
 }
 
 export async function batchApplyAction({ request }: ActionFunctionArgs) {
-  await requireUser(request);
+  const auth = await requireUser(request);
   const formData = await request.formData();
   try {
-    return await submitBatchLaunchpadApplication(request, formData);
+    return withAuthData(
+      auth,
+      await submitBatchLaunchpadApplication(request, formData),
+    );
   } catch (error) {
     console.error("Failed to submit batch application:", error);
     if (error instanceof ProtectedApiError) {
-      return {
+      return withAuthData(auth, {
         error:
           error.message || "Failed to submit application. Please try again.",
-      };
+      });
     }
-    return { error: "Failed to submit application. Please try again." };
+    return withAuthData(auth, {
+      error: "Failed to submit application. Please try again.",
+    });
   }
 }

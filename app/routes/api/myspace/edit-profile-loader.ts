@@ -1,6 +1,6 @@
 import type { Route as EditProfileRoute } from "project-types/myspace/routes/+types/edit-profile";
 import { requireUser } from "~/lib/server/route-guards.server";
-import { getUserId } from "~/lib/server/session.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import {
   GetMyspaceMe,
   GetCountries,
@@ -20,8 +20,8 @@ export async function EditProfileLoader({
 }: EditProfileRoute.LoaderArgs) {
   const url = new URL(request.url);
   const searchParams = new URLSearchParams(url.searchParams.toString());
-  await requireUser(request);
-  const userId = await getUserId(request);
+  const auth = await requireUser(request);
+  const userId = auth.user.id;
   const meResult = await GetMyspaceMe(request);
 
   // Prefer the countryId from the URL, fall back to the user's existing profile country
@@ -35,10 +35,10 @@ export async function EditProfileLoader({
     ? await GetCities(request, countryId)
     : { data: { cities: [] } };
 
-  return {
+  return withAuthData(auth, {
     userId,
     me: meResult.data.profile,
     countries: countriesResult.data.countries || [],
     cities: citiesResult.data.cities || [],
-  } satisfies EditProfileLoaderData;
+  } satisfies EditProfileLoaderData);
 }

@@ -1,4 +1,5 @@
 import { requireUser } from "~/lib/server/route-guards.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import {
   parseVoteAction,
   submitVoteAction,
@@ -20,7 +21,9 @@ import type { Route as ForumRoute } from "project-types/forum/routes/+types/foru
 import type { SubmitReportInput } from "~/services/forum/forum-types";
 
 export async function forumListAction({ request }: ForumRoute.ActionArgs) {
-  await requireUser(request);
+  const auth = await requireUser(request);
+  const respond = <T>(payload: T, init?: ResponseInit) =>
+    withAuthData(auth, payload, init);
   const formData = await request.formData();
   const actionType = String(formData.get("actionType") ?? "").trim();
   const method = request.method.toUpperCase();
@@ -38,10 +41,10 @@ export async function forumListAction({ request }: ForumRoute.ActionArgs) {
   ]);
 
   if (actionType && !allowedActionTypes.has(actionType)) {
-    return {
+    return respond({
       ok: false,
       message: "Unsupported action.",
-    };
+    });
   }
 
   if (actionType === "report-question") {
@@ -50,17 +53,17 @@ export async function forumListAction({ request }: ForumRoute.ActionArgs) {
     const reportDescription = String(formData.get("description") ?? "").trim();
 
     if (!reportQuestionId) {
-      return {
+      return respond({
         ok: false,
         message: "Question ID is required for reporting.",
-      };
+      });
     }
 
     if (!reportTypeId) {
-      return {
+      return respond({
         ok: false,
         message: "Report type ID is required.",
-      };
+      });
     }
 
     const body: SubmitReportInput = {
@@ -68,88 +71,88 @@ export async function forumListAction({ request }: ForumRoute.ActionArgs) {
       typeId: reportTypeId,
       questionId: reportQuestionId,
     };
-    return SubmitReport(request, body);
+    return respond(await SubmitReport(request, body));
   }
 
   if (actionType === "vote-question") {
     const parsedVoteAction = parseVoteAction(formData);
     if (!parsedVoteAction.ok) {
-      return {
+      return respond({
         ok: false,
         message: parsedVoteAction.message,
-      };
+      });
     }
-    return submitVoteAction(request, parsedVoteAction);
+    return respond(await submitVoteAction(request, parsedVoteAction));
   }
 
   if (actionType === "vote-answer") {
     const parsedAnswerVoteAction = parseAnswerVoteAction(formData);
     if (!parsedAnswerVoteAction.ok) {
-      return {
+      return respond({
         ok: false,
         message: parsedAnswerVoteAction.message,
-      };
+      });
     }
 
-    return submitAnswerVoteAction(request, parsedAnswerVoteAction);
+    return respond(await submitAnswerVoteAction(request, parsedAnswerVoteAction));
   }
 
   if (actionType === "update-answer") {
     if (method !== "PATCH") {
-      return {
+      return respond({
         ok: false,
         message: "Invalid method for updating an answer.",
-      };
+      });
     }
 
     if (!answerId) {
-      return {
+      return respond({
         ok: false,
         message: "Answer ID is required.",
-      };
+      });
     }
 
     if (!body) {
-      return {
+      return respond({
         ok: false,
         message: "Answer body is required.",
-      };
+      });
     }
 
-    return updateAnswerById(request, answerId, { body });
+    return respond(await updateAnswerById(request, answerId, { body }));
   }
 
   if (actionType === "delete-answer") {
     if (!answerId) {
-      return {
+      return respond({
         ok: false,
         message: "Answer ID is required.",
-      };
+      });
     }
 
-    return deleteAnswerById(request, answerId);
+    return respond(await deleteAnswerById(request, answerId));
   }
 
   if (actionType === "create-answer") {
     if (!questionId) {
-      return {
+      return respond({
         ok: false,
         message: "Question ID is required.",
-      };
+      });
     }
 
     if (!body) {
-      return {
+      return respond({
         ok: false,
         message: "Answer body is required.",
-      };
+      });
     }
 
-    return createAnswerByQuestionId(request, { questionId, body });
+    return respond(await createAnswerByQuestionId(request, { questionId, body }));
   }
 
   if (method === "DELETE") {
-    return deleteQuestionAction(request, formData);
+    return respond(await deleteQuestionAction(request, formData));
   }
 
   const file = formData.get("image") as File | null;
@@ -168,10 +171,10 @@ export async function forumListAction({ request }: ForumRoute.ActionArgs) {
       });
 
       if (!presignResult?.data?.ok) {
-        return {
+        return respond({
           ok: false,
           message: "Failed to presign image upload.",
-        };
+        });
       }
 
       const upload = presignResult.data.upload;
@@ -183,10 +186,10 @@ export async function forumListAction({ request }: ForumRoute.ActionArgs) {
       });
 
       if (!uploadResult.ok) {
-        return {
+        return respond({
           ok: false,
           message: "Failed to upload image to storage provider.",
-        };
+        });
       }
 
       // only set imageKey once when upload succeeds
@@ -194,33 +197,33 @@ export async function forumListAction({ request }: ForumRoute.ActionArgs) {
     } catch (err) {
       // handle unexpected errors during presign/upload
       console.error("Error uploading image:", err);
-      return {
+      return respond({
         ok: false,
         message: "An error occurred while uploading the image.",
-      };
+      });
     }
   }
 
   const validation = validateCreateForumPostForm(formData);
   if (!validation.success) {
-    return {
+    return respond({
       ok: false,
       message: validation.message,
       fieldErrors: validation.fieldErrors,
-    };
+    });
   }
 
   if (method === "PATCH") {
     const questionId = String(formData.get("questionId") ?? "").trim();
     if (!questionId) {
-      return {
+      return respond({
         ok: false,
         message: "Question ID is required for updating.",
-      };
+      });
     }
 
-    return updateForumQuestion(request, questionId, validation.data);
+    return respond(await updateForumQuestion(request, questionId, validation.data));
   }
 
-  return createForumQuestion(request, validation.data);
+  return respond(await createForumQuestion(request, validation.data));
 }

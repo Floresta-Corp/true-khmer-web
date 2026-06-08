@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { requireUser } from "~/lib/server/route-guards.server";
-import { getUserId } from "~/lib/server/session.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import { getMyApplicationDetailResponse } from "~/services/myspace/server/my-application.server";
 import type {
   ApplicationDetail,
@@ -21,7 +21,7 @@ export async function MyApplicationDetailLoader({
   request,
   params,
 }: LoaderFunctionArgs) {
-  await requireUser(request);
+  const auth = await requireUser(request);
 
   const sourceType = params.sourceType;
   const postingId = params.postingId;
@@ -39,19 +39,22 @@ export async function MyApplicationDetailLoader({
     throw new Response("Application not found", { status: 404 });
   }
 
-  const [detailResult, userId] = await Promise.all([
-    getMyApplicationDetailResponse(request, parsedSourceType.data, postingId),
-    getUserId(request),
-  ]);
+  const detailResult = await getMyApplicationDetailResponse(
+    request,
+    parsedSourceType.data,
+    postingId,
+  );
 
   const application = detailResult.data.application;
 
-  return {
+  const payload = {
     application,
     postingId,
     applicationTitle: application.title || "Application",
     sourceType: parsedSourceType.data,
     statusLabel: application.status,
-    userId: userId || null,
+    userId: auth.user.id || null,
   } satisfies MyApplicationDetailLoaderData;
+
+  return withAuthData(auth, payload);
 }

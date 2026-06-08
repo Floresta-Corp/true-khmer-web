@@ -42,6 +42,28 @@ function redirectWithCookie(to: string, setCookie?: string) {
   return redirect(to, setCookie ? { headers: { "Set-Cookie": setCookie } } : {});
 }
 
+function requestWithSetCookie(request: Request, setCookie?: string) {
+  if (!setCookie) return request;
+
+  const cookiePair = setCookie.split(";", 1)[0];
+  const separatorIndex = cookiePair.indexOf("=");
+  if (separatorIndex <= 0) return request;
+
+  const cookieName = cookiePair.slice(0, separatorIndex);
+  const existingCookie = request.headers.get("Cookie") ?? "";
+  const nextCookies = existingCookie
+    .split(";")
+    .map((cookie) => cookie.trim())
+    .filter((cookie) => cookie && !cookie.startsWith(`${cookieName}=`));
+
+  nextCookies.push(cookiePair);
+
+  const headers = new Headers(request.headers);
+  headers.set("Cookie", nextCookies.join("; "));
+
+  return new Request(request, { headers });
+}
+
 function loginRedirectPath(request: Request) {
   const url = new URL(request.url);
   const redirectTo = `${url.pathname}${url.search}`;
@@ -194,7 +216,13 @@ export async function requireOnboarding(
       );
     }
 
-    const { state, setCookie } = await getOnboardingState(request);
+    const onboardingRequest = requestWithSetCookie(
+      request,
+      authSessionResult.setCookie,
+    );
+    const onboardingResult = await getOnboardingState(onboardingRequest);
+    const { state } = onboardingResult;
+    const setCookie = onboardingResult.setCookie ?? authSessionResult.setCookie;
     if (state.completed) {
       throw redirectWithCookie("/home", setCookie);
     }

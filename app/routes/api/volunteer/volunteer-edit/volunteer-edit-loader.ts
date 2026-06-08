@@ -1,5 +1,5 @@
 import type { Route as VolunteerRoute } from "project-types/volunteer/routes/+types/volunteer.edit.$id";
-import { getUserId } from "~/lib/server/session.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import {
   getOpportunityById,
   getPublicOpportunityById,
@@ -21,8 +21,8 @@ export default async function volunteerEditLoader({
   request,
   params,
 }: VolunteerRoute.LoaderArgs) {
-  await requireUser(request);
-  const userId = await getUserId(request);
+  const auth = await requireUser(request);
+  const userId = auth.user.id;
 
   const [volunteer, locations, categories] = await Promise.all([
     userId
@@ -32,10 +32,10 @@ export default async function volunteerEditLoader({
     getVolunteerCategories(request),
   ]);
 
-  return {
+  return withAuthData(auth, {
     volunteer: volunteer?.data?.opportunity,
     userId,
     locations: locations?.data,
     categories: categories?.data,
-  } satisfies VolunteerEditLoaderData;
+  } satisfies VolunteerEditLoaderData);
 }

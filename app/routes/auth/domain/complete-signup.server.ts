@@ -1,5 +1,4 @@
 import {
-  data,
   redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
@@ -14,17 +13,15 @@ import {
   getAccessToken,
   updateUserSession,
 } from "~/lib/server/session.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireSignupCompletion } from "~/lib/server/route-guards.server";
 import { destinationFromAuthFlow } from "./auth-flow.server";
 import type { CompleteSignUpErrors } from "./auth.types";
 import { invalidateAuthSessionCacheForRequest } from "~/services/auth/session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const guard = await requireSignupCompletion(request);
-  return data(
-    { user: guard.user },
-    guard.setCookie ? { headers: { "Set-Cookie": guard.setCookie } } : {},
-  );
+  const auth = await requireSignupCompletion(request);
+  return withAuthData(auth, { user: auth.user });
 }
 
 function withCompleteSignUpFormError(
@@ -38,10 +35,8 @@ function withCompleteSignUpFormError(
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const guard = await requireSignupCompletion(request);
-  const dataOptions = guard.setCookie
-    ? { headers: { "Set-Cookie": guard.setCookie } }
-    : {};
+  const auth = await requireSignupCompletion(request);
+  const respond = <T>(payload: T) => withAuthData(auth, payload);
   const accessToken = await getAccessToken(request);
   if (!accessToken) {
     throw redirect("/login?redirectTo=/complete-signup");
@@ -67,7 +62,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (Object.keys(errors).length > 0) {
-    return data({ errors: withCompleteSignUpFormError(errors) }, dataOptions);
+    return respond({ errors: withCompleteSignUpFormError(errors) });
   }
 
   try {
@@ -94,51 +89,42 @@ export async function action({ request }: ActionFunctionArgs) {
   } catch (error) {
     if (error instanceof AuthApiError) {
       if (error.status === 400) {
-        return data(
-          {
-            errors: withCompleteSignUpFormError({
-              firstName: formatAuthMessage(
-                getAuthFieldError(error.details, "firstName"),
-              ),
-              lastName: formatAuthMessage(
-                getAuthFieldError(error.details, "lastName"),
-              ),
-              phoneNumber: formatAuthMessage(
-                getAuthFieldError(error.details, "phoneNumber"),
-              ),
-              gender: formatAuthMessage(
-                getAuthFieldError(error.details, "gender"),
-              ),
-              occupation: formatAuthMessage(
-                getAuthFieldError(error.details, "occupation"),
-              ),
-              memberAgreementAccepted: formatAuthMessage(
-                getAuthFieldError(error.details, "memberAgreementAccepted"),
-              ),
-              form: formatAuthMessage(error.message),
-            }),
-          },
-          dataOptions,
-        );
+        return respond({
+          errors: withCompleteSignUpFormError({
+            firstName: formatAuthMessage(
+              getAuthFieldError(error.details, "firstName"),
+            ),
+            lastName: formatAuthMessage(
+              getAuthFieldError(error.details, "lastName"),
+            ),
+            phoneNumber: formatAuthMessage(
+              getAuthFieldError(error.details, "phoneNumber"),
+            ),
+            gender: formatAuthMessage(
+              getAuthFieldError(error.details, "gender"),
+            ),
+            occupation: formatAuthMessage(
+              getAuthFieldError(error.details, "occupation"),
+            ),
+            memberAgreementAccepted: formatAuthMessage(
+              getAuthFieldError(error.details, "memberAgreementAccepted"),
+            ),
+            form: formatAuthMessage(error.message),
+          }),
+        });
       }
 
-      return data(
-        { errors: { form: formatAuthMessage(error.message) } },
-        dataOptions,
-      );
+      return respond({ errors: { form: formatAuthMessage(error.message) } });
     }
 
-    return data(
-      {
-        errors: {
-          form:
-            error instanceof Error
-              ? formatAuthMessage(`Unable to complete profile: ${error.message}`)
-              : "Unable to complete profile. Please try again.",
-        },
+    return respond({
+      errors: {
+        form:
+          error instanceof Error
+            ? formatAuthMessage(`Unable to complete profile: ${error.message}`)
+            : "Unable to complete profile. Please try again.",
       },
-      dataOptions,
-    );
+    });
   }
 }
 

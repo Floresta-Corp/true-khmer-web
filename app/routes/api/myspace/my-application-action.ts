@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs } from "react-router";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import {
   errorActionResponse,
   transformActionResponse,
@@ -16,7 +17,7 @@ import {
 } from "~/services/myspace/types";
 
 export async function MyApplicationAction({ request }: ActionFunctionArgs) {
-  await requireUser(request);
+  const auth = await requireUser(request);
 
   const formData = await request.formData();
   const actionType = String(formData.get("actionType") ?? "");
@@ -25,7 +26,7 @@ export async function MyApplicationAction({ request }: ActionFunctionArgs) {
     MyApplicationRequestSourceTypeSchema.safeParse(sourceType);
 
   if (!parsedSourceType.success) {
-    return errorActionResponse("Invalid source type.");
+    return withAuthData(auth, errorActionResponse("Invalid source type."));
   }
 
   try {
@@ -35,13 +36,13 @@ export async function MyApplicationAction({ request }: ActionFunctionArgs) {
         const statusAction = String(formData.get("statusAction") ?? "");
 
         if (!applicationId) {
-          return errorActionResponse("Missing application id.");
+          return withAuthData(auth, errorActionResponse("Missing application id."));
         }
 
         const parsedStatusAction =
           MyApplicationStatusActionSchema.safeParse(statusAction);
         if (!parsedStatusAction.success) {
-          return errorActionResponse("Invalid status action.");
+          return withAuthData(auth, errorActionResponse("Invalid status action."));
         }
 
         const result = await postMyApplicationChangeStatus(
@@ -51,7 +52,7 @@ export async function MyApplicationAction({ request }: ActionFunctionArgs) {
           parsedStatusAction.data,
         );
 
-        return transformActionResponse(result.data);
+        return withAuthData(auth, transformActionResponse(result.data));
       }
 
       case "archive": {
@@ -59,13 +60,13 @@ export async function MyApplicationAction({ request }: ActionFunctionArgs) {
         const archiveAction = String(formData.get("archiveAction") ?? "");
 
         if (!opportunityId) {
-          return errorActionResponse("Missing opportunity id.");
+          return withAuthData(auth, errorActionResponse("Missing opportunity id."));
         }
 
         const parsedArchiveAction =
           MyApplicationArchiveActionSchema.safeParse(archiveAction);
         if (!parsedArchiveAction.success) {
-          return errorActionResponse("Invalid archive action.");
+          return withAuthData(auth, errorActionResponse("Invalid archive action."));
         }
 
         const result = await postMyApplicationArchiveAction(
@@ -75,18 +76,21 @@ export async function MyApplicationAction({ request }: ActionFunctionArgs) {
           parsedArchiveAction.data,
         );
 
-        return transformActionResponse(result.data);
+        return withAuthData(auth, transformActionResponse(result.data));
       }
 
       default:
-        return errorActionResponse("Unsupported action.");
+        return withAuthData(auth, errorActionResponse("Unsupported action."));
     }
   } catch (error) {
     if (error instanceof ProtectedApiError) {
-      return errorActionResponse(error.message);
+      return withAuthData(auth, errorActionResponse(error.message));
     }
 
     console.error("Unexpected my application action error:", error);
-    return errorActionResponse("Something went wrong. Please try again.");
+    return withAuthData(
+      auth,
+      errorActionResponse("Something went wrong. Please try again."),
+    );
   }
 }

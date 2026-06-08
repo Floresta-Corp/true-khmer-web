@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs } from "react-router";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
 import {
   errorActionResponse,
@@ -269,20 +270,27 @@ export async function launchpadEditAction({
     );
   }
 
-  await requireUser(request);
+  const auth = await requireUser(request);
+  const respond = (payload: LaunchpadEditActionResponse) =>
+    withAuthData(auth, payload);
+
   const formData = await request.formData();
   const actionType = formData.get("actionType");
 
   if (actionType !== "update-launchpad") {
-    return toLaunchpadEditActionResponse(
-      errorActionResponse("Invalid action type"),
+    return respond(
+      toLaunchpadEditActionResponse(
+        errorActionResponse("Invalid action type"),
+      ),
     );
   }
 
   const dataStr = formData.get("data");
   if (!dataStr || typeof dataStr !== "string") {
-    return toLaunchpadEditActionResponse(
-      errorActionResponse("Invalid launchpad form data"),
+    return respond(
+      toLaunchpadEditActionResponse(
+        errorActionResponse("Invalid launchpad form data"),
+      ),
     );
   }
 
@@ -307,15 +315,19 @@ export async function launchpadEditAction({
 
       const logoPresign = resolvePresignedUpload(logoRes.data);
       if (!logoPresign) {
-        return toLaunchpadEditActionResponse(
-          errorActionResponse("Unable to get logo upload payload"),
+        return respond(
+          toLaunchpadEditActionResponse(
+            errorActionResponse("Unable to get logo upload payload"),
+          ),
         );
       }
 
       const newLogoKey = getUploadKey(logoPresign) ?? getUploadKey(logoRes.data);
       if (!newLogoKey) {
-        return toLaunchpadEditActionResponse(
-          errorActionResponse("Unable to get logo upload key"),
+        return respond(
+          toLaunchpadEditActionResponse(
+            errorActionResponse("Unable to get logo upload key"),
+          ),
         );
       }
 
@@ -331,15 +343,20 @@ export async function launchpadEditAction({
 
       const coverPresign = resolvePresignedUpload(coverRes.data);
       if (!coverPresign) {
-        return toLaunchpadEditActionResponse(
-          errorActionResponse("Unable to get cover upload payload"),
+        return respond(
+          toLaunchpadEditActionResponse(
+            errorActionResponse("Unable to get cover upload payload"),
+          ),
         );
       }
 
-      const newCoverKey = getUploadKey(coverPresign) ?? getUploadKey(coverRes.data);
+      const newCoverKey =
+        getUploadKey(coverPresign) ?? getUploadKey(coverRes.data);
       if (!newCoverKey) {
-        return toLaunchpadEditActionResponse(
-          errorActionResponse("Unable to get cover upload key"),
+        return respond(
+          toLaunchpadEditActionResponse(
+            errorActionResponse("Unable to get cover upload key"),
+          ),
         );
       }
 
@@ -362,9 +379,11 @@ export async function launchpadEditAction({
 
         const documentPresign = resolvePresignedUpload(documentRes.data);
         if (!documentPresign) {
-          return toLaunchpadEditActionResponse(
-            errorActionResponse(
-              "Unable to get a material document upload payload",
+          return respond(
+            toLaunchpadEditActionResponse(
+              errorActionResponse(
+                "Unable to get a material document upload payload",
+              ),
             ),
           );
         }
@@ -372,8 +391,12 @@ export async function launchpadEditAction({
         const documentKey =
           getUploadKey(documentPresign) ?? getUploadKey(documentRes.data);
         if (!documentKey) {
-          return toLaunchpadEditActionResponse(
-            errorActionResponse("Unable to get a material document upload key"),
+          return respond(
+            toLaunchpadEditActionResponse(
+              errorActionResponse(
+                "Unable to get a material document upload key",
+              ),
+            ),
           );
         }
 
@@ -397,17 +420,19 @@ export async function launchpadEditAction({
     const parsed = LaunchpadUpdateInputSchema.parse(updatePayload);
     await updateLaunchpad(request, id, parsed);
 
-    return toLaunchpadEditActionResponse(
-      successActionResponse({
-        redirectTo: `/launchpad/detail/${id}`,
-      }),
+    return respond(
+      toLaunchpadEditActionResponse(
+        successActionResponse({
+          redirectTo: `/launchpad/detail/${id}`,
+        }),
+      ),
     );
   } catch (error) {
     console.error("Failed to update launchpad:", error);
 
     if (error instanceof ProtectedApiError) {
       const transformedError = transformActionResponse(error);
-      return {
+      return respond({
         ...toLaunchpadEditActionResponse(
           transformedError.ok
             ? successActionResponse({ redirectTo: `/launchpad/detail/${id}` })
@@ -421,11 +446,13 @@ export async function launchpadEditAction({
           error.message ||
           "Failed to update launchpad. Please try again.",
         fieldErrors: parseValidationFieldErrors(error.details) ?? undefined,
-      };
+      });
     }
 
-    return toLaunchpadEditActionResponse(
-      errorActionResponse("Failed to update launchpad. Please try again."),
+    return respond(
+      toLaunchpadEditActionResponse(
+        errorActionResponse("Failed to update launchpad. Please try again."),
+      ),
     );
   }
 }

@@ -22,6 +22,10 @@ import {
   type OnboardingOption,
 } from "~/services/onboarding.server";
 import { AuthSessionExpiredError } from "~/lib/server/api-client.server";
+import {
+  withAuthData,
+  withAuthRedirect,
+} from "~/lib/server/auth-response.server";
 import { destroySession, getSession } from "~/lib/server/session.server";
 import { requireOnboarding } from "~/lib/server/route-guards.server";
 import {
@@ -90,12 +94,12 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const guard = await requireOnboarding(request);
-  const guardSetCookie = guard.setCookie;
-  const cookieHeader = (setCookie?: string) => {
-    const headerValue = setCookie ?? guardSetCookie;
-    return headerValue ? { headers: { "Set-Cookie": headerValue } } : {};
-  };
+  const auth = await requireOnboarding(request);
+  const authWithCookie = (setCookie?: string) => ({
+    setCookie: [auth.setCookie, setCookie].filter(
+      (cookie): cookie is string => Boolean(cookie),
+    ),
+  });
 
   const formInput = parseProfileForm(await request.formData());
   const errors: ProfileFormErrors = validateProfileInput({
@@ -103,10 +107,12 @@ export async function action({ request }: Route.ActionArgs) {
     cityId: formInput.cityId,
   });
 
-  if (Object.keys(errors).length > 0) return data({ errors }, cookieHeader());
+  if (Object.keys(errors).length > 0) {
+    return withAuthData(authWithCookie(), { errors });
+  }
 
   if (isProfileInputUnchanged(formInput)) {
-    return redirect("/onboarding/interest", cookieHeader());
+    return withAuthRedirect(authWithCookie(), "/onboarding/interest");
   }
 
   try {
@@ -116,7 +122,10 @@ export async function action({ request }: Route.ActionArgs) {
       bio: formInput.bio,
       ...(formInput.avatarKey ? { avatarKey: formInput.avatarKey } : {}),
     });
-    return redirect("/onboarding/interest", cookieHeader(result.setCookie));
+    return withAuthRedirect(
+      authWithCookie(result.setCookie),
+      "/onboarding/interest",
+    );
   } catch (error) {
     const handled = await handleOnboardingActionError<ProfileFormErrors>({
       error,
@@ -131,7 +140,7 @@ export async function action({ request }: Route.ActionArgs) {
     });
 
     if (handled instanceof Response) return handled;
-    return data(handled, cookieHeader());
+    return withAuthData(authWithCookie(), handled);
   }
 }
 

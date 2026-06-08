@@ -15,6 +15,10 @@ import { OnboardingStepIntro } from "~/routes/onboarding/components/onboarding-s
 import type { Route } from "./+types/interest";
 import { getInterests, saveStep2Interests } from "~/services/onboarding.server";
 import { AuthSessionExpiredError } from "~/lib/server/api-client.server";
+import {
+  withAuthData,
+  withAuthRedirect,
+} from "~/lib/server/auth-response.server";
 import { destroySession, getSession } from "~/lib/server/session.server";
 import { requireOnboarding } from "~/lib/server/route-guards.server";
 import {
@@ -60,24 +64,27 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const guard = await requireOnboarding(request);
-  const guardSetCookie = guard.setCookie;
-  const cookieHeader = (setCookie?: string) => {
-    const headerValue = setCookie ?? guardSetCookie;
-    return headerValue ? { headers: { "Set-Cookie": headerValue } } : {};
-  };
+  const auth = await requireOnboarding(request);
+  const authWithCookie = (setCookie?: string) => ({
+    setCookie: [auth.setCookie, setCookie].filter(
+      (cookie): cookie is string => Boolean(cookie),
+    ),
+  });
 
   const formInput = parseInterestForm(await request.formData());
   const errors = validateInterestInput(formInput.selectedIds);
-  if (errors.form) return data({ errors }, cookieHeader());
+  if (errors.form) return withAuthData(authWithCookie(), { errors });
 
   if (isInterestInputUnchanged(formInput)) {
-    return redirect("/onboarding/contribution", cookieHeader());
+    return withAuthRedirect(authWithCookie(), "/onboarding/contribution");
   }
 
   try {
     const result = await saveStep2Interests(request, formInput.selectedIds);
-    return redirect("/onboarding/contribution", cookieHeader(result.setCookie));
+    return withAuthRedirect(
+      authWithCookie(result.setCookie),
+      "/onboarding/contribution",
+    );
   } catch (error) {
     const handled = await handleOnboardingActionError({
       error,
@@ -86,7 +93,7 @@ export async function action({ request }: Route.ActionArgs) {
     });
 
     if (handled instanceof Response) return handled;
-    return data(handled, cookieHeader());
+    return withAuthData(authWithCookie(), handled);
   }
 }
 

@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs } from "react-router";
 import { requireUser } from "~/lib/server/route-guards.server";
+import { withAuthJson } from "~/lib/server/auth-response.server";
 import {
   saveLaunchpad,
   unsaveLaunchpad,
@@ -7,14 +8,15 @@ import {
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 
 export async function LaunchpadSaveAction({ request }: ActionFunctionArgs) {
-  await requireUser(request);
+  const auth = await requireUser(request);
 
   const formData = await request.formData();
   const launchpadId = formData.get("launchpadId");
   const intent = formData.get("intent");
 
   if (typeof launchpadId !== "string" || !launchpadId) {
-    return Response.json(
+    return withAuthJson(
+      auth,
       { ok: false, error: "Missing launchpadId" },
       { status: 400 },
     );
@@ -23,18 +25,20 @@ export async function LaunchpadSaveAction({ request }: ActionFunctionArgs) {
   try {
     if (intent === "save") {
       await saveLaunchpad(request, launchpadId);
-      return Response.json({ ok: true, saved: true });
+      return withAuthJson(auth, { ok: true, saved: true });
     } else if (intent === "unsave") {
       await unsaveLaunchpad(request, launchpadId);
-      return Response.json({ ok: true, saved: false });
+      return withAuthJson(auth, { ok: true, saved: false });
     }
-    return Response.json(
+    return withAuthJson(
+      auth,
       { ok: false, error: "Invalid intent" },
       { status: 400 },
     );
   } catch (error) {
     if (error instanceof ProtectedApiError) {
-      return Response.json(
+      return withAuthJson(
+        auth,
         { ok: false, error: error.message },
         { status: error.status },
       );

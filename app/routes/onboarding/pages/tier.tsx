@@ -1,4 +1,4 @@
-import { Form, data, redirect, useActionData } from "react-router";
+import { Form, useActionData } from "react-router";
 import { OnboardingBackContinueActions } from "~/routes/onboarding/components/onboarding-back-continue-actions";
 import { OnboardingCurrentTierCard } from "~/routes/onboarding/components/onboarding-current-tier-card";
 import { OnboardingFormError } from "~/routes/onboarding/components/onboarding-form-error";
@@ -8,20 +8,27 @@ import { OnboardingStepIntro } from "~/routes/onboarding/components/onboarding-s
 import { OnboardingTierPathCard } from "~/routes/onboarding/components/onboarding-tier-path-card";
 import type { Route } from "./+types/tier";
 import { saveStep4Complete } from "~/services/onboarding.server";
+import {
+  withAuthData,
+  withAuthRedirect,
+} from "~/lib/server/auth-response.server";
 import { requireOnboarding } from "~/lib/server/route-guards.server";
 import { handleOnboardingActionError } from "~/routes/onboarding/domain/shared/onboarding-action-error.server";
 
 export async function action({ request }: Route.ActionArgs) {
-  const guard = await requireOnboarding(request);
-  const guardSetCookie = guard.setCookie;
-  const cookieHeader = (setCookie?: string) => {
-    const headerValue = setCookie ?? guardSetCookie;
-    return headerValue ? { headers: { "Set-Cookie": headerValue } } : {};
-  };
+  const auth = await requireOnboarding(request);
+  const authWithCookie = (setCookie?: string) => ({
+    setCookie: [auth.setCookie, setCookie].filter(
+      (cookie): cookie is string => Boolean(cookie),
+    ),
+  });
 
   try {
     const result = await saveStep4Complete(request);
-    return redirect("/onboarding/completed", cookieHeader(result.setCookie));
+    return withAuthRedirect(
+      authWithCookie(result.setCookie),
+      "/onboarding/completed",
+    );
   } catch (error) {
     const handled = await handleOnboardingActionError({
       error,
@@ -30,7 +37,7 @@ export async function action({ request }: Route.ActionArgs) {
     });
 
     if (handled instanceof Response) return handled;
-    return data(handled, cookieHeader());
+    return withAuthData(authWithCookie(), handled);
   }
 }
 

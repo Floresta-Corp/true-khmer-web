@@ -1,5 +1,6 @@
-import { data, useLoaderData } from "react-router";
+import { useLoaderData } from "react-router";
 import { requireUser } from "~/lib/server/route-guards.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import { Card, CardContent } from "~/components/ui/card";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
@@ -24,13 +25,10 @@ import { useState } from "react";
 import type { Route } from "./+types/onboarding-profile";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const guard = await requireUser(request);
-  const { setCookie, ...payload } = guard;
+  const auth = await requireUser(request);
+  const { setCookie, ...payload } = auth;
 
-  return data(
-    payload,
-    setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
-  );
+  return withAuthData(auth, payload);
 }
 
 export function meta() {

@@ -1,10 +1,11 @@
 import type { Route } from "project-types/manage-post/routes/+types/manage-post.$sourceType.$id";
 import { requireUser } from "~/lib/server/route-guards.server";
+import { withAuthJson } from "~/lib/server/auth-response.server";
 import { getCandidateNote } from "~/services/manage-post/server";
 import { PostingSourceSchema } from "~/services/manage-post/types/detail-post-type";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  await requireUser(request);
+  const auth = await requireUser(request);
 
   const url = new URL(request.url);
   const sourceType = url.searchParams.get("sourceType");
@@ -13,7 +14,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const sourceTypeResult = PostingSourceSchema.safeParse(sourceType);
   if (!sourceTypeResult.success || !postingId || !candidateId) {
-    return Response.json(null, { status: 400 });
+    return withAuthJson(auth, null, { status: 400 });
   }
 
   const result = await getCandidateNote(
@@ -23,5 +24,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     candidateId,
   );
 
-  return Response.json(result?.data?.applicant?.privateNote?.note ?? null);
+  return withAuthJson(
+    auth,
+    result?.data?.applicant?.privateNote?.note ?? null,
+  );
 }

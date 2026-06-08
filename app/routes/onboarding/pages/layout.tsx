@@ -1,7 +1,5 @@
 import {
   Outlet,
-  data,
-  redirect,
   type ShouldRevalidateFunctionArgs,
 } from "react-router";
 import type { Route } from "./+types/layout";
@@ -11,12 +9,16 @@ import {
   readSavedInterests,
   readSavedProfile,
 } from "~/services/onboarding.server";
+import {
+  withAuthData,
+  withAuthRedirect,
+} from "~/lib/server/auth-response.server";
 import { requireOnboarding } from "~/lib/server/route-guards.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const guard = await requireOnboarding(request);
+  const auth = await requireOnboarding(request);
   const url = new URL(request.url);
-  const destination = destinationFromOnboardingState(guard.state);
+  const destination = destinationFromOnboardingState(auth.state);
   const referer = request.headers.get("referer");
   const refererPathname = (() => {
     if (!referer) return "";
@@ -28,11 +30,8 @@ export async function loader({ request }: Route.LoaderArgs) {
   })();
   const cameFromOnboarding = refererPathname.startsWith("/onboarding");
 
-  if (url.pathname === "/onboarding" && guard.state.currentStep > 1) {
-    throw redirect(
-      destination,
-      guard.setCookie ? { headers: { "Set-Cookie": guard.setCookie } } : {},
-    );
+  if (url.pathname === "/onboarding" && auth.state.currentStep > 1) {
+    throw withAuthRedirect(auth, destination);
   }
 
   const isOnboardingStepPath =
@@ -48,25 +47,19 @@ export async function loader({ request }: Route.LoaderArgs) {
     url.pathname !== destination &&
     !cameFromOnboarding
   ) {
-    throw redirect(
-      destination,
-      guard.setCookie ? { headers: { "Set-Cookie": guard.setCookie } } : {},
-    );
+    throw withAuthRedirect(auth, destination);
   }
 
-  const savedProfile = readSavedProfile(guard.state.raw);
-  const savedInterests = readSavedInterests(guard.state.raw);
-  const savedContributions = readSavedContributions(guard.state.raw);
+  const savedProfile = readSavedProfile(auth.state.raw);
+  const savedInterests = readSavedInterests(auth.state.raw);
+  const savedContributions = readSavedContributions(auth.state.raw);
 
-  return data(
-    {
-      onboardingState: guard.state,
-      savedProfile,
-      savedInterests,
-      savedContributions,
-    },
-    guard.setCookie ? { headers: { "Set-Cookie": guard.setCookie } } : {},
-  );
+  return withAuthData(auth, {
+    onboardingState: auth.state,
+    savedProfile,
+    savedInterests,
+    savedContributions,
+  });
 }
 
 export function shouldRevalidate({

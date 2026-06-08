@@ -1,7 +1,7 @@
 import type { Route } from "project-types/manage-post/routes/+types/manage-post";
 import z from "zod";
 import { requireUser } from "~/lib/server/route-guards.server";
-import { getUserId } from "~/lib/server/session.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import { myManagePost } from "~/services/manage-post/server";
 import {
   PostingFilterSchema,
@@ -17,15 +17,15 @@ type ManagePostLoaderData = {
 };
 
 export async function managePostLoader({ request }: Route.LoaderArgs) {
-  await requireUser(request);
-  const userId = await getUserId(request);
+  const auth = await requireUser(request);
+  const userId = auth.user.id;
 
   if (!userId) {
-    return {
+    return withAuthData(auth, {
       postings: [],
       pagination: null,
       userId: null,
-    } satisfies ManagePostLoaderData;
+    } satisfies ManagePostLoaderData);
   }
 
   const url = new URL(request.url);
@@ -59,9 +59,9 @@ export async function managePostLoader({ request }: Route.LoaderArgs) {
     page,
   });
 
-  return {
+  return withAuthData(auth, {
     postings: result?.data?.postings ?? [],
     pagination: result?.data?.pagination ?? null,
     userId,
-  } satisfies ManagePostLoaderData;
+  } satisfies ManagePostLoaderData);
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { useSubmit } from "react-router";
+import { useNavigation, useSubmit } from "react-router";
 import { GoogleButton } from "./google-button";
 
 type GoogleCredentialResponse = {
@@ -91,18 +91,23 @@ export function GoogleAuthButton({
   onError,
 }: GoogleAuthButtonProps) {
   const submit = useSubmit();
+  const navigation = useNavigation();
   const [isReady, setIsReady] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmitting = navigation.state === "submitting";
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
+  const onErrorRef = useRef(onError);
   const callbackRef = useRef<
     ((response: GoogleCredentialResponse) => void) | null
   >(null);
 
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
+
   callbackRef.current = (response) => {
     const idToken = response.credential?.trim();
     if (!idToken) {
-      setIsSubmitting(false);
-      onError?.("Google sign-in did not return a credential.");
+      onErrorRef.current?.("Google sign-in did not return a credential.");
       return;
     }
 
@@ -112,7 +117,6 @@ export function GoogleAuthButton({
     formData.set("redirectTo", redirectTo);
     formData.set("rememberMe", rememberMe ? "true" : "false");
 
-    setIsSubmitting(true);
     submit(formData, { method: "post" });
   };
 
@@ -121,7 +125,7 @@ export function GoogleAuthButton({
 
     async function initializeGoogle() {
       if (!googleClientId?.trim()) {
-        onError?.("Google sign-in is not configured.");
+        onErrorRef.current?.("Google sign-in is not configured.");
         return;
       }
 
@@ -150,7 +154,7 @@ export function GoogleAuthButton({
         setIsReady(true);
       } catch (error) {
         if (cancelled) return;
-        onError?.(
+        onErrorRef.current?.(
           error instanceof Error
             ? error.message
             : "Unable to load Google sign-in.",
@@ -163,7 +167,7 @@ export function GoogleAuthButton({
     return () => {
       cancelled = true;
     };
-  }, [onError]);
+  }, []);
 
   return (
     <div className="relative w-full">

@@ -1,17 +1,14 @@
 import { ArrowRight, Sparkles } from "lucide-react";
-import { data, Link } from "react-router";
+import { Link } from "react-router";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import { OnboardingPageShell } from "~/routes/onboarding/components/onboarding-page-shell";
 import { OnboardingRomdoulCorners } from "~/routes/onboarding/components/onboarding-romdoul-corners";
 import type { Route } from "./+types/completed";
 import { requireUser } from "~/lib/server/route-guards.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const guard = await requireUser(request, { forceFresh: true });
-  if (guard.setCookie) {
-    return data(null, { headers: { "Set-Cookie": guard.setCookie } });
-  }
-
-  return null;
+  const auth = await requireUser(request, { forceFresh: true });
+  return withAuthData(auth, null);
 }
 
 export function meta() {

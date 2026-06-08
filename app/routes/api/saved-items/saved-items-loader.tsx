@@ -9,7 +9,7 @@ import {
 } from "~/services/saved-items/saved-items-types";
 import type { Pagination } from "~/services/types";
 import { requireUser } from "~/lib/server/route-guards.server";
-import { getUserId } from "~/lib/server/session.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import z from "zod";
 type SavedItemsLoaderData = {
   saveItem: ItemElement[];
@@ -19,16 +19,16 @@ type SavedItemsLoaderData = {
 };
 
 export async function savedItemsLoader({ request }: Route.LoaderArgs) {
-  await requireUser(request);
-  const userId = await getUserId(request);
+  const auth = await requireUser(request);
+  const userId = auth.user.id;
 
   if (!userId) {
-    return {
+    return withAuthData(auth, {
       saveItem: [],
       userId: null,
       pagination: null,
       count: { all: 0, forum: 0, project: 0, volunteer: 0 },
-    } satisfies SavedItemsLoaderData;
+    } satisfies SavedItemsLoaderData);
   }
 
   const url = new URL(request.url);
@@ -46,7 +46,7 @@ export async function savedItemsLoader({ request }: Route.LoaderArgs) {
     cursor,
   });
 
-  return {
+  return withAuthData(auth, {
     saveItem: result?.data?.items ?? [],
     pagination: result?.data?.pagination ?? null,
     count: result?.data?.counts ?? {
@@ -56,5 +56,5 @@ export async function savedItemsLoader({ request }: Route.LoaderArgs) {
       volunteer: 0,
     },
     userId,
-  } satisfies SavedItemsLoaderData;
+  } satisfies SavedItemsLoaderData);
 }
