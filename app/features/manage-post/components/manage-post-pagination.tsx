@@ -3,14 +3,12 @@ import { Button } from "~/components/ui/button";
 
 type Props = {
   total: number;
-  showing: number;
   totalPages?: number;
   pageSize: number;
 };
 
 export default function PostingPagination({
   total,
-  // showing,
   totalPages: paginationTotalPages,
   pageSize,
 }: Props) {

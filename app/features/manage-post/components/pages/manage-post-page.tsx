@@ -180,7 +180,6 @@ export default function ManagePostingPage() {
       <div className="mt-10 pb-10">
         <PostingPagination
           total={pagination?.total ?? postings.length}
-          showing={postings.length}
           totalPages={pagination?.totalPages}
           pageSize={pagination?.limit ?? 6}
         />
