@@ -15,15 +15,19 @@ export async function ProfileDetailLoader({
   const url = new URL(request.url);
   const sourceType = url.searchParams.get("sourceType");
 
-  if (
-    sourceType === "forum" ||
-    sourceType === "volunteer" ||
-    sourceType === "project"
-  ) {
-    const result = await GetPostedContent(request, params.id, sourceType);
-    return { kind: "posted" as const, postedContent: result.data };
-  }
+  try {
+    if (
+      sourceType === "forum" ||
+      sourceType === "volunteer" ||
+      sourceType === "project"
+    ) {
+      const result = await GetPostedContent(request, params.id, sourceType);
+      return { kind: "posted" as const, postedContent: result.data };
+    }
 
-  const result = await GetProfileById(request, params.id);
-  return { kind: "profile" as const, profile: result.data.profile };
+    const result = await GetProfileById(request, params.id);
+    return { kind: "profile" as const, profile: result.data.profile };
+  } catch {
+    return { kind: "profile" as const, profile: null };
+  }
 }

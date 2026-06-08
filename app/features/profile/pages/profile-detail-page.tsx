@@ -44,12 +44,26 @@ export default function ProfileDetailPage() {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 16 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.36, ease: "easeInOut" } },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.36, ease: "easeInOut" },
+    },
   } as const;
 
   const prefersReducedMotion = useReducedMotion();
 
-  if (!profile) return null;
+  if (!profile) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-400">
+        <p className="text-lg font-medium">Profile not found</p>
+        <p className="text-sm mt-1">
+          The user you are looking for does not exist or has been removed
+        </p>
+        <BackToButton to={"/"} className="mt-6" />
+      </div>
+    );
+  }
 
   const forumQuestions =
     fetcherData?.sourceType === "forum" ? fetcherData.questions : [];
