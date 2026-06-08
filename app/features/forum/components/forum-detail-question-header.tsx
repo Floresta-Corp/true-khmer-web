@@ -18,17 +18,20 @@ import type { Question } from "~/services/forum/forum-types";
 import { resolveImageURL } from "~/lib/utils";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { Spinner } from "~/components/ui/spinner";
+import ProfileLinkWrapper from "~/components/profile-link-wrapper";
 
 interface ForumDetailQuestionHeaderProps {
   question: Question;
   isAuthenticated: boolean;
   reportReasons: ReportReasonData[];
+  userId?: string;
 }
 
 export default function ForumDetailQuestionHeader({
   question,
   isAuthenticated,
   reportReasons,
+  userId,
 }: ForumDetailQuestionHeaderProps) {
   if (!question) return null;
 
@@ -94,9 +97,13 @@ export default function ForumDetailQuestionHeader({
           className="h-6 w-6 rounded-full object-cover"
         />
         <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm leading-5">
-          <p className="max-w-full truncate font-semibold text-[#2c2f31]">
+          <ProfileLinkWrapper
+            authorId={question.author.id}
+            isAuthor={userId === question.author.id ? true : false}
+            className="max-w-full truncate font-semibold text-[#2c2f31]"
+          >
             {question.author.name}
-          </p>
+          </ProfileLinkWrapper>
           <span className="text-[#abadaf]">•</span>
           <Button
             variant="link"

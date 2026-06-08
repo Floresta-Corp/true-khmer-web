@@ -263,7 +263,7 @@ export default function AskQuestionDialog({
     return (
       <Link
         to={loginHref}
-        className="flex h-10 w-full sm:w-auto items-center justify-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca]"
+        className="cursor-pointer flex h-10 w-full sm:w-auto items-center justify-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca]"
       >
         <Plus size={24} />
         Ask question
@@ -279,7 +279,7 @@ export default function AskQuestionDialog({
         {trigger || (
           <Button
             variant={"default"}
-            className="flex h-10 w-full sm:w-auto items-center justify-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca]"
+            className="cursor-pointer flex h-10 w-full sm:w-auto items-center justify-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca]"
           >
             <Plus size={24} />
             Ask question
@@ -530,4 +530,3 @@ export default function AskQuestionDialog({
     </Dialog>
   );
 }
-

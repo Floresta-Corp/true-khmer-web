@@ -1,3 +1,4 @@
+import * as React from "react";
 import { motion } from "motion/react";
 import { MyspaceLoader } from "~/routes/api/myspace/myspace-loader";
 import type { Route } from "./+types/myspace";
@@ -6,6 +7,7 @@ import { PageHeader } from "../components/myspace-page-header";
 import { ProfileHeader } from "../components/myspace-profile-header";
 import { MyAchievementsCard } from "../components/myspace-my-achievements-card";
 import { ForumPageLayout } from "~/features/forum/components/forum-page-layout";
+import { useSearchParams } from "react-router";
 import MyspaceBioCard from "../components/myspace-bio-card";
 import { CommunityStandingCard } from "../components/myspace-community-standing-cards";
 
@@ -17,6 +19,16 @@ export function meta() {
 
 export default function MySpacePage({ loaderData }: Route.ComponentProps) {
   const { me } = loaderData;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [viewMode, setViewMode] = React.useState<"myview" | "public">(
+    searchParams.get("view") === "public" ? "public" : "myview",
+  );
+
+  React.useEffect(() => {
+    const searchViewMode =
+      searchParams.get("view") === "public" ? "public" : "myview";
+    setViewMode(searchViewMode);
+  }, [searchParams]);
 
   if (!me) {
     return (
@@ -25,6 +37,22 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
       </div>
     );
   }
+
+  const isPublicView = viewMode === "public";
+
+  const handleToggleView = () => {
+    const nextViewMode = isPublicView ? "myview" : "public";
+    setViewMode(nextViewMode);
+    setSearchParams((currentParams) => {
+      const nextParams = new URLSearchParams(currentParams);
+      if (nextViewMode === "public") {
+        nextParams.set("view", "public");
+      } else {
+        nextParams.delete("view");
+      }
+      return nextParams;
+    });
+  };
 
   const displayName =
     me.user.displayName || `${me.user.firstName} ${me.user.lastName}`;
@@ -38,7 +66,10 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
         >
-          <PageHeader />
+          <PageHeader
+            isPublicView={isPublicView}
+            onToggleView={handleToggleView}
+          />
         </motion.div>
 
         <motion.div
@@ -103,6 +134,8 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
               totalPoints={me.progress.totalPoints}
               tier={me.progress.tier}
               rank={me.progress.rank}
+              nextTier={me.progress.nextTier}
+              pointsUntilNextTier={me.progress.pointsUntilNextTier}
             />
           </motion.div>
 

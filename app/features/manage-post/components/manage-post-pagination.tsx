@@ -3,15 +3,25 @@ import { Button } from "~/components/ui/button";
 
 type Props = {
   total: number;
-  showing: number;
+  totalPages?: number;
+  pageSize: number;
 };
 
-export default function PostingPagination({ total, showing }: Props) {
+export default function PostingPagination({
+  total,
+  totalPages: paginationTotalPages,
+  pageSize,
+}: Props) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const totalPages = Math.max(1, Math.ceil(total / 10));
+  const totalPages = Math.max(
+    1,
+    paginationTotalPages ?? Math.ceil(total / pageSize),
+  );
   const rawPage = Number.parseInt(searchParams.get("page") ?? "1", 10);
   const currentPage =
     Number.isFinite(rawPage) && rawPage > 0 ? Math.min(rawPage, totalPages) : 1;
+
+  const showing = Math.min(currentPage * pageSize, total);
 
   const goToPage = (page: number) => {
     const nextPage = Math.min(Math.max(page, 1), totalPages);
