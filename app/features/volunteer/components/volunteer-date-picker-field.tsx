@@ -81,7 +81,7 @@ export default function VolunteerDatePickerField({
                 value={inputValue}
                 onChange={handleInputChange}
                 placeholder={placeholder}
-                className="h-11 w-full rounded-lg  bg-transparent text-sm shadow-none border-transparent focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
+                className="h-11 w-full rounded-lg font-medium bg-transparent text-sm shadow-none border-transparent focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
               />
             </InputGroup>
           </PopoverTrigger>
