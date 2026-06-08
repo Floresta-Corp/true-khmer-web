@@ -1,6 +1,8 @@
 import type { Route as VolunteerRoute } from "project-types/volunteer/routes/+types/volunteer.create";
-import { redirect } from "react-router";
-import { withAuthData } from "~/lib/server/auth-response.server";
+import {
+  withAuthData,
+  withAuthRedirect,
+} from "~/lib/server/auth-response.server";
 import { getVolunteerCategories } from "~/services/volunteer/server/volunteer.categories.server";
 import { getVolunteerLocations } from "~/services/volunteer/server/volunteer.location.server";
 import type { GetVolunteerCategoriesResponse } from "~/services/volunteer/volunteer-types";
@@ -19,7 +21,7 @@ export default async function volunteerCreateLoader({
   const auth = await requireUser(request);
   const userId = auth.user.id;
   if (!userId) {
-    redirect("/login?redirectTo=/volunteer/create");
+    return withAuthRedirect(auth, "/login?redirectTo=/volunteer/create");
   }
   const [locations, categories] = await Promise.all([
     getVolunteerLocations(request),

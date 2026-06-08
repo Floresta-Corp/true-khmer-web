@@ -84,7 +84,9 @@ export async function MyApplicationAction({ request }: ActionFunctionArgs) {
     }
   } catch (error) {
     if (error instanceof ProtectedApiError) {
-      return withAuthData(auth, errorActionResponse(error.message));
+      return withAuthData(auth, errorActionResponse(error.message), {
+        status: error.status,
+      });
     }
 
     console.error("Unexpected my application action error:", error);

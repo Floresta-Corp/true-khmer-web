@@ -90,4 +90,9 @@ export default async function ForumSearchAction({
 
     return respond(await updateForumQuestion(request, questionId, validation.data));
   }
+
+  return respond({
+    ok: false,
+    message: `Unsupported method: ${method}`,
+  });
 }

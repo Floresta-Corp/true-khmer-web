@@ -107,7 +107,7 @@ export async function forumDetailAction({
     if (!reportAnswerId) {
       return respond({
         ok: false,
-        message: "Question ID is required for reporting.",
+        message: "Answer ID is required for reporting.",
       });
     }
 

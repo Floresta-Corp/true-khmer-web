@@ -217,7 +217,10 @@ export async function managePostDetailAction({
     });
   } catch (error: any) {
     if (error?.status === 409) {
-      return respond({ success: false, error: error?.details?.error });
+      return respond(
+        { success: false, error: error?.details?.error },
+        { status: 409 },
+      );
     }
     throw error;
   }

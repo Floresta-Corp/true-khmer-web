@@ -14,14 +14,18 @@ export default async function launchpadEditLoader({
 }: LaunchpadEditRoute.LoaderArgs) {
   const auth = await requireUser(request);
   const userId = auth.user.id;
+  const id = params.id;
+  const redirectTo = id ? `/launchpad/edit/${id}` : "/launchpad";
 
   if (!userId) {
-    throw withAuthRedirect(auth, "/login?redirectTo=/launchpad/edit");
+    throw withAuthRedirect(
+      auth,
+      `/login?${new URLSearchParams({ redirectTo })}`,
+    );
   }
 
-  const id = params.id;
   if (!id) {
-    throw withAuthRedirect(auth, "/launchpad");
+    throw withAuthRedirect(auth, redirectTo);
   }
   const [project, categories, locations] = await Promise.all([
     GetLaunchpadDetail(id, request),

@@ -67,12 +67,13 @@ export async function EditProfileAction({
   request,
 }: EditProfileRoute.ActionArgs) {
   const auth = await requireUser(request);
-  let setCookie: string | undefined;
+  let presignCookie: string | undefined;
+  let sessionCookie: string | undefined;
   const respond = <T>(payload: T) =>
     withAuthData(
       {
-        setCookie: [auth.setCookie, setCookie].filter(
-          (cookie): cookie is string => Boolean(cookie),
+        setCookie: [auth.setCookie, presignCookie, sessionCookie].flatMap(
+          (cookie) => (Array.isArray(cookie) ? cookie : cookie ? [cookie] : []),
         ),
       },
       payload,
@@ -148,7 +149,7 @@ export async function EditProfileAction({
         contentType: avatarFile.type,
         fileSize: avatarFile.size,
       });
-      if (result.setCookie) setCookie = result.setCookie;
+      if (result.setCookie) presignCookie = result.setCookie;
       if (!result.data.ok) {
         return respond({
           ok: false,
@@ -186,9 +187,9 @@ export async function EditProfileAction({
     await invalidateAuthSessionCacheForRequest(request);
 
     if (result.setCookie) {
-      setCookie = result.setCookie;
-    } else if (!setCookie) {
-      setCookie = await syncUpdatedProfileToSession(
+      sessionCookie = result.setCookie;
+    } else {
+      sessionCookie = await syncUpdatedProfileToSession(
         request,
         result.data.profile,
       );
@@ -202,10 +203,10 @@ export async function EditProfileAction({
         message: error.message || "Failed to update profile.",
       });
     }
+    console.error("Failed to update profile", error);
     return respond({
       ok: false,
       message: "Failed to update profile.",
-      error: error,
     });
   }
 }

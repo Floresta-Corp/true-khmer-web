@@ -18,8 +18,8 @@ import { handleOnboardingActionError } from "~/routes/onboarding/domain/shared/o
 export async function action({ request }: Route.ActionArgs) {
   const auth = await requireOnboarding(request);
   const authWithCookie = (setCookie?: string) => ({
-    setCookie: [auth.setCookie, setCookie].filter(
-      (cookie): cookie is string => Boolean(cookie),
+    setCookie: [auth.setCookie, setCookie].flatMap((cookie) =>
+      Array.isArray(cookie) ? cookie : cookie ? [cookie] : [],
     ),
   });
 
