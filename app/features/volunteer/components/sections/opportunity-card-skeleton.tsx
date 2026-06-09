@@ -13,7 +13,7 @@ export default function OpportunityCardSkeleton({
       className={`flex h-full flex-col overflow-hidden rounded-[14px] border border-[#f3f4f6] bg-white p-px shadow-[0px_10px_30px_-15px_rgba(0,0,0,0.05)] ${className ?? ""}`}
     >
       <div className="relative h-39.25 w-full overflow-hidden p-3.5">
-        <Skeleton className="absolute inset-0 size-full rounded-[10px]" />
+        <Skeleton className="absolute inset-0 size-full" />
         <Skeleton className="relative ml-auto mt-20 h-5.5 w-20 rounded-xl" />
       </div>
 
