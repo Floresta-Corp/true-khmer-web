@@ -17,7 +17,12 @@ import {
 import { useFetcher, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
-import { Dialog, DialogContent, DialogFooter } from "~/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogTitle,
+} from "~/components/ui/dialog";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -324,9 +329,9 @@ export default function ManagePostOption({
               <Calendar className="text-blue-600" size={22} />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-gray-900">
+              <DialogTitle className="text-base font-semibold text-gray-900">
                 Confirm Application Deadline
-              </h2>
+              </DialogTitle>
               <p className="text-sm text-gray-500 mt-1 leading-relaxed">
                 {title}
               </p>
@@ -362,7 +367,7 @@ export default function ManagePostOption({
 
           <div className="flex flex-col gap-2">
             <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Quick presets (from today)
+              Quick presets
             </span>
             <div className="flex gap-2">
               {PRESET_DATE.map(({ label, days }) => (

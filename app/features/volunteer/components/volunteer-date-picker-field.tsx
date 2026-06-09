@@ -14,6 +14,8 @@ import {
   InputGroupInput,
 } from "~/components/ui/input-group";
 
+const DATE_FORMAT = "PPP";
+
 type VolunteerDatePickerFieldProps = {
   value?: string;
   onChange: (value: string) => void;
@@ -32,11 +34,11 @@ export default function VolunteerDatePickerField({
     parsedDate && isValid(parsedDate) ? parsedDate : undefined;
 
   const [inputValue, setInputValue] = useState(
-    selectedDate ? format(selectedDate, "PPP") : "",
+    selectedDate ? format(selectedDate, DATE_FORMAT) : "",
   );
 
   useEffect(() => {
-    setInputValue(selectedDate ? format(selectedDate, "PPP") : "");
+    setInputValue(selectedDate ? format(selectedDate, DATE_FORMAT) : "");
   }, [value]);
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -48,7 +50,7 @@ export default function VolunteerDatePickerField({
       return;
     }
 
-    const parsed = parse(raw, "PPP", new Date());
+    const parsed = parse(raw, DATE_FORMAT, new Date());
     if (isValid(parsed)) {
       onChange(parsed.toISOString());
     }
@@ -56,7 +58,7 @@ export default function VolunteerDatePickerField({
 
   function handleCalendarSelect(date: Date | undefined) {
     if (date) {
-      setInputValue(format(date, "PPP"));
+      setInputValue(format(date, DATE_FORMAT));
       onChange(date.toISOString());
     } else {
       setInputValue("");
