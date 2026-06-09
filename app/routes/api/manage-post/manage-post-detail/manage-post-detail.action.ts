@@ -1,4 +1,5 @@
 import type { Route } from "project-types/manage-post/routes/+types/manage-post.$sourceType.$id";
+import z from "zod";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import {
@@ -6,6 +7,7 @@ import {
   updateApplicantNote,
   updateApplicantStatus,
   updateManagePost,
+  updateManagePostExtendDate,
 } from "~/services/manage-post/server";
 import {
   ApplicantStatusActionSchema,
@@ -35,7 +37,15 @@ export async function managePostDetailAction({
   const formData = await request.formData();
   const actionType = String(formData.get("actionType") ?? "").trim();
 
-  const allowedActionTypes = new Set(["note", "change-status", "decline"]);
+  const DeadlineDatetimeSchema = z.string().datetime({ offset: true });
+
+  const allowedActionTypes = new Set([
+    "postingAction",
+    "note",
+    "change-status",
+    "decline",
+    "extend-application-deadline",
+  ]);
 
   if (actionType && !allowedActionTypes.has(actionType)) {
     return respond({
@@ -45,6 +55,46 @@ export async function managePostDetailAction({
   }
 
   const postingAction = formData.get("postingAction");
+
+  if (actionType === "extend-application-deadline") {
+    const deadline = String(formData.get("deadline") ?? "").trim();
+    const sourceTypeResult = PostingSourceSchema.safeParse(sourceType);
+
+    if (!sourceTypeResult.success || !postingId) {
+      return respond(
+        { success: false, ok: false, error: "Invalid request parameters." },
+        { status: 400 },
+      );
+    }
+
+    const deadlineResult = DeadlineDatetimeSchema.safeParse(deadline);
+    if (!deadlineResult.success) {
+      return respond(
+        { success: false, ok: false, error: "Please select a valid deadline." },
+        { status: 400 },
+      );
+    }
+
+    try {
+      const result = await updateManagePostExtendDate(
+        request,
+        sourceTypeResult.data as PostSourceType,
+        postingId,
+        deadline,
+      );
+
+      return respond({ success: true, ok: true, data: result });
+    } catch (error: any) {
+      return respond(
+        {
+          success: false,
+          ok: false,
+          error: "Unable to extend deadline.",
+        },
+        { status: error?.status ?? 500 },
+      );
+    }
+  }
 
   // Handle candidate note update
   if (actionType === "note") {

@@ -141,11 +141,17 @@ export default function ManagePostingDetailPage() {
             </button> */}
 
             <div className="shrink-0 h-11 w-11 relative">
-              <ManagePostOption
-                status={postDetail?.posting?.status as ManagePostStatus}
-                sourceType={postDetail?.posting?.sourceType as SourceType}
-                postingId={postDetail?.posting?.id ?? ""}
-              />
+              {postDetail?.posting ? (
+                <ManagePostOption
+                  status={postDetail.posting.status as ManagePostStatus}
+                  sourceType={postDetail.posting.sourceType as SourceType}
+                  postingId={postDetail.posting.id ?? ""}
+                  currentDeadline={postDetail.posting.deadline}
+                  title={postDetail.posting.title ?? "Untitled Post"}
+                />
+              ) : (
+                <p>Loading options...</p>
+              )}
             </div>
           </motion.div>
         </div>

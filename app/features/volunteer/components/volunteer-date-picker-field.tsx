@@ -1,12 +1,19 @@
+import { useState, useEffect } from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { format, isValid, parseISO } from "date-fns";
-import { Button } from "~/components/ui/button";
+import { format, isValid, parse, parseISO } from "date-fns";
 import { Calendar } from "~/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "~/components/ui/input-group";
+
+const DATE_FORMAT = "PPP";
 
 type VolunteerDatePickerFieldProps = {
   value?: string;
@@ -25,30 +32,65 @@ export default function VolunteerDatePickerField({
   const selectedDate =
     parsedDate && isValid(parsedDate) ? parsedDate : undefined;
 
+  const [inputValue, setInputValue] = useState(
+    selectedDate ? format(selectedDate, DATE_FORMAT) : "",
+  );
+
+  useEffect(() => {
+    setInputValue(selectedDate ? format(selectedDate, DATE_FORMAT) : "");
+  }, [value]);
+
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const raw = e.target.value;
+    setInputValue(raw);
+
+    if (raw === "") {
+      onChange("");
+      return;
+    }
+
+    const parsed = parse(raw, DATE_FORMAT, new Date());
+    if (isValid(parsed)) {
+      onChange(parsed.toISOString());
+    }
+  }
+
+  function handleCalendarSelect(date: Date | undefined) {
+    if (date) {
+      setInputValue(format(date, DATE_FORMAT));
+      onChange(date.toISOString());
+    } else {
+      setInputValue("");
+      onChange("");
+    }
+  }
+
   return (
     <>
       <div>
         <Popover>
           <PopoverTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              aria-invalid={Boolean(error)}
-              className={`group relative h-11 w-full justify-start rounded-lg bg-[#F8FAFC] pl-9 pr-3 text-left text-sm font-medium shadow-none hover:bg-[#F8FAFC] ${
-                selectedDate ? "text-[#364153]" : "text-[#C8D6E5]"
-              } ${error ? "border-red-500" : "border-transparent"}`}
+            <InputGroup
+              className={`relative flex items-center cursor-pointer rounded-lg bg-[#F8FAFC] gap-2 px-1 py-5 ${
+                error ? " border-red-500" : " border-transparent"
+              }`}
             >
-              <CalendarIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#99a1af]" />
-              <span className="transition-colors group-hover:text-[#364153]">
-                {selectedDate ? format(selectedDate, "PPP") : placeholder}
-              </span>
-            </Button>
+              <InputGroupAddon>
+                <CalendarIcon className="size-4 text-[#99a1af]" />
+              </InputGroupAddon>
+              <InputGroupInput
+                value={inputValue}
+                onChange={handleInputChange}
+                placeholder={placeholder}
+                className="h-11 w-full rounded-lg font-medium bg-transparent text-sm shadow-none border-transparent focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
+              />
+            </InputGroup>
           </PopoverTrigger>
           <PopoverContent align="start" className="w-auto p-0">
             <Calendar
               mode="single"
               selected={selectedDate}
-              onSelect={(date) => onChange(date ? date.toISOString() : "")}
+              onSelect={handleCalendarSelect}
             />
           </PopoverContent>
         </Popover>
