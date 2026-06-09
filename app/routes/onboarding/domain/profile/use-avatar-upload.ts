@@ -6,7 +6,6 @@ import {
 
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024; // 5MB
-const SAFE_FILE_NAME = /^[A-Za-z0-9._-]+$/;
 
 type UseAvatarUploadOptions = {
   initialAvatarUrl: string;
@@ -61,12 +60,6 @@ export function useAvatarUpload({
         return;
       }
 
-      if (!SAFE_FILE_NAME.test(file.name)) {
-        setUploadError("File name contains unsupported characters.");
-        setAvatarKey("");
-        return;
-      }
-
       const token = Date.now();
       uploadTokenRef.current = token;
 
@@ -87,7 +80,6 @@ export function useAvatarUpload({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            fileName: file.name,
             contentType: file.type,
             fileSize: file.size,
           }),

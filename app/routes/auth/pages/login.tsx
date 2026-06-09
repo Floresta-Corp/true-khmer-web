@@ -10,7 +10,7 @@ import {
 import { z } from "zod";
 import { FormDivider } from "~/routes/auth/components/form-divider";
 import { FormError } from "~/routes/auth/components/form-error";
-import { GoogleButton } from "~/routes/auth/components/google-button";
+import { GoogleAuthButton } from "~/routes/auth/components/google-auth-button";
 import { InlineMessage } from "~/routes/auth/components/inline-message";
 import {
   AuthBrandPanel,
@@ -90,6 +90,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [clientErrors, setClientErrors] = useState<LoginFieldErrors>({});
+  const [googleError, setGoogleError] = useState("");
   const isSubmitting = navigation.state === "submitting";
   const isFormValid = loginFormSchema.safeParse({ email, password }).success;
 
@@ -151,9 +152,11 @@ export default function LoginPage() {
             visible: { opacity: 1, y: 0 },
           }}
         >
-          <GoogleButton className="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3 text-base font-semibold text-[#111827] shadow-sm hover:bg-[#F9FAFB]">
-            Log in with Google
-          </GoogleButton>
+          <GoogleAuthButton
+            className="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3 text-base font-semibold text-[#111827] shadow-sm hover:bg-[#F9FAFB]"
+            redirectTo={redirectTo}
+            onError={setGoogleError}
+          />
         </motion.div>
 
         <motion.div
@@ -168,6 +171,7 @@ export default function LoginPage() {
         </motion.div>
 
         <InlineMessage tone="success" message={successMessage} />
+        <FormError message={googleError} />
         <FormError message={actionData?.errors?.form} />
 
         <motion.div

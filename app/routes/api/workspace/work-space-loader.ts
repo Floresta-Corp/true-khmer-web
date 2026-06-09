@@ -4,10 +4,10 @@ import {
   myForumQuestion,
 } from "~/services/forum/server";
 import type { Question, MyAnswerItem } from "~/services/forum/forum-types";
-import { getUserId } from "~/lib/server/session.server";
 import type { Route } from "project-types/workspace/routes/+types/workspace";
 import type { BasicJoinType } from "~/services/types";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 
 type MyWorkSpaceLoaderData = {
   questions: Question[];
@@ -17,15 +17,15 @@ type MyWorkSpaceLoaderData = {
 };
 
 export async function workSpaceLoader({ request }: Route.LoaderArgs) {
-  await requireAuthenticatedUser(request);
-  const userId = await getUserId(request);
+  const auth = await requireUser(request);
+  const userId = auth.user.id;
 
   if (!userId) {
-    return {
+    return withAuthData(auth, {
       questions: [],
       answers: [],
       userId: null,
-    } satisfies MyWorkSpaceLoaderData;
+    } satisfies MyWorkSpaceLoaderData);
   }
   const [qa, an, ca] = await Promise.all([
     myForumQuestion(request),
@@ -36,10 +36,10 @@ export async function workSpaceLoader({ request }: Route.LoaderArgs) {
   const questions: Question[] = qa?.data?.questions || [];
   const answers: MyAnswerItem[] = an?.data?.answers || [];
 
-  return {
+  return withAuthData(auth, {
     questions,
     answers,
     userId: userId || null,
     categories: ca?.data?.categories || [],
-  } satisfies MyWorkSpaceLoaderData;
+  } satisfies MyWorkSpaceLoaderData);
 }

@@ -38,7 +38,7 @@ export async function action({ request }: { request: Request }) {
       "/uploads/avatar/presign",
       {
         method: "POST",
-        body: { fileName, contentType, fileSize },
+        body: { contentType, fileSize },
       },
     );
     return Response.json(

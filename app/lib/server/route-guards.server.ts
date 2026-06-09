@@ -1,30 +1,68 @@
 import { redirect } from "react-router";
+import { routeForAccessState } from "~/lib/server/auth/access-control.server";
 import {
   AuthSessionExpiredError,
   ProtectedApiError,
 } from "~/lib/server/api-client.server";
 import {
+  authenticatedUserFromOnboardingState,
+  authenticatedUserFromSessionUser,
+} from "~/lib/server/auth/authenticated-user.server";
+import {
   destroySession,
   getSession,
   getUser as getSessionUser,
 } from "~/lib/server/session.server";
+import { getAuthSession } from "~/services/auth/session.server";
 import {
-  destinationFromOnboardingState,
   getOnboardingState,
   type OnboardingState,
 } from "~/services/onboarding.server";
-import type { AuthenticatedUser, Profile } from "./types";
+import type { AuthenticatedUser } from "./types";
 
 type GuardResult = {
   user: AuthenticatedUser;
-  state: OnboardingState;
   setCookie?: string;
+};
+
+type OnboardingGuardResult = GuardResult & {
+  state: OnboardingState;
+};
+
+type GuardOptions = {
+  forceFresh?: boolean;
 };
 
 export type OptionalUserResult = {
   user: AuthenticatedUser | null;
   setCookie?: string;
 };
+
+function redirectWithCookie(to: string, setCookie?: string) {
+  return redirect(to, setCookie ? { headers: { "Set-Cookie": setCookie } } : {});
+}
+
+function requestWithSetCookie(request: Request, setCookie?: string) {
+  if (!setCookie) return request;
+
+  const cookiePair = setCookie.split(";", 1)[0];
+  const separatorIndex = cookiePair.indexOf("=");
+  if (separatorIndex <= 0) return request;
+
+  const cookieName = cookiePair.slice(0, separatorIndex);
+  const existingCookie = request.headers.get("Cookie") ?? "";
+  const nextCookies = existingCookie
+    .split(";")
+    .map((cookie) => cookie.trim())
+    .filter((cookie) => cookie && !cookie.startsWith(`${cookieName}=`));
+
+  nextCookies.push(cookiePair);
+
+  const headers = new Headers(request.headers);
+  headers.set("Cookie", nextCookies.join("; "));
+
+  return new Request(request, { headers });
+}
 
 function loginRedirectPath(request: Request) {
   const url = new URL(request.url);
@@ -46,11 +84,11 @@ async function clearAndRedirectToLogin(request: Request, redirectTo?: string) {
   });
 }
 
-function isOnboardingRequiredError(error: unknown) {
+function isProtectedApiCode(error: unknown, code: string) {
   return (
     error instanceof ProtectedApiError &&
     error.status === 403 &&
-    error.code === "ONBOARDING_REQUIRED"
+    error.code === code
   );
 }
 
@@ -61,74 +99,23 @@ function isUserNotFoundError(error: unknown) {
   return error.message.toLowerCase().includes("user not found");
 }
 
-function getUserIdentity(user: unknown) {
-  if (!user || typeof user !== "object") {
-    return { id: "", email: "" };
+async function redirectForGuardError(error: unknown, request: Request) {
+  if (error instanceof AuthSessionExpiredError || isUserNotFoundError(error)) {
+    return clearAndRedirectToLogin(request);
+  }
+  if (isProtectedApiCode(error, "SIGNUP_COMPLETION_REQUIRED")) {
+    return redirect("/complete-signup");
+  }
+  if (isProtectedApiCode(error, "ONBOARDING_REQUIRED")) {
+    return redirect("/onboarding/profile");
   }
 
-  const candidate = user as Record<string, unknown>;
-  return {
-    id: typeof candidate.id === "string" ? candidate.id : "",
-    email: typeof candidate.email === "string" ? candidate.email : "",
-  };
+  return null;
 }
 
-function isObject(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object";
-}
-
-function readString(value: unknown) {
-  return typeof value === "string" ? value : "";
-}
-
-function readBoolean(value: unknown) {
-  return typeof value === "boolean" ? value : false;
-}
-
-function buildUserProfile(
-  user: unknown,
-  state: OnboardingState,
-  displayName: string,
-): Profile {
-  const userRecord = isObject(user) ? user : {};
-  const rawProfile: Record<string, unknown> = isObject(state.raw.profile)
-    ? state.raw.profile
-    : {};
-  const existingProfile: Record<string, unknown> = isObject(userRecord.profile)
-    ? userRecord.profile
-    : {};
-  const profileId = readString(existingProfile.id);
-
-  return {
-    id: profileId || undefined,
-    displayName: readString(existingProfile.displayName) || displayName,
-    avatarKey:
-      readString(rawProfile.avatarKey) || readString(existingProfile.avatarKey),
-    avatarUrl:
-      readString(rawProfile.avatarUrl) ||
-      readString(existingProfile.avatarUrl) ||
-      readString(userRecord.avatar),
-  };
-}
-
-function mergeUserWithOnboardingState(
-  user: unknown,
-  state: OnboardingState,
-): AuthenticatedUser {
-  const userRecord = isObject(user) ? user : {};
-  const email = readString(userRecord.email) || state.raw.user.email;
-  const name = readString(userRecord.name) || email.split("@")[0] || "User";
-
-  return {
-    id: readString(userRecord.id) || state.raw.user.id,
-    email,
-    emailVerified: readBoolean(userRecord.emailVerified),
-    name,
-    profile: buildUserProfile(userRecord, state, name),
-  };
-}
-
-export async function requireAuthenticatedUser(
+// Use for auth-flow pages/actions that only need a logged-in session.
+// This does not check whether signup or onboarding is complete.
+export async function requireAuthUser(
   request: Request,
 ): Promise<AuthenticatedUser> {
   const user = await getSessionUser(request);
@@ -139,177 +126,145 @@ export async function requireAuthenticatedUser(
   return user as AuthenticatedUser;
 }
 
+// Use for public app routes. Anonymous users are allowed, but logged-in users
+// must be ACTIVE or they are redirected to their required signup/onboarding step.
 export async function getOptionalUser(
   request: Request,
 ): Promise<OptionalUserResult> {
-  const user = await getSessionUser(request);
-  if (!user) return { user: null };
+  const localUser = await getSessionUser(request);
+  if (!localUser) return { user: null };
 
   try {
-    const { state, setCookie } = await getOnboardingState(request);
-    if (!state.completed) {
-      throw redirect(
-        destinationFromOnboardingState(state),
-        setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
+    const { session, setCookie } = await getAuthSession(request);
+    if (session.authFlow.accessState !== "ACTIVE") {
+      throw redirectWithCookie(
+        routeForAccessState(session.authFlow.accessState),
+        setCookie,
       );
     }
 
     return {
-      user: mergeUserWithOnboardingState(user, state),
+      user: authenticatedUserFromSessionUser(session.user),
       setCookie,
     };
   } catch (error) {
-    if (error instanceof AuthSessionExpiredError) {
-      throw await clearAndRedirectToLogin(request);
-    }
-    if (isUserNotFoundError(error)) {
-      throw await clearAndRedirectToLogin(request);
-    }
-    if (isOnboardingRequiredError(error)) {
-      throw redirect("/onboarding");
-    }
+    const redirectResponse = await redirectForGuardError(error, request);
+    if (redirectResponse) throw redirectResponse;
     throw error;
   }
 }
 
 export async function redirectIfAuthenticated(request: Request) {
-  const user = await getSessionUser(request);
-  if (!user) return null;
+  const localUser = await getSessionUser(request);
+  if (!localUser) return null;
 
   try {
-    const { state, setCookie } = await getOnboardingState(request);
-    const to = destinationFromOnboardingState(state);
-    return redirect(
-      to,
-      setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
+    const { session, setCookie } = await getAuthSession(request);
+    return redirectWithCookie(
+      routeForAccessState(session.authFlow.accessState),
+      setCookie,
     );
   } catch (error) {
-    if (error instanceof AuthSessionExpiredError) {
-      return clearAndRedirectToLogin(request);
-    }
-    if (isUserNotFoundError(error)) {
-      return clearAndRedirectToLogin(request);
-    }
-    if (isOnboardingRequiredError(error)) {
-      return redirect("/onboarding");
-    }
+    const redirectResponse = await redirectForGuardError(error, request);
+    if (redirectResponse) return redirectResponse;
     throw error;
   }
 }
 
-export async function requireOnboardingIncomplete(request: Request) {
-  const user = await requireAuthenticatedUser(request);
+// Use for /complete-signup only. The user must be logged in and currently
+// required to complete signup.
+export async function requireSignupCompletion(
+  request: Request,
+): Promise<GuardResult> {
+  await requireAuthUser(request);
 
   try {
-    const { state, setCookie } = await getOnboardingState(request);
+    const { session, setCookie } = await getAuthSession(request);
+    if (session.authFlow.accessState !== "SIGNUP_REQUIRED") {
+      throw redirectWithCookie(
+        routeForAccessState(session.authFlow.accessState),
+        setCookie,
+      );
+    }
+
+    return {
+      user: authenticatedUserFromSessionUser(session.user),
+      setCookie,
+    };
+  } catch (error) {
+    const redirectResponse = await redirectForGuardError(error, request);
+    if (redirectResponse) throw redirectResponse;
+    throw error;
+  }
+}
+
+// Use for /onboarding only. The user must be logged in and currently required
+// to complete onboarding.
+export async function requireOnboarding(
+  request: Request,
+): Promise<OnboardingGuardResult> {
+  const localUser = await requireAuthUser(request);
+
+  try {
+    const authSessionResult = await getAuthSession(request);
+    const { accessState } = authSessionResult.session.authFlow;
+
+    if (accessState !== "ONBOARDING_REQUIRED") {
+      throw redirectWithCookie(
+        routeForAccessState(accessState),
+        authSessionResult.setCookie,
+      );
+    }
+
+    const onboardingRequest = requestWithSetCookie(
+      request,
+      authSessionResult.setCookie,
+    );
+    const onboardingResult = await getOnboardingState(onboardingRequest);
+    const { state } = onboardingResult;
+    const setCookie = onboardingResult.setCookie ?? authSessionResult.setCookie;
     if (state.completed) {
-      throw redirect(
-        "/home",
-        setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
-      );
+      throw redirectWithCookie("/home", setCookie);
     }
-    return {
-      user: mergeUserWithOnboardingState(user, state),
-      state,
-      setCookie,
-    } satisfies GuardResult;
-  } catch (error) {
-    if (error instanceof AuthSessionExpiredError) {
-      throw await clearAndRedirectToLogin(request);
-    }
-    if (isUserNotFoundError(error)) {
-      throw await clearAndRedirectToLogin(request);
-    }
-    if (isOnboardingRequiredError(error)) {
-      const identity = getUserIdentity(user);
-      const fallbackState: OnboardingState = {
-        completed: false,
-        currentStep: 1,
-        raw: {
-          user: {
-            id: identity.id,
-            email: identity.email,
-            role: "member",
-            onboardingStep: 1,
-            onboardingCompletedAt: null,
-          },
-          profile: null,
-          selectedInterestIds: [],
-          selectedContributionKeys: [],
-          progress: {
-            totalPoints: 0,
-            tier: null,
-          },
-        },
-      };
-      return {
-        user: mergeUserWithOnboardingState(user, fallbackState),
-        state: fallbackState,
-        setCookie: undefined,
-      };
-    }
-    throw error;
-  }
-}
 
-export async function requireUser(request: Request): Promise<GuardResult> {
-  const user = await requireAuthenticatedUser(request);
-
-  try {
-    const { state, setCookie } = await getOnboardingState(request);
-    if (!state.completed) {
-      throw redirect(
-        destinationFromOnboardingState(state),
-        setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
-      );
-    }
     return {
-      user: mergeUserWithOnboardingState(user, state),
+      user: authenticatedUserFromOnboardingState(localUser, state),
       state,
       setCookie,
     };
   } catch (error) {
-    if (error instanceof AuthSessionExpiredError) {
-      throw await clearAndRedirectToLogin(request);
-    }
-    if (isUserNotFoundError(error)) {
-      throw await clearAndRedirectToLogin(request);
-    }
-    if (isOnboardingRequiredError(error)) {
-      throw redirect("/onboarding");
-    }
+    const redirectResponse = await redirectForGuardError(error, request);
+    if (redirectResponse) throw redirectResponse;
     throw error;
   }
 }
 
-export async function requireCompletedPageAccess(request: Request) {
-  const user = await requireAuthenticatedUser(request);
+// Use for normal protected app routes/actions. The user must be logged in and
+// backend /auth/session must say the account is ACTIVE.
+export async function requireUser(
+  request: Request,
+  options: GuardOptions = {},
+): Promise<GuardResult> {
+  await requireAuthUser(request);
 
   try {
-    // Use a fresh onboarding state here to ensure that users who have just
-    // completed onboarding are checked against the most up-to-date data
-    // before accessing completion-only pages.
-    const { state, setCookie } = await getOnboardingState(request, {
-      forceFresh: true,
+    const { session, setCookie } = await getAuthSession(request, {
+      forceFresh: options.forceFresh,
     });
-    if (!state.completed) {
-      throw redirect(
-        destinationFromOnboardingState(state),
-        setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
+    if (session.authFlow.accessState !== "ACTIVE") {
+      throw redirectWithCookie(
+        routeForAccessState(session.authFlow.accessState),
+        setCookie,
       );
     }
+
     return {
-      user: mergeUserWithOnboardingState(user, state),
-      state,
+      user: authenticatedUserFromSessionUser(session.user),
       setCookie,
     };
   } catch (error) {
-    if (error instanceof AuthSessionExpiredError) {
-      throw await clearAndRedirectToLogin(request);
-    }
-    if (isUserNotFoundError(error)) {
-      throw await clearAndRedirectToLogin(request);
-    }
+    const redirectResponse = await redirectForGuardError(error, request);
+    if (redirectResponse) throw redirectResponse;
     throw error;
   }
 }

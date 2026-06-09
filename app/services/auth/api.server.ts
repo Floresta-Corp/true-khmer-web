@@ -1,13 +1,20 @@
 import { resolveApiBase } from "~/lib/server/api-base.server";
+import type { AuthFlow } from "~/lib/server/auth/access-control.server";
 
 export type BackendUser = {
   id?: string;
   email: string;
+  emailVerified?: boolean;
   firstName?: string;
   lastName?: string;
   name?: string;
   avatar?: string;
   gender?: string;
+  occupation?: string | null;
+  phoneNumber?: string | null;
+  signupCompletedAt?: string | Date | null;
+  onboardingCompletedAt?: string | Date | null;
+  onboardingStep?: number;
   [key: string]: unknown;
 };
 
@@ -19,6 +26,7 @@ export type AuthTokensResponse = {
   accessToken: string;
   refreshToken: string;
   user: AuthenticatedBackendUser;
+  authFlow?: AuthFlow;
 };
 
 type RegisterRequest = {
@@ -51,6 +59,22 @@ type ForgotPasswordResponse = {
 type ResetPasswordResponse = {
   success: true;
   message: string;
+};
+
+type CompleteSignUpRequest = {
+  firstName: string;
+  lastName: string;
+  gender: string;
+  occupation: string;
+  phoneNumber: string;
+  memberAgreementAccepted: true;
+};
+
+export type CompleteSignUpResponse = {
+  success: true;
+  message: string;
+  user: AuthenticatedBackendUser;
+  authFlow?: AuthFlow;
 };
 
 export class AuthApiError extends Error {
@@ -279,6 +303,42 @@ async function authRequest<T>(
   return data as T;
 }
 
+async function authorizedAuthRequest<T>(
+  path: string,
+  body: Record<string, unknown>,
+  accessToken: string,
+  request?: Request,
+) {
+  const base = resolveApiBase(request);
+  const url = `${base}${path}`;
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+  } catch (error) {
+    const reason =
+      error instanceof Error ? error.message : "Unknown network error";
+    throw new Error(`Cannot reach auth API at ${url}. ${reason}`);
+  }
+
+  const data = (await response.json().catch(() => ({}))) as AuthErrorResponse;
+
+  if (!response.ok) {
+    const details = normalizeAuthErrorDetails(data);
+    const message = details.message || "Authentication request failed.";
+    throw new AuthApiError(message, response.status, details);
+  }
+
+  return data as T;
+}
+
 export async function registerUser(
   payload: RegisterRequest,
   request?: Request,
@@ -314,6 +374,23 @@ export async function loginUser(
   return authRequest<AuthTokensResponse>(
     "/auth/login",
     { email, password },
+    request,
+  );
+}
+
+export async function loginWithGoogle(idToken: string, request?: Request) {
+  return authRequest<AuthTokensResponse>("/auth/google", { idToken }, request);
+}
+
+export async function completeSignUp(
+  payload: CompleteSignUpRequest,
+  accessToken: string,
+  request?: Request,
+) {
+  return authorizedAuthRequest<CompleteSignUpResponse>(
+    "/auth/register/complete",
+    payload,
+    accessToken,
     request,
   );
 }

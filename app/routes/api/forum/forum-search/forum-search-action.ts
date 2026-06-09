@@ -1,5 +1,6 @@
 import type { Route as ForumRoute } from "project-types/forum/routes/+types/forum.search";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import {
   deleteQuestionAction,
   parseVoteAction,
@@ -12,7 +13,9 @@ import { validateCreateForumPostForm } from "~/services/forum/validation";
 export default async function ForumSearchAction({
   request,
 }: ForumRoute.ActionArgs) {
-  await requireAuthenticatedUser(request);
+  const auth = await requireUser(request);
+  const respond = <T>(payload: T, init?: ResponseInit) =>
+    withAuthData(auth, payload, init);
   const formData = await request.formData();
   const actionType = String(formData.get("actionType") ?? "").trim();
   const method = request.method.toUpperCase();
@@ -20,10 +23,10 @@ export default async function ForumSearchAction({
   const allowedActionTypes = new Set(["vote-question", "report-question"]);
 
   if (actionType && !allowedActionTypes.has(actionType)) {
-    return {
+    return respond({
       ok: false,
       message: "Unsupported action.",
-    };
+    });
   }
 
   if (actionType === "report-question") {
@@ -32,17 +35,17 @@ export default async function ForumSearchAction({
     const reportDescription = String(formData.get("description") ?? "").trim();
 
     if (!reportQuestionId) {
-      return {
+      return respond({
         ok: false,
         message: "Question ID is required for reporting.",
-      };
+      });
     }
 
     if (!reportTypeId) {
-      return {
+      return respond({
         ok: false,
         message: "Report type ID is required.",
-      };
+      });
     }
 
     const body: SubmitReportInput = {
@@ -50,41 +53,46 @@ export default async function ForumSearchAction({
       typeId: reportTypeId,
       questionId: reportQuestionId,
     };
-    return SubmitReport(request, body);
+    return respond(await SubmitReport(request, body));
   }
 
   if (actionType === "vote-question") {
     const parsedVoteAction = parseVoteAction(formData);
     if (!parsedVoteAction.ok) {
-      return {
+      return respond({
         ok: false,
         message: parsedVoteAction.message,
-      };
+      });
     }
-    return submitVoteAction(request, parsedVoteAction);
+    return respond(await submitVoteAction(request, parsedVoteAction));
   }
   if (method === "DELETE") {
-    return deleteQuestionAction(request, formData);
+    return respond(await deleteQuestionAction(request, formData));
   }
 
   const validation = validateCreateForumPostForm(formData);
   if (!validation.success) {
-    return {
+    return respond({
       ok: false,
       message: validation.message,
       fieldErrors: validation.fieldErrors,
-    };
+    });
   }
 
   if (method === "PATCH") {
     const questionId = String(formData.get("questionId") ?? "").trim();
     if (!questionId) {
-      return {
+      return respond({
         ok: false,
         message: "Question ID is required for updating.",
-      };
+      });
     }
 
-    return updateForumQuestion(request, questionId, validation.data);
+    return respond(await updateForumQuestion(request, questionId, validation.data));
   }
+
+  return respond({
+    ok: false,
+    message: `Unsupported method: ${method}`,
+  });
 }

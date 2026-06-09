@@ -1,6 +1,6 @@
 import type { Route } from "project-types/manage-post/routes/+types/manage-post.$sourceType.$id";
-import { data } from "react-router";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import {
   declineApplicantStatus,
   updateApplicantNote,
@@ -25,7 +25,9 @@ export async function managePostDetailAction({
   request,
   params,
 }: Route.ActionArgs) {
-  await requireAuthenticatedUser(request);
+  const auth = await requireUser(request);
+  const respond = <T>(payload: T, init?: ResponseInit) =>
+    withAuthData(auth, payload, init);
 
   const sourceType = params.sourceType;
   const postingId = params.id;
@@ -36,10 +38,10 @@ export async function managePostDetailAction({
   const allowedActionTypes = new Set(["note", "change-status", "decline"]);
 
   if (actionType && !allowedActionTypes.has(actionType)) {
-    return {
+    return respond({
       ok: false,
       message: "Unsupported action.",
-    };
+    });
   }
 
   const postingAction = formData.get("postingAction");
@@ -52,14 +54,14 @@ export async function managePostDetailAction({
     const note = String(formData.get("note") ?? "").trim();
 
     if (!candidateId) {
-      return data(
+      return respond(
         { ok: false, message: "Candidate ID is required." },
         { status: 400 },
       );
     }
 
     if (!postingId) {
-      return data(
+      return respond(
         { ok: false, message: "Posting ID is required." },
         { status: 400 },
       );
@@ -79,12 +81,12 @@ export async function managePostDetailAction({
       );
 
       if (res && res.data?.applicant?.privateNote) {
-        return data({ success: true, ok: true });
+        return respond({ success: true, ok: true });
       }
 
-      return data({ success: false, ok: false }, { status: 400 });
+      return respond({ success: false, ok: false }, { status: 400 });
     } catch (err) {
-      return data(
+      return respond(
         { success: false, ok: false, error: "An unexpected error occurred." },
         { status: 500 },
       );
@@ -101,7 +103,7 @@ export async function managePostDetailAction({
       !postingActionResult.success ||
       !postingId
     ) {
-      return { success: false, error: "Invalid request parameters" };
+      return respond({ success: false, error: "Invalid request parameters" });
     }
 
     const result = await updateManagePost(
@@ -110,7 +112,7 @@ export async function managePostDetailAction({
       postingId,
       postingActionResult.data,
     );
-    return { success: true, data: result };
+    return respond({ success: true, data: result });
   }
 
   // handle applicant decline action
@@ -124,14 +126,14 @@ export async function managePostDetailAction({
     };
 
     if (!applicationId) {
-      return data(
+      return respond(
         { ok: false, message: "Application ID is required." },
         { status: 400 },
       );
     }
 
     if (!postingId) {
-      return data(
+      return respond(
         { ok: false, message: "Posting ID is required." },
         { status: 400 },
       );
@@ -139,7 +141,7 @@ export async function managePostDetailAction({
 
     const sourceTypeResult = PostingSourceSchema.safeParse(sourceType);
     if (!sourceTypeResult.success) {
-      return data(
+      return respond(
         { ok: false, message: "Invalid source type." },
         { status: 400 },
       );
@@ -155,18 +157,18 @@ export async function managePostDetailAction({
       );
 
       if (res?.data) {
-        return data({ ok: true, success: true });
+        return respond({ ok: true, success: true });
       }
 
-      return data({ ok: false, success: false }, { status: 400 });
+      return respond({ ok: false, success: false }, { status: 400 });
     } catch (error: any) {
       if (error?.status === 409) {
-        return data(
+        return respond(
           { ok: false, success: false, error: error?.details?.error },
           { status: 409 },
         );
       }
-      return data(
+      return respond(
         { ok: false, success: false, error: "An unexpected error occurred." },
         { status: 500 },
       );
@@ -187,14 +189,14 @@ export async function managePostDetailAction({
       : [];
 
   if (!targetApplicationIds.length || !statusAction) {
-    return { success: false, error: "Missing required fields" };
+    return respond({ success: false, error: "Missing required fields" });
   }
 
   const sourceTypeResult = PostingSourceSchema.safeParse(sourceType);
   const statusActionResult =
     ApplicantStatusActionSchema.safeParse(statusAction);
   if (!sourceTypeResult.success || !statusActionResult.success || !postingId) {
-    return { success: false, error: "Invalid request parameters" };
+    return respond({ success: false, error: "Invalid request parameters" });
   }
 
   try {
@@ -209,10 +211,16 @@ export async function managePostDetailAction({
         ),
       ),
     );
-    return { success: true, data: applicationIds.length ? result : result[0] };
+    return respond({
+      success: true,
+      data: applicationIds.length ? result : result[0],
+    });
   } catch (error: any) {
     if (error?.status === 409) {
-      return { success: false, error: error?.details?.error };
+      return respond(
+        { success: false, error: error?.details?.error },
+        { status: 409 },
+      );
     }
     throw error;
   }

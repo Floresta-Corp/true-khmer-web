@@ -5,7 +5,7 @@ import {
   formatAuthMessage,
   getAuthFieldError,
   resetPassword,
-} from "~/services/auth.server";
+} from "~/services/auth/api.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
