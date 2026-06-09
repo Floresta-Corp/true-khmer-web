@@ -3,6 +3,7 @@ import {
   useFetcher,
   useParams,
   useNavigate,
+  useSearchParams,
 } from "react-router";
 import type { loader } from "../routes/profile.$id";
 import { motion, useReducedMotion } from "motion/react";
@@ -23,6 +24,13 @@ export default function ProfileDetailPage() {
   const params = useParams();
   const navigate = useNavigate();
   const postedFetcher = useFetcher<typeof loader>();
+  const [searchParams] = useSearchParams();
+
+  const allowedTabs = ["forum", "volunteer", "project"] as const;
+  const urlSourceType = searchParams.get("sourceType");
+  const defaultTab = urlSourceType && allowedTabs.includes(urlSourceType as typeof allowedTabs[number])
+    ? urlSourceType
+    : "about";
 
   const profile = data.kind === "profile" ? data.profile : null;
 
@@ -103,7 +111,7 @@ export default function ProfileDetailPage() {
 
       <motion.div variants={itemVariants}>
         <Tabs
-          defaultValue="about"
+          defaultValue={defaultTab}
           onValueChange={(value) => {
             if (value !== "about" && params.id) {
               postedFetcher.load(`/profile/${params.id}?sourceType=${value}`);
