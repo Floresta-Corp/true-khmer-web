@@ -40,7 +40,7 @@ export default function VolunteerDatePickerField({
     setInputValue(selectedDate ? format(selectedDate, DATE_FORMAT) : "");
   }, [value]);
 
-  function handleInputChange(e: import("react").ChangeEvent<HTMLInputElement>) {
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     const raw = e.target.value;
     setInputValue(raw);
 
