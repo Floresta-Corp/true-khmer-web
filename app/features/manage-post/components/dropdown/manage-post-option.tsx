@@ -153,10 +153,6 @@ export default function ManagePostOption({
   }, [extendDeadlineFetcher.data, extendDeadlineFetcher.state]);
 
   const [pickerKey, setPickerKey] = useState(0);
-  function applyPreset(base: string | null | undefined, days: number): string {
-    const from = base && isValid(new Date(base)) ? new Date(base) : new Date();
-    return addDays(from, days).toISOString();
-  }
 
   return (
     <>

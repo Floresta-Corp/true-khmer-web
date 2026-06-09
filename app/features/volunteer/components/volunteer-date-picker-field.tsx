@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format, isValid, parse, parseISO } from "date-fns";
-import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import {
   Popover,
@@ -41,7 +40,7 @@ export default function VolunteerDatePickerField({
     setInputValue(selectedDate ? format(selectedDate, DATE_FORMAT) : "");
   }, [value]);
 
-  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleInputChange(e: import("react").ChangeEvent<HTMLInputElement>) {
     const raw = e.target.value;
     setInputValue(raw);
 
