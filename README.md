@@ -4,6 +4,8 @@ A modern, production-ready template for building full-stack React applications u
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
 
+[![Stage Deployment](https://github.com/florestara/true-khmer-web/actions/workflows/deploy_stage.yml/badge.svg?branch=develop)](https://github.com/florestara/true-khmer-web/actions/workflows/deploy_stage.yml)
+
 ## Features
 
 - 🚀 Server-side rendering

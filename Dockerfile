@@ -38,6 +38,9 @@ ARG PLUMPI_ENDPOINT
 ENV PLUMPI_ENDPOINT=$PLUMPI_ENDPOINT
 ARG SESSION_SECRET
 ENV SESSION_SECRET=$SESSION_SECRET
+ARG VITE_GOOGLE_CLIENT_ID
+ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
+
 
 COPY --from=production-dependencies-env /app/node_modules /app/node_modules
 COPY --from=build-env /app/build /app/build
