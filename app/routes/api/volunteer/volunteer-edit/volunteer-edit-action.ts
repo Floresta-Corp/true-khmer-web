@@ -1,5 +1,6 @@
 import { type ActionFunctionArgs } from "react-router";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { transformActionResponse, mapZodError } from "~/lib/server/action-response.server";
 import {
@@ -14,7 +15,7 @@ export async function volunteerEditAction({
 }: ActionFunctionArgs) {
   const id = params.id;
   if (!id) return { ok: false, error: "Missing opportunity id" };
-  await requireAuthenticatedUser(request);
+  const auth = await requireUser(request);
   const formData = await request.formData();
   const actionType = formData.get("actionType");
 
@@ -23,7 +24,7 @@ export async function volunteerEditAction({
     const file = formData.get("file");
 
     if (!dataStr || typeof dataStr !== "string") {
-      return { ok: false, error: "Invalid form data" };
+      return withAuthData(auth, { ok: false, error: "Invalid form data" });
     }
 
     try {
@@ -34,7 +35,10 @@ export async function volunteerEditAction({
         });
         const upload = data.upload;
         if (!upload.uploadUrl)
-          return { ok: false, error: "Failed to get upload URL" };
+          return withAuthData(auth, {
+            ok: false,
+            error: "Failed to get upload URL",
+          });
 
         const uploadResult = await fetch(upload.uploadUrl, {
           headers: upload.requiredHeaders,
@@ -48,14 +52,20 @@ export async function volunteerEditAction({
           const validated = VolunteerOpportunityInputSchema.parse(parsed);
           const result = await updateVolunteerOpportunity(request, id, validated);
           if (result?.data?.opportunity?.id) {
-            return {
+            return withAuthData(auth, {
               ok: true,
               data: { redirectTo: `/volunteer/detail/${result.data.opportunity.id}` },
-            };
+            });
           }
-          return { ok: true, data: { redirectTo: "/volunteer" } };
+          return withAuthData(auth, {
+            ok: true,
+            data: { redirectTo: "/volunteer" },
+          });
         }
-        return { ok: false, error: "Failed to upload cover image" };
+        return withAuthData(auth, {
+          ok: false,
+          error: "Failed to upload cover image",
+        });
       }
 
       const data = JSON.parse(dataStr);
@@ -63,25 +73,34 @@ export async function volunteerEditAction({
       const result = await updateVolunteerOpportunity(request, id, parsed);
 
       if (result?.data?.opportunity?.id) {
-        return {
+        return withAuthData(auth, {
           ok: true,
           data: { redirectTo: `/volunteer/detail/${result.data.opportunity.id}` },
-        };
+        });
       }
 
-      return { ok: true, data: { redirectTo: "/volunteer" } };
+      return withAuthData(auth, {
+        ok: true,
+        data: { redirectTo: "/volunteer" },
+      });
     } catch (error) {
       if (error instanceof ProtectedApiError) {
-        return transformActionResponse<{ redirectTo: string }>(error);
+        return withAuthData(
+          auth,
+          transformActionResponse<{ redirectTo: string }>(error),
+        );
       }
       const zodMessage = mapZodError(error);
       if (zodMessage) {
-        return { ok: false, error: zodMessage };
+        return withAuthData(auth, { ok: false, error: zodMessage });
       }
       console.error("Failed to update volunteer opportunity:", error);
-      return { ok: false, error: "Failed to update opportunity" };
+      return withAuthData(auth, {
+        ok: false,
+        error: "Failed to update opportunity",
+      });
     }
   }
 
-  return { ok: false, error: "Invalid action type" };
+  return withAuthData(auth, { ok: false, error: "Invalid action type" });
 }

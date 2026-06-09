@@ -1,9 +1,9 @@
 import {
-  apiRequestWithAccessToken,
   apiRequestWithSession,
   type ApiResult,
 } from "~/lib/server/api-client.server";
 import { getUser } from "~/lib/server/session.server";
+import { invalidateAuthSessionCacheForRequest } from "~/services/auth/session.server";
 
 export type OnboardingState = {
   completed: boolean;
@@ -519,23 +519,6 @@ export async function getOnboardingState(
   };
 }
 
-export async function getOnboardingStateWithToken(
-  request: Request,
-  accessToken: string,
-) {
-  const payload = await apiRequestWithAccessToken<OnboardingStateResponse>(
-    request,
-    accessToken,
-    "/onboarding/state",
-  );
-
-  const parsed = parseOnboardingStateResponse(
-    payload,
-    "Invalid /onboarding/state response",
-  );
-  return normalizeOnboardingState(parsed.state);
-}
-
 export async function getCountries(
   request: Request,
 ): Promise<ApiResult<OnboardingOption[]>> {
@@ -700,6 +683,8 @@ export async function saveStep4Complete(request: Request) {
     result.data,
     "Invalid /onboarding/step-4-complete response",
   );
+
+  await invalidateAuthSessionCacheForRequest(request);
 
   return { ...result, data: parsed };
 }

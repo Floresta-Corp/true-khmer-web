@@ -1,4 +1,4 @@
-import { Form, data, redirect, useActionData } from "react-router";
+import { Form, useActionData } from "react-router";
 import { OnboardingBackContinueActions } from "~/routes/onboarding/components/onboarding-back-continue-actions";
 import { OnboardingCurrentTierCard } from "~/routes/onboarding/components/onboarding-current-tier-card";
 import { OnboardingFormError } from "~/routes/onboarding/components/onboarding-form-error";
@@ -8,20 +8,27 @@ import { OnboardingStepIntro } from "~/routes/onboarding/components/onboarding-s
 import { OnboardingTierPathCard } from "~/routes/onboarding/components/onboarding-tier-path-card";
 import type { Route } from "./+types/tier";
 import { saveStep4Complete } from "~/services/onboarding.server";
-import { requireOnboardingIncomplete } from "~/lib/server/route-guards.server";
+import {
+  withAuthData,
+  withAuthRedirect,
+} from "~/lib/server/auth-response.server";
+import { requireOnboarding } from "~/lib/server/route-guards.server";
 import { handleOnboardingActionError } from "~/routes/onboarding/domain/shared/onboarding-action-error.server";
 
 export async function action({ request }: Route.ActionArgs) {
-  const guard = await requireOnboardingIncomplete(request);
-  const guardSetCookie = guard.setCookie;
-  const cookieHeader = (setCookie?: string) => {
-    const headerValue = setCookie ?? guardSetCookie;
-    return headerValue ? { headers: { "Set-Cookie": headerValue } } : {};
-  };
+  const auth = await requireOnboarding(request);
+  const authWithCookie = (setCookie?: string) => ({
+    setCookie: [auth.setCookie, setCookie].flatMap((cookie) =>
+      Array.isArray(cookie) ? cookie : cookie ? [cookie] : [],
+    ),
+  });
 
   try {
     const result = await saveStep4Complete(request);
-    return redirect("/onboarding/completed", cookieHeader(result.setCookie));
+    return withAuthRedirect(
+      authWithCookie(result.setCookie),
+      "/onboarding/completed",
+    );
   } catch (error) {
     const handled = await handleOnboardingActionError({
       error,
@@ -30,7 +37,7 @@ export async function action({ request }: Route.ActionArgs) {
     });
 
     if (handled instanceof Response) return handled;
-    return data(handled, cookieHeader());
+    return withAuthData(authWithCookie(), handled);
   }
 }
 
@@ -45,13 +52,13 @@ export default function OnboardingTierPage() {
     <OnboardingPageShell
       headerTitle="Your Tier"
       headerTitlePosition="right"
-      mainClassName="items-center px-6 py-10 sm:px-8 sm:py-10 md:px-12 lg:px-20 xl:px-80"
+      mainClassName="items-center justify-center px-4 py-6 sm:px-6 sm:py-8 lg:px-20"
     >
       <OnboardingRomdoulCorners />
 
       <Form
         method="post"
-        className="relative z-10 flex w-full max-w-121.5 flex-col gap-10 pb-6 sm:pb-8"
+        className="relative z-10 flex w-full max-w-lg flex-col gap-5 sm:gap-6 lg:gap-8"
       >
         <OnboardingStepIntro
           currentStep={4}
@@ -82,9 +89,11 @@ export default function OnboardingTierPage() {
           <OnboardingTierPathCard />
         </div>
 
-        <div className="tk-fade-up-2">
-          <OnboardingFormError message={actionData?.errors?.form} />
-        </div>
+        {actionData?.errors?.form ? (
+          <div className="tk-fade-up-2">
+            <OnboardingFormError message={actionData.errors.form} />
+          </div>
+        ) : null}
 
         <OnboardingBackContinueActions
           backTo="/onboarding/contribution"

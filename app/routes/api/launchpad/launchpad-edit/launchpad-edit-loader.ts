@@ -1,7 +1,9 @@
 import type { Route as LaunchpadEditRoute } from "project-types/launchpad/routes/+types/launchpad.edit.$id";
-import { redirect } from "react-router";
-import { getUserId, getUser } from "~/lib/server/session.server";
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
+import {
+  withAuthData,
+  withAuthRedirect,
+} from "~/lib/server/auth-response.server";
 import { GetLaunchpadDetail } from "~/services/launchpad/server/launchpad.opportunities.server";
 import { getPublicLaunchpadCategories } from "~/services/launchpad/server/launchpad.categories.server";
 import { getVolunteerLocations } from "~/services/volunteer/server/volunteer.location.server";
@@ -10,20 +12,21 @@ export default async function launchpadEditLoader({
   request,
   params,
 }: LaunchpadEditRoute.LoaderArgs) {
-  await requireAuthenticatedUser(request);
-  const userId = await getUserId(request);
+  const auth = await requireUser(request);
+  const userId = auth.user.id;
+  const id = params.id;
+  const redirectTo = id ? `/launchpad/edit/${id}` : "/launchpad";
 
   if (!userId) {
-    throw redirect("/login?redirectTo=/launchpad/edit");
+    throw withAuthRedirect(
+      auth,
+      `/login?${new URLSearchParams({ redirectTo })}`,
+    );
   }
 
-  const id = params.id;
   if (!id) {
-    throw redirect("/launchpad");
+    throw withAuthRedirect(auth, redirectTo);
   }
-
-  const user = await getUser(request);
-
   const [project, categories, locations] = await Promise.all([
     GetLaunchpadDetail(id, request),
     getPublicLaunchpadCategories(request),
@@ -34,11 +37,11 @@ export default async function launchpadEditLoader({
     throw new Response("Project not found", { status: 404 });
   }
 
-  return {
+  return withAuthData(auth, {
     project,
     userId,
-    defaultEmail: user?.email ?? "",
+    defaultEmail: auth.user.email ?? "",
     categories: categories?.data?.categories ?? [],
     locations: locations?.data?.locations ?? [],
-  };
+  });
 }

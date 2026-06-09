@@ -1,4 +1,5 @@
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import { getMyApplicationDetailResponse } from "~/services/myspace/server/my-application.server";
 import { GetMyApplicationDetailResponseSchema } from "~/services/myspace/types/my-application-type";
 
@@ -17,7 +18,7 @@ export async function myApplicationDetailLoader({
   request: Request;
   params: { sourceType?: string; id?: string };
 }) {
-  await requireAuthenticatedUser(request);
+  const auth = await requireUser(request);
 
   const sourceType = params.sourceType;
   const applicationId = params.id;
@@ -35,13 +36,13 @@ export async function myApplicationDetailLoader({
     throw new Response("Application not found", { status: 404 });
   }
 
-  const { data } = await getMyApplicationDetailResponse(
+  const detailResult = await getMyApplicationDetailResponse(
     request,
     normalizedSourceType,
     applicationId,
   );
 
-  const parsed = GetMyApplicationDetailResponseSchema.parse(data);
+  const parsed = GetMyApplicationDetailResponseSchema.parse(detailResult.data);
 
   const applicationTitle =
     parsed.application.title ||
@@ -50,11 +51,13 @@ export async function myApplicationDetailLoader({
 
   const statusLabel = parsed.application.status.toUpperCase();
 
-  return {
+  const payload = {
     application: parsed.application,
     applicationId,
     applicationTitle,
     sourceType: normalizedSourceType,
     statusLabel,
   } satisfies MyApplicationDetailLoaderData;
+
+  return withAuthData(auth, payload);
 }

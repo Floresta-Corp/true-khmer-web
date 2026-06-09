@@ -1,6 +1,7 @@
-import { data, useLoaderData, Link } from "react-router";
+import { useLoaderData, Link } from "react-router";
 import type { Route } from "./+types/dashboard";
 import { requireUser } from "~/lib/server/route-guards.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import { Card, CardContent } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -25,13 +26,10 @@ import { resolveImageURL } from "~/lib/utils";
 
 // This loader acts as middleware — it requires auth
 export async function loader({ request }: Route.LoaderArgs) {
-  const guard = await requireUser(request);
-  const { setCookie, ...payload } = guard;
+  const auth = await requireUser(request);
+  const { setCookie, ...payload } = auth;
 
-  return data(
-    payload,
-    setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
-  );
+  return withAuthData(auth, payload);
 }
 
 export function meta() {

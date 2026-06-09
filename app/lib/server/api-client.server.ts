@@ -1,4 +1,5 @@
 import { redirect } from "react-router";
+import { accessErrorCodeFromPayload } from "~/lib/server/auth/access-control.server";
 import { resolveApiBase } from "~/lib/server/api-base.server";
 import {
   commitSession,
@@ -6,7 +7,7 @@ import {
   getSession,
   isAutoRefreshEnabled,
 } from "~/lib/server/session.server";
-import { refreshAccessToken } from "~/services/auth.server";
+import { refreshAccessToken } from "~/services/auth/api.server";
 
 type JsonPrimitive = string | number | boolean | null;
 type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
@@ -165,7 +166,7 @@ export async function apiRequestWithSession<T, K extends object = JsonObject>(
     throw new ProtectedApiError(
       readErrorMessage(payload, "API request failed."),
       response.status,
-      typeof payload.code === "string" ? payload.code : undefined,
+      accessErrorCodeFromPayload(payload),
       payload,
     );
   }
@@ -198,7 +199,7 @@ export async function apiRequestPublic<T, K extends object = JsonObject>(
     throw new ProtectedApiError(
       readErrorMessage(payload, "API request failed."),
       response.status,
-      typeof payload.code === "string" ? payload.code : undefined,
+      accessErrorCodeFromPayload(payload),
       payload,
     );
   }
@@ -257,7 +258,7 @@ export async function apiRequestWithAccessToken<
     throw new ProtectedApiError(
       readErrorMessage(payload, "API request failed."),
       response.status,
-      typeof payload.code === "string" ? payload.code : undefined,
+      accessErrorCodeFromPayload(payload),
       payload,
     );
   }

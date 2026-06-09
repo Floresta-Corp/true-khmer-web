@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Form, data, redirect, useActionData } from "react-router";
+import { Form, useActionData } from "react-router";
 import { OnboardingBackContinueActions } from "~/routes/onboarding/components/onboarding-back-continue-actions";
 import { OnboardingFormError } from "~/routes/onboarding/components/onboarding-form-error";
 import { OnboardingPageShell } from "~/routes/onboarding/components/onboarding-page-shell";
@@ -8,7 +8,11 @@ import { OnboardingStepIntro } from "~/routes/onboarding/components/onboarding-s
 import { SelectableContributionCard } from "~/routes/onboarding/components/selectable-contribution-card";
 import { saveStep3Contributions } from "~/services/onboarding.server";
 import type { Route } from "./+types/contribution";
-import { requireOnboardingIncomplete } from "~/lib/server/route-guards.server";
+import {
+  withAuthData,
+  withAuthRedirect,
+} from "~/lib/server/auth-response.server";
+import { requireOnboarding } from "~/lib/server/route-guards.server";
 import { onboardingContributionCards } from "~/routes/onboarding/domain/contribution/contribution-cards";
 import {
   isContributionInputUnchanged,
@@ -29,19 +33,19 @@ const standardContributionCards = onboardingContributionCards.filter(
 );
 
 export async function action({ request }: Route.ActionArgs) {
-  const guard = await requireOnboardingIncomplete(request);
-  const guardSetCookie = guard.setCookie;
-  const cookieHeader = (setCookie?: string) => {
-    const headerValue = setCookie ?? guardSetCookie;
-    return headerValue ? { headers: { "Set-Cookie": headerValue } } : {};
-  };
+  const auth = await requireOnboarding(request);
+  const authWithCookie = (setCookie?: string) => ({
+    setCookie: [auth.setCookie, setCookie].flatMap((cookie) =>
+      Array.isArray(cookie) ? cookie : cookie ? [cookie] : [],
+    ),
+  });
 
   const formInput = parseContributionForm(await request.formData());
   const errors = validateContributionInput(formInput.selectedKeys);
-  if (errors.form) return data({ errors }, cookieHeader());
+  if (errors.form) return withAuthData(authWithCookie(), { errors });
 
   if (isContributionInputUnchanged(formInput)) {
-    return redirect("/onboarding/tier", cookieHeader());
+    return withAuthRedirect(authWithCookie(), "/onboarding/tier");
   }
 
   try {
@@ -49,7 +53,10 @@ export async function action({ request }: Route.ActionArgs) {
       request,
       formInput.selectedKeys,
     );
-    return redirect("/onboarding/tier", cookieHeader(result.setCookie));
+    return withAuthRedirect(
+      authWithCookie(result.setCookie),
+      "/onboarding/tier",
+    );
   } catch (error) {
     const handled = await handleOnboardingActionError({
       error,
@@ -58,7 +65,7 @@ export async function action({ request }: Route.ActionArgs) {
     });
 
     if (handled instanceof Response) return handled;
-    return data(handled, cookieHeader());
+    return withAuthData(authWithCookie(), handled);
   }
 }
 

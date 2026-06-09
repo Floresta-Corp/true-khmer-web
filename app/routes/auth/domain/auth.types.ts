@@ -23,6 +23,20 @@ export type RegisterActionData = {
   errors?: RegisterErrors;
 };
 
+export type CompleteSignUpErrors = {
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  gender?: string;
+  occupation?: string;
+  memberAgreementAccepted?: string;
+  form?: string;
+};
+
+export type CompleteSignUpActionData = {
+  errors?: CompleteSignUpErrors;
+};
+
 export type VerifyOtpErrors = {
   email?: string;
   otp?: string;

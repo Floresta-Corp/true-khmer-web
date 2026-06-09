@@ -9,6 +9,15 @@ export interface AuthenticatedUser {
     email: string;
     emailVerified: boolean;
     name: string;
+    firstName?: string;
+    lastName?: string;
+    gender?: string;
+    occupation?: string | null;
+    phoneNumber?: string | null;
+    signupCompletedAt?: string | Date | null;
+    onboardingStep?: number;
+    onboardingCompletedAt?: string | Date | null;
+    avatar?: string;
     profile: Profile;
 }
 

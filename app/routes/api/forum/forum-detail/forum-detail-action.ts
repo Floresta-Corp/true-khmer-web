@@ -1,5 +1,6 @@
-import { requireAuthenticatedUser } from "~/lib/server/route-guards.server";
+import { requireUser } from "~/lib/server/route-guards.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 import {
   parseVoteAction,
   submitVoteAction,
@@ -23,7 +24,9 @@ export async function forumDetailAction({
   request,
   params,
 }: ForumDetailRoute.ActionArgs) {
-  await requireAuthenticatedUser(request);
+  const auth = await requireUser(request);
+  const respond = <T>(payload: T, init?: ResponseInit) =>
+    withAuthData(auth, payload, init);
 
   const formData = await request.formData();
   const method = request.method.toUpperCase();
@@ -48,24 +51,24 @@ export async function forumDetailAction({
   ]);
 
   if (actionType && !allowedActionTypes.has(actionType)) {
-    return {
+    return respond({
       ok: false,
       message: "Unsupported action.",
-    };
+    });
   }
 
   if (actionType === "mark-as-best-answer") {
     const answerId = String(formData.get("answerId") ?? "").trim();
     if (!answerId) {
-      return {
+      return respond({
         ok: false,
         message: "Answer ID is required for marking as best answer.",
-      };
+      });
     }
     try {
-      return await markAsBestAnswer(request, answerId);
+      return respond(await markAsBestAnswer(request, answerId));
     } catch (error) {
-      return transformActionResponse(error);
+      return respond(transformActionResponse(error));
     }
   }
 
@@ -75,17 +78,17 @@ export async function forumDetailAction({
     const reportDescription = String(formData.get("description") ?? "").trim();
 
     if (!reportQuestionId) {
-      return {
+      return respond({
         ok: false,
         message: "Question ID is required for reporting.",
-      };
+      });
     }
 
     if (!reportTypeId) {
-      return {
+      return respond({
         ok: false,
         message: "Report type ID is required.",
-      };
+      });
     }
 
     const body: SubmitReportInput = {
@@ -93,7 +96,7 @@ export async function forumDetailAction({
       typeId: reportTypeId,
       questionId: reportQuestionId,
     };
-    return SubmitReport(request, body);
+    return respond(await SubmitReport(request, body));
   }
 
   if (actionType === "report-answer") {
@@ -102,17 +105,17 @@ export async function forumDetailAction({
     const reportDescription = String(formData.get("description") ?? "").trim();
 
     if (!reportAnswerId) {
-      return {
+      return respond({
         ok: false,
-        message: "Question ID is required for reporting.",
-      };
+        message: "Answer ID is required for reporting.",
+      });
     }
 
     if (!reportTypeId) {
-      return {
+      return respond({
         ok: false,
         message: "Report type ID is required.",
-      };
+      });
     }
 
     const body: SubmitReportInput = {
@@ -121,155 +124,155 @@ export async function forumDetailAction({
       answerId: reportAnswerId,
     };
 
-    return SubmitReport(request, body);
+    return respond(await SubmitReport(request, body));
   }
 
   if (actionType === "vote-question") {
     const parsedVoteAction = parseVoteAction(formData);
     if (!parsedVoteAction.ok) {
-      return {
+      return respond({
         ok: false,
         message: parsedVoteAction.message,
-      };
+      });
     }
 
-    return submitVoteAction(request, parsedVoteAction);
+    return respond(await submitVoteAction(request, parsedVoteAction));
   }
 
   if (actionType === "save-question") {
     const saveQuestionId = String(formData.get("questionId") ?? "").trim();
     if (!saveQuestionId) {
-      return {
+      return respond({
         ok: false,
         message: "Question ID is required for saving.",
-      };
+      });
     }
     try {
-      return await addSaveQuestion(request, saveQuestionId);
+      return respond(await addSaveQuestion(request, saveQuestionId));
     } catch (error) {
       if (error instanceof ProtectedApiError) {
-        return {
+        return respond({
           ok: false,
           message: error.message || "Failed to save question.",
-        };
+        });
       }
-      return {
+      return respond({
         ok: false,
         message: "Failed to save question.",
-      };
+      });
     }
   }
 
   if (actionType === "unsave-question") {
     const saveQuestionId = String(formData.get("questionId") ?? "").trim();
     if (!saveQuestionId) {
-      return {
+      return respond({
         ok: false,
         message: "Question ID is required for unsaving.",
-      };
+      });
     }
     try {
-      return await deleteSaveQuestion(request, saveQuestionId);
+      return respond(await deleteSaveQuestion(request, saveQuestionId));
     } catch (error) {
       if (error instanceof ProtectedApiError) {
-        return {
+        return respond({
           ok: false,
           message: error.message || "Failed to unsave question.",
-        };
+        });
       }
-      return {
+      return respond({
         ok: false,
         message: "Failed to unsave question.",
-      };
+      });
     }
   }
 
   if (actionType === "update-answer") {
     if (method !== "PATCH") {
-      return {
+      return respond({
         ok: false,
         message: "Invalid method for updating an answer.",
-      };
+      });
     }
 
     if (!answerId) {
-      return {
+      return respond({
         ok: false,
         message: "Answer ID is required.",
-      };
+      });
     }
 
     if (!body) {
-      return {
+      return respond({
         ok: false,
         message: "Answer body is required.",
-      };
+      });
     }
 
-    return updateAnswerById(request, answerId, { body });
+    return respond(await updateAnswerById(request, answerId, { body }));
   }
 
   if (actionType === "vote-answer") {
     const parsedAnswerVoteAction = parseAnswerVoteAction(formData);
     if (!parsedAnswerVoteAction.ok) {
-      return {
+      return respond({
         ok: false,
         message: parsedAnswerVoteAction.message,
-      };
+      });
     }
 
-    return submitAnswerVoteAction(request, parsedAnswerVoteAction);
+    return respond(await submitAnswerVoteAction(request, parsedAnswerVoteAction));
   }
 
   if (actionType === "delete-answer") {
     if (!answerId) {
-      return {
+      return respond({
         ok: false,
         message: "Answer ID is required.",
-      };
+      });
     }
 
-    return deleteAnswerById(request, answerId);
+    return respond(await deleteAnswerById(request, answerId));
   }
 
   if (!questionId) {
-    return {
+    return respond({
       ok: false,
       message: "Question ID is required.",
-    };
+    });
   }
 
   if (actionType === "update-answer") {
     if (method !== "PATCH") {
-      return {
+      return respond({
         ok: false,
         message: "Invalid method for updating an answer.",
-      };
+      });
     }
 
     if (!answerId) {
-      return {
+      return respond({
         ok: false,
         message: "Answer ID is required.",
-      };
+      });
     }
 
     if (!body) {
-      return {
+      return respond({
         ok: false,
         message: "Answer body is required.",
-      };
+      });
     }
 
-    return updateAnswerById(request, answerId, { body });
+    return respond(await updateAnswerById(request, answerId, { body }));
   }
 
   if (actionType === "create-answer" || !actionType) {
     if (!body) {
-      return {
+      return respond({
         ok: false,
         message: "Answer body is required.",
-      };
+      });
     }
 
     const input = {
@@ -278,11 +281,11 @@ export async function forumDetailAction({
       replyToAnswer: replyToAnswer ?? undefined,
     };
 
-    return createAnswerByQuestionId(request, input);
+    return respond(await createAnswerByQuestionId(request, input));
   }
 
-  return {
+  return respond({
     ok: false,
     message: "Unsupported action.",
-  };
+  });
 }
