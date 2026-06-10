@@ -82,8 +82,11 @@ export default [
     route("tier", "routes/onboarding/pages/tier.tsx"),
   ]),
   route("tk-admin", "layout/admin-layout.tsx", [
-    index("features/admin/index.tsx"),
-    route("users", "features/admin/admin-users.tsx"),
+    index("features/admin/dashboard/admin-dashboard.tsx"),
+    route(
+      "content-moderator",
+      "features/admin/contentmoderator/routes/content-moderator.tsx"
+    ),
   ]),
   route("login", "routes/auth/pages/login.tsx"),
   route("register", "routes/auth/pages/register.tsx"),
