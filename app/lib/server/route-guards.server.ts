@@ -284,34 +284,16 @@ export async function requireAdmin(
   request: Request,
   options: AdminGuardOptions = {},
 ): Promise<GuardResult> {
-  await requireAuthUser(request);
+  const auth = await requireUser(request, {
+    forceFresh: options.forceFresh ?? true,
+  });
 
-  try {
-    const { session, setCookie } = await getAuthSession(request, {
-      forceFresh: options.forceFresh ?? true,
-    });
-    if (session.authFlow.accessState !== "ACTIVE") {
-      throw redirectWithCookie(
-        routeForAccessState(session.authFlow.accessState),
-        setCookie,
-      );
-    }
-
-    const user = authenticatedUserFromSessionUser(session.user);
-    if (!isAdminRole(user.role)) {
-      throw redirectWithCookie(
-        options.unauthorizedRedirectTo ?? "/home",
-        setCookie,
-      );
-    }
-
-    return {
-      user,
-      setCookie,
-    };
-  } catch (error) {
-    const redirectResponse = await redirectForGuardError(error, request);
-    if (redirectResponse) throw redirectResponse;
-    throw error;
+  if (!isAdminRole(auth.user.role)) {
+    throw redirectWithCookie(
+      options.unauthorizedRedirectTo ?? "/home",
+      auth.setCookie,
+    );
   }
+
+  return auth;
 }
