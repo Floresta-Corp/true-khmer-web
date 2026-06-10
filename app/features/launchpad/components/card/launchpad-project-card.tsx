@@ -1,4 +1,4 @@
-import { MapPin, Share2, Heart, Eye, Bookmark } from "lucide-react";
+import { MapPin, Share2, Eye, Bookmark } from "lucide-react";
 import { Card } from "~/components/ui/card";
 
 import IconButton from "~/components/icon-button";
@@ -94,7 +94,7 @@ export default function LaunchpadProjectCard({
             onOpenOpportunity(item);
           }
         }}
-        className="cursor-pointer flex h-95 flex-col p-5 rounded-2xl bg-white transition-all hover:shadow-lg hover:-translate-y-0.5 shadow-none"
+        className="cursor-pointer flex min-h-[380px] flex-col p-5 rounded-2xl bg-white transition-all hover:shadow-lg hover:-translate-y-0.5 shadow-none"
       >
         <div className="flex items-center justify-between pb-3">
           <div className="flex gap-1 items-baseline text-blue-500">

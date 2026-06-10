@@ -24,6 +24,15 @@ const CitySchema = z.object({
   name: z.string(),
 });
 
+export const launchpadSortBySchema = z.enum([
+  "newest",
+  "oldest",
+  "startingSoon",
+  "mostSpotsAvailable",
+]);
+
+export type LaunchpadSortBy = z.infer<typeof launchpadSortBySchema>;
+
 export const LaunchpadOpportunitySchema = z.object({
   id: z.string(),
   name: z.string(),

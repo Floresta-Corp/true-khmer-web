@@ -1,91 +1,62 @@
-import {
-  useLoaderData,
-  useNavigate,
-  useSearchParams,
-  useFetcher,
-} from "react-router";
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useLoaderData, useNavigate, useSearchParams } from "react-router";
+import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "~/components/ui/input";
-
-import { GetLaunchpadProjectsPaginated } from "~/services/launchpad/server/launchpad.opportunities.server";
-import { getPublicLaunchpadCategories } from "~/services/launchpad/server/launchpad.categories.server";
 import type { LaunchpadOpportunity } from "~/services/launchpad/types/project";
-import type { Category } from "~/services/launchpad/types/category";
-import LaunchpadProjectCard from "../components/card/launchpad-project-card";
-import LaunchpadProjectCardSkeleton from "../components/card/launchpad-project-card-skeleton";
-import { CategoryCard } from "~/components/category-card";
+import { LaunchpadAvailableOpportunities } from "../components/section/launchpad-available-opportunities";
 import BackToButton from "~/components/back-to-button";
 import { motion, useReducedMotion } from "motion/react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
+import { RadioGroup, RadioGroupItem } from "~/components/ui/radio";
+import { cn } from "~/lib/utils";
+import { LaunchpadLoader } from "~/routes/api/launchpad/launchpad-loader";
+import { Button } from "~/components/ui/button";
 
-const PAGE_SIZE = 9;
+export const loader = LaunchpadLoader;
 
-export async function loader({ request }: { request: Request }) {
-  const url = new URL(request.url);
-  const categoryId = url.searchParams.get("categoryId") || undefined;
-  const cityId = url.searchParams.get("cityId") || undefined;
-  const search = url.searchParams.get("search") || undefined;
-  const cursor = url.searchParams.get("cursor") || undefined;
-
-  const [{ launchpads, nextCursor, cities }, categoriesRes] = await Promise.all(
-    [
-      GetLaunchpadProjectsPaginated(request, {
-        limit: PAGE_SIZE,
-        categoryId,
-        cityId,
-        search,
-        cursor,
-        sortBy: "newest",
-      }),
-      getPublicLaunchpadCategories(request),
-    ],
-  );
-
-  return {
-    projects: launchpads,
-    nextCursor,
-    categories: categoriesRes?.data?.categories ?? [],
-    categoryId: categoryId ?? null,
-    cities: cities ?? [],
-  };
-}
+const SORT_OPTIONS = [
+  { value: "newest", label: "Newest" },
+  { value: "oldest", label: "Oldest" },
+  { value: "startingSoon", label: "Starting Soon" },
+  { value: "mostSpotsAvailable", label: "Most Spots Available" },
+] as const;
 
 export function meta() {
   return [{ title: "All Projects | True Khmer Launchpad" }];
 }
 
 export default function LaunchpadAllPage() {
-  const initialData = useLoaderData<typeof loader>();
+  const projectLaunchpad = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const fetcher = useFetcher<typeof loader>();
   const prefersReducedMotion = useReducedMotion();
-  const sentinelRef = useRef<HTMLDivElement>(null);
-
+  const duration = prefersReducedMotion ? 0 : 0.3;
+  const sectionDelay = prefersReducedMotion ? 0 : 0.03;
   const activeCategoryId = searchParams.get("categoryId");
-  const activeCityId = searchParams.get("cityId") || undefined;
-
-  // Accumulated projects — reset when category changes
-  const [allProjects, setAllProjects] = useState<LaunchpadOpportunity[]>(
-    initialData.projects,
-  );
-  const [nextCursor, setNextCursor] = useState<string | null>(
-    initialData.nextCursor,
-  );
+  const activeLocationId = searchParams.get("cityId");
+  const activeSort = searchParams.get("sortBy") || "newest";
 
   const [searchValue, setSearchValue] = useState(
     searchParams.get("search") || "",
   );
-  const activeCity = initialData.cities?.find((c) => c.id === activeCityId);
 
-  const handleSearch = (value: string) => {
+  useEffect(() => {
+    setSearchValue(searchParams.get("search") || "");
+  }, [searchParams]);
+
+  const handleSortChange = (sortValue: string) => {
     const params = new URLSearchParams(searchParams);
-    if (value) {
-      params.set("search", value);
+    if (sortValue) {
+      params.set("sortBy", sortValue);
     } else {
-      params.delete("search");
+      params.delete("sortBy");
     }
-    params.delete("cursor"); // Reset pagination on new search
+    params.delete("cursor");
     setSearchParams(params, { replace: true });
   };
 
@@ -96,58 +67,21 @@ export default function LaunchpadAllPage() {
     } else {
       params.delete("cityId");
     }
-    params.delete("cursor"); // Reset pagination on filter change
+    params.delete("cursor");
     setSearchParams(params, { replace: true });
   };
 
-  // When the loader re-runs (category change navigates), reset accumulated list
-  useEffect(() => {
-    setAllProjects(initialData.projects);
-    setNextCursor(initialData.nextCursor);
-  }, [initialData]);
-
-  // Append fetched page to the list
-  useEffect(() => {
-    if (fetcher.data) {
-      setAllProjects((prev) => [...prev, ...fetcher.data!.projects]);
-      setNextCursor(fetcher.data.nextCursor);
+  const handleSearch = () => {
+    const params = new URLSearchParams(searchParams);
+    const currentSearch = searchValue.trim();
+    if (currentSearch) {
+      params.set("search", currentSearch);
+    } else {
+      params.delete("search");
     }
-  }, [fetcher.data]);
-
-  // Infinite scroll via Intersection Observer
-  useEffect(() => {
-    if (!nextCursor) return;
-
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && fetcher.state !== "loading") {
-          const params = new URLSearchParams();
-          params.set("cursor", nextCursor);
-          params.set("sortBy", "newest");
-          if (activeCategoryId) params.set("categoryId", activeCategoryId);
-          const cityId = searchParams.get("cityId");
-          const search = searchParams.get("search");
-          if (cityId) params.set("cityId", cityId);
-          if (search) params.set("search", search);
-          fetcher.load(`/launchpad/all?${params.toString()}`);
-        }
-      },
-      { rootMargin: "200px" },
-    );
-
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [nextCursor, activeCategoryId, searchParams, fetcher]);
-
-  const onOpenOpportunity = useCallback(
-    (item: LaunchpadOpportunity) => {
-      navigate(`/launchpad/detail/${item.id}`);
-    },
-    [navigate],
-  );
+    params.delete("cursor");
+    setSearchParams(params, { replace: true });
+  };
 
   const handleCategoryClick = (categoryId: string | null) => {
     const params = new URLSearchParams(searchParams);
@@ -160,141 +94,245 @@ export default function LaunchpadAllPage() {
     setSearchParams(params, { replace: true });
   };
 
+  const handleClearAll = () => {
+    setSearchValue("");
+    const params = new URLSearchParams();
+    setSearchParams(params, { replace: true });
+  };
+
+  const onOpenOpportunity = (item: LaunchpadOpportunity) => {
+    navigate(`/launchpad/detail/${item.id}`);
+  };
+
+  const searchQuery = (searchParams.get("search") || "").trim();
+  const resultsLabel = searchQuery
+    ? `Found ${projectLaunchpad.projects.length} opportunities for "${searchQuery}"`
+    : `Found ${projectLaunchpad.projects.length} opportunities`;
+
   return (
     <main className="min-h-screen bg-[#F5F7FB] px-4 py-8 sm:px-6 lg:px-10">
       <div className="mx-auto flex w-full max-w-304 flex-col gap-6">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{
-            duration: prefersReducedMotion ? 0 : 0.3,
-          }}
-          className="flex items-center justify-between"
+          transition={{ duration, delay: 0, ease: "easeOut" as const }}
+          className="will-change-transform"
         >
-          <BackToButton to="/launchpad" />
+          <BackToButton to={"/launchpad"} text="Back to Launchpad" />
         </motion.div>
-        <h1 className="text-3xl font-bold">All Projects</h1>
 
-        {/* Search and Location filters */}
-        <div className="flex w-full flex-col items-stretch gap-4 sm:flex-row sm:items-center md:gap-5">
-          <div className="flex min-h-11 flex-1 items-center rounded-xl border border-[#e2e8f0] bg-white px-0 py-0">
-            <Search className="ml-4 mr-2.5 size-[17.5px] shrink-0 text-[#99a1af]" />
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <motion.div
+            initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration,
+              delay: sectionDelay,
+              ease: "easeOut" as const,
+            }}
+            className="space-y-2 will-change-transform"
+          >
+            <h1 className="text-[clamp(1.9rem,3vw,2.5rem)] font-bold leading-tight text-[#020618]">
+              All Projects
+            </h1>
+            <motion.p
+              initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration,
+                delay: sectionDelay,
+                ease: "easeOut" as const,
+              }}
+              className="text-sm font-medium text-[#64748b] sm:text-[15px]"
+            >
+              {resultsLabel}
+            </motion.p>
+          </motion.div>
+
+          <motion.form
+            initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration,
+              delay: sectionDelay,
+              ease: "easeOut" as const,
+            }}
+            onSubmit={(event) => {
+              event.preventDefault();
+              handleSearch();
+            }}
+            className="flex w-full max-w-md items-center rounded-full border border-[#e2e8f0] bg-white px-3 shadow-[0px_1px_2px_rgba(15,23,42,0.04)] lg:w-md will-change-transform"
+          >
+            <Search className="ml-1 mr-2.5 size-[17.5px] shrink-0 text-[#94a3b8]" />
             <Input
               type="search"
               value={searchValue}
-              onChange={(e) => {
-                setSearchValue(e.target.value);
-                if (e.target.value === "") {
-                  handleSearch("");
-                }
+              onChange={(event) => {
+                setSearchValue(event.target.value);
               }}
               placeholder="Search projects..."
-              className="h-8 flex-1 border-0 bg-transparent px-0 py-0 text-sm font-medium text-[#364153] placeholder:font-normal placeholder:text-[#99a1af] focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="h-11 border-0 bg-transparent px-0 text-sm font-medium text-[#334155] placeholder:font-normal placeholder:text-[#94a3b8] focus-visible:ring-0 focus-visible:ring-offset-0"
             />
-            <button
-              type="button"
-              onClick={() => handleSearch(searchValue)}
-              className="mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white hover:bg-blue-700"
-            >
-              <Search className="size-4" />
-            </button>
-          </div>
-          {/* TODO: Enable city picker once API is ready */}
-          {/* <DropdownMenu>
-            <DropdownMenuTrigger className="flex h-11 items-center justify-between gap-1.5 rounded-xl border border-[#e2e8f0] bg-white px-4 text-sm font-medium text-[#364153] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:w-52">
-              {activeCity?.name || "All Cities"}
-              <ChevronDown className="size-4 shrink-0 text-[#364153]/65" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
-              <DropdownMenuItem
-                onClick={() => handleCityChange(undefined)}
-                className={!activeCityId ? "font-semibold" : ""}
-              >
-                All Cities
-              </DropdownMenuItem>
-              {initialData.cities?.map((city) => (
-                <DropdownMenuItem
-                  key={city.id}
-                  onClick={() => handleCityChange(city.id)}
-                  className={activeCityId === city.id ? "font-semibold" : ""}
-                >
-                  {city.name}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu> */}
+          </motion.form>
         </div>
 
-        {/* Category grid */}
-        {initialData.categories.length > 0 && (
-          <div className="w-full flex snap-x snap-mandatory gap-3.5 overflow-x-auto px-1 pb-1 md:grid md:grid-cols-3 md:gap-3.5 md:overflow-visible md:px-0 lg:grid-cols-4 xl:grid-cols-6">
-            {initialData.categories.map((category: Category) => {
-              const isActive = activeCategoryId === category.id;
-              return (
-                <div
-                  key={category.id}
-                  className="shrink-0 snap-start md:min-w-0 md:shrink md:w-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  role="button"
-                  tabIndex={0}
-                  aria-pressed={isActive}
-                  onClick={() => handleCategoryClick(category.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      handleCategoryClick(category.id);
+        {/* Filters sidebar */}
+        <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
+          <motion.aside
+            initial={{ opacity: 0, x: prefersReducedMotion ? 0 : -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{
+              duration,
+              delay: sectionDelay * 2,
+              ease: "easeOut" as const,
+            }}
+            className="rounded-[18px] border border-[#edf2f7] bg-white p-5 shadow-[0px_10px_30px_rgba(15,23,42,0.03)]"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-sm font-bold text-[#020618]">Filters</h2>
+              <Button
+                variant="ghost"
+                onClick={handleClearAll}
+                className="text-xs font-semibold cursor-pointer text-[#2463eb] hover:text-[#1d4ed8]"
+              >
+                Clear all
+              </Button>
+            </div>
+            <Accordion
+              type="multiple"
+              defaultValue={["sort-by", "category", "location"]}
+              className="mt-1 gap-0"
+            >
+              <AccordionItem
+                value="sort-by"
+                className="border-b border-[#edf2f7]"
+              >
+                <AccordionTrigger className="py-4 text-[13px] font-bold text-[#020618] hover:no-underline">
+                  Sort by
+                </AccordionTrigger>
+                <AccordionContent className="pb-4 pt-1">
+                  <RadioGroup
+                    value={activeSort}
+                    onValueChange={handleSortChange}
+                    className="gap-3"
+                  >
+                    {SORT_OPTIONS.map((opt) => (
+                      <label
+                        key={opt.value}
+                        className={cn(
+                          "flex cursor-pointer items-center gap-3 rounded-lg px-1 py-1.5 text-[13px] text-[#475569] transition-colors hover:text-[#020618]",
+                          activeSort === opt.value && "text-[#020618]",
+                        )}
+                      >
+                        <RadioGroupItem
+                          value={opt.value}
+                          className="border-[#cbd5e1]"
+                        />
+                        <span>{opt.label}</span>
+                      </label>
+                    ))}
+                  </RadioGroup>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem
+                value="category"
+                className="border-b border-[#edf2f7]"
+              >
+                <AccordionTrigger className="py-4 text-[13px] font-bold text-[#020618] hover:no-underline">
+                  Categories
+                </AccordionTrigger>
+                <AccordionContent className="pb-4 pt-1">
+                  <RadioGroup
+                    value={activeCategoryId || "all-categories"}
+                    onValueChange={(v) =>
+                      handleCategoryClick(v === "all-categories" ? null : v)
                     }
-                  }}
-                >
-                  <CategoryCard
-                    category={{
-                      ...category,
-                      displayOrder: category.totalLaunchpad,
-                      updatedBy: category.updatedBy ?? undefined,
-                    }}
-                    active={isActive}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Project grid */}
-        {allProjects.length > 0 || fetcher.state === "loading" ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 px-0 py-0 md:px-0 lg:px-0">
-            {fetcher.state === "loading" && !allProjects.length
-              ? Array.from({ length: 6 }).map((_, i) => (
-                  <LaunchpadProjectCardSkeleton key={`skeleton-${i}`} />
-                ))
-              : allProjects.map((item) => (
-                  <LaunchpadProjectCard
-                    key={item.id}
-                    item={item}
-                    onOpenOpportunity={onOpenOpportunity}
-                  />
-                ))}
-          </div>
-        ) : (
-          <div className="text-center py-20">
-            <p className="text-gray-400 text-lg">No projects found.</p>
-            <p className="text-gray-400 text-sm mt-1">
-              {activeCategoryId
-                ? "Try selecting a different category."
-                : "No projects available right now."}
-            </p>
-          </div>
-        )}
-
-        {/* Infinite scroll sentinel */}
-        <div ref={sentinelRef} className="h-px" />
-
-        {/* Loading indicator */}
-        {fetcher.state === "loading" && (
-          <div className="flex justify-center py-6">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
-          </div>
-        )}
+                    className="gap-3"
+                  >
+                    <label className="flex cursor-pointer items-center gap-3 rounded-lg px-1 py-1.5 text-[13px] text-[#475569] hover:text-[#020618]">
+                      <RadioGroupItem
+                        value="all-categories"
+                        className="border-[#cbd5e1]"
+                      />
+                      <span>All categories</span>
+                    </label>
+                    {projectLaunchpad.categories.map((cat) => (
+                      <label
+                        key={cat.id}
+                        className={cn(
+                          "flex cursor-pointer items-center gap-3 rounded-lg px-1 py-1.5 text-[13px] text-[#475569] hover:text-[#020618]",
+                          activeCategoryId === cat.id && "text-[#020618]",
+                        )}
+                      >
+                        <RadioGroupItem
+                          value={cat.id}
+                          className="border-[#cbd5e1]"
+                        />
+                        <span>{cat.name}</span>
+                      </label>
+                    ))}
+                  </RadioGroup>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem
+                value="location"
+                className="border-b border-[#edf2f7]"
+              >
+                <AccordionTrigger className="py-4 text-[13px] font-bold text-[#020618] hover:no-underline">
+                  Location
+                </AccordionTrigger>
+                <AccordionContent className="pb-4 pt-1">
+                  <RadioGroup
+                    value={activeLocationId || "all-locations"}
+                    onValueChange={(v) =>
+                      handleCityChange(v === "all-locations" ? undefined : v)
+                    }
+                    className="gap-3"
+                  >
+                    <label className="flex cursor-pointer items-center gap-3 rounded-lg px-1 py-1.5 text-[13px] text-[#475569] hover:text-[#020618]">
+                      <RadioGroupItem
+                        value="all-locations"
+                        className="border-[#cbd5e1]"
+                      />
+                      <span>All locations</span>
+                    </label>
+                    {projectLaunchpad.locations.map((city) => (
+                      <label
+                        key={city.id}
+                        className={cn(
+                          "flex cursor-pointer items-center gap-3 rounded-lg px-1 py-1.5 text-[13px] text-[#475569] hover:text-[#020618]",
+                          activeLocationId === city.id && "text-[#020618]",
+                        )}
+                      >
+                        <RadioGroupItem
+                          value={city.id}
+                          className="border-[#cbd5e1]"
+                        />
+                        <span>{city.name}</span>
+                      </label>
+                    ))}
+                  </RadioGroup>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </motion.aside>
+          <motion.section
+            initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration,
+              delay: sectionDelay * 3,
+              ease: "easeOut" as const,
+            }}
+            className="min-w-auto will-change-transform"
+          >
+            <LaunchpadAvailableOpportunities
+              projects={projectLaunchpad.projects}
+              nextCursor={projectLaunchpad.nextCursor}
+              onOpenOpportunity={onOpenOpportunity}
+            />
+          </motion.section>
+        </div>
       </div>
     </main>
   );
