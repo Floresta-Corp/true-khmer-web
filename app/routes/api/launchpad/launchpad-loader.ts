@@ -1,27 +1,37 @@
 import type { Route as LaunchpadRoute } from "project-types/launchpad/routes/+types/launchpad";
-import { GetLaunchpadProjects } from "~/services/launchpad/server/launchpad.opportunities.server";
+import { GetLaunchpadProjectsPaginated } from "~/services/launchpad/server/launchpad.opportunities.server";
 import { getPublicLaunchpadCategories } from "~/services/launchpad/server/launchpad.categories.server";
 import { getPublicVolunteerLocations } from "~/services/volunteer/server/volunteer.location.server";
-import type { Category } from "~/services/launchpad/types/category";
-import type { Location } from "~/services/volunteer/types/location";
+import { launchpadSortBySchema } from "~/services/launchpad/types/project";
 
-interface LaunchpadLoaderData {
-  projects: Awaited<ReturnType<typeof GetLaunchpadProjects>>;
-  categories: Category[];
-  locations: Location[];
-}
+export async function LaunchpadLoader({ request }: LaunchpadRoute.LoaderArgs) {
+  const url = new URL(request.url);
+  const limit = Number(url.searchParams.get("limit")) || 9;
+  const cursor = url.searchParams.get("cursor") ?? null;
+  const categoryId = url.searchParams.get("categoryId") ?? null;
+  const cityId = url.searchParams.get("cityId") ?? null;
+  const search = url.searchParams.get("search")?.trim() ?? null;
+  const sortBy =
+    launchpadSortBySchema.safeParse(url.searchParams.get("sortBy")).data ??
+    "newest";
 
-export async function LaunchpadLoader({
-  request,
-}: LaunchpadRoute.LoaderArgs): Promise<LaunchpadLoaderData> {
-  const [projects, categories, locationsRes] = await Promise.all([
-    GetLaunchpadProjects(request),
+  const [projectsRes, categoriesRes, locationsRes] = await Promise.all([
+    GetLaunchpadProjectsPaginated(request, {
+      limit,
+      cursor,
+      categoryId,
+      cityId,
+      search,
+      sortBy,
+    }),
     getPublicLaunchpadCategories(request),
     getPublicVolunteerLocations(request),
   ]);
+
   return {
-    projects,
-    categories: categories?.data?.categories ?? [],
+    projects: projectsRes.launchpads,
+    categories: categoriesRes?.data?.categories ?? [],
     locations: locationsRes?.data?.locations ?? [],
+    nextCursor: projectsRes.nextCursor,
   };
 }

@@ -8,6 +8,7 @@ import type {
   GetLaunchpadDetailResponse,
   LaunchpadOpportunity,
   LaunchpadDetail,
+  LaunchpadSortBy,
 } from "../types/project";
 import {
   LaunchpadCreateInputSchema,
@@ -59,7 +60,7 @@ export async function GetLaunchpadProjectsPaginated(
     categoryId?: string | null;
     cityId?: string | null;
     search?: string | null;
-    sortBy?: "newest" | "oldest";
+    sortBy?: LaunchpadSortBy;
   } = {},
 ): Promise<{
   launchpads: LaunchpadOpportunity[];
