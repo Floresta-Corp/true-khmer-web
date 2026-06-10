@@ -4,9 +4,16 @@ import { getPublicLaunchpadCategories } from "~/services/launchpad/server/launch
 import { getPublicVolunteerLocations } from "~/services/volunteer/server/volunteer.location.server";
 import { launchpadSortBySchema } from "~/services/launchpad/types/project";
 
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 50;
+
 export async function LaunchpadLoader({ request }: LaunchpadRoute.LoaderArgs) {
   const url = new URL(request.url);
-  const limit = Number(url.searchParams.get("limit")) || 9;
+  const rawLimit = Number(url.searchParams.get("limit"));
+  const limit =
+    Number.isInteger(rawLimit) && rawLimit > 0
+      ? Math.min(rawLimit, MAX_LIMIT)
+      : DEFAULT_LIMIT;
   const cursor = url.searchParams.get("cursor") ?? null;
   const categoryId = url.searchParams.get("categoryId") ?? null;
   const cityId = url.searchParams.get("cityId") ?? null;

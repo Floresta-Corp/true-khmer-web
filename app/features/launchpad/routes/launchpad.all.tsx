@@ -1,5 +1,5 @@
 import { useLoaderData, useNavigate, useSearchParams } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "~/components/ui/input";
 import type { LaunchpadOpportunity } from "~/services/launchpad/types/project";
@@ -44,6 +44,10 @@ export default function LaunchpadAllPage() {
   const [searchValue, setSearchValue] = useState(
     searchParams.get("search") || "",
   );
+
+  useEffect(() => {
+    setSearchValue(searchParams.get("search") || "");
+  }, [searchParams]);
 
   const handleSortChange = (sortValue: string) => {
     const params = new URLSearchParams(searchParams);
@@ -100,7 +104,7 @@ export default function LaunchpadAllPage() {
     navigate(`/launchpad/detail/${item.id}`);
   };
 
-  const searchQuery = (searchParams.get("search") || searchValue).trim();
+  const searchQuery = (searchParams.get("search") || "").trim();
   const resultsLabel = searchQuery
     ? `Found ${projectLaunchpad.projects.length} opportunities for "${searchQuery}"`
     : `Found ${projectLaunchpad.projects.length} opportunities`;
