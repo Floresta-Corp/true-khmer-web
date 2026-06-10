@@ -13,6 +13,10 @@ function readBoolean(value: unknown) {
   return typeof value === "boolean" ? value : false;
 }
 
+function readUserRole(userRecord: Record<string, unknown>) {
+  return readString(userRecord.role) || readString(userRecord.userRole);
+}
+
 function profileFromSessionUser(
   userRecord: Record<string, unknown>,
   displayName: string,
@@ -71,6 +75,7 @@ export function authenticatedUserFromSessionUser(
     id: readString(userRecord.id),
     email,
     emailVerified: readBoolean(userRecord.emailVerified),
+    role: readUserRole(userRecord) || undefined,
     name,
     firstName: readString(userRecord.firstName) || undefined,
     lastName: readString(userRecord.lastName) || undefined,
@@ -108,6 +113,7 @@ export function authenticatedUserFromOnboardingState(
     id: readString(userRecord.id) || state.raw.user.id,
     email,
     emailVerified: readBoolean(userRecord.emailVerified),
+    role: readUserRole(userRecord) || state.raw.user.role || undefined,
     name,
     profile: profileFromOnboardingState(userRecord, state, name),
   };
