@@ -33,6 +33,10 @@ type GuardOptions = {
   forceFresh?: boolean;
 };
 
+type AdminGuardOptions = GuardOptions & {
+  unauthorizedRedirectTo?: string;
+};
+
 export type OptionalUserResult = {
   user: AuthenticatedUser | null;
   setCookie?: string;
@@ -97,6 +101,11 @@ function isUserNotFoundError(error: unknown) {
   if (error.status === 404) return true;
   if (error.code === "USER_NOT_FOUND") return true;
   return error.message.toLowerCase().includes("user not found");
+}
+
+export function isAdminRole(role: string | undefined) {
+  const normalizedRole = role?.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  return normalizedRole === "admin" || normalizedRole === "super_admin";
 }
 
 async function redirectForGuardError(error: unknown, request: Request) {
@@ -267,4 +276,24 @@ export async function requireUser(
     if (redirectResponse) throw redirectResponse;
     throw error;
   }
+}
+
+// Use for admin protected routes/actions. The user must be logged in, ACTIVE,
+// and have an admin role in the backend /auth/session user payload.
+export async function requireAdmin(
+  request: Request,
+  options: AdminGuardOptions = {},
+): Promise<GuardResult> {
+  const auth = await requireUser(request, {
+    forceFresh: options.forceFresh ?? true,
+  });
+
+  if (!isAdminRole(auth.user.role)) {
+    throw redirectWithCookie(
+      options.unauthorizedRedirectTo ?? "/home",
+      auth.setCookie,
+    );
+  }
+
+  return auth;
 }
