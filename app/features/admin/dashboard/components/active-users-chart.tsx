@@ -21,14 +21,14 @@ export function ActiveUsersChart({ data }: ActiveUsersChartProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.5 }}
-      className="rounded-xl border border-[#1c2235] bg-[#0f1422] p-6"
+      className="rounded-xl border border-(--admin-border) bg-(--admin-card-bg) p-6"
     >
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h3 className="text-[15px] font-semibold text-white">Active Users</h3>
-          <p className="mt-1 text-xs text-slate-500">Live traffic (24h)</p>
+          <h3 className="text-[15px] font-semibold text-(--admin-text)">Active Users</h3>
+          <p className="mt-1 text-xs text-(--admin-text-muted)">Live traffic (24h)</p>
         </div>
-        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400">
+        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
           <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
           LIVE NOW
         </div>
@@ -54,7 +54,7 @@ export function ActiveUsersChart({ data }: ActiveUsersChartProps) {
               tick={{ fontSize: 10, fill: TEXT_MUTED, fontWeight: 600 }}
             />
             <Tooltip
-              cursor={{ stroke: "#1c2235", strokeWidth: 1 }}
+              cursor={{ stroke: "var(--admin-grid)", strokeWidth: 1 }}
               contentStyle={TOOLTIP_STYLE}
             />
             <Area

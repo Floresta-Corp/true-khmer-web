@@ -72,14 +72,15 @@ export type QuickAction = {
 };
 
 // ── color tokens ──────────────────────────────────────────────────────────
-export const TEXT_SECONDARY = "#94a3b8";
-export const TEXT_MUTED = "#64748b";
-export const GRID_COLOR = "#1c2235";
+export const TEXT_SECONDARY = "var(--admin-text-secondary)";
+export const TEXT_MUTED = "var(--admin-text-muted)";
+export const GRID_COLOR = "var(--admin-grid)";
 export const TOOLTIP_STYLE = {
-  border: "1px solid #1c2235",
+  border: "1px solid var(--admin-tooltip-border)",
   borderRadius: "8px",
   fontSize: "11px",
   color: TEXT_SECONDARY,
+  backgroundColor: "var(--admin-tooltip-bg)",
 } as const;
 
 // ── data ───────────────────────────────────────────────────────────────────
@@ -90,8 +91,8 @@ const STATS: StatItem[] = [
     value: "12,847",
     icon: Users,
     to: "/tk-admin/users",
-    iconBg: "bg-[#1c2235]",
-    iconColor: "text-slate-300",
+    iconBg: "bg-(--admin-card-muted)",
+    iconColor: "text-(--admin-text-secondary)",
   },
   {
     id: "partners",
@@ -99,8 +100,8 @@ const STATS: StatItem[] = [
     value: "156",
     icon: Handshake,
     to: "/tk-admin/partner",
-    iconBg: "bg-[#1c2235]",
-    iconColor: "text-slate-300",
+    iconBg: "bg-(--admin-card-muted)",
+    iconColor: "text-(--admin-text-secondary)",
   },
   {
     id: "reports",
@@ -108,8 +109,8 @@ const STATS: StatItem[] = [
     value: "24",
     icon: ShieldAlert,
     to: "/tk-admin/content-moderator",
-    iconBg: "bg-rose-950/60",
-    iconColor: "text-rose-400",
+    iconBg: "bg-rose-50 dark:bg-rose-950/60",
+    iconColor: "text-rose-600 dark:text-rose-400",
   },
 ];
 
@@ -119,7 +120,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Add User",
     subtitle: "Register Member",
     icon: UserPlus,
-    iconClass: "bg-blue-900/20 text-blue-400",
+    iconClass: "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400",
     to: "/tk-admin/users/add",
   },
   {
@@ -127,7 +128,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Add Partner",
     subtitle: "New Ecosystem Entry",
     icon: Building2,
-    iconClass: "bg-purple-900/20 text-purple-400",
+    iconClass: "bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400",
     to: "/tk-admin/partner/add",
   },
   {
@@ -135,7 +136,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Invite Team",
     subtitle: "Collaborator Access",
     icon: UserCog,
-    iconClass: "bg-emerald-900/20 text-emerald-400",
+    iconClass: "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400",
     to: "/tk-admin/team/invite",
   },
   {
@@ -143,7 +144,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Send Notification",
     subtitle: "Platform Broadcast",
     icon: Bell,
-    iconClass: "bg-amber-900/20 text-amber-400",
+    iconClass: "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400",
   },
 ];
 
@@ -191,11 +192,11 @@ const ACTIVE_USERS_DATA: ActiveUserPoint[] = [
 // ── main page ─────────────────────────────────────────────────────────────
 export default function AdminDashboardPage() {
   return (
-    <div className="min-h-screen bg-[#08090f] p-6 space-y-6">
+    <div className="min-h-screen bg-(--admin-page-bg) p-6 space-y-6">
       <KycBanner />
 
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
+        <h1 className="text-2xl font-bold text-(--admin-text)">Admin Dashboard</h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

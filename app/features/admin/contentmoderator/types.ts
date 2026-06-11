@@ -211,14 +211,14 @@ export const STATUSES = [
 
 // ── Design tokens (matches admin dashboard palette) ────────────────────────
 export const STYLES = {
-  pageBg: "bg-[#08090f]",
-  cardBg: "bg-[#0f1422]",
-  cardHover: "hover:bg-[#131928]",
-  headerRow: "bg-[#121827]",
-  border: "border-[#1c2235]",
-  divide: "divide-[#1c2235]",
-  textPrimary: "text-white",
-  textSecondary: "text-slate-400",
-  textMuted: "text-slate-500",
-  iconBg: "bg-[#1c2235]",
+  pageBg: "bg-(--admin-page-bg)",
+  cardBg: "bg-(--admin-card-bg)",
+  cardHover: "hover:bg-(--admin-card-muted)",
+  headerRow: "bg-(--admin-header-bg)",
+  border: "border-(--admin-border)",
+  divide: "divide-(--admin-border)",
+  textPrimary: "text-(--admin-text)",
+  textSecondary: "text-(--admin-text-secondary)",
+  textMuted: "text-(--admin-text-muted)",
+  iconBg: "bg-(--admin-card-muted)",
 } as const;

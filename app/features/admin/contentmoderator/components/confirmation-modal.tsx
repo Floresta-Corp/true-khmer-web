@@ -25,7 +25,7 @@ export const ConfirmationModal = memo(function ConfirmationModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="absolute inset-0 bg-[#0f1422]/95 backdrop-blur-md flex flex-col items-center justify-center p-12 text-center"
+      className="absolute inset-0 bg-(--admin-card-bg)/95 backdrop-blur-md flex flex-col items-center justify-center p-12 text-center"
       style={{ zIndex: 80 }}
     >
       {/* Icon */}
@@ -40,12 +40,12 @@ export const ConfirmationModal = memo(function ConfirmationModal({
       </div>
 
       {/* Title */}
-      <h3 className="text-2xl font-black tracking-tight text-white mb-2">
+      <h3 className="text-2xl font-black tracking-tight text-(--admin-text) mb-2">
         {isHide ? "Agree & Hide Content?" : "Dismiss This Report?"}
       </h3>
 
       {/* Description */}
-      <p className="text-slate-500 font-medium mb-10 max-w-xs text-sm leading-relaxed">
+      <p className="text-(--admin-text-muted) font-medium mb-10 max-w-xs text-sm leading-relaxed">
         {isHide
           ? "This action will permanently hide the content from the public feed and record a violation against the author."
           : "This action will mark the report as safe, keeping the content live and closing the investigation."}
@@ -63,7 +63,7 @@ export const ConfirmationModal = memo(function ConfirmationModal({
         <Button
           variant="ghost"
           onClick={onCancel}
-          className="w-full py-4 text-slate-400 font-black text-xs uppercase tracking-widest hover:text-white transition-all"
+          className="w-full py-4 text-(--admin-text-secondary) font-black text-xs uppercase tracking-widest hover:text-(--admin-text) transition-all"
         >
           Cancel
         </Button>

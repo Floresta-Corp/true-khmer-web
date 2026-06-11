@@ -84,15 +84,15 @@ export default function ContentModeratorPage() {
 
   // ── render ─────────────────────────────────────────────────────────────
   return (
-    <div className="bg-[#08090f] h-full flex flex-col overflow-hidden">
+    <div className="bg-(--admin-page-bg) h-full flex flex-col overflow-hidden">
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <div className="px-10 py-10 pt-16 shrink-0">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 max-w-7xl mx-auto w-full">
           <div>
-            <h1 className="text-5xl font-black text-white tracking-tighter mb-3">
-              Content <span className="text-blue-600">Moderation</span>
+            <h1 className="text-5xl font-black text-(--admin-text) tracking-tighter mb-3">
+              Content <span className="text-blue-600 dark:text-blue-400">Moderation</span>
             </h1>
-            <p className="text-base text-slate-400 font-medium max-w-md">
+            <p className="text-base text-(--admin-text-secondary) font-medium max-w-md">
               Streamlined moderation control for community integrity.
             </p>
           </div>

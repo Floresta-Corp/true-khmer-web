@@ -16,7 +16,7 @@ export function KpiCard({ item, index }: KpiCardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
       whileHover={{ y: -3 }}
-      className="overflow-hidden rounded-xl border border-[#1c2235] bg-[#0f1422] transition-shadow"
+      className="overflow-hidden rounded-xl border border-(--admin-border) bg-(--admin-card-bg) transition-shadow"
     >
       <div className="flex items-start gap-4 p-5">
         <div
@@ -25,15 +25,15 @@ export function KpiCard({ item, index }: KpiCardProps) {
           <Icon className={`h-5 w-5 ${item.iconColor}`} />
         </div>
         <div>
-          <p className="text-[13px] text-slate-400">{item.label}</p>
-          <p className="mt-1 text-[30px] font-bold leading-none tracking-tight text-white">
+          <p className="text-[13px] text-(--admin-text-secondary)">{item.label}</p>
+          <p className="mt-1 text-[30px] font-bold leading-none tracking-tight text-(--admin-text)">
             {item.value}
           </p>
         </div>
       </div>
       <Link
         to={item.to}
-        className="flex items-center justify-between border-t border-[#1c2235] px-5 py-3 text-[13px] text-slate-500 transition-colors hover:bg-[#131928] hover:text-slate-300"
+        className="flex items-center justify-between border-t border-(--admin-border) px-5 py-3 text-[13px] text-(--admin-text-muted) transition-colors hover:bg-(--admin-card-muted) hover:text-(--admin-text-secondary)"
       >
         <span>See in details</span>
         <ArrowRight className="h-4 w-4" />

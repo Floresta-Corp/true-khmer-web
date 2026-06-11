@@ -27,18 +27,18 @@ export function RegistrationsChart({ data }: RegistrationsChartProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.4 }}
-      className="rounded-xl border border-[#1c2235] bg-[#0f1422] p-6"
+      className="rounded-xl border border-(--admin-border) bg-(--admin-card-bg) p-6"
     >
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h3 className="text-[15px] font-semibold text-white">
+          <h3 className="text-[15px] font-semibold text-(--admin-text)">
             New Registrations
           </h3>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-(--admin-text-muted)">
             Daily member signup trend
           </p>
         </div>
-        <div className="flex items-center gap-1 text-[12px] font-semibold text-emerald-400">
+        <div className="flex items-center gap-1 text-[12px] font-semibold text-emerald-600 dark:text-emerald-400">
           <TrendingUp className="h-3.5 w-3.5" />
           <span>+18%</span>
         </div>
@@ -63,14 +63,14 @@ export function RegistrationsChart({ data }: RegistrationsChartProps) {
               tick={{ fontSize: 10, fill: TEXT_MUTED, fontWeight: 600 }}
             />
             <Tooltip
-              cursor={{ fill: "#131928", radius: 6 }}
+              cursor={{ fill: "var(--admin-card-muted)", radius: 6 }}
               contentStyle={TOOLTIP_STYLE}
             />
             <Bar dataKey="value" radius={[6, 6, 0, 0]}>
               {data.map((entry, index) => (
                 <Cell
                   key={index}
-                  fill={entry.highlight ? "#3b82f6" : "#283050"}
+                  fill={entry.highlight ? "#3b82f6" : "var(--admin-text-muted)"}
                 />
               ))}
             </Bar>

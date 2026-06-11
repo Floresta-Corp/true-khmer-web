@@ -20,9 +20,9 @@ export function GenderBreakdownChart({ data }: GenderBreakdownChartProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.6 }}
-      className="rounded-xl border border-[#1c2235] bg-[#0f1422] p-6"
+      className="rounded-xl border border-(--admin-border) bg-(--admin-card-bg) p-6"
     >
-      <h3 className="text-xs font-black text-white uppercase tracking-widest mb-5">
+      <h3 className="text-xs font-black text-(--admin-text) uppercase tracking-widest mb-5">
         Gender Breakdown
       </h3>
       <div className="h-55 w-full">

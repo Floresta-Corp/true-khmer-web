@@ -140,6 +140,35 @@ body {
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --admin-page-bg: oklch(0.97 0.003 248);
+  --admin-panel-bg: oklch(1 0 0);
+  --admin-card-bg: oklch(1 0 0);
+  --admin-card-muted: oklch(0.97 0.003 248);
+  --admin-header-bg: oklch(0.97 0.003 248);
+  --admin-border: oklch(0.922 0 0);
+  --admin-border-strong: oklch(0.869 0.022 252);
+  --admin-text: oklch(0.145 0 0);
+  --admin-text-secondary: oklch(0.556 0 0);
+  --admin-text-muted: oklch(0.645 0 0);
+  --admin-grid: oklch(0.922 0 0);
+  --admin-tooltip-bg: oklch(1 0 0);
+  --admin-tooltip-border: oklch(0.922 0 0);
+}
+
+.dark {
+  --admin-page-bg: oklch(0.018 0.004 252);
+  --admin-panel-bg: oklch(0.073 0.042 254);
+  --admin-card-bg: oklch(0.073 0.042 254);
+  --admin-card-muted: oklch(0.083 0.044 254);
+  --admin-header-bg: oklch(0.073 0.042 254);
+  --admin-border: oklch(0.145 0.048 254);
+  --admin-border-strong: oklch(0.192 0.054 254);
+  --admin-text: oklch(0.985 0 0);
+  --admin-text-secondary: oklch(0.708 0 0);
+  --admin-text-muted: oklch(0.556 0 0);
+  --admin-grid: oklch(0.145 0.048 254);
+  --admin-tooltip-bg: oklch(0.145 0.048 254);
+  --admin-tooltip-border: oklch(0.145 0.048 254);
 }
 
 @layer base {

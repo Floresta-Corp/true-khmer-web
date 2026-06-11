@@ -22,18 +22,18 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
   return (
     <tr
       onClick={() => onSelect(report)}
-      className="group hover:bg-[#131928] transition-colors cursor-pointer"
+      className="group hover:bg-(--admin-card-muted) transition-colors cursor-pointer"
     >
       {/* ID */}
       <td className="px-8 py-6">
-        <span className="text-xs font-black text-slate-400 group-hover:text-blue-500 transition-colors tracking-widest">
+        <span className="text-xs font-black text-(--admin-text-secondary) group-hover:text-blue-500 transition-colors tracking-widest">
           {report.id}
         </span>
       </td>
 
       {/* Type / Category */}
       <td className="px-8 py-6">
-        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-[#1c2235] px-2 py-0.5 rounded w-fit border border-[#2a3148]">
+        <span className="text-[10px] font-black text-(--admin-text-secondary) uppercase tracking-widest bg-(--admin-card-muted) px-2 py-0.5 rounded w-fit border border-(--admin-border-strong)">
           {report.category}
         </span>
       </td>
@@ -45,15 +45,15 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
             <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest bg-blue-900/20 px-1.5 py-0.5 rounded border border-blue-800/50">
               {report.source}
             </span>
-            <p className="text-xs font-medium text-slate-300 line-clamp-1 italic">
+            <p className="text-xs font-medium text-(--admin-text-secondary) line-clamp-1 italic">
               "{report.target.preview}"
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded-full bg-[#1c2235] text-slate-400 flex items-center justify-center text-[7px] font-black border border-[#2a3148]">
+            <div className="w-5 h-5 rounded-full bg-(--admin-card-muted) text-(--admin-text-secondary) flex items-center justify-center text-[7px] font-black border border-(--admin-border-strong)">
               {report.reporterAvatar}
             </div>
-            <span className="text-[10px] font-black text-slate-400 tracking-tighter">
+            <span className="text-[10px] font-black text-(--admin-text-secondary) tracking-tighter">
               Reported by {report.reporter}
             </span>
           </div>
@@ -62,8 +62,8 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
 
       {/* Date & Time */}
       <td className="px-8 py-6">
-        <div className="flex items-center gap-2 text-slate-500">
-          <Clock size={14} className="text-slate-400" />
+        <div className="flex items-center gap-2 text-(--admin-text-muted)">
+          <Clock size={14} className="text-(--admin-text-secondary)" />
           <span className="text-xs font-medium">
             {format(new Date(report.createdAt), "MMM d, h:mm a")}
           </span>
@@ -77,7 +77,7 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
 
       {/* Action */}
       <td className="px-8 py-6 text-right">
-        <button className="w-8 h-8 bg-[#1c2235] rounded-lg flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all ml-auto">
+        <button className="w-8 h-8 bg-(--admin-card-muted) rounded-lg flex items-center justify-center text-(--admin-text-secondary) group-hover:bg-blue-600 group-hover:text-white transition-all ml-auto">
           <ArrowRight size={14} />
         </button>
       </td>
@@ -102,15 +102,15 @@ export const ReportsTable = memo(function ReportsTable({
   onSelect,
 }: ReportsTableProps) {
   return (
-    <div className="bg-[#0f1422] rounded-xl border border-[#1c2235] overflow-hidden">
+    <div className="bg-(--admin-card-bg) rounded-xl border border-(--admin-border) overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="bg-[#121827] border-b border-[#1c2235]">
+            <tr className="bg-(--admin-header-bg) border-b border-(--admin-border)">
               {HEADERS.map((header, i) => (
                 <th
                   key={header || i}
-                  className={`px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest ${
+                  className={`px-8 py-5 text-[10px] font-black text-(--admin-text-secondary) uppercase tracking-widest ${
                     i === HEADERS.length - 1 ? "text-right" : ""
                   }`}
                 >
@@ -119,7 +119,7 @@ export const ReportsTable = memo(function ReportsTable({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#1c2235]">
+          <tbody className="divide-y divide-(--admin-border)">
             {reports.length > 0 ? (
               reports.map((report) => (
                 <ReportRow
