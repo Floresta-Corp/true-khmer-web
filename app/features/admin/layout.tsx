@@ -60,10 +60,9 @@ const navItems: NavItem[] = [
   },
   {
     id: "users",
-    label: "User management",
+    label: "User Management",
     icon: Users,
-    href: "/tk-admin",
-    disabled: true,
+    href: "/tk-admin/users",
   },
   {
     id: "partners",
@@ -176,6 +175,10 @@ export default function AdminLayout() {
 
     if (location.pathname.startsWith("/tk-admin/content-moderator")) {
       setActiveMenu("moderation");
+    }
+
+    if (location.pathname.startsWith("/tk-admin/users")) {
+      setActiveMenu("users");
     }
   }, [location.pathname]);
 

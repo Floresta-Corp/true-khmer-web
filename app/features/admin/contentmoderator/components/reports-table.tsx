@@ -15,78 +15,66 @@ interface ReportRowProps {
   onSelect: (report: Report) => void;
 }
 
-// ── ReportRow ─────────────────────────────────────────────────────────────
-// Individual row in the reports table.
+const COLUMN_WIDTHS = ["10%", "14%", "34%", "16%", "18%", "8%"];
 
 function ReportRow({ report, onSelect }: ReportRowProps) {
   return (
     <tr
       onClick={() => onSelect(report)}
-      className="group hover:bg-(--admin-card-muted) transition-colors cursor-pointer"
+      className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors cursor-pointer group"
     >
-      {/* ID */}
-      <td className="px-8 py-6">
-        <span className="text-xs font-black text-(--admin-text-secondary) group-hover:text-blue-500 transition-colors tracking-widest">
+      <td className="text-center align-middle">
+        <span className="text-xs font-black text-slate-400 group-hover:text-blue-600 transition-colors tracking-widest">
           {report.id}
         </span>
       </td>
 
-      {/* Type / Category */}
-      <td className="px-8 py-6">
-        <span className="text-[10px] font-black text-(--admin-text-secondary) uppercase tracking-widest bg-(--admin-card-muted) px-2 py-0.5 rounded w-fit border border-(--admin-border-strong)">
+      <td className="text-center align-middle">
+        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full border bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700">
           {report.category}
         </span>
       </td>
 
-      {/* Content Preview */}
-      <td className="px-8 py-6 max-w-sm">
+      <td className="px-10 py-6 min-w-0 align-middle">
         <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest bg-blue-900/20 px-1.5 py-0.5 rounded border border-blue-800/50">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="shrink-0 px-2 py-0.5 text-[10px] font-bold rounded-full border bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400 border-indigo-100 dark:border-indigo-800">
               {report.source}
             </span>
-            <p className="text-xs font-medium text-(--admin-text-secondary) line-clamp-1 italic">
+            <p className="min-w-0 text-sm font-black text-slate-900 dark:text-white leading-tight truncate">
               "{report.target.preview}"
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded-full bg-(--admin-card-muted) text-(--admin-text-secondary) flex items-center justify-center text-[7px] font-black border border-(--admin-border-strong)">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="shrink-0 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center text-xs font-black border border-slate-100 dark:border-slate-800">
               {report.reporterAvatar}
             </div>
-            <span className="text-[10px] font-black text-(--admin-text-secondary) tracking-tighter">
+            <span className="min-w-0 text-[11px] font-medium text-slate-400 truncate">
               Reported by {report.reporter}
             </span>
           </div>
         </div>
       </td>
 
-      {/* Date & Time */}
-      <td className="px-8 py-6">
-        <div className="flex items-center gap-2 text-(--admin-text-muted)">
-          <Clock size={14} className="text-(--admin-text-secondary)" />
-          <span className="text-xs font-medium">
-            {format(new Date(report.createdAt), "MMM d, h:mm a")}
-          </span>
+      <td className="px-10 py-6 text-center text-xs font-medium text-slate-400 align-middle">
+        <div className="flex items-center justify-center gap-2">
+          <Clock size={14} />
+          <span>{format(new Date(report.createdAt), "d MMM yyyy")}</span>
         </div>
       </td>
 
-      {/* Status */}
-      <td className="px-8 py-6">
+      <td className="px-10 py-6 text-center align-middle">
         <StatusBadge status={report.status} />
       </td>
 
-      {/* Action */}
-      <td className="px-8 py-6 text-right">
-        <button className="w-8 h-8 bg-(--admin-card-muted) rounded-lg flex items-center justify-center text-(--admin-text-secondary) group-hover:bg-blue-600 group-hover:text-white transition-all ml-auto">
-          <ArrowRight size={14} />
+      <td className="px-10 py-6 text-right align-middle">
+        <button className="p-2 text-slate-400 hover:text-slate-900 transition-colors">
+          <ArrowRight size={20} />
         </button>
       </td>
     </tr>
   );
 }
-
-// ── ReportsTable ─────────────────────────────────────────────────────────
-// Displays the list of reports in a styled table.
 
 const HEADERS = [
   "ID",
@@ -102,42 +90,41 @@ export const ReportsTable = memo(function ReportsTable({
   onSelect,
 }: ReportsTableProps) {
   return (
-    <div className="bg-(--admin-card-bg) rounded-xl border border-(--admin-border) overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="bg-(--admin-header-bg) border-b border-(--admin-border)">
-              {HEADERS.map((header, i) => (
-                <th
-                  key={header || i}
-                  className={`px-8 py-5 text-[10px] font-black text-(--admin-text-secondary) uppercase tracking-widest ${
-                    i === HEADERS.length - 1 ? "text-right" : ""
-                  }`}
-                >
-                  {header}
-                </th>
-              ))}
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-225 table-fixed text-left border-collapse">
+        <colgroup>
+          {COLUMN_WIDTHS.map((width) => (
+            <col key={width} style={{ width }} />
+          ))}
+        </colgroup>
+        <thead>
+          <tr className="border-b border-slate-50 dark:border-slate-800">
+            {HEADERS.map((header, i) => (
+              <th
+                key={header || i}
+                className={`px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest align-middle ${
+                  i === HEADERS.length - 1 ? "text-right" : ""
+                }`}
+              >
+                {header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
+          {reports.length > 0 ? (
+            reports.map((report) => (
+              <ReportRow key={report.id} report={report} onSelect={onSelect} />
+            ))
+          ) : (
+            <tr>
+              <td colSpan={6}>
+                <EmptyState />
+              </td>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-(--admin-border)">
-            {reports.length > 0 ? (
-              reports.map((report) => (
-                <ReportRow
-                  key={report.id}
-                  report={report}
-                  onSelect={onSelect}
-                />
-              ))
-            ) : (
-              <tr>
-                <td colSpan={6}>
-                  <EmptyState />
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 });

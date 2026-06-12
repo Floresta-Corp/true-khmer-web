@@ -84,33 +84,28 @@ export default function ContentModeratorPage() {
 
   // ── render ─────────────────────────────────────────────────────────────
   return (
-    <div className="bg-(--admin-page-bg) h-full flex flex-col overflow-hidden">
-      {/* ── Header ──────────────────────────────────────────────────────── */}
-      <div className="px-10 py-10 pt-16 shrink-0">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 max-w-7xl mx-auto w-full">
-          <div>
-            <h1 className="text-5xl font-black text-(--admin-text) tracking-tighter mb-3">
-              Content <span className="text-blue-600 dark:text-blue-400">Moderation</span>
-            </h1>
-            <p className="text-base text-(--admin-text-secondary) font-medium max-w-md">
-              Streamlined moderation control for community integrity.
-            </p>
+    <div className="flex flex-col h-full bg-[#f8fafc] dark:bg-slate-950 relative">
+      <div className="flex-1 p-6 overflow-auto custom-scrollbar">
+        <div className="max-w-350 mx-auto space-y-10">
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                Content Moderation
+              </h1>
+              <p className="text-slate-500 font-medium text-sm mt-1">
+                Streamlined moderation control for community integrity.
+              </p>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* ── Main Content ────────────────────────────────────────────────── */}
-      <main className="flex-1 px-10 pt-0 pb-8 overflow-hidden">
-        <div className="max-w-7xl mx-auto w-full h-full">
           <AnimatePresence mode="wait">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="h-full flex flex-col gap-6"
+              className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col"
             >
-              {/* Filter Bar */}
               <FilterBar
                 selectedCategory={selectedCategory}
                 onCategoryChange={setSelectedCategory}
@@ -118,7 +113,6 @@ export default function ContentModeratorPage() {
                 onStatusChange={setSelectedStatus}
               />
 
-              {/* Reports Table */}
               <div className="flex-1 overflow-auto min-h-0">
                 <ReportsTable
                   reports={filteredReports}
@@ -128,7 +122,7 @@ export default function ContentModeratorPage() {
             </motion.div>
           </AnimatePresence>
         </div>
-      </main>
+      </div>
 
       {/* ── Report Drawer ───────────────────────────────────────────────── */}
       <AnimatePresence>

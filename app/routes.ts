@@ -87,6 +87,11 @@ export default [
       "content-moderator",
       "features/admin/contentmoderator/routes/content-moderator.tsx"
     ),
+    route("users", "features/admin/usermanagement/routes/user-management.tsx"),
+    route(
+      "users/add",
+      "features/admin/usermanagement/routes/user-management.add.tsx"
+    ),
   ]),
   route("login", "routes/auth/pages/login.tsx"),
   route("register", "routes/auth/pages/register.tsx"),
