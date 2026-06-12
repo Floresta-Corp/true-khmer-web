@@ -3,12 +3,14 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
-import type { RegisterErrors } from "./auth.types";
+import type { RegisterErrors, RegisterLoaderData } from "./auth.types";
 import {
   AuthApiError,
   formatAuthMessage,
   getAuthErrorCode,
   getAuthFieldError,
+  GenderSchema,
+  getWaitlistContext,
   loginWithGoogle,
   registerUser,
 } from "~/services/auth/api.server";
@@ -41,7 +43,27 @@ function withRegisterFormError(errors: RegisterErrors): RegisterErrors {
 export async function loader({ request }: LoaderFunctionArgs) {
   const authRedirect = await redirectIfAuthenticated(request);
   if (authRedirect) throw authRedirect;
-  return {};
+
+  const url = new URL(request.url);
+  const waitlistId = url.searchParams.get("waitlistId")?.trim();
+  if (!waitlistId) {
+    return { waitlistContext: null } satisfies RegisterLoaderData;
+  }
+
+  try {
+    const waitlistContext = await getWaitlistContext(waitlistId, request);
+    if (
+      !waitlistContext.found ||
+      !waitlistContext.prefill ||
+      !waitlistContext.waitlistId
+    ) {
+      return { waitlistContext: null } satisfies RegisterLoaderData;
+    }
+
+    return { waitlistContext } satisfies RegisterLoaderData;
+  } catch {
+    return { waitlistContext: null } satisfies RegisterLoaderData;
+  }
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -57,6 +79,7 @@ export async function action({ request }: ActionFunctionArgs) {
   ).trim();
   const gender = String(formData.get("gender") || "");
   const occupation = String(formData.get("occupation") || "");
+  const waitlistId = String(formData.get("waitlistId") || "").trim();
   const redirectTo = sanitizeRedirectPath(
     formData.get("redirectTo")?.toString(),
   );
@@ -69,7 +92,11 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     try {
-      const auth = await loginWithGoogle(idToken, request);
+      const auth = await loginWithGoogle(
+        idToken,
+        request,
+        waitlistId || undefined,
+      );
       const destination = auth.authFlow
         ? destinationFromAuthFlow(auth.authFlow)
         : redirectTo;
@@ -98,13 +125,21 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!phoneCountry || !phoneNationalNumber) {
     errors.phone = "Phone number is required";
   }
+  const parsedGender = GenderSchema.safeParse(gender);
   if (!gender) errors.gender = "Gender is required";
+  else if (!parsedGender.success) errors.gender = "Gender is invalid";
   if (!occupation) errors.occupation = "Occupation is required";
   const passwordError = getPasswordValidationError(password);
   if (passwordError) errors.password = passwordError;
 
   if (Object.keys(errors).length > 0) {
     return { errors: withRegisterFormError(errors) };
+  }
+
+  if (!parsedGender.success) {
+    return {
+      errors: withRegisterFormError({ gender: "Gender is invalid" }),
+    };
   }
 
   try {
@@ -118,8 +153,9 @@ export async function action({ request }: ActionFunctionArgs) {
           country: phoneCountry,
           nationalNumber: phoneNationalNumber,
         },
-        gender,
+        gender: parsedGender.data,
         occupation,
+        ...(waitlistId ? { waitlistId } : {}),
       },
       request,
     );

@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { resolveApiBase } from "~/lib/server/api-base.server";
 import type { AuthFlow } from "~/lib/server/auth/access-control.server";
 
@@ -35,14 +36,51 @@ export type PhoneInput = {
   nationalNumber: string;
 };
 
+export const PhoneInputSchema = z.object({
+  country: z.string(),
+  nationalNumber: z.string(),
+});
+
+export const GenderSchema = z.enum(["male", "female", "other"]);
+export type AuthGender = z.infer<typeof GenderSchema>;
+
+export const WaitlistPrefillSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  email: z.string(),
+  gender: GenderSchema,
+  occupation: z.string(),
+  phone: PhoneInputSchema,
+});
+
+export const WaitlistContextRequestSchema = z.object({
+  waitlistId: z.string().uuid(),
+});
+
+export const WaitlistContextResponseSchema = z.object({
+  found: z.boolean(),
+  eligibleForEarlyFounder: z.boolean(),
+  waitlistId: z.string().uuid().nullable(),
+  prefill: WaitlistPrefillSchema.nullable(),
+});
+
+export type WaitlistPrefill = z.infer<typeof WaitlistPrefillSchema>;
+export type WaitlistContextRequest = z.infer<
+  typeof WaitlistContextRequestSchema
+>;
+export type WaitlistContextResponse = z.infer<
+  typeof WaitlistContextResponseSchema
+>;
+
 export type RegisterRequest = {
   email: string;
   password: string;
   firstName: string;
   lastName: string;
   phone: PhoneInput;
-  gender: string;
+  gender: AuthGender;
   occupation: string;
+  waitlistId?: string;
 };
 
 export type RegisterResponse = {
@@ -50,6 +88,16 @@ export type RegisterResponse = {
   message: string;
   otpSent: boolean;
   user: BackendUser;
+};
+
+export type GoogleAuthRequest = {
+  idToken: string;
+  waitlistId?: string;
+};
+
+export type WaitlistEmailMismatchError = {
+  error: "Waitlist email mismatch";
+  message: "email must match the waitlist registration email";
 };
 
 type ResendRegisterOtpResponse = {
@@ -311,6 +359,39 @@ async function authRequest<T>(
   return data as T;
 }
 
+async function authGetRequest<T>(
+  path: string,
+  request?: Request,
+  schema?: z.ZodType<T>,
+) {
+  const base = resolveApiBase(request);
+  const url = `${base}${path}`;
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+  } catch (error) {
+    const reason =
+      error instanceof Error ? error.message : "Unknown network error";
+    throw new Error(`Cannot reach auth API at ${url}. ${reason}`);
+  }
+
+  const data = (await response.json().catch(() => ({}))) as AuthErrorResponse;
+
+  if (!response.ok) {
+    const details = normalizeAuthErrorDetails(data);
+    const message = details.message || "Authentication request failed.";
+    throw new AuthApiError(message, response.status, details);
+  }
+
+  return schema ? schema.parse(data) : (data as T);
+}
+
 async function authorizedAuthRequest<T>(
   path: string,
   body: Record<string, unknown>,
@@ -354,6 +435,18 @@ export async function registerUser(
   return authRequest<RegisterResponse>("/auth/register", payload, request);
 }
 
+export async function getWaitlistContext(
+  waitlistId: string,
+  request?: Request,
+) {
+  const params = new URLSearchParams({ waitlistId });
+  return authGetRequest<WaitlistContextResponse>(
+    `/auth/register/waitlist-context?${params.toString()}`,
+    request,
+    WaitlistContextResponseSchema,
+  );
+}
+
 export async function verifyRegisterOtp(
   email: string,
   otp: string,
@@ -386,8 +479,15 @@ export async function loginUser(
   );
 }
 
-export async function loginWithGoogle(idToken: string, request?: Request) {
-  return authRequest<AuthTokensResponse>("/auth/google", { idToken }, request);
+export async function loginWithGoogle(
+  idToken: string,
+  request?: Request,
+  waitlistId?: string,
+) {
+  const payload: GoogleAuthRequest = waitlistId
+    ? { idToken, waitlistId }
+    : { idToken };
+  return authRequest<AuthTokensResponse>("/auth/google", payload, request);
 }
 
 export async function completeSignUp(
