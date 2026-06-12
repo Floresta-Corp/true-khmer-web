@@ -42,7 +42,7 @@ async function syncUpdatedProfileToSession(request: Request, profile: Profile) {
     name: displayName || profile.user.email,
     gender: profile.user.gender,
     occupation: profile.user.occupation,
-    phoneNumber: profile.user.phoneNumber,
+    phone: profile.user.phone,
     avatar,
     avatarKey,
     avatarUrl,
@@ -86,7 +86,12 @@ export async function EditProfileAction({
   const gender = String(formData.get("gender") ?? "").trim();
   const dateOfBirth = String(formData.get("dateOfBirth") ?? "").trim() || null;
   const occupation = String(formData.get("occupation") ?? "").trim() || null;
-  const phoneNumber = String(formData.get("phoneNumber") ?? "").trim() || null;
+  const hasPhoneInput =
+    formData.has("phone.country") || formData.has("phone.nationalNumber");
+  const phoneCountry = String(formData.get("phone.country") ?? "").trim();
+  const phoneNationalNumber = String(
+    formData.get("phone.nationalNumber") ?? "",
+  ).trim();
   const telegramUsername =
     String(formData.get("telegramUsername") ?? "").trim() || null;
   const bio = String(formData.get("bio") ?? "").trim() || null;
@@ -121,7 +126,16 @@ export async function EditProfileAction({
     gender,
     dateOfBirth,
     occupation,
-    phoneNumber,
+    ...(hasPhoneInput
+      ? {
+          phone: phoneNationalNumber
+            ? {
+                country: phoneCountry,
+                nationalNumber: phoneNationalNumber,
+              }
+            : null,
+        }
+      : {}),
     telegramUsername,
     bio,
     countryId,

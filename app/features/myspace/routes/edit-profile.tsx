@@ -20,6 +20,10 @@ import {
   Send,
 } from "lucide-react";
 import { motion } from "motion/react";
+import {
+  getCountries,
+  getCountryCallingCode,
+} from "libphonenumber-js";
 import BackToButton from "~/components/back-to-button";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
@@ -31,6 +35,13 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "~/components/ui/input-group";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+} from "~/components/ui/select";
 import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -49,7 +60,8 @@ const editProfileSchema = z.object({
   gender: z.string().min(1, "Gender is required"),
   dateOfBirth: z.string().optional(),
   occupation: z.string().optional(),
-  phoneNumber: z.string().optional(),
+  phoneCountry: z.string().optional(),
+  phoneNationalNumber: z.string().optional(),
   telegramUsername: z.string().optional(),
   bio: z.string().optional(),
   countryId: z.string().optional(),
@@ -67,6 +79,23 @@ const editProfileSchema = z.object({
 });
 
 type EditProfileFormData = z.infer<typeof editProfileSchema>;
+
+const countryNameFormatter =
+  typeof Intl !== "undefined" && "DisplayNames" in Intl
+    ? new Intl.DisplayNames(["en"], { type: "region" })
+    : null;
+
+const phoneCountryOptions = getCountries()
+  .map((country) => ({
+    country,
+    dialCode: `+${getCountryCallingCode(country)}`,
+    label: `${countryNameFormatter?.of(country) ?? country} +${getCountryCallingCode(country)}`,
+  }))
+  .sort((first, second) => {
+    if (first.country === "KH") return -1;
+    if (second.country === "KH") return 1;
+    return first.label.localeCompare(second.label);
+  });
 
 export function meta() {
   return [
@@ -105,7 +134,8 @@ export default function EditProfile() {
     gender: me?.user.gender || "",
     dateOfBirth: me?.user.dateOfBirth || "",
     occupation: me?.user.occupation || "",
-    phoneNumber: me?.user.phoneNumber || "",
+    phoneCountry: me?.user.phone?.country || "KH",
+    phoneNationalNumber: me?.user.phone?.nationalNumber || "",
     telegramUsername: me?.user.telegramUsername || "",
     bio: me?.profile.bio || "",
     countryId: me?.profile.country?.id || "",
@@ -137,6 +167,14 @@ export default function EditProfile() {
   const countryId = watch("countryId");
   const cityId = watch("cityId");
   const gender = watch("gender");
+  const phoneCountry = watch("phoneCountry");
+  const selectedPhoneCountry =
+    phoneCountryOptions.find((option) => option.country === phoneCountry) ??
+    ({
+      country: "KH",
+      dialCode: "+855",
+      label: "Cambodia +855",
+    } satisfies (typeof phoneCountryOptions)[number]);
   const [newSkill, setNewSkill] = useState("");
 
   const initialAvatarUrl = resolveImageURL(me?.profile.avatarKey || undefined);
@@ -213,7 +251,19 @@ export default function EditProfile() {
     formData.append("gender", data.gender);
     formData.append("dateOfBirth", data.dateOfBirth || "");
     formData.append("occupation", data.occupation || "");
-    formData.append("phoneNumber", data.phoneNumber || "");
+    const initialPhoneCountry = me?.user.phone?.country || "KH";
+    const initialPhoneNationalNumber = me?.user.phone?.nationalNumber || "";
+    const nextPhoneCountry = data.phoneCountry || "KH";
+    const nextPhoneNationalNumber = data.phoneNationalNumber?.trim() || "";
+    const phoneChanged =
+      nextPhoneCountry !== initialPhoneCountry ||
+      nextPhoneNationalNumber !== initialPhoneNationalNumber;
+
+    if (phoneChanged) {
+      formData.append("phone.country", nextPhoneCountry);
+      formData.append("phone.nationalNumber", nextPhoneNationalNumber);
+    }
+
     formData.append("telegramUsername", data.telegramUsername || "");
     formData.append("bio", data.bio || "");
     formData.append("countryId", data.countryId || "");
@@ -782,24 +832,49 @@ export default function EditProfile() {
                         </InputGroup>
                       </motion.div>
                       <motion.div className="space-y-2" variants={itemVariants}>
-                        <Label
-                          htmlFor="phoneNumber"
-                          className="flex items-center gap-2"
-                        >
+                        <Label className="flex items-center gap-2">
                           <Phone className="h-4 w-4 text-blue-600" />
-                          Phone number
+                          Contact number<span className="text-red-500">*</span>
                         </Label>
-                        <InputGroup className="h-10">
-                          <InputGroupAddon className="bg-blue-gray-50 border-r border-input px-3 text-sm font-medium text-gray-600">
-                            +855
-                          </InputGroupAddon>
-                          <InputGroupInput
-                            id="phoneNumber"
-                            {...register("phoneNumber")}
+                        <div className="flex h-10 overflow-hidden rounded-lg bg-white">
+                          <Select
+                            value={phoneCountry || "KH"}
+                            onValueChange={(value) =>
+                              setValue("phoneCountry", value, {
+                                shouldValidate: true,
+                              })
+                            }
+                          >
+                            <SelectTrigger
+                              aria-label="Country calling code"
+                              className="h-full w-24 rounded-l-lg rounded-r-none border-[#C3C6D6] border-r-0 bg-slate-50 px-3 text-sm font-medium leading-5 text-[#434654] shadow-none focus:ring-[#2F6FE4]/20 focus:ring-offset-0"
+                            >
+                              <span className="truncate">
+                                {selectedPhoneCountry.dialCode}
+                              </span>
+                            </SelectTrigger>
+                            <SelectContent className="max-h-72">
+                              <SelectGroup>
+                                {phoneCountryOptions.map((option) => (
+                                  <SelectItem
+                                    key={option.country}
+                                    value={option.country}
+                                  >
+                                    {option.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                          <Input
+                            id="phoneNationalNumber"
+                            {...register("phoneNationalNumber")}
                             placeholder="12 345 678"
-                            className="text-sm"
+                            inputMode="tel"
+                            autoComplete="tel-national"
+                            className="h-full rounded-l-none rounded-r-lg border-[#C3C6D6] px-4 text-sm text-[#111827] shadow-none placeholder:text-gray-500 focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20"
                           />
-                        </InputGroup>
+                        </div>
                       </motion.div>
                     </motion.div>
                   </CardContent>

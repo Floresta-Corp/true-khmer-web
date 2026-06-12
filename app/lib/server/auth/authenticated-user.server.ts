@@ -13,6 +13,16 @@ function readBoolean(value: unknown) {
   return typeof value === "boolean" ? value : false;
 }
 
+function readPhoneInput(value: unknown) {
+  if (!isObject(value)) return null;
+
+  const country = readString(value.country);
+  const nationalNumber = readString(value.nationalNumber);
+  if (!country || !nationalNumber) return null;
+
+  return { country, nationalNumber };
+}
+
 function readUserRole(userRecord: Record<string, unknown>) {
   return readString(userRecord.role) || readString(userRecord.userRole);
 }
@@ -81,6 +91,7 @@ export function authenticatedUserFromSessionUser(
     lastName: readString(userRecord.lastName) || undefined,
     gender: readString(userRecord.gender) || undefined,
     occupation: readString(userRecord.occupation) || null,
+    phone: readPhoneInput(userRecord.phone),
     phoneNumber: readString(userRecord.phoneNumber) || null,
     signupCompletedAt:
       readString(userRecord.signupCompletedAt) ||

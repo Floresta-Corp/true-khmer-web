@@ -45,7 +45,10 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const firstName = String(formData.get("firstName") || "").trim();
   const lastName = String(formData.get("lastName") || "").trim();
-  const phoneNumber = String(formData.get("phoneNumber") || "").trim();
+  const phoneCountry = String(formData.get("phone.country") || "").trim();
+  const phoneNationalNumber = String(
+    formData.get("phone.nationalNumber") || "",
+  ).trim();
   const gender = String(formData.get("gender") || "").trim();
   const occupation = String(formData.get("occupation") || "").trim();
   const memberAgreementAccepted =
@@ -54,7 +57,9 @@ export async function action({ request }: ActionFunctionArgs) {
   const errors: CompleteSignUpErrors = {};
   if (!firstName) errors.firstName = "First name is required";
   if (!lastName) errors.lastName = "Last name is required";
-  if (!phoneNumber) errors.phoneNumber = "Contact number is required";
+  if (!phoneCountry || !phoneNationalNumber) {
+    errors.phone = "Contact number is required";
+  }
   if (!gender) errors.gender = "Gender is required";
   if (!occupation) errors.occupation = "Occupation is required";
   if (!memberAgreementAccepted) {
@@ -72,7 +77,10 @@ export async function action({ request }: ActionFunctionArgs) {
         lastName,
         gender,
         occupation,
-        phoneNumber,
+        phone: {
+          country: phoneCountry,
+          nationalNumber: phoneNationalNumber,
+        },
         memberAgreementAccepted: true,
       },
       accessToken,
@@ -97,8 +105,12 @@ export async function action({ request }: ActionFunctionArgs) {
             lastName: formatAuthMessage(
               getAuthFieldError(error.details, "lastName"),
             ),
-            phoneNumber: formatAuthMessage(
-              getAuthFieldError(error.details, "phoneNumber"),
+            phone: formatAuthMessage(
+              getAuthFieldError(error.details, "phone") ||
+                getAuthFieldError(error.details, "phone.nationalNumber") ||
+                getAuthFieldError(error.details, "phone.country") ||
+                getAuthFieldError(error.details, "nationalNumber") ||
+                getAuthFieldError(error.details, "phoneNumber"),
             ),
             gender: formatAuthMessage(
               getAuthFieldError(error.details, "gender"),
