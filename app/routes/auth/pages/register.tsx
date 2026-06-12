@@ -173,10 +173,6 @@ export default function RegisterPage() {
       dialCode: "+855",
       label: "Cambodia +855",
     } satisfies (typeof phoneCountryOptions)[number]);
-  const normalizedContactNumber = contactNumber.replace(/[^\d]/g, "");
-  const phoneNumber = normalizedContactNumber
-    ? `${selectedPhoneCountry.dialCode}${normalizedContactNumber}`
-    : "";
   const passwordsMatch =
     confirmPassword.trim() !== "" && password === confirmPassword;
   const clientPasswordError =
@@ -296,7 +292,12 @@ export default function RegisterPage() {
             value={agreeToDirectory ? "1" : "0"}
           />
           <input type="hidden" name="participation" value={participation} />
-          <input type="hidden" name="phoneNumber" value={phoneNumber} />
+          <input type="hidden" name="phone.country" value={phoneCountry} />
+          <input
+            type="hidden"
+            name="phone.nationalNumber"
+            value={contactNumber.trim()}
+          />
 
           <div className="grid gap-4 sm:grid-cols-2">
             <RegisterTextField
@@ -409,10 +410,8 @@ export default function RegisterPage() {
                 className="h-full rounded-l-none rounded-r-lg border-[#C3C6D6] px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-gray-500 focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20"
               />
             </div>
-            {actionData?.errors?.phoneNumber ? (
-              <p className="text-xs text-red-500">
-                {actionData.errors.phoneNumber}
-              </p>
+            {actionData?.errors?.phone ? (
+              <p className="text-xs text-red-500">{actionData.errors.phone}</p>
             ) : null}
           </div>
 

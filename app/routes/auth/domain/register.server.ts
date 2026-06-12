@@ -51,7 +51,10 @@ export async function action({ request }: ActionFunctionArgs) {
   const lastName = String(formData.get("lastName") || "");
   const email = String(formData.get("email") || "");
   const password = String(formData.get("password") || "");
-  const phoneNumber = String(formData.get("phoneNumber") || "");
+  const phoneCountry = String(formData.get("phone.country") || "").trim();
+  const phoneNationalNumber = String(
+    formData.get("phone.nationalNumber") || "",
+  ).trim();
   const gender = String(formData.get("gender") || "");
   const occupation = String(formData.get("occupation") || "");
   const redirectTo = sanitizeRedirectPath(
@@ -92,7 +95,9 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!lastName) errors.lastName = "Last name is required";
   if (!email) errors.email = "Email is required";
   else if (!email.includes("@")) errors.email = "Must be a valid email";
-  if (!phoneNumber) errors.phoneNumber = "Phone number is required";
+  if (!phoneCountry || !phoneNationalNumber) {
+    errors.phone = "Phone number is required";
+  }
   if (!gender) errors.gender = "Gender is required";
   if (!occupation) errors.occupation = "Occupation is required";
   const passwordError = getPasswordValidationError(password);
@@ -109,7 +114,10 @@ export async function action({ request }: ActionFunctionArgs) {
         password,
         firstName,
         lastName,
-        phoneNumber,
+        phone: {
+          country: phoneCountry,
+          nationalNumber: phoneNationalNumber,
+        },
         gender,
         occupation,
       },
@@ -143,8 +151,12 @@ export async function action({ request }: ActionFunctionArgs) {
         const emailError = formatAuthMessage(
           getAuthFieldError(error.details, "email"),
         );
-        const phoneNumberError = formatAuthMessage(
-          getAuthFieldError(error.details, "phoneNumber"),
+        const phoneError = formatAuthMessage(
+          getAuthFieldError(error.details, "phone") ||
+            getAuthFieldError(error.details, "phone.nationalNumber") ||
+            getAuthFieldError(error.details, "phone.country") ||
+            getAuthFieldError(error.details, "nationalNumber") ||
+            getAuthFieldError(error.details, "phoneNumber"),
         );
         const genderError = formatAuthMessage(
           getAuthFieldError(error.details, "gender"),
@@ -159,7 +171,7 @@ export async function action({ request }: ActionFunctionArgs) {
           firstNameError ||
           lastNameError ||
           emailError ||
-          phoneNumberError ||
+          phoneError ||
           genderError ||
           occupationError ||
           passwordError
@@ -170,7 +182,7 @@ export async function action({ request }: ActionFunctionArgs) {
             firstName: firstNameError,
             lastName: lastNameError,
             email: emailError,
-            phoneNumber: phoneNumberError,
+            phone: phoneError,
             gender: genderError,
             occupation: occupationError,
             password: passwordError,
