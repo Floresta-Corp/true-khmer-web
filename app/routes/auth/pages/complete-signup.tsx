@@ -10,7 +10,6 @@ import { Check, Info } from "lucide-react";
 import {
   getCountries,
   getCountryCallingCode,
-  parsePhoneNumberFromString,
   type CountryCode,
 } from "libphonenumber-js";
 import {
@@ -45,7 +44,7 @@ export function meta() {
 }
 
 const inputClasses =
-  "h-12 rounded-xl border-[#C3C6D6] bg-white px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-[#434654]/50 focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20";
+  "h-12 rounded-lg border-[#C3C6D6] bg-white px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-[#434654]/50 focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20";
 
 const countryNameFormatter =
   typeof Intl !== "undefined" && "DisplayNames" in Intl
@@ -100,49 +99,18 @@ function readRecord(value: unknown) {
     : {};
 }
 
-function initialPhoneInput(phoneNumber?: string | null) {
-  if (!phoneNumber) {
-    return { country: "KH" as CountryCode, contactNumber: "" };
-  }
-
-  const parsed = parsePhoneNumberFromString(phoneNumber);
-  if (parsed) {
-    return {
-      country: parsed.country ?? ("KH" as CountryCode),
-      contactNumber: parsed.nationalNumber,
-    };
-  }
-
-  const digits = phoneNumber.replace(/[^\d+]/g, "");
-  const matchedOption = phoneCountryOptions
-    .slice()
-    .sort((first, second) => second.dialCode.length - first.dialCode.length)
-    .find((option) => digits.startsWith(option.dialCode));
-
-  return {
-    country: matchedOption?.country ?? ("KH" as CountryCode),
-    contactNumber: matchedOption
-      ? digits.slice(matchedOption.dialCode.length)
-      : digits.replace(/^\+\d{1,3}/, ""),
-  };
-}
-
 export default function CompleteSignUpPage() {
   const { user } = useLoaderData<typeof loader>();
   const actionData = useActionData<CompleteSignUpActionData>();
   const navigation = useNavigation();
-  const initialPhone = useMemo(
-    () => initialPhoneInput(user.phoneNumber),
-    [user.phoneNumber],
-  );
 
   const [firstName, setFirstName] = useState(user.firstName ?? "");
   const [lastName, setLastName] = useState(user.lastName ?? "");
   const [phoneCountry, setPhoneCountry] = useState<CountryCode>(
-    initialPhone.country,
+    (user.phone?.country as CountryCode | undefined) ?? "KH",
   );
   const [contactNumber, setContactNumber] = useState(
-    initialPhone.contactNumber,
+    user.phone?.nationalNumber ?? "",
   );
   const [occupation, setOccupation] = useState(user.occupation ?? "");
   const [gender, setGender] = useState("");
@@ -155,15 +123,11 @@ export default function CompleteSignUpPage() {
       dialCode: "+855",
       label: "Cambodia +855",
     } satisfies (typeof phoneCountryOptions)[number]);
-  const normalizedContactNumber = contactNumber.replace(/[^\d]/g, "");
-  const phoneNumber = normalizedContactNumber
-    ? `${selectedPhoneCountry.dialCode}${normalizedContactNumber}`
-    : "";
   const isSubmitting = navigation.state === "submitting";
   const isCompleteEnabled =
     firstName.trim() !== "" &&
     lastName.trim() !== "" &&
-    normalizedContactNumber !== "" &&
+    contactNumber.trim() !== "" &&
     occupation.trim() !== "" &&
     gender.trim() !== "" &&
     memberAgreementAccepted;
@@ -250,7 +214,12 @@ export default function CompleteSignUpPage() {
         </section>
 
         <Form method="post" className="mt-6 space-y-5">
-          <input type="hidden" name="phoneNumber" value={phoneNumber} />
+          <input type="hidden" name="phone.country" value={phoneCountry} />
+          <input
+            type="hidden"
+            name="phone.nationalNumber"
+            value={contactNumber.trim()}
+          />
           <input
             type="hidden"
             name="memberAgreementAccepted"
@@ -336,10 +305,8 @@ export default function CompleteSignUpPage() {
                 className="h-full rounded-l-none rounded-r-lg border-[#C3C6D6] px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-gray-500 focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20"
               />
             </div>
-            {actionData?.errors?.phoneNumber ? (
-              <p className="text-xs text-red-500">
-                {actionData.errors.phoneNumber}
-              </p>
+            {actionData?.errors?.phone ? (
+              <p className="text-xs text-red-500">{actionData.errors.phone}</p>
             ) : null}
           </div>
 

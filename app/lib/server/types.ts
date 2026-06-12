@@ -14,12 +14,18 @@ export interface AuthenticatedUser {
     lastName?: string;
     gender?: string;
     occupation?: string | null;
+    phone?: PhoneInput | null;
     phoneNumber?: string | null;
     signupCompletedAt?: string | Date | null;
     onboardingStep?: number;
     onboardingCompletedAt?: string | Date | null;
     avatar?: string;
     profile: Profile;
+}
+
+export interface PhoneInput {
+    country: string;
+    nationalNumber: string;
 }
 
 export interface Profile {

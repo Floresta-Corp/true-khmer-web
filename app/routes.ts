@@ -87,6 +87,9 @@ export default [
   ]),
   route("login", "routes/auth/pages/login.tsx"),
   route("register", "routes/auth/pages/register.tsx"),
+  route("signup", "routes/auth/pages/register.tsx", {
+    id: "routes/auth/pages/signup",
+  }),
   route("complete-signup", "routes/auth/pages/complete-signup.tsx"),
   route("forgot-password", "routes/auth/pages/forgot-password.tsx"),
   route(
