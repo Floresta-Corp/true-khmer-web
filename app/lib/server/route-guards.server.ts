@@ -43,7 +43,10 @@ export type OptionalUserResult = {
 };
 
 function redirectWithCookie(to: string, setCookie?: string) {
-  return redirect(to, setCookie ? { headers: { "Set-Cookie": setCookie } } : {});
+  return redirect(
+    to,
+    setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
+  );
 }
 
 function requestWithSetCookie(request: Request, setCookie?: string) {
@@ -70,18 +73,26 @@ function requestWithSetCookie(request: Request, setCookie?: string) {
 
 function loginRedirectPath(request: Request) {
   const url = new URL(request.url);
+  const isAdminRoute = url.pathname.startsWith("/tk-admin");
+  const loginPath = isAdminRoute ? "/tk-admin-login" : "/login";
+
   const redirectTo = `${url.pathname}${url.search}`;
   const params = new URLSearchParams({ redirectTo });
-  return `/login?${params.toString()}`;
+  return `${loginPath}?${params.toString()}`;
 }
 
 async function clearAndRedirectToLogin(request: Request, redirectTo?: string) {
   const session = await getSession(request);
+  const url = new URL(request.url);
+  const targetRedirectTo = redirectTo ?? url.pathname;
+  const isAdminRoute = targetRedirectTo.startsWith("/tk-admin");
+  const loginPath = isAdminRoute ? "/tk-admin-login" : "/login";
+
   const params = redirectTo
     ? `?redirectTo=${encodeURIComponent(redirectTo)}`
     : "";
 
-  return redirect(`/login${params}`, {
+  return redirect(`${loginPath}${params}`, {
     headers: {
       "Set-Cookie": await destroySession(session),
     },
@@ -104,7 +115,10 @@ function isUserNotFoundError(error: unknown) {
 }
 
 export function isAdminRole(role: string | undefined) {
-  const normalizedRole = role?.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  const normalizedRole = role
+    ?.trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
   return normalizedRole === "admin" || normalizedRole === "super_admin";
 }
 
@@ -296,4 +310,22 @@ export async function requireAdmin(
   }
 
   return auth;
+}
+
+export async function redirectIfAdminAuth(request: Request) {
+  const localUser = await getSessionUser(request);
+  if (!localUser) return null;
+
+  try {
+    const { session, setCookie } = await getAuthSession(request);
+    if (
+      session.authFlow.accessState === "ACTIVE" &&
+      isAdminRole((session.user as Record<string, unknown>).role as string)
+    ) {
+      return redirectWithCookie("/tk-admin/dashboard", setCookie);
+    }
+    return null;
+  } catch {
+    return null;
+  }
 }

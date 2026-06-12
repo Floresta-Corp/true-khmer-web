@@ -1,5 +1,8 @@
+import { Outlet } from "react-router";
+import type { LoaderFunctionArgs } from "react-router";
 import { Building2, LayoutDashboard, ShieldCheck, Users } from "lucide-react";
-import { Link, Outlet } from "react-router";
+import { Link } from "react-router";
+import { requireAdmin } from "~/lib/server/route-guards.server";
 import {
   SidebarProvider,
   Sidebar,
@@ -13,15 +16,24 @@ import {
   SidebarMenu,
 } from "~/components/ui/sidebar";
 
-const user = {
-  userRole: "Super Admin",
-};
+export async function loader({ request }: LoaderFunctionArgs) {
+  // Require admin authentication for all admin routes
+  const { user } = await requireAdmin(request);
+
+  // Get display role safely
+  const userRole = user.role
+    ? user.role.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+    : "Admin";
+
+  return { userRole };
+}
 
 const nav = [
   {
     icon: LayoutDashboard,
     label: "Dashboard",
     href: "/tk-admin/dashboard",
+    exact: true,
     hide: false,
   },
   {
@@ -32,14 +44,20 @@ const nav = [
   },
   {
     icon: Users,
-    label: "User management",
-    href: "/tk-admin/user-management",
+    label: "User Management",
+    href: "/tk-admin/users",
     hide: false,
   },
   { icon: Building2, label: "Partner", href: "/tk-admin/partner", hide: false },
 ];
 
-export default function AdminLayout() {
+export default function AdminLayout({
+  loaderData,
+}: {
+  loaderData?: { userRole?: string };
+}) {
+  const userRole = loaderData?.userRole ?? "Admin";
+
   return (
     <div className="flex w-full overflow-hidden">
       <SidebarProvider>
@@ -77,7 +95,7 @@ export default function AdminLayout() {
               </span>
               <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 rounded-xl text-[11px] font-black uppercase tracking-widest border border-blue-100/50 dark:border-blue-900/20">
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                {user.userRole}
+                {userRole}
               </div>
             </div>
           </header>

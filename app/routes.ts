@@ -83,8 +83,11 @@ export default [
   ]),
   route("tk-admin", "layout/admin-layout.tsx", [
     index("features/admin/index.tsx"),
+    // route("dashboard", "features/admin/index.tsx"),
     route("users", "features/admin/admin-users.tsx"),
   ]),
+
+  route("tk-admin-login", "routes/auth/pages/admin-login.tsx"),
   route("login", "routes/auth/pages/login.tsx"),
   route("register", "routes/auth/pages/register.tsx"),
   route("complete-signup", "routes/auth/pages/complete-signup.tsx"),
