@@ -167,6 +167,7 @@ export async function createAdminSession(
   redirectTo: string,
 ) {
   const session = await sessionStorage.getSession();
+  // Set admin-specific session data
   session.set("adminAccessToken", auth.accessToken);
   session.set("adminRefreshToken", auth.refreshToken);
   session.set("adminAccessTokenExpiresAt", auth.accessTokenExpiresAt);
@@ -182,14 +183,14 @@ export async function createAdminSession(
 
 export async function getAdminAccessToken(
   request: Request,
-): Promise<string | null> {
+): Promise<{ accessToken: string | null; setCookie?: string }> {
   const session = await getSession(request);
   const token = session.get("adminAccessToken");
-  if (!token) return null;
+  if (!token) return { accessToken: null };
 
   const accessExpiresAt = session.get("adminAccessTokenExpiresAt");
   if (accessExpiresAt && new Date(accessExpiresAt) > new Date()) {
-    return token;
+    return { accessToken: token };
   }
 
   const refreshToken = session.get("adminRefreshToken");
@@ -198,7 +199,7 @@ export async function getAdminAccessToken(
     !refreshToken ||
     (refreshExpiresAt && new Date(refreshExpiresAt) <= new Date())
   ) {
-    return null;
+    return { accessToken: null };
   }
 
   try {
@@ -209,9 +210,10 @@ export async function getAdminAccessToken(
     session.set("adminAccessTokenExpiresAt", refreshed.accessTokenExpiresAt);
     session.set("adminRefreshTokenExpiresAt", refreshed.refreshTokenExpiresAt);
 
-    return refreshed.accessToken;
+    const setCookie = await commitSession(session);
+    return { accessToken: refreshed.accessToken, setCookie };
   } catch (err) {
-    return null;
+    return { accessToken: null };
   }
 }
 

@@ -46,6 +46,7 @@ export type OptionalUserResult = {
 
 type SuperAdminGuardResult = {
   admin: AdminUser;
+  setCookie?: string;
 };
 
 function redirectWithCookie(to: string, setCookie?: string) {
@@ -303,14 +304,14 @@ export async function requireUser(
 export async function requireSuperAdmin(
   request: Request,
 ): Promise<SuperAdminGuardResult> {
-  const accessToken = await getAdminAccessToken(request);
+  const { accessToken, setCookie } = await getAdminAccessToken(request);
   if (!accessToken) {
     throw redirect(loginRedirectPathForAdmin(request));
   }
 
   try {
     const admin = await getAdminMe(request, accessToken);
-    return { admin };
+    return { admin, setCookie };
   } catch (error) {
     console.error(
       `[requireSuperAdmin] getAdminMe failed:`,
@@ -331,18 +332,13 @@ function loginRedirectPathForAdmin(request: Request) {
 }
 
 export async function redirectIfAdminAuth(request: Request) {
-  const localUser = await getSessionUser(request);
-  if (!localUser) return null;
+  const { accessToken, setCookie } = await getAdminAccessToken(request);
+  if (!accessToken) return null;
 
   try {
-    const { session, setCookie } = await getAuthSession(request);
-    if (
-      session.authFlow.accessState === "ACTIVE" &&
-      isAdminRole((session.user as Record<string, unknown>).role as string)
-    ) {
-      return redirectWithCookie("/tk-admin/dashboard", setCookie);
-    }
-    return null;
+    await getAdminMe(request, accessToken);
+    // Admin successfully authenticated, redirect to admin dashboard
+    return redirectWithCookie("/tk-admin/dashboard", setCookie);
   } catch {
     return null;
   }

@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Form, Link, useActionData, useNavigation } from "react-router";
+import {
+  Form,
+  Link,
+  useActionData,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
 import { Shield } from "lucide-react";
 import { FormError } from "~/routes/auth/components/form-error";
 import {
@@ -22,6 +28,9 @@ export const action = adminLoginAction;
 
 export default function AdminLoginPage() {
   const actionData = useActionData<AdminLoginActionData>();
+
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirectTo");
   const navigation = useNavigation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -84,6 +93,9 @@ export default function AdminLoginPage() {
           }}
         >
           <Form method="post" className="space-y-6">
+            {redirectTo ? (
+              <input type="hidden" name="redirectTo" value={redirectTo} />
+            ) : null}
             <div className="space-y-2">
               <Label
                 htmlFor="email"

@@ -28,11 +28,13 @@ export type AdminLoginActionData = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const admin = await getAdminUser(request);
   if (admin) {
-    const accessToken = await getAdminAccessToken(request);
+    const { accessToken, setCookie } = await getAdminAccessToken(request);
     if (accessToken) {
       try {
         await getAdminMe(request, accessToken);
-        return redirect("/tk-admin/dashboard");
+        return redirect("/tk-admin", {
+          ...(setCookie ? { headers: { "Set-Cookie": setCookie } } : {}),
+        });
       } catch (err) {
         console.error(
           `[admin-login loader] getAdminMe failed:`,
@@ -68,7 +70,9 @@ export async function action({ request }: ActionFunctionArgs) {
       if (error.status === 401) {
         return { errors: { form: "Invalid email or password" } };
       }
-      return { errors: { form: error.message } };
+      return {
+        errors: { form: "Unable to sign in right now. Please try again." },
+      };
     }
     return {
       errors: {

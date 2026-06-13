@@ -17,8 +17,19 @@ import {
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { admin } = await requireSuperAdmin(request);
-  return { userRole: "Super Admin", adminName: admin.name };
+  const { admin, setCookie } = await requireSuperAdmin(request);
+  const data = { userRole: "Super Admin", adminName: admin.name };
+
+  if (setCookie) {
+    return new Response(JSON.stringify(data), {
+      headers: {
+        "Content-Type": "application/json",
+        "Set-Cookie": setCookie,
+      },
+    });
+  }
+
+  return data;
 }
 
 const nav = [
