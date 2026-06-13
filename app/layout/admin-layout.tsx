@@ -2,7 +2,6 @@ import { Outlet } from "react-router";
 import type { LoaderFunctionArgs } from "react-router";
 import { Building2, LayoutDashboard, ShieldCheck, Users } from "lucide-react";
 import { Link } from "react-router";
-import { requireAdmin } from "~/lib/server/route-guards.server";
 import {
   SidebarProvider,
   Sidebar,
@@ -15,17 +14,11 @@ import {
   SidebarInset,
   SidebarMenu,
 } from "~/components/ui/sidebar";
+import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  // Require admin authentication for all admin routes
-  const { user } = await requireAdmin(request);
-
-  // Get display role safely
-  const userRole = user.role
-    ? user.role.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
-    : "Admin";
-
-  return { userRole };
+  const { admin } = await requireSuperAdmin(request);
+  return { userRole: "Super Admin", adminName: admin.name };
 }
 
 const nav = [

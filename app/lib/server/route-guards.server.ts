@@ -10,6 +10,7 @@ import {
 } from "~/lib/server/auth/authenticated-user.server";
 import {
   destroySession,
+  getAdminAccessToken,
   getSession,
   getUser as getSessionUser,
 } from "~/lib/server/session.server";
@@ -19,6 +20,7 @@ import {
   type OnboardingState,
 } from "~/services/onboarding.server";
 import type { AuthenticatedUser } from "./types";
+import { getAdminMe, type AdminUser } from "./auth/admin/api-admin.server";
 
 type GuardResult = {
   user: AuthenticatedUser;
@@ -40,6 +42,10 @@ type AdminGuardOptions = GuardOptions & {
 export type OptionalUserResult = {
   user: AuthenticatedUser | null;
   setCookie?: string;
+};
+
+type SuperAdminGuardResult = {
+  admin: AdminUser;
 };
 
 function redirectWithCookie(to: string, setCookie?: string) {
@@ -294,22 +300,34 @@ export async function requireUser(
 
 // Use for admin protected routes/actions. The user must be logged in, ACTIVE,
 // and have an admin role in the backend /auth/session user payload.
-export async function requireAdmin(
+export async function requireSuperAdmin(
   request: Request,
-  options: AdminGuardOptions = {},
-): Promise<GuardResult> {
-  const auth = await requireUser(request, {
-    forceFresh: options.forceFresh ?? true,
-  });
-
-  if (!isAdminRole(auth.user.role)) {
-    throw redirectWithCookie(
-      options.unauthorizedRedirectTo ?? "/home",
-      auth.setCookie,
-    );
+): Promise<SuperAdminGuardResult> {
+  const accessToken = await getAdminAccessToken(request);
+  if (!accessToken) {
+    throw redirect(loginRedirectPathForAdmin(request));
   }
 
-  return auth;
+  try {
+    const admin = await getAdminMe(request, accessToken);
+    return { admin };
+  } catch (error) {
+    console.error(
+      `[requireSuperAdmin] getAdminMe failed:`,
+      error instanceof Error ? error.message : error,
+    );
+    if (error instanceof ProtectedApiError && error.status === 401) {
+      throw redirect(loginRedirectPathForAdmin(request));
+    }
+    throw error;
+  }
+}
+
+function loginRedirectPathForAdmin(request: Request) {
+  const url = new URL(request.url);
+  const redirectTo = `${url.pathname}${url.search}`;
+  const params = new URLSearchParams({ redirectTo });
+  return `/tk-admin-login?${params.toString()}`;
 }
 
 export async function redirectIfAdminAuth(request: Request) {

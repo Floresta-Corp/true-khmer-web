@@ -3,14 +3,16 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
+import { ProtectedApiError } from "~/lib/server/api-client.server";
 import {
-  AuthApiError,
-  getAuthFieldError,
-  loginUser,
-} from "~/services/auth/api.server";
-import { createUserSession, getUser } from "~/lib/server/session.server";
-import { getAuthSession } from "~/services/auth/session.server";
-import { isAdminRole } from "~/lib/server/route-guards.server";
+  createAdminSession,
+  getAdminAccessToken,
+  getAdminUser,
+} from "~/lib/server/session.server";
+import {
+  loginAdmin,
+  getAdminMe,
+} from "~/lib/server/auth/admin/api-admin.server";
 import { sanitizeRedirectPath } from "~/lib/redirects";
 
 export type AdminLoginFieldErrors = {
@@ -24,28 +26,30 @@ export type AdminLoginActionData = {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const user = await getUser(request);
-  if (user) {
-    try {
-      const { session } = await getAuthSession(request);
-      const isActiveAdmin =
-        session.authFlow.accessState === "ACTIVE" &&
-        isAdminRole(session.user.role as string);
-
-      if (isActiveAdmin) return redirect("/tk-admin/dashboard");
-    } catch {
-      // session expired or unavailable; fall through to login
+  const admin = await getAdminUser(request);
+  if (admin) {
+    const accessToken = await getAdminAccessToken(request);
+    if (accessToken) {
+      try {
+        await getAdminMe(request, accessToken);
+        return redirect("/tk-admin/dashboard");
+      } catch (err) {
+        console.error(
+          `[admin-login loader] getAdminMe failed:`,
+          err instanceof Error ? err.message : err,
+        );
+      }
     }
   }
   return {};
 }
-
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const email = String(formData.get("email") || "");
   const password = String(formData.get("password") || "");
   const redirectTo = sanitizeRedirectPath(
     formData.get("redirectTo")?.toString(),
+    "/tk-admin",
   );
 
   const errors: AdminLoginFieldErrors = {};
@@ -56,29 +60,11 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   try {
-    const auth = await loginUser(email, password, request);
-
-    // Verify admin role
-    if (!isAdminRole(auth.user.role as string)) {
-      return {
-        errors: {
-          form: "Access denied. This account does not have admin privileges.",
-        },
-      };
-    }
-
-    return createUserSession(auth, redirectTo || "/tk-admin/dashboard");
+    const { data: auth } = await loginAdmin(request, email, password);
+    const response = createAdminSession(auth, redirectTo || "/tk-admin");
+    return response;
   } catch (error) {
-    if (error instanceof AuthApiError) {
-      if (error.status === 400) {
-        return {
-          errors: {
-            email: getAuthFieldError(error.details, "email"),
-            password: getAuthFieldError(error.details, "password"),
-            form: error.message,
-          },
-        };
-      }
+    if (error instanceof ProtectedApiError) {
       if (error.status === 401) {
         return { errors: { form: "Invalid email or password" } };
       }
