@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { ActionFunctionArgs } from "react-router";
 import { sanitizeRedirectPath } from "~/lib/redirects";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
@@ -14,25 +15,35 @@ export type AdminLoginActionData = {
   errors?: AdminLoginFieldErrors;
 };
 
+const adminLoginSchema = z.object({
+  email: z.string().email("Invalid email address").max(255),
+  password: z.string().min(1, "Password is required"),
+  redirectTo: z.string().optional(),
+});
+
 export async function superAdminAction({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const email = String(formData.get("email") || "");
-  const password = String(formData.get("password") || "");
-  const redirectTo = sanitizeRedirectPath(
-    formData.get("redirectTo")?.toString(),
-    "/tk-admin",
-  );
+  const parseResult = adminLoginSchema.safeParse(Object.fromEntries(formData));
 
-  const errors: AdminLoginFieldErrors = {};
-  if (!email) errors.email = "Email is required";
-  if (!password) errors.password = "Password is required";
-  if (Object.keys(errors).length > 0) {
-    return { errors };
+  if (!parseResult.success) {
+    const fieldErrors = parseResult.error.flatten().fieldErrors;
+    return {
+      errors: {
+        email: fieldErrors.email?.[0],
+        password: fieldErrors.password?.[0],
+      } as AdminLoginFieldErrors,
+    };
   }
+
+  const { email, password, redirectTo } = parseResult.data;
+  const sanitizedRedirectTo = sanitizeRedirectPath(redirectTo, "/tk-admin");
 
   try {
     const { data: auth } = await loginAdmin(request, email, password);
-    const response = createAdminSession(auth, redirectTo || "/tk-admin");
+    const response = createAdminSession(
+      auth,
+      sanitizedRedirectTo || "/tk-admin",
+    );
     return response;
   } catch (error) {
     if (error instanceof ProtectedApiError) {
