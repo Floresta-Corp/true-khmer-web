@@ -1,4 +1,4 @@
-import { Outlet } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 import type { LoaderFunctionArgs } from "react-router";
 import { Building2, LayoutDashboard, ShieldCheck, Users } from "lucide-react";
 import { Link } from "react-router";
@@ -55,11 +55,8 @@ const nav = [
   { icon: Building2, label: "Partner", href: "/tk-admin/partner", hide: false },
 ];
 
-export default function AdminLayout({
-  loaderData,
-}: {
-  loaderData?: { userRole?: string };
-}) {
+export default function AdminLayout() {
+  const loaderData = useLoaderData<typeof loader>();
   const userRole = loaderData?.userRole ?? "Admin";
 
   return (

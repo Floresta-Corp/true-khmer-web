@@ -1,19 +1,8 @@
-import {
-  redirect,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-} from "react-router";
-import { ProtectedApiError } from "~/lib/server/api-client.server";
-import {
-  createAdminSession,
-  getAdminAccessToken,
-  getAdminUser,
-} from "~/lib/server/session.server";
-import {
-  loginAdmin,
-  getAdminMe,
-} from "~/lib/server/auth/admin/api-admin.server";
+import type { ActionFunctionArgs } from "react-router";
 import { sanitizeRedirectPath } from "~/lib/redirects";
+import { ProtectedApiError } from "~/lib/server/api-client.server";
+import { loginAdmin } from "~/lib/server/auth/admin/api-admin.server";
+import { createAdminSession } from "~/lib/server/session.server";
 
 export type AdminLoginFieldErrors = {
   email?: string;
@@ -25,27 +14,7 @@ export type AdminLoginActionData = {
   errors?: AdminLoginFieldErrors;
 };
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const admin = await getAdminUser(request);
-  if (admin) {
-    const { accessToken, setCookie } = await getAdminAccessToken(request);
-    if (accessToken) {
-      try {
-        await getAdminMe(request, accessToken);
-        return redirect("/tk-admin", {
-          ...(setCookie ? { headers: { "Set-Cookie": setCookie } } : {}),
-        });
-      } catch (err) {
-        console.error(
-          `[admin-login loader] getAdminMe failed:`,
-          err instanceof Error ? err.message : err,
-        );
-      }
-    }
-  }
-  return {};
-}
-export async function action({ request }: ActionFunctionArgs) {
+export async function superAdminAction({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const email = String(formData.get("email") || "");
   const password = String(formData.get("password") || "");

@@ -78,10 +78,15 @@ function requestWithSetCookie(request: Request, setCookie?: string) {
   return new Request(request, { headers });
 }
 
+function isAdminRoute(path: string) {
+  // The login page itself must not be treated as a "protected admin route"
+  return path.startsWith("/tk-admin") && path !== "/tk-admin/login";
+}
+
 function loginRedirectPath(request: Request) {
   const url = new URL(request.url);
-  const isAdminRoute = url.pathname.startsWith("/tk-admin");
-  const loginPath = isAdminRoute ? "/tk-admin-login" : "/login";
+  const adminLoginPath = "/tk-admin/login";
+  const loginPath = isAdminRoute(url.pathname) ? adminLoginPath : "/login";
 
   const redirectTo = `${url.pathname}${url.search}`;
   const params = new URLSearchParams({ redirectTo });
@@ -90,10 +95,10 @@ function loginRedirectPath(request: Request) {
 
 async function clearAndRedirectToLogin(request: Request, redirectTo?: string) {
   const session = await getSession(request);
-  const url = new URL(request.url);
-  const targetRedirectTo = redirectTo ?? url.pathname;
-  const isAdminRoute = targetRedirectTo.startsWith("/tk-admin");
-  const loginPath = isAdminRoute ? "/tk-admin-login" : "/login";
+  const targetRedirectTo = redirectTo ?? new URL(request.url).pathname;
+  const loginPath = isAdminRoute(targetRedirectTo)
+    ? "/tk-admin/login"
+    : "/login";
 
   const params = redirectTo
     ? `?redirectTo=${encodeURIComponent(redirectTo)}`
@@ -313,10 +318,6 @@ export async function requireSuperAdmin(
     const admin = await getAdminMe(request, accessToken);
     return { admin, setCookie };
   } catch (error) {
-    console.error(
-      `[requireSuperAdmin] getAdminMe failed:`,
-      error instanceof Error ? error.message : error,
-    );
     if (error instanceof ProtectedApiError && error.status === 401) {
       throw redirect(loginRedirectPathForAdmin(request));
     }
@@ -328,7 +329,7 @@ function loginRedirectPathForAdmin(request: Request) {
   const url = new URL(request.url);
   const redirectTo = `${url.pathname}${url.search}`;
   const params = new URLSearchParams({ redirectTo });
-  return `/tk-admin-login?${params.toString()}`;
+  return `/tk-admin/login?${params.toString()}`;
 }
 
 export async function redirectIfAdminAuth(request: Request) {
@@ -338,7 +339,7 @@ export async function redirectIfAdminAuth(request: Request) {
   try {
     await getAdminMe(request, accessToken);
     // Admin successfully authenticated, redirect to admin dashboard
-    return redirectWithCookie("/tk-admin/dashboard", setCookie);
+    return redirectWithCookie("/tk-admin", setCookie);
   } catch {
     return null;
   }

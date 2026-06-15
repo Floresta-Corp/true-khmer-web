@@ -14,17 +14,18 @@ import {
   AuthBrandPanel,
 } from "~/routes/auth/components/page-shell";
 import { PasswordField } from "~/routes/auth/components/password-field";
-import {
-  action as adminLoginAction,
-  loader as adminLoginLoader,
-} from "~/routes/auth/domain/admin-login.server";
-import type { AdminLoginActionData } from "~/routes/auth/domain/admin-login.server";
+
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { superAdminLoader } from "~/routes/api/auth/super-admin/super-admin.loader";
+import {
+  superAdminAction,
+  type AdminLoginActionData,
+} from "~/routes/api/auth/super-admin/super-admin.action";
 
-export const loader = adminLoginLoader;
-export const action = adminLoginAction;
+export const loader = superAdminLoader;
+export const action = superAdminAction;
 
 export default function AdminLoginPage() {
   const actionData = useActionData<AdminLoginActionData>();
