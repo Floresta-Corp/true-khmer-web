@@ -6,7 +6,8 @@
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "api": "openapi-zod-client https://true-khmer-api-stage.bongit.net/docs/openapi.json -o ./app/types/api-client.ts && bun app/lib/fix-api-client.ts"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.8",
@@ -52,6 +53,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@types/sanitize-html": "^2.16.1",
+    "openapi-zod-client": "^1.18.3",
     "shadcn": "4.0.5",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2",
