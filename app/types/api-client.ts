@@ -22,7 +22,7 @@ const AuthRegisterRequest = z
     email: z.string().min(1).email(),
     password: z.string().min(8).regex(/^\S+$/),
   })
-  .passthrough();
+  ;
 const AuthUserProfile = z
   .object({
     id: z.string(),
@@ -30,7 +30,7 @@ const AuthUserProfile = z
     avatarKey: z.string().optional(),
     avatarUrl: z.string().optional(),
   })
-  .passthrough();
+  ;
 const AuthUser = z
   .object({
     id: z.string(),
@@ -54,7 +54,7 @@ const AuthUser = z
     onboardingStep: z.number().int().optional(),
     profile: AuthUserProfile.optional(),
   })
-  .passthrough();
+  ;
 const RegisterSuccessResponse = z
   .object({
     success: z.literal(true),
@@ -62,7 +62,7 @@ const RegisterSuccessResponse = z
     otpSent: z.boolean(),
     user: AuthUser,
   })
-  .passthrough();
+  ;
 const AuthCompleteSignUpRequest = z
   .object({
     firstName: z
@@ -83,7 +83,7 @@ const AuthCompleteSignUpRequest = z
     }),
     memberAgreementAccepted: z.literal(true),
   })
-  .passthrough();
+  ;
 const AuthAccessState = z.enum([
   "SIGNUP_REQUIRED",
   "ONBOARDING_REQUIRED",
@@ -100,7 +100,7 @@ const AuthFlow = z
     accessState: AuthAccessState,
     requiredAction: AuthRequiredAction.nullable(),
   })
-  .passthrough();
+  ;
 const CompleteSignUpResponse = z
   .object({
     success: z.literal(true),
@@ -108,10 +108,10 @@ const CompleteSignUpResponse = z
     user: AuthUser,
     authFlow: AuthFlow.optional(),
   })
-  .passthrough();
+  ;
 const AuthSessionResponse = z
   .object({ user: AuthUser, authFlow: AuthFlow })
-  .passthrough();
+  ;
 const AuthProtectedErrorResponse = z
   .object({
     ok: z.literal(false),
@@ -120,10 +120,10 @@ const AuthProtectedErrorResponse = z
     requiredAction: AuthRequiredAction.nullish(),
     accessState: AuthAccessState.optional(),
   })
-  .passthrough();
+  ;
 const AuthGoogleRequest = z
   .object({ idToken: z.string().min(1) })
-  .passthrough();
+  ;
 const AuthTokenResponse = z
   .object({
     accessToken: z.string(),
@@ -131,44 +131,44 @@ const AuthTokenResponse = z
     user: AuthUser,
     authFlow: AuthFlow.optional(),
   })
-  .passthrough();
+  ;
 const AuthVerifyRegisterOtpRequest = z
   .object({ email: z.string().min(1).email(), otp: z.string().min(6).max(6) })
-  .passthrough();
+  ;
 const AuthResendRegisterOtpRequest = z
   .object({ email: z.string().min(1).email() })
-  .passthrough();
+  ;
 const ResendRegisterOtpResponse = z
   .object({ success: z.boolean(), message: z.string() })
-  .passthrough();
-const AuthSimpleErrorResponse = z.object({ error: z.string() }).passthrough();
+  ;
+const AuthSimpleErrorResponse = z.object({ error: z.string() });
 const AuthLoginRequest = z
   .object({ email: z.string().min(1).email(), password: z.string().min(1) })
-  .passthrough();
+  ;
 const AuthRefreshRequest = z
   .object({ refreshToken: z.string().min(1) })
-  .passthrough();
+  ;
 const RefreshSuccessResponse = z
   .object({ accessToken: z.string(), refreshToken: z.string() })
-  .passthrough();
+  ;
 const AuthForgotPasswordRequest = z
   .object({ email: z.string().min(1).email(), resetPageUrl: z.string().min(1) })
-  .passthrough();
+  ;
 const ForgotPasswordResponse = z
   .object({ success: z.literal(true), message: z.string() })
-  .passthrough();
+  ;
 const AuthResetPasswordRequest = z
   .object({
     token: z.string().min(1),
     newPassword: z.string().min(8).regex(/^\S+$/),
   })
-  .passthrough();
+  ;
 const ResetPasswordResponse = z
   .object({ success: z.literal(true), message: z.string() })
-  .passthrough();
+  ;
 const AdminLoginRequest = z
   .object({ email: z.string().min(1), password: z.string().min(1) })
-  .passthrough();
+  ;
 const AdminUser = z
   .object({
     id: z.string(),
@@ -176,7 +176,7 @@ const AdminUser = z
     name: z.string().min(1),
     createdAt: z.union([z.string(), z.string()]),
   })
-  .passthrough();
+  ;
 const AdminLoginResponse = z
   .object({
     accessToken: z.string(),
@@ -185,11 +185,11 @@ const AdminLoginResponse = z
     refreshTokenExpiresAt: z.string().datetime({ offset: true }),
     admin: AdminUser,
   })
-  .passthrough();
-const AdminErrorResponse = z.object({ error: z.string() }).passthrough();
+  ;
+const AdminErrorResponse = z.object({ error: z.string() });
 const AdminRefreshRequest = z
   .object({ refreshToken: z.string().min(1) })
-  .passthrough();
+  ;
 const AdminRefreshResponse = z
   .object({
     accessToken: z.string(),
@@ -197,20 +197,20 @@ const AdminRefreshResponse = z
     accessTokenExpiresAt: z.string().datetime({ offset: true }),
     refreshTokenExpiresAt: z.string().datetime({ offset: true }),
   })
-  .passthrough();
+  ;
 const AdminLogoutResponse = z
   .object({ success: z.boolean(), message: z.string() })
-  .passthrough();
+  ;
 const ContentModeratorReportType = z
   .object({ id: z.string(), name: z.string() })
-  .passthrough();
+  ;
 const ContentModeratorReportReporter = z
   .object({
     id: z.string(),
     name: z.string(),
     avatarUrl: z.string().nullable(),
   })
-  .passthrough();
+  ;
 const ContentModeratorReport = z
   .object({
     id: z.string().uuid(),
@@ -221,7 +221,7 @@ const ContentModeratorReport = z
     status: z.enum(["OPEN", "CLOSED"]),
     reportingBy: ContentModeratorReportReporter.nullable(),
   })
-  .passthrough();
+  ;
 const CursorPagination = z
   .object({
     limit: z.number().int().gt(0),
@@ -229,14 +229,14 @@ const CursorPagination = z
     nextCursor: z.string().nullable(),
     total: z.number().int().gte(0),
   })
-  .passthrough();
+  ;
 const ListContentModeratorReportsResponse = z
   .object({
     ok: z.boolean(),
     reports: z.array(ContentModeratorReport),
     pagination: CursorPagination,
   })
-  .passthrough();
+  ;
 const UpdateContentModeratorReportReviewRequest = z
   .object({
     reportUuid: z
@@ -246,10 +246,10 @@ const UpdateContentModeratorReportReviewRequest = z
       ),
     status: z.enum(["SAFE", "HIDE"]),
   })
-  .passthrough();
+  ;
 const UpdateContentModeratorReportReviewResponse = z
   .object({ ok: z.boolean(), report: ContentModeratorReport })
-  .passthrough();
+  ;
 const OnboardingOkResponse = z.record(z.string(), z.unknown().nullable());
 const OnboardingErrorResponse = z.record(z.string(), z.unknown().nullable());
 const OnboardingProfileStepRequest = z
@@ -267,7 +267,7 @@ const OnboardingProfileStepRequest = z
       ),
     avatarKey: z.string().min(1).max(600).optional(),
   })
-  .passthrough();
+  ;
 const OnboardingInterestsStepRequest = z
   .object({
     interestIds: z
@@ -281,7 +281,7 @@ const OnboardingInterestsStepRequest = z
       .min(2)
       .max(20),
   })
-  .passthrough();
+  ;
 const OnboardingContributionsStepRequest = z
   .object({
     community_member: z.boolean(),
@@ -295,22 +295,22 @@ const PresignAvatarUploadRequest = z
     contentType: z.string(),
     fileSize: z.number().int().gt(0).lte(5242880),
   })
-  .passthrough();
+  ;
 const PresignAvatarUploadResult = z
   .object({
     uploadUrl: z.string(),
     method: z.literal("PUT"),
     requiredHeaders: z
       .object({ "Content-Length": z.string(), "Content-Type": z.string() })
-      .passthrough(),
+      ,
     avatarKey: z.string(),
     publicUrl: z.string().nullable(),
     expiresInSeconds: z.number(),
   })
-  .passthrough();
+  ;
 const PresignAvatarUploadResponse = z
   .object({ ok: z.boolean(), upload: PresignAvatarUploadResult })
-  .passthrough();
+  ;
 const CategoryResponse = z
   .object({
     id: z.string(),
@@ -325,30 +325,30 @@ const CategoryResponse = z
     updatedAt: z.string(),
     archivedAt: z.string().nullable(),
   })
-  .passthrough();
+  ;
 const CategoryWithQuestionCountResponse = CategoryResponse.and(
-  z.object({ questionCount: z.number() }).passthrough()
+  z.object({ questionCount: z.number() })
 );
 const GetCategoriesResponse = z
   .object({
     ok: z.boolean(),
     categories: z.array(CategoryWithQuestionCountResponse),
   })
-  .passthrough();
+  ;
 const CreateCategoryRequest = z
   .object({
     name: z.string().min(1).max(120),
     slug: z.string().min(1).max(255),
     description: z.string().max(1000).optional(),
   })
-  .passthrough();
+  ;
 const CreateCategoryResponse = z
   .object({ ok: z.boolean(), category: CategoryResponse })
-  .passthrough();
+  ;
 const isUnanswered = z.union([z.boolean(), z.string()]).optional();
 const QuestionTagResponse = z
   .object({ id: z.string(), name: z.string() })
-  .passthrough();
+  ;
 const QuestionResponse = z
   .object({
     id: z.string(),
@@ -365,19 +365,19 @@ const QuestionResponse = z
     score: z.number().int(),
     viewerVote: z.enum(["UPVOTE", "DOWNVOTE"]).nullable(),
     viewerSave: z.boolean(),
-    category: z.object({ id: z.string(), name: z.string() }).passthrough(),
+    category: z.object({ id: z.string(), name: z.string() }),
     author: z
       .object({
         id: z.string(),
         name: z.string(),
         avatarKey: z.string().nullable(),
       })
-      .passthrough(),
+      ,
     tags: z.array(QuestionTagResponse),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
   })
-  .passthrough();
+  ;
 const GetQuestionsResponse = z
   .object({
     ok: z.boolean(),
@@ -389,9 +389,9 @@ const GetQuestionsResponse = z
         nextCursor: z.string().nullable(),
         total: z.number().int().gte(0),
       })
-      .passthrough(),
+      ,
   })
-  .passthrough();
+  ;
 const CreateQuestionRequest = z
   .object({
     categoryId: z
@@ -405,19 +405,19 @@ const CreateQuestionRequest = z
     imageKey: z.string().min(1).max(600).nullish(),
     status: z.string().optional(),
   })
-  .passthrough();
+  ;
 const CreateQuestionResponse = z
   .object({ ok: z.boolean(), question: QuestionResponse })
-  .passthrough();
+  ;
 const TrendingTagResponse = z
   .object({ id: z.string(), name: z.string(), count: z.number() })
-  .passthrough();
+  ;
 const GetTrendingTagsResponse = z
   .object({ ok: z.boolean(), tags: z.array(TrendingTagResponse) })
-  .passthrough();
+  ;
 const GetMyQuestionsResponse = z
   .object({ ok: z.boolean(), questions: z.array(QuestionResponse) })
-  .passthrough();
+  ;
 const GetSavedQuestionsResponse = z
   .object({
     ok: z.boolean(),
@@ -429,36 +429,36 @@ const GetSavedQuestionsResponse = z
         nextCursor: z.string().nullable(),
         total: z.number().int().gte(0),
       })
-      .passthrough(),
+      ,
   })
-  .passthrough();
+  ;
 const GetQuestionResponse = z
   .object({ ok: z.boolean(), question: QuestionResponse })
-  .passthrough();
+  ;
 const PresignForumQuestionImageUploadRequest = z
   .object({
     contentType: z.string(),
     fileSize: z.number().int().gt(0).lte(5242880),
   })
-  .passthrough();
+  ;
 const PresignForumQuestionImageUploadResult = z
   .object({
     uploadUrl: z.string(),
     method: z.literal("PUT"),
     requiredHeaders: z
       .object({ "Content-Length": z.string(), "Content-Type": z.string() })
-      .passthrough(),
+      ,
     imageKey: z.string(),
     publicUrl: z.string().nullable(),
     expiresInSeconds: z.number(),
   })
-  .passthrough();
+  ;
 const PresignForumQuestionImageUploadResponse = z
   .object({
     ok: z.literal(true),
     upload: PresignForumQuestionImageUploadResult,
   })
-  .passthrough();
+  ;
 const EditQuestionRequest = z
   .object({
     categoryId: z
@@ -473,9 +473,9 @@ const EditQuestionRequest = z
     status: z.string(),
   })
   .partial()
-  .passthrough();
-const VoteQuestionRequest = z.object({ voteType: z.string() }).passthrough();
-const SaveQuestionResponse = z.object({ ok: z.literal(true) }).passthrough();
+  ;
+const VoteQuestionRequest = z.object({ voteType: z.string() });
+const SaveQuestionResponse = z.object({ ok: z.literal(true) });
 const RepliedAnswerResponse = z
   .object({
     id: z.string(),
@@ -486,7 +486,7 @@ const RepliedAnswerResponse = z
         name: z.string(),
         avatarKey: z.string().nullable(),
       })
-      .passthrough(),
+      ,
     upvoteCount: z.number(),
     downvoteCount: z.number(),
     replyCount: z.number(),
@@ -498,7 +498,7 @@ const RepliedAnswerResponse = z
     status: z.literal("PUBLISHED"),
     replyTo: z.string().nullable(),
   })
-  .passthrough();
+  ;
 const AnswerResponse = z
   .object({
     id: z.string(),
@@ -509,7 +509,7 @@ const AnswerResponse = z
         name: z.string(),
         avatarKey: z.string().nullable(),
       })
-      .passthrough(),
+      ,
     upvoteCount: z.number(),
     downvoteCount: z.number(),
     replyCount: z.number(),
@@ -522,7 +522,7 @@ const AnswerResponse = z
     replyTo: z.string().nullable(),
     repliedAnswers: z.array(RepliedAnswerResponse).nullable(),
   })
-  .passthrough();
+  ;
 const GetAnswersResponse = z
   .object({
     ok: z.boolean(),
@@ -531,9 +531,9 @@ const GetAnswersResponse = z
         bestAnswer: z.array(AnswerResponse),
         answers: z.array(AnswerResponse),
       })
-      .passthrough(),
+      ,
   })
-  .passthrough();
+  ;
 const AnswerQuestionResponse = z
   .object({
     id: z.string(),
@@ -550,7 +550,7 @@ const AnswerQuestionResponse = z
     updatedAt: z.string(),
     category: CategoryResponse,
   })
-  .passthrough();
+  ;
 const MyAnswerResponse = z
   .object({
     id: z.string(),
@@ -561,7 +561,7 @@ const MyAnswerResponse = z
         name: z.string(),
         avatarKey: z.string().nullable(),
       })
-      .passthrough(),
+      ,
     upvoteCount: z.number(),
     downvoteCount: z.number(),
     replyCount: z.number(),
@@ -574,10 +574,10 @@ const MyAnswerResponse = z
     repliedAnswers: z.array(RepliedAnswerResponse).nullable(),
     question: AnswerQuestionResponse,
   })
-  .passthrough();
+  ;
 const GetMyAnswersResponse = z
   .object({ ok: z.boolean(), answers: z.array(MyAnswerResponse) })
-  .passthrough();
+  ;
 const CreateAnswerRequest = z.object({
   questionId: z
     .string()
@@ -594,24 +594,24 @@ const CreateAnswerRequest = z.object({
 });
 const CreateAnswerResponse = z
   .object({ ok: z.boolean(), answer: AnswerResponse })
-  .passthrough();
+  ;
 const UpdateAnswerRequest = z
   .object({ body: z.string().min(1).max(10000) })
-  .passthrough();
+  ;
 const EditAnswerResponse = z
   .object({ ok: z.boolean(), answer: AnswerResponse })
-  .passthrough();
+  ;
 const AnswerErrorResponse = z
   .object({ ok: z.literal(false), error: z.string() })
-  .passthrough();
-const DeleteAnswerResponse = z.object({ ok: z.boolean() }).passthrough();
-const VoteAnswerRequest = z.object({ voteType: z.string() }).passthrough();
+  ;
+const DeleteAnswerResponse = z.object({ ok: z.boolean() });
+const VoteAnswerRequest = z.object({ voteType: z.string() });
 const VoteAnswerResponse = z
   .object({ ok: z.boolean(), answer: AnswerResponse })
-  .passthrough();
+  ;
 const MarkBestAnswerResponse = z
   .object({ ok: z.boolean(), answer: AnswerResponse })
-  .passthrough();
+  ;
 const VolunteerCategoryResponse = z
   .object({
     id: z.string(),
@@ -627,20 +627,20 @@ const VolunteerCategoryResponse = z
     updatedAt: z.string(),
     archivedAt: z.string().nullable(),
   })
-  .passthrough();
+  ;
 const VolunteerCategoryWithOpportunityCountResponse =
   VolunteerCategoryResponse.and(
-    z.object({ opportunityCount: z.number().int().gte(0) }).passthrough()
+    z.object({ opportunityCount: z.number().int().gte(0) })
   );
 const GetVolunteerCategoriesResponse = z
   .object({
     ok: z.literal(true),
     categories: z.array(VolunteerCategoryWithOpportunityCountResponse),
   })
-  .passthrough();
+  ;
 const VolunteerOperationErrorResponse = z
   .object({ ok: z.literal(false), error: z.string() })
-  .passthrough();
+  ;
 const CreateVolunteerCategoryRequest = z
   .object({
     name: z.string(),
@@ -649,51 +649,51 @@ const CreateVolunteerCategoryRequest = z
     iconKey: z.string().nullish(),
     status: z.enum(["ACTIVE", "ARCHIVED", "HIDDEN"]).optional(),
   })
-  .passthrough();
+  ;
 const CreateVolunteerCategoryResponse = z
   .object({ ok: z.literal(true), category: VolunteerCategoryResponse })
-  .passthrough();
+  ;
 const VolunteerCategoryValidationErrorResponse = z
   .object({
     ok: z.literal(false),
     error: z.string(),
     issues: z.array(
-      z.object({ path: z.string(), message: z.string() }).passthrough()
+      z.object({ path: z.string(), message: z.string() })
     ),
   })
-  .passthrough();
+  ;
 const VolunteerLocationResponse = z
   .object({ id: z.string(), name: z.string() })
-  .passthrough();
+  ;
 const GetVolunteerLocationsResponse = z
   .object({
     ok: z.literal(true),
     locations: z.array(VolunteerLocationResponse),
   })
-  .passthrough();
+  ;
 const PresignVolunteerOpportunityCoverUploadRequest = z
   .object({
     contentType: z.string(),
     fileSize: z.number().int().gt(0).lte(5242880),
   })
-  .passthrough();
+  ;
 const PresignVolunteerOpportunityCoverUploadResult = z
   .object({
     uploadUrl: z.string(),
     method: z.literal("PUT"),
     requiredHeaders: z
       .object({ "Content-Length": z.string(), "Content-Type": z.string() })
-      .passthrough(),
+      ,
     coverImageKey: z.string(),
     expiresInSeconds: z.number(),
   })
-  .passthrough();
+  ;
 const PresignVolunteerOpportunityCoverUploadResponse = z
   .object({
     ok: z.literal(true),
     upload: PresignVolunteerOpportunityCoverUploadResult,
   })
-  .passthrough();
+  ;
 const PresignVolunteerApplicationDocumentUploadRequest = z
   .object({
     opportunityId: z
@@ -709,34 +709,34 @@ const PresignVolunteerApplicationDocumentUploadRequest = z
             contentType: z.string(),
             fileSize: z.number().int().gt(0).lte(10485760),
           })
-          .passthrough()
+          
       )
       .min(1)
       .max(3),
   })
-  .passthrough();
+  ;
 const PresignVolunteerApplicationDocumentUploadResult = z
   .object({
     uploadUrl: z.string(),
     method: z.literal("PUT"),
     requiredHeaders: z
       .object({ "Content-Length": z.string(), "Content-Type": z.string() })
-      .passthrough(),
+      ,
     supportingDocument: z
       .object({ name: z.string(), key: z.string() })
-      .passthrough(),
+      ,
     expiresInSeconds: z.number(),
   })
-  .passthrough();
+  ;
 const PresignVolunteerApplicationDocumentUploadResponse = z
   .object({
     ok: z.literal(true),
     uploads: z.array(PresignVolunteerApplicationDocumentUploadResult),
   })
-  .passthrough();
+  ;
 const VolunteerOpportunityReference = z
   .object({ id: z.string(), name: z.string() })
-  .passthrough();
+  ;
 const VolunteerOpportunityListItemResponse = z
   .object({
     id: z.string(),
@@ -757,7 +757,7 @@ const VolunteerOpportunityListItemResponse = z
     category: VolunteerOpportunityReference,
     location: VolunteerOpportunityReference,
   })
-  .passthrough();
+  ;
 const VolunteerOpportunitiesPaginationResponse = z
   .object({
     limit: z.number(),
@@ -765,14 +765,14 @@ const VolunteerOpportunitiesPaginationResponse = z
     nextCursor: z.string().nullable(),
     total: z.number().int().gte(0),
   })
-  .passthrough();
+  ;
 const GetVolunteerOpportunitiesResponse = z
   .object({
     ok: z.literal(true),
     opportunities: z.array(VolunteerOpportunityListItemResponse),
     pagination: VolunteerOpportunitiesPaginationResponse,
   })
-  .passthrough();
+  ;
 const VolunteerOpportunityContact = z
   .object({
     email: z.string().max(320).email(),
@@ -780,7 +780,7 @@ const VolunteerOpportunityContact = z
     phone: z.string().nullish(),
     websiteUrl: z.string().nullish(),
   })
-  .passthrough();
+  ;
 const VolunteerOpportunityRoleRequest = z
   .object({
     title: z.string(),
@@ -788,7 +788,7 @@ const VolunteerOpportunityRoleRequest = z
     responsibilities: z.array(z.string()).max(20).nullish(),
     requirements: z.array(z.string()).max(20).nullish(),
   })
-  .passthrough();
+  ;
 const CreateVolunteerOpportunityPayload = z
   .object({
     categoryId: z.string().uuid(),
@@ -805,9 +805,9 @@ const CreateVolunteerOpportunityPayload = z
     contact: VolunteerOpportunityContact,
     roles: z.array(VolunteerOpportunityRoleRequest).min(1).max(20),
   })
-  .passthrough();
+  ;
 const CreateVolunteerOpportunityRequest = CreateVolunteerOpportunityPayload.and(
-  z.object({ coverImageKey: z.string().min(1).max(600) }).passthrough()
+  z.object({ coverImageKey: z.string().min(1).max(600) })
 );
 const VolunteerOpportunityContactResponse = z
   .object({
@@ -816,7 +816,7 @@ const VolunteerOpportunityContactResponse = z
     phone: z.string().nullable(),
     websiteUrl: z.string().nullable(),
   })
-  .passthrough();
+  ;
 const VolunteerOpportunityOrganizerResponse = z
   .object({
     id: z.string(),
@@ -826,7 +826,7 @@ const VolunteerOpportunityOrganizerResponse = z
     organizerLocation: VolunteerOpportunityReference.and(z.unknown()),
     contact: VolunteerOpportunityContactResponse,
   })
-  .passthrough();
+  ;
 const VolunteerOpportunityRoleResponse = z
   .object({
     id: z.string(),
@@ -837,7 +837,7 @@ const VolunteerOpportunityRoleResponse = z
     displayOrder: z.number(),
     viewerApplied: z.boolean(),
   })
-  .passthrough();
+  ;
 const VolunteerOpportunityResponse = z
   .object({
     id: z.string(),
@@ -868,13 +868,13 @@ const VolunteerOpportunityResponse = z
     viewerBlocked: z.boolean(),
     roles: z.array(VolunteerOpportunityRoleResponse),
   })
-  .passthrough();
+  ;
 const CreateVolunteerOpportunityResponse = z
   .object({ ok: z.literal(true), opportunity: VolunteerOpportunityResponse })
-  .passthrough();
+  ;
 const GetVolunteerOpportunityResponse = z
   .object({ ok: z.literal(true), opportunity: VolunteerOpportunityResponse })
-  .passthrough();
+  ;
 const UpdateVolunteerOpportunityContactRequest = z
   .object({
     email: z.string().max(320).email(),
@@ -885,7 +885,7 @@ const UpdateVolunteerOpportunityContactRequest = z
   .partial();
 const UpdateVolunteerOpportunityRoleRequest =
   VolunteerOpportunityRoleRequest.and(
-    z.object({ id: z.string().uuid() }).partial().passthrough()
+    z.object({ id: z.string().uuid() }).partial()
   );
 const UpdateVolunteerOpportunityRequest = z
   .object({
@@ -907,7 +907,7 @@ const UpdateVolunteerOpportunityRequest = z
   .partial();
 const SaveVolunteerOpportunityResponse = z
   .object({ ok: z.literal(true) })
-  .passthrough();
+  ;
 const CreateVolunteerApplicationRequest = z
   .object({
     availability: z.string(),
@@ -919,7 +919,7 @@ const CreateVolunteerApplicationRequest = z
             name: z.string().min(1).max(255),
             key: z.string().min(1).max(600),
           })
-          .passthrough()
+          
       )
       .max(3)
       .optional()
@@ -927,7 +927,7 @@ const CreateVolunteerApplicationRequest = z
     topPickRoleId: z.string().uuid().nullish(),
     roleId: z.string().uuid(),
   })
-  .passthrough();
+  ;
 const VolunteerApplicationOpportunity = z
   .object({
     id: z.string(),
@@ -939,10 +939,10 @@ const VolunteerApplicationOpportunity = z
     category: VolunteerOpportunityReference,
     location: VolunteerOpportunityReference,
   })
-  .passthrough();
+  ;
 const VolunteerApplicationRoleResponse = z
   .object({ id: z.string(), title: z.string() })
-  .passthrough();
+  ;
 const VolunteerApplicationResponse = z
   .object({
     id: z.string(),
@@ -951,7 +951,7 @@ const VolunteerApplicationResponse = z
     availability: z.string(),
     relevantExperience: z.string(),
     supportingDocuments: z.array(
-      z.object({ name: z.string(), key: z.string() }).passthrough()
+      z.object({ name: z.string(), key: z.string() })
     ),
     status: z.enum([
       "SUBMITTED",
@@ -964,10 +964,10 @@ const VolunteerApplicationResponse = z
     createdAt: z.string(),
     updatedAt: z.string(),
   })
-  .passthrough();
+  ;
 const CreateVolunteerApplicationResponse = z
   .object({ ok: z.literal(true), application: VolunteerApplicationResponse })
-  .passthrough();
+  ;
 const CreateVolunteerApplicationBatchRequest = z
   .object({
     availability: z.string(),
@@ -979,7 +979,7 @@ const CreateVolunteerApplicationBatchRequest = z
             name: z.string().min(1).max(255),
             key: z.string().min(1).max(600),
           })
-          .passthrough()
+          
       )
       .max(3)
       .optional()
@@ -987,13 +987,13 @@ const CreateVolunteerApplicationBatchRequest = z
     topPickRoleId: z.string().uuid().nullish(),
     roleIds: z.array(z.string().uuid()).min(1).max(20),
   })
-  .passthrough();
+  ;
 const CreateVolunteerApplicationBatchResponse = z
   .object({
     ok: z.literal(true),
     applications: z.array(VolunteerApplicationResponse),
   })
-  .passthrough();
+  ;
 const PublicVolunteerOpportunityResponse = z
   .object({
     id: z.string(),
@@ -1023,19 +1023,19 @@ const PublicVolunteerOpportunityResponse = z
     viewerBlocked: z.boolean(),
     roles: z.array(VolunteerOpportunityRoleResponse),
   })
-  .passthrough();
+  ;
 const GetPublicVolunteerOpportunityResponse = z
   .object({
     ok: z.literal(true),
     opportunity: PublicVolunteerOpportunityResponse,
   })
-  .passthrough();
+  ;
 const ReportingTypeResponse = z
   .object({ id: z.string(), type: z.string() })
-  .passthrough();
+  ;
 const GetReportingTypesResponse = z
   .object({ ok: z.boolean(), reportingTypes: z.array(ReportingTypeResponse) })
-  .passthrough();
+  ;
 const CreateReportingRequest = z
   .object({
     questionId: z.string(),
@@ -1047,10 +1047,10 @@ const CreateReportingRequest = z
       ),
     description: z.string().max(10000).optional(),
   })
-  .passthrough();
+  ;
 const CreateReportingResponse = z
   .object({ ok: z.boolean(), reportingId: z.string().uuid() })
-  .passthrough();
+  ;
 const LaunchpadCategoryResponse = z
   .object({
     id: z.string(),
@@ -1065,79 +1065,79 @@ const LaunchpadCategoryResponse = z
     createdAt: z.string(),
     updatedAt: z.string(),
   })
-  .passthrough();
+  ;
 const GetLaunchpadCategoriesResponse = z
   .object({ ok: z.boolean(), categories: z.array(LaunchpadCategoryResponse) })
-  .passthrough();
+  ;
 const PresignLaunchpadImageUploadRequest = z
   .object({
     contentType: z.string(),
     fileSize: z.number().int().gt(0).lte(5242880),
   })
-  .passthrough();
+  ;
 const PresignLaunchpadLogoUploadResult = z
   .object({
     uploadUrl: z.string(),
     method: z.literal("PUT"),
     requiredHeaders: z
       .object({ "Content-Length": z.string(), "Content-Type": z.string() })
-      .passthrough(),
+      ,
     logoImageKey: z.string(),
     publicUrl: z.string().nullable(),
     expiresInSeconds: z.number(),
   })
-  .passthrough();
+  ;
 const PresignLaunchpadLogoUploadResponse = z
   .object({ ok: z.literal(true), upload: PresignLaunchpadLogoUploadResult })
-  .passthrough();
+  ;
 const LaunchpadLogoValidationErrorResponse = z
   .object({
     ok: z.literal(false),
     error: z.string(),
     issues: z.array(
-      z.object({ path: z.string(), message: z.string() }).passthrough()
+      z.object({ path: z.string(), message: z.string() })
     ),
   })
-  .passthrough();
+  ;
 const LaunchpadOperationErrorResponse = z
   .object({ ok: z.literal(false), error: z.string() })
-  .passthrough();
+  ;
 const PresignLaunchpadCoverUploadResult = z
   .object({
     uploadUrl: z.string(),
     method: z.literal("PUT"),
     requiredHeaders: z
       .object({ "Content-Length": z.string(), "Content-Type": z.string() })
-      .passthrough(),
+      ,
     coverImageKey: z.string(),
     publicUrl: z.string().nullable(),
     expiresInSeconds: z.number(),
   })
-  .passthrough();
+  ;
 const PresignLaunchpadCoverUploadResponse = z
   .object({ ok: z.literal(true), upload: PresignLaunchpadCoverUploadResult })
-  .passthrough();
+  ;
 const PresignLaunchpadDocumentUploadRequest = z
   .object({
     contentType: z.string(),
     fileSize: z.number().int().gt(0).lte(10485760),
   })
-  .passthrough();
+  ;
 const PresignLaunchpadDocumentUploadResult = z
   .object({
     uploadUrl: z.string(),
     method: z.literal("PUT"),
     requiredHeaders: z
       .object({ "Content-Length": z.string(), "Content-Type": z.string() })
-      .passthrough(),
+      ,
     documentKey: z.string(),
     publicUrl: z.string().nullable(),
     expiresInSeconds: z.number(),
   })
-  .passthrough();
+  ;
 const PresignLaunchpadDocumentUploadResponse = z
   .object({ ok: z.literal(true), upload: PresignLaunchpadDocumentUploadResult })
-  .passthrough();
+  ;
 const GetSavedLaunchpadsResponse = z
   .object({
     ok: z.literal(true),
@@ -1168,27 +1168,27 @@ const GetSavedLaunchpadsResponse = z
               avatarKey: z.string().nullable(),
               launchpadCount: z.number(),
             })
-            .passthrough(),
+            ,
           createdAt: z.string().datetime({ offset: true }),
           category: z
             .object({ id: z.string(), name: z.string() })
-            .passthrough()
+            
             .optional(),
           city: z
             .object({ id: z.string(), name: z.string() })
-            .passthrough()
+            
             .optional(),
           totalRoles: z.number(),
           totalView: z.number(),
           isSaved: z.literal(true),
           savedAt: z.string().datetime({ offset: true }),
         })
-        .passthrough()
+        
     ),
     nextCursor: z.string().nullable(),
   })
-  .passthrough();
-const SaveLaunchpadResponse = z.object({ ok: z.literal(true) }).passthrough();
+  ;
+const SaveLaunchpadResponse = z.object({ ok: z.literal(true) });
 const CreateLaunchpadRequest = z
   .object({
     name: z.string().min(1).max(120),
@@ -1214,7 +1214,7 @@ const CreateLaunchpadRequest = z
             description: z.string().nullish(),
             capacity: z.number().int().gt(0).lte(1000).optional().default(1),
           })
-          .passthrough()
+          
       )
       .min(1),
     materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5),
@@ -1223,7 +1223,7 @@ const CreateLaunchpadRequest = z
     email: z.string().max(255).email(),
     telegramUsername: z.string().nullish(),
   })
-  .passthrough();
+  ;
 const CreateLaunchpadResponse = z
   .object({
     ok: z.literal(true),
@@ -1254,15 +1254,15 @@ const CreateLaunchpadResponse = z
             avatarKey: z.string().nullable(),
             launchpadCount: z.number(),
           })
-          .passthrough(),
+          ,
         createdAt: z.string().datetime({ offset: true }),
         category: z
           .object({ id: z.string(), name: z.string() })
-          .passthrough()
+          
           .optional(),
         city: z
           .object({ id: z.string(), name: z.string() })
-          .passthrough()
+          
           .optional(),
         roles: z.array(
           z
@@ -1272,12 +1272,12 @@ const CreateLaunchpadResponse = z
               description: z.string().nullable(),
               capacity: z.number(),
             })
-            .passthrough()
+            
         ),
       })
-      .passthrough(),
+      ,
   })
-  .passthrough();
+  ;
 const GetLaunchpadsResponse = z
   .object({
     ok: z.literal(true),
@@ -1308,25 +1308,25 @@ const GetLaunchpadsResponse = z
               avatarKey: z.string().nullable(),
               launchpadCount: z.number(),
             })
-            .passthrough(),
+            ,
           createdAt: z.string().datetime({ offset: true }),
           category: z
             .object({ id: z.string(), name: z.string() })
-            .passthrough()
+            
             .optional(),
           city: z
             .object({ id: z.string(), name: z.string() })
-            .passthrough()
+            
             .optional(),
           totalRoles: z.number(),
           totalView: z.number(),
           isSaved: z.boolean(),
         })
-        .passthrough()
+        
     ),
     nextCursor: z.string().nullable(),
   })
-  .passthrough();
+  ;
 const UpdateLaunchpadRoleRequest = z
   .object({
     id: z
@@ -1339,7 +1339,7 @@ const UpdateLaunchpadRoleRequest = z
     description: z.string().nullish(),
     capacity: z.number().int().gt(0).lte(1000).optional().default(1),
   })
-  .passthrough();
+  ;
 const UpdateLaunchpadRequest = z
   .object({
     name: z.string(),
@@ -1394,15 +1394,15 @@ const GetLaunchpadByIdResponse = z
             avatarKey: z.string().nullable(),
             launchpadCount: z.number(),
           })
-          .passthrough(),
+          ,
         createdAt: z.string().datetime({ offset: true }),
         category: z
           .object({ id: z.string(), name: z.string() })
-          .passthrough()
+          
           .optional(),
         city: z
           .object({ id: z.string(), name: z.string() })
-          .passthrough()
+          
           .optional(),
         roles: z.array(
           z
@@ -1412,49 +1412,49 @@ const GetLaunchpadByIdResponse = z
               description: z.string().nullable(),
               capacity: z.number(),
             })
-            .passthrough()
+            
         ),
         viewerBlocked: z.boolean(),
         totalView: z.number(),
       })
-      .passthrough(),
+      ,
   })
-  .passthrough();
+  ;
 const PresignLaunchpadApplicationDocumentUploadRequest = z
   .object({
     contentType: z.string(),
     fileSize: z.number().int().gt(0).lte(10485760),
   })
-  .passthrough();
+  ;
 const PresignLaunchpadApplicationDocumentUploadResult = z
   .object({
     uploadUrl: z.string(),
     method: z.literal("PUT"),
     requiredHeaders: z
       .object({ "Content-Length": z.string(), "Content-Type": z.string() })
-      .passthrough(),
+      ,
     documentKey: z.string(),
     expiresInSeconds: z.number(),
   })
-  .passthrough();
+  ;
 const PresignLaunchpadApplicationDocumentUploadResponse = z
   .object({
     ok: z.literal(true),
     upload: PresignLaunchpadApplicationDocumentUploadResult,
   })
-  .passthrough();
+  ;
 const LaunchpadApplicationValidationErrorResponse = z
   .object({
     ok: z.literal(false),
     error: z.string(),
     issues: z.array(
-      z.object({ path: z.string(), message: z.string() }).passthrough()
+      z.object({ path: z.string(), message: z.string() })
     ),
   })
-  .passthrough();
+  ;
 const LaunchpadApplicationOperationErrorResponse = z
   .object({ ok: z.literal(false), error: z.string() })
-  .passthrough();
+  ;
 const CreateLaunchpadApplicationRequest = z
   .object({
     motivation: z.string().min(5).max(2000),
@@ -1474,7 +1474,7 @@ const CreateLaunchpadApplicationRequest = z
       ),
     relevantExperience: z.string().min(1).max(5000).optional().default(""),
   })
-  .passthrough();
+  ;
 const LaunchpadApplicationLog = z
   .object({
     id: z.string(),
@@ -1490,7 +1490,7 @@ const LaunchpadApplicationLog = z
     createdBy: z.string(),
     createdAt: z.string(),
   })
-  .passthrough();
+  ;
 const LaunchpadApplication = z
   .object({
     id: z.string(),
@@ -1514,10 +1514,10 @@ const LaunchpadApplication = z
     updatedAt: z.string(),
     logs: z.array(LaunchpadApplicationLog),
   })
-  .passthrough();
+  ;
 const CreateLaunchpadApplicationResponse = z
   .object({ ok: z.literal(true), application: LaunchpadApplication })
-  .passthrough();
+  ;
 const CreateLaunchpadApplicationBatchRequest = z
   .object({
     motivation: z.string().min(5).max(2000),
@@ -1542,17 +1542,17 @@ const CreateLaunchpadApplicationBatchRequest = z
       .min(1)
       .max(20),
   })
-  .passthrough();
+  ;
 const CreateLaunchpadApplicationBatchResponse = z
   .object({ ok: z.literal(true), applications: z.array(LaunchpadApplication) })
-  .passthrough();
+  ;
 const LaunchpadApplicationBatchErrorResponse = z.union([
   LaunchpadApplicationValidationErrorResponse,
   LaunchpadApplicationOperationErrorResponse,
 ]);
 const GetLaunchpadApplicationResponse = z
   .object({ ok: z.literal(true), application: LaunchpadApplication })
-  .passthrough();
+  ;
 const MyApplicationStatusGroup = z.enum([
   "SUBMITTED",
   "UNDER_REVIEW",
@@ -1563,7 +1563,7 @@ const MyApplicationStatusGroup = z.enum([
   "WITHDRAWN"]);
 const MyApplicationReference = z
   .object({ id: z.string(), name: z.string() })
-  .passthrough();
+  ;
 const MyApplicationTimeline = z
   .object({
     submitted: z.string().nullable(),
@@ -1574,12 +1574,12 @@ const MyApplicationTimeline = z
         at: z.string().nullable(),
         by: z.enum(["POSTER", "APPLICANT", "SYSTEM"]).nullable(),
       })
-      .passthrough(),
+      ,
     confirmed: z.string().nullable(),
     completed: z.string().nullable(),
     withdrawn: z.string().nullable(),
   })
-  .passthrough();
+  ;
 const MyApplicationRole = z
   .object({
     applicationId: z.string(),
@@ -1589,7 +1589,7 @@ const MyApplicationRole = z
     appliedAt: z.string(),
     timeline: MyApplicationTimeline,
   })
-  .passthrough();
+  ;
 const MyApplicationItem = z
   .object({
     opportunityId: z.string(),
@@ -1611,7 +1611,7 @@ const MyApplicationItem = z
     roles: z.array(MyApplicationRole),
     approvedRole: MyApplicationRole.and(z.unknown()),
   })
-  .passthrough();
+  ;
 const MyApplicationsSummary = z
   .object({
     PENDING: z.number().int().gte(0),
@@ -1622,17 +1622,17 @@ const MyApplicationsSummary = z
     WITHDRAWN: z.number().int().gte(0),
     ARCHIVED: z.number().int().gte(0),
   })
-  .passthrough();
+  ;
 const MyApplicationsResponse = z
   .object({
     ok: z.literal(true),
     applications: z.array(MyApplicationItem).nullable(),
     summary: MyApplicationsSummary,
   })
-  .passthrough();
+  ;
 const MyApplicationsErrorResponse = z
   .object({ ok: z.literal(false), error: z.string() })
-  .passthrough();
+  ;
 const MyApplicationRoleDetail = z
   .object({
     applicationId: z.string(),
@@ -1651,10 +1651,10 @@ const MyApplicationRoleDetail = z
         canDecline: z.boolean(),
         canWithdraw: z.boolean(),
       })
-      .passthrough(),
+      ,
     timeline: MyApplicationTimeline,
   })
-  .passthrough();
+  ;
 const MyApplicationDetail = z
   .object({
     id: z.string(),
@@ -1683,7 +1683,7 @@ const MyApplicationDetail = z
         filled: z.boolean(),
         impactRewardPoints: z.number().int().gte(0).nullable(),
       })
-      .passthrough(),
+      ,
     owner: z
       .object({
         id: z.string(),
@@ -1697,27 +1697,27 @@ const MyApplicationDetail = z
             phoneNumber: z.string().nullable(),
             telegramUsername: z.string().nullable(),
           })
-          .passthrough(),
+          ,
       })
-      .passthrough(),
+      ,
     roles: z.array(MyApplicationRoleDetail),
     approvedRole: MyApplicationRole.and(z.unknown()),
   })
-  .passthrough();
+  ;
 const MyApplicationDetailResponse = z
   .object({ ok: z.literal(true), application: MyApplicationDetail })
-  .passthrough();
+  ;
 const MyApplicationStatusActionResponse = z
   .object({ ok: z.literal(true), application: MyApplicationItem })
-  .passthrough();
+  ;
 const MyApplicationArchiveActionResponse = z
   .object({
     ok: z.literal(true),
     application: MyApplicationItem.and(
-      z.object({ archived: z.boolean() }).passthrough()
+      z.object({ archived: z.boolean() })
     ),
   })
-  .passthrough();
+  ;
 const ProfileResponse = z
   .object({
     ok: z.literal(true),
@@ -1735,11 +1735,11 @@ const ProfileResponse = z
             occupation: z.string().nullable(),
             phone: z
               .object({ country: z.string(), nationalNumber: z.string() })
-              .passthrough()
+              
               .nullable(),
             telegramUsername: z.string().nullable(),
           })
-          .passthrough(),
+          ,
         profile: z
           .object({
             avatarKey: z.string().nullable(),
@@ -1751,11 +1751,11 @@ const ProfileResponse = z
                 name: z.string(),
                 iso2: z.string().nullable(),
               })
-              .passthrough()
+              
               .nullable(),
             city: z
               .object({ id: z.string(), name: z.string() })
-              .passthrough()
+              
               .nullable(),
             visibility: z
               .object({
@@ -1764,11 +1764,11 @@ const ProfileResponse = z
                 socialLinks: z.enum(["public", "members", "private"]),
                 contributions: z.enum(["public", "members", "private"]),
               })
-              .passthrough(),
+              ,
           })
-          .passthrough(),
+          ,
         skills: z.array(
-          z.object({ id: z.string(), name: z.string() }).passthrough()
+          z.object({ id: z.string(), name: z.string() })
         ),
         socialLinks: z
           .object({
@@ -1777,7 +1777,7 @@ const ProfileResponse = z
             twitter: z.string().nullable(),
             facebook: z.string().nullable(),
           })
-          .passthrough(),
+          ,
         progress: z
           .object({
             totalPoints: z.number(),
@@ -1790,7 +1790,7 @@ const ProfileResponse = z
                 rankOrder: z.number(),
                 minPoints: z.number(),
               })
-              .passthrough()
+              
               .nullable(),
             nextTier: z
               .object({
@@ -1800,11 +1800,11 @@ const ProfileResponse = z
                 rankOrder: z.number(),
                 minPoints: z.number(),
               })
-              .passthrough()
+              
               .nullable(),
             pointsUntilNextTier: z.number(),
           })
-          .passthrough(),
+          ,
         badges: z.array(
           z
             .object({
@@ -1819,19 +1819,19 @@ const ProfileResponse = z
                 "LAUNCHPAD"]),
               awardedAt: z.string(),
             })
-            .passthrough()
+            
         ),
       })
-      .passthrough(),
+      ,
   })
-  .passthrough();
+  ;
 const ProfileErrorResponse = z
   .object({
     ok: z.literal(false),
     error: z.string(),
     issues: z.array(z.string()).optional(),
   })
-  .passthrough();
+  ;
 const UpdateProfileRequest = z
   .object({
     firstName: z
@@ -1903,11 +1903,11 @@ const UpdateProfileResponse = z
             occupation: z.string().nullable(),
             phone: z
               .object({ country: z.string(), nationalNumber: z.string() })
-              .passthrough()
+              
               .nullable(),
             telegramUsername: z.string().nullable(),
           })
-          .passthrough(),
+          ,
         profile: z
           .object({
             avatarKey: z.string().nullable(),
@@ -1919,11 +1919,11 @@ const UpdateProfileResponse = z
                 name: z.string(),
                 iso2: z.string().nullable(),
               })
-              .passthrough()
+              
               .nullable(),
             city: z
               .object({ id: z.string(), name: z.string() })
-              .passthrough()
+              
               .nullable(),
             visibility: z
               .object({
@@ -1932,11 +1932,11 @@ const UpdateProfileResponse = z
                 socialLinks: z.enum(["public", "members", "private"]),
                 contributions: z.enum(["public", "members", "private"]),
               })
-              .passthrough(),
+              ,
           })
-          .passthrough(),
+          ,
         skills: z.array(
-          z.object({ id: z.string(), name: z.string() }).passthrough()
+          z.object({ id: z.string(), name: z.string() })
         ),
         socialLinks: z
           .object({
@@ -1945,7 +1945,7 @@ const UpdateProfileResponse = z
             twitter: z.string().nullable(),
             facebook: z.string().nullable(),
           })
-          .passthrough(),
+          ,
         progress: z
           .object({
             totalPoints: z.number(),
@@ -1958,7 +1958,7 @@ const UpdateProfileResponse = z
                 rankOrder: z.number(),
                 minPoints: z.number(),
               })
-              .passthrough()
+              
               .nullable(),
             nextTier: z
               .object({
@@ -1968,11 +1968,11 @@ const UpdateProfileResponse = z
                 rankOrder: z.number(),
                 minPoints: z.number(),
               })
-              .passthrough()
+              
               .nullable(),
             pointsUntilNextTier: z.number(),
           })
-          .passthrough(),
+          ,
         badges: z.array(
           z
             .object({
@@ -1987,12 +1987,12 @@ const UpdateProfileResponse = z
                 "LAUNCHPAD"]),
               awardedAt: z.string(),
             })
-            .passthrough()
+            
         ),
       })
-      .passthrough(),
+      ,
   })
-  .passthrough();
+  ;
 const RecentActivity = z
   .object({
     id: z.string(),
@@ -2008,13 +2008,13 @@ const RecentActivity = z
     createdAt: z.string(),
     updatedAt: z.string(),
   })
-  .passthrough();
+  ;
 const GetRecentActivitiesResponse = z
   .object({ ok: z.literal(true), activities: z.array(RecentActivity) })
-  .passthrough();
+  ;
 const RecentActivityErrorResponse = z
   .object({ ok: z.literal(false), error: z.string() })
-  .passthrough();
+  ;
 const GetSavedItemsResponse = z
   .object({
     ok: z.literal(true),
@@ -2050,38 +2050,38 @@ const GetSavedItemsResponse = z
                     avatarKey: z.string().nullable(),
                     launchpadCount: z.number(),
                   })
-                  .passthrough(),
+                  ,
                 createdAt: z.string().datetime({ offset: true }),
                 category: z
                   .object({ id: z.string(), name: z.string() })
-                  .passthrough()
+                  
                   .optional(),
                 city: z
                   .object({ id: z.string(), name: z.string() })
-                  .passthrough()
+                  
                   .optional(),
                 totalRoles: z.number(),
                 totalView: z.number(),
                 isSaved: z.literal(true),
                 savedAt: z.string().datetime({ offset: true }),
               })
-              .passthrough(),
+              ,
           })
-          .passthrough(),
+          ,
         z
           .object({
             type: z.literal("volunteer"),
             savedAt: z.string().datetime({ offset: true }),
             item: VolunteerOpportunityListItemResponse,
           })
-          .passthrough(),
+          ,
         z
           .object({
             type: z.literal("forum"),
             savedAt: z.string().datetime({ offset: true }),
             item: QuestionResponse,
           })
-          .passthrough(),
+          ,
       ])
     ),
     pagination: z
@@ -2091,7 +2091,7 @@ const GetSavedItemsResponse = z
         nextCursor: z.string().nullable(),
         total: z.number().int().gte(0),
       })
-      .passthrough(),
+      ,
     counts: z
       .object({
         all: z.number().int().gte(0),
@@ -2099,12 +2099,12 @@ const GetSavedItemsResponse = z
         volunteer: z.number().int().gte(0),
         forum: z.number().int().gte(0),
       })
-      .passthrough(),
+      ,
   })
-  .passthrough();
+  ;
 const SavedItemsErrorResponse = z
   .object({ ok: z.literal(false), error: z.string() })
-  .passthrough();
+  ;
 const PublicProfileResponse = z
   .object({
     ok: z.literal(true),
@@ -2120,11 +2120,11 @@ const PublicProfileResponse = z
             email: z.string().nullable(),
             phone: z
               .object({ country: z.string(), nationalNumber: z.string() })
-              .passthrough()
+              
               .nullable(),
             telegramUsername: z.string().nullable(),
           })
-          .passthrough(),
+          ,
         profile: z
           .object({
             avatarKey: z.string().nullable(),
@@ -2136,16 +2136,16 @@ const PublicProfileResponse = z
                 name: z.string(),
                 iso2: z.string().nullable(),
               })
-              .passthrough()
+              
               .nullable(),
             city: z
               .object({ id: z.string(), name: z.string() })
-              .passthrough()
+              
               .nullable(),
           })
-          .passthrough(),
+          ,
         skills: z.array(
-          z.object({ id: z.string(), name: z.string() }).passthrough()
+          z.object({ id: z.string(), name: z.string() })
         ),
         socialLinks: z
           .object({
@@ -2154,7 +2154,7 @@ const PublicProfileResponse = z
             twitter: z.string().nullable(),
             facebook: z.string().nullable(),
           })
-          .passthrough(),
+          ,
         tier: z
           .object({
             id: z.string(),
@@ -2163,7 +2163,7 @@ const PublicProfileResponse = z
             rankOrder: z.number(),
             minPoints: z.number(),
           })
-          .passthrough()
+          
           .nullable(),
         postedCounts: z
           .object({
@@ -2171,12 +2171,12 @@ const PublicProfileResponse = z
             volunteer: z.number().int().gte(0),
             project: z.number().int().gte(0),
           })
-          .passthrough()
+          
           .nullable(),
       })
-      .passthrough(),
+      ,
   })
-  .passthrough();
+  ;
 const GetMyPostedResponse = z.union([
   z
     .object({
@@ -2190,9 +2190,9 @@ const GetMyPostedResponse = z.union([
           nextCursor: z.string().nullable(),
           total: z.number().int().gte(0),
         })
-        .passthrough(),
+        ,
     })
-    .passthrough(),
+    ,
   z
     .object({
       ok: z.literal(true),
@@ -2200,7 +2200,7 @@ const GetMyPostedResponse = z.union([
       opportunities: z.array(VolunteerOpportunityListItemResponse),
       pagination: VolunteerOpportunitiesPaginationResponse,
     })
-    .passthrough(),
+    ,
   z
     .object({
       ok: z.literal(true),
@@ -2232,29 +2232,29 @@ const GetMyPostedResponse = z.union([
                 avatarKey: z.string().nullable(),
                 launchpadCount: z.number(),
               })
-              .passthrough(),
+              ,
             createdAt: z.string().datetime({ offset: true }),
             category: z
               .object({ id: z.string(), name: z.string() })
-              .passthrough()
+              
               .optional(),
             city: z
               .object({ id: z.string(), name: z.string() })
-              .passthrough()
+              
               .optional(),
             totalRoles: z.number(),
             totalView: z.number(),
             isSaved: z.boolean(),
           })
-          .passthrough()
+          
       ),
       nextCursor: z.string().nullable(),
     })
-    .passthrough(),
+    ,
 ]);
 const MyPostedErrorResponse = z
   .object({ ok: z.literal(false), error: z.string() })
-  .passthrough();
+  ;
 const ManagePostingStatus = z.enum([
   "DRAFT",
   "LIVE",
@@ -2280,7 +2280,7 @@ const ManagePostingItem = z
     isEditable: z.boolean(),
     createdAt: z.string(),
   })
-  .passthrough();
+  ;
 const ManagePostingsPagination = z
   .object({
     page: z.number().int().gt(0),
@@ -2290,17 +2290,17 @@ const ManagePostingsPagination = z
     hasNextPage: z.boolean(),
     hasPreviousPage: z.boolean(),
   })
-  .passthrough();
+  ;
 const ManagePostingsResponse = z
   .object({
     ok: z.literal(true),
     postings: z.array(ManagePostingItem),
     pagination: ManagePostingsPagination,
   })
-  .passthrough();
+  ;
 const ManagePostingsErrorResponse = z
   .object({ ok: z.literal(false), error: z.string() })
-  .passthrough();
+  ;
 const ManagePostingApplicantStatus = z.enum([
   "SUBMITTED",
   "UNDER_REVIEW",
@@ -2319,7 +2319,7 @@ const ManagePostingApplicationRole = z
     appliedAt: z.string(),
     updatedAt: z.string(),
   })
-  .passthrough();
+  ;
 const ManagePostingSubmission = z
   .object({
     submissionKey: z.string(),
@@ -2332,10 +2332,10 @@ const ManagePostingSubmission = z
         availability: z.string(),
         relevantExperience: z.string(),
         supportingDocuments: z.array(
-          z.object({ name: z.string(), key: z.string() }).passthrough()
+          z.object({ name: z.string(), key: z.string() })
         ),
       })
-      .passthrough()
+      
       .nullable(),
     project: z
       .object({
@@ -2344,10 +2344,10 @@ const ManagePostingSubmission = z
         documentKeys: z.array(z.string()),
         documentNames: z.array(z.string()),
       })
-      .passthrough()
+      
       .nullable(),
   })
-  .passthrough();
+  ;
 const ManagePostingApplicantPrivateNote = z
   .object({
     id: z.string(),
@@ -2357,7 +2357,7 @@ const ManagePostingApplicantPrivateNote = z
     createdAt: z.string(),
     updatedAt: z.string(),
   })
-  .passthrough();
+  ;
 const ManagePostingApplicant = z
   .object({
     candidate: z
@@ -2370,7 +2370,7 @@ const ManagePostingApplicant = z
         avatarUrl: z.string().nullable(),
         avatarKey: z.string().nullable(),
       })
-      .passthrough(),
+      ,
     submissions: z.array(ManagePostingSubmission),
     submissionCount: z.number().int().gte(0),
     totalRoleApplied: z.number().int().gte(0),
@@ -2383,31 +2383,31 @@ const ManagePostingApplicant = z
         phoneNumber: z.string().nullable(),
         telegramUsername: z.string().nullable(),
       })
-      .passthrough(),
+      ,
     privateNote: ManagePostingApplicantPrivateNote.nullable(),
   })
-  .passthrough();
+  ;
 const ManagePostingCandidateDetailResponse = z
   .object({ ok: z.literal(true), applicant: ManagePostingApplicant })
-  .passthrough();
+  ;
 const UpsertManagePostingCandidateNoteRequest = z
   .object({ note: z.string().max(5000) })
-  .passthrough();
+  ;
 const UpsertManagePostingCandidateNoteResponse = z
   .object({ ok: z.literal(true), applicant: ManagePostingApplicant })
-  .passthrough();
+  ;
 const UpdateManagePostingActionResponse = z
   .object({ ok: z.literal(true), posting: ManagePostingItem })
-  .passthrough();
+  ;
 const ExtendManagePostingDeadlineRequest = z
   .object({ deadline: z.string().datetime({ offset: true }) })
-  .passthrough();
+  ;
 const ExtendManagePostingDeadlineResponse = z
   .object({ ok: z.literal(true), posting: ManagePostingItem })
-  .passthrough();
+  ;
 const ManagePostingApplicationActionResponse = z
   .object({ ok: z.literal(true), applicant: ManagePostingApplicant })
-  .passthrough();
+  ;
 const ManagePostingDetail = z
   .object({
     posting: ManagePostingItem,
@@ -2427,7 +2427,7 @@ const ManagePostingDetail = z
             COMPLETED: z.number().int().gte(0),
             WITHDRAWN: z.number().int().gte(0),
           })
-          .passthrough(),
+          ,
         filterCounts: z
           .object({
             all: z.number().int().gte(0),
@@ -2437,9 +2437,9 @@ const ManagePostingDetail = z
             confirmed: z.number().int().gte(0),
             declined: z.number().int().gte(0),
           })
-          .passthrough(),
+          ,
       })
-      .passthrough(),
+      ,
     applicants: z.array(ManagePostingApplicant),
     pagination: z
       .object({
@@ -2450,18 +2450,18 @@ const ManagePostingDetail = z
         hasNextPage: z.boolean(),
         hasPreviousPage: z.boolean(),
       })
-      .passthrough(),
+      ,
   })
-  .passthrough();
+  ;
 const ManagePostingDetailResponse = z
   .object({ ok: z.literal(true), detail: ManagePostingDetail })
-  .passthrough();
+  ;
 const postV1notificationstokens_Body = z
   .object({
     token: z.string().min(1),
     platform: z.enum(["web", "android", "ios"]).optional().default("web"),
   })
-  .passthrough();
+  ;
 const postV1notificationssenduser_Body = z
   .object({
     userId: z.string().uuid(),
@@ -2487,7 +2487,7 @@ const postV1notificationssenduser_Body = z
     webRoute: z.string().optional(),
     mobileRoute: z.string().optional(),
   })
-  .passthrough();
+  ;
 const postV1notificationsbroadcast_Body = z
   .object({
     title: z.string().min(1),
@@ -2512,10 +2512,10 @@ const postV1notificationsbroadcast_Body = z
     webRoute: z.string().optional(),
     mobileRoute: z.string().optional(),
   })
-  .passthrough();
+  ;
 const patchV1notificationsread_Body = z
   .object({ notificationIds: z.array(z.string().uuid()).min(1) })
-  .passthrough();
+  ;
 
 export const schemas = {
   AuthRegisterRequest,
@@ -2830,7 +2830,7 @@ const endpoints = makeApi([
       {
         status: 500,
         description: `Session creation failed`,
-        schema: z.object({ error: z.string() }).passthrough(),
+        schema: z.object({ error: z.string() }),
       },
     ],
   },
@@ -2871,7 +2871,7 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: z.object({ refreshToken: z.string().min(1) }).passthrough(),
+        schema: z.object({ refreshToken: z.string().min(1) }),
       },
     ],
     response: AdminRefreshResponse,
@@ -2905,7 +2905,7 @@ const endpoints = makeApi([
       {
         status: 400,
         description: `Validation failed`,
-        schema: z.object({ error: z.string() }).passthrough(),
+        schema: z.object({ error: z.string() }),
       },
     ],
   },
@@ -2918,7 +2918,7 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: z.object({ idToken: z.string().min(1) }).passthrough(),
+        schema: z.object({ idToken: z.string().min(1) }),
       },
     ],
     response: AuthTokenResponse,
@@ -2965,7 +2965,7 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: z.object({ refreshToken: z.string().min(1) }).passthrough(),
+        schema: z.object({ refreshToken: z.string().min(1) }),
       },
     ],
     response: RefreshSuccessResponse,
@@ -3038,7 +3038,7 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: z.object({ email: z.string().min(1).email() }).passthrough(),
+        schema: z.object({ email: z.string().min(1).email() }),
       },
     ],
     response: ResendRegisterOtpResponse,
@@ -3046,7 +3046,7 @@ const endpoints = makeApi([
       {
         status: 400,
         description: `Invalid email`,
-        schema: z.object({ error: z.string() }).passthrough(),
+        schema: z.object({ error: z.string() }),
       },
     ],
   },
@@ -3088,7 +3088,7 @@ const endpoints = makeApi([
       {
         status: 400,
         description: `Validation failed or token is invalid`,
-        schema: z.object({ error: z.string() }).passthrough(),
+        schema: z.object({ error: z.string() }),
       },
     ],
   },
@@ -3136,7 +3136,7 @@ const endpoints = makeApi([
           ),
       },
     ],
-    response: z.object({ ok: z.boolean() }).passthrough(),
+    response: z.object({ ok: z.boolean() }),
     errors: [
       {
         status: 403,
@@ -3154,7 +3154,7 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: z.object({ body: z.string().min(1).max(10000) }).passthrough(),
+        schema: z.object({ body: z.string().min(1).max(10000) }),
       },
       {
         name: "answerId",
@@ -3252,7 +3252,7 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: z.object({ voteType: z.string() }).passthrough(),
+        schema: z.object({ voteType: z.string() }),
       },
       {
         name: "answerId",
@@ -3605,7 +3605,7 @@ const endpoints = makeApi([
           ),
       },
     ],
-    response: z.object({ ok: z.boolean() }).passthrough(),
+    response: z.object({ ok: z.boolean() }),
     errors: [
       {
         status: 404,
@@ -3776,7 +3776,7 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: z.object({ voteType: z.string() }).passthrough(),
+        schema: z.object({ voteType: z.string() }),
       },
       {
         name: "questionId",
@@ -4906,14 +4906,14 @@ const endpoints = makeApi([
               webRoute: z.string().nullish(),
               mobileRoute: z.string().nullish(),
             })
-            .passthrough()
+            
         ),
         total: z.number(),
         page: z.number(),
         limit: z.number(),
         unreadCounts: z.record(z.string(), z.number()),
       })
-      .passthrough(),
+      ,
     errors: [
       {
         status: 401,
@@ -4925,7 +4925,7 @@ const endpoints = makeApi([
         description: `Internal server error`,
         schema: z
           .object({ ok: z.literal(false), error: z.string() })
-          .passthrough(),
+          ,
       },
     ],
   },
@@ -4947,7 +4947,7 @@ const endpoints = makeApi([
         successCount: z.number(),
         failureCount: z.number(),
       })
-      .passthrough(),
+      ,
     errors: [
       {
         status: 401,
@@ -4959,7 +4959,7 @@ const endpoints = makeApi([
         description: `Internal server error`,
         schema: z
           .object({ ok: z.literal(false), error: z.string() })
-          .passthrough(),
+          ,
       },
     ],
   },
@@ -4981,7 +4981,7 @@ const endpoints = makeApi([
         message: z.string(),
         platform: z.enum(["web", "android", "ios"]).optional().default("web"),
       })
-      .passthrough(),
+      ,
     errors: [
       {
         status: 401,
@@ -4993,7 +4993,7 @@ const endpoints = makeApi([
         description: `Internal server error`,
         schema: z
           .object({ ok: z.literal(false), error: z.string() })
-          .passthrough(),
+          ,
       },
     ],
   },
@@ -5032,7 +5032,7 @@ const endpoints = makeApi([
         message: z.string(),
         platform: z.enum(["web", "android", "ios"]).optional().default("web"),
       })
-      .passthrough(),
+      ,
     errors: [
       {
         status: 401,
@@ -5044,7 +5044,7 @@ const endpoints = makeApi([
         description: `Internal server error`,
         schema: z
           .object({ ok: z.literal(false), error: z.string() })
-          .passthrough(),
+          ,
       },
     ],
   },
@@ -5066,7 +5066,7 @@ const endpoints = makeApi([
         successCount: z.number(),
         failureCount: z.number(),
       })
-      .passthrough(),
+      ,
     errors: [
       {
         status: 401,
@@ -5078,7 +5078,7 @@ const endpoints = makeApi([
         description: `Internal server error`,
         schema: z
           .object({ ok: z.literal(false), error: z.string() })
-          .passthrough(),
+          ,
       },
     ],
   },
@@ -5100,7 +5100,7 @@ const endpoints = makeApi([
         message: z.string(),
         platform: z.enum(["web", "android", "ios"]).optional().default("web"),
       })
-      .passthrough(),
+      ,
     errors: [
       {
         status: 401,
@@ -5112,7 +5112,7 @@ const endpoints = makeApi([
         description: `Internal server error`,
         schema: z
           .object({ ok: z.literal(false), error: z.string() })
-          .passthrough(),
+          ,
       },
     ],
   },
@@ -5125,7 +5125,7 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: z.object({ token: z.string().min(1) }).passthrough(),
+        schema: z.object({ token: z.string().min(1) }),
       },
     ],
     response: z
@@ -5134,7 +5134,7 @@ const endpoints = makeApi([
         message: z.string(),
         platform: z.enum(["web", "android", "ios"]).optional().default("web"),
       })
-      .passthrough(),
+      ,
     errors: [
       {
         status: 401,
@@ -5146,7 +5146,7 @@ const endpoints = makeApi([
         description: `Internal server error`,
         schema: z
           .object({ ok: z.literal(false), error: z.string() })
-          .passthrough(),
+          ,
       },
     ],
   },
@@ -6523,7 +6523,7 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: z.object({ note: z.string().max(5000) }).passthrough(),
+        schema: z.object({ note: z.string().max(5000) }),
       },
       {
         name: "sourceType",
@@ -6645,7 +6645,7 @@ const endpoints = makeApi([
         type: "Body",
         schema: z
           .object({ deadline: z.string().datetime({ offset: true }) })
-          .passthrough(),
+          ,
       },
       {
         name: "sourceType",

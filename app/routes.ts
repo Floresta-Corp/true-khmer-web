@@ -94,6 +94,7 @@ export default [
     ),
   ]),
   route("tk-admin/login", "routes/auth/pages/admin-login.tsx"),
+  route("tk-admin/logout", "routes/admin-logout.tsx"),
 
   route("login", "routes/auth/pages/login.tsx"),
   route("register", "routes/auth/pages/register.tsx"),

@@ -39,7 +39,7 @@ export async function superAdminAction({ request }: ActionFunctionArgs) {
   const sanitizedRedirectTo = sanitizeRedirectPath(redirectTo, "/tk-admin");
 
   try {
-    const { data: auth } = await loginAdmin(request, email, password);
+    const auth = await loginAdmin(request, email, password);
     const response = await createAdminSession(
       auth,
       sanitizedRedirectTo || "/tk-admin",

@@ -18,6 +18,7 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import {
   data,
+  Form,
   Link,
   Outlet,
   useLoaderData,
@@ -180,6 +181,8 @@ export default function AdminLayout() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const isDashboardRoute =
+    location.pathname === "/tk-admin" || location.pathname === "/tk-admin/";
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -191,10 +194,7 @@ export default function AdminLayout() {
   }, [theme]);
 
   useEffect(() => {
-    if (
-      location.pathname === "/tk-admin" ||
-      location.pathname === "/tk-admin/"
-    ) {
+    if (isDashboardRoute) {
       setActiveMenu("dashboard");
     }
 
@@ -205,7 +205,7 @@ export default function AdminLayout() {
     if (location.pathname.startsWith("/tk-admin/users")) {
       setActiveMenu("users");
     }
-  }, [location.pathname]);
+  }, [isDashboardRoute, location.pathname]);
 
   const navigateTo = (item: NavItem) => {
     if (item.disabled) return;
@@ -514,10 +514,15 @@ export default function AdminLayout() {
                         </div>
 
                         <div className="mt-2 pt-2 border-t border-slate-50 dark:border-slate-800">
-                          <div className="px-4 py-3 text-[13px] font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl cursor-pointer transition-all flex items-center gap-3">
-                            <LogOut size={16} />
-                            Sign Out
-                          </div>
+                          <Form method="post" action="/tk-admin/logout">
+                            <button
+                              type="submit"
+                              className="w-full px-4 py-3 text-[13px] font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-all flex items-center gap-3 text-left cursor-pointer"
+                            >
+                              <LogOut size={16} />
+                              Sign Out
+                            </button>
+                          </Form>
                         </div>
                       </motion.div>
                     )}

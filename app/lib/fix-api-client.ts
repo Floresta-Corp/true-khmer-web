@@ -15,6 +15,9 @@ content = content.replace(
 );
 
 const replacements = [
+  // Remove .passthrough() — it adds `{ [x: string]: unknown }` to every inferred type,
+  // breaking Omit and widening property types to unknown. Zod's default .strip() is fine.
+  [/\.passthrough\(\)/g, ""],
   [
     /z\.record\(z\.unknown\(\)\.nullable\(\)\)/g,
     "z.record(z.string(), z.unknown().nullable())",

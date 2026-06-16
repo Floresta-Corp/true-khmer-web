@@ -2,8 +2,12 @@ import { createCookieSessionStorage } from "react-router";
 import { redirect } from "react-router";
 import type { AuthTokensResponse } from "~/services/auth/api.server";
 import type { AuthenticatedUser } from "./types";
-import type { AdminAuthResult, AdminUser } from "./auth/admin/api-admin.server";
+import type { AdminUser, AdminAuthResult } from "./auth/admin/api-admin.server";
+import { schemas } from "~/types/api-client";
+import type { z } from "zod";
 import { apiRequestPublic } from "./api-client.server";
+
+export type { AdminAuthResult };
 const SESSION_SECRET = process.env.SESSION_SECRET ?? crypto.randomUUID();
 
 if (!process.env.SESSION_SECRET) {
@@ -207,8 +211,14 @@ export async function getAdminAccessToken(
 
     session.set("adminAccessToken", refreshed.accessToken);
     session.set("adminRefreshToken", refreshed.refreshToken);
-    session.set("adminAccessTokenExpiresAt", refreshed.accessTokenExpiresAt);
-    session.set("adminRefreshTokenExpiresAt", refreshed.refreshTokenExpiresAt);
+    session.set(
+      "adminAccessTokenExpiresAt",
+      refreshed.accessTokenExpiresAt ?? "",
+    );
+    session.set(
+      "adminRefreshTokenExpiresAt",
+      refreshed.refreshTokenExpiresAt ?? "",
+    );
 
     const setCookie = await commitSession(session);
     return { accessToken: refreshed.accessToken, setCookie };
@@ -230,7 +240,9 @@ export async function refreshAdminToken(
   request: Request,
   refreshToken: string,
 ): Promise<Omit<AdminAuthResult, "admin">> {
-  const { data } = await apiRequestPublic<Omit<AdminAuthResult, "admin">>(
+  type adminResponse = z.infer<typeof schemas.AdminRefreshResponse>;
+
+  const result = await apiRequestPublic<adminResponse>(
     request,
     "/admin/refresh",
     {
@@ -239,7 +251,18 @@ export async function refreshAdminToken(
     },
   );
 
-  return data;
+  const {
+    accessToken,
+    refreshToken: newRefreshToken,
+    accessTokenExpiresAt,
+    refreshTokenExpiresAt,
+  } = result.data;
+  return {
+    accessToken,
+    refreshToken: newRefreshToken,
+    accessTokenExpiresAt,
+    refreshTokenExpiresAt,
+  };
 }
 
 export async function destroyAdminSession(request: Request) {
