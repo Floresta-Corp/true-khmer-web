@@ -88,6 +88,7 @@ const AuthAccessState = z.enum([
   "SIGNUP_REQUIRED",
   "ONBOARDING_REQUIRED",
   "ACTIVE"]);
+
 const AuthRequiredAction = z.enum([
   "COMPLETE_SIGNUP",
   "COMPLETE_ONBOARDING"]);
@@ -141,6 +142,7 @@ const AuthResendRegisterOtpRequest = z
 const ResendRegisterOtpResponse = z
   .object({ success: z.boolean(), message: z.string() })
   ;
+
 const AuthSimpleErrorResponse = z.object({ error: z.string() });
 const AuthLoginRequest = z
   .object({ email: z.string().min(1).email(), password: z.string().min(1) })
@@ -186,6 +188,7 @@ const AdminLoginResponse = z
     admin: AdminUser,
   })
   ;
+
 const AdminErrorResponse = z.object({ error: z.string() });
 const AdminRefreshRequest = z
   .object({ refreshToken: z.string().min(1) })
@@ -250,7 +253,9 @@ const UpdateContentModeratorReportReviewRequest = z
 const UpdateContentModeratorReportReviewResponse = z
   .object({ ok: z.boolean(), report: ContentModeratorReport })
   ;
+
 const OnboardingOkResponse = z.record(z.string(), z.unknown().nullable());
+
 const OnboardingErrorResponse = z.record(z.string(), z.unknown().nullable());
 const OnboardingProfileStepRequest = z
   .object({
@@ -345,6 +350,7 @@ const CreateCategoryRequest = z
 const CreateCategoryResponse = z
   .object({ ok: z.boolean(), category: CategoryResponse })
   ;
+
 const isUnanswered = z.union([z.boolean(), z.string()]).optional();
 const QuestionTagResponse = z
   .object({ id: z.string(), name: z.string() })
@@ -474,7 +480,9 @@ const EditQuestionRequest = z
   })
   .partial()
   ;
+
 const VoteQuestionRequest = z.object({ voteType: z.string() });
+
 const SaveQuestionResponse = z.object({ ok: z.literal(true) });
 const RepliedAnswerResponse = z
   .object({
@@ -578,6 +586,7 @@ const MyAnswerResponse = z
 const GetMyAnswersResponse = z
   .object({ ok: z.boolean(), answers: z.array(MyAnswerResponse) })
   ;
+
 const CreateAnswerRequest = z.object({
   questionId: z
     .string()
@@ -604,7 +613,9 @@ const EditAnswerResponse = z
 const AnswerErrorResponse = z
   .object({ ok: z.literal(false), error: z.string() })
   ;
+
 const DeleteAnswerResponse = z.object({ ok: z.boolean() });
+
 const VoteAnswerRequest = z.object({ voteType: z.string() });
 const VoteAnswerResponse = z
   .object({ ok: z.boolean(), answer: AnswerResponse })
@@ -1188,6 +1199,7 @@ const GetSavedLaunchpadsResponse = z
     nextCursor: z.string().nullable(),
   })
   ;
+
 const SaveLaunchpadResponse = z.object({ ok: z.literal(true) });
 const CreateLaunchpadRequest = z
   .object({
@@ -1546,6 +1558,7 @@ const CreateLaunchpadApplicationBatchRequest = z
 const CreateLaunchpadApplicationBatchResponse = z
   .object({ ok: z.literal(true), applications: z.array(LaunchpadApplication) })
   ;
+
 const LaunchpadApplicationBatchErrorResponse = z.union([
   LaunchpadApplicationValidationErrorResponse,
   LaunchpadApplicationOperationErrorResponse,
@@ -1553,6 +1566,7 @@ const LaunchpadApplicationBatchErrorResponse = z.union([
 const GetLaunchpadApplicationResponse = z
   .object({ ok: z.literal(true), application: LaunchpadApplication })
   ;
+
 const MyApplicationStatusGroup = z.enum([
   "SUBMITTED",
   "UNDER_REVIEW",
@@ -2177,6 +2191,7 @@ const PublicProfileResponse = z
       ,
   })
   ;
+
 const GetMyPostedResponse = z.union([
   z
     .object({
@@ -2255,6 +2270,7 @@ const GetMyPostedResponse = z.union([
 const MyPostedErrorResponse = z
   .object({ ok: z.literal(false), error: z.string() })
   ;
+
 const ManagePostingStatus = z.enum([
   "DRAFT",
   "LIVE",
@@ -2301,6 +2317,7 @@ const ManagePostingsResponse = z
 const ManagePostingsErrorResponse = z
   .object({ ok: z.literal(false), error: z.string() })
   ;
+
 const ManagePostingApplicantStatus = z.enum([
   "SUBMITTED",
   "UNDER_REVIEW",
@@ -2516,6 +2533,7 @@ const postV1notificationsbroadcast_Body = z
 const patchV1notificationsread_Body = z
   .object({ notificationIds: z.array(z.string().uuid()).min(1) })
   ;
+
 
 export const schemas = {
   AuthRegisterRequest,
@@ -6697,6 +6715,221 @@ const endpoints = makeApi([
     ],
   },
 ]);
+
+
+// Generated API schema types
+export type AuthRegisterRequest = z.infer<typeof schemas.AuthRegisterRequest>;
+export type AuthUserProfile = z.infer<typeof schemas.AuthUserProfile>;
+export type AuthUser = z.infer<typeof schemas.AuthUser>;
+export type RegisterSuccessResponse = z.infer<typeof schemas.RegisterSuccessResponse>;
+export type AuthCompleteSignUpRequest = z.infer<typeof schemas.AuthCompleteSignUpRequest>;
+export type AuthAccessState = z.infer<typeof schemas.AuthAccessState>;
+export type AuthRequiredAction = z.infer<typeof schemas.AuthRequiredAction>;
+export type AuthFlow = z.infer<typeof schemas.AuthFlow>;
+export type CompleteSignUpResponse = z.infer<typeof schemas.CompleteSignUpResponse>;
+export type AuthSessionResponse = z.infer<typeof schemas.AuthSessionResponse>;
+export type AuthProtectedErrorResponse = z.infer<typeof schemas.AuthProtectedErrorResponse>;
+export type AuthGoogleRequest = z.infer<typeof schemas.AuthGoogleRequest>;
+export type AuthTokenResponse = z.infer<typeof schemas.AuthTokenResponse>;
+export type AuthVerifyRegisterOtpRequest = z.infer<typeof schemas.AuthVerifyRegisterOtpRequest>;
+export type AuthResendRegisterOtpRequest = z.infer<typeof schemas.AuthResendRegisterOtpRequest>;
+export type ResendRegisterOtpResponse = z.infer<typeof schemas.ResendRegisterOtpResponse>;
+export type AuthSimpleErrorResponse = z.infer<typeof schemas.AuthSimpleErrorResponse>;
+export type AuthLoginRequest = z.infer<typeof schemas.AuthLoginRequest>;
+export type AuthRefreshRequest = z.infer<typeof schemas.AuthRefreshRequest>;
+export type RefreshSuccessResponse = z.infer<typeof schemas.RefreshSuccessResponse>;
+export type AuthForgotPasswordRequest = z.infer<typeof schemas.AuthForgotPasswordRequest>;
+export type ForgotPasswordResponse = z.infer<typeof schemas.ForgotPasswordResponse>;
+export type AuthResetPasswordRequest = z.infer<typeof schemas.AuthResetPasswordRequest>;
+export type ResetPasswordResponse = z.infer<typeof schemas.ResetPasswordResponse>;
+export type AdminLoginRequest = z.infer<typeof schemas.AdminLoginRequest>;
+export type AdminUser = z.infer<typeof schemas.AdminUser>;
+export type AdminLoginResponse = z.infer<typeof schemas.AdminLoginResponse>;
+export type AdminErrorResponse = z.infer<typeof schemas.AdminErrorResponse>;
+export type AdminRefreshRequest = z.infer<typeof schemas.AdminRefreshRequest>;
+export type AdminRefreshResponse = z.infer<typeof schemas.AdminRefreshResponse>;
+export type AdminLogoutResponse = z.infer<typeof schemas.AdminLogoutResponse>;
+export type ContentModeratorReportType = z.infer<typeof schemas.ContentModeratorReportType>;
+export type ContentModeratorReportReporter = z.infer<typeof schemas.ContentModeratorReportReporter>;
+export type ContentModeratorReport = z.infer<typeof schemas.ContentModeratorReport>;
+export type CursorPagination = z.infer<typeof schemas.CursorPagination>;
+export type ListContentModeratorReportsResponse = z.infer<typeof schemas.ListContentModeratorReportsResponse>;
+export type UpdateContentModeratorReportReviewRequest = z.infer<typeof schemas.UpdateContentModeratorReportReviewRequest>;
+export type UpdateContentModeratorReportReviewResponse = z.infer<typeof schemas.UpdateContentModeratorReportReviewResponse>;
+export type OnboardingOkResponse = z.infer<typeof schemas.OnboardingOkResponse>;
+export type OnboardingErrorResponse = z.infer<typeof schemas.OnboardingErrorResponse>;
+export type OnboardingProfileStepRequest = z.infer<typeof schemas.OnboardingProfileStepRequest>;
+export type OnboardingInterestsStepRequest = z.infer<typeof schemas.OnboardingInterestsStepRequest>;
+export type OnboardingContributionsStepRequest = z.infer<typeof schemas.OnboardingContributionsStepRequest>;
+export type PresignAvatarUploadRequest = z.infer<typeof schemas.PresignAvatarUploadRequest>;
+export type PresignAvatarUploadResult = z.infer<typeof schemas.PresignAvatarUploadResult>;
+export type PresignAvatarUploadResponse = z.infer<typeof schemas.PresignAvatarUploadResponse>;
+export type CategoryResponse = z.infer<typeof schemas.CategoryResponse>;
+export type CategoryWithQuestionCountResponse = z.infer<typeof schemas.CategoryWithQuestionCountResponse>;
+export type GetCategoriesResponse = z.infer<typeof schemas.GetCategoriesResponse>;
+export type CreateCategoryRequest = z.infer<typeof schemas.CreateCategoryRequest>;
+export type CreateCategoryResponse = z.infer<typeof schemas.CreateCategoryResponse>;
+export type isUnanswered = z.infer<typeof schemas.isUnanswered>;
+export type QuestionTagResponse = z.infer<typeof schemas.QuestionTagResponse>;
+export type QuestionResponse = z.infer<typeof schemas.QuestionResponse>;
+export type GetQuestionsResponse = z.infer<typeof schemas.GetQuestionsResponse>;
+export type CreateQuestionRequest = z.infer<typeof schemas.CreateQuestionRequest>;
+export type CreateQuestionResponse = z.infer<typeof schemas.CreateQuestionResponse>;
+export type TrendingTagResponse = z.infer<typeof schemas.TrendingTagResponse>;
+export type GetTrendingTagsResponse = z.infer<typeof schemas.GetTrendingTagsResponse>;
+export type GetMyQuestionsResponse = z.infer<typeof schemas.GetMyQuestionsResponse>;
+export type GetSavedQuestionsResponse = z.infer<typeof schemas.GetSavedQuestionsResponse>;
+export type GetQuestionResponse = z.infer<typeof schemas.GetQuestionResponse>;
+export type PresignForumQuestionImageUploadRequest = z.infer<typeof schemas.PresignForumQuestionImageUploadRequest>;
+export type PresignForumQuestionImageUploadResult = z.infer<typeof schemas.PresignForumQuestionImageUploadResult>;
+export type PresignForumQuestionImageUploadResponse = z.infer<typeof schemas.PresignForumQuestionImageUploadResponse>;
+export type EditQuestionRequest = z.infer<typeof schemas.EditQuestionRequest>;
+export type VoteQuestionRequest = z.infer<typeof schemas.VoteQuestionRequest>;
+export type SaveQuestionResponse = z.infer<typeof schemas.SaveQuestionResponse>;
+export type RepliedAnswerResponse = z.infer<typeof schemas.RepliedAnswerResponse>;
+export type AnswerResponse = z.infer<typeof schemas.AnswerResponse>;
+export type GetAnswersResponse = z.infer<typeof schemas.GetAnswersResponse>;
+export type AnswerQuestionResponse = z.infer<typeof schemas.AnswerQuestionResponse>;
+export type MyAnswerResponse = z.infer<typeof schemas.MyAnswerResponse>;
+export type GetMyAnswersResponse = z.infer<typeof schemas.GetMyAnswersResponse>;
+export type CreateAnswerRequest = z.infer<typeof schemas.CreateAnswerRequest>;
+export type CreateAnswerResponse = z.infer<typeof schemas.CreateAnswerResponse>;
+export type UpdateAnswerRequest = z.infer<typeof schemas.UpdateAnswerRequest>;
+export type EditAnswerResponse = z.infer<typeof schemas.EditAnswerResponse>;
+export type AnswerErrorResponse = z.infer<typeof schemas.AnswerErrorResponse>;
+export type DeleteAnswerResponse = z.infer<typeof schemas.DeleteAnswerResponse>;
+export type VoteAnswerRequest = z.infer<typeof schemas.VoteAnswerRequest>;
+export type VoteAnswerResponse = z.infer<typeof schemas.VoteAnswerResponse>;
+export type MarkBestAnswerResponse = z.infer<typeof schemas.MarkBestAnswerResponse>;
+export type VolunteerCategoryResponse = z.infer<typeof schemas.VolunteerCategoryResponse>;
+export type VolunteerCategoryWithOpportunityCountResponse = z.infer<typeof schemas.VolunteerCategoryWithOpportunityCountResponse>;
+export type GetVolunteerCategoriesResponse = z.infer<typeof schemas.GetVolunteerCategoriesResponse>;
+export type VolunteerOperationErrorResponse = z.infer<typeof schemas.VolunteerOperationErrorResponse>;
+export type CreateVolunteerCategoryRequest = z.infer<typeof schemas.CreateVolunteerCategoryRequest>;
+export type CreateVolunteerCategoryResponse = z.infer<typeof schemas.CreateVolunteerCategoryResponse>;
+export type VolunteerCategoryValidationErrorResponse = z.infer<typeof schemas.VolunteerCategoryValidationErrorResponse>;
+export type VolunteerLocationResponse = z.infer<typeof schemas.VolunteerLocationResponse>;
+export type GetVolunteerLocationsResponse = z.infer<typeof schemas.GetVolunteerLocationsResponse>;
+export type PresignVolunteerOpportunityCoverUploadRequest = z.infer<typeof schemas.PresignVolunteerOpportunityCoverUploadRequest>;
+export type PresignVolunteerOpportunityCoverUploadResult = z.infer<typeof schemas.PresignVolunteerOpportunityCoverUploadResult>;
+export type PresignVolunteerOpportunityCoverUploadResponse = z.infer<typeof schemas.PresignVolunteerOpportunityCoverUploadResponse>;
+export type PresignVolunteerApplicationDocumentUploadRequest = z.infer<typeof schemas.PresignVolunteerApplicationDocumentUploadRequest>;
+export type PresignVolunteerApplicationDocumentUploadResult = z.infer<typeof schemas.PresignVolunteerApplicationDocumentUploadResult>;
+export type PresignVolunteerApplicationDocumentUploadResponse = z.infer<typeof schemas.PresignVolunteerApplicationDocumentUploadResponse>;
+export type VolunteerOpportunityReference = z.infer<typeof schemas.VolunteerOpportunityReference>;
+export type VolunteerOpportunityListItemResponse = z.infer<typeof schemas.VolunteerOpportunityListItemResponse>;
+export type VolunteerOpportunitiesPaginationResponse = z.infer<typeof schemas.VolunteerOpportunitiesPaginationResponse>;
+export type GetVolunteerOpportunitiesResponse = z.infer<typeof schemas.GetVolunteerOpportunitiesResponse>;
+export type VolunteerOpportunityContact = z.infer<typeof schemas.VolunteerOpportunityContact>;
+export type VolunteerOpportunityRoleRequest = z.infer<typeof schemas.VolunteerOpportunityRoleRequest>;
+export type CreateVolunteerOpportunityPayload = z.infer<typeof schemas.CreateVolunteerOpportunityPayload>;
+export type CreateVolunteerOpportunityRequest = z.infer<typeof schemas.CreateVolunteerOpportunityRequest>;
+export type VolunteerOpportunityContactResponse = z.infer<typeof schemas.VolunteerOpportunityContactResponse>;
+export type VolunteerOpportunityOrganizerResponse = z.infer<typeof schemas.VolunteerOpportunityOrganizerResponse>;
+export type VolunteerOpportunityRoleResponse = z.infer<typeof schemas.VolunteerOpportunityRoleResponse>;
+export type VolunteerOpportunityResponse = z.infer<typeof schemas.VolunteerOpportunityResponse>;
+export type CreateVolunteerOpportunityResponse = z.infer<typeof schemas.CreateVolunteerOpportunityResponse>;
+export type GetVolunteerOpportunityResponse = z.infer<typeof schemas.GetVolunteerOpportunityResponse>;
+export type UpdateVolunteerOpportunityContactRequest = z.infer<typeof schemas.UpdateVolunteerOpportunityContactRequest>;
+export type UpdateVolunteerOpportunityRoleRequest = z.infer<typeof schemas.UpdateVolunteerOpportunityRoleRequest>;
+export type UpdateVolunteerOpportunityRequest = z.infer<typeof schemas.UpdateVolunteerOpportunityRequest>;
+export type SaveVolunteerOpportunityResponse = z.infer<typeof schemas.SaveVolunteerOpportunityResponse>;
+export type CreateVolunteerApplicationRequest = z.infer<typeof schemas.CreateVolunteerApplicationRequest>;
+export type VolunteerApplicationOpportunity = z.infer<typeof schemas.VolunteerApplicationOpportunity>;
+export type VolunteerApplicationRoleResponse = z.infer<typeof schemas.VolunteerApplicationRoleResponse>;
+export type VolunteerApplicationResponse = z.infer<typeof schemas.VolunteerApplicationResponse>;
+export type CreateVolunteerApplicationResponse = z.infer<typeof schemas.CreateVolunteerApplicationResponse>;
+export type CreateVolunteerApplicationBatchRequest = z.infer<typeof schemas.CreateVolunteerApplicationBatchRequest>;
+export type CreateVolunteerApplicationBatchResponse = z.infer<typeof schemas.CreateVolunteerApplicationBatchResponse>;
+export type PublicVolunteerOpportunityResponse = z.infer<typeof schemas.PublicVolunteerOpportunityResponse>;
+export type GetPublicVolunteerOpportunityResponse = z.infer<typeof schemas.GetPublicVolunteerOpportunityResponse>;
+export type ReportingTypeResponse = z.infer<typeof schemas.ReportingTypeResponse>;
+export type GetReportingTypesResponse = z.infer<typeof schemas.GetReportingTypesResponse>;
+export type CreateReportingRequest = z.infer<typeof schemas.CreateReportingRequest>;
+export type CreateReportingResponse = z.infer<typeof schemas.CreateReportingResponse>;
+export type LaunchpadCategoryResponse = z.infer<typeof schemas.LaunchpadCategoryResponse>;
+export type GetLaunchpadCategoriesResponse = z.infer<typeof schemas.GetLaunchpadCategoriesResponse>;
+export type PresignLaunchpadImageUploadRequest = z.infer<typeof schemas.PresignLaunchpadImageUploadRequest>;
+export type PresignLaunchpadLogoUploadResult = z.infer<typeof schemas.PresignLaunchpadLogoUploadResult>;
+export type PresignLaunchpadLogoUploadResponse = z.infer<typeof schemas.PresignLaunchpadLogoUploadResponse>;
+export type LaunchpadLogoValidationErrorResponse = z.infer<typeof schemas.LaunchpadLogoValidationErrorResponse>;
+export type LaunchpadOperationErrorResponse = z.infer<typeof schemas.LaunchpadOperationErrorResponse>;
+export type PresignLaunchpadCoverUploadResult = z.infer<typeof schemas.PresignLaunchpadCoverUploadResult>;
+export type PresignLaunchpadCoverUploadResponse = z.infer<typeof schemas.PresignLaunchpadCoverUploadResponse>;
+export type PresignLaunchpadDocumentUploadRequest = z.infer<typeof schemas.PresignLaunchpadDocumentUploadRequest>;
+export type PresignLaunchpadDocumentUploadResult = z.infer<typeof schemas.PresignLaunchpadDocumentUploadResult>;
+export type PresignLaunchpadDocumentUploadResponse = z.infer<typeof schemas.PresignLaunchpadDocumentUploadResponse>;
+export type GetSavedLaunchpadsResponse = z.infer<typeof schemas.GetSavedLaunchpadsResponse>;
+export type SaveLaunchpadResponse = z.infer<typeof schemas.SaveLaunchpadResponse>;
+export type CreateLaunchpadRequest = z.infer<typeof schemas.CreateLaunchpadRequest>;
+export type CreateLaunchpadResponse = z.infer<typeof schemas.CreateLaunchpadResponse>;
+export type GetLaunchpadsResponse = z.infer<typeof schemas.GetLaunchpadsResponse>;
+export type UpdateLaunchpadRoleRequest = z.infer<typeof schemas.UpdateLaunchpadRoleRequest>;
+export type UpdateLaunchpadRequest = z.infer<typeof schemas.UpdateLaunchpadRequest>;
+export type GetLaunchpadByIdResponse = z.infer<typeof schemas.GetLaunchpadByIdResponse>;
+export type PresignLaunchpadApplicationDocumentUploadRequest = z.infer<typeof schemas.PresignLaunchpadApplicationDocumentUploadRequest>;
+export type PresignLaunchpadApplicationDocumentUploadResult = z.infer<typeof schemas.PresignLaunchpadApplicationDocumentUploadResult>;
+export type PresignLaunchpadApplicationDocumentUploadResponse = z.infer<typeof schemas.PresignLaunchpadApplicationDocumentUploadResponse>;
+export type LaunchpadApplicationValidationErrorResponse = z.infer<typeof schemas.LaunchpadApplicationValidationErrorResponse>;
+export type LaunchpadApplicationOperationErrorResponse = z.infer<typeof schemas.LaunchpadApplicationOperationErrorResponse>;
+export type CreateLaunchpadApplicationRequest = z.infer<typeof schemas.CreateLaunchpadApplicationRequest>;
+export type LaunchpadApplicationLog = z.infer<typeof schemas.LaunchpadApplicationLog>;
+export type LaunchpadApplication = z.infer<typeof schemas.LaunchpadApplication>;
+export type CreateLaunchpadApplicationResponse = z.infer<typeof schemas.CreateLaunchpadApplicationResponse>;
+export type CreateLaunchpadApplicationBatchRequest = z.infer<typeof schemas.CreateLaunchpadApplicationBatchRequest>;
+export type CreateLaunchpadApplicationBatchResponse = z.infer<typeof schemas.CreateLaunchpadApplicationBatchResponse>;
+export type LaunchpadApplicationBatchErrorResponse = z.infer<typeof schemas.LaunchpadApplicationBatchErrorResponse>;
+export type GetLaunchpadApplicationResponse = z.infer<typeof schemas.GetLaunchpadApplicationResponse>;
+export type MyApplicationStatusGroup = z.infer<typeof schemas.MyApplicationStatusGroup>;
+export type MyApplicationReference = z.infer<typeof schemas.MyApplicationReference>;
+export type MyApplicationTimeline = z.infer<typeof schemas.MyApplicationTimeline>;
+export type MyApplicationRole = z.infer<typeof schemas.MyApplicationRole>;
+export type MyApplicationItem = z.infer<typeof schemas.MyApplicationItem>;
+export type MyApplicationsSummary = z.infer<typeof schemas.MyApplicationsSummary>;
+export type MyApplicationsResponse = z.infer<typeof schemas.MyApplicationsResponse>;
+export type MyApplicationsErrorResponse = z.infer<typeof schemas.MyApplicationsErrorResponse>;
+export type MyApplicationRoleDetail = z.infer<typeof schemas.MyApplicationRoleDetail>;
+export type MyApplicationDetail = z.infer<typeof schemas.MyApplicationDetail>;
+export type MyApplicationDetailResponse = z.infer<typeof schemas.MyApplicationDetailResponse>;
+export type MyApplicationStatusActionResponse = z.infer<typeof schemas.MyApplicationStatusActionResponse>;
+export type MyApplicationArchiveActionResponse = z.infer<typeof schemas.MyApplicationArchiveActionResponse>;
+export type ProfileResponse = z.infer<typeof schemas.ProfileResponse>;
+export type ProfileErrorResponse = z.infer<typeof schemas.ProfileErrorResponse>;
+export type UpdateProfileRequest = z.infer<typeof schemas.UpdateProfileRequest>;
+export type UpdateProfileResponse = z.infer<typeof schemas.UpdateProfileResponse>;
+export type RecentActivity = z.infer<typeof schemas.RecentActivity>;
+export type GetRecentActivitiesResponse = z.infer<typeof schemas.GetRecentActivitiesResponse>;
+export type RecentActivityErrorResponse = z.infer<typeof schemas.RecentActivityErrorResponse>;
+export type GetSavedItemsResponse = z.infer<typeof schemas.GetSavedItemsResponse>;
+export type SavedItemsErrorResponse = z.infer<typeof schemas.SavedItemsErrorResponse>;
+export type PublicProfileResponse = z.infer<typeof schemas.PublicProfileResponse>;
+export type GetMyPostedResponse = z.infer<typeof schemas.GetMyPostedResponse>;
+export type MyPostedErrorResponse = z.infer<typeof schemas.MyPostedErrorResponse>;
+export type ManagePostingStatus = z.infer<typeof schemas.ManagePostingStatus>;
+export type ManagePostingItem = z.infer<typeof schemas.ManagePostingItem>;
+export type ManagePostingsPagination = z.infer<typeof schemas.ManagePostingsPagination>;
+export type ManagePostingsResponse = z.infer<typeof schemas.ManagePostingsResponse>;
+export type ManagePostingsErrorResponse = z.infer<typeof schemas.ManagePostingsErrorResponse>;
+export type ManagePostingApplicantStatus = z.infer<typeof schemas.ManagePostingApplicantStatus>;
+export type ManagePostingApplicationRole = z.infer<typeof schemas.ManagePostingApplicationRole>;
+export type ManagePostingSubmission = z.infer<typeof schemas.ManagePostingSubmission>;
+export type ManagePostingApplicantPrivateNote = z.infer<typeof schemas.ManagePostingApplicantPrivateNote>;
+export type ManagePostingApplicant = z.infer<typeof schemas.ManagePostingApplicant>;
+export type ManagePostingCandidateDetailResponse = z.infer<typeof schemas.ManagePostingCandidateDetailResponse>;
+export type UpsertManagePostingCandidateNoteRequest = z.infer<typeof schemas.UpsertManagePostingCandidateNoteRequest>;
+export type UpsertManagePostingCandidateNoteResponse = z.infer<typeof schemas.UpsertManagePostingCandidateNoteResponse>;
+export type UpdateManagePostingActionResponse = z.infer<typeof schemas.UpdateManagePostingActionResponse>;
+export type ExtendManagePostingDeadlineRequest = z.infer<typeof schemas.ExtendManagePostingDeadlineRequest>;
+export type ExtendManagePostingDeadlineResponse = z.infer<typeof schemas.ExtendManagePostingDeadlineResponse>;
+export type ManagePostingApplicationActionResponse = z.infer<typeof schemas.ManagePostingApplicationActionResponse>;
+export type ManagePostingDetail = z.infer<typeof schemas.ManagePostingDetail>;
+export type ManagePostingDetailResponse = z.infer<typeof schemas.ManagePostingDetailResponse>;
+export type postV1notificationstokens_Body = z.infer<typeof schemas.postV1notificationstokens_Body>;
+export type postV1notificationssenduser_Body = z.infer<typeof schemas.postV1notificationssenduser_Body>;
+export type postV1notificationsbroadcast_Body = z.infer<typeof schemas.postV1notificationsbroadcast_Body>;
+export type patchV1notificationsread_Body = z.infer<typeof schemas.patchV1notificationsread_Body>;
+// End generated API schema types
+
 
 export const api = new Zodios(endpoints);
 

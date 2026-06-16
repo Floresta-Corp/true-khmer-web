@@ -2,12 +2,7 @@ import {
   apiRequestPublic,
   apiRequestWithAccessToken,
 } from "~/lib/server/api-client.server";
-import { schemas } from "~/types/api-client";
-import type { z } from "zod";
-
-const { AdminUser } = schemas;
-
-export type AdminUser = z.infer<typeof AdminUser>;
+import { type AdminLoginResponse, type AdminUser } from "~/types/api-client";
 
 export type AdminAuthResult = {
   accessToken: string;
@@ -22,8 +17,6 @@ export async function loginAdmin(
   email: string,
   password: string,
 ): Promise<AdminAuthResult> {
-  type AdminLoginResponse = z.infer<typeof schemas.AdminLoginResponse>;
-
   const result = await apiRequestPublic<AdminLoginResponse>(
     request,
     "/admin/login",
@@ -40,8 +33,7 @@ export async function getAdminMe(
   request: Request,
   accessToken: string,
 ): Promise<AdminUser> {
-  type AdminMeResponse = z.infer<typeof schemas.AdminUser>;
-  const result = await apiRequestWithAccessToken<AdminMeResponse>(
+  const result = await apiRequestWithAccessToken<AdminUser>(
     request,
     accessToken,
     "/admin/me",

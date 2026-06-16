@@ -1,9 +1,14 @@
 import { createCookieSessionStorage } from "react-router";
 import { redirect } from "react-router";
 import type { AuthTokensResponse } from "~/services/auth/api.server";
-import type { AuthenticatedUser } from "./types";
-import type { AdminUser, AdminAuthResult } from "./auth/admin/api-admin.server";
-import { schemas } from "~/types/api-client";
+import type { AdminAuth, AuthenticatedUser } from "./types";
+import type { AdminAuthResult } from "./auth/admin/api-admin.server";
+import {
+  schemas,
+  type AdminLoginResponse,
+  type AdminRefreshResponse,
+  type AdminUser,
+} from "~/types/api-client";
 import type { z } from "zod";
 import { apiRequestPublic } from "./api-client.server";
 
@@ -239,10 +244,8 @@ export async function getAdminUser(
 export async function refreshAdminToken(
   request: Request,
   refreshToken: string,
-): Promise<Omit<AdminAuthResult, "admin">> {
-  type adminResponse = z.infer<typeof schemas.AdminRefreshResponse>;
-
-  const result = await apiRequestPublic<adminResponse>(
+): Promise<Omit<AdminLoginResponse, "admin">> {
+  const result = await apiRequestPublic<AdminRefreshResponse>(
     request,
     "/admin/refresh",
     {
@@ -251,18 +254,7 @@ export async function refreshAdminToken(
     },
   );
 
-  const {
-    accessToken,
-    refreshToken: newRefreshToken,
-    accessTokenExpiresAt,
-    refreshTokenExpiresAt,
-  } = result.data;
-  return {
-    accessToken,
-    refreshToken: newRefreshToken,
-    accessTokenExpiresAt,
-    refreshTokenExpiresAt,
-  };
+  return result.data;
 }
 
 export async function destroyAdminSession(request: Request) {
