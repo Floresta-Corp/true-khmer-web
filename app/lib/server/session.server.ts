@@ -244,7 +244,7 @@ export async function refreshAdminToken(
 
 export async function destroyAdminSession(request: Request) {
   const session = await getSession(request);
-  return redirect("/tk-admin-login", {
+  return redirect("/tk-admin/login", {
     headers: { "Set-Cookie": await destroySession(session) },
   });
 }

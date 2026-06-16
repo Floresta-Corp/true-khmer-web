@@ -1,8 +1,8 @@
-import React from "react";
+import type { PropsWithChildren } from "react";
 import { Link } from "react-router";
 import { cn } from "~/lib/utils";
 
-interface ProfileLinkWrapperProps extends React.PropsWithChildren {
+interface ProfileLinkWrapperProps extends PropsWithChildren {
   authorId?: string | number;
   isAuthor?: boolean;
   className?: string;

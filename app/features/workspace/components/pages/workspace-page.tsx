@@ -1,5 +1,6 @@
 import { useLoaderData, useNavigation, useSearchParams } from "react-router";
 import type { loader } from "../../routes/workspace";
+import type { MyWorkSpaceLoaderData } from "~/routes/api/workspace/work-space-loader";
 import WorkspaceSkeleton from "../workspace-skeleton";
 import WorkspaceQuestionItem from "../card/workspace-question-card";
 import WorkspaceAnswerItem from "../card/workspace-my-answer-card";
@@ -31,7 +32,8 @@ function EmptyWorkspaceState({
 }
 
 export default function WorkSpacePage({}: Props) {
-  const { categories, answers, questions } = useLoaderData<typeof loader>();
+  const { categories, answers, questions } =
+    useLoaderData<typeof loader>() as MyWorkSpaceLoaderData;
   const navigation = useNavigation();
   const [searchParams] = useSearchParams();
   const rawTab = searchParams.get("tab");

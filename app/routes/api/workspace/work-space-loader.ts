@@ -9,10 +9,10 @@ import type { BasicJoinType } from "~/services/types";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 
-type MyWorkSpaceLoaderData = {
+export type MyWorkSpaceLoaderData = {
   questions: Question[];
   answers: MyAnswerItem[];
-  categories?: BasicJoinType[];
+  categories: BasicJoinType[];
   userId: string | null;
 };
 
@@ -20,13 +20,6 @@ export async function workSpaceLoader({ request }: Route.LoaderArgs) {
   const auth = await requireUser(request);
   const userId = auth.user.id;
 
-  if (!userId) {
-    return withAuthData(auth, {
-      questions: [],
-      answers: [],
-      userId: null,
-    } satisfies MyWorkSpaceLoaderData);
-  }
   const [qa, an, ca] = await Promise.all([
     myForumQuestion(request),
     myForumAnswer(request),

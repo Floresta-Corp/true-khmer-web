@@ -16,9 +16,28 @@ import {
   X as CloseIcon,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { Link, Outlet, useLocation, useNavigate } from "react-router";
+import {
+  data,
+  Link,
+  Outlet,
+  useLoaderData,
+  useLocation,
+  useNavigate,
+  type LoaderFunctionArgs,
+} from "react-router";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { requireSuperAdmin } from "~/lib/server/route-guards.server";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const { admin, setCookie } = await requireSuperAdmin(request);
+  const loaderData = { userRole: "Super Admin", adminName: admin.name };
+
+  return data(
+    loaderData,
+    setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
+  );
+}
 
 export function meta() {
   return [{ title: "Admin Panel | True Khmer" }];
@@ -110,7 +129,7 @@ const SidebarItem = ({
       </div>
 
       {badge > 0 && (
-        <span className="absolute top-2 right-3 bg-rose-500 text-white text-[10px] font-bold px-1 py-0.5 min-w-[18px] text-center rounded-full border-2 border-white dark:border-slate-900 pointer-events-none z-10">
+        <span className="absolute top-2 right-3 bg-rose-500 text-white text-[10px] font-bold px-1 py-0.5 min-w-4.5 text-center rounded-full border-2 border-white dark:border-slate-900 pointer-events-none z-10">
           {badge}
         </span>
       )}
@@ -126,9 +145,9 @@ const SidebarItem = ({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 10 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute left-16 px-3 py-1.5 bg-[#f1f1f1] text-[#1a1a1a] text-[13px] font-medium rounded-xl shadow-md border border-slate-200/50 whitespace-nowrap pointer-events-none z-[100] flex items-center"
+            className="absolute left-16 px-3 py-1.5 bg-slate-100 text-slate-900 dark:text-slate-100 dark:bg-slate-800 text-[13px] font-medium rounded-xl shadow-md border border-slate-200/50 whitespace-nowrap pointer-events-none z-100 flex items-center"
           >
-            <div className="absolute -left-1 w-2 h-2 bg-[#f1f1f1] rotate-45 rounded-sm border-l border-b border-slate-200/50" />
+            <div className="absolute -left-1 w-2 h-2 bg-slate-100 dark:bg-slate-800 rotate-45 rounded-sm border-l border-b border-slate-200/50" />
             {label}
           </motion.div>
         )}
@@ -149,11 +168,14 @@ function getBreadcrumbs(activeMenu: string) {
 }
 
 export default function AdminLayout() {
+  const loaderData = useLoaderData<typeof loader>();
   const location = useLocation();
   const navigate = useNavigate();
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [theme, setTheme] = useState<"light" | "dark">("dark");
-  const [userRole, setUserRole] = useState<UserRole>("Super Admin");
+  const [userRole, setUserRole] = useState(
+    loaderData.userRole ?? "Super Admin",
+  );
   const [isRoleOpen, setIsRoleOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -169,7 +191,10 @@ export default function AdminLayout() {
   }, [theme]);
 
   useEffect(() => {
-    if (location.pathname === "/tk-admin" || location.pathname === "/tk-admin/") {
+    if (
+      location.pathname === "/tk-admin" ||
+      location.pathname === "/tk-admin/"
+    ) {
       setActiveMenu("dashboard");
     }
 
@@ -192,13 +217,13 @@ export default function AdminLayout() {
   const crumbs = getBreadcrumbs(activeMenu);
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-[#020617] text-slate-900 transition-colors duration-300 antialiased font-sans flex-col md:flex-row">
-      <header className="md:hidden h-16 px-6 flex items-center justify-between bg-white dark:bg-[#020617] border-b border-slate-100 dark:border-slate-800 sticky top-0 z-[60]">
+    <div className="flex min-h-screen bg-[#f8fafc] dark:bg-slate-950 text-slate-900 transition-colors duration-300 antialiased font-sans flex-col md:flex-row">
+      <header className="md:hidden h-16 px-6 flex items-center justify-between bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 sticky top-0 z-60">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-[10px] tracking-tight">
             TK
           </div>
-          <span className="text-sm font-black tracking-tight text-slate-900 dark:text-white uppercase tracking-widest">
+          <span className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">
             {crumbs[0]}
           </span>
         </div>
@@ -218,16 +243,16 @@ export default function AdminLayout() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsMobileMenuOpen(false)}
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[70] md:hidden"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-70 md:hidden"
           />
         )}
       </AnimatePresence>
 
       <aside
-        className={`fixed h-full z-[80] transition-all duration-300 md:flex flex-col items-center py-5 bg-white dark:bg-[#020617] border-r border-slate-100 dark:border-slate-800/60 ${
+        className={`fixed h-full z-80 transition-all duration-300 md:flex flex-col items-center py-5 bg-white dark:bg-slate-950 border-r border-slate-100 dark:border-slate-800/60 ${
           isMobileMenuOpen
-            ? "w-[72px] translate-x-0"
-            : "w-0 -translate-x-full md:w-[72px] md:translate-x-0"
+            ? "w-18 translate-x-0"
+            : "w-0 -translate-x-full md:w-18 md:translate-x-0"
         }`}
       >
         <div className="mb-8 hidden md:block">
@@ -257,8 +282,8 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      <main className="flex-1 transition-all duration-300 md:ml-[72px] ml-0 flex flex-col min-h-screen bg-slate-50 dark:bg-[#020617]">
-        <header className="h-16 md:h-20 px-6 md:px-10 flex items-center justify-between sticky top-0 md:top-0 bg-slate-50/80 dark:bg-[#020617]/80 backdrop-blur-md z-30 border-b border-slate-100 dark:border-slate-800 transition-all duration-300">
+      <main className="flex-1 transition-all duration-300 md:ml-18 ml-0 flex flex-col min-h-screen bg-[#f8fafc] dark:bg-slate-950">
+        <header className="h-16 md:h-20 px-6 md:px-10 flex items-center justify-between sticky top-0 md:top-0 bg-[#f8fafc]/80 dark:bg-slate-950/80 backdrop-blur-md z-30 border-b border-slate-100 dark:border-slate-800 transition-all duration-300">
           <div className="flex items-center gap-2.5">
             <span className="text-[10px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-[0.2em] hidden sm:inline">
               Viewing as
@@ -337,9 +362,7 @@ export default function AdminLayout() {
               <div className="flex items-center gap-1 sm:gap-2 ml-0 sm:ml-4">
                 <div className="relative">
                   <button
-                    onClick={() =>
-                      setIsNotificationsOpen(!isNotificationsOpen)
-                    }
+                    onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                     className={`relative p-2 md:p-2.5 rounded-xl transition-all ${
                       isNotificationsOpen
                         ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white"
@@ -373,7 +396,7 @@ export default function AdminLayout() {
                             </button>
                           </div>
 
-                          <div className="max-h-[80vh] sm:max-h-[480px] overflow-auto py-2">
+                          <div className="max-h-[80vh] sm:max-h-120 overflow-auto py-2">
                             {[
                               {
                                 id: 1,
@@ -474,7 +497,10 @@ export default function AdminLayout() {
                             onClick={() => setIsUserMenuOpen(false)}
                             className="px-4 py-2.5 text-[13px] font-bold rounded-xl cursor-pointer transition-all flex items-center gap-3 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
                           >
-                            <LayoutDashboard size={16} className="text-slate-300" />
+                            <LayoutDashboard
+                              size={16}
+                              className="text-slate-300"
+                            />
                             Dashboard
                           </Link>
                           <Link
