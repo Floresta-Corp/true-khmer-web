@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
 import type { StatItem } from "../admin-dashboard";
@@ -25,7 +25,9 @@ export function KpiCard({ item, index }: KpiCardProps) {
           <Icon className={`h-5 w-5 ${item.iconColor}`} />
         </div>
         <div>
-          <p className="text-[13px] text-(--admin-text-secondary)">{item.label}</p>
+          <p className="text-[13px] text-(--admin-text-secondary)">
+            {item.label}
+          </p>
           <p className="mt-1 text-[30px] font-bold leading-none tracking-tight text-(--admin-text)">
             {item.value}
           </p>
