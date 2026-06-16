@@ -11,6 +11,7 @@ export type BackendUser = {
   avatar?: string;
   gender?: string;
   occupation?: string | null;
+  phone?: PhoneInput | null;
   phoneNumber?: string | null;
   signupCompletedAt?: string | Date | null;
   onboardingCompletedAt?: string | Date | null;
@@ -29,17 +30,22 @@ export type AuthTokensResponse = {
   authFlow?: AuthFlow;
 };
 
-type RegisterRequest = {
+export type PhoneInput = {
+  country: string;
+  nationalNumber: string;
+};
+
+export type RegisterRequest = {
   email: string;
   password: string;
   firstName: string;
   lastName: string;
-  phoneNumber: string;
+  phone: PhoneInput;
   gender: string;
   occupation: string;
 };
 
-type RegisterResponse = {
+export type RegisterResponse = {
   success: boolean;
   message: string;
   otpSent: boolean;
@@ -61,12 +67,12 @@ type ResetPasswordResponse = {
   message: string;
 };
 
-type CompleteSignUpRequest = {
+export type CompleteSignUpRequest = {
   firstName: string;
   lastName: string;
   gender: string;
   occupation: string;
-  phoneNumber: string;
+  phone: PhoneInput;
   memberAgreementAccepted: true;
 };
 
@@ -262,6 +268,8 @@ export function formatAuthMessage(message?: string) {
   const readableMessage = normalized
     .replace(/\bfirstName\b/g, "First name")
     .replace(/\blastName\b/g, "Last name")
+    .replace(/\bphone\.nationalNumber\b/g, "Phone number")
+    .replace(/\bphone\.country\b/g, "Phone country")
     .replace(/\bphoneNumber\b/g, "Phone number");
   const sentence =
     readableMessage.charAt(0).toUpperCase() + readableMessage.slice(1);

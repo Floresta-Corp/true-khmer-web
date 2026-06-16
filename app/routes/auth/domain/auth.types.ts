@@ -12,7 +12,7 @@ export type RegisterErrors = {
   firstName?: string;
   lastName?: string;
   email?: string;
-  phoneNumber?: string;
+  phone?: string;
   gender?: string;
   occupation?: string;
   password?: string;
@@ -26,7 +26,7 @@ export type RegisterActionData = {
 export type CompleteSignUpErrors = {
   firstName?: string;
   lastName?: string;
-  phoneNumber?: string;
+  phone?: string;
   gender?: string;
   occupation?: string;
   memberAgreementAccepted?: string;

@@ -25,6 +25,12 @@ export const SocialLinksSchema = z.object({
 });
 export type SocialLinks = z.infer<typeof SocialLinksSchema>;
 
+export const PhoneInputSchema = z.object({
+  country: z.string(),
+  nationalNumber: z.string(),
+});
+export type PhoneInput = z.infer<typeof PhoneInputSchema>;
+
 export const TierSchema = z.object({
   id: z.string(),
   slug: z.string(),
@@ -90,7 +96,7 @@ export const UserSchema = z.object({
   gender: z.string(),
   dateOfBirth: z.string().nullable(),
   occupation: z.string().nullable(),
-  phoneNumber: z.string().nullable(),
+  phone: PhoneInputSchema.nullable(),
   telegramUsername: z.string().nullable(),
 });
 export type User = z.infer<typeof UserSchema>;
@@ -181,7 +187,7 @@ export const UpdateMySpaceInputSchema = z.object({
   gender: z.string(),
   dateOfBirth: z.string().nullable(),
   occupation: z.string().nullable(),
-  phoneNumber: z.string().nullable(),
+  phone: z.union([PhoneInputSchema, z.null()]).optional(),
   telegramUsername: z.string().nullable(),
   bio: z.string().nullable(),
   countryId: z.string().nullable(),

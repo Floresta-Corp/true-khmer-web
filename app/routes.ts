@@ -85,16 +85,21 @@ export default [
     index("features/admin/dashboard/admin-dashboard.tsx"),
     route(
       "content-moderator",
-      "features/admin/contentmoderator/routes/content-moderator.tsx"
+      "features/admin/contentmoderator/routes/content-moderator.tsx",
     ),
     route("users", "features/admin/usermanagement/routes/user-management.tsx"),
     route(
       "users/add",
-      "features/admin/usermanagement/routes/user-management.add.tsx"
+      "features/admin/usermanagement/routes/user-management.add.tsx",
     ),
   ]),
+  route("tk-admin/login", "routes/auth/pages/admin-login.tsx"),
+
   route("login", "routes/auth/pages/login.tsx"),
   route("register", "routes/auth/pages/register.tsx"),
+  route("signup", "routes/auth/pages/register.tsx", {
+    id: "routes/auth/pages/signup",
+  }),
   route("complete-signup", "routes/auth/pages/complete-signup.tsx"),
   route("forgot-password", "routes/auth/pages/forgot-password.tsx"),
   route(
