@@ -3,7 +3,7 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
-import type { LoginActionData, LoginErrors } from "./auth.types";
+import type { LoginErrors } from "./auth.types";
 import {
   AuthApiError,
   getAuthErrorCode,
@@ -48,7 +48,7 @@ export async function action({ request }: ActionFunctionArgs) {
       const destination = auth.authFlow
         ? destinationFromAuthFlow(auth.authFlow)
         : redirectTo;
-      return createUserSession(auth, destination, { rememberMe });
+      return createUserSession(request, auth, destination, { rememberMe });
     } catch (error) {
       if (error instanceof AuthApiError) {
         return { errors: { form: error.message } };
@@ -72,7 +72,7 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     const auth = await loginUser(email, password, request);
     const postLoginPath = destinationFromAuthFlow(auth.authFlow, redirectTo);
-    return createUserSession(auth, postLoginPath, { rememberMe });
+    return createUserSession(request, auth, postLoginPath, { rememberMe });
   } catch (error) {
     if (error instanceof AuthApiError) {
       if (isUnverifiedAccountError(error)) {

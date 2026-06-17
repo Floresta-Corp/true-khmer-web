@@ -100,7 +100,7 @@ export async function action({ request }: ActionFunctionArgs) {
       const destination = auth.authFlow
         ? destinationFromAuthFlow(auth.authFlow)
         : redirectTo;
-      return createUserSession(auth, destination, { rememberMe });
+      return createUserSession(request, auth, destination, { rememberMe });
     } catch (error) {
       if (error instanceof AuthApiError) {
         return { errors: { form: formatAuthMessage(error.message) } };
