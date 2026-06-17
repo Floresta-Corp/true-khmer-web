@@ -98,7 +98,7 @@ export async function action({ request }: ActionFunctionArgs) {
         waitlistId || undefined,
       );
       const destination = auth.authFlow
-        ? destinationFromAuthFlow(auth.authFlow)
+        ? destinationFromAuthFlow(auth.authFlow, redirectTo)
         : redirectTo;
       return createUserSession(request, auth, destination, { rememberMe });
     } catch (error) {

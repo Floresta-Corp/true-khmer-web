@@ -46,7 +46,7 @@ export async function action({ request }: ActionFunctionArgs) {
     try {
       const auth = await loginWithGoogle(idToken, request);
       const destination = auth.authFlow
-        ? destinationFromAuthFlow(auth.authFlow)
+        ? destinationFromAuthFlow(auth.authFlow, redirectTo)
         : redirectTo;
       return createUserSession(request, auth, destination, { rememberMe });
     } catch (error) {

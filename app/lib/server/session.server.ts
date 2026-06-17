@@ -75,13 +75,25 @@ export async function getUser(
   request: Request,
 ): Promise<AuthenticatedUser | null | SessionUser> {
   const session = await getSession(request);
-  return (session.get("user") as AuthenticatedUser) ?? null;
+  const user = session.get("user");
+  if (user) return user as AuthenticatedUser;
+
+  const userId = session.get("userId");
+  const email = session.get("email");
+  const name = session.get("name");
+  const avatar = session.get("avatar");
+  if (!userId) return null;
+
+  return { id: userId, email, name, avatar };
 }
 
 export async function getUserId(request: Request): Promise<string | null> {
   const session = await getSession(request);
   const user = session.get("user");
-  return user ? (user.id as string) : null;
+  if (user) return user.id as string;
+
+  const userId = session.get("userId");
+  return userId ?? null;
 }
 
 function slimUser(user: AuthTokensResponse["user"]) {
@@ -89,8 +101,7 @@ function slimUser(user: AuthTokensResponse["user"]) {
     id: user.id,
     email: user.email,
     name:
-      user.name ??
-      ([user.firstName, user.lastName].filter(Boolean).join(" ") || undefined),
+      user.name ?? [user.firstName, user.lastName].filter(Boolean).join(" "),
     avatar: user.avatar ?? undefined,
   };
 }
@@ -162,7 +173,7 @@ export function isAutoRefreshEnabled(
 
 async function getAdminSession(request: Request) {
   const cookie = request.headers.get("Cookie");
-  return adminSessionStorage.getSession(cookie);
+  return adminSessionStorage.getSession(cookie ?? undefined);
 }
 
 export async function createAdminSession(
