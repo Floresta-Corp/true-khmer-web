@@ -41,6 +41,7 @@ type GoogleAuthButtonProps = {
   disabled?: boolean;
   redirectTo?: string;
   rememberMe?: boolean;
+  waitlistId?: string;
   onError?: (message: string) => void;
 };
 
@@ -88,6 +89,7 @@ export function GoogleAuthButton({
   disabled,
   redirectTo = "/",
   rememberMe = true,
+  waitlistId,
   onError,
 }: GoogleAuthButtonProps) {
   const submit = useSubmit();
@@ -116,6 +118,9 @@ export function GoogleAuthButton({
     formData.set("idToken", idToken);
     formData.set("redirectTo", redirectTo);
     formData.set("rememberMe", rememberMe ? "true" : "false");
+    if (waitlistId) {
+      formData.set("waitlistId", waitlistId);
+    }
 
     submit(formData, { method: "post" });
   };
