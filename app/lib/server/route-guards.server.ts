@@ -10,6 +10,7 @@ import {
 } from "~/lib/server/auth/authenticated-user.server";
 import {
   destroySession,
+  getAdminAccessToken,
   getSession,
   getUser as getSessionUser,
 } from "~/lib/server/session.server";
@@ -19,6 +20,7 @@ import {
   type OnboardingState,
 } from "~/services/onboarding.server";
 import type { AuthenticatedUser } from "./types";
+import { getAdminMe, type AdminUser } from "./auth/admin/api-admin.server";
 
 type GuardResult = {
   user: AuthenticatedUser;
@@ -42,8 +44,16 @@ export type OptionalUserResult = {
   setCookie?: string;
 };
 
+type SuperAdminGuardResult = {
+  admin: AdminUser;
+  setCookie?: string;
+};
+
 function redirectWithCookie(to: string, setCookie?: string) {
-  return redirect(to, setCookie ? { headers: { "Set-Cookie": setCookie } } : {});
+  return redirect(
+    to,
+    setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
+  );
 }
 
 function requestWithSetCookie(request: Request, setCookie?: string) {
@@ -68,20 +78,33 @@ function requestWithSetCookie(request: Request, setCookie?: string) {
   return new Request(request, { headers });
 }
 
+function isAdminRoute(path: string) {
+  // The login page itself must not be treated as a "protected admin route"
+  return path.startsWith("/tk-admin") && path !== "/tk-admin/login";
+}
+
 function loginRedirectPath(request: Request) {
   const url = new URL(request.url);
+  const adminLoginPath = "/tk-admin/login";
+  const loginPath = isAdminRoute(url.pathname) ? adminLoginPath : "/login";
+
   const redirectTo = `${url.pathname}${url.search}`;
   const params = new URLSearchParams({ redirectTo });
-  return `/login?${params.toString()}`;
+  return `${loginPath}?${params.toString()}`;
 }
 
 async function clearAndRedirectToLogin(request: Request, redirectTo?: string) {
   const session = await getSession(request);
+  const targetRedirectTo = redirectTo ?? new URL(request.url).pathname;
+  const loginPath = isAdminRoute(targetRedirectTo)
+    ? "/tk-admin/login"
+    : "/login";
+
   const params = redirectTo
     ? `?redirectTo=${encodeURIComponent(redirectTo)}`
     : "";
 
-  return redirect(`/login${params}`, {
+  return redirect(`${loginPath}${params}`, {
     headers: {
       "Set-Cookie": await destroySession(session),
     },
@@ -104,7 +127,10 @@ function isUserNotFoundError(error: unknown) {
 }
 
 export function isAdminRole(role: string | undefined) {
-  const normalizedRole = role?.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  const normalizedRole = role
+    ?.trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
   return normalizedRole === "admin" || normalizedRole === "super_admin";
 }
 
@@ -280,20 +306,41 @@ export async function requireUser(
 
 // Use for admin protected routes/actions. The user must be logged in, ACTIVE,
 // and have an admin role in the backend /auth/session user payload.
-export async function requireAdmin(
+export async function requireSuperAdmin(
   request: Request,
-  options: AdminGuardOptions = {},
-): Promise<GuardResult> {
-  const auth = await requireUser(request, {
-    forceFresh: options.forceFresh ?? true,
-  });
-
-  if (!isAdminRole(auth.user.role)) {
-    throw redirectWithCookie(
-      options.unauthorizedRedirectTo ?? "/home",
-      auth.setCookie,
-    );
+): Promise<SuperAdminGuardResult> {
+  const { accessToken, setCookie } = await getAdminAccessToken(request);
+  if (!accessToken) {
+    throw redirect(loginRedirectPathForAdmin(request));
   }
 
-  return auth;
+  try {
+    const admin = await getAdminMe(request, accessToken);
+    return { admin, setCookie };
+  } catch (error) {
+    if (error instanceof ProtectedApiError && error.status === 401) {
+      throw redirect(loginRedirectPathForAdmin(request));
+    }
+    throw error;
+  }
+}
+
+function loginRedirectPathForAdmin(request: Request) {
+  const url = new URL(request.url);
+  const redirectTo = `${url.pathname}${url.search}`;
+  const params = new URLSearchParams({ redirectTo });
+  return `/tk-admin/login?${params.toString()}`;
+}
+
+export async function redirectIfAdminAuth(request: Request) {
+  const { accessToken, setCookie } = await getAdminAccessToken(request);
+  if (!accessToken) return null;
+
+  try {
+    await getAdminMe(request, accessToken);
+    // Admin successfully authenticated, redirect to admin dashboard
+    return redirectWithCookie("/tk-admin", setCookie);
+  } catch {
+    return null;
+  }
 }

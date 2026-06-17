@@ -14,7 +14,6 @@ import {
   Bookmark,
   EllipsisVertical,
   Flag,
-  Link as LinkIcon,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";

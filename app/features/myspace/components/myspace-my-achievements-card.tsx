@@ -4,7 +4,6 @@ import {
   BadgeCheck,
   BookOpen,
   HandHeart,
-  Medal,
   Rocket,
   Users,
 } from "lucide-react";

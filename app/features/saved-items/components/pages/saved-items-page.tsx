@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { Loader2 } from "lucide-react";
 import SavedItemsSidebar from "../saved-items-sidebar";
 import type { loader } from "../../routes/saved-items";
+import type { SavedItemsLoaderData } from "~/routes/api/saved-items/saved-items-loader";
 import type { FilterId } from "../saved-item-filter";
 import type { Question } from "~/services/forum/forum-types";
 import type { Opportunity } from "~/services/volunteer/volunteer-types";
@@ -46,11 +47,12 @@ function groupSavedItems(items: ItemElement[]) {
 
 export default function SaveItemPage() {
   const prefersReducedMotion = useReducedMotion();
+  const loaderData = useLoaderData<typeof loader>() as SavedItemsLoaderData;
   const {
     saveItem: initialSaveItem,
     count: initialCount,
     pagination: initialPagination,
-  } = useLoaderData<typeof loader>();
+  } = loaderData;
   const [searchParams, setSearchParams] = useSearchParams();
   const fetcher = useFetcher<typeof loader>();
 
@@ -80,7 +82,7 @@ export default function SaveItemPage() {
   }, [searchParams]);
 
   useEffect(() => {
-    const data = fetcher.data as Awaited<ReturnType<typeof loader>> | undefined;
+    const data = fetcher.data as SavedItemsLoaderData | undefined;
     if (!data) return;
 
     if (lastFetchUrl.current.includes("cursor=")) {

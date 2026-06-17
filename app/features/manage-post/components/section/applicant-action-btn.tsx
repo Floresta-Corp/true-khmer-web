@@ -1,4 +1,4 @@
-import { ExternalLink, ThumbsUp, ThumbsDown, MoreVertical } from "lucide-react";
+import { ExternalLink, MoreVertical } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,

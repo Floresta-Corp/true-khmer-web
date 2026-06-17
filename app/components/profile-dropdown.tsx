@@ -7,7 +7,6 @@ import {
 } from "./ui/dropdown-menu";
 import {
   ChevronDown,
-  CirclePlus,
   UserRound,
   FileUser,
   Ticket,

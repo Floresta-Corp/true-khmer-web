@@ -1,4 +1,4 @@
-import { Pencil, Save } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import { toast } from "sonner";

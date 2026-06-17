@@ -1,7 +1,18 @@
 import { createCookieSessionStorage } from "react-router";
 import { redirect } from "react-router";
 import type { AuthTokensResponse } from "~/services/auth/api.server";
-import type { AuthenticatedUser } from "./types";
+import type { AdminAuth, AuthenticatedUser } from "./types";
+import type { AdminAuthResult } from "./auth/admin/api-admin.server";
+import {
+  schemas,
+  type AdminLoginResponse,
+  type AdminRefreshResponse,
+  type AdminUser,
+} from "~/types/api-client";
+import type { z } from "zod";
+import { apiRequestPublic } from "./api-client.server";
+
+export type { AdminAuthResult };
 const SESSION_SECRET = process.env.SESSION_SECRET ?? crypto.randomUUID();
 
 if (!process.env.SESSION_SECRET) {
@@ -158,4 +169,97 @@ export function isAutoRefreshEnabled(
   session: Awaited<ReturnType<typeof getSession>>,
 ) {
   return session.get("rememberMe") === true;
+}
+
+export async function createAdminSession(
+  auth: AdminAuthResult,
+  redirectTo: string,
+) {
+  const session = await sessionStorage.getSession();
+  // Set admin-specific session data
+  session.set("adminAccessToken", auth.accessToken);
+  session.set("adminRefreshToken", auth.refreshToken);
+  session.set("adminAccessTokenExpiresAt", auth.accessTokenExpiresAt);
+  session.set("adminRefreshTokenExpiresAt", auth.refreshTokenExpiresAt);
+  session.set("admin", auth.admin);
+
+  const cookie = await sessionStorage.commitSession(session);
+
+  return redirect(redirectTo, {
+    headers: { "Set-Cookie": cookie },
+  });
+}
+
+export async function getAdminAccessToken(
+  request: Request,
+): Promise<{ accessToken: string | null; setCookie?: string }> {
+  const session = await getSession(request);
+  const token = session.get("adminAccessToken");
+  if (!token) return { accessToken: null };
+
+  const accessExpiresAt = session.get("adminAccessTokenExpiresAt");
+  if (accessExpiresAt && new Date(accessExpiresAt) > new Date()) {
+    return { accessToken: token };
+  }
+
+  const refreshToken = session.get("adminRefreshToken");
+  const refreshExpiresAt = session.get("adminRefreshTokenExpiresAt");
+  if (
+    !refreshToken ||
+    (refreshExpiresAt && new Date(refreshExpiresAt) <= new Date())
+  ) {
+    return { accessToken: null };
+  }
+
+  try {
+    const refreshed = await refreshAdminToken(request, refreshToken);
+
+    session.set("adminAccessToken", refreshed.accessToken);
+    session.set("adminRefreshToken", refreshed.refreshToken);
+    session.set(
+      "adminAccessTokenExpiresAt",
+      refreshed.accessTokenExpiresAt ?? "",
+    );
+    session.set(
+      "adminRefreshTokenExpiresAt",
+      refreshed.refreshTokenExpiresAt ?? "",
+    );
+
+    const setCookie = await commitSession(session);
+    return { accessToken: refreshed.accessToken, setCookie };
+  } catch (err) {
+    return { accessToken: null };
+  }
+}
+
+export async function getAdminUser(
+  request: Request,
+): Promise<AdminUser | null> {
+  const session = await getSession(request);
+  const admin = session.get("admin");
+
+  return admin ?? null;
+}
+
+export async function refreshAdminToken(
+  request: Request,
+  refreshToken: string,
+): Promise<Omit<AdminLoginResponse, "admin">> {
+  const result = await apiRequestPublic<AdminRefreshResponse>(
+    request,
+    "/admin/refresh",
+    {
+      method: "POST",
+      body: { refreshToken },
+    },
+  );
+
+  return result.data;
+}
+
+export async function destroyAdminSession(request: Request) {
+  const session = await getSession(request);
+  return redirect("/tk-admin/login", {
+    headers: { "Set-Cookie": await destroySession(session) },
+  });
 }

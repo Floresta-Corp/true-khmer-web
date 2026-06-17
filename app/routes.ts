@@ -81,10 +81,21 @@ export default [
     route("contribution", "routes/onboarding/pages/contribution.tsx"),
     route("tier", "routes/onboarding/pages/tier.tsx"),
   ]),
-  route("tk-admin", "layout/admin-layout.tsx", [
-    index("features/admin/index.tsx"),
-    route("users", "features/admin/admin-users.tsx"),
+  route("tk-admin", "features/admin/layout.tsx", [
+    index("features/admin/dashboard/admin-dashboard.tsx"),
+    route(
+      "content-moderator",
+      "features/admin/contentmoderator/routes/content-moderator.tsx",
+    ),
+    route("users", "features/admin/usermanagement/routes/user-management.tsx"),
+    route(
+      "users/add",
+      "features/admin/usermanagement/routes/user-management.add.tsx",
+    ),
   ]),
+  route("tk-admin/login", "routes/auth/pages/admin-login.tsx"),
+  route("tk-admin/logout", "routes/admin-logout.tsx"),
+
   route("login", "routes/auth/pages/login.tsx"),
   route("register", "routes/auth/pages/register.tsx"),
   route("signup", "routes/auth/pages/register.tsx", {

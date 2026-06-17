@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => {
   return {
     build: {
       sourcemap: mode === "development",
+      chunkSizeWarningLimit: 700,
     },
     server: {
       port: 3001,
