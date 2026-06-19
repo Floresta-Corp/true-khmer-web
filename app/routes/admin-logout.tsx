@@ -1,14 +1,12 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { destroyAdminSession } from "~/lib/server/session.server";
+import {
+  adminLogoutAction,
+  adminLogoutLoader,
+} from "~/features/admin/auth/service/admin-logout.action";
 
 export function meta() {
   return [{ title: "Admin Sign Out | True Khmer" }];
 }
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  return destroyAdminSession(request);
-}
+export const loader = adminLogoutLoader;
 
-export async function action({ request }: ActionFunctionArgs) {
-  return destroyAdminSession(request);
-}
+export const action = adminLogoutAction;

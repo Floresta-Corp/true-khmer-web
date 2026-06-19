@@ -89,11 +89,16 @@ export default [
     ),
     route("users", "features/admin/usermanagement/routes/user-management.tsx"),
     route(
+      "user/:userId",
+      "features/admin/usermanagement/routes/user-management.$userId.tsx",
+    ),
+    route(
       "users/add",
       "features/admin/usermanagement/routes/user-management.add.tsx",
     ),
   ]),
-  route("tk-admin/login", "routes/auth/pages/admin-login.tsx"),
+  route("tk-admin/login", "features/admin/auth/routes/admin-login.tsx"),
+  route("tk-admin/login/otp", "features/admin/auth/routes/admin-login-otp.tsx"),
   route("tk-admin/logout", "routes/admin-logout.tsx"),
 
   route("login", "routes/auth/pages/login.tsx"),

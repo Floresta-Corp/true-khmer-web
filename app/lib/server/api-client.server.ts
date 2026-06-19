@@ -17,18 +17,21 @@ export class ProtectedApiError extends Error {
   status: number;
   code?: string;
   details?: JsonValue;
+  headers: Headers;
 
   constructor(
     message: string,
     status: number,
     code?: string,
     details?: JsonValue,
+    headers?: Headers,
   ) {
     super(message);
     this.name = "ProtectedApiError";
     this.status = status;
     this.code = code;
     this.details = details;
+    this.headers = headers ?? new Headers();
   }
 }
 
@@ -168,6 +171,7 @@ export async function apiRequestWithSession<T, K extends object = JsonObject>(
       response.status,
       accessErrorCodeFromPayload(payload),
       payload,
+      response.headers,
     );
   }
 
@@ -201,6 +205,7 @@ export async function apiRequestPublic<T, K extends object = JsonObject>(
       response.status,
       accessErrorCodeFromPayload(payload),
       payload,
+      response.headers,
     );
   }
 
@@ -260,6 +265,7 @@ export async function apiRequestWithAccessToken<
       response.status,
       accessErrorCodeFromPayload(payload),
       payload,
+      response.headers,
     );
   }
 
