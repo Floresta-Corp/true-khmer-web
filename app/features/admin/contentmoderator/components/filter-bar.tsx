@@ -59,11 +59,11 @@ export function FilterBar({
   };
 
   return (
-    <div className="px-8 py-6 border-b border-slate-50 dark:border-slate-800 flex flex-wrap items-center gap-4">
+    <div className=" py-6 dark:border-slate-800 flex flex-wrap items-center ">
       <div className="flex flex-col md:flex-row md:items-center gap-4">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
-            <Button className="flex items-center gap-4 px-6 py-3 rounded-2xl text-[13px] font-semibold bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 hover:border-blue-500 transition-all cursor-pointer">
+            <Button className="flex items-center gap-4 px-6 py-5 rounded-xl text-[13px] font-semibold bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 hover:border-blue-500 transition-all cursor-pointer">
               {selectedLabel}
               <ChevronDown
                 size={14}
@@ -101,7 +101,7 @@ export function FilterBar({
           </PopoverContent>
         </Popover>
 
-        <div className="flex p-1.5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl">
+        <div className="flex p-1.5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl">
           {STATUSES.map((status) => {
             const isActive = selectedStatus === status.value;
             return (

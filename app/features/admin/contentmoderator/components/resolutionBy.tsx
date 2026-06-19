@@ -1,6 +1,6 @@
 import { ShieldCheck } from "lucide-react";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
-import { formatDateMonthYear } from "~/features/events/lib/event-formatters";
+import { formatMinutesOrHoursAgo } from "~/lib/time";
 import type { ContentModeratorReport } from "~/types/api-client";
 
 export function ResolutionLog({ report }: { report: ContentModeratorReport }) {
@@ -35,7 +35,7 @@ export function ResolutionLog({ report }: { report: ContentModeratorReport }) {
               Platform Moderator
             </p>
             <span className="text-[10px] text-(--admin-text-secondary) font-medium lowercase first-letter:uppercase">
-              {report.solvedAt ? formatDateMonthYear(report.solvedAt) : "—"}
+              {report.solvedAt ? formatMinutesOrHoursAgo(report.solvedAt) : "—"}
             </span>
           </div>
         </div>

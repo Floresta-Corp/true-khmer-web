@@ -32,7 +32,7 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
     >
       <TableCell className="text-center align-middle">
         <span className="text-xs font-black text-slate-400 group-hover:text-blue-600 transition-colors tracking-widest">
-          {report.reportId}
+          REP-{String(report.reportId).padStart(3, "0")}
         </span>
       </TableCell>
 

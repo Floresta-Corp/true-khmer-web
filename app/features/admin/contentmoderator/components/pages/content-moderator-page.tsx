@@ -94,16 +94,25 @@ export default function ContentModeratingPage() {
   return (
     <div className="flex flex-col h-full bg-[#f8fafc] dark:bg-slate-950 relative">
       <div className="flex-1 p-6 overflow-auto custom-scrollbar">
-        <div className="max-w-350 mx-auto space-y-10">
+        <div className="max-w-350 mx-auto space-y-4">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                Content Moderation
+              <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+                Content <span className="text-blue-600">Moderation</span>
               </h1>
-              <p className="text-slate-500 font-medium text-sm mt-1">
+              <p className="text-slate-500 font-medium text-base mt-1">
                 Streamlined moderation control for community integrity.
               </p>
             </div>
+          </div>
+          <div>
+            <FilterBar
+              categoryOptions={categoryOptions}
+              selectedTypeId={selectedTypeId}
+              onCategoryChange={handleCategoryChange}
+              selectedStatus={selectedStatus}
+              onStatusChange={handleStatusChange}
+            />
           </div>
 
           <AnimatePresence mode="wait">
@@ -112,16 +121,8 @@ export default function ContentModeratingPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col" // removed overflow-hidden
+              className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col"
             >
-              <FilterBar
-                categoryOptions={categoryOptions}
-                selectedTypeId={selectedTypeId}
-                onCategoryChange={handleCategoryChange}
-                selectedStatus={selectedStatus}
-                onStatusChange={handleStatusChange}
-              />
-
               <div className="flex-1 overflow-auto min-h-0">
                 <ReportsTable reports={[...content]} onSelect={handleSelect} />
               </div>
