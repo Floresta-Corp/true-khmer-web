@@ -16,18 +16,20 @@ import {
   TEXT_MUTED,
   type ChartBarItem,
 } from "../admin-dashboard";
+import { useState } from "react";
 
 interface RegistrationsChartProps {
   data: ChartBarItem[];
 }
 
 export function RegistrationsChart({ data }: RegistrationsChartProps) {
+  const [isDark] = useState(false);
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.4 }}
-      className="rounded-xl border border-(--admin-border) bg-(--admin-card-bg) p-6"
+      transition={{ duration: 0.4, delay: 0.5 }}
+      className="rounded-xl border border-(--admin-border)  dark:bg-slate-900 p-6"
     >
       <div className="flex items-start justify-between mb-6">
         <div>
@@ -63,8 +65,14 @@ export function RegistrationsChart({ data }: RegistrationsChartProps) {
               tick={{ fontSize: 10, fill: TEXT_MUTED, fontWeight: 600 }}
             />
             <Tooltip
-              cursor={{ fill: "var(--admin-card-muted)", radius: 6 }}
-              contentStyle={TOOLTIP_STYLE}
+              cursor={{ fill: "var(--admin-card-muted)", radius: 10 }}
+              contentStyle={{
+                borderRadius: "16px",
+                border: "none",
+                backgroundColor: isDark ? "#1e293b" : "#ffffff",
+                boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                fontSize: "11px",
+              }}
             />
             <Bar dataKey="value" radius={[6, 6, 0, 0]}>
               {data.map((entry, index) => (

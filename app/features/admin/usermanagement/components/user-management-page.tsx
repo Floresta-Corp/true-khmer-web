@@ -261,7 +261,7 @@ function UserManagementToolbar({
       <Select value={tier} onValueChange={onTierChange}>
         <SelectTrigger
           aria-label="Filter by tier"
-          className="h-10 w-full rounded-lg bg-white text-sm font-medium shadow-none sm:w-40 dark:bg-slate-950/50"
+          className="h-10 w-full rounded-lg bg-white text-sm font-medium shadow-none sm:w-40 dark:bg-slate-950/50 dark:text-white"
         >
           <SelectValue placeholder="All tiers" />
         </SelectTrigger>
@@ -278,7 +278,7 @@ function UserManagementToolbar({
       <Select value={status} onValueChange={onStatusChange}>
         <SelectTrigger
           aria-label="Filter by status"
-          className="h-10 w-full rounded-lg bg-white text-sm font-medium shadow-none sm:w-48 dark:bg-slate-950/50"
+          className="h-10 w-full rounded-lg bg-white text-sm font-medium shadow-none sm:w-48 dark:bg-slate-950/50 dark:text-white"
         >
           <SelectValue placeholder="All statuses" />
         </SelectTrigger>
@@ -297,7 +297,7 @@ function UserManagementToolbar({
         variant="outline"
         disabled
         title="Export will be integrated in a later step."
-        className="h-10 rounded-lg font-medium shadow-none sm:ml-auto"
+        className="h-10 rounded-lg font-medium shadow-none sm:ml-auto dark:text-white"
       >
         <Download />
         Export

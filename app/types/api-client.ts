@@ -266,6 +266,7 @@ const ContentModeratorReport = z
     sourceLink: z.string(),
     dateTime: z.string().datetime({ offset: true }),
     status: z.enum(["OPEN", "CLOSED"]),
+    confirmStatus: z.enum(["CONTENT HIDDEN", "DISMISSED"]).nullable(),
     reportingBy: ContentModeratorReportReporter.nullable(),
     solvedBy: ContentModeratorReportSolver.nullable(),
     solvedAt: z.string().datetime({ offset: true }).nullable(),
@@ -298,6 +299,76 @@ const UpdateContentModeratorReportReviewRequest = z
   ;
 const UpdateContentModeratorReportReviewResponse = z
   .object({ ok: z.boolean(), report: ContentModeratorReport })
+  ;
+const AdminDashboardResponse = z
+  .object({
+    ok: z.literal(true),
+    dashboard: z
+      .object({
+        summary: z
+          .object({
+            totalUsers: z.number().int().gte(0),
+            totalPartners: z.unknown().nullable(),
+            openReports: z.number().int().gte(0),
+          })
+          ,
+        newRegistrations: z
+          .object({
+            days: z.number().int().gt(0),
+            changePercent: z.number().nullable(),
+            trend: z.array(
+              z
+                .object({
+                  label: z.string(),
+                  count: z.number().int().gte(0),
+                  date: z.string(),
+                })
+                
+            ),
+          })
+          ,
+        activeUsers: z
+          .object({
+            countLast24Hours: z.number().int().gte(0),
+            windowHours: z.literal(24),
+            liveNow: z.boolean(),
+            trend: z.array(
+              z
+                .object({
+                  label: z.string(),
+                  count: z.number().int().gte(0),
+                  hour: z.string(),
+                })
+                
+            ),
+          })
+          ,
+        demographics: z
+          .object({
+            genderBreakdown: z.array(
+              z
+                .object({ label: z.string(), count: z.number().int().gte(0) })
+                
+            ),
+            ageGroups: z.array(
+              z
+                .object({ label: z.string(), count: z.number().int().gte(0) })
+                
+            ),
+          })
+          ,
+        partners: z
+          .object({
+            total: z.unknown().nullable(),
+            sectors: z.unknown().nullable(),
+          })
+          ,
+      })
+      ,
+  })
+  ;
+const AdminDashboardErrorResponse = z
+  .object({ ok: z.literal(false), error: z.string() })
   ;
 const Moderator = z
   .object({
@@ -2723,6 +2794,8 @@ export const schemas = {
   ListContentModeratorReportsResponse,
   UpdateContentModeratorReportReviewRequest,
   UpdateContentModeratorReportReviewResponse,
+  AdminDashboardResponse,
+  AdminDashboardErrorResponse,
   Moderator,
   ListModeratorsResponse,
   CreateModeratorRequest,
@@ -2986,6 +3059,30 @@ const endpoints = makeApi([
     ],
   },
   {
+    method: "get",
+    path: "/v1/admin/dashboard",
+    alias: "getV1admindashboard",
+    requestFormat: "json",
+    response: AdminDashboardResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: AdminDashboardErrorResponse,
+      },
+    ],
+  },
+  {
     method: "post",
     path: "/v1/admin/login",
     alias: "postV1adminlogin",
@@ -3043,6 +3140,11 @@ const endpoints = makeApi([
       {
         status: 401,
         description: `Invalid or expired OTP challenge`,
+        schema: z.void(),
+      },
+      {
+        status: 429,
+        description: `Too many OTP attempts`,
         schema: z.void(),
       },
       {
@@ -7381,6 +7483,8 @@ export type CursorPagination = z.infer<typeof schemas.CursorPagination>;
 export type ListContentModeratorReportsResponse = z.infer<typeof schemas.ListContentModeratorReportsResponse>;
 export type UpdateContentModeratorReportReviewRequest = z.infer<typeof schemas.UpdateContentModeratorReportReviewRequest>;
 export type UpdateContentModeratorReportReviewResponse = z.infer<typeof schemas.UpdateContentModeratorReportReviewResponse>;
+export type AdminDashboardResponse = z.infer<typeof schemas.AdminDashboardResponse>;
+export type AdminDashboardErrorResponse = z.infer<typeof schemas.AdminDashboardErrorResponse>;
 export type Moderator = z.infer<typeof schemas.Moderator>;
 export type ListModeratorsResponse = z.infer<typeof schemas.ListModeratorsResponse>;
 export type CreateModeratorRequest = z.infer<typeof schemas.CreateModeratorRequest>;

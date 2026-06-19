@@ -196,7 +196,7 @@ const ACTIVE_USERS_DATA: ActiveUserPoint[] = [
 // ── main page ─────────────────────────────────────────────────────────────
 export default function AdminDashboardPage() {
   return (
-    <div className="min-h-screen bg-(--admin-page-bg) p-6 space-y-6">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6 space-y-6">
       <KycBanner />
 
       <div className="flex items-center justify-between">
@@ -205,7 +205,7 @@ export default function AdminDashboardPage() {
         </h1>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {STATS.map((item, i) => (
           <KpiCard key={item.id} item={item} index={i} />
         ))}

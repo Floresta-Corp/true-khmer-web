@@ -16,7 +16,7 @@ export function KpiCard({ item, index }: KpiCardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
       whileHover={{ y: -3 }}
-      className="overflow-hidden rounded-xl border border-(--admin-border) bg-(--admin-card-bg) transition-shadow"
+      className="overflow-hidden rounded-xl border border-(--admin-border) dark:bg-slate-900 transition-shadow"
     >
       <div className="flex items-start gap-4 p-5">
         <div
@@ -35,10 +35,15 @@ export function KpiCard({ item, index }: KpiCardProps) {
       </div>
       <Link
         to={item.to}
-        className="flex items-center justify-between border-t border-(--admin-border) px-5 py-3 text-[13px] text-(--admin-text-muted) transition-colors hover:bg-(--admin-card-muted) hover:text-(--admin-text-secondary)"
+        className="px-5 py-3 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between group/btn hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-left w-full"
       >
-        <span>See in details</span>
-        <ArrowRight className="h-4 w-4" />
+        <span className="text-sm font-bold text-slate-500 group-hover/btn:text-slate-900 dark:group-hover/btn:text-white transition-colors">
+          See in details
+        </span>
+        <ArrowRight
+          size={16}
+          className="text-slate-300 group-hover/btn:text-slate-900 dark:group-hover/btn:text-white group-hover/btn:translate-x-1 transition-all"
+        />
       </Link>
     </motion.div>
   );
