@@ -19,9 +19,9 @@ import {
   getOnboardingState,
   type OnboardingState,
 } from "~/services/onboarding.server";
-import type { AuthenticatedUser } from "./types";
-import { getAdminMe } from "./auth/admin/api-admin.server";
 import type { AdminUser } from "~/types/api-client";
+import type { AuthenticatedUser } from "./types";
+import { getAdminMe } from "~/services/api/admin/auth/admin-auth.server";
 
 type GuardResult = {
   user: AuthenticatedUser;
@@ -312,7 +312,7 @@ export async function requireSuperAdmin(
 ): Promise<SuperAdminGuardResult> {
   const { accessToken, setCookie } = await getAdminAccessToken(request);
   if (!accessToken) {
-    throw redirect(loginRedirectPathForAdmin(request));
+    throw redirectWithCookie(loginRedirectPathForAdmin(request), setCookie);
   }
 
   try {
@@ -320,7 +320,21 @@ export async function requireSuperAdmin(
     return { admin, setCookie };
   } catch (error) {
     if (error instanceof ProtectedApiError && error.status === 401) {
-      throw redirect(loginRedirectPathForAdmin(request));
+      const refreshed = await getAdminAccessToken(request, {
+        forceRefresh: true,
+      });
+      if (refreshed.accessToken) {
+        const admin = await getAdminMe(request, refreshed.accessToken);
+        return {
+          admin,
+          setCookie: refreshed.setCookie ?? setCookie,
+        };
+      }
+
+      throw redirectWithCookie(
+        loginRedirectPathForAdmin(request),
+        refreshed.setCookie ?? setCookie,
+      );
     }
     throw error;
   }

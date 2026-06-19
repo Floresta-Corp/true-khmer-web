@@ -200,6 +200,19 @@ const ResetPasswordResponse = z
 const AdminLoginRequest = z
   .object({ email: z.string().min(1), password: z.string().min(1) })
   ;
+const AdminLoginOtpChallengeResponse = z
+  .object({
+    otpRequired: z.literal(true),
+    challengeId: z.string().uuid(),
+    expiresAt: z.string().datetime({ offset: true }),
+    message: z.string(),
+  })
+  ;
+
+const AdminErrorResponse = z.object({ error: z.string() });
+const AdminVerifyLoginOtpRequest = z
+  .object({ challengeId: z.string().uuid(), otp: z.string().regex(/^\d{6}$/) })
+  ;
 const AdminUser = z
   .object({
     id: z.string(),
@@ -217,8 +230,6 @@ const AdminLoginResponse = z
     admin: AdminUser,
   })
   ;
-
-const AdminErrorResponse = z.object({ error: z.string() });
 const AdminRefreshRequest = z
   .object({ refreshToken: z.string().min(1) })
   ;
@@ -2767,9 +2778,11 @@ export const schemas = {
   AuthResetPasswordRequest,
   ResetPasswordResponse,
   AdminLoginRequest,
+  AdminLoginOtpChallengeResponse,
+  AdminErrorResponse,
+  AdminVerifyLoginOtpRequest,
   AdminUser,
   AdminLoginResponse,
-  AdminErrorResponse,
   AdminRefreshRequest,
   AdminRefreshResponse,
   AdminLogoutResponse,
@@ -3081,7 +3094,7 @@ const endpoints = makeApi([
         schema: AdminLoginRequest,
       },
     ],
-    response: AdminLoginResponse,
+    response: AdminLoginOtpChallengeResponse,
     errors: [
       {
         status: 400,
@@ -3096,6 +3109,42 @@ const endpoints = makeApi([
       {
         status: 429,
         description: `Too many requests or account locked`,
+        schema: z.void(),
+      },
+      {
+        status: 500,
+        description: `OTP delivery failed`,
+        schema: z.object({ error: z.string() }),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/admin/login/verify-otp",
+    alias: "postV1adminloginverifyOtp",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AdminVerifyLoginOtpRequest,
+      },
+    ],
+    response: AdminLoginResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Invalid or expired OTP challenge`,
+        schema: z.void(),
+      },
+      {
+        status: 429,
+        description: `Too many OTP attempts`,
         schema: z.void(),
       },
       {
@@ -7418,9 +7467,11 @@ export type ForgotPasswordResponse = z.infer<typeof schemas.ForgotPasswordRespon
 export type AuthResetPasswordRequest = z.infer<typeof schemas.AuthResetPasswordRequest>;
 export type ResetPasswordResponse = z.infer<typeof schemas.ResetPasswordResponse>;
 export type AdminLoginRequest = z.infer<typeof schemas.AdminLoginRequest>;
+export type AdminLoginOtpChallengeResponse = z.infer<typeof schemas.AdminLoginOtpChallengeResponse>;
+export type AdminErrorResponse = z.infer<typeof schemas.AdminErrorResponse>;
+export type AdminVerifyLoginOtpRequest = z.infer<typeof schemas.AdminVerifyLoginOtpRequest>;
 export type AdminUser = z.infer<typeof schemas.AdminUser>;
 export type AdminLoginResponse = z.infer<typeof schemas.AdminLoginResponse>;
-export type AdminErrorResponse = z.infer<typeof schemas.AdminErrorResponse>;
 export type AdminRefreshRequest = z.infer<typeof schemas.AdminRefreshRequest>;
 export type AdminRefreshResponse = z.infer<typeof schemas.AdminRefreshResponse>;
 export type AdminLogoutResponse = z.infer<typeof schemas.AdminLogoutResponse>;
