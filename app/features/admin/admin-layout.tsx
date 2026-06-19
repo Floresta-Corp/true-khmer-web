@@ -8,10 +8,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Monitor,
-  Moon,
   ShieldCheck,
-  Sun,
   User as UserIcon,
   Users,
   X as CloseIcon,
@@ -31,6 +28,7 @@ import {
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
+import { AdminThemeSwitcher } from "./admin-theme-switcher";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, setCookie } = await requireSuperAdmin(request);
@@ -65,20 +63,6 @@ export function meta() {
 }
 
 type UserRole = "Super Admin" | "Moderator" | "Partner Manager";
-type Theme = "light" | "dark";
-type ThemePreference = Theme | "system";
-
-const ADMIN_THEME_STORAGE_KEY = "true-khmer-admin-theme-preference";
-
-function deviceTheme(): Theme {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
-}
-
-function resolvedTheme(preference: ThemePreference): Theme {
-  return preference === "system" ? deviceTheme() : preference;
-}
 
 type NavItem = {
   id: string;
@@ -232,71 +216,14 @@ export default function AdminLayout() {
   const location = useLocation();
   const navigation = useNavigation();
   const [activeMenu, setActiveMenu] = useState("dashboard");
-  const [themePreference, setThemePreference] =
-    useState<ThemePreference>("system");
-  const [theme, setTheme] = useState<Theme>("light");
   const [userRole, setUserRole] = useState(
     loaderData.userRole ?? "Super Admin",
   );
-  const [isRoleOpen, setIsRoleOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isDashboardRoute =
     location.pathname === "/tk-admin" || location.pathname === "/tk-admin/";
-
-  useEffect(() => {
-    const root = window.document.documentElement;
-    const savedPreference = window.localStorage.getItem(
-      ADMIN_THEME_STORAGE_KEY,
-    ) as ThemePreference | null;
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
-    const applyTheme = (nextTheme: Theme) => {
-      root.classList.toggle("dark", nextTheme === "dark");
-      root.style.colorScheme = nextTheme;
-      setTheme(nextTheme);
-    };
-
-    const initialPreference: ThemePreference =
-      savedPreference === "light" ||
-      savedPreference === "dark" ||
-      savedPreference === "system"
-        ? savedPreference
-        : "system";
-
-    setThemePreference(initialPreference);
-    applyTheme(resolvedTheme(initialPreference));
-
-    const handleDeviceThemeChange = (event: MediaQueryListEvent) => {
-      const preference = window.localStorage.getItem(ADMIN_THEME_STORAGE_KEY);
-      if (preference && preference !== "system") return;
-      applyTheme(event.matches ? "dark" : "light");
-    };
-
-    mediaQuery.addEventListener("change", handleDeviceThemeChange);
-    return () =>
-      mediaQuery.removeEventListener("change", handleDeviceThemeChange);
-  }, []);
-
-  function toggleTheme() {
-    const nextPreference: ThemePreference =
-      themePreference === "system"
-        ? "light"
-        : themePreference === "light"
-          ? "dark"
-          : "system";
-    const nextTheme = resolvedTheme(nextPreference);
-
-    window.localStorage.setItem(ADMIN_THEME_STORAGE_KEY, nextPreference);
-    window.document.documentElement.classList.toggle(
-      "dark",
-      nextTheme === "dark",
-    );
-    window.document.documentElement.style.colorScheme = nextTheme;
-    setThemePreference(nextPreference);
-    setTheme(nextTheme);
-  }
 
   useEffect(() => {
     if (isDashboardRoute) {
@@ -401,20 +328,7 @@ export default function AdminLayout() {
         <header className="h-16 md:h-20 px-6 md:px-10 flex items-center justify-end sticky top-0 md:top-0 bg-[#f8fafc]/80 dark:bg-slate-950/80 backdrop-blur-md z-30 border-b border-slate-100 dark:border-slate-800 transition-all duration-300">
           <div className="flex items-center gap-3 md:gap-6">
             <div className="flex items-center gap-2">
-              <button
-                onClick={toggleTheme}
-                className="p-2 md:p-2.5 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-xl cursor-pointer transition-all text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 border border-transparent hover:border-slate-100 dark:hover:border-slate-800"
-                aria-label={`Theme: ${themePreference}. Change theme`}
-                title={`Theme: ${themePreference}`}
-              >
-                {themePreference === "system" ? (
-                  <Monitor size={16} />
-                ) : theme === "light" ? (
-                  <Moon size={16} />
-                ) : (
-                  <Sun size={16} />
-                )}
-              </button>
+              <AdminThemeSwitcher />
 
               <div className="h-6 w-px bg-slate-100 dark:bg-slate-800 mx-1 hidden sm:block" />
 

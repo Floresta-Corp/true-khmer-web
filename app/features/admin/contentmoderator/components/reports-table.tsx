@@ -50,7 +50,7 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
             </p>
           </div>
           <div className="flex items-center gap-2 min-w-0">
-            <Avatar className="shrink-0 w-8 h-8 border  dark:border-slate-700">
+            <Avatar className="shrink-0 size-5 border  dark:border-slate-700">
               <AvatarImage
                 src={report.reportingBy?.avatarUrl ?? ""}
                 alt={report.reportingBy?.name}
@@ -95,7 +95,7 @@ const COLUMNS = [
   { label: "Content Preview", width: "34%", align: "text-left" },
   { label: "Date & Time", width: "16%", align: "text-center" },
   { label: "Status", width: "18%", align: "text-center" },
-  { label: "Action", width: "8%", align: "text-right" },
+  { label: "Action", width: "8%", align: "text-center" },
 ];
 
 export function ReportsTable({ reports, onSelect }: ReportsTableProps) {
