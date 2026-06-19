@@ -31,7 +31,15 @@ export function QuickActionButton({ action }: QuickActionButtonProps) {
   );
   return (
     <motion.div whileHover={{ x: 4 }}>
-      {action.to ? <Link to={action.to}>{inner}</Link> : inner}
+      {action.to ? (
+        <Link to={action.to}>{inner}</Link>
+      ) : action.onClick ? (
+        <button type="button" onClick={action.onClick} className="w-full text-left">
+          {inner}
+        </button>
+      ) : (
+        inner
+      )}
     </motion.div>
   );
 }
