@@ -35,7 +35,7 @@ export function ResolutionLog({ report }: { report: ContentModeratorReport }) {
               Platform Moderator
             </p>
             <span className="text-[10px] text-(--admin-text-secondary) font-medium lowercase first-letter:uppercase">
-              {formatDateMonthYear(report.solvedAt ?? "")}
+              {report.solvedAt ? formatDateMonthYear(report.solvedAt) : "—"}
             </span>
           </div>
         </div>

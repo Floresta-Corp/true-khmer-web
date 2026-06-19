@@ -1,4 +1,5 @@
 import type { Route } from "project-types/admin/contentmoderator/routes/+types/content-moderator";
+import { redirect } from "react-router";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import {
   getContentModerator,
@@ -21,6 +22,9 @@ type ContentModeratorData = {
 export async function contentModeratorLoader({ request }: Route.LoaderArgs) {
   const auth = await requireSuperAdmin(request);
   const { accessToken } = await getAdminAccessToken(request);
+  if (!accessToken) {
+    throw redirect("/tk-admin/login");
+  }
   const userId = auth.admin.id;
 
   if (!userId) {
@@ -44,14 +48,12 @@ export async function contentModeratorLoader({ request }: Route.LoaderArgs) {
       : undefined;
 
   const [result, allTypesResult] = await Promise.all([
-    getContentModerator(request, accessToken!, {
+    getContentModerator(request, accessToken, {
       cursor,
       status,
       typeId,
     }),
-    getContentModerator(request, accessToken!, {
-      limit: "50",
-    }),
+    getContentModerator(request, accessToken, {}),
   ]);
 
   const typesMap = new Map<string, string>();

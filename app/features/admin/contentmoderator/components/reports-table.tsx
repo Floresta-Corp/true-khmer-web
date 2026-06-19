@@ -12,6 +12,7 @@ import {
 import type { ContentModeratorReport } from "~/types/api-client";
 import { formatDateMonthYear } from "~/features/events/lib/event-formatters";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
 
 interface ReportsTableProps {
   reports: ContentModeratorReport[];
@@ -77,7 +78,11 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
       </TableCell>
 
       <TableCell className="px-10 py-6 text-right align-middle">
-        <button className="p-2 text-slate-400 hover:text-slate-900 transition-colors">
+        <button
+          type="button"
+          aria-label="Open report details"
+          className="p-2 text-slate-400 hover:text-slate-900 transition-colors cursor-pointer"
+        >
           <ArrowRight size={20} />
         </button>
       </TableCell>

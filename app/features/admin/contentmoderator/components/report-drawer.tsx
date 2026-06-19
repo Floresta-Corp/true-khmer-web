@@ -111,18 +111,20 @@ export function ReportDrawer({
               <div className="bg-(--admin-card-bg) rounded-xl p-5 border border-(--admin-border) italic text-slate-500 dark:text-slate-200 leading-relaxed font-medium text-sm">
                 "{report.contentPreview}"
               </div>
-              <Button
-                variant="link"
-                className="h-auto p-0 text-blue-600 dark:text-blue-400 font-semibold text-[10px] uppercase tracking-widest hover:underline"
-              >
-                <Link
-                  to={report.sourceLink ?? ""}
-                  className="inline-flex items-center gap-1.5 leading-none"
+              {report.sourceLink ? (
+                <Button
+                  variant="link"
+                  className="h-auto p-0 text-blue-600 dark:text-blue-400 font-semibold text-[10px] uppercase tracking-widest hover:underline"
                 >
-                  <ExternalLink size={12} className="shrink-0" />
-                  <span>View Original Post</span>
-                </Link>
-              </Button>
+                  <Link
+                    to={report.sourceLink}
+                    className="inline-flex items-center gap-1.5 leading-none"
+                  >
+                    <ExternalLink size={12} className="shrink-0" />
+                    <span>View Original Post</span>
+                  </Link>
+                </Button>
+              ) : null}
             </div>
 
             {/* Reporter info */}

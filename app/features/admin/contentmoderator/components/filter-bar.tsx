@@ -1,5 +1,11 @@
-import { ChevronDown } from "lucide-react";
+import { useState } from "react";
+import { Check, ChevronDown } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
 import type { CategoryOption } from "./pages/content-moderator-page";
 
 export const STATUSES = [
@@ -45,31 +51,55 @@ export function FilterBar({
       : (categoryOptions.find((o) => o.id === selectedTypeId)?.name ??
         "Select Type…");
 
+  const [open, setOpen] = useState(false);
+
+  const handleSelect = (id: string | null) => {
+    onCategoryChange(id);
+    setOpen(false);
+  };
+
   return (
     <div className="px-8 py-6 border-b border-slate-50 dark:border-slate-800 flex flex-wrap items-center gap-4">
       <div className="flex flex-col md:flex-row md:items-center gap-4">
-        <div className="relative group">
-          <Button className="flex items-center gap-4 px-6 py-3 rounded-2xl text-xs font-black bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 hover:border-blue-500 transition-all cursor-pointer">
-            {selectedLabel}
-            <ChevronDown size={14} className="opacity-40" />
-          </Button>
-          <div className="absolute top-full left-0 mt-2 min-w-48 max-h-64 overflow-y-auto bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-xl shadow-slate-900/10 dark:shadow-black/40 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 p-2">
-            {categoryOptions.map((option) => (
-              <Button
-                variant="ghost"
-                key={option.id ?? "__all__"}
-                onClick={() => onCategoryChange(option.id)}
-                className={`w-full text-left px-4 py-2.5 rounded-xl text-[12px] font-semibold tracking-widest transition-colors cursor-pointer whitespace-nowrap ${
-                  selectedTypeId === option.id
-                    ? "bg-blue-600 text-white "
-                    : "text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 dark:text-slate-400"
-                }`}
-              >
-                {option.name}
-              </Button>
-            ))}
-          </div>
-        </div>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button className="flex items-center gap-4 px-6 py-3 rounded-2xl text-[13px] font-semibold bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 hover:border-blue-500 transition-all cursor-pointer">
+              {selectedLabel}
+              <ChevronDown
+                size={14}
+                className={`opacity-40 transition-transform ${open ? "rotate-180" : ""}`}
+              />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            align="start"
+            className="min-w-56 max-h-72 overflow-y-auto bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-xl shadow-slate-900/10 dark:shadow-black/40 p-1.5"
+          >
+            {categoryOptions.map((option) => {
+              const isSelected = selectedTypeId === option.id;
+              return (
+                <Button
+                  variant="ghost"
+                  key={option.id ?? "__all__"}
+                  onClick={() => handleSelect(option.id)}
+                  className={`w-full justify-between text-left px-3.5 py-2 rounded-lg text-[13px] font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                    isSelected
+                      ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
+                      : "text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                  }`}
+                >
+                  <span>{option.name}</span>
+                  {isSelected && (
+                    <Check
+                      size={14}
+                      className="text-blue-600 dark:text-blue-400"
+                    />
+                  )}
+                </Button>
+              );
+            })}
+          </PopoverContent>
+        </Popover>
 
         <div className="flex p-1.5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl">
           {STATUSES.map((status) => {
