@@ -2,8 +2,13 @@ import { createCookieSessionStorage } from "react-router";
 import { redirect } from "react-router";
 import type { AuthTokensResponse } from "~/services/auth/api.server";
 import type { AuthenticatedUser } from "./types";
-import type { AdminAuthResult } from "./auth/admin/api-admin.server";
 import {
+  invalidateAdminMeCache,
+  logoutAdmin,
+  type AdminAuthResult,
+} from "~/services/api/admin/auth/admin-auth.server";
+import {
+  type AdminLoginOtpChallengeResponse,
   type AdminLoginResponse,
   type AdminRefreshResponse,
   type AdminUser,
@@ -46,6 +51,24 @@ const adminSessionStorage = createCookieSessionStorage({
     maxAge: 60 * 60 * 24 * 30,
   },
 });
+
+const adminBrowserSessionStorage = createCookieSessionStorage({
+  cookie: { ...baseCookie, name: "__admin_session" },
+});
+
+const adminPendingLoginStorage = createCookieSessionStorage({
+  cookie: {
+    ...baseCookie,
+    name: "__admin_pending_login",
+    maxAge: 60 * 5,
+  },
+});
+
+const ADMIN_REFRESH_BUFFER_MS = 60_000;
+const adminRefreshPromises = new Map<
+  string,
+  Promise<Omit<AdminLoginResponse, "admin">>
+>();
 
 export async function getSession(request: Request) {
   const cookie = request.headers.get("Cookie");
@@ -176,32 +199,97 @@ async function getAdminSession(request: Request) {
   return adminSessionStorage.getSession(cookie ?? undefined);
 }
 
+async function getAdminPendingLoginSession(request: Request) {
+  const cookie = request.headers.get("Cookie");
+  return adminPendingLoginStorage.getSession(cookie ?? undefined);
+}
+
+export type PendingAdminLogin = Pick<
+  AdminLoginOtpChallengeResponse,
+  "challengeId" | "expiresAt"
+> & {
+  rememberMe: boolean;
+};
+
+export async function createAdminPendingLogin(
+  request: Request,
+  pendingLogin: PendingAdminLogin,
+  redirectTo: string,
+) {
+  const session = await getAdminPendingLoginSession(request);
+  session.set("challengeId", pendingLogin.challengeId);
+  session.set("expiresAt", pendingLogin.expiresAt);
+  session.set("rememberMe", pendingLogin.rememberMe);
+
+  return redirect(redirectTo, {
+    headers: {
+      "Set-Cookie": await adminPendingLoginStorage.commitSession(session),
+    },
+  });
+}
+
+export async function getAdminPendingLogin(
+  request: Request,
+): Promise<PendingAdminLogin | null> {
+  const session = await getAdminPendingLoginSession(request);
+  const challengeId = session.get("challengeId");
+  const expiresAt = session.get("expiresAt");
+  const rememberMe = session.get("rememberMe") === true;
+
+  if (typeof challengeId !== "string" || typeof expiresAt !== "string") {
+    return null;
+  }
+
+  if (new Date(expiresAt).getTime() <= Date.now()) {
+    return null;
+  }
+
+  return { challengeId, expiresAt, rememberMe };
+}
+
 export async function createAdminSession(
   request: Request,
   auth: AdminAuthResult,
   redirectTo: string,
+  options: { rememberMe?: boolean } = {},
 ) {
   const session = await getAdminSession(request);
+  const pendingLoginSession = await getAdminPendingLoginSession(request);
   session.set("adminAccessToken", auth.accessToken);
   session.set("adminRefreshToken", auth.refreshToken);
   session.set("adminAccessTokenExpiresAt", auth.accessTokenExpiresAt);
   session.set("adminRefreshTokenExpiresAt", auth.refreshTokenExpiresAt);
   session.set("admin", auth.admin);
+  session.set("adminRememberMe", options.rememberMe === true);
+
+  const authCookie = options.rememberMe
+    ? await adminSessionStorage.commitSession(session)
+    : await adminBrowserSessionStorage.commitSession(session);
+  const clearPendingCookie =
+    await adminPendingLoginStorage.destroySession(pendingLoginSession);
 
   return redirect(redirectTo, {
-    headers: { "Set-Cookie": await adminSessionStorage.commitSession(session) },
+    headers: [
+      ["Set-Cookie", authCookie],
+      ["Set-Cookie", clearPendingCookie],
+    ],
   });
 }
 
 export async function getAdminAccessToken(
   request: Request,
+  options: { forceRefresh?: boolean } = {},
 ): Promise<{ accessToken: string | null; setCookie?: string }> {
   const session = await getAdminSession(request);
   const token = session.get("adminAccessToken");
   if (!token) return { accessToken: null };
 
   const accessExpiresAt = session.get("adminAccessTokenExpiresAt");
-  if (accessExpiresAt && new Date(accessExpiresAt) > new Date()) {
+  if (
+    !options.forceRefresh &&
+    accessExpiresAt &&
+    new Date(accessExpiresAt).getTime() - ADMIN_REFRESH_BUFFER_MS > Date.now()
+  ) {
     return { accessToken: token };
   }
 
@@ -211,11 +299,15 @@ export async function getAdminAccessToken(
     !refreshToken ||
     (refreshExpiresAt && new Date(refreshExpiresAt) <= new Date())
   ) {
-    return { accessToken: null };
+    invalidateAdminMeCache(token);
+    return {
+      accessToken: null,
+      setCookie: await adminSessionStorage.destroySession(session),
+    };
   }
 
   try {
-    const refreshed = await refreshAdminToken(request, refreshToken);
+    const refreshed = await refreshAdminTokenSingleFlight(request, refreshToken);
 
     session.set("adminAccessToken", refreshed.accessToken);
     session.set("adminRefreshToken", refreshed.refreshToken);
@@ -228,10 +320,17 @@ export async function getAdminAccessToken(
       refreshed.refreshTokenExpiresAt ?? "",
     );
 
-    const setCookie = await adminSessionStorage.commitSession(session);
+    const rememberMe = session.get("adminRememberMe") === true;
+    const setCookie = rememberMe
+      ? await adminSessionStorage.commitSession(session)
+      : await adminBrowserSessionStorage.commitSession(session);
     return { accessToken: refreshed.accessToken, setCookie };
   } catch (err) {
-    return { accessToken: null };
+    invalidateAdminMeCache(token);
+    return {
+      accessToken: null,
+      setCookie: await adminSessionStorage.destroySession(session),
+    };
   }
 }
 
@@ -258,11 +357,45 @@ export async function refreshAdminToken(
   return result.data;
 }
 
-export async function destroyAdminSession(request: Request) {
+async function refreshAdminTokenSingleFlight(
+  request: Request,
+  refreshToken: string,
+) {
+  const existingRefresh = adminRefreshPromises.get(refreshToken);
+  if (existingRefresh) return existingRefresh;
+
+  const refreshPromise = refreshAdminToken(request, refreshToken).finally(() => {
+    adminRefreshPromises.delete(refreshToken);
+  });
+  adminRefreshPromises.set(refreshToken, refreshPromise);
+
+  return refreshPromise;
+}
+
+export async function destroyAdminSession(
+  request: Request,
+  options: { callApi?: boolean } = {},
+) {
   const session = await getAdminSession(request);
+  const pendingLoginSession = await getAdminPendingLoginSession(request);
+  const accessToken = session.get("adminAccessToken");
+  invalidateAdminMeCache(accessToken);
+
+  if (options.callApi && typeof accessToken === "string") {
+    try {
+      await logoutAdmin(request, accessToken);
+    } catch {
+      // Local auth state is cleared even when the backend logout request fails.
+    }
+  }
+
   return redirect("/tk-admin/login", {
-    headers: {
-      "Set-Cookie": await adminSessionStorage.destroySession(session),
-    },
+    headers: [
+      ["Set-Cookie", await adminSessionStorage.destroySession(session)],
+      [
+        "Set-Cookie",
+        await adminPendingLoginStorage.destroySession(pendingLoginSession),
+      ],
+    ],
   });
 }

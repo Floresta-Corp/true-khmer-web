@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Monitor,
   Moon,
   ShieldCheck,
   Sun,
@@ -23,8 +24,9 @@ import {
   Outlet,
   useLoaderData,
   useLocation,
-  useNavigate,
+  useNavigation,
   type LoaderFunctionArgs,
+  type ShouldRevalidateFunctionArgs,
 } from "react-router";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -40,11 +42,43 @@ export async function loader({ request }: LoaderFunctionArgs) {
   );
 }
 
+export function shouldRevalidate({
+  formMethod,
+  currentUrl,
+  nextUrl,
+  defaultShouldRevalidate,
+}: ShouldRevalidateFunctionArgs) {
+  if (formMethod) return true;
+
+  if (
+    currentUrl.pathname.startsWith("/tk-admin") &&
+    nextUrl.pathname.startsWith("/tk-admin")
+  ) {
+    return true;
+  }
+
+  return defaultShouldRevalidate;
+}
+
 export function meta() {
   return [{ title: "Admin Panel | True Khmer" }];
 }
 
 type UserRole = "Super Admin" | "Moderator" | "Partner Manager";
+type Theme = "light" | "dark";
+type ThemePreference = Theme | "system";
+
+const ADMIN_THEME_STORAGE_KEY = "true-khmer-admin-theme-preference";
+
+function deviceTheme(): Theme {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
+
+function resolvedTheme(preference: ThemePreference): Theme {
+  return preference === "system" ? deviceTheme() : preference;
+}
 
 type NavItem = {
   id: string;
@@ -99,26 +133,21 @@ const SidebarItem = ({
   active = false,
   badge = 0,
   disabled = false,
-  onClick,
+  href,
+  onNavigate,
 }: {
   icon: ComponentType<LucideProps>;
   label: string;
   active?: boolean;
   badge?: number;
   disabled?: boolean;
-  onClick?: () => void;
+  href: string;
+  onNavigate?: () => void;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  return (
-    <div
-      onClick={disabled ? undefined : onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`relative flex items-center justify-center py-2.5 w-full ${
-        disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer group"
-      }`}
-    >
+  const content = (
+    <>
       <div
         className={`p-2.5 rounded-xl transition-all duration-200 ${
           active
@@ -153,7 +182,37 @@ const SidebarItem = ({
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </>
+  );
+
+  const className = `relative flex items-center justify-center py-2.5 w-full ${
+    disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer group"
+  }`;
+
+  if (disabled) {
+    return (
+      <div
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className={className}
+      >
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      to={href}
+      prefetch="intent"
+      onClick={onNavigate}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={className}
+      aria-label={label}
+    >
+      {content}
+    </Link>
   );
 };
 
@@ -171,9 +230,11 @@ function getBreadcrumbs(activeMenu: string) {
 export default function AdminLayout() {
   const loaderData = useLoaderData<typeof loader>();
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigation = useNavigation();
   const [activeMenu, setActiveMenu] = useState("dashboard");
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [themePreference, setThemePreference] =
+    useState<ThemePreference>("system");
+  const [theme, setTheme] = useState<Theme>("light");
   const [userRole, setUserRole] = useState(
     loaderData.userRole ?? "Super Admin",
   );
@@ -186,12 +247,56 @@ export default function AdminLayout() {
 
   useEffect(() => {
     const root = window.document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-  }, [theme]);
+    const savedPreference = window.localStorage.getItem(
+      ADMIN_THEME_STORAGE_KEY,
+    ) as ThemePreference | null;
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const applyTheme = (nextTheme: Theme) => {
+      root.classList.toggle("dark", nextTheme === "dark");
+      root.style.colorScheme = nextTheme;
+      setTheme(nextTheme);
+    };
+
+    const initialPreference: ThemePreference =
+      savedPreference === "light" ||
+      savedPreference === "dark" ||
+      savedPreference === "system"
+        ? savedPreference
+        : "system";
+
+    setThemePreference(initialPreference);
+    applyTheme(resolvedTheme(initialPreference));
+
+    const handleDeviceThemeChange = (event: MediaQueryListEvent) => {
+      const preference = window.localStorage.getItem(ADMIN_THEME_STORAGE_KEY);
+      if (preference && preference !== "system") return;
+      applyTheme(event.matches ? "dark" : "light");
+    };
+
+    mediaQuery.addEventListener("change", handleDeviceThemeChange);
+    return () =>
+      mediaQuery.removeEventListener("change", handleDeviceThemeChange);
+  }, []);
+
+  function toggleTheme() {
+    const nextPreference: ThemePreference =
+      themePreference === "system"
+        ? "light"
+        : themePreference === "light"
+          ? "dark"
+          : "system";
+    const nextTheme = resolvedTheme(nextPreference);
+
+    window.localStorage.setItem(ADMIN_THEME_STORAGE_KEY, nextPreference);
+    window.document.documentElement.classList.toggle(
+      "dark",
+      nextTheme === "dark",
+    );
+    window.document.documentElement.style.colorScheme = nextTheme;
+    setThemePreference(nextPreference);
+    setTheme(nextTheme);
+  }
 
   useEffect(() => {
     if (isDashboardRoute) {
@@ -202,19 +307,28 @@ export default function AdminLayout() {
       setActiveMenu("moderation");
     }
 
-    if (location.pathname.startsWith("/tk-admin/users")) {
+    if (
+      location.pathname.startsWith("/tk-admin/users") ||
+      location.pathname.startsWith("/tk-admin/user/")
+    ) {
       setActiveMenu("users");
     }
   }, [isDashboardRoute, location.pathname]);
 
-  const navigateTo = (item: NavItem) => {
-    if (item.disabled) return;
-    navigate(item.href);
-    setActiveMenu(item.id);
-    setIsMobileMenuOpen(false);
-  };
+  const pendingPathname = navigation.location?.pathname;
+  const visibleActiveMenu =
+    navigation.state !== "idle" && pendingPathname
+      ? pendingPathname.startsWith("/tk-admin/content-moderator")
+        ? "moderation"
+        : pendingPathname.startsWith("/tk-admin/users") ||
+            pendingPathname.startsWith("/tk-admin/user/")
+          ? "users"
+          : pendingPathname === "/tk-admin" || pendingPathname === "/tk-admin/"
+            ? "dashboard"
+            : activeMenu
+      : activeMenu;
 
-  const crumbs = getBreadcrumbs(activeMenu);
+  const crumbs = getBreadcrumbs(visibleActiveMenu);
 
   return (
     <div className="flex min-h-screen bg-[#f8fafc] dark:bg-slate-950 text-slate-900 transition-colors duration-300 antialiased font-sans flex-col md:flex-row">
@@ -269,10 +383,11 @@ export default function AdminLayout() {
               key={item.id}
               icon={item.icon}
               label={item.label}
-              active={activeMenu === item.id}
+              active={visibleActiveMenu === item.id}
               badge={item.badge}
               disabled={item.disabled}
-              onClick={() => navigateTo(item)}
+              href={item.href}
+              onNavigate={() => setIsMobileMenuOpen(false)}
             />
           ))}
         </div>
@@ -297,11 +412,18 @@ export default function AdminLayout() {
           <div className="flex items-center gap-3 md:gap-6">
             <div className="flex items-center gap-2">
               <button
-                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                onClick={toggleTheme}
                 className="p-2 md:p-2.5 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-xl cursor-pointer transition-all text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 border border-transparent hover:border-slate-100 dark:hover:border-slate-800"
-                aria-label="Toggle theme"
+                aria-label={`Theme: ${themePreference}. Change theme`}
+                title={`Theme: ${themePreference}`}
               >
-                {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
+                {themePreference === "system" ? (
+                  <Monitor size={16} />
+                ) : theme === "light" ? (
+                  <Moon size={16} />
+                ) : (
+                  <Sun size={16} />
+                )}
               </button>
 
               <div className="h-6 w-px bg-slate-100 dark:bg-slate-800 mx-1 hidden sm:block" />
