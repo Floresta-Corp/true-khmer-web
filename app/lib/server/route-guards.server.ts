@@ -20,7 +20,8 @@ import {
   type OnboardingState,
 } from "~/services/onboarding.server";
 import type { AuthenticatedUser } from "./types";
-import { getAdminMe, type AdminUser } from "./auth/admin/api-admin.server";
+import { getAdminMe } from "./auth/admin/api-admin.server";
+import type { AdminUser } from "~/types/api-client";
 
 type GuardResult = {
   user: AuthenticatedUser;

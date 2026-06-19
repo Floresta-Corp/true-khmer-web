@@ -120,7 +120,8 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Add User",
     subtitle: "Register Member",
     icon: UserPlus,
-    iconClass: "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400",
+    iconClass:
+      "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400",
     to: "/tk-admin/users/add",
   },
   {
@@ -128,7 +129,8 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Add Partner",
     subtitle: "New Ecosystem Entry",
     icon: Building2,
-    iconClass: "bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400",
+    iconClass:
+      "bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400",
     to: "/tk-admin/partner/add",
   },
   {
@@ -136,7 +138,8 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Invite Team",
     subtitle: "Collaborator Access",
     icon: UserCog,
-    iconClass: "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400",
+    iconClass:
+      "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400",
     to: "/tk-admin/team/invite",
   },
   {
@@ -144,7 +147,8 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Send Notification",
     subtitle: "Platform Broadcast",
     icon: Bell,
-    iconClass: "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400",
+    iconClass:
+      "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400",
   },
 ];
 
@@ -192,11 +196,13 @@ const ACTIVE_USERS_DATA: ActiveUserPoint[] = [
 // ── main page ─────────────────────────────────────────────────────────────
 export default function AdminDashboardPage() {
   return (
-    <div className="min-h-screen bg-(--admin-page-bg) p-6 space-y-6">
+    <div className="min-h-screen dark:bg-slate-95 p-6 space-y-6">
       <KycBanner />
 
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-(--admin-text)">Admin Dashboard</h1>
+        <h1 className="text-2xl font-bold text-(--admin-text)">
+          Admin Dashboard
+        </h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
