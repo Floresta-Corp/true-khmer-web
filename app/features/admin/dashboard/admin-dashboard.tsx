@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Users,
   Handshake,
@@ -17,6 +18,7 @@ import { ActiveUsersChart } from "./components/active-users-chart";
 import { GenderBreakdownChart } from "./components/gender-breakdown-chart";
 import { AgeGroupsChart } from "./components/age-groups-chart";
 import { PartnerSectorsChart } from "./components/partner-sectors-chart";
+import { SendNotificationDialog } from "~/features/admin/notifications/components/send-notification-dialog";
 
 // ── meta ───────────────────────────────────────────────────────────────────
 export function meta() {
@@ -69,6 +71,7 @@ export type QuickAction = {
   icon: React.ComponentType<{ className?: string }>;
   iconClass: string;
   to?: string;
+  onClick?: () => void;
 };
 
 // ── color tokens ──────────────────────────────────────────────────────────
@@ -114,7 +117,7 @@ const STATS: StatItem[] = [
   },
 ];
 
-const QUICK_ACTIONS: QuickAction[] = [
+const BASE_QUICK_ACTIONS: Omit<QuickAction, "onClick">[] = [
   {
     id: "add-user",
     label: "Add User",
@@ -195,6 +198,14 @@ const ACTIVE_USERS_DATA: ActiveUserPoint[] = [
 
 // ── main page ─────────────────────────────────────────────────────────────
 export default function AdminDashboardPage() {
+  const [showNotificationDialog, setShowNotificationDialog] = useState(false);
+
+  const quickActions: QuickAction[] = BASE_QUICK_ACTIONS.map((action) =>
+    action.id === "send-notification"
+      ? { ...action, onClick: () => setShowNotificationDialog(true) }
+      : action,
+  );
+
   return (
     <div className="min-h-screen bg-(--admin-page-bg) p-6 space-y-6">
       <KycBanner />
@@ -212,7 +223,7 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <QuickActionsSidebar actions={QUICK_ACTIONS} />
+        <QuickActionsSidebar actions={quickActions} />
 
         <div className="lg:col-span-8 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -227,6 +238,11 @@ export default function AdminDashboardPage() {
           </div>
         </div>
       </div>
+
+      <SendNotificationDialog
+        show={showNotificationDialog}
+        onClose={() => setShowNotificationDialog(false)}
+      />
     </div>
   );
 }

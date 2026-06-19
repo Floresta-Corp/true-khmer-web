@@ -92,6 +92,10 @@ export default [
       "users/add",
       "features/admin/usermanagement/routes/user-management.add.tsx",
     ),
+    route(
+      "notifications/broadcast",
+      "features/admin/notifications/routes/notification-broadcast.tsx",
+    ),
   ]),
   route("tk-admin/login", "routes/auth/pages/admin-login.tsx"),
   route("tk-admin/logout", "routes/admin-logout.tsx"),
