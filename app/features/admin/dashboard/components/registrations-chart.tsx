@@ -28,8 +28,8 @@ export function RegistrationsChart({ data }: RegistrationsChartProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.4 }}
-      className="rounded-xl border border-(--admin-border) bg-slate-900 p-6"
+      transition={{ duration: 0.4, delay: 0.5 }}
+      className="rounded-xl border border-(--admin-border)  dark:bg-slate-900 p-6"
     >
       <div className="flex items-start justify-between mb-6">
         <div>
