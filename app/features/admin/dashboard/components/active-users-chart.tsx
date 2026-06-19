@@ -10,18 +10,20 @@ import {
 } from "recharts";
 import type { ActiveUserPoint } from "../admin-dashboard";
 import { TOOLTIP_STYLE, GRID_COLOR, TEXT_MUTED } from "../admin-dashboard";
+import { useState } from "react";
 
 interface ActiveUsersChartProps {
   data: ActiveUserPoint[];
 }
 
 export function ActiveUsersChart({ data }: ActiveUsersChartProps) {
+  const [isDark] = useState(false);
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.5 }}
-      className="rounded-xl border border-(--admin-border) bg-(--admin-card-bg) p-6"
+      className="rounded-xl border border-(--admin-border)  dark:bg-slate-900 p-6"
     >
       <div className="flex items-start justify-between mb-6">
         <div>
@@ -58,8 +60,14 @@ export function ActiveUsersChart({ data }: ActiveUsersChartProps) {
               tick={{ fontSize: 10, fill: TEXT_MUTED, fontWeight: 600 }}
             />
             <Tooltip
-              cursor={{ stroke: "var(--admin-grid)", strokeWidth: 1 }}
-              contentStyle={TOOLTIP_STYLE}
+              cursor={{ fill: "var(--admin-card-muted)", radius: 10 }}
+              contentStyle={{
+                borderRadius: "16px",
+                border: "none",
+                backgroundColor: isDark ? "#1e293b" : "#ffffff",
+                boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                fontSize: "11px",
+              }}
             />
             <Area
               type="monotone"

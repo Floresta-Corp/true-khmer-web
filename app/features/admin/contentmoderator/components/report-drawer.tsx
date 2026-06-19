@@ -68,7 +68,7 @@ export function ReportDrawer({
           damping: 30,
           stiffness: 300,
         }}
-        className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-(--admin-card-bg) z-70 flex flex-col border-l border-(--admin-border)"
+        className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white dark:bg-[#020617] z-70 flex flex-col border-l border-slate-100 dark:border-slate-800"
       >
         {/* ── Header ───────────────────────────────────────────────────────── */}
         <div className="flex items-center justify-between p-8 border-b border-(--admin-border)">
@@ -95,9 +95,9 @@ export function ReportDrawer({
         </div>
 
         {/* ── Content ────────────────────────────────────────────────────── */}
-        <div className="flex-1 overflow-auto p-6 space-y-6 bg-(--admin-card-bg)">
+        <div className="flex-1 overflow-auto p-6 space-y-6 dark:bg-[#020617]">
           {/* -------- Violation Card -------- */}
-          <div className="bg-(--admin-card-muted) rounded-2xl border border-(--admin-border) overflow-hidden">
+          <div className="bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
             <div className="p-6 space-y-4">
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-lg bg-rose-600/20 dark:bg-rose-950 flex items-center justify-center text-rose-500 border dark:border-rose-900 shrink-0">
@@ -108,7 +108,7 @@ export function ReportDrawer({
                 </h3>
               </div>
 
-              <div className="bg-(--admin-card-bg) rounded-xl p-5 border border-(--admin-border) italic text-slate-500 dark:text-slate-200 leading-relaxed font-medium text-sm">
+              <div className="dark:bg-slate-950 rounded-xl p-5 border border-(--admin-border) italic text-slate-500  dark:text-slate-300 dark:text-slate-200 leading-relaxed font-medium text-sm">
                 "{report.contentPreview}"
               </div>
               {report.sourceLink ? (
@@ -128,7 +128,7 @@ export function ReportDrawer({
             </div>
 
             {/* Reporter info */}
-            <div className="p-6 border-t border-(--admin-border) flex items-center gap-3">
+            <div className="p-6 border-t border-slate-100 dark:border-slate-800 flex items-center gap-3">
               <Avatar className="shrink-0 w-8 h-8 border border-slate-200 dark:border-slate-700">
                 <AvatarImage
                   src={report.reportingBy?.avatarUrl ?? ""}

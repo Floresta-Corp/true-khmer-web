@@ -10,18 +10,20 @@ import {
 } from "recharts";
 import type { AgeItem } from "../admin-dashboard";
 import { TOOLTIP_STYLE, GRID_COLOR, TEXT_SECONDARY } from "../admin-dashboard";
+import { useState } from "react";
 
 interface AgeGroupsChartProps {
   data: AgeItem[];
 }
 
 export function AgeGroupsChart({ data }: AgeGroupsChartProps) {
+  const [isDark] = useState(false);
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.7 }}
-      className="rounded-xl border border-(--admin-border) bg-(--admin-card-bg) p-6"
+      className="rounded-xl border border-(--admin-border)  dark:bg-slate-900 p-6"
     >
       <h3 className="text-xs font-black text-(--admin-text) uppercase tracking-widest mb-5">
         Age Groups
@@ -44,8 +46,14 @@ export function AgeGroupsChart({ data }: AgeGroupsChartProps) {
               width={40}
             />
             <Tooltip
-              cursor={{ fill: "var(--admin-card-muted)" }}
-              contentStyle={TOOLTIP_STYLE}
+              cursor={{ fill: "var(--admin-card-muted)", radius: 10 }}
+              contentStyle={{
+                borderRadius: "16px",
+                border: "none",
+                backgroundColor: isDark ? "#1e293b" : "#ffffff",
+                boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                fontSize: "11px",
+              }}
             />
             <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} />
           </BarChart>

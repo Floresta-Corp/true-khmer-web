@@ -159,7 +159,7 @@ body {
   --admin-page-bg: oklch(0.018 0.004 252);
   --admin-panel-bg: oklch(0.073 0.042 254);
   --admin-card-bg: oklch(0.28 0.04 260);
-  --admin-card-muted: oklch(0.083 0.044 254);
+  --admin-card-muted: oklch(0.22 0.035 258);
   --admin-header-bg: oklch(0.073 0.042 254);
   --admin-border: oklch(0.145 0.048 254);
   --admin-border-strong: oklch(0.192 0.054 254);
