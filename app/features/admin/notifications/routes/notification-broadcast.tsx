@@ -1,15 +1,32 @@
 import { data, redirect } from "react-router";
+import { z } from "zod";
 import { apiRequestWithAccessToken } from "~/lib/server/api-client.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
 
-type BroadcastBody = {
-  title: string;
-  body: string;
-  imageUrl?: string;
-  type: string;
-  webRoute?: string;
-  mobileRoute?: string;
-};
+const emptyToUndefined = (v: unknown) => (v === "" ? undefined : v);
+
+const broadcastSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  body: z.string().min(1, "Body is required"),
+  type: z
+    .enum([
+      "system",
+      "forum",
+      "profile_view",
+      "new_message",
+      "achievement",
+      "event_reminder",
+      "application",
+      "launchpad_update",
+      "points",
+    ])
+    .default("system"),
+  imageUrl: z.preprocess(emptyToUndefined, z.string().optional()),
+  webRoute: z.preprocess(emptyToUndefined, z.string().optional()),
+  mobileRoute: z.preprocess(emptyToUndefined, z.string().optional()),
+});
+
+type BroadcastBody = z.infer<typeof broadcastSchema>;
 
 export async function action({ request }: { request: Request }) {
   const { accessToken, setCookie } = await getAdminAccessToken(request);
@@ -18,22 +35,14 @@ export async function action({ request }: { request: Request }) {
   }
 
   const formData = await request.formData();
+  const result = broadcastSchema.safeParse(Object.fromEntries(formData));
 
-  const title = formData.get("title") as string;
-  const body = formData.get("body") as string;
-  const imageUrl = (formData.get("imageUrl") as string) || undefined;
-  const type = (formData.get("type") as string) || "system";
-  const webRoute = (formData.get("webRoute") as string) || undefined;
-  const mobileRoute = (formData.get("mobileRoute") as string) || undefined;
+  if (!result.success) {
+    const message = result.error.issues.map((i) => i.message).join(", ");
+    return data({ ok: false, error: message }, { status: 400 });
+  }
 
-  const payload: BroadcastBody = {
-    title,
-    body,
-    type,
-    ...(imageUrl ? { imageUrl } : {}),
-    ...(webRoute ? { webRoute } : {}),
-    ...(mobileRoute ? { mobileRoute } : {}),
-  };
+  const payload: BroadcastBody = result.data;
 
   try {
     await apiRequestWithAccessToken(
