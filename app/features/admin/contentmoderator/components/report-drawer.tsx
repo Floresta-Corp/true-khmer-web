@@ -1,5 +1,3 @@
-import type { Report } from "~/features/admin/contentmoderator/types";
-import { memo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   ChevronLeft,
@@ -7,24 +5,25 @@ import {
   ExternalLink,
   ShieldCheck,
   EyeOff,
-  Clock,
 } from "lucide-react";
-import { format } from "date-fns";
 import { StatusBadge } from "./status-badge";
 import { ConfirmationModal } from "./confirmation-modal";
-
-// ── ReportDrawer ────────────────────────────────────────────────────────────
-// Side panel that slides in to show the full report details and actions.
+import type { ContentModeratorReport } from "~/types/api-client";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { formatMinutesOrHoursAgo } from "~/lib/time";
+import { Link } from "react-router";
+import { Button } from "~/components/ui/button";
+import { ResolutionLog } from "./resolutionBy";
 
 interface ReportDrawerProps {
-  report: Report | null;
+  report: ContentModeratorReport | null;
   confirmAction: "dismiss" | "hide" | null;
   onClose: () => void;
   onResolve: (id: string, action: "dismiss" | "hide") => void;
   onConfirmChange: (action: "dismiss" | "hide" | null) => void;
 }
 
-export const ReportDrawer = memo(function ReportDrawer({
+export function ReportDrawer({
   report,
   confirmAction,
   onClose,
@@ -33,7 +32,6 @@ export const ReportDrawer = memo(function ReportDrawer({
 }: ReportDrawerProps) {
   if (!report) return null;
 
-  // ── Drawer animation variants ───────────────────────────────────────────
   const overlayVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1 },
@@ -70,7 +68,7 @@ export const ReportDrawer = memo(function ReportDrawer({
           damping: 30,
           stiffness: 300,
         }}
-        className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-(--admin-card-bg) z-70 flex flex-col border-l border-(--admin-border)"
+        className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white dark:bg-[#020617] z-70 flex flex-col border-l border-slate-100 dark:border-slate-800"
       >
         {/* ── Header ───────────────────────────────────────────────────────── */}
         <div className="flex items-center justify-between p-8 border-b border-(--admin-border)">
@@ -79,14 +77,17 @@ export const ReportDrawer = memo(function ReportDrawer({
               onClick={onClose}
               className="p-2.5 hover:bg-(--admin-card-muted) rounded-xl transition-all cursor-pointer"
             >
-              <ChevronLeft size={22} className="text-(--admin-text-secondary)" />
+              <ChevronLeft
+                size={22}
+                className="text-(--admin-text-secondary)"
+              />
             </button>
             <div>
-              <h2 className="text-xl font-black tracking-tighter text-(--admin-text)">
+              <h2 className="text-xl font-semibold tracking-tighter text-(--admin-text)">
                 Review Report
               </h2>
-              <p className="text-[10px] font-black text-(--admin-text-secondary) uppercase tracking-widest">
-                {report.id}
+              <p className="text-[11px] font-black text-(--admin-text-secondary) uppercase tracking-widest">
+                REP-{String(report.reportId).padStart(3, "0")}
               </p>
             </div>
           </div>
@@ -94,62 +95,78 @@ export const ReportDrawer = memo(function ReportDrawer({
         </div>
 
         {/* ── Content ────────────────────────────────────────────────────── */}
-        <div className="flex-1 overflow-auto p-6 space-y-6 bg-(--admin-card-bg)">
+        <div className="flex-1 overflow-auto p-6 space-y-6 dark:bg-[#020617]">
           {/* -------- Violation Card -------- */}
-          <div className="bg-(--admin-card-muted) rounded-2xl border border-(--admin-border) overflow-hidden">
+          <div className="bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
             <div className="p-6 space-y-4">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-rose-950 flex items-center justify-center text-rose-500 border border-rose-900 shrink-0">
-                  <AlertTriangle size={16} />
+                <div className="w-8 h-8 rounded-lg bg-rose-600/20 dark:bg-rose-950 flex items-center justify-center text-rose-500 border dark:border-rose-900 shrink-0">
+                  <AlertTriangle size={18} />
                 </div>
-                <h3 className="text-base font-black text-(--admin-text) tracking-tight pt-1">
-                  {report.category}
+                <h3 className="text-base font-semibold text-(--admin-text) tracking-tight pt-1">
+                  {report.type.name}
                 </h3>
               </div>
 
-              <div className="bg-(--admin-card-bg) rounded-xl p-5 border border-(--admin-border) italic text-(--admin-text-secondary) leading-relaxed font-medium text-xs">
-                "{report.target.preview}"
+              <div className="dark:bg-slate-950 rounded-xl p-5 border border-(--admin-border) italic text-slate-500  dark:text-slate-300 dark:text-slate-200 leading-relaxed font-medium text-sm">
+                "{report.contentPreview}"
               </div>
-
-              <button className="flex items-center gap-2 text-blue-400 font-black text-[9px] uppercase tracking-widest hover:underline cursor-pointer">
-                View Original Post <ExternalLink size={10} className="mb-0.5" />
-              </button>
+              {report.sourceLink ? (
+                <Button
+                  variant="link"
+                  className="h-auto p-0 text-blue-600 dark:text-blue-400 font-semibold text-[10px] uppercase tracking-widest hover:underline"
+                >
+                  <Link
+                    to={report.sourceLink}
+                    className="inline-flex items-center gap-1.5 leading-none"
+                  >
+                    <ExternalLink size={12} className="shrink-0" />
+                    <span>View Original Post</span>
+                  </Link>
+                </Button>
+              ) : null}
             </div>
 
             {/* Reporter info */}
-            <div className="p-6 border-t border-(--admin-border) flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-blue-900/50 flex items-center justify-center text-blue-400 font-black text-[10px]">
-                {report.reporterAvatar}
-              </div>
+            <div className="p-6 border-t border-slate-100 dark:border-slate-800 flex items-center gap-3">
+              <Avatar className="shrink-0 w-8 h-8 border border-slate-200 dark:border-slate-700">
+                <AvatarImage
+                  src={report.reportingBy?.avatarUrl ?? ""}
+                  alt={report.reportingBy?.name}
+                />
+                <AvatarFallback className="text-xs font-black bg-slate-100 dark:bg-slate-800 text-slate-400">
+                  {report.reportingBy?.name?.charAt(0) ?? "?"}
+                </AvatarFallback>
+              </Avatar>
               <div className="min-w-0">
-                <div className="text-xs font-black text-(--admin-text) truncate">
-                  {report.reporter}
+                <div className="text-[14px] font-semibold text-(--admin-text) truncate">
+                  {report.reportingBy?.name}
                 </div>
-                <div className="text-[10px] text-(--admin-text-secondary) font-medium">
-                  {format(new Date(report.createdAt), "MMM d, yyyy • h:mm a")}
+                <div className="text-[11px] text-(--admin-text-secondary) font-medium">
+                  {formatMinutesOrHoursAgo(report.dateTime)}
                 </div>
               </div>
             </div>
           </div>
 
           {/* -------- Resolution Log (if closed) -------- */}
-          {report.status === "closed" && <ResolutionLog report={report} />}
+          {report.status === "CLOSED" && <ResolutionLog report={report} />}
 
           {/* -------- Action Grid (if open) -------- */}
-          {report.status !== "closed" && (
+          {report.status !== "CLOSED" && (
             <div className="grid grid-cols-2 gap-3">
               {/* Safe (Dismiss) */}
               <button
                 onClick={() => onConfirmChange("dismiss")}
-                className="bg-(--admin-card-bg) p-6 rounded-2xl border border-(--admin-border) hover:border-emerald-500/30 hover:bg-emerald-950/20 dark:hover:bg-emerald-900/20 transition-all text-center group cursor-pointer"
+                className="bg-(--admin-card-bg) p-6 rounded-2xl border border-(--admin-border) hover:border-emerald-500/30 hover:bg-emerald-800/20 dark:hover:bg-emerald-900/20 transition-all text-center group cursor-pointer"
               >
-                <div className="w-10 h-10 rounded-full bg-emerald-950 mx-auto mb-3 flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
+                <div className="w-10 h-10 rounded-full bg-emerald-500/20 dark:bg-emerald-950 mx-auto mb-3 flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
                   <ShieldCheck size={20} />
                 </div>
-                <h4 className="text-xs font-black text-(--admin-text) mb-1 uppercase tracking-tight">
+                <h4 className="text-sm font-semibold text-(--admin-text) mb-1 uppercase tracking-tight">
                   Safe
                 </h4>
-                <p className="text-[9px] text-(--admin-text-secondary) font-medium leading-tight">
+                <p className="text-[12px] text-(--admin-text-secondary) font-medium leading-tight">
                   Keep content visible
                 </p>
               </button>
@@ -157,15 +174,15 @@ export const ReportDrawer = memo(function ReportDrawer({
               {/* Hide */}
               <button
                 onClick={() => onConfirmChange("hide")}
-                className="bg-(--admin-card-bg) p-6 rounded-2xl border border-(--admin-border) hover:border-rose-500/30 hover:bg-rose-950/20 dark:hover:bg-rose-900/20 transition-all text-center group cursor-pointer"
+                className="bg-(--admin-card-bg) p-6 rounded-2xl border border-(--admin-border) hover:border-rose-500/30 hover:bg-rose-800/20 dark:hover:bg-rose-900/20 transition-all text-center group cursor-pointer"
               >
-                <div className="w-10 h-10 rounded-full bg-rose-950 mx-auto mb-3 flex items-center justify-center text-rose-500 group-hover:scale-110 transition-transform">
+                <div className="w-10 h-10 rounded-full bg-rose-500/20 dark:bg-rose-950 mx-auto mb-3 flex items-center justify-center text-rose-500 group-hover:scale-110 transition-transform">
                   <EyeOff size={20} />
                 </div>
-                <h4 className="text-xs font-black text-(--admin-text) mb-1 uppercase tracking-tight">
+                <h4 className="text-sm font-semibold text-(--admin-text) mb-1 uppercase tracking-tight">
                   Hide
                 </h4>
-                <p className="text-[9px] text-(--admin-text-secondary) font-medium leading-tight">
+                <p className="text-[12px] text-(--admin-text-secondary) font-medium leading-tight">
                   Remove from feed
                 </p>
               </button>
@@ -185,45 +202,5 @@ export const ReportDrawer = memo(function ReportDrawer({
         </AnimatePresence>
       </motion.div>
     </>
-  );
-});
-
-// ── ResolutionLog ─────────────────────────────────────────────────────────
-// Shows who resolved the report and when (only for closed reports).
-
-function ResolutionLog({ report }: { report: Report }) {
-  return (
-    <div className="p-5 bg-emerald-50 border border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-800/50 rounded-2xl space-y-4">
-      <div className="flex items-center gap-2">
-        <ShieldCheck size={14} className="text-emerald-500" />
-        <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
-          Resolved By
-        </span>
-      </div>
-
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-full bg-emerald-900/50 flex items-center justify-center text-emerald-400 font-black text-[10px]">
-          SW
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between mb-0.5">
-            <p className="text-sm font-bold text-(--admin-text) truncate">
-              Sarah Wilson
-            </p>
-            <span className="px-2 py-0.5 bg-emerald-900/50 text-emerald-400 text-[8px] font-black rounded uppercase tracking-tighter">
-              {report.result}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <p className="text-[10px] text-(--admin-text-secondary) font-medium">
-              Platform Moderator
-            </p>
-            <p className="text-[10px] text-(--admin-text-secondary) font-medium lowercase first-letter:uppercase">
-              {format(new Date(), "MMM d, yyyy • h:mm a")}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }

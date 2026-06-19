@@ -1,16 +1,16 @@
-import type { ReportStatus } from "~/features/admin/contentmoderator/types";
+export type ReportStatus = "OPEN" | "CLOSED";
 
 const StatusBadge = ({ status }: { status: ReportStatus }) => {
   const styles = {
-    open: "bg-rose-500/10 text-rose-600 border border-rose-200",
-    closed: "bg-emerald-500/10 text-emerald-600 border border-emerald-200",
+    CLOSED: "bg-rose-500/20 dark:text-rose-400  text-rose-600",
+    OPEN: "bg-emerald-500/20 dark:text-emerald-400 text-emerald-600  ",
   };
 
   return (
     <span
-      className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest ${styles[status]}`}
+      className={`px-2 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-widest ${styles[status]}`}
     >
-      {status === "closed" ? "Closed" : "Open"}
+      {status === "CLOSED" ? "CLOSED" : "OPEN"}
     </span>
   );
 };

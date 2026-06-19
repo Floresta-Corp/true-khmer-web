@@ -14,6 +14,7 @@ const AuthRegisterRequest = z
       .max(100)
       .regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u),
     gender: z.enum(["male", "female", "other"]),
+    dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     occupation: z.string().min(1).max(120),
     phone: z.object({
       country: z.string().min(2).max(2),
@@ -21,6 +22,7 @@ const AuthRegisterRequest = z
     }),
     email: z.string().min(1).email(),
     password: z.string().min(8).regex(/^\S+$/),
+    waitlistId: z.string().uuid().optional(),
   })
   ;
 const AuthUserProfile = z
@@ -41,6 +43,7 @@ const AuthUser = z
     firstName: z.string().optional(),
     lastName: z.string().optional(),
     gender: z.enum(["male", "female", "other"]).optional(),
+    dateOfBirth: z.string().nullish(),
     occupation: z.string().nullish(),
     phoneNumber: z.string().nullish(),
     phoneCountry: z.string().nullish(),
@@ -63,6 +66,28 @@ const RegisterSuccessResponse = z
     user: AuthUser,
   })
   ;
+const AuthPhoneForm = z
+  .object({ country: z.string(), nationalNumber: z.string() })
+  ;
+const AuthWaitlistPrefill = z
+  .object({
+    firstName: z.string(),
+    lastName: z.string(),
+    phone: AuthPhoneForm,
+    email: z.string().email(),
+    gender: z.enum(["male", "female", "other"]),
+    dateOfBirth: z.string(),
+    occupation: z.string(),
+  })
+  ;
+const AuthWaitlistContextResponse = z
+  .object({
+    found: z.boolean(),
+    eligibleForEarlyFounder: z.boolean(),
+    waitlistId: z.string().uuid().nullable(),
+    prefill: AuthWaitlistPrefill.nullable(),
+  })
+  ;
 const AuthCompleteSignUpRequest = z
   .object({
     firstName: z
@@ -76,6 +101,7 @@ const AuthCompleteSignUpRequest = z
       .max(100)
       .regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u),
     gender: z.enum(["male", "female", "other"]),
+    dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     occupation: z.string().min(1).max(120),
     phone: z.object({
       country: z.string().min(2).max(2),
@@ -123,7 +149,10 @@ const AuthProtectedErrorResponse = z
   })
   ;
 const AuthGoogleRequest = z
-  .object({ idToken: z.string().min(1) })
+  .object({
+    idToken: z.string().min(1),
+    waitlistId: z.string().uuid().optional(),
+  })
   ;
 const AuthTokenResponse = z
   .object({
@@ -171,6 +200,19 @@ const ResetPasswordResponse = z
 const AdminLoginRequest = z
   .object({ email: z.string().min(1), password: z.string().min(1) })
   ;
+const AdminLoginOtpChallengeResponse = z
+  .object({
+    otpRequired: z.literal(true),
+    challengeId: z.string().uuid(),
+    expiresAt: z.string().datetime({ offset: true }),
+    message: z.string(),
+  })
+  ;
+
+const AdminErrorResponse = z.object({ error: z.string() });
+const AdminVerifyLoginOtpRequest = z
+  .object({ challengeId: z.string().uuid(), otp: z.string().regex(/^\d{6}$/) })
+  ;
 const AdminUser = z
   .object({
     id: z.string(),
@@ -188,8 +230,6 @@ const AdminLoginResponse = z
     admin: AdminUser,
   })
   ;
-
-const AdminErrorResponse = z.object({ error: z.string() });
 const AdminRefreshRequest = z
   .object({ refreshToken: z.string().min(1) })
   ;
@@ -214,15 +254,22 @@ const ContentModeratorReportReporter = z
     avatarUrl: z.string().nullable(),
   })
   ;
+const ContentModeratorReportSolver = z
+  .object({ id: z.string(), name: z.string() })
+  ;
 const ContentModeratorReport = z
   .object({
     id: z.string().uuid(),
     reportId: z.number().int().gt(0),
     type: ContentModeratorReportType,
     contentPreview: z.string(),
+    sourceLink: z.string(),
     dateTime: z.string().datetime({ offset: true }),
     status: z.enum(["OPEN", "CLOSED"]),
+    confirmStatus: z.enum(["CONTENT HIDDEN", "DISMISSED"]).nullable(),
     reportingBy: ContentModeratorReportReporter.nullable(),
+    solvedBy: ContentModeratorReportSolver.nullable(),
+    solvedAt: z.string().datetime({ offset: true }).nullable(),
   })
   ;
 const CursorPagination = z
@@ -252,6 +299,173 @@ const UpdateContentModeratorReportReviewRequest = z
   ;
 const UpdateContentModeratorReportReviewResponse = z
   .object({ ok: z.boolean(), report: ContentModeratorReport })
+  ;
+const AdminDashboardResponse = z
+  .object({
+    ok: z.literal(true),
+    dashboard: z
+      .object({
+        summary: z
+          .object({
+            totalUsers: z.number().int().gte(0),
+            totalPartners: z.unknown().nullable(),
+            openReports: z.number().int().gte(0),
+          })
+          ,
+        newRegistrations: z
+          .object({
+            days: z.number().int().gt(0),
+            changePercent: z.number().nullable(),
+            trend: z.array(
+              z
+                .object({
+                  label: z.string(),
+                  count: z.number().int().gte(0),
+                  date: z.string(),
+                })
+                
+            ),
+          })
+          ,
+        activeUsers: z
+          .object({
+            countLast24Hours: z.number().int().gte(0),
+            windowHours: z.literal(24),
+            liveNow: z.boolean(),
+            trend: z.array(
+              z
+                .object({
+                  label: z.string(),
+                  count: z.number().int().gte(0),
+                  hour: z.string(),
+                })
+                
+            ),
+          })
+          ,
+        demographics: z
+          .object({
+            genderBreakdown: z.array(
+              z
+                .object({ label: z.string(), count: z.number().int().gte(0) })
+                
+            ),
+            ageGroups: z.array(
+              z
+                .object({ label: z.string(), count: z.number().int().gte(0) })
+                
+            ),
+          })
+          ,
+        partners: z
+          .object({
+            total: z.unknown().nullable(),
+            sectors: z.unknown().nullable(),
+          })
+          ,
+      })
+      ,
+  })
+  ;
+const AdminDashboardErrorResponse = z
+  .object({ ok: z.literal(false), error: z.string() })
+  ;
+const Moderator = z
+  .object({
+    id: z.string().uuid(),
+    email: z.string(),
+    name: z.string(),
+    role: z.literal("MODERATOR"),
+    createdAt: z.string().datetime({ offset: true }),
+  })
+  ;
+const ListModeratorsResponse = z
+  .object({
+    ok: z.boolean(),
+    moderators: z.array(Moderator),
+    pagination: CursorPagination,
+  })
+  ;
+const CreateModeratorRequest = z
+  .object({
+    email: z.string().min(1),
+    password: z.string().min(8),
+    name: z.string().min(1).max(100),
+  })
+  ;
+const ModeratorResponse = z
+  .object({ ok: z.boolean(), moderator: Moderator })
+  ;
+const UpdateModeratorRequest = z
+  .object({ name: z.string().min(1).max(100), password: z.string().min(8) })
+  .partial()
+  ;
+
+const DeleteModeratorResponse = z.object({ ok: z.boolean() });
+const AdminUserManagementTier = z
+  .object({
+    id: z.string().uuid(),
+    slug: z.string(),
+    name: z.string(),
+    rankOrder: z.number().int(),
+    minPoints: z.number().int(),
+  })
+  ;
+const AdminUserManagementFilters = z
+  .object({
+    statuses: z.array(
+      z
+        .object({
+          value: z.enum([
+            "SIGNUP_REQUIRED",
+            "ONBOARDING_REQUIRED",
+            "ACTIVE",
+            "SUSPENDED"]),
+          label: z.string(),
+        })
+        
+    ),
+    tiers: z.array(AdminUserManagementTier),
+  })
+  ;
+const AdminUserManagementUser = z
+  .object({
+    id: z.string().uuid(),
+    name: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
+    displayName: z.string().nullable(),
+    avatarUrl: z.string().nullable(),
+    email: z.string().email(),
+    emailVerified: z.boolean(),
+    phoneNumber: z.string().nullable(),
+    phoneCountry: z.string().nullable(),
+    role: z.string(),
+    status: z.enum([
+      "SIGNUP_REQUIRED",
+      "ONBOARDING_REQUIRED",
+      "ACTIVE",
+      "SUSPENDED"]),
+    tier: AdminUserManagementTier.and(z.unknown()),
+    totalPoints: z.number().int(),
+    signupCompletedAt: z.string().datetime({ offset: true }).nullable(),
+    onboardingStep: z.number().int(),
+    onboardingCompletedAt: z.string().datetime({ offset: true }).nullable(),
+    lastActive: z.string().nullable(),
+    createdAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+  })
+  ;
+const AdminUserManagementListResponse = z
+  .object({
+    ok: z.literal(true),
+    filters: AdminUserManagementFilters,
+    users: z.array(AdminUserManagementUser),
+    total: z.number().int(),
+    page: z.number().int(),
+    limit: z.number().int(),
+    totalPages: z.number().int(),
+  })
   ;
 
 const OnboardingOkResponse = z.record(z.string(), z.unknown().nullable());
@@ -2540,6 +2754,9 @@ export const schemas = {
   AuthUserProfile,
   AuthUser,
   RegisterSuccessResponse,
+  AuthPhoneForm,
+  AuthWaitlistPrefill,
+  AuthWaitlistContextResponse,
   AuthCompleteSignUpRequest,
   AuthAccessState,
   AuthRequiredAction,
@@ -2561,19 +2778,34 @@ export const schemas = {
   AuthResetPasswordRequest,
   ResetPasswordResponse,
   AdminLoginRequest,
+  AdminLoginOtpChallengeResponse,
+  AdminErrorResponse,
+  AdminVerifyLoginOtpRequest,
   AdminUser,
   AdminLoginResponse,
-  AdminErrorResponse,
   AdminRefreshRequest,
   AdminRefreshResponse,
   AdminLogoutResponse,
   ContentModeratorReportType,
   ContentModeratorReportReporter,
+  ContentModeratorReportSolver,
   ContentModeratorReport,
   CursorPagination,
   ListContentModeratorReportsResponse,
   UpdateContentModeratorReportReviewRequest,
   UpdateContentModeratorReportReviewResponse,
+  AdminDashboardResponse,
+  AdminDashboardErrorResponse,
+  Moderator,
+  ListModeratorsResponse,
+  CreateModeratorRequest,
+  ModeratorResponse,
+  UpdateModeratorRequest,
+  DeleteModeratorResponse,
+  AdminUserManagementTier,
+  AdminUserManagementFilters,
+  AdminUserManagementUser,
+  AdminUserManagementListResponse,
   OnboardingOkResponse,
   OnboardingErrorResponse,
   OnboardingProfileStepRequest,
@@ -2765,6 +2997,16 @@ const endpoints = makeApi([
         type: "Query",
         schema: z.string().optional(),
       },
+      {
+        name: "status",
+        type: "Query",
+        schema: z.enum(["OPEN", "CLOSED"]).optional(),
+      },
+      {
+        name: "typeId",
+        type: "Query",
+        schema: z.string().optional(),
+      },
     ],
     response: ListContentModeratorReportsResponse,
     errors: [
@@ -2817,6 +3059,30 @@ const endpoints = makeApi([
     ],
   },
   {
+    method: "get",
+    path: "/v1/admin/dashboard",
+    alias: "getV1admindashboard",
+    requestFormat: "json",
+    response: AdminDashboardResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: AdminDashboardErrorResponse,
+      },
+    ],
+  },
+  {
     method: "post",
     path: "/v1/admin/login",
     alias: "postV1adminlogin",
@@ -2828,7 +3094,7 @@ const endpoints = makeApi([
         schema: AdminLoginRequest,
       },
     ],
-    response: AdminLoginResponse,
+    response: AdminLoginOtpChallengeResponse,
     errors: [
       {
         status: 400,
@@ -2843,6 +3109,42 @@ const endpoints = makeApi([
       {
         status: 429,
         description: `Too many requests or account locked`,
+        schema: z.void(),
+      },
+      {
+        status: 500,
+        description: `OTP delivery failed`,
+        schema: z.object({ error: z.string() }),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/admin/login/verify-otp",
+    alias: "postV1adminloginverifyOtp",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AdminVerifyLoginOtpRequest,
+      },
+    ],
+    response: AdminLoginResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Invalid or expired OTP challenge`,
+        schema: z.void(),
+      },
+      {
+        status: 429,
+        description: `Too many OTP attempts`,
         schema: z.void(),
       },
       {
@@ -2881,6 +3183,183 @@ const endpoints = makeApi([
     ],
   },
   {
+    method: "get",
+    path: "/v1/admin/moderator",
+    alias: "getV1adminmoderator",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).lte(50).optional().default(20),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+    ],
+    response: ListModeratorsResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 403,
+        description: `Super admin role required`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/admin/moderator",
+    alias: "postV1adminmoderator",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: CreateModeratorRequest,
+      },
+    ],
+    response: ModeratorResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 403,
+        description: `Super admin role required`,
+        schema: z.void(),
+      },
+      {
+        status: 409,
+        description: `Email already in use`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/admin/moderator/:id",
+    alias: "getV1adminmoderatorId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "id",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: ModeratorResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 403,
+        description: `Super admin role required`,
+        schema: z.void(),
+      },
+      {
+        status: 404,
+        description: `Moderator not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "patch",
+    path: "/v1/admin/moderator/:id",
+    alias: "patchV1adminmoderatorId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: UpdateModeratorRequest,
+      },
+      {
+        name: "id",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: ModeratorResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Invalid request data`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 403,
+        description: `Super admin role required`,
+        schema: z.void(),
+      },
+      {
+        status: 404,
+        description: `Moderator not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "delete",
+    path: "/v1/admin/moderator/:id",
+    alias: "deleteV1adminmoderatorId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "id",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: z.object({ ok: z.boolean() }),
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 403,
+        description: `Super admin role required`,
+        schema: z.void(),
+      },
+      {
+        status: 404,
+        description: `Moderator not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
     method: "post",
     path: "/v1/admin/refresh",
     alias: "postV1adminrefresh",
@@ -2903,6 +3382,234 @@ const endpoints = makeApi([
         status: 401,
         description: `Invalid or expired refresh token`,
         schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/admin/user-management",
+    alias: "getV1adminuserManagement",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "page",
+        type: "Query",
+        schema: z.number().int().gt(0).optional().default(1),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).lte(100).optional().default(20),
+      },
+      {
+        name: "status",
+        type: "Query",
+        schema: z
+          .enum([
+            "SIGNUP_REQUIRED",
+            "ONBOARDING_REQUIRED",
+            "ACTIVE",
+            "SUSPENDED",
+          ])
+          .optional(),
+      },
+      {
+        name: "tier",
+        type: "Query",
+        schema: z
+          .enum(["neary", "yothea", "reach", "preah", "indra"])
+          .optional(),
+      },
+    ],
+    response: AdminUserManagementListResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/admin/user-management/:userId",
+    alias: "getV1adminuserManagementUserId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "userId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+    ],
+    response: z
+      .object({
+        ok: z.literal(true),
+        user: AdminUserManagementUser.and(
+          z
+            .object({
+              dateOfBirth: z.string().nullable(),
+              occupation: z.string().nullable(),
+              telegramUsername: z.string().nullable(),
+              location: z
+                .object({
+                  city: z.string().nullable(),
+                  country: z.string().nullable(),
+                })
+                
+                .nullable(),
+              points: z
+                .object({
+                  activePoints: z.number().int(),
+                  tierPoints: z.number().int(),
+                  legacyPoints: z.number().int(),
+                  totalPoints: z.number().int(),
+                })
+                ,
+              recentActivity: z.array(
+                z
+                  .object({
+                    id: z.string().uuid(),
+                    title: z.string(),
+                    actionType: z.string(),
+                    points: z.number().int(),
+                    pool: z.string(),
+                    mode: z.string(),
+                    referenceType: z.string().nullable(),
+                    referenceId: z.string().uuid().nullable(),
+                    createdAt: z.string(),
+                  })
+                  
+              ),
+            })
+            
+        ),
+      })
+      ,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `User not found`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/admin/user-management/:userId/:action",
+    alias: "postV1adminuserManagementUserIdAction",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "userId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+      {
+        name: "action",
+        type: "Path",
+        schema: z.enum(["suspend", "unsuspend"]),
+      },
+    ],
+    response: z
+      .object({
+        ok: z.literal(true),
+        user: AdminUserManagementUser.and(
+          z
+            .object({
+              dateOfBirth: z.string().nullable(),
+              occupation: z.string().nullable(),
+              telegramUsername: z.string().nullable(),
+              location: z
+                .object({
+                  city: z.string().nullable(),
+                  country: z.string().nullable(),
+                })
+                
+                .nullable(),
+              points: z
+                .object({
+                  activePoints: z.number().int(),
+                  tierPoints: z.number().int(),
+                  legacyPoints: z.number().int(),
+                  totalPoints: z.number().int(),
+                })
+                ,
+              recentActivity: z.array(
+                z
+                  .object({
+                    id: z.string().uuid(),
+                    title: z.string(),
+                    actionType: z.string(),
+                    points: z.number().int(),
+                    pool: z.string(),
+                    mode: z.string(),
+                    referenceType: z.string().nullable(),
+                    referenceId: z.string().uuid().nullable(),
+                    createdAt: z.string(),
+                  })
+                  
+              ),
+            })
+            
+        ),
+      })
+      ,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `User not found`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
       },
     ],
   },
@@ -2936,7 +3643,7 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: z.object({ idToken: z.string().min(1) }),
+        schema: AuthGoogleRequest,
       },
     ],
     response: AuthTokenResponse,
@@ -3088,6 +3795,20 @@ const endpoints = makeApi([
         schema: z.void(),
       },
     ],
+  },
+  {
+    method: "get",
+    path: "/v1/auth/register/waitlist-context",
+    alias: "getV1authregisterwaitlistContext",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "waitlistId",
+        type: "Query",
+        schema: z.string().uuid(),
+      },
+    ],
+    response: AuthWaitlistContextResponse,
   },
   {
     method: "post",
@@ -6722,6 +7443,9 @@ export type AuthRegisterRequest = z.infer<typeof schemas.AuthRegisterRequest>;
 export type AuthUserProfile = z.infer<typeof schemas.AuthUserProfile>;
 export type AuthUser = z.infer<typeof schemas.AuthUser>;
 export type RegisterSuccessResponse = z.infer<typeof schemas.RegisterSuccessResponse>;
+export type AuthPhoneForm = z.infer<typeof schemas.AuthPhoneForm>;
+export type AuthWaitlistPrefill = z.infer<typeof schemas.AuthWaitlistPrefill>;
+export type AuthWaitlistContextResponse = z.infer<typeof schemas.AuthWaitlistContextResponse>;
 export type AuthCompleteSignUpRequest = z.infer<typeof schemas.AuthCompleteSignUpRequest>;
 export type AuthAccessState = z.infer<typeof schemas.AuthAccessState>;
 export type AuthRequiredAction = z.infer<typeof schemas.AuthRequiredAction>;
@@ -6743,19 +7467,34 @@ export type ForgotPasswordResponse = z.infer<typeof schemas.ForgotPasswordRespon
 export type AuthResetPasswordRequest = z.infer<typeof schemas.AuthResetPasswordRequest>;
 export type ResetPasswordResponse = z.infer<typeof schemas.ResetPasswordResponse>;
 export type AdminLoginRequest = z.infer<typeof schemas.AdminLoginRequest>;
+export type AdminLoginOtpChallengeResponse = z.infer<typeof schemas.AdminLoginOtpChallengeResponse>;
+export type AdminErrorResponse = z.infer<typeof schemas.AdminErrorResponse>;
+export type AdminVerifyLoginOtpRequest = z.infer<typeof schemas.AdminVerifyLoginOtpRequest>;
 export type AdminUser = z.infer<typeof schemas.AdminUser>;
 export type AdminLoginResponse = z.infer<typeof schemas.AdminLoginResponse>;
-export type AdminErrorResponse = z.infer<typeof schemas.AdminErrorResponse>;
 export type AdminRefreshRequest = z.infer<typeof schemas.AdminRefreshRequest>;
 export type AdminRefreshResponse = z.infer<typeof schemas.AdminRefreshResponse>;
 export type AdminLogoutResponse = z.infer<typeof schemas.AdminLogoutResponse>;
 export type ContentModeratorReportType = z.infer<typeof schemas.ContentModeratorReportType>;
 export type ContentModeratorReportReporter = z.infer<typeof schemas.ContentModeratorReportReporter>;
+export type ContentModeratorReportSolver = z.infer<typeof schemas.ContentModeratorReportSolver>;
 export type ContentModeratorReport = z.infer<typeof schemas.ContentModeratorReport>;
 export type CursorPagination = z.infer<typeof schemas.CursorPagination>;
 export type ListContentModeratorReportsResponse = z.infer<typeof schemas.ListContentModeratorReportsResponse>;
 export type UpdateContentModeratorReportReviewRequest = z.infer<typeof schemas.UpdateContentModeratorReportReviewRequest>;
 export type UpdateContentModeratorReportReviewResponse = z.infer<typeof schemas.UpdateContentModeratorReportReviewResponse>;
+export type AdminDashboardResponse = z.infer<typeof schemas.AdminDashboardResponse>;
+export type AdminDashboardErrorResponse = z.infer<typeof schemas.AdminDashboardErrorResponse>;
+export type Moderator = z.infer<typeof schemas.Moderator>;
+export type ListModeratorsResponse = z.infer<typeof schemas.ListModeratorsResponse>;
+export type CreateModeratorRequest = z.infer<typeof schemas.CreateModeratorRequest>;
+export type ModeratorResponse = z.infer<typeof schemas.ModeratorResponse>;
+export type UpdateModeratorRequest = z.infer<typeof schemas.UpdateModeratorRequest>;
+export type DeleteModeratorResponse = z.infer<typeof schemas.DeleteModeratorResponse>;
+export type AdminUserManagementTier = z.infer<typeof schemas.AdminUserManagementTier>;
+export type AdminUserManagementFilters = z.infer<typeof schemas.AdminUserManagementFilters>;
+export type AdminUserManagementUser = z.infer<typeof schemas.AdminUserManagementUser>;
+export type AdminUserManagementListResponse = z.infer<typeof schemas.AdminUserManagementListResponse>;
 export type OnboardingOkResponse = z.infer<typeof schemas.OnboardingOkResponse>;
 export type OnboardingErrorResponse = z.infer<typeof schemas.OnboardingErrorResponse>;
 export type OnboardingProfileStepRequest = z.infer<typeof schemas.OnboardingProfileStepRequest>;

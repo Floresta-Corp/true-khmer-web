@@ -10,7 +10,7 @@ interface QuickActionButtonProps {
 export function QuickActionButton({ action }: QuickActionButtonProps) {
   const Icon = action.icon;
   const inner = (
-    <div className="w-full p-4 rounded-xl border border-(--admin-border) bg-(--admin-card-muted) flex items-center justify-between group transition-all cursor-pointer">
+    <div className="w-full p-6 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-between group transition-all cursor-pointer">
       <div className="flex items-center gap-3">
         <div
           className={`w-10 h-10 shrink-0 rounded-xl ${action.iconClass} flex items-center justify-center`}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import {
   Form,
@@ -8,34 +8,55 @@ import {
   useSearchParams,
 } from "react-router";
 import { Shield } from "lucide-react";
-import { FormError } from "~/routes/auth/components/form-error";
-import {
-  AuthPageShell,
-  AuthBrandPanel,
-} from "~/routes/auth/components/page-shell";
-import { PasswordField } from "~/routes/auth/components/password-field";
 
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { superAdminLoader } from "~/routes/api/auth/super-admin/super-admin.loader";
+import { FormError } from "~/routes/auth/components/form-error";
 import {
-  superAdminAction,
+  AuthBrandPanel,
+  AuthPageShell,
+} from "~/routes/auth/components/page-shell";
+import { PasswordField } from "~/routes/auth/components/password-field";
+import {
+  adminLoginAction,
   type AdminLoginActionData,
-} from "~/routes/api/auth/super-admin/super-admin.action";
+} from "../service/admin-login.action";
+import { adminLoginLoader } from "../service/admin-login.loader";
 
-export const loader = superAdminLoader;
-export const action = superAdminAction;
+export const loader = adminLoginLoader;
+export const action = adminLoginAction;
+
+function formatCooldown(seconds: number) {
+  if (seconds <= 0) return "a moment";
+  if (seconds === 1) return "1 second";
+  return `${seconds} seconds`;
+}
 
 export default function AdminLoginPage() {
   const actionData = useActionData<AdminLoginActionData>();
-
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo");
   const navigation = useNavigation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const isSubmitting = navigation.state === "submitting";
+  const isCoolingDown = cooldownSeconds > 0;
+
+  useEffect(() => {
+    setCooldownSeconds(actionData?.retryAfterSeconds ?? 0);
+  }, [actionData?.retryAfterSeconds]);
+
+  useEffect(() => {
+    if (cooldownSeconds <= 0) return;
+
+    const timeoutId = window.setTimeout(() => {
+      setCooldownSeconds((seconds) => Math.max(seconds - 1, 0));
+    }, 1000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [cooldownSeconds]);
 
   return (
     <AuthPageShell
@@ -56,10 +77,7 @@ export default function AdminLoginPage() {
           hidden: { opacity: 0 },
           visible: {
             opacity: 1,
-            transition: {
-              staggerChildren: 0.04,
-              delayChildren: 0,
-            },
+            transition: { staggerChildren: 0.04, delayChildren: 0 },
           },
         }}
         className="space-y-8"
@@ -81,11 +99,16 @@ export default function AdminLoginPage() {
             Admin Sign In
           </h1>
           <p className="text-base font-normal leading-6 text-[#4B5563]">
-            Sign in with your admin credentials to access the admin panel.
+            Sign in with your admin credentials to receive a verification code.
           </p>
         </motion.header>
 
         <FormError message={actionData?.errors?.form} />
+        {isCoolingDown ? (
+          <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+            Try again in {formatCooldown(cooldownSeconds)}.
+          </p>
+        ) : null}
 
         <motion.div
           variants={{
@@ -97,6 +120,7 @@ export default function AdminLoginPage() {
             {redirectTo ? (
               <input type="hidden" name="redirectTo" value={redirectTo} />
             ) : null}
+
             <div className="space-y-2">
               <Label
                 htmlFor="email"
@@ -122,28 +146,40 @@ export default function AdminLoginPage() {
               ) : null}
             </div>
 
-            <div className="space-y-2">
-              <PasswordField
-                id="password"
-                name="password"
-                label="Password"
-                showToggle={true}
-                autoComplete="current-password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="••••••••"
-                error={actionData?.errors?.password}
-                labelClassName="text-sm font-semibold leading-5 text-[#111827]"
-                inputClassName="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-[#6B7280] focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20"
+            <PasswordField
+              id="password"
+              name="password"
+              label="Password"
+              showToggle={true}
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="••••••••"
+              error={actionData?.errors?.password}
+              labelClassName="text-sm font-semibold leading-5 text-[#111827]"
+              inputClassName="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-[#6B7280] focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20"
+            />
+
+            <label className="flex items-center gap-3 text-sm font-medium text-[#374151]">
+              <input
+                type="checkbox"
+                name="rememberMe"
+                value="true"
+                className="h-4 w-4 rounded border-[#D1D5DB] text-[#2F6FE4] focus:ring-[#2F6FE4]"
               />
-            </div>
+              Remember this admin session
+            </label>
 
             <Button
               type="submit"
-              disabled={isSubmitting || !email || !password}
+              disabled={isSubmitting || isCoolingDown || !email || !password}
               className="h-10 w-full rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white transition-colors hover:bg-[#1F62DF] disabled:bg-[#2F6FE4] disabled:opacity-50"
             >
-              {isSubmitting ? "Signing in..." : "Sign In as Admin"}
+              {isSubmitting
+                ? "Sending code..."
+                : isCoolingDown
+                  ? "Please wait"
+                  : "Continue"}
             </Button>
           </Form>
         </motion.div>

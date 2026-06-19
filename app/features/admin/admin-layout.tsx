@@ -8,9 +8,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Moon,
   ShieldCheck,
-  Sun,
   User as UserIcon,
   Users,
   X as CloseIcon,
@@ -23,12 +21,14 @@ import {
   Outlet,
   useLoaderData,
   useLocation,
-  useNavigate,
+  useNavigation,
   type LoaderFunctionArgs,
+  type ShouldRevalidateFunctionArgs,
 } from "react-router";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
+import { AdminThemeSwitcher } from "./admin-theme-switcher";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, setCookie } = await requireSuperAdmin(request);
@@ -38,6 +38,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
     loaderData,
     setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
   );
+}
+
+export function shouldRevalidate({
+  formMethod,
+  currentUrl,
+  nextUrl,
+  defaultShouldRevalidate,
+}: ShouldRevalidateFunctionArgs) {
+  if (formMethod) return true;
+
+  if (
+    currentUrl.pathname.startsWith("/tk-admin") &&
+    nextUrl.pathname.startsWith("/tk-admin")
+  ) {
+    return true;
+  }
+
+  return defaultShouldRevalidate;
 }
 
 export function meta() {
@@ -99,26 +117,21 @@ const SidebarItem = ({
   active = false,
   badge = 0,
   disabled = false,
-  onClick,
+  href,
+  onNavigate,
 }: {
   icon: ComponentType<LucideProps>;
   label: string;
   active?: boolean;
   badge?: number;
   disabled?: boolean;
-  onClick?: () => void;
+  href: string;
+  onNavigate?: () => void;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  return (
-    <div
-      onClick={disabled ? undefined : onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`relative flex items-center justify-center py-2.5 w-full ${
-        disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer group"
-      }`}
-    >
+  const content = (
+    <>
       <div
         className={`p-2.5 rounded-xl transition-all duration-200 ${
           active
@@ -153,7 +166,37 @@ const SidebarItem = ({
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </>
+  );
+
+  const className = `relative flex items-center justify-center py-2.5 w-full ${
+    disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer group"
+  }`;
+
+  if (disabled) {
+    return (
+      <div
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className={className}
+      >
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      to={href}
+      prefetch="intent"
+      onClick={onNavigate}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={className}
+      aria-label={label}
+    >
+      {content}
+    </Link>
   );
 };
 
@@ -171,27 +214,16 @@ function getBreadcrumbs(activeMenu: string) {
 export default function AdminLayout() {
   const loaderData = useLoaderData<typeof loader>();
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigation = useNavigation();
   const [activeMenu, setActiveMenu] = useState("dashboard");
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
   const [userRole, setUserRole] = useState(
     loaderData.userRole ?? "Super Admin",
   );
-  const [isRoleOpen, setIsRoleOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isDashboardRoute =
     location.pathname === "/tk-admin" || location.pathname === "/tk-admin/";
-
-  useEffect(() => {
-    const root = window.document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-  }, [theme]);
 
   useEffect(() => {
     if (isDashboardRoute) {
@@ -202,19 +234,28 @@ export default function AdminLayout() {
       setActiveMenu("moderation");
     }
 
-    if (location.pathname.startsWith("/tk-admin/users")) {
+    if (
+      location.pathname.startsWith("/tk-admin/users") ||
+      location.pathname.startsWith("/tk-admin/user/")
+    ) {
       setActiveMenu("users");
     }
   }, [isDashboardRoute, location.pathname]);
 
-  const navigateTo = (item: NavItem) => {
-    if (item.disabled) return;
-    navigate(item.href);
-    setActiveMenu(item.id);
-    setIsMobileMenuOpen(false);
-  };
+  const pendingPathname = navigation.location?.pathname;
+  const visibleActiveMenu =
+    navigation.state !== "idle" && pendingPathname
+      ? pendingPathname.startsWith("/tk-admin/content-moderator")
+        ? "moderation"
+        : pendingPathname.startsWith("/tk-admin/users") ||
+            pendingPathname.startsWith("/tk-admin/user/")
+          ? "users"
+          : pendingPathname === "/tk-admin" || pendingPathname === "/tk-admin/"
+            ? "dashboard"
+            : activeMenu
+      : activeMenu;
 
-  const crumbs = getBreadcrumbs(activeMenu);
+  const crumbs = getBreadcrumbs(visibleActiveMenu);
 
   return (
     <div className="flex min-h-screen bg-[#f8fafc] dark:bg-slate-950 text-slate-900 transition-colors duration-300 antialiased font-sans flex-col md:flex-row">
@@ -269,10 +310,11 @@ export default function AdminLayout() {
               key={item.id}
               icon={item.icon}
               label={item.label}
-              active={activeMenu === item.id}
+              active={visibleActiveMenu === item.id}
               badge={item.badge}
               disabled={item.disabled}
-              onClick={() => navigateTo(item)}
+              href={item.href}
+              onNavigate={() => setIsMobileMenuOpen(false)}
             />
           ))}
         </div>
@@ -283,81 +325,12 @@ export default function AdminLayout() {
       </aside>
 
       <main className="flex-1 transition-all duration-300 md:ml-18 ml-0 flex flex-col min-h-screen bg-[#f8fafc] dark:bg-slate-950">
-        <header className="h-16 md:h-20 px-6 md:px-10 flex items-center justify-between sticky top-0 md:top-0 bg-[#f8fafc]/80 dark:bg-slate-950/80 backdrop-blur-md z-30 border-b border-slate-100 dark:border-slate-800 transition-all duration-300">
-          <div className="flex items-center gap-2.5">
-            <span className="text-[10px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-[0.2em] hidden sm:inline">
-              Viewing as
-            </span>
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 rounded-xl text-[11px] font-black uppercase tracking-widest border border-blue-100/50 dark:border-blue-900/20">
-              <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-              {userRole}
-            </div>
-          </div>
-
+        <header className="h-16 md:h-20 px-6 md:px-10 flex items-center justify-end sticky top-0 md:top-0 bg-[#f8fafc]/80 dark:bg-slate-950/80 backdrop-blur-md z-30 border-b border-slate-100 dark:border-slate-800 transition-all duration-300">
           <div className="flex items-center gap-3 md:gap-6">
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-                className="p-2 md:p-2.5 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-xl cursor-pointer transition-all text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 border border-transparent hover:border-slate-100 dark:hover:border-slate-800"
-                aria-label="Toggle theme"
-              >
-                {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
-              </button>
+              <AdminThemeSwitcher />
 
               <div className="h-6 w-px bg-slate-100 dark:bg-slate-800 mx-1 hidden sm:block" />
-
-              <div className="hidden md:flex items-center gap-4">
-                <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 whitespace-nowrap">
-                  Viewing as
-                </span>
-                <div className="relative">
-                  <button
-                    onClick={() => setIsRoleOpen(!isRoleOpen)}
-                    className="flex items-center gap-8 px-5 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-2xl hover:bg-white dark:hover:bg-slate-900 transition-all group"
-                  >
-                    <span className="text-[14px] font-bold text-slate-900 dark:text-slate-100">
-                      {userRole}
-                    </span>
-                    <ChevronDown
-                      size={14}
-                      className={`text-slate-400 transition-transform duration-250 ${
-                        isRoleOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-
-                  <AnimatePresence>
-                    {isRoleOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                        className="absolute right-0 mt-3 w-52 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-none z-50 overflow-hidden p-1.5"
-                      >
-                        {roles.map((role) => (
-                          <div
-                            key={role}
-                            onClick={() => {
-                              setUserRole(role);
-                              setIsRoleOpen(false);
-                            }}
-                            className={`px-4 py-2.5 text-sm font-semibold rounded-xl cursor-pointer transition-all flex items-center justify-between ${
-                              userRole === role
-                                ? "bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
-                                : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50/50 dark:hover:bg-slate-800/50"
-                            }`}
-                          >
-                            {role}
-                            {userRole === role && (
-                              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full" />
-                            )}
-                          </div>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
 
               <div className="flex items-center gap-1 sm:gap-2 ml-0 sm:ml-4">
                 <div className="relative">

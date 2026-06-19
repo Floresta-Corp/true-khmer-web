@@ -1,83 +1,125 @@
-import { memo } from "react";
-import { ChevronDown } from "lucide-react";
-import { CATEGORIES, STATUSES } from "~/features/admin/contentmoderator/types";
+import { useState } from "react";
+import { Check, ChevronDown } from "lucide-react";
+import { Button } from "~/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+import type { CategoryOption } from "./pages/content-moderator-page";
+
+export const STATUSES = [
+  { label: "All", value: "all", color: "slate" },
+  { label: "Open", value: "open", color: "emerald" },
+  { label: "Closed", value: "closed", color: "rose" },
+] as const;
 
 interface FilterBarProps {
-  selectedCategory: string;
-  onCategoryChange: (cat: string) => void;
+  categoryOptions: CategoryOption[];
+  selectedTypeId: string | null;
+  onCategoryChange: (typeId: string | null) => void;
   selectedStatus: string;
   onStatusChange: (status: string) => void;
 }
 
 function getStatusColor(color: string, isActive: boolean): string {
   const colors: Record<string, string> = {
-    slate: isActive ? "bg-blue-600 text-white" : "text-slate-400 hover:bg-slate-50",
+    slate: isActive
+      ? "bg-blue-600/70 text-white"
+      : "text-slate-400 hover:bg-slate-50",
     rose: isActive
-      ? "bg-rose-500 text-white"
+      ? "bg-rose-600/70 text-white"
       : "text-slate-400 hover:bg-rose-50 hover:text-rose-600",
-    amber: isActive
-      ? "bg-amber-500 text-white"
-      : "text-slate-400 hover:bg-amber-50 hover:text-amber-600",
     emerald: isActive
-      ? "bg-emerald-500 text-white"
+      ? "bg-emerald-600/70 text-white"
       : "text-slate-400 hover:bg-emerald-50 hover:text-emerald-600",
-    yellow: isActive
-      ? "bg-yellow-400 text-slate-950"
-      : "text-slate-400 hover:bg-yellow-50 hover:text-yellow-600",
   };
 
   return colors[color] ?? "text-slate-400";
 }
 
-export const FilterBar = memo(function FilterBar({
-  selectedCategory,
+export function FilterBar({
+  categoryOptions,
+  selectedTypeId,
   onCategoryChange,
   selectedStatus,
   onStatusChange,
 }: FilterBarProps) {
-  return (
-    <div className="px-8 py-6 border-b border-slate-50 dark:border-slate-800 flex flex-wrap items-center gap-4">
-      <div className="flex flex-col md:flex-row md:items-center gap-4">
-        <div className="relative group">
-          <button className="flex items-center gap-4 px-6 py-3 rounded-2xl text-xs font-black bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 hover:border-blue-500 transition-all cursor-pointer">
-            {selectedCategory}
-            <ChevronDown size={14} className="opacity-40" />
-          </button>
-          <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-xl shadow-slate-900/10 dark:shadow-black/40 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 p-2">
-            {CATEGORIES.map((category) => (
-              <button
-                key={category}
-                onClick={() => onCategoryChange(category)}
-                className={`w-full text-left px-4 py-2.5 rounded-xl text-[10px] font-black tracking-widest transition-colors ${
-                  selectedCategory === category
-                    ? "bg-blue-600 text-white"
-                    : "text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-        </div>
+  const selectedLabel =
+    selectedTypeId === null
+      ? "All Types"
+      : (categoryOptions.find((o) => o.id === selectedTypeId)?.name ??
+        "Select Type…");
 
-        <div className="flex p-1.5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl">
+  const [open, setOpen] = useState(false);
+
+  const handleSelect = (id: string | null) => {
+    onCategoryChange(id);
+    setOpen(false);
+  };
+
+  return (
+    <div className=" py-6 dark:border-slate-800 flex flex-wrap items-center ">
+      <div className="flex flex-col md:flex-row md:items-center gap-4">
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button className="flex items-center gap-4 px-6 py-5 rounded-xl text-[13px] font-semibold bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-900 dark:text-slate-100 hover:border-blue-500 transition-all cursor-pointer">
+              {selectedLabel}
+              <ChevronDown
+                size={14}
+                className={`opacity-40 transition-transform ${open ? "rotate-180" : ""}`}
+              />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            align="start"
+            className="min-w-56 max-h-72 overflow-y-auto bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-xl shadow-slate-900/10 dark:shadow-black/40 p-1.5"
+          >
+            {categoryOptions.map((option) => {
+              const isSelected = selectedTypeId === option.id;
+              return (
+                <Button
+                  variant="ghost"
+                  key={option.id ?? "__all__"}
+                  onClick={() => handleSelect(option.id)}
+                  className={`w-full justify-between text-left px-3.5 py-2 rounded-lg text-[13px] font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                    isSelected
+                      ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
+                      : "text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                  }`}
+                >
+                  <span>{option.name}</span>
+                  {isSelected && (
+                    <Check
+                      size={14}
+                      className="text-blue-600 dark:text-blue-400"
+                    />
+                  )}
+                </Button>
+              );
+            })}
+          </PopoverContent>
+        </Popover>
+
+        <div className="flex p-1.5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl">
           {STATUSES.map((status) => {
             const isActive = selectedStatus === status.value;
             return (
-              <button
+              <Button
+                variant="ghost"
                 key={status.value}
                 onClick={() => onStatusChange(status.value)}
-                className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${getStatusColor(
+                className={`px-5 py-2.5 rounded-xl text-[10px] font-semibold uppercase tracking-widest cursor-pointer transition-all ${getStatusColor(
                   status.color,
                   isActive,
                 )}`}
               >
                 {status.label}
-              </button>
+              </Button>
             );
           })}
         </div>
       </div>
     </div>
   );
-});
+}
