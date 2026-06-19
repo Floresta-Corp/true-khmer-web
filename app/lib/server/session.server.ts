@@ -1,15 +1,13 @@
 import { createCookieSessionStorage } from "react-router";
 import { redirect } from "react-router";
 import type { AuthTokensResponse } from "~/services/auth/api.server";
-import type { AdminAuth, AuthenticatedUser } from "./types";
+import type { AuthenticatedUser } from "./types";
 import type { AdminAuthResult } from "./auth/admin/api-admin.server";
 import {
-  schemas,
   type AdminLoginResponse,
   type AdminRefreshResponse,
   type AdminUser,
 } from "~/types/api-client";
-import type { z } from "zod";
 import { apiRequestPublic } from "./api-client.server";
 
 export type { AdminAuthResult };
@@ -21,8 +19,7 @@ if (!process.env.SESSION_SECRET) {
   );
 }
 
-const sessionCookie = {
-  name: "__session",
+const baseCookie = {
   httpOnly: true,
   path: "/",
   sameSite: "lax" as const,
@@ -32,13 +29,22 @@ const sessionCookie = {
 
 const sessionStorage = createCookieSessionStorage({
   cookie: {
-    ...sessionCookie,
+    ...baseCookie,
+    name: "__session",
     maxAge: 60 * 60 * 24 * 30,
   },
 });
 
 const browserSessionStorage = createCookieSessionStorage({
-  cookie: sessionCookie,
+  cookie: { ...baseCookie, name: "__session" },
+});
+
+const adminSessionStorage = createCookieSessionStorage({
+  cookie: {
+    ...baseCookie,
+    name: "__admin_session",
+    maxAge: 60 * 60 * 24 * 30,
+  },
 });
 
 export async function getSession(request: Request) {
@@ -87,17 +93,26 @@ export async function getUserId(request: Request): Promise<string | null> {
   if (user) return user.id as string;
 
   const userId = session.get("userId");
-  if (!userId) return null;
+  return userId ?? null;
+}
 
-  return userId;
+function slimUser(user: AuthTokensResponse["user"]) {
+  return {
+    id: user.id,
+    email: user.email,
+    name:
+      user.name ?? [user.firstName, user.lastName].filter(Boolean).join(" "),
+    avatar: user.avatar ?? undefined,
+  };
 }
 
 export async function createUserSession(
+  request: Request,
   auth: AuthTokensResponse,
   redirectTo: string,
   options: { rememberMe?: boolean } = {},
 ) {
-  const session = await sessionStorage.getSession();
+  const session = await getSession(request);
   const user = auth.user;
   if (!user.id) {
     throw new Error("Cannot create user session: user.id is missing.");
@@ -106,15 +121,7 @@ export async function createUserSession(
   session.set("accessToken", auth.accessToken);
   session.set("refreshToken", auth.refreshToken);
   session.set("rememberMe", options.rememberMe === true);
-  session.set("user", user);
-
-  session.set("userId", user.id);
-  session.set("email", user.email);
-  session.set(
-    "name",
-    user.name ?? [user.firstName, user.lastName].filter(Boolean).join(" "),
-  );
-  session.set("avatar", user.avatar);
+  session.set("user", slimUser(user));
 
   return redirect(redirectTo, {
     headers: {
@@ -135,14 +142,7 @@ export async function updateUserSession(
     throw new Error("Cannot update user session: user.id is missing.");
   }
 
-  session.set("user", user);
-  session.set("userId", user.id);
-  session.set("email", user.email);
-  session.set(
-    "name",
-    user.name ?? [user.firstName, user.lastName].filter(Boolean).join(" "),
-  );
-  session.set("avatar", user.avatar);
+  session.set("user", slimUser(user));
 
   const rememberMe = session.get("rememberMe") === true;
 
@@ -171,29 +171,32 @@ export function isAutoRefreshEnabled(
   return session.get("rememberMe") === true;
 }
 
+async function getAdminSession(request: Request) {
+  const cookie = request.headers.get("Cookie");
+  return adminSessionStorage.getSession(cookie ?? undefined);
+}
+
 export async function createAdminSession(
+  request: Request,
   auth: AdminAuthResult,
   redirectTo: string,
 ) {
-  const session = await sessionStorage.getSession();
-  // Set admin-specific session data
+  const session = await getAdminSession(request);
   session.set("adminAccessToken", auth.accessToken);
   session.set("adminRefreshToken", auth.refreshToken);
   session.set("adminAccessTokenExpiresAt", auth.accessTokenExpiresAt);
   session.set("adminRefreshTokenExpiresAt", auth.refreshTokenExpiresAt);
   session.set("admin", auth.admin);
 
-  const cookie = await sessionStorage.commitSession(session);
-
   return redirect(redirectTo, {
-    headers: { "Set-Cookie": cookie },
+    headers: { "Set-Cookie": await adminSessionStorage.commitSession(session) },
   });
 }
 
 export async function getAdminAccessToken(
   request: Request,
 ): Promise<{ accessToken: string | null; setCookie?: string }> {
-  const session = await getSession(request);
+  const session = await getAdminSession(request);
   const token = session.get("adminAccessToken");
   if (!token) return { accessToken: null };
 
@@ -225,7 +228,7 @@ export async function getAdminAccessToken(
       refreshed.refreshTokenExpiresAt ?? "",
     );
 
-    const setCookie = await commitSession(session);
+    const setCookie = await adminSessionStorage.commitSession(session);
     return { accessToken: refreshed.accessToken, setCookie };
   } catch (err) {
     return { accessToken: null };
@@ -235,10 +238,8 @@ export async function getAdminAccessToken(
 export async function getAdminUser(
   request: Request,
 ): Promise<AdminUser | null> {
-  const session = await getSession(request);
-  const admin = session.get("admin");
-
-  return admin ?? null;
+  const session = await getAdminSession(request);
+  return session.get("admin") ?? null;
 }
 
 export async function refreshAdminToken(
@@ -258,8 +259,10 @@ export async function refreshAdminToken(
 }
 
 export async function destroyAdminSession(request: Request) {
-  const session = await getSession(request);
+  const session = await getAdminSession(request);
   return redirect("/tk-admin/login", {
-    headers: { "Set-Cookie": await destroySession(session) },
+    headers: {
+      "Set-Cookie": await adminSessionStorage.destroySession(session),
+    },
   });
 }

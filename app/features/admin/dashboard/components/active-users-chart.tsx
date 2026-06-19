@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -25,8 +25,12 @@ export function ActiveUsersChart({ data }: ActiveUsersChartProps) {
     >
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h3 className="text-[15px] font-semibold text-(--admin-text)">Active Users</h3>
-          <p className="mt-1 text-xs text-(--admin-text-muted)">Live traffic (24h)</p>
+          <h3 className="text-[15px] font-semibold text-(--admin-text)">
+            Active Users
+          </h3>
+          <p className="mt-1 text-xs text-(--admin-text-muted)">
+            Live traffic (24h)
+          </p>
         </div>
         <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
           <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />

@@ -41,6 +41,7 @@ export async function superAdminAction({ request }: ActionFunctionArgs) {
   try {
     const auth = await loginAdmin(request, email, password);
     const response = await createAdminSession(
+      request,
       auth,
       sanitizedRedirectTo || "/tk-admin",
     );

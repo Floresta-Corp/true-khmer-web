@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Link } from "react-router";
 import { Plus } from "lucide-react";
 import type { QuickAction } from "../admin-dashboard";

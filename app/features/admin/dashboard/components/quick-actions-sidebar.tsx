@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { QuickActionButton } from "./quick-action-button";
 import type { QuickAction } from "../admin-dashboard";
 
@@ -15,8 +15,12 @@ export function QuickActionsSidebar({ actions }: QuickActionsSidebarProps) {
       className="lg:col-span-4 rounded-xl border border-(--admin-border) bg-(--admin-card-bg) flex flex-col"
     >
       <div className="px-6 py-5 border-b border-(--admin-border)">
-        <h3 className="text-[15px] font-semibold text-(--admin-text)">Quick Actions</h3>
-        <p className="mt-1 text-xs text-(--admin-text-muted)">Common management tasks</p>
+        <h3 className="text-[15px] font-semibold text-(--admin-text)">
+          Quick Actions
+        </h3>
+        <p className="mt-1 text-xs text-(--admin-text-muted)">
+          Common management tasks
+        </p>
       </div>
       <div className="flex-1 p-5 space-y-3">
         {actions.map((action) => (

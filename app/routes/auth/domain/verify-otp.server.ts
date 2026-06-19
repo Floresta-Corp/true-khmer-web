@@ -89,7 +89,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const auth = await verifyRegisterOtp(email, otp, request);
     const destination = destinationFromAuthFlow(auth.authFlow, redirectTo);
 
-    return createUserSession(auth, destination);
+    return createUserSession(request, auth, destination);
   } catch (error) {
     if (error instanceof AuthApiError) {
       if (error.status === 400) {

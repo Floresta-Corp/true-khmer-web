@@ -4,7 +4,14 @@ import {
   type ComponentProps,
   type FormEvent,
 } from "react";
-import { Form, Link, useActionData, useSearchParams } from "react-router";
+import {
+  Form,
+  Link,
+  useActionData,
+  useLoaderData,
+  useSearchParams,
+} from "react-router";
+import { CheckCircle2 } from "lucide-react";
 import {
   getCountries,
   getCountryCallingCode,
@@ -25,6 +32,7 @@ import {
 import { getPasswordValidationError } from "~/routes/auth/domain/password-validation";
 import type { RegisterActionData } from "~/routes/auth/domain/auth.types";
 import { Button } from "~/components/ui/button";
+import { Badge } from "~/components/ui/badge";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -133,7 +141,10 @@ function RegisterTextField({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className={registerInputClasses}
+        className={cn(
+          registerInputClasses,
+          inputProps.readOnly ? "bg-[#F8FAFC] text-[#4B5563]" : "",
+        )}
         {...inputProps}
       />
       {error ? <p className="text-xs text-red-500">{error}</p> : null}
@@ -143,24 +154,38 @@ function RegisterTextField({
 
 export default function RegisterPage() {
   const actionData = useActionData<RegisterActionData>();
+  const { waitlistContext } = useLoaderData<typeof registerLoader>();
   const [searchParams] = useSearchParams();
   const formError = actionData?.errors?.form;
   const emailError =
     actionData?.errors?.email !== formError ? actionData?.errors?.email : null;
+  const waitlistPrefill = waitlistContext?.prefill;
+  const appliedWaitlistId = waitlistContext?.waitlistId ?? "";
+  const hasWaitlistInvite = !!(
+    waitlistContext?.found &&
+    waitlistPrefill &&
+    appliedWaitlistId
+  );
 
   const [participation, setParticipation] = useState<"member" | "partner">(
     "member",
   );
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState(waitlistPrefill?.firstName ?? "");
+  const [lastName, setLastName] = useState(waitlistPrefill?.lastName ?? "");
+  const [email, setEmail] = useState(waitlistPrefill?.email ?? "");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [phoneCountry, setPhoneCountry] = useState<CountryCode>("KH");
-  const [contactNumber, setContactNumber] = useState("");
-  const [gender, setGender] = useState("");
-  const [occupation, setOccupation] = useState("");
-  const [agreeToDirectory, setAgreeToDirectory] = useState(false);
+  const [phoneCountry, setPhoneCountry] = useState<CountryCode>(
+    (waitlistPrefill?.phone.country as CountryCode | undefined) ?? "KH",
+  );
+  const [contactNumber, setContactNumber] = useState(
+    waitlistPrefill?.phone.nationalNumber ?? "",
+  );
+  const [gender, setGender] = useState(waitlistPrefill?.gender ?? "");
+  const [occupation, setOccupation] = useState(
+    waitlistPrefill?.occupation ?? "",
+  );
+  const [agreeToDirectory, setAgreeToDirectory] = useState(hasWaitlistInvite);
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [googleError, setGoogleError] = useState("");
@@ -271,6 +296,7 @@ export default function RegisterPage() {
         <GoogleAuthButton
           className="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3 text-base font-semibold text-[#111827] shadow-sm hover:bg-[#F9FAFB]"
           redirectTo={redirectTo}
+          waitlistId={hasWaitlistInvite ? appliedWaitlistId : undefined}
           onError={setGoogleError}
         />
 
@@ -298,6 +324,16 @@ export default function RegisterPage() {
             name="phone.nationalNumber"
             value={contactNumber.trim()}
           />
+          {hasWaitlistInvite ? (
+            <input type="hidden" name="waitlistId" value={appliedWaitlistId} />
+          ) : null}
+
+          {hasWaitlistInvite ? (
+            <Badge className="w-fit gap-1.5 rounded-full bg-[#ECFDF3] px-3 py-1.5 text-xs font-semibold text-[#027A48] hover:bg-[#ECFDF3]">
+              <CheckCircle2 className="size-3.5" />
+              Early Founder invite applied
+            </Badge>
+          ) : null}
 
           <div className="grid gap-4 sm:grid-cols-2">
             <RegisterTextField
@@ -331,6 +367,8 @@ export default function RegisterPage() {
             placeholder="name@example.com"
             autoComplete="email"
             required
+            readOnly={hasWaitlistInvite}
+            aria-readonly={hasWaitlistInvite}
             error={emailError}
           />
 
@@ -441,6 +479,10 @@ export default function RegisterPage() {
               <Label className="flex items-center gap-2 text-sm font-normal leading-5 text-zinc-900">
                 <RadioGroupItem value="female" className="border-[#C3C6D6]" />
                 Female
+              </Label>
+              <Label className="flex items-center gap-2 text-sm font-normal leading-5 text-zinc-900">
+                <RadioGroupItem value="other" className="border-[#C3C6D6]" />
+                Other
               </Label>
             </RadioGroup>
             {actionData?.errors?.gender ? (

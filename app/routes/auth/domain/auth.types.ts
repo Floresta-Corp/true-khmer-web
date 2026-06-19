@@ -1,3 +1,5 @@
+import type { WaitlistContextResponse } from "~/services/auth/api.server";
+
 export type LoginErrors = {
   email?: string;
   password?: string;
@@ -21,6 +23,10 @@ export type RegisterErrors = {
 
 export type RegisterActionData = {
   errors?: RegisterErrors;
+};
+
+export type RegisterLoaderData = {
+  waitlistContext: WaitlistContextResponse | null;
 };
 
 export type CompleteSignUpErrors = {
