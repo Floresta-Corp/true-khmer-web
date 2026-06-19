@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLoaderData } from "react-router";
 import {
   Users,
   Handshake,
@@ -19,11 +20,16 @@ import { GenderBreakdownChart } from "./components/gender-breakdown-chart";
 import { AgeGroupsChart } from "./components/age-groups-chart";
 import { PartnerSectorsChart } from "./components/partner-sectors-chart";
 import { SendNotificationDialog } from "~/features/admin/notifications/components/send-notification-dialog";
+import { adminDashboardLoader } from "~/routes/api/auth/super-admin/dashboard/dashboard.loader";
+import type { AdminDashboardResponse } from "~/types/api-client";
 
 // ── meta ───────────────────────────────────────────────────────────────────
 export function meta() {
   return [{ title: "Admin Dashboard | True Khmer" }];
 }
+
+// ── route data ───────────────────────────────────────────────────────────────
+export const loader = adminDashboardLoader;
 
 // ── types ──────────────────────────────────────────────────────────────────
 export type StatItem = {
@@ -80,18 +86,26 @@ export const TEXT_MUTED = "var(--admin-text-muted)";
 export const GRID_COLOR = "var(--admin-grid)";
 export const TOOLTIP_STYLE = {
   border: "1px solid var(--admin-tooltip-border)",
-  borderRadius: "8px",
+  borderRadius: "12px",
   fontSize: "11px",
+  padding: "8px 12px",
   color: TEXT_SECONDARY,
   backgroundColor: "var(--admin-tooltip-bg)",
+  boxShadow: "0 10px 25px -5px rgb(0 0 0 / 0.15)",
+} as const;
+export const TOOLTIP_CURSOR = {
+  fill: "var(--admin-card-muted)",
+  radius: 8,
 } as const;
 
 // ── data ───────────────────────────────────────────────────────────────────
-const STATS: StatItem[] = [
+type DashboardData = AdminDashboardResponse["dashboard"];
+
+// Static presentation metadata for the KPI cards; values come from the loader.
+const STAT_META: Omit<StatItem, "value">[] = [
   {
     id: "users",
     label: "Total Users",
-    value: "12,847",
     icon: Users,
     to: "/tk-admin/users",
     iconBg: "bg-(--admin-card-muted)",
@@ -100,7 +114,6 @@ const STATS: StatItem[] = [
   {
     id: "partners",
     label: "Total Partners",
-    value: "156",
     icon: Handshake,
     to: "/tk-admin/partner",
     iconBg: "bg-(--admin-card-muted)",
@@ -109,12 +122,27 @@ const STATS: StatItem[] = [
   {
     id: "reports",
     label: "Open Reports",
-    value: "24",
     icon: ShieldAlert,
     to: "/tk-admin/content-moderator",
     iconBg: "bg-rose-50 dark:bg-rose-950/60",
     iconColor: "text-rose-600 dark:text-rose-400",
   },
+];
+
+// Color palettes for charts whose values come from the API without colors.
+const GENDER_COLORS: Record<string, string> = {
+  male: "#3b82f6",
+  female: "#f43f5e",
+};
+const GENDER_FALLBACK_COLORS = ["#8b5cf6", "#10b981", "#f59e0b", "#06b6d4"];
+const SECTOR_COLORS = [
+  "#8b5cf6",
+  "#10b981",
+  "#f59e0b",
+  "#3b82f6",
+  "#ec4899",
+  "#06b6d4",
+  "#f43f5e",
 ];
 
 const BASE_QUICK_ACTIONS: Omit<QuickAction, "onClick">[] = [
@@ -155,50 +183,114 @@ const BASE_QUICK_ACTIONS: Omit<QuickAction, "onClick">[] = [
   },
 ];
 
-const REGISTRATION_DATA: ChartBarItem[] = [
-  { day: "Mon", value: 105, highlight: false },
-  { day: "Tue", value: 158, highlight: false },
-  { day: "Wed", value: 178, highlight: false },
-  { day: "Thu", value: 135, highlight: false },
-  { day: "Fri", value: 212, highlight: false },
-  { day: "Sat", value: 255, highlight: true },
-  { day: "Sun", value: 190, highlight: false },
-];
+// ── mappers ──────────────────────────────────────────────────────────────
+function formatNumber(value: number) {
+  return value.toLocaleString("en-US");
+}
 
-const GENDER_DATA: GenderItem[] = [
-  { name: "Male", value: 24500, color: "#3b82f6" },
-  { name: "Female", value: 18300, color: "#f43f5e" },
-];
+function toStats(summary: DashboardData["summary"]): StatItem[] {
+  const values: Record<string, number | null> = {
+    users: summary.totalUsers,
+    partners:
+      typeof summary.totalPartners === "number" ? summary.totalPartners : null,
+    reports: summary.openReports,
+  };
 
-const AGE_DATA: AgeItem[] = [
-  { range: "18-24", value: 12000 },
-  { range: "25-34", value: 15400 },
-  { range: "35-44", value: 8900 },
-  { range: "45-54", value: 4500 },
-  { range: "55+", value: 2000 },
-];
+  return STAT_META.map((meta) => {
+    const value = values[meta.id];
+    return {
+      ...meta,
+      value: typeof value === "number" ? formatNumber(value) : "—",
+    };
+  });
+}
 
-const SECTOR_DATA: PartnerSector[] = [
-  { name: "FinTech", value: 45, color: "#8b5cf6" },
-  { name: "Energy", value: 32, color: "#10b981" },
-  { name: "Retail", value: 28, color: "#f59e0b" },
-  { name: "Logistics", value: 25, color: "#3b82f6" },
-  { name: "Travel", value: 26, color: "#ec4899" },
-];
+function toRegistrationData(
+  newRegistrations: DashboardData["newRegistrations"],
+): ChartBarItem[] {
+  const trend = newRegistrations.trend;
+  const peak = trend.reduce(
+    (max, point) => Math.max(max, point.count),
+    Number.NEGATIVE_INFINITY,
+  );
+  return trend.map((point) => ({
+    day: point.label,
+    value: point.count,
+    highlight: point.count === peak,
+  }));
+}
 
-const ACTIVE_USERS_DATA: ActiveUserPoint[] = [
-  { time: "00:00", value: 840 },
-  { time: "04:00", value: 420 },
-  { time: "08:00", value: 1200 },
-  { time: "12:00", value: 3400 },
-  { time: "16:00", value: 4800 },
-  { time: "20:00", value: 3800 },
-  { time: "23:59", value: 1400 },
-];
+function toActiveUsersData(
+  activeUsers: DashboardData["activeUsers"],
+): ActiveUserPoint[] {
+  return activeUsers.trend.map((point) => ({
+    time: point.label,
+    value: point.count,
+  }));
+}
+
+function toGenderData(
+  demographics: DashboardData["demographics"],
+): GenderItem[] {
+  return demographics.genderBreakdown.map((item, index) => ({
+    name: item.label,
+    value: item.count,
+    color:
+      GENDER_COLORS[item.label.toLowerCase()] ??
+      GENDER_FALLBACK_COLORS[index % GENDER_FALLBACK_COLORS.length],
+  }));
+}
+
+function toAgeData(demographics: DashboardData["demographics"]): AgeItem[] {
+  return demographics.ageGroups.map((item) => ({
+    range: item.label,
+    value: item.count,
+  }));
+}
+
+function toSectorData(partners: DashboardData["partners"]): PartnerSector[] {
+  if (!Array.isArray(partners.sectors)) return [];
+
+  return partners.sectors.flatMap((raw, index) => {
+    if (typeof raw !== "object" || raw === null) return [];
+    const entry = raw as {
+      label?: unknown;
+      name?: unknown;
+      count?: unknown;
+      value?: unknown;
+    };
+    const name =
+      typeof entry.label === "string"
+        ? entry.label
+        : typeof entry.name === "string"
+          ? entry.name
+          : null;
+    const value =
+      typeof entry.count === "number"
+        ? entry.count
+        : typeof entry.value === "number"
+          ? entry.value
+          : null;
+    if (name === null || value === null) return [];
+    return [
+      { name, value, color: SECTOR_COLORS[index % SECTOR_COLORS.length] },
+    ];
+  });
+}
 
 // ── main page ─────────────────────────────────────────────────────────────
 export default function AdminDashboardPage() {
+  const { dashboard } = useLoaderData<typeof adminDashboardLoader>();
   const [showNotificationDialog, setShowNotificationDialog] = useState(false);
+
+  const stats = toStats(dashboard.summary);
+  const registrationData = toRegistrationData(dashboard.newRegistrations);
+  const activeUsersData = toActiveUsersData(dashboard.activeUsers);
+  const genderData = toGenderData(dashboard.demographics);
+  const ageData = toAgeData(dashboard.demographics);
+  const sectorData = toSectorData(dashboard.partners);
+  const showPartnerSectors =
+    dashboard.partners.total !== null && sectorData.length > 0;
 
   const quickActions: QuickAction[] = BASE_QUICK_ACTIONS.map((action) =>
     action.id === "send-notification"
@@ -217,7 +309,7 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {STATS.map((item, i) => (
+        {stats.map((item, i) => (
           <KpiCard key={item.id} item={item} index={i} />
         ))}
       </div>
@@ -227,14 +319,24 @@ export default function AdminDashboardPage() {
 
         <div className="lg:col-span-8 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <RegistrationsChart data={REGISTRATION_DATA} />
-            <ActiveUsersChart data={ACTIVE_USERS_DATA} />
+            <RegistrationsChart
+              data={registrationData}
+              changePercent={dashboard.newRegistrations.changePercent}
+            />
+            <ActiveUsersChart
+              data={activeUsersData}
+              liveNow={dashboard.activeUsers.liveNow}
+            />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <GenderBreakdownChart data={GENDER_DATA} />
-            <AgeGroupsChart data={AGE_DATA} />
-            <PartnerSectorsChart data={SECTOR_DATA} />
+          <div
+            className={`grid grid-cols-1 gap-6 ${
+              showPartnerSectors ? "sm:grid-cols-3" : "sm:grid-cols-2"
+            }`}
+          >
+            <GenderBreakdownChart data={genderData} />
+            <AgeGroupsChart data={ageData} />
+            {showPartnerSectors && <PartnerSectorsChart data={sectorData} />}
           </div>
         </div>
       </div>
