@@ -31,7 +31,7 @@ export function SendNotificationDialog({ show, onClose }: Props) {
     <Dialog open={show} onOpenChange={(open) => !open && onClose()}>
       <DialogContent
         showCloseButton={false}
-        className="sm:max-w-lg p-0 overflow-hidden gap-0 bg-white dark:bg-[#020617] border-slate-100 dark:border-slate-800"
+        className="sm:max-w-lg p-0 overflow-hidden gap-0 bg-white dark:bg-[#020617] border-slate-100 dark:border-slate-800 rounded-2xl"
       >
         <NotificationForm onClose={onClose} />
       </DialogContent>
@@ -45,6 +45,10 @@ function NotificationForm({ onClose }: { onClose: () => void }) {
   const result = fetcher.data;
 
   const [notifType, setNotifType] = useState("system");
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+
+  const canSubmit = title.trim() !== "" && body.trim() !== "";
 
   useEffect(() => {
     if (result?.ok) {
@@ -76,7 +80,7 @@ function NotificationForm({ onClose }: { onClose: () => void }) {
         <motion.div key="form" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
           {/* Header */}
           <DialogHeader className="p-6 pb-5 border-b border-slate-100 dark:border-slate-800 flex-row items-center gap-3 space-y-0">
-            <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-600 dark:border-none flex items-center justify-center shrink-0">
               <Bell size={18} />
             </div>
             <DialogTitle className="text-base font-bold text-slate-900 dark:text-white">
@@ -105,6 +109,8 @@ function NotificationForm({ onClose }: { onClose: () => void }) {
                 id="notif-title"
                 name="title"
                 required
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Platform Update"
                 className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 rounded-xl h-10 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus-visible:border-amber-500 focus-visible:ring-amber-500/20"
               />
@@ -116,6 +122,8 @@ function NotificationForm({ onClose }: { onClose: () => void }) {
                 id="notif-body"
                 name="body"
                 required
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
                 placeholder="Write your notification message here…"
                 rows={3}
                 className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus-visible:border-amber-500 focus-visible:ring-amber-500/20 resize-none"
@@ -200,20 +208,22 @@ function NotificationForm({ onClose }: { onClose: () => void }) {
             )}
 
             {/* Submit */}
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full h-11 bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-amber-500/20 active:scale-95"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 size={14} className="animate-spin" />
-                  Sending…
-                </>
-              ) : (
-                "Broadcast Notification"
-              )}
-            </Button>
+            <div className="flex items-center justify-end pt-3 gap-3">
+              <Button
+                type="submit"
+                disabled={isSubmitting || !canSubmit}
+                className="h-11 bg-amber-100 hover:bg-amber-600 dark:bg-amber-800/20 dark:border-none text-amber-500 border border-amber-500 text-[11px] font-black uppercase rounded-xl tracking-widest active:scale-95 hover:text-white focus-visible:ring-amber-500/20 focus-visible:border-amber-500 transition-all disabled:cursor-not-allowed disabled:opacity-100 disabled:bg-slate-100 dark:hover:text-amber-600 disabled:text-slate-400 disabled:border-slate-200 disabled:hover:bg-slate-100 disabled:hover:text-slate-400 disabled:active:scale-100 dark:disabled:bg-slate-800/40 dark:disabled:text-slate-600 dark:disabled:border-slate-700 dark:disabled:hover:bg-slate-800/40 dark:disabled:hover:text-slate-600 dark:hover:bg-amber-600/50"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" />
+                    Sending…
+                  </>
+                ) : (
+                  "Broadcast Notification"
+                )}
+              </Button>
+            </div>
           </fetcher.Form>
         </motion.div>
       )}
