@@ -6,17 +6,15 @@ import {
   Building2,
   ChevronDown,
   LayoutDashboard,
-  LogOut,
   Menu,
   ShieldCheck,
-  User as UserIcon,
+  Sun,
   Users,
   X as CloseIcon,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   data,
-  Form,
   Link,
   Outlet,
   useLoaderData,
@@ -26,16 +24,15 @@ import {
   type ShouldRevalidateFunctionArgs,
 } from "react-router";
 
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
+import AdminUserMenu from "./components/AdminUserMenu";
 import { AdminThemeSwitcher } from "./admin-theme-switcher";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, setCookie } = await requireSuperAdmin(request);
-  const loaderData = { userRole: "Super Admin", adminName: admin.name };
 
   return data(
-    loaderData,
+    { userRole: "Super Admin", admin },
     setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
   );
 }
@@ -71,14 +68,6 @@ type NavItem = {
   href: string;
   badge?: number;
   disabled?: boolean;
-};
-
-const user = {
-  userRole: "Super Admin" as UserRole,
-  name: "John Doe",
-  email: "cheata.sck@gmail.com",
-  initials: "JD",
-  avatar: "",
 };
 
 const roles: UserRole[] = ["Super Admin", "Moderator", "Partner Manager"];
@@ -427,80 +416,7 @@ export default function AdminLayout() {
                   </AnimatePresence>
                 </div>
 
-                <div className="relative">
-                  <div
-                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white dark:bg-slate-900 flex items-center justify-center text-slate-400 border border-slate-100 dark:border-slate-800 cursor-pointer overflow-hidden hover:bg-slate-50 dark:hover:bg-slate-800 transition-all ml-2"
-                  >
-                    {user.avatar ? (
-                      <Avatar className="w-full h-full rounded-full border-0">
-                        <AvatarImage src={user.avatar} alt={user.name} />
-                        <AvatarFallback>{user.initials}</AvatarFallback>
-                      </Avatar>
-                    ) : (
-                      <UserIcon size={16} />
-                    )}
-                  </div>
-
-                  <AnimatePresence>
-                    {isUserMenuOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                        className="absolute right-0 mt-3 w-64 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.12)] z-50 overflow-hidden p-2"
-                      >
-                        <div className="p-4 flex items-center gap-3 border-b border-slate-50 dark:border-slate-800 mb-2">
-                          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-                            {user.initials}
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-slate-900 dark:text-white">
-                              {user.name}
-                            </p>
-                            <p className="text-[10px] font-medium text-slate-400">
-                              {user.email}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="space-y-1">
-                          <Link
-                            to="/tk-admin"
-                            onClick={() => setIsUserMenuOpen(false)}
-                            className="px-4 py-2.5 text-[13px] font-bold rounded-xl cursor-pointer transition-all flex items-center gap-3 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
-                          >
-                            <LayoutDashboard
-                              size={16}
-                              className="text-slate-300"
-                            />
-                            Dashboard
-                          </Link>
-                          <Link
-                            to="/tk-admin/content-moderator"
-                            onClick={() => setIsUserMenuOpen(false)}
-                            className="px-4 py-2.5 text-[13px] font-bold rounded-xl cursor-pointer transition-all flex items-center gap-3 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
-                          >
-                            <ShieldCheck size={16} className="text-slate-300" />
-                            Moderation
-                          </Link>
-                        </div>
-
-                        <div className="mt-2 pt-2 border-t border-slate-50 dark:border-slate-800">
-                          <Form method="post" action="/tk-admin/logout">
-                            <button
-                              type="submit"
-                              className="w-full px-4 py-3 text-[13px] font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-all flex items-center gap-3 text-left cursor-pointer"
-                            >
-                              <LogOut size={16} />
-                              Sign Out
-                            </button>
-                          </Form>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                <AdminUserMenu admin={loaderData.admin} />
               </div>
             </div>
           </div>
