@@ -262,6 +262,8 @@ const ContentModeratorReport = z
     id: z.string().uuid(),
     reportId: z.number().int().gt(0),
     type: ContentModeratorReportType,
+    reportType: z.literal("FORUM"),
+    reportForumType: z.enum(["POST", "COMMENT"]).nullable(),
     contentPreview: z.string(),
     sourceLink: z.string(),
     dateTime: z.string().datetime({ offset: true }),

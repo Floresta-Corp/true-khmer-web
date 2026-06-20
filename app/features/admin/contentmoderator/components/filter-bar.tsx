@@ -26,13 +26,13 @@ function getStatusColor(color: string, isActive: boolean): string {
   const colors: Record<string, string> = {
     slate: isActive
       ? "bg-blue-600/70 text-white"
-      : "text-slate-400 hover:bg-slate-50",
+      : "text-slate-400 hover:dark:text-white hover:bg-slate-50 hover:dark:bg-slate-500/50",
     rose: isActive
       ? "bg-rose-600/70 text-white"
-      : "text-slate-400 hover:bg-rose-50 hover:text-rose-600",
+      : "text-slate-400 hover:bg-rose-50 hover:text-rose-600 hover:dark:text-white hover:dark:bg-rose-500/40",
     emerald: isActive
       ? "bg-emerald-600/70 text-white"
-      : "text-slate-400 hover:bg-emerald-50 hover:text-emerald-600",
+      : "text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 hover:dark:text-white hover:dark:bg-emerald-500/40 ",
   };
 
   return colors[color] ?? "text-slate-400";
@@ -73,7 +73,7 @@ export function FilterBar({
           </PopoverTrigger>
           <PopoverContent
             align="start"
-            className="min-w-56 max-h-72 overflow-y-auto bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-xl shadow-slate-900/10 dark:shadow-black/40 p-1.5"
+            className="min-w-56 max-h-72 overflow-y-auto bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl shadow-xl shadow-slate-900/10 dark:shadow-black/40 p-1.5"
           >
             {categoryOptions.map((option) => {
               const isSelected = selectedTypeId === option.id;
@@ -82,7 +82,7 @@ export function FilterBar({
                   variant="ghost"
                   key={option.id ?? "__all__"}
                   onClick={() => handleSelect(option.id)}
-                  className={`w-full justify-between text-left px-3.5 py-2 rounded-lg text-[13px] font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                  className={`w-full justify-between text-left px-3.5 py-2 rounded-xl text-[13px] font-semibold transition-colors cursor-pointer whitespace-nowrap ${
                     isSelected
                       ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
                       : "text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
