@@ -1,7 +1,7 @@
 import {
   patchContentModerator,
   DetailReportStatus,
-} from "~/lib/server/auth/admin/content-moderator/content-moderator.server";
+} from "~/services/api/admin/content-moderator/content-moderator.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
 import { withAuthJson } from "~/lib/server/auth-response.server";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";

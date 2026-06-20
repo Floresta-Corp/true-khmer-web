@@ -4,7 +4,7 @@ import { useSearchParams, useFetcher, useLoaderData } from "react-router";
 import { FilterBar } from "../filter-bar";
 import { ReportsTable } from "../reports-table";
 import { ReportDrawer } from "../report-drawer";
-import type { contentModeratorLoader } from "~/routes/api/auth/super-admin/content-moderator/content-moderator.loder";
+import type { contentModeratorLoader } from "~/features/admin/contentmoderator/service/content-moderator.loder";
 import type { ContentModeratorReport } from "~/types/api-client";
 
 export type CategoryOption = { id: string | null; name: string };
