@@ -46,7 +46,7 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded border border-slate-200 dark:border-blue-600/20">
-              {report.reportForumType}
+              {report.reportType}
             </span>
             <p className="min-w-0 text-sm font-semibold text-slate-900 dark:text-white leading-tight truncate">
               "{report.contentPreview}"

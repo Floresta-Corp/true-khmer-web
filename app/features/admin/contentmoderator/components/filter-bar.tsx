@@ -6,7 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import type { CategoryOption } from "./pages/content-moderator-page";
+import type { CategoryOption } from "../pages/content-moderator-page";
 
 export const STATUSES = [
   { label: "All", value: "all", color: "slate" },

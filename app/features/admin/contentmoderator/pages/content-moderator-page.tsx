@@ -6,10 +6,10 @@ import {
   useLoaderData,
   useNavigation,
 } from "react-router";
-import { FilterBar } from "../filter-bar";
-import { ReportsTable } from "../reports-table";
-import { ReportsTableSkeleton } from "../reports-table-skeleton";
-import { ReportDrawer } from "../report-drawer";
+import { FilterBar } from "../components/filter-bar";
+import { ReportsTable } from "../components/reports-table";
+import { ReportsTableSkeleton } from "../components/reports-table-skeleton";
+import { ReportDrawer } from "../components/report-drawer";
 import type { contentModeratorLoader } from "~/features/admin/contentmoderator/service/content-moderator.loder";
 import type { ContentModeratorReport } from "~/types/api-client";
 
@@ -138,7 +138,10 @@ export default function ContentModeratingPage() {
                 {isFiltering ? (
                   <ReportsTableSkeleton />
                 ) : (
-                  <ReportsTable reports={[...content]} onSelect={handleSelect} />
+                  <ReportsTable
+                    reports={[...content]}
+                    onSelect={handleSelect}
+                  />
                 )}
               </div>
             </motion.div>
