@@ -1,11 +1,12 @@
 import { Mail, PhoneCall, Send } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
+import { resolveImageURL } from "~/lib/utils";
 import ProfileLinkWrapper from "./profile-link-wrapper";
 
 export interface AuthorCardProps {
   name: string;
-  avatarUrl: string;
+  avatarKey: string | null;
   postedLabel: string;
   telegramUrl?: string;
   phoneUrl?: string;
@@ -16,7 +17,7 @@ export interface AuthorCardProps {
 
 export default function AuthorCard({
   name,
-  avatarUrl,
+  avatarKey,
   postedLabel,
   telegramUrl,
   phoneUrl,
@@ -25,7 +26,10 @@ export default function AuthorCard({
   isAuthor,
 }: AuthorCardProps) {
   const profileName = name;
-  const profileImage = avatarUrl;
+  const profileImage = resolveImageURL(
+    avatarKey,
+    "/images/avatar_placeholder.webp",
+  );
 
   return (
     <article className="rounded-[14px] border border-[`#e1e7ef`] bg-[`#F9FAFB`] p-4 h-[6.625rem]">

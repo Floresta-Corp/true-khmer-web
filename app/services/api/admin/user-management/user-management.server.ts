@@ -6,6 +6,7 @@ import {
 } from "~/lib/server/api-client.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
 import type {
+  AdminUserManagementDetailResponse,
   AdminUserManagementListResponse,
   api,
 } from "~/types/api-client";
@@ -33,7 +34,9 @@ async function retryAdminRequestAfterRefresh<T>(
       throw error;
     }
 
-    const refreshed = await getAdminAccessToken(request, { forceRefresh: true });
+    const refreshed = await getAdminAccessToken(request, {
+      forceRefresh: true,
+    });
     if (!refreshed.accessToken) {
       throw redirect("/tk-admin/login", {
         ...(refreshed.setCookie
@@ -86,18 +89,20 @@ export async function getAdminUserManagement(
 export async function getAdminUserManagementDetail(
   request: Request,
   userId: string,
+  existingAccessToken?: string,
 ) {
-  return retryAdminRequestAfterRefresh(request, (accessToken) =>
-    apiRequestWithAccessToken<
-      Awaited<ReturnType<typeof api.getV1adminuserManagementUserId>>
-    >(
-      request,
-      accessToken,
-      `/admin/user-management/${encodeURIComponent(userId)}`,
-      {
-        method: "GET",
-      },
-    ),
+  return retryAdminRequestAfterRefresh(
+    request,
+    (accessToken) =>
+      apiRequestWithAccessToken<AdminUserManagementDetailResponse>(
+        request,
+        accessToken,
+        `/admin/user-management/${encodeURIComponent(userId)}`,
+        {
+          method: "GET",
+        },
+      ),
+    existingAccessToken,
   );
 }
 

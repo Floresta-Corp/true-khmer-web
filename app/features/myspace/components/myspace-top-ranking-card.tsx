@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { resolveImageURL } from "~/lib/utils";
 
 interface RankedUser {
   name: string;
@@ -9,7 +10,12 @@ interface RankedUser {
 }
 
 const mockRankings: RankedUser[] = [
-  { name: "Sarah Jenkins", avatar: "/romdoul.svg", points: "12.5k points", rank: 1 },
+  {
+    name: "Sarah Jenkins",
+    avatar: "/romdoul.svg",
+    points: "12.5k points",
+    rank: 1,
+  },
 ];
 
 export function TopRankingCard() {
@@ -24,7 +30,7 @@ export function TopRankingCard() {
             <li key={user.rank} className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user.avatar} alt="" />
+                  <AvatarImage src={resolveImageURL(user.avatar)} alt="" />
                   <AvatarFallback>SD</AvatarFallback>
                 </Avatar>
                 <div>

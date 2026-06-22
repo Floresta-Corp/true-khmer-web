@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Calendar, Mail, MapPin, PhoneCall, Send, Star } from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
+import { resolveImageURL } from "~/lib/utils";
 
 export interface DetailAndContactCardProps {
   date: string;
@@ -114,7 +115,7 @@ export function DetailAndContactCard({
 
           <div className="flex min-w-0 items-center gap-3">
             <img
-              src={organizer.avatar}
+              src={resolveImageURL(organizer.avatar)}
               alt={organizer.name}
               className="size-12 shrink-0 rounded-2xl border border-slate-100 object-cover dark:border-slate-800"
             />

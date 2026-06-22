@@ -37,7 +37,7 @@ export type Role = z.infer<typeof RoleSchema>;
 export const OrganizerSchema = z.object({
   id: z.string(),
   name: z.string(),
-  avatarUrl: z.string().nullish(),
+  avatarKey: z.string().nullable(),
   opportunityCount: z.number(),
   organizerLocation: z.string().nullish(),
   contact: ContactSchema,

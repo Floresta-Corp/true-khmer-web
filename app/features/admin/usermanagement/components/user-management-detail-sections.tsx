@@ -1,14 +1,12 @@
-import { useEffect, useState, type ComponentType } from "react";
+import { useState, type ComponentType } from "react";
 import { format } from "date-fns";
 import {
   Activity,
-  ArrowLeft,
   Award,
   Ban,
   BriefcaseBusiness,
   CalendarDays,
   KeyRound,
-  Loader2,
   Mail,
   MapPin,
   MessageCircle,
@@ -20,67 +18,21 @@ import {
   UserRound,
   Zap,
 } from "lucide-react";
-import { Link, useFetcher, useLoaderData } from "react-router";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
 import { Separator } from "~/components/ui/separator";
+import { resolveImageURL } from "~/lib/utils";
+import type {
+  AdminUserManagementActivity,
+  AdminUserManagementDetailUser,
+  AdminUserManagementPoints,
+} from "~/types/api-client";
 
-import type { action, loader } from "../routes/user-management.$userId";
 import { StatusBadge, UserTierBadge } from "./user-management-badges";
+import { UserSuspensionDialog } from "./user-suspension-dialog";
 
-export function UserManagementDetailPage() {
-  const { user } = useLoaderData<typeof loader>();
-
-  return (
-    <main className="min-h-full bg-[#f8fafc] px-4 py-6 dark:bg-slate-950 sm:px-6 lg:px-10 lg:py-8">
-      <div className="mx-auto w-full max-w-7xl">
-        <header className="mb-6 flex items-center gap-3">
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/tk-admin/users" aria-label="Back to user management">
-              <ArrowLeft />
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-950 dark:text-white">
-              User Profile
-            </h1>
-            <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
-              Account details, points, and recent activity.
-            </p>
-          </div>
-        </header>
-
-        <div className="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-          <aside className="space-y-6">
-            <UserSummary user={user} />
-            <ManagementConsole user={user} />
-          </aside>
-
-          <section className="min-w-0 space-y-6">
-            <PointsOverview points={user.points} />
-            <RecentActivity activities={user.recentActivity} />
-          </section>
-        </div>
-      </div>
-    </main>
-  );
-}
-
-function UserSummary({
-  user,
-}: {
-  user: ReturnType<typeof useLoaderData<typeof loader>>["user"];
-}) {
+export function UserSummary({ user }: { user: AdminUserManagementDetailUser }) {
   const displayName = user.displayName || user.name;
   const initials = displayName
     .split(" ")
@@ -98,9 +50,9 @@ function UserSummary({
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <div className="flex flex-col items-center text-center">
         <Avatar className="size-24 rounded-2xl after:rounded-2xl">
-          {user.avatarUrl ? (
+          {user.avatarKey ? (
             <AvatarImage
-              src={user.avatarUrl}
+              src={resolveImageURL(user.avatarKey)}
               alt={displayName}
               className="rounded-2xl"
             />
@@ -200,11 +152,12 @@ function ProfileDetail({
   );
 }
 
-function ManagementConsole({
+export function ManagementConsole({
   user,
 }: {
-  user: ReturnType<typeof useLoaderData<typeof loader>>["user"];
+  user: AdminUserManagementDetailUser;
 }) {
+  const [suspensionDialogOpen, setSuspensionDialogOpen] = useState(false);
   const suspensionAction =
     user.status === "SUSPENDED" ? "unsuspend" : "suspend";
 
@@ -217,9 +170,28 @@ function ManagementConsole({
         <ManagementButton icon={Award} label="Modify tier" />
         <ManagementButton icon={RotateCcw} label="Modify points" />
         <ManagementButton icon={KeyRound} label="Reset password link" />
-        <SuspensionDialog
+        <Button
+          type="button"
+          variant={suspensionAction === "suspend" ? "destructive" : "outline"}
+          className={`h-10 w-full justify-between rounded-lg px-3 shadow-none ${
+            suspensionAction === "suspend"
+              ? ""
+              : "border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-900 dark:text-emerald-400 dark:hover:bg-emerald-950/30"
+          }`}
+          onClick={() => setSuspensionDialogOpen(true)}
+        >
+          <span>
+            {suspensionAction === "suspend"
+              ? "Suspend account"
+              : "Unsuspend account"}
+          </span>
+          {suspensionAction === "suspend" ? <Ban /> : <Shield />}
+        </Button>
+        <UserSuspensionDialog
           action={suspensionAction}
           userName={user.displayName || user.name}
+          open={suspensionDialogOpen}
+          onOpenChange={setSuspensionDialogOpen}
         />
       </div>
     </div>
@@ -246,93 +218,10 @@ function ManagementButton({
   );
 }
 
-function SuspensionDialog({
-  action: suspensionAction,
-  userName,
-}: {
-  action: "suspend" | "unsuspend";
-  userName: string;
-}) {
-  const fetcher = useFetcher<typeof action>();
-  const [open, setOpen] = useState(false);
-  const isSubmitting = fetcher.state !== "idle";
-  const isSuspend = suspensionAction === "suspend";
-
-  useEffect(() => {
-    if (fetcher.state === "idle" && fetcher.data?.ok) {
-      setOpen(false);
-    }
-  }, [fetcher.data, fetcher.state]);
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          type="button"
-          variant={isSuspend ? "destructive" : "outline"}
-          className={`h-10 w-full justify-between rounded-lg px-3 shadow-none ${
-            isSuspend
-              ? ""
-              : "border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-900 dark:text-emerald-400 dark:hover:bg-emerald-950/30"
-          }`}
-        >
-          <span>{isSuspend ? "Suspend account" : "Unsuspend account"}</span>
-          {isSuspend ? <Ban /> : <Shield />}
-        </Button>
-      </DialogTrigger>
-
-      <DialogContent className="max-w-md rounded-2xl p-6">
-        <DialogTitle className="text-xl font-bold">
-          {isSuspend ? "Suspend account?" : "Restore account access?"}
-        </DialogTitle>
-        <DialogDescription className="leading-6">
-          {isSuspend
-            ? `${userName} will immediately lose access to the platform.`
-            : `${userName} will regain access to the platform.`}
-        </DialogDescription>
-
-        {fetcher.data && "error" in fetcher.data ? (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/30 dark:text-red-400">
-            {fetcher.data.error}
-          </p>
-        ) : null}
-
-        <DialogFooter className="mt-2">
-          <DialogClose asChild>
-            <Button type="button" variant="outline" disabled={isSubmitting}>
-              Cancel
-            </Button>
-          </DialogClose>
-          <fetcher.Form method="post">
-            <input type="hidden" name="action" value={suspensionAction} />
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              variant={isSuspend ? "destructive" : "default"}
-              className={
-                isSuspend
-                  ? ""
-                  : "bg-emerald-600 text-white hover:bg-emerald-700"
-              }
-            >
-              {isSubmitting ? <Loader2 className="animate-spin" /> : null}
-              {isSubmitting
-                ? "Updating..."
-                : isSuspend
-                  ? "Suspend account"
-                  : "Unsuspend account"}
-            </Button>
-          </fetcher.Form>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function PointsOverview({
+export function PointsOverview({
   points,
 }: {
-  points: ReturnType<typeof useLoaderData<typeof loader>>["user"]["points"];
+  points: AdminUserManagementPoints;
 }) {
   return (
     <div className="grid gap-4 sm:grid-cols-3">
@@ -400,12 +289,10 @@ function PointCard({
   );
 }
 
-function RecentActivity({
+export function RecentActivity({
   activities,
 }: {
-  activities: ReturnType<
-    typeof useLoaderData<typeof loader>
-  >["user"]["recentActivity"];
+  activities: AdminUserManagementActivity[];
 }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">

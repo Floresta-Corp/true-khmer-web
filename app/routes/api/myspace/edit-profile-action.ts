@@ -30,8 +30,6 @@ async function syncUpdatedProfileToSession(request: Request, profile: Profile) {
   const currentProfile = readRecord(currentUser.profile);
   const displayName = displayNameForProfile(profile);
   const avatarKey = profile.profile.avatarKey ?? "";
-  const avatarUrl = profile.profile.avatarUrl ?? "";
-  const avatar = avatarUrl || avatarKey || undefined;
 
   const nextUser = {
     ...currentUser,
@@ -43,14 +41,11 @@ async function syncUpdatedProfileToSession(request: Request, profile: Profile) {
     gender: profile.user.gender,
     occupation: profile.user.occupation,
     phone: profile.user.phone,
-    avatar,
     avatarKey,
-    avatarUrl,
     profile: {
       ...currentProfile,
       displayName: displayName || profile.user.email,
       avatarKey,
-      avatarUrl,
     },
   };
 
@@ -58,7 +53,6 @@ async function syncUpdatedProfileToSession(request: Request, profile: Profile) {
   session.set("userId", profile.user.id);
   session.set("email", profile.user.email);
   session.set("name", nextUser.name);
-  session.set("avatar", avatar);
 
   return commitSession(session);
 }

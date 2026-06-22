@@ -4,7 +4,6 @@ import {
   Users,
   Handshake,
   ShieldAlert,
-  UserPlus,
   Building2,
   UserCog,
   Bell,
@@ -146,15 +145,6 @@ const SECTOR_COLORS = [
 ];
 
 const BASE_QUICK_ACTIONS: Omit<QuickAction, "onClick">[] = [
-  {
-    id: "add-user",
-    label: "Add User",
-    subtitle: "Register Member",
-    icon: UserPlus,
-    iconClass:
-      "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400",
-    to: "/tk-admin/users/add",
-  },
   {
     id: "add-partner",
     label: "Add Partner",

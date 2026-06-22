@@ -1,20 +1,20 @@
 import { format } from "date-fns";
-import { MoreHorizontal } from "lucide-react";
 import { Link } from "react-router";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
+import { resolveImageURL } from "~/lib/utils";
 import type { AdminUserManagementUser } from "~/types/api-client";
 
+import { UserManagementActionsMenu } from "./user-management-actions-menu";
 import { StatusBadge, UserTierBadge } from "./user-management-badges";
 
 export function UserTable({ users }: { users: AdminUserManagementUser[] }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="min-h-0 flex-1 overflow-auto">
       <table className="w-full min-w-180 table-fixed border-collapse text-left">
-        <thead>
-          <tr className="border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-950/30">
+        <thead className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">
+          <tr className="border-b border-slate-100 dark:border-slate-800">
             <HeaderCell label="User" className="w-[24%]" />
             <HeaderCell label="Tier" align="center" className="w-[16%]" />
             <HeaderCell label="Points" align="center" className="w-[14%]" />
@@ -47,20 +47,7 @@ export function UserTable({ users }: { users: AdminUserManagementUser[] }) {
                 {formatLastActive(user.lastActive)}
               </td>
               <td className="px-5 py-4 text-center">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  asChild
-                  className="text-slate-400"
-                >
-                  <Link
-                    to={`/tk-admin/user/${user.id}`}
-                    aria-label={`View ${user.displayName || user.name}`}
-                  >
-                    <MoreHorizontal />
-                  </Link>
-                </Button>
+                <UserManagementActionsMenu user={user} />
               </td>
             </tr>
           ))}
@@ -72,10 +59,10 @@ export function UserTable({ users }: { users: AdminUserManagementUser[] }) {
 
 export function UserManagementTableSkeleton({ rows = 6 }: { rows?: number }) {
   return (
-    <div className="overflow-x-auto" aria-label="Loading users">
+    <div className="min-h-0 flex-1 overflow-auto" aria-label="Loading users">
       <table className="w-full min-w-180 table-fixed border-collapse text-left">
-        <thead>
-          <tr className="border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-950/30">
+        <thead className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">
+          <tr className="border-b border-slate-100 dark:border-slate-800">
             <HeaderCell label="User" className="w-[24%]" />
             <HeaderCell label="Tier" align="center" className="w-[16%]" />
             <HeaderCell label="Points" align="center" className="w-[14%]" />
@@ -164,8 +151,11 @@ function UserCell({ user }: { user: AdminUserManagementUser }) {
         className="flex items-center gap-3 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
       >
         <Avatar size="lg">
-          {user.avatarUrl ? (
-            <AvatarImage src={user.avatarUrl} alt={displayName} />
+          {user.avatarKey ? (
+            <AvatarImage
+              src={resolveImageURL(user.avatarKey)}
+              alt={displayName}
+            />
           ) : null}
           <AvatarFallback className="bg-slate-100 text-xs font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-300">
             {initials}

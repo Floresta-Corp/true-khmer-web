@@ -380,9 +380,10 @@ export default function MyApplicationDetailPage() {
     .join(" - ");
   const owner = detail.owner;
   const ownerContact = owner.contact;
-  const ownerAvatar = owner.avatarKey
-    ? resolveImageURL(owner.avatarKey, "/images/avatar_placeholder.webp")
-    : owner.avatarUrl || "/images/avatar_placeholder.webp";
+  const ownerAvatar = resolveImageURL(
+    owner.avatarKey,
+    "/images/avatar_placeholder.webp",
+  );
   const ownerRole = owner.postedCount
     ? `${owner.postedCount} posts created`
     : "Organizer";
