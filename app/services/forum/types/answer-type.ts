@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { AuthorSchema, QuestionSchema } from "./question-type";
-import { BasicJoinSchema, ViewerVoteSchema } from "~/services/types";
-import { CategorySchema } from "./category-type";
+import { ViewerVoteSchema } from "~/services/types";
 
 export const CreateAnswerInputSchema = z.object({
   questionId: z.string(),
@@ -27,7 +26,7 @@ export const ReplyToAnswerSchema = z.object({
   author: AuthorSchema,
   body: z.string(),
   status: AnswerStatusSchema,
-  upvoteCount: z.number(), 
+  upvoteCount: z.number(),
   downvoteCount: z.number(),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -56,6 +55,7 @@ export const AnswerSchema = z.lazy(() =>
     viewerVote: ViewerVoteSchema,
     status: AnswerStatusSchema,
     author: AuthorSchema,
+    isBestAnswer: z.boolean(),
     // Use z.lazy here to defer the reference to AnswerSchema
     repliedAnswers: z.array(ReplyToAnswerSchema).nullable().optional(),
   }),
@@ -137,3 +137,82 @@ export const DeleteAnswerResponseSchema = z.object({
   ok: z.boolean(),
 });
 export type DeleteAnswerResponse = z.infer<typeof DeleteAnswerResponseSchema>;
+
+// ── Discussion list endpoint types ────────────────────────────────────────────
+
+const DiscussionCategorySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  description: z.string().nullable(),
+  displayOrder: z.number(),
+  status: z.string(),
+  createdBy: z.string(),
+  updatedBy: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  archivedAt: z.string().nullable(),
+});
+
+const DiscussionQuestionSchema = z.object({
+  id: z.string(),
+  categoryId: z.string(),
+  authorId: z.string(),
+  title: z.string(),
+  body: z.string(),
+  imageKey: z.string().nullable(),
+  status: z.string(),
+  answerCount: z.number(),
+  upvoteCount: z.number(),
+  downvoteCount: z.number(),
+  viewCount: z.number(),
+  bestAnswerId: z.string().nullable(),
+  bestAnswerSelectedAt: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  category: DiscussionCategorySchema,
+});
+export type DiscussionQuestion = z.infer<typeof DiscussionQuestionSchema>;
+
+const DiscussionAnswerSchema = z.object({
+  id: z.string(),
+  body: z.string(),
+  author: AuthorSchema,
+  upvoteCount: z.number(),
+  downvoteCount: z.number(),
+  replyCount: z.number(),
+  score: z.number(),
+  viewerVote: ViewerVoteSchema,
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  questionId: z.string(),
+  status: z.string(),
+  replyTo: z.string().nullable(),
+  isBestAnswer: z.boolean(),
+});
+export type DiscussionAnswer = z.infer<typeof DiscussionAnswerSchema>;
+
+export const DiscussionSchema = z.object({
+  question: DiscussionQuestionSchema,
+  answers: z.array(DiscussionAnswerSchema),
+  myAnswerCount: z.number(),
+  lastActivityAt: z.string(),
+});
+export type Discussion = z.infer<typeof DiscussionSchema>;
+
+const DiscussionPaginationSchema = z.object({
+  limit: z.number(),
+  hasMore: z.boolean(),
+  nextCursor: z.string().nullable(),
+  total: z.number(),
+});
+
+export const DiscussionsListResponseSchema = z.object({
+  ok: z.boolean(),
+  discussions: z.array(DiscussionSchema),
+  totalAnswers: z.number(),
+  pagination: DiscussionPaginationSchema,
+});
+export type DiscussionsListResponse = z.infer<
+  typeof DiscussionsListResponseSchema
+>;

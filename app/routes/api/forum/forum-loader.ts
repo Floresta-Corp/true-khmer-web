@@ -89,7 +89,7 @@ export async function forumListloader({ request }: ForumRoute.LoaderArgs) {
     ? await Promise.all([myForumQuestion(request), myForumAnswer(request)])
     : [null, null];
   const questionCount = qa?.data?.questions?.length ?? 0;
-  const answerCount = an?.data?.answers?.length ?? 0;
+  const answerCount = an?.data?.totalAnswers ?? 0;
 
   return {
     data: question.data,

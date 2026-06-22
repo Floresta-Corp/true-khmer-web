@@ -3,7 +3,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 export default function WorkspaceSkeleton() {
   return (
     <div className="flex flex-col gap-2 sm:gap-3">
-      {Array.from({ length: 3 }).map((_, i) => (
+      {Array.from({ length: 6 }).map((_, i) => (
         <div
           key={i}
           className="w-full rounded-xl sm:rounded-2xl bg-white p-4 sm:p-5 lg:p-6 border"

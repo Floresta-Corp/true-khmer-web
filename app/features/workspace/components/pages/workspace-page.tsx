@@ -1,17 +1,33 @@
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLoaderData, useNavigation, useSearchParams } from "react-router";
+import { MessageCircleQuestion, Search, SlidersHorizontal } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type { loader } from "../../routes/workspace";
 import type { MyWorkSpaceLoaderData } from "~/routes/api/workspace/work-space-loader";
 import WorkspaceSkeleton from "../workspace-skeleton";
 import WorkspaceQuestionItem from "../card/workspace-question-card";
-import WorkspaceAnswerItem from "../card/workspace-my-answer-card";
+import WorkspaceAnswerList from "../list/workspace-answer-list";
 import WorkspaceTabs from "../work-space-tab";
 import WorkSpacePageLayout from "~/layout/workspace-page-layout";
-import { MessageCircleQuestion, Search } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-
-type Props = {};
+import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 
 type TabType = "questions" | "answers";
+
+const ANSWER_SORT_OPTIONS = [
+  { value: "lastActivity", label: "Latest Activity" },
+  { value: "mostReplies", label: "Most Replies" },
+  { value: "category", label: "Category" },
+] as const;
 
 function EmptyWorkspaceState({
   icon: Icon,
@@ -31,17 +47,108 @@ function EmptyWorkspaceState({
   );
 }
 
-export default function WorkSpacePage({}: Props) {
-  const { categories, answers, questions } =
-    useLoaderData<typeof loader>() as MyWorkSpaceLoaderData;
+export default function WorkSpacePage() {
+  const { categories, answers, questions } = useLoaderData<
+    typeof loader
+  >() as MyWorkSpaceLoaderData;
   const navigation = useNavigation();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const rawTab = searchParams.get("tab");
   const activeTab: TabType =
     rawTab === "questions" || rawTab === "answers" ? rawTab : "questions";
 
+  const currentSearch = searchParams.get("search") ?? "";
+  const currentSortBy = searchParams.get("sortBy") ?? "";
+  const currentCategory = searchParams.get("category") ?? "";
+
+  const [inputValue, setInputValue] = useState(currentSearch);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Sync input when search param changes externally (e.g. tab switch clears it)
+  useEffect(() => {
+    setInputValue(currentSearch);
+  }, [currentSearch]);
+
+  const updateParam = useCallback(
+    (key: string, value: string) => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (value) next.set(key, value);
+          else next.delete(key);
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
+  );
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputValue(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      updateParam("search", value.trim());
+    }, 400);
+  };
+
+  const handleSortOrCategoryChange = (value: string) => {
+    const isSort = ANSWER_SORT_OPTIONS.some((o) => o.value === value);
+    if (isSort) {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (value === "lastActivity") next.delete("sortBy");
+          else next.set("sortBy", value);
+          next.delete("category");
+          return next;
+        },
+        { replace: true },
+      );
+    } else {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete("sortBy");
+          if (value === "all") next.delete("category");
+          else next.set("category", value);
+          return next;
+        },
+        { replace: true },
+      );
+    }
+  };
+
+  const clearFilters = () => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete("search");
+        next.delete("sortBy");
+        next.delete("category");
+        return next;
+      },
+      { replace: true },
+    );
+    setInputValue("");
+  };
+
+  const hasActiveFilters =
+    !!currentSearch || !!currentSortBy || !!currentCategory;
+
   const isLoading =
     navigation.state === "loading" || navigation.state === "submitting";
+
+  // Client-side search filter for questions
+  const filteredQuestions = currentSearch
+    ? questions.filter(
+        (q) =>
+          q.title.toLowerCase().includes(currentSearch.toLowerCase()) ||
+          q.body.toLowerCase().includes(currentSearch.toLowerCase()),
+      )
+    : questions;
 
   return (
     <WorkSpacePageLayout
@@ -51,15 +158,110 @@ export default function WorkSpacePage({}: Props) {
       <div className="flex flex-col gap-4 sm:gap-6">
         <WorkspaceTabs
           questionCount={questions.length}
-          answerCount={answers.length}
+          answerCount={answers.totalAnswers}
         />
 
+        {/* Toolbar */}
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:items-center">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400 pointer-events-none" />
+            <Input
+              value={inputValue}
+              onChange={handleSearchChange}
+              placeholder={
+                activeTab === "questions"
+                  ? "Search your questions..."
+                  : "Search your answers..."
+              }
+              className="pl-9 bg-white border-slate-200 text-sm placeholder:text-slate-400 h-10 rounded-xl w-2/3"
+            />
+          </div>
+
+          {/* Need to change this for question filter according to API query Params */}
+          {/* {activeTab === "questions" && (
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-xs font-bold text-[#5F6368] dark:text-slate-400">
+                Sort by:
+              </span>
+              <Select
+                value={currentCategory || currentSortBy || "lastActivity"}
+                onValueChange={handleSortOrCategoryChange}
+              >
+                <SelectTrigger className="h-10 w-44 rounded-xl border-slate-200 bg-white text-sm font-medium text-slate-700 shadow-none focus:ring-1 focus:ring-blue-500">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ANSWER_SORT_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )} */}
+
+          {activeTab === "answers" && (
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-xs font-bold text-[#5F6368] dark:text-slate-400">
+                Sort by:
+              </span>
+              <Select
+                value={currentCategory || currentSortBy || "lastActivity"}
+                onValueChange={handleSortOrCategoryChange}
+              >
+                <SelectTrigger className="h-10 w-44 rounded-xl border-slate-200 bg-white text-sm font-medium text-slate-700 shadow-none focus:ring-1 focus:ring-blue-500">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ANSWER_SORT_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+
+        {/* Active filter summary */}
+        {hasActiveFilters && (
+          <div className="flex items-center gap-2 text-xs text-slate-500">
+            {activeTab === "questions" && currentSearch && (
+              <span>
+                {filteredQuestions.length} result
+                {filteredQuestions.length !== 1 ? "s" : ""}
+              </span>
+            )}
+            {currentSearch && (
+              <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium border border-blue-100">
+                &ldquo;{currentSearch}&rdquo;
+              </span>
+            )}
+            {activeTab === "answers" &&
+              currentCategory &&
+              categories.find((c) => c.id === currentCategory) && (
+                <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium border border-slate-200">
+                  {categories.find((c) => c.id === currentCategory)?.name}
+                </span>
+              )}
+            <button
+              onClick={clearFilters}
+              className="ml-auto text-slate-400 hover:text-slate-600 underline underline-offset-2 transition-colors"
+            >
+              Clear filters
+            </button>
+          </div>
+        )}
+
+        {/* Content */}
         <div className="flex flex-col gap-2 sm:gap-3">
           {isLoading ? (
             <WorkspaceSkeleton />
           ) : activeTab === "questions" ? (
-            questions.length > 0 ? (
-              questions.map((question, index) => (
+            filteredQuestions.length > 0 ? (
+              filteredQuestions.map((question, index) => (
                 <WorkspaceQuestionItem
                   key={question.id}
                   question={question}
@@ -70,23 +272,33 @@ export default function WorkSpacePage({}: Props) {
             ) : (
               <EmptyWorkspaceState
                 icon={MessageCircleQuestion}
-                title="No questions posted yet."
-                description="Questions you start in the forum will appear here."
+                title={
+                  currentSearch
+                    ? "No questions match your search."
+                    : "No questions posted yet."
+                }
+                description={
+                  currentSearch
+                    ? "Try a different search term."
+                    : "Questions you start in the forum will appear here."
+                }
               />
             )
-          ) : answers.length > 0 ? (
-            answers.map((answer, index) => (
-              <WorkspaceAnswerItem
-                key={answer.id}
-                answer={answer}
-                index={index}
-              />
-            ))
+          ) : (answers?.discussions?.length ?? 0) > 0 ? (
+            <WorkspaceAnswerList answers={answers} />
           ) : (
             <EmptyWorkspaceState
               icon={Search}
-              title="No answers posted yet."
-              description="Answers you share with the community will appear here."
+              title={
+                hasActiveFilters
+                  ? "No answers match your filters."
+                  : "No answers posted yet."
+              }
+              description={
+                hasActiveFilters
+                  ? "Try a different search or filter."
+                  : "Answers you share with the community will appear here."
+              }
             />
           )}
         </div>

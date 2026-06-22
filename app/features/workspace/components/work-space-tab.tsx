@@ -16,7 +16,20 @@ export default function WorkspaceTabs({ questionCount, answerCount }: Props) {
     rawTab === "questions" || rawTab === "answers" ? rawTab : "questions";
 
   const setActiveTab = (tab: TabType) => {
-    setSearchParams({ tab }, { replace: true });
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("tab", tab);
+        // clear answer-specific filters when switching away from answers tab
+        if (tab !== "answers") {
+          next.delete("search");
+          next.delete("sortBy");
+          next.delete("category");
+        }
+        return next;
+      },
+      { replace: true },
+    );
   };
 
   return (
