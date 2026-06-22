@@ -84,8 +84,8 @@ export default [
   route("tk-admin", "features/admin/admin-layout.tsx", [
     index("features/admin/dashboard/admin-dashboard.tsx"),
     route(
-      "content-moderator/team",
-      "features/admin/contentmoderator/routes/manage-mod-team.tsx",
+      "manage-moderator/team",
+      "features/admin/manage-moderator/routes/manage-mod-team.tsx",
     ),
     route(
       "content-moderator",

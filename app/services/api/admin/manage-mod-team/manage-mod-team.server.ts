@@ -1,5 +1,8 @@
 import { apiRequestWithAccessToken } from "~/lib/server/api-client.server";
-import type { ListModeratorsResponse } from "~/types/api-client";
+import type {
+  ListModeratorsResponse,
+  ModeratorResponse,
+} from "~/types/api-client";
 
 export interface ManageModTeamParams {
   cursor?: string;
@@ -25,4 +28,26 @@ export async function getManageModTeam(
   );
 
   return { data: result };
+}
+
+export async function postManageTeam(
+  request: Request,
+  accessToken: string,
+  body: {
+    email: string;
+    name: string;
+    password: string;
+    role?: string;
+  },
+) {
+  const result = await apiRequestWithAccessToken<ModeratorResponse>(
+    request,
+    accessToken,
+    `/admin/moderator`,
+    {
+      method: "POST",
+      body,
+    },
+  );
+  return result;
 }

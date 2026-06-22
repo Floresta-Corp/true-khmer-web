@@ -1,19 +1,10 @@
 import { useState } from "react";
-import { useLoaderData, useSearchParams } from "react-router";
+import { useFetcher, useLoaderData, useSearchParams } from "react-router";
 import {
-  Users,
   UserPlus,
-  Mail,
-  Shield,
   MoreVertical,
   Search,
   Filter,
-  CheckCircle2,
-  Clock,
-  X,
-  AlertCircle,
-  Key,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   ShieldAlert,
@@ -21,6 +12,8 @@ import {
   History,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { InviteMemberModal } from "../components/invite-member-modal";
+import { InviteSuccessModal } from "../components/invite-success-modal";
 import { manageModTeamLoader } from "../service/manage-mod-team.loader";
 import { manageModTeamAction } from "../service/manage-mod-team.action";
 
@@ -46,12 +39,24 @@ export default function TeamManagementPage() {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
-  const [inviteEmail, setInviteEmail] = useState("");
+  const fetcher = useFetcher();
 
-  const handleSendInvitation = () => {
+  const handleSendInvitation = (data: {
+    email: string;
+    name: string;
+    role: string;
+    password: string;
+  }) => {
+    const formData = new FormData();
+    formData.append("intent", "invite");
+    formData.append("email", data.email);
+    formData.append("name", data.name);
+    formData.append("role", data.role);
+    formData.append("password", data.password);
+
+    fetcher.submit(formData, { method: "post" });
     setShowInviteModal(false);
     setShowSuccessModal(true);
-    setInviteEmail("");
   };
 
   const toggleStatus = (memberId: string) => {
@@ -261,124 +266,16 @@ export default function TeamManagementPage() {
         )}
       </div>
 
-      <AnimatePresence>
-        {showInviteModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowInviteModal(false)}
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl"
-            />
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl p-10 overflow-hidden border border-slate-100 dark:border-slate-800 shadow-2xl"
-            >
-              <div className="flex items-center justify-between mb-10">
-                <div className="p-3 bg-slate-900 text-white rounded-2xl">
-                  <UserPlus size={24} />
-                </div>
-                <button
-                  onClick={() => setShowInviteModal(false)}
-                  className="p-2 text-slate-300 hover:text-slate-900"
-                >
-                  <X size={20} />
-                </button>
-              </div>
+      <InviteMemberModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        onSend={handleSendInvitation}
+      />
 
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">
-                Invite Team Member
-              </h3>
-              <p className="text-slate-500 text-sm font-medium mb-10 leading-relaxed">
-                Send an invitation email to add a new administrator or moderator
-                to your workspace.
-              </p>
-
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                    placeholder="name@company.com"
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl py-3.5 px-4 text-sm font-bold focus:outline-none focus:border-slate-900 transition-all"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
-                    Assign Role
-                  </label>
-                  <select className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl py-3.5 px-4 text-sm font-bold focus:outline-none focus:border-blue-600 transition-all appearance-none cursor-pointer">
-                    <option>Admin</option>
-                    <option>Moderator</option>
-                    <option>Partner Manager</option>
-                  </select>
-                </div>
-
-                <div className="pt-6 flex gap-4">
-                  <button
-                    onClick={() => setShowInviteModal(false)}
-                    className="flex-1 py-4 border border-slate-100 dark:border-slate-800 text-slate-400 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleSendInvitation}
-                    className="flex-1 py-4 bg-blue-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all"
-                  >
-                    Send Invitation
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {showSuccessModal && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowSuccessModal(false)}
-              className="absolute inset-0 bg-slate-950/40 backdrop-blur-md"
-            />
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative bg-white dark:bg-[#020617] w-full max-w-sm rounded-[32px] p-10 text-center border border-slate-100 dark:border-slate-800 shadow-2xl"
-            >
-              <div className="w-20 h-20 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
-                <CheckCircle2 size={40} />
-              </div>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-3">
-                Invitation Sent
-              </h3>
-              <p className="text-slate-500 text-sm font-medium mb-10 leading-relaxed uppercase tracking-widest text-[10px]">
-                The member will receive an email shortly with instructions to
-                join the workspace.
-              </p>
-
-              <button
-                onClick={() => setShowSuccessModal(false)}
-                className="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:opacity-90 transition-all active:scale-95 shadow-xl shadow-slate-900/10"
-              >
-                Got it
-              </button>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <InviteSuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+      />
     </div>
   );
 }

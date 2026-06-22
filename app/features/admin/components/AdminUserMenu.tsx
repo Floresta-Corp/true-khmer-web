@@ -83,7 +83,7 @@ export default function AdminUserMenu({ admin, avatar }: AdminUserMenuProps) {
                   Dashboard
                 </Link>
                 <Link
-                  to="/tk-admin/content-moderator/team"
+                  to="/tk-admin/manage-moderator/team"
                   onClick={() => setIsOpen(false)}
                   className="px-4 py-2.5 text-[13px] font-bold rounded-xl cursor-pointer transition-all flex items-center gap-3 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
                 >
