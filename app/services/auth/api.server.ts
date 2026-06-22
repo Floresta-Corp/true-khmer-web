@@ -9,7 +9,7 @@ export type BackendUser = {
   firstName?: string;
   lastName?: string;
   name?: string;
-  avatar?: string;
+  image?: string | null;
   gender?: string;
   occupation?: string | null;
   phone?: PhoneInput | null;

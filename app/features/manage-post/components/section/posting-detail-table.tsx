@@ -4,7 +4,7 @@ import { Search } from "lucide-react";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import { Input } from "~/components/ui/input";
-import { cn } from "~/lib/utils";
+import { cn, resolveImageURL } from "~/lib/utils";
 import {
   Table,
   TableBody,
@@ -209,7 +209,7 @@ export default function ManagePostingDetailTable({
                       <div className="flex items-center gap-3">
                         <Avatar className="border border-slate-100 dark:border-slate-800 shrink-0 h-9 w-9">
                           <AvatarImage
-                            src={applicant.candidate.avatarUrl || ""}
+                            src={resolveImageURL(applicant.candidate.avatarKey)}
                             alt={applicant.candidate.name || "User"}
                             className="object-cover"
                           />

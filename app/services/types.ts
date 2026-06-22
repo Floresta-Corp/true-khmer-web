@@ -39,7 +39,6 @@ export const UploadSchema = z.object({
   method: z.string(),
   requiredHeaders: RequiredHeadersSchema,
   avatarKey: z.string(),
-  publicUrl: z.string(),
   expiresInSeconds: z.number(),
 });
 export type Upload = z.infer<typeof UploadSchema>;

@@ -51,7 +51,7 @@ export function formatCompactNumber(value: number): string {
   return value.toString();
 }
 
-export function resolveImageURL(url?: string, fallback?: string) {
+export function resolveImageURL(url?: string | null, fallback?: string) {
   if (!url) {
     return fallback || "";
   }

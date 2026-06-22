@@ -3,6 +3,7 @@ import { Link } from "react-router";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Skeleton } from "~/components/ui/skeleton";
+import { resolveImageURL } from "~/lib/utils";
 import type { AdminUserManagementUser } from "~/types/api-client";
 
 import { UserManagementActionsMenu } from "./user-management-actions-menu";
@@ -150,8 +151,11 @@ function UserCell({ user }: { user: AdminUserManagementUser }) {
         className="flex items-center gap-3 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
       >
         <Avatar size="lg">
-          {user.avatarUrl ? (
-            <AvatarImage src={user.avatarUrl} alt={displayName} />
+          {user.avatarKey ? (
+            <AvatarImage
+              src={resolveImageURL(user.avatarKey)}
+              alt={displayName}
+            />
           ) : null}
           <AvatarFallback className="bg-slate-100 text-xs font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-300">
             {initials}

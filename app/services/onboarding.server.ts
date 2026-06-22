@@ -25,7 +25,6 @@ export type SavedOnboardingProfile = {
   countryId: string;
   cityId: string;
   bio: string;
-  avatarUrl: string;
   avatarKey: string;
 };
 
@@ -51,7 +50,6 @@ type BackendOnboardingProfile = {
   countryId: string | null;
   cityId: string | null;
   bio: string | null;
-  avatarUrl: string | null;
   avatarKey: string | null;
 };
 
@@ -410,7 +408,6 @@ export function readSavedProfile(
     countryId: toStringOrEmpty(profile?.countryId),
     cityId: toStringOrEmpty(profile?.cityId),
     bio: toStringOrEmpty(profile?.bio),
-    avatarUrl: toStringOrEmpty(profile?.avatarUrl),
     avatarKey: toStringOrEmpty(profile?.avatarKey),
   };
 }

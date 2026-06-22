@@ -6,7 +6,6 @@ export type PresignResponse = {
     method: "PUT" | string;
     requiredHeaders?: Record<string, string>;
     avatarKey: string;
-    publicUrl?: string;
     expiresInSeconds?: number;
   };
 };

@@ -29,7 +29,6 @@ export type ProfileCity = z.infer<typeof ProfileCitySchema>;
 
 export const ProfileDetailSchema = z.object({
   avatarKey: z.string().nullable(),
-  avatarUrl: z.string().nullable(),
   bio: z.string().nullable(),
   country: ProfileCountrySchema,
   city: ProfileCitySchema,

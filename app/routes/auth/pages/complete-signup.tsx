@@ -30,6 +30,7 @@ import {
   SelectTrigger,
 } from "~/components/ui/select";
 import { FormError } from "~/routes/auth/components/form-error";
+import { resolveImageURL } from "~/lib/utils";
 import {
   action as completeSignUpAction,
   loader as completeSignUpLoader,
@@ -139,10 +140,9 @@ export default function CompleteSignUpPage() {
     return name.trim();
   }, [firstName, lastName, user.email, user.name]);
   const userProfile = readRecord(user.profile);
-  const avatarUrl =
-    readString(user.avatar) ||
-    readString(userProfile.avatarUrl) ||
-    readString(userProfile.avatarKey);
+  const avatarImage = resolveImageURL(
+    readString(userProfile.avatarKey) || readString(user.image),
+  );
   const initials = displayName
     .split(/\s+/)
     .map((part) => part[0])
@@ -166,7 +166,7 @@ export default function CompleteSignUpPage() {
           <div className="flex items-center gap-4 px-5 py-5">
             <div className="relative">
               <Avatar className="size-13 border-2 border-white shadow-sm">
-                <AvatarImage src={avatarUrl || undefined} alt="" />
+                <AvatarImage src={avatarImage || undefined} alt="" />
                 <AvatarFallback className="bg-[#2F6FE4] text-sm font-bold text-white">
                   {initials}
                 </AvatarFallback>
