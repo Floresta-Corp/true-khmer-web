@@ -4,7 +4,7 @@ import { withAuthData } from "~/lib/server/auth-response.server";
 import {
   getContentModerator,
   ReportStatus,
-} from "~/lib/server/auth/admin/content-moderator/content-moderator.server";
+} from "~/services/api/admin/content-moderator/content-moderator.server";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
 import type {
