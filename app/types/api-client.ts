@@ -411,23 +411,6 @@ const AdminUserManagementTier = z
     minPoints: z.number().int(),
   })
   ;
-const AdminUserManagementFilters = z
-  .object({
-    statuses: z.array(
-      z
-        .object({
-          value: z.enum([
-            "SIGNUP_REQUIRED",
-            "ONBOARDING_REQUIRED",
-            "ACTIVE",
-            "SUSPENDED"]),
-          label: z.string(),
-        })
-        
-    ),
-    tiers: z.array(AdminUserManagementTier),
-  })
-  ;
 const AdminUserManagementUser = z
   .object({
     id: z.string().uuid(),
@@ -446,7 +429,7 @@ const AdminUserManagementUser = z
       "ONBOARDING_REQUIRED",
       "ACTIVE",
       "SUSPENDED"]),
-    tier: AdminUserManagementTier.and(z.unknown()),
+    tier: AdminUserManagementTier.nullable(),
     totalPoints: z.number().int(),
     signupCompletedAt: z.string().datetime({ offset: true }).nullable(),
     onboardingStep: z.number().int(),
@@ -459,13 +442,51 @@ const AdminUserManagementUser = z
 const AdminUserManagementListResponse = z
   .object({
     ok: z.literal(true),
-    filters: AdminUserManagementFilters,
     users: z.array(AdminUserManagementUser),
     total: z.number().int(),
     page: z.number().int(),
     limit: z.number().int(),
     totalPages: z.number().int(),
   })
+  ;
+const AdminUserManagementPoints = z
+  .object({
+    activePoints: z.number().int(),
+    tierPoints: z.number().int(),
+    legacyPoints: z.number().int(),
+    totalPoints: z.number().int(),
+  })
+  ;
+const AdminUserManagementActivity = z
+  .object({
+    id: z.string().uuid(),
+    title: z.string(),
+    actionType: z.string(),
+    points: z.number().int(),
+    pool: z.string(),
+    mode: z.string(),
+    referenceType: z.string().nullable(),
+    referenceId: z.string().uuid().nullable(),
+    createdAt: z.string(),
+  })
+  ;
+const AdminUserManagementDetailUser = AdminUserManagementUser.and(
+  z
+    .object({
+      dateOfBirth: z.string().nullable(),
+      occupation: z.string().nullable(),
+      telegramUsername: z.string().nullable(),
+      location: z
+        .object({ city: z.string().nullable(), country: z.string().nullable() })
+
+        .nullable(),
+      points: AdminUserManagementPoints,
+      recentActivity: z.array(AdminUserManagementActivity),
+    })
+
+);
+const AdminUserManagementDetailResponse = z
+  .object({ ok: z.literal(true), user: AdminUserManagementDetailUser })
   ;
 
 const OnboardingOkResponse = z.record(z.string(), z.unknown().nullable());
@@ -2803,9 +2824,12 @@ export const schemas = {
   UpdateModeratorRequest,
   DeleteModeratorResponse,
   AdminUserManagementTier,
-  AdminUserManagementFilters,
   AdminUserManagementUser,
   AdminUserManagementListResponse,
+  AdminUserManagementPoints,
+  AdminUserManagementActivity,
+  AdminUserManagementDetailUser,
+  AdminUserManagementDetailResponse,
   OnboardingOkResponse,
   OnboardingErrorResponse,
   OnboardingProfileStepRequest,
@@ -3406,6 +3430,7 @@ const endpoints = makeApi([
         type: "Query",
         schema: z
           .enum([
+            "all",
             "SIGNUP_REQUIRED",
             "ONBOARDING_REQUIRED",
             "ACTIVE",
@@ -3417,8 +3442,13 @@ const endpoints = makeApi([
         name: "tier",
         type: "Query",
         schema: z
-          .enum(["neary", "yothea", "reach", "preah", "indra"])
+          .enum(["all", "neary", "yothea", "reach", "preah", "indra"])
           .optional(),
+      },
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().min(1).max(100).optional(),
       },
     ],
     response: AdminUserManagementListResponse,
@@ -3454,50 +3484,7 @@ const endpoints = makeApi([
         schema: z.string().uuid(),
       },
     ],
-    response: z
-      .object({
-        ok: z.literal(true),
-        user: AdminUserManagementUser.and(
-          z
-            .object({
-              dateOfBirth: z.string().nullable(),
-              occupation: z.string().nullable(),
-              telegramUsername: z.string().nullable(),
-              location: z
-                .object({
-                  city: z.string().nullable(),
-                  country: z.string().nullable(),
-                })
-                
-                .nullable(),
-              points: z
-                .object({
-                  activePoints: z.number().int(),
-                  tierPoints: z.number().int(),
-                  legacyPoints: z.number().int(),
-                  totalPoints: z.number().int(),
-                })
-                ,
-              recentActivity: z.array(
-                z
-                  .object({
-                    id: z.string().uuid(),
-                    title: z.string(),
-                    actionType: z.string(),
-                    points: z.number().int(),
-                    pool: z.string(),
-                    mode: z.string(),
-                    referenceType: z.string().nullable(),
-                    referenceId: z.string().uuid().nullable(),
-                    createdAt: z.string(),
-                  })
-                  
-              ),
-            })
-            
-        ),
-      })
-      ,
+    response: AdminUserManagementDetailResponse,
     errors: [
       {
         status: 401,
@@ -3543,48 +3530,7 @@ const endpoints = makeApi([
       },
     ],
     response: z
-      .object({
-        ok: z.literal(true),
-        user: AdminUserManagementUser.and(
-          z
-            .object({
-              dateOfBirth: z.string().nullable(),
-              occupation: z.string().nullable(),
-              telegramUsername: z.string().nullable(),
-              location: z
-                .object({
-                  city: z.string().nullable(),
-                  country: z.string().nullable(),
-                })
-                
-                .nullable(),
-              points: z
-                .object({
-                  activePoints: z.number().int(),
-                  tierPoints: z.number().int(),
-                  legacyPoints: z.number().int(),
-                  totalPoints: z.number().int(),
-                })
-                ,
-              recentActivity: z.array(
-                z
-                  .object({
-                    id: z.string().uuid(),
-                    title: z.string(),
-                    actionType: z.string(),
-                    points: z.number().int(),
-                    pool: z.string(),
-                    mode: z.string(),
-                    referenceType: z.string().nullable(),
-                    referenceId: z.string().uuid().nullable(),
-                    createdAt: z.string(),
-                  })
-                  
-              ),
-            })
-            
-        ),
-      })
+      .object({ ok: z.literal(true), user: AdminUserManagementDetailUser })
       ,
     errors: [
       {
@@ -7492,9 +7438,12 @@ export type ModeratorResponse = z.infer<typeof schemas.ModeratorResponse>;
 export type UpdateModeratorRequest = z.infer<typeof schemas.UpdateModeratorRequest>;
 export type DeleteModeratorResponse = z.infer<typeof schemas.DeleteModeratorResponse>;
 export type AdminUserManagementTier = z.infer<typeof schemas.AdminUserManagementTier>;
-export type AdminUserManagementFilters = z.infer<typeof schemas.AdminUserManagementFilters>;
 export type AdminUserManagementUser = z.infer<typeof schemas.AdminUserManagementUser>;
 export type AdminUserManagementListResponse = z.infer<typeof schemas.AdminUserManagementListResponse>;
+export type AdminUserManagementPoints = z.infer<typeof schemas.AdminUserManagementPoints>;
+export type AdminUserManagementActivity = z.infer<typeof schemas.AdminUserManagementActivity>;
+export type AdminUserManagementDetailUser = z.infer<typeof schemas.AdminUserManagementDetailUser>;
+export type AdminUserManagementDetailResponse = z.infer<typeof schemas.AdminUserManagementDetailResponse>;
 export type OnboardingOkResponse = z.infer<typeof schemas.OnboardingOkResponse>;
 export type OnboardingErrorResponse = z.infer<typeof schemas.OnboardingErrorResponse>;
 export type OnboardingProfileStepRequest = z.infer<typeof schemas.OnboardingProfileStepRequest>;
