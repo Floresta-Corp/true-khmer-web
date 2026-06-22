@@ -73,7 +73,7 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
                 const sub = getSubTypeColor(report.reportSubType);
                 return sub ? (
                   <span
-                    className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest border ${sub.badge}`}
+                    className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest border ${sub.badge}`}
                   >
                     {sub.label}
                   </span>
