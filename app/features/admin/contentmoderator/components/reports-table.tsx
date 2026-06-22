@@ -25,6 +25,25 @@ interface ReportRowProps {
   onSelect: (report: ContentModeratorReport) => void;
 }
 
+function getSubTypeColor(subType: "QUESTION" | "ANSWER" | null) {
+  if (!subType) return null;
+
+  const map = {
+    QUESTION: {
+      badge:
+        "bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-900",
+      label: "Question",
+    },
+    ANSWER: {
+      badge:
+        "bg-teal-100 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-900",
+      label: "Answer",
+    },
+  };
+
+  return map[subType];
+}
+
 function ReportRow({ report, onSelect }: ReportRowProps) {
   return (
     <TableRow
@@ -32,13 +51,13 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
       className="hover:bg-slate-50/50 dark:hover:bg-slate-700/40 transition-colors cursor-pointer group"
     >
       <TableCell className="text-center align-middle">
-        <span className="text-xs font-black text-slate-400 group-hover:text-blue-600 transition-colors tracking-widest">
+        <span className="text-xs font-medium text-slate-400 group-hover:text-blue-600 transition-colors tracking-widest">
           REP-{String(report.reportId).padStart(3, "0")}
         </span>
       </TableCell>
 
       <TableCell className="text-center align-middle">
-        <span className="px-2 py-1.5 text-[11px] font-bold rounded-md border bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700">
+        <span className="px-2 py-1.5 text-[11px] font-semibold rounded-md border bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700">
           {report.type.name}
         </span>
       </TableCell>
@@ -49,7 +68,18 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
             <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded border border-slate-200 dark:border-blue-600/20">
               {report.reportType}
             </span>
-            <p className="min-w-0 text-sm font-semibold text-slate-900 dark:text-white leading-tight truncate">
+            {report.reportSubType &&
+              (() => {
+                const sub = getSubTypeColor(report.reportSubType);
+                return sub ? (
+                  <span
+                    className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest border ${sub.badge}`}
+                  >
+                    {sub.label}
+                  </span>
+                ) : null;
+              })()}
+            <p className="min-w-0 text-sm font-medium text-slate-900 dark:text-white leading-tight truncate">
               "{report.contentPreview}"
             </p>
           </div>
@@ -63,7 +93,7 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
                 {report.reportingBy?.name?.charAt(0) ?? "?"}
               </AvatarFallback>
             </Avatar>
-            <span className="min-w-0 text-[11px] font-medium text-slate-400 truncate">
+            <span className="min-w-0 text-[11px]  text-slate-400 truncate">
               Reported by {report.reportingBy?.name}
             </span>
           </div>
@@ -117,7 +147,7 @@ export function ReportsTable({ reports, onSelect }: ReportsTableProps) {
             {COLUMNS.map((col) => (
               <TableHead
                 key={col.label}
-                className={`px-10 py-6 text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ${col.align}`}
+                className={`px-10 py-6 text-[11px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-widest ${col.align}`}
               >
                 {col.label}
               </TableHead>

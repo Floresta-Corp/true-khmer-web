@@ -77,7 +77,7 @@ export function ReportsTableSkeleton({ rows = 6 }: { rows?: number }) {
             {COLUMNS.map((col) => (
               <TableHead
                 key={col.label}
-                className={`px-10 py-6 text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ${col.align}`}
+                className={`px-10 py-6 text-[12px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest ${col.align}`}
               >
                 {col.label}
               </TableHead>

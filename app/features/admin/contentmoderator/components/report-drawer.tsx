@@ -109,13 +109,15 @@ export function ReportDrawer({
                 </h3>
               </div>
 
-              <div className="dark:bg-slate-950 rounded-xl p-5 border border-(--admin-border) italic text-slate-500  dark:text-slate-300 dark:text-slate-200 leading-relaxed font-medium text-sm">
+              <div className="dark:bg-slate-950 rounded-xl p-5 border border-(--admin-border) italic text-slate-500  dark:text-slate-300 leading-relaxed font-medium text-sm">
                 "{report.contentPreview}"
               </div>
-              {report.sourceLink ? (
+              {report.sourceLink &&
+              report.confirmStatus !== "CONTENT HIDDEN" ? (
                 <Button
                   variant="link"
                   className="h-auto p-0 text-blue-600 dark:text-blue-400 font-semibold text-[10px] uppercase tracking-widest hover:underline"
+                  asChild
                 >
                   <Link
                     to={report.sourceLink}
