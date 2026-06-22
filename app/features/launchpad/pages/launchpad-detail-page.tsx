@@ -39,7 +39,7 @@ export default function LaunchpadDetailPage() {
   };
   const authorCardProps = {
     name: project.createdBy.name,
-    avatarUrl: resolveImageURL(project.createdBy.avatarKey || undefined),
+    avatarKey: project.createdBy.avatarKey,
     postedLabel: `${formatPostedProjectCount(project.createdBy.launchpadCount)} projects posted`,
     telegramUrl: project.telegramUsername
       ? `https://t.me/${project.telegramUsername.replace("@", "")}`

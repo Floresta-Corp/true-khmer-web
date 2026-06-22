@@ -22,6 +22,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
+import { resolveImageURL } from "~/lib/utils";
 import type {
   AdminUserManagementActivity,
   AdminUserManagementDetailUser,
@@ -49,9 +50,9 @@ export function UserSummary({ user }: { user: AdminUserManagementDetailUser }) {
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <div className="flex flex-col items-center text-center">
         <Avatar className="size-24 rounded-2xl after:rounded-2xl">
-          {user.avatarUrl ? (
+          {user.avatarKey ? (
             <AvatarImage
-              src={user.avatarUrl}
+              src={resolveImageURL(user.avatarKey)}
               alt={displayName}
               className="rounded-2xl"
             />

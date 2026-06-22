@@ -91,7 +91,7 @@ interface SessionUser {
   id: string;
   email: string;
   name: string;
-  avatar?: string;
+  image?: string | null;
 }
 
 export async function getUser(
@@ -104,10 +104,10 @@ export async function getUser(
   const userId = session.get("userId");
   const email = session.get("email");
   const name = session.get("name");
-  const avatar = session.get("avatar");
+  const image = session.get("image");
   if (!userId) return null;
 
-  return { id: userId, email, name, avatar };
+  return { id: userId, email, name, image };
 }
 
 export async function getUserId(request: Request): Promise<string | null> {
@@ -125,7 +125,7 @@ function slimUser(user: AuthTokensResponse["user"]) {
     email: user.email,
     name:
       user.name ?? [user.firstName, user.lastName].filter(Boolean).join(" "),
-    avatar: user.avatar ?? undefined,
+    image: user.image ?? null,
   };
 }
 

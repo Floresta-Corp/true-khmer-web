@@ -60,8 +60,8 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
     .slice(0, 2)
     .toUpperCase();
   const profileImage =
-    resolveImageURL(user?.profile?.avatarUrl || undefined) ||
-    resolveImageURL(user?.profile?.avatarKey || user?.avatar);
+    resolveImageURL(user?.profile?.avatarKey) ||
+    resolveImageURL(user?.image);
 
   return (
     <DropdownMenu>

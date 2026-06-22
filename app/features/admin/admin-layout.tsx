@@ -27,6 +27,7 @@ import {
 } from "react-router";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { resolveImageURL } from "~/lib/utils";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 import { AdminThemeSwitcher } from "./admin-theme-switcher";
 
@@ -434,7 +435,10 @@ export default function AdminLayout() {
                   >
                     {user.avatar ? (
                       <Avatar className="w-full h-full rounded-full border-0">
-                        <AvatarImage src={user.avatar} alt={user.name} />
+                        <AvatarImage
+                          src={resolveImageURL(user.avatar)}
+                          alt={user.name}
+                        />
                         <AvatarFallback>{user.initials}</AvatarFallback>
                       </Avatar>
                     ) : (

@@ -29,8 +29,7 @@ const AuthUserProfile = z
   .object({
     id: z.string(),
     displayName: z.string().optional(),
-    avatarKey: z.string().optional(),
-    avatarUrl: z.string().optional(),
+    avatarKey: z.string().nullable(),
   })
   ;
 const AuthUser = z
@@ -251,7 +250,7 @@ const ContentModeratorReportReporter = z
   .object({
     id: z.string(),
     name: z.string(),
-    avatarUrl: z.string().nullable(),
+    avatarKey: z.string().nullable(),
   })
   ;
 const ContentModeratorReportSolver = z
@@ -262,6 +261,8 @@ const ContentModeratorReport = z
     id: z.string().uuid(),
     reportId: z.number().int().gt(0),
     type: ContentModeratorReportType,
+    reportType: z.literal("FORUM"),
+    reportSubType: z.enum(["QUESTION", "ANSWER"]).nullable(),
     contentPreview: z.string(),
     sourceLink: z.string(),
     dateTime: z.string().datetime({ offset: true }),
@@ -418,7 +419,7 @@ const AdminUserManagementUser = z
     firstName: z.string(),
     lastName: z.string(),
     displayName: z.string().nullable(),
-    avatarUrl: z.string().nullable(),
+    avatarKey: z.string().nullable(),
     email: z.string().email(),
     emailVerified: z.boolean(),
     phoneNumber: z.string().nullable(),
@@ -478,12 +479,12 @@ const AdminUserManagementDetailUser = AdminUserManagementUser.and(
       telegramUsername: z.string().nullable(),
       location: z
         .object({ city: z.string().nullable(), country: z.string().nullable() })
-
+        
         .nullable(),
       points: AdminUserManagementPoints,
       recentActivity: z.array(AdminUserManagementActivity),
     })
-
+    
 );
 const AdminUserManagementDetailResponse = z
   .object({ ok: z.literal(true), user: AdminUserManagementDetailUser })
@@ -544,7 +545,6 @@ const PresignAvatarUploadResult = z
       .object({ "Content-Length": z.string(), "Content-Type": z.string() })
       ,
     avatarKey: z.string(),
-    publicUrl: z.string().nullable(),
     expiresInSeconds: z.number(),
   })
   ;
@@ -781,12 +781,15 @@ const AnswerQuestionResponse = z
   .object({
     id: z.string(),
     categoryId: z.string(),
+    authorId: z.string(),
     title: z.string(),
     body: z.string(),
+    imageKey: z.string().nullable(),
     status: z.enum(["PUBLISHED", "CLOSED", "DELETED"]),
     answerCount: z.number().int().gte(0),
     upvoteCount: z.number().int().gte(0),
     downvoteCount: z.number().int().gte(0),
+    viewCount: z.number().int().gte(0),
     bestAnswerId: z.string().nullable(),
     bestAnswerSelectedAt: z.string().nullable(),
     createdAt: z.string(),
@@ -812,14 +815,35 @@ const MyAnswerResponse = z
     viewerVote: z.enum(["UPVOTE", "DOWNVOTE"]).nullable(),
     createdAt: z.string(),
     updatedAt: z.string(),
+    questionId: z.string(),
     status: z.literal("PUBLISHED"),
     replyTo: z.string().nullable(),
-    repliedAnswers: z.array(RepliedAnswerResponse).nullable(),
+    isBestAnswer: z.boolean(),
+  })
+  ;
+const MyAnswerDiscussionResponse = z
+  .object({
     question: AnswerQuestionResponse,
+    answers: z.array(MyAnswerResponse),
+    myAnswerCount: z.number().int().gt(0),
+    lastActivityAt: z.string(),
+  })
+  ;
+const MyAnswersPaginationResponse = z
+  .object({
+    limit: z.number().int().gt(0),
+    hasMore: z.boolean(),
+    nextCursor: z.string().nullable(),
+    total: z.number().int().gte(0),
   })
   ;
 const GetMyAnswersResponse = z
-  .object({ ok: z.boolean(), answers: z.array(MyAnswerResponse) })
+  .object({
+    ok: z.boolean(),
+    discussions: z.array(MyAnswerDiscussionResponse),
+    totalAnswers: z.number().int().gte(0),
+    pagination: MyAnswersPaginationResponse,
+  })
   ;
 
 const CreateAnswerRequest = z.object({
@@ -1067,7 +1091,7 @@ const VolunteerOpportunityOrganizerResponse = z
   .object({
     id: z.string(),
     name: z.string(),
-    avatarUrl: z.string().nullable(),
+    avatarKey: z.string().nullable(),
     opportunityCount: z.number(),
     organizerLocation: VolunteerOpportunityReference.and(z.unknown()),
     contact: VolunteerOpportunityContactResponse,
@@ -1937,7 +1961,6 @@ const MyApplicationDetail = z
       .object({
         id: z.string(),
         name: z.string(),
-        avatarUrl: z.string().nullable(),
         avatarKey: z.string().nullable(),
         postedCount: z.number().int().gte(0),
         contact: z
@@ -1992,7 +2015,6 @@ const ProfileResponse = z
         profile: z
           .object({
             avatarKey: z.string().nullable(),
-            avatarUrl: z.string().nullable(),
             bio: z.string().nullable(),
             country: z
               .object({
@@ -2160,7 +2182,6 @@ const UpdateProfileResponse = z
         profile: z
           .object({
             avatarKey: z.string().nullable(),
-            avatarUrl: z.string().nullable(),
             bio: z.string().nullable(),
             country: z
               .object({
@@ -2377,7 +2398,6 @@ const PublicProfileResponse = z
         profile: z
           .object({
             avatarKey: z.string().nullable(),
-            avatarUrl: z.string().nullable(),
             bio: z.string().nullable(),
             country: z
               .object({
@@ -2619,7 +2639,6 @@ const ManagePostingApplicant = z
         email: z.string(),
         phoneNumber: z.string().nullable(),
         telegramUsername: z.string().nullable(),
-        avatarUrl: z.string().nullable(),
         avatarKey: z.string().nullable(),
       })
       ,
@@ -2865,6 +2884,8 @@ export const schemas = {
   GetAnswersResponse,
   AnswerQuestionResponse,
   MyAnswerResponse,
+  MyAnswerDiscussionResponse,
+  MyAnswersPaginationResponse,
   GetMyAnswersResponse,
   CreateAnswerRequest,
   CreateAnswerResponse,
@@ -3014,7 +3035,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(50).optional().default(20),
+        schema: z.number().int().gte(1).optional().default(20),
       },
       {
         name: "cursor",
@@ -3215,7 +3236,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(50).optional().default(20),
+        schema: z.number().int().gte(1).optional().default(20),
       },
       {
         name: "cursor",
@@ -3926,6 +3947,31 @@ const endpoints = makeApi([
     path: "/v1/forum/answer/my-answers",
     alias: "getV1forumanswermyAnswers",
     requestFormat: "json",
+    parameters: [
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().max(300).optional(),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(20),
+      },
+      {
+        name: "sortBy",
+        type: "Query",
+        schema: z
+          .enum(["lastActivity", "mostReplies", "category"])
+          .optional()
+          .default("lastActivity"),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+    ],
     response: GetMyAnswersResponse,
   },
   {
@@ -4061,7 +4107,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(50).optional().default(10),
+        schema: z.number().int().gte(1).optional().default(10),
       },
       {
         name: "sortBy",
@@ -4199,7 +4245,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(50).optional().default(10),
+        schema: z.number().int().gte(1).optional().default(10),
       },
       {
         name: "sortBy",
@@ -4416,7 +4462,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(50).optional().default(10),
+        schema: z.number().int().gte(1).optional().default(10),
       },
       {
         name: "cursor",
@@ -4568,7 +4614,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(50).optional().default(20),
+        schema: z.number().int().gte(1).optional().default(20),
       },
       {
         name: "sortBy",
@@ -5156,7 +5202,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(50).optional().default(20),
+        schema: z.number().int().gte(1).optional().default(20),
       },
       {
         name: "cursor",
@@ -5299,7 +5345,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(50).optional().default(20),
+        schema: z.number().int().gte(1).optional().default(20),
       },
       {
         name: "cursor",
@@ -5537,7 +5583,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(100).optional().default(20),
+        schema: z.number().int().gte(1).optional().default(20),
       },
       {
         name: "unreadOnly",
@@ -6061,7 +6107,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(50).optional().default(20),
+        schema: z.number().int().gte(1).optional().default(20),
       },
       {
         name: "cursor",
@@ -7479,6 +7525,8 @@ export type AnswerResponse = z.infer<typeof schemas.AnswerResponse>;
 export type GetAnswersResponse = z.infer<typeof schemas.GetAnswersResponse>;
 export type AnswerQuestionResponse = z.infer<typeof schemas.AnswerQuestionResponse>;
 export type MyAnswerResponse = z.infer<typeof schemas.MyAnswerResponse>;
+export type MyAnswerDiscussionResponse = z.infer<typeof schemas.MyAnswerDiscussionResponse>;
+export type MyAnswersPaginationResponse = z.infer<typeof schemas.MyAnswersPaginationResponse>;
 export type GetMyAnswersResponse = z.infer<typeof schemas.GetMyAnswersResponse>;
 export type CreateAnswerRequest = z.infer<typeof schemas.CreateAnswerRequest>;
 export type CreateAnswerResponse = z.infer<typeof schemas.CreateAnswerResponse>;

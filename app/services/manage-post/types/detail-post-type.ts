@@ -68,7 +68,6 @@ export type PostSourceType = z.infer<typeof PostingSourceSchema>;
 
 export const CandidateSchema = z.object({
   avatarKey: z.union([z.null(), z.string()]),
-  avatarUrl: z.union([z.null(), z.string()]),
   email: z.string(),
   id: z.string(),
   name: z.string(),

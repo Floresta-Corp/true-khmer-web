@@ -184,7 +184,6 @@ export const MyApplicationDetailSchema = z.object({
   owner: z.object({
     id: z.string(),
     name: z.string(),
-    avatarUrl: z.string().nullable(),
     avatarKey: z.string().nullable(),
     postedCount: z.number().int().nonnegative(),
     contact: z.object({

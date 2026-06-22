@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
+import { resolveImageURL } from "~/lib/utils";
 
 interface Contributor {
   name: string;
@@ -88,7 +89,10 @@ export default function ForumRightSidebar({
               className="flex items-center gap-3 hover:bg-[#f8fafc] rounded-lg p-2 transition-colors cursor-pointer"
             >
               <Avatar className="border border-[#f3f4f6]">
-                <AvatarImage src={contributor.avatar} alt={contributor.name} />
+                <AvatarImage
+                  src={resolveImageURL(contributor.avatar)}
+                  alt={contributor.name}
+                />
                 <AvatarFallback
                   className={`${getFallbackBgClass(contributor.name)} text-white text-sm font-semibold`}
                 >

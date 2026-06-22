@@ -177,9 +177,11 @@ export default function EditProfile() {
     } satisfies (typeof phoneCountryOptions)[number]);
   const [newSkill, setNewSkill] = useState("");
 
-  const initialAvatarUrl = resolveImageURL(me?.profile.avatarKey || undefined);
-  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(
-    initialAvatarUrl,
+  const initialAvatarPreview = resolveImageURL(
+    me?.profile.avatarKey || undefined,
+  );
+  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(
+    initialAvatarPreview,
   );
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const avatarObjectUrlRef = useRef<string | null>(null);
@@ -199,7 +201,7 @@ export default function EditProfile() {
 
     const objectUrl = URL.createObjectURL(file);
     avatarObjectUrlRef.current = objectUrl;
-    setAvatarUrl(objectUrl);
+    setAvatarPreview(objectUrl);
     setAvatarFile(file);
   };
 
@@ -208,7 +210,7 @@ export default function EditProfile() {
       URL.revokeObjectURL(avatarObjectUrlRef.current);
       avatarObjectUrlRef.current = null;
     }
-    setAvatarUrl(undefined);
+    setAvatarPreview(undefined);
     setAvatarFile(null);
     setValue("avatarKey", "");
 
@@ -385,7 +387,7 @@ export default function EditProfile() {
                       >
                         <Avatar className="h-24 w-24 shrink-0">
                           <AvatarImage
-                            src={avatarUrl || undefined}
+                            src={avatarPreview || undefined}
                             alt="Profile"
                           />
                           <AvatarFallback>
@@ -435,7 +437,7 @@ export default function EditProfile() {
                               variant="outline"
                               className="gap-2 text-sm h-8.5 rounded-xl cursor-pointer"
                               onClick={handleDeleteAvatar}
-                              disabled={!avatarUrl}
+                              disabled={!avatarPreview}
                             >
                               <Trash2 className="h-4 w-4" />
                               Delete current image

@@ -14,6 +14,7 @@ import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import { ResolutionLog } from "./resolutionBy";
+import { resolveImageURL } from "~/lib/utils";
 
 interface ReportDrawerProps {
   report: ContentModeratorReport | null;
@@ -131,7 +132,7 @@ export function ReportDrawer({
             <div className="p-6 border-t border-slate-100 dark:border-slate-800 flex items-center gap-3">
               <Avatar className="shrink-0 w-8 h-8 border border-slate-200 dark:border-slate-700">
                 <AvatarImage
-                  src={report.reportingBy?.avatarUrl ?? ""}
+                  src={resolveImageURL(report.reportingBy?.avatarKey)}
                   alt={report.reportingBy?.name}
                 />
                 <AvatarFallback className="text-xs font-black bg-slate-100 dark:bg-slate-800 text-slate-400">
