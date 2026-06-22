@@ -41,10 +41,27 @@ export async function createForumQuestion(
   return result;
 }
 
-export async function myForumQuestion(request: Request) {
+export interface MyQuestionParams {
+  search?: string;
+  sortBy?: string;
+  limit?: number;
+  cursor?: string;
+}
+
+export async function myForumQuestion(
+  request: Request,
+  params?: MyQuestionParams,
+) {
+  const queryParams = new URLSearchParams();
+  if (params?.search) queryParams.set("search", params.search);
+  if (params?.sortBy) queryParams.set("sortBy", params.sortBy);
+  if (params?.limit) queryParams.set("limit", params.limit.toString());
+  if (params?.cursor) queryParams.set("cursor", params.cursor);
+
+  const qs = queryParams.toString();
   const result = await apiRequestWithSession<GetMyQuestionResponse>(
     request,
-    `/forum/questions/my-questions`,
+    `/forum/questions/my-questions${qs ? `?${qs}` : ""}`,
     {
       method: "GET",
     },

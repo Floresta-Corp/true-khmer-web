@@ -20,8 +20,16 @@ export async function workSpaceLoader({ request }: Route.LoaderArgs) {
   const auth = await requireUser(request);
   const userId = auth.user.id;
 
+  const url = new URL(request.url);
+  const search = url.searchParams.get("search") || undefined;
+  const sortBy = url.searchParams.get("sortBy") || undefined;
+  const limit = url.searchParams.get("limit")
+    ? Number(url.searchParams.get("limit"))
+    : undefined;
+  const cursor = url.searchParams.get("cursor") || undefined;
+
   const [qa, an, ca] = await Promise.all([
-    myForumQuestion(request),
+    myForumQuestion(request, { search, sortBy, limit, cursor }),
     myForumAnswer(request),
     getCategories(request),
   ]);

@@ -16,7 +16,14 @@ export default function WorkspaceTabs({ questionCount, answerCount }: Props) {
     rawTab === "questions" || rawTab === "answers" ? rawTab : "questions";
 
   const setActiveTab = (tab: TabType) => {
-    setSearchParams({ tab }, { replace: true });
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("tab", tab);
+        return next;
+      },
+      { replace: true },
+    );
   };
 
   return (
