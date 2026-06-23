@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Link } from "react-router";
-import { Eye, Link2, MoreVertical, PenLine } from "lucide-react";
+import { Eye, Link2, MoreVertical, PenLine, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import {
@@ -12,18 +12,21 @@ import {
 export function PageHeader({
   isPublicView,
   onToggleView,
+  profileId,
 }: {
   isPublicView: boolean;
   onToggleView: () => void;
+  profileId?: string | null;
 }) {
   const [open, setOpen] = React.useState(false);
 
   const handleShareProfileLink = async () => {
-    const shareUrl = new URL(window.location.href);
-    shareUrl.searchParams.set("view", "public");
+    const shareUrl = profileId
+      ? `${window.location.origin}/profile/${profileId}`
+      : window.location.href;
 
     try {
-      await navigator.clipboard.writeText(shareUrl.toString());
+      await navigator.clipboard.writeText(shareUrl);
       toast.success("Profile link copied to clipboard.");
     } catch {
       toast.error("Failed to copy profile link.");
@@ -45,45 +48,58 @@ export function PageHeader({
         </p>
       </div>
       <div className="flex items-center gap-2">
-        <Button variant="outline" className="h-12 rounded-xl px-5" asChild>
-          <Link to="/edit-profile">
-            <PenLine /> <p className="font-semibold">Edit Profile</p>
-          </Link>
-        </Button>
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-12 w-12 rounded-xl cursor-pointer"
-            >
-              <MoreVertical className="h-5 w-5" />
+        {isPublicView ? (
+          <Button
+            variant="outline"
+            className="h-12 rounded-xl px-5"
+            onClick={onToggleView}
+          >
+            <X className="h-4 w-4" />
+            <span className="font-semibold">Close public profile</span>
+          </Button>
+        ) : (
+          <>
+            <Button variant="outline" className="h-12 rounded-xl px-5" asChild>
+              <Link to="/edit-profile">
+                <PenLine /> <p className="font-semibold">Edit Profile</p>
+              </Link>
             </Button>
-          </PopoverTrigger>
-          <PopoverContent align="end" className="w-56 p-2">
-            <Button
-              type="button"
-              variant="ghost"
-              className="h-10 w-full justify-start gap-2 px-3 font-normal"
-              onClick={() => {
-                onToggleView();
-                setOpen(false);
-              }}
-            >
-              <Eye className="h-4 w-4" />
-              {isPublicView ? "View My Profile" : "View Public Profile"}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className="h-10 w-full justify-start gap-2 px-3 font-normal"
-              onClick={handleShareProfileLink}
-            >
-              <Link2 className="h-4 w-4" />
-              Share Profile Link
-            </Button>
-          </PopoverContent>
-        </Popover>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-12 w-12 rounded-xl cursor-pointer"
+                >
+                  <MoreVertical className="h-5 w-5" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-56 p-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="h-10 w-full justify-start gap-2 px-3 font-normal"
+                  onClick={() => {
+                    onToggleView();
+                    setOpen(false);
+                  }}
+                >
+                  <Eye className="h-4 w-4" />
+                  View Public Profile
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="h-10 w-full justify-start gap-2 px-3 font-normal"
+                  onClick={handleShareProfileLink}
+                >
+                  <Link2 className="h-4 w-4" />
+                  Share Profile Link
+                </Button>
+              </PopoverContent>
+            </Popover>
+          </>
+        )}
       </div>
     </div>
   );

@@ -9,9 +9,27 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 
-export default function ProfileCardPopover() {
+export default function ProfileCardPopover({
+  profileId,
+}: {
+  profileId?: string;
+}) {
   const params = useParams();
   const [open, setOpen] = React.useState(false);
+
+  const resolvedId = profileId ?? params.id;
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        `${window.location.origin}/profile/${resolvedId}`,
+      );
+      toast.success("Profile link copied to clipboard.");
+    } catch {
+      toast.error("Failed to copy profile link.");
+    }
+    setOpen(false);
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -34,13 +52,7 @@ export default function ProfileCardPopover() {
         <Button
           variant="ghost"
           className="h-10 w-full justify-start gap-2 px-3 font-bold"
-          onClick={() => {
-            navigator.clipboard.writeText(
-              `${window.location.origin}/profile/${params.id}`,
-            );
-            toast.success("Share profile success.");
-            setOpen(false);
-          }}
+          onClick={handleShare}
         >
           <Link2 className="h-4 w-4" />
           Share Profile

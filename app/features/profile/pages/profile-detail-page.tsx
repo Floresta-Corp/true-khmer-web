@@ -106,6 +106,7 @@ export default function ProfileDetailPage() {
           countryName={profile.profile.country.name}
           email={profile.user.email ?? ""}
           website={profile.socialLinks.website ?? ""}
+          profileId={profile.user.id}
         />
       </motion.div>
 
@@ -119,30 +120,30 @@ export default function ProfileDetailPage() {
           }}
         >
           <div className="w-full border-b mb-8">
-            <TabsList className="bg-transparent" variant={"line"}>
+            <TabsList className="bg-transparent flex gap-10" variant={"line"}>
               <TabsTrigger
-                className="font-bold data-active:text-blue-600 data-active:after:bg-blue-600"
+                className="px-5 py-3 text-xs sm:text-sm font-black cursor-pointer data-active:text-[#1A73E8] dark:data-active:text-blue-400 data-active:after:bg-[#1A73E8]"
                 value={"about"}
               >
                 About
               </TabsTrigger>
               <TabsTrigger
-                className="font-bold data-active:text-blue-600 data-active:after:bg-blue-600"
+                className="px-5 py-3 text-xs sm:text-sm font-black cursor-pointer data-active:text-[#1A73E8] dark:data-active:text-blue-400 data-active:after:bg-[#1A73E8]"
                 value={"forum"}
               >
                 Forum ({profile.postedCounts.forum})
               </TabsTrigger>
               <TabsTrigger
-                className="font-bold data-active:text-blue-600 data-active:after:bg-blue-600"
+                className="px-5 py-3 text-xs sm:text-sm font-black cursor-pointer data-active:text-[#1A73E8] dark:data-active:text-blue-400 data-active:after:bg-[#1A73E8]"
                 value={"volunteer"}
               >
                 Volunteer ({profile.postedCounts.volunteer})
               </TabsTrigger>
               <TabsTrigger
-                className="font-bold data-active:text-blue-600 data-active:after:bg-blue-600"
+                className="px-5 py-3 text-xs sm:text-sm font-black cursor-pointer data-active:text-[#1A73E8] dark:data-active:text-blue-400 data-active:after:bg-[#1A73E8]"
                 value={"project"}
               >
-                Projects ({profile.postedCounts.project})
+                Launchpad ({profile.postedCounts.project})
               </TabsTrigger>
             </TabsList>
           </div>
