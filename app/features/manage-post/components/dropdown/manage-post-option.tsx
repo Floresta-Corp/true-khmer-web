@@ -68,7 +68,12 @@ export default function ManagePostOption({
   currentDeadline,
   title,
 }: Props) {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<{
+    success?: boolean;
+    ok?: boolean;
+    error?: string;
+    message?: string;
+  }>();
   const extendDeadlineFetcher = useFetcher<{
     success?: boolean;
     ok?: boolean;
@@ -78,6 +83,7 @@ export default function ManagePostOption({
   const [deadlineDialogOpen, setDeadlineDialogOpen] = useState(false);
   const [deadline, setDeadline] = useState("");
   const [deadlineError, setDeadlineError] = useState<string>();
+  const wasPostingAction = useRef(false);
   const wasExtendingDeadline = useRef(false);
 
   const managePostSourceType = SOURCE_TYPE_TO_ROUTE[sourceType] ?? "volunteer";
@@ -86,6 +92,7 @@ export default function ManagePostOption({
   const editRoute = `/${sourceTypeRoute}/edit/${postingId}`;
 
   const handleAction = (postingAction: UpdateManagePostResponse) => {
+    wasPostingAction.current = true;
     fetcher.submit(
       { postingAction },
       {
@@ -128,6 +135,27 @@ export default function ManagePostOption({
       },
     );
   };
+
+  useEffect(() => {
+    if (
+      !wasPostingAction.current ||
+      fetcher.state !== "idle" ||
+      !fetcher.data
+    ) {
+      return;
+    }
+
+    wasPostingAction.current = false;
+
+    if (fetcher.data.success || fetcher.data.ok) {
+      toast.success("Posting updated successfully.");
+      return;
+    }
+
+    toast.error(
+      fetcher.data.error ?? fetcher.data.message ?? "Unable to update posting.",
+    );
+  }, [fetcher.data, fetcher.state]);
 
   useEffect(() => {
     if (
