@@ -14,6 +14,7 @@ import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import { ResolutionLog } from "./resolutionBy";
+import { resolveImageURL } from "~/lib/utils";
 
 interface ReportDrawerProps {
   report: ContentModeratorReport | null;
@@ -108,13 +109,15 @@ export function ReportDrawer({
                 </h3>
               </div>
 
-              <div className="dark:bg-slate-950 rounded-xl p-5 border border-(--admin-border) italic text-slate-500  dark:text-slate-300 dark:text-slate-200 leading-relaxed font-medium text-sm">
+              <div className="dark:bg-slate-950 rounded-xl p-5 border border-(--admin-border) italic text-slate-500  dark:text-slate-300 leading-relaxed font-medium text-sm">
                 "{report.contentPreview}"
               </div>
-              {report.sourceLink ? (
+              {report.sourceLink &&
+              report.confirmStatus !== "CONTENT HIDDEN" ? (
                 <Button
                   variant="link"
                   className="h-auto p-0 text-blue-600 dark:text-blue-400 font-semibold text-[10px] uppercase tracking-widest hover:underline"
+                  asChild
                 >
                   <Link
                     to={report.sourceLink}
@@ -131,7 +134,7 @@ export function ReportDrawer({
             <div className="p-6 border-t border-slate-100 dark:border-slate-800 flex items-center gap-3">
               <Avatar className="shrink-0 w-8 h-8 border border-slate-200 dark:border-slate-700">
                 <AvatarImage
-                  src={report.reportingBy?.avatarKey ?? ""}
+                  src={resolveImageURL(report.reportingBy?.avatarKey)}
                   alt={report.reportingBy?.name}
                 />
                 <AvatarFallback className="text-xs font-black bg-slate-100 dark:bg-slate-800 text-slate-400">

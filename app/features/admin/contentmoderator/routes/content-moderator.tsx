@@ -1,6 +1,6 @@
-import { contentModerationAction } from "~/routes/api/auth/super-admin/content-moderator/content-moderator.action";
-import ContentModeratingPage from "../components/pages/content-moderator-page";
-import { contentModeratorLoader } from "~/routes/api/auth/super-admin/content-moderator/content-moderator.loder";
+import { contentModerationAction } from "~/features/admin/contentmoderator/service/content-moderator.action";
+import ContentModeratingPage from "../pages/content-moderator-page";
+import { contentModeratorLoader } from "~/features/admin/contentmoderator/service/content-moderator.loder";
 
 // ── meta ───────────────────────────────────────────────────────────────────
 export function meta() {

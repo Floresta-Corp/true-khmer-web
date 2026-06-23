@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { resolveImageURL } from "~/lib/utils";
 import {
   type PresignResponse,
   uploadToPresignedUrl,
@@ -8,18 +9,18 @@ const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_AVATAR_BYTES = 5 * 1024 * 1024; // 5MB
 
 type UseAvatarUploadOptions = {
-  initialAvatarUrl: string;
   initialAvatarKey: string;
 };
 
 export function useAvatarUpload({
-  initialAvatarUrl,
   initialAvatarKey,
 }: UseAvatarUploadOptions) {
   const uploadTokenRef = useRef(0);
   const objectUrlRef = useRef<string | null>(null);
 
-  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState(initialAvatarUrl);
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState(() =>
+    resolveImageURL(initialAvatarKey),
+  );
   const [avatarKey, setAvatarKey] = useState(initialAvatarKey);
   const [uploadError, setUploadError] = useState("");
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);

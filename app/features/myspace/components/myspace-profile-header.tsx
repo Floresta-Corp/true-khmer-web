@@ -1,8 +1,9 @@
 import { Linkedin, Facebook, Twitter, Globe, MapPin, Mail } from "lucide-react";
+import { resolveImageURL } from "~/lib/utils";
 
 interface ProfileHeaderProps {
   displayName: string;
-  avatarUrl: string | null;
+  avatarKey: string | null;
   firstName: string;
   lastName: string;
   occupation: string | null;
@@ -27,7 +28,7 @@ interface LinkItem {
 
 export function ProfileHeader({
   displayName,
-  avatarUrl,
+  avatarKey,
   firstName,
   lastName,
   occupation,
@@ -79,9 +80,9 @@ export function ProfileHeader({
       <div className="px-8 py-7 flex items-center gap-6 bg-linear-to-br from-[#deeefe] to-[#f8fafc]">
         <div className="shrink-0 bg-white size-20 rounded-full relative p-0.5">
           <div className="w-full h-full rounded-full overflow-hidden">
-            {avatarUrl ? (
+            {avatarKey ? (
               <img
-                src={avatarUrl}
+                src={resolveImageURL(avatarKey)}
                 alt={displayName}
                 className="object-cover size-full"
               />

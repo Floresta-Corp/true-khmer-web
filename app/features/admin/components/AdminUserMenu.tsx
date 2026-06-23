@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import type { AdminUser } from "~/types/api-client";
+import { resolveImageURL } from "~/lib/utils";
 
 function getInitials(name: string) {
   return name
@@ -40,7 +41,10 @@ export default function AdminUserMenu({ admin, avatar }: AdminUserMenuProps) {
       >
         {avatar ? (
           <Avatar className="w-full h-full rounded-full border-0">
-            <AvatarImage src={avatar} alt={admin.firstName ?? ""} />
+            <AvatarImage
+              src={resolveImageURL(admin.avatarKey)}
+              alt={admin.firstName ?? ""}
+            />
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
         ) : (

@@ -39,11 +39,9 @@ function profileFromSessionUser(
     id: readString(existingProfile.id) || undefined,
     displayName: readString(existingProfile.displayName) || displayName,
     avatarKey:
-      readString(existingProfile.avatarKey) || readString(userRecord.avatarKey),
-    avatarUrl:
-      readString(existingProfile.avatarUrl) ||
-      readString(userRecord.avatarUrl) ||
-      readString(userRecord.avatar),
+      readString(existingProfile.avatarKey) ||
+      readString(userRecord.avatarKey) ||
+      null,
   };
 }
 
@@ -65,12 +63,8 @@ function profileFromOnboardingState(
     avatarKey:
       readString(rawProfile.avatarKey) ||
       readString(existingProfile.avatarKey) ||
-      readString(userRecord.avatarKey),
-    avatarUrl:
-      readString(rawProfile.avatarUrl) ||
-      readString(existingProfile.avatarUrl) ||
-      readString(userRecord.avatarUrl) ||
-      readString(userRecord.avatar),
+      readString(userRecord.avatarKey) ||
+      null,
   };
 }
 
@@ -107,7 +101,7 @@ export function authenticatedUserFromSessionUser(
       (userRecord.onboardingCompletedAt instanceof Date
         ? userRecord.onboardingCompletedAt
         : null),
-    avatar: readString(userRecord.avatar) || undefined,
+    image: readString(userRecord.image) || null,
     profile: profileFromSessionUser(userRecord, name),
   };
 }

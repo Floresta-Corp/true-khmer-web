@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
-import { cn } from "~/lib/utils";
+import { cn, resolveImageURL } from "~/lib/utils";
 import type {
   Applicant,
   ApplicantStatusAction,
@@ -113,7 +113,7 @@ export default function ApplicantSideBar({
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12 border border-gray-100">
                   <AvatarImage
-                    src={applicant.candidate.avatarUrl || ""}
+                    src={resolveImageURL(applicant.candidate.avatarKey)}
                     alt={applicant.candidate.name}
                     className="object-cover"
                   />

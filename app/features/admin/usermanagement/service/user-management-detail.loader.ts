@@ -1,5 +1,6 @@
-import { data, type LoaderFunctionArgs } from "react-router";
+import { data, redirect, type LoaderFunctionArgs } from "react-router";
 
+import { getAdminAccessToken } from "~/lib/server/session.server";
 import { getAdminUserManagementDetail } from "~/services/api/admin/user-management/user-management.server";
 
 export async function userManagementDetailLoader({
@@ -10,11 +11,21 @@ export async function userManagementDetailLoader({
     throw new Response("User ID is required.", { status: 400 });
   }
 
-  const result = await getAdminUserManagementDetail(request, params.userId);
+  const { accessToken, setCookie } = await getAdminAccessToken(request);
+  if (!accessToken) {
+    throw redirect("/tk-admin/login");
+  }
 
-  return data(result.data, {
-    ...(result.setCookie
-      ? { headers: { "Set-Cookie": result.setCookie } }
-      : {}),
-  });
+  const user = getAdminUserManagementDetail(
+    request,
+    params.userId,
+    accessToken,
+  ).then((result) => result.data.user);
+
+  return data(
+    { user },
+    {
+      ...(setCookie ? { headers: { "Set-Cookie": setCookie } } : {}),
+    },
+  );
 }

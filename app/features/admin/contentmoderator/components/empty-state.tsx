@@ -9,7 +9,7 @@ export function EmptyState() {
       <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight mb-2">
         No reports found
       </h3>
-      <p className="text-sm text-slate-500 max-w-sm mx-auto">
+      <p className="text-sm text-slate-500  mx-auto">
         We couldn't find any reports matching your search criteria. Try a
         different category or status filter.
       </p>

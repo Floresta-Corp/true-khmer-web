@@ -97,10 +97,6 @@ export default [
       "features/admin/usermanagement/routes/user-management.$userId.tsx",
     ),
     route(
-      "users/add",
-      "features/admin/usermanagement/routes/user-management.add.tsx",
-    ),
-    route(
       "notifications/broadcast",
       "features/admin/notifications/routes/notification-broadcast.tsx",
     ),

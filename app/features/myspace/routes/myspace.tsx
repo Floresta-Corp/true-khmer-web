@@ -2,7 +2,6 @@ import * as React from "react";
 import { motion } from "motion/react";
 import { MyspaceLoader } from "~/routes/api/myspace/myspace-loader";
 import type { Route } from "./+types/myspace";
-import { resolveImageURL } from "~/lib/utils";
 import { PageHeader } from "../components/myspace-page-header";
 import { ProfileHeader } from "../components/myspace-profile-header";
 import { MyAchievementsCard } from "../components/myspace-my-achievements-card";
@@ -56,8 +55,6 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
 
   const displayName =
     me.user.displayName || `${me.user.firstName} ${me.user.lastName}`;
-  const avatarUrl = resolveImageURL(me.profile.avatarKey || undefined);
-
   return (
     <ForumPageLayout contentClassName="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <div className="lg:col-span-12 space-y-6">
@@ -79,7 +76,7 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
         >
           <ProfileHeader
             displayName={displayName}
-            avatarUrl={avatarUrl}
+            avatarKey={me.profile.avatarKey}
             firstName={me.user.firstName}
             lastName={me.user.lastName}
             occupation={me.user.occupation}

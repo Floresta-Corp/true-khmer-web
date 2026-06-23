@@ -1,8 +1,21 @@
-import { isRouteErrorResponse, Link, useRouteError } from "react-router";
+import { Suspense } from "react";
+import {
+  Await,
+  isRouteErrorResponse,
+  Link,
+  useLoaderData,
+  useRouteError,
+} from "react-router";
 
 import { Button } from "~/components/ui/button";
-import { UserManagementDetailPage } from "../components/user-management-detail-page";
+import { UserManagementDetailHeader } from "../components/user-management-detail-header";
 import { UserManagementDetailSkeleton } from "../components/user-management-detail-skeleton";
+import {
+  ManagementConsole,
+  PointsOverview,
+  RecentActivity,
+  UserSummary,
+} from "../components/user-management-detail-sections";
 import { userManagementDetailAction } from "../service/user-management-detail.action";
 import { userManagementDetailLoader } from "../service/user-management-detail.loader";
 
@@ -44,5 +57,31 @@ export function ErrorBoundary() {
 }
 
 export default function UserManagementDetailRoute() {
-  return <UserManagementDetailPage />;
+  const { user } = useLoaderData<typeof loader>();
+
+  return (
+    <Suspense fallback={<UserManagementDetailSkeleton />}>
+      <Await resolve={user}>
+        {(resolvedUser) => (
+          <main className="min-h-full bg-[#f8fafc] px-4 py-6 dark:bg-slate-950 sm:px-6 lg:px-10 lg:py-8">
+            <div className="mx-auto w-full max-w-7xl">
+              <UserManagementDetailHeader />
+
+              <div className="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+                <aside className="space-y-6">
+                  <UserSummary user={resolvedUser} />
+                  <ManagementConsole user={resolvedUser} />
+                </aside>
+
+                <section className="min-w-0 space-y-6">
+                  <PointsOverview points={resolvedUser.points} />
+                  <RecentActivity activities={resolvedUser.recentActivity} />
+                </section>
+              </div>
+            </div>
+          </main>
+        )}
+      </Await>
+    </Suspense>
+  );
 }

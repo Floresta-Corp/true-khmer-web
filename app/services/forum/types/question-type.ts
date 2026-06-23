@@ -18,7 +18,7 @@ export const ForumQuestionStatusSchema = z.enum(["DRAFT", "PUBLISHED"]);
 export type ForumQuestionStatus = z.infer<typeof ForumQuestionStatusSchema>;
 
 export const AuthorSchema = BasicJoinSchema.extend({
-  avatarKey: z.string(),
+  avatarKey: z.string().nullable(),
 });
 export type Author = z.infer<typeof AuthorSchema>;
 

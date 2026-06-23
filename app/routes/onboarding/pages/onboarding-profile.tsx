@@ -57,7 +57,6 @@ const EMPTY_SAVED_PROFILE: SavedOnboardingProfile = {
   countryId: "",
   cityId: "",
   bio: "",
-  avatarUrl: "",
   avatarKey: "",
 };
 
@@ -175,7 +174,6 @@ export default function OnboardingProfilePage() {
     isUploading,
     handleAvatarChange,
   } = useAvatarUpload({
-    initialAvatarUrl: savedProfile.avatarUrl,
     initialAvatarKey: savedProfile.avatarKey,
   });
   const [cityOptions, setCityOptions] = useState<OnboardingOption[]>([]);

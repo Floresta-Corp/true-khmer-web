@@ -19,7 +19,7 @@ export interface AuthenticatedUser {
   signupCompletedAt?: string | Date | null;
   onboardingStep?: number;
   onboardingCompletedAt?: string | Date | null;
-  avatar?: string;
+  image?: string | null;
   profile: Profile;
 }
 
@@ -31,8 +31,7 @@ export interface PhoneInput {
 export interface Profile {
   id?: string;
   displayName: string;
-  avatarKey: string;
-  avatarUrl: string;
+  avatarKey: string | null;
 }
 
 export interface AdminAuth {

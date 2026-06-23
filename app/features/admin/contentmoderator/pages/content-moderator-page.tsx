@@ -1,10 +1,16 @@
 import { useCallback, useMemo, useState, useEffect } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { useSearchParams, useFetcher, useLoaderData } from "react-router";
-import { FilterBar } from "../filter-bar";
-import { ReportsTable } from "../reports-table";
-import { ReportDrawer } from "../report-drawer";
-import type { contentModeratorLoader } from "~/routes/api/auth/super-admin/content-moderator/content-moderator.loder";
+import {
+  useSearchParams,
+  useFetcher,
+  useLoaderData,
+  useNavigation,
+} from "react-router";
+import { FilterBar } from "../components/filter-bar";
+import { ReportsTable } from "../components/reports-table";
+import { ReportsTableSkeleton } from "../components/reports-table-skeleton";
+import { ReportDrawer } from "../components/report-drawer";
+import type { contentModeratorLoader } from "~/features/admin/contentmoderator/service/content-moderator.loder";
 import type { ContentModeratorReport } from "~/types/api-client";
 
 export type CategoryOption = { id: string | null; name: string };
@@ -13,6 +19,11 @@ export default function ContentModeratingPage() {
   const { content, types } = useLoaderData<typeof contentModeratorLoader>();
   const fetcher = useFetcher();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigation = useNavigation();
+
+  const isFiltering =
+    navigation.state === "loading" &&
+    navigation.location?.pathname === "/tk-admin/content-moderator";
 
   const selectedTypeId = searchParams.get("typeId") || null;
   const selectedStatus = searchParams.get("status") || "all";
@@ -121,10 +132,17 @@ export default function ContentModeratingPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col"
+              className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col relative"
             >
               <div className="flex-1 overflow-auto min-h-0">
-                <ReportsTable reports={[...content]} onSelect={handleSelect} />
+                {isFiltering ? (
+                  <ReportsTableSkeleton />
+                ) : (
+                  <ReportsTable
+                    reports={[...content]}
+                    onSelect={handleSelect}
+                  />
+                )}
               </div>
             </motion.div>
           </AnimatePresence>
