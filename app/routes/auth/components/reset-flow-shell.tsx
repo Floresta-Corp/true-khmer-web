@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { cn } from "~/lib/utils";
+import LogoSvg from "../../../../public/logoSvg";
 
 type ResetFlowShellProps = {
   children?: ReactNode;
@@ -35,10 +36,11 @@ export function ResetFlowShell({
             contentClassName,
           )}
         >
-          <img
-            src="/logofullcolor.svg"
-            alt="True Khmer"
+          <LogoSvg
+            width={120}
+            height={47}
             className="h-9 w-auto object-contain sm:h-[47px]"
+            aria-label="True Khmer"
           />
 
           <div className="mt-14 flex w-full flex-col items-center sm:mt-[100px]">

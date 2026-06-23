@@ -1,5 +1,6 @@
 import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
 import { Link } from "react-router";
+import LogoSvg from "../../public/logoSvg";
 
 const footerColumns = [
   {
@@ -51,11 +52,11 @@ export function Footer() {
           {/* Brand section */}
           <div className="flex max-w-sm shrink-0 flex-col gap-5">
             <Link to="/" className="inline-flex w-fit">
-              <img
-                src="/logofullcolor.svg"
-                alt="True Khmer"
+              <LogoSvg
+                width={82}
+                height={32}
                 className="h-8 w-auto"
-                loading="lazy"
+                aria-label="True Khmer"
               />
             </Link>
             <p className="text-sm leading-6 text-[#6a7282]">
