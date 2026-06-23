@@ -6,10 +6,10 @@ import type { Route } from "./+types/profile.$id";
 export const loader = ProfileDetailLoader;
 
 export function meta({ data }: Route.MetaArgs) {
-  if (data?.kind === "profile") {
+  if (data?.kind === "profile" && data.profile) {
     const name =
-      data.profile?.user.displayName ??
-      `${data.profile?.user.firstName} ${data.profile?.user.lastName}`;
+      data.profile.user.displayName ??
+      `${data.profile.user.firstName} ${data.profile.user.lastName}`;
     return [{ title: `${name} | True Khmer` }];
   }
   return [{ title: "Profile | True Khmer" }];
