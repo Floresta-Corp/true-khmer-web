@@ -66,6 +66,17 @@ export default function WorkspaceAnswerList({ answers }: Props) {
     setPagination(answers?.pagination);
   }, [filterKey, answers]);
 
+  // Sync revalidated loader data (e.g. after editing/deleting an answer) into
+  // the accumulated list without discarding pages loaded via infinite scroll.
+  useEffect(() => {
+    if (prevFilterKeyRef.current !== filterKey) return;
+    const fresh = answers?.discussions ?? [];
+    const freshById = new Map(fresh.map((d) => [d.question.id, d]));
+    setDiscussions((prev) =>
+      prev.map((d) => freshById.get(d.question.id) ?? d),
+    );
+  }, [answers, filterKey]);
+
   // Append next page when the fetcher returns data
   useEffect(() => {
     if (!fetcher.data) return;
@@ -92,15 +103,33 @@ export default function WorkspaceAnswerList({ answers }: Props) {
     fetcher.load(`/workspace?${params.toString()}`);
   }, [pagination, fetcher, currentSearch, currentSortBy, currentCategory]);
 
-  // IntersectionObserver fires loadMore when the sentinel enters the viewport
+  // IntersectionObserver fires loadMore when the sentinel nears the bottom.
+  // The page scrolls inside a nested `overflow-y-auto` container (SidebarInset),
+  // so the observer must use that scroll ancestor as its root — not the viewport.
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el) return;
+
+    const getScrollParent = (node: HTMLElement | null): HTMLElement | null => {
+      let parent = node?.parentElement ?? null;
+      while (parent) {
+        const overflowY = getComputedStyle(parent).overflowY;
+        if (
+          (overflowY === "auto" || overflowY === "scroll") &&
+          parent.scrollHeight > parent.clientHeight
+        ) {
+          return parent;
+        }
+        parent = parent.parentElement;
+      }
+      return null;
+    };
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) loadMore();
       },
-      { rootMargin: "200px" },
+      { root: getScrollParent(el), rootMargin: "200px" },
     );
     observer.observe(el);
     return () => observer.disconnect();

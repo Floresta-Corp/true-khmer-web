@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { useFetcher, Form } from "react-router";
+import { useFetcher } from "react-router";
 import { toast } from "sonner";
+import { readActionResult } from "~/lib/action-result";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -33,21 +34,13 @@ export default function DeleteAnswerDialog({
 
     if (wasDeleting.current && fetcher.state === "idle" && fetcher.data) {
       wasDeleting.current = false;
-      const result = fetcher.data as
-        | { ok?: boolean; message?: string; error?: string }
-        | { data?: { ok?: boolean }; message?: string; error?: string };
+      const { ok, message } = readActionResult(fetcher.data);
 
-      const isSuccess =
-        ("ok" in result && result.ok === true) ||
-        ("data" in result && result.data?.ok === true);
-
-      if (isSuccess) {
+      if (ok) {
         setOpen(false);
-        toast.success("Answer deleted successfully!");
+        toast.success(message ?? "Answer deleted successfully.");
       } else {
-        toast.error(
-          result?.message ?? result?.error ?? "Failed to delete answer.",
-        );
+        toast.error(message ?? "Failed to delete answer.");
       }
     }
   }, [fetcher.state, fetcher.data]);
@@ -61,8 +54,7 @@ export default function DeleteAnswerDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>{trigger}</DialogTrigger>
-
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="max-w-sm rounded-2xl">
         <DialogTitle>Delete answer?</DialogTitle>
         <DialogDescription>

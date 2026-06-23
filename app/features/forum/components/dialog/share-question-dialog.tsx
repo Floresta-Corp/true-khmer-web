@@ -1,5 +1,5 @@
 import { Share2 } from "lucide-react";
-import { toast } from "sonner";
+import { buildAbsoluteUrl, copyToClipboard } from "~/lib/clipboard";
 import type { Question } from "~/services/forum/forum-types";
 
 interface ShareQuestionButtonProps {
@@ -24,20 +24,7 @@ export default function ShareQuestionButton({
       return "";
     })();
 
-    const shareUrl =
-      typeof window !== "undefined"
-        ? new URL(
-            `/forum/detail/${question.id}${hashPart}`,
-            window.location.origin,
-          ).href
-        : `/forum/detail/${question.id}${hashPart}`;
-
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      toast.success("Link copied to clipboard!");
-    } catch {
-      toast.error("Failed to copy link.");
-    }
+    await copyToClipboard(buildAbsoluteUrl(`/forum/detail/${question.id}${hashPart}`));
   };
 
   return (

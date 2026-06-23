@@ -216,7 +216,8 @@ const AdminUser = z
   .object({
     id: z.string(),
     email: z.string().email(),
-    name: z.string().nullable(),
+    firstName: z.string().nullable(),
+    lastName: z.string().nullable(),
     avatarKey: z.string().nullable(),
     createdAt: z.union([z.string(), z.string()]),
   })
@@ -263,7 +264,8 @@ const AdminPresignAvatarUploadResponse = z
   ;
 const AdminUpdateProfileRequest = z
   .object({
-    name: z.string().min(1).max(100),
+    firstName: z.string().min(1).max(100),
+    lastName: z.string().min(1).max(100),
     avatarKey: z.string().nullable(),
   })
   .partial()
@@ -275,7 +277,8 @@ const AdminUpdateProfileResponse = z
       .object({
         id: z.string(),
         email: z.string(),
-        name: z.string().nullable(),
+        firstName: z.string().nullable(),
+        lastName: z.string().nullable(),
         avatarKey: z.string().nullable(),
       })
       ,
@@ -295,7 +298,11 @@ const ContentModeratorReportReporter = z
   })
   ;
 const ContentModeratorReportSolver = z
-  .object({ id: z.string(), name: z.string().nullable() })
+  .object({
+    id: z.string(),
+    firstName: z.string().nullable(),
+    lastName: z.string().nullable(),
+  })
   ;
 const ContentModeratorReport = z
   .object({
@@ -415,7 +422,8 @@ const AdminDashboardErrorResponse = z
 const AcceptModeratorInviteRequest = z
   .object({
     token: z.string().min(1),
-    name: z.string().min(1).max(100),
+    firstName: z.string().min(1).max(100),
+    lastName: z.string().min(1).max(100),
     password: z.string().min(8),
   })
   ;
@@ -425,7 +433,8 @@ const Moderator = z
   .object({
     id: z.string().uuid(),
     email: z.string(),
-    name: z.string().nullable(),
+    firstName: z.string().nullable(),
+    lastName: z.string().nullable(),
     role: z.literal("MODERATOR"),
     status: z.enum(["PENDING", "ACTIVE"]),
     lastActive: z.string().nullable(),
@@ -446,7 +455,11 @@ const ModeratorResponse = z
   .object({ ok: z.boolean(), moderator: Moderator })
   ;
 const UpdateModeratorRequest = z
-  .object({ name: z.string().min(1).max(100), password: z.string().min(8) })
+  .object({
+    firstName: z.string().min(1).max(100),
+    lastName: z.string().min(1).max(100),
+    password: z.string().min(8),
+  })
   .partial()
   ;
 
@@ -705,7 +718,18 @@ const GetTrendingTagsResponse = z
   .object({ ok: z.boolean(), tags: z.array(TrendingTagResponse) })
   ;
 const GetMyQuestionsResponse = z
-  .object({ ok: z.boolean(), questions: z.array(QuestionResponse) })
+  .object({
+    ok: z.boolean(),
+    questions: z.array(QuestionResponse),
+    pagination: z
+      .object({
+        limit: z.number(),
+        hasMore: z.boolean(),
+        nextCursor: z.string().nullable(),
+        total: z.number().int().gte(0),
+      })
+      ,
+  })
   ;
 const GetSavedQuestionsResponse = z
   .object({
@@ -829,7 +853,6 @@ const AnswerQuestionResponse = z
   .object({
     id: z.string(),
     categoryId: z.string(),
-    authorId: z.string(),
     title: z.string(),
     body: z.string(),
     imageKey: z.string().nullable(),
@@ -842,6 +865,13 @@ const AnswerQuestionResponse = z
     bestAnswerSelectedAt: z.string().nullable(),
     createdAt: z.string(),
     updatedAt: z.string(),
+    author: z
+      .object({
+        id: z.string(),
+        name: z.string(),
+        avatarKey: z.string().nullable(),
+      })
+      ,
     category: CategoryResponse,
   })
   ;
@@ -4251,6 +4281,7 @@ const endpoints = makeApi([
             "oldest",
             "mostVoted",
             "mostAnswered",
+            "byCategory",
           ])
           .optional()
           .default("newest"),
@@ -4389,6 +4420,7 @@ const endpoints = makeApi([
             "oldest",
             "mostVoted",
             "mostAnswered",
+            "byCategory",
           ])
           .optional()
           .default("newest"),
@@ -4533,6 +4565,31 @@ const endpoints = makeApi([
     path: "/v1/forum/questions/my-questions",
     alias: "getV1forumquestionsmyQuestions",
     requestFormat: "json",
+    parameters: [
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().max(300).optional(),
+      },
+      {
+        name: "sortBy",
+        type: "Query",
+        schema: z
+          .enum(["newest", "mostVoted", "mostAnswered", "byCategory"])
+          .optional()
+          .default("newest"),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(10),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+    ],
     response: GetMyQuestionsResponse,
   },
   {

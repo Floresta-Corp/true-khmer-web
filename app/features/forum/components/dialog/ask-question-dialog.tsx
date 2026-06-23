@@ -151,9 +151,10 @@ export default function AskQuestionDialog({
         setOpen(false);
         revalidator.revalidate();
         toast.success(
-          isEditing
-            ? "Question updated successfully!"
-            : "Question posted successfully!",
+          result?.message ??
+            (isEditing
+              ? "Question updated successfully!"
+              : "Question posted successfully!"),
         );
         reset();
         if (preview && !existingImageKey) {

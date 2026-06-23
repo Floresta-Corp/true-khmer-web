@@ -17,6 +17,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
@@ -32,6 +33,14 @@ type Props = {
   discussion: Discussion;
   index?: number;
 };
+
+/**
+ * Shared style for an answer-body link: underlined, hover blue. The trailing
+ * `!` forces blue over `AccordionContent`'s `[&_a]:hover:text-foreground`,
+ * keeping single- and multi-answer layouts visually consistent.
+ */
+const ANSWER_BODY_LINK_CLASS =
+  "block text-sm leading-relaxed text-[#4b5563] underline underline-offset-3 hover:text-blue-600! transition-colors";
 
 /** Relative time including days/weeks (e.g. "3 days ago"). */
 function timeAgo(input: string) {
@@ -111,33 +120,35 @@ function AnswerActionsMenu({
           <MoreVertical size={16} />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40">
-        <AddAnswerDialog
-          questionId={questionId}
-          isEditing
-          data={{ id: answer.id, body: answer.body }}
-          trigger={
-            <DropdownMenuItem
-              onSelect={(e) => e.preventDefault()}
-              className="cursor-pointer gap-2"
-            >
-              <Pencil size={14} />
-              Edit answer
-            </DropdownMenuItem>
-          }
-        />
-        <DeleteAnswerDialog
-          answerId={answer.id}
-          trigger={
-            <DropdownMenuItem
-              onSelect={(e) => e.preventDefault()}
-              className="cursor-pointer gap-2 text-red-600 focus:text-red-600"
-            >
-              <Trash2 size={14} />
-              Delete answer
-            </DropdownMenuItem>
-          }
-        />
+      <DropdownMenuContent align="end">
+        <DropdownMenuGroup>
+          <AddAnswerDialog
+            questionId={questionId}
+            isEditing
+            data={{ id: answer.id, body: answer.body }}
+            trigger={
+              <DropdownMenuItem
+                onSelect={(e) => e.preventDefault()}
+                className="cursor-pointer"
+              >
+                <Pencil size={14} />
+                Edit answer
+              </DropdownMenuItem>
+            }
+          />
+          <DeleteAnswerDialog
+            answerId={answer.id}
+            trigger={
+              <DropdownMenuItem
+                onSelect={(e) => e.preventDefault()}
+                className="cursor-pointer text-red-600 focus:text-red-600"
+              >
+                <Trash2 size={14} />
+                Delete answer
+              </DropdownMenuItem>
+            }
+          />
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -165,7 +176,7 @@ function AnswerRow({
           </p>
           <Link
             to={`/forum/detail/${questionId}#answer-${answer.id}`}
-            className="mt-1 block text-sm text-[#6b7280] leading-relaxed line-clamp-1 hover:text-blue-600 transition-colors"
+            className={`mt-1 line-clamp-1 ${ANSWER_BODY_LINK_CLASS}`}
           >
             {answer.body}
           </Link>
@@ -197,7 +208,7 @@ export default function WorkspaceDiscussionCard({
   const { question, answers } = discussion;
   const questionId = question.id;
   const itemValue = `discussion-${questionId}`;
-  const [openValue, setOpenValue] = useState(itemValue);
+  const [openValue, setOpenValue] = useState("");
   const isOpen = openValue === itemValue;
 
   if (!answers?.length) return null;
@@ -238,7 +249,7 @@ export default function WorkspaceDiscussionCard({
             </div>
             <Link
               to={`/forum/detail/${questionId}#answer-${answer.id}`}
-              className="mt-2 block text-sm leading-relaxed text-[#4b5563] hover:text-blue-600 transition-colors"
+              className={`mt-2 ${ANSWER_BODY_LINK_CLASS}`}
             >
               {answer.body}
             </Link>

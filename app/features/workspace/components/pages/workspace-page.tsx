@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLoaderData, useNavigation, useSearchParams } from "react-router";
+import { AnimatePresence, motion } from "motion/react";
 import { MessageCircleQuestion, Search, SlidersHorizontal } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { loader } from "../../routes/workspace";
@@ -13,13 +14,16 @@ import { Input } from "~/components/ui/input";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
-  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import {
+  DEFAULT_QUESTION_SORT,
+  QUESTION_SORT_OPTIONS,
+  parseQuestionSort,
+  sortQuestions,
+} from "../../workspace-filters";
 
 type TabType = "questions" | "answers";
 
@@ -94,6 +98,13 @@ export default function WorkSpacePage() {
     }, 400);
   };
 
+  const questionSort = parseQuestionSort(currentSortBy);
+
+  const handleQuestionSortChange = (value: string) => {
+    const sort = parseQuestionSort(value);
+    updateParam("sortBy", sort === DEFAULT_QUESTION_SORT ? "" : sort);
+  };
+
   const handleSortOrCategoryChange = (value: string) => {
     const isSort = ANSWER_SORT_OPTIONS.some((o) => o.value === value);
     if (isSort) {
@@ -141,14 +152,18 @@ export default function WorkSpacePage() {
   const isLoading =
     navigation.state === "loading" || navigation.state === "submitting";
 
-  // Client-side search filter for questions
-  const filteredQuestions = currentSearch
-    ? questions.filter(
-        (q) =>
-          q.title.toLowerCase().includes(currentSearch.toLowerCase()) ||
-          q.body.toLowerCase().includes(currentSearch.toLowerCase()),
-      )
-    : questions;
+  // Client-side search + sort for questions
+  const myQuestions = questions.questions;
+  const filteredQuestions = sortQuestions(
+    currentSearch
+      ? myQuestions.filter(
+          (q) =>
+            q.title.toLowerCase().includes(currentSearch.toLowerCase()) ||
+            q.body.toLowerCase().includes(currentSearch.toLowerCase()),
+        )
+      : myQuestions,
+    questionSort,
+  );
 
   return (
     <WorkSpacePageLayout
@@ -157,13 +172,18 @@ export default function WorkSpacePage() {
     >
       <div className="flex flex-col gap-4 sm:gap-6">
         <WorkspaceTabs
-          questionCount={questions.length}
+          questionCount={myQuestions.length}
           answerCount={answers.totalAnswers}
         />
 
         {/* Toolbar */}
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:items-center">
-          <div className="relative flex-1">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:items-center justify-between">
+          <motion.div
+            className="relative min-w-0"
+            initial={false}
+            animate={{ width: "50%" }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+          >
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400 pointer-events-none" />
             <Input
               value={inputValue}
@@ -173,56 +193,71 @@ export default function WorkSpacePage() {
                   ? "Search your questions..."
                   : "Search your answers..."
               }
-              className="pl-9 bg-white border-slate-200 text-sm placeholder:text-slate-400 h-10 rounded-xl w-2/3"
+              className="pl-9 bg-white border-slate-200 text-sm placeholder:text-slate-400 h-10 rounded-xl"
             />
-          </div>
+          </motion.div>
 
-          {/* Need to change this for question filter according to API query Params */}
-          {/* {activeTab === "questions" && (
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs font-bold text-[#5F6368] dark:text-slate-400">
-                Sort by:
-              </span>
-              <Select
-                value={currentCategory || currentSortBy || "lastActivity"}
-                onValueChange={handleSortOrCategoryChange}
+          <AnimatePresence mode="wait">
+            {activeTab === "questions" && (
+              <motion.div
+                key="questions-sort"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+                className="flex items-center gap-2 shrink-0"
               >
-                <SelectTrigger className="h-10 w-44 rounded-xl border-slate-200 bg-white text-sm font-medium text-slate-700 shadow-none focus:ring-1 focus:ring-blue-500">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {ANSWER_SORT_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )} */}
+                <span className="text-xs font-bold text-[#5F6368] dark:text-slate-400">
+                  Sort by:
+                </span>
+                <Select
+                  value={questionSort}
+                  onValueChange={handleQuestionSortChange}
+                >
+                  <SelectTrigger className="h-10 w-44 rounded-xl border-slate-200 bg-white text-sm font-medium text-slate-700 shadow-none focus:ring-1 focus:ring-blue-500">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {QUESTION_SORT_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {activeTab === "answers" && (
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs font-bold text-[#5F6368] dark:text-slate-400">
-                Sort by:
-              </span>
-              <Select
-                value={currentCategory || currentSortBy || "lastActivity"}
-                onValueChange={handleSortOrCategoryChange}
+          <AnimatePresence mode="wait">
+            {activeTab === "answers" && (
+              <motion.div
+                key="answers-sort"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+                className="flex items-center gap-2 shrink-0"
               >
-                <SelectTrigger className="h-10 w-44 rounded-xl border-slate-200 bg-white text-sm font-medium text-slate-700 shadow-none focus:ring-1 focus:ring-blue-500">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {ANSWER_SORT_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+                <span className="text-xs font-bold text-[#5F6368] dark:text-slate-400">
+                  Sort by:
+                </span>
+                <Select
+                  value={currentCategory || currentSortBy || "lastActivity"}
+                  onValueChange={handleSortOrCategoryChange}
+                >
+                  <SelectTrigger className="h-10 w-44 rounded-xl border-slate-200 bg-white text-sm font-medium text-slate-700 shadow-none focus:ring-1 focus:ring-blue-500">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ANSWER_SORT_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Active filter summary */}

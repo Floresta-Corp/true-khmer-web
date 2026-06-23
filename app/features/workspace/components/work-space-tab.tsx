@@ -20,12 +20,11 @@ export default function WorkspaceTabs({ questionCount, answerCount }: Props) {
       (prev) => {
         const next = new URLSearchParams(prev);
         next.set("tab", tab);
-        // clear answer-specific filters when switching away from answers tab
-        if (tab !== "answers") {
-          next.delete("search");
-          next.delete("sortBy");
-          next.delete("category");
-        }
+        // Filters are per-tab — clear them on any switch so a question-tab
+        // sort/search doesn't leak into the answers fetch (and vice versa).
+        next.delete("search");
+        next.delete("sortBy");
+        next.delete("category");
         return next;
       },
       { replace: true },
