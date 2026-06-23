@@ -2,6 +2,7 @@ import type { Route } from "project-types/manage-post/routes/+types/manage-post.
 import z from "zod";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
+import { transformActionResponse } from "~/lib/server/action-response.server";
 import {
   declineApplicantStatus,
   updateApplicantNote,
@@ -85,11 +86,12 @@ export async function managePostDetailAction({
 
       return respond({ success: true, ok: true, data: result });
     } catch (error: any) {
+      const transformedError = transformActionResponse(error);
       return respond(
         {
           success: false,
           ok: false,
-          error: "Unable to extend deadline.",
+          error: transformedError.error ?? "Unable to extend deadline.",
         },
         { status: error?.status ?? 500 },
       );
@@ -135,10 +137,15 @@ export async function managePostDetailAction({
       }
 
       return respond({ success: false, ok: false }, { status: 400 });
-    } catch (err) {
+    } catch (error: any) {
+      const transformedError = transformActionResponse(error);
       return respond(
-        { success: false, ok: false, error: "An unexpected error occurred." },
-        { status: 500 },
+        {
+          success: false,
+          ok: false,
+          error: transformedError.error ?? "An unexpected error occurred.",
+        },
+        { status: error?.status ?? 500 },
       );
     }
   }
@@ -156,13 +163,19 @@ export async function managePostDetailAction({
       return respond({ success: false, error: "Invalid request parameters" });
     }
 
-    const result = await updateManagePost(
-      request,
-      sourceTypeResult.data as PostSourceType,
-      postingId,
-      postingActionResult.data,
-    );
-    return respond({ success: true, data: result });
+    try {
+      const result = await updateManagePost(
+        request,
+        sourceTypeResult.data as PostSourceType,
+        postingId,
+        postingActionResult.data,
+      );
+      return respond({ success: true, ok: true, data: result });
+    } catch (error: any) {
+      return respond(transformActionResponse(error), {
+        status: error?.status ?? 500,
+      });
+    }
   }
 
   // handle applicant decline action
@@ -212,15 +225,14 @@ export async function managePostDetailAction({
 
       return respond({ ok: false, success: false }, { status: 400 });
     } catch (error: any) {
-      if (error?.status === 409) {
-        return respond(
-          { ok: false, success: false, error: error?.details?.error },
-          { status: 409 },
-        );
-      }
+      const transformedError = transformActionResponse(error);
       return respond(
-        { ok: false, success: false, error: "An unexpected error occurred." },
-        { status: 500 },
+        {
+          ok: false,
+          success: false,
+          error: transformedError.error ?? "An unexpected error occurred.",
+        },
+        { status: error?.status ?? 500 },
       );
     }
   }
@@ -266,12 +278,14 @@ export async function managePostDetailAction({
       data: applicationIds.length ? result : result[0],
     });
   } catch (error: any) {
-    if (error?.status === 409) {
-      return respond(
-        { success: false, error: error?.details?.error },
-        { status: 409 },
-      );
-    }
-    throw error;
+    const transformedError = transformActionResponse(error);
+    return respond(
+      {
+        ok: false,
+        success: false,
+        error: transformedError.error ?? "An unexpected error occurred.",
+      },
+      { status: error?.status ?? 500 },
+    );
   }
 }
