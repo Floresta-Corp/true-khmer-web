@@ -120,3 +120,80 @@ export function validateCreateForumPostForm(
     message: "Please fix the highlighted fields and try again.",
   };
 }
+
+type ValidationResult<T> =
+  | { success: true; data: T }
+  | { success: false; message: string; fieldErrors: Record<string, string> };
+
+/**
+ * Validate a raw form-data record against a schema, returning the same
+ * discriminated-union shape the workspace action consumes. `formData.get`
+ * values are coerced to strings first so a missing field surfaces the
+ * schema's own `min(1)` message rather than a "received null" type error.
+ */
+function validateFormFields<Schema extends z.ZodType>(
+  schema: Schema,
+  formData: FormData,
+  fields: readonly string[],
+): ValidationResult<z.infer<Schema>> {
+  const raw: Record<string, string> = {};
+  for (const field of fields) {
+    raw[field] = String(formData.get(field) ?? "");
+  }
+
+  const parsed = schema.safeParse(raw);
+  if (parsed.success) {
+    return { success: true, data: parsed.data };
+  }
+
+  const flattened = parsed.error.flatten() as {
+    fieldErrors: Record<string, string[] | undefined>;
+  };
+  const fieldErrors: Record<string, string> = {};
+  for (const [key, messages] of Object.entries(flattened.fieldErrors)) {
+    const first = messages?.[0];
+    if (first) fieldErrors[key] = first;
+  }
+
+  return {
+    success: false,
+    fieldErrors,
+    message:
+      Object.values(fieldErrors)[0] ??
+      parsed.error.issues[0]?.message ??
+      "Invalid input.",
+  };
+}
+
+const deleteAnswerSchema = z.object({
+  answerId: z.string().trim().min(1, "Answer ID is required."),
+});
+
+const updateAnswerSchema = z.object({
+  answerId: z.string().trim().min(1, "Answer ID is required."),
+  body: z.string().trim().min(1, "Answer body is required."),
+});
+
+export function validateDeleteAnswerForm(formData: FormData) {
+  return validateFormFields(deleteAnswerSchema, formData, ["answerId"]);
+}
+
+export function validateUpdateAnswerForm(formData: FormData) {
+  return validateFormFields(updateAnswerSchema, formData, ["answerId", "body"]);
+}
+
+function makeQuestionIdValidator(message: string) {
+  const schema = z.object({
+    questionId: z.string().trim().min(1, message),
+  });
+  return (formData: FormData) =>
+    validateFormFields(schema, formData, ["questionId"]);
+}
+
+export const validateDeleteQuestionForm = makeQuestionIdValidator(
+  "Question ID is required for deleting.",
+);
+
+export const validateUpdateQuestionForm = makeQuestionIdValidator(
+  "Question ID is required for updating.",
+);

@@ -7,7 +7,13 @@ import {
   updateAnswerById,
   updateForumQuestion,
 } from "~/services/forum/server";
-import { validateCreateForumPostForm } from "~/services/forum/validation";
+import {
+  validateCreateForumPostForm,
+  validateDeleteAnswerForm,
+  validateDeleteQuestionForm,
+  validateUpdateAnswerForm,
+  validateUpdateQuestionForm,
+} from "~/services/forum/validation";
 import {
   actionError,
   runServiceAction,
@@ -28,8 +34,6 @@ export async function workSpaceAction({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const actionType = String(formData.get("actionType") ?? "").trim();
   const method = request.method.toUpperCase();
-  const answerId = String(formData.get("answerId") ?? "").trim();
-  const body = String(formData.get("body") ?? "").trim();
 
   const respond = (result: WorkSpaceActionResult, serviceSetCookie?: string) =>
     withAuthData(
@@ -47,12 +51,11 @@ export async function workSpaceAction({ request }: Route.ActionArgs) {
     if (method !== "PATCH") {
       return respond(actionError("Invalid method for updating an answer."));
     }
-    if (!answerId) {
-      return respond(actionError("Answer ID is required."));
+    const validation = validateUpdateAnswerForm(formData);
+    if (!validation.success) {
+      return respond(actionError(validation.message, validation.fieldErrors));
     }
-    if (!body) {
-      return respond(actionError("Answer body is required."));
-    }
+    const { answerId, body } = validation.data;
 
     const { result, setCookie } = await runServiceAction(
       () => updateAnswerById(request, answerId, { body }),
@@ -65,9 +68,11 @@ export async function workSpaceAction({ request }: Route.ActionArgs) {
   }
 
   if (actionType === "delete-answer") {
-    if (!answerId) {
-      return respond(actionError("Answer ID is required."));
+    const validation = validateDeleteAnswerForm(formData);
+    if (!validation.success) {
+      return respond(actionError(validation.message, validation.fieldErrors));
     }
+    const { answerId } = validation.data;
 
     const { result, setCookie } = await runServiceAction(
       () => deleteAnswerById(request, answerId),
@@ -80,10 +85,11 @@ export async function workSpaceAction({ request }: Route.ActionArgs) {
   }
 
   if (method === "DELETE") {
-    const questionId = String(formData.get("questionId") ?? "").trim();
-    if (!questionId) {
-      return respond(actionError("Question ID is required for deleting."));
+    const validation = validateDeleteQuestionForm(formData);
+    if (!validation.success) {
+      return respond(actionError(validation.message, validation.fieldErrors));
     }
+    const { questionId } = validation.data;
 
     const { result, setCookie } = await runServiceAction(
       () => deleteForumQuestion(request, questionId),
@@ -101,10 +107,13 @@ export async function workSpaceAction({ request }: Route.ActionArgs) {
   }
 
   if (method === "PATCH") {
-    const questionId = String(formData.get("questionId") ?? "").trim();
-    if (!questionId) {
-      return respond(actionError("Question ID is required for updating."));
+    const idValidation = validateUpdateQuestionForm(formData);
+    if (!idValidation.success) {
+      return respond(
+        actionError(idValidation.message, idValidation.fieldErrors),
+      );
     }
+    const { questionId } = idValidation.data;
 
     const { result, setCookie } = await runServiceAction(
       () => updateForumQuestion(request, questionId, validation.data),

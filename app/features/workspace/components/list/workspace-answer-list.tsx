@@ -72,9 +72,17 @@ export default function WorkspaceAnswerList({ answers }: Props) {
     if (prevFilterKeyRef.current !== filterKey) return;
     const fresh = answers?.discussions ?? [];
     const freshById = new Map(fresh.map((d) => [d.question.id, d]));
-    setDiscussions((prev) =>
-      prev.map((d) => freshById.get(d.question.id) ?? d),
-    );
+    setDiscussions((prev) => {
+      const prevIds = new Set(prev.map((d) => d.question.id));
+      // Prepend discussions that appear in the revalidated first page but
+      // aren't in the accumulated list yet (e.g. a freshly posted answer,
+      // which the default "lastActivity" sort puts at the top).
+      const added = fresh.filter((d) => !prevIds.has(d.question.id));
+      // Update existing items in place so edits are reflected without
+      // discarding pages loaded via infinite scroll.
+      const updated = prev.map((d) => freshById.get(d.question.id) ?? d);
+      return added.length ? [...added, ...updated] : updated;
+    });
   }, [answers, filterKey]);
 
   // Append next page when the fetcher returns data
