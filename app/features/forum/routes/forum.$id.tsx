@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLoaderData } from "react-router";
-import { MessageCircle, Share2 } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { motion } from "motion/react";
 import QuestionVoteComponent from "../components/question-vote-component";
 import AllAnswers from "../components/sections/all-answers";
@@ -232,15 +232,7 @@ export default function ForumDetailPage() {
 
                   <ShareQuestionDialog
                     question={question}
-                    trigger={
-                      <button
-                        type="button"
-                        className="cursor-pointer inline-flex items-center gap-2 text-xs font-medium leading-4.5 hover:text-[#245fca] sm:text-sm sm:leading-5.25"
-                      >
-                        <Share2 className="h-5 w-5" />
-                        Share
-                      </button>
-                    }
+                    className="cursor-pointer inline-flex items-center gap-2 text-xs font-medium leading-4.5 hover:text-[#245fca] sm:text-sm sm:leading-5.25"
                   />
                 </div>
               </div>

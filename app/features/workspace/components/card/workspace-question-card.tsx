@@ -8,13 +8,15 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import AskQuestionDialog from "~/features/forum/components/dialog/ask-question-dialog";
 import DeleteQuestionDialog from "~/features/forum/components/dialog/delete-question-dialog";
+import ShareQuestionDialog from "~/features/forum/components/dialog/share-question-dialog";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL, cn } from "~/lib/utils";
 import type { Question } from "~/services/forum/types";
+import type { QuestionResponse } from "~/types/api-client";
 import type { BasicJoinType } from "~/services/types";
 
 type Props = {
-  question: Question;
+  question: QuestionResponse;
   index?: number;
   categories?: BasicJoinType[];
 };
@@ -90,7 +92,10 @@ export default function WorkspaceQuestionItem({
                   (category) => category.id !== "all-categories",
                 )}
                 isEditing
-                data={question}
+                // The forum dialogs are typed on forum-types `Question`; the
+                // "my questions" API returns the api-client `QuestionResponse`.
+                // Both share every field these dialogs read.
+                data={question as unknown as Question}
                 aria-label="Edit Question"
                 trigger={
                   <Button
@@ -147,6 +152,14 @@ export default function WorkspaceQuestionItem({
           ))}
         </div>
       )}
+
+      {/* Divider */}
+      <div className="border-t border-[#f9fafb] my-3 sm:my-4" />
+
+      {/* Footer with share */}
+      <div className="flex items-center gap-2 sm:gap-3.5 shrink-0">
+        <ShareQuestionDialog question={question as unknown as Question} />
+      </div>
     </motion.article>
   );
 }

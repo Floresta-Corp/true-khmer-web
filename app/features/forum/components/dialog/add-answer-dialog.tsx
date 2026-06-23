@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { Link, useFetcher, useLocation, useRevalidator } from "react-router";
 import { toast } from "sonner";
+import { readActionResult } from "~/lib/action-result";
 
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
@@ -64,31 +65,20 @@ export default function AddAnswerDialog({
 
     if (wasSubmitting.current && fetch.state === "idle" && fetch.data) {
       wasSubmitting.current = false;
-      const result = fetch.data as
-        | { ok?: boolean; message?: string; error?: string }
-        | {
-            data?: { ok?: boolean };
-            message?: string;
-            error?: string;
-          };
+      const { ok, message } = readActionResult(fetch.data);
 
-      const isSuccess =
-        ("ok" in result && result.ok === true) ||
-        ("data" in result && result.data?.ok === true);
-
-      if (isSuccess) {
+      if (ok) {
         setOpen(false);
         setBodyError(null);
         revalidator.revalidate();
         toast.success(
-          isEditing
-            ? "Answer updated successfully!"
-            : "Answer posted successfully!",
+          message ??
+            (isEditing
+              ? "Answer updated successfully."
+              : "Answer posted successfully."),
         );
       } else {
-        toast.error(
-          result?.message ?? result?.error ?? "Failed to post answer.",
-        );
+        toast.error(message ?? "Failed to post answer.");
       }
     }
   }, [fetch.state, fetch.data, isEditing]);
@@ -117,7 +107,7 @@ export default function AddAnswerDialog({
         }
       }}
     >
-      <DialogTrigger>
+      <DialogTrigger asChild>
         {trigger || (
           <Button
             variant="outline"

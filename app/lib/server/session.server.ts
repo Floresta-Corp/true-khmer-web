@@ -87,7 +87,7 @@ export async function destroySession(
   return sessionStorage.destroySession(session);
 }
 
-interface SessionUser {
+export interface SessionUser {
   id: string;
   email: string;
   name: string;

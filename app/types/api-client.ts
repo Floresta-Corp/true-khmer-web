@@ -29,7 +29,7 @@ const AuthUserProfile = z
   .object({
     id: z.string(),
     displayName: z.string().optional(),
-    avatarKey: z.string().nullable(),
+    avatarKey: z.string().optional(),
   })
   ;
 const AuthUser = z
@@ -216,7 +216,9 @@ const AdminUser = z
   .object({
     id: z.string(),
     email: z.string().email(),
-    name: z.string().min(1),
+    firstName: z.string().nullable(),
+    lastName: z.string().nullable(),
+    avatarKey: z.string().nullable(),
     createdAt: z.union([z.string(), z.string()]),
   })
   ;
@@ -240,6 +242,48 @@ const AdminRefreshResponse = z
     refreshTokenExpiresAt: z.string().datetime({ offset: true }),
   })
   ;
+const AdminPresignAvatarUploadRequest = z
+  .object({
+    contentType: z.string(),
+    fileSize: z.number().int().gt(0).lte(5242880),
+  })
+  ;
+const AdminPresignAvatarUploadResponse = z
+  .object({
+    ok: z.boolean(),
+    upload: z
+      .object({
+        uploadUrl: z.string().url(),
+        method: z.literal("PUT"),
+        requiredHeaders: z.record(z.string(), z.string()),
+        avatarKey: z.string(),
+        expiresInSeconds: z.number(),
+      })
+      ,
+  })
+  ;
+const AdminUpdateProfileRequest = z
+  .object({
+    firstName: z.string().min(1).max(100),
+    lastName: z.string().min(1).max(100),
+    avatarKey: z.string().nullable(),
+  })
+  .partial()
+  ;
+const AdminUpdateProfileResponse = z
+  .object({
+    ok: z.boolean(),
+    admin: z
+      .object({
+        id: z.string(),
+        email: z.string(),
+        firstName: z.string().nullable(),
+        lastName: z.string().nullable(),
+        avatarKey: z.string().nullable(),
+      })
+      ,
+  })
+  ;
 const AdminLogoutResponse = z
   .object({ success: z.boolean(), message: z.string() })
   ;
@@ -254,7 +298,11 @@ const ContentModeratorReportReporter = z
   })
   ;
 const ContentModeratorReportSolver = z
-  .object({ id: z.string(), name: z.string() })
+  .object({
+    id: z.string(),
+    firstName: z.string().nullable(),
+    lastName: z.string().nullable(),
+  })
   ;
 const ContentModeratorReport = z
   .object({
@@ -371,12 +419,25 @@ const AdminDashboardResponse = z
 const AdminDashboardErrorResponse = z
   .object({ ok: z.literal(false), error: z.string() })
   ;
+const AcceptModeratorInviteRequest = z
+  .object({
+    token: z.string().min(1),
+    firstName: z.string().min(1).max(100),
+    lastName: z.string().min(1).max(100),
+    password: z.string().min(8),
+  })
+  ;
+
+const InviteModeratorResponse = z.object({ ok: z.boolean() });
 const Moderator = z
   .object({
     id: z.string().uuid(),
     email: z.string(),
-    name: z.string(),
+    firstName: z.string().nullable(),
+    lastName: z.string().nullable(),
     role: z.literal("MODERATOR"),
+    status: z.enum(["PENDING", "ACTIVE"]),
+    lastActive: z.string().nullable(),
     createdAt: z.string().datetime({ offset: true }),
   })
   ;
@@ -388,17 +449,17 @@ const ListModeratorsResponse = z
   })
   ;
 const CreateModeratorRequest = z
-  .object({
-    email: z.string().min(1),
-    password: z.string().min(8),
-    name: z.string().min(1).max(100),
-  })
+  .object({ email: z.string().min(1) })
   ;
 const ModeratorResponse = z
   .object({ ok: z.boolean(), moderator: Moderator })
   ;
 const UpdateModeratorRequest = z
-  .object({ name: z.string().min(1).max(100), password: z.string().min(8) })
+  .object({
+    firstName: z.string().min(1).max(100),
+    lastName: z.string().min(1).max(100),
+    password: z.string().min(8),
+  })
   .partial()
   ;
 
@@ -657,7 +718,18 @@ const GetTrendingTagsResponse = z
   .object({ ok: z.boolean(), tags: z.array(TrendingTagResponse) })
   ;
 const GetMyQuestionsResponse = z
-  .object({ ok: z.boolean(), questions: z.array(QuestionResponse) })
+  .object({
+    ok: z.boolean(),
+    questions: z.array(QuestionResponse),
+    pagination: z
+      .object({
+        limit: z.number(),
+        hasMore: z.boolean(),
+        nextCursor: z.string().nullable(),
+        total: z.number().int().gte(0),
+      })
+      ,
+  })
   ;
 const GetSavedQuestionsResponse = z
   .object({
@@ -781,7 +853,6 @@ const AnswerQuestionResponse = z
   .object({
     id: z.string(),
     categoryId: z.string(),
-    authorId: z.string(),
     title: z.string(),
     body: z.string(),
     imageKey: z.string().nullable(),
@@ -794,6 +865,13 @@ const AnswerQuestionResponse = z
     bestAnswerSelectedAt: z.string().nullable(),
     createdAt: z.string(),
     updatedAt: z.string(),
+    author: z
+      .object({
+        id: z.string(),
+        name: z.string(),
+        avatarKey: z.string().nullable(),
+      })
+      ,
     category: CategoryResponse,
   })
   ;
@@ -2825,6 +2903,10 @@ export const schemas = {
   AdminLoginResponse,
   AdminRefreshRequest,
   AdminRefreshResponse,
+  AdminPresignAvatarUploadRequest,
+  AdminPresignAvatarUploadResponse,
+  AdminUpdateProfileRequest,
+  AdminUpdateProfileResponse,
   AdminLogoutResponse,
   ContentModeratorReportType,
   ContentModeratorReportReporter,
@@ -2836,6 +2918,8 @@ export const schemas = {
   UpdateContentModeratorReportReviewResponse,
   AdminDashboardResponse,
   AdminDashboardErrorResponse,
+  AcceptModeratorInviteRequest,
+  InviteModeratorResponse,
   Moderator,
   ListModeratorsResponse,
   CreateModeratorRequest,
@@ -3267,10 +3351,10 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: CreateModeratorRequest,
+        schema: z.object({ email: z.string().min(1) }),
       },
     ],
-    response: ModeratorResponse,
+    response: z.object({ ok: z.boolean() }),
     errors: [
       {
         status: 401,
@@ -3400,6 +3484,84 @@ const endpoints = makeApi([
       {
         status: 404,
         description: `Moderator not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/admin/moderator/accept-invite",
+    alias: "postV1adminmoderatoracceptInvite",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AcceptModeratorInviteRequest,
+      },
+    ],
+    response: z.object({ ok: z.boolean() }),
+    errors: [
+      {
+        status: 400,
+        description: `Invalid or expired invite link`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/admin/presign-avatar",
+    alias: "postV1adminpresignAvatar",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AdminPresignAvatarUploadRequest,
+      },
+    ],
+    response: AdminPresignAvatarUploadResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 500,
+        description: `Failed to generate upload URL`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "patch",
+    path: "/v1/admin/profile",
+    alias: "patchV1adminprofile",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AdminUpdateProfileRequest,
+      },
+    ],
+    response: AdminUpdateProfileResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Invalid avatarKey`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 404,
+        description: `Admin not found`,
         schema: z.void(),
       },
     ],
@@ -4119,6 +4281,7 @@ const endpoints = makeApi([
             "oldest",
             "mostVoted",
             "mostAnswered",
+            "byCategory",
           ])
           .optional()
           .default("newest"),
@@ -4257,6 +4420,7 @@ const endpoints = makeApi([
             "oldest",
             "mostVoted",
             "mostAnswered",
+            "byCategory",
           ])
           .optional()
           .default("newest"),
@@ -4401,6 +4565,31 @@ const endpoints = makeApi([
     path: "/v1/forum/questions/my-questions",
     alias: "getV1forumquestionsmyQuestions",
     requestFormat: "json",
+    parameters: [
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().max(300).optional(),
+      },
+      {
+        name: "sortBy",
+        type: "Query",
+        schema: z
+          .enum(["newest", "mostVoted", "mostAnswered", "byCategory"])
+          .optional()
+          .default("newest"),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(10),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+    ],
     response: GetMyQuestionsResponse,
   },
   {
@@ -7466,6 +7655,10 @@ export type AdminUser = z.infer<typeof schemas.AdminUser>;
 export type AdminLoginResponse = z.infer<typeof schemas.AdminLoginResponse>;
 export type AdminRefreshRequest = z.infer<typeof schemas.AdminRefreshRequest>;
 export type AdminRefreshResponse = z.infer<typeof schemas.AdminRefreshResponse>;
+export type AdminPresignAvatarUploadRequest = z.infer<typeof schemas.AdminPresignAvatarUploadRequest>;
+export type AdminPresignAvatarUploadResponse = z.infer<typeof schemas.AdminPresignAvatarUploadResponse>;
+export type AdminUpdateProfileRequest = z.infer<typeof schemas.AdminUpdateProfileRequest>;
+export type AdminUpdateProfileResponse = z.infer<typeof schemas.AdminUpdateProfileResponse>;
 export type AdminLogoutResponse = z.infer<typeof schemas.AdminLogoutResponse>;
 export type ContentModeratorReportType = z.infer<typeof schemas.ContentModeratorReportType>;
 export type ContentModeratorReportReporter = z.infer<typeof schemas.ContentModeratorReportReporter>;
@@ -7477,6 +7670,8 @@ export type UpdateContentModeratorReportReviewRequest = z.infer<typeof schemas.U
 export type UpdateContentModeratorReportReviewResponse = z.infer<typeof schemas.UpdateContentModeratorReportReviewResponse>;
 export type AdminDashboardResponse = z.infer<typeof schemas.AdminDashboardResponse>;
 export type AdminDashboardErrorResponse = z.infer<typeof schemas.AdminDashboardErrorResponse>;
+export type AcceptModeratorInviteRequest = z.infer<typeof schemas.AcceptModeratorInviteRequest>;
+export type InviteModeratorResponse = z.infer<typeof schemas.InviteModeratorResponse>;
 export type Moderator = z.infer<typeof schemas.Moderator>;
 export type ListModeratorsResponse = z.infer<typeof schemas.ListModeratorsResponse>;
 export type CreateModeratorRequest = z.infer<typeof schemas.CreateModeratorRequest>;

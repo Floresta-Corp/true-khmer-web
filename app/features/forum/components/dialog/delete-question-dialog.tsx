@@ -1,4 +1,7 @@
+import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
+import { toast } from "sonner";
+import { readActionResult } from "~/lib/action-result";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -21,9 +24,33 @@ export default function DeleteQuestionDialog({
 }: DeleteQuestionDialogProps) {
   const deleteFetcher = useFetcher();
   const isDeleting = deleteFetcher.state !== "idle";
+  const wasDeleting = useRef(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (deleteFetcher.state === "submitting") {
+      wasDeleting.current = true;
+    }
+
+    if (
+      wasDeleting.current &&
+      deleteFetcher.state === "idle" &&
+      deleteFetcher.data
+    ) {
+      wasDeleting.current = false;
+      const { ok, message } = readActionResult(deleteFetcher.data);
+
+      if (ok) {
+        setOpen(false);
+        toast.success(message ?? "Question deleted successfully.");
+      } else {
+        toast.error(message ?? "Failed to delete question.");
+      }
+    }
+  }, [deleteFetcher.state, deleteFetcher.data]);
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
 
       <DialogContent className="max-w-sm rounded-2xl">

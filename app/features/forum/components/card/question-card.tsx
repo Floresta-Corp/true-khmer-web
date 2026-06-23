@@ -1,4 +1,4 @@
-import { Share2, Pencil, Trash2, MessageCircle } from "lucide-react";
+import { Pencil, Trash2, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
@@ -224,18 +224,7 @@ export default function QuestionCard({
             <span className="sm:hidden"> ans</span>
           </span>
         </button>
-        <ShareQuestionDialog
-          question={question}
-          trigger={
-            <button className="group inline-flex items-center gap-2 text-xs font-medium text-[#48566A] text-[14px] rounded-lg cursor-pointer transition-colors hover:text-blue-600">
-              <Share2
-                size={20}
-                className="text-[#48566A] group-hover:text-blue-600 transition-colors"
-              />
-              Share
-            </button>
-          }
-        />
+        <ShareQuestionDialog question={question} />
       </div>
     </motion.article>
   );
