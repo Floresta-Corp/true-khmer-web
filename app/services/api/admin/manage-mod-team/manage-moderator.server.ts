@@ -1,5 +1,11 @@
-import { apiRequestWithAccessToken } from "~/lib/server/api-client.server";
+import {
+  apiRequestPublic,
+  apiRequestWithAccessToken,
+} from "~/lib/server/api-client.server";
 import type {
+  AcceptModeratorInviteRequest,
+  DeleteModeratorResponse,
+  InviteModeratorResponse,
   ListModeratorsResponse,
   ModeratorResponse,
 } from "~/types/api-client";
@@ -35,9 +41,6 @@ export async function postManageTeam(
   accessToken: string,
   body: {
     email: string;
-    name: string;
-    password: string;
-    role?: string;
   },
 ) {
   const result = await apiRequestWithAccessToken<ModeratorResponse>(
@@ -47,6 +50,37 @@ export async function postManageTeam(
     {
       method: "POST",
       body,
+    },
+  );
+  return result;
+}
+
+export async function verifyModeratorInvite(
+  request: Request,
+  body: AcceptModeratorInviteRequest,
+) {
+  const result = await apiRequestPublic<InviteModeratorResponse>(
+    request,
+    `/admin/moderator/accept-invite`,
+    {
+      method: "POST",
+      body,
+    },
+  );
+  return result.data;
+}
+
+export async function removeModerator(
+  request: Request,
+  id: string,
+  accessToken: string,
+) {
+  const result = await apiRequestWithAccessToken<DeleteModeratorResponse>(
+    request,
+    accessToken,
+    `/admin/moderator/${id}`,
+    {
+      method: "DELETE",
     },
   );
   return result;

@@ -52,7 +52,7 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
           <div className="flex items-center gap-2 min-w-0">
             <Avatar className="shrink-0 size-5 border  dark:border-slate-700">
               <AvatarImage
-                src={report.reportingBy?.avatarUrl ?? ""}
+                src={report.reportingBy?.avatarKey ?? ""}
                 alt={report.reportingBy?.name}
               />
               <AvatarFallback className="text-xs font-black bg-slate-100 dark:bg-slate-800 text-slate-400">

@@ -30,7 +30,6 @@ const AuthUserProfile = z
     id: z.string(),
     displayName: z.string().optional(),
     avatarKey: z.string().optional(),
-    avatarUrl: z.string().optional(),
   })
   ;
 const AuthUser = z
@@ -217,7 +216,9 @@ const AdminUser = z
   .object({
     id: z.string(),
     email: z.string().email(),
-    name: z.string().min(1),
+    firstName: z.string().nullable(),
+    lastName: z.string().nullable(),
+    avatarKey: z.string().nullable(),
     createdAt: z.union([z.string(), z.string()]),
   })
   ;
@@ -241,6 +242,48 @@ const AdminRefreshResponse = z
     refreshTokenExpiresAt: z.string().datetime({ offset: true }),
   })
   ;
+const AdminPresignAvatarUploadRequest = z
+  .object({
+    contentType: z.string(),
+    fileSize: z.number().int().gt(0).lte(5242880),
+  })
+  ;
+const AdminPresignAvatarUploadResponse = z
+  .object({
+    ok: z.boolean(),
+    upload: z
+      .object({
+        uploadUrl: z.string().url(),
+        method: z.literal("PUT"),
+        requiredHeaders: z.record(z.string(), z.string()),
+        avatarKey: z.string(),
+        expiresInSeconds: z.number(),
+      })
+      ,
+  })
+  ;
+const AdminUpdateProfileRequest = z
+  .object({
+    firstName: z.string().min(1).max(100),
+    lastName: z.string().min(1).max(100),
+    avatarKey: z.string().nullable(),
+  })
+  .partial()
+  ;
+const AdminUpdateProfileResponse = z
+  .object({
+    ok: z.boolean(),
+    admin: z
+      .object({
+        id: z.string(),
+        email: z.string(),
+        firstName: z.string().nullable(),
+        lastName: z.string().nullable(),
+        avatarKey: z.string().nullable(),
+      })
+      ,
+  })
+  ;
 const AdminLogoutResponse = z
   .object({ success: z.boolean(), message: z.string() })
   ;
@@ -251,17 +294,23 @@ const ContentModeratorReportReporter = z
   .object({
     id: z.string(),
     name: z.string(),
-    avatarUrl: z.string().nullable(),
+    avatarKey: z.string().nullable(),
   })
   ;
 const ContentModeratorReportSolver = z
-  .object({ id: z.string(), name: z.string() })
+  .object({
+    id: z.string(),
+    firstName: z.string().nullable(),
+    lastName: z.string().nullable(),
+  })
   ;
 const ContentModeratorReport = z
   .object({
     id: z.string().uuid(),
     reportId: z.number().int().gt(0),
     type: ContentModeratorReportType,
+    reportType: z.literal("FORUM"),
+    reportSubType: z.enum(["QUESTION", "ANSWER"]).nullable(),
     contentPreview: z.string(),
     sourceLink: z.string(),
     dateTime: z.string().datetime({ offset: true }),
@@ -370,12 +419,25 @@ const AdminDashboardResponse = z
 const AdminDashboardErrorResponse = z
   .object({ ok: z.literal(false), error: z.string() })
   ;
+const AcceptModeratorInviteRequest = z
+  .object({
+    token: z.string().min(1),
+    firstName: z.string().min(1).max(100),
+    lastName: z.string().min(1).max(100),
+    password: z.string().min(8),
+  })
+  ;
+
+const InviteModeratorResponse = z.object({ ok: z.boolean() });
 const Moderator = z
   .object({
     id: z.string().uuid(),
     email: z.string(),
-    name: z.string(),
+    firstName: z.string().nullable(),
+    lastName: z.string().nullable(),
     role: z.literal("MODERATOR"),
+    status: z.enum(["PENDING", "ACTIVE"]),
+    lastActive: z.string().nullable(),
     createdAt: z.string().datetime({ offset: true }),
   })
   ;
@@ -387,17 +449,17 @@ const ListModeratorsResponse = z
   })
   ;
 const CreateModeratorRequest = z
-  .object({
-    email: z.string().min(1),
-    password: z.string().min(8),
-    name: z.string().min(1).max(100),
-  })
+  .object({ email: z.string().min(1) })
   ;
 const ModeratorResponse = z
   .object({ ok: z.boolean(), moderator: Moderator })
   ;
 const UpdateModeratorRequest = z
-  .object({ name: z.string().min(1).max(100), password: z.string().min(8) })
+  .object({
+    firstName: z.string().min(1).max(100),
+    lastName: z.string().min(1).max(100),
+    password: z.string().min(8),
+  })
   .partial()
   ;
 
@@ -411,23 +473,6 @@ const AdminUserManagementTier = z
     minPoints: z.number().int(),
   })
   ;
-const AdminUserManagementFilters = z
-  .object({
-    statuses: z.array(
-      z
-        .object({
-          value: z.enum([
-            "SIGNUP_REQUIRED",
-            "ONBOARDING_REQUIRED",
-            "ACTIVE",
-            "SUSPENDED"]),
-          label: z.string(),
-        })
-        
-    ),
-    tiers: z.array(AdminUserManagementTier),
-  })
-  ;
 const AdminUserManagementUser = z
   .object({
     id: z.string().uuid(),
@@ -435,7 +480,7 @@ const AdminUserManagementUser = z
     firstName: z.string(),
     lastName: z.string(),
     displayName: z.string().nullable(),
-    avatarUrl: z.string().nullable(),
+    avatarKey: z.string().nullable(),
     email: z.string().email(),
     emailVerified: z.boolean(),
     phoneNumber: z.string().nullable(),
@@ -446,7 +491,7 @@ const AdminUserManagementUser = z
       "ONBOARDING_REQUIRED",
       "ACTIVE",
       "SUSPENDED"]),
-    tier: AdminUserManagementTier.and(z.unknown()),
+    tier: AdminUserManagementTier.nullable(),
     totalPoints: z.number().int(),
     signupCompletedAt: z.string().datetime({ offset: true }).nullable(),
     onboardingStep: z.number().int(),
@@ -459,13 +504,51 @@ const AdminUserManagementUser = z
 const AdminUserManagementListResponse = z
   .object({
     ok: z.literal(true),
-    filters: AdminUserManagementFilters,
     users: z.array(AdminUserManagementUser),
     total: z.number().int(),
     page: z.number().int(),
     limit: z.number().int(),
     totalPages: z.number().int(),
   })
+  ;
+const AdminUserManagementPoints = z
+  .object({
+    activePoints: z.number().int(),
+    tierPoints: z.number().int(),
+    legacyPoints: z.number().int(),
+    totalPoints: z.number().int(),
+  })
+  ;
+const AdminUserManagementActivity = z
+  .object({
+    id: z.string().uuid(),
+    title: z.string(),
+    actionType: z.string(),
+    points: z.number().int(),
+    pool: z.string(),
+    mode: z.string(),
+    referenceType: z.string().nullable(),
+    referenceId: z.string().uuid().nullable(),
+    createdAt: z.string(),
+  })
+  ;
+const AdminUserManagementDetailUser = AdminUserManagementUser.and(
+  z
+    .object({
+      dateOfBirth: z.string().nullable(),
+      occupation: z.string().nullable(),
+      telegramUsername: z.string().nullable(),
+      location: z
+        .object({ city: z.string().nullable(), country: z.string().nullable() })
+        
+        .nullable(),
+      points: AdminUserManagementPoints,
+      recentActivity: z.array(AdminUserManagementActivity),
+    })
+    
+);
+const AdminUserManagementDetailResponse = z
+  .object({ ok: z.literal(true), user: AdminUserManagementDetailUser })
   ;
 
 const OnboardingOkResponse = z.record(z.string(), z.unknown().nullable());
@@ -523,7 +606,6 @@ const PresignAvatarUploadResult = z
       .object({ "Content-Length": z.string(), "Content-Type": z.string() })
       ,
     avatarKey: z.string(),
-    publicUrl: z.string().nullable(),
     expiresInSeconds: z.number(),
   })
   ;
@@ -636,7 +718,18 @@ const GetTrendingTagsResponse = z
   .object({ ok: z.boolean(), tags: z.array(TrendingTagResponse) })
   ;
 const GetMyQuestionsResponse = z
-  .object({ ok: z.boolean(), questions: z.array(QuestionResponse) })
+  .object({
+    ok: z.boolean(),
+    questions: z.array(QuestionResponse),
+    pagination: z
+      .object({
+        limit: z.number(),
+        hasMore: z.boolean(),
+        nextCursor: z.string().nullable(),
+        total: z.number().int().gte(0),
+      })
+      ,
+  })
   ;
 const GetSavedQuestionsResponse = z
   .object({
@@ -762,14 +855,23 @@ const AnswerQuestionResponse = z
     categoryId: z.string(),
     title: z.string(),
     body: z.string(),
+    imageKey: z.string().nullable(),
     status: z.enum(["PUBLISHED", "CLOSED", "DELETED"]),
     answerCount: z.number().int().gte(0),
     upvoteCount: z.number().int().gte(0),
     downvoteCount: z.number().int().gte(0),
+    viewCount: z.number().int().gte(0),
     bestAnswerId: z.string().nullable(),
     bestAnswerSelectedAt: z.string().nullable(),
     createdAt: z.string(),
     updatedAt: z.string(),
+    author: z
+      .object({
+        id: z.string(),
+        name: z.string(),
+        avatarKey: z.string().nullable(),
+      })
+      ,
     category: CategoryResponse,
   })
   ;
@@ -791,14 +893,35 @@ const MyAnswerResponse = z
     viewerVote: z.enum(["UPVOTE", "DOWNVOTE"]).nullable(),
     createdAt: z.string(),
     updatedAt: z.string(),
+    questionId: z.string(),
     status: z.literal("PUBLISHED"),
     replyTo: z.string().nullable(),
-    repliedAnswers: z.array(RepliedAnswerResponse).nullable(),
+    isBestAnswer: z.boolean(),
+  })
+  ;
+const MyAnswerDiscussionResponse = z
+  .object({
     question: AnswerQuestionResponse,
+    answers: z.array(MyAnswerResponse),
+    myAnswerCount: z.number().int().gt(0),
+    lastActivityAt: z.string(),
+  })
+  ;
+const MyAnswersPaginationResponse = z
+  .object({
+    limit: z.number().int().gt(0),
+    hasMore: z.boolean(),
+    nextCursor: z.string().nullable(),
+    total: z.number().int().gte(0),
   })
   ;
 const GetMyAnswersResponse = z
-  .object({ ok: z.boolean(), answers: z.array(MyAnswerResponse) })
+  .object({
+    ok: z.boolean(),
+    discussions: z.array(MyAnswerDiscussionResponse),
+    totalAnswers: z.number().int().gte(0),
+    pagination: MyAnswersPaginationResponse,
+  })
   ;
 
 const CreateAnswerRequest = z.object({
@@ -1046,7 +1169,7 @@ const VolunteerOpportunityOrganizerResponse = z
   .object({
     id: z.string(),
     name: z.string(),
-    avatarUrl: z.string().nullable(),
+    avatarKey: z.string().nullable(),
     opportunityCount: z.number(),
     organizerLocation: VolunteerOpportunityReference.and(z.unknown()),
     contact: VolunteerOpportunityContactResponse,
@@ -1916,7 +2039,6 @@ const MyApplicationDetail = z
       .object({
         id: z.string(),
         name: z.string(),
-        avatarUrl: z.string().nullable(),
         avatarKey: z.string().nullable(),
         postedCount: z.number().int().gte(0),
         contact: z
@@ -1971,7 +2093,6 @@ const ProfileResponse = z
         profile: z
           .object({
             avatarKey: z.string().nullable(),
-            avatarUrl: z.string().nullable(),
             bio: z.string().nullable(),
             country: z
               .object({
@@ -2139,7 +2260,6 @@ const UpdateProfileResponse = z
         profile: z
           .object({
             avatarKey: z.string().nullable(),
-            avatarUrl: z.string().nullable(),
             bio: z.string().nullable(),
             country: z
               .object({
@@ -2356,7 +2476,6 @@ const PublicProfileResponse = z
         profile: z
           .object({
             avatarKey: z.string().nullable(),
-            avatarUrl: z.string().nullable(),
             bio: z.string().nullable(),
             country: z
               .object({
@@ -2598,7 +2717,6 @@ const ManagePostingApplicant = z
         email: z.string(),
         phoneNumber: z.string().nullable(),
         telegramUsername: z.string().nullable(),
-        avatarUrl: z.string().nullable(),
         avatarKey: z.string().nullable(),
       })
       ,
@@ -2785,6 +2903,10 @@ export const schemas = {
   AdminLoginResponse,
   AdminRefreshRequest,
   AdminRefreshResponse,
+  AdminPresignAvatarUploadRequest,
+  AdminPresignAvatarUploadResponse,
+  AdminUpdateProfileRequest,
+  AdminUpdateProfileResponse,
   AdminLogoutResponse,
   ContentModeratorReportType,
   ContentModeratorReportReporter,
@@ -2796,6 +2918,8 @@ export const schemas = {
   UpdateContentModeratorReportReviewResponse,
   AdminDashboardResponse,
   AdminDashboardErrorResponse,
+  AcceptModeratorInviteRequest,
+  InviteModeratorResponse,
   Moderator,
   ListModeratorsResponse,
   CreateModeratorRequest,
@@ -2803,9 +2927,12 @@ export const schemas = {
   UpdateModeratorRequest,
   DeleteModeratorResponse,
   AdminUserManagementTier,
-  AdminUserManagementFilters,
   AdminUserManagementUser,
   AdminUserManagementListResponse,
+  AdminUserManagementPoints,
+  AdminUserManagementActivity,
+  AdminUserManagementDetailUser,
+  AdminUserManagementDetailResponse,
   OnboardingOkResponse,
   OnboardingErrorResponse,
   OnboardingProfileStepRequest,
@@ -2841,6 +2968,8 @@ export const schemas = {
   GetAnswersResponse,
   AnswerQuestionResponse,
   MyAnswerResponse,
+  MyAnswerDiscussionResponse,
+  MyAnswersPaginationResponse,
   GetMyAnswersResponse,
   CreateAnswerRequest,
   CreateAnswerResponse,
@@ -2990,7 +3119,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(50).optional().default(20),
+        schema: z.number().int().gte(1).optional().default(20),
       },
       {
         name: "cursor",
@@ -3191,7 +3320,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(50).optional().default(20),
+        schema: z.number().int().gte(1).optional().default(20),
       },
       {
         name: "cursor",
@@ -3222,10 +3351,10 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: CreateModeratorRequest,
+        schema: z.object({ email: z.string().min(1) }),
       },
     ],
-    response: ModeratorResponse,
+    response: z.object({ ok: z.boolean() }),
     errors: [
       {
         status: 401,
@@ -3361,6 +3490,84 @@ const endpoints = makeApi([
   },
   {
     method: "post",
+    path: "/v1/admin/moderator/accept-invite",
+    alias: "postV1adminmoderatoracceptInvite",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AcceptModeratorInviteRequest,
+      },
+    ],
+    response: z.object({ ok: z.boolean() }),
+    errors: [
+      {
+        status: 400,
+        description: `Invalid or expired invite link`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/admin/presign-avatar",
+    alias: "postV1adminpresignAvatar",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AdminPresignAvatarUploadRequest,
+      },
+    ],
+    response: AdminPresignAvatarUploadResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 500,
+        description: `Failed to generate upload URL`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "patch",
+    path: "/v1/admin/profile",
+    alias: "patchV1adminprofile",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AdminUpdateProfileRequest,
+      },
+    ],
+    response: AdminUpdateProfileResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Invalid avatarKey`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 404,
+        description: `Admin not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
     path: "/v1/admin/refresh",
     alias: "postV1adminrefresh",
     requestFormat: "json",
@@ -3406,6 +3613,7 @@ const endpoints = makeApi([
         type: "Query",
         schema: z
           .enum([
+            "all",
             "SIGNUP_REQUIRED",
             "ONBOARDING_REQUIRED",
             "ACTIVE",
@@ -3417,8 +3625,13 @@ const endpoints = makeApi([
         name: "tier",
         type: "Query",
         schema: z
-          .enum(["neary", "yothea", "reach", "preah", "indra"])
+          .enum(["all", "neary", "yothea", "reach", "preah", "indra"])
           .optional(),
+      },
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().min(1).max(100).optional(),
       },
     ],
     response: AdminUserManagementListResponse,
@@ -3454,50 +3667,7 @@ const endpoints = makeApi([
         schema: z.string().uuid(),
       },
     ],
-    response: z
-      .object({
-        ok: z.literal(true),
-        user: AdminUserManagementUser.and(
-          z
-            .object({
-              dateOfBirth: z.string().nullable(),
-              occupation: z.string().nullable(),
-              telegramUsername: z.string().nullable(),
-              location: z
-                .object({
-                  city: z.string().nullable(),
-                  country: z.string().nullable(),
-                })
-                
-                .nullable(),
-              points: z
-                .object({
-                  activePoints: z.number().int(),
-                  tierPoints: z.number().int(),
-                  legacyPoints: z.number().int(),
-                  totalPoints: z.number().int(),
-                })
-                ,
-              recentActivity: z.array(
-                z
-                  .object({
-                    id: z.string().uuid(),
-                    title: z.string(),
-                    actionType: z.string(),
-                    points: z.number().int(),
-                    pool: z.string(),
-                    mode: z.string(),
-                    referenceType: z.string().nullable(),
-                    referenceId: z.string().uuid().nullable(),
-                    createdAt: z.string(),
-                  })
-                  
-              ),
-            })
-            
-        ),
-      })
-      ,
+    response: AdminUserManagementDetailResponse,
     errors: [
       {
         status: 401,
@@ -3543,48 +3713,7 @@ const endpoints = makeApi([
       },
     ],
     response: z
-      .object({
-        ok: z.literal(true),
-        user: AdminUserManagementUser.and(
-          z
-            .object({
-              dateOfBirth: z.string().nullable(),
-              occupation: z.string().nullable(),
-              telegramUsername: z.string().nullable(),
-              location: z
-                .object({
-                  city: z.string().nullable(),
-                  country: z.string().nullable(),
-                })
-                
-                .nullable(),
-              points: z
-                .object({
-                  activePoints: z.number().int(),
-                  tierPoints: z.number().int(),
-                  legacyPoints: z.number().int(),
-                  totalPoints: z.number().int(),
-                })
-                ,
-              recentActivity: z.array(
-                z
-                  .object({
-                    id: z.string().uuid(),
-                    title: z.string(),
-                    actionType: z.string(),
-                    points: z.number().int(),
-                    pool: z.string(),
-                    mode: z.string(),
-                    referenceType: z.string().nullable(),
-                    referenceId: z.string().uuid().nullable(),
-                    createdAt: z.string(),
-                  })
-                  
-              ),
-            })
-            
-        ),
-      })
+      .object({ ok: z.literal(true), user: AdminUserManagementDetailUser })
       ,
     errors: [
       {
@@ -3980,6 +4109,31 @@ const endpoints = makeApi([
     path: "/v1/forum/answer/my-answers",
     alias: "getV1forumanswermyAnswers",
     requestFormat: "json",
+    parameters: [
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().max(300).optional(),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(20),
+      },
+      {
+        name: "sortBy",
+        type: "Query",
+        schema: z
+          .enum(["lastActivity", "mostReplies", "category"])
+          .optional()
+          .default("lastActivity"),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+    ],
     response: GetMyAnswersResponse,
   },
   {
@@ -4115,7 +4269,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(50).optional().default(10),
+        schema: z.number().int().gte(1).optional().default(10),
       },
       {
         name: "sortBy",
@@ -4127,6 +4281,7 @@ const endpoints = makeApi([
             "oldest",
             "mostVoted",
             "mostAnswered",
+            "byCategory",
           ])
           .optional()
           .default("newest"),
@@ -4253,7 +4408,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(50).optional().default(10),
+        schema: z.number().int().gte(1).optional().default(10),
       },
       {
         name: "sortBy",
@@ -4265,6 +4420,7 @@ const endpoints = makeApi([
             "oldest",
             "mostVoted",
             "mostAnswered",
+            "byCategory",
           ])
           .optional()
           .default("newest"),
@@ -4409,6 +4565,31 @@ const endpoints = makeApi([
     path: "/v1/forum/questions/my-questions",
     alias: "getV1forumquestionsmyQuestions",
     requestFormat: "json",
+    parameters: [
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().max(300).optional(),
+      },
+      {
+        name: "sortBy",
+        type: "Query",
+        schema: z
+          .enum(["newest", "mostVoted", "mostAnswered", "byCategory"])
+          .optional()
+          .default("newest"),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(10),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+    ],
     response: GetMyQuestionsResponse,
   },
   {
@@ -4470,7 +4651,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(50).optional().default(10),
+        schema: z.number().int().gte(1).optional().default(10),
       },
       {
         name: "cursor",
@@ -4622,7 +4803,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(50).optional().default(20),
+        schema: z.number().int().gte(1).optional().default(20),
       },
       {
         name: "sortBy",
@@ -5210,7 +5391,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(50).optional().default(20),
+        schema: z.number().int().gte(1).optional().default(20),
       },
       {
         name: "cursor",
@@ -5353,7 +5534,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(50).optional().default(20),
+        schema: z.number().int().gte(1).optional().default(20),
       },
       {
         name: "cursor",
@@ -5591,7 +5772,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(100).optional().default(20),
+        schema: z.number().int().gte(1).optional().default(20),
       },
       {
         name: "unreadOnly",
@@ -6115,7 +6296,7 @@ const endpoints = makeApi([
       {
         name: "limit",
         type: "Query",
-        schema: z.number().int().gte(1).lte(50).optional().default(20),
+        schema: z.number().int().gte(1).optional().default(20),
       },
       {
         name: "cursor",
@@ -7474,6 +7655,10 @@ export type AdminUser = z.infer<typeof schemas.AdminUser>;
 export type AdminLoginResponse = z.infer<typeof schemas.AdminLoginResponse>;
 export type AdminRefreshRequest = z.infer<typeof schemas.AdminRefreshRequest>;
 export type AdminRefreshResponse = z.infer<typeof schemas.AdminRefreshResponse>;
+export type AdminPresignAvatarUploadRequest = z.infer<typeof schemas.AdminPresignAvatarUploadRequest>;
+export type AdminPresignAvatarUploadResponse = z.infer<typeof schemas.AdminPresignAvatarUploadResponse>;
+export type AdminUpdateProfileRequest = z.infer<typeof schemas.AdminUpdateProfileRequest>;
+export type AdminUpdateProfileResponse = z.infer<typeof schemas.AdminUpdateProfileResponse>;
 export type AdminLogoutResponse = z.infer<typeof schemas.AdminLogoutResponse>;
 export type ContentModeratorReportType = z.infer<typeof schemas.ContentModeratorReportType>;
 export type ContentModeratorReportReporter = z.infer<typeof schemas.ContentModeratorReportReporter>;
@@ -7485,6 +7670,8 @@ export type UpdateContentModeratorReportReviewRequest = z.infer<typeof schemas.U
 export type UpdateContentModeratorReportReviewResponse = z.infer<typeof schemas.UpdateContentModeratorReportReviewResponse>;
 export type AdminDashboardResponse = z.infer<typeof schemas.AdminDashboardResponse>;
 export type AdminDashboardErrorResponse = z.infer<typeof schemas.AdminDashboardErrorResponse>;
+export type AcceptModeratorInviteRequest = z.infer<typeof schemas.AcceptModeratorInviteRequest>;
+export type InviteModeratorResponse = z.infer<typeof schemas.InviteModeratorResponse>;
 export type Moderator = z.infer<typeof schemas.Moderator>;
 export type ListModeratorsResponse = z.infer<typeof schemas.ListModeratorsResponse>;
 export type CreateModeratorRequest = z.infer<typeof schemas.CreateModeratorRequest>;
@@ -7492,9 +7679,12 @@ export type ModeratorResponse = z.infer<typeof schemas.ModeratorResponse>;
 export type UpdateModeratorRequest = z.infer<typeof schemas.UpdateModeratorRequest>;
 export type DeleteModeratorResponse = z.infer<typeof schemas.DeleteModeratorResponse>;
 export type AdminUserManagementTier = z.infer<typeof schemas.AdminUserManagementTier>;
-export type AdminUserManagementFilters = z.infer<typeof schemas.AdminUserManagementFilters>;
 export type AdminUserManagementUser = z.infer<typeof schemas.AdminUserManagementUser>;
 export type AdminUserManagementListResponse = z.infer<typeof schemas.AdminUserManagementListResponse>;
+export type AdminUserManagementPoints = z.infer<typeof schemas.AdminUserManagementPoints>;
+export type AdminUserManagementActivity = z.infer<typeof schemas.AdminUserManagementActivity>;
+export type AdminUserManagementDetailUser = z.infer<typeof schemas.AdminUserManagementDetailUser>;
+export type AdminUserManagementDetailResponse = z.infer<typeof schemas.AdminUserManagementDetailResponse>;
 export type OnboardingOkResponse = z.infer<typeof schemas.OnboardingOkResponse>;
 export type OnboardingErrorResponse = z.infer<typeof schemas.OnboardingErrorResponse>;
 export type OnboardingProfileStepRequest = z.infer<typeof schemas.OnboardingProfileStepRequest>;
@@ -7530,6 +7720,8 @@ export type AnswerResponse = z.infer<typeof schemas.AnswerResponse>;
 export type GetAnswersResponse = z.infer<typeof schemas.GetAnswersResponse>;
 export type AnswerQuestionResponse = z.infer<typeof schemas.AnswerQuestionResponse>;
 export type MyAnswerResponse = z.infer<typeof schemas.MyAnswerResponse>;
+export type MyAnswerDiscussionResponse = z.infer<typeof schemas.MyAnswerDiscussionResponse>;
+export type MyAnswersPaginationResponse = z.infer<typeof schemas.MyAnswersPaginationResponse>;
 export type GetMyAnswersResponse = z.infer<typeof schemas.GetMyAnswersResponse>;
 export type CreateAnswerRequest = z.infer<typeof schemas.CreateAnswerRequest>;
 export type CreateAnswerResponse = z.infer<typeof schemas.CreateAnswerResponse>;

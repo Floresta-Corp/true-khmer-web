@@ -26,7 +26,9 @@ type AdminUserMenuProps = {
 
 export default function AdminUserMenu({ admin, avatar }: AdminUserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const initials = getInitials(admin.name);
+  const initials = getInitials(
+    `${admin.firstName ?? ""} ${admin.lastName ?? ""}`,
+  );
 
   return (
     <div className="relative">
@@ -38,7 +40,7 @@ export default function AdminUserMenu({ admin, avatar }: AdminUserMenuProps) {
       >
         {avatar ? (
           <Avatar className="w-full h-full rounded-full border-0">
-            <AvatarImage src={avatar} alt={admin.name} />
+            <AvatarImage src={avatar} alt={admin.firstName ?? ""} />
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
         ) : (
@@ -65,9 +67,9 @@ export default function AdminUserMenu({ admin, avatar }: AdminUserMenuProps) {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-slate-900 dark:text-white">
-                    {admin.name}
+                    {`${admin.firstName ?? ""} ${admin.lastName ?? ""}`}
                   </p>
-                  <p className="text-[10px] font-medium text-slate-400">
+                  <p className="text-[11px] font-medium text-slate-400">
                     {admin.email}
                   </p>
                 </div>

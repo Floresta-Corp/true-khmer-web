@@ -9,22 +9,18 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Input } from "~/components/ui/input";
+import { Button } from "~/components/ui/button";
+import { Label } from "~/components/ui/label";
 
 interface InviteMemberModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSend: (data: {
-    email: string;
-    name: string;
-    role: string;
-    password: string;
-  }) => void;
+  onSend: (data: { email: string; role: string }) => void;
 }
 
 const ROLE_OPTIONS = [
   { label: "Admin", value: "admin" },
   { label: "Moderator", value: "moderator" },
-  { label: "Partner Manager", value: "partner_manager" },
 ];
 
 export function InviteMemberModal({
@@ -33,16 +29,31 @@ export function InviteMemberModal({
   onSend,
 }: InviteMemberModalProps) {
   const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteName, setInviteName] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState(ROLE_OPTIONS[0].value);
+  const [role, setRole] = useState(ROLE_OPTIONS[1].value);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   const handleSend = () => {
-    onSend({ email: inviteEmail, name: inviteName, role, password });
+    if (!inviteEmail.trim()) {
+      setEmailError("Email address is required");
+      return;
+    }
+
+    setEmailError(null);
+    onSend({ email: inviteEmail, role });
     setInviteEmail("");
-    setInviteName("");
-    setPassword("");
-    setRole(ROLE_OPTIONS[0].value);
+    setRole(ROLE_OPTIONS[1].value);
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInviteEmail(e.target.value);
+    if (emailError) {
+      setEmailError(null);
+    }
+  };
+
+  const handleClose = () => {
+    setEmailError(null);
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -53,7 +64,7 @@ export function InviteMemberModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        onClick={onClose}
+        onClick={handleClose}
         className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl"
       />
       <motion.div
@@ -62,19 +73,20 @@ export function InviteMemberModal({
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
         className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl p-10 overflow-hidden border border-slate-100 dark:border-slate-800 shadow-2xl"
       >
-        <div className="flex items-center justify-between mb-10">
-          <div className="p-3 bg-slate-900 text-white rounded-2xl">
+        <div className="flex items-center justify-between mb-8">
+          <div className="p-3 dark:bg-slate-900 dark:text-white rounded-xl">
             <UserPlus size={24} />
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 text-slate-300 hover:text-slate-900"
+          <Button
+            variant="ghost"
+            onClick={handleClose}
+            className="p-2 text-slate-500 hover:text-slate-900"
           >
             <X size={20} />
-          </button>
+          </Button>
         </div>
 
-        <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">
+        <h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2 tracking-tight">
           Invite Team Member
         </h3>
         <p className="text-slate-500 text-sm font-medium mb-10 leading-relaxed">
@@ -84,58 +96,41 @@ export function InviteMemberModal({
 
         <div className="space-y-6">
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
-              Full Name
-            </label>
-            <Input
-              type="text"
-              value={inviteName}
-              onChange={(e) => setInviteName(e.target.value)}
-              placeholder="John Doe"
-              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl py-3.5 px-4 text-sm font-bold focus:outline-none focus:border-slate-900 transition-all"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+            <Label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
               Email Address
-            </label>
+            </Label>
             <Input
               type="email"
               value={inviteEmail}
-              onChange={(e) => setInviteEmail(e.target.value)}
+              onChange={handleEmailChange}
               placeholder="name@company.com"
-              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl py-3.5 px-4 text-sm font-bold focus:outline-none focus:border-slate-900 transition-all"
+              className={`w-full bg-slate-50 dark:bg-slate-950 rounded-xl py-5 px-4 text-sm dark:text-white focus:outline-none transition-all ${
+                emailError
+                  ? "border-2 border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                  : "border border-slate-100 dark:border-slate-800 focus:border-slate-900"
+              }`}
             />
+            {emailError && (
+              <p className="text-xs font-semibold text-red-500 ml-1 transition-all">
+                {emailError}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
-              Initial Password
-            </label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Set an initial password"
-              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl py-3.5 px-4 text-sm font-bold focus:outline-none focus:border-slate-900 transition-all"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+            <Label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
               Assign Role
-            </label>
+            </Label>
             <Select value={role} onValueChange={setRole}>
-              <SelectTrigger className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl py-3.5 px-4 text-sm font-bold focus:outline-none focus:border-slate-900 transition-all focus:ring-0 focus:ring-offset-0 h-auto [&>svg]:opacity-50">
+              <SelectTrigger className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:text-white dark:border-slate-800 rounded-md py-3 px-4 text-sm  focus:outline-none focus:border-slate-900 transition-all focus:ring-0 focus:ring-offset-0 h-auto [&>svg]:opacity-50">
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
-              <SelectContent className="rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl">
+              <SelectContent className="rounded-xl border border-slate-100 dark:border-slate-800  bg-white dark:bg-slate-900 ">
                 {ROLE_OPTIONS.map((option) => (
                   <SelectItem
                     key={option.value}
                     value={option.value}
-                    className="text-sm font-bold py-2.5 px-4 cursor-pointer focus:bg-slate-50 dark:focus:bg-slate-800 rounded-lg my-0.5"
+                    className="text-sm font-semibold py-2.5 px-4 cursor-pointer  focus:bg-slate-50 dark:focus:bg-slate-800 rounded-xl my-0.5"
                   >
                     {option.label}
                   </SelectItem>
@@ -145,18 +140,19 @@ export function InviteMemberModal({
           </div>
 
           <div className="pt-6 flex gap-4">
-            <button
-              onClick={onClose}
-              className="flex-1 py-4 border border-slate-100 dark:border-slate-800 text-slate-400 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all"
+            <Button
+              variant="ghost"
+              onClick={handleClose}
+              className="flex-1 py-5 border border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-200 rounded-xl text-[11px] font-semibold uppercase tracking-widest hover:bg-slate-50 transition-all"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleSend}
-              className="flex-1 py-4 bg-blue-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all"
+              className="flex-1 py-5 bg-blue-600 text-white rounded-xl text-[11px] font-semibold uppercase tracking-widest hover:bg-blue-800 active:scale-95 transition-all"
             >
               Send Invitation
-            </button>
+            </Button>
           </div>
         </div>
       </motion.div>

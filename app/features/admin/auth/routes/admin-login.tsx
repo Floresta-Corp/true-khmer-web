@@ -33,10 +33,17 @@ function formatCooldown(seconds: number) {
   return `${seconds} seconds`;
 }
 
+const noticeMessages: Record<string, string> = {
+  moderator_invite_accepted:
+    "Your moderator account has been created. Sign in to continue.",
+};
+
 export default function AdminLoginPage() {
   const actionData = useActionData<AdminLoginActionData>();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo");
+  const notice = searchParams.get("notice");
+  const noticeMessage = notice ? noticeMessages[notice] : undefined;
   const navigation = useNavigation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -104,6 +111,11 @@ export default function AdminLoginPage() {
         </motion.header>
 
         <FormError message={actionData?.errors?.form} />
+        {noticeMessage ? (
+          <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
+            {noticeMessage}
+          </p>
+        ) : null}
         {isCoolingDown ? (
           <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
             Try again in {formatCooldown(cooldownSeconds)}.

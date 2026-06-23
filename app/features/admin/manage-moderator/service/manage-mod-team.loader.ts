@@ -1,6 +1,6 @@
 import { data, redirect, type LoaderFunctionArgs } from "react-router";
 import type { ListModeratorsResponse } from "~/types/api-client";
-import { getManageModTeam } from "~/services/api/admin/manage-mod-team/manage-mod-team.server";
+import { getManageModTeam } from "~/services/api/admin/manage-mod-team/manage-moderator.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
 
 export type ManageModTeamLoaderData = {

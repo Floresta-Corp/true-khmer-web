@@ -85,7 +85,7 @@ export default [
     index("features/admin/dashboard/admin-dashboard.tsx"),
     route(
       "manage-moderator/team",
-      "features/admin/manage-moderator/routes/manage-mod-team.tsx",
+      "features/admin/manage-moderator/routes/manage-moderator.tsx",
     ),
     route(
       "content-moderator",
@@ -107,6 +107,10 @@ export default [
   ]),
   route("tk-admin/login", "features/admin/auth/routes/admin-login.tsx"),
   route("tk-admin/login/otp", "features/admin/auth/routes/admin-login-otp.tsx"),
+  route(
+    "tk-admin/accept-invite",
+    "features/admin/manage-moderator/routes/accept-invite.tsx",
+  ),
   route("tk-admin/logout", "routes/admin-logout.tsx"),
 
   route("login", "routes/auth/pages/login.tsx"),
