@@ -1,10 +1,9 @@
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { resolveImageURL } from "~/lib/utils";
+import LogoMark from "../../../../public/logoMark";
 
 interface RankedUser {
   name: string;
-  avatar?: string;
   points: string;
   rank: number;
 }
@@ -12,7 +11,6 @@ interface RankedUser {
 const mockRankings: RankedUser[] = [
   {
     name: "Sarah Jenkins",
-    avatar: "/romdoul.svg",
     points: "12.5k points",
     rank: 1,
   },
@@ -30,8 +28,9 @@ export function TopRankingCard() {
             <li key={user.rank} className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={resolveImageURL(user.avatar)} alt="" />
-                  <AvatarFallback>SD</AvatarFallback>
+                  <AvatarFallback className="bg-[#F1F6FF]">
+                    <LogoMark size={20} aria-hidden="true" />
+                  </AvatarFallback>
                 </Avatar>
                 <div>
                   <div className="text-sm font-medium">{user.name}</div>

@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import LogoSvg from "../../../../public/logoSvg";
 
 type OnboardingHeaderProps = {
   title: string;
@@ -47,10 +48,11 @@ export function OnboardingHeader({
   return (
     <header className="w-full border-b border-[#DDE3ED] bg-white">
       <div className="relative mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 lg:px-0">
-        <img
-          src="/logofullcolor.svg"
-          alt="True Khmer"
+        <LogoSvg
+          width={82}
+          height={32}
           className="h-7 w-auto object-contain sm:h-8"
+          aria-label="True Khmer"
         />
 
         {titlePosition === "center" ? (

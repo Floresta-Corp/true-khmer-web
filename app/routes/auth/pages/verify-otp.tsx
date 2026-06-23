@@ -21,6 +21,7 @@ import {
 import type { VerifyOtpActionData } from "~/routes/auth/domain/auth.types";
 import { Label } from "~/components/ui/label";
 import { sanitizeRedirectPath } from "~/lib/redirects";
+import LogoSvg from "../../../../public/logoSvg";
 
 export const loader = verifyOtpLoader;
 export const action = verifyOtpAction;
@@ -109,10 +110,11 @@ export default function VerifyOtpPage() {
         </div>
 
         <section className="flex w-full max-w-134 flex-col items-center gap-12">
-          <img
-            src="/logofullcolor.svg"
-            alt="True Khmer"
+          <LogoSvg
+            width={123}
+            height={48}
             className="h-12 w-auto object-contain"
+            aria-label="True Khmer"
           />
 
           <div className="flex w-full flex-col items-center gap-9">

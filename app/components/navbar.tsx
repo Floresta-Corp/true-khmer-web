@@ -15,6 +15,7 @@ import NotificationBellPopOver from "~/components/notification-bell-pop-over";
 import { cn } from "~/lib/utils";
 import type { AuthenticatedUser } from "~/lib/server/types";
 import ProfileDropDown from "./profile-dropdown";
+import LogoSvg from "../../public/logoSvg";
 
 interface NavbarProps {
   user: AuthenticatedUser | null;
@@ -56,10 +57,11 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
           {/* Left: Logo */}
           <div className="flex items-center shrink-0">
             <Link to="/" className="flex items-center gap-2">
-              <img
-                src="/logofullcolor.svg"
-                alt="Logo"
+              <LogoSvg
+                width={102}
+                height={40}
                 className="h-10 w-auto"
+                aria-label="True Khmer"
               />
             </Link>
           </div>

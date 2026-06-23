@@ -1,4 +1,5 @@
 import { cn } from "~/lib/utils";
+import LogoMark from "../../../../public/logoMark";
 
 type OnboardingRomdoulCornersProps = {
   topLeftClassName?: string;
@@ -32,9 +33,9 @@ export function OnboardingRomdoulCorners({
       {showGlow ? (
         <div className={cn(DEFAULT_TOP_LEFT_GLOW_CLASS, topLeftGlowClassName)} />
       ) : null}
-      <img
-        src="/romdoul.svg"
-        alt=""
+      <LogoMark
+        width={256}
+        height={256}
         aria-hidden="true"
         className={cn(DEFAULT_TOP_LEFT_CLASS, topLeftClassName)}
       />
@@ -43,9 +44,9 @@ export function OnboardingRomdoulCorners({
           className={cn(DEFAULT_BOTTOM_RIGHT_GLOW_CLASS, bottomRightGlowClassName)}
         />
       ) : null}
-      <img
-        src="/romdoul.svg"
-        alt=""
+      <LogoMark
+        width={256}
+        height={256}
         aria-hidden="true"
         className={cn(DEFAULT_BOTTOM_RIGHT_CLASS, bottomRightClassName)}
       />
