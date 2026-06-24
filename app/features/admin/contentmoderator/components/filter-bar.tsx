@@ -73,7 +73,7 @@ export function FilterBar({
           </PopoverTrigger>
           <PopoverContent
             align="start"
-            className="min-w-56 max-h-72 overflow-hidden rounded-md border border-slate-200 bg-white p-1 shadow-md dark:border-slate-800 dark:bg-slate-900"
+            className="min-w-56 max-h-72 overflow-y-auto rounded-md border border-slate-200 bg-white p-1 shadow-md dark:border-slate-800 dark:bg-slate-900"
           >
             {categoryOptions.map((option) => {
               const isSelected = selectedTypeId === option.id;
