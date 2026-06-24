@@ -62,6 +62,7 @@ export default [
       "features/myspace/routes/my-application.$sourceType.$postingId.tsx",
     ),
     route("saved-items", "features/saved-items/routes/saved-items.tsx"),
+    route("settings", "features/settings/routes/settings.tsx"),
 
     layout("layout/workspace-layout.tsx", [
       route("workspace", "features/workspace/routes/workspace.tsx"),
