@@ -21,8 +21,19 @@ export async function ProfileDetailLoader({
       sourceType === "volunteer" ||
       sourceType === "project"
     ) {
-      const result = await GetPostedContent(request, params.id, sourceType);
-      return { kind: "posted" as const, postedContent: result.data };
+      const cursor = url.searchParams.get("cursor") ?? undefined;
+      const result = await GetPostedContent(
+        request,
+        params.id,
+        sourceType,
+        cursor,
+        10,
+      );
+
+      return {
+        kind: "posted" as const,
+        postedContent: { ...result.data, sourceType },
+      };
     }
 
     const result = await GetProfileById(request, params.id);

@@ -21,7 +21,7 @@ export default function MyApplicationPage() {
 
   return (
     <div className="min-h-screen w-full bg-white py-8 dark:bg-slate-950 sm:py-10">
-      <div className="mx-auto flex max-w-[1400px] flex-col gap-8 px-4 sm:px-6 lg:px-10">
+      <div className="mx-auto flex max-w-350 flex-col gap-8 px-4 sm:px-6 lg:px-10">
         <MyApplicationPendingApprove />
         <div className="flex w-full flex-col gap-10 lg:flex-row lg:items-start xl:gap-14">
           <div className="flex-1 space-y-8">
@@ -41,7 +41,7 @@ export default function MyApplicationPage() {
               <MyApplicationCardList />
             </AnimatePresence>
           </div>
-          <div className="w-full lg:w-[340px]">
+          <div className="w-full lg:w-85">
             <MyApplicationRightSidebar />
           </div>
         </div>
