@@ -159,7 +159,7 @@ export const ProjectPostedContentSchema = z.object({
   ok: z.literal(true),
   sourceType: z.literal("project"),
   launchpads: z.array(LaunchpadOpportunitySchema),
-  pagination: PaginationSchema,
+  nextCursor: z.string().nullable(),
 });
 
 export const GetPostedContentResponseSchema = z.discriminatedUnion("sourceType", [

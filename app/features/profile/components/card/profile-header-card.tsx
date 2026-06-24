@@ -13,6 +13,7 @@ interface ProfileHeaderCardProps {
   countryName?: string;
   email?: string;
   website?: string;
+  profileId?: string;
 }
 
 export default function ProfileHeaderCard({
@@ -24,6 +25,7 @@ export default function ProfileHeaderCard({
   countryName,
   email,
   website,
+  profileId,
 }: ProfileHeaderCardProps) {
   const displayImage = resolveImageURL(profileImage);
   const websiteUrl = website
@@ -72,7 +74,7 @@ export default function ProfileHeaderCard({
             <Plus />
             Follow
           </Button>
-          <ProfileCardPopover />
+          <ProfileCardPopover profileId={profileId} />
         </div>
       </div>
       <div className="border-t border-slate-200/60 dark:border-slate-800/60 px-6 py-4 sm:px-8 bg-white/40 dark:bg-slate-950/20 flex flex-wrap gap-x-5 gap-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
