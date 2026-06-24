@@ -301,7 +301,7 @@ function SectionHeader({
 
 function StatCard({ stat }: { stat: Stat }) {
   return (
-    <Card className="rounded-2xl border-gray-100 bg-white">
+    <Card className="rounded-2xl bg-white overflow-hidden shadow-none">
       <CardContent className="p-5 flex items-center gap-4">
         <div
           className={`h-11 w-11 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center shrink-0`}
@@ -324,7 +324,7 @@ function StatCard({ stat }: { stat: Stat }) {
 function ForumPostCard({ post }: { post: Post }) {
   return (
     <Link to="/forum">
-      <Card className="rounded-2xl border-gray-100 hover:border-blue-200 transition-colors duration-200 group cursor-pointer">
+      <Card className="rounded-2xl shadow-none hover:border-blue-200 transition-colors duration-200 group cursor-pointer">
         <CardContent className="p-5">
           <div className="flex items-center justify-between gap-3 mb-2.5">
             <div className="flex items-center gap-2.5">
@@ -368,7 +368,7 @@ function ForumPostCard({ post }: { post: Post }) {
 function ProjectCard({ project }: { project: Project }) {
   return (
     <Link to="/launchpad">
-      <Card className="rounded-2xl border-gray-100 hover:border-amber-200 transition-colors duration-200 overflow-hidden group cursor-pointer p-0">
+      <Card className="rounded-2xl shadow-none hover:border-amber-200 transition-colors duration-200 overflow-hidden group cursor-pointer">
         <div className="aspect-video relative overflow-hidden bg-gray-100">
           <img
             src={project.image}
@@ -468,7 +468,7 @@ function ContributorRow({
 function NavTile({ nav }: { nav: NavItem }) {
   return (
     <Link to={nav.to}>
-      <Card className="rounded-2xl border-gray-100 transition-colors duration-200 group h-full hover:border-gray-200">
+      <Card className="rounded-2xl transition-colors duration-200 group h-full hover:border-gray-200 shadow-none">
         <CardContent className="p-4">
           <div
             className={`h-9 w-9 rounded-2xl ${nav.color} text-white flex items-center justify-center mb-3.5 group-hover:scale-110 transition-transform`}
@@ -491,7 +491,7 @@ function NavTile({ nav }: { nav: NavItem }) {
 
 function CampaignBanner() {
   return (
-    <Card className="rounded-2xl overflow-hidden border-gray-100 p-0">
+    <Card className="rounded-2xl shadow-none overflow-hidden">
       <div className="bg-linear-to-br from-indigo-900 to-slate-900 text-white flex flex-col md:flex-row">
         <div className="p-8 flex-1 flex flex-col justify-between gap-7">
           <div>
@@ -586,7 +586,7 @@ function LaunchpadSection() {
 function ShowcaseSection() {
   return (
     <section>
-      <Card className="rounded-2xl border-gray-100">
+      <Card className="rounded-2xl shadow-none">
         <CardContent className="p-7">
           <SectionHeader
             icon={Globe}
@@ -640,7 +640,7 @@ function QuickNavPanel() {
 
 function VolunteerPanel() {
   return (
-    <Card className="rounded-2xl border-gray-100">
+    <Card className="rounded-2xl shadow-none">
       <CardContent className="p-5">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
@@ -676,7 +676,7 @@ function PioneerTerminal({
   avatarSrc: string;
 }) {
   return (
-    <Card className="rounded-2xl border-0 overflow-hidden p-0">
+    <Card className="rounded-2xl shadow-none border-0 overflow-hidden p-0">
       <div className="bg-slate-900 text-white">
         <div className="h-1 w-full bg-linear-to-r from-blue-500 to-emerald-500" />
         <div className="p-5">
@@ -737,7 +737,7 @@ function PioneerTerminal({
 
 function CommunitiesPanel() {
   return (
-    <Card className="rounded-2xl border-gray-100">
+    <Card className="rounded-2xl shadow-none">
       <CardContent className="p-5">
         <div className="flex items-center gap-2 mb-4">
           <Layers size={16} className="text-blue-600" />
@@ -844,7 +844,7 @@ export default function Home() {
               <Button
                 asChild
                 size="sm"
-                className="h-10 px-5 rounded-2xl font-bold text-xs uppercase tracking-widest"
+                className="h-12 px-5 rounded-2xl font-bold text-xs uppercase tracking-widest"
               >
                 <Link to={user ? "/forum" : "/register"}>
                   {user ? "Browse Forum" : "Join Now"}
