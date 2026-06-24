@@ -17,7 +17,7 @@ import OpportunityCardSkeleton from "~/features/volunteer/components/sections/op
 import LaunchpadProjectCard from "~/features/launchpad/components/card/launchpad-project-card";
 import LaunchpadProjectCardSkeleton from "~/features/launchpad/components/card/launchpad-project-card-skeleton";
 import { InfiniteScrollTrigger } from "~/components/infinite-scroll-trigger";
-import { usePostedContent } from "./services/posted-content.loader";
+import { usePostedContent } from "./components/use-posted-content";
 
 const containerVariants = {
   hidden: {},
@@ -38,13 +38,17 @@ export default function ProfileDetailPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  const initialPosted = data.kind === "profile" && "initialPosted" in data
+    ? data.initialPosted
+    : undefined;
+
   const {
     accumulated,
     isTabLoading,
     isLoadingMore,
     handleTabChange,
     handleLoadMore,
-  } = usePostedContent(params.id);
+  } = usePostedContent(params.id, initialPosted);
 
   const allowedTabs = ["forum", "volunteer", "project"] as const;
   const urlSourceType = searchParams.get("sourceType");
