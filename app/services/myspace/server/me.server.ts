@@ -7,6 +7,7 @@ import type {
   Country,
   City,
 } from "../types";
+import type { SearchSkillsResponse } from "~/types/api-client";
 
 export async function GetMyspaceMe(request: Request) {
   return await apiRequestWithSession<GetMySpaceMeResponse>(request, "/me", {
@@ -58,3 +59,21 @@ export async function GetCities(request: Request, countryId: string) {
   );
 }
 
+export async function SearchSkills(
+  request: Request,
+  search: string,
+  limit = 10,
+) {
+  const params = new URLSearchParams({
+    search,
+    limit: String(limit),
+  });
+
+  return await apiRequestWithSession<SearchSkillsResponse>(
+    request,
+    `/me/skills/search?${params.toString()}`,
+    {
+      method: "GET",
+    },
+  );
+}
