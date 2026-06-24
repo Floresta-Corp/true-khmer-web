@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 import { redirect, type ActionFunctionArgs } from "react-router";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { getPasswordValidationError } from "~/routes/auth/domain/password-validation";
@@ -11,44 +13,50 @@ export type AcceptInviteActionData = {
   errors?: AcceptInviteErrors;
 };
 
+const acceptInviteSchema = z
+  .object({
+    token: z.string().min(1, "Invitation token is required."),
+    firstName: z.string().min(1, "First name is required."),
+    lastName: z.string().min(1, "Last name is required."),
+    password: z.string().min(8, "Password must be at least 8 characters."),
+    confirmPassword: z.string().min(1, "Please confirm your password."),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  });
+
 function inviteErrorMessage(error: unknown) {
   if (error instanceof ProtectedApiError) {
     if (error.status === 400 || error.status === 404 || error.status === 410) {
       return "This invitation link is invalid or has expired. Please ask an admin to send a new invite.";
     }
 
-    return error.message || "Unable to accept invitation. Please try again.";
+    return "Unable to accept invitation. Please try again.";
   }
 
-  return error instanceof Error
-    ? `Unable to accept invitation: ${error.message}`
-    : "Unable to accept invitation. Please try again.";
+  return "Unable to accept invitation. Please try again.";
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function acceptInviteAction({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const token = String(formData.get("token") || "").trim();
-  const firstName = String(formData.get("firstName") || "").trim();
-  const lastName = String(formData.get("lastName") || "").trim();
-  const password = String(formData.get("password") || "");
-  const confirmPassword = String(formData.get("confirmPassword") || "");
+  const result = acceptInviteSchema.safeParse(Object.fromEntries(formData));
 
-  const errors: AcceptInviteErrors = {};
-
-  if (!token) errors.token = "Invitation token is required.";
-  if (!firstName) errors.name = "First name is required.";
-  if (!lastName) errors.name = "Last name is required.";
-
-  const passwordError = getPasswordValidationError(password);
-  if (passwordError) errors.password = passwordError;
-
-  if (!confirmPassword)
-    errors.confirmPassword = "Please confirm your password.";
-  else if (confirmPassword !== password) {
-    errors.confirmPassword = "Passwords do not match.";
+  if (!result.success) {
+    const fieldErrors = result.error.flatten().fieldErrors;
+    return {
+      errors: {
+        token: fieldErrors.token?.[0],
+        name: fieldErrors.firstName?.[0] || fieldErrors.lastName?.[0],
+        password:
+          fieldErrors.password?.[0] ||
+          getPasswordValidationError(String(formData.get("password") || "")),
+        confirmPassword: fieldErrors.confirmPassword?.[0],
+      },
+    };
   }
 
-  if (Object.keys(errors).length > 0) return { errors };
+  const { token, firstName, lastName, password } = result.data;
 
   try {
     await verifyModeratorInvite(request, {

@@ -33,7 +33,7 @@ export async function getManageModTeam(
     { method: "GET" },
   );
 
-  return { data: result };
+  return result;
 }
 
 export async function postManageTeam(

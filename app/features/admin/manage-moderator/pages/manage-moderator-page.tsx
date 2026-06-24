@@ -1,6 +1,6 @@
 import { useFetcher, useLoaderData, useSearchParams } from "react-router";
 import type { loader } from "../routes/manage-moderator";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -27,9 +27,12 @@ export default function ManageModeratorPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [fetcherError, setFetcherError] = useState<string | null>(null);
+  const lastIntent = useRef<string | null>(null);
   const fetcher = useFetcher();
 
   const handleSendInvitation = (data: { email: string; role: string }) => {
+    lastIntent.current = "invite";
     const formData = new FormData();
     formData.append("intent", "invite");
     formData.append("email", data.email);
@@ -37,7 +40,6 @@ export default function ManageModeratorPage() {
 
     fetcher.submit(formData, { method: "post" });
     setShowInviteModal(false);
-    setShowSuccessModal(true);
   };
 
   const handleCursor = (cursor: string | null) => {
@@ -55,11 +57,32 @@ export default function ManageModeratorPage() {
   };
 
   const handleRemove = (id: string) => {
+    lastIntent.current = "remove";
     const formData = new FormData();
     formData.append("intent", "remove");
     formData.append("memberId", id);
     fetcher.submit(formData, { method: "post" });
   };
+
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data) {
+      if (fetcher.data.ok) {
+        if (lastIntent.current === "invite") {
+          setShowSuccessModal(true);
+          setShowInviteModal(false);
+        }
+        setFetcherError(null);
+      } else {
+        const action =
+          lastIntent.current === "invite" ? "send invitation" : "remove member";
+        setFetcherError(
+          fetcher.data.message ?? `Failed to ${action}. Please try again.`,
+        );
+      }
+      lastIntent.current = null;
+    }
+  }, [fetcher.data, fetcher.state]);
+
   return (
     <div className="p-10 space-y-10 max-w-7xl mx-auto">
       <div className="flex items-end justify-between">
@@ -78,6 +101,12 @@ export default function ManageModeratorPage() {
           <UserPlus size={16} /> Invite Member
         </Button>
       </div>
+
+      {fetcherError && (
+        <div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800 rounded-xl p-4 text-rose-600 dark:text-rose-400 text-sm font-medium">
+          {fetcherError}
+        </div>
+      )}
 
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
         <div className="p-6 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between gap-4">
@@ -202,6 +231,7 @@ export default function ManageModeratorPage() {
 
       <InviteMemberModal
         isOpen={showInviteModal}
+        isLoading={fetcher.state !== "idle" && lastIntent.current === "invite"}
         onClose={() => setShowInviteModal(false)}
         onSend={handleSendInvitation}
       />

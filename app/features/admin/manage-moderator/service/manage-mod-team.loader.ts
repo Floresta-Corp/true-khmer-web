@@ -1,11 +1,20 @@
 import { data, redirect, type LoaderFunctionArgs } from "react-router";
-import type { ListModeratorsResponse } from "~/types/api-client";
-import { getManageModTeam } from "~/services/api/admin/manage-mod-team/manage-moderator.server";
+
 import { getAdminAccessToken } from "~/lib/server/session.server";
+import { getManageModTeam } from "~/services/api/admin/manage-mod-team/manage-moderator.server";
+import type {
+  CursorPagination,
+  ListModeratorsResponse,
+} from "~/types/api-client";
+
+function positiveInteger(value: string | null, fallback: number) {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
 
 export type ManageModTeamLoaderData = {
   moderators: ListModeratorsResponse["moderators"];
-  pagination: ListModeratorsResponse["pagination"];
+  pagination: CursorPagination;
 };
 
 export async function manageModTeamLoader({ request }: LoaderFunctionArgs) {
@@ -17,22 +26,21 @@ export async function manageModTeamLoader({ request }: LoaderFunctionArgs) {
 
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor") ?? undefined;
-  const limit = url.searchParams.get("limit") ?? "20";
+  const limit = Math.min(
+    positiveInteger(url.searchParams.get("limit"), 20),
+    100,
+  );
 
-  const result = await getManageModTeam(request, accessToken, {
-    cursor,
-    limit,
-  });
+  const { moderators, pagination } = await getManageModTeam(
+    request,
+    accessToken,
+    { cursor, limit: limit.toString() },
+  ).then((result) => result);
 
-  const { data: apiData } = result;
-
-  return data(
+  return data<ManageModTeamLoaderData>(
+    { moderators, pagination },
     {
-      moderators: apiData.moderators ?? [],
-      pagination: apiData.pagination,
-    } satisfies ManageModTeamLoaderData,
-    {
-      headers: setCookie ? { "Set-Cookie": setCookie } : {},
+      ...(setCookie ? { headers: { "Set-Cookie": setCookie } } : {}),
     },
   );
 }

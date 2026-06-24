@@ -22,10 +22,9 @@ function getInitials(name: string) {
 
 type AdminUserMenuProps = {
   admin: AdminUser;
-  avatar?: string;
 };
 
-export default function AdminUserMenu({ admin, avatar }: AdminUserMenuProps) {
+export default function AdminUserMenu({ admin }: AdminUserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const initials = getInitials(
     `${admin.firstName ?? ""} ${admin.lastName ?? ""}`,
@@ -39,7 +38,7 @@ export default function AdminUserMenu({ admin, avatar }: AdminUserMenuProps) {
         aria-label="Open user menu"
         aria-expanded={isOpen}
       >
-        {avatar ? (
+        {admin.avatarKey ? (
           <Avatar className="w-full h-full rounded-full border-0">
             <AvatarImage
               src={resolveImageURL(admin.avatarKey)}

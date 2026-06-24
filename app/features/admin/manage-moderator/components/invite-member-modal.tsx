@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { UserPlus, X } from "lucide-react";
+import { Loader2, UserPlus, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -16,6 +16,7 @@ interface InviteMemberModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSend: (data: { email: string; role: string }) => void;
+  isLoading: boolean;
 }
 
 const ROLE_OPTIONS = [
@@ -27,21 +28,32 @@ export function InviteMemberModal({
   isOpen,
   onClose,
   onSend,
+  isLoading = false,
 }: InviteMemberModalProps) {
   const [inviteEmail, setInviteEmail] = useState("");
   const [role, setRole] = useState(ROLE_OPTIONS[1].value);
   const [emailError, setEmailError] = useState<string | null>(null);
 
   const handleSend = () => {
-    if (!inviteEmail.trim()) {
+    if (isLoading) return;
+    const normalizedEmail = inviteEmail.trim();
+    if (!normalizedEmail) {
       setEmailError("Email address is required");
       return;
     }
 
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
+    if (!isValidEmail) {
+      setEmailError("Please enter a valid email address");
+      return;
+    }
+
     setEmailError(null);
-    onSend({ email: inviteEmail, role });
-    setInviteEmail("");
-    setRole(ROLE_OPTIONS[1].value);
+    onSend({ email: normalizedEmail, role });
+    if (!isLoading) {
+      setInviteEmail("");
+      setRole(ROLE_OPTIONS[1].value);
+    }
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,6 +64,7 @@ export function InviteMemberModal({
   };
 
   const handleClose = () => {
+    if (isLoading) return;
     setEmailError(null);
     onClose();
   };
@@ -149,9 +162,17 @@ export function InviteMemberModal({
             </Button>
             <Button
               onClick={handleSend}
-              className="flex-1 py-5 bg-blue-600 text-white rounded-xl text-[11px] font-semibold uppercase tracking-widest hover:bg-blue-800 active:scale-95 transition-all"
+              disabled={isLoading}
+              className="flex-1 py-5 bg-blue-600 text-white rounded-xl text-[11px] font-semibold uppercase tracking-widest hover:bg-blue-800 active:scale-95 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
             >
-              Send Invitation
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                "Send Invitation"
+              )}
             </Button>
           </div>
         </div>

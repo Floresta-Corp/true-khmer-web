@@ -13,7 +13,7 @@ import { FormError } from "~/routes/auth/components/form-error";
 import { PasswordField } from "~/routes/auth/components/password-field";
 import { ResetFlowShell } from "~/routes/auth/components/reset-flow-shell";
 import {
-  action as acceptInviteAction,
+  acceptInviteAction,
   type AcceptInviteActionData,
 } from "../service/accept-invite.action";
 

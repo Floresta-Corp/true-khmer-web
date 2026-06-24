@@ -9,6 +9,7 @@ import { getAdminAccessToken } from "~/lib/server/session.server";
 
 const inviteSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email"),
+  role: z.string().min(1, "Role is required"),
 });
 
 export async function manageModTeamAction({ request }: ActionFunctionArgs) {
@@ -28,15 +29,15 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
   }
 
   if (actionType === "invite") {
-    const result = inviteSchema.safeParse(Object.fromEntries(formData));
-
+    const result = inviteSchema.safeParse({
+      email: formData.get("email"),
+      role: formData.get("role"),
+    });
     if (!result.success) {
       const message = result.error.issues.map((i) => i.message).join(", ");
       return data({ ok: false, error: message }, { status: 400 });
     }
-
     const payload = result.data;
-
     try {
       await postManageTeam(request, accessToken, {
         email: payload.email,
@@ -47,9 +48,10 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
         setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
       );
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to invite moderator.";
-      return data({ ok: false, error: message }, { status: 400 });
+      return data(
+        { ok: false, error: "Failed to invite moderator." },
+        { status: 400 },
+      );
     }
   }
 
@@ -57,7 +59,10 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
     const memberId = String(formData.get("memberId") ?? "").trim();
 
     if (!memberId) {
-      return data({ ok: false, error: "Member ID is required." }, { status: 400 });
+      return data(
+        { ok: false, error: "Member ID is required." },
+        { status: 400 },
+      );
     }
 
     try {
@@ -68,9 +73,10 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
         setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
       );
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to remove moderator.";
-      return data({ ok: false, error: message }, { status: 400 });
+      return data(
+        { ok: false, error: "Failed to remove moderator." },
+        { status: 400 },
+      );
     }
   }
 
