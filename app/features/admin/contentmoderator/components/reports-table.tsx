@@ -48,24 +48,24 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
   return (
     <TableRow
       onClick={() => onSelect(report)}
-      className="hover:bg-slate-50/50 dark:hover:bg-slate-700/40 transition-colors cursor-pointer group"
+      className="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors cursor-pointer group"
     >
       <TableCell className="text-center align-middle">
-        <span className="text-xs font-medium text-slate-400 group-hover:text-blue-600 transition-colors tracking-widest">
+        <span className="text-xs font-medium text-slate-400 group-hover:text-blue-600 transition-colors tracking-wide">
           REP-{String(report.reportId).padStart(3, "0")}
         </span>
       </TableCell>
 
       <TableCell className="text-center align-middle">
-        <span className="px-2 py-1.5 text-[11px] font-semibold rounded-md border bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700">
+        <span className="px-2 py-1.5 text-xs font-semibold rounded-lg border bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700">
           {report.type.name}
         </span>
       </TableCell>
 
-      <TableCell className="px-10 py-6 min-w-0 align-middle">
+      <TableCell className="min-w-0 px-5 py-4 align-middle">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded border border-slate-200 dark:border-blue-600/20">
+            <span className="px-1.5 py-0.5 text-[10px] font-semibold text-blue-500 uppercase tracking-wide bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-slate-200 dark:border-blue-600/20">
               {report.reportType}
             </span>
             {report.reportSubType &&
@@ -73,7 +73,7 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
                 const sub = getSubTypeColor(report.reportSubType);
                 return sub ? (
                   <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest border ${sub.badge}`}
+                    className={`px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide rounded-lg border ${sub.badge}`}
                   >
                     {sub.label}
                   </span>
@@ -93,25 +93,25 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
                 {report.reportingBy?.name?.charAt(0) ?? "?"}
               </AvatarFallback>
             </Avatar>
-            <span className="min-w-0 text-[11px]  text-slate-400 truncate">
+            <span className="min-w-0 text-xs text-slate-400 truncate">
               Reported by {report.reportingBy?.name}
             </span>
           </div>
         </div>
       </TableCell>
 
-      <TableCell className="px-10 py-6 text-center text-xs font-medium text-slate-400 align-middle">
+      <TableCell className="px-5 py-4 text-center text-sm text-slate-500 dark:text-slate-400 align-middle">
         <div className="flex items-center justify-center gap-2">
           <Clock size={14} />
           <span>{formatDateMonthYear(report.dateTime)}</span>
         </div>
       </TableCell>
 
-      <TableCell className="px-10 py-6 text-center align-middle">
+      <TableCell className="px-5 py-4 text-center align-middle">
         <StatusBadge status={report.status} />
       </TableCell>
 
-      <TableCell className="px-10 py-6 text-right align-middle">
+      <TableCell className="px-5 py-4 text-right align-middle">
         <button
           type="button"
           aria-label="Open report details"
@@ -143,11 +143,11 @@ export function ReportsTable({ reports, onSelect }: ReportsTableProps) {
         </colgroup>
 
         <TableHeader>
-          <TableRow className="border-b border-slate-50 dark:border-slate-800 hover:bg-transparent dark:hover:bg-transparent">
+          <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent dark:hover:bg-transparent">
             {COLUMNS.map((col) => (
               <TableHead
                 key={col.label}
-                className={`px-10 py-6 text-[11px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-widest ${col.align}`}
+                className={`px-5 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide ${col.align}`}
               >
                 {col.label}
               </TableHead>
@@ -155,7 +155,7 @@ export function ReportsTable({ reports, onSelect }: ReportsTableProps) {
           </TableRow>
         </TableHeader>
 
-        <TableBody className="divide-y divide-slate-50 dark:divide-slate-800/50">
+        <TableBody className="divide-y divide-slate-100 dark:divide-slate-800">
           {reports.length > 0 ? (
             reports.map((report) => (
               <ReportRow key={report.id} report={report} onSelect={onSelect} />

@@ -87,7 +87,7 @@ export function ReportDrawer({
               <h2 className="text-xl font-semibold tracking-tighter text-(--admin-text)">
                 Review Report
               </h2>
-              <p className="text-[11px] font-black text-(--admin-text-secondary) uppercase tracking-widest">
+              <p className="text-[11px] font-semibold text-(--admin-text-secondary) uppercase tracking-widest">
                 REP-{String(report.reportId).padStart(3, "0")}
               </p>
             </div>
