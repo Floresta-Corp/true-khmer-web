@@ -5,7 +5,6 @@ import {
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import {
   type CreateForumQuestionInput,
-  type GetMyQuestionResponse,
   type GetQuestionPaginationResponse,
   type GetQuestionResponse,
   type QuestionSortBy,
@@ -14,6 +13,7 @@ import {
   ForumQuestionImagePresignInputSchema,
 } from "../forum-types";
 import type { VoteIntent } from "~/services/types";
+import type { GetMyQuestionsResponse } from "~/types/api-client";
 
 export interface QuestionPaginationParams {
   cursor?: string;
@@ -42,7 +42,7 @@ export async function createForumQuestion(
 }
 
 export async function myForumQuestion(request: Request) {
-  const result = await apiRequestWithSession<GetMyQuestionResponse>(
+  const result = await apiRequestWithSession<GetMyQuestionsResponse>(
     request,
     `/forum/questions/my-questions`,
     {

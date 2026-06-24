@@ -9,6 +9,7 @@ import {
   Globe,
   MoreHorizontal,
   Pencil,
+  Share2,
   Star,
   Trash2,
   Users,
@@ -39,6 +40,7 @@ import type {
 import { Separator } from "~/components/ui/separator";
 import { formatDateMonthYear } from "~/features/events/lib/event-formatters";
 import { addDays, isValid } from "date-fns";
+import { buildAbsoluteUrl, copyToClipboard } from "~/lib/clipboard";
 
 type Props = {
   status: ManagePostStatus;
@@ -105,6 +107,12 @@ export default function ManagePostOption({
     e.stopPropagation();
     navigate(editRoute);
   };
+
+  const handleSharePosting = () => {
+    copyToClipboard(buildAbsoluteUrl(`/launchpad/detail/${postingId}`));
+  };
+
+  const isProject = managePostSourceType === "projects";
 
   const isExtendingDeadline = extendDeadlineFetcher.state !== "idle";
 
@@ -217,13 +225,15 @@ export default function ManagePostOption({
                 <X size={16} className="text-slate-400" />
                 Close Recruitment
               </DropdownMenuItem>
-              {/* <DropdownMenuItem
-              // onClick={() => handleAction("SHARE")}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
-            >
-              <Share2 size={16} className="text-slate-400" />
-              Share Posting
-            </DropdownMenuItem> */}
+              {isProject && (
+                <DropdownMenuItem
+                  onClick={handleSharePosting}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
+                >
+                  <Share2 size={16} className="text-slate-400" />
+                  Share Posting
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator className="my-1" />
               <DropdownMenuItem
                 onClick={() => handleAction("cancel")}
@@ -262,6 +272,15 @@ export default function ManagePostOption({
                 <CheckCircle size={16} className="text-green-600" />
                 Mark as Completed
               </DropdownMenuItem>
+              {isProject && (
+                <DropdownMenuItem
+                  onClick={handleSharePosting}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
+                >
+                  <Share2 size={16} className="text-slate-400" />
+                  Share Posting
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator className="my-1" />
               <DropdownMenuItem
                 onClick={() => handleAction("cancel")}
@@ -289,7 +308,15 @@ export default function ManagePostOption({
                 <Globe size={16} className="text-slate-400" />
                 Publish
               </DropdownMenuItem>
-
+              {isProject && (
+                <DropdownMenuItem
+                  onClick={handleSharePosting}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
+                >
+                  <Share2 size={16} className="text-slate-400" />
+                  Share Posting
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator className="my-1" />
               <DropdownMenuItem
                 onClick={() => handleAction("delete")}

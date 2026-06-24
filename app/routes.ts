@@ -130,6 +130,7 @@ export default [
     "routes/api/api.uploads.avatar.presign.tsx",
   ),
   route("api/me", "routes/api/api.me.tsx"),
+  route("api/myspace/skills/search", "routes/api/myspace/skills-search.ts"),
   route("api/launchpad/apply", "routes/api/api.launchpad.apply.ts"),
   route("api/launchpad/batch-apply", "routes/api/api.launchpad.batch-apply.ts"),
   route("api/launchpad/save", "routes/api/api.launchpad.save.ts"),

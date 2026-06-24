@@ -8,6 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
+import { buildAbsoluteUrl, copyToClipboard } from "~/lib/clipboard";
 
 interface ShareLaunchpadDialogProps {
   projectId: string;
@@ -21,10 +22,7 @@ export function ShareLaunchpadDialog({
   const [isCopied, setIsCopied] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const shareUrl =
-    typeof window !== "undefined"
-      ? new URL(`/launchpad/detail/${projectId}`, window.location.origin).href
-      : `/launchpad/detail/${projectId}`;
+  const shareUrl = buildAbsoluteUrl(`/launchpad/detail/${projectId}`);
 
   useEffect(() => {
     return () => {
@@ -36,14 +34,16 @@ export function ShareLaunchpadDialog({
 
   const handleCopy = async () => {
     if (!navigator.clipboard || !window.isSecureContext) return;
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setIsCopied(true);
-      if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => setIsCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy:", err);
-    }
+
+    const copied = await copyToClipboard(shareUrl, {
+      successMessage: null,
+      errorMessage: null,
+    });
+    if (!copied) return;
+
+    setIsCopied(true);
+    if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => setIsCopied(false), 2000);
   };
 
   return (

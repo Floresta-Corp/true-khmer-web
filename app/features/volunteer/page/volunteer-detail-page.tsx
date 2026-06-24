@@ -10,11 +10,7 @@ import BackToButton from "~/components/back-to-button";
 import { Card, CardContent } from "~/components/ui/card";
 import { useLoaderData, useFetcher, useSearchParams } from "react-router";
 import type { loader } from "../routes/volunteer.$id";
-import {
-  Bookmark,
-  EllipsisVertical,
-  Flag,
-} from "lucide-react";
+import { Bookmark, EllipsisVertical, Flag } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 import { cn } from "~/lib/utils";
@@ -71,16 +67,6 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
   };
 
   const handleShare = async () => {
-    const url = `${window.location.origin}/volunteer/detail/${volunteer.id}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast.success("Link copied to clipboard!");
-    } catch {
-      toast.error("Failed to copy link");
-    }
-  };
-
-  const handleCopyLink = async () => {
     const url = `${window.location.origin}/volunteer/detail/${volunteer.id}`;
     try {
       await navigator.clipboard.writeText(url);

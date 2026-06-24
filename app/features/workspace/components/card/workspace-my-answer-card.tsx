@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL } from "~/lib/utils";
-import type { MyAnswerItem } from "~/services/forum/types";
+import type { Discussion } from "~/services/forum/types";
 import { motion } from "motion/react";
 import DeleteAnswerDialog from "~/features/forum/components/dialog/delete-answer-dialog";
 import { Button } from "~/components/ui/button";
@@ -12,19 +12,20 @@ import { useState } from "react";
 import SlideToLeftHoverAnimation from "~/components/slide-to-left-hover-animation";
 
 type Props = {
-  answer: MyAnswerItem;
+  answer: Discussion;
   index: number;
 };
 
 export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
-  const createdAgoLabel = formatMinutesOrHoursAgo(answer?.createdAt ?? "");
-  const profileImage = answer?.author?.avatarKey
-    ? resolveImageURL(answer.author.avatarKey)
+  const firstAnswer = answer?.answers?.[0];
+  const createdAgoLabel = formatMinutesOrHoursAgo(firstAnswer?.createdAt ?? answer?.lastActivityAt ?? "");
+  const profileImage = firstAnswer?.author?.avatarKey
+    ? resolveImageURL(firstAnswer.author.avatarKey)
     : "";
   const [isHovered, setIsHovered] = useState(false);
   const questionId = answer.question?.id;
 
-  if (!answer.id) return null;
+  if (!firstAnswer?.id) return null;
 
   return (
     <motion.article
@@ -49,14 +50,14 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
           <Avatar className="border border-[#f3f4f6] shrink-0 h-10 w-10">
             <AvatarImage
               src={profileImage}
-              alt={answer?.author?.name || "User"}
+              alt={firstAnswer?.author?.name || "User"}
               className="object-cover"
             />
           </Avatar>
 
           <div className="flex items-center gap-2 flex-wrap min-w-0">
             <p className="text-sm font-semibold text-[#344256] truncate">
-              {answer?.author?.name}
+              {firstAnswer?.author?.name}
             </p>
             <span className="text-[#d1d5db]">•</span>
             <span className="text-sm font-semibold text-blue-600 truncate">
@@ -76,7 +77,7 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
               <AddAnswerDialog
                 questionId={questionId}
                 isEditing
-                data={{ id: answer?.id ?? "", body: answer?.body ?? "" }}
+                data={{ id: firstAnswer?.id ?? "", body: firstAnswer?.body ?? "" }}
                 trigger={
                   <Button
                     type="button"
@@ -89,7 +90,7 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
                 }
               />
               <DeleteAnswerDialog
-                answerId={answer?.id ?? ""}
+                answerId={firstAnswer?.id ?? ""}
                 trigger={
                   <Button
                     type="button"
@@ -114,7 +115,7 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
           REPLYING TO:
         </p>
         <Link
-          to={`/forum/detail/${questionId}#answer-${answer?.id ?? ""}`}
+          to={`/forum/detail/${questionId}#answer-${firstAnswer?.id ?? ""}`}
           className="text-base sm:text-lg font-semibold text-[#1f2937] hover:text-blue-600 transition-colors"
         >
           {answer?.question?.title || "Question unavailable"}
@@ -124,21 +125,21 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
       {/* Answer body in quote style */}
       <div className="bg-[#f9fafb] border-l-4 border-[#e5e7eb] rounded-r-lg px-4 py-3 mb-4">
         <p className="text-sm text-[#6b7280] italic leading-relaxed">
-          "{answer?.body}"
+          "{firstAnswer?.body}"
         </p>
       </div>
 
       {/* Footer with reply count */}
       <div className="flex items-center justify-between pt-3 border-t border-[#f3f4f6]">
         <Link
-          to={`/forum/detail/${questionId}#answer-${answer?.id ?? ""}`}
+          to={`/forum/detail/${questionId}#answer-${firstAnswer?.id ?? ""}`}
           className="group inline-flex items-center gap-2 text-sm font-medium text-[#6b7280] hover:text-blue-600 transition-colors"
         >
           <MessageCircle
             size={18}
             className="group-hover:text-blue-600 transition-colors"
           />
-          <span>{answer?.replyCount ?? 0} replies in thread</span>
+          <span>{firstAnswer?.replyCount ?? 0} replies in thread</span>
         </Link>
       </div>
     </motion.article>

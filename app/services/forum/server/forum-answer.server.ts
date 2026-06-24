@@ -6,6 +6,7 @@ import { ProtectedApiError } from "~/lib/server/api-client.server";
 import type {
   CreateAnswerInput,
   DeleteAnswerResponse,
+  DiscussionsListResponse,
   GetAnswersResponse,
   MyAnswersResponse,
   UpdateAnswerInput,
@@ -17,6 +18,7 @@ import {
   UpdateAnswerInputSchema,
 } from "../forum-types";
 import type { VoteIntent } from "~/services/types";
+import type { GetMyAnswersResponse } from "~/types/api-client";
 
 export async function voteForumAnswer(
   request: Request,
@@ -33,10 +35,28 @@ export async function voteForumAnswer(
   return result;
 }
 
-export async function myForumAnswer(request: Request) {
-  const result = await apiRequestWithSession<MyAnswersResponse>(
+export interface MyAnswerParams {
+  search?: string;
+  sortBy?: "lastActivity" | "mostReplies";
+  category?: string;
+  cursor?: string;
+  limit?: number;
+}
+
+export async function myForumAnswer(request: Request, params?: MyAnswerParams) {
+  const query = new URLSearchParams();
+  if (params?.search) query.set("search", params.search);
+  if (params?.sortBy) query.set("sortBy", params.sortBy);
+  if (params?.category) query.set("category", params.category);
+  if (params?.cursor) query.set("cursor", params.cursor);
+  if (params?.limit) query.set("limit", String(params.limit));
+
+  const qs = query.toString();
+  const path = `/forum/answer/my-answers${qs ? `?${qs}` : ""}`;
+
+  const result = await apiRequestWithSession<GetMyAnswersResponse>(
     request,
-    `/forum/answer/my-answers`,
+    path,
     {
       method: "GET",
     },

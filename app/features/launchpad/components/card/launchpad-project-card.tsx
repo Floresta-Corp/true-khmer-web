@@ -21,7 +21,6 @@ export default function LaunchpadProjectCard({
   const fetcher = useFetcher<{ ok: boolean; saved: boolean }>();
   const isSubmitting = fetcher.state !== "idle";
 
-  // Optimistic: if a submission is in-flight, use its intent; otherwise use item.isSaved
   const optimisticSaved =
     fetcher.state !== "idle"
       ? fetcher.formData?.get("intent") === "save"
@@ -94,7 +93,7 @@ export default function LaunchpadProjectCard({
             onOpenOpportunity(item);
           }
         }}
-        className="cursor-pointer flex min-h-[380px] flex-col p-5 rounded-2xl bg-white transition-all hover:shadow-lg hover:-translate-y-0.5 shadow-none"
+        className="cursor-pointer flex min-h-95 flex-col p-5 rounded-2xl bg-white transition-all hover:shadow-lg hover:-translate-y-0.5 shadow-none"
       >
         <div className="flex items-center justify-between pb-3">
           <div className="flex gap-1 items-baseline text-blue-500">
