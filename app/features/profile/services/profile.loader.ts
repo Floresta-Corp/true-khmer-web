@@ -95,7 +95,7 @@ export async function ProfileLoader({ request, params }: Route.LoaderArgs) {
   const isClientFetch = url.searchParams.get("_intent") === "client";
 
   try {
-    if (sourceTypeResult.success && (isClientFetch || cursorResult.data)) {
+    if (sourceTypeResult.success && isClientFetch) {
       const result = await GetPostedContent(
         request,
         idResult.data,
