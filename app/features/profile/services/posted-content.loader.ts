@@ -109,6 +109,7 @@ export function usePostedContent(profileId: string | undefined) {
 
   const handleLoadMore = (sourceType: SourceType) => {
     if (!accumulated.nextCursor || !profileId) return;
+    if (postedFetcher.state === "loading") return;
     isLoadMoreRef.current = true;
     postedFetcher.load(
       `/profile/${profileId}?sourceType=${sourceType}&cursor=${accumulated.nextCursor}`,
