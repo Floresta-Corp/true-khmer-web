@@ -3,14 +3,28 @@ import {
   ProtectedApiError,
 } from "~/lib/server/api-client.server";
 import { SearchSkills } from "~/services/myspace/server/me.server";
+import { z } from "zod";
+
+const SearchSkillsParamsSchema = z.object({
+  search: z.string().trim().optional().default(""),
+  limit: z.coerce.number().int().gte(1).lte(20).optional().default(10),
+});
 
 export async function loader({ request }: { request: Request }) {
   const url = new URL(request.url);
-  const search = url.searchParams.get("search")?.trim() ?? "";
-  const limitParam = Number(url.searchParams.get("limit") ?? 10);
-  const limit = Number.isFinite(limitParam)
-    ? Math.min(Math.max(Math.trunc(limitParam), 1), 20)
-    : 10;
+  const params = SearchSkillsParamsSchema.safeParse({
+    search: url.searchParams.get("search") ?? undefined,
+    limit: url.searchParams.get("limit") ?? undefined,
+  });
+
+  if (!params.success) {
+    return Response.json(
+      { ok: false, search: "", message: "Invalid parameters", skills: [] },
+      { status: 400 },
+    );
+  }
+
+  const { search, limit } = params.data;
 
   if (!search) {
     return Response.json({ ok: true, search, skills: [] });
