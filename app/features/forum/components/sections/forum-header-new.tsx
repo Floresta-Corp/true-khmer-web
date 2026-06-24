@@ -112,7 +112,7 @@ export default function ForumHeaderNew() {
           }}
           className="flex w-full max-w-2xl flex-col gap-4 md:flex-row md:items-center md:justify-center"
         >
-          <div className="flex h-12 flex-1 items-center gap-3 rounded-lg border border-[#e1e7ef] bg-white pl-3 pr-2 py-2 md:rounded-xl">
+          <div className="flex h-12 flex-1 items-center gap-3 rounded-lg border border-[#e1e7ef] bg-white pl-3 pr-2 py-3  md:rounded-xl">
             <Search className="size-4.5 shrink-0 text-[#8f9294]" />
             <input
               type="search"
@@ -140,7 +140,7 @@ export default function ForumHeaderNew() {
                 opacity: isSearching ? 0.95 : 1,
               }}
               transition={{ type: "spring", stiffness: 500, damping: 32 }}
-              className="rounded-lg bg-blue-500 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-500/20 transition-[background-color,box-shadow,opacity,transform] duration-300 hover:bg-blue-600 hover:shadow-blue-500/30 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none disabled:hover:bg-slate-300"
+              className="rounded-xl bg-blue-500 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-500/20 transition-[background-color,box-shadow,opacity,transform] duration-300 hover:bg-blue-600 hover:shadow-blue-500/30 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none disabled:hover:bg-slate-300"
             >
               <motion.span
                 animate={{ y: isSearching ? -1 : 0 }}
