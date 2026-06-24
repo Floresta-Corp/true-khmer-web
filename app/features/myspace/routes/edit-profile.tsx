@@ -50,6 +50,7 @@ import { Spinner } from "~/components/ui/spinner";
 import { resolveImageURL } from "~/lib/utils";
 import { EditProfileLoader } from "~/routes/api/myspace/edit-profile-loader";
 import { EditProfileAction } from "~/routes/api/myspace/edit-profile-action";
+import type { SearchSkillsResponse } from "~/types/api-client";
 
 export const loader = EditProfileLoader;
 export const action = EditProfileAction;
@@ -79,6 +80,14 @@ const editProfileSchema = z.object({
 });
 
 type EditProfileFormData = z.infer<typeof editProfileSchema>;
+type SkillSearchFetcherData =
+  | (SearchSkillsResponse & { search: string })
+  | {
+      ok: false;
+      search: string;
+      message: string;
+      skills: [];
+    };
 
 const countryNameFormatter =
   typeof Intl !== "undefined" && "DisplayNames" in Intl
@@ -108,6 +117,7 @@ export default function EditProfile() {
   const { me, countries, cities } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const fetcher = useFetcher();
+  const skillSearchFetcher = useFetcher<SkillSearchFetcherData>();
   const wasSubmitting = useRef(false);
 
   useEffect(() => {
@@ -176,6 +186,26 @@ export default function EditProfile() {
       label: "Cambodia +855",
     } satisfies (typeof phoneCountryOptions)[number]);
   const [newSkill, setNewSkill] = useState("");
+  const [isSkillSuggestionsOpen, setIsSkillSuggestionsOpen] = useState(false);
+  const [activeSkillSuggestionIndex, setActiveSkillSuggestionIndex] =
+    useState(-1);
+  const skillBlurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const skillSearchQuery = newSkill.trim();
+  const skillSuggestions =
+    skillSearchFetcher.data?.ok &&
+    skillSearchFetcher.data.search === skillSearchQuery
+      ? skillSearchFetcher.data.skills.filter(
+          (skill) =>
+            !skills.some(
+              (selectedSkill) =>
+                selectedSkill.toLowerCase() === skill.name.toLowerCase(),
+            ),
+        )
+      : [];
+  const isSearchingSkills =
+    skillSearchFetcher.state === "loading" && skillSearchQuery.length >= 2;
 
   const initialAvatarPreview = resolveImageURL(
     me?.profile.avatarKey || undefined,
@@ -227,13 +257,44 @@ export default function EditProfile() {
       if (avatarObjectUrlRef.current) {
         URL.revokeObjectURL(avatarObjectUrlRef.current);
       }
+      if (skillBlurTimeoutRef.current) {
+        clearTimeout(skillBlurTimeoutRef.current);
+      }
     };
   }, []);
 
-  const handleAddSkill = () => {
-    if (newSkill.trim() && !skills.includes(newSkill)) {
-      setValue("skills", [...skills, newSkill], { shouldValidate: true });
+  useEffect(() => {
+    if (skillSearchQuery.length < 2) {
+      setIsSkillSuggestionsOpen(false);
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      const params = new URLSearchParams({
+        search: skillSearchQuery,
+        limit: "8",
+      });
+
+      skillSearchFetcher.load(`/api/myspace/skills/search?${params}`);
+      setIsSkillSuggestionsOpen(true);
+    }, 180);
+
+    return () => clearTimeout(timeout);
+  }, [skillSearchQuery, skillSearchFetcher.load]);
+
+  useEffect(() => {
+    setActiveSkillSuggestionIndex(skillSuggestions.length > 0 ? 0 : -1);
+  }, [skillSuggestions.length]);
+
+  const handleAddSkill = (skillName = newSkill) => {
+    const nextSkill = skillName.trim();
+    if (
+      nextSkill &&
+      !skills.some((skill) => skill.toLowerCase() === nextSkill.toLowerCase())
+    ) {
+      setValue("skills", [...skills, nextSkill], { shouldValidate: true });
       setNewSkill("");
+      setIsSkillSuggestionsOpen(false);
     }
   };
 
@@ -650,22 +711,126 @@ export default function EditProfile() {
                       <h3 className="font-semibold text-gray-900">Skills</h3>
                     </div>
                     <div className="flex gap-2 mb-4">
-                      <Input
-                        value={newSkill}
-                        onChange={(e) => setNewSkill(e.target.value)}
-                        onKeyPress={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            handleAddSkill();
-                          }
-                        }}
-                        placeholder="Add a skill (e.g. Graphic Design)"
-                        className="text-sm h-10"
-                      />
+                      <div className="relative flex-1">
+                        <Input
+                          value={newSkill}
+                          onChange={(e) => {
+                            setNewSkill(e.target.value);
+                            setIsSkillSuggestionsOpen(true);
+                          }}
+                          onFocus={() => {
+                            if (skillSuggestions.length > 0) {
+                              setIsSkillSuggestionsOpen(true);
+                            }
+                          }}
+                          onBlur={() => {
+                            skillBlurTimeoutRef.current = setTimeout(() => {
+                              setIsSkillSuggestionsOpen(false);
+                            }, 120);
+                          }}
+                          onKeyDown={(e) => {
+                            if (
+                              e.key === "ArrowDown" &&
+                              skillSuggestions.length > 0
+                            ) {
+                              e.preventDefault();
+                              setIsSkillSuggestionsOpen(true);
+                              setActiveSkillSuggestionIndex((current) =>
+                                current + 1 >= skillSuggestions.length
+                                  ? 0
+                                  : current + 1,
+                              );
+                              return;
+                            }
+
+                            if (
+                              e.key === "ArrowUp" &&
+                              skillSuggestions.length > 0
+                            ) {
+                              e.preventDefault();
+                              setIsSkillSuggestionsOpen(true);
+                              setActiveSkillSuggestionIndex((current) =>
+                                current <= 0
+                                  ? skillSuggestions.length - 1
+                                  : current - 1,
+                              );
+                              return;
+                            }
+
+                            if (e.key === "Escape") {
+                              setIsSkillSuggestionsOpen(false);
+                              return;
+                            }
+
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              const activeSuggestion =
+                                skillSuggestions[activeSkillSuggestionIndex];
+
+                              if (
+                                isSkillSuggestionsOpen &&
+                                activeSuggestion
+                              ) {
+                                handleAddSkill(activeSuggestion.name);
+                                return;
+                              }
+
+                              handleAddSkill();
+                            }
+                          }}
+                          placeholder="Add a skill (e.g. Graphic Design)"
+                          className="text-sm h-10"
+                          autoComplete="off"
+                          aria-autocomplete="list"
+                          aria-expanded={isSkillSuggestionsOpen}
+                          aria-controls="skill-suggestions"
+                        />
+                        {isSkillSuggestionsOpen &&
+                          skillSearchQuery.length >= 2 &&
+                          (skillSuggestions.length > 0 ||
+                            isSearchingSkills) && (
+                            <div
+                              id="skill-suggestions"
+                              role="listbox"
+                              className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-md border border-gray-200 bg-white shadow-lg"
+                            >
+                              {isSearchingSkills &&
+                                skillSuggestions.length === 0 && (
+                                  <div className="px-3 py-2 text-sm text-gray-500">
+                                    Searching...
+                                  </div>
+                                )}
+                              {skillSuggestions.map((skill, index) => (
+                                <button
+                                  key={skill.id}
+                                  type="button"
+                                  role="option"
+                                  aria-selected={
+                                    index === activeSkillSuggestionIndex
+                                  }
+                                  onMouseDown={(event) => {
+                                    event.preventDefault();
+                                    handleAddSkill(skill.name);
+                                  }}
+                                  onMouseEnter={() =>
+                                    setActiveSkillSuggestionIndex(index)
+                                  }
+                                  className={`block w-full px-3 py-2 text-left text-sm transition-colors ${
+                                    index === activeSkillSuggestionIndex
+                                      ? "bg-gray-100 text-gray-950"
+                                      : "text-gray-700 hover:bg-gray-50"
+                                  }`}
+                                >
+                                  {skill.name}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                      </div>
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={handleAddSkill}
+                        onClick={() => handleAddSkill()}
                         className="h-10 cursor-pointer"
                       >
                         Add

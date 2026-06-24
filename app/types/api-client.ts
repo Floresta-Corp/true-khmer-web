@@ -2363,6 +2363,14 @@ const GetRecentActivitiesResponse = z
 const RecentActivityErrorResponse = z
   .object({ ok: z.literal(false), error: z.string() })
   ;
+const SearchSkillsResponse = z
+  .object({
+    ok: z.literal(true),
+    skills: z.array(
+      z.object({ id: z.string(), name: z.string() })
+    ),
+  })
+  ;
 const GetSavedItemsResponse = z
   .object({
     ok: z.literal(true),
@@ -3079,6 +3087,7 @@ export const schemas = {
   RecentActivity,
   GetRecentActivitiesResponse,
   RecentActivityErrorResponse,
+  SearchSkillsResponse,
   GetSavedItemsResponse,
   SavedItemsErrorResponse,
   PublicProfileResponse,
@@ -5568,6 +5577,47 @@ const endpoints = makeApi([
   },
   {
     method: "get",
+    path: "/v1/me/skills/search",
+    alias: "getV1meskillssearch",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string(),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).lte(20).optional().default(10),
+      },
+    ],
+    response: SearchSkillsResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: ProfileErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Onboarding required`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: ProfileErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
     path: "/v1/my-application",
     alias: "getV1myApplication",
     requestFormat: "json",
@@ -7831,6 +7881,7 @@ export type UpdateProfileResponse = z.infer<typeof schemas.UpdateProfileResponse
 export type RecentActivity = z.infer<typeof schemas.RecentActivity>;
 export type GetRecentActivitiesResponse = z.infer<typeof schemas.GetRecentActivitiesResponse>;
 export type RecentActivityErrorResponse = z.infer<typeof schemas.RecentActivityErrorResponse>;
+export type SearchSkillsResponse = z.infer<typeof schemas.SearchSkillsResponse>;
 export type GetSavedItemsResponse = z.infer<typeof schemas.GetSavedItemsResponse>;
 export type SavedItemsErrorResponse = z.infer<typeof schemas.SavedItemsErrorResponse>;
 export type PublicProfileResponse = z.infer<typeof schemas.PublicProfileResponse>;
