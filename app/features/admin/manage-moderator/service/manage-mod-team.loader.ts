@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { data, redirect, type LoaderFunctionArgs } from "react-router";
 
 import { getAdminAccessToken } from "~/lib/server/session.server";
@@ -7,10 +8,10 @@ import type {
   ListModeratorsResponse,
 } from "~/types/api-client";
 
-function positiveInteger(value: string | null, fallback: number) {
-  const parsed = Number(value);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
-}
+const urlSchema = z.object({
+  cursor: z.string().optional(),
+  limit: z.coerce.number().int().positive().max(100).default(20),
+});
 
 export type ManageModTeamLoaderData = {
   moderators: ListModeratorsResponse["moderators"];
@@ -25,10 +26,8 @@ export async function manageModTeamLoader({ request }: LoaderFunctionArgs) {
   }
 
   const url = new URL(request.url);
-  const cursor = url.searchParams.get("cursor") ?? undefined;
-  const limit = Math.min(
-    positiveInteger(url.searchParams.get("limit"), 20),
-    100,
+  const { cursor, limit } = urlSchema.parse(
+    Object.fromEntries(url.searchParams.entries()),
   );
 
   const { moderators, pagination } = await getManageModTeam(

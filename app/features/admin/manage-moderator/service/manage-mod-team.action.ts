@@ -25,7 +25,7 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
   const allowedActionTypes = new Set(["invite", "remove"]);
 
   if (actionType && !allowedActionTypes.has(actionType)) {
-    return data({ error: "Unknown action intent" }, { status: 400 });
+    return data({ ok: false, message: "Unknown action intent" }, { status: 400 });
   }
 
   if (actionType === "invite") {
@@ -35,7 +35,7 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
     });
     if (!result.success) {
       const message = result.error.issues.map((i) => i.message).join(", ");
-      return data({ ok: false, error: message }, { status: 400 });
+      return data({ ok: false, message }, { status: 400 });
     }
     const payload = result.data;
     try {
@@ -44,12 +44,12 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
       });
 
       return data(
-        { ok: true, error: null },
+        { ok: true, message: null },
         setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
       );
     } catch (err) {
       return data(
-        { ok: false, error: "Failed to invite moderator." },
+        { ok: false, message: "Failed to invite moderator." },
         { status: 400 },
       );
     }
@@ -60,7 +60,7 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
 
     if (!memberId) {
       return data(
-        { ok: false, error: "Member ID is required." },
+        { ok: false, message: "Member ID is required." },
         { status: 400 },
       );
     }
@@ -69,16 +69,16 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
       await removeModerator(request, memberId, accessToken);
 
       return data(
-        { ok: true, error: null },
+        { ok: true, message: null },
         setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
       );
     } catch (err) {
       return data(
-        { ok: false, error: "Failed to remove moderator." },
+        { ok: false, message: "Failed to remove moderator." },
         { status: 400 },
       );
     }
   }
 
-  return data({ error: "Unknown action intent" }, { status: 400 });
+  return data({ ok: false, message: "Unknown action intent" }, { status: 400 });
 }

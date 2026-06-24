@@ -7,9 +7,6 @@ export function ResolutionLog({ report }: { report: ContentModeratorReport }) {
   const solvedByName = [report.solvedBy?.firstName, report.solvedBy?.lastName]
     .filter(Boolean)
     .join(" ");
-  {
-    solvedByName || "Unknown moderator";
-  }
   return (
     <div className="p-5 bg-emerald-50 border border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-800/50 rounded-2xl space-y-4">
       <div className="flex items-center gap-2">
@@ -28,7 +25,7 @@ export function ResolutionLog({ report }: { report: ContentModeratorReport }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between mb-0.5">
             <p className="text-sm font-semibold text-(--admin-text) truncate">
-              {solvedByName}
+              {solvedByName || "Unknown moderator"}
             </p>
             <span
               className={`px-2 py-0.5 text-[10px] font-semibold rounded uppercase tracking-wide dark:bg-green-600/20 bg-green-100 text-green-600 dark:text-green-400`}
