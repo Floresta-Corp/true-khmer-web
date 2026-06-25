@@ -1,9 +1,9 @@
 import { z } from "zod";
 
-import { redirect, type ActionFunctionArgs } from "react-router";
+import { data, redirect, type ActionFunctionArgs } from "react-router";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { getPasswordValidationError } from "~/routes/auth/domain/password-validation";
-import { verifyModeratorInvite } from "~/services/api/admin/manage-mod-team/manage-moderator.server";
+import { verifyModeratorInvite } from "~/routes/api/manage-moderator/manage-moderator.server";
 
 type AcceptInviteErrors = Partial<
   Record<"token" | "name" | "password" | "confirmPassword" | "form", string>
@@ -44,19 +44,25 @@ export async function acceptInviteAction({ request }: ActionFunctionArgs) {
 
   if (!result.success) {
     const fieldErrors = result.error.flatten().fieldErrors;
-    return {
-      errors: {
-        token: fieldErrors.token?.[0],
-        name: fieldErrors.firstName?.[0] || fieldErrors.lastName?.[0],
-        password:
-          fieldErrors.password?.[0] ||
-          getPasswordValidationError(String(formData.get("password") || "")),
-        confirmPassword: fieldErrors.confirmPassword?.[0],
+    return data(
+      {
+        errors: {
+          token: fieldErrors.token?.[0],
+          name: fieldErrors.firstName?.[0] || fieldErrors.lastName?.[0],
+          password: fieldErrors.password?.[0],
+          confirmPassword: fieldErrors.confirmPassword?.[0],
+        },
       },
-    };
+      { status: 400 },
+    );
   }
 
   const { token, firstName, lastName, password } = result.data;
+
+  const passwordComplexityError = getPasswordValidationError(password);
+  if (passwordComplexityError) {
+    return data({ errors: { password: passwordComplexityError } }, { status: 400 });
+  }
 
   try {
     await verifyModeratorInvite(request, {
@@ -70,15 +76,18 @@ export async function acceptInviteAction({ request }: ActionFunctionArgs) {
     });
     return redirect(`/tk-admin/login?${params.toString()}`);
   } catch (error) {
-    return {
-      errors: {
-        form: inviteErrorMessage(error),
-        token:
-          error instanceof ProtectedApiError &&
-          (error.status === 400 || error.status === 404 || error.status === 410)
-            ? "Invalid or expired invite link."
-            : undefined,
+    return data(
+      {
+        errors: {
+          form: inviteErrorMessage(error),
+          token:
+            error instanceof ProtectedApiError &&
+            (error.status === 400 || error.status === 404 || error.status === 410)
+              ? "Invalid or expired invite link."
+              : undefined,
+        },
       },
-    };
+      { status: 400 },
+    );
   }
 }

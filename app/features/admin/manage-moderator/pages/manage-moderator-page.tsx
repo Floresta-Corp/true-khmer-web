@@ -5,7 +5,7 @@ import {
   useNavigation,
   useSearchParams,
 } from "react-router";
-import type { loader } from "../routes/manage-moderator";
+import type { ManageModTeamLoaderData } from "../services/manage-mod-team.loader";
 import { useEffect, useRef, useState } from "react";
 import { UserPlus } from "lucide-react";
 import { InviteMemberModal } from "../components/invite-member-modal";
@@ -16,7 +16,7 @@ import { ManageModeratorTable } from "../components/manage-moderator-table";
 import { ManageModeratorToolbar } from "../components/manage-moderator-toolbar";
 
 export default function ManageModeratorPage() {
-  const { moderators, pagination } = useLoaderData<typeof loader>();
+  const { moderators, pagination } = useLoaderData<ManageModTeamLoaderData>();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigation = useNavigation();
   const location = useLocation();
@@ -25,9 +25,6 @@ export default function ManageModeratorPage() {
   const [fetcherError, setFetcherError] = useState<string | null>(null);
   const lastIntent = useRef<string | null>(null);
   const fetcher = useFetcher();
-  const applySearchParams = (nextParams: URLSearchParams) => {
-    setSearchParams(nextParams, { replace: true });
-  };
   const [searchInput, setSearchInput] = useState(
     searchParams.get("search") ?? "",
   );
@@ -79,7 +76,7 @@ export default function ManageModeratorPage() {
     }
     nextParams.delete("page");
     nextParams.delete("cursor");
-    applySearchParams(nextParams);
+    setSearchParams(nextParams, { replace: true });
   };
 
   const handleRoleConfirm = (

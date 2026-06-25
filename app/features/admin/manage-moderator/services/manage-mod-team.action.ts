@@ -5,7 +5,7 @@ import {
   patchModerator,
   postManageTeam,
   removeModerator,
-} from "~/services/api/admin/manage-mod-team/manage-moderator.server";
+} from "~/routes/api/manage-moderator/manage-moderator.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 
@@ -35,6 +35,8 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
   if (!accessToken) {
     throw redirect("/tk-admin/login");
   }
+
+  const cookieHeader = cookieHeader;
 
   const formData = await request.formData();
   const actionType = String(formData.get("intent") ?? "").trim();
@@ -69,7 +71,7 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
 
       return data(
         { ok: true, message: null },
-        setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
+        cookieHeader,
       );
     } catch (err) {
       if (err instanceof ProtectedApiError) {
@@ -106,7 +108,7 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
 
       return data(
         { ok: true, message: null },
-        setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
+        cookieHeader,
       );
     } catch (err) {
       if (err instanceof ProtectedApiError) {
@@ -131,7 +133,6 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
     });
 
     if (!result.success) {
-      // Provide a clear fallback error message matching the old implementation if specific field issues aren't parsed
       const message = result.error.issues.some((i) => i.path.includes("role"))
         ? "Invalid role value."
         : result.error.issues[0].message;
@@ -147,7 +148,7 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
 
       return data(
         { ok: true, message: null },
-        setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
+        cookieHeader,
       );
     } catch (err) {
       if (err instanceof ProtectedApiError) {

@@ -1,5 +1,5 @@
-import { manageModTeamLoader } from "../service/manage-mod-team.loader";
-import { manageModTeamAction } from "../service/manage-mod-team.action";
+import { manageModTeamLoader } from "../services/manage-mod-team.loader";
+import { manageModTeamAction } from "../services/manage-mod-team.action";
 import ManageModeratorPage from "../pages/manage-moderator-page";
 
 export const loader = manageModTeamLoader;
@@ -9,6 +9,6 @@ export function meta() {
   return [{ title: "Team Management | True Khmer" }];
 }
 
-export default function ManageModPage() {
+export default function ManageModRoute() {
   return <ManageModeratorPage />;
 }
