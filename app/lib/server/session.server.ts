@@ -69,7 +69,6 @@ const twoFactorPendingLoginStorage = createCookieSessionStorage({
   cookie: {
     ...baseCookie,
     name: "__2fa_pending_login",
-    maxAge: 60 * 5,
   },
 });
 
@@ -310,6 +309,10 @@ export async function createPendingTwoFactorLogin(
   pendingLogin: PendingTwoFactorLogin,
   redirectTo: string,
 ) {
+  const expiresInSeconds = Math.max(
+    1,
+    Math.floor((new Date(pendingLogin.expiresAt).getTime() - Date.now()) / 1000),
+  );
   const session = await twoFactorPendingLoginStorage.getSession(
     request.headers.get("Cookie"),
   );
@@ -320,7 +323,9 @@ export async function createPendingTwoFactorLogin(
 
   return redirect(redirectTo, {
     headers: {
-      "Set-Cookie": await twoFactorPendingLoginStorage.commitSession(session),
+      "Set-Cookie": await twoFactorPendingLoginStorage.commitSession(session, {
+        maxAge: expiresInSeconds,
+      }),
     },
   });
 }

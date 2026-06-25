@@ -491,6 +491,11 @@ export function TwoFAView({
                         : "Send code"}
                     </Button>
                   </fetcher.Form>
+                  {data?.intent === "email-send" && data.errors?.form ? (
+                    <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-600">
+                      {data.errors.form}
+                    </p>
+                  ) : null}
                   {data?.intent === "email-send" && data.message ? (
                     <p className="text-sm font-medium text-[#166534]">
                       {data.message}
