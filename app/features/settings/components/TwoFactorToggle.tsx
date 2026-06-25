@@ -1,26 +1,23 @@
-import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 
-export function TwoFactorToggle({ onEditSettings }: { onEditSettings: () => void }) {
-  const [enabled, setEnabled] = useState(false);
-
+export function TwoFactorToggle({
+  enabled,
+  onEditSettings,
+}: {
+  enabled: boolean;
+  onEditSettings: () => void;
+}) {
   return (
     <div className="flex flex-col items-end gap-2">
-      <button
-        type="button"
-        role="switch"
-        aria-checked={enabled}
-        onClick={() => setEnabled((p) => !p)}
-        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2F6FE4] focus-visible:ring-offset-2 ${
-          enabled ? "bg-[#2F6FE4]" : "bg-[#D1D9E6]"
+      <span
+        className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
+          enabled
+            ? "bg-[#ECFDF3] text-[#027A48]"
+            : "bg-[#F3F6FB] text-[#667085]"
         }`}
       >
-        <span
-          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
-            enabled ? "translate-x-6" : "translate-x-1"
-          }`}
-        />
-      </button>
+        {enabled ? "Enabled" : "Disabled"}
+      </span>
       <button
         type="button"
         onClick={onEditSettings}

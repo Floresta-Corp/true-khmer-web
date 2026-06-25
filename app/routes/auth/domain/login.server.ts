@@ -9,10 +9,14 @@ import {
   getAuthErrorCode,
   getAuthErrorMessage,
   getAuthFieldError,
+  isTwoFactorRequiredResponse,
   loginUser,
   loginWithGoogle,
 } from "~/services/auth/api.server";
-import { createUserSession } from "~/lib/server/session.server";
+import {
+  createPendingTwoFactorLogin,
+  createUserSession,
+} from "~/lib/server/session.server";
 import { redirectIfAuthenticated } from "~/lib/server/route-guards.server";
 import { sanitizeRedirectPath } from "~/lib/redirects";
 import { destinationFromAuthFlow } from "./auth-flow.server";
@@ -71,6 +75,19 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     const auth = await loginUser(email, password, request);
+    if (isTwoFactorRequiredResponse(auth)) {
+      return createPendingTwoFactorLogin(
+        request,
+        {
+          twoFactorToken: auth.twoFactorToken,
+          methods: auth.twoFactorMethods,
+          expiresAt: new Date(Date.now() + auth.expiresIn * 1000).toISOString(),
+          rememberMe,
+        },
+        `/login/2fa?redirectTo=${encodeURIComponent(redirectTo)}`,
+      );
+    }
+
     const postLoginPath = destinationFromAuthFlow(auth.authFlow, redirectTo);
     return createUserSession(request, auth, postLoginPath, { rememberMe });
   } catch (error) {

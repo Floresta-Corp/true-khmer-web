@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useLoaderData } from "react-router";
-import { ShieldCheck, Bell, Settings } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 import { loader } from "../services/settings.loader";
+import { action } from "../services/settings.action";
 import { SidebarItem } from "../components/SidebarItem";
 import { SecurityView } from "../components/SecurityView";
 import { TwoFAView } from "../components/TwoFAView";
 
 export { loader };
+export { action };
 
 export function meta() {
   return [{ title: "Account Settings | True Khmer" }];
@@ -16,7 +18,7 @@ export function meta() {
 type View = "security" | "2fa";
 
 export default function SettingsPage() {
-  const { email } = useLoaderData<typeof loader>();
+  const { email, twoFactor } = useLoaderData<typeof loader>();
   const [view, setView] = useState<View>("security");
 
   return (
@@ -46,10 +48,15 @@ export default function SettingsPage() {
                 {view === "security" ? (
                   <SecurityView
                     email={email}
+                    enabled={twoFactor.twoFactorEnabled}
                     onEdit2FA={() => setView("2fa")}
                   />
                 ) : (
-                  <TwoFAView onBack={() => setView("security")} />
+                  <TwoFAView
+                    email={email}
+                    settings={twoFactor}
+                    onBack={() => setView("security")}
+                  />
                 )}
               </div>
             </div>

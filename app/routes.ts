@@ -103,6 +103,7 @@ export default [
   route("tk-admin/logout", "routes/admin-logout.tsx"),
 
   route("login", "routes/auth/pages/login.tsx"),
+  route("login/2fa", "routes/auth/pages/login-2fa.tsx"),
   route("register", "routes/auth/pages/register.tsx"),
   route("signup", "routes/auth/pages/register.tsx", {
     id: "routes/auth/pages/signup",

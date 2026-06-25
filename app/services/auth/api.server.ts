@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { resolveApiBase } from "~/lib/server/api-base.server";
 import type { AuthFlow } from "~/lib/server/auth/access-control.server";
+import type { AuthTwoFactorRequiredResponse } from "~/types/api-client";
 
 export type BackendUser = {
   id?: string;
@@ -332,14 +333,18 @@ async function authRequest<T>(
 ) {
   const base = resolveApiBase(request);
   const url = `${base}${path}`;
+  const headers = new Headers({
+    "Content-Type": "application/json",
+  });
+  const cookie = request?.headers.get("Cookie");
+  if (cookie) headers.set("Cookie", cookie);
+
   let response: Response;
   try {
     response = await fetch(url, {
       method: "POST",
       credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify(body),
     });
   } catch (error) {
@@ -366,14 +371,18 @@ async function authGetRequest<T>(
 ) {
   const base = resolveApiBase(request);
   const url = `${base}${path}`;
+  const headers = new Headers({
+    Accept: "application/json",
+  });
+  const cookie = request?.headers.get("Cookie");
+  if (cookie) headers.set("Cookie", cookie);
+
   let response: Response;
   try {
     response = await fetch(url, {
       method: "GET",
       credentials: "include",
-      headers: {
-        Accept: "application/json",
-      },
+      headers,
     });
   } catch (error) {
     const reason =
@@ -472,10 +481,20 @@ export async function loginUser(
   password: string,
   request?: Request,
 ) {
-  return authRequest<AuthTokensResponse>(
+  return authRequest<AuthTokensResponse | AuthTwoFactorRequiredResponse>(
     "/auth/login",
     { email, password },
     request,
+  );
+}
+
+export function isTwoFactorRequiredResponse(
+  response: AuthTokensResponse | AuthTwoFactorRequiredResponse,
+): response is AuthTwoFactorRequiredResponse {
+  return (
+    "twoFactorRequired" in response &&
+    response.twoFactorRequired === true &&
+    typeof response.twoFactorToken === "string"
   );
 }
 

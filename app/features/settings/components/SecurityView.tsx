@@ -17,9 +17,11 @@ import { TwoFactorToggle } from "./TwoFactorToggle";
 
 export function SecurityView({
   email,
+  enabled,
   onEdit2FA,
 }: {
   email: string;
+  enabled: boolean;
   onEdit2FA: () => void;
 }) {
   const navigate = useNavigate();
@@ -90,7 +92,7 @@ export function SecurityView({
         label="2-step verification"
         description="Make your account extra secure. Along with your password, you'll need to enter a code"
       >
-        <TwoFactorToggle onEditSettings={onEdit2FA} />
+        <TwoFactorToggle enabled={enabled} onEditSettings={onEdit2FA} />
       </SecurityRow>
     </div>
   );
