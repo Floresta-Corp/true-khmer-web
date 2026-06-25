@@ -14,6 +14,7 @@ import { formatDateMonthYear } from "~/features/events/lib/event-formatters";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { resolveImageURL } from "~/lib/utils";
+import { ReportTypeBadge } from "./report-type-badge";
 
 interface ReportsTableProps {
   reports: ContentModeratorReport[];
@@ -57,9 +58,7 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
       </TableCell>
 
       <TableCell className="text-center align-middle">
-        <span className="px-2 py-1.5 text-xs font-semibold rounded-lg border bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700">
-          {report.type.name}
-        </span>
+        <ReportTypeBadge reportType={report} />
       </TableCell>
 
       <TableCell className="min-w-0 px-5 py-4 align-middle">

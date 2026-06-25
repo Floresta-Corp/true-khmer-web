@@ -16,13 +16,19 @@ export function ResolutionLog({ report }: { report: ContentModeratorReport }) {
       <div className="flex items-center gap-3">
         <Avatar className="shrink-0 w-8 h-8 border border-slate-200 dark:border-slate-700">
           <AvatarFallback className="text-xs font-black bg-slate-100 dark:bg-slate-800 text-slate-400">
-            {report.solvedBy?.name?.charAt(0) ?? "?"}
+            {report.solvedBy?.firstName
+              ?.split(" ")
+              .filter(Boolean)
+              .slice(0, 2)
+              .map((name) => name[0])
+              .join("")
+              .toUpperCase() ?? "?"}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between mb-0.5">
             <p className="text-sm font-semibold text-(--admin-text) truncate">
-              {report.solvedBy?.name}
+              {report.solvedBy?.firstName} {report.solvedBy?.lastName}
             </p>
             <span
               className={`px-2 py-0.5 text-[10px] font-semibold rounded uppercase tracking-wide dark:bg-green-600/20 bg-green-100 text-green-600 dark:text-green-400`}

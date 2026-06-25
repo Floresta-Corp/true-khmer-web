@@ -108,7 +108,7 @@ export default function ContentModeratingPage() {
         <div className="max-w-350 mx-auto space-y-4">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+              <h1 className="text-4xl font-semibold text-slate-900 dark:text-white tracking-tight">
                 Content <span className="text-blue-600">Moderation</span>
               </h1>
               <p className="text-slate-500 font-medium text-base mt-1">
