@@ -70,9 +70,10 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
           <nav className="hidden md:flex items-center gap-5">
             {navLinks.map((link) => {
               const isActive =
-              link.to === "/"
-                ? location.pathname === "/"
-                : location.pathname.startsWith(link.to);
+                link.to === "/"
+                  ? location.pathname === "/"
+                  : location.pathname === link.to ||
+                    location.pathname.startsWith(`${link.to}/`);
               if (link.hide) return null;
               return (
                 <Link
@@ -143,7 +144,8 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
             const isActive =
               link.to === "/"
                 ? location.pathname === "/"
-                : location.pathname.startsWith(link.to);
+                : location.pathname === link.to ||
+                  location.pathname.startsWith(`${link.to}/`);
             return (
               <Link
                 key={link.to}
