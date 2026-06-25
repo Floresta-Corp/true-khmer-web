@@ -8,11 +8,13 @@ import type {
   InviteModeratorResponse,
   ListModeratorsResponse,
   ModeratorResponse,
+  UpdateModeratorRequest,
 } from "~/types/api-client";
 
 export interface ManageModTeamParams {
   cursor?: string;
   limit?: string;
+  search?: string;
 }
 
 export async function getManageModTeam(
@@ -22,6 +24,7 @@ export async function getManageModTeam(
 ) {
   const queryParams = new URLSearchParams();
   if (params.cursor) queryParams.set("cursor", params.cursor);
+  if (params.search) queryParams.set("search", params.search);
   if (params.limit !== undefined)
     queryParams.set("limit", params.limit.toString());
 
@@ -41,6 +44,7 @@ export async function postManageTeam(
   accessToken: string,
   body: {
     email: string;
+    role?: "MODERATOR" | "SUPER_ADMIN";
   },
 ) {
   const result = await apiRequestWithAccessToken<ModeratorResponse>(
@@ -67,7 +71,7 @@ export async function verifyModeratorInvite(
       body,
     },
   );
-  return result.data;
+  return result;
 }
 
 export async function removeModerator(
@@ -81,6 +85,24 @@ export async function removeModerator(
     `/admin/moderator/${id}`,
     {
       method: "DELETE",
+    },
+  );
+  return result;
+}
+
+export async function patchModerator(
+  request: Request,
+  id: string,
+  accessToken: string,
+  body: UpdateModeratorRequest,
+) {
+  const result = await apiRequestWithAccessToken<ModeratorResponse>(
+    request,
+    accessToken,
+    `/admin/moderator/${id}`,
+    {
+      method: "PATCH",
+      body,
     },
   );
   return result;

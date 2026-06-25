@@ -33,7 +33,11 @@ export async function manageModTeamLoader({ request }: LoaderFunctionArgs) {
   const { moderators, pagination } = await getManageModTeam(
     request,
     accessToken,
-    { cursor, limit: limit.toString() },
+    {
+      cursor,
+      limit: limit.toString(),
+      search: url.searchParams.get("search") ?? undefined,
+    },
   ).then((result) => result);
 
   return data<ManageModTeamLoaderData>(

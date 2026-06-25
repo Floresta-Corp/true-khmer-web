@@ -52,7 +52,7 @@ export default function RemoveModeratorMember({
         >
           <DropdownMenuItem
             onSelect={() => setShowConfirm(true)}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors cursor-pointer"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest text-rose-500 transition-colors cursor-pointer focus:bg-rose-500/10 focus:text-rose-600 dark:focus:bg-rose-500/20 dark:focus:text-rose-400"
           >
             <Trash2 size={14} /> Remove Member
           </DropdownMenuItem>
@@ -65,7 +65,7 @@ export default function RemoveModeratorMember({
           className="sm:max-w-sm p-0 overflow-hidden gap-0 bg-white dark:bg-[#020617] border-slate-100 dark:border-slate-800 rounded-2xl"
         >
           <DialogHeader className="p-6 pb-5 border-b border-slate-100 dark:border-slate-800 flex-row items-center gap-3 space-y-0">
-            <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 border border-rose-600 dark:border-none flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-900/20 text-rose-600  dark:text-rose-400 border border-rose-600 dark:border-none flex items-center justify-center shrink-0">
               <AlertTriangle size={18} />
             </div>
             <DialogTitle className="text-base font-bold text-slate-900 dark:text-white">
@@ -103,7 +103,7 @@ export default function RemoveModeratorMember({
               <Button
                 type="button"
                 onClick={handleConfirm}
-                className="h-11 px-6 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest active:scale-95 transition-all"
+                className="h-11 px-6 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-black uppercase tracking-widest active:scale-95 transition-all"
               >
                 Remove
               </Button>

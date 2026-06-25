@@ -20,8 +20,8 @@ interface InviteMemberModalProps {
 }
 
 const ROLE_OPTIONS = [
-  { label: "Admin", value: "admin" },
-  { label: "Moderator", value: "moderator" },
+  { label: "Super Admin", value: "SUPER_ADMIN" },
+  { label: "Moderator", value: "MODERATOR" },
 ];
 
 export function InviteMemberModal({
@@ -80,11 +80,13 @@ export function InviteMemberModal({
         onClick={handleClose}
         className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl"
       />
+
       <motion.div
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl p-10 overflow-hidden border border-slate-100 dark:border-slate-800 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+        className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl p-10 overflow-visible border border-slate-100 dark:border-slate-800 shadow-2xl"
       >
         <div className="flex items-center justify-between mb-8">
           <div className="p-3 dark:bg-slate-900 dark:text-white rounded-xl">
@@ -135,15 +137,19 @@ export function InviteMemberModal({
               Assign Role
             </Label>
             <Select value={role} onValueChange={setRole}>
-              <SelectTrigger className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:text-white dark:border-slate-800 rounded-md py-3 px-4 text-sm  focus:outline-none focus:border-slate-900 transition-all focus:ring-0 focus:ring-offset-0 h-auto [&>svg]:opacity-50">
+              <SelectTrigger className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:text-white dark:border-slate-800 rounded-md py-3 px-4 text-sm focus:outline-none focus:border-slate-900 transition-all focus:ring-0 focus:ring-offset-0 h-auto [&>svg]:opacity-50">
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
-              <SelectContent className="rounded-xl border border-slate-100 dark:border-slate-800  bg-white dark:bg-slate-900 ">
+
+              <SelectContent
+                onPointerDownOutside={(e) => e.preventDefault()}
+                className="rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 z-110"
+              >
                 {ROLE_OPTIONS.map((option) => (
                   <SelectItem
                     key={option.value}
                     value={option.value}
-                    className="text-sm font-semibold py-2.5 px-4 cursor-pointer  focus:bg-slate-50 dark:focus:bg-slate-800 rounded-xl my-0.5"
+                    className="cursor-pointer"
                   >
                     {option.label}
                   </SelectItem>
