@@ -32,7 +32,6 @@ export default function ManageModeratorPage() {
     searchParams.get("search") ?? "",
   );
 
-  // Show skeleton when the route loader is revalidating (e.g. search, page change)
   const isLoading =
     navigation.state === "loading" &&
     navigation.location?.pathname === location.pathname;
