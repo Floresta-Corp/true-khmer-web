@@ -1,4 +1,10 @@
-import { useFetcher, useLoaderData, useLocation, useNavigation, useSearchParams } from "react-router";
+import {
+  useFetcher,
+  useLoaderData,
+  useLocation,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
 import type { loader } from "../routes/manage-moderator";
 import { useEffect, useRef, useState } from "react";
 import { UserPlus } from "lucide-react";
@@ -73,6 +79,7 @@ export default function ManageModeratorPage() {
       nextParams.delete("search");
     }
     nextParams.delete("page");
+    nextParams.delete("cursor");
     applySearchParams(nextParams);
   };
 

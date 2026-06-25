@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronsLeft, ChevronRight } from "lucide-react";
 
 import type { CursorPagination } from "~/types/api-client";
 
@@ -22,7 +22,7 @@ export function ManageModeratorPagination({
         disabled={!hasCursor}
         className="flex items-center gap-2 px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
       >
-        <ChevronLeft size={14} /> Previous
+        <ChevronsLeft size={14} /> First
       </button>
       <button
         onClick={() => onCursorChange(pagination.nextCursor)}

@@ -20,16 +20,18 @@ export function ManageModeratorToolbar({
     setInputValue(searchValue);
   }, [searchValue]);
 
+  const onSearchChangeRef = useRef(onSearchChange);
+  useEffect(() => {
+    onSearchChangeRef.current = onSearchChange;
+  }, [onSearchChange]);
   const debouncedSearchRef = useRef(
     debounce((value: string) => {
-      onSearchChange(value);
+      onSearchChangeRef.current(value);
     }, 300),
   );
-
   useEffect(() => {
     return () => debouncedSearchRef.current.cancel();
   }, []);
-
   const handleInputChange = (value: string) => {
     setInputValue(value);
     debouncedSearchRef.current(value);

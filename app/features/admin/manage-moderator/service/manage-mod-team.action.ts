@@ -9,12 +9,25 @@ import {
 import { getAdminAccessToken } from "~/lib/server/session.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 
+// --- Validation Schemas ---
+
 const roleSchema = z.enum(["MODERATOR", "SUPER_ADMIN"]);
 
 const inviteSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email"),
   role: roleSchema,
 });
+
+const removeSchema = z.object({
+  memberId: z.string().min(1, "Member ID is required."),
+});
+
+const updateRoleSchema = z.object({
+  memberId: z.string().min(1, "Member ID is required."),
+  role: roleSchema,
+});
+
+// --- Action Handler ---
 
 export async function manageModTeamAction({ request }: ActionFunctionArgs) {
   const { accessToken, setCookie } = await getAdminAccessToken(request);
@@ -35,15 +48,18 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
     );
   }
 
+  // 1. Invite Branch
   if (actionType === "invite") {
     const result = inviteSchema.safeParse({
       email: formData.get("email"),
       role: formData.get("role"),
     });
+
     if (!result.success) {
       const message = result.error.issues.map((i) => i.message).join(", ");
       return data({ ok: false, message }, { status: 400 });
     }
+
     const payload = result.data;
     try {
       await postManageTeam(request, accessToken, {
@@ -70,15 +86,20 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
     }
   }
 
+  // 2. Remove Branch
   if (actionType === "remove") {
-    const memberId = String(formData.get("memberId") ?? "").trim();
+    const result = removeSchema.safeParse({
+      memberId: formData.get("memberId"),
+    });
 
-    if (!memberId) {
+    if (!result.success) {
       return data(
-        { ok: false, message: "Member ID is required." },
+        { ok: false, message: result.error.issues[0].message },
         { status: 400 },
       );
     }
+
+    const { memberId } = result.data;
 
     try {
       await removeModerator(request, memberId, accessToken);
@@ -102,30 +123,27 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
     }
   }
 
+  // 3. Update-Role Branch
   if (actionType === "update-role") {
-    const memberId = String(formData.get("memberId") ?? "").trim();
-    const role = String(formData.get("role") ?? "").trim();
+    const result = updateRoleSchema.safeParse({
+      memberId: formData.get("memberId"),
+      role: formData.get("role"),
+    });
+
+    if (!result.success) {
+      // Provide a clear fallback error message matching the old implementation if specific field issues aren't parsed
+      const message = result.error.issues.some((i) => i.path.includes("role"))
+        ? "Invalid role value."
+        : result.error.issues[0].message;
+
+      return data({ ok: false, message }, { status: 400 });
+    }
+
+    const { memberId, role } = result.data;
     const currentRole = String(formData.get("currentRole") ?? "").trim();
 
-    if (!memberId) {
-      return data(
-        { ok: false, message: "Member ID is required." },
-        { status: 400 },
-      );
-    }
-
-    const roleResult = roleSchema.safeParse(role);
-    if (!roleResult.success) {
-      return data(
-        { ok: false, message: "Invalid role value." },
-        { status: 400 },
-      );
-    }
-
     try {
-      await patchModerator(request, memberId, accessToken, {
-        role: roleResult.data,
-      });
+      await patchModerator(request, memberId, accessToken, { role });
 
       return data(
         { ok: true, message: null },
@@ -136,7 +154,7 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
         if (
           err.status === 404 &&
           currentRole === "SUPER_ADMIN" &&
-          roleResult.data === "MODERATOR"
+          role === "MODERATOR"
         ) {
           return data(
             {
