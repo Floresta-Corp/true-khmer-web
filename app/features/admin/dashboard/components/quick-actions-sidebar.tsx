@@ -12,9 +12,9 @@ export function QuickActionsSidebar({ actions }: QuickActionsSidebarProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.3 }}
-      className="lg:col-span-4 rounded-xl border border-slate-100 dark:border-slate-800 dark:bg-slate-900 flex flex-col"
+      className="lg:col-span-4 rounded-xl border border-(--admin-border) dark:bg-slate-900 flex flex-col"
     >
-      <div className="px-6 py-5 border-b border-slate-50 dark:border-slate-800">
+      <div className="px-6 py-5 border-b border-(--admin-border) dark:border-slate-800">
         <h3 className="text-[15px] font-semibold text-(--admin-text)">
           Quick Actions
         </h3>
@@ -26,7 +26,7 @@ export function QuickActionsSidebar({ actions }: QuickActionsSidebarProps) {
         ))}
       </div>
       <div className="p-5">
-        <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800/50">
+        <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-(--admin-border) dark:border-slate-800/50">
           <p className="text-[10px] font-black text-(--admin-text-secondary) uppercase tracking-widest mb-2">
             System status
           </p>

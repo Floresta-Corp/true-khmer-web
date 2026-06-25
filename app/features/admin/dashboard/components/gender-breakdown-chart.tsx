@@ -8,7 +8,11 @@ import {
   Legend,
 } from "recharts";
 import type { GenderItem } from "../admin-dashboard";
-import { TOOLTIP_STYLE, TOOLTIP_CURSOR, TEXT_SECONDARY } from "../admin-dashboard";
+import {
+  TOOLTIP_STYLE,
+  TOOLTIP_CURSOR,
+  TEXT_SECONDARY,
+} from "../admin-dashboard";
 import { useChartReady } from "./use-chart-ready";
 
 interface GenderBreakdownChartProps {
@@ -22,7 +26,7 @@ export function GenderBreakdownChart({ data }: GenderBreakdownChartProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.6 }}
-      className="rounded-xl border border-(--admin-border) bg-(--admin-card-bg) p-6"
+      className="rounded-xl border border-(--admin-border) dark:bg-slate-900 p-6"
     >
       <h3 className="text-xs font-black text-(--admin-text) uppercase tracking-widest mb-5">
         Gender Breakdown

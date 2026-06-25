@@ -37,7 +37,7 @@ export function RegistrationsChart({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.5 }}
-      className="rounded-xl border border-(--admin-border) bg-(--admin-card-bg) p-6"
+      className="rounded-xl border border-(--admin-border) dark:bg-slate-900 p-6"
     >
       <div className="flex items-start justify-between mb-6">
         <div>
@@ -88,7 +88,11 @@ export function RegistrationsChart({
                 tickLine={false}
                 tick={{ fontSize: 10, fill: TEXT_MUTED, fontWeight: 600 }}
               />
-              <Tooltip cursor={TOOLTIP_CURSOR} contentStyle={TOOLTIP_STYLE} />
+              <Tooltip
+                cursor={TOOLTIP_CURSOR}
+                contentStyle={TOOLTIP_STYLE}
+                itemStyle={{ color: "var(--admin-text)" }}
+              />
               <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                 {data.map((entry, index) => (
                   <Cell
