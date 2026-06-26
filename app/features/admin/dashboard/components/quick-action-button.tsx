@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { Link } from "react-router";
 import { Plus } from "lucide-react";
-import type { QuickAction } from "../admin-dashboard";
+import type { QuickAction } from "../types";
 
 interface QuickActionButtonProps {
   action: QuickAction;

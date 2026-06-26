@@ -14,14 +14,14 @@ import ForumReportDialog, {
   type ReportReasonData,
 } from "./dialog/forum-report-dialog";
 import { Link } from "react-router";
-import type { Question } from "~/services/forum/forum-types";
+import type { QuestionResponse } from "~/types/api-client";
 import { resolveImageURL } from "~/lib/utils";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { Spinner } from "~/components/ui/spinner";
 import ProfileLinkWrapper from "~/components/profile-link-wrapper";
 
 interface ForumDetailQuestionHeaderProps {
-  question: Question;
+  question: QuestionResponse;
   isAuthenticated: boolean;
   reportReasons: ReportReasonData[];
   userId?: string;

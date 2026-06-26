@@ -7,7 +7,7 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { cn } from "~/lib/utils";
-import type { Candidate } from "~/services/manage-post/types";
+import type { Candidate } from "~/features/manage-post/types";
 
 type Props = {
   candidate: Candidate;

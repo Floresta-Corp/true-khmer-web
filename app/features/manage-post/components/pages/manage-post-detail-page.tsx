@@ -7,7 +7,7 @@ import {
   Share2,
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import type { loader } from "../../routes/manage-post.$sourceType.$id";
+import type { loader } from "../../route/manage-post.$sourceType.$id";
 import ManagePostingDetailStats from "../section/posting-detail-stats";
 import ManagePostingDetailTable from "../section/posting-detail-table";
 import { formatDate } from "~/features/events/lib/event-formatters";
@@ -15,7 +15,7 @@ import type {
   ManagePostStatus,
   PostingType,
   SourceType,
-} from "~/services/manage-post/types";
+} from "~/features/manage-post/types";
 import { cn } from "~/lib/utils";
 import BackToButton from "~/components/back-to-button";
 import ManagePostOption from "../dropdown/manage-post-option";

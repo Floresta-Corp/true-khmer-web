@@ -9,7 +9,7 @@ import type {
   ApplicantStatusAction,
   PostingType,
   PostSourceType,
-} from "~/services/manage-post/types";
+} from "~/features/manage-post/types";
 import ApplicantNoteAction from "./applicant-note-action";
 import ApplicantStatusChangeButton from "./applicant-change-status-button";
 import { useFetcher } from "react-router";

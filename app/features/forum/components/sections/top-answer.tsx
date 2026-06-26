@@ -1,10 +1,10 @@
 import { Trophy } from "lucide-react";
 import { motion } from "motion/react";
 import AnswerCard from "../answer-card";
-import type { Answer } from "~/services/forum/forum-types";
+import type { AnswerResponse } from "~/types/api-client";
 
 interface TopAnswerProps {
-  answer: Answer;
+  answer: AnswerResponse;
 }
 
 export default function TopAnswer({ answer }: TopAnswerProps) {

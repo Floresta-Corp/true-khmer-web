@@ -5,10 +5,10 @@ import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 import { ViewerVote } from "~/services/types";
-import type { Question } from "~/services/forum/forum-types";
+import type { QuestionResponse } from "~/types/api-client";
 
 interface QuestionVoteComponentProps {
-  question: Question;
+  question: QuestionResponse;
   className?: string;
 }
 

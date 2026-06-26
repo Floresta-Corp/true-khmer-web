@@ -9,9 +9,9 @@ import {
   type SetStateAction,
 } from "react";
 import { toast } from "sonner";
-import type { ApiNotification } from "~/services/notifications.types";
+import type { ApiNotification } from "~/features/notifications/types";
 
-export type { ApiNotification } from "~/services/notifications.types";
+export type { ApiNotification } from "~/features/notifications/types";
 
 interface NotificationContextValue {
   unreadCount: number;

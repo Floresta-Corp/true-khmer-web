@@ -13,7 +13,7 @@ import type {
   ManagePost,
   ManagePostStatus,
   SourceType,
-} from "~/services/manage-post/types";
+} from "~/features/manage-post/types";
 import ManagePostOption from "../dropdown/manage-post-option";
 
 const STATUS_STYLES: Record<ManagePostStatus, string> = {

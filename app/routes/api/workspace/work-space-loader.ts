@@ -2,16 +2,12 @@ import {
   getCategories,
   myForumAnswer,
   myForumQuestion,
-} from "~/services/forum/server";
-import type {
-  Question,
-  DiscussionsListResponse,
-} from "~/services/forum/forum-types";
+} from "~/routes/api/forum/forum.server";
 import type { Route } from "project-types/workspace/routes/+types/workspace";
 import type { BasicJoinType } from "~/services/types";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
-import type { MyAnswerParams } from "~/services/forum/server/forum-answer.server";
+import type { MyAnswerParams } from "~/routes/api/forum/forum.server";
 import type {
   GetMyAnswersResponse,
   GetMyQuestionsResponse,

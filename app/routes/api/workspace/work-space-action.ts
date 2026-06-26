@@ -6,14 +6,14 @@ import {
   deleteForumQuestion,
   updateAnswerById,
   updateForumQuestion,
-} from "~/services/forum/server";
+} from "~/routes/api/forum/forum.server";
 import {
   validateCreateForumPostForm,
   validateDeleteAnswerForm,
   validateDeleteQuestionForm,
   validateUpdateAnswerForm,
   validateUpdateQuestionForm,
-} from "~/services/forum/validation";
+} from "~/features/forum/services/forum.validation";
 import {
   actionError,
   runServiceAction,

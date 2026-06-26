@@ -8,13 +8,13 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
-import type { AgeItem } from "../admin-dashboard";
+import type { AgeItem } from "../types";
 import {
   TOOLTIP_STYLE,
   TOOLTIP_CURSOR,
   GRID_COLOR,
   TEXT_SECONDARY,
-} from "../admin-dashboard";
+} from "../types";
 import { useChartReady } from "./use-chart-ready";
 
 interface AgeGroupsChartProps {

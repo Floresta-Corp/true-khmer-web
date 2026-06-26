@@ -3,17 +3,17 @@ import { useFetcher, useLoaderData, useSearchParams } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 import { Loader2 } from "lucide-react";
 import SavedItemsSidebar from "../saved-items-sidebar";
-import type { loader } from "../../routes/saved-items";
-import type { SavedItemsLoaderData } from "~/routes/api/saved-items/saved-items-loader";
+import type { loader } from "../../route/saved-items";
+import type { SavedItemsLoaderData } from "~/features/saved-items/services/saved-items.loader";
 import type { FilterId } from "../saved-item-filter";
-import type { Question } from "~/services/forum/forum-types";
+import type { QuestionResponse } from "~/types/api-client";
 import type { Opportunity } from "~/services/volunteer/volunteer-types";
-import type { LaunchpadOpportunity } from "~/services/launchpad/types/project";
+import type { LaunchpadOpportunity } from "~/features/launchpad/types";
 import SavedItemsGrid from "../saved-items-gride";
 import type {
   CountSavedItemResponse,
   ItemElement,
-} from "~/services/saved-items/saved-items-types";
+} from "~/features/saved-items/types";
 import { ForumPageLayout } from "~/features/forum/components/forum-page-layout";
 
 const VALID_FILTERS: FilterId[] = [
@@ -32,7 +32,7 @@ function getFilterFromParams(searchParams: URLSearchParams): FilterId {
 function groupSavedItems(items: ItemElement[]) {
   const forums = items
     .filter((v) => v.type === "forum")
-    .map((v) => v.item as unknown as Question);
+    .map((v) => v.item as unknown as QuestionResponse);
 
   const volunteers = items
     .filter((v) => v.type === "volunteer")

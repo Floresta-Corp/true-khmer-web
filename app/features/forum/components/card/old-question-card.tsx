@@ -11,7 +11,8 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import QuestionVoteComponent from "../question-vote-component";
-import type { CategoriesPicker, Question } from "~/services/forum/forum-types";
+import type { QuestionResponse } from "~/types/api-client";
+import type { CategoriesPicker } from "~/features/forum/types";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import AskQuestionDialog from "../dialog/ask-question-dialog";
 import DeleteQuestionDialog from "../dialog/delete-question-dialog";
@@ -23,7 +24,7 @@ import ForumReportDialog, {
 } from "../dialog/forum-report-dialog";
 
 interface DiscussionCardProps {
-  question: Question;
+  question: QuestionResponse;
   categories: CategoriesPicker[];
   onCategoryClick?: (category: CategoriesPicker) => void;
 }

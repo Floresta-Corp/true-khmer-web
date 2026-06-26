@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL } from "~/lib/utils";
-import type { Discussion } from "~/services/forum/types";
+import type { MyAnswerDiscussionResponse } from "~/types/api-client";
 import { motion } from "motion/react";
 import DeleteAnswerDialog from "~/features/forum/components/dialog/delete-answer-dialog";
 import { Button } from "~/components/ui/button";
@@ -12,7 +12,7 @@ import { useState } from "react";
 import SlideToLeftHoverAnimation from "~/components/slide-to-left-hover-animation";
 
 type Props = {
-  answer: Discussion;
+  answer: MyAnswerDiscussionResponse;
   index: number;
 };
 

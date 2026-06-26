@@ -1,7 +1,5 @@
-import type {
-  CategoriesPicker,
-  GetQuestionPaginationResponse,
-} from "~/services/forum/forum-types";
+import type { GetQuestionsResponse } from "~/types/api-client";
+import type { CategoriesPicker } from "~/features/forum/types";
 
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
@@ -13,7 +11,7 @@ import type { loader } from "../../routes/forum.search";
 
 interface ForumSearchResultsSectionProps {
   search: string;
-  data: GetQuestionPaginationResponse;
+  data: GetQuestionsResponse;
   categories: CategoriesPicker[];
   onClearSearch?: () => void;
   onClearSearchValue?: () => void;

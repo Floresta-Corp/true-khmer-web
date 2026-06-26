@@ -1,7 +1,7 @@
 import { useLoaderData } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 import HeaderSearch from "~/components/header-search";
-import type { loader } from "~/features/launchpad/routes/launchpad";
+import type { loader } from "~/features/launchpad/route/launchpad";
 
 const easings = {
   enter: "easeInOut" as const,

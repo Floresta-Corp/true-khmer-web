@@ -11,7 +11,7 @@ import {
   type LucideIcon,
   ThumbsDown,
 } from "lucide-react";
-import type { RecentActivityType } from "~/services/myspace/types/myspace-me-type";
+import type { RecentActivityType } from "~/features/myspace/types";
 
 export interface ActivityTypeConfig {
   icon: LucideIcon;

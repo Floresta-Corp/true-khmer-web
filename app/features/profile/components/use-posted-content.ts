@@ -1,6 +1,6 @@
 import React from "react";
 import { useFetcher } from "react-router";
-import type { loader } from "../routes/profile.$id";
+import type { loader } from "../route/profile.$id";
 import type { NormalizedPosted } from "../services/profile.loader";
 
 export type { NormalizedPosted };

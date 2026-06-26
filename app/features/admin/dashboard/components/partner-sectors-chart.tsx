@@ -7,8 +7,8 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import type { PartnerSector } from "../admin-dashboard";
-import { TOOLTIP_STYLE, TOOLTIP_CURSOR, TEXT_SECONDARY } from "../admin-dashboard";
+import type { PartnerSector } from "../types";
+import { TOOLTIP_STYLE, TOOLTIP_CURSOR, TEXT_SECONDARY } from "../types";
 import { useChartReady } from "./use-chart-ready";
 
 interface PartnerSectorsChartProps {

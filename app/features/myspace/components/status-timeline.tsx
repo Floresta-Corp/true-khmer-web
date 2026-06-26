@@ -9,7 +9,7 @@ import {
 import { motion, useReducedMotion } from "motion/react";
 import { Card, CardContent } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
-import type { Timeline } from "~/services/myspace/types";
+import type { Timeline } from "~/features/myspace/types";
 
 export interface StatusTimelineProps {
   activeStep: number;

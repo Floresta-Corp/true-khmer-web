@@ -3,7 +3,7 @@ import { Sparkles, Trophy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Progress } from "~/components/ui/progress";
 import { Separator } from "~/components/ui/separator";
-import type { NextTier, Tier } from "~/services/myspace/types";
+import type { NextTier, Tier } from "~/features/myspace/types";
 import { Button } from "~/components/ui/button";
 
 interface CommunityStandingCardProps {

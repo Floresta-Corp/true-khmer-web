@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
-import type { PostSourceType } from "~/services/manage-post/types";
+import type { PostSourceType } from "~/features/manage-post/types";
 
 type ApplicantNoteActionProps = {
   sourceType: PostSourceType;

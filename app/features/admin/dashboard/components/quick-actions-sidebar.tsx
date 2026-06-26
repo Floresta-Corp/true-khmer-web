@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { QuickActionButton } from "./quick-action-button";
-import type { QuickAction } from "../admin-dashboard";
+import type { QuickAction } from "../types";
 
 interface QuickActionsSidebarProps {
   actions: QuickAction[];

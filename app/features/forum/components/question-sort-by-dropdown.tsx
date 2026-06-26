@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
 } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
-import type { QuestionSortBy } from "~/services/forum/forum-types";
+import type { QuestionSortBy } from "~/features/forum/types";
 
 interface QuestionSortByDropdownProps {
   selectedValue: QuestionSortBy;

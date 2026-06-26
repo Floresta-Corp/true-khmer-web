@@ -6,12 +6,13 @@ import {
   DropdownMenuItem,
 } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
-import type { Question, CategoriesPicker } from "~/services/forum/forum-types";
+import type { QuestionResponse } from "~/types/api-client";
+import type { CategoriesPicker } from "~/features/forum/types";
 import DeleteQuestionDialog from "./dialog/delete-question-dialog";
 import AskQuestionDialog from "./dialog/ask-question-dialog";
 
 interface MobileAuthorOptionsProps {
-  question: Question;
+  question: QuestionResponse;
   categories: CategoriesPicker[];
 }
 

@@ -3,7 +3,7 @@ import {
   getNotifications,
   markNotificationsRead,
   markAllNotificationsRead,
-} from "~/services/notifications.server";
+} from "~/routes/api/notifications/notifications.server";
 
 function readPositiveInteger(
   value: string | null,

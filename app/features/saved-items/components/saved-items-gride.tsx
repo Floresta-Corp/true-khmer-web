@@ -1,8 +1,9 @@
 import { Tag } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import type { CategoriesPicker, Question } from "~/services/forum/forum-types";
+import type { CategoriesPicker } from "~/features/forum/types";
+import type { QuestionResponse } from "~/types/api-client";
 import type { Opportunity } from "~/services/volunteer/volunteer-types";
-import type { LaunchpadOpportunity } from "~/services/launchpad/types/project";
+import type { LaunchpadOpportunity } from "~/features/launchpad/types";
 import type { FilterId } from "./saved-item-filter";
 import { OpportunityCard } from "~/components/opportunity-card";
 import QuestionCard from "~/features/forum/components/card/question-card";
@@ -11,13 +12,13 @@ import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router";
 
 type SavedCardItem =
-  | { type: "forum"; data: Question }
+  | { type: "forum"; data: QuestionResponse }
   | { type: "volunteer"; data: Opportunity }
   | { type: "launchpad"; data: LaunchpadOpportunity };
 
 interface SavedGridProps {
   activeFilter: FilterId;
-  savedForums: Question[];
+  savedForums: QuestionResponse[];
   savedVolunteers: Opportunity[];
   savedLaunchpads: LaunchpadOpportunity[];
   categories?: CategoriesPicker[];

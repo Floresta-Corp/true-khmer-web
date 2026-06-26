@@ -1,6 +1,6 @@
 import { ArrowRight, Download } from "lucide-react";
 import { resolveImageURL } from "~/lib/utils";
-import type { LaunchpadDetail } from "~/services/launchpad/types/project";
+import type { LaunchpadDetail } from "~/features/launchpad/types";
 
 interface LaunchpadPresentationCardProps {
   project: LaunchpadDetail;

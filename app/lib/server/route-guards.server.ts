@@ -21,7 +21,7 @@ import {
 } from "~/services/onboarding.server";
 import type { AdminUser } from "~/types/api-client";
 import type { AuthenticatedUser } from "./types";
-import { getAdminMe } from "~/services/api/admin/auth/admin-auth.server";
+import { getAdminMe } from "~/routes/api/auth/admin-auth.server";
 
 type GuardResult = {
   user: AuthenticatedUser;

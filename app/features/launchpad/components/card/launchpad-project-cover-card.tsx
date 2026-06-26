@@ -1,5 +1,5 @@
 import { resolveImageURL } from "~/lib/utils";
-import type { LaunchpadDetail } from "~/services/launchpad/types/project";
+import type { LaunchpadDetail } from "~/features/launchpad/types";
 
 interface LaunchpadProjectCoverCardProps {
   project: LaunchpadDetail;

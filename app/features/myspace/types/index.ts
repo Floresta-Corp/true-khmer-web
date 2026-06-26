@@ -1,0 +1,310 @@
+import { z } from "zod";
+import { schemas } from "~/types/api-client";
+
+// ── MyApplication types — sourced from api-client ────────────────────────────
+
+export type {
+  MyApplicationStatusGroup,
+  MyApplicationReference,
+  MyApplicationTimeline,
+  MyApplicationRole,
+  MyApplicationItem,
+  MyApplicationsSummary,
+  MyApplicationRoleDetail,
+  MyApplicationDetail,
+  MyApplicationStatusActionResponse,
+  MyApplicationArchiveActionResponse,
+  MyApplicationsErrorResponse,
+} from "~/types/api-client";
+
+// Renamed api-client types (names used in this feature)
+export type GetMyApplicationResponse =
+  import("~/types/api-client").MyApplicationsResponse;
+export type GetMyApplicationDetailResponse =
+  import("~/types/api-client").MyApplicationDetailResponse;
+
+// Aliases used in components
+export type Application = import("~/types/api-client").MyApplicationItem;
+export type ApplicationGroup = import("~/types/api-client").MyApplicationItem;
+export type ApplicationRoleSummary = import("~/types/api-client").MyApplicationRole;
+export type ApplicationDetail = import("~/types/api-client").MyApplicationDetail;
+export type ApplicationDetailRole =
+  import("~/types/api-client").MyApplicationRoleDetail;
+export type Summary = import("~/types/api-client").MyApplicationsSummary;
+export type Timeline = import("~/types/api-client").MyApplicationTimeline;
+
+// ── MyApplication schemas — from api-client for runtime parsing ───────────────
+
+export const MyApplicationStatusGroupSchema = schemas.MyApplicationStatusGroup;
+export const MyApplicationReferenceSchema = schemas.MyApplicationReference;
+export const MyApplicationTimelineSchema = schemas.MyApplicationTimeline;
+export const MyApplicationRoleSchema = schemas.MyApplicationRole;
+export const MyApplicationItemSchema = schemas.MyApplicationItem;
+export const MyApplicationsSummarySchema = schemas.MyApplicationsSummary;
+export const GetMyApplicationResponseSchema = schemas.MyApplicationsResponse;
+export const GetMyApplicationDetailResponseSchema =
+  schemas.MyApplicationDetailResponse;
+export const MyApplicationStatusActionResponseSchema =
+  schemas.MyApplicationStatusActionResponse;
+export const MyApplicationArchiveActionResponseSchema =
+  schemas.MyApplicationArchiveActionResponse;
+export const MyApplicationsErrorResponseSchema =
+  schemas.MyApplicationsErrorResponse;
+export const MyApplicationRoleDetailSchema = schemas.MyApplicationRoleDetail;
+export const MyApplicationDetailSchema = schemas.MyApplicationDetail;
+
+// ── Filter / Action enums (not in api-client) ────────────────────────────────
+
+export const MyApplicationListTypeSchema = z.enum([
+  "all",
+  "volunteer",
+  "projects",
+]);
+export type MyApplicationListType = z.infer<typeof MyApplicationListTypeSchema>;
+
+export const MyApplicationFilterSchema = z.enum([
+  "all",
+  "pending",
+  "approved",
+  "active",
+  "completed",
+  "archived",
+]);
+export type MyApplicationFilter = z.infer<typeof MyApplicationFilterSchema>;
+
+export const MyApplicationRequestSourceTypeSchema = z.enum([
+  "volunteer",
+  "projects",
+]);
+export type MyApplicationRequestSourceType = z.infer<
+  typeof MyApplicationRequestSourceTypeSchema
+>;
+
+export const MyApplicationStatusActionSchema = z.enum([
+  "confirm",
+  "decline",
+  "withdraw",
+]);
+export type MyApplicationStatusAction = z.infer<
+  typeof MyApplicationStatusActionSchema
+>;
+
+export const MyApplicationArchiveActionSchema = z.enum([
+  "archive",
+  "unarchive",
+]);
+export type MyApplicationArchiveAction = z.infer<
+  typeof MyApplicationArchiveActionSchema
+>;
+
+// Source/action type aliases
+export type MyApplicationSourceType = MyApplicationRequestSourceType;
+export type ApplicationSourceType = MyApplicationRequestSourceType;
+export type ApplicationStatusAction = MyApplicationStatusAction;
+export type ApplicationArchiveAction = MyApplicationArchiveAction;
+
+// ── Me / Profile types (not in api-client) ───────────────────────────────────
+
+export const CategorySchema = z.enum([
+  "COLLABORATION",
+  "KNOWLEDGE",
+  "LAUNCHPAD",
+  "ONBOARDING",
+  "VOLUNTEER",
+]);
+export type Category = z.infer<typeof CategorySchema>;
+
+export const VisibilitySchema = z.object({
+  profile: z.string(),
+  contact: z.string(),
+  socialLinks: z.string(),
+  contributions: z.string(),
+});
+export type Visibility = z.infer<typeof VisibilitySchema>;
+
+export const SocialLinksSchema = z.object({
+  website: z.string().nullable(),
+  linkedin: z.string().nullable(),
+  twitter: z.string().nullable(),
+  facebook: z.string().nullable(),
+});
+export type SocialLinks = z.infer<typeof SocialLinksSchema>;
+
+export const PhoneInputSchema = z.object({
+  country: z.string(),
+  nationalNumber: z.string(),
+});
+export type PhoneInput = z.infer<typeof PhoneInputSchema>;
+
+export const TierSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  name: z.string(),
+  rankOrder: z.number(),
+  minPoints: z.number(),
+});
+export type Tier = z.infer<typeof TierSchema>;
+
+export const NextTierSchema = z.object({
+  id: z.string(),
+  minPoints: z.number(),
+  name: z.string(),
+  rankOrder: z.number(),
+  slug: z.string(),
+});
+export type NextTier = z.infer<typeof NextTierSchema>;
+
+export const ProgressSchema = z.object({
+  nextTier: z.union([NextTierSchema, z.null()]),
+  pointsUntilNextTier: z.number().nonnegative(),
+  totalPoints: z.number(),
+  rank: z.string().nullable(),
+  tier: TierSchema,
+});
+export type Progress = z.infer<typeof ProgressSchema>;
+
+export const SkillSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+export type Skill = z.infer<typeof SkillSchema>;
+
+export const CountrySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  iso2: z.string().nullable(),
+});
+export type Country = z.infer<typeof CountrySchema>;
+
+export const CitySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+export type City = z.infer<typeof CitySchema>;
+
+export const ProfileInfoSchema = z.object({
+  avatarKey: z.string().nullable(),
+  bio: z.string().nullable(),
+  country: CountrySchema.nullable(),
+  city: CitySchema.nullable(),
+  visibility: VisibilitySchema,
+});
+export type ProfileInfo = z.infer<typeof ProfileInfoSchema>;
+
+export const UserSchema = z.object({
+  id: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  displayName: z.string().nullable(),
+  email: z.string(),
+  gender: z.string(),
+  dateOfBirth: z.string().nullable(),
+  occupation: z.string().nullable(),
+  phone: PhoneInputSchema.nullable(),
+  telegramUsername: z.string().nullable(),
+});
+export type User = z.infer<typeof UserSchema>;
+
+export const BadgeSchema = z.object({
+  awardedAt: z.string(),
+  category: CategorySchema,
+  description: z.string(),
+  name: z.string(),
+  slug: z.string(),
+});
+export type Badge = z.infer<typeof BadgeSchema>;
+
+export const ProfileSchema = z.object({
+  badges: z.array(BadgeSchema),
+  user: UserSchema,
+  profile: ProfileInfoSchema,
+  skills: z.array(SkillSchema),
+  socialLinks: SocialLinksSchema,
+  progress: ProgressSchema,
+});
+export type Profile = z.infer<typeof ProfileSchema>;
+
+export const GetMySpaceMeResponseSchema = z.object({
+  ok: z.boolean(),
+  profile: ProfileSchema,
+});
+export type GetMySpaceMeResponse = z.infer<typeof GetMySpaceMeResponseSchema>;
+
+export type RecentActivityType =
+  | "forum_question_posted"
+  | "forum_question_deleted"
+  | "forum_question_upvoted"
+  | "forum_question_downvoted"
+  | "forum_question_saved"
+  | "forum_answer_posted"
+  | "forum_answer_deleted"
+  | "forum_answer_upvoted"
+  | "forum_answer_downvoted"
+  | "forum_best_answer_marked"
+  | "volunteer_opportunity_posted"
+  | "volunteer_opportunity_saved"
+  | "volunteer_application_submitted"
+  | "launchpad_created";
+
+export const RecentActivitySchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  type: z.enum([
+    "forum_question_posted",
+    "forum_question_deleted",
+    "forum_question_upvoted",
+    "forum_question_downvoted",
+    "forum_question_saved",
+    "forum_answer_posted",
+    "forum_answer_deleted",
+    "forum_answer_upvoted",
+    "forum_answer_downvoted",
+    "forum_best_answer_marked",
+    "volunteer_opportunity_posted",
+    "volunteer_opportunity_saved",
+    "volunteer_application_submitted",
+    "launchpad_created",
+  ]),
+  title: z.string(),
+  description: z.string().nullable(),
+  targetType: z.string(),
+  targetId: z.string(),
+  referenceType: z.string(),
+  referenceId: z.string(),
+  data: z.record(z.string(), z.unknown()),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+export type RecentActivity = z.infer<typeof RecentActivitySchema>;
+
+export const GetRecentActivityResponseSchema = z.object({
+  ok: z.boolean(),
+  activities: z.array(RecentActivitySchema),
+});
+export type GetRecentActivityResponse = z.infer<
+  typeof GetRecentActivityResponseSchema
+>;
+
+export const UpdateMySpaceInputSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  gender: z.string(),
+  dateOfBirth: z.string().nullable(),
+  occupation: z.string().nullable(),
+  phone: z.union([PhoneInputSchema, z.null()]).optional(),
+  telegramUsername: z.string().nullable(),
+  bio: z.string().nullable(),
+  countryId: z.string().nullable(),
+  cityId: z.string().nullable(),
+  avatarKey: z.string().nullable(),
+  skills: z.array(z.string()),
+  socialLinks: SocialLinksSchema,
+  visibility: VisibilitySchema,
+});
+export type UpdateMySpaceInput = z.infer<typeof UpdateMySpaceInputSchema>;
+
+export const UpdateMySpaceResponseSchema = z.object({
+  ok: z.boolean(),
+  profile: ProfileSchema,
+});
+export type UpdateMySpaceResponse = z.infer<typeof UpdateMySpaceResponseSchema>;

@@ -27,12 +27,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CreateForumQuestionInputSchema,
   type CreateForumQuestionInput,
-} from "~/services/forum/types/question-type";
-import type {
-  CategoriesPicker as CategoryOption,
-  Question,
-} from "~/services/forum/forum-types";
-import type { ForumPostFormFieldErrors } from "~/services/forum/validation";
+  type CategoriesPicker as CategoryOption,
+} from "~/features/forum/types";
+import type { QuestionResponse } from "~/types/api-client";
+import type { ForumPostFormFieldErrors } from "~/features/forum/services/forum.validation";
 import { Textarea } from "~/components/ui/textarea";
 import { resolveImageURL } from "~/lib/utils";
 
@@ -40,7 +38,7 @@ interface AskQuestionDialogProps {
   categories: CategoryOption[];
   isEditing?: boolean;
   isAuthenticated?: boolean;
-  data?: Question | null;
+  data?: QuestionResponse | null;
   trigger?: React.ReactNode;
 }
 

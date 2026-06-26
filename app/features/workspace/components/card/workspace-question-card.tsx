@@ -11,7 +11,6 @@ import DeleteQuestionDialog from "~/features/forum/components/dialog/delete-ques
 import ShareQuestionDialog from "~/features/forum/components/dialog/share-question-dialog";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL, cn } from "~/lib/utils";
-import type { Question } from "~/services/forum/types";
 import type { QuestionResponse } from "~/types/api-client";
 import type { BasicJoinType } from "~/services/types";
 

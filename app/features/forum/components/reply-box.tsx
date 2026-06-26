@@ -4,7 +4,7 @@ import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import { Spinner } from "~/components/ui/spinner";
 import { cn } from "~/lib/utils";
-import type { Question } from "~/services/forum/forum-types";
+import type { QuestionResponse } from "~/types/api-client";
 
 export interface ReplyBoxProps {
   /**
@@ -30,7 +30,7 @@ export interface ReplyBoxProps {
   /**
    * The question the reply belongs to (required by CreateAnswerInputSchema).
    */
-  question: Question;
+  question: QuestionResponse;
 }
 
 export default function ReplyBox({

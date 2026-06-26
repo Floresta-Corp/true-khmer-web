@@ -2,9 +2,8 @@ import { useCallback } from "react";
 import { Button } from "~/components/ui/button";
 import LaunchpadProjectCard from "../card/launchpad-project-card";
 import { useLoaderData, useNavigate } from "react-router";
-import type { LaunchpadOpportunity } from "~/services/launchpad/types/project";
-import type { loader } from "~/features/launchpad/routes/launchpad";
-import { ForumPageLayout } from "~/features/forum/components/forum-page-layout";
+import type { LaunchpadOpportunity } from "~/features/launchpad/types";
+import type { loader } from "~/features/launchpad/route/launchpad";
 
 const PAGE_SIZE = 9;
 

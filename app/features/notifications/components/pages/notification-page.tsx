@@ -17,8 +17,8 @@ import {
   getNotificationRoute,
   resolveNotificationIcon,
   type ApiNotification,
-} from "~/services/notifications.types";
-import type { loader } from "../../routes/notifications";
+} from "~/features/notifications/types";
+import type { loader } from "../../route/notifications";
 
 interface NotificationsData {
   ok: boolean;

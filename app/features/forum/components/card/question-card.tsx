@@ -6,7 +6,8 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL } from "~/lib/utils";
-import type { CategoriesPicker, Question } from "~/services/forum/forum-types";
+import type { QuestionResponse } from "~/types/api-client";
+import type { CategoriesPicker } from "~/features/forum/types";
 import AskQuestionDialog from "../dialog/ask-question-dialog";
 import DeleteQuestionDialog from "../dialog/delete-question-dialog";
 import ShareQuestionDialog from "../dialog/share-question-dialog";
@@ -17,7 +18,7 @@ import { ImageLightbox } from "~/components/image-lightbox";
 import ProfileLinkWrapper from "~/components/profile-link-wrapper";
 
 interface QuestionCardProps {
-  question: Question;
+  question: QuestionResponse;
   categories: CategoriesPicker[];
   userId?: string;
   index?: number;

@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import AnswerVoteComponent from "../answer-vote-component";
 import { Button } from "~/components/ui/button";
 import { resolveImageURL, cn } from "~/lib/utils";
-import type { Answer } from "~/services/forum/forum-types";
+import type { AnswerResponse } from "~/types/api-client";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import AddAnswerDialog from "../dialog/add-answer-dialog";
 import DeleteAnswerDialog from "../dialog/delete-answer-dialog";
@@ -16,7 +16,7 @@ import ForumReportDialog, {
 } from "../dialog/forum-report-dialog";
 import { highlightAnswerClassName } from "../../utils";
 
-type RepliedAnswer = NonNullable<Answer["repliedAnswers"]>[number];
+type RepliedAnswer = NonNullable<AnswerResponse["repliedAnswers"]>[number];
 
 interface NestedReplyCardProps {
   repliedAnswer: RepliedAnswer;

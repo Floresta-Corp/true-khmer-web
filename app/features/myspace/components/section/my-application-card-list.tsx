@@ -22,7 +22,7 @@ import type {
   Application,
   ApplicationRoleSummary,
   MyApplicationRequestSourceType,
-} from "~/services/myspace/types";
+} from "~/features/myspace/types";
 import type { loader } from "../../routes/my-applications";
 import ApplicationStatusConfirmDialog from "../application-status-confirm-dialog";
 import { MyApplicationActions } from "../my-application-actions";

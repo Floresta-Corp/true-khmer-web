@@ -1,18 +1,15 @@
 import {
   patchContentModerator,
-  DetailReportStatus,
+  DETAIL_REPORT_STATUSES,
 } from "~/routes/api/content-moderator/content-moderator.server";
+import type { DetailReportStatus } from "~/routes/api/content-moderator/content-moderator.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
 import { withAuthJson } from "~/lib/server/auth-response.server";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 
-const VALID_STATUSES = new Set<string>(Object.values(DetailReportStatus));
+const VALID_STATUSES = new Set<string>(DETAIL_REPORT_STATUSES);
 
-export async function contentModerationAction({
-  request,
-}: {
-  request: Request;
-}) {
+export async function contentModerationAction({ request }: { request: Request }) {
   await requireSuperAdmin(request);
   const formData = await request.formData();
 
@@ -32,9 +29,7 @@ export async function contentModerationAction({
     return withAuthJson(
       { setCookie },
       { error: "Missing or invalid required fields" },
-      {
-        status: 400,
-      },
+      { status: 400 },
     );
   }
 
@@ -47,10 +42,7 @@ export async function contentModerationAction({
     );
 
     if (response.ok && response.report) {
-      return withAuthJson(
-        { setCookie },
-        { success: true, report: response.report },
-      );
+      return withAuthJson({ setCookie }, { success: true, report: response.report });
     }
 
     return withAuthJson(
@@ -58,8 +50,7 @@ export async function contentModerationAction({
       { error: "Failed to update report status" },
       { status: 500 },
     );
-  } catch (err) {
-    console.error("[contentModerationAction]", err);
+  } catch {
     return withAuthJson(
       { setCookie },
       { error: "Server connection failed" },

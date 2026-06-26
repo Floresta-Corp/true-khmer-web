@@ -4,7 +4,7 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router";
-import type { loader } from "./routes/profile.$id";
+import type { loader } from "./route/profile.$id";
 import { motion, useReducedMotion } from "motion/react";
 import BackToButton from "~/components/back-to-button";
 import ProfileAboutCard from "./components/card/profile-about-card";

@@ -6,12 +6,13 @@ import {
   DropdownMenuItem,
 } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
-import type { CategoriesPicker, Question } from "~/services/forum/forum-types";
+import type { QuestionResponse } from "~/types/api-client";
+import type { CategoriesPicker } from "~/features/forum/types";
 import AskQuestionDialog from "./dialog/ask-question-dialog";
 import DeleteQuestionDialog from "./dialog/delete-question-dialog";
 
 interface QuestionActionsDropdownProps {
-  question: Question;
+  question: QuestionResponse;
   categories: CategoriesPicker[];
   /**
    * Align prop forwarded to DropdownMenuContent (default: "end")

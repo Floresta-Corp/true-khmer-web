@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import AnswerNewCard from "../card/answer-new-card";
-import type { Answer } from "~/services/forum/forum-types";
+import type { AnswerResponse } from "~/types/api-client";
 import type { loader } from "../../routes/forum.$id";
 import { useLoaderData, useFetcher, useLocation } from "react-router";
 import { useEffect, useState } from "react";
@@ -8,7 +8,7 @@ import SortDropdown from "~/components/ui/sort-dropdown";
 import AnswerCardSkeleton from "../card/answer-card-skeleton";
 
 interface AllAnswersProps {
-  answers: Answer[];
+  answers: AnswerResponse[];
 }
 
 type SortValue = "popular" | "newest" | "oldest";
@@ -27,7 +27,7 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
 
   const answersKey = (fetcher.data?.answers ?? answers)
     .map(
-      (a: Answer) =>
+      (a: AnswerResponse) =>
         a.id + (a.repliedAnswers?.map((r) => r.id).join(",") ?? ""),
     )
     .join("|");
@@ -66,7 +66,7 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
     setSelectedSort(p ?? "popular");
   }, [location.search]);
 
-  const displayedAnswers: Answer[] = fetcher.data?.answers ?? answers;
+  const displayedAnswers: AnswerResponse[] = fetcher.data?.answers ?? answers;
   const skeletonCount = Math.max(
     displayedAnswers.length || answers.length || 3,
     3,
