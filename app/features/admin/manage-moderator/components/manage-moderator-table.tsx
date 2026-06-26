@@ -6,7 +6,6 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { Skeleton } from "~/components/ui/skeleton";
 import type { ListModeratorsResponse } from "~/types/api-client";
 
 import { EmptySearchState, EmptyTeamState } from "./empty-search-state";
@@ -21,6 +20,7 @@ interface ManageModeratorTableProps {
   moderators: ModeratorMember[];
   searchValue: string;
   isLoading?: boolean;
+  currentUserId?: string;
   onClearSearch: () => void;
   onRemove: (id: string) => void;
   onRoleConfirm: (
@@ -47,6 +47,7 @@ export function ManageModeratorTable({
   searchValue,
   isLoading,
   onClearSearch,
+  currentUserId,
   onRemove,
   onRoleConfirm,
 }: ManageModeratorTableProps) {
@@ -78,6 +79,7 @@ export function ManageModeratorTable({
             moderators={moderators}
             searchValue={searchValue}
             onClearSearch={onClearSearch}
+            currentUserId={currentUserId}
             onRemove={onRemove}
             onRoleConfirm={onRoleConfirm}
           />
@@ -92,10 +94,12 @@ function ManageModeratorTableContent({
   searchValue,
   onClearSearch,
   onRemove,
+  currentUserId,
   onRoleConfirm,
 }: {
   moderators: ModeratorMember[];
   searchValue: string;
+  currentUserId?: string;
   onClearSearch: () => void;
   onRemove: (id: string) => void;
   onRoleConfirm: ManageModeratorTableProps["onRoleConfirm"];
@@ -152,12 +156,14 @@ function ManageModeratorTableContent({
         {member.lastActive ?? "Never"}
       </TableCell>
       <TableCell className="px-8 py-6 text-right static">
-        <RemoveModeratorMember
-          memberId={member.id}
-          firstName={member.firstName ?? ""}
-          lastName={member.lastName ?? ""}
-          onRemove={onRemove}
-        />
+        {member.id !== currentUserId && (
+          <RemoveModeratorMember
+            memberId={member.id}
+            firstName={member.firstName ?? ""}
+            lastName={member.lastName ?? ""}
+            onRemove={onRemove}
+          />
+        )}
       </TableCell>
     </TableRow>
   ));

@@ -3,16 +3,38 @@ import { Filter, Search } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { debounce } from "~/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { cn, debounce } from "~/lib/utils";
+
+const ROLES = ["moderator", "super_admin"] as const;
+type RoleFilter = (typeof ROLES)[number] | "all";
+
+const ROLE_LABELS: Record<RoleFilter, string> = {
+  all: "All Roles",
+  moderator: "Moderator",
+  super_admin: "Super Admin",
+};
 
 interface ManageModeratorToolbarProps {
   searchValue: string;
+  roleValue: RoleFilter;
   onSearchChange: (value: string) => void;
+  onRoleChange: (value: RoleFilter) => void;
 }
 
 export function ManageModeratorToolbar({
   searchValue,
+  roleValue,
   onSearchChange,
+  onRoleChange,
 }: ManageModeratorToolbarProps) {
   const [inputValue, setInputValue] = useState(searchValue);
 
@@ -52,13 +74,35 @@ export function ManageModeratorToolbar({
         />
       </div>
       <div className="flex items-center gap-2">
-        <Button
-          disabled
-          variant="ghost"
-          className="p-3 text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:text-white rounded-xl transition-all"
-        >
-          <Filter size={20} />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className={cn(
+                "p-3 rounded-xl transition-all",
+                roleValue !== "all"
+                  ? "bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white"
+                  : "text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:text-white",
+              )}
+            >
+              <Filter size={20} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-40">
+            <DropdownMenuLabel>Filter by role</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuRadioGroup
+              value={roleValue}
+              onValueChange={(value) => onRoleChange(value as RoleFilter)}
+            >
+              {(["all", ...ROLES] as const).map((role) => (
+                <DropdownMenuRadioItem key={role} value={role}>
+                  {ROLE_LABELS[role]}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

@@ -15,6 +15,7 @@ export interface ManageModTeamParams {
   cursor?: string;
   limit?: string;
   search?: string;
+  role?: string;
 }
 
 export async function getManageModTeam(
@@ -25,6 +26,7 @@ export async function getManageModTeam(
   const queryParams = new URLSearchParams();
   if (params.cursor) queryParams.set("cursor", params.cursor);
   if (params.search) queryParams.set("search", params.search);
+  if (params.role) queryParams.set("role", params.role);
   if (params.limit !== undefined)
     queryParams.set("limit", params.limit.toString());
 

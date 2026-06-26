@@ -19,6 +19,7 @@ interface RemoveModeratorMemberProps {
   firstName: string;
   lastName?: string;
   onRemove: (id: string) => void;
+  currentUserId?: string;
 }
 
 export default function RemoveModeratorMember({
@@ -26,8 +27,14 @@ export default function RemoveModeratorMember({
   firstName,
   lastName,
   onRemove,
+  currentUserId,
 }: RemoveModeratorMemberProps) {
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // Don't render anything if the current user is trying to remove themselves
+  if (currentUserId && memberId === currentUserId) {
+    return null;
+  }
 
   const handleConfirm = () => {
     onRemove(memberId);

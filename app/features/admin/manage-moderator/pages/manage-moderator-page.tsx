@@ -16,7 +16,8 @@ import { ManageModeratorTable } from "../components/manage-moderator-table";
 import { ManageModeratorToolbar } from "../components/manage-moderator-toolbar";
 
 export default function ManageModeratorPage() {
-  const { moderators, pagination } = useLoaderData<ManageModTeamLoaderData>();
+  const { moderators, pagination, currentUserId } =
+    useLoaderData<ManageModTeamLoaderData>();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigation = useNavigation();
   const location = useLocation();
@@ -28,6 +29,11 @@ export default function ManageModeratorPage() {
   const [searchInput, setSearchInput] = useState(
     searchParams.get("search") ?? "",
   );
+  const roleParam = searchParams.get("role");
+  const roleFilter =
+    roleParam === "moderator" || roleParam === "super_admin"
+      ? roleParam
+      : ("all" as const);
 
   const isLoading =
     navigation.state === "loading" &&
@@ -75,6 +81,17 @@ export default function ManageModeratorPage() {
       nextParams.delete("search");
     }
     nextParams.delete("page");
+    nextParams.delete("cursor");
+    setSearchParams(nextParams, { replace: true });
+  };
+
+  const handleRoleChange = (value: string) => {
+    const nextParams = new URLSearchParams(searchParams);
+    if (value && value !== "all") {
+      nextParams.set("role", value);
+    } else {
+      nextParams.delete("role");
+    }
     nextParams.delete("cursor");
     setSearchParams(nextParams, { replace: true });
   };
@@ -146,7 +163,9 @@ export default function ManageModeratorPage() {
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
         <ManageModeratorToolbar
           searchValue={searchInput}
+          roleValue={roleFilter}
           onSearchChange={handleSearchChange}
+          onRoleChange={handleRoleChange}
         />
         <ManageModeratorTable
           moderators={moderators}
@@ -155,6 +174,7 @@ export default function ManageModeratorPage() {
           onClearSearch={() => handleSearchChange("")}
           onRemove={handleRemove}
           onRoleConfirm={handleRoleConfirm}
+          currentUserId={currentUserId}
         />
         <ManageModeratorPagination
           pagination={pagination}

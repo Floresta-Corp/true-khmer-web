@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { data, redirect, type LoaderFunctionArgs } from "react-router";
 
-import { getAdminAccessToken } from "~/lib/server/session.server";
+import { getAdminAccessToken, getAdminUser } from "~/lib/server/session.server";
 import { getManageModTeam } from "~/routes/api/manage-moderator/manage-moderator.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import type {
@@ -13,11 +13,16 @@ const urlSchema = z.object({
   cursor: z.string().optional(),
   limit: z.coerce.number().int().positive().max(100).default(20),
   search: z.string().optional(),
+  role: z
+    .enum(["moderator", "super_admin"])
+    .optional()
+    .transform((v) => v?.toUpperCase() as "MODERATOR" | "SUPER_ADMIN" | undefined),
 });
 
 export type ManageModTeamLoaderData = {
   moderators: ListModeratorsResponse["moderators"];
   pagination: CursorPagination;
+  currentUserId: string;
 };
 
 export async function manageModTeamLoader({ request }: LoaderFunctionArgs) {
@@ -28,7 +33,7 @@ export async function manageModTeamLoader({ request }: LoaderFunctionArgs) {
   }
 
   const url = new URL(request.url);
-  const { cursor, limit, search } = urlSchema.parse(
+  const { cursor, limit, search, role } = urlSchema.parse(
     Object.fromEntries(url.searchParams.entries()),
   );
 
@@ -36,11 +41,17 @@ export async function manageModTeamLoader({ request }: LoaderFunctionArgs) {
     const { moderators, pagination } = await getManageModTeam(
       request,
       accessToken,
-      { cursor, limit: limit.toString(), search },
+      { cursor, limit: limit.toString(), search, role },
     );
 
+    const currentAdmin = await getAdminUser(request);
+
     return data<ManageModTeamLoaderData>(
-      { moderators, pagination },
+      {
+        moderators,
+        pagination,
+        currentUserId: currentAdmin?.id ?? "",
+      },
       { ...(setCookie ? { headers: { "Set-Cookie": setCookie } } : {}) },
     );
   } catch (err) {
