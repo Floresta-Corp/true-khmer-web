@@ -40,6 +40,7 @@ const AuthUser = z
     twoFactorEnabled: z.boolean().optional(),
     twoFactorTotpEnabled: z.boolean().optional(),
     twoFactorEmailEnabled: z.boolean().optional(),
+    setupNewPassword: z.boolean().optional(),
     role: z.string().optional(),
     name: z.string().optional(),
     firstName: z.string().optional(),
@@ -266,6 +267,34 @@ const AuthResetPasswordRequest = z
   })
   ;
 const ResetPasswordResponse = z
+  .object({ success: z.literal(true), message: z.string() })
+  ;
+const AuthChangePasswordRequest = z
+  .object({
+    oldPassword: z.string().min(1).optional(),
+    newPassword: z.string().min(8).regex(/^\S+$/),
+  })
+  ;
+const ChangePasswordResponse = z
+  .object({ success: z.literal(true), message: z.string() })
+  ;
+const RequestSetPasswordOtpResponse = z
+  .object({ success: z.literal(true), message: z.string() })
+  ;
+const AuthVerifySetPasswordOtpRequest = z
+  .object({ otp: z.string().regex(/^\d{6}$/) })
+  ;
+const VerifySetPasswordOtpResponse = z
+  .object({ success: z.literal(true), message: z.string(), token: z.string() })
+  ;
+const AuthSetPasswordRequest = z
+  .object({
+    token: z.string().min(1),
+    newPassword: z.string().min(8).regex(/^\S+$/),
+    confirmPassword: z.string().min(1),
+  })
+  ;
+const SetPasswordResponse = z
   .object({ success: z.literal(true), message: z.string() })
   ;
 const AdminLoginRequest = z
@@ -507,7 +536,7 @@ const Moderator = z
     email: z.string(),
     firstName: z.string().nullable(),
     lastName: z.string().nullable(),
-    role: z.literal("MODERATOR"),
+    role: z.enum(["MODERATOR", "SUPER_ADMIN"]),
     status: z.enum(["PENDING", "ACTIVE"]),
     lastActive: z.string().nullable(),
     createdAt: z.string().datetime({ offset: true }),
@@ -521,18 +550,16 @@ const ListModeratorsResponse = z
   })
   ;
 const CreateModeratorRequest = z
-  .object({ email: z.string().min(1) })
+  .object({
+    email: z.string().min(1),
+    role: z.enum(["MODERATOR", "SUPER_ADMIN"]).optional().default("MODERATOR"),
+  })
   ;
 const ModeratorResponse = z
   .object({ ok: z.boolean(), moderator: Moderator })
   ;
 const UpdateModeratorRequest = z
-  .object({
-    firstName: z.string().min(1).max(100),
-    lastName: z.string().min(1).max(100),
-    password: z.string().min(8),
-  })
-  .partial()
+  .object({ role: z.enum(["MODERATOR", "SUPER_ADMIN"]) })
   ;
 
 const DeleteModeratorResponse = z.object({ ok: z.boolean() });
@@ -2986,6 +3013,13 @@ export const schemas = {
   ForgotPasswordResponse,
   AuthResetPasswordRequest,
   ResetPasswordResponse,
+  AuthChangePasswordRequest,
+  ChangePasswordResponse,
+  RequestSetPasswordOtpResponse,
+  AuthVerifySetPasswordOtpRequest,
+  VerifySetPasswordOtpResponse,
+  AuthSetPasswordRequest,
+  SetPasswordResponse,
   AdminLoginRequest,
   AdminLoginOtpChallengeResponse,
   AdminErrorResponse,
@@ -3419,6 +3453,16 @@ const endpoints = makeApi([
         type: "Query",
         schema: z.string().optional(),
       },
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().min(1).optional(),
+      },
+      {
+        name: "role",
+        type: "Query",
+        schema: z.enum(["MODERATOR", "SUPER_ADMIN"]).optional(),
+      },
     ],
     response: ListModeratorsResponse,
     errors: [
@@ -3443,7 +3487,7 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: z.object({ email: z.string().min(1) }),
+        schema: CreateModeratorRequest,
       },
     ],
     response: z.object({ ok: z.boolean() }),
@@ -3570,7 +3614,7 @@ const endpoints = makeApi([
       },
       {
         status: 403,
-        description: `Super admin role required`,
+        description: `Super admin role required or cannot remove own account`,
         schema: z.void(),
       },
       {
@@ -4031,6 +4075,32 @@ const endpoints = makeApi([
   },
   {
     method: "post",
+    path: "/v1/auth/change-password",
+    alias: "postV1authchangePassword",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AuthChangePasswordRequest,
+      },
+    ],
+    response: ChangePasswordResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed, old password is required, or old password is invalid`,
+        schema: z.object({ error: z.string() }),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
     path: "/v1/auth/forgot-password",
     alias: "postV1authforgotPassword",
     requestFormat: "json",
@@ -4332,6 +4402,82 @@ const endpoints = makeApi([
     requestFormat: "json",
     response: AuthSessionResponse,
     errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/set-password",
+    alias: "postV1authsetPassword",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AuthSetPasswordRequest,
+      },
+    ],
+    response: SetPasswordResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.object({ error: z.string() }),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/set-password/request-otp",
+    alias: "postV1authsetPasswordrequestOtp",
+    requestFormat: "json",
+    response: RequestSetPasswordOtpResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.object({ error: z.string() }),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Failed to send OTP`,
+        schema: z.object({ error: z.string() }),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/set-password/verify-otp",
+    alias: "postV1authsetPasswordverifyOtp",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({ otp: z.string().regex(/^\d{6}$/) }),
+      },
+    ],
+    response: VerifySetPasswordOtpResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Invalid or expired OTP`,
+        schema: z.object({ error: z.string() }),
+      },
       {
         status: 401,
         description: `Unauthorized`,
@@ -8064,6 +8210,13 @@ export type AuthForgotPasswordRequest = z.infer<typeof schemas.AuthForgotPasswor
 export type ForgotPasswordResponse = z.infer<typeof schemas.ForgotPasswordResponse>;
 export type AuthResetPasswordRequest = z.infer<typeof schemas.AuthResetPasswordRequest>;
 export type ResetPasswordResponse = z.infer<typeof schemas.ResetPasswordResponse>;
+export type AuthChangePasswordRequest = z.infer<typeof schemas.AuthChangePasswordRequest>;
+export type ChangePasswordResponse = z.infer<typeof schemas.ChangePasswordResponse>;
+export type RequestSetPasswordOtpResponse = z.infer<typeof schemas.RequestSetPasswordOtpResponse>;
+export type AuthVerifySetPasswordOtpRequest = z.infer<typeof schemas.AuthVerifySetPasswordOtpRequest>;
+export type VerifySetPasswordOtpResponse = z.infer<typeof schemas.VerifySetPasswordOtpResponse>;
+export type AuthSetPasswordRequest = z.infer<typeof schemas.AuthSetPasswordRequest>;
+export type SetPasswordResponse = z.infer<typeof schemas.SetPasswordResponse>;
 export type AdminLoginRequest = z.infer<typeof schemas.AdminLoginRequest>;
 export type AdminLoginOtpChallengeResponse = z.infer<typeof schemas.AdminLoginOtpChallengeResponse>;
 export type AdminErrorResponse = z.infer<typeof schemas.AdminErrorResponse>;

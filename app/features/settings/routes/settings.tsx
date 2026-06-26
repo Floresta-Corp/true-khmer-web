@@ -18,7 +18,7 @@ export function meta() {
 type View = "security" | "2fa";
 
 export default function SettingsPage() {
-  const { email, twoFactor } = useLoaderData<typeof loader>();
+  const { email, setupNewPassword, twoFactor } = useLoaderData<typeof loader>();
   const [view, setView] = useState<View>("security");
 
   return (
@@ -48,6 +48,7 @@ export default function SettingsPage() {
                 {view === "security" ? (
                   <SecurityView
                     email={email}
+                    setupNewPassword={setupNewPassword}
                     enabled={twoFactor.twoFactorEnabled}
                     onEdit2FA={() => setView("2fa")}
                   />

@@ -10,6 +10,10 @@ export async function loader({ request }: Route.LoaderArgs) {
     { setCookie: [auth.setCookie, twoFactor.setCookie].flatMap((cookie) =>
       Array.isArray(cookie) ? cookie : cookie ? [cookie] : [],
     ) },
-    { email: auth.user.email, twoFactor: twoFactor.data },
+    {
+      email: auth.user.email,
+      setupNewPassword: auth.user.setupNewPassword === true,
+      twoFactor: twoFactor.data,
+    },
   );
 }

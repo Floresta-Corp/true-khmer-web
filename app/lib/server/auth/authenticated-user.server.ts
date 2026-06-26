@@ -79,6 +79,10 @@ export function authenticatedUserFromSessionUser(
     id: readString(userRecord.id),
     email,
     emailVerified: readBoolean(userRecord.emailVerified),
+    setupNewPassword:
+      typeof userRecord.setupNewPassword === "boolean"
+        ? userRecord.setupNewPassword
+        : undefined,
     role: readUserRole(userRecord) || undefined,
     name,
     firstName: readString(userRecord.firstName) || undefined,
