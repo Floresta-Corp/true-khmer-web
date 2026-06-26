@@ -10,6 +10,7 @@ import type {
   AuthTwoFactorTotpSetupResponse,
   AuthTwoFactorTotpVerifyRequest,
 } from "~/types/api-client";
+import { changePassword } from "~/services/api/auth/auth.server";
 import {
   disableEmailOtp,
   disableTotp,
@@ -18,6 +19,7 @@ import {
   verifyEmailOtpSetup,
   verifyTotpSetup,
 } from "~/services/api/two-factor/two-factor.server";
+import { getPasswordValidationError } from "~/routes/auth/domain/password-validation";
 
 const sixDigitCodeSchema = z
   .string()
@@ -53,13 +55,46 @@ const EmailDisableSchema = z.object({
   intent: z.literal("email-disable"),
 });
 
+const ChangePasswordSchema = z
+  .object({
+    intent: z.literal("change-password"),
+    oldPassword: z.string().optional(),
+    newPassword: z.string().min(1, "New password is required."),
+    confirmPassword: z.string().min(1, "Please confirm your new password."),
+  })
+  .superRefine((values, context) => {
+    const passwordError = getPasswordValidationError(values.newPassword);
+    if (passwordError) {
+      context.addIssue({
+        code: "custom",
+        path: ["newPassword"],
+        message: passwordError,
+      });
+    }
+
+    if (
+      values.newPassword &&
+      values.confirmPassword &&
+      values.newPassword !== values.confirmPassword
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["confirmPassword"],
+        message: "Passwords do not match.",
+      });
+    }
+  });
+
 export type SettingsActionData = {
   ok?: boolean;
   intent?: string;
   message?: string;
   setup?: AuthTwoFactorTotpSetupResponse;
   errors?: {
+    oldPassword?: string;
     password?: string;
+    newPassword?: string;
+    confirmPassword?: string;
     code?: string;
     form?: string;
   };
@@ -75,12 +110,12 @@ function appendCookie(headers: Headers, setCookie?: string | string[]) {
 function errorMessage(error: unknown) {
   if (error instanceof ProtectedApiError) return error.message;
   if (error instanceof Error) return error.message;
-  return "Unable to update two-factor authentication.";
+  return "Unable to update account settings.";
 }
 
 function firstFieldError(
   error: z.ZodError,
-  field: "password" | "code",
+  field: "oldPassword" | "password" | "newPassword" | "confirmPassword" | "code",
 ) {
   return error.issues.find((issue) => issue.path[0] === field)?.message;
 }
@@ -234,11 +269,72 @@ export async function action({ request }: Route.ActionArgs) {
       );
     }
 
+    if (intent === "change-password") {
+      const parsed = ChangePasswordSchema.safeParse(formValues);
+      if (!parsed.success) {
+        return data<SettingsActionData>(
+          {
+            errors: {
+              oldPassword: firstFieldError(parsed.error, "oldPassword"),
+              newPassword: firstFieldError(parsed.error, "newPassword"),
+              confirmPassword: firstFieldError(parsed.error, "confirmPassword"),
+            },
+            intent,
+          },
+          { status: 400, headers },
+        );
+      }
+
+      if (auth.user.setupNewPassword !== true && !parsed.data.oldPassword) {
+        return data<SettingsActionData>(
+          {
+            errors: { oldPassword: "Current password is required." },
+            intent,
+          },
+          { status: 400, headers },
+        );
+      }
+
+      const result = await changePassword(
+        request,
+        parsed.data.oldPassword
+          ? {
+              oldPassword: parsed.data.oldPassword,
+              newPassword: parsed.data.newPassword,
+            }
+          : {
+              newPassword: parsed.data.newPassword,
+            },
+      );
+      appendCookie(headers, result.setCookie);
+      await invalidateAuthSessionCacheForRequest(request);
+      return data<SettingsActionData>(
+        {
+          ok: true,
+          intent,
+          message: result.data.message || "Password changed successfully.",
+        },
+        { headers },
+      );
+    }
+
     return data<SettingsActionData>(
-      { errors: { form: "Unsupported two-factor action." } },
+      { errors: { form: "Unsupported settings action." } },
       { status: 400, headers },
     );
   } catch (error) {
+    if (
+      intent === "change-password" &&
+      error instanceof ProtectedApiError &&
+      (error.code === "OLD_PASSWORD_REQUIRED" ||
+        error.code === "INVALID_OLD_PASSWORD")
+    ) {
+      return data<SettingsActionData>(
+        { intent, errors: { oldPassword: error.message } },
+        { status: error.status, headers },
+      );
+    }
+
     return data<SettingsActionData>(
       { intent, errors: { form: errorMessage(error) } },
       { status: error instanceof ProtectedApiError ? error.status : 500, headers },
