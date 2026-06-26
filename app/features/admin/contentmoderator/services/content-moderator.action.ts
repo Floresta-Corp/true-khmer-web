@@ -1,7 +1,7 @@
 import {
   patchContentModerator,
   DetailReportStatus,
-} from "~/services/api/admin/content-moderator/content-moderator.server";
+} from "~/routes/api/content-moderator/content-moderator.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
 import { withAuthJson } from "~/lib/server/auth-response.server";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
@@ -46,7 +46,7 @@ export async function contentModerationAction({
       status as DetailReportStatus,
     );
 
-    if (response.ok) {
+    if (response.ok && response.report) {
       return withAuthJson(
         { setCookie },
         { success: true, report: response.report },
@@ -56,17 +56,14 @@ export async function contentModerationAction({
     return withAuthJson(
       { setCookie },
       { error: "Failed to update report status" },
-      {
-        status: 500,
-      },
+      { status: 500 },
     );
-  } catch {
+  } catch (err) {
+    console.error("[contentModerationAction]", err);
     return withAuthJson(
       { setCookie },
       { error: "Server connection failed" },
-      {
-        status: 500,
-      },
+      { status: 500 },
     );
   }
 }

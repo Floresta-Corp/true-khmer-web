@@ -10,7 +10,10 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import type { ContentModeratorReport } from "~/types/api-client";
-import { formatDateMonthYear } from "~/features/events/lib/event-formatters";
+import {
+  formatDateMonthYear,
+  formatEventDateTime,
+} from "~/features/events/lib/event-formatters";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { resolveImageURL } from "~/lib/utils";
@@ -58,7 +61,7 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
       </TableCell>
 
       <TableCell className="text-center align-middle">
-        <ReportTypeBadge reportType={report} />
+        <ReportTypeBadge typeName={report.type?.name ?? null} />
       </TableCell>
 
       <TableCell className="min-w-0 px-5 py-4 align-middle">
@@ -78,7 +81,7 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
                   </span>
                 ) : null;
               })()}
-            <p className="min-w-0 text-sm font-medium text-slate-900 dark:text-white leading-tight truncate">
+            <p className="min-w-0 text-sm font-medium italic text-slate-900 dark:text-white leading-tight truncate">
               "{report.contentPreview}"
             </p>
           </div>
@@ -102,7 +105,7 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
       <TableCell className="px-5 py-4 text-center text-sm text-slate-500 dark:text-slate-400 align-middle">
         <div className="flex items-center justify-center gap-2">
           <Clock size={14} />
-          <span>{formatDateMonthYear(report.dateTime)}</span>
+          <span>{formatEventDateTime(report.dateTime)}</span>
         </div>
       </TableCell>
 

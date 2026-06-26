@@ -11,18 +11,20 @@ All UI features are encapsulated in their own domain folders following this exac
 Feature/
 └── [FeatureName]/ (e.g., Login/)
 ├── components/ -> Contains all React components specific to this feature.
+├── route
+        ├── [FeatureName].tsx -> The main React Router route component of listing
+        └── [FeatureName].$[params].tsx -> For detail and get params
 ├── services/ -> Contains React Router data functions to call the external Backend API.
-│ ├── [feature].action.ts -> Handles form submissions/mutations.
-│ └── [feature].loader.ts -> Handles initial data fetching for the route.
-└── page.tsx -> The main React Router route component.
+        ├── [feature].action.ts -> Handles form submissions/mutations.
+        └── [feature].loader.ts -> Handles initial data fetching for the route.
 
 ## 2. Backend (API Folder)
 
 The backend groups endpoints by feature, matching the frontend domains.
 
 app/routes/api
-└── [FeatureName]/ (e.g., Login/)
-└── [feature].ts -> Contains all API route definitions, controllers, and business logic for this feature.
+    └── [FeatureName]/ (e.g., Login/)
+    └── [feature].ts -> Contains all API route definitions, controllers, and business logic for this feature.
 
 ## Development Directives:
 

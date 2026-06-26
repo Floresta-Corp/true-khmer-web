@@ -89,7 +89,7 @@ export default [
     ),
     route(
       "content-moderator",
-      "features/admin/contentmoderator/routes/content-moderator.tsx",
+      "features/admin/contentmoderator/route/content-moderator.tsx",
     ),
     route("users", "features/admin/usermanagement/routes/user-management.tsx"),
     route(
