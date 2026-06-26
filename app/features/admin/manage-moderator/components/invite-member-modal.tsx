@@ -141,10 +141,7 @@ export function InviteMemberModal({
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
 
-              <SelectContent
-                onPointerDownOutside={(e) => e.preventDefault()}
-                className="rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 z-110"
-              >
+              <SelectContent className="rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 z-110">
                 {ROLE_OPTIONS.map((option) => (
                   <SelectItem
                     key={option.value}
