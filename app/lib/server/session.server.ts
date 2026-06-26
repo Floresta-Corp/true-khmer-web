@@ -2,6 +2,7 @@ import { createCookieSessionStorage } from "react-router";
 import { redirect } from "react-router";
 import type { AuthTokensResponse } from "~/services/auth/api.server";
 import type { AuthenticatedUser } from "./types";
+import type { AuthTokenResponse } from "~/types/api-client";
 import {
   invalidateAdminMeCache,
   logoutAdmin,
@@ -64,6 +65,13 @@ const adminPendingLoginStorage = createCookieSessionStorage({
   },
 });
 
+const twoFactorPendingLoginStorage = createCookieSessionStorage({
+  cookie: {
+    ...baseCookie,
+    name: "__2fa_pending_login",
+  },
+});
+
 const ADMIN_REFRESH_BUFFER_MS = 60_000;
 const adminRefreshPromises = new Map<
   string,
@@ -119,7 +127,7 @@ export async function getUserId(request: Request): Promise<string | null> {
   return userId ?? null;
 }
 
-function slimUser(user: AuthTokensResponse["user"]) {
+function slimUser(user: AuthTokensResponse["user"] | AuthTokenResponse["user"]) {
   return {
     id: user.id,
     email: user.email,
@@ -131,9 +139,9 @@ function slimUser(user: AuthTokensResponse["user"]) {
 
 export async function createUserSession(
   request: Request,
-  auth: AuthTokensResponse,
+  auth: AuthTokensResponse | AuthTokenResponse,
   redirectTo: string,
-  options: { rememberMe?: boolean } = {},
+  options: { rememberMe?: boolean; extraSetCookie?: string | string[] } = {},
 ) {
   const session = await getSession(request);
   const user = auth.user;
@@ -146,13 +154,55 @@ export async function createUserSession(
   session.set("rememberMe", options.rememberMe === true);
   session.set("user", slimUser(user));
 
-  return redirect(redirectTo, {
-    headers: {
-      "Set-Cookie": options.rememberMe
-        ? await commitSession(session)
-        : await browserSessionStorage.commitSession(session),
-    },
-  });
+  const headers = new Headers();
+  headers.append(
+    "Set-Cookie",
+    options.rememberMe
+      ? await commitSession(session)
+      : await browserSessionStorage.commitSession(session),
+  );
+  for (const cookie of Array.isArray(options.extraSetCookie)
+    ? options.extraSetCookie
+    : options.extraSetCookie
+      ? [options.extraSetCookie]
+      : []) {
+    headers.append("Set-Cookie", cookie);
+  }
+
+  return redirect(redirectTo, { headers });
+}
+
+export async function commitAuthToSession(
+  request: Request,
+  auth: AuthTokensResponse | AuthTokenResponse,
+  options: { extraSetCookie?: string | string[] } = {},
+) {
+  const session = await getSession(request);
+  const user = auth.user;
+  if (!user.id) {
+    throw new Error("Cannot update user session: user.id is missing.");
+  }
+
+  session.set("accessToken", auth.accessToken);
+  session.set("refreshToken", auth.refreshToken);
+  session.set("user", slimUser(user));
+
+  const headers = new Headers();
+  headers.append(
+    "Set-Cookie",
+    session.get("rememberMe") === true
+      ? await commitSession(session)
+      : await browserSessionStorage.commitSession(session),
+  );
+  for (const cookie of Array.isArray(options.extraSetCookie)
+    ? options.extraSetCookie
+    : options.extraSetCookie
+      ? [options.extraSetCookie]
+      : []) {
+    headers.append("Set-Cookie", cookie);
+  }
+
+  return headers;
 }
 
 export async function updateUserSession(
@@ -245,6 +295,77 @@ export async function getAdminPendingLogin(
   }
 
   return { challengeId, expiresAt, rememberMe };
+}
+
+export type PendingTwoFactorLogin = {
+  twoFactorToken: string;
+  methods: string[];
+  expiresAt: string;
+  rememberMe: boolean;
+};
+
+export async function createPendingTwoFactorLogin(
+  request: Request,
+  pendingLogin: PendingTwoFactorLogin,
+  redirectTo: string,
+) {
+  const expiresInSeconds = Math.max(
+    1,
+    Math.floor((new Date(pendingLogin.expiresAt).getTime() - Date.now()) / 1000),
+  );
+  const session = await twoFactorPendingLoginStorage.getSession(
+    request.headers.get("Cookie"),
+  );
+  session.set("twoFactorToken", pendingLogin.twoFactorToken);
+  session.set("methods", pendingLogin.methods);
+  session.set("expiresAt", pendingLogin.expiresAt);
+  session.set("rememberMe", pendingLogin.rememberMe);
+
+  return redirect(redirectTo, {
+    headers: {
+      "Set-Cookie": await twoFactorPendingLoginStorage.commitSession(session, {
+        maxAge: expiresInSeconds,
+      }),
+    },
+  });
+}
+
+export async function getPendingTwoFactorLogin(
+  request: Request,
+): Promise<PendingTwoFactorLogin | null> {
+  const session = await twoFactorPendingLoginStorage.getSession(
+    request.headers.get("Cookie"),
+  );
+  const twoFactorToken = session.get("twoFactorToken");
+  const methods = session.get("methods");
+  const expiresAt = session.get("expiresAt");
+  const rememberMe = session.get("rememberMe") === true;
+
+  if (
+    typeof twoFactorToken !== "string" ||
+    typeof expiresAt !== "string" ||
+    !Array.isArray(methods)
+  ) {
+    return null;
+  }
+
+  if (new Date(expiresAt).getTime() <= Date.now()) {
+    return null;
+  }
+
+  return {
+    twoFactorToken,
+    methods: methods.filter((method): method is string => typeof method === "string"),
+    expiresAt,
+    rememberMe,
+  };
+}
+
+export async function destroyPendingTwoFactorLogin(request: Request) {
+  const session = await twoFactorPendingLoginStorage.getSession(
+    request.headers.get("Cookie"),
+  );
+  return twoFactorPendingLoginStorage.destroySession(session);
 }
 
 export async function createAdminSession(
