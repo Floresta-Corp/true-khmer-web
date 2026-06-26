@@ -290,7 +290,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6 space-y-6">
-      <KycBanner />
+      {/* <KycBanner /> */}
 
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-(--admin-text)">

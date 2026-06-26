@@ -39,7 +39,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
       icon: LayoutDashboard,
       hide: !user,
     },
-    { to: "/home", label: "Home", icon: House },
+    { to: "/", label: "Home", icon: House },
     // { to: "/dashboard", label: "My Journey", icon: Compass },
     { to: "/forum", label: "Forum", icon: MessagesSquare },
     // { to: "/forumv2", label: "Forum V2", icon: MessageSquare },
@@ -69,9 +69,11 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
           {/* Center: Navigation Links (desktop only) */}
           <nav className="hidden md:flex items-center gap-5">
             {navLinks.map((link) => {
-              const isActive = location.pathname.startsWith(link.to)
-                ? true
-                : false;
+              const isActive =
+                link.to === "/"
+                  ? location.pathname === "/"
+                  : location.pathname === link.to ||
+                    location.pathname.startsWith(`${link.to}/`);
               if (link.hide) return null;
               return (
                 <Link
@@ -139,7 +141,11 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         <div className="flex items-center justify-around h-16 px-1">
           {navLinks.map((link) => {
-            const isActive = location.pathname.startsWith(link.to);
+            const isActive =
+              link.to === "/"
+                ? location.pathname === "/"
+                : location.pathname === link.to ||
+                  location.pathname.startsWith(`${link.to}/`);
             return (
               <Link
                 key={link.to}

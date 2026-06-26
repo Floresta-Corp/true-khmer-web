@@ -8,8 +8,7 @@ import {
 export default [
   layout("layout/app-layout.tsx", [
     layout("layout/footer-layout.tsx", [
-      index("routes/index.tsx"),
-      route("home", "routes/home.tsx"),
+      index("routes/home.tsx"),
       route("about", "routes/about.tsx"),
       route("dashboard", "routes/dashboard.tsx"),
       route("profile", "routes/onboarding-profile.tsx"),
@@ -90,7 +89,7 @@ export default [
     ),
     route(
       "content-moderator",
-      "features/admin/contentmoderator/routes/content-moderator.tsx",
+      "features/admin/contentmoderator/route/content-moderator.tsx",
     ),
     route("users", "features/admin/usermanagement/routes/user-management.tsx"),
     route(

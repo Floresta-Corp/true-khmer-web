@@ -31,7 +31,7 @@ function ReportSkeletonRow() {
       </TableCell>
 
       {/* Content Preview */}
-      <TableCell className="px-10 py-6 min-w-0 align-middle">
+      <TableCell className="px-5 py-4 min-w-0 align-middle">
         <div className="flex flex-col gap-2">
           <Skeleton className="h-4 w-48 dark:bg-slate-700 rounded" />
           <div className="flex items-center gap-2 min-w-0">
@@ -42,7 +42,7 @@ function ReportSkeletonRow() {
       </TableCell>
 
       {/* Date & Time */}
-      <TableCell className="px-10 py-6 text-center align-middle">
+      <TableCell className="px-5 py-4 text-center align-middle">
         <div className="flex items-center justify-center gap-2">
           <Skeleton className="h-3 w-3.5 dark:bg-slate-700 rounded-full" />
           <Skeleton className="h-3 w-20 dark:bg-slate-700 rounded" />
@@ -50,12 +50,12 @@ function ReportSkeletonRow() {
       </TableCell>
 
       {/* Status */}
-      <TableCell className="px-10 py-6 text-center align-middle">
+      <TableCell className="px-5 py-4 text-center align-middle">
         <Skeleton className="mx-auto h-5 w-16 dark:bg-slate-700 rounded-full" />
       </TableCell>
 
       {/* Action */}
-      <TableCell className="px-10 py-6 text-right align-middle">
+      <TableCell className="px-5 py-4 text-right align-middle">
         <Skeleton className="ml-auto h-5 w-5 dark:bg-slate-700 rounded-full" />
       </TableCell>
     </TableRow>
@@ -77,7 +77,7 @@ export function ReportsTableSkeleton({ rows = 6 }: { rows?: number }) {
             {COLUMNS.map((col) => (
               <TableHead
                 key={col.label}
-                className={`px-10 py-6 text-[12px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest ${col.align}`}
+                className={`px-5 py-4 text-[12px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide ${col.align}`}
               >
                 {col.label}
               </TableHead>

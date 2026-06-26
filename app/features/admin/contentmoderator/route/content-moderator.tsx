@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useEffect } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   useSearchParams,
@@ -10,12 +10,20 @@ import { FilterBar } from "../components/filter-bar";
 import { ReportsTable } from "../components/reports-table";
 import { ReportsTableSkeleton } from "../components/reports-table-skeleton";
 import { ReportDrawer } from "../components/report-drawer";
-import type { contentModeratorLoader } from "~/features/admin/contentmoderator/service/content-moderator.loder";
+import { contentModeratorLoader } from "../services/content-moderator.loader";
+import { contentModerationAction } from "../services/content-moderator.action";
 import type { ContentModeratorReport } from "~/types/api-client";
+
+export function meta() {
+  return [{ title: "Content Moderator | True Khmer" }];
+}
+
+export const loader = contentModeratorLoader;
+export const action = contentModerationAction;
 
 export type CategoryOption = { id: string | null; name: string };
 
-export default function ContentModeratingPage() {
+export default function ContentModeratorPage() {
   const { content, types } = useLoaderData<typeof contentModeratorLoader>();
   const fetcher = useFetcher();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -39,32 +47,20 @@ export default function ContentModeratingPage() {
     null,
   );
 
-  useEffect(() => {
-    if (fetcher.state === "idle" && fetcher.data) {
-      const data = fetcher.data as {
-        success?: boolean;
-        report?: ContentModeratorReport;
-        error?: string;
-      };
-
-      if (data.success && data.report) {
-        setSelectedReport(null);
-        setConfirmAction(null);
-      } else if (data.error) {
-        console.error("Action failed:", data.error);
-      }
-    }
-  }, [fetcher.state, fetcher.data]);
-
-  const handleResolve = (id: string, action: "dismiss" | "hide") => {
-    fetcher.submit(
-      {
-        reportUuid: id,
-        status: action === "dismiss" ? "SAFE" : "HIDE",
-      },
-      { method: "POST", action: "/tk-admin/content-moderator" },
-    );
-  };
+  const handleResolve = useCallback(
+    (id: string, resolveAction: "dismiss" | "hide") => {
+      fetcher.submit(
+        {
+          reportUuid: id,
+          status: resolveAction === "dismiss" ? "SAFE" : "HIDE",
+        },
+        { method: "POST", action: "/tk-admin/content-moderator" },
+      );
+      setSelectedReport(null);
+      setConfirmAction(null);
+    },
+    [fetcher],
+  );
 
   const handleSelect = useCallback((report: ContentModeratorReport) => {
     setSelectedReport(report);
@@ -108,8 +104,8 @@ export default function ContentModeratingPage() {
         <div className="max-w-350 mx-auto space-y-4">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-                Content <span className="text-blue-600">Moderation</span>
+              <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl dark:text-white">
+                Content Moderation
               </h1>
               <p className="text-slate-500 font-medium text-base mt-1">
                 Streamlined moderation control for community integrity.
@@ -138,10 +134,7 @@ export default function ContentModeratingPage() {
                 {isFiltering ? (
                   <ReportsTableSkeleton />
                 ) : (
-                  <ReportsTable
-                    reports={[...content]}
-                    onSelect={handleSelect}
-                  />
+                  <ReportsTable reports={content} onSelect={handleSelect} />
                 )}
               </div>
             </motion.div>

@@ -1,10 +1,10 @@
-import type { Route } from "project-types/admin/contentmoderator/routes/+types/content-moderator";
+import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import {
   getContentModerator,
   ReportStatus,
-} from "~/services/api/admin/content-moderator/content-moderator.server";
+} from "~/routes/api/content-moderator/content-moderator.server";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
 import type {
@@ -19,7 +19,7 @@ type ContentModeratorData = {
   userId: string | null;
 };
 
-export async function contentModeratorLoader({ request }: Route.LoaderArgs) {
+export async function contentModeratorLoader({ request }: LoaderFunctionArgs) {
   const auth = await requireSuperAdmin(request);
   const { accessToken } = await getAdminAccessToken(request);
   if (!accessToken) {
