@@ -9,8 +9,6 @@ import {
 import { getAdminAccessToken } from "~/lib/server/session.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 
-// --- Validation Schemas ---
-
 const roleSchema = z.enum(["MODERATOR", "SUPER_ADMIN"]);
 
 const inviteSchema = z.object({
@@ -27,8 +25,6 @@ const updateRoleSchema = z.object({
   role: roleSchema,
 });
 
-// --- Action Handler ---
-
 export async function manageModTeamAction({ request }: ActionFunctionArgs) {
   const { accessToken, setCookie } = await getAdminAccessToken(request);
 
@@ -36,7 +32,9 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
     throw redirect("/tk-admin/login");
   }
 
-  const cookieHeader = cookieHeader;
+  const cookieHeader = setCookie
+    ? { headers: { "Set-Cookie": setCookie } }
+    : {};
 
   const formData = await request.formData();
   const actionType = String(formData.get("intent") ?? "").trim();
@@ -50,7 +48,7 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
     );
   }
 
-  // 1. Invite Branch
+  // Invite moderator
   if (actionType === "invite") {
     const result = inviteSchema.safeParse({
       email: formData.get("email"),
@@ -69,10 +67,7 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
         role: payload.role,
       });
 
-      return data(
-        { ok: true, message: null },
-        cookieHeader,
-      );
+      return data({ ok: true, message: null }, cookieHeader);
     } catch (err) {
       if (err instanceof ProtectedApiError) {
         return data(
@@ -88,7 +83,7 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
     }
   }
 
-  // 2. Remove Branch
+  //  Remove moderator
   if (actionType === "remove") {
     const result = removeSchema.safeParse({
       memberId: formData.get("memberId"),
@@ -106,10 +101,7 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
     try {
       await removeModerator(request, memberId, accessToken);
 
-      return data(
-        { ok: true, message: null },
-        cookieHeader,
-      );
+      return data({ ok: true, message: null }, cookieHeader);
     } catch (err) {
       if (err instanceof ProtectedApiError) {
         return data(
@@ -125,7 +117,7 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
     }
   }
 
-  // 3. Update-Role Branch
+  //  Update-Role moderator
   if (actionType === "update-role") {
     const result = updateRoleSchema.safeParse({
       memberId: formData.get("memberId"),
@@ -146,10 +138,7 @@ export async function manageModTeamAction({ request }: ActionFunctionArgs) {
     try {
       await patchModerator(request, memberId, accessToken, { role });
 
-      return data(
-        { ok: true, message: null },
-        cookieHeader,
-      );
+      return data({ ok: true, message: null }, cookieHeader);
     } catch (err) {
       if (err instanceof ProtectedApiError) {
         if (
