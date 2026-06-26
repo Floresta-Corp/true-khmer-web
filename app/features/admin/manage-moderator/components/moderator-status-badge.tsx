@@ -1,0 +1,25 @@
+export type ReportStatus = "ACTIVE" | "PENDING";
+
+const ModeratorStatusBadge = ({ status }: { status: ReportStatus }) => {
+  const styles = {
+    PENDING:
+      "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-900/50",
+    ACTIVE:
+      "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900/50",
+  };
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest border ${styles[status]}`}
+    >
+      <span
+        className={`h-1.5 w-1.5 rounded-full ${
+          status === "ACTIVE" ? "bg-emerald-500" : "bg-rose-500"
+        }`}
+      />
+      {status === "PENDING" ? "PENDING" : "ACTIVE"}
+    </span>
+  );
+};
+
+export { ModeratorStatusBadge };

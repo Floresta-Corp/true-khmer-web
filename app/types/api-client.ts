@@ -435,7 +435,7 @@ const Moderator = z
     email: z.string(),
     firstName: z.string().nullable(),
     lastName: z.string().nullable(),
-    role: z.literal("MODERATOR"),
+    role: z.enum(["MODERATOR", "SUPER_ADMIN"]),
     status: z.enum(["PENDING", "ACTIVE"]),
     lastActive: z.string().nullable(),
     createdAt: z.string().datetime({ offset: true }),
@@ -449,18 +449,16 @@ const ListModeratorsResponse = z
   })
   ;
 const CreateModeratorRequest = z
-  .object({ email: z.string().min(1) })
+  .object({
+    email: z.string().min(1),
+    role: z.enum(["MODERATOR", "SUPER_ADMIN"]).optional().default("MODERATOR"),
+  })
   ;
 const ModeratorResponse = z
   .object({ ok: z.boolean(), moderator: Moderator })
   ;
 const UpdateModeratorRequest = z
-  .object({
-    firstName: z.string().min(1).max(100),
-    lastName: z.string().min(1).max(100),
-    password: z.string().min(8),
-  })
-  .partial()
+  .object({ role: z.enum(["MODERATOR", "SUPER_ADMIN"]) })
   ;
 
 const DeleteModeratorResponse = z.object({ ok: z.boolean() });
@@ -3336,6 +3334,16 @@ const endpoints = makeApi([
         type: "Query",
         schema: z.string().optional(),
       },
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().min(1).optional(),
+      },
+      {
+        name: "role",
+        type: "Query",
+        schema: z.enum(["MODERATOR", "SUPER_ADMIN"]).optional(),
+      },
     ],
     response: ListModeratorsResponse,
     errors: [
@@ -3360,7 +3368,7 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: z.object({ email: z.string().min(1) }),
+        schema: CreateModeratorRequest,
       },
     ],
     response: z.object({ ok: z.boolean() }),
@@ -3487,7 +3495,7 @@ const endpoints = makeApi([
       },
       {
         status: 403,
-        description: `Super admin role required`,
+        description: `Super admin role required or cannot remove own account`,
         schema: z.void(),
       },
       {
