@@ -61,6 +61,7 @@ export default [
       "features/myspace/routes/my-application.$sourceType.$postingId.tsx",
     ),
     route("saved-items", "features/saved-items/routes/saved-items.tsx"),
+    route("settings", "features/settings/routes/settings.tsx"),
 
     layout("layout/workspace-layout.tsx", [
       route("workspace", "features/workspace/routes/workspace.tsx"),
@@ -109,6 +110,7 @@ export default [
   route("tk-admin/logout", "routes/admin-logout.tsx"),
 
   route("login", "routes/auth/pages/login.tsx"),
+  route("login/2fa", "routes/auth/pages/login-2fa.tsx"),
   route("register", "routes/auth/pages/register.tsx"),
   route("signup", "routes/auth/pages/register.tsx", {
     id: "routes/auth/pages/signup",

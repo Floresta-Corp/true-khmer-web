@@ -37,6 +37,9 @@ const AuthUser = z
     id: z.string(),
     email: z.string().email(),
     emailVerified: z.boolean().optional(),
+    twoFactorEnabled: z.boolean().optional(),
+    twoFactorTotpEnabled: z.boolean().optional(),
+    twoFactorEmailEnabled: z.boolean().optional(),
     role: z.string().optional(),
     name: z.string().optional(),
     firstName: z.string().optional(),
@@ -175,12 +178,81 @@ const AuthSimpleErrorResponse = z.object({ error: z.string() });
 const AuthLoginRequest = z
   .object({ email: z.string().min(1).email(), password: z.string().min(1) })
   ;
+const AuthTwoFactorRequiredResponse = z
+  .object({
+    twoFactorRequired: z.literal(true),
+    twoFactorRedirect: z.literal(true),
+    twoFactorMethods: z.array(z.string()),
+    twoFactorToken: z.string(),
+    expiresIn: z.number().int().gt(0),
+  })
+  ;
 const AuthRefreshRequest = z
   .object({ refreshToken: z.string().min(1) })
   ;
 const RefreshSuccessResponse = z
   .object({ accessToken: z.string(), refreshToken: z.string() })
   ;
+const AuthTwoFactorSettingsResponse = z
+  .object({
+    twoFactorEnabled: z.boolean(),
+    methods: z
+      .object({
+        authenticatorApp: z.object({ enabled: z.boolean() }),
+        emailOtp: z
+          .object({ enabled: z.boolean(), email: z.string().email() })
+          ,
+      })
+      ,
+  })
+  ;
+const AuthTwoFactorTotpSetupRequest = z
+  .object({ password: z.string().min(1) })
+  ;
+const AuthTwoFactorTotpSetupResponse = z
+  .object({ totpURI: z.string(), backupCodes: z.array(z.string()) })
+  ;
+
+const AuthTwoFactorSessionRequest = z.object({}).partial();
+const AuthTwoFactorTotpVerifyRequest = AuthTwoFactorSessionRequest.and(
+  z
+    .object({
+      code: z.string().min(6).max(6),
+      trustDevice: z.boolean().optional(),
+    })
+    
+);
+const AuthLoginTwoFactorSessionRequest = z
+  .object({ twoFactorToken: z.string().min(1) })
+  ;
+const AuthLoginTwoFactorTotpVerifyRequest =
+  AuthLoginTwoFactorSessionRequest.and(
+    z
+      .object({
+        code: z.string().min(6).max(6),
+        trustDevice: z.boolean().optional(),
+      })
+      
+  );
+
+const AuthStatusResponse = z.object({ status: z.boolean() });
+const AuthTwoFactorEmailVerifyRequest = AuthTwoFactorSessionRequest.and(
+  z
+    .object({
+      code: z.string().min(6).max(6),
+      trustDevice: z.boolean().optional(),
+    })
+    
+);
+const AuthLoginTwoFactorEmailVerifyRequest =
+  AuthLoginTwoFactorSessionRequest.and(
+    z
+      .object({
+        code: z.string().min(6).max(6),
+        trustDevice: z.boolean().optional(),
+      })
+      
+  );
 const AuthForgotPasswordRequest = z
   .object({ email: z.string().min(1).email(), resetPageUrl: z.string().min(1) })
   ;
@@ -2895,8 +2967,19 @@ export const schemas = {
   ResendRegisterOtpResponse,
   AuthSimpleErrorResponse,
   AuthLoginRequest,
+  AuthTwoFactorRequiredResponse,
   AuthRefreshRequest,
   RefreshSuccessResponse,
+  AuthTwoFactorSettingsResponse,
+  AuthTwoFactorTotpSetupRequest,
+  AuthTwoFactorTotpSetupResponse,
+  AuthTwoFactorSessionRequest,
+  AuthTwoFactorTotpVerifyRequest,
+  AuthLoginTwoFactorSessionRequest,
+  AuthLoginTwoFactorTotpVerifyRequest,
+  AuthStatusResponse,
+  AuthTwoFactorEmailVerifyRequest,
+  AuthLoginTwoFactorEmailVerifyRequest,
   AuthForgotPasswordRequest,
   ForgotPasswordResponse,
   AuthResetPasswordRequest,
@@ -3761,6 +3844,201 @@ const endpoints = makeApi([
   },
   {
     method: "post",
+    path: "/v1/auth/2fa/email/disable",
+    alias: "postV1auth2faemaildisable",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({}).partial(),
+      },
+    ],
+    response: z.object({ status: z.boolean() }),
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/2fa/email/send",
+    alias: "postV1auth2faemailsend",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({}).partial(),
+      },
+    ],
+    response: z.object({ status: z.boolean() }),
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 409,
+        description: `Email OTP already enabled`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/2fa/email/verify",
+    alias: "postV1auth2faemailverify",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AuthTwoFactorEmailVerifyRequest,
+      },
+    ],
+    response: AuthTokenResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 409,
+        description: `Email OTP already enabled`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/auth/2fa/settings",
+    alias: "getV1auth2fasettings",
+    requestFormat: "json",
+    response: AuthTwoFactorSettingsResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 404,
+        description: `User not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/2fa/totp/disable",
+    alias: "postV1auth2fatotpdisable",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({}).partial(),
+      },
+    ],
+    response: z.object({ status: z.boolean() }),
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/2fa/totp/setup",
+    alias: "postV1auth2fatotpsetup",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({ password: z.string().min(1) }),
+      },
+    ],
+    response: AuthTwoFactorTotpSetupResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 409,
+        description: `Authenticator app already enabled`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/2fa/totp/verify",
+    alias: "postV1auth2fatotpverify",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AuthTwoFactorTotpVerifyRequest,
+      },
+    ],
+    response: AuthTokenResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 409,
+        description: `Authenticator app already enabled`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
     path: "/v1/auth/forgot-password",
     alias: "postV1authforgotPassword",
     requestFormat: "json",
@@ -3818,11 +4096,89 @@ const endpoints = makeApi([
         schema: AuthLoginRequest,
       },
     ],
-    response: AuthTokenResponse,
+    response: z.union([AuthTokenResponse, AuthTwoFactorRequiredResponse]),
     errors: [
       {
         status: 401,
         description: `Invalid credentials`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/login/2fa/email/send",
+    alias: "postV1authlogin2faemailsend",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({ twoFactorToken: z.string().min(1) }),
+      },
+    ],
+    response: z.object({ status: z.boolean() }),
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Invalid or expired two-factor challenge`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/login/2fa/email/verify",
+    alias: "postV1authlogin2faemailverify",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AuthLoginTwoFactorEmailVerifyRequest,
+      },
+    ],
+    response: AuthTokenResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Invalid or expired two-factor challenge`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/login/2fa/totp/verify",
+    alias: "postV1authlogin2fatotpverify",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AuthLoginTwoFactorTotpVerifyRequest,
+      },
+    ],
+    response: AuthTokenResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Invalid or expired two-factor challenge`,
         schema: z.void(),
       },
     ],
@@ -7699,8 +8055,19 @@ export type AuthResendRegisterOtpRequest = z.infer<typeof schemas.AuthResendRegi
 export type ResendRegisterOtpResponse = z.infer<typeof schemas.ResendRegisterOtpResponse>;
 export type AuthSimpleErrorResponse = z.infer<typeof schemas.AuthSimpleErrorResponse>;
 export type AuthLoginRequest = z.infer<typeof schemas.AuthLoginRequest>;
+export type AuthTwoFactorRequiredResponse = z.infer<typeof schemas.AuthTwoFactorRequiredResponse>;
 export type AuthRefreshRequest = z.infer<typeof schemas.AuthRefreshRequest>;
 export type RefreshSuccessResponse = z.infer<typeof schemas.RefreshSuccessResponse>;
+export type AuthTwoFactorSettingsResponse = z.infer<typeof schemas.AuthTwoFactorSettingsResponse>;
+export type AuthTwoFactorTotpSetupRequest = z.infer<typeof schemas.AuthTwoFactorTotpSetupRequest>;
+export type AuthTwoFactorTotpSetupResponse = z.infer<typeof schemas.AuthTwoFactorTotpSetupResponse>;
+export type AuthTwoFactorSessionRequest = z.infer<typeof schemas.AuthTwoFactorSessionRequest>;
+export type AuthTwoFactorTotpVerifyRequest = z.infer<typeof schemas.AuthTwoFactorTotpVerifyRequest>;
+export type AuthLoginTwoFactorSessionRequest = z.infer<typeof schemas.AuthLoginTwoFactorSessionRequest>;
+export type AuthLoginTwoFactorTotpVerifyRequest = z.infer<typeof schemas.AuthLoginTwoFactorTotpVerifyRequest>;
+export type AuthStatusResponse = z.infer<typeof schemas.AuthStatusResponse>;
+export type AuthTwoFactorEmailVerifyRequest = z.infer<typeof schemas.AuthTwoFactorEmailVerifyRequest>;
+export type AuthLoginTwoFactorEmailVerifyRequest = z.infer<typeof schemas.AuthLoginTwoFactorEmailVerifyRequest>;
 export type AuthForgotPasswordRequest = z.infer<typeof schemas.AuthForgotPasswordRequest>;
 export type ForgotPasswordResponse = z.infer<typeof schemas.ForgotPasswordResponse>;
 export type AuthResetPasswordRequest = z.infer<typeof schemas.AuthResetPasswordRequest>;
