@@ -16,6 +16,14 @@ Feature/
 │ └── [feature].loader.ts -> Handles initial data fetching for the route.
 └── page.tsx -> The main React Router route component.
 
+## 2. Backend (API Folder)
+
+The backend groups endpoints by feature, matching the frontend domains.
+
+app/routes/api
+└── [FeatureName]/ (e.g., Login/)
+└── [feature].ts -> Contains all API route definitions, controllers, and business logic for this feature.
+
 ## Development Directives:
 
 - **Strict Separation:** Do not put loaders or actions directly inside `page.tsx` or any component files. Always import them from the `services/` folder.
