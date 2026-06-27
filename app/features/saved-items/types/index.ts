@@ -1,7 +1,7 @@
 import * as z from "zod";
 import { schemas } from "~/types/api-client";
 import { PaginationSchema } from "~/services/types";
-import { OpportunitySchema } from "~/services/volunteer/types";
+import { OpportunitySchema } from "~/features/volunteer/types";
 import { LaunchpadOpportunitySchema } from "~/features/launchpad/types";
 
 export const getSaveForumQuestionSchema = z.object({

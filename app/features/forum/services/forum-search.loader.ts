@@ -6,7 +6,7 @@ import {
   getPublicCategories,
   getPublicQuestionPagination,
   getQuestionPagination,
-} from "~/routes/api/forum/forum.server";
+} from "~/api/forum/forum.server";
 import type { Route as ForumSearchRoute } from "project-types/forum/route/+types/forum.search";
 
 type ForumSearchLoaderData = {
@@ -74,7 +74,7 @@ export async function forumSearchLoader({
   const emptyResponse: GetQuestionsResponse = {
     ok: true,
     questions: [],
-    pagination: { limit: 10, hasMore: false, nextCursor: null },
+    pagination: { limit: 10, hasMore: false, nextCursor: null, total: 0 },
   };
 
   return {

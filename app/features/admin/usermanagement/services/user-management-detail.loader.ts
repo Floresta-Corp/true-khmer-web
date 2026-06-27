@@ -1,12 +1,13 @@
-import { data, redirect, type LoaderFunctionArgs } from "react-router";
+import { data, redirect } from "react-router";
+import type { Route } from "project-types/admin/usermanagement/route/+types/user-management.$userId";
 
 import { getAdminAccessToken } from "~/lib/server/session.server";
-import { getAdminUserManagementDetail } from "~/routes/api/user-management/user-management.server";
+import { getAdminUserManagementDetail } from "~/api/admin/user-management/user-management.server";
 
 export async function userManagementDetailLoader({
   request,
   params,
-}: LoaderFunctionArgs) {
+}: Route.LoaderArgs) {
   if (!params.userId) {
     throw new Response("User ID is required.", { status: 400 });
   }

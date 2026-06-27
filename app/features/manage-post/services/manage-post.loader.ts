@@ -2,7 +2,7 @@ import type { Route } from "project-types/manage-post/route/+types/manage-post";
 import z from "zod";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
-import { myManagePost } from "~/routes/api/manage-post/manage-post.server";
+import { myManagePost } from "~/api/manage-post/manage-post.server";
 import {
   PostingFilterSchema,
   PostingTypeSchema,

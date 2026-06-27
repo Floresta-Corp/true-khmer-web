@@ -29,7 +29,7 @@ import ApplicationStatusConfirmDialog from "../components/application-status-con
 import { DetailAndContactCard } from "../components/detail-and-contact-card";
 import { ProjectOverviewCard } from "../components/project-overview-card";
 import { StatusTimeline } from "../components/status-timeline";
-import type { loader } from "../routes/my-application.$sourceType.$postingId";
+import type { loader } from "../route/my-application.$sourceType.$postingId";
 
 function formatDate(dateString?: string | null) {
   if (!dateString) return "TBD";

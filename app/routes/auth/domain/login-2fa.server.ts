@@ -8,7 +8,7 @@ import {
   sendLoginEmailOtp,
   verifyLoginEmailOtp,
   verifyLoginTotp,
-} from "~/services/api/two-factor/two-factor.server";
+} from "~/api/two-factor/two-factor.server";
 import {
   createUserSession,
   destroyPendingTwoFactorLogin,

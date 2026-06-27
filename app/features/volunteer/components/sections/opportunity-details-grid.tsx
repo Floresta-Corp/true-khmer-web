@@ -1,5 +1,5 @@
 import { MapPin, Clock3, Calendar, Users } from "lucide-react";
-import type { Opportunity } from "~/services/volunteer/types/opportunities";
+import type { Opportunity } from "~/features/volunteer/types/opportunities";
 import { format } from "date-fns";
 
 interface OpportunityDetailsGridProps {

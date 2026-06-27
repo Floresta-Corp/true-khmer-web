@@ -13,7 +13,7 @@ import MobileQuestionFilter from "../mobile-question-filter";
 import QuestionSortByDropdown from "../question-sort-by-dropdown";
 import QuestionCard from "../card/question-card";
 import { useLoaderData } from "react-router";
-import type { loader } from "../../routes/forum.new";
+import type { loader } from "../../route/forum.new";
 import { ForumPageLayout } from "../forum-page-layout";
 
 interface ForumContentNewProps {

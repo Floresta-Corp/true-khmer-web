@@ -6,7 +6,7 @@ import {
   uploadApplicationDocumentPresign,
   applyForLaunchpadRole,
   applyForLaunchpadRolesBatch,
-} from "~/routes/api/launchpad/launchpad.server";
+} from "~/api/launchpad/launchpad.server";
 
 type UnknownRecord = Record<string, unknown>;
 

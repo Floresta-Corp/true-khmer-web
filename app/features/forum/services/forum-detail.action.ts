@@ -15,9 +15,9 @@ import {
   addSaveQuestion,
   deleteSaveQuestion,
   markAsBestAnswer,
-} from "~/routes/api/forum/forum.server";
+} from "~/api/forum/forum.server";
 import type { Route as ForumDetailRoute } from "project-types/forum/route/+types/forum.$id";
-import type { CreateReportingRequest } from "~/types/api-client";
+import type { SubmitReportInput } from "../types";
 import { transformActionResponse } from "~/lib/server/action-response.server";
 
 export async function forumDetailAction({
@@ -91,7 +91,7 @@ export async function forumDetailAction({
       });
     }
 
-    const body: CreateReportingRequest = {
+    const body: SubmitReportInput = {
       description: reportDescription,
       typeId: reportTypeId,
       questionId: reportQuestionId,
@@ -118,7 +118,7 @@ export async function forumDetailAction({
       });
     }
 
-    const body: CreateReportingRequest = {
+    const body: SubmitReportInput = {
       description: reportDescription,
       typeId: reportTypeId,
       answerId: reportAnswerId,

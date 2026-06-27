@@ -1,4 +1,4 @@
-import type { ActionFunctionArgs } from "react-router";
+import type { Route } from "project-types/launchpad/route/+types/launchpad.edit.$id";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
@@ -12,7 +12,7 @@ import {
   uploadLaunchpadCoverPresign,
   uploadLaunchpadDocumentPresign,
   uploadLaunchpadLogoPresign,
-} from "~/routes/api/launchpad/launchpad.server";
+} from "~/api/launchpad/launchpad.server";
 import {
   LaunchpadUpdateInputSchema,
   type LaunchpadPresignedUpload,
@@ -262,7 +262,7 @@ function parseValidationFieldErrors(
 export async function launchpadEditAction({
   request,
   params,
-}: ActionFunctionArgs) {
+}: Route.ActionArgs) {
   const id = params.id;
   if (!id) {
     return toLaunchpadEditActionResponse(

@@ -1,15 +1,16 @@
+import type { Route } from "project-types/admin/contentmoderator/route/+types/content-moderator";
 import {
   patchContentModerator,
   DETAIL_REPORT_STATUSES,
-} from "~/routes/api/content-moderator/content-moderator.server";
-import type { DetailReportStatus } from "~/routes/api/content-moderator/content-moderator.server";
+} from "~/api/admin/content-moderator/content-moderator.server";
+import type { DetailReportStatus } from "~/api/admin/content-moderator/content-moderator.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
 import { withAuthJson } from "~/lib/server/auth-response.server";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 
 const VALID_STATUSES = new Set<string>(DETAIL_REPORT_STATUSES);
 
-export async function contentModerationAction({ request }: { request: Request }) {
+export async function contentModerationAction({ request }: Route.ActionArgs) {
   await requireSuperAdmin(request);
   const formData = await request.formData();
 

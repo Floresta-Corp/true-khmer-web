@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+// ── Vote types ─────────────────────────────────────────────────────────────
+export type VoteIntent = "UPVOTE" | "DOWNVOTE" | "NONE";
+
 // ── Question types ─────────────────────────────────────────────────────────────
 
 export const questionSortBySchema = z.enum([

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { OpportunitySchema } from "~/services/volunteer/types";
+import { OpportunitySchema } from "~/features/volunteer/types";
 import { LaunchpadOpportunitySchema } from "~/features/launchpad/types";
 
 export const ProfileUserSchema = z.object({

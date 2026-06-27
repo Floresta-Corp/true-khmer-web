@@ -5,7 +5,7 @@ import { withAuthData } from "~/lib/server/auth-response.server";
 import {
   getCandidateNote,
   getManagePostDetail,
-} from "~/routes/api/manage-post/manage-post.server";
+} from "~/api/manage-post/manage-post.server";
 import {
   PostingApplicantFilter,
   PostingSourceSchema,

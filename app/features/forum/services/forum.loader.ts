@@ -9,7 +9,7 @@ import {
   GetPublicReportType,
   myForumQuestion,
   myForumAnswer,
-} from "~/routes/api/forum/forum.server";
+} from "~/api/forum/forum.server";
 import { questionSortBySchema } from "~/features/forum/types";
 import type {
   AnswerResponse,

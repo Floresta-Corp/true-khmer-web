@@ -12,7 +12,7 @@ import { Button } from "~/components/ui/button";
 import { resolveImageURL } from "~/lib/utils";
 import { Separator } from "~/components/ui/separator";
 import { useLoaderData } from "react-router";
-import type { loader } from "../routes/forum.$id";
+import type { loader } from "../route/forum.$id";
 
 interface AnswerCardProps {
   answer: AnswerResponse;

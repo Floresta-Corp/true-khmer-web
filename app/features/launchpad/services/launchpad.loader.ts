@@ -1,6 +1,6 @@
 import type { Route as LaunchpadRoute } from "project-types/launchpad/route/+types/launchpad";
-import { GetLaunchpadProjectsPaginated, getPublicLaunchpadCategories } from "~/routes/api/launchpad/launchpad.server";
-import { getPublicVolunteerLocations } from "~/services/volunteer/server/volunteer.location.server";
+import { GetLaunchpadProjectsPaginated, getPublicLaunchpadCategories } from "~/api/launchpad/launchpad.server";
+import { getPublicVolunteerLocations } from "~/api/volunteer/volunteer.location.server";
 import { launchpadSortBySchema } from "~/features/launchpad/types";
 
 const DEFAULT_LIMIT = 10;

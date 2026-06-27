@@ -1,5 +1,5 @@
 import { Award, CheckCircle2 } from "lucide-react";
-import type { OpportunityDetail } from "~/services/volunteer/types/opportunities";
+import type { OpportunityDetail } from "~/features/volunteer/types/opportunities";
 
 const defaultBenefits = [
   "Hands-on mentorship from conservation experts",

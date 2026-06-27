@@ -1,7 +1,7 @@
 import type { Route } from "project-types/myspace/route/+types/my-application.$sourceType.$postingId";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
-import { getMyApplicationDetailResponse } from "~/routes/api/myspace/my-application.server";
+import { getMyApplicationDetailResponse } from "~/api/myspace/my-application.server";
 import type {
   ApplicationDetail,
   MyApplicationRequestSourceType,

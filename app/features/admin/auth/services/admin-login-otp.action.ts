@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { data, type ActionFunctionArgs } from "react-router";
-import type { AdminVerifyLoginOtpRequest } from "~/types/api-client";
+import { data } from "react-router";
+import type { Route } from "project-types/admin/auth/route/+types/admin-login-otp";
 
 import { sanitizeRedirectPath } from "~/lib/redirects";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
@@ -8,17 +8,10 @@ import {
   createAdminSession,
   getAdminPendingLogin,
 } from "~/lib/server/session.server";
-import { verifyAdminLoginOtp } from "~/routes/api/auth/admin-auth.server";
+import { verifyAdminLoginOtp } from "~/api/admin/auth/admin-auth.server";
+import type { AdminOtpActionData, AdminOtpFieldErrors } from "../types";
 
-export type AdminOtpFieldErrors = Partial<
-  Record<keyof Pick<AdminVerifyLoginOtpRequest, "otp"> | "form", string>
->;
-
-export type AdminOtpActionData = {
-  errors?: AdminOtpFieldErrors;
-  challengeExhausted?: boolean;
-  retryAfterSeconds?: number;
-};
+export type { AdminOtpActionData, AdminOtpFieldErrors } from "../types";
 
 const adminOtpSchema = z.object({
   otp: z.string().regex(/^\d{6}$/, "Enter the six-digit code."),
@@ -77,7 +70,7 @@ function adminOtpError(error: unknown): AdminOtpActionData {
   };
 }
 
-export async function adminOtpAction({ request }: ActionFunctionArgs) {
+export async function adminOtpAction({ request }: Route.ActionArgs) {
   const pendingLogin = await getAdminPendingLogin(request);
   if (!pendingLogin) {
     return data<AdminOtpActionData>(

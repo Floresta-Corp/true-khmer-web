@@ -4,7 +4,7 @@ import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { commitSession, getSession } from "~/lib/server/session.server";
 import { invalidateAuthSessionCacheForRequest } from "~/services/auth/session.server";
-import { UpdateMyspace } from "~/routes/api/myspace/myspace.server";
+import { UpdateMyspace } from "~/api/myspace/myspace.server";
 import type { Profile, UpdateMySpaceInput } from "~/features/myspace/types";
 import { UploadAvatarPresign } from "~/services/uploads-avatar-presign.server";
 

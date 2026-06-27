@@ -7,7 +7,7 @@ import type { loader } from "../../route/saved-items";
 import type { SavedItemsLoaderData } from "~/features/saved-items/services/saved-items.loader";
 import type { FilterId } from "../saved-item-filter";
 import type { QuestionResponse } from "~/types/api-client";
-import type { Opportunity } from "~/services/volunteer/volunteer-types";
+import type { Opportunity } from "~/features/volunteer/types/volunteer-types";
 import type { LaunchpadOpportunity } from "~/features/launchpad/types";
 import SavedItemsGrid from "../saved-items-gride";
 import type {

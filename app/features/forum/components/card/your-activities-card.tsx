@@ -1,7 +1,7 @@
 import { Link, useLoaderData } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
-import type { forumListloader } from "~/routes/api/forum/forum-loader";
+import type { forumListloader } from "../../services/forum.loader";
 
 export default function YourActivitiesCard() {
   const { questionCount, answerCount } =

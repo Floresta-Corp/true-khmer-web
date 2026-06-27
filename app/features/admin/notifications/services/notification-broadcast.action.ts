@@ -1,6 +1,7 @@
 import { data, redirect } from "react-router";
+import type { Route } from "project-types/admin/notifications/route/+types/notification-broadcast";
 import { z } from "zod";
-import { broadcastNotification } from "~/routes/api/notifications/notification-broadcast.server";
+import { broadcastNotification } from "~/api/admin/notifications/notification-broadcast.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
 
 const emptyToUndefined = (v: unknown) => (v === "" ? undefined : v);
@@ -26,7 +27,7 @@ const broadcastSchema = z.object({
   mobileRoute: z.preprocess(emptyToUndefined, z.string().optional()),
 });
 
-export async function notificationBroadcastAction({ request }: { request: Request }) {
+export async function notificationBroadcastAction({ request }: Route.ActionArgs) {
   const { accessToken, setCookie } = await getAdminAccessToken(request);
   if (!accessToken) {
     throw redirect("/tk-admin/login");

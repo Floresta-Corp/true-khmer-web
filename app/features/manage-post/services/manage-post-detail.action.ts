@@ -9,7 +9,7 @@ import {
   updateApplicantStatus,
   updateManagePost,
   updateManagePostExtendDate,
-} from "~/routes/api/manage-post/manage-post.server";
+} from "~/api/manage-post/manage-post.server";
 import {
   ApplicantStatusActionSchema,
   PostingSourceSchema,

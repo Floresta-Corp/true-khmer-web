@@ -2,7 +2,7 @@ import { Tag } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import type { CategoriesPicker } from "~/features/forum/types";
 import type { QuestionResponse } from "~/types/api-client";
-import type { Opportunity } from "~/services/volunteer/volunteer-types";
+import type { Opportunity } from "~/features/volunteer/types/volunteer-types";
 import type { LaunchpadOpportunity } from "~/features/launchpad/types";
 import type { FilterId } from "./saved-item-filter";
 import { OpportunityCard } from "~/components/opportunity-card";

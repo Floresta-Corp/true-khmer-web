@@ -1,5 +1,5 @@
 import type { Route as LaunchpadDetailRoute } from "project-types/launchpad/route/+types/launchpad.$id";
-import { GetLaunchpadDetail } from "~/routes/api/launchpad/launchpad.server";
+import { GetLaunchpadDetail } from "~/api/launchpad/launchpad.server";
 import { getUserId } from "~/lib/server/session.server";
 
 export async function launchpadDetailLoader({

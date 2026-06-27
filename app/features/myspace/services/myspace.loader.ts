@@ -5,7 +5,7 @@ import { withAuthData } from "~/lib/server/auth-response.server";
 import {
   GetMyspaceMe,
   GetRecentActivity,
-} from "~/routes/api/myspace/myspace.server";
+} from "~/api/myspace/myspace.server";
 
 interface MyspaceLoaderData {
   me: Profile | null;

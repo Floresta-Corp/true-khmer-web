@@ -103,14 +103,16 @@ export default function LaunchpadProjectCard({
           </div>
         </div>
         <div className="flex items-center gap-3.5 pb-6">
-          <div className="size-12.25 rounded-md border">
+          <div className="size-12.25 shrink-0 rounded-md border">
             <img
               src={resolveImageURL(item.logoKey || undefined)}
               alt={`${item.name} image`}
               className="w-full h-full object-cover rounded-lg"
             />
           </div>
-          <div className="text-md leading-0 font-semibold">{item.name}</div>
+          <div className="text-md font-semibold leading-tight line-clamp-2">
+            {item.name}
+          </div>
         </div>
         <div className="flex flex-1 flex-col justify-between">
           <div className="line-clamp-4">{item.description}</div>

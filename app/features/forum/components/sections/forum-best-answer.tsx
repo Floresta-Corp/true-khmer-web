@@ -2,7 +2,7 @@ import { Award } from "lucide-react";
 import type { AnswerResponse, QuestionResponse } from "~/types/api-client";
 import AnswerNewCard from "../card/answer-new-card";
 import { useLoaderData } from "react-router";
-import type { loader } from "../../routes/forum.$id";
+import type { loader } from "../../route/forum.$id";
 interface ForumBestAnswerProps {
   answer?: AnswerResponse;
   userId: string | null;

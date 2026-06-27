@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import AnswerNewCard from "../card/answer-new-card";
 import type { AnswerResponse } from "~/types/api-client";
-import type { loader } from "../../routes/forum.$id";
+import type { loader } from "../../route/forum.$id";
 import { useLoaderData, useFetcher, useLocation } from "react-router";
 import { useEffect, useState } from "react";
 import SortDropdown from "~/components/ui/sort-dropdown";

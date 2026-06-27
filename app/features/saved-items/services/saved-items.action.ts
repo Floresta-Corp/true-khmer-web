@@ -1,13 +1,13 @@
-import type { ActionFunctionArgs } from "react-router";
+import type { Route } from "project-types/saved-items/route/+types/saved-items";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { withAuthJson } from "~/lib/server/auth-response.server";
 import {
   SaveVolunteerOpportunity,
   UnsaveVolunteerOpportunity,
-} from "~/services/volunteer/server";
+} from "~/api/volunteer";
 
-export async function savedItemsAction({ request }: ActionFunctionArgs) {
+export async function savedItemsAction({ request }: Route.ActionArgs) {
   const auth = await requireUser(request);
 
   const formData = await request.formData();

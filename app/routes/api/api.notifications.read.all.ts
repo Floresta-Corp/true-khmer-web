@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "react-router";
-import { markAllNotificationsRead } from "~/routes/api/notifications/notifications.server";
+import { markAllNotificationsRead } from "~/api/notifications/notifications.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   try {

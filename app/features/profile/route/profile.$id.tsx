@@ -1,6 +1,6 @@
 import { ForumPageLayout } from "~/features/forum/components/forum-page-layout";
 import { profileLoader } from "../services/profile.loader";
-import ProfileDetailPage from "../page";
+import ProfileDetailPage from "../components/pages/profile-detail-page";
 import type { Route } from "./+types/profile.$id";
 
 export const loader = profileLoader;

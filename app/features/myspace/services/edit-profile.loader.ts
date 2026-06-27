@@ -5,7 +5,7 @@ import {
   GetMyspaceMe,
   GetCountries,
   GetCities,
-} from "~/routes/api/myspace/myspace.server";
+} from "~/api/myspace/myspace.server";
 import type { City, Profile, Country } from "~/features/myspace/types";
 
 interface EditProfileLoaderData {

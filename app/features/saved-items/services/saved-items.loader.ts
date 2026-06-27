@@ -1,6 +1,6 @@
 import { redirect } from "react-router";
 import { AuthSessionExpiredError } from "~/lib/server/api-client.server";
-import { getSavedItems } from "~/routes/api/saved-items/saved-items.server";
+import { getSavedItems } from "~/api/saved-items/saved-items.server";
 import type { Route } from "project-types/saved-items/route/+types/saved-items";
 import {
   FilterSavedItemSchema,

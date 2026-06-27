@@ -1,4 +1,4 @@
-import type { ActionFunctionArgs } from "react-router";
+import type { Route } from "project-types/launchpad/route/+types/launchpad.create";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
@@ -12,7 +12,7 @@ import {
   uploadLaunchpadCoverPresign,
   uploadLaunchpadDocumentPresign,
   uploadLaunchpadLogoPresign,
-} from "~/routes/api/launchpad/launchpad.server";
+} from "~/api/launchpad/launchpad.server";
 import {
   LaunchpadCreateDraftInputSchema,
   type LaunchpadPresignedUpload,
@@ -264,7 +264,7 @@ async function uploadToStorage(upload: LaunchpadPresignedUpload, file: File) {
   }
 }
 
-export async function launchpadCreateAction({ request }: ActionFunctionArgs) {
+export async function launchpadCreateAction({ request }: Route.ActionArgs) {
   const auth = await requireUser(request);
   const respond = (payload: LaunchpadCreateActionResponse) =>
     withAuthData(auth, payload);

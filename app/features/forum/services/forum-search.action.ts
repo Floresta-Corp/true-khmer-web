@@ -6,8 +6,8 @@ import {
   parseVoteAction,
   submitVoteAction,
 } from "./forum.vote-helpers";
-import type { CreateReportingRequest } from "~/types/api-client";
-import { SubmitReport, updateForumQuestion } from "~/routes/api/forum/forum.server";
+import type { SubmitReportInput } from "../types";
+import { SubmitReport, updateForumQuestion } from "~/api/forum/forum.server";
 import { validateCreateForumPostForm } from "./forum.validation";
 
 export async function forumSearchAction({
@@ -48,7 +48,7 @@ export async function forumSearchAction({
       });
     }
 
-    const body: CreateReportingRequest = {
+    const body: SubmitReportInput = {
       description: reportDescription,
       typeId: reportTypeId,
       questionId: reportQuestionId,

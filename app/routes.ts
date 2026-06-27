@@ -20,19 +20,19 @@ export default [
       route("events", "features/events/routes/events.tsx"),
       route("events/all", "features/events/routes/events.all.tsx"),
       route("events/detail/:id", "features/events/routes/events.$id.tsx"),
-      route("volunteer", "features/volunteer/routes/volunteer.tsx"),
-      route("volunteer/all", "features/volunteer/routes/volunteer.all.tsx"),
+      route("volunteer", "features/volunteer/route/volunteer.tsx"),
+      route("volunteer/all", "features/volunteer/route/volunteer.all.tsx"),
       route(
         "volunteer/create",
-        "features/volunteer/routes/volunteer.create.tsx",
+        "features/volunteer/route/volunteer.create.tsx",
       ),
       route(
         "volunteer/detail/:id",
-        "features/volunteer/routes/volunteer.$id.tsx",
+        "features/volunteer/route/volunteer.$id.tsx",
       ),
       route(
         "volunteer/edit/:id",
-        "features/volunteer/routes/volunteer.edit.$id.tsx",
+        "features/volunteer/route/volunteer.edit.$id.tsx",
       ),
       route("poc", "features/poc/routes/poc.tsx"),
       route("poc/detail/:id", "features/poc/routes/poc.$id.tsx"),
@@ -61,11 +61,11 @@ export default [
       "features/myspace/route/my-application.$sourceType.$postingId.tsx",
     ),
     route("saved-items", "features/saved-items/route/saved-items.tsx"),
-    route("settings", "features/settings/routes/settings.tsx"),
+    route("settings", "features/settings/route/settings.tsx"),
 
     layout("layout/workspace-layout.tsx", [
-      route("workspace", "features/workspace/routes/workspace.tsx"),
-      route("my-events", "features/workspace/routes/my-events.tsx"),
+      route("workspace", "features/workspace/route/workspace.tsx"),
+      route("my-events", "features/workspace/route/my-events.tsx"),
       route("manage-post", "features/manage-post/route/manage-post.tsx"),
       route(
         "manage-post/:sourceType/:id",

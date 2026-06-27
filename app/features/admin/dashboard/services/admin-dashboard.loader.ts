@@ -1,12 +1,12 @@
-import type { Route } from "project-types/admin/dashboard/+types/admin-dashboard";
+import type { Route } from "project-types/admin/dashboard/route/+types/admin-dashboard";
 import { redirect } from "react-router";
 import { withAuthData } from "~/lib/server/auth-response.server";
-import { getAdminDashboard } from "~/lib/server/auth/admin/dashboard/dashboard.server";
+import { getAdminDashboard } from "~/api/admin/dashboard/dashboard.server";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
-import type { AdminDashboardResponse } from "~/types/api-client";
+import type { AdminDashboardData } from "../types";
 
-export type AdminDashboardData = AdminDashboardResponse["dashboard"];
+export type { AdminDashboardData } from "../types";
 
 export async function adminDashboardLoader({ request }: Route.LoaderArgs) {
   const auth = await requireSuperAdmin(request);

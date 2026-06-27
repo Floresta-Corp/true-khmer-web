@@ -1,7 +1,7 @@
 import { Archive, CheckCircle2, Clock3, Zap } from "lucide-react";
 import { useLoaderData } from "react-router";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
-import type { loader } from "../../routes/my-applications";
+import type { loader } from "../../route/my-applications";
 
 const StatusIcon = (label: string) => {
   switch (label) {

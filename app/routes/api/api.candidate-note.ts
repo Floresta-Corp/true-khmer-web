@@ -1,7 +1,7 @@
 import type { Route } from "project-types/manage-post/route/+types/manage-post.$sourceType.$id";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { withAuthJson } from "~/lib/server/auth-response.server";
-import { getCandidateNote } from "~/routes/api/manage-post/manage-post.server";
+import { getCandidateNote } from "~/api/manage-post/manage-post.server";
 import { PostingSourceSchema } from "~/features/manage-post/types";
 
 export async function loader({ request }: Route.LoaderArgs) {

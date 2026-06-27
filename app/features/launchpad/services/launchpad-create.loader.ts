@@ -4,8 +4,8 @@ import {
   withAuthData,
   withAuthRedirect,
 } from "~/lib/server/auth-response.server";
-import { getPublicLaunchpadCategories } from "~/routes/api/launchpad/launchpad.server";
-import { getVolunteerLocations } from "~/services/volunteer/server/volunteer.location.server";
+import { getPublicLaunchpadCategories } from "~/api/launchpad/launchpad.server";
+import { getVolunteerLocations } from "~/api/volunteer/volunteer.location.server";
 
 export default async function launchpadCreateLoader({
   request,

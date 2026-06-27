@@ -1,7 +1,7 @@
 import { ArrowRight, Clock3 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useLoaderData, useSearchParams } from "react-router";
-import type { loader } from "../routes/my-applications";
+import type { loader } from "../route/my-applications";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 

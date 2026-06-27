@@ -1,14 +1,15 @@
-import { data, redirect, type LoaderFunctionArgs } from "react-router";
+import { data, redirect } from "react-router";
+import type { Route } from "project-types/admin/usermanagement/route/+types/user-management";
 
 import { getAdminAccessToken } from "~/lib/server/session.server";
-import { getAdminUserManagement } from "~/routes/api/user-management/user-management.server";
+import { getAdminUserManagement } from "~/api/admin/user-management/user-management.server";
 
 function positiveInteger(value: string | null, fallback: number) {
   const parsed = Number(value);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
-export async function userManagementLoader({ request }: LoaderFunctionArgs) {
+export async function userManagementLoader({ request }: Route.LoaderArgs) {
   const { accessToken, setCookie } = await getAdminAccessToken(request);
 
   if (!accessToken) {

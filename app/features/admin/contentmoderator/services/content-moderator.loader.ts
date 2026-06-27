@@ -1,23 +1,16 @@
-import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
+import type { Route } from "project-types/admin/contentmoderator/route/+types/content-moderator";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import {
   getContentModerator,
   REPORT_STATUSES,
-} from "~/routes/api/content-moderator/content-moderator.server";
-import type { ReportStatus } from "~/routes/api/content-moderator/content-moderator.server";
+} from "~/api/admin/content-moderator/content-moderator.server";
+import type { ReportStatus } from "~/api/admin/content-moderator/content-moderator.server";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
-import type { ContentModeratorReport, CursorPagination } from "~/types/api-client";
+import type { ContentModeratorData } from "../types";
 
-type ContentModeratorData = {
-  content: ContentModeratorReport[];
-  types: Array<{ id: string; name: string }>;
-  pagination: CursorPagination | null;
-  userId: string | null;
-};
-
-export async function contentModeratorLoader({ request }: LoaderFunctionArgs) {
+export async function contentModeratorLoader({ request }: Route.LoaderArgs) {
   const auth = await requireSuperAdmin(request);
   const { accessToken } = await getAdminAccessToken(request);
   if (!accessToken) {

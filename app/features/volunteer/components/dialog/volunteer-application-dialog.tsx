@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useFetcher, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
-import type { Role } from "~/services/volunteer/types/opportunities";
-import { BatchApplyApplicationInputSchema } from "~/services/volunteer/types/application";
+import type { Role } from "~/features/volunteer/types/opportunities";
+import { BatchApplyApplicationInputSchema } from "~/features/volunteer/types/application";
 import { User, FileText, Star } from "lucide-react";
 import {
   Dialog,

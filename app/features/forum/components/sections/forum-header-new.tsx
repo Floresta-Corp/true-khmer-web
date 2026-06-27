@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useLoaderData, useNavigate } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 import AskQuestionDialog from "../dialog/ask-question-dialog";
-import type { loader } from "../../routes/forum.new";
+import type { loader } from "../../route/forum.new";
 
 const heroBackgroundImage = "/images/hero-background-image.jpg";
 const avatarImage = "/images/forum-avatar.jpg";

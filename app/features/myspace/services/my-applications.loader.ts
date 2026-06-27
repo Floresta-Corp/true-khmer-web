@@ -2,7 +2,7 @@ import type { Route } from "project-types/myspace/route/+types/my-applications";
 import {
   getMyApplicationResponse,
   type MyApplicationQueryParams,
-} from "~/routes/api/myspace/my-application.server";
+} from "~/api/myspace/my-application.server";
 import {
   MyApplicationFilterSchema,
   MyApplicationListTypeSchema,

@@ -15,10 +15,10 @@ import {
   updateAnswerById,
   SubmitReport,
   presignForumQuestionImage,
-} from "~/routes/api/forum/forum.server";
+} from "~/api/forum/forum.server";
 import { validateCreateForumPostForm } from "./forum.validation";
 import type { Route as ForumRoute } from "project-types/forum/route/+types/forum.new";
-import type { CreateReportingRequest } from "~/types/api-client";
+import type { SubmitReportInput } from "../types";
 
 export async function forumListAction({ request }: ForumRoute.ActionArgs) {
   const auth = await requireUser(request);
@@ -66,7 +66,7 @@ export async function forumListAction({ request }: ForumRoute.ActionArgs) {
       });
     }
 
-    const body: CreateReportingRequest = {
+    const body: SubmitReportInput = {
       description: reportDescription,
       typeId: reportTypeId,
       questionId: reportQuestionId,

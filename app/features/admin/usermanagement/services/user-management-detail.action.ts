@@ -1,12 +1,13 @@
-import { data, type ActionFunctionArgs } from "react-router";
+import { data } from "react-router";
+import type { Route } from "project-types/admin/usermanagement/route/+types/user-management.$userId";
 
 import { ProtectedApiError } from "~/lib/server/api-client.server";
-import { updateAdminUserSuspension } from "~/routes/api/user-management/user-management.server";
+import { updateAdminUserSuspension } from "~/api/admin/user-management/user-management.server";
 
 export async function userManagementDetailAction({
   request,
   params,
-}: ActionFunctionArgs) {
+}: Route.ActionArgs) {
   if (!params.userId) {
     return data({ ok: false, error: "User ID is required." }, { status: 400 });
   }

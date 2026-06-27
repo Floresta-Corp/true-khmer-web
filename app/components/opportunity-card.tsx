@@ -3,7 +3,7 @@ import { Link, useFetcher } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 import { cn, formatCompactNumber, resolveImageURL } from "~/lib/utils";
-import type { Opportunity } from "~/services/volunteer/volunteer-types";
+import type { Opportunity } from "~/features/volunteer/types/volunteer-types";
 import { format } from "date-fns";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";

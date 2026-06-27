@@ -5,7 +5,7 @@ import {
   getPublicQuestionById,
   getPublicAnswersByQuestionId,
   GetPublicReportType,
-} from "~/routes/api/forum/forum.server";
+} from "~/api/forum/forum.server";
 import type {
   AnswerResponse,
   QuestionResponse,

@@ -2,7 +2,7 @@ import { Star, Trash2, Send, Info } from "lucide-react";
 import type {
   OpportunityDetail,
   Role,
-} from "~/services/volunteer/types/opportunities";
+} from "~/features/volunteer/types/opportunities";
 import VolunteerApplicationDialog from "../dialog/volunteer-application-dialog";
 import { formatDate } from "date-fns";
 import { useVolunteerSelectedRoles } from "../../../../stores/selected-volunteer-roles-store";

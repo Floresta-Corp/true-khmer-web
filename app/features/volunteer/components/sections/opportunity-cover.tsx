@@ -1,5 +1,5 @@
 import { cn, resolveImageURL } from "~/lib/utils";
-import type { OpportunityDetail } from "~/services/volunteer/types/opportunities";
+import type { OpportunityDetail } from "~/features/volunteer/types/opportunities";
 
 const coverImage = "/images/volunteer-placeholder.svg";
 

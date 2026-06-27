@@ -18,7 +18,7 @@ import AskQuestionDialog from "../dialog/ask-question-dialog";
 import DeleteQuestionDialog from "../dialog/delete-question-dialog";
 import { resolveImageURL } from "~/lib/utils";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
-import type { loader } from "../../routes/forum";
+import type { loader } from "../../route/forum";
 import ForumReportDialog, {
   ReportDialogType,
 } from "../dialog/forum-report-dialog";

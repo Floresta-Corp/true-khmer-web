@@ -1,5 +1,5 @@
 import type { Route } from "project-types/notifications/route/+types/notifications";
-import { getNotifications } from "~/routes/api/notifications/notifications.server";
+import { getNotifications } from "~/api/notifications/notifications.server";
 
 function readPositiveInteger(value: string | null, fallback: number): number {
   const parsed = Number(value);

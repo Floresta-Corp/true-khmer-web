@@ -1,17 +1,13 @@
 import { z } from "zod";
 
-import { data, redirect, type ActionFunctionArgs } from "react-router";
+import { data, redirect } from "react-router";
+import type { Route } from "project-types/admin/manage-moderator/route/+types/accept-invite";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { getPasswordValidationError } from "~/routes/auth/domain/password-validation";
-import { verifyModeratorInvite } from "~/routes/api/manage-moderator/manage-moderator.server";
+import { verifyModeratorInvite } from "~/api/admin/manage-moderator/manage-moderator.server";
+import type { AcceptInviteActionData } from "../types";
 
-type AcceptInviteErrors = Partial<
-  Record<"token" | "name" | "password" | "confirmPassword" | "form", string>
->;
-
-export type AcceptInviteActionData = {
-  errors?: AcceptInviteErrors;
-};
+export type { AcceptInviteActionData } from "../types";
 
 const acceptInviteSchema = z
   .object({
@@ -38,7 +34,7 @@ function inviteErrorMessage(error: unknown) {
   return "Unable to accept invitation. Please try again.";
 }
 
-export async function acceptInviteAction({ request }: ActionFunctionArgs) {
+export async function acceptInviteAction({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const result = acceptInviteSchema.safeParse(Object.fromEntries(formData));
 

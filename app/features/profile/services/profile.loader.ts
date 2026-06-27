@@ -2,7 +2,7 @@ import { z } from "zod";
 import {
   GetProfileById,
   GetPostedContent,
-} from "~/routes/api/profile/profile.server";
+} from "~/api/profile/profile.server";
 import type { GetPostedContentResponse } from "~/features/profile/types";
 import type { Route } from "project-types/profile/route/+types/profile.$id";
 

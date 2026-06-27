@@ -6,7 +6,7 @@ import type { AuthTokenResponse } from "~/types/api-client";
 import {
   invalidateAdminMeCache,
   logoutAdmin,
-} from "~/routes/api/auth/admin-auth.server";
+} from "~/api/admin/auth/admin-auth.server";
 import {
   type AdminLoginOtpChallengeResponse,
   type AdminLoginResponse,

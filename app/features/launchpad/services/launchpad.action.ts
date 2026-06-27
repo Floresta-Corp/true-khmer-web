@@ -4,7 +4,7 @@ import { withAuthJson } from "~/lib/server/auth-response.server";
 import {
   saveLaunchpad,
   unsaveLaunchpad,
-} from "~/routes/api/launchpad/launchpad.server";
+} from "~/api/launchpad/launchpad.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 
 export async function launchpadSaveAction({ request }: ActionFunctionArgs) {

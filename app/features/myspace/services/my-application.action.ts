@@ -1,4 +1,4 @@
-import type { ActionFunctionArgs } from "react-router";
+import type { Route } from "project-types/myspace/route/+types/my-applications";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import {
@@ -9,14 +9,14 @@ import { requireUser } from "~/lib/server/route-guards.server";
 import {
   postMyApplicationArchiveAction,
   postMyApplicationChangeStatus,
-} from "~/routes/api/myspace/my-application.server";
+} from "~/api/myspace/my-application.server";
 import {
   MyApplicationArchiveActionSchema,
   MyApplicationRequestSourceTypeSchema,
   MyApplicationStatusActionSchema,
 } from "~/features/myspace/types";
 
-export async function myApplicationAction({ request }: ActionFunctionArgs) {
+export async function myApplicationAction({ request }: Route.ActionArgs) {
   const auth = await requireUser(request);
 
   const formData = await request.formData();

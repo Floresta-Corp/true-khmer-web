@@ -16,7 +16,7 @@ import { getPasswordValidationError } from "~/routes/auth/domain/password-valida
 import { Divider } from "./Divider";
 import { SecurityRow } from "./SecurityRow";
 import { TwoFactorToggle } from "./TwoFactorToggle";
-import type { SettingsActionData } from "../services/settings.action";
+import type { SettingsActionData } from "../types";
 
 type PasswordErrors = {
   oldPassword?: string;

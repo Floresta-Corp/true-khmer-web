@@ -1,10 +1,9 @@
-import { data, type ActionFunctionArgs } from "react-router";
+import { data } from "react-router";
+import type { Route } from "project-types/admin/usermanagement/route/+types/user-management";
 
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 
-export async function userManagementAction({
-  request,
-}: ActionFunctionArgs) {
+export async function userManagementAction({ request }: Route.ActionArgs) {
   await requireSuperAdmin(request);
 
   return data(

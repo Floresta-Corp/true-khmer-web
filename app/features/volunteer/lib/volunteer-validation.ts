@@ -1,6 +1,6 @@
-import type { FormDataVolunteerInput } from "~/services/volunteer/types";
-import type { VolunteerPostPage1Errors } from "../page/volunteer-post-page-1";
-import type { VolunteerPostPage2Errors } from "../page/volunteer-post-page-2";
+import type { FormDataVolunteerInput } from "~/features/volunteer/types";
+import type { VolunteerPostPage1Errors } from "../components/pages/volunteer-post-page-1";
+import type { VolunteerPostPage2Errors } from "../components/pages/volunteer-post-page-2";
 import { z } from "zod";
 import { isBefore, isValid, parseISO } from "date-fns";
 

@@ -2,7 +2,7 @@ import { Search } from "lucide-react";
 import AskQuestionDialog from "../dialog/ask-question-dialog";
 import type { CategoryResponse } from "~/types/api-client";
 import { useLoaderData } from "react-router";
-import type { loader } from "../../routes/forum";
+import type { loader } from "../../route/forum";
 
 interface ForumHeaderProps {
   onSearch?: (query: string) => void;

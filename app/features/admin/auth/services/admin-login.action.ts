@@ -1,20 +1,13 @@
 import { z } from "zod";
-import type { ActionFunctionArgs } from "react-router";
-import type { AdminLoginRequest } from "~/types/api-client";
+import type { Route } from "project-types/admin/auth/route/+types/admin-login";
 
 import { sanitizeRedirectPath } from "~/lib/redirects";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { createAdminPendingLogin } from "~/lib/server/session.server";
-import { loginAdmin } from "~/routes/api/auth/admin-auth.server";
+import { loginAdmin } from "~/api/admin/auth/admin-auth.server";
+import type { AdminLoginActionData, AdminLoginFieldErrors } from "../types";
 
-export type AdminLoginFieldErrors = Partial<
-  Record<keyof AdminLoginRequest | "form", string>
->;
-
-export type AdminLoginActionData = {
-  errors?: AdminLoginFieldErrors;
-  retryAfterSeconds?: number;
-};
+export type { AdminLoginActionData, AdminLoginFieldErrors } from "../types";
 
 const adminLoginSchema = z.object({
   email: z.string().email("Invalid email address").max(255),
@@ -75,7 +68,7 @@ function adminLoginError(error: unknown): AdminLoginActionData {
   };
 }
 
-export async function adminLoginAction({ request }: ActionFunctionArgs) {
+export async function adminLoginAction({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const parseResult = adminLoginSchema.safeParse(Object.fromEntries(formData));
 

@@ -9,8 +9,12 @@ export default function LaunchpadProjectCoverCard({
   project,
 }: LaunchpadProjectCoverCardProps) {
   const categoryName = project.category.name;
-  const coverImageUrl = project.coverKey ? resolveImageURL(project.coverKey) : undefined;
-  const logoImageUrl = project.logoKey ? resolveImageURL(project.logoKey) : undefined;
+  const coverImageUrl = project.coverKey
+    ? resolveImageURL(project.coverKey)
+    : undefined;
+  const logoImageUrl = project.logoKey
+    ? resolveImageURL(project.logoKey)
+    : undefined;
 
   return (
     <section
@@ -18,13 +22,13 @@ export default function LaunchpadProjectCoverCard({
       style={{
         backgroundImage: coverImageUrl
           ? `linear-gradient(180deg, rgba(7, 20, 53, 0.24) 0%, rgba(7, 20, 53, 0.75) 100%), url('${coverImageUrl}')`
-          : 'linear-gradient(180deg, rgba(7, 20, 53, 0.24) 0%, rgba(7, 20, 53, 0.75) 100%)',
+          : "linear-gradient(180deg, rgba(7, 20, 53, 0.24) 0%, rgba(7, 20, 53, 0.75) 100%)",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
       <div className="flex h-full items-end gap-4">
-        <div className="size-18 overflow-hidden rounded-xl border-4 border-white bg-white/90 shadow-sm md:size-22">
+        <div className="size-18 shrink-0 overflow-hidden rounded-xl border-4 border-white bg-white/90 shadow-sm md:size-22">
           {logoImageUrl ? (
             <img
               src={logoImageUrl}
