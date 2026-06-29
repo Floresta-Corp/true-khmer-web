@@ -19,11 +19,33 @@ import {
   runServiceAction,
   type WorkSpaceActionResult,
 } from "./work-space-result";
+import { z } from "zod";
+import { voteForumQuestion } from "~/api/forum/forum-question.server";
+import { voteForumAnswer } from "~/api/forum/forum-answer.server";
+
+const voteTypeEnum = z.enum(["UPVOTE", "DOWNVOTE", "NONE"]);
+
+const voteQuestionSchema = z.object({
+  questionId: z.string().trim().min(1, "Question ID is required."),
+  voteType: voteTypeEnum,
+});
+
+const voteAnswerSchema = z.object({
+  answerId: z.string().trim().min(1, "Answer ID is required."),
+  voteType: voteTypeEnum,
+});
 
 /** Merge the auth cookie with any refreshed-session cookie from the service call. */
-function mergeSetCookie(authSetCookie?: string | string[], serviceSetCookie?: string) {
+function mergeSetCookie(
+  authSetCookie?: string | string[],
+  serviceSetCookie?: string,
+) {
   const cookies = [
-    ...(Array.isArray(authSetCookie) ? authSetCookie : authSetCookie ? [authSetCookie] : []),
+    ...(Array.isArray(authSetCookie)
+      ? authSetCookie
+      : authSetCookie
+        ? [authSetCookie]
+        : []),
     ...(serviceSetCookie ? [serviceSetCookie] : []),
   ];
   return cookies.length ? cookies : undefined;
@@ -41,10 +63,41 @@ export async function workSpaceAction({ request }: Route.ActionArgs) {
       result,
     );
 
-  const allowedActionTypes = new Set(["delete-answer", "update-answer"]);
+  const allowedActionTypes = new Set([
+    "delete-answer",
+    "update-answer",
+    "vote-question",
+    "vote-answer",
+  ]);
 
   if (actionType && !allowedActionTypes.has(actionType)) {
     return respond(actionError("Unsupported action."));
+  }
+
+  if (actionType === "vote-question") {
+    const parsed = voteQuestionSchema.safeParse({
+      questionId: String(formData.get("questionId") ?? ""),
+      voteType: String(formData.get("voteType") ?? "").toUpperCase(),
+    });
+    if (!parsed.success) return respond(actionError("Invalid vote data."));
+    const { result, setCookie } = await runServiceAction(
+      () => voteForumQuestion(request, parsed.data.questionId, parsed.data.voteType),
+      { success: "Vote submitted.", error: "Failed to submit vote." },
+    );
+    return respond(result, setCookie);
+  }
+
+  if (actionType === "vote-answer") {
+    const parsed = voteAnswerSchema.safeParse({
+      answerId: String(formData.get("answerId") ?? ""),
+      voteType: String(formData.get("voteType") ?? "").toUpperCase(),
+    });
+    if (!parsed.success) return respond(actionError("Invalid vote data."));
+    const { result, setCookie } = await runServiceAction(
+      () => voteForumAnswer(request, parsed.data.answerId, parsed.data.voteType),
+      { success: "Vote submitted.", error: "Failed to submit vote." },
+    );
+    return respond(result, setCookie);
   }
 
   if (actionType === "update-answer") {

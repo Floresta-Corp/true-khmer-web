@@ -23,6 +23,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import AddAnswerDialog from "~/features/forum/components/dialog/add-answer-dialog";
 import DeleteAnswerDialog from "~/features/forum/components/dialog/delete-answer-dialog";
+import AnswerVoteComponent from "~/features/forum/components/answer-vote-component";
 import type { GetMyAnswersResponse } from "~/types/api-client";
 
 type Discussion = GetMyAnswersResponse["discussions"][number];
@@ -182,7 +183,14 @@ function AnswerRow({
           </Link>
         </div>
 
-        <AnswerActionsMenu answer={answer} questionId={questionId} />
+        <div className="flex items-center gap-2 shrink-0">
+          <AnswerVoteComponent
+            answerId={answer.id}
+            score={answer.score}
+            viewerVote={answer.viewerVote}
+          />
+          <AnswerActionsMenu answer={answer} questionId={questionId} />
+        </div>
       </div>
     </li>
   );
@@ -245,7 +253,14 @@ export default function WorkspaceDiscussionCard({
                   {timeAgo(answer.createdAt)}
                 </span>
               </p>
-              <AnswerActionsMenu answer={answer} questionId={questionId} />
+              <div className="flex items-center gap-2 shrink-0">
+                <AnswerVoteComponent
+                  answerId={answer.id}
+                  score={answer.score}
+                  viewerVote={answer.viewerVote}
+                />
+                <AnswerActionsMenu answer={answer} questionId={questionId} />
+              </div>
             </div>
             <Link
               to={`/forum/detail/${questionId}#answer-${answer.id}`}

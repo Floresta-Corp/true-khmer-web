@@ -1,7 +1,7 @@
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, MessageCircle } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import SlideToLeftHoverAnimation from "~/components/slide-to-left-hover-animation";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
@@ -9,6 +9,7 @@ import { Button } from "~/components/ui/button";
 import AskQuestionDialog from "~/features/forum/components/dialog/ask-question-dialog";
 import DeleteQuestionDialog from "~/features/forum/components/dialog/delete-question-dialog";
 import ShareQuestionDialog from "~/features/forum/components/dialog/share-question-dialog";
+import QuestionVoteComponent from "~/features/forum/components/question-vote-component";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL, cn } from "~/lib/utils";
 import type { QuestionResponse } from "~/types/api-client";
@@ -26,6 +27,11 @@ export default function WorkspaceQuestionItem({
   categories,
 }: Props) {
   const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
+  const handleGoToDetail = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/forum/detail/${question.id}`);
+  };
   const createdAgoLabel = formatMinutesOrHoursAgo(question.createdAt);
   const profileImage = question.author?.avatarKey
     ? resolveImageURL(question.author.avatarKey)
@@ -155,8 +161,26 @@ export default function WorkspaceQuestionItem({
       {/* Divider */}
       <div className="border-t border-[#f9fafb] my-3 sm:my-4" />
 
-      {/* Footer with share */}
+      {/* Footer with vote, answer count, and share */}
       <div className="flex items-center gap-2 sm:gap-3.5 shrink-0">
+        <QuestionVoteComponent question={question} className="h-7.5" />
+
+        <button
+          aria-label={`${question.answerCount} answers`}
+          onClick={handleGoToDetail}
+          className="group inline-flex items-center gap-2 text-xs font-medium text-[#48566A] text-[14px] rounded-lg cursor-pointer transition-colors hover:text-blue-600"
+        >
+          <MessageCircle
+            size={20}
+            className="text-[#48566A] group-hover:text-blue-600 transition-colors"
+          />
+          <span>
+            {question.answerCount}
+            <span className="hidden sm:inline"> answers</span>
+            <span className="sm:hidden"> ans</span>
+          </span>
+        </button>
+
         <ShareQuestionDialog question={question} />
       </div>
     </motion.article>

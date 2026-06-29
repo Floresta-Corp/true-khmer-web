@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Loader2, UserPlus, X } from "lucide-react";
 import {
@@ -17,6 +17,7 @@ interface InviteMemberModalProps {
   onClose: () => void;
   onSend: (data: { email: string; role: string }) => void;
   isLoading: boolean;
+  serverError?: string | null;
 }
 
 const ROLE_OPTIONS = [
@@ -29,10 +30,20 @@ export function InviteMemberModal({
   onClose,
   onSend,
   isLoading = false,
+  serverError = null,
 }: InviteMemberModalProps) {
   const [inviteEmail, setInviteEmail] = useState("");
   const [role, setRole] = useState(ROLE_OPTIONS[1].value);
   const [emailError, setEmailError] = useState<string | null>(null);
+
+  // Reset local state whenever the modal is closed (success or cancel).
+  useEffect(() => {
+    if (!isOpen) {
+      setInviteEmail("");
+      setRole(ROLE_OPTIONS[1].value);
+      setEmailError(null);
+    }
+  }, [isOpen]);
 
   const handleSend = () => {
     if (isLoading) return;
@@ -50,22 +61,15 @@ export function InviteMemberModal({
 
     setEmailError(null);
     onSend({ email: normalizedEmail, role });
-    if (!isLoading) {
-      setInviteEmail("");
-      setRole(ROLE_OPTIONS[1].value);
-    }
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInviteEmail(e.target.value);
-    if (emailError) {
-      setEmailError(null);
-    }
+    if (emailError) setEmailError(null);
   };
 
   const handleClose = () => {
     if (isLoading) return;
-    setEmailError(null);
     onClose();
   };
 
@@ -154,6 +158,12 @@ export function InviteMemberModal({
               </SelectContent>
             </Select>
           </div>
+
+          {serverError && (
+            <p className="text-xs font-semibold text-red-500 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl px-4 py-3">
+              {serverError}
+            </p>
+          )}
 
           <div className="pt-6 flex gap-4">
             <Button
