@@ -11,7 +11,8 @@ interface InviteMemberFlowProps {
 
 export function InviteMemberFlow({ isOpen, onClose }: InviteMemberFlowProps) {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const inviteFetcher = useFetcher();
+  const [fetcherKey, setFetcherKey] = useState(0);
+  const inviteFetcher = useFetcher({ key: `invite-flow-${fetcherKey}` });
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
 
@@ -21,7 +22,6 @@ export function InviteMemberFlow({ isOpen, onClose }: InviteMemberFlowProps) {
         "Failed to send invitation. Please try again.")
       : null;
 
-  // useEffect is correct here: calling onClose() is a side-effect of an async server response
   useEffect(() => {
     if (inviteFetcher.state === "idle" && inviteFetcher.data?.ok) {
       onCloseRef.current();
@@ -39,11 +39,16 @@ export function InviteMemberFlow({ isOpen, onClose }: InviteMemberFlowProps) {
       },
     );
 
+  const handleClose = () => {
+    setFetcherKey((k) => k + 1);
+    onClose();
+  };
+
   return (
     <>
       <InviteMemberModal
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={handleClose}
         onSend={handleSend}
         isLoading={inviteFetcher.state !== "idle"}
         serverError={inviteError}
