@@ -206,18 +206,14 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
-    if (
-      inviteFetcher.state === "idle" &&
-      inviteFetcher.data &&
-      lastIntent.current === "invite"
-    ) {
-      if (inviteFetcher.data.ok) {
+    if (inviteFetcher.state === "idle" && lastIntent.current === "invite") {
+      if (inviteFetcher.data?.ok) {
         setShowInviteModal(false);
         setShowInviteSuccessModal(true);
         setInviteError(null);
       } else {
         setInviteError(
-          inviteFetcher.data.message ?? "Failed to send invitation. Please try again.",
+          inviteFetcher.data?.message ?? "Failed to send invitation. Please try again.",
         );
       }
       lastIntent.current = null;

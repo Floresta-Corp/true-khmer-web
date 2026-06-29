@@ -27,6 +27,7 @@ export default function ManageModeratorPage() {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [fetcherError, setFetcherError] = useState<string | null>(null);
+  const [inviteError, setInviteError] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState(searchParams.get("search") ?? "");
   const lastIntent = useRef<string | null>(null);
 
@@ -42,6 +43,7 @@ export default function ManageModeratorPage() {
 
   const handleSendInvitation = (data: { email: string; role: string }) => {
     lastIntent.current = "invite";
+    setInviteError(null);
     const formData = new FormData();
     formData.append("intent", "invite");
     formData.append("email", data.email);
@@ -94,11 +96,15 @@ export default function ManageModeratorPage() {
   };
 
   useEffect(() => {
-    if (fetcher.state === "idle" && fetcher.data) {
-      if (fetcher.data.ok) {
-        if (lastIntent.current === "invite") {
+    if (fetcher.state === "idle" && lastIntent.current !== null) {
+      const intent = lastIntent.current;
+      lastIntent.current = null;
+
+      if (fetcher.data?.ok) {
+        if (intent === "invite") {
           setShowSuccessModal(true);
           setShowInviteModal(false);
+          setInviteError(null);
         }
         setFetcherError(null);
       } else {
@@ -107,10 +113,14 @@ export default function ManageModeratorPage() {
           remove: "remove member",
           "update-role": "update moderator role",
         };
-        const action = actions[lastIntent.current ?? ""] ?? "perform action";
-        setFetcherError(fetcher.data.message ?? `Failed to ${action}. Please try again.`);
+        const label = actions[intent] ?? "perform action";
+        const message = fetcher.data?.message ?? `Failed to ${label}. Please try again.`;
+        if (intent === "invite") {
+          setInviteError(message);
+        } else {
+          setFetcherError(message);
+        }
       }
-      lastIntent.current = null;
     }
   }, [fetcher.data, fetcher.state]);
 
@@ -164,9 +174,13 @@ export default function ManageModeratorPage() {
 
       <InviteMemberModal
         isOpen={showInviteModal}
-        isLoading={fetcher.state !== "idle" && lastIntent.current === "invite"}
-        onClose={() => setShowInviteModal(false)}
+        isLoading={fetcher.state !== "idle"}
+        onClose={() => {
+          setShowInviteModal(false);
+          setInviteError(null);
+        }}
         onSend={handleSendInvitation}
+        serverError={inviteError}
       />
 
       <InviteSuccessModal
