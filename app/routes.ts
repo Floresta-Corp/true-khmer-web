@@ -131,16 +131,30 @@ export default [
     "routes/api/api.uploads.avatar.presign.tsx",
   ),
   route("api/me", "routes/api/api.me.tsx"),
-  route("api/myspace/skills/search", "routes/api/myspace/skills-search.ts"),
-  route("api/launchpad/apply", "routes/api/api.launchpad.apply.ts"),
-  route("api/launchpad/batch-apply", "routes/api/api.launchpad.batch-apply.ts"),
-  route("api/launchpad/save", "routes/api/api.launchpad.save.ts"),
-  route("api/notifications", "routes/api/api.notifications.ts"),
-  route("api/notifications/stream", "routes/api/api.notifications.stream.ts"),
-  route("api/notifications/read", "routes/api/api.notifications.read.ts"),
+  route(
+    "api/myspace/skills/search",
+    "features/myspace/route/myspace.skills-search.ts",
+  ),
+  route(
+    "api/launchpad/batch-apply",
+    "features/launchpad/route/launchpad.batch-apply.ts",
+  ),
+  route("api/launchpad/save", "features/launchpad/route/launchpad.save.ts"),
+  route("api/notifications", "features/notifications/route/notifications.feed.ts"),
+  route(
+    "api/notifications/stream",
+    "features/notifications/route/notifications.stream.ts",
+  ),
+  route(
+    "api/notifications/read",
+    "features/notifications/route/notifications.read.ts",
+  ),
   route(
     "api/notifications/read/all",
-    "routes/api/api.notifications.read.all.ts",
+    "features/notifications/route/notifications.read.all.ts",
   ),
-  route("api/candidate-note", "routes/api/api.candidate-note.ts"),
+  route(
+    "api/candidate-note",
+    "features/manage-post/route/manage-post.candidate-note.ts",
+  ),
 ] satisfies RouteConfig;
