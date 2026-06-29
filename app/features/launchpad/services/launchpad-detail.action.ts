@@ -4,7 +4,6 @@ import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
 import {
   uploadApplicationDocumentPresign,
-  applyForLaunchpadRole,
   applyForLaunchpadRolesBatch,
 } from "~/api/launchpad/launchpad.server";
 
@@ -208,67 +207,6 @@ async function collectDocumentUploads(
   return { documentKeys, documentNames };
 }
 
-async function submitSingleLaunchpadApplication(
-  request: Request,
-  formData: FormData,
-) {
-  const launchpadId = formData.get("launchpadId");
-  const launchpadRoleId = formData.get("launchpadRoleId");
-  const motivation = formData.get("motivation");
-  const portfolio = formData.get("portfolio");
-
-  if (!launchpadId || typeof launchpadId !== "string") {
-    return { error: "Missing launchpad ID" };
-  }
-  if (!launchpadRoleId || typeof launchpadRoleId !== "string") {
-    return { error: "Missing role selection" };
-  }
-  if (
-    !motivation ||
-    typeof motivation !== "string" ||
-    motivation.trim().length < 5
-  ) {
-    return { error: "Motivation must be at least 5 characters" };
-  }
-
-  const launchpadIdValue = launchpadId.trim();
-  const portfolioValue =
-    typeof portfolio === "string" && portfolio.trim()
-      ? portfolio.trim()
-      : undefined;
-
-  const documentFiles = formData
-    .getAll("documentFiles")
-    .filter((v): v is File => v instanceof File && v.size > 0);
-
-  if (documentFiles.length > 5) {
-    return { error: "Maximum 5 documents allowed" };
-  }
-
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-  for (const file of documentFiles) {
-    if (file.size > MAX_FILE_SIZE) {
-      return { error: "Each document must be under 10MB" };
-    }
-  }
-
-  const { documentKeys, documentNames } = await collectDocumentUploads(
-    request,
-    launchpadIdValue,
-    documentFiles,
-  );
-
-  await applyForLaunchpadRole(request, launchpadIdValue, {
-    launchpadRoleId,
-    motivation: motivation.trim(),
-    portfolio: portfolioValue,
-    documentKeys,
-    documentNames,
-  });
-
-  return { success: true };
-}
-
 async function submitBatchLaunchpadApplication(
   request: Request,
   formData: FormData,
@@ -349,32 +287,6 @@ async function submitBatchLaunchpadApplication(
   });
 
   return { success: true };
-}
-
-export async function launchpadApplyAction({ request }: ActionFunctionArgs) {
-  const auth = await requireUser(request);
-  const formData = await request.formData();
-  try {
-    const hasBatchFields =
-      readStringArrayField(formData, "launchpadRoleIds").length > 0 ||
-      readStringArrayField(formData, "roleIds").length > 0 ||
-      typeof formData.get("relevantExperience") === "string";
-
-    const result = hasBatchFields
-      ? await submitBatchLaunchpadApplication(request, formData)
-      : await submitSingleLaunchpadApplication(request, formData);
-    return withAuthData(auth, result);
-  } catch (error) {
-    if (error instanceof ProtectedApiError) {
-      return withAuthData(auth, {
-        error:
-          error.message || "Failed to submit application. Please try again.",
-      });
-    }
-    return withAuthData(auth, {
-      error: "Failed to submit application. Please try again.",
-    });
-  }
 }
 
 export async function batchApplyAction({ request }: ActionFunctionArgs) {
