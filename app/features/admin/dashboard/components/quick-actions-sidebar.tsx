@@ -25,7 +25,7 @@ export function QuickActionsSidebar({ actions }: QuickActionsSidebarProps) {
           <QuickActionButton key={action.id} action={action} />
         ))}
       </div>
-      <div className="p-5">
+      {/* <div className="p-5">
         <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-(--admin-border) dark:border-slate-800/50">
           <p className="text-[10px] font-black text-(--admin-text-secondary) uppercase tracking-widest mb-2">
             System status
@@ -37,7 +37,7 @@ export function QuickActionsSidebar({ actions }: QuickActionsSidebarProps) {
             </span>
           </div>
         </div>
-      </div>
+      </div> */}
     </motion.div>
   );
 }

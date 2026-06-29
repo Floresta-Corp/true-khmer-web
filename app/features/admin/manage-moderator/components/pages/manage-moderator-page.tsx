@@ -47,7 +47,6 @@ export default function ManageModeratorPage() {
     formData.append("email", data.email);
     formData.append("role", data.role);
     fetcher.submit(formData, { method: "post" });
-    setShowInviteModal(false);
   };
 
   const handleCursor = (cursor: string | null) => {

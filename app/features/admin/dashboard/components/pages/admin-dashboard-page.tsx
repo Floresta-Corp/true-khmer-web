@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useLoaderData } from "react-router";
-import { Users, Handshake, ShieldAlert, Building2, UserCog, Bell } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useFetcher, useLoaderData } from "react-router";
+import { Users, Handshake, ShieldAlert, UserCog, Bell } from "lucide-react";
 
 import { KpiCard } from "../kpi-card";
 import { QuickActionsSidebar } from "../quick-actions-sidebar";
@@ -10,6 +10,8 @@ import { GenderBreakdownChart } from "../gender-breakdown-chart";
 import { AgeGroupsChart } from "../age-groups-chart";
 import { PartnerSectorsChart } from "../partner-sectors-chart";
 import { SendNotificationDialog } from "~/features/admin/notifications/components/send-notification-dialog";
+import { InviteMemberModal } from "~/features/admin/manage-moderator/components/invite-member-modal";
+import { InviteSuccessModal } from "~/features/admin/manage-moderator/components/invite-success-modal";
 import type { adminDashboardLoader } from "../../services/admin-dashboard.loader";
 import type {
   AdminDashboardData,
@@ -58,24 +60,31 @@ const GENDER_COLORS: Record<string, string> = {
 const GENDER_FALLBACK_COLORS = ["#8b5cf6", "#10b981", "#f59e0b", "#06b6d4"];
 
 const SECTOR_COLORS = [
-  "#8b5cf6", "#10b981", "#f59e0b", "#3b82f6", "#ec4899", "#06b6d4", "#f43f5e",
+  "#8b5cf6",
+  "#10b981",
+  "#f59e0b",
+  "#3b82f6",
+  "#ec4899",
+  "#06b6d4",
+  "#f43f5e",
 ];
 
 const BASE_QUICK_ACTIONS: Omit<QuickAction, "onClick">[] = [
-  {
-    id: "add-partner",
-    label: "Add Partner",
-    subtitle: "New Ecosystem Entry",
-    icon: Building2,
-    iconClass: "bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400",
-    to: "/tk-admin/partner/add",
-  },
+  // {
+  //   id: "add-partner",
+  //   label: "Add Partner",
+  //   subtitle: "New Ecosystem Entry",
+  //   icon: Building2,
+  //   iconClass: "bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400",
+  //   to: "/tk-admin/partner/add",
+  // },
   {
     id: "invite-team",
     label: "Invite Team",
     subtitle: "Collaborator Access",
     icon: UserCog,
-    iconClass: "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400",
+    iconClass:
+      "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400",
     to: "/tk-admin/team/invite",
   },
   {
@@ -83,7 +92,8 @@ const BASE_QUICK_ACTIONS: Omit<QuickAction, "onClick">[] = [
     label: "Send Notification",
     subtitle: "Platform Broadcast",
     icon: Bell,
-    iconClass: "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400",
+    iconClass:
+      "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400",
   },
 ];
 
@@ -91,45 +101,82 @@ const BASE_QUICK_ACTIONS: Omit<QuickAction, "onClick">[] = [
 function toStats(summary: AdminDashboardData["summary"]): StatItem[] {
   const values: Record<string, number | null> = {
     users: summary.totalUsers,
-    partners: typeof summary.totalPartners === "number" ? summary.totalPartners : null,
+    partners:
+      typeof summary.totalPartners === "number" ? summary.totalPartners : null,
     reports: summary.openReports,
   };
   return STAT_META.map((meta) => {
     const value = values[meta.id];
-    return { ...meta, value: typeof value === "number" ? value.toLocaleString("en-US") : "—" };
+    return {
+      ...meta,
+      value: typeof value === "number" ? value.toLocaleString("en-US") : "—",
+    };
   });
 }
 
-function toRegistrationData(newRegistrations: AdminDashboardData["newRegistrations"]): ChartBarItem[] {
+function toRegistrationData(
+  newRegistrations: AdminDashboardData["newRegistrations"],
+): ChartBarItem[] {
   const peak = Math.max(...newRegistrations.trend.map((p) => p.count));
-  return newRegistrations.trend.map((p) => ({ day: p.label, value: p.count, highlight: p.count === peak }));
-}
-
-function toActiveUsersData(activeUsers: AdminDashboardData["activeUsers"]): ActiveUserPoint[] {
-  return activeUsers.trend.map((p) => ({ time: p.label, value: p.count }));
-}
-
-function toGenderData(demographics: AdminDashboardData["demographics"]): GenderItem[] {
-  return demographics.genderBreakdown.map((item, i) => ({
-    name: item.label,
-    value: item.count,
-    color: GENDER_COLORS[item.label.toLowerCase()] ?? GENDER_FALLBACK_COLORS[i % GENDER_FALLBACK_COLORS.length],
+  return newRegistrations.trend.map((p) => ({
+    day: p.label,
+    value: p.count,
+    highlight: p.count === peak,
   }));
 }
 
-function toAgeData(demographics: AdminDashboardData["demographics"]): AgeItem[] {
-  return demographics.ageGroups.map((item) => ({ range: item.label, value: item.count }));
+function toActiveUsersData(
+  activeUsers: AdminDashboardData["activeUsers"],
+): ActiveUserPoint[] {
+  return activeUsers.trend.map((p) => ({ time: p.label, value: p.count }));
 }
 
-function toSectorData(partners: AdminDashboardData["partners"]): PartnerSector[] {
+function toGenderData(
+  demographics: AdminDashboardData["demographics"],
+): GenderItem[] {
+  return demographics.genderBreakdown.map((item, i) => ({
+    name: item.label,
+    value: item.count,
+    color:
+      GENDER_COLORS[item.label.toLowerCase()] ??
+      GENDER_FALLBACK_COLORS[i % GENDER_FALLBACK_COLORS.length],
+  }));
+}
+
+function toAgeData(
+  demographics: AdminDashboardData["demographics"],
+): AgeItem[] {
+  return demographics.ageGroups.map((item) => ({
+    range: item.label,
+    value: item.count,
+  }));
+}
+
+function toSectorData(
+  partners: AdminDashboardData["partners"],
+): PartnerSector[] {
   if (!Array.isArray(partners.sectors)) return [];
   return partners.sectors.reduce<PartnerSector[]>((acc, raw, i) => {
     if (typeof raw !== "object" || raw === null) return acc;
     const { label, name, count, value } = raw as Record<string, unknown>;
-    const sectorName = typeof label === "string" ? label : typeof name === "string" ? name : null;
-    const sectorValue = typeof count === "number" ? count : typeof value === "number" ? value : null;
+    const sectorName =
+      typeof label === "string"
+        ? label
+        : typeof name === "string"
+          ? name
+          : null;
+    const sectorValue =
+      typeof count === "number"
+        ? count
+        : typeof value === "number"
+          ? value
+          : null;
     if (sectorName !== null && sectorValue !== null) {
-      acc.push({ name: sectorName, value: sectorValue, color: SECTOR_COLORS[i % SECTOR_COLORS.length] });
+      acc.push({
+        name: sectorName,
+        value: sectorValue,
+        color: SECTOR_COLORS[i % SECTOR_COLORS.length],
+      });
     }
     return acc;
   }, []);
@@ -139,6 +186,36 @@ function toSectorData(partners: AdminDashboardData["partners"]): PartnerSector[]
 export default function AdminDashboardPage() {
   const { dashboard } = useLoaderData<typeof adminDashboardLoader>();
   const [showNotificationDialog, setShowNotificationDialog] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showInviteSuccessModal, setShowInviteSuccessModal] = useState(false);
+  const inviteFetcher = useFetcher();
+  const lastIntent = useRef<string | null>(null);
+
+  const handleSendInvitation = (data: { email: string; role: string }) => {
+    lastIntent.current = "invite";
+    const formData = new FormData();
+    formData.append("intent", "invite");
+    formData.append("email", data.email);
+    formData.append("role", data.role);
+    inviteFetcher.submit(formData, {
+      method: "post",
+      action: "/tk-admin/manage-moderator/team",
+    });
+  };
+
+  useEffect(() => {
+    if (
+      inviteFetcher.state === "idle" &&
+      inviteFetcher.data &&
+      lastIntent.current === "invite"
+    ) {
+      if (inviteFetcher.data.ok) {
+        setShowInviteModal(false);
+        setShowInviteSuccessModal(true);
+      }
+      lastIntent.current = null;
+    }
+  }, [inviteFetcher.data, inviteFetcher.state]);
 
   const stats = toStats(dashboard.summary);
   const registrationData = toRegistrationData(dashboard.newRegistrations);
@@ -146,18 +223,27 @@ export default function AdminDashboardPage() {
   const genderData = toGenderData(dashboard.demographics);
   const ageData = toAgeData(dashboard.demographics);
   const sectorData = toSectorData(dashboard.partners);
-  const showPartnerSectors = dashboard.partners.total !== null && sectorData.length > 0;
+  const showPartnerSectors =
+    dashboard.partners.total !== null && sectorData.length > 0;
 
-  const quickActions: QuickAction[] = BASE_QUICK_ACTIONS.map((action) =>
-    action.id === "send-notification"
-      ? { ...action, onClick: () => setShowNotificationDialog(true) }
-      : action,
-  );
+  const quickActions: QuickAction[] = BASE_QUICK_ACTIONS.map((action) => {
+    if (action.id === "send-notification")
+      return { ...action, onClick: () => setShowNotificationDialog(true) };
+    if (action.id === "invite-team")
+      return {
+        ...action,
+        to: undefined,
+        onClick: () => setShowInviteModal(true),
+      };
+    return action;
+  });
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-(--admin-text)">Admin Dashboard</h1>
+        <h1 className="text-2xl font-bold text-(--admin-text)">
+          Admin Dashboard
+        </h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -175,10 +261,15 @@ export default function AdminDashboardPage() {
               data={registrationData}
               changePercent={dashboard.newRegistrations.changePercent}
             />
-            <ActiveUsersChart data={activeUsersData} liveNow={dashboard.activeUsers.liveNow} />
+            <ActiveUsersChart
+              data={activeUsersData}
+              liveNow={dashboard.activeUsers.liveNow}
+            />
           </div>
 
-          <div className={`grid grid-cols-1 gap-6 ${showPartnerSectors ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
+          <div
+            className={`grid grid-cols-1 gap-6 ${showPartnerSectors ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}
+          >
             <GenderBreakdownChart data={genderData} />
             <AgeGroupsChart data={ageData} />
             {showPartnerSectors && <PartnerSectorsChart data={sectorData} />}
@@ -189,6 +280,20 @@ export default function AdminDashboardPage() {
       <SendNotificationDialog
         show={showNotificationDialog}
         onClose={() => setShowNotificationDialog(false)}
+      />
+
+      <InviteMemberModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        onSend={handleSendInvitation}
+        isLoading={
+          inviteFetcher.state !== "idle" && lastIntent.current === "invite"
+        }
+      />
+
+      <InviteSuccessModal
+        isOpen={showInviteSuccessModal}
+        onClose={() => setShowInviteSuccessModal(false)}
       />
     </div>
   );
