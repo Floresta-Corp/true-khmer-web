@@ -476,7 +476,7 @@ export function onboardingPathForStep(step: number) {
 }
 
 export function destinationFromOnboardingState(state: OnboardingState) {
-  return state.completed ? "/home" : onboardingPathForStep(state.currentStep);
+  return state.completed ? "/" : onboardingPathForStep(state.currentStep);
 }
 
 export async function getOnboardingState(

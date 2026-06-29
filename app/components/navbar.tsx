@@ -100,7 +100,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
             {user ? (
               <>
                 {/* Notification icons */}
-                <Button
+                {/* <Button
                   variant="ghost"
                   size="icon"
                   asChild
@@ -110,7 +110,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                   <Link to="/messages">
                     <Mail className="h-4 w-4" />
                   </Link>
-                </Button>
+                </Button> */}
                 <NotificationBellPopOver />
                 {/* User dropdown */}
                 <ProfileDropDown user={user} />

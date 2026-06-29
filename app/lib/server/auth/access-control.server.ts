@@ -25,7 +25,7 @@ type AccessRoutes = {
 const DEFAULT_ACCESS_ROUTES = {
   signup: "/complete-signup",
   onboarding: "/onboarding/profile",
-  active: "/home",
+  active: "/",
 } satisfies AccessRoutes;
 
 export function isAccessState(value: unknown): value is AccessState {
@@ -45,7 +45,9 @@ export function isRequiredAction(value: unknown): value is RequiredAction {
 }
 
 export function isAuthNextStep(value: unknown): value is AuthNextStep {
-  return value === "COMPLETE_SIGNUP" || value === "ONBOARDING" || value === "APP";
+  return (
+    value === "COMPLETE_SIGNUP" || value === "ONBOARDING" || value === "APP"
+  );
 }
 
 export function accessStateFromAuthFlow(authFlow: AuthFlow): AccessState {
@@ -85,15 +87,20 @@ export function routeForAccessState(
   return resolvedRoutes.active;
 }
 
-export function routeForAuthFlow(authFlow: AuthFlow | undefined, fallback = "/") {
+export function routeForAuthFlow(
+  authFlow: AuthFlow | undefined,
+  fallback = "/",
+) {
   if (!authFlow) return fallback;
 
   if (authFlow.accessState) {
     return routeForAccessState(authFlow.accessState, { active: fallback });
   }
 
-  if (authFlow.nextStep === "COMPLETE_SIGNUP") return DEFAULT_ACCESS_ROUTES.signup;
-  if (authFlow.nextStep === "ONBOARDING") return DEFAULT_ACCESS_ROUTES.onboarding;
+  if (authFlow.nextStep === "COMPLETE_SIGNUP")
+    return DEFAULT_ACCESS_ROUTES.signup;
+  if (authFlow.nextStep === "ONBOARDING")
+    return DEFAULT_ACCESS_ROUTES.onboarding;
   return fallback;
 }
 

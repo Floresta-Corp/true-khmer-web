@@ -260,7 +260,7 @@ export async function requireOnboarding(
     const { state } = onboardingResult;
     const setCookie = onboardingResult.setCookie ?? authSessionResult.setCookie;
     if (state.completed) {
-      throw redirectWithCookie("/home", setCookie);
+      throw redirectWithCookie("/", setCookie);
     }
 
     return {
