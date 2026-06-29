@@ -18,8 +18,9 @@ export default function ShareQuestionButton({
       typeof window !== "undefined" && window.location.hash
         ? window.location.hash
         : "";
+    const encodedHash = hash ? `#${hash.slice(1)}`.replace(/ /g, "%20") : "";
     await copyToClipboard(
-      buildAbsoluteUrl(`/forum/detail/${question.id}${hash}`),
+      buildAbsoluteUrl(`/forum/detail/${question.id}${encodedHash}`),
     );
   };
 
