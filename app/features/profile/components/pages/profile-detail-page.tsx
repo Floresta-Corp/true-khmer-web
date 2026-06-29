@@ -38,9 +38,10 @@ export default function ProfileDetailPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const initialPosted = data.kind === "profile" && "initialPosted" in data
-    ? data.initialPosted
-    : undefined;
+  const initialPosted =
+    data.kind === "profile" && "initialPosted" in data
+      ? data.initialPosted
+      : undefined;
 
   const {
     accumulated,

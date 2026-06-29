@@ -77,7 +77,7 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
 
   const fetcherData =
     postedFetcher.data?.kind === "posted"
-      ? postedFetcher.data.postedContent
+      ? postedFetcher.data.posted
       : null;
 
   const isLoading = postedFetcher.state === "loading";
@@ -142,7 +142,9 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
               defaultValue="about"
               onValueChange={(value) => {
                 if (value !== "about" && userId) {
-                  postedFetcher.load(`/profile/${userId}?sourceType=${value}`);
+                  postedFetcher.load(
+                    `/profile/${userId}?sourceType=${value}&_intent=client`,
+                  );
                 }
               }}
             >
