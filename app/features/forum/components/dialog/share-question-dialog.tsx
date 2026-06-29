@@ -14,7 +14,13 @@ export default function ShareQuestionButton({
   if (!question) return null;
 
   const handleCopy = async () => {
-    await copyToClipboard(buildAbsoluteUrl(`/forum/detail/${question.id}`));
+    const hash =
+      typeof window !== "undefined" && window.location.hash
+        ? window.location.hash
+        : "";
+    await copyToClipboard(
+      buildAbsoluteUrl(`/forum/detail/${question.id}${hash}`),
+    );
   };
 
   return (

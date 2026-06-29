@@ -14,7 +14,10 @@ const AuthRegisterRequest = z
       .max(100)
       .regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u),
     gender: z.enum(["male", "female", "other"]),
-    dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    dateOfBirth: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .nullish(),
     occupation: z.string().min(1).max(120),
     phone: z.object({
       country: z.string().min(2).max(2),
@@ -104,7 +107,10 @@ const AuthCompleteSignUpRequest = z
       .max(100)
       .regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u),
     gender: z.enum(["male", "female", "other"]),
-    dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    dateOfBirth: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .nullish(),
     occupation: z.string().min(1).max(120),
     phone: z.object({
       country: z.string().min(2).max(2),
@@ -276,25 +282,6 @@ const AuthChangePasswordRequest = z
   })
   ;
 const ChangePasswordResponse = z
-  .object({ success: z.literal(true), message: z.string() })
-  ;
-const RequestSetPasswordOtpResponse = z
-  .object({ success: z.literal(true), message: z.string() })
-  ;
-const AuthVerifySetPasswordOtpRequest = z
-  .object({ otp: z.string().regex(/^\d{6}$/) })
-  ;
-const VerifySetPasswordOtpResponse = z
-  .object({ success: z.literal(true), message: z.string(), token: z.string() })
-  ;
-const AuthSetPasswordRequest = z
-  .object({
-    token: z.string().min(1),
-    newPassword: z.string().min(8).regex(/^\S+$/),
-    confirmPassword: z.string().min(1),
-  })
-  ;
-const SetPasswordResponse = z
   .object({ success: z.literal(true), message: z.string() })
   ;
 const AdminLoginRequest = z
@@ -1270,7 +1257,7 @@ const VolunteerOpportunityOrganizerResponse = z
     name: z.string(),
     avatarKey: z.string().nullable(),
     opportunityCount: z.number(),
-    organizerLocation: VolunteerOpportunityReference.and(z.unknown()),
+    organizerLocation: VolunteerOpportunityReference.nullable(),
     contact: VolunteerOpportunityContactResponse,
   })
   ;
@@ -2059,7 +2046,7 @@ const MyApplicationItem = z
     category: MyApplicationReference.nullable(),
     location: MyApplicationReference.nullable(),
     roles: z.array(MyApplicationRole),
-    approvedRole: MyApplicationRole.and(z.unknown()),
+    approvedRole: MyApplicationRole.nullable(),
   })
   ;
 const MyApplicationsSummary = z
@@ -2150,7 +2137,7 @@ const MyApplicationDetail = z
       })
       ,
     roles: z.array(MyApplicationRoleDetail),
-    approvedRole: MyApplicationRole.and(z.unknown()),
+    approvedRole: MyApplicationRole.nullable(),
   })
   ;
 const MyApplicationDetailResponse = z
@@ -2973,7 +2960,6 @@ const patchV1notificationsread_Body = z
   .object({ notificationIds: z.array(z.string().uuid()).min(1) })
   ;
 
-
 export const schemas = {
   AuthRegisterRequest,
   AuthUserProfile,
@@ -3015,11 +3001,6 @@ export const schemas = {
   ResetPasswordResponse,
   AuthChangePasswordRequest,
   ChangePasswordResponse,
-  RequestSetPasswordOtpResponse,
-  AuthVerifySetPasswordOtpRequest,
-  VerifySetPasswordOtpResponse,
-  AuthSetPasswordRequest,
-  SetPasswordResponse,
   AdminLoginRequest,
   AdminLoginOtpChallengeResponse,
   AdminErrorResponse,
@@ -4402,82 +4383,6 @@ const endpoints = makeApi([
     requestFormat: "json",
     response: AuthSessionResponse,
     errors: [
-      {
-        status: 401,
-        description: `Unauthorized`,
-        schema: AuthProtectedErrorResponse,
-      },
-    ],
-  },
-  {
-    method: "post",
-    path: "/v1/auth/set-password",
-    alias: "postV1authsetPassword",
-    requestFormat: "json",
-    parameters: [
-      {
-        name: "body",
-        type: "Body",
-        schema: AuthSetPasswordRequest,
-      },
-    ],
-    response: SetPasswordResponse,
-    errors: [
-      {
-        status: 400,
-        description: `Validation failed`,
-        schema: z.object({ error: z.string() }),
-      },
-      {
-        status: 401,
-        description: `Unauthorized`,
-        schema: AuthProtectedErrorResponse,
-      },
-    ],
-  },
-  {
-    method: "post",
-    path: "/v1/auth/set-password/request-otp",
-    alias: "postV1authsetPasswordrequestOtp",
-    requestFormat: "json",
-    response: RequestSetPasswordOtpResponse,
-    errors: [
-      {
-        status: 400,
-        description: `Validation failed`,
-        schema: z.object({ error: z.string() }),
-      },
-      {
-        status: 401,
-        description: `Unauthorized`,
-        schema: AuthProtectedErrorResponse,
-      },
-      {
-        status: 500,
-        description: `Failed to send OTP`,
-        schema: z.object({ error: z.string() }),
-      },
-    ],
-  },
-  {
-    method: "post",
-    path: "/v1/auth/set-password/verify-otp",
-    alias: "postV1authsetPasswordverifyOtp",
-    requestFormat: "json",
-    parameters: [
-      {
-        name: "body",
-        type: "Body",
-        schema: z.object({ otp: z.string().regex(/^\d{6}$/) }),
-      },
-    ],
-    response: VerifySetPasswordOtpResponse,
-    errors: [
-      {
-        status: 400,
-        description: `Invalid or expired OTP`,
-        schema: z.object({ error: z.string() }),
-      },
       {
         status: 401,
         description: `Unauthorized`,
@@ -8170,7 +8075,6 @@ const endpoints = makeApi([
   },
 ]);
 
-
 // Generated API schema types
 export type AuthRegisterRequest = z.infer<typeof schemas.AuthRegisterRequest>;
 export type AuthUserProfile = z.infer<typeof schemas.AuthUserProfile>;
@@ -8212,11 +8116,6 @@ export type AuthResetPasswordRequest = z.infer<typeof schemas.AuthResetPasswordR
 export type ResetPasswordResponse = z.infer<typeof schemas.ResetPasswordResponse>;
 export type AuthChangePasswordRequest = z.infer<typeof schemas.AuthChangePasswordRequest>;
 export type ChangePasswordResponse = z.infer<typeof schemas.ChangePasswordResponse>;
-export type RequestSetPasswordOtpResponse = z.infer<typeof schemas.RequestSetPasswordOtpResponse>;
-export type AuthVerifySetPasswordOtpRequest = z.infer<typeof schemas.AuthVerifySetPasswordOtpRequest>;
-export type VerifySetPasswordOtpResponse = z.infer<typeof schemas.VerifySetPasswordOtpResponse>;
-export type AuthSetPasswordRequest = z.infer<typeof schemas.AuthSetPasswordRequest>;
-export type SetPasswordResponse = z.infer<typeof schemas.SetPasswordResponse>;
 export type AdminLoginRequest = z.infer<typeof schemas.AdminLoginRequest>;
 export type AdminLoginOtpChallengeResponse = z.infer<typeof schemas.AdminLoginOtpChallengeResponse>;
 export type AdminErrorResponse = z.infer<typeof schemas.AdminErrorResponse>;
@@ -8431,7 +8330,6 @@ export type postV1notificationssenduser_Body = z.infer<typeof schemas.postV1noti
 export type postV1notificationsbroadcast_Body = z.infer<typeof schemas.postV1notificationsbroadcast_Body>;
 export type patchV1notificationsread_Body = z.infer<typeof schemas.patchV1notificationsread_Body>;
 // End generated API schema types
-
 
 export const api = new Zodios(endpoints);
 
