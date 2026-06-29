@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { useFetcher, useLoaderData } from "react-router";
+import { useState } from "react";
+import { useLoaderData } from "react-router";
 import { Users, Handshake, ShieldAlert, UserCog, Bell } from "lucide-react";
 
 import { KpiCard } from "../kpi-card";
@@ -10,8 +10,7 @@ import { GenderBreakdownChart } from "../gender-breakdown-chart";
 import { AgeGroupsChart } from "../age-groups-chart";
 import { PartnerSectorsChart } from "../partner-sectors-chart";
 import { SendNotificationDialog } from "~/features/admin/notifications/components/send-notification-dialog";
-import { InviteMemberModal } from "~/features/admin/manage-moderator/components/invite-member-modal";
-import { InviteSuccessModal } from "~/features/admin/manage-moderator/components/invite-success-modal";
+import { InviteMemberFlow } from "../invite-member-flow";
 import type { adminDashboardLoader } from "../../services/admin-dashboard.loader";
 import type {
   AdminDashboardData,
@@ -85,7 +84,6 @@ const BASE_QUICK_ACTIONS: Omit<QuickAction, "onClick">[] = [
     icon: UserCog,
     iconClass:
       "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400",
-    to: "/tk-admin/team/invite",
   },
   {
     id: "send-notification",
@@ -187,38 +185,6 @@ export default function AdminDashboardPage() {
   const { dashboard } = useLoaderData<typeof adminDashboardLoader>();
   const [showNotificationDialog, setShowNotificationDialog] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [showInviteSuccessModal, setShowInviteSuccessModal] = useState(false);
-  const [inviteError, setInviteError] = useState<string | null>(null);
-  const inviteFetcher = useFetcher();
-  const lastIntent = useRef<string | null>(null);
-
-  const handleSendInvitation = (data: { email: string; role: string }) => {
-    lastIntent.current = "invite";
-    setInviteError(null);
-    const formData = new FormData();
-    formData.append("intent", "invite");
-    formData.append("email", data.email);
-    formData.append("role", data.role);
-    inviteFetcher.submit(formData, {
-      method: "post",
-      action: "/tk-admin/manage-moderator/team",
-    });
-  };
-
-  useEffect(() => {
-    if (inviteFetcher.state === "idle" && lastIntent.current === "invite") {
-      if (inviteFetcher.data?.ok) {
-        setShowInviteModal(false);
-        setShowInviteSuccessModal(true);
-        setInviteError(null);
-      } else {
-        setInviteError(
-          inviteFetcher.data?.message ?? "Failed to send invitation. Please try again.",
-        );
-      }
-      lastIntent.current = null;
-    }
-  }, [inviteFetcher.data, inviteFetcher.state]);
 
   const stats = toStats(dashboard.summary);
   const registrationData = toRegistrationData(dashboard.newRegistrations);
@@ -285,22 +251,9 @@ export default function AdminDashboardPage() {
         onClose={() => setShowNotificationDialog(false)}
       />
 
-      <InviteMemberModal
+      <InviteMemberFlow
         isOpen={showInviteModal}
-        onClose={() => {
-          setShowInviteModal(false);
-          setInviteError(null);
-        }}
-        onSend={handleSendInvitation}
-        isLoading={
-          inviteFetcher.state !== "idle" && lastIntent.current === "invite"
-        }
-        serverError={inviteError}
-      />
-
-      <InviteSuccessModal
-        isOpen={showInviteSuccessModal}
-        onClose={() => setShowInviteSuccessModal(false)}
+        onClose={() => setShowInviteModal(false)}
       />
     </div>
   );
