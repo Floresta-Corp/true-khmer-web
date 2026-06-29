@@ -28,7 +28,10 @@ export default function WorkspaceQuestionItem({
 }: Props) {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
-  const handleGoToDetail = () => navigate(`/forum/detail/${question.id}`);
+  const handleGoToDetail = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/forum/detail/${question.id}`);
+  };
   const createdAgoLabel = formatMinutesOrHoursAgo(question.createdAt);
   const profileImage = question.author?.avatarKey
     ? resolveImageURL(question.author.avatarKey)
@@ -163,6 +166,7 @@ export default function WorkspaceQuestionItem({
         <QuestionVoteComponent question={question} className="h-7.5" />
 
         <button
+          aria-label={`${question.answerCount} answers`}
           onClick={handleGoToDetail}
           className="group inline-flex items-center gap-2 text-xs font-medium text-[#48566A] text-[14px] rounded-lg cursor-pointer transition-colors hover:text-blue-600"
         >

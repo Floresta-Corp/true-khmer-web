@@ -188,11 +188,13 @@ export default function AdminDashboardPage() {
   const [showNotificationDialog, setShowNotificationDialog] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showInviteSuccessModal, setShowInviteSuccessModal] = useState(false);
+  const [inviteError, setInviteError] = useState<string | null>(null);
   const inviteFetcher = useFetcher();
   const lastIntent = useRef<string | null>(null);
 
   const handleSendInvitation = (data: { email: string; role: string }) => {
     lastIntent.current = "invite";
+    setInviteError(null);
     const formData = new FormData();
     formData.append("intent", "invite");
     formData.append("email", data.email);
@@ -212,6 +214,11 @@ export default function AdminDashboardPage() {
       if (inviteFetcher.data.ok) {
         setShowInviteModal(false);
         setShowInviteSuccessModal(true);
+        setInviteError(null);
+      } else {
+        setInviteError(
+          inviteFetcher.data.message ?? "Failed to send invitation. Please try again.",
+        );
       }
       lastIntent.current = null;
     }
@@ -284,11 +291,15 @@ export default function AdminDashboardPage() {
 
       <InviteMemberModal
         isOpen={showInviteModal}
-        onClose={() => setShowInviteModal(false)}
+        onClose={() => {
+          setShowInviteModal(false);
+          setInviteError(null);
+        }}
         onSend={handleSendInvitation}
         isLoading={
           inviteFetcher.state !== "idle" && lastIntent.current === "invite"
         }
+        serverError={inviteError}
       />
 
       <InviteSuccessModal
