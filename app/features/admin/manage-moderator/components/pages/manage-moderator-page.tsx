@@ -174,7 +174,7 @@ export default function ManageModeratorPage() {
 
       <InviteMemberModal
         isOpen={showInviteModal}
-        isLoading={fetcher.state !== "idle"}
+        isLoading={fetcher.state !== "idle" && lastIntent.current === "invite"}
         onClose={() => {
           setShowInviteModal(false);
           setInviteError(null);

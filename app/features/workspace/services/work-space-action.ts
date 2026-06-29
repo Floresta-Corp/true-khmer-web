@@ -19,12 +19,21 @@ import {
   runServiceAction,
   type WorkSpaceActionResult,
 } from "./work-space-result";
-import {
-  parseVoteAction,
-  parseAnswerVoteAction,
-} from "~/features/forum/services/forum.vote-helpers";
+import { z } from "zod";
 import { voteForumQuestion } from "~/api/forum/forum-question.server";
 import { voteForumAnswer } from "~/api/forum/forum-answer.server";
+
+const voteTypeEnum = z.enum(["UPVOTE", "DOWNVOTE", "NONE"]);
+
+const voteQuestionSchema = z.object({
+  questionId: z.string().trim().min(1, "Question ID is required."),
+  voteType: voteTypeEnum,
+});
+
+const voteAnswerSchema = z.object({
+  answerId: z.string().trim().min(1, "Answer ID is required."),
+  voteType: voteTypeEnum,
+});
 
 /** Merge the auth cookie with any refreshed-session cookie from the service call. */
 function mergeSetCookie(
@@ -66,20 +75,26 @@ export async function workSpaceAction({ request }: Route.ActionArgs) {
   }
 
   if (actionType === "vote-question") {
-    const parsed = parseVoteAction(formData);
-    if (!parsed.ok) return respond(actionError(parsed.message));
+    const parsed = voteQuestionSchema.safeParse({
+      questionId: String(formData.get("questionId") ?? ""),
+      voteType: String(formData.get("voteType") ?? "").toUpperCase(),
+    });
+    if (!parsed.success) return respond(actionError("Invalid vote data."));
     const { result, setCookie } = await runServiceAction(
-      () => voteForumQuestion(request, parsed.questionId, parsed.voteType),
+      () => voteForumQuestion(request, parsed.data.questionId, parsed.data.voteType),
       { success: "Vote submitted.", error: "Failed to submit vote." },
     );
     return respond(result, setCookie);
   }
 
   if (actionType === "vote-answer") {
-    const parsed = parseAnswerVoteAction(formData);
-    if (!parsed.ok) return respond(actionError(parsed.message));
+    const parsed = voteAnswerSchema.safeParse({
+      answerId: String(formData.get("answerId") ?? ""),
+      voteType: String(formData.get("voteType") ?? "").toUpperCase(),
+    });
+    if (!parsed.success) return respond(actionError("Invalid vote data."));
     const { result, setCookie } = await runServiceAction(
-      () => voteForumAnswer(request, parsed.answerId, parsed.voteType),
+      () => voteForumAnswer(request, parsed.data.answerId, parsed.data.voteType),
       { success: "Vote submitted.", error: "Failed to submit vote." },
     );
     return respond(result, setCookie);
