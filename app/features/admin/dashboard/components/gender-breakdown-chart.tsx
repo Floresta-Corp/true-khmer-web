@@ -7,12 +7,12 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import type { GenderItem } from "../admin-dashboard";
+import type { GenderItem } from "../types";
 import {
   TOOLTIP_STYLE,
   TOOLTIP_CURSOR,
   TEXT_SECONDARY,
-} from "../admin-dashboard";
+} from "../types";
 import { useChartReady } from "./use-chart-ready";
 
 interface GenderBreakdownChartProps {

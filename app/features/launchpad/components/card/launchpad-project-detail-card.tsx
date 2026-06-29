@@ -1,6 +1,6 @@
 import ExpandableText from "~/components/expandable-text";
 import { Separator } from "~/components/ui/separator";
-import type { LaunchpadDetail } from "~/services/launchpad/types/project";
+import type { LaunchpadDetail } from "~/features/launchpad/types";
 
 interface LaunchpadProjectDetailCardProps {
   project: LaunchpadDetail;

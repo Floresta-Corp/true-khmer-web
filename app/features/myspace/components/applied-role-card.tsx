@@ -1,7 +1,7 @@
 import { Badge } from "~/components/ui/badge";
 import { Card, CardContent } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
-import type { ApplicationDetailRole } from "~/services/myspace/types";
+import type { ApplicationDetailRole } from "~/features/myspace/types";
 
 interface AppliedRoleCardProps {
   roles: ApplicationDetailRole[];

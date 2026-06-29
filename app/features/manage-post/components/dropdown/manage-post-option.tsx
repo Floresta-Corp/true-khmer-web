@@ -36,7 +36,7 @@ import type {
   PostingType,
   SourceType,
   UpdateManagePostResponse,
-} from "~/services/manage-post/types";
+} from "~/features/manage-post/types";
 import { Separator } from "~/components/ui/separator";
 import { formatDateMonthYear } from "~/features/events/lib/event-formatters";
 import { addDays, isValid } from "date-fns";

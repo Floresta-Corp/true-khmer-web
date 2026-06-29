@@ -1,5 +1,5 @@
 import { ChevronRight } from "lucide-react";
-import type { RecentActivity } from "~/services/myspace/types/myspace-me-type";
+import type { RecentActivity } from "~/features/myspace/types";
 import {
   getActivityTypeConfig,
   getActivityIconColor,

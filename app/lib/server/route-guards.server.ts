@@ -21,7 +21,7 @@ import {
 } from "~/services/onboarding.server";
 import type { AdminUser } from "~/types/api-client";
 import type { AuthenticatedUser } from "./types";
-import { getAdminMe } from "~/services/api/admin/auth/admin-auth.server";
+import { getAdminMe } from "~/api/admin/auth/admin-auth.server";
 
 type GuardResult = {
   user: AuthenticatedUser;
@@ -260,7 +260,7 @@ export async function requireOnboarding(
     const { state } = onboardingResult;
     const setCookie = onboardingResult.setCookie ?? authSessionResult.setCookie;
     if (state.completed) {
-      throw redirectWithCookie("/home", setCookie);
+      throw redirectWithCookie("/", setCookie);
     }
 
     return {

@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
-import type { StatItem } from "../admin-dashboard";
+import type { StatItem } from "../types";
 
 interface KpiCardProps {
   item: StatItem;

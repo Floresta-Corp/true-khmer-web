@@ -1,7 +1,7 @@
 import { CategoryCard } from "~/components/category-card";
 import { useLoaderData, useNavigate } from "react-router";
-import type { loader } from "~/features/launchpad/routes/launchpad";
-import type { Category } from "~/services/launchpad/types/category";
+import type { loader } from "~/features/launchpad/route/launchpad";
+import type { Category } from "~/features/launchpad/types";
 
 export function LaunchpadBrowseCategoriesSection() {
   const { categories } = useLoaderData<typeof loader>();

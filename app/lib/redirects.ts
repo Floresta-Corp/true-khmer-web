@@ -1,6 +1,6 @@
 export function sanitizeRedirectPath(
   value: string | null | undefined,
-  fallback = "/home",
+  fallback = "/",
 ) {
   if (!value) return fallback;
 

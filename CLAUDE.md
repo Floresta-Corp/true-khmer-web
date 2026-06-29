@@ -22,9 +22,9 @@ Feature/
 
 The backend groups endpoints by feature, matching the frontend domains.
 
-app/routes/api
-    └── [FeatureName]/ (e.g., Login/)
-    └── [feature].ts -> Contains all API route definitions, controllers, and business logic for this feature.
+api
+ └── [FeatureName]/ (e.g., Login/)
+ └── [feature].ts -> Contains all API route definitions, controllers, and business logic for this feature.
 
 ## Development Directives:
 

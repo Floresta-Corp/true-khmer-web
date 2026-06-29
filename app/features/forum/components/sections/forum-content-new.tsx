@@ -5,23 +5,19 @@ import QuestionCardSkeleton from "../card/question-card-skeleton";
 import ForumTopCategoriesCard from "../card/forum-top-categories-card";
 import TrendingTopics from "./trending-topics";
 
-import type {
-  CategoriesPicker,
-  Question,
-  QuestionSortBy,
-  Tag,
-} from "~/services/forum/forum-types";
+import type { QuestionResponse, TrendingTagResponse } from "~/types/api-client";
+import type { CategoriesPicker, QuestionSortBy } from "~/features/forum/types";
 import ForumRightSidebar from "./forum-right-sidebar";
 import YourActivitiesCard from "../card/your-activities-card";
 import MobileQuestionFilter from "../mobile-question-filter";
 import QuestionSortByDropdown from "../question-sort-by-dropdown";
 import QuestionCard from "../card/question-card";
 import { useLoaderData } from "react-router";
-import type { loader } from "../../routes/forum.new";
+import type { loader } from "../../route/forum.new";
 import { ForumPageLayout } from "../forum-page-layout";
 
 interface ForumContentNewProps {
-  questions?: Question[];
+  questions?: QuestionResponse[];
   categories: CategoriesPicker[];
   selectedCategory: CategoriesPicker;
   onCategorySelect: (category: CategoriesPicker) => void;
@@ -29,9 +25,9 @@ interface ForumContentNewProps {
   setActiveTab: (tab: ForumQuestionTab) => void;
   sortBy: QuestionSortBy;
   setSortBy: (sortBy: QuestionSortBy) => void;
-  tags?: Tag[];
+  tags?: TrendingTagResponse[];
   selectedTagId?: string;
-  onTagSelect?: (tag: Tag) => void;
+  onTagSelect?: (tag: TrendingTagResponse) => void;
   onLoadMore?: () => void;
   hasMore?: boolean;
   isLoading?: boolean;

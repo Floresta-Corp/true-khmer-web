@@ -4,9 +4,9 @@ import { Card } from "~/components/ui/card";
 import IconButton from "~/components/icon-button";
 import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
-import type { LaunchpadOpportunity } from "~/services/launchpad/types/project";
+import type { LaunchpadOpportunity } from "~/features/launchpad/types";
 import { cn, resolveImageURL } from "~/lib/utils";
-import { ShareLaunchpadDialog } from "../dialog/share-launchpad-dialog";
+import { buildAbsoluteUrl, copyToClipboard } from "~/lib/clipboard";
 import { useFetcher } from "react-router";
 
 interface LaunchpadProjectCardProps {
@@ -25,6 +25,11 @@ export default function LaunchpadProjectCard({
     fetcher.state !== "idle"
       ? fetcher.formData?.get("intent") === "save"
       : item.isSaved;
+
+  const handleShareClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    copyToClipboard(buildAbsoluteUrl(`/launchpad/detail/${item.id}`));
+  };
 
   const handleSaveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -54,15 +59,11 @@ export default function LaunchpadProjectCard({
   return (
     <div className="relative">
       <div className="absolute top-4.5 right-4.5 z-10 flex gap-1.5">
-        <ShareLaunchpadDialog
-          projectId={item.id}
-          trigger={
-            <IconButton
-              className="border border-gray-100 size-8"
-              icon={<Share2 className="size-3.5" />}
-              ariaLabel="Share project"
-            />
-          }
+        <IconButton
+          className="border border-gray-100 size-8"
+          icon={<Share2 className="size-3.5" />}
+          ariaLabel="Share project"
+          onClick={handleShareClick}
         />
         <IconButton
           className={cn(
@@ -102,14 +103,16 @@ export default function LaunchpadProjectCard({
           </div>
         </div>
         <div className="flex items-center gap-3.5 pb-6">
-          <div className="size-12.25 rounded-md border">
+          <div className="size-12.25 shrink-0 rounded-md border">
             <img
               src={resolveImageURL(item.logoKey || undefined)}
               alt={`${item.name} image`}
               className="w-full h-full object-cover rounded-lg"
             />
           </div>
-          <div className="text-md leading-0 font-semibold">{item.name}</div>
+          <div className="text-md font-semibold leading-tight line-clamp-2">
+            {item.name}
+          </div>
         </div>
         <div className="flex flex-1 flex-col justify-between">
           <div className="line-clamp-4">{item.description}</div>

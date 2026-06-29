@@ -1,5 +1,5 @@
 import ExpandableText from "~/components/expandable-text";
-import type { Opportunity } from "~/services/volunteer/types/opportunities";
+import type { Opportunity } from "~/features/volunteer/types/opportunities";
 
 interface ProjectOverviewSectionProps {
   volunteer: Opportunity;

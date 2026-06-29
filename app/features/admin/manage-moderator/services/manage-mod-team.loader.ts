@@ -1,13 +1,13 @@
 import { z } from "zod";
-import { data, redirect, type LoaderFunctionArgs } from "react-router";
+import { data, redirect } from "react-router";
+import type { Route } from "project-types/admin/manage-moderator/route/+types/manage-moderator";
 
 import { getAdminAccessToken, getAdminUser } from "~/lib/server/session.server";
-import { getManageModTeam } from "~/routes/api/manage-moderator/manage-moderator.server";
+import { getManageModTeam } from "~/api/admin/manage-moderator/manage-moderator.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
-import type {
-  CursorPagination,
-  ListModeratorsResponse,
-} from "~/types/api-client";
+import type { ManageModTeamLoaderData } from "../types";
+
+export type { ManageModTeamLoaderData } from "../types";
 
 const urlSchema = z.object({
   cursor: z.string().optional(),
@@ -19,13 +19,7 @@ const urlSchema = z.object({
     .transform((v) => v?.toUpperCase() as "MODERATOR" | "SUPER_ADMIN" | undefined),
 });
 
-export type ManageModTeamLoaderData = {
-  moderators: ListModeratorsResponse["moderators"];
-  pagination: CursorPagination;
-  currentUserId: string;
-};
-
-export async function manageModTeamLoader({ request }: LoaderFunctionArgs) {
+export async function manageModTeamLoader({ request }: Route.LoaderArgs) {
   const { accessToken, setCookie } = await getAdminAccessToken(request);
 
   if (!accessToken) {

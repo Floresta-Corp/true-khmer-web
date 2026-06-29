@@ -2,7 +2,7 @@ import {
   AuthSessionExpiredError,
   ProtectedApiError,
 } from "~/lib/server/api-client.server";
-import { SearchSkills } from "~/services/myspace/server/me.server";
+import { SearchSkills } from "~/api/myspace/myspace.server";
 import { z } from "zod";
 
 const SearchSkillsParamsSchema = z.object({

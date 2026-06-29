@@ -11,7 +11,7 @@ import {
   User,
   Zap,
 } from "lucide-react";
-import type { NotificationIconName } from "~/services/notifications.types";
+import type { NotificationIconName } from "~/features/notifications/types";
 
 export const NOTIFICATION_ICON_STYLE_MAP: Record<
   NotificationIconName,

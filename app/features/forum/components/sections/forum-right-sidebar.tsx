@@ -76,7 +76,7 @@ export default function ForumRightSidebar({
   return (
     <div className="flex flex-col gap-5 max-w-sm">
       {/* Top Contributors */}
-      <Card className="bg-white border shadow-none rounded-2xl p-5 w-full">
+      {/* <Card className="bg-white border shadow-none rounded-2xl p-5 w-full">
         <h3 className="font-bold text-lg leading-6.75 text-[#344256] mb-4 flex items-center gap-2">
           <span className="text-lg">⭐</span>
           Top Contributors
@@ -117,7 +117,7 @@ export default function ForumRightSidebar({
         >
           View all top 10
         </Button>
-      </Card>
+      </Card> */}
 
       {/* Community Guidelines */}
       {!hideGuidelines && (

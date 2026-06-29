@@ -11,19 +11,20 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import QuestionVoteComponent from "../question-vote-component";
-import type { CategoriesPicker, Question } from "~/services/forum/forum-types";
+import type { QuestionResponse } from "~/types/api-client";
+import type { CategoriesPicker } from "~/features/forum/types";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import AskQuestionDialog from "../dialog/ask-question-dialog";
 import DeleteQuestionDialog from "../dialog/delete-question-dialog";
 import { resolveImageURL } from "~/lib/utils";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
-import type { loader } from "../../routes/forum";
+import type { loader } from "../../route/forum";
 import ForumReportDialog, {
   ReportDialogType,
 } from "../dialog/forum-report-dialog";
 
 interface DiscussionCardProps {
-  question: Question;
+  question: QuestionResponse;
   categories: CategoriesPicker[];
   onCategoryClick?: (category: CategoriesPicker) => void;
 }

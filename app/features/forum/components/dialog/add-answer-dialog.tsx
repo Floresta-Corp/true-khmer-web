@@ -13,14 +13,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import type { Answer } from "~/services/forum/forum-types";
+import type { AnswerResponse } from "~/types/api-client";
 import { Textarea } from "~/components/ui/textarea";
 
 interface AddAnswerDialogProps {
   questionId?: string;
   isEditing?: boolean;
   isAuthenticated?: boolean;
-  data?: Pick<Answer, "id" | "body"> | null;
+  data?: Pick<AnswerResponse, "id" | "body"> | null;
   trigger?: React.ReactNode;
   replyToAnswer?: string;
 }

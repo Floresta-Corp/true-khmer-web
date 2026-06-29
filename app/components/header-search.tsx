@@ -10,7 +10,7 @@ import {
 import { Input } from "./ui/input";
 import { useState } from "react";
 import { cn } from "~/lib/utils";
-import type { Location } from "~/services/volunteer/types/location";
+import type { Location } from "~/features/volunteer/types/location";
 
 const ANYWHERE: Location = { id: "anywhere", name: "Anywhere" };
 

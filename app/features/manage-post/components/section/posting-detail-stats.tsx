@@ -5,7 +5,7 @@ import {
   ScanSearch,
 } from "lucide-react";
 import { useLoaderData } from "react-router";
-import type { loader } from "../../routes/manage-post.$sourceType.$id";
+import type { loader } from "../../route/manage-post.$sourceType.$id";
 
 export default function ManagePostingDetailStats() {
   const { postDetail } = useLoaderData<typeof loader>();

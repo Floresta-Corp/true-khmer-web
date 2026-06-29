@@ -6,7 +6,7 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "~/components/ui/accordion";
-import type { Role } from "~/services/volunteer/types/opportunities";
+import type { Role } from "~/features/volunteer/types/opportunities";
 import { useVolunteerSelectedRoles } from "../../../../stores/selected-volunteer-roles-store";
 import { cn } from "~/lib/utils";
 import { AnimatePresence, motion } from "motion/react";

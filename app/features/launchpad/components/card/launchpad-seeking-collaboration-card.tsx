@@ -1,6 +1,6 @@
 import { Card } from "~/components/ui/card";
 import LaunchpadCollaborationCard from "./launchpad-collaboration-card";
-import type { LaunchpadDetail } from "~/services/launchpad/types/project";
+import type { LaunchpadDetail } from "~/features/launchpad/types";
 
 interface LaunchpadSeekingCollaborationCardProps {
   project: LaunchpadDetail;

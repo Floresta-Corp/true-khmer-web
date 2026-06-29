@@ -11,7 +11,6 @@ import DeleteQuestionDialog from "~/features/forum/components/dialog/delete-ques
 import ShareQuestionDialog from "~/features/forum/components/dialog/share-question-dialog";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL, cn } from "~/lib/utils";
-import type { Question } from "~/services/forum/types";
 import type { QuestionResponse } from "~/types/api-client";
 import type { BasicJoinType } from "~/services/types";
 
@@ -95,7 +94,7 @@ export default function WorkspaceQuestionItem({
                 // The forum dialogs are typed on forum-types `Question`; the
                 // "my questions" API returns the api-client `QuestionResponse`.
                 // Both share every field these dialogs read.
-                data={question as unknown as Question}
+                data={question}
                 aria-label="Edit Question"
                 trigger={
                   <Button
@@ -158,7 +157,7 @@ export default function WorkspaceQuestionItem({
 
       {/* Footer with share */}
       <div className="flex items-center gap-2 sm:gap-3.5 shrink-0">
-        <ShareQuestionDialog question={question as unknown as Question} />
+        <ShareQuestionDialog question={question} />
       </div>
     </motion.article>
   );

@@ -17,7 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import type { Badge as MyspaceBadge } from "~/services/myspace/types";
+import type { Badge as MyspaceBadge } from "~/features/myspace/types";
 import { cn } from "~/lib/utils";
 import { formatShortDate } from "~/features/events/lib/event-formatters";
 

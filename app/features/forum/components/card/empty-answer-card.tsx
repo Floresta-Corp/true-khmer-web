@@ -1,10 +1,10 @@
 import { MessageSquare } from "lucide-react";
 import { motion } from "motion/react";
-import type { Question } from "~/services/forum/forum-types";
+import type { QuestionResponse } from "~/types/api-client";
 import AddAnswerDialog from "../dialog/add-answer-dialog";
 
 interface EmptyAnswerCardProps {
-  question: Question;
+  question: QuestionResponse;
 }
 
 export default function EmptyAnswerCard({ question }: EmptyAnswerCardProps) {

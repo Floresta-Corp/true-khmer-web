@@ -1,3 +1,3 @@
-import { launchpadApplyAction } from "./launchpad/launchpad-detail/launchpad-apply-action";
+import { launchpadApplyAction } from "~/features/launchpad/services/launchpad-detail.action";
 
 export const action = launchpadApplyAction;

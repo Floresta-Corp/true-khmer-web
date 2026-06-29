@@ -22,8 +22,8 @@ import type {
   Application,
   ApplicationRoleSummary,
   MyApplicationRequestSourceType,
-} from "~/services/myspace/types";
-import type { loader } from "../../routes/my-applications";
+} from "~/features/myspace/types";
+import type { loader } from "../../route/my-applications";
 import ApplicationStatusConfirmDialog from "../application-status-confirm-dialog";
 import { MyApplicationActions } from "../my-application-actions";
 import EmptyApplicationCard from "./empty-application-card";
@@ -163,11 +163,7 @@ function ApprovedActionPanel({
   );
 }
 
-function ApplicationCardActions({
-  application,
-}: {
-  application: Application;
-}) {
+function ApplicationCardActions({ application }: { application: Application }) {
   const archiveFetcher = useFetcher();
   const targetHref = getApplicationHref(application);
   const isArchived = Boolean(application.archivedAt);
@@ -220,7 +216,7 @@ function ApplicationGroupCard({ application }: { application: Application }) {
 
   return (
     <div>
-      <Card className="relative overflow-hidden rounded-2xl border-none bg-white p-0 shadow-none ring-1 ring-foreground/10 transition-all hover:bg-slate-50/70 active:scale-[0.995] sm:h-[184px] dark:bg-slate-900 dark:hover:bg-slate-800/50">
+      <Card className="relative overflow-hidden rounded-2xl border-none bg-white p-0 shadow-none ring-1 ring-foreground/10 transition-all hover:bg-slate-50/70 active:scale-[0.995] sm:h-46 dark:bg-slate-900 dark:hover:bg-slate-800/50">
         <CardContent className="h-full p-6">
           <ApplicationCardActions application={application} />
 
@@ -231,7 +227,7 @@ function ApplicationGroupCard({ application }: { application: Application }) {
               application.opportunityTitle || "application"
             }`}
           >
-            <div className="relative h-[135px] w-full shrink-0 overflow-hidden rounded-[20px] border border-gray-100/80 bg-slate-50 sm:w-[240px] dark:border-slate-800 dark:bg-slate-950">
+            <div className="relative h-33.75 w-full shrink-0 overflow-hidden rounded-[20px] border border-gray-100/80 bg-slate-50 sm:w-60 dark:border-slate-800 dark:bg-slate-950">
               <img
                 src={image}
                 alt={application.opportunityTitle}
@@ -262,7 +258,10 @@ function ApplicationGroupCard({ application }: { application: Application }) {
                 <div className="flex items-center gap-2">
                   <Clock className="size-4 text-[#BDC1C6]" />
                   <span>
-                    {formatDateRange(application.startDate, application.endDate)}
+                    {formatDateRange(
+                      application.startDate,
+                      application.endDate,
+                    )}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -317,7 +316,7 @@ function ApplicationApprovedCard({
               application.opportunityTitle || "application"
             }`}
           >
-            <div className="relative h-[135px] w-full shrink-0 overflow-hidden rounded-[20px] border border-gray-100/80 bg-slate-50 sm:w-[240px] dark:border-slate-800 dark:bg-slate-950">
+            <div className="relative h-33.75 w-full shrink-0 overflow-hidden rounded-[20px] border border-gray-100/80 bg-slate-50 sm:w-60 dark:border-slate-800 dark:bg-slate-950">
               <img
                 src={image}
                 alt={application.opportunityTitle}
@@ -365,7 +364,10 @@ function ApplicationApprovedCard({
                 <div className="flex items-center gap-2">
                   <Clock className="size-4 text-[#BDC1C6]" />
                   <span>
-                    {formatDateRange(application.startDate, application.endDate)}
+                    {formatDateRange(
+                      application.startDate,
+                      application.endDate,
+                    )}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -412,11 +414,11 @@ function ApplicationGroupCardSkeleton() {
       <Card className="relative overflow-hidden rounded-[28px] border border-[#E0E3E7] bg-white p-0 shadow-none dark:border-slate-800 dark:bg-slate-900">
         <CardContent className="p-5 sm:p-6">
           <div className="flex w-full flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-8">
-            <Skeleton className="h-[135px] w-full shrink-0 rounded-[20px] sm:w-[240px]" />
+            <Skeleton className="h-33.75 w-full shrink-0 rounded-[20px] sm:w-60" />
 
             <div className="w-full min-w-0 flex-1 space-y-4 pr-10 sm:pr-12">
               <div className="space-y-2">
-                <Skeleton className="h-7 w-4/5 max-w-[520px] rounded-xl" />
+                <Skeleton className="h-7 w-4/5 max-w-130 rounded-xl" />
                 <Skeleton className="h-4 w-44 rounded-lg" />
               </div>
 

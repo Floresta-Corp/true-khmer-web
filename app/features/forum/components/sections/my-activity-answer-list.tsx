@@ -10,10 +10,10 @@ import {
 import ThreadsTitle from "./threads-title";
 import { Card, CardContent } from "~/components/ui/card";
 import { useLoaderData, Link } from "react-router";
-import type { loader } from "../../routes/forum";
+import type { loader } from "../../route/forum";
 import { Button } from "~/components/ui/button";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
-import type { Answer } from "~/services/forum/forum-types";
+import type { AnswerResponse } from "~/types/api-client";
 import DeleteAnswerDialog from "../dialog/delete-answer-dialog";
 import AddAnswerDialog from "../dialog/add-answer-dialog";
 import AnswerCardSkeleton from "../card/answer-card-skeleton";
@@ -75,7 +75,7 @@ export default function MyActivityAnswerList({
     <div className="pb-3.75">
       <ThreadsTitle icon={<Reply className="size-2.5" />} title="My answers" />
       <div className="flex flex-col gap-4">
-        {answers.map((answer: Answer) => (
+        {answers.map((answer: AnswerResponse) => (
           <Card
             key={answer.id}
             className="w-full max-w-134 rounded-3xl border-[#f3f4f6] p-4 shadow-none sm:p-6"

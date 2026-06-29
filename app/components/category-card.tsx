@@ -10,7 +10,7 @@ import {
 import type { ReactNode } from "react";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
-import type { VolunteerCategory } from "~/services/volunteer/types";
+import type { VolunteerCategory } from "~/features/volunteer/types";
 
 interface CategoryCardProps {
   category: VolunteerCategory;

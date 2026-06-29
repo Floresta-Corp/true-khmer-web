@@ -4,7 +4,7 @@ import { useLoaderData, useNavigation, useSearchParams } from "react-router";
 import ManagePostCard from "../card/manage-post-card";
 import ManagePostCardSkeleton from "../manage-post-skeleton";
 import ManagePostFilters from "../card/manage-post-filter";
-import type { loader } from "../../routes/manage-post";
+import type { loader } from "../../route/manage-post";
 import CreateOpportunityDialog from "../dialog/manage-post-button";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";

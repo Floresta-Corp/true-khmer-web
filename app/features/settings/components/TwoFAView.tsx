@@ -27,7 +27,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "~/routes/auth/components/input-otp";
-import type { SettingsActionData } from "../services/settings.action";
+import type { SettingsActionData } from "../types";
 import type {
   AuthTwoFactorSettingsResponse,
   AuthTwoFactorTotpSetupResponse,
@@ -146,7 +146,7 @@ function AuthenticatorQrCode({ value }: { value: string }) {
         ref={canvasRef}
         width={220}
         height={220}
-        className="h-[220px] w-[220px] rounded-lg"
+        className="h-55 w-55 rounded-lg"
         aria-label="Authenticator app setup QR code"
       />
     </div>
@@ -168,8 +168,7 @@ export function TwoFAView({
   const [disableMethod, setDisableMethod] = useState<Method | null>(null);
   const [totpSetup, setTotpSetup] =
     useState<AuthTwoFactorTotpSetupResponse | null>(null);
-  const [totpSetupStep, setTotpSetupStep] =
-    useState<TotpSetupStep>("password");
+  const [totpSetupStep, setTotpSetupStep] = useState<TotpSetupStep>("password");
   const [totpCode, setTotpCode] = useState("");
   const [emailCode, setEmailCode] = useState("");
   const [trustTotpDevice, setTrustTotpDevice] = useState(false);
@@ -294,8 +293,8 @@ export function TwoFAView({
                     Set up authenticator app
                   </DialogTitle>
                   <DialogDescription>
-                    Confirm your password, scan the QR code, then enter the
-                    code from your authenticator app.
+                    Confirm your password, scan the QR code, then enter the code
+                    from your authenticator app.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -473,8 +472,8 @@ export function TwoFAView({
                     Set up email OTP
                   </DialogTitle>
                   <DialogDescription>
-                    Send a code to your email, then enter it here to enable
-                    this method.
+                    Send a code to your email, then enter it here to enable this
+                    method.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
@@ -576,7 +575,9 @@ export function TwoFAView({
             <input
               type="hidden"
               name="intent"
-              value={disableMethod === "totp" ? "totp-disable" : "email-disable"}
+              value={
+                disableMethod === "totp" ? "totp-disable" : "email-disable"
+              }
             />
             <DialogFooter className="rounded-b-2xl">
               <Button

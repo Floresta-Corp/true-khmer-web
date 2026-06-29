@@ -2,9 +2,9 @@ import { z } from "zod";
 import {
   GetProfileById,
   GetPostedContent,
-} from "~/services/profile/profile.server";
-import type { GetPostedContentResponse } from "~/services/profile/types";
-import type { Route } from "project-types/profile/routes/+types/profile.$id";
+} from "~/api/profile/profile.server";
+import type { GetPostedContentResponse } from "~/features/profile/types";
+import type { Route } from "project-types/profile/route/+types/profile.$id";
 
 const ProfileIdSchema = z.string().min(1);
 const SourceTypeSchema = z.enum(["forum", "volunteer", "project"]);
@@ -78,7 +78,7 @@ function normalizePosted(
 
 export type NormalizedPosted = ReturnType<typeof normalizePosted>;
 
-export async function ProfileLoader({ request, params }: Route.LoaderArgs) {
+export async function profileLoader({ request, params }: Route.LoaderArgs) {
   const idResult = ProfileIdSchema.safeParse(params.id);
   if (!idResult.success) {
     throw new Response("Profile ID is required", { status: 400 });

@@ -4,20 +4,17 @@ import {
   type DiscussionThreadSectionTab,
 } from "./discusssion-thread-section";
 import ForumRightSidebar from "./forum-right-sidebar";
-import type {
-  CategoriesPicker,
-  Question,
-  Tag,
-} from "~/services/forum/forum-types";
+import type { QuestionResponse, TrendingTagResponse } from "~/types/api-client";
+import type { CategoriesPicker } from "~/features/forum/types";
 import type { AuthenticatedUser } from "~/lib/server/types";
 
 interface ForumContentProps {
   data?: {
-    questions: Question[] | undefined;
+    questions: QuestionResponse[] | undefined;
     hasMore: boolean | undefined;
   };
   categories: CategoriesPicker[] | undefined;
-  tags: Tag[] | undefined;
+  tags: TrendingTagResponse[] | undefined;
   onLoadMore?: () => void;
   isLoading?: boolean;
   selectedCategory: CategoriesPicker;

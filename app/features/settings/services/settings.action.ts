@@ -4,13 +4,14 @@ import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { commitAuthToSession } from "~/lib/server/session.server";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { invalidateAuthSessionCacheForRequest } from "~/services/auth/session.server";
-import type { Route } from "project-types/settings/routes/+types/settings";
+import type { Route } from "project-types/settings/route/+types/settings";
+import type { SettingsActionData } from "../types";
 import type {
   AuthTwoFactorEmailVerifyRequest,
-  AuthTwoFactorTotpSetupResponse,
   AuthTwoFactorTotpVerifyRequest,
 } from "~/types/api-client";
-import { changePassword } from "~/services/api/auth/auth.server";
+export type { SettingsActionData } from "../types";
+import { changePassword } from "~/api/auth/auth.server";
 import {
   disableEmailOtp,
   disableTotp,
@@ -18,7 +19,7 @@ import {
   setupTotp,
   verifyEmailOtpSetup,
   verifyTotpSetup,
-} from "~/services/api/two-factor/two-factor.server";
+} from "~/api/two-factor/two-factor.server";
 import { getPasswordValidationError } from "~/routes/auth/domain/password-validation";
 
 const sixDigitCodeSchema = z
@@ -85,21 +86,6 @@ const ChangePasswordSchema = z
     }
   });
 
-export type SettingsActionData = {
-  ok?: boolean;
-  intent?: string;
-  message?: string;
-  setup?: AuthTwoFactorTotpSetupResponse;
-  errors?: {
-    oldPassword?: string;
-    password?: string;
-    newPassword?: string;
-    confirmPassword?: string;
-    code?: string;
-    form?: string;
-  };
-};
-
 function appendCookie(headers: Headers, setCookie?: string | string[]) {
   if (!setCookie) return;
   for (const cookie of Array.isArray(setCookie) ? setCookie : [setCookie]) {
@@ -120,7 +106,7 @@ function firstFieldError(
   return error.issues.find((issue) => issue.path[0] === field)?.message;
 }
 
-export async function action({ request }: Route.ActionArgs) {
+export async function settingsAction({ request }: Route.ActionArgs) {
   const auth = await requireUser(request);
   const formData = await request.formData();
   const formValues = Object.fromEntries(formData);

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams, useFetcher } from "react-router";
 import WorkspaceDiscussionCard from "~/features/workspace/components/card/workspace-discussion-card";
-import type { loader } from "~/features/workspace/routes/workspace";
+import type { loader } from "~/features/workspace/route/workspace";
 import { Skeleton } from "~/components/ui/skeleton";
-import type { MyWorkSpaceLoaderData } from "~/routes/api/workspace/work-space-loader";
+import type { MyWorkSpaceLoaderData } from "~/features/workspace/services/work-space-loader";
 import type { GetMyAnswersResponse } from "~/types/api-client";
 
 type Discussion = GetMyAnswersResponse["discussions"][number];

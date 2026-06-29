@@ -1,4 +1,4 @@
-import type { OpportunityDetail } from "~/services/volunteer/types";
+import type { OpportunityDetail } from "~/features/volunteer/types";
 
 interface CommitmentSectionProps {
   volunteer: OpportunityDetail;

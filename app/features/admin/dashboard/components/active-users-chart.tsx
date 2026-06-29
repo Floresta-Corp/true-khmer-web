@@ -7,13 +7,13 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
-import type { ActiveUserPoint } from "../admin-dashboard";
+import type { ActiveUserPoint } from "../types";
 import {
   TOOLTIP_STYLE,
   TOOLTIP_CURSOR,
   GRID_COLOR,
   TEXT_MUTED,
-} from "../admin-dashboard";
+} from "../types";
 import { useChartReady } from "./use-chart-ready";
 
 interface ActiveUsersChartProps {

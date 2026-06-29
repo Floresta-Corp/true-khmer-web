@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "~/components/ui/dialog";
 
-import type { userManagementDetailAction } from "../service/user-management-detail.action";
+import type { userManagementDetailAction } from "../services/user-management-detail.action";
 
 type UserSuspensionDialogProps = {
   action: "suspend" | "unsuspend";

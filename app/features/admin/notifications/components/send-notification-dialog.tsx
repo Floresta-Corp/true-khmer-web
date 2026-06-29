@@ -179,7 +179,7 @@ function NotificationForm({ onClose }: { onClose: () => void }) {
                 <Input
                   id="notif-web"
                   name="webRoute"
-                  placeholder="/home"
+                  placeholder="Home"
                   className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 rounded-xl h-10 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus-visible:border-amber-500 focus-visible:ring-amber-500/20"
                 />
               </FieldWrapper>

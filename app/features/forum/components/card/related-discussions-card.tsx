@@ -1,8 +1,8 @@
 import { Link } from "react-router";
-import type { Question } from "~/services/forum/forum-types";
+import type { QuestionResponse } from "~/types/api-client";
 
 interface RelatedDiscussionsCardProps {
-  discussions: Question[];
+  discussions: QuestionResponse[];
   maxItems?: number;
 }
 

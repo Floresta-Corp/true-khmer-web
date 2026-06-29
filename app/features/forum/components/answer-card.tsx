@@ -4,7 +4,7 @@ import ForumReportDialog, {
   ReportDialogType,
 } from "./dialog/forum-report-dialog";
 import AnswerVoteComponent from "./answer-vote-component";
-import type { Answer } from "~/services/forum/forum-types";
+import type { AnswerResponse } from "~/types/api-client";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import AddAnswerDialog from "./dialog/add-answer-dialog";
 import DeleteAnswerDialog from "./dialog/delete-answer-dialog";
@@ -12,10 +12,10 @@ import { Button } from "~/components/ui/button";
 import { resolveImageURL } from "~/lib/utils";
 import { Separator } from "~/components/ui/separator";
 import { useLoaderData } from "react-router";
-import type { loader } from "../routes/forum.$id";
+import type { loader } from "../route/forum.$id";
 
 interface AnswerCardProps {
-  answer: Answer;
+  answer: AnswerResponse;
   index?: number;
   isCurrentAuthor?: boolean;
   isAuthenticated?: boolean;

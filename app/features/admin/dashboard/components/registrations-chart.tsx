@@ -16,7 +16,7 @@ import {
   GRID_COLOR,
   TEXT_MUTED,
   type ChartBarItem,
-} from "../admin-dashboard";
+} from "../types";
 import { useChartReady } from "./use-chart-ready";
 
 interface RegistrationsChartProps {

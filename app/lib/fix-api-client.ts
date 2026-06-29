@@ -16,6 +16,7 @@ content = content.replace(
 
 const replacements = [
   [/\.passthrough\(\)/g, ""],
+  [/\.and\(z\.unknown\(\)\)/g, ".nullable()"],
   [
     /z\.record\(z\.unknown\(\)\.nullable\(\)\)/g,
     "z.record(z.string(), z.unknown().nullable())",
@@ -33,7 +34,7 @@ for (const [pattern, replacement] of replacements) {
 
 content = content.replace(
   /(?<=\n)(const\s+[A-Za-z_$][\w$]*\s*=\s*z\.[\s\S]*?)(?=\nconst\s+[A-Za-z_$][\w$]*\s*=\s*z\.|\nexport const schemas = {)/g,
-  (match: string) => `${match}\n`,
+  (match: string) => `${match.replace(/\n+$/, "")}\n`,
 );
 
 const generatedTypeBlockStart = "\n// Generated API schema types\n";
@@ -80,6 +81,8 @@ if (generatedSchemaTypes) {
     `\n${generatedSchemaTypes}\nexport const api = new Zodios(endpoints);`,
   );
 }
+
+content = content.replace(/\n{3,}/g, "\n\n");
 
 if (content === original) {
   console.log("No API client fixes needed.");

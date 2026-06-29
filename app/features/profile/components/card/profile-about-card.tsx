@@ -1,6 +1,6 @@
 import SkillBadgeComponent from "~/components/skill-badge";
 import { Card } from "~/components/ui/card";
-import type { ProfileSkill } from "~/services/profile/types";
+import type { ProfileSkill } from "~/features/profile/types";
 
 interface ProfileAboutCardProps {
   about?: string;

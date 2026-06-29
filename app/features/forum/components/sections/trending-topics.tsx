@@ -1,12 +1,12 @@
 import { Hash } from "lucide-react";
 import { Card } from "~/components/ui/card";
 import { Toggle } from "~/components/ui/toggle";
-import type { Tag } from "~/services/forum/forum-types";
+import type { TrendingTagResponse } from "~/types/api-client";
 
 interface TrendingTopicsProps {
-  tags?: Tag[] | undefined;
+  tags?: TrendingTagResponse[] | undefined;
   selectedTagId?: string;
-  onTagSelect?: (tag: Tag) => void;
+  onTagSelect?: (tag: TrendingTagResponse) => void;
 }
 
 export default function TrendingTopics({

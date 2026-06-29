@@ -1,6 +1,6 @@
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
-import type { LaunchpadDetail } from "~/services/launchpad/types/project";
+import type { LaunchpadDetail } from "~/features/launchpad/types";
 import LaunchpadSubmitApplicationDialog from "../dialog/launchpad-submit-application-dialog";
 import { useLaunchpadSelectedRoles } from "../../../../stores/selected-launchpad-roles-store";
 import { Star, Trash2, Send, Info } from "lucide-react";

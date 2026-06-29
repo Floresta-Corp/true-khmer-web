@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useFetcher, useLocation, useNavigation } from "react-router";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import LaunchpadProjectCard from "../card/launchpad-project-card";
-import type { LaunchpadOpportunity } from "~/services/launchpad/types/project";
-import type { LaunchpadLoader } from "~/routes/api/launchpad/launchpad-loader";
+import type { LaunchpadOpportunity } from "~/features/launchpad/types";
+import type { launchpadLoader } from "~/features/launchpad/services/launchpad.loader";
 import LaunchpadCardSkeleton from "./launchpad-card-skeleton";
 import { Button } from "~/components/ui/button";
 import { Search } from "lucide-react";
@@ -20,7 +20,7 @@ export function LaunchpadAvailableOpportunities({
   onOpenOpportunity,
 }: LaunchpadAvailableOpportunitiesProps) {
   const location = useLocation();
-  const fetcher = useFetcher<typeof LaunchpadLoader>();
+  const fetcher = useFetcher<typeof launchpadLoader>();
   const sentinelRef = useRef<HTMLDivElement>(null);
   const loadingMoreRef = useRef(false);
   const prefersReducedMotion = useReducedMotion();

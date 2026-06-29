@@ -1,5 +1,6 @@
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import type { CategoriesPicker, Question } from "~/services/forum/forum-types";
+import type { QuestionResponse } from "~/types/api-client";
+import type { CategoriesPicker } from "~/features/forum/types";
 import LoadMore from "../load-more";
 import QuestionCardSkeleton from "../card/question-card-skeleton";
 import QuestionCard from "../card/old-question-card";
@@ -9,7 +10,7 @@ export type DiscussionThreadSectionTab = "recent" | "topRated" | "unanswered";
 interface DiscussionThreadSectionProps {
   categories?: CategoriesPicker[];
   data?: {
-    questions: Question[] | undefined;
+    questions: QuestionResponse[] | undefined;
     hasMore: boolean | undefined;
   };
   activeTab: DiscussionThreadSectionTab;

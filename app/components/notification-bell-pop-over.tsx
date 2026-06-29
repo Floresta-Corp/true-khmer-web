@@ -20,7 +20,7 @@ import {
   getNotificationRoute,
   resolveNotificationIcon,
   type ApiNotification,
-} from "~/services/notifications.types";
+} from "~/features/notifications/types";
 
 export default function NotificationBellPopOver() {
   const {

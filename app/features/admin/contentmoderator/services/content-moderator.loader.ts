@@ -1,25 +1,16 @@
-import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
+import type { Route } from "project-types/admin/contentmoderator/route/+types/content-moderator";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import {
   getContentModerator,
-  ReportStatus,
-} from "~/routes/api/content-moderator/content-moderator.server";
+  REPORT_STATUSES,
+} from "~/api/admin/content-moderator/content-moderator.server";
+import type { ReportStatus } from "~/api/admin/content-moderator/content-moderator.server";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
-import type {
-  ContentModeratorReport,
-  CursorPagination,
-} from "~/types/api-client";
+import type { ContentModeratorData } from "../types";
 
-type ContentModeratorData = {
-  content: ContentModeratorReport[];
-  types: Array<{ id: string; name: string }>;
-  pagination: CursorPagination | null;
-  userId: string | null;
-};
-
-export async function contentModeratorLoader({ request }: LoaderFunctionArgs) {
+export async function contentModeratorLoader({ request }: Route.LoaderArgs) {
   const auth = await requireSuperAdmin(request);
   const { accessToken } = await getAdminAccessToken(request);
   if (!accessToken) {
@@ -39,20 +30,13 @@ export async function contentModeratorLoader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor") ?? undefined;
   const typeId = url.searchParams.get("typeId") ?? undefined;
-  const rawStatus = url.searchParams.get("status") ?? undefined;
-  const rawStatusUpper = rawStatus?.toUpperCase();
-  const status: ReportStatus | undefined =
-    rawStatusUpper &&
-    Object.values(ReportStatus).includes(rawStatusUpper as ReportStatus)
-      ? (rawStatusUpper as ReportStatus)
-      : undefined;
+  const rawStatus = url.searchParams.get("status")?.toUpperCase();
+  const status = (REPORT_STATUSES as readonly string[]).includes(rawStatus ?? "")
+    ? (rawStatus as ReportStatus)
+    : undefined;
 
   const [result, allTypesResult] = await Promise.all([
-    getContentModerator(request, accessToken, {
-      cursor,
-      status,
-      typeId,
-    }),
+    getContentModerator(request, accessToken, { cursor, status, typeId }),
     getContentModerator(request, accessToken, {}),
   ]);
 
@@ -65,10 +49,7 @@ export async function contentModeratorLoader({ request }: LoaderFunctionArgs) {
 
   return withAuthData(auth, {
     content: result.data.reports ?? [],
-    types: Array.from(typesMap.entries()).map(([id, name]) => ({
-      id,
-      name,
-    })),
+    types: Array.from(typesMap.entries()).map(([id, name]) => ({ id, name })),
     pagination: result.data.pagination ?? null,
     userId,
   } satisfies ContentModeratorData);

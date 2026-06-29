@@ -6,8 +6,7 @@ import type { AuthTokenResponse } from "~/types/api-client";
 import {
   invalidateAdminMeCache,
   logoutAdmin,
-  type AdminAuthResult,
-} from "~/services/api/admin/auth/admin-auth.server";
+} from "~/api/admin/auth/admin-auth.server";
 import {
   type AdminLoginOtpChallengeResponse,
   type AdminLoginResponse,
@@ -16,7 +15,6 @@ import {
 } from "~/types/api-client";
 import { apiRequestPublic } from "./api-client.server";
 
-export type { AdminAuthResult };
 const SESSION_SECRET = process.env.SESSION_SECRET ?? crypto.randomUUID();
 
 if (!process.env.SESSION_SECRET) {
@@ -370,7 +368,7 @@ export async function destroyPendingTwoFactorLogin(request: Request) {
 
 export async function createAdminSession(
   request: Request,
-  auth: AdminAuthResult,
+  auth: AdminLoginResponse,
   redirectTo: string,
   options: { rememberMe?: boolean } = {},
 ) {

@@ -1,4 +1,5 @@
-import type { CategoriesPicker, Tag } from "~/services/forum/forum-types";
+import type { TrendingTagResponse } from "~/types/api-client";
+import type { CategoriesPicker } from "~/features/forum/types";
 import ForumTopCategoriesCard from "../card/forum-top-categories-card";
 import TrendingTopics from "./trending-topics";
 
@@ -6,9 +7,9 @@ interface ForumLeftSidebarProps {
   categories?: CategoriesPicker[] | undefined;
   selectedCategory?: CategoriesPicker;
   onCategorySelect?: (category: CategoriesPicker) => void;
-  tags?: Tag[] | undefined;
+  tags?: TrendingTagResponse[] | undefined;
   selectedTagId?: string;
-  onTagSelect?: (tag: Tag) => void;
+  onTagSelect?: (tag: TrendingTagResponse) => void;
 }
 
 export default function ForumLeftSidebar({

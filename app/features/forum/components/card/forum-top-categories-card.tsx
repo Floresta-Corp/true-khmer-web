@@ -1,6 +1,6 @@
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
-import type { CategoriesPicker } from "~/services/forum/forum-types";
+import type { CategoriesPicker } from "~/features/forum/types";
 
 export interface ForumTopCategoriesCardProps {
   categories?: CategoriesPicker[];

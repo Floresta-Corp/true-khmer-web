@@ -1,11 +1,11 @@
 import { data, redirect } from "react-router";
-import type { ActionFunctionArgs } from "react-router";
+import type { Route } from "project-types/admin/manage-moderator/route/+types/manage-moderator";
 import { z } from "zod";
 import {
   patchModerator,
   postManageTeam,
   removeModerator,
-} from "~/routes/api/manage-moderator/manage-moderator.server";
+} from "~/api/admin/manage-moderator/manage-moderator.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 
@@ -25,7 +25,7 @@ const updateRoleSchema = z.object({
   role: roleSchema,
 });
 
-export async function manageModTeamAction({ request }: ActionFunctionArgs) {
+export async function manageModTeamAction({ request }: Route.ActionArgs) {
   const { accessToken, setCookie } = await getAdminAccessToken(request);
 
   if (!accessToken) {

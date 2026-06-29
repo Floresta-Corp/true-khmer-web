@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import type { CategoriesPicker as CategoryOption } from "~/services/forum/forum-types";
+import type { CategoriesPicker as CategoryOption } from "~/features/forum/types";
 
 interface CategoriesPickerProps {
   name: string;
