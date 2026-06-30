@@ -60,8 +60,7 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
     .slice(0, 2)
     .toUpperCase();
   const profileImage =
-    resolveImageURL(user?.profile?.avatarKey) ||
-    resolveImageURL(user?.image);
+    resolveImageURL(user?.profile?.avatarKey) || resolveImageURL(user?.image);
 
   return (
     <DropdownMenu>
@@ -151,7 +150,7 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
               <span className="text-sm font-semibold">My applications</span>
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem
+          {/* <DropdownMenuItem
             asChild
             className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
           >
@@ -159,7 +158,7 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
               <Ticket className="size-5 shrink-0" />
               <span className="text-sm font-semibold">My tickets</span>
             </Link>
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
           <DropdownMenuItem
             asChild
             className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
