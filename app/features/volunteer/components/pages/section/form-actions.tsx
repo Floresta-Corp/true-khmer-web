@@ -4,12 +4,14 @@ interface FormActionsProps {
   onBack: () => void;
   onSubmit: () => void;
   isSubmitting: boolean;
+  canPublish: boolean;
 }
 
 export default function FormActions({
   onBack,
   onSubmit,
   isSubmitting,
+  canPublish,
 }: FormActionsProps) {
   return (
     <div className="flex flex-col gap-4">
@@ -26,7 +28,7 @@ export default function FormActions({
           type="button"
           className="h-10 cursor-pointer rounded-lg bg-[#2f6fe4] px-6 text-sm font-medium text-white hover:bg-[#245fca]"
           onClick={onSubmit}
-          disabled={isSubmitting}
+          disabled={isSubmitting || !canPublish}
         >
           {isSubmitting ? "Publishing..." : "Publish opportunity"}
         </Button>

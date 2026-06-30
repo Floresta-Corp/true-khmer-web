@@ -50,7 +50,7 @@ export default function VolunteerDateRangeField({
             type="button"
             variant="outline"
             aria-invalid={Boolean(error)}
-            className={`relative h-11 w-full justify-start rounded-lg bg-[#F8FAFC] pl-9 pr-3 text-left text-sm font-medium shadow-none hover:bg-[#F8FAFC] ${
+            className={`relative h-11 w-full justify-start rounded-lg bg-[#F8FAFC] pl-9 pr-3 text-left text-sm font-medium shadow-none hover:bg-[#F8FAFC] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${
               selectedRange?.from ? "text-[#364153]" : "text-[#C8D6E5]"
             } ${error ? "border-red-500" : "border-transparent"}`}
           >

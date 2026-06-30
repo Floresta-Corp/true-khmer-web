@@ -34,7 +34,11 @@ function PaleInput({
         onChange(e.target.value)
       }
       aria-invalid={ariaInvalid}
-      className={`h-11 rounded-lg border border-transparent bg-[#f8fafc] px-4 text-sm font-medium text-[#364153] placeholder:text-[#c8d6e5] ${className}`}
+      className={`h-11 rounded-lg border bg-[#f8fafc] px-4 text-sm text-[#364153] placeholder:text-[#c8d6e5] focus-visible:ring-2 ${
+        ariaInvalid
+          ? "border-red-500 ring-2 ring-red-200 focus-visible:ring-red-500 focus-visible:border-red-500"
+          : "border-transparent focus-visible:ring-blue-500/45 focus-visible:border-blue-500/45"
+      } ${className}`}
     />
   );
 }
@@ -76,7 +80,7 @@ export default function ContactDetailsForm({
             Phone number
             <span className="text-[#e12f3f]">*</span>
           </label>
-          <InputGroup className="h-11 rounded-lg">
+          <InputGroup className="h-11 rounded-lg has-[[data-slot=input-group-control]:focus-visible]:ring-blue-500/45 has-[[data-slot=input-group-control]:focus-visible]:border-blue-500/45">
             <InputGroupAddon className="bg-[#f8fafc] border-r border-[#e1e7ef] pr-3">
               <span className="text-[14px] font-medium text-[#434654]">
                 +855

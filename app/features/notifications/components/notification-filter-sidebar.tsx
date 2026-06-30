@@ -102,7 +102,7 @@ export default function NotificationFilterSidebar({
       </div>
 
       {/* Filter Navigation */}
-      <Card className="flex flex-col gap-1 rounded-2xl bg-slate-100 p-2 shadow-none">
+      <Card className="flex flex-col gap-1 rounded-2xl border-none bg-slate-100 p-2 shadow-none">
         {filterItems.map(renderFilterButton)}
       </Card>
     </div>

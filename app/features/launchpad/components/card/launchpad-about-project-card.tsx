@@ -23,7 +23,7 @@ export default function LaunchpadAboutProjectCard({
         placeholder="What are you building, why does it matter, and what problem does it solve?"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="bg-gray-50 border-none min-h-23"
+        className="bg-gray-50 border-none min-h-23 focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:border-transparent"
       />
     </SectionInputCard>
   );

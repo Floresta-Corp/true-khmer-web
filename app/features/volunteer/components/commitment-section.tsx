@@ -23,7 +23,7 @@ function CommitmentLabelSelect({
       options={options}
       placeholder="Select Commitment"
       ariaInvalid={ariaInvalid}
-      triggerClassName="h-11 rounded-[14px] border border-[#E1E7EF] bg-[#F8FAFC] px-3 text-sm font-medium text-[#6A7282] shadow-none hover:bg-[#F8FAFC]"
+      triggerClassName="h-11 rounded-[14px] border border-[#E1E7EF] bg-[#F8FAFC] px-3 text-sm font-medium text-[#6A7282] shadow-none hover:bg-[#F8FAFC] focus:ring-blue-500/45 data-[state=open]:ring-blue-500/45"
     />
   );
 }

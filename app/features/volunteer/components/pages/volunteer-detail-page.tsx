@@ -36,8 +36,9 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
   const prefersReducedMotion = useReducedMotion();
   const fetcher = useFetcher();
   const [isSaved, setIsSaved] = useState(volunteer?.viewerSave ?? false);
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<"details" | "open-roles">(
-    "details",
+    searchParams.get("tab") === "open-roles" ? "open-roles" : "details",
   );
   const handleTabChange = (value: string) => {
     setActiveTab(value === "open-roles" ? "open-roles" : "details");

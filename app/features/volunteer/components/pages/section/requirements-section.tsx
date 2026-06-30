@@ -31,6 +31,8 @@ export default function RequirementsSection({
     onUpdate([...requirements, ""]);
   };
 
+  const lastIsEmpty = requirements[requirements.length - 1]?.trim() === "";
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -40,6 +42,7 @@ export default function RequirementsSection({
           variant="ghost"
           className="h-auto p-0 text-xs font-semibold text-[#2f6fe4]"
           onClick={handleAddPoint}
+          disabled={lastIsEmpty}
         >
           + Add point
         </Button>
@@ -56,7 +59,7 @@ export default function RequirementsSection({
                 newRequirements[index] = e.target.value;
                 onUpdate(newRequirements);
               }}
-              className="h-11 flex-1 rounded-lg border border-transparent bg-[#f8fafc] px-4 text-sm font-medium text-[#364153] placeholder:text-[#c8d6e5]"
+              className="h-11 flex-1 rounded-lg border border-transparent bg-[#f8fafc] px-4 text-sm font-medium text-[#364153] placeholder:text-[#c8d6e5] focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:border-transparent"
             />
             {requirements.length > 1 && (
               <IconButton

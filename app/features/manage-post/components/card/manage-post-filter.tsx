@@ -9,7 +9,6 @@ import {
 } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
 import { motion } from "motion/react";
-import { useState } from "react";
 type TabType = "all" | "projects" | "volunteer";
 
 type FilterType =
@@ -20,13 +19,14 @@ type FilterType =
   | "canceled"
   | "completed"
   | "filled";
-const TABS = [
+const STATUS_TABS = [
   { label: "All", value: "all" },
-  { label: "Volunteer", value: "volunteer" },
-  { label: "Projects", value: "projects" },
-];
-
-const VALID_TABS = ["all", "volunteer", "projects"] as const;
+  { label: "Draft", value: "draft" },
+  { label: "Live", value: "live" },
+  { label: "In-progress", value: "in_progress" },
+  { label: "Completed", value: "completed" },
+  { label: "Cancelled", value: "canceled" },
+] as const;
 type Props = {
   activeType: TabType;
   filter: FilterType;
@@ -46,68 +46,64 @@ export default function ManagePostFilters({
 }: Props) {
   return (
     <div className="flex items-center justify-between gap-4 flex-wrap w-full m-4">
-      <div className="flex items-center gap-3">
-        <div className="flex bg-gray-100 dark:bg-slate-900 p-1 rounded-xl shadow-inner sm:w-max">
-          {TABS.map((tab) => (
-            <button
-              key={tab.value}
-              onClick={() => onTypeChange(tab.value as TabType)}
-              className="relative px-5 py-1.5 text-[14px] font-bold transition-colors duration-300 cursor-pointer z-10"
-            >
-              <span
-                className={cn(
-                  "relative z-20",
-                  activeType === tab.value
-                    ? "text-blue-600 dark:text-white"
-                    : "text-gray-500",
-                )}
-              >
-                {tab.label}
-              </span>
-
-              {activeType === tab.value && (
-                <motion.div
-                  layoutId="applicantsActiveTab"
-                  className="absolute inset-0 bg-white dark:bg-slate-800 rounded-lg shadow-sm z-10"
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                />
+      <div className="flex bg-gray-100 dark:bg-slate-900 p-1 rounded-xl shadow-inner sm:w-max">
+        {STATUS_TABS.map((tab) => (
+          <button
+            key={tab.value}
+            onClick={() => onFilterChange(tab.value as FilterType)}
+            className="relative px-5 py-1.5 text-[14px] font-bold transition-colors duration-300 cursor-pointer z-10"
+          >
+            <span
+              className={cn(
+                "relative z-20",
+                filter === tab.value
+                  ? "text-blue-600 dark:text-white"
+                  : "text-gray-500",
               )}
-            </button>
-          ))}
-        </div>
+            >
+              {tab.label}
+            </span>
 
-        <Select
-          value={filter}
-          onValueChange={(value) => onFilterChange(value as FilterType)}
-        >
-          <SelectTrigger className="w-25 md:w-35 lg:w-35 h-10 text-[14px] font-medium border-slate-200 bg-white rounded-xl focus:ring-blue-500/20">
-            <SelectValue placeholder="Filter" />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl border-slate-200">
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="live">Live</SelectItem>
-            <SelectItem value="draft">Draft</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="canceled">Canceled</SelectItem>
-            <SelectItem value="in_progress">In progress</SelectItem>
-            <SelectItem value="filled">Filled</SelectItem>
-          </SelectContent>
-        </Select>
+            {filter === tab.value && (
+              <motion.div
+                layoutId="managePostActiveTab"
+                className="absolute inset-0 bg-white dark:bg-slate-800 rounded-lg shadow-sm z-10"
+                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+              />
+            )}
+          </button>
+        ))}
       </div>
 
-      <div className="relative flex-1 max-w-md min-w-70">
-        <Search
-          size={16}
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-        />
-        <Input
-          className="h-10 pl-11 pr-4 text-[14px] border-slate-200 bg-white rounded-xl focus-visible:ring-blue-500/20 placeholder:text-slate-400 placeholder:font-medium transition-all"
-          placeholder="Search postings name..."
-          value={searchInput}
-          onChange={(e) => {
-            onSearchChange(e.target.value);
-          }}
-        />
+      <div className="flex items-center gap-3">
+        <Select
+          value={activeType}
+          onValueChange={(value) => onTypeChange(value as TabType)}
+        >
+          <SelectTrigger className="w-30 md:w-36 h-10 text-[14px] font-medium border-slate-200 bg-white rounded-xl focus:ring-blue-500/20">
+            <SelectValue placeholder="All Types" />
+          </SelectTrigger>
+          <SelectContent className="rounded-xl border-slate-200">
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="projects">Project</SelectItem>
+            <SelectItem value="volunteer">Volunteer</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <div className="relative w-56">
+          <Search
+            size={16}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+          />
+          <Input
+            className="h-10 pl-11 pr-4 text-[14px] border-slate-200 bg-white rounded-xl focus-visible:ring-blue-500/20 placeholder:text-slate-400 placeholder:font-medium transition-all"
+            placeholder="Search postings name..."
+            value={searchInput}
+            onChange={(e) => {
+              onSearchChange(e.target.value);
+            }}
+          />
+        </div>
       </div>
     </div>
   );

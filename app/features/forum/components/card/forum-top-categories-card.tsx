@@ -14,7 +14,7 @@ export default function ForumTopCategoriesCard({
   onCategorySelect,
 }: ForumTopCategoriesCardProps) {
   return (
-    <Card className="bg-white border shadow-none rounded-2xl p-5 w-full">
+    <Card className="bg-white border-none shadow-none rounded-2xl p-5 w-full">
       <div className="mb-4">
         <h3 className="font-bold text-lg leading-6.75 text-[#344256]">
           Categories

@@ -120,7 +120,7 @@ export default function LaunchpadProjectCard({
             <div className="text-sm text-[#99A1AF] uppercase font-medium">
               seeking:
             </div>
-            <Badge variant="outline" className="text-[#2F6FE4] bg-white">
+            <Badge className="text-[#2F6FE4] bg-white pointer-events-none">
               {item.totalRoles} ROLES
             </Badge>
           </div>

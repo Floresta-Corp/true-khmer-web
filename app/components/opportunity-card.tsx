@@ -1,5 +1,5 @@
 import { Bookmark, Calendar, Clock, Eye, Heart, MapPin } from "lucide-react";
-import { Link, useFetcher } from "react-router";
+import { Link, useFetcher, useNavigate } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 import { cn, formatCompactNumber, resolveImageURL } from "~/lib/utils";
@@ -23,6 +23,7 @@ export function OpportunityCard({
     opportunity.coverImageKey,
     volunteerPlaceholderImage,
   );
+  const navigate = useNavigate();
   const fetcher = useFetcher();
   const [isHovered, setIsHovered] = useState(false);
   const didNotifyRef = useRef(false);
@@ -71,9 +72,10 @@ export function OpportunityCard({
 
   return (
     <motion.article
-      className="flex h-full flex-col overflow-hidden rounded-[14px] border border-[#f3f4f6] bg-white p-px shadow-[0px_10px_30px_-15px_rgba(0,0,0,0.05)]"
+      className="flex h-full flex-col overflow-hidden rounded-[14px] border border-[#f3f4f6] bg-white p-px shadow-[0px_10px_30px_-15px_rgba(0,0,0,0.05)] cursor-pointer"
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
+      onClick={() => navigate(`/volunteer/detail/${opportunity.id}`)}
     >
       <div className="relative h-39.25 w-full overflow-hidden p-3.5">
         <img
@@ -100,7 +102,10 @@ export function OpportunityCard({
               "cursor-pointer flex size-[31.5px] items-center justify-center rounded-2xl bg-white/95 text-[#9aa2af] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)] transition-colors",
               { "bg-blue-600": opportunity.viewerSave },
             )}
-            onClick={handleOnSaveClicked}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOnSaveClicked();
+            }}
           >
             {loading ? (
               <Spinner />
@@ -120,7 +125,7 @@ export function OpportunityCard({
           <h3 className="text-[17px] font-semibold leading-[21.25px] tracking-[-0.43px] text-[#030213]">
             {opportunity.title}
           </h3>
-          <p className="text-sm font-medium leading-[22.75px] tracking-[-0.15px] text-[#99a1af] line-clamp-3">
+          <p className="text-sm leading-[22.75px] tracking-[-0.15px] text-[#99a1af] line-clamp-3">
             {opportunity.overview}
           </p>
         </div>
@@ -128,27 +133,27 @@ export function OpportunityCard({
         <div className="flex flex-1 flex-col gap-5">
           <div className="grid grid-cols-3 gap-1.75 font-semibold">
             <div className="flex items-center gap-[5.25px] text-[11px] text-[#4a5565]">
-              <Calendar size={13.5} className="text-blue-500" />
-              <span>
+              <Calendar size={13.5} className="text-slate-500" />
+              <span className="text-zinc-800">
                 {opportunity.startDate && opportunity.endDate
                   ? `${format(opportunity.startDate, "MMM dd")} - ${format(opportunity.endDate, "MMM dd")}`
                   : "Date TBD"}
               </span>
             </div>
             <div className="flex items-center gap-[5.25px] text-[11px]">
-              <MapPin size={13.5} className="text-blue-500" />
-              <span>{opportunity.location.name}</span>
+              <MapPin size={13.5} className="text-slate-500" />
+              <span className="text-zinc-800">{opportunity.location.name}</span>
             </div>
             <div className="flex items-center gap-[5.25px] text-[11px]">
-              <Eye size={13.5} className="text-blue-500" />
-              <span>
+              <Eye size={13.5} className="text-slate-500" />
+              <span className="text-zinc-800">
                 {formatCompactNumber(opportunity.totalView)}{" "}
                 {opportunity.totalView > 1 ? "views" : "view"}
               </span>
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.75">
+          <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
               <span className="text-[10px] uppercase font-medium text-gray-400">
                 Spots filled
@@ -166,26 +171,26 @@ export function OpportunityCard({
               />
             </div>
           </div>
+          <div className="flex items-center text-xs -mt-2">
+            <span className="text-gray-400">Application close:</span>
+            <span className="font-medium text-gray-700">
+              {format(opportunity.applicationDeadline, "dd/MM/yyyy")}
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-[10px] font-bold uppercase text-gray-500">
-              Closing
-            </div>
-            <div className="text-[12px] font-medium">
-              {format(opportunity.applicationDeadline, "MMM dd, yyyy")}
-            </div>
-          </div>
-          <Link to={`/volunteer/detail/${opportunity.id}`}>
-            <Button
-              type="button"
-              className="h-9 cursor-pointer rounded-full border border-slate-300 bg-white px-6 text-xs font-semibold text-blue-600 transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50"
-            >
-              Apply Now
-            </Button>
-          </Link>
-        </div>
+        <Link
+          to={`/volunteer/detail/${opportunity.id}?tab=open-roles`}
+          onClick={(e) => e.stopPropagation()}
+          className="w-full"
+        >
+          <Button
+            type="button"
+            className="w-full h-10 cursor-pointer rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:text-blue-500 shadow-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:border-slate-300"
+          >
+            Apply
+          </Button>
+        </Link>
       </div>
     </motion.article>
   );

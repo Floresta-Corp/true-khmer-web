@@ -44,7 +44,7 @@ export default function QuestionCard({
 
   return (
     <motion.article
-      className="w-full rounded-2xl bg-white p-4 shadow-[0px_4px_24px_0px_rgba(0,0,0,0.04)] sm:p-6 border border-slate-200"
+      className="w-full rounded-2xl bg-white p-4 shadow-[0px_4px_24px_0px_rgba(0,0,0,0.04)] sm:p-6"
       initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -73,14 +73,17 @@ export default function QuestionCard({
               >
                 {question.author.name}
               </ProfileLinkWrapper>
-              <span className="hidden text-[#d1d5db] sm:inline">·</span>
+              <span className="hidden text-[#595c5e] sm:inline">•</span>
+              <span className="hidden text-[#595c5e] text-sm sm:inline">
+                in
+              </span>
               <Link
                 to={`/forum?categoryId=${question.category.id}`}
                 className="inline-flex h-auto max-w-full truncate p-0 text-sm font-semibold text-blue-600"
               >
                 {question.category.name}
               </Link>
-              <span className="hidden text-[#d1d5db] sm:inline">·</span>
+              <span className="hidden text-[#595c5e] sm:inline">•</span>
               <span className="text-xs text-[#9eacc0]">{createdAgoLabel}</span>
               {isCurrentAuthor && (
                 <Badge
@@ -196,7 +199,7 @@ export default function QuestionCard({
           {question.tags.slice(0, 5).map((tag) => (
             <span
               key={tag.id}
-              className="text-xs text-[#99a1af] bg-[#f8fafc] border border-[#f1f5f9] rounded-md px-2 py-0.5"
+              className="text-xs text-[#99a1af] rounded-md px-2 py-0.5"
             >
               #{tag.name}
             </span>

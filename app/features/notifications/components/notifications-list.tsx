@@ -1,7 +1,6 @@
 import { CheckCircle2, EllipsisVertical } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Card } from "../../../components/ui/card";
-import { motion } from "motion/react";
 import { Skeleton } from "~/components/ui/skeleton";
 import {
   DropdownMenu,
@@ -117,6 +116,9 @@ export default function NotificationsList({
                   !notif.isRead ? "bg-blue-50/50" : ""
                 }`}
               >
+                {!notif.isRead && (
+                  <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-10 bg-blue-500 rounded-xl" />
+                )}
                 <button
                   type="button"
                   onClick={() => onNotificationClick?.(notif)}
@@ -153,14 +155,6 @@ export default function NotificationsList({
                 <div className="shrink-0 flex flex-col items-end justify-between h-12 min-w-17.5">
                   {/*  Unread Dot or Dropdown Menu on Hover */}
                   <div className="flex items-center justify-end gap-1 h-5 min-w-full">
-                    {/* Unread dot */}
-                    {!notif.isRead && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.6 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="size-2.5 rounded-full bg-blue-600 shrink-0 mx-1"
-                      />
-                    )}
                     {/* Dropdown Menu */}
                     {!notif.isRead && onMarkRead && (
                       <div className="flex items-center">
@@ -191,7 +185,7 @@ export default function NotificationsList({
                   </div>
 
                   {/* Time Stamp */}
-                  <span className="text-xs font-normal text-gray-500 whitespace-nowrap">
+                  <span className="text-[10px] font-normal text-gray-400 whitespace-nowrap">
                     {notif.timeAgo}
                   </span>
                 </div>

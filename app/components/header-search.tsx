@@ -61,53 +61,70 @@ export default function HeaderSearch({
 
   return (
     <>
-      <div className="flex min-h-16.25 flex-1 flex-col rounded-xl border border-[#f3f4f6] bg-white px-2 py-2 sm:px-[11.5px] sm:py-px md:h-16.25 md:flex-row md:items-center md:gap-3.5 items-center">
-        <div className="flex h-10.5 w-full flex-1 items-center gap-[10.5px] px-3.5">
-          <Search className="size-[17.5px] shrink-0 text-[#99a1af]" />
-          <Input
-            type="search"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={inputPlaceholder || "Search by name or mission...."}
-            className="h-10.5 border-0 bg-transparent px-0 py-0 text-sm font-semibold text-[#364153] placeholder:font-semibold placeholder:text-[#99a1af] focus-visible:ring-0 focus-visible:ring-offset-0"
-          />
+      <div className="flex flex-col md:flex-row items-center gap-4 w-full">
+        <div className="flex min-h-16.25 flex-1 w-full flex-col rounded-xl border border-[#f3f4f6] bg-white px-2 py-2 sm:px-[11.5px] sm:py-px md:h-16.25 md:flex-row md:items-center md:gap-3.5 items-center">
+          <div className="flex h-10.5 w-full flex-1 items-center gap-[10.5px] px-3.5">
+            <Search className="size-[17.5px] shrink-0 text-[#99a1af]" />
+            <Input
+              type="search"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={inputPlaceholder || "Search by name or mission...."}
+              className="h-10.5 border-0 bg-transparent px-0 py-0 text-sm font-semibold text-[#364153] placeholder:font-semibold placeholder:text-[#99a1af] focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
+          </div>
+
+          <div className="h-px w-full shrink-0 bg-[#f3f4f6] md:h-8.75 md:w-px" />
+
+          <div className="flex w-full justify-start px-2 md:w-auto md:px-0">
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex h-8.5 w-full items-center justify-between gap-1.5 rounded-xl px-3.5 text-[13px] font-semibold leading-[19.5px] text-[#364153] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:w-auto md:justify-start">
+                {location.name}
+                <ChevronDown className="size-3.5 text-[#364153]/65" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="max-h-64 overflow-y-auto"
+              >
+                {allLocations.map((loc) => (
+                  <DropdownMenuItem
+                    key={loc.id}
+                    onSelect={() => handleLocationSelect(loc)}
+                  >
+                    {loc.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleSearch}
+            aria-label="Search"
+            className="m-1.5 hidden md:flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-blue-50 text-white hover:bg-blue-50/50 transition-colors"
+          >
+            <Search className="size-4 text-[#2f6fe4]" />
+          </button>
         </div>
-        <div className="h-px w-full shrink-0 bg-[#f3f4f6] md:h-8.75 md:w-px" />
-        <div className="flex w-full justify-start px-2 md:w-auto md:px-0">
-          <DropdownMenu>
-            <DropdownMenuTrigger className="flex h-8.5 w-full items-center justify-between gap-1.5 rounded-xl px-3.5 text-[13px] font-semibold leading-[19.5px] text-[#364153] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:w-auto md:justify-start">
-              {location.name}
-              <ChevronDown className="size-3.5 text-[#364153]/65" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="max-h-64 overflow-y-auto"
-            >
-              {allLocations.map((loc) => (
-                <DropdownMenuItem
-                  key={loc.id}
-                  onSelect={() => handleLocationSelect(loc)}
-                >
-                  {loc.name}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-      <Link to={postUrl || "/volunteer/post"} className="w-full md:w-auto">
-        <Button
-          size="lg"
-          className={cn(
-            "cursor-pointer h-14 min-w-0 gap-1.5 rounded-[18px] bg-[#2f6fe4] px-6 text-sm font-medium text-[#f8fafc] shadow-[0_8px_24px_rgba(15,23,42,0.04)] hover:bg-[#245fca] md:min-w-47.75 md:w-auto",
-            `w-[${buttonWidth || "150px"}]`,
-          )}
+
+        <Link
+          to={postUrl || "/volunteer/post"}
+          className="w-full md:w-auto shrink-0"
         >
-          <Plus className="size-4" />
-          {postButton ?? "Post opportunity"}
-        </Button>
-      </Link>
+          <Button
+            size="lg"
+            className={cn(
+              "cursor-pointer h-14 min-w-0 gap-1.5 rounded-[18px] bg-[#2f6fe4] px-6 text-sm font-medium text-[#f8fafc] shadow-[0_8px_24px_rgba(15,23,42,0.04)] hover:bg-[#245fca] md:min-w-47.75 w-full md:w-auto",
+              buttonWidth ? `w-[${buttonWidth}]` : "",
+            )}
+          >
+            <Plus className="size-4" />
+            {postButton ?? "Post opportunity"}
+          </Button>
+        </Link>
+      </div>
     </>
   );
 }

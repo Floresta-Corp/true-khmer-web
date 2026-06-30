@@ -182,7 +182,7 @@ export default function LaunchpadProjectDetailInputCard({
           aria-invalid={Boolean(errors?.name)}
           aria-describedby={errors?.name ? projectNameErrorId : undefined}
           placeholder="e.g., Digital Literacy for Artisans"
-          className="h-12.5 rounded-xl px-4 border-none bg-[#F8FAFC]"
+          className="h-12.5 rounded-xl px-4 border-none bg-[#F8FAFC] focus-visible:ring-1 focus-visible:ring-blue-500/45 focus-visible:border-transparent aria-invalid:ring-1 aria-invalid:ring-red-400/60"
         />
         {errors?.name ? (
           <p id={projectNameErrorId} className="text-xs text-red-500">
@@ -201,7 +201,7 @@ export default function LaunchpadProjectDetailInputCard({
             ariaInvalid={Boolean(errors?.categoryId)}
             ariaDescribedBy={errors?.categoryId ? categoryErrorId : undefined}
             placeholder="e.g., Education"
-            triggerClassName="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
+            triggerClassName="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC] focus:ring-blue-500/45 data-[state=open]:ring-blue-500/45 aria-invalid:ring-1 aria-invalid:ring-red-400/60"
           />
           {errors?.categoryId ? (
             <p id={categoryErrorId} className="text-xs text-red-500">
@@ -219,7 +219,7 @@ export default function LaunchpadProjectDetailInputCard({
             ariaInvalid={Boolean(errors?.cityId)}
             ariaDescribedBy={errors?.cityId ? cityErrorId : undefined}
             placeholder="e.g., Phnom Penh"
-            triggerClassName="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
+            triggerClassName="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC] focus:ring-blue-500/45 data-[state=open]:ring-blue-500/45 aria-invalid:ring-1 aria-invalid:ring-red-400/60"
           />
           {errors?.cityId ? (
             <p id={cityErrorId} className="text-xs text-red-500">
@@ -243,7 +243,7 @@ export default function LaunchpadProjectDetailInputCard({
         <div className="h-25 w-25 mt-2">
           <label
             htmlFor={projectLogoInputId}
-            className="flex h-full w-full cursor-pointer items-center justify-center rounded-2xl border border-dashed border-[#e1e7ef] bg-[#f8fafc] p-4 transition-colors hover:bg-[#f1f5f9]"
+            className={`flex h-full w-full cursor-pointer items-center justify-center rounded-2xl border border-dashed bg-[#f8fafc] p-4 transition-colors hover:bg-[#f1f5f9] ${errors?.logoFile ? "border-red-400 ring-1 ring-red-400/60" : "border-[#e1e7ef]"}`}
           >
             <img
               src={projectLogoPreview}
@@ -278,7 +278,7 @@ export default function LaunchpadProjectDetailInputCard({
         <FieldLabel>Project Cover Image</FieldLabel>
         <div className="mt-2">
           <label htmlFor={projectCoverInputId}>
-            <div className="h-37 w-74.25 border border-gray-200 border-dashed bg-gray-50 rounded-2xl text-center cursor-pointer hover:bg-gray-100">
+            <div className={`h-37 w-74.25 border border-dashed bg-gray-50 rounded-2xl text-center cursor-pointer hover:bg-gray-100 ${errors?.coverFile ? "border-red-400 ring-1 ring-red-400/60" : "border-gray-200"}`}>
               {projectCoverPreview ? (
                 <img
                   src={projectCoverPreview}

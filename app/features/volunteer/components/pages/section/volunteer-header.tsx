@@ -13,11 +13,10 @@ const easings = {
 };
 
 const floatAnimation = {
-  y: [0, -12, 0],
-  scale: [1, 1.03, 1],
-  rotate: [0, 1, 0],
+  y: [0, 6, 0],
+  scale: [1.25, 1.28, 1.25],
   transition: {
-    duration: 6,
+    duration: 8,
     ease: "easeInOut" as const,
     repeat: Infinity,
   },
@@ -35,13 +34,13 @@ function VolunteerHeroBackdrop() {
         alt=""
         src={volunteerHeroBackgroundImage}
         animate={floatAnimation}
-        className="absolute inset-0 h-full w-full object-cover object-center opacity-100"
+        className="absolute inset-0 h-[110%] w-[110%] rotate-180 object-cover object-top opacity-100"
       />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.8)_0%,rgba(255,255,255,0.92)_45%,rgba(255,255,255,0.98)_100%)]" />
+
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.8)_0%,rgba(255,255,255,0.82)_50%,rgba(255,255,255,0.98)_100%)]" />
     </div>
   );
 }
-
 function VolunteerSearchForm({
   dur,
   searchValue,
@@ -210,7 +209,7 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
               animate={
                 dur
                   ? {
-                      color: ["#2463eb", "#7c3aed", "#db2777", "#2463eb"],
+                      color: ["#2463eb"],
                       scale: [1, 1.03, 1, 1],
                     }
                   : undefined

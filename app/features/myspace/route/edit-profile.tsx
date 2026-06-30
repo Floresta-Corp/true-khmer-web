@@ -20,10 +20,7 @@ import {
   Send,
 } from "lucide-react";
 import { motion } from "motion/react";
-import {
-  getCountries,
-  getCountryCallingCode,
-} from "libphonenumber-js";
+import { getCountries, getCountryCallingCode } from "libphonenumber-js";
 import BackToButton from "~/components/back-to-button";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
@@ -387,7 +384,7 @@ export default function EditProfile() {
 
   return (
     <motion.div
-      className="min-h-screen bg-blue-gray-50 py-8 px-4 sm:px-6 lg:px-8"
+      className="min-h-screen bg-[#F8FAFC] py-8 px-4 sm:px-6 lg:px-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -767,10 +764,7 @@ export default function EditProfile() {
                               const activeSuggestion =
                                 skillSuggestions[activeSkillSuggestionIndex];
 
-                              if (
-                                isSkillSuggestionsOpen &&
-                                activeSuggestion
-                              ) {
+                              if (isSkillSuggestionsOpen && activeSuggestion) {
                                 handleAddSkill(activeSuggestion.name);
                                 return;
                               }
@@ -1104,18 +1098,17 @@ export default function EditProfile() {
               >
                 <Card className="border border-gray-200">
                   <CardContent className="p-6">
-                    <h3 className="font-semibold text-gray-900 mb-6">
+                    <h3 className="text-lg font-bold text-gray-900">
                       Profile Visibility
                     </h3>
+                    <p className="mt-1 mb-6 text-sm text-gray-400">
+                      Manage your identity visibility
+                    </p>
                     <motion.div
-                      className="space-y-6"
+                      className="space-y-5"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      transition={{
-                        delay: 0.45,
-                        staggerChildren: 0.08,
-                        duration: 0.4,
-                      }}
+                      transition={{ delay: 0.45, duration: 0.4 }}
                     >
                       {[
                         { key: "profileVisibility", label: "Your Profile" },
@@ -1128,74 +1121,58 @@ export default function EditProfile() {
                       ].map(({ key, label }) => (
                         <motion.div
                           key={key}
-                          className="space-y-3"
+                          className="space-y-2"
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{
-                            delay: 0.45,
-                            duration: 0.4,
-                          }}
+                          transition={{ delay: 0.45, duration: 0.4 }}
                         >
-                          <p className="text-sm font-medium text-gray-700">
+                          <p className="text-sm font-semibold text-gray-800">
                             {label}
                           </p>
-                          <motion.div
-                            className="flex gap-2"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{
-                              staggerChildren: 0.05,
-                              duration: 0.3,
-                            }}
-                          >
-                            {["public", "members", "private"].map((option) => (
-                              <motion.div
-                                key={option}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{
-                                  type: "spring",
-                                  stiffness: 400,
-                                  damping: 30,
-                                }}
-                              >
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  variant={
-                                    watch(key as keyof EditProfileFormData) ===
-                                    option
-                                      ? "default"
-                                      : "outline"
-                                  }
-                                  className={`text-xs font-medium transition-all ${
-                                    watch(key as keyof EditProfileFormData) ===
-                                    option
-                                      ? "bg-blue-600 hover:bg-blue-700 text-white"
-                                      : ""
-                                  }`}
-                                  onClick={() =>
-                                    toggleVisibility(
-                                      key as
-                                        | "profileVisibility"
-                                        | "contactVisibility"
-                                        | "socialLinksVisibility"
-                                        | "contributionsVisibility",
-                                      option,
-                                    )
-                                  }
+                          <div className="flex gap-3">
+                            {["public", "members", "private"].map((option) => {
+                              const isActive =
+                                watch(key as keyof EditProfileFormData) ===
+                                option;
+                              return (
+                                <motion.div
+                                  key={option}
+                                  whileHover={{ scale: 1.03 }}
+                                  whileTap={{ scale: 0.97 }}
                                 >
-                                  {option.charAt(0).toUpperCase() +
-                                    option.slice(1)}
-                                </Button>
-                              </motion.div>
-                            ))}
-                          </motion.div>
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    onClick={() =>
+                                      toggleVisibility(
+                                        key as
+                                          | "profileVisibility"
+                                          | "contactVisibility"
+                                          | "socialLinksVisibility"
+                                          | "contributionsVisibility",
+                                        option,
+                                      )
+                                    }
+                                    className={`h-9 rounded-lg px-4 gap-5 text-sm font-medium transition-all border-0 shadow-none ${
+                                      isActive
+                                        ? "bg-blue-600 hover:bg-blue-700 text-white"
+                                        : "bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700"
+                                    }`}
+                                  >
+                                    {option.charAt(0).toUpperCase() +
+                                      option.slice(1)}
+                                  </Button>
+                                </motion.div>
+                              );
+                            })}
+                          </div>
                         </motion.div>
                       ))}
                     </motion.div>
+                    <p className="mt-6 text-xs italic text-gray-400">
+                      Visibility settings affect how your data appears in search
+                      results and to other community members.
+                    </p>
                   </CardContent>
                 </Card>
               </motion.div>

@@ -50,7 +50,7 @@ export default function LaunchpadOpenRoleCard({
             value={name}
             onChange={(event) => onNameChange(event.target.value)}
             placeholder="e.g., Field Researcher"
-            className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
+            className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC] focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:border-transparent"
           />
         </div>
         <div className="space-y-3">
@@ -65,7 +65,7 @@ export default function LaunchpadOpenRoleCard({
               onCapacityChange(Number.isFinite(nextValue) ? nextValue : 1);
             }}
             placeholder="1"
-            className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
+            className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC] focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:border-transparent"
           />
         </div>
         <div className="space-y-3 col-span-2">
@@ -74,13 +74,14 @@ export default function LaunchpadOpenRoleCard({
             value={description}
             onChange={(event) => onDescriptionChange(event.target.value)}
             placeholder="What will this person do and what skills are you looking for?"
-            className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC]"
+            className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC] focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:border-transparent"
           />
         </div>
         <div className="col-span-2 flex items-center gap-3">
           <Button
             type="button"
             onClick={onAddRole}
+            disabled={name.trim() === ""}
             aria-describedby={roleError ? roleErrorId : undefined}
             className="cursor-pointer h-10 bg-blue-500 hover:bg-blue-600"
           >
