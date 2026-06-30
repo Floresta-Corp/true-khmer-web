@@ -121,15 +121,15 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                   <Link
                     to={`/login?redirectTo=${encodeURIComponent(loginRedirectTo || "/")}`}
                   >
-                    Login
+                    Sign in
                   </Link>
                 </Button>
                 <Button
-                  size="sm"
+                  size="lg"
                   asChild
                   className="bg-linear-to-r from-[#0082e1] to-[#5ab9ff] text-white hover:from-[#0078d2] hover:to-[#4aaef8]"
                 >
-                  <Link to="/register">Register</Link>
+                  <Link to="/register">Join the community</Link>
                 </Button>
               </div>
             )}
