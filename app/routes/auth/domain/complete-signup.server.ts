@@ -18,6 +18,7 @@ import { requireSignupCompletion } from "~/lib/server/route-guards.server";
 import { destinationFromAuthFlow } from "./auth-flow.server";
 import type { CompleteSignUpErrors } from "./auth.types";
 import { invalidateAuthSessionCacheForRequest } from "~/services/auth/session.server";
+import { sanitizePhoneNumber } from "~/lib/phone";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const auth = await requireSignupCompletion(request);
@@ -49,6 +50,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const phoneNationalNumber = String(
     formData.get("phone.nationalNumber") || "",
   ).trim();
+  const sanitizedPhoneNationalNumber = sanitizePhoneNumber(phoneNationalNumber);
   const gender = String(formData.get("gender") || "").trim();
   const occupation = String(formData.get("occupation") || "").trim();
   const memberAgreementAccepted =
@@ -57,7 +59,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const errors: CompleteSignUpErrors = {};
   if (!firstName) errors.firstName = "First name is required";
   if (!lastName) errors.lastName = "Last name is required";
-  if (!phoneCountry || !phoneNationalNumber) {
+  if (!phoneCountry || !sanitizedPhoneNationalNumber) {
     errors.phone = "Contact number is required";
   }
   if (!gender) errors.gender = "Gender is required";
@@ -79,7 +81,7 @@ export async function action({ request }: ActionFunctionArgs) {
         occupation,
         phone: {
           country: phoneCountry,
-          nationalNumber: phoneNationalNumber,
+          nationalNumber: sanitizedPhoneNationalNumber,
         },
         memberAgreementAccepted: true,
       },

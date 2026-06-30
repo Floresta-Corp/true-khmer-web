@@ -31,6 +31,7 @@ import {
 } from "~/components/ui/select";
 import { FormError } from "~/routes/auth/components/form-error";
 import { resolveImageURL } from "~/lib/utils";
+import { sanitizePhoneNumber } from "~/lib/phone";
 import {
   action as completeSignUpAction,
   loader as completeSignUpLoader,
@@ -111,7 +112,7 @@ export default function CompleteSignUpPage() {
     (user.phone?.country as CountryCode | undefined) ?? "KH",
   );
   const [contactNumber, setContactNumber] = useState(
-    user.phone?.nationalNumber ?? "",
+    sanitizePhoneNumber(user.phone?.nationalNumber ?? ""),
   );
   const [occupation, setOccupation] = useState(user.occupation ?? "");
   const [gender, setGender] = useState("");
@@ -298,9 +299,11 @@ export default function CompleteSignUpPage() {
               <Input
                 id="contactNumber"
                 value={contactNumber}
-                onChange={(event) => setContactNumber(event.target.value)}
+                onChange={(event) =>
+                  setContactNumber(sanitizePhoneNumber(event.target.value))
+                }
                 placeholder="12 345 678"
-                inputMode="tel"
+                inputMode="numeric"
                 autoComplete="tel-national"
                 className="h-full rounded-l-none rounded-r-lg border-[#C3C6D6] px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-gray-500 focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20"
               />
