@@ -37,6 +37,7 @@ export default function TrendingTopics({
           <button
             key={tag.id}
             onClick={() => onTagSelect?.(tag)}
+            aria-pressed={selectedTagId === tag.id}
             className="flex items-center justify-between w-full text-left group"
           >
             <span

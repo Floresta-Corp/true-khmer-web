@@ -51,6 +51,7 @@ export default function ManagePostFilters({
           <button
             key={tab.value}
             onClick={() => onFilterChange(tab.value as FilterType)}
+            aria-pressed={filter === tab.value}
             className="relative px-5 py-1.5 text-[14px] font-bold transition-colors duration-300 cursor-pointer z-10"
           >
             <span

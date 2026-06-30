@@ -22,7 +22,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "~/components/ui/dropdown-menu";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CommitmentSection from "../sections/commitment-section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import AvailableRolesSection from "../sections/available-role-section";
@@ -40,6 +40,9 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
   const [activeTab, setActiveTab] = useState<"details" | "open-roles">(
     searchParams.get("tab") === "open-roles" ? "open-roles" : "details",
   );
+  useEffect(() => {
+    setActiveTab(searchParams.get("tab") === "open-roles" ? "open-roles" : "details");
+  }, [searchParams]);
   const handleTabChange = (value: string) => {
     setActiveTab(value === "open-roles" ? "open-roles" : "details");
   };

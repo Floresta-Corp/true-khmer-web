@@ -1143,6 +1143,7 @@ export default function EditProfile() {
                                   <Button
                                     type="button"
                                     size="sm"
+                                    aria-pressed={isActive}
                                     onClick={() =>
                                       toggleVisibility(
                                         key as

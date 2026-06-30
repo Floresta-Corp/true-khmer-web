@@ -179,18 +179,14 @@ export function OpportunityCard({
           </div>
         </div>
 
-        <Link
-          to={`/volunteer/detail/${opportunity.id}?tab=open-roles`}
-          onClick={(e) => e.stopPropagation()}
-          className="w-full"
-        >
-          <Button
-            type="button"
-            className="w-full h-10 cursor-pointer rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:text-blue-500 shadow-none transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-50 hover:border-slate-300"
+        <Button className="w-full h-10 cursor-pointer rounded-xl border border-slate-200 bg-white hover:bg-gray-100 text-sm font-medium text-slate-700 hover:text-blue-500 shadow-none transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300">
+          <Link
+            to={`/volunteer/detail/${opportunity.id}?tab=open-roles`}
+            onClick={(e) => e.stopPropagation()}
           >
             Apply
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
     </motion.article>
   );
