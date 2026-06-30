@@ -16,6 +16,7 @@ import {
 } from "~/services/auth/api.server";
 import { redirectIfAuthenticated } from "~/lib/server/route-guards.server";
 import { sanitizeRedirectPath } from "~/lib/redirects";
+import { sanitizePhoneNumber } from "~/lib/phone";
 import { getPasswordValidationError } from "./password-validation";
 import { createUserSession } from "~/lib/server/session.server";
 import { destinationFromAuthFlow } from "./auth-flow.server";
@@ -77,6 +78,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const phoneNationalNumber = String(
     formData.get("phone.nationalNumber") || "",
   ).trim();
+  const sanitizedPhoneNationalNumber = sanitizePhoneNumber(phoneNationalNumber);
   const gender = String(formData.get("gender") || "");
   const occupation = String(formData.get("occupation") || "");
   const waitlistId = String(formData.get("waitlistId") || "").trim();
@@ -122,7 +124,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!lastName) errors.lastName = "Last name is required";
   if (!email) errors.email = "Email is required";
   else if (!email.includes("@")) errors.email = "Must be a valid email";
-  if (!phoneCountry || !phoneNationalNumber) {
+  if (!phoneCountry || !sanitizedPhoneNationalNumber) {
     errors.phone = "Phone number is required";
   }
   const parsedGender = GenderSchema.safeParse(gender);
@@ -151,7 +153,7 @@ export async function action({ request }: ActionFunctionArgs) {
         lastName,
         phone: {
           country: phoneCountry,
-          nationalNumber: phoneNationalNumber,
+          nationalNumber: sanitizedPhoneNationalNumber,
         },
         gender: parsedGender.data,
         occupation,

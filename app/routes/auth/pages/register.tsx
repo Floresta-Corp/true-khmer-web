@@ -45,6 +45,7 @@ import {
   SelectTrigger,
 } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
+import { sanitizePhoneNumber } from "~/lib/phone";
 import { sanitizeRedirectPath } from "~/lib/redirects";
 
 export const loader = registerLoader;
@@ -179,7 +180,7 @@ export default function RegisterPage() {
     (waitlistPrefill?.phone.country as CountryCode | undefined) ?? "KH",
   );
   const [contactNumber, setContactNumber] = useState(
-    waitlistPrefill?.phone.nationalNumber ?? "",
+    sanitizePhoneNumber(waitlistPrefill?.phone.nationalNumber ?? ""),
   );
   const [gender, setGender] = useState(waitlistPrefill?.gender ?? "");
   const [occupation, setOccupation] = useState(
@@ -441,9 +442,11 @@ export default function RegisterPage() {
               <Input
                 id="contactNumber"
                 value={contactNumber}
-                onChange={(event) => setContactNumber(event.target.value)}
+                onChange={(event) =>
+                  setContactNumber(sanitizePhoneNumber(event.target.value))
+                }
                 placeholder="12 345 678"
-                inputMode="tel"
+                inputMode="numeric"
                 autoComplete="tel-national"
                 className="h-full rounded-l-none rounded-r-lg border-[#C3C6D6] px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-gray-500 focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20"
               />

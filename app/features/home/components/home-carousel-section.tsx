@@ -1,0 +1,81 @@
+import { useRef, type ReactNode } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "~/lib/utils";
+
+interface HomeCarouselSectionProps {
+  title: string;
+  className?: string;
+  trailing?: ReactNode;
+  children: ReactNode;
+}
+
+export function HomeCarouselSection({
+  title,
+  className,
+  trailing,
+  children,
+}: HomeCarouselSectionProps) {
+  const rowRef = useRef<HTMLDivElement>(null);
+
+  const scrollBy = (direction: 1 | -1) => {
+    const row = rowRef.current;
+    if (!row) return;
+    row.scrollBy({
+      left: direction * row.clientWidth * 0.85,
+      behavior: "smooth",
+    });
+  };
+
+  return (
+    <section className={cn("py-12 lg:py-16", className)}>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-9 flex items-center justify-between gap-4">
+          <h2 className="text-2xl font-semibold tracking-[-0.04em] text-[#333333] sm:text-[36px] sm:leading-11">
+            {title}
+          </h2>
+          <div className="flex items-center gap-2">
+            <ArrowButton
+              label="Scroll left"
+              onClick={() => scrollBy(-1)}
+              icon={<ChevronLeft className="size-5" />}
+            />
+            <ArrowButton
+              label="Scroll right"
+              onClick={() => scrollBy(1)}
+              icon={<ChevronRight className="size-5" />}
+            />
+          </div>
+        </div>
+
+        <div
+          ref={rowRef}
+          className="-mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-pl-4 px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0 sm:scroll-pl-0"
+        >
+          {children}
+          {trailing}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ArrowButton({
+  label,
+  onClick,
+  icon,
+}: {
+  label: string;
+  onClick: () => void;
+  icon: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      className="flex items-center justify-center rounded-lg border border-[#e9eaeb] bg-white p-3 text-[#454a53] transition-colors hover:border-[#2f6fe4] hover:text-[#2f6fe4]"
+    >
+      {icon}
+    </button>
+  );
+}
