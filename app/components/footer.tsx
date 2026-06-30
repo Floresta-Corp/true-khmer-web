@@ -7,10 +7,10 @@ const footerColumns = [
     heading: "Platform",
     links: [
       { label: "Forum", to: "/forum" },
-      { label: "Events", to: "/events" },
+      // { label: "Events", to: "/events" },
       { label: "Volunteers", to: "/volunteer" },
       { label: "Launchpad", to: "/launchpad" },
-      { label: "People of Cambodia", to: "/people" },
+      { label: "People of Cambodia", to: "#" },
     ],
   },
   {
@@ -106,7 +106,7 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-12 flex flex-col gap-4 border-t border-[#e2e8f0] pt-8 text-sm text-[#6a7282] sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 True Khmer. All Rights Reserved.</p>
+          <p>© {new Date().getFullYear()} True Khmer. All Rights Reserved.</p>
           <div className="flex flex-wrap items-center gap-6">
             {legalLinks.map((link) => (
               <Link
