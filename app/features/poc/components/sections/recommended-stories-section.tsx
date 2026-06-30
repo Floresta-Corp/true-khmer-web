@@ -146,10 +146,10 @@ function StoryCard({ story, onCardClick, onLike, onShare }: any) {
             </div>
 
             {/* Shares */}
-            <div className="flex items-center gap-[5px]">
+            <div className="flex items-center gap-1.25">
               <img
                 alt="shares"
-                className="w-[14px] h-[14px] cursor-pointer hover:opacity-80"
+                className="w-3.5 h-3.5 cursor-pointer hover:opacity-80"
                 src={imgShare2}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -175,7 +175,7 @@ export function RecommendedStoriesSection({
 
   return (
     <div
-      className="w-full bg-white px-[250px] py-[80px]"
+      className="w-full bg-white px-62.5 py-20"
       data-name="Features Block"
       data-node-id="14300:4043"
     >
@@ -186,26 +186,27 @@ export function RecommendedStoriesSection({
           <div className="flex flex-col gap-3">
             {/* Discovery Label */}
             <div className="flex items-center gap-[10.5px]">
-              <div className="w-[28px] h-[3.5px] bg-blue-600 rounded-full" />
+              <div className="w-7 h-[3.5px] bg-blue-600 rounded-full" />
               <p className="text-blue-600 font-bold text-[12px] uppercase tracking-widest">
                 Discovery
               </p>
             </div>
             {/* Main Title */}
-            <h2 className="font-bold text-[32px] leading-[48px] text-gray-900 tracking-tight">
+            <h2 className="font-bold text-[32px] leading-12 text-gray-900 tracking-tight">
               Recommended Stories
             </h2>
           </div>
 
           {/* Right Section - Tabs */}
-          <div className="flex gap-[14px] items-start">
+          <div className="flex gap-3.5 items-start">
             {/* Trending Tab */}
             <button
               onClick={() => setActiveTab("trending")}
-              className={`pb-2 font-bold text-[13px] tracking-tight transition-colors ${activeTab === "trending"
+              className={`pb-2 font-bold text-[13px] tracking-tight transition-colors ${
+                activeTab === "trending"
                   ? "text-gray-400 border-b-0"
                   : "text-gray-400 border-b-0 hover:text-gray-600"
-                }`}
+              }`}
             >
               Trending
             </button>
@@ -213,10 +214,11 @@ export function RecommendedStoriesSection({
             {/* Recent Tab */}
             <button
               onClick={() => setActiveTab("recent")}
-              className={`pb-2 font-bold text-[13px] tracking-tight transition-colors border-b-2 ${activeTab === "recent"
+              className={`pb-2 font-bold text-[13px] tracking-tight transition-colors border-b-2 ${
+                activeTab === "recent"
                   ? "text-gray-900 border-blue-600"
                   : "text-gray-400 border-transparent"
-                }`}
+              }`}
             >
               Recent
             </button>
