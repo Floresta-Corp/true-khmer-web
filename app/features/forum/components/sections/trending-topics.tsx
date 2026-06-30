@@ -41,7 +41,7 @@ export default function TrendingTopics({
             className="flex items-center justify-between w-full text-left group"
           >
             <span
-              className={`inline-flex items-center rounded-lg px-3 py-1 text-xs font-medium transition-colors ${
+              className={`inline-flex items-center rounded-lg px-3 py-1 text-xs cursor-pointer font-medium transition-colors ${
                 selectedTagId === tag.id
                   ? "bg-[#eaf2ff] text-[#0050d4]"
                   : "bg-[#f1f5f9] text-[#344256] group-hover:bg-[#eaf2ff] group-hover:text-[#0050d4]"

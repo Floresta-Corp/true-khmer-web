@@ -179,7 +179,11 @@ export function OpportunityCard({
           </div>
         </div>
 
-        <Button className="w-full h-10 cursor-pointer rounded-xl border border-slate-200 bg-white hover:bg-gray-100 text-sm font-medium text-slate-700 hover:text-blue-500 shadow-none transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300">
+        <Button
+          asChild
+          variant="ghost"
+          className="w-full h-10 cursor-pointer rounded-xl border border-slate-200 bg-white hover:bg-gray-200 text-sm font-medium text-slate-700 hover:text-blue-500 shadow-none transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300"
+        >
           <Link
             to={`/volunteer/detail/${opportunity.id}?tab=open-roles`}
             onClick={(e) => e.stopPropagation()}

@@ -1154,7 +1154,7 @@ export default function EditProfile() {
                                         option,
                                       )
                                     }
-                                    className={`h-9 rounded-lg px-4 gap-5 text-sm font-medium transition-all border-0 shadow-none ${
+                                    className={`h-9 rounded-lg px-4 gap-5 text-xs font-medium transition-all border-0 shadow-none ${
                                       isActive
                                         ? "bg-blue-600 hover:bg-blue-700 text-white"
                                         : "bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700"
