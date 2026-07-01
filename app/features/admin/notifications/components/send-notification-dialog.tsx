@@ -130,7 +130,7 @@ function NotificationForm({ onClose }: { onClose: () => void }) {
               />
             </FieldWrapper>
 
-            <div className="grid grid-cols gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <FieldWrapper label="Type">
                 <input type="hidden" name="type" value={notifType} />
                 <Select value={notifType} onValueChange={setNotifType}>
