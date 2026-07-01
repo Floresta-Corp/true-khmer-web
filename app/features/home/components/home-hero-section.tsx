@@ -98,7 +98,7 @@ export function HomeHeroSection({ isAuthenticated }: HomeHeroSectionProps) {
             variant="outline"
             className="h-11 rounded-lg border-[#1c5dd4] bg-white px-5 text-sm font-medium text-[#1c5dd4] hover:bg-[#1c5dd4]/5 hover:text-[#1c5dd4]"
           >
-            <Link to="/about">Learn More</Link>
+            <Link to="#">Learn More</Link>
           </Button>
         </div>
       </div>

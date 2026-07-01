@@ -207,7 +207,7 @@ export default function LaunchpadPostPage2({
           Cancel
         </Button>
         <Button
-          disabled={isSubmitting}
+          disabled={isSubmitting || roles.length === 0 || email.trim() === "" || phoneNumber.trim() === ""}
           onClick={onPublishedClicked}
           className="bg-blue-500 cursor-pointer hover:bg-blue-600 text-white h-10 px-6"
         >

@@ -112,6 +112,10 @@ export default function VolunteerPostPage2({
   }, []);
 
   const hasSavedRoles = formData.roles.some((role) => !isBlankRole(role));
+  const canPublish =
+    hasSavedRoles &&
+    safeTrim(formData.contact?.phone) !== "" &&
+    safeTrim(formData.contact?.email) !== "";
   const currentRoleErrors = hasSavedRoles ? undefined : errors?.roleErrors?.[0];
 
   const updateContactField = (
@@ -226,6 +230,7 @@ export default function VolunteerPostPage2({
         onBack={onBackToDetails}
         onSubmit={onSubmit}
         isSubmitting={isSubmitting}
+        canPublish={canPublish}
       />
 
       <PublishOpportunitySuccessDialog

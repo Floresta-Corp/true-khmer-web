@@ -173,8 +173,8 @@ export function VolunteerAvailableOpportunities({
             <Link to="/volunteer/all">
               <Button
                 type="button"
-                variant="outline"
-                className="h-9 px-4 text-sm"
+                variant="ghost"
+                className="h-9 px-4 text-sm text-blue-500 hover:text-blue-700 hover:bg-transparent hover:underline"
               >
                 View all
               </Button>

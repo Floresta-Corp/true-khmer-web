@@ -1,12 +1,17 @@
-import { Hash } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { Card } from "~/components/ui/card";
-import { Toggle } from "~/components/ui/toggle";
 import type { TrendingTagResponse } from "~/types/api-client";
 
 interface TrendingTopicsProps {
   tags?: TrendingTagResponse[] | undefined;
   selectedTagId?: string;
   onTagSelect?: (tag: TrendingTagResponse) => void;
+}
+
+function formatCount(count: number): string {
+  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
+  if (count >= 1_000) return `${(count / 1_000).toFixed(1)}K`;
+  return `${count}`;
 }
 
 export default function TrendingTopics({
@@ -19,31 +24,35 @@ export default function TrendingTopics({
   }
 
   return (
-    <Card className="bg-white border shadow-none rounded-2xl p-5 w-full">
-      {/* Header */}
+    <Card className="bg-white border-none shadow-none rounded-2xl p-5 w-full">
       <div className="flex items-center gap-2 mb-4">
-        <Hash className="w-6 h-6 text-[#344256]" />
-        <h3 className="font-bold text-lg leading-6.75 text-[#344256]">
+        <TrendingUp className="w-5 h-5 text-blue-600" />
+        <h3 className="font-medium text-sm leading-6.75 text-[#344256]">
           Trending Topics
         </h3>
       </div>
 
-      {/* Topics badges */}
-      <div className="flex flex-wrap gap-1.75">
+      <div className="flex flex-col gap-3">
         {tags.map((tag) => (
-          <Toggle
+          <button
             key={tag.id}
-            pressed={selectedTagId === tag.id}
             onClick={() => onTagSelect?.(tag)}
-            className={`inline-flex cursor-pointer rounded-lg border px-2 py-1 text-xs font-medium transition-colors ${
-              selectedTagId === tag.id
-                ? "border-[#c7dcff] bg-[#eaf2ff] text-[#0050d4]"
-                : "border-[#e1e7ef] bg-white text-[#65758b] hover:border-[#c7dcff] hover:text-[#0050d4]"
-            }`}
-            title={tag.name}
+            aria-pressed={selectedTagId === tag.id}
+            className="flex items-center justify-between w-full text-left group"
           >
-            #{tag.name}
-          </Toggle>
+            <span
+              className={`inline-flex items-center rounded-lg px-3 py-1 text-xs cursor-pointer font-medium transition-colors ${
+                selectedTagId === tag.id
+                  ? "bg-[#eaf2ff] text-[#0050d4]"
+                  : "bg-[#f1f5f9] text-[#344256] group-hover:bg-[#eaf2ff] group-hover:text-[#0050d4]"
+              }`}
+            >
+              #{tag.name}
+            </span>
+            <span className="text-xs text-[#65758b]">
+              {formatCount(tag.count)} posts
+            </span>
+          </button>
         ))}
       </div>
     </Card>

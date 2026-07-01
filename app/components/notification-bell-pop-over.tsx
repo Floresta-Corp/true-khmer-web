@@ -205,7 +205,7 @@ export default function NotificationBellPopOver() {
                   onClick={() => handleNotificationClick(notif)}
                   className={cn(
                     "flex w-full cursor-pointer items-start gap-3 border-b border-gray-100 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-slate-50",
-                    !notif.isRead && "bg-blue-50",
+                    !notif.isRead && "",
                   )}
                 >
                   {/* Icon */}

@@ -31,9 +31,9 @@ function LaunchpadHeroBackdrop() {
         alt=""
         src={launchpadHeroBackgroundImage}
         animate={floatAnimation}
-        className="absolute inset-0 h-full w-full object-cover object-center"
+        className="absolute inset-[-5%] h-[110%] w-[110%] object-cover object-center"
       />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.8)_0%,rgba(255,255,255,0.92)_45%,rgba(255,255,255,0.98)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(170deg,rgba(255,255,255,0.25)_0%,rgba(255,255,255,0.75)_30%,rgba(255,255,255,1)_100%)]" />
     </div>
   );
 }
@@ -47,9 +47,12 @@ export default function LaunchpadHeaderSection() {
     <motion.section
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.2 * dur, ease: "easeInOut" as const } }}
+      exit={{
+        opacity: 0,
+        transition: { duration: 0.2 * dur, ease: "easeInOut" as const },
+      }}
       transition={{ duration: 0.4 * dur, ease: "easeInOut" as const }}
-      className="relative flex w-full justify-center overflow-hidden px-4 py-16 sm:px-6 sm:py-20 lg:py-24"
+      className="relative flex w-full h-125 justify-center overflow-hidden px-4 py-16 sm:px-6 sm:py-20 lg:py-24"
     >
       <LaunchpadHeroBackdrop />
 
@@ -57,7 +60,11 @@ export default function LaunchpadHeaderSection() {
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20, transition: { duration: 0.2 * dur, ease: "easeInOut" as const } }}
+          exit={{
+            opacity: 0,
+            y: -20,
+            transition: { duration: 0.2 * dur, ease: "easeInOut" as const },
+          }}
           transition={{
             duration: 0.7 * dur,
             ease: easings.enter,
@@ -70,7 +77,7 @@ export default function LaunchpadHeaderSection() {
               animate={
                 dur
                   ? {
-                      color: ["#2463eb", "#7c3aed", "#db2777", "#2463eb"],
+                      color: ["#2463eb"],
                       scale: [1, 1.03, 1, 1],
                     }
                   : undefined
@@ -88,7 +95,11 @@ export default function LaunchpadHeaderSection() {
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16, transition: { duration: 0.2 * dur, ease: "easeInOut" as const } }}
+            exit={{
+              opacity: 0,
+              y: -16,
+              transition: { duration: 0.2 * dur, ease: "easeInOut" as const },
+            }}
             transition={{
               duration: 0.6 * dur,
               delay: 0.15 * dur,
@@ -104,7 +115,11 @@ export default function LaunchpadHeaderSection() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -12, transition: { duration: 0.2 * dur, ease: "easeInOut" as const } }}
+          exit={{
+            opacity: 0,
+            y: -12,
+            transition: { duration: 0.2 * dur, ease: "easeInOut" as const },
+          }}
           transition={{
             duration: 0.55 * dur,
             delay: 0.3 * dur,

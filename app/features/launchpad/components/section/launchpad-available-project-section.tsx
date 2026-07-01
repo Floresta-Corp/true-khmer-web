@@ -26,8 +26,8 @@ export function LaunchpadAvailableProjectsSection() {
         <header className="py-10 flex items-center justify-between">
           <div className="text-3xl font-bold">All Projects</div>
           <Button
-            className="cursor-pointer"
-            variant={"outline"}
+            className="h-9 px-4 text-sm text-blue-500 hover:text-blue-700 hover:bg-transparent hover:underline"
+            variant={"ghost"}
             onClick={() => navigate("/launchpad/all")}
           >
             View All

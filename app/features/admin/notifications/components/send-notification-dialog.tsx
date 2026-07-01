@@ -130,7 +130,7 @@ function NotificationForm({ onClose }: { onClose: () => void }) {
               />
             </FieldWrapper>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <FieldWrapper label="Type">
                 <input type="hidden" name="type" value={notifType} />
                 <Select value={notifType} onValueChange={setNotifType}>
@@ -141,14 +141,14 @@ function NotificationForm({ onClose }: { onClose: () => void }) {
                     {(
                       [
                         ["system", "System"],
-                        ["forum", "Forum"],
-                        ["profile_view", "Profile View"],
-                        ["new_message", "New Message"],
-                        ["achievement", "Achievement"],
-                        ["event_reminder", "Event Reminder"],
-                        ["application", "Application"],
-                        ["launchpad_update", "Launchpad Update"],
-                        ["points", "Points"],
+                        // ["forum", "Forum"],
+                        // ["profile_view", "Profile View"],
+                        // ["new_message", "New Message"],
+                        // ["achievement", "Achievement"],
+                        // ["event_reminder", "Event Reminder"],
+                        // ["application", "Application"],
+                        // ["launchpad_update", "Launchpad Update"],
+                        // ["points", "Points"],
                       ] as const
                     ).map(([value, label]) => (
                       <SelectItem
@@ -163,14 +163,14 @@ function NotificationForm({ onClose }: { onClose: () => void }) {
                 </Select>
               </FieldWrapper>
 
-              <FieldWrapper label="Image URL" htmlFor="notif-image">
+              {/* <FieldWrapper label="Image URL" htmlFor="notif-image">
                 <Input
                   id="notif-image"
                   name="imageUrl"
                   placeholder="https://…"
                   className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 rounded-xl h-10 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus-visible:border-amber-500 focus-visible:ring-amber-500/20"
                 />
-              </FieldWrapper>
+              </FieldWrapper> */}
             </div>
 
             {/* Web + Mobile routes */}

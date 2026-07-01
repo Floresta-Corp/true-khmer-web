@@ -61,14 +61,15 @@ function CustomTextarea({
   };
 
   return (
-    <Textarea
+    <textarea
       ref={textareaRef}
       id={id}
       className={cn(
-        "w-full rounded-lg bg-[#F8FAFC] px-4 py-3 text-sm font-medium leading-5 text-[#364153] placeholder:text-[#C8D6E5] focus:outline-none focus:ring-2 focus:ring-ring",
+        "w-full rounded-lg bg-[#F8FAFC] px-4 py-3 text-sm font-medium leading-5 text-[#364153] placeholder:text-[#C8D6E5] focus:outline-none",
+        "border",
         hasError
-          ? "border-red-500 ring-1 ring-red-200"
-          : "border border-transparent",
+          ? "border-red-500 ring-2 ring-red-200 focus:ring-red-500"
+          : "border-transparent focus:ring-2 focus:ring-blue-500/45",
       )}
       placeholder={placeholder}
       value={value}
@@ -215,7 +216,7 @@ export default function VolunteerPostPage1({
         <div className="mt-6 border-t border-[#F3F4F6]" />
 
         <div className="mt-6 space-y-6">
-          <div className="space-y-2">
+          <div className="space-y-4">
             <FieldLabel className="text-[13px] font-semibold leading-[19.5px] text-[#344256]">
               Opportunity name
             </FieldLabel>
@@ -226,19 +227,19 @@ export default function VolunteerPostPage1({
               onChange={(e) => onUpdateField("title", e.target.value)}
               placeholder="e.g., Digital Literacy for Artisans"
               aria-invalid={Boolean(errors?.title)}
-              className={`h-12.5 rounded-[14px] bg-[#F8FAFC] px-4.5 text-sm font-medium text-[#364153] placeholder:text-[#C8D6E5] ${errors?.title ? "border-red-500" : "border-transparent"}`}
+              className={`h-12.5 rounded-[14px] bg-[#F8FAFC] px-4.5 text-sm text-[#364153] placeholder:text-[#C8D6E5] focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:border-transparent ${errors?.title ? "border-red-500" : "border-transparent"}`}
             />
             {errors?.title ? (
               <p className="text-xs text-red-500">{errors.title}</p>
             ) : null}
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
-            <div className="space-y-2">
+          <div className="grid gap-8 md:grid-cols-2">
+            <div className="space-y-4">
               <FieldLabel>Category</FieldLabel>
               <SelectOption
                 id="categoryId"
-                triggerClassName="h-11 w-full rounded-[14px] border border-[#E1E7EF] bg-[#F8FAFC] px-3 text-sm font-medium text-[#6A7282] shadow-none hover:bg-[#F8FAFC]"
+                triggerClassName="h-11 w-full rounded-[14px] border border-[#E1E7EF] bg-[#F8FAFC] px-3 text-sm font-medium text-black shadow-none hover:bg-[#F8FAFC] focus:ring-blue-500/45 data-[state=open]:ring-blue-500/45"
                 ariaInvalid={Boolean(errors?.categoryId)}
                 data={categories}
                 defaultValue={formData.categoryId}
@@ -250,11 +251,11 @@ export default function VolunteerPostPage1({
               ) : null}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-4">
               <FieldLabel>Location</FieldLabel>
               <SelectOption
                 id="locationId"
-                triggerClassName="h-11 w-full rounded-[14px] border border-[#E1E7EF] bg-[#F8FAFC] px-3 text-sm font-medium text-[#6A7282] shadow-none hover:bg-[#F8FAFC]"
+                triggerClassName="h-11 w-full rounded-[14px] border border-[#E1E7EF] bg-[#F8FAFC] px-3 text-sm font-medium text-black shadow-none hover:bg-[#F8FAFC] focus:ring-blue-500/45 data-[state=open]:ring-blue-500/45"
                 ariaInvalid={Boolean(errors?.locationId)}
                 data={locations}
                 defaultValue={formData.locationId}
@@ -268,7 +269,7 @@ export default function VolunteerPostPage1({
           </div>
 
           <div className="grid gap-5 md:grid-cols-2">
-            <div className="space-y-2">
+            <div className="space-y-4">
               <FieldLabel>Start from - End at</FieldLabel>
               <VolunteerDateRangeField
                 startDate={formData.startDate}
@@ -281,7 +282,7 @@ export default function VolunteerPostPage1({
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-4">
               <FieldLabel>Application deadline</FieldLabel>
               <VolunteerDatePickerField
                 value={formData.applicationDeadline}

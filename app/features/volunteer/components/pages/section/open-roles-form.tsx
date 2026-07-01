@@ -34,6 +34,7 @@ export default function OpenRolesForm({
 }: OpenRolesFormProps) {
   const hasRoleErrors =
     errors?.title || errors?.commitmentLabel || errors?.capacity;
+  const isRoleEmpty = draftRole.title.trim() === "";
 
   return (
     <section
@@ -99,6 +100,7 @@ export default function OpenRolesForm({
             type="button"
             className="h-10 w-full bg-[#2f6fe4] text-sm text-[#f8fafc] hover:bg-[#245fca]"
             onClick={onAddRole}
+            disabled={isRoleEmpty}
           >
             <Plus className="size-4" />
             {editingIndex !== null ? "Save Changes" : "Add Role"}
