@@ -31,6 +31,9 @@ export default function Home() {
       {user ? (
         // ── Authenticated: feed-first, no marketing chrome ──
         <>
+          <HomeHeroSection isAuthenticated={false} />
+          <HomeTrustedBySection />
+          <HomePillarsSection />
           <LaunchpadFeed items={launchpads} />
           <VolunteerFeed items={volunteers} />
         </>
