@@ -83,6 +83,7 @@ export default function MarkBestAnswerDialog({
             variant="default"
             disabled={isMarking}
             onClick={handleMark}
+            className="bg-blue-600"
           >
             {isMarking ? "Marking..." : "Confirm"}
           </Button>

@@ -362,6 +362,7 @@ export default function AskQuestionDialog({
           <div className="flex flex-col gap-2">
             <Label className="text-xs leading-4.5 font-medium text-[#364153]">
               Discussion Details
+              <span className="ml-1 text-red-600">*</span>
             </Label>
             <Textarea
               {...register("body")}
