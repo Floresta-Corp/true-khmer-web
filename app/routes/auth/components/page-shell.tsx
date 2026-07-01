@@ -97,35 +97,35 @@ export function AuthBrandPanel() {
   return (
     <div className="relative h-full w-full overflow-hidden bg-[#DAE2FF]">
       <img
-        src="/images/auth/phnom-penh-skyline.jpg"
-        alt=""
-        className="absolute inset-y-0 left-0 h-full w-full scale-x-150 object-cover"
+        src="/images/auth/tk-login-cover.png"
+        alt="login-cover"
+        className="absolute inset-0 h-full w-auto object-cover object-center"
       />
       <div className="absolute inset-0 bg-gradient-to-br from-[#1C5DD4]/80 via-[#1C5DD4]/40 to-transparent" />
 
-      <div className="relative flex h-full flex-col items-start justify-between px-8 py-12 xl:p-16">
+      <div className="relative flex h-full flex-col items-start justify-between p-16">
         <header className="w-full space-y-4">
           <div className="inline-flex rounded-full border border-white/30 bg-white/20 px-3 py-1 text-xs font-bold uppercase leading-4 tracking-widest text-white shadow-sm backdrop-blur-md">
             Global Business Excellence
           </div>
-          <h2 className="max-w-lg text-4xl font-bold leading-tight text-white xl:text-5xl">
+          <h2 className="text-5xl font-bold leading-[60px] text-white">
             Empowering
             <br />
             Cambodia&apos;s Future
           </h2>
         </header>
 
-        <div className="relative h-52 w-full max-w-lg self-center overflow-hidden rounded-xl border border-white/20 bg-white/10 p-8 text-white shadow-2xl backdrop-blur-md 2xl:h-64 2xl:max-w-screen-sm 2xl:p-10">
+        <div className="relative w-full max-w-lg self-center overflow-hidden rounded-xl border border-white/20 bg-white/10 p-8 text-white shadow-2xl backdrop-blur-[12px]">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 2xl:gap-4">
-              <div className="flex size-10 items-center justify-center rounded-full bg-[#1C5DD4] 2xl:size-12">
-                <TrendingUp className="size-5 2xl:size-6" strokeWidth={2.25} />
+            <div className="flex items-center gap-3">
+              <div className="flex size-10 items-center justify-center rounded-full bg-[#1C5DD4]">
+                <TrendingUp className="size-5" strokeWidth={2.25} />
               </div>
               <div>
-                <p className="text-sm font-semibold leading-5 text-white/80 2xl:text-base 2xl:leading-6">
+                <p className="text-sm font-semibold leading-5 text-white/80">
                   Market Growth
                 </p>
-                <p className="text-xl font-bold leading-7 2xl:text-2xl 2xl:leading-8">
+                <p className="text-xl font-bold leading-7">
                   +24.8%
                 </p>
               </div>
@@ -134,7 +134,7 @@ export function AuthBrandPanel() {
             <svg
               viewBox="0 0 96 48"
               aria-hidden="true"
-              className="h-12 w-24 2xl:h-14 2xl:w-28"
+              className="h-12 w-24"
               fill="none"
             >
               <path
@@ -147,12 +147,12 @@ export function AuthBrandPanel() {
             </svg>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 border-t border-white/10 pt-6 text-center 2xl:mt-8 2xl:pt-8">
+          <div className="mt-6 grid grid-cols-2 border-t border-white/10 pt-6 text-center">
             <div className="border-r border-white/10">
               <p className="text-xs font-normal uppercase leading-4 tracking-wide text-white/60">
                 Active Users
               </p>
-              <p className="text-base font-bold leading-6 2xl:text-lg 2xl:leading-7">
+              <p className="text-base font-bold leading-6">
                 1,842
               </p>
             </div>
@@ -160,7 +160,7 @@ export function AuthBrandPanel() {
               <p className="text-xs font-normal uppercase leading-4 tracking-wide text-white/60">
                 Projects
               </p>
-              <p className="text-base font-bold leading-6 2xl:text-lg 2xl:leading-7">
+              <p className="text-base font-bold leading-6">
                 48
               </p>
             </div>
@@ -175,9 +175,9 @@ export function RegisterBrandPanel() {
   return (
     <div className="relative h-full w-full overflow-hidden bg-[#0046AC]">
       <img
-        src="/images/auth/signup-phnom-penh-skyline.jpg"
-        alt=""
-        className="absolute inset-y-0 left-[-32%] h-full w-[164%] max-w-none object-cover opacity-40 mix-blend-overlay"
+        src="/images/auth/tk-login-cover.png"
+        alt="signup-cover"
+        className="absolute inset--0 h-full w-auto object-cover object-center opacity-40 mix-blend-overlay"
       />
       <div className="absolute inset-0 [background:radial-gradient(ellipse_141%_141%_at_0%_0%,#005CE6_0%,rgba(0,92,230,0)_50%),radial-gradient(ellipse_71%_141%_at_50%_0%,#003399_0%,rgba(0,51,153,0)_50%),radial-gradient(ellipse_141%_141%_at_100%_0%,#0066CC_0%,rgba(0,102,204,0)_50%)]" />
 
