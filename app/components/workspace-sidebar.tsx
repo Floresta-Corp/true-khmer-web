@@ -84,7 +84,7 @@ export default function WorkSpaceSideBar() {
             ))}
           </SidebarMenu>
         </SidebarGroup>
-        <SidebarGroup className="p-2">
+        {/* <SidebarGroup className="p-2">
           <Button
             variant={"outline"}
             disabled
@@ -93,7 +93,7 @@ export default function WorkSpaceSideBar() {
             <Plus size={18} />
             <span className="text-sm font-bold">Enable new role</span>
           </Button>
-        </SidebarGroup>
+        </SidebarGroup> */}
       </SidebarContent>
     </Sidebar>
   );

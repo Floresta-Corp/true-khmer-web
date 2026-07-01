@@ -148,7 +148,7 @@ export default function WorkspaceQuestionItem({
             <span
               key={tag.id}
               className={cn(
-                "text-[10px] sm:text-xs text-[#99a1af] bg-[#f8fafc] border border-[#f1f5f9] rounded px-1.5 sm:px-2 py-0.5",
+                "text-[10px] sm:text-xs text-[#99a1af]  rounded px-1.5 sm:px-2 py-0.5",
                 idx >= 3 ? "hidden sm:inline-block" : "inline-block",
               )}
             >
