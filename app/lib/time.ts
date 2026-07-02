@@ -1,61 +1,61 @@
-import { format, isValid, parseISO } from "date-fns"
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 
-function getElapsedMinutes(fromDate: Date, now: Date) {
-    return Math.max(0, Math.floor((now.getTime() - fromDate.getTime()) / 60000))
+dayjs.extend(relativeTime);
+
+function normalizeDateInput(dateInput: Date | string | number) {
+  if (typeof dateInput !== "string") {
+    return dateInput;
+  }
+
+  return dateInput.replace(" ", "T").replace(/([+-]\d{2})$/, "$1:00");
 }
 
-export function getMinutesAgo(fromDateInput: Date | string | number, now = new Date()) {
-    const fromDate = new Date(fromDateInput)
-
-    if (Number.isNaN(fromDate.getTime())) {
-        return null
-    }
-
-    return getElapsedMinutes(fromDate, now)
-}
-
-export function getHoursAgo(fromDateInput: Date | string | number, now = new Date()) {
-    const minutesAgo = getMinutesAgo(fromDateInput, now)
-
-    if (minutesAgo === null) {
-        return null
-    }
-
-    return Math.floor(minutesAgo / 60)
-}
-
-export function formatMinutesOrHoursAgo(
-    fromDateInput: Date | string | number,
-    now = new Date(),
+export function getMinutesAgo(
+  fromDateInput: Date | string | number,
+  now = new Date(),
 ) {
-    const fromDate = new Date(fromDateInput)
+  const fromDate = dayjs(normalizeDateInput(fromDateInput));
 
-    if (Number.isNaN(fromDate.getTime())) {
-        return ""
-    }
+  if (!fromDate.isValid()) {
+    return null;
+  }
 
-    const minutesAgo = getMinutesAgo(fromDate, now)
-
-    if (minutesAgo === null) {
-        return ""
-    }
-
-    if (minutesAgo < 60) {
-        return `${minutesAgo} ${minutesAgo === 1 ? "minute" : "minutes"} ago`
-    }
-
-    if (minutesAgo >= 24 * 60) {
-        return fromDate.toLocaleString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: true,
-        })
-    }
-
-    const hoursAgo = Math.floor(minutesAgo / 60)
-    return `${hoursAgo} ${hoursAgo === 1 ? "hour" : "hours"} ago`
+  return Math.max(0, dayjs(now).diff(fromDate, "minute"));
 }
 
+export function getHoursAgo(
+  fromDateInput: Date | string | number,
+  now = new Date(),
+) {
+  const minutesAgo = getMinutesAgo(fromDateInput, now);
+
+  if (minutesAgo === null) {
+    return null;
+  }
+
+  return Math.floor(minutesAgo / 60);
+}
+
+export function formatRelativeTime(
+  dateInput: Date | string | number | null | undefined,
+  now = new Date(),
+) {
+  if (dateInput === null || dateInput === undefined || dateInput === "") {
+    return "";
+  }
+
+  const date = dayjs(normalizeDateInput(dateInput));
+
+  if (!date.isValid()) {
+    return "";
+  }
+
+  if (dayjs(now).diff(date, "hour") < 24) {
+    return date.from(dayjs(now));
+  }
+
+  return date.format("MMM D, YYYY, h:mm A");
+}
+
+export const formatMinutesOrHoursAgo = formatRelativeTime;
