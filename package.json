@@ -25,6 +25,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "dayjs": "^1.11.21",
     "dotenv-cli": "^11.0.0",
     "input-otp": "^1.4.2",
     "isbot": "^5.1.31",
