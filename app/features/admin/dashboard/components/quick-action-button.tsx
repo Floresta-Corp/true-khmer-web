@@ -10,7 +10,11 @@ interface QuickActionButtonProps {
 export function QuickActionButton({ action }: QuickActionButtonProps) {
   const Icon = action.icon;
   const inner = (
-    <div className="w-full p-6 rounded-2xl border border-(--admin-border) dark:border-slate-800 flex items-center justify-between group transition-all cursor-pointer">
+    <div
+      className={`w-full p-6 rounded-2xl border border-(--admin-border) dark:border-slate-800 flex items-center justify-between group transition-all ${
+        action.disabled ? " opacity-60" : "cursor-pointer"
+      }`}
+    >
       <div className="flex items-center gap-3">
         <div
           className={`w-10 h-10 shrink-0 rounded-xl ${action.iconClass} flex items-center justify-center`}
@@ -29,6 +33,15 @@ export function QuickActionButton({ action }: QuickActionButtonProps) {
       <Plus className="w-4 h-4 text-(--admin-text-muted) group-hover:translate-x-1 transition-transform" />
     </div>
   );
+
+  if (action.disabled) {
+    return (
+      <motion.div aria-disabled="true" className="select-none">
+        {inner}
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div whileHover={{ x: 4 }}>
       {action.to ? (

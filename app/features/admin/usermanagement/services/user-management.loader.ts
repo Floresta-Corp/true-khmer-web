@@ -11,7 +11,10 @@ function positiveInteger(value: string | null, fallback: number) {
 }
 
 export async function userManagementLoader({ request }: Route.LoaderArgs) {
-  await requireSuperAdmin(request);
+  await requireSuperAdmin(
+    request,
+    "User management is restricted to Super Admins.",
+  );
   const { accessToken, setCookie } = await getAdminAccessToken(request);
 
   if (!accessToken) {

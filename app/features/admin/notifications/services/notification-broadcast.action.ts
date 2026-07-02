@@ -31,7 +31,10 @@ const broadcastSchema = z.object({
 export async function notificationBroadcastAction({
   request,
 }: Route.ActionArgs) {
-  const auth = await requireSuperAdmin(request);
+  const auth = await requireSuperAdmin(
+    request,
+    "Broadcasting notifications is restricted to Super Admins.",
+  );
   const { accessToken, setCookie } = auth;
   if (!accessToken) {
     throw redirect("/tk-admin/login");

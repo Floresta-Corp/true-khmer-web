@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { useLoaderData, useLocation, useOutletContext } from "react-router";
-import { toast } from "sonner";
+import { useState } from "react";
+import { useLoaderData, useOutletContext } from "react-router";
 import { Users, Handshake, ShieldAlert, UserCog, Bell } from "lucide-react";
 
 import { KpiCard } from "../kpi-card";
@@ -185,31 +184,15 @@ function toSectorData(
 export default function AdminDashboardPage() {
   const { dashboard } = useLoaderData<typeof adminDashboardLoader>();
   const { isSuperAdmin } = useOutletContext<{ isSuperAdmin: boolean }>();
-  const location = useLocation();
-  const toastShownRef = useRef(false);
   const [showNotificationDialog, setShowNotificationDialog] = useState(false);
 
-  useEffect(() => {
-    if (toastShownRef.current) return;
-    const msg = new URLSearchParams(location.search).get("toast");
-    if (!msg) return;
-    toastShownRef.current = true;
-    toast.success(msg);
-    const params = new URLSearchParams(location.search);
-    params.delete("toast");
-    const search = params.toString();
-    window.history.replaceState(
-      {},
-      "",
-      `${location.pathname}${search ? `?${search}` : ""}${location.hash}`,
-    );
-  }, [location.search, location.pathname, location.hash]);
   const [showInviteModal, setShowInviteModal] = useState(false);
 
-  const allStats = toStats(dashboard.summary);
-  const stats = isSuperAdmin
-    ? allStats
-    : allStats.filter((s) => s.id !== "users" && s.id !== "partners");
+  const stats = toStats(dashboard.summary).map((stat) =>
+    !isSuperAdmin && (stat.id === "users" || stat.id === "partners")
+      ? { ...stat, disabled: true }
+      : stat,
+  );
   const registrationData = toRegistrationData(dashboard.newRegistrations);
   const activeUsersData = toActiveUsersData(dashboard.activeUsers);
   const genderData = toGenderData(dashboard.demographics);
@@ -218,11 +201,11 @@ export default function AdminDashboardPage() {
   const showPartnerSectors =
     dashboard.partners.total !== null && sectorData.length > 0;
 
-  const quickActions: QuickAction[] = BASE_QUICK_ACTIONS.filter(
-    (action) => isSuperAdmin || action.id !== "send-notification",
-  ).map((action) => {
-    if (action.id === "send-notification")
+  const quickActions: QuickAction[] = BASE_QUICK_ACTIONS.map((action) => {
+    if (!isSuperAdmin) return { ...action, disabled: true };
+    if (action.id === "send-notification") {
       return { ...action, onClick: () => setShowNotificationDialog(true) };
+    }
     if (action.id === "invite-team")
       return {
         ...action,

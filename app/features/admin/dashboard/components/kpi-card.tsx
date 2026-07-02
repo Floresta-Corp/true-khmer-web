@@ -12,15 +12,8 @@ interface KpiCardProps {
 
 export function KpiCard({ item, index }: KpiCardProps) {
   const Icon = item.icon;
-  return (
-    <MotionLink
-      to={item.to}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.1 }}
-      whileHover={{ y: -3 }}
-      className="group/card overflow-hidden rounded-xl border border-(--admin-border) dark:bg-slate-900 transition-shadow block"
-    >
+  const content = (
+    <>
       <div className="flex items-start gap-4 p-5">
         <div
           className={`h-11 w-11 shrink-0 rounded-xl flex items-center justify-center ${item.iconBg}`}
@@ -38,13 +31,40 @@ export function KpiCard({ item, index }: KpiCardProps) {
       </div>
       <div className="px-5 py-3 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between group-hover/card:bg-slate-50 dark:group-hover/card:bg-slate-800 transition-all">
         <span className="text-sm font-bold text-slate-500 group-hover/card:text-slate-900 dark:group-hover/card:text-white transition-colors">
-          See in details
+          {item.disabled ? "Restricted" : "See in details"}
         </span>
         <ArrowRight
           size={16}
           className="text-slate-300 group-hover/card:text-slate-900 dark:group-hover/card:text-white group-hover/card:translate-x-1 transition-all"
         />
       </div>
+    </>
+  );
+
+  if (item.disabled) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: index * 0.1 }}
+        className="group/card overflow-hidden rounded-xl border border-(--admin-border) dark:bg-slate-900 opacity-60 select-none"
+        aria-disabled="true"
+      >
+        {content}
+      </motion.div>
+    );
+  }
+
+  return (
+    <MotionLink
+      to={item.to}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.1 }}
+      whileHover={{ y: -3 }}
+      className="group/card overflow-hidden rounded-xl border border-(--admin-border) dark:bg-slate-900 transition-shadow block"
+    >
+      {content}
     </MotionLink>
   );
 }

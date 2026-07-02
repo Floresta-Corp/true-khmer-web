@@ -1,4 +1,4 @@
-import { data, redirect } from "react-router";
+import { data } from "react-router";
 import type { Route } from "project-types/admin/manage-moderator/route/+types/manage-moderator";
 import { z } from "zod";
 import {
@@ -6,8 +6,8 @@ import {
   postManageTeam,
   removeModerator,
 } from "~/api/admin/manage-moderator/manage-moderator.server";
-import { getAdminAccessToken } from "~/lib/server/session.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
+import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 
 const roleSchema = z.enum(["MODERATOR", "SUPER_ADMIN"]);
 
@@ -26,11 +26,10 @@ const updateRoleSchema = z.object({
 });
 
 export async function manageModTeamAction({ request }: Route.ActionArgs) {
-  const { accessToken, setCookie } = await getAdminAccessToken(request);
-
-  if (!accessToken) {
-    throw redirect("/tk-admin/login");
-  }
+  const { accessToken, setCookie } = await requireSuperAdmin(
+    request,
+    "Team management is restricted to Super Admins.",
+  );
 
   const cookieHeader = setCookie
     ? { headers: { "Set-Cookie": setCookie } }

@@ -1,5 +1,6 @@
-import { type ChangeEvent, type RefObject } from "react";
+import { type ChangeEvent, type RefObject, useEffect, useState } from "react";
 import { Form } from "react-router";
+import { AnimatePresence, motion } from "motion/react";
 import { Lock, Mail, User as UserIcon } from "lucide-react";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
@@ -18,6 +19,7 @@ type Props = {
   submitIntent: FormDataEntryValue | null | undefined;
   fileInputRef: RefObject<HTMLInputElement | null>;
   onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  hasAvatarChange: boolean;
 };
 
 export function AccountSettingsForms({
@@ -26,7 +28,23 @@ export function AccountSettingsForms({
   submitIntent,
   fileInputRef,
   onFileChange,
+  hasAvatarChange,
 }: Props) {
+  const [firstName, setFirstName] = useState(admin.firstName ?? "");
+  const [lastName, setLastName] = useState(admin.lastName ?? "");
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const isPasswordChanged =
+    currentPassword !== "" || newPassword !== "" || confirmPassword !== "";
+
+  const isProfileChanged =
+    hasAvatarChange ||
+    firstName !== (admin.firstName ?? "") ||
+    lastName !== (admin.lastName ?? "");
+
   return (
     <div className="space-y-5">
       <Form method="post" encType="multipart/form-data">
@@ -59,8 +77,9 @@ export function AccountSettingsForms({
               <Input
                 name="firstName"
                 id="firstName"
-                defaultValue={admin.firstName ?? ""}
-                placeholder="Sakhan"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="John"
                 className={inputClass}
               />
             </div>
@@ -71,24 +90,35 @@ export function AccountSettingsForms({
               <Input
                 name="lastName"
                 id="lastName"
-                defaultValue={admin.lastName ?? ""}
-                placeholder="Monirothna"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Doe"
                 className={inputClass}
               />
             </div>
           </div>
 
-          <div className="mt-5 flex justify-end">
-            <Button
-              type="submit"
-              disabled={isSubmitting && submitIntent === "update-profile"}
-              className="px-5 py-4 cursor-pointer rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {isSubmitting && submitIntent === "update-profile"
-                ? "Saving…"
-                : "Save Changes"}
-            </Button>
-          </div>
+          <AnimatePresence>
+            {isProfileChanged && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                animate={{ opacity: 1, height: "auto", marginTop: 20 }}
+                exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="flex justify-end overflow-hidden"
+              >
+                <Button
+                  type="submit"
+                  disabled={isSubmitting && submitIntent === "update-profile"}
+                  className="px-5 py-4 cursor-pointer rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting && submitIntent === "update-profile"
+                    ? "Saving…"
+                    : "Save Changes"}
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </Form>
 
@@ -131,6 +161,8 @@ export function AccountSettingsForms({
               <Input
                 type="password"
                 name="currentPassword"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Enter your current password"
                 className={inputClass}
                 autoComplete="current-password"
@@ -142,6 +174,8 @@ export function AccountSettingsForms({
                 <Input
                   type="password"
                   name="newPassword"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Min. 8 characters, no spaces"
                   className={inputClass}
                   autoComplete="new-password"
@@ -152,6 +186,8 @@ export function AccountSettingsForms({
                 <Input
                   type="password"
                   name="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Re-enter your new password"
                   className={inputClass}
                   autoComplete="new-password"
@@ -160,17 +196,27 @@ export function AccountSettingsForms({
             </div>
           </div>
 
-          <div className="mt-5 flex justify-end">
-            <Button
-              type="submit"
-              disabled={isSubmitting && submitIntent === "change-password"}
-              className="px-5 py-4 cursor-pointer rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {isSubmitting && submitIntent === "change-password"
-                ? "Updating…"
-                : "Update Password"}
-            </Button>
-          </div>
+          <AnimatePresence>
+            {isPasswordChanged && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                animate={{ opacity: 1, height: "auto", marginTop: 20 }}
+                exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="flex justify-end overflow-hidden"
+              >
+                <Button
+                  type="submit"
+                  disabled={isSubmitting && submitIntent === "change-password"}
+                  className="px-5 py-4 cursor-pointer rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting && submitIntent === "change-password"
+                    ? "Updating…"
+                    : "Update Password"}
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </Form>
     </div>

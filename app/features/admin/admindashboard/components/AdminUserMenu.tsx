@@ -86,22 +86,6 @@ export default function AdminUserMenu({ admin }: AdminUserMenuProps) {
               </div>
 
               <div className="space-y-1">
-                {/* <Link
-                  to="/tk-admin"
-                  onClick={() => setIsOpen(false)}
-                  className="px-4 py-2.5 text-[13px] font-bold rounded-xl cursor-pointer transition-all flex items-center gap-3 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
-                >
-                  <LayoutDashboard size={16} className="text-slate-300" />
-                  Dashboard
-                </Link> */}
-                <Link
-                  to="/tk-admin/manage-moderator/team"
-                  onClick={() => setIsOpen(false)}
-                  className="px-4 py-2.5 text-[13px] font-bold rounded-xl cursor-pointer transition-all flex items-center gap-3 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
-                >
-                  <ShieldCheck size={16} className="text-slate-300" />
-                  My team
-                </Link>
                 <Link
                   to="/tk-admin/account-settings"
                   onClick={() => setIsOpen(false)}
@@ -109,6 +93,14 @@ export default function AdminUserMenu({ admin }: AdminUserMenuProps) {
                 >
                   <Settings size={16} className="text-slate-300" />
                   Account Settings
+                </Link>
+                <Link
+                  to="/tk-admin/manage-moderator/team"
+                  onClick={() => setIsOpen(false)}
+                  className="px-4 py-2.5 text-[13px] font-bold rounded-xl cursor-pointer transition-all flex items-center gap-3 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
+                >
+                  <ShieldCheck size={16} className="text-slate-300" />
+                  My team
                 </Link>
               </div>
 

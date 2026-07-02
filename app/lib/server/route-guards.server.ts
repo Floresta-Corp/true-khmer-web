@@ -1,4 +1,4 @@
-import { redirect } from "react-router";
+import { data, redirect } from "react-router";
 import { routeForAccessState } from "~/lib/server/auth/access-control.server";
 import {
   AuthSessionExpiredError,
@@ -347,10 +347,11 @@ export async function requireAdmin(
 // Use for routes/actions restricted to super admin only.
 export async function requireSuperAdmin(
   request: Request,
+  message = "This page is restricted to Super Admins.",
 ): Promise<SuperAdminGuardResult> {
   const result = await resolveAdmin(request);
   if (result.admin.role !== "SUPER_ADMIN") {
-    throw redirect("/tk-admin");
+    throw data({ message }, { status: 403 });
   }
   return result;
 }

@@ -106,9 +106,9 @@ export async function accountSettingsAction({ request }: Route.ActionArgs) {
         ...(avatarKey !== null ? { avatarKey } : {}),
       });
       await invalidateAdminMeCache(accessToken);
-      return redirect(
-        "/tk-admin?toast=Profile+updated+successfully",
-        cookieHeader,
+      return data(
+        { ok: true, intent, message: "Profile updated successfully." },
+        { headers: cookieHeader.headers },
       );
     } catch (err) {
       if (err instanceof ProtectedApiError) {
@@ -143,9 +143,9 @@ export async function accountSettingsAction({ request }: Route.ActionArgs) {
         oldPassword: result.data.currentPassword,
         newPassword: result.data.newPassword,
       });
-      return redirect(
-        "/tk-admin?toast=Password+changed+successfully",
-        cookieHeader,
+      return data(
+        { ok: true, intent, message: "Password changed successfully." },
+        { headers: cookieHeader.headers },
       );
     } catch (err) {
       if (err instanceof ProtectedApiError) {

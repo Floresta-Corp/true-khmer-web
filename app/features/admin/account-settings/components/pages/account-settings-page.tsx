@@ -1,5 +1,10 @@
 import { type ChangeEvent, useEffect, useRef, useState } from "react";
-import { useActionData, useLoaderData, useNavigation } from "react-router";
+import {
+  useActionData,
+  useLoaderData,
+  useNavigate,
+  useNavigation,
+} from "react-router";
 import { toast } from "sonner";
 import type { accountSettingsLoader } from "../../services/account-settings.loader";
 import type { accountSettingsAction } from "../../services/account-settings.action";
@@ -14,6 +19,7 @@ export default function AccountSettingsPage() {
   const { admin } = useLoaderData<typeof accountSettingsLoader>();
   const actionData = useActionData<typeof accountSettingsAction>();
   const navigation = useNavigation();
+  const navigate = useNavigate();
 
   const isSubmitting = navigation.state === "submitting";
   const submitIntent = navigation.formData?.get("intent");
@@ -23,6 +29,7 @@ export default function AccountSettingsPage() {
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(
     undefined,
   );
+  const [passwordChangeSucceededAt, setPasswordChangeSucceededAt] = useState(0);
 
   const handleCameraClick = () => fileInputRef.current?.click();
 
@@ -49,9 +56,18 @@ export default function AccountSettingsPage() {
   }, []);
 
   useEffect(() => {
-    if (!actionData || actionData.ok) return;
-    toast.error(actionData.message);
-  }, [actionData]);
+    if (!actionData) return;
+    if (actionData.ok) {
+      toast.success(actionData.message);
+      if (actionData.intent === "update-profile") {
+        navigate("/tk-admin");
+      } else if (actionData.intent === "change-password") {
+        setPasswordChangeSucceededAt((n) => n + 1);
+      }
+    } else {
+      toast.error(actionData.message);
+    }
+  }, [actionData, navigate]);
 
   const initials = getInitials(admin.firstName, admin.lastName);
   const fullName =
@@ -86,6 +102,7 @@ export default function AccountSettingsPage() {
             submitIntent={submitIntent}
             fileInputRef={fileInputRef}
             onFileChange={handleFileChange}
+            hasAvatarChange={avatarPreview !== undefined}
           />
         </div>
       </div>
