@@ -43,21 +43,6 @@ export default function AddAnswerDialog({
   const redirectTo = `${location.pathname}${location.search}`;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
 
-  if (!isAuthenticated && !isEditing) {
-    if (trigger) {
-      return <Link to={loginHref}>{trigger}</Link>;
-    }
-
-    return (
-      <Link
-        to={loginHref}
-        className="inline-flex h-9 items-center justify-center rounded-lg border border-[#e2e8f0] px-4 text-sm font-medium text-[#0f172b] shadow-xs"
-      >
-        Add your answer
-      </Link>
-    );
-  }
-
   useEffect(() => {
     if (fetch.state === "submitting") {
       wasSubmitting.current = true;
@@ -82,6 +67,21 @@ export default function AddAnswerDialog({
       }
     }
   }, [fetch.state, fetch.data, isEditing]);
+
+  if (!isAuthenticated && !isEditing) {
+    if (trigger) {
+      return <Link to={loginHref}>{trigger}</Link>;
+    }
+
+    return (
+      <Link
+        to={loginHref}
+        className="inline-flex h-9 items-center justify-center rounded-lg border border-[#e2e8f0] px-4 text-sm font-medium text-[#0f172b] shadow-xs"
+      >
+        Add your answer
+      </Link>
+    );
+  }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     const formData = new FormData(event.currentTarget);

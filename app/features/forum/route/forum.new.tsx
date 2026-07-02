@@ -46,6 +46,41 @@ function getTabFromSearchParams(
   return "recent";
 }
 
+interface ForumFilters {
+  sortBy: QuestionSortBy;
+  activeTab: ForumQuestionTab;
+  categoryId: string;
+  tagId?: string;
+}
+
+/** Single source of truth for turning the active filter state into query params. */
+function buildFilterParams({
+  sortBy,
+  activeTab,
+  categoryId,
+  tagId,
+}: ForumFilters) {
+  const params = new URLSearchParams();
+  params.set("sortBy", sortBy);
+
+  const { isTrending, isUnanswered } = getTabQueryFlags(activeTab);
+  if (isTrending) {
+    params.set("isTrending", isTrending);
+  }
+  if (isUnanswered) {
+    params.set("isUnanswered", isUnanswered);
+  }
+
+  if (categoryId !== "all-categories") {
+    params.set("categoryId", categoryId);
+  }
+  if (tagId) {
+    params.set("tagId", tagId);
+  }
+
+  return params;
+}
+
 export default function ForumNewPage() {
   const { data, categories, tags } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof loader>();
@@ -105,30 +140,16 @@ export default function ForumNewPage() {
 
   const buildForumQuery = useCallback(
     (cursor?: string) => {
-      const params = new URLSearchParams({ limit: String(LIMIT) });
+      const params = buildFilterParams({
+        sortBy,
+        activeTab,
+        categoryId: selectedCategory.id,
+        tagId: selectedTagId,
+      });
+      params.set("limit", String(LIMIT));
 
       if (cursor) {
         params.set("cursor", cursor);
-      }
-
-      if (selectedCategory.id !== "all-categories") {
-        params.set("categoryId", selectedCategory.id);
-      }
-
-      if (selectedTagId) {
-        params.set("tagId", selectedTagId);
-      }
-
-      params.set("sortBy", sortBy);
-
-      const { isTrending, isUnanswered } = getTabQueryFlags(activeTab);
-
-      if (isTrending) {
-        params.set("isTrending", isTrending);
-      }
-
-      if (isUnanswered) {
-        params.set("isUnanswered", isUnanswered);
       }
 
       return `/forum?${params.toString()}`;
@@ -193,137 +214,67 @@ export default function ForumNewPage() {
     buildForumQuery,
   ]);
 
-  const handleCategorySelect = useCallback(
-    (category: CategoriesPicker) => {
-      setSelectedCategory(category);
-
-      const nextParams = new URLSearchParams();
-      nextParams.set("sortBy", sortBy);
-
-      const { isTrending, isUnanswered } = getTabQueryFlags(activeTab);
-
-      if (isTrending) {
-        nextParams.set("isTrending", isTrending);
-      }
-
-      if (isUnanswered) {
-        nextParams.set("isUnanswered", isUnanswered);
-      }
-
-      if (category.id !== "all-categories") {
-        nextParams.set("categoryId", category.id);
-      }
-
-      if (selectedTagId) {
-        nextParams.set("tagId", selectedTagId);
-      }
-
-      setSearchParams(nextParams, {
+  const applyFilterParams = useCallback(
+    (filters: ForumFilters) => {
+      setSearchParams(buildFilterParams(filters), {
         replace: true,
         preventScrollReset: true,
       });
     },
-    [activeTab, selectedTagId, setSearchParams, sortBy],
+    [setSearchParams],
+  );
+
+  const handleCategorySelect = useCallback(
+    (category: CategoriesPicker) => {
+      setSelectedCategory(category);
+      applyFilterParams({
+        sortBy,
+        activeTab,
+        categoryId: category.id,
+        tagId: selectedTagId,
+      });
+    },
+    [activeTab, applyFilterParams, selectedTagId, sortBy],
   );
 
   const handleTagSelect = useCallback(
     (tag: TrendingTagResponse) => {
       const nextTagId = selectedTagId === tag.id ? undefined : tag.id;
       setSelectedTagId(nextTagId);
-
-      const nextParams = new URLSearchParams();
-      nextParams.set("sortBy", sortBy);
-
-      const { isTrending, isUnanswered } = getTabQueryFlags(activeTab);
-
-      if (isTrending) {
-        nextParams.set("isTrending", isTrending);
-      }
-
-      if (isUnanswered) {
-        nextParams.set("isUnanswered", isUnanswered);
-      }
-
-      if (selectedCategory.id !== "all-categories") {
-        nextParams.set("categoryId", selectedCategory.id);
-      }
-
-      if (nextTagId) {
-        nextParams.set("tagId", nextTagId);
-      }
-
-      setSearchParams(nextParams, {
-        replace: true,
-        preventScrollReset: true,
+      applyFilterParams({
+        sortBy,
+        activeTab,
+        categoryId: selectedCategory.id,
+        tagId: nextTagId,
       });
     },
-    [activeTab, selectedCategory.id, selectedTagId, setSearchParams, sortBy],
+    [activeTab, applyFilterParams, selectedCategory.id, selectedTagId, sortBy],
   );
 
   const handleTabChange = useCallback(
     (tab: ForumQuestionTab) => {
       setActiveTab(tab);
-
-      const nextParams = new URLSearchParams();
-      nextParams.set("sortBy", sortBy);
-
-      const { isTrending, isUnanswered } = getTabQueryFlags(tab);
-
-      if (isTrending) {
-        nextParams.set("isTrending", isTrending);
-      }
-
-      if (isUnanswered) {
-        nextParams.set("isUnanswered", isUnanswered);
-      }
-
-      if (selectedCategory.id !== "all-categories") {
-        nextParams.set("categoryId", selectedCategory.id);
-      }
-
-      if (selectedTagId) {
-        nextParams.set("tagId", selectedTagId);
-      }
-
-      setSearchParams(nextParams, {
-        replace: true,
-        preventScrollReset: true,
+      applyFilterParams({
+        sortBy,
+        activeTab: tab,
+        categoryId: selectedCategory.id,
+        tagId: selectedTagId,
       });
     },
-    [selectedCategory.id, selectedTagId, setSearchParams, sortBy],
+    [applyFilterParams, selectedCategory.id, selectedTagId, sortBy],
   );
 
   const handleSortByChange = useCallback(
     (value: QuestionSortBy) => {
       setSortBy(value);
-
-      const nextParams = new URLSearchParams();
-      nextParams.set("sortBy", value);
-
-      const { isTrending, isUnanswered } = getTabQueryFlags(activeTab);
-
-      if (isTrending) {
-        nextParams.set("isTrending", isTrending);
-      }
-
-      if (isUnanswered) {
-        nextParams.set("isUnanswered", isUnanswered);
-      }
-
-      if (selectedCategory.id !== "all-categories") {
-        nextParams.set("categoryId", selectedCategory.id);
-      }
-
-      if (selectedTagId) {
-        nextParams.set("tagId", selectedTagId);
-      }
-
-      setSearchParams(nextParams, {
-        replace: true,
-        preventScrollReset: true,
+      applyFilterParams({
+        sortBy: value,
+        activeTab,
+        categoryId: selectedCategory.id,
+        tagId: selectedTagId,
       });
     },
-    [activeTab, selectedCategory.id, selectedTagId, setSearchParams],
+    [activeTab, applyFilterParams, selectedCategory.id, selectedTagId],
   );
 
   const allQuestion = categories.reduce(

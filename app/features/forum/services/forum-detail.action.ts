@@ -242,31 +242,6 @@ export async function forumDetailAction({
     });
   }
 
-  if (actionType === "update-answer") {
-    if (method !== "PATCH") {
-      return respond({
-        ok: false,
-        message: "Invalid method for updating an answer.",
-      });
-    }
-
-    if (!answerId) {
-      return respond({
-        ok: false,
-        message: "Answer ID is required.",
-      });
-    }
-
-    if (!body) {
-      return respond({
-        ok: false,
-        message: "Answer body is required.",
-      });
-    }
-
-    return respond(await updateAnswerById(request, answerId, { body }));
-  }
-
   if (actionType === "create-answer" || !actionType) {
     if (!body) {
       return respond({

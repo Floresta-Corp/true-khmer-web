@@ -33,8 +33,6 @@ export default function ForumDetailQuestionHeader({
   reportReasons,
   userId,
 }: ForumDetailQuestionHeaderProps) {
-  if (!question) return null;
-
   const location = useLocation();
   const fetcher = useFetcher();
   const wasSubmitting = useRef(false);
@@ -72,6 +70,8 @@ export default function ForumDetailQuestionHeader({
       }
     }
   }, [fetcher.state, fetcher.data]);
+
+  if (!question) return null;
 
   const redirectTo = `${location.pathname}${location.search}`;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;

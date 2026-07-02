@@ -41,8 +41,6 @@ export default function ReplyBox({
   submitLabel = "Reply",
   question,
 }: ReplyBoxProps) {
-  if (!question) return null;
-
   const fetcher = useFetcher();
   const revalidator = useRevalidator();
   const wasSubmitting = useRef(false);
@@ -80,6 +78,8 @@ export default function ReplyBox({
       event.preventDefault();
     }
   };
+
+  if (!question) return null;
 
   return (
     <div className={cn("rounded-xl bg-[#EEF1F3] p-3", className)}>

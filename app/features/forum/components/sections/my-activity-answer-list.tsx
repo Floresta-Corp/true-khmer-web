@@ -10,7 +10,7 @@ import {
 import ThreadsTitle from "./threads-title";
 import { Card, CardContent } from "~/components/ui/card";
 import { useLoaderData, Link } from "react-router";
-import type { loader } from "../../route/forum";
+import type { loader } from "../../route/forum.new";
 import { Button } from "~/components/ui/button";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import type { AnswerResponse } from "~/types/api-client";
