@@ -195,8 +195,15 @@ export default function AdminDashboardPage() {
     if (!msg) return;
     toastShownRef.current = true;
     toast.success(msg);
-    window.history.replaceState({}, "", location.pathname);
-  }, [location.search, location.pathname]);
+    const params = new URLSearchParams(location.search);
+    params.delete("toast");
+    const search = params.toString();
+    window.history.replaceState(
+      {},
+      "",
+      `${location.pathname}${search ? `?${search}` : ""}${location.hash}`,
+    );
+  }, [location.search, location.pathname, location.hash]);
   const [showInviteModal, setShowInviteModal] = useState(false);
 
   const allStats = toStats(dashboard.summary);

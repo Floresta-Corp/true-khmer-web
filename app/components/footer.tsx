@@ -40,7 +40,7 @@ const socialLinks = [
   {
     label: "TikTok",
     to: "https://www.tiktok.com/@truekhmerofficial",
-    icon: Twitter,
+    icon: "/images/tiktok.svg",
   },
   {
     label: "YouTube",
@@ -83,14 +83,20 @@ export function Footer() {
               {socialLinks.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <Link
+                  <a
                     key={item.label}
-                    to={item.to}
+                    href={item.to}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     aria-label={item.label}
                     className="flex size-9 items-center justify-center rounded-full border border-[#e2e8f0] bg-white text-[#6a7282] transition-all hover:border-[#2f6fe4] hover:text-[#2f6fe4]"
                   >
-                    <Icon className="size-4" />
-                  </Link>
+                    {typeof Icon === "string" ? (
+                      <img src={Icon} alt="" className="size-4" />
+                    ) : (
+                      <Icon className="size-4" />
+                    )}
+                  </a>
                 );
               })}
             </div>

@@ -28,9 +28,11 @@ const broadcastSchema = z.object({
   mobileRoute: z.preprocess(emptyToUndefined, z.string().optional()),
 });
 
-export async function notificationBroadcastAction({ request }: Route.ActionArgs) {
-  await requireSuperAdmin(request);
-  const { accessToken, setCookie } = await getAdminAccessToken(request);
+export async function notificationBroadcastAction({
+  request,
+}: Route.ActionArgs) {
+  const auth = await requireSuperAdmin(request);
+  const { accessToken, setCookie } = auth;
   if (!accessToken) {
     throw redirect("/tk-admin/login");
   }
@@ -50,7 +52,8 @@ export async function notificationBroadcastAction({ request }: Route.ActionArgs)
       setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
     );
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to send notification.";
+    const message =
+      err instanceof Error ? err.message : "Failed to send notification.";
     return data({ ok: false, error: message }, { status: 400 });
   }
 }

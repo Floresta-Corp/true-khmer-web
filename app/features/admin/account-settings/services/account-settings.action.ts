@@ -1,11 +1,11 @@
 import { data, redirect } from "react-router";
 import { z } from "zod";
 import type { Route } from "project-types/admin/account-settings/route/+types/account-settings";
-import { getAdminAccessToken } from "~/lib/server/session.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { updateAdminProfile } from "~/api/admin/auth/admin-account-settings.server";
 import { invalidateAdminMeCache } from "~/api/admin/auth/admin-auth.server";
 import { AdminUploadPresign } from "~/api/admin/auth/admin-upload-presign.server";
+import { requireAdmin } from "~/lib/server/route-guards.server";
 
 const updateProfileSchema = z.object({
   firstName: z.string().min(1, "First name is required").max(100),
@@ -27,13 +27,15 @@ const changePasswordSchema = z
   });
 
 export async function accountSettingsAction({ request }: Route.ActionArgs) {
-  const { accessToken, setCookie } = await getAdminAccessToken(request);
+  const { accessToken, setCookie } = await requireAdmin(request);
 
   if (!accessToken) {
     throw redirect("/tk-admin/login");
   }
 
-  const cookieHeader = setCookie ? { headers: { "Set-Cookie": setCookie } } : {};
+  const cookieHeader = setCookie
+    ? { headers: { "Set-Cookie": setCookie } }
+    : {};
 
   const formData = await request.formData();
   const intent = String(formData.get("intent") ?? "").trim();
@@ -47,7 +49,7 @@ export async function accountSettingsAction({ request }: Route.ActionArgs) {
     if (!result.success) {
       return data(
         { ok: false, intent, message: result.error.issues[0].message },
-        { status: 400 },
+        { status: 400, headers: cookieHeader.headers },
       );
     }
 
@@ -64,11 +66,16 @@ export async function accountSettingsAction({ request }: Route.ActionArgs) {
         if (!presign.ok) {
           return data(
             { ok: false, intent, message: "Failed to prepare avatar upload." },
-            { status: 500 },
+            { status: 500, headers: cookieHeader.headers },
           );
         }
 
-        const { uploadUrl, method, requiredHeaders, avatarKey: key } = presign.upload;
+        const {
+          uploadUrl,
+          method,
+          requiredHeaders,
+          avatarKey: key,
+        } = presign.upload;
 
         const uploadResult = await fetch(uploadUrl, {
           method,
@@ -80,7 +87,7 @@ export async function accountSettingsAction({ request }: Route.ActionArgs) {
         if (!uploadResult.ok) {
           return data(
             { ok: false, intent, message: "Failed to upload avatar image." },
-            { status: 500 },
+            { status: 500, headers: cookieHeader.headers },
           );
         }
 
@@ -88,7 +95,7 @@ export async function accountSettingsAction({ request }: Route.ActionArgs) {
       } catch {
         return data(
           { ok: false, intent, message: "Failed to upload avatar image." },
-          { status: 500 },
+          { status: 500, headers: cookieHeader.headers },
         );
       }
     }
@@ -98,18 +105,21 @@ export async function accountSettingsAction({ request }: Route.ActionArgs) {
         ...result.data,
         ...(avatarKey !== null ? { avatarKey } : {}),
       });
-      invalidateAdminMeCache(accessToken);
-      return redirect("/tk-admin?toast=Profile+updated+successfully", cookieHeader);
+      await invalidateAdminMeCache(accessToken);
+      return redirect(
+        "/tk-admin?toast=Profile+updated+successfully",
+        cookieHeader,
+      );
     } catch (err) {
       if (err instanceof ProtectedApiError) {
         return data(
           { ok: false, intent, message: err.message },
-          { status: err.status },
+          { status: err.status, headers: cookieHeader.headers },
         );
       }
       return data(
         { ok: false, intent, message: "Failed to update profile." },
-        { status: 500 },
+        { status: 500, headers: cookieHeader.headers },
       );
     }
   }
@@ -124,7 +134,7 @@ export async function accountSettingsAction({ request }: Route.ActionArgs) {
     if (!result.success) {
       return data(
         { ok: false, intent, message: result.error.issues[0].message },
-        { status: 400 },
+        { status: 400, headers: cookieHeader.headers },
       );
     }
 
@@ -133,20 +143,26 @@ export async function accountSettingsAction({ request }: Route.ActionArgs) {
         oldPassword: result.data.currentPassword,
         newPassword: result.data.newPassword,
       });
-      return redirect("/tk-admin?toast=Password+changed+successfully", cookieHeader);
+      return redirect(
+        "/tk-admin?toast=Password+changed+successfully",
+        cookieHeader,
+      );
     } catch (err) {
       if (err instanceof ProtectedApiError) {
         return data(
           { ok: false, intent, message: err.message },
-          { status: err.status },
+          { status: err.status, headers: cookieHeader.headers },
         );
       }
       return data(
         { ok: false, intent, message: "Failed to change password." },
-        { status: 500 },
+        { status: 500, headers: cookieHeader.headers },
       );
     }
   }
 
-  return data({ ok: false, intent: "", message: "Unknown action." }, { status: 400 });
+  return data(
+    { ok: false, intent: "", message: "Unknown action." },
+    { status: 400, headers: cookieHeader.headers },
+  );
 }

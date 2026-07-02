@@ -53,20 +53,26 @@ export function AccountSettingsForms({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label className={labelClass}>First Name</Label>
+              <Label htmlFor="firstName" className={labelClass}>
+                First Name
+              </Label>
               <Input
                 name="firstName"
+                id="firstName"
                 defaultValue={admin.firstName ?? ""}
-                placeholder="John"
+                placeholder="Sakhan"
                 className={inputClass}
               />
             </div>
             <div>
-              <Label className={labelClass}>Last Name</Label>
+              <Label htmlFor="lastName" className={labelClass}>
+                Last Name
+              </Label>
               <Input
                 name="lastName"
+                id="lastName"
                 defaultValue={admin.lastName ?? ""}
-                placeholder="Doe"
+                placeholder="Monirothna"
                 className={inputClass}
               />
             </div>

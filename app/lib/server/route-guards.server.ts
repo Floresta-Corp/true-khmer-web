@@ -47,6 +47,7 @@ export type OptionalUserResult = {
 
 type SuperAdminGuardResult = {
   admin: AdminUser;
+  accessToken: string;
   setCookie?: string;
 };
 
@@ -313,7 +314,7 @@ async function resolveAdmin(request: Request): Promise<SuperAdminGuardResult> {
 
   try {
     const admin = await getAdminMe(request, accessToken);
-    return { admin, setCookie };
+    return { admin, accessToken, setCookie };
   } catch (error) {
     if (error instanceof ProtectedApiError && error.status === 401) {
       const refreshed = await getAdminAccessToken(request, {
@@ -321,7 +322,11 @@ async function resolveAdmin(request: Request): Promise<SuperAdminGuardResult> {
       });
       if (refreshed.accessToken) {
         const admin = await getAdminMe(request, refreshed.accessToken);
-        return { admin, setCookie: refreshed.setCookie ?? setCookie };
+        return {
+          admin,
+          accessToken: refreshed.accessToken,
+          setCookie: refreshed.setCookie ?? setCookie,
+        };
       }
       throw redirectWithCookie(
         loginRedirectPathForAdmin(request),
@@ -363,7 +368,6 @@ export async function redirectIfAdminAuth(request: Request) {
 
   try {
     await getAdminMe(request, accessToken);
-    // Admin successfully authenticated, redirect to admin dashboard
     return redirectWithCookie("/tk-admin", setCookie);
   } catch {
     return null;
