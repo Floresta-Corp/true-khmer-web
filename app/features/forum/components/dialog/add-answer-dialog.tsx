@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { X } from "lucide-react";
 import { Link, useFetcher, useLocation, useRevalidator } from "react-router";
 import { toast } from "sonner";
-import { readActionResult } from "~/lib/action-result";
+import { useFetcherOutcome } from "~/hooks/use-fetcher-outcome";
 
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
@@ -37,36 +37,25 @@ export default function AddAnswerDialog({
   const location = useLocation();
   const revalidator = useRevalidator();
   const isSubmitting = fetch.state !== "idle";
-  const wasSubmitting = useRef(false);
   const [open, setOpen] = useState(false);
   const [bodyError, setBodyError] = useState<string | null>(null);
   const redirectTo = `${location.pathname}${location.search}`;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
 
-  useEffect(() => {
-    if (fetch.state === "submitting") {
-      wasSubmitting.current = true;
-    }
-
-    if (wasSubmitting.current && fetch.state === "idle" && fetch.data) {
-      wasSubmitting.current = false;
-      const { ok, message } = readActionResult(fetch.data);
-
-      if (ok) {
-        setOpen(false);
-        setBodyError(null);
-        revalidator.revalidate();
-        toast.success(
-          message ??
-            (isEditing
-              ? "Answer updated successfully."
-              : "Answer posted successfully."),
-        );
-      } else {
-        toast.error(message ?? "Failed to post answer.");
-      }
-    }
-  }, [fetch.state, fetch.data, isEditing]);
+  useFetcherOutcome(fetch, {
+    onSuccess: (message) => {
+      setOpen(false);
+      setBodyError(null);
+      revalidator.revalidate();
+      toast.success(
+        message ??
+          (isEditing
+            ? "Answer updated successfully."
+            : "Answer posted successfully."),
+      );
+    },
+    onError: (message) => toast.error(message ?? "Failed to post answer."),
+  });
 
   if (!isAuthenticated && !isEditing) {
     if (trigger) {

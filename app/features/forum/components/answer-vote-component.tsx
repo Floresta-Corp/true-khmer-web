@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useFetcher } from "react-router";
 import { toast } from "sonner";
@@ -6,6 +5,7 @@ import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 import { ViewerVote } from "~/services/types";
 import { cn } from "~/lib/utils";
+import { useFetcherOutcome } from "~/hooks/use-fetcher-outcome";
 
 interface AnswerVoteComponentProps {
   answerId: string;
@@ -22,29 +22,10 @@ export default function AnswerVoteComponent({
 }: AnswerVoteComponentProps) {
   const fetcher = useFetcher();
   const isSubmitting = fetcher.state !== "idle";
-  const wasSubmitting = useRef(false);
 
-  useEffect(() => {
-    if (fetcher.state === "submitting") {
-      wasSubmitting.current = true;
-    }
-
-    if (wasSubmitting.current && fetcher.state === "idle" && fetcher.data) {
-      wasSubmitting.current = false;
-      const result = fetcher.data as
-        | { ok?: boolean; message?: string; error?: string }
-        | { data?: { ok?: boolean }; message?: string; error?: string };
-
-      const isSuccess =
-        ("ok" in result && result.ok === true) ||
-        ("data" in result && result.data?.ok === true);
-      if (!isSuccess) {
-        toast.error(
-          result?.message ?? result?.error ?? "Failed to submit vote.",
-        );
-      }
-    }
-  }, [fetcher.state, fetcher.data]);
+  useFetcherOutcome(fetcher, {
+    onError: (message) => toast.error(message ?? "Failed to submit vote."),
+  });
 
   const isUpvoteActive = viewerVote === ViewerVote.UPVOTE;
   const isDownvoteActive = viewerVote === ViewerVote.DOWNVOTE;

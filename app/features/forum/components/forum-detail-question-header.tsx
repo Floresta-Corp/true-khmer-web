@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { Bookmark, EllipsisVertical, Info } from "lucide-react";
 import { useFetcher, useLocation } from "react-router";
 import { toast } from "sonner";
+import { useFetcherOutcome } from "~/hooks/use-fetcher-outcome";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -35,41 +36,17 @@ export default function ForumDetailQuestionHeader({
 }: ForumDetailQuestionHeaderProps) {
   const location = useLocation();
   const fetcher = useFetcher();
-  const wasSubmitting = useRef(false);
   const submittedIntent = useRef<string | null>(null);
   const isSubmitting = fetcher.state !== "idle";
 
-  useEffect(() => {
-    if (fetcher.state === "submitting") {
-      wasSubmitting.current = true;
-    }
-
-    if (wasSubmitting.current && fetcher.state === "idle" && fetcher.data) {
-      wasSubmitting.current = false;
-      const result = fetcher.data as
-        | {
-            ok?: boolean;
-            question?: { viewerSave?: boolean };
-            message?: string;
-            error?: string;
-          }
-        | { data?: { ok?: boolean }; message?: string; error?: string };
-
-      const isSuccess =
-        ("ok" in result && result.ok === true) ||
-        ("data" in result && result.data?.ok === true);
-
-      if (isSuccess) {
-        const isSaved = submittedIntent.current === "save-question";
-        toast.success(isSaved ? "Question saved" : "Question unsaved");
-        submittedIntent.current = null;
-      } else {
-        toast.error(
-          result?.message ?? result?.error ?? "Failed to save question.",
-        );
-      }
-    }
-  }, [fetcher.state, fetcher.data]);
+  useFetcherOutcome(fetcher, {
+    onSuccess: () => {
+      const isSaved = submittedIntent.current === "save-question";
+      toast.success(isSaved ? "Question saved" : "Question unsaved");
+      submittedIntent.current = null;
+    },
+    onError: (message) => toast.error(message ?? "Failed to save question."),
+  });
 
   if (!question) return null;
 

@@ -6,18 +6,18 @@ import {
   submitVoteAction,
   parseAnswerVoteAction,
   submitAnswerVoteAction,
+  reportQuestionAction,
+  reportAnswerAction,
 } from "./forum.vote-helpers";
 import {
   updateAnswerById,
   deleteAnswerById,
   createAnswerByQuestionId,
-  SubmitReport,
   addSaveQuestion,
   deleteSaveQuestion,
   markAsBestAnswer,
 } from "~/api/forum/forum.server";
 import type { Route as ForumDetailRoute } from "project-types/forum/route/+types/forum.$id";
-import type { SubmitReportInput } from "../types";
 import { transformActionResponse } from "~/lib/server/action-response.server";
 
 export async function forumDetailAction({
@@ -73,58 +73,11 @@ export async function forumDetailAction({
   }
 
   if (actionType === "report-question") {
-    const reportQuestionId = String(formData.get("questionId") ?? "").trim();
-    const reportTypeId = String(formData.get("typeId") ?? "").trim();
-    const reportDescription = String(formData.get("description") ?? "").trim();
-
-    if (!reportQuestionId) {
-      return respond({
-        ok: false,
-        message: "Question ID is required for reporting.",
-      });
-    }
-
-    if (!reportTypeId) {
-      return respond({
-        ok: false,
-        message: "Report type ID is required.",
-      });
-    }
-
-    const body: SubmitReportInput = {
-      description: reportDescription,
-      typeId: reportTypeId,
-      questionId: reportQuestionId,
-    };
-    return respond(await SubmitReport(request, body));
+    return respond(await reportQuestionAction(request, formData));
   }
 
   if (actionType === "report-answer") {
-    const reportAnswerId = String(formData.get("answerId") ?? "").trim();
-    const reportTypeId = String(formData.get("typeId") ?? "").trim();
-    const reportDescription = String(formData.get("description") ?? "").trim();
-
-    if (!reportAnswerId) {
-      return respond({
-        ok: false,
-        message: "Answer ID is required for reporting.",
-      });
-    }
-
-    if (!reportTypeId) {
-      return respond({
-        ok: false,
-        message: "Report type ID is required.",
-      });
-    }
-
-    const body: SubmitReportInput = {
-      description: reportDescription,
-      typeId: reportTypeId,
-      answerId: reportAnswerId,
-    };
-
-    return respond(await SubmitReport(request, body));
+    return respond(await reportAnswerAction(request, formData));
   }
 
   if (actionType === "vote-question") {
