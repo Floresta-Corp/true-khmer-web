@@ -2,6 +2,7 @@ import { data, redirect } from "react-router";
 import type { Route } from "project-types/admin/usermanagement/route/+types/user-management";
 
 import { getAdminAccessToken } from "~/lib/server/session.server";
+import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 import { getAdminUserManagement } from "~/api/admin/user-management/user-management.server";
 
 function positiveInteger(value: string | null, fallback: number) {
@@ -10,6 +11,7 @@ function positiveInteger(value: string | null, fallback: number) {
 }
 
 export async function userManagementLoader({ request }: Route.LoaderArgs) {
+  await requireSuperAdmin(request);
   const { accessToken, setCookie } = await getAdminAccessToken(request);
 
   if (!accessToken) {

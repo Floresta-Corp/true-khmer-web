@@ -305,11 +305,7 @@ export async function requireUser(
   }
 }
 
-// Use for admin protected routes/actions. The user must be logged in, ACTIVE,
-// and have an admin role in the backend /auth/session user payload.
-export async function requireSuperAdmin(
-  request: Request,
-): Promise<SuperAdminGuardResult> {
+async function resolveAdmin(request: Request): Promise<SuperAdminGuardResult> {
   const { accessToken, setCookie } = await getAdminAccessToken(request);
   if (!accessToken) {
     throw redirectWithCookie(loginRedirectPathForAdmin(request), setCookie);
@@ -325,12 +321,8 @@ export async function requireSuperAdmin(
       });
       if (refreshed.accessToken) {
         const admin = await getAdminMe(request, refreshed.accessToken);
-        return {
-          admin,
-          setCookie: refreshed.setCookie ?? setCookie,
-        };
+        return { admin, setCookie: refreshed.setCookie ?? setCookie };
       }
-
       throw redirectWithCookie(
         loginRedirectPathForAdmin(request),
         refreshed.setCookie ?? setCookie,
@@ -338,6 +330,24 @@ export async function requireSuperAdmin(
     }
     throw error;
   }
+}
+
+// Accepts both moderator and super admin — use for the admin layout.
+export async function requireAdmin(
+  request: Request,
+): Promise<SuperAdminGuardResult> {
+  return resolveAdmin(request);
+}
+
+// Use for routes/actions restricted to super admin only.
+export async function requireSuperAdmin(
+  request: Request,
+): Promise<SuperAdminGuardResult> {
+  const result = await resolveAdmin(request);
+  if (result.admin.role !== "SUPER_ADMIN") {
+    throw redirect("/tk-admin");
+  }
+  return result;
 }
 
 function loginRedirectPathForAdmin(request: Request) {

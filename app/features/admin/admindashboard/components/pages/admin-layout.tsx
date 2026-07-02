@@ -18,6 +18,7 @@ const menuLabels: Record<string, string> = {
   moderation: "Content Moderation",
   users: "User Management",
   partners: "Partner",
+  "account-settings": "Account Settings",
 };
 
 function getActiveMenu(pathname: string) {
@@ -28,6 +29,7 @@ function getActiveMenu(pathname: string) {
     pathname.startsWith("/tk-admin/user/")
   )
     return "users";
+  if (pathname.startsWith("/tk-admin/account-settings")) return "account-settings";
   return null;
 }
 
@@ -102,14 +104,18 @@ export default function AdminLayout() {
         </div>
 
         <div className="flex flex-col gap-1 w-full items-center flex-1">
-          {navItems.map((item) => (
-            <SidebarItem
-              key={item.id}
-              {...item}
-              active={visibleActiveMenu === item.id}
-              onNavigate={() => setIsMobileMenuOpen(false)}
-            />
-          ))}
+          {navItems
+            .filter((item) =>
+              item.id === "users" ? admin.role === "SUPER_ADMIN" : true,
+            )
+            .map((item) => (
+              <SidebarItem
+                key={item.id}
+                {...item}
+                active={visibleActiveMenu === item.id}
+                onNavigate={() => setIsMobileMenuOpen(false)}
+              />
+            ))}
         </div>
 
         <div className="flex flex-col gap-1 w-full items-center pb-8 mt-auto">
@@ -131,7 +137,7 @@ export default function AdminLayout() {
         </header>
 
         <div className="flex-1 w-full bg-slate-50 dark:bg-[#020617]">
-          <Outlet />
+          <Outlet context={{ isSuperAdmin: admin.role === "SUPER_ADMIN" }} />
         </div>
       </main>
     </div>

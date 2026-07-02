@@ -3,6 +3,8 @@ import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
 import type { StatItem } from "../types";
 
+const MotionLink = motion.create(Link);
+
 interface KpiCardProps {
   item: StatItem;
   index: number;
@@ -11,12 +13,13 @@ interface KpiCardProps {
 export function KpiCard({ item, index }: KpiCardProps) {
   const Icon = item.icon;
   return (
-    <motion.div
+    <MotionLink
+      to={item.to}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
       whileHover={{ y: -3 }}
-      className="overflow-hidden rounded-xl border border-(--admin-border) dark:bg-slate-900 transition-shadow"
+      className="group/card overflow-hidden rounded-xl border border-(--admin-border) dark:bg-slate-900 transition-shadow block"
     >
       <div className="flex items-start gap-4 p-5">
         <div
@@ -33,18 +36,15 @@ export function KpiCard({ item, index }: KpiCardProps) {
           </p>
         </div>
       </div>
-      <Link
-        to={item.to}
-        className="px-5 py-3 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between group/btn hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-left w-full"
-      >
-        <span className="text-sm font-bold text-slate-500 group-hover/btn:text-slate-900 dark:group-hover/btn:text-white transition-colors">
+      <div className="px-5 py-3 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between group-hover/card:bg-slate-50 dark:group-hover/card:bg-slate-800 transition-all">
+        <span className="text-sm font-bold text-slate-500 group-hover/card:text-slate-900 dark:group-hover/card:text-white transition-colors">
           See in details
         </span>
         <ArrowRight
           size={16}
-          className="text-slate-300 group-hover/btn:text-slate-900 dark:group-hover/btn:text-white group-hover/btn:translate-x-1 transition-all"
+          className="text-slate-300 group-hover/card:text-slate-900 dark:group-hover/card:text-white group-hover/card:translate-x-1 transition-all"
         />
-      </Link>
-    </motion.div>
+      </div>
+    </MotionLink>
   );
 }

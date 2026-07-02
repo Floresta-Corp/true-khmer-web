@@ -1,0 +1,94 @@
+import { type ChangeEvent, useEffect, useRef, useState } from "react";
+import { useActionData, useLoaderData, useNavigation } from "react-router";
+import { toast } from "sonner";
+import type { accountSettingsLoader } from "../../services/account-settings.loader";
+import type { accountSettingsAction } from "../../services/account-settings.action";
+import { AccountSettingsProfileCard } from "../account-settings-profile-card";
+import { AccountSettingsForms } from "../account-settings-forms";
+
+function getInitials(firstName: string | null, lastName: string | null) {
+  return `${firstName?.[0] ?? ""}${lastName?.[0] ?? ""}`.toUpperCase() || "A";
+}
+
+export default function AccountSettingsPage() {
+  const { admin } = useLoaderData<typeof accountSettingsLoader>();
+  const actionData = useActionData<typeof accountSettingsAction>();
+  const navigation = useNavigation();
+
+  const isSubmitting = navigation.state === "submitting";
+  const submitIntent = navigation.formData?.get("intent");
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const avatarObjectUrlRef = useRef<string | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(
+    undefined,
+  );
+
+  const handleCameraClick = () => fileInputRef.current?.click();
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.currentTarget.files?.[0] ?? null;
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file.");
+      return;
+    }
+    if (avatarObjectUrlRef.current) {
+      URL.revokeObjectURL(avatarObjectUrlRef.current);
+    }
+    const objectUrl = URL.createObjectURL(file);
+    avatarObjectUrlRef.current = objectUrl;
+    setAvatarPreview(objectUrl);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (avatarObjectUrlRef.current)
+        URL.revokeObjectURL(avatarObjectUrlRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!actionData || actionData.ok) return;
+    toast.error(actionData.message);
+  }, [actionData]);
+
+  const initials = getInitials(admin.firstName, admin.lastName);
+  const fullName =
+    `${admin.firstName ?? ""} ${admin.lastName ?? ""}`.trim() || "Admin";
+
+  return (
+    <div className="p-6 md:p-10 max-w-6xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-2xl font-black text-slate-900 dark:text-white">
+          Account Settings
+        </h1>
+        <p className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+          Manage your profile and security settings
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1">
+          <AccountSettingsProfileCard
+            admin={admin}
+            roles={admin.role ?? "-"}
+            initials={initials}
+            fullName={fullName}
+            avatarPreview={avatarPreview}
+            onCameraClick={handleCameraClick}
+          />
+        </div>
+        <div className="lg:col-span-2">
+          <AccountSettingsForms
+            admin={admin}
+            isSubmitting={isSubmitting}
+            submitIntent={submitIntent}
+            fileInputRef={fileInputRef}
+            onFileChange={handleFileChange}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}

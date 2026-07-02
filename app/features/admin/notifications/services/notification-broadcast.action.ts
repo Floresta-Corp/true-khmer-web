@@ -3,6 +3,7 @@ import type { Route } from "project-types/admin/notifications/route/+types/notif
 import { z } from "zod";
 import { broadcastNotification } from "~/api/admin/notifications/notification-broadcast.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
+import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 
 const emptyToUndefined = (v: unknown) => (v === "" ? undefined : v);
 
@@ -28,6 +29,7 @@ const broadcastSchema = z.object({
 });
 
 export async function notificationBroadcastAction({ request }: Route.ActionArgs) {
+  await requireSuperAdmin(request);
   const { accessToken, setCookie } = await getAdminAccessToken(request);
   if (!accessToken) {
     throw redirect("/tk-admin/login");

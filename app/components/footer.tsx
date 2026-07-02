@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
 import { Link } from "react-router";
 import LogoSvg from "../../public/logoSvg";
 
@@ -32,10 +32,26 @@ const footerColumns = [
 ];
 
 const socialLinks = [
-  { label: "Facebook", to: "#", icon: Facebook },
-  { label: "Twitter", to: "#", icon: Twitter },
-  { label: "Instagram", to: "#", icon: Instagram },
-  { label: "LinkedIn", to: "#", icon: Linkedin },
+  {
+    label: "Facebook",
+    to: "https://www.facebook.com/truekhmerofficial",
+    icon: Facebook,
+  },
+  {
+    label: "TikTok",
+    to: "https://www.tiktok.com/@truekhmerofficial",
+    icon: Twitter,
+  },
+  {
+    label: "YouTube",
+    to: "https://www.youtube.com/@TrueKhmerofficial",
+    icon: Youtube,
+  },
+  {
+    label: "LinkedIn",
+    to: "https://www.linkedin.com/company/truekhmerofficial/posts/?feedView=all",
+    icon: Linkedin,
+  },
 ];
 
 const legalLinks = [

@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { useLoaderData } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { useLoaderData, useLocation, useOutletContext } from "react-router";
+import { toast } from "sonner";
 import { Users, Handshake, ShieldAlert, UserCog, Bell } from "lucide-react";
 
 import { KpiCard } from "../kpi-card";
@@ -183,10 +184,25 @@ function toSectorData(
 // ── page ──────────────────────────────────────────────────────────────────
 export default function AdminDashboardPage() {
   const { dashboard } = useLoaderData<typeof adminDashboardLoader>();
+  const { isSuperAdmin } = useOutletContext<{ isSuperAdmin: boolean }>();
+  const location = useLocation();
+  const toastShownRef = useRef(false);
   const [showNotificationDialog, setShowNotificationDialog] = useState(false);
+
+  useEffect(() => {
+    if (toastShownRef.current) return;
+    const msg = new URLSearchParams(location.search).get("toast");
+    if (!msg) return;
+    toastShownRef.current = true;
+    toast.success(msg);
+    window.history.replaceState({}, "", location.pathname);
+  }, [location.search, location.pathname]);
   const [showInviteModal, setShowInviteModal] = useState(false);
 
-  const stats = toStats(dashboard.summary);
+  const allStats = toStats(dashboard.summary);
+  const stats = isSuperAdmin
+    ? allStats
+    : allStats.filter((s) => s.id !== "users" && s.id !== "partners");
   const registrationData = toRegistrationData(dashboard.newRegistrations);
   const activeUsersData = toActiveUsersData(dashboard.activeUsers);
   const genderData = toGenderData(dashboard.demographics);
@@ -195,7 +211,9 @@ export default function AdminDashboardPage() {
   const showPartnerSectors =
     dashboard.partners.total !== null && sectorData.length > 0;
 
-  const quickActions: QuickAction[] = BASE_QUICK_ACTIONS.map((action) => {
+  const quickActions: QuickAction[] = BASE_QUICK_ACTIONS.filter(
+    (action) => isSuperAdmin || action.id !== "send-notification",
+  ).map((action) => {
     if (action.id === "send-notification")
       return { ...action, onClick: () => setShowNotificationDialog(true) };
     if (action.id === "invite-team")

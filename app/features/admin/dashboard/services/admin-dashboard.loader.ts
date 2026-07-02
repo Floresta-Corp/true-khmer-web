@@ -2,14 +2,14 @@ import type { Route } from "project-types/admin/dashboard/route/+types/admin-das
 import { redirect } from "react-router";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { getAdminDashboard } from "~/api/admin/dashboard/dashboard.server";
-import { requireSuperAdmin } from "~/lib/server/route-guards.server";
+import { requireAdmin } from "~/lib/server/route-guards.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
 import type { AdminDashboardData } from "../types";
 
 export type { AdminDashboardData } from "../types";
 
 export async function adminDashboardLoader({ request }: Route.LoaderArgs) {
-  const auth = await requireSuperAdmin(request);
+  const auth = await requireAdmin(request);
   const { accessToken } = await getAdminAccessToken(request);
   if (!accessToken) {
     throw redirect("/tk-admin/login");
