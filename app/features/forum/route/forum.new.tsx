@@ -1,9 +1,14 @@
-import { useLoaderData, useFetcher, useSearchParams } from "react-router";
+import {
+  useLoaderData,
+  useFetcher,
+  useSearchParams,
+  useNavigation,
+} from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 import type { QuestionResponse, GetQuestionsResponse, TrendingTagResponse } from "~/types/api-client";
 import type { CategoriesPicker, QuestionSortBy } from "~/features/forum/types";
 import { questionSortBySchema } from "~/features/forum/types";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { forumListloader } from "../services/forum.loader";
 import ForumHeaderNew from "../components/sections/forum-header-new";
 import ForumContentNew, {
@@ -85,7 +90,7 @@ export default function ForumNewPage() {
   const { data, categories, tags } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const isFirstRenderRef = useRef(true);
+  const navigation = useNavigation();
 
   // Initialize filters from URL params
   const initialCategoryId = searchParams.get("categoryId");
@@ -102,15 +107,10 @@ export default function ForumNewPage() {
         }
       : { id: "all-categories", name: "All Categories" };
 
-  const [questionList, setQuestionList] = useState<QuestionResponse[] | undefined>(
-    data?.questions,
-  );
-  const [hasMore, setHasMore] = useState<boolean | undefined>(
-    data?.pagination?.hasMore,
-  );
-  const [nextCursor, setNextCursor] = useState<string | null | undefined>(
-    data?.pagination?.nextCursor,
-  );
+  const [extraPages, setExtraPages] = useState<QuestionResponse[]>([]);
+  const [extraPagination, setExtraPagination] = useState<
+    GetQuestionsResponse["pagination"] | null
+  >(null);
   const [selectedCategory, setSelectedCategory] =
     useState<CategoriesPicker>(initialCategory);
   const [selectedTagId, setSelectedTagId] = useState<string | undefined>(
@@ -157,48 +157,60 @@ export default function ForumNewPage() {
     [activeTab, selectedCategory.id, selectedTagId, sortBy],
   );
 
-  // Sync local state from fresh loader data after revalidation
-  useEffect(() => {
-    if (data?.questions) {
-      setQuestionList(data.questions);
-      setHasMore(data.pagination?.hasMore);
-      setNextCursor(data.pagination?.nextCursor ?? undefined);
-    }
-  }, [data]);
+  // Identity of the active filter set (URL-derived). Page 1 comes from the
+  // loader; when this changes, drop any pages accumulated via "load more".
+  const searchKey =
+    (searchParams.get("sortBy") || "") +
+    (searchParams.get("categoryId") || "") +
+    (searchParams.get("tagId") || "") +
+    (searchParams.get("isUnanswered") || "") +
+    (searchParams.get("isTrending") || "");
 
-  // Fetch when filters change (but skip the initial mount)
+  // Reset accumulated pages whenever the active filters change.
   useEffect(() => {
-    if (isFirstRenderRef.current) {
-      isFirstRenderRef.current = false;
-      return; // Skip initial fetch since loader already hydrated
-    }
-    setQuestionList([]);
-    setHasMore(undefined);
-    setNextCursor(undefined);
-    fetcher.load(buildForumQuery());
-  }, [buildForumQuery]);
+    setExtraPages([]);
+    setExtraPagination(null);
+  }, [searchKey]);
 
+  // Append newly fetched pages, de-duping against page 1 and prior extra pages.
   useEffect(() => {
-    const fetcherData = fetcher.data?.data as
-      | GetQuestionsResponse
-      | undefined;
-    if (fetcherData) {
-      const fetchedQuestions = fetcherData.questions;
-      setQuestionList((prev) => {
-        const existingIds = new Set((prev || []).map((q) => q.id));
-        const newQuestions = fetchedQuestions.filter(
-          (q: QuestionResponse) => !existingIds.has(q.id),
-        );
-        return [...(prev || []), ...newQuestions];
-      });
-      const pagination = fetcherData.pagination;
-      setHasMore(pagination.hasMore);
-      setNextCursor(pagination.nextCursor ?? undefined);
-    }
+    const fetcherData = fetcher.data?.data as GetQuestionsResponse | undefined;
+    if (!fetcherData) return;
+
+    setExtraPages((prev) => {
+      const seen = new Set([
+        ...(data?.questions ?? []).map((q) => q.id),
+        ...prev.map((q) => q.id),
+      ]);
+      const fresh = fetcherData.questions.filter((q) => !seen.has(q.id));
+      return [...prev, ...fresh];
+    });
+    setExtraPagination(fetcherData.pagination);
   }, [fetcher.data?.data]);
 
+  // Page 1 (fresh from the loader) + accumulated extra pages.
+  const questionList = useMemo(() => {
+    const base = data?.questions ?? [];
+    if (extraPages.length === 0) return base;
+    const seen = new Set(base.map((q) => q.id));
+    return [...base, ...extraPages.filter((q) => !seen.has(q.id))];
+  }, [data?.questions, extraPages]);
+
+  // Pagination follows the most recently loaded page.
+  const pagination = extraPagination ?? data?.pagination;
+  const hasMore = pagination?.hasMore;
+  const nextCursor = pagination?.nextCursor ?? undefined;
+
+  // While a same-route filter revalidation is in flight, show skeletons rather
+  // than stale results (mirrors the previous clear-and-fetch behavior).
+  const isRevalidating =
+    navigation.state === "loading" &&
+    navigation.location?.pathname === "/forum";
+  const displayedQuestions = isRevalidating ? [] : questionList;
+  const isLoading = isRevalidating || fetcher.state === "loading";
+
   const handleLoadMore = useCallback(() => {
-    if (!questionList || questionList.length === 0) return;
+    if (questionList.length === 0) return;
     if (fetcher.state === "loading") return;
     if (hasMore === false) return;
 
@@ -206,7 +218,7 @@ export default function ForumNewPage() {
       fetcher.load(buildForumQuery(nextCursor));
     }
   }, [
-    questionList,
+    questionList.length,
     fetcher.state,
     fetcher.load,
     hasMore,
@@ -304,7 +316,7 @@ export default function ForumNewPage() {
         }}
       >
         <ForumContentNew
-          questions={questionList}
+          questions={displayedQuestions}
           categories={[
             {
               id: "all-categories",
@@ -328,7 +340,7 @@ export default function ForumNewPage() {
           onTagSelect={handleTagSelect}
           onLoadMore={handleLoadMore}
           hasMore={hasMore}
-          isLoading={fetcher.state === "loading"}
+          isLoading={isLoading}
         />
       </motion.div>
     </div>
