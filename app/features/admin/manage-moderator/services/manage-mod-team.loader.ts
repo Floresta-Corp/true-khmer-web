@@ -2,7 +2,6 @@ import { z } from "zod";
 import { data, redirect } from "react-router";
 import type { Route } from "project-types/admin/manage-moderator/route/+types/manage-moderator";
 
-import { getAdminUser } from "~/lib/server/session.server";
 import { getManageModTeam } from "~/api/admin/manage-moderator/manage-moderator.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
@@ -17,11 +16,13 @@ const urlSchema = z.object({
   role: z
     .enum(["moderator", "super_admin"])
     .optional()
-    .transform((v) => v?.toUpperCase() as "MODERATOR" | "SUPER_ADMIN" | undefined),
+    .transform(
+      (v) => v?.toUpperCase() as "MODERATOR" | "SUPER_ADMIN" | undefined,
+    ),
 });
 
 export async function manageModTeamLoader({ request }: Route.LoaderArgs) {
-  const { accessToken, setCookie } = await requireSuperAdmin(
+  const { admin, accessToken, setCookie } = await requireSuperAdmin(
     request,
     "Team management is restricted to Super Admins.",
   );
@@ -38,13 +39,11 @@ export async function manageModTeamLoader({ request }: Route.LoaderArgs) {
       { cursor, limit: limit.toString(), search, role },
     );
 
-    const currentAdmin = await getAdminUser(request);
-
     return data<ManageModTeamLoaderData>(
       {
         moderators,
         pagination,
-        currentUserId: currentAdmin?.id ?? "",
+        currentUserId: admin?.id ?? "",
       },
       { ...(setCookie ? { headers: { "Set-Cookie": setCookie } } : {}) },
     );

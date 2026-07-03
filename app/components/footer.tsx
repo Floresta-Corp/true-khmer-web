@@ -83,9 +83,9 @@ export function Footer() {
               {socialLinks.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <a
+                  <Link
                     key={item.label}
-                    href={item.to}
+                    to={item.to}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={item.label}
@@ -96,7 +96,7 @@ export function Footer() {
                     ) : (
                       <Icon className="size-4" />
                     )}
-                  </a>
+                  </Link>
                 );
               })}
             </div>
