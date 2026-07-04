@@ -14,9 +14,9 @@ type Props = {
   admin: AdminUser;
   initials: string;
   fullName: string;
-  roles: string;
+  role: string;
   avatarPreview: string | undefined;
-  onCameraClick: () => void;
+  onChangeAvatar: () => void;
 };
 
 export function AccountSettingsProfileCard({
@@ -24,8 +24,8 @@ export function AccountSettingsProfileCard({
   initials,
   fullName,
   avatarPreview,
-  roles,
-  onCameraClick,
+  role,
+  onChangeAvatar,
 }: Props) {
   const displaySrc =
     avatarPreview ??
@@ -37,7 +37,7 @@ export function AccountSettingsProfileCard({
       <div className="p-8 flex flex-col items-center text-center">
         <button
           type="button"
-          onClick={onCameraClick}
+          onClick={onChangeAvatar}
           className="relative group focus:outline-none cursor-pointer"
           aria-label="Change avatar"
         >
@@ -64,7 +64,7 @@ export function AccountSettingsProfileCard({
           {fullName}
         </h2>
         <p className="mt-1 text-[10px] font-medium uppercase tracking-widest text-slate-400">
-          {roles ? formatRole(roles) : "-"}
+          {role ? formatRole(role) : "-"}
         </p>
       </div>
     </div>

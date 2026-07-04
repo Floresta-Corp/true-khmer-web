@@ -20,6 +20,7 @@ type Props = {
   fileInputRef: RefObject<HTMLInputElement | null>;
   onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
   hasAvatarChange: boolean;
+  passwordResetSignal: number;
 };
 
 export function AccountSettingsForms({
@@ -29,6 +30,7 @@ export function AccountSettingsForms({
   fileInputRef,
   onFileChange,
   hasAvatarChange,
+  passwordResetSignal,
 }: Props) {
   const [firstName, setFirstName] = useState(admin.firstName ?? "");
   const [lastName, setLastName] = useState(admin.lastName ?? "");
@@ -36,6 +38,14 @@ export function AccountSettingsForms({
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Clear the password fields after a successful change (signal bumps on success).
+  useEffect(() => {
+    if (passwordResetSignal === 0) return;
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  }, [passwordResetSignal]);
 
   const isPasswordChanged =
     currentPassword !== "" || newPassword !== "" || confirmPassword !== "";

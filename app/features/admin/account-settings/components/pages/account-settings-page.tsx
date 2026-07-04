@@ -29,9 +29,9 @@ export default function AccountSettingsPage() {
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(
     undefined,
   );
-  const [passwordChangeSucceededAt, setPasswordChangeSucceededAt] = useState(0);
+  const [passwordChangeCount, setPasswordChangeCount] = useState(0);
 
-  const handleCameraClick = () => fileInputRef.current?.click();
+  const handleChangeAvatar = () => fileInputRef.current?.click();
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.currentTarget.files?.[0] ?? null;
@@ -62,7 +62,7 @@ export default function AccountSettingsPage() {
       if (actionData.intent === "update-profile") {
         navigate("/tk-admin");
       } else if (actionData.intent === "change-password") {
-        setPasswordChangeSucceededAt((n) => n + 1);
+        setPasswordChangeCount((n) => n + 1);
       }
     } else {
       toast.error(actionData.message);
@@ -88,11 +88,11 @@ export default function AccountSettingsPage() {
         <div className="lg:col-span-1">
           <AccountSettingsProfileCard
             admin={admin}
-            roles={admin.role ?? "-"}
+            role={admin.role ?? "-"}
             initials={initials}
             fullName={fullName}
             avatarPreview={avatarPreview}
-            onCameraClick={handleCameraClick}
+            onChangeAvatar={handleChangeAvatar}
           />
         </div>
         <div className="lg:col-span-2">
@@ -103,6 +103,7 @@ export default function AccountSettingsPage() {
             fileInputRef={fileInputRef}
             onFileChange={handleFileChange}
             hasAvatarChange={avatarPreview !== undefined}
+            passwordResetSignal={passwordChangeCount}
           />
         </div>
       </div>

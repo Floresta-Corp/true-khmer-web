@@ -4,7 +4,7 @@ import type { Route } from "project-types/admin/account-settings/route/+types/ac
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { updateAdminProfile } from "~/api/admin/auth/admin-account-settings.server";
 import { invalidateAdminMeCache } from "~/api/admin/auth/admin-auth.server";
-import { AdminUploadPresign } from "~/api/admin/auth/admin-upload-presign.server";
+import { adminUploadPresign } from "~/api/admin/auth/admin-upload-presign.server";
 import { requireAdmin } from "~/lib/server/route-guards.server";
 
 const updateProfileSchema = z.object({
@@ -58,7 +58,7 @@ export async function accountSettingsAction({ request }: Route.ActionArgs) {
 
     if (avatarFile && avatarFile.size > 0) {
       try {
-        const presign = await AdminUploadPresign(request, accessToken, {
+        const presign = await adminUploadPresign(request, accessToken, {
           contentType: avatarFile.type,
           fileSize: avatarFile.size,
         });

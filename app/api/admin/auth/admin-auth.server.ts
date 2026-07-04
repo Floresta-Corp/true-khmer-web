@@ -103,6 +103,13 @@ export async function getAdminMe(
     accessToken,
     "/admin/me",
   );
+
+  if (result.role !== "MODERATOR" && result.role !== "SUPER_ADMIN") {
+    throw new Error(
+      `Unexpected admin role in /admin/me response: ${String(result.role)}`,
+    );
+  }
+
   setCachedAdminMe(accessToken, result);
   return result;
 }
