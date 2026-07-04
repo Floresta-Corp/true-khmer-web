@@ -6,13 +6,12 @@ import {
   REPORT_STATUSES,
 } from "~/api/admin/content-moderator/content-moderator.server";
 import type { ReportStatus } from "~/api/admin/content-moderator/content-moderator.server";
-import { requireSuperAdmin } from "~/lib/server/route-guards.server";
-import { getAdminAccessToken } from "~/lib/server/session.server";
+import { requireAdmin } from "~/lib/server/route-guards.server";
 import type { ContentModeratorData } from "../types";
 
 export async function contentModeratorLoader({ request }: Route.LoaderArgs) {
-  const auth = await requireSuperAdmin(request);
-  const { accessToken } = await getAdminAccessToken(request);
+  const auth = await requireAdmin(request);
+  const { accessToken } = auth;
   if (!accessToken) {
     throw redirect("/tk-admin/login");
   }

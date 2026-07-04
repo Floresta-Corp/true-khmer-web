@@ -4,7 +4,10 @@ import type { Route } from "project-types/admin/usermanagement/route/+types/user
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 
 export async function userManagementAction({ request }: Route.ActionArgs) {
-  await requireSuperAdmin(request);
+  await requireSuperAdmin(
+    request,
+    "User management is restricted to Super Admins.",
+  );
 
   return data(
     {

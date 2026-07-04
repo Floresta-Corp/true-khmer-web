@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useOutletContext } from "react-router";
 import { Users, Handshake, ShieldAlert, UserCog, Bell } from "lucide-react";
 
 import { KpiCard } from "../kpi-card";
@@ -183,10 +183,16 @@ function toSectorData(
 // ── page ──────────────────────────────────────────────────────────────────
 export default function AdminDashboardPage() {
   const { dashboard } = useLoaderData<typeof adminDashboardLoader>();
+  const { isSuperAdmin } = useOutletContext<{ isSuperAdmin: boolean }>();
   const [showNotificationDialog, setShowNotificationDialog] = useState(false);
+
   const [showInviteModal, setShowInviteModal] = useState(false);
 
-  const stats = toStats(dashboard.summary);
+  const stats = toStats(dashboard.summary).map((stat) =>
+    !isSuperAdmin && (stat.id === "users" || stat.id === "partners")
+      ? { ...stat, disabled: true }
+      : stat,
+  );
   const registrationData = toRegistrationData(dashboard.newRegistrations);
   const activeUsersData = toActiveUsersData(dashboard.activeUsers);
   const genderData = toGenderData(dashboard.demographics);
@@ -196,8 +202,10 @@ export default function AdminDashboardPage() {
     dashboard.partners.total !== null && sectorData.length > 0;
 
   const quickActions: QuickAction[] = BASE_QUICK_ACTIONS.map((action) => {
-    if (action.id === "send-notification")
+    if (!isSuperAdmin) return { ...action, disabled: true };
+    if (action.id === "send-notification") {
       return { ...action, onClick: () => setShowNotificationDialog(true) };
+    }
     if (action.id === "invite-team")
       return {
         ...action,

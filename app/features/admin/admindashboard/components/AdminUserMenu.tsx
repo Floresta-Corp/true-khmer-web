@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import {
   LayoutDashboard,
   LogOut,
+  Settings,
   ShieldCheck,
   User as UserIcon,
 } from "lucide-react";
@@ -65,8 +66,14 @@ export default function AdminUserMenu({ admin }: AdminUserMenuProps) {
               className="absolute right-0 mt-3 w-64 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.12)] z-50 overflow-hidden p-2"
             >
               <div className="p-4 flex items-center gap-3 border-b border-slate-50 dark:border-slate-800 mb-2">
-                <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-                  {initials}
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm">
+                  <Avatar className="w-full h-full rounded-full border-0">
+                    <AvatarImage
+                      src={resolveImageURL(admin.avatarKey)}
+                      alt={admin.firstName ?? ""}
+                    />
+                    <AvatarFallback>{initials}</AvatarFallback>
+                  </Avatar>
                 </div>
                 <div>
                   <p className="text-sm font-bold text-slate-900 dark:text-white">
@@ -80,12 +87,12 @@ export default function AdminUserMenu({ admin }: AdminUserMenuProps) {
 
               <div className="space-y-1">
                 <Link
-                  to="/tk-admin"
+                  to="/tk-admin/account-settings"
                   onClick={() => setIsOpen(false)}
                   className="px-4 py-2.5 text-[13px] font-bold rounded-xl cursor-pointer transition-all flex items-center gap-3 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800"
                 >
-                  <LayoutDashboard size={16} className="text-slate-300" />
-                  Dashboard
+                  <Settings size={16} className="text-slate-300" />
+                  Account Settings
                 </Link>
                 <Link
                   to="/tk-admin/manage-moderator/team"
