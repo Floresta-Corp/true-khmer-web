@@ -3,6 +3,7 @@ import type { Route } from "project-types/admin/notifications/route/+types/notif
 import { z } from "zod";
 import { broadcastNotification } from "~/api/admin/notifications/notification-broadcast.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
+import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 
 const emptyToUndefined = (v: unknown) => (v === "" ? undefined : v);
 
@@ -27,8 +28,14 @@ const broadcastSchema = z.object({
   mobileRoute: z.preprocess(emptyToUndefined, z.string().optional()),
 });
 
-export async function notificationBroadcastAction({ request }: Route.ActionArgs) {
-  const { accessToken, setCookie } = await getAdminAccessToken(request);
+export async function notificationBroadcastAction({
+  request,
+}: Route.ActionArgs) {
+  const auth = await requireSuperAdmin(
+    request,
+    "Broadcasting notifications is restricted to Super Admins.",
+  );
+  const { accessToken, setCookie } = auth;
   if (!accessToken) {
     throw redirect("/tk-admin/login");
   }
@@ -48,7 +55,8 @@ export async function notificationBroadcastAction({ request }: Route.ActionArgs)
       setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
     );
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to send notification.";
+    const message =
+      err instanceof Error ? err.message : "Failed to send notification.";
     return data({ ok: false, error: message }, { status: 400 });
   }
 }

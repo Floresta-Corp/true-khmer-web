@@ -10,6 +10,7 @@ export type StatItem = {
   to: string;
   iconBg: string;
   iconColor: string;
+  disabled?: boolean;
 };
 
 export type ChartBarItem = {
@@ -48,6 +49,7 @@ export type QuickAction = {
   iconClass: string;
   to?: string;
   onClick?: () => void;
+  disabled?: boolean;
 };
 
 export const TEXT_SECONDARY = "var(--admin-text-secondary)";

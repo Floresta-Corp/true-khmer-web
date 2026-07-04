@@ -6,12 +6,12 @@ import {
 import type { DetailReportStatus } from "~/api/admin/content-moderator/content-moderator.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
 import { withAuthJson } from "~/lib/server/auth-response.server";
-import { requireSuperAdmin } from "~/lib/server/route-guards.server";
+import { requireAdmin } from "~/lib/server/route-guards.server";
 
 const VALID_STATUSES = new Set<string>(DETAIL_REPORT_STATUSES);
 
 export async function contentModerationAction({ request }: Route.ActionArgs) {
-  await requireSuperAdmin(request);
+  await requireAdmin(request);
   const formData = await request.formData();
 
   const reportUuid = formData.get("reportUuid");

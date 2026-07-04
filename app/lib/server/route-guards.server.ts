@@ -1,4 +1,4 @@
-import { redirect } from "react-router";
+import { data, redirect } from "react-router";
 import { routeForAccessState } from "~/lib/server/auth/access-control.server";
 import {
   AuthSessionExpiredError,
@@ -47,6 +47,7 @@ export type OptionalUserResult = {
 
 type SuperAdminGuardResult = {
   admin: AdminUser;
+  accessToken: string;
   setCookie?: string;
 };
 
@@ -305,11 +306,7 @@ export async function requireUser(
   }
 }
 
-// Use for admin protected routes/actions. The user must be logged in, ACTIVE,
-// and have an admin role in the backend /auth/session user payload.
-export async function requireSuperAdmin(
-  request: Request,
-): Promise<SuperAdminGuardResult> {
+async function resolveAdmin(request: Request): Promise<SuperAdminGuardResult> {
   const { accessToken, setCookie } = await getAdminAccessToken(request);
   if (!accessToken) {
     throw redirectWithCookie(loginRedirectPathForAdmin(request), setCookie);
@@ -317,7 +314,7 @@ export async function requireSuperAdmin(
 
   try {
     const admin = await getAdminMe(request, accessToken);
-    return { admin, setCookie };
+    return { admin, accessToken, setCookie };
   } catch (error) {
     if (error instanceof ProtectedApiError && error.status === 401) {
       const refreshed = await getAdminAccessToken(request, {
@@ -327,10 +324,10 @@ export async function requireSuperAdmin(
         const admin = await getAdminMe(request, refreshed.accessToken);
         return {
           admin,
+          accessToken: refreshed.accessToken,
           setCookie: refreshed.setCookie ?? setCookie,
         };
       }
-
       throw redirectWithCookie(
         loginRedirectPathForAdmin(request),
         refreshed.setCookie ?? setCookie,
@@ -338,6 +335,25 @@ export async function requireSuperAdmin(
     }
     throw error;
   }
+}
+
+// Accepts both moderator and super admin — use for the admin layout.
+export async function requireAdmin(
+  request: Request,
+): Promise<SuperAdminGuardResult> {
+  return resolveAdmin(request);
+}
+
+// Use for routes/actions restricted to super admin only.
+export async function requireSuperAdmin(
+  request: Request,
+  message = "This page is restricted to Super Admins.",
+): Promise<SuperAdminGuardResult> {
+  const result = await resolveAdmin(request);
+  if (result.admin.role !== "SUPER_ADMIN") {
+    throw data({ message }, { status: 403 });
+  }
+  return result;
 }
 
 function loginRedirectPathForAdmin(request: Request) {
@@ -353,7 +369,6 @@ export async function redirectIfAdminAuth(request: Request) {
 
   try {
     await getAdminMe(request, accessToken);
-    // Admin successfully authenticated, redirect to admin dashboard
     return redirectWithCookie("/tk-admin", setCookie);
   } catch {
     return null;

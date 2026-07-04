@@ -99,6 +99,10 @@ export default [
       "notifications/broadcast",
       "features/admin/notifications/route/notification-broadcast.tsx",
     ),
+    route(
+      "account-settings",
+      "features/admin/account-settings/route/account-settings.tsx",
+    ),
   ]),
   route("tk-admin/login", "features/admin/auth/route/admin-login.tsx"),
   route("tk-admin/login/otp", "features/admin/auth/route/admin-login-otp.tsx"),
