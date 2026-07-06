@@ -59,7 +59,7 @@ export default function VolunteerAllPage() {
   const locationCount = locations?.length ?? 0;
   const visibleLocations = showAllLocations
     ? (locations ?? [])
-    : (locations ?? []).slice(0, 3);
+    : (locations ?? []).slice(0, 4);
 
   useEffect(() => {
     setSearchValue(searchParams.get("search") || "");
@@ -352,7 +352,7 @@ export default function VolunteerAllPage() {
                 <AccordionTrigger className="py-4 text-[13px] font-bold text-[#020618] hover:no-underline">
                   Location
                 </AccordionTrigger>
-                <AccordionContent className="pb-4 pt-1">
+                <AccordionContent className="h-auto pb-4 pt-1">
                   <RadioGroup
                     value={activeLocationId || "all-locations"}
                     onValueChange={(value) =>
@@ -386,14 +386,15 @@ export default function VolunteerAllPage() {
                     ))}
                   </RadioGroup>
 
-                  {locationCount > 3 && (
-                    <button
+                  {locationCount > 4 && (
+                    <Button
+                      variant="ghost"
                       type="button"
                       onClick={() => setShowAllLocations((current) => !current)}
-                      className="mt-3 text-xs font-semibold text-[#2463eb] hover:text-[#1d4ed8]"
+                      className="mt-3 text-xs cursor-pointer font-semibold text-[#2463eb] hover:text-[#1d4ed8]"
                     >
                       {showAllLocations ? "Show less" : "Show more"}
-                    </button>
+                    </Button>
                   )}
                 </AccordionContent>
               </AccordionItem>
