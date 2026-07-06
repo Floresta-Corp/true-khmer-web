@@ -10,6 +10,12 @@ export default defineConfig(({ mode }) => {
     build: {
       sourcemap: mode === "development",
       chunkSizeWarningLimit: 700,
+      rollupOptions: {
+        onwarn(warning, warn) {
+          if (warning.code === "EMPTY_BUNDLE") return;
+          warn(warning);
+        },
+      },
     },
     server: {
       port: 3001,

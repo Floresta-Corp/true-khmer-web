@@ -23,6 +23,7 @@ interface AddAnswerDialogProps {
   data?: Pick<AnswerResponse, "id" | "body"> | null;
   trigger?: React.ReactNode;
   replyToAnswer?: string;
+  onReplySuccess?: (repliedAnswerId: string) => void;
 }
 
 export default function AddAnswerDialog({
@@ -32,6 +33,7 @@ export default function AddAnswerDialog({
   data,
   trigger,
   replyToAnswer,
+  onReplySuccess,
 }: AddAnswerDialogProps) {
   const fetch = useFetcher();
   const location = useLocation();
@@ -47,6 +49,11 @@ export default function AddAnswerDialog({
       setOpen(false);
       setBodyError(null);
       revalidator.revalidate();
+      // On a successful reply, save the replied-to answer id so the parent
+      // can auto-open its replies accordion.
+      if (replyToAnswer) {
+        onReplySuccess?.(replyToAnswer);
+      }
       toast.success(
         message ??
           (isEditing
