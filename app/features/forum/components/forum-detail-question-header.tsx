@@ -68,11 +68,17 @@ export default function ForumDetailQuestionHeader({
   return (
     <div className="flex flex-wrap items-start justify-between gap-3 sm:items-center sm:gap-4">
       <div className="flex min-w-0 flex-1 items-start gap-3 sm:items-center">
-        <img
-          src={authorProfile}
-          alt={question.author.name}
-          className="h-6 w-6 rounded-full object-cover"
-        />
+        {authorProfile ? (
+          <img
+            src={authorProfile}
+            alt={question.author.name}
+            className="h-6 w-6 rounded-full object-cover"
+          />
+        ) : (
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-[10px] font-semibold text-slate-500">
+            {question.author.name?.[0]?.toUpperCase() ?? "?"}
+          </div>
+        )}
         <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm leading-5">
           <ProfileLinkWrapper
             authorId={question.author.id}

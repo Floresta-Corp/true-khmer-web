@@ -1,25 +1,24 @@
 import { type ChangeEvent, type RefObject, useEffect, useState } from "react";
 import { Form } from "react-router";
-import { AnimatePresence, motion } from "motion/react";
 import { Lock, Mail, User as UserIcon } from "lucide-react";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import type { AdminUser } from "~/types/api-client";
-
-const inputClass =
-  "h-12.5 rounded-[14px] bg-[#F8FAFC] dark:bg-slate-800 px-4.5 border-none text-sm text-[#364153] placeholder:text-[#C8D6E5] focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:border-transparent";
-
-const errorInputOverride =
-  "border border-red-400 dark:border-red-500 focus-visible:ring-red-500/45 focus-visible:border-red-400";
-
-const labelClass =
-  "block text-[11px] font-medium tracking-widest uppercase text-slate-400 mb-2";
-
-const errorTextClass = "mt-1.5 text-xs text-red-500";
-
-type FieldErrors = Record<string, string | undefined>;
+import {
+  FormField,
+  SaveBar,
+  SettingsCard,
+  inputClass,
+  labelClass,
+  useFieldErrors,
+} from "./account-settings-ui";
+import {
+  type FieldErrors,
+  hasErrors,
+  validatePasswordChange,
+  validateProfile,
+} from "./account-settings.validation";
 
 type Props = {
   admin: AdminUser;
@@ -44,239 +43,220 @@ export function AccountSettingsForms({
   profileFieldErrors,
   passwordFieldErrors,
 }: Props) {
-  const [firstName, setFirstName] = useState(admin.firstName ?? "");
-  const [lastName, setLastName] = useState(admin.lastName ?? "");
-
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  // Clear the password fields after a successful change (signal bumps on success).
-  useEffect(() => {
-    if (passwordResetSignal === 0) return;
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-  }, [passwordResetSignal]);
-
-  const isPasswordChanged =
-    currentPassword !== "" || newPassword !== "" || confirmPassword !== "";
-
-  const isProfileChanged =
-    hasAvatarChange ||
-    firstName !== (admin.firstName ?? "") ||
-    lastName !== (admin.lastName ?? "");
-
   return (
     <div className="space-y-5">
-      <Form method="post" encType="multipart/form-data">
-        <input type="hidden" name="intent" value="update-profile" />
-        <input
-          ref={fileInputRef}
-          id="avatarFileInput"
-          type="file"
-          name="avatarFile"
-          accept="image/*"
-          className="hidden"
-          onChange={onFileChange}
-        />
+      <ProfileForm
+        admin={admin}
+        isPending={isSubmitting && submitIntent === "update-profile"}
+        fileInputRef={fileInputRef}
+        onFileChange={onFileChange}
+        hasAvatarChange={hasAvatarChange}
+        serverErrors={profileFieldErrors}
+      />
 
-        <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-              <UserIcon size={15} className="text-blue-500" />
-            </div>
-            <h3 className="font-semibold text-slate-900 dark:text-white">
-              Personal Information
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="firstName" className={labelClass}>
-                First Name
-              </Label>
-              <Input
-                name="firstName"
-                id="firstName"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                placeholder="John"
-                className={cn(
-                  inputClass,
-                  profileFieldErrors?.firstName && errorInputOverride,
-                )}
-              />
-              {profileFieldErrors?.firstName && (
-                <p className={errorTextClass}>{profileFieldErrors.firstName}</p>
-              )}
-            </div>
-            <div>
-              <Label htmlFor="lastName" className={labelClass}>
-                Last Name
-              </Label>
-              <Input
-                name="lastName"
-                id="lastName"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                placeholder="Doe"
-                className={cn(
-                  inputClass,
-                  profileFieldErrors?.lastName && errorInputOverride,
-                )}
-              />
-              {profileFieldErrors?.lastName && (
-                <p className={errorTextClass}>{profileFieldErrors.lastName}</p>
-              )}
-            </div>
-          </div>
-
-          <AnimatePresence>
-            {isProfileChanged && (
-              <motion.div
-                initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                animate={{ opacity: 1, height: "auto", marginTop: 20 }}
-                exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="flex justify-end overflow-hidden"
-              >
-                <Button
-                  type="submit"
-                  disabled={isSubmitting && submitIntent === "update-profile"}
-                  className="px-5 py-4 cursor-pointer rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting && submitIntent === "update-profile"
-                    ? "Saving…"
-                    : "Save Changes"}
-                </Button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </Form>
-
-      <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-            <Mail size={15} className="text-blue-500" />
-          </div>
-          <h3 className="font-semibold text-slate-900 dark:text-white">
-            Email Address
-          </h3>
-        </div>
-
+      <SettingsCard icon={Mail} accent="blue" title="Email Address">
         <div>
           <Label className={labelClass}>Email Address</Label>
           <Input
             type="email"
             value={admin.email}
             readOnly
-            className={`${inputClass} opacity-80 cursor-not-allowed`}
+            className={cn(inputClass, "opacity-80 cursor-not-allowed")}
           />
         </div>
-      </div>
-      <Form method="post">
-        <input type="hidden" name="intent" value="change-password" />
+      </SettingsCard>
 
-        <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-              <Lock size={15} className="text-green-500" />
-            </div>
-            <h3 className="font-semibold text-slate-900 dark:text-white">
-              Security
-            </h3>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <Label className={labelClass}>Current Password</Label>
-              <Input
-                type="password"
-                name="currentPassword"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="Enter your current password"
-                className={cn(
-                  inputClass,
-                  passwordFieldErrors?.currentPassword && errorInputOverride,
-                )}
-                autoComplete="current-password"
-              />
-              {passwordFieldErrors?.currentPassword && (
-                <p className={errorTextClass}>
-                  {passwordFieldErrors.currentPassword}
-                </p>
-              )}
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <Label className={labelClass}>New Password</Label>
-                <Input
-                  type="password"
-                  name="newPassword"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Min. 8 characters, no spaces"
-                  className={cn(
-                    inputClass,
-                    passwordFieldErrors?.newPassword && errorInputOverride,
-                  )}
-                  autoComplete="new-password"
-                />
-                {passwordFieldErrors?.newPassword && (
-                  <p className={errorTextClass}>
-                    {passwordFieldErrors.newPassword}
-                  </p>
-                )}
-              </div>
-              <div>
-                <Label className={labelClass}>Confirm New Password</Label>
-                <Input
-                  type="password"
-                  name="confirmPassword"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Re-enter your new password"
-                  className={cn(
-                    inputClass,
-                    passwordFieldErrors?.confirmPassword && errorInputOverride,
-                  )}
-                  autoComplete="new-password"
-                />
-                {passwordFieldErrors?.confirmPassword && (
-                  <p className={errorTextClass}>
-                    {passwordFieldErrors.confirmPassword}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <AnimatePresence>
-            {isPasswordChanged && (
-              <motion.div
-                initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                animate={{ opacity: 1, height: "auto", marginTop: 20 }}
-                exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="flex justify-end overflow-hidden"
-              >
-                <Button
-                  type="submit"
-                  disabled={isSubmitting && submitIntent === "change-password"}
-                  className="px-5 py-4 cursor-pointer rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting && submitIntent === "change-password"
-                    ? "Updating…"
-                    : "Update Password"}
-                </Button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </Form>
+      <PasswordForm
+        isPending={isSubmitting && submitIntent === "change-password"}
+        resetSignal={passwordResetSignal}
+        serverErrors={passwordFieldErrors}
+      />
     </div>
+  );
+}
+
+function ProfileForm({
+  admin,
+  isPending,
+  fileInputRef,
+  onFileChange,
+  hasAvatarChange,
+  serverErrors,
+}: {
+  admin: AdminUser;
+  isPending: boolean;
+  fileInputRef: RefObject<HTMLInputElement | null>;
+  onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  hasAvatarChange: boolean;
+  serverErrors?: FieldErrors;
+}) {
+  const [firstName, setFirstName] = useState(admin.firstName ?? "");
+  const [lastName, setLastName] = useState(admin.lastName ?? "");
+  const { errors, setErrors, clearError } = useFieldErrors(serverErrors);
+
+  const isChanged =
+    hasAvatarChange ||
+    firstName !== (admin.firstName ?? "") ||
+    lastName !== (admin.lastName ?? "");
+
+  const validate = () => {
+    const next = validateProfile({ firstName, lastName });
+    setErrors(next);
+    return !hasErrors(next);
+  };
+
+  return (
+    <Form
+      method="post"
+      encType="multipart/form-data"
+      onSubmit={(e) => {
+        if (!validate()) e.preventDefault();
+      }}
+    >
+      <input type="hidden" name="intent" value="update-profile" />
+      <input
+        ref={fileInputRef}
+        id="avatarFileInput"
+        type="file"
+        name="avatarFile"
+        accept="image/*"
+        className="hidden"
+        onChange={onFileChange}
+      />
+
+      <SettingsCard icon={UserIcon} accent="blue" title="Personal Information">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FormField
+            label="First Name"
+            name="firstName"
+            placeholder="John"
+            value={firstName}
+            error={errors.firstName}
+            onValueChange={(value) => {
+              setFirstName(value);
+              clearError("firstName");
+            }}
+          />
+          <FormField
+            label="Last Name"
+            name="lastName"
+            placeholder="Doe"
+            value={lastName}
+            error={errors.lastName}
+            onValueChange={(value) => {
+              setLastName(value);
+              clearError("lastName");
+            }}
+          />
+        </div>
+
+        <SaveBar
+          show={isChanged}
+          isPending={isPending}
+          label="Save Changes"
+          pendingLabel="Saving…"
+        />
+      </SettingsCard>
+    </Form>
+  );
+}
+
+function PasswordForm({
+  isPending,
+  resetSignal,
+  serverErrors,
+}: {
+  isPending: boolean;
+  resetSignal: number;
+  serverErrors?: FieldErrors;
+}) {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const { errors, setErrors, clearError } = useFieldErrors(serverErrors);
+
+  // Clear the fields after a successful change (signal bumps on success).
+  useEffect(() => {
+    if (resetSignal === 0) return;
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  }, [resetSignal]);
+
+  const isChanged =
+    currentPassword !== "" || newPassword !== "" || confirmPassword !== "";
+
+  const validate = () => {
+    const next = validatePasswordChange({
+      currentPassword,
+      newPassword,
+      confirmPassword,
+    });
+    setErrors(next);
+    return !hasErrors(next);
+  };
+
+  return (
+    <Form
+      method="post"
+      onSubmit={(e) => {
+        if (!validate()) e.preventDefault();
+      }}
+    >
+      <input type="hidden" name="intent" value="change-password" />
+
+      <SettingsCard icon={Lock} accent="green" title="Security">
+        <div className="space-y-4">
+          <FormField
+            label="Current Password"
+            type="password"
+            name="currentPassword"
+            placeholder="Enter your current password"
+            autoComplete="current-password"
+            value={currentPassword}
+            error={errors.currentPassword}
+            onValueChange={(value) => {
+              setCurrentPassword(value);
+              clearError("currentPassword");
+            }}
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField
+              label="New Password"
+              type="password"
+              name="newPassword"
+              placeholder="Min. 8 characters, no spaces"
+              autoComplete="new-password"
+              value={newPassword}
+              error={errors.newPassword}
+              onValueChange={(value) => {
+                setNewPassword(value);
+                clearError("newPassword");
+              }}
+            />
+            <FormField
+              label="Confirm New Password"
+              type="password"
+              name="confirmPassword"
+              placeholder="Re-enter your new password"
+              autoComplete="new-password"
+              value={confirmPassword}
+              error={errors.confirmPassword}
+              onValueChange={(value) => {
+                setConfirmPassword(value);
+                clearError("confirmPassword");
+              }}
+            />
+          </div>
+        </div>
+
+        <SaveBar
+          show={isChanged}
+          isPending={isPending}
+          label="Update Password"
+          pendingLabel="Updating…"
+        />
+      </SettingsCard>
+    </Form>
   );
 }
