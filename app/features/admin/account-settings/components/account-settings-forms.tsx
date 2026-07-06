@@ -5,13 +5,21 @@ import { Lock, Mail, User as UserIcon } from "lucide-react";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
 import type { AdminUser } from "~/types/api-client";
 
 const inputClass =
   "h-12.5 rounded-[14px] bg-[#F8FAFC] dark:bg-slate-800 px-4.5 border-none text-sm text-[#364153] placeholder:text-[#C8D6E5] focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:border-transparent";
 
+const errorInputOverride =
+  "border border-red-400 dark:border-red-500 focus-visible:ring-red-500/45 focus-visible:border-red-400";
+
 const labelClass =
   "block text-[11px] font-medium tracking-widest uppercase text-slate-400 mb-2";
+
+const errorTextClass = "mt-1.5 text-xs text-red-500";
+
+type FieldErrors = Record<string, string | undefined>;
 
 type Props = {
   admin: AdminUser;
@@ -21,6 +29,8 @@ type Props = {
   onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
   hasAvatarChange: boolean;
   passwordResetSignal: number;
+  profileFieldErrors?: FieldErrors;
+  passwordFieldErrors?: FieldErrors;
 };
 
 export function AccountSettingsForms({
@@ -31,6 +41,8 @@ export function AccountSettingsForms({
   onFileChange,
   hasAvatarChange,
   passwordResetSignal,
+  profileFieldErrors,
+  passwordFieldErrors,
 }: Props) {
   const [firstName, setFirstName] = useState(admin.firstName ?? "");
   const [lastName, setLastName] = useState(admin.lastName ?? "");
@@ -90,8 +102,14 @@ export function AccountSettingsForms({
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder="John"
-                className={inputClass}
+                className={cn(
+                  inputClass,
+                  profileFieldErrors?.firstName && errorInputOverride,
+                )}
               />
+              {profileFieldErrors?.firstName && (
+                <p className={errorTextClass}>{profileFieldErrors.firstName}</p>
+              )}
             </div>
             <div>
               <Label htmlFor="lastName" className={labelClass}>
@@ -103,8 +121,14 @@ export function AccountSettingsForms({
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 placeholder="Doe"
-                className={inputClass}
+                className={cn(
+                  inputClass,
+                  profileFieldErrors?.lastName && errorInputOverride,
+                )}
               />
+              {profileFieldErrors?.lastName && (
+                <p className={errorTextClass}>{profileFieldErrors.lastName}</p>
+              )}
             </div>
           </div>
 
@@ -174,9 +198,17 @@ export function AccountSettingsForms({
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Enter your current password"
-                className={inputClass}
+                className={cn(
+                  inputClass,
+                  passwordFieldErrors?.currentPassword && errorInputOverride,
+                )}
                 autoComplete="current-password"
               />
+              {passwordFieldErrors?.currentPassword && (
+                <p className={errorTextClass}>
+                  {passwordFieldErrors.currentPassword}
+                </p>
+              )}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -187,9 +219,17 @@ export function AccountSettingsForms({
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Min. 8 characters, no spaces"
-                  className={inputClass}
+                  className={cn(
+                    inputClass,
+                    passwordFieldErrors?.newPassword && errorInputOverride,
+                  )}
                   autoComplete="new-password"
                 />
+                {passwordFieldErrors?.newPassword && (
+                  <p className={errorTextClass}>
+                    {passwordFieldErrors.newPassword}
+                  </p>
+                )}
               </div>
               <div>
                 <Label className={labelClass}>Confirm New Password</Label>
@@ -199,9 +239,17 @@ export function AccountSettingsForms({
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Re-enter your new password"
-                  className={inputClass}
+                  className={cn(
+                    inputClass,
+                    passwordFieldErrors?.confirmPassword && errorInputOverride,
+                  )}
                   autoComplete="new-password"
                 />
+                {passwordFieldErrors?.confirmPassword && (
+                  <p className={errorTextClass}>
+                    {passwordFieldErrors.confirmPassword}
+                  </p>
+                )}
               </div>
             </div>
           </div>

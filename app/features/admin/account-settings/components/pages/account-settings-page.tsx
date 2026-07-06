@@ -69,6 +69,15 @@ export default function AccountSettingsPage() {
     }
   }, [actionData, navigate]);
 
+  const profileFieldErrors =
+    actionData?.ok === false && actionData.intent === "update-profile"
+      ? actionData.fieldErrors
+      : undefined;
+  const passwordFieldErrors =
+    actionData?.ok === false && actionData.intent === "change-password"
+      ? actionData.fieldErrors
+      : undefined;
+
   const initials = getInitials(admin.firstName, admin.lastName);
   const fullName =
     `${admin.firstName ?? ""} ${admin.lastName ?? ""}`.trim() || "Admin";
@@ -104,6 +113,8 @@ export default function AccountSettingsPage() {
             onFileChange={handleFileChange}
             hasAvatarChange={avatarPreview !== undefined}
             passwordResetSignal={passwordChangeCount}
+            profileFieldErrors={profileFieldErrors}
+            passwordFieldErrors={passwordFieldErrors}
           />
         </div>
       </div>

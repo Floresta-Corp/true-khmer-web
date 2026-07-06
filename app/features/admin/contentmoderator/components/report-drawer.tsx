@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   ChevronLeft,
@@ -8,10 +9,10 @@ import {
 } from "lucide-react";
 import { StatusBadge } from "./status-badge";
 import { ConfirmationModal } from "./confirmation-modal";
+import { PostPreviewPanel } from "./post-preview-panel";
 import type { ContentModeratorReport } from "~/types/api-client";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
-import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import { ResolutionLog } from "./resolutionBy";
 import { resolveImageURL } from "~/lib/utils";
@@ -31,6 +32,13 @@ export function ReportDrawer({
   onResolve,
   onConfirmChange,
 }: ReportDrawerProps) {
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  // Reset the preview whenever the drawer switches to a different report.
+  useEffect(() => {
+    setPreviewOpen(false);
+  }, [report?.id]);
+
   if (!report) return null;
 
   const overlayVariants = {
@@ -117,15 +125,12 @@ export function ReportDrawer({
                 <Button
                   variant="link"
                   className="h-auto p-0 text-blue-600 dark:text-blue-400 font-semibold text-[10px] uppercase tracking-widest hover:underline"
-                  asChild
+                  onClick={() => setPreviewOpen(true)}
                 >
-                  <Link
-                    to={report.sourceLink}
-                    className="inline-flex items-center gap-1.5 leading-none"
-                  >
+                  <span className="inline-flex items-center gap-1.5 leading-none">
                     <ExternalLink size={12} className="shrink-0" />
                     <span>View Original Post</span>
-                  </Link>
+                  </span>
                 </Button>
               ) : null}
             </div>
@@ -204,6 +209,15 @@ export function ReportDrawer({
           )}
         </AnimatePresence>
       </motion.div>
+
+      {/*  Original Post Preview */}
+      {report.sourceLink && (
+        <PostPreviewPanel
+          open={previewOpen}
+          sourceLink={report.sourceLink}
+          onOpenChange={setPreviewOpen}
+        />
+      )}
     </>
   );
 }
