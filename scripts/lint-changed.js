@@ -27,6 +27,7 @@ try {
 
 // Union of: changes introduced on this branch, unstaged, and staged.
 const diffArgSets = [
+  // eslint-disable-next-line prettier/prettier
   ["diff", "--name-only", "--diff-filter=ACMR", `${base}...HEAD`, "--", ...EXTS],
   ["diff", "--name-only", "--diff-filter=ACMR", "--", ...EXTS],
   ["diff", "--name-only", "--diff-filter=ACMR", "--cached", "--", ...EXTS],
