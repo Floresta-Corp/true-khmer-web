@@ -38,8 +38,8 @@ export default function MyApplicationPage() {
               ) : (
                 <MyApplicationMainContentHeader key="my-application-main-content-header" />
               )}
-              <MyApplicationCardList />
             </AnimatePresence>
+            <MyApplicationCardList />
           </div>
           <div className="w-full lg:w-85">
             <MyApplicationRightSidebar />

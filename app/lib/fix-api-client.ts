@@ -15,6 +15,12 @@ content = content.replace(
 );
 
 const replacements = [
+  // Drop Zod's strict ISO datetime validation. Its regex rejects the "+07"/space
+  // datetime shapes our API returns, causing loader validation to fail. We keep
+  // these as plain strings and parse/format them via app/lib/time.ts (dayjs) at
+  // the display layer, so the generated client stays self-contained.
+  [/z\.string\(\)\.datetime\(\{[^}]*\}\)/g, "z.string()"],
+  [/z\.string\(\)\.datetime\(\)/g, "z.string()"],
   [/\.passthrough\(\)/g, ""],
   [/\.and\(z\.unknown\(\)\)/g, ".nullable()"],
   [

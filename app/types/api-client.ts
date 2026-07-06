@@ -291,7 +291,7 @@ const AdminLoginOtpChallengeResponse = z
   .object({
     otpRequired: z.literal(true),
     challengeId: z.string().uuid(),
-    expiresAt: z.string().datetime({ offset: true }),
+    expiresAt: z.string(),
     message: z.string(),
   })
   ;
@@ -315,8 +315,8 @@ const AdminLoginResponse = z
   .object({
     accessToken: z.string(),
     refreshToken: z.string(),
-    accessTokenExpiresAt: z.string().datetime({ offset: true }),
-    refreshTokenExpiresAt: z.string().datetime({ offset: true }),
+    accessTokenExpiresAt: z.string(),
+    refreshTokenExpiresAt: z.string(),
     admin: AdminUser,
   })
   ;
@@ -327,8 +327,8 @@ const AdminRefreshResponse = z
   .object({
     accessToken: z.string(),
     refreshToken: z.string(),
-    accessTokenExpiresAt: z.string().datetime({ offset: true }),
-    refreshTokenExpiresAt: z.string().datetime({ offset: true }),
+    accessTokenExpiresAt: z.string(),
+    refreshTokenExpiresAt: z.string(),
   })
   ;
 const AdminPresignAvatarUploadRequest = z
@@ -404,12 +404,12 @@ const ContentModeratorReport = z
     reportSubType: z.enum(["QUESTION", "ANSWER"]).nullable(),
     contentPreview: z.string(),
     sourceLink: z.string(),
-    dateTime: z.string().datetime({ offset: true }),
+    dateTime: z.string(),
     status: z.enum(["OPEN", "CLOSED"]),
     confirmStatus: z.enum(["CONTENT HIDDEN", "DISMISSED"]).nullable(),
     reportingBy: ContentModeratorReportReporter.nullable(),
     solvedBy: ContentModeratorReportSolver.nullable(),
-    solvedAt: z.string().datetime({ offset: true }).nullable(),
+    solvedAt: z.string().nullable(),
   })
   ;
 const CursorPagination = z
@@ -528,8 +528,8 @@ const Moderator = z
     lastName: z.string().nullable(),
     role: z.enum(["MODERATOR", "SUPER_ADMIN"]),
     status: z.enum(["PENDING", "ACTIVE"]),
-    lastActive: z.string().datetime({ offset: true }).nullable(),
-    createdAt: z.string().datetime({ offset: true }),
+    lastActive: z.string().nullable(),
+    createdAt: z.string(),
   })
   ;
 const ListModeratorsResponse = z
@@ -582,12 +582,12 @@ const AdminUserManagementUser = z
       "SUSPENDED"]),
     tier: AdminUserManagementTier.nullable(),
     totalPoints: z.number().int(),
-    signupCompletedAt: z.string().datetime({ offset: true }).nullable(),
+    signupCompletedAt: z.string().nullable(),
     onboardingStep: z.number().int(),
-    onboardingCompletedAt: z.string().datetime({ offset: true }).nullable(),
-    lastActive: z.string().datetime({ offset: true }).nullable(),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
+    onboardingCompletedAt: z.string().nullable(),
+    lastActive: z.string().nullable(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
   })
   ;
 const AdminUserManagementListResponse = z
@@ -618,7 +618,7 @@ const AdminUserManagementActivity = z
     mode: z.string(),
     referenceType: z.string().nullable(),
     referenceId: z.string().uuid().nullable(),
-    createdAt: z.string().datetime({ offset: true }),
+    createdAt: z.string(),
   })
   ;
 const AdminUserManagementDetailUser = AdminUserManagementUser.and(
@@ -714,9 +714,9 @@ const CategoryResponse = z
     status: z.enum(["ACTIVE", "ARCHIVED", "HIDDEN"]),
     createdBy: z.string(),
     updatedBy: z.string().nullable(),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
-    archivedAt: z.string().datetime({ offset: true }).nullable(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    archivedAt: z.string().nullable(),
   })
   ;
 const CategoryWithQuestionCountResponse = CategoryResponse.and(
@@ -755,7 +755,7 @@ const QuestionResponse = z
     answerCount: z.number().int().gte(0),
     viewCount: z.number().int().gte(0),
     bestAnswerId: z.string().nullable(),
-    bestAnswerSelectedAt: z.string().datetime({ offset: true }).nullable(),
+    bestAnswerSelectedAt: z.string().nullable(),
     score: z.number().int(),
     viewerVote: z.enum(["UPVOTE", "DOWNVOTE"]).nullable(),
     viewerSave: z.boolean(),
@@ -768,8 +768,8 @@ const QuestionResponse = z
       })
       ,
     tags: z.array(QuestionTagResponse),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
+    createdAt: z.string(),
+    updatedAt: z.string(),
   })
   ;
 const GetQuestionsResponse = z
@@ -899,8 +899,8 @@ const RepliedAnswerResponse = z
     replyCount: z.number(),
     score: z.number(),
     viewerVote: z.enum(["UPVOTE", "DOWNVOTE"]).nullable(),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
+    createdAt: z.string(),
+    updatedAt: z.string(),
     questionId: z.string(),
     status: z.literal("PUBLISHED"),
     replyTo: z.string().nullable(),
@@ -922,8 +922,8 @@ const AnswerResponse = z
     replyCount: z.number(),
     score: z.number(),
     viewerVote: z.enum(["UPVOTE", "DOWNVOTE"]).nullable(),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
+    createdAt: z.string(),
+    updatedAt: z.string(),
     questionId: z.string(),
     status: z.literal("PUBLISHED"),
     replyTo: z.string().nullable(),
@@ -954,9 +954,9 @@ const AnswerQuestionResponse = z
     downvoteCount: z.number().int().gte(0),
     viewCount: z.number().int().gte(0),
     bestAnswerId: z.string().nullable(),
-    bestAnswerSelectedAt: z.string().datetime({ offset: true }).nullable(),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
+    bestAnswerSelectedAt: z.string().nullable(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
     author: z
       .object({
         id: z.string(),
@@ -983,8 +983,8 @@ const MyAnswerResponse = z
     replyCount: z.number(),
     score: z.number(),
     viewerVote: z.enum(["UPVOTE", "DOWNVOTE"]).nullable(),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
+    createdAt: z.string(),
+    updatedAt: z.string(),
     questionId: z.string(),
     status: z.literal("PUBLISHED"),
     replyTo: z.string().nullable(),
@@ -996,7 +996,7 @@ const MyAnswerDiscussionResponse = z
     question: AnswerQuestionResponse,
     answers: z.array(MyAnswerResponse),
     myAnswerCount: z.number().int().gt(0),
-    lastActivityAt: z.string().datetime({ offset: true }),
+    lastActivityAt: z.string(),
   })
   ;
 const MyAnswersPaginationResponse = z
@@ -1059,13 +1059,15 @@ const VolunteerCategoryResponse = z
     name: z.string(),
     description: z.string().nullable(),
     iconKey: z.string().nullable(),
+    mobileIconType: z.string().nullable(),
+    mobileIconName: z.string().nullable(),
     displayOrder: z.number(),
     status: z.enum(["ACTIVE", "ARCHIVED", "HIDDEN"]),
     createdBy: z.string(),
     updatedBy: z.string().nullable(),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
-    archivedAt: z.string().datetime({ offset: true }).nullable(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    archivedAt: z.string().nullable(),
   })
   ;
 const VolunteerCategoryWithOpportunityCountResponse =
@@ -1087,6 +1089,8 @@ const CreateVolunteerCategoryRequest = z
     slug: z.string(),
     description: z.string().nullish(),
     iconKey: z.string().nullish(),
+    mobileIconType: z.string().nullish(),
+    mobileIconName: z.string().nullish(),
     status: z.enum(["ACTIVE", "ARCHIVED", "HIDDEN"]).optional(),
   })
   ;
@@ -1182,17 +1186,17 @@ const VolunteerOpportunityListItemResponse = z
     id: z.string(),
     title: z.string(),
     overview: z.string(),
-    startDate: z.string().datetime({ offset: true }).nullable(),
-    endDate: z.string().datetime({ offset: true }).nullable(),
+    startDate: z.string().nullable(),
+    endDate: z.string().nullable(),
     commitmentLabel: z.string().nullable(),
     commitmentDescription: z.string().nullable(),
-    applicationDeadline: z.string().datetime({ offset: true }),
+    applicationDeadline: z.string(),
     applicationCount: z.number(),
     capacity: z.number(),
     filled: z.boolean(),
     totalView: z.number(),
     coverImageKey: z.string(),
-    createdAt: z.string().datetime({ offset: true }),
+    createdAt: z.string(),
     viewerSave: z.boolean(),
     category: VolunteerOpportunityReference,
     location: VolunteerOpportunityReference,
@@ -1240,7 +1244,7 @@ const CreateVolunteerOpportunityPayload = z
     endDate: z.string().nullish(),
     commitmentLabel: z.string().nullish(),
     commitmentDescription: z.string().nullish(),
-    applicationDeadline: z.string().datetime({ offset: true }),
+    applicationDeadline: z.string(),
     benefits: z.array(z.string()).max(12).nullish(),
     contact: VolunteerOpportunityContact,
     roles: z.array(VolunteerOpportunityRoleRequest).min(1).max(20),
@@ -1286,11 +1290,11 @@ const VolunteerOpportunityResponse = z
     title: z.string(),
     overview: z.string(),
     communityImpact: z.string().nullable(),
-    startDate: z.string().datetime({ offset: true }).nullable(),
-    endDate: z.string().datetime({ offset: true }).nullable(),
+    startDate: z.string().nullable(),
+    endDate: z.string().nullable(),
     commitmentLabel: z.string().nullable(),
     commitmentDescription: z.string().nullable(),
-    applicationDeadline: z.string().datetime({ offset: true }),
+    applicationDeadline: z.string(),
     applicationCount: z.number(),
     capacity: z.number(),
     filled: z.boolean(),
@@ -1298,11 +1302,11 @@ const VolunteerOpportunityResponse = z
     coverImageKey: z.string(),
     benefits: z.array(z.string()),
     status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]),
-    publishedAt: z.string().datetime({ offset: true }).nullable(),
+    publishedAt: z.string().nullable(),
     organizer: VolunteerOpportunityOrganizerResponse,
     createdBy: z.string(),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
+    createdAt: z.string(),
+    updatedAt: z.string(),
     viewerSave: z.boolean(),
     viewerTopPicked: z.string().nullable(),
     viewerBlocked: z.boolean(),
@@ -1338,7 +1342,7 @@ const UpdateVolunteerOpportunityRequest = z
     endDate: z.string().nullable(),
     commitmentLabel: z.string().nullable(),
     commitmentDescription: z.string().nullable(),
-    applicationDeadline: z.string().datetime({ offset: true }),
+    applicationDeadline: z.string(),
     coverImageKey: z.string().min(1).max(600),
     benefits: z.array(z.string()).max(12).nullable(),
     contact: UpdateVolunteerOpportunityContactRequest,
@@ -1374,7 +1378,7 @@ const VolunteerApplicationOpportunity = z
     title: z.string(),
     coverImageKey: z.string(),
     status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]),
-    applicationDeadline: z.string().datetime({ offset: true }),
+    applicationDeadline: z.string(),
     filled: z.boolean(),
     category: VolunteerOpportunityReference,
     location: VolunteerOpportunityReference,
@@ -1401,8 +1405,8 @@ const VolunteerApplicationResponse = z
       "CONFIRMED",
       "COMPLETED",
       "WITHDRAWN"]),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
+    createdAt: z.string(),
+    updatedAt: z.string(),
   })
   ;
 const CreateVolunteerApplicationResponse = z
@@ -1442,11 +1446,11 @@ const PublicVolunteerOpportunityResponse = z
     title: z.string(),
     overview: z.string(),
     communityImpact: z.string().nullable(),
-    startDate: z.string().datetime({ offset: true }).nullable(),
-    endDate: z.string().datetime({ offset: true }).nullable(),
+    startDate: z.string().nullable(),
+    endDate: z.string().nullable(),
     commitmentLabel: z.string().nullable(),
     commitmentDescription: z.string().nullable(),
-    applicationDeadline: z.string().datetime({ offset: true }),
+    applicationDeadline: z.string(),
     applicationCount: z.number(),
     capacity: z.number(),
     filled: z.boolean(),
@@ -1454,10 +1458,10 @@ const PublicVolunteerOpportunityResponse = z
     coverImageKey: z.string(),
     benefits: z.array(z.string()),
     status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]),
-    publishedAt: z.string().datetime({ offset: true }).nullable(),
+    publishedAt: z.string().nullable(),
     organizer: VolunteerOpportunityOrganizerResponse,
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
+    createdAt: z.string(),
+    updatedAt: z.string(),
     viewerSave: z.boolean(),
     viewerTopPicked: z.string().nullable(),
     viewerBlocked: z.boolean(),
@@ -1497,13 +1501,15 @@ const LaunchpadCategoryResponse = z
     name: z.string(),
     slug: z.string(),
     iconKey: z.string(),
+    mobileIconType: z.string().nullable(),
+    mobileIconName: z.string().nullable(),
     displayOrder: z.number(),
     status: z.enum(["ACTIVE", "ARCHIVED", "HIDDEN"]),
     totalLaunchpad: z.number(),
     createdBy: z.string(),
     updatedBy: z.string().nullable(),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
+    createdAt: z.string(),
+    updatedAt: z.string(),
   })
   ;
 const GetLaunchpadCategoriesResponse = z
@@ -1587,7 +1593,7 @@ const GetSavedLaunchpadsResponse = z
           id: z.string(),
           name: z.string(),
           description: z.string().nullable(),
-          deadline: z.string().datetime({ offset: true }).nullable(),
+          deadline: z.string().nullable(),
           status: z.enum([
             "DRAFT",
             "LIVE",
@@ -1609,7 +1615,7 @@ const GetSavedLaunchpadsResponse = z
               launchpadCount: z.number(),
             })
             ,
-          createdAt: z.string().datetime({ offset: true }),
+          createdAt: z.string(),
           category: z
             .object({ id: z.string(), name: z.string() })
             
@@ -1621,7 +1627,7 @@ const GetSavedLaunchpadsResponse = z
           totalRoles: z.number(),
           totalView: z.number(),
           isSaved: z.literal(true),
-          savedAt: z.string().datetime({ offset: true }),
+          savedAt: z.string(),
         })
         
     ),
@@ -1644,7 +1650,7 @@ const CreateLaunchpadRequest = z
       .regex(
         /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
       ),
-    deadline: z.string().datetime({ offset: true }),
+    deadline: z.string(),
     logoKey: z.string().min(1).max(255),
     coverKey: z.string().min(1).max(255),
     role: z
@@ -1673,7 +1679,7 @@ const CreateLaunchpadResponse = z
         id: z.string(),
         name: z.string(),
         description: z.string().nullable(),
-        deadline: z.string().datetime({ offset: true }).nullable(),
+        deadline: z.string().nullable(),
         status: z.enum([
           "DRAFT",
           "LIVE",
@@ -1696,7 +1702,7 @@ const CreateLaunchpadResponse = z
             launchpadCount: z.number(),
           })
           ,
-        createdAt: z.string().datetime({ offset: true }),
+        createdAt: z.string(),
         category: z
           .object({ id: z.string(), name: z.string() })
           
@@ -1728,7 +1734,7 @@ const GetLaunchpadsResponse = z
           id: z.string(),
           name: z.string(),
           description: z.string().nullable(),
-          deadline: z.string().datetime({ offset: true }).nullable(),
+          deadline: z.string().nullable(),
           status: z.enum([
             "DRAFT",
             "LIVE",
@@ -1750,7 +1756,7 @@ const GetLaunchpadsResponse = z
               launchpadCount: z.number(),
             })
             ,
-          createdAt: z.string().datetime({ offset: true }),
+          createdAt: z.string(),
           category: z
             .object({ id: z.string(), name: z.string() })
             
@@ -1795,7 +1801,7 @@ const UpdateLaunchpadRequest = z
       .regex(
         /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
       ),
-    deadline: z.string().datetime({ offset: true }),
+    deadline: z.string(),
     logoKey: z.string().min(1).max(255),
     coverKey: z.string().min(1).max(255),
     role: z.array(UpdateLaunchpadRoleRequest).min(1),
@@ -1814,7 +1820,7 @@ const GetLaunchpadByIdResponse = z
         id: z.string(),
         name: z.string(),
         description: z.string().nullable(),
-        deadline: z.string().datetime({ offset: true }).nullable(),
+        deadline: z.string().nullable(),
         status: z.enum([
           "DRAFT",
           "LIVE",
@@ -1836,7 +1842,7 @@ const GetLaunchpadByIdResponse = z
             launchpadCount: z.number(),
           })
           ,
-        createdAt: z.string().datetime({ offset: true }),
+        createdAt: z.string(),
         category: z
           .object({ id: z.string(), name: z.string() })
           
@@ -1929,7 +1935,7 @@ const LaunchpadApplicationLog = z
       "WITHDRAWN"]),
     declinedBy: z.enum(["POSTER", "APPLICANT", "SYSTEM"]).nullable(),
     createdBy: z.string(),
-    createdAt: z.string().datetime({ offset: true }),
+    createdAt: z.string(),
   })
   ;
 const LaunchpadApplication = z
@@ -1951,8 +1957,8 @@ const LaunchpadApplication = z
       "WITHDRAWN"]),
     documentKeys: z.array(z.string()),
     documentNames: z.array(z.string()),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
+    createdAt: z.string(),
+    updatedAt: z.string(),
     logs: z.array(LaunchpadApplicationLog),
   })
   ;
@@ -2009,18 +2015,18 @@ const MyApplicationReference = z
   ;
 const MyApplicationTimeline = z
   .object({
-    submitted: z.string().datetime({ offset: true }).nullable(),
-    underReview: z.string().datetime({ offset: true }).nullable(),
-    approved: z.string().datetime({ offset: true }).nullable(),
+    submitted: z.string().nullable(),
+    underReview: z.string().nullable(),
+    approved: z.string().nullable(),
     declined: z
       .object({
-        at: z.string().datetime({ offset: true }).nullable(),
+        at: z.string().nullable(),
         by: z.enum(["POSTER", "APPLICANT", "SYSTEM"]).nullable(),
       })
       ,
-    confirmed: z.string().datetime({ offset: true }).nullable(),
-    completed: z.string().datetime({ offset: true }).nullable(),
-    withdrawn: z.string().datetime({ offset: true }).nullable(),
+    confirmed: z.string().nullable(),
+    completed: z.string().nullable(),
+    withdrawn: z.string().nullable(),
   })
   ;
 const MyApplicationRole = z
@@ -2029,7 +2035,7 @@ const MyApplicationRole = z
     roleId: z.string(),
     title: z.string(),
     status: MyApplicationStatusGroup,
-    appliedAt: z.string().datetime({ offset: true }),
+    appliedAt: z.string(),
     timeline: MyApplicationTimeline,
   })
   ;
@@ -2039,16 +2045,16 @@ const MyApplicationItem = z
     opportunityTitle: z.string(),
     sourceType: z.enum(["VOLUNTEER", "PROJECT"]),
     imageKey: z.string().nullable(),
-    appliedAt: z.string().datetime({ offset: true }),
-    deadline: z.string().datetime({ offset: true }).nullable(),
-    startDate: z.string().datetime({ offset: true }).nullable(),
-    endDate: z.string().datetime({ offset: true }).nullable(),
+    appliedAt: z.string(),
+    deadline: z.string().nullable(),
+    startDate: z.string().nullable(),
+    endDate: z.string().nullable(),
     status: MyApplicationStatusGroup,
     needAttention: z.boolean(),
     totalRoleApplied: z.number().int().gte(0),
     canArchive: z.boolean(),
     filled: z.boolean(),
-    archivedAt: z.string().datetime({ offset: true }).nullable(),
+    archivedAt: z.string().nullable(),
     category: MyApplicationReference.nullable(),
     location: MyApplicationReference.nullable(),
     roles: z.array(MyApplicationRole),
@@ -2085,9 +2091,9 @@ const MyApplicationRoleDetail = z
     responsibilities: z.array(z.string()),
     requirements: z.array(z.string()),
     status: MyApplicationStatusGroup,
-    appliedAt: z.string().datetime({ offset: true }),
+    appliedAt: z.string(),
     archived: z.boolean(),
-    archivedAt: z.string().datetime({ offset: true }).nullable(),
+    archivedAt: z.string().nullable(),
     actions: z
       .object({
         canConfirm: z.boolean(),
@@ -2105,10 +2111,10 @@ const MyApplicationDetail = z
     title: z.string(),
     imageKey: z.string().nullable(),
     status: MyApplicationStatusGroup,
-    appliedAt: z.string().datetime({ offset: true }),
-    deadline: z.string().datetime({ offset: true }).nullable(),
+    appliedAt: z.string(),
+    deadline: z.string().nullable(),
     archived: z.boolean(),
-    archivedAt: z.string().datetime({ offset: true }).nullable(),
+    archivedAt: z.string().nullable(),
     needAttention: z.boolean(),
     totalRoleApplied: z.number().int().gte(0),
     canArchive: z.boolean(),
@@ -2119,8 +2125,8 @@ const MyApplicationDetail = z
         overview: z.string().nullable(),
         category: MyApplicationReference.nullable(),
         location: MyApplicationReference.nullable(),
-        startDate: z.string().datetime({ offset: true }).nullable(),
-        endDate: z.string().datetime({ offset: true }).nullable(),
+        startDate: z.string().nullable(),
+        endDate: z.string().nullable(),
         commitmentLabel: z.string().nullable(),
         commitmentDescription: z.string().nullable(),
         filled: z.boolean(),
@@ -2445,8 +2451,8 @@ const RecentActivity = z
     referenceType: z.string(),
     referenceId: z.string(),
     data: z.record(z.string(), z.unknown().nullable()),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
+    createdAt: z.string(),
+    updatedAt: z.string(),
   })
   ;
 const GetRecentActivitiesResponse = z
@@ -2471,13 +2477,13 @@ const GetSavedItemsResponse = z
         z
           .object({
             type: z.literal("project"),
-            savedAt: z.string().datetime({ offset: true }),
+            savedAt: z.string(),
             item: z
               .object({
                 id: z.string(),
                 name: z.string(),
                 description: z.string().nullable(),
-                deadline: z.string().datetime({ offset: true }).nullable(),
+                deadline: z.string().nullable(),
                 status: z.enum([
                   "DRAFT",
                   "LIVE",
@@ -2499,7 +2505,7 @@ const GetSavedItemsResponse = z
                     launchpadCount: z.number(),
                   })
                   ,
-                createdAt: z.string().datetime({ offset: true }),
+                createdAt: z.string(),
                 category: z
                   .object({ id: z.string(), name: z.string() })
                   
@@ -2511,7 +2517,7 @@ const GetSavedItemsResponse = z
                 totalRoles: z.number(),
                 totalView: z.number(),
                 isSaved: z.literal(true),
-                savedAt: z.string().datetime({ offset: true }),
+                savedAt: z.string(),
               })
               ,
           })
@@ -2519,14 +2525,14 @@ const GetSavedItemsResponse = z
         z
           .object({
             type: z.literal("volunteer"),
-            savedAt: z.string().datetime({ offset: true }),
+            savedAt: z.string(),
             item: VolunteerOpportunityListItemResponse,
           })
           ,
         z
           .object({
             type: z.literal("forum"),
-            savedAt: z.string().datetime({ offset: true }),
+            savedAt: z.string(),
             item: QuestionResponse,
           })
           ,
@@ -2659,7 +2665,7 @@ const GetMyPostedResponse = z.union([
             id: z.string(),
             name: z.string(),
             description: z.string().nullable(),
-            deadline: z.string().datetime({ offset: true }).nullable(),
+            deadline: z.string().nullable(),
             status: z.enum([
               "DRAFT",
               "LIVE",
@@ -2681,7 +2687,7 @@ const GetMyPostedResponse = z.union([
                 launchpadCount: z.number(),
               })
               ,
-            createdAt: z.string().datetime({ offset: true }),
+            createdAt: z.string(),
             category: z
               .object({ id: z.string(), name: z.string() })
               
@@ -2725,9 +2731,9 @@ const ManagePostingItem = z
     confirmedCount: z.number().int().gte(0),
     capacity: z.number().int().gte(0),
     views: z.number().int().gte(0),
-    deadline: z.string().datetime({ offset: true }).nullable(),
+    deadline: z.string().nullable(),
     isEditable: z.boolean(),
-    createdAt: z.string().datetime({ offset: true }),
+    createdAt: z.string(),
   })
   ;
 const ManagePostingsPagination = z
@@ -2766,8 +2772,8 @@ const ManagePostingApplicationRole = z
     title: z.string(),
     description: z.string().nullable(),
     status: ManagePostingApplicantStatus,
-    appliedAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
+    appliedAt: z.string(),
+    updatedAt: z.string(),
   })
   ;
 const ManagePostingSubmission = z
@@ -2775,8 +2781,8 @@ const ManagePostingSubmission = z
     submissionKey: z.string(),
     roles: z.array(ManagePostingApplicationRole),
     topPick: z.string().nullable(),
-    appliedAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
+    appliedAt: z.string(),
+    updatedAt: z.string(),
     volunteer: z
       .object({
         availability: z.string(),
@@ -2804,8 +2810,8 @@ const ManagePostingApplicantPrivateNote = z
     note: z.string(),
     createdBy: z.string(),
     updatedBy: z.string(),
-    createdAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
+    createdAt: z.string(),
+    updatedAt: z.string(),
   })
   ;
 const ManagePostingApplicant = z
@@ -2824,8 +2830,8 @@ const ManagePostingApplicant = z
     submissionCount: z.number().int().gte(0),
     totalRoleApplied: z.number().int().gte(0),
     overallStatus: ManagePostingApplicantStatus,
-    lastAppliedAt: z.string().datetime({ offset: true }),
-    updatedAt: z.string().datetime({ offset: true }),
+    lastAppliedAt: z.string(),
+    updatedAt: z.string(),
     contact: z
       .object({
         email: z.string(),
@@ -2849,7 +2855,7 @@ const UpdateManagePostingActionResponse = z
   .object({ ok: z.literal(true), posting: ManagePostingItem })
   ;
 const ExtendManagePostingDeadlineRequest = z
-  .object({ deadline: z.string().datetime({ offset: true }) })
+  .object({ deadline: z.string() })
   ;
 const ExtendManagePostingDeadlineResponse = z
   .object({ ok: z.literal(true), posting: ManagePostingItem })
@@ -3672,9 +3678,9 @@ const endpoints = makeApi([
               aggregateCount: z.number().int().gt(0).optional(),
               data: z.record(z.string(), z.string()).nullable(),
               isRead: z.boolean(),
-              readAt: z.string().datetime({ offset: true }).nullable(),
-              createdAt: z.string().datetime({ offset: true }),
-              updatedAt: z.string().datetime({ offset: true }).optional(),
+              readAt: z.string().nullable(),
+              createdAt: z.string(),
+              updatedAt: z.string().optional(),
               webRoute: z.string().nullish(),
             })
             
@@ -6421,10 +6427,10 @@ const endpoints = makeApi([
               aggregateCount: z.number().int().gt(0).optional(),
               data: z.record(z.string(), z.string()).nullable(),
               isRead: z.boolean(),
-              readAt: z.string().datetime({ offset: true }).nullable(),
+              readAt: z.string().nullable(),
               archived: z.boolean(),
-              createdAt: z.string().datetime({ offset: true }),
-              updatedAt: z.string().datetime({ offset: true }).optional(),
+              createdAt: z.string(),
+              updatedAt: z.string().optional(),
               webRoute: z.string().nullish(),
               mobileRoute: z.string().nullish(),
             })
@@ -8166,7 +8172,7 @@ const endpoints = makeApi([
         name: "body",
         type: "Body",
         schema: z
-          .object({ deadline: z.string().datetime({ offset: true }) })
+          .object({ deadline: z.string() })
           ,
       },
       {

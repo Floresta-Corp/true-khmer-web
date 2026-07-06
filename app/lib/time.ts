@@ -58,4 +58,20 @@ export function formatRelativeTime(
   return date.format("MMM D, YYYY, h:mm A");
 }
 
+export function formatDate(
+  dateInput: Date | string | number | null | undefined,
+) {
+  if (dateInput === null || dateInput === undefined || dateInput === "") {
+    return "";
+  }
+
+  const date = dayjs(normalizeDateInput(dateInput));
+
+  if (!date.isValid()) {
+    return "";
+  }
+
+  return date.format("MMM D, YYYY");
+}
+
 export const formatMinutesOrHoursAgo = formatRelativeTime;
