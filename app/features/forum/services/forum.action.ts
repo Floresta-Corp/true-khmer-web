@@ -6,6 +6,7 @@ import {
   deleteQuestionAction,
   parseAnswerVoteAction,
   submitAnswerVoteAction,
+  reportQuestionAction,
 } from "./forum.vote-helpers";
 import {
   updateForumQuestion,
@@ -13,12 +14,10 @@ import {
   createAnswerByQuestionId,
   deleteAnswerById,
   updateAnswerById,
-  SubmitReport,
   presignForumQuestionImage,
 } from "~/api/forum/forum.server";
 import { validateCreateForumPostForm } from "./forum.validation";
 import type { Route as ForumRoute } from "project-types/forum/route/+types/forum.new";
-import type { SubmitReportInput } from "../types";
 
 export async function forumListAction({ request }: ForumRoute.ActionArgs) {
   const auth = await requireUser(request);
@@ -48,30 +47,7 @@ export async function forumListAction({ request }: ForumRoute.ActionArgs) {
   }
 
   if (actionType === "report-question") {
-    const reportQuestionId = String(formData.get("questionId") ?? "").trim();
-    const reportTypeId = String(formData.get("typeId") ?? "").trim();
-    const reportDescription = String(formData.get("description") ?? "").trim();
-
-    if (!reportQuestionId) {
-      return respond({
-        ok: false,
-        message: "Question ID is required for reporting.",
-      });
-    }
-
-    if (!reportTypeId) {
-      return respond({
-        ok: false,
-        message: "Report type ID is required.",
-      });
-    }
-
-    const body: SubmitReportInput = {
-      description: reportDescription,
-      typeId: reportTypeId,
-      questionId: reportQuestionId,
-    };
-    return respond(await SubmitReport(request, body));
+    return respond(await reportQuestionAction(request, formData));
   }
 
   if (actionType === "vote-question") {

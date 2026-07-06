@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLoaderData, useNavigation, useSearchParams } from "react-router";
 import { AnimatePresence, motion } from "motion/react";
-import { MessageCircleQuestion, Search, SlidersHorizontal } from "lucide-react";
+import { MessageCircleQuestion, Search } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { loader } from "../../route/workspace";
 import type { MyWorkSpaceLoaderData } from "~/features/workspace/types";

@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from "motion/react";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { forumSearchLoader } from "../services/forum-search.loader";
 import ForumSearchHeader from "../components/sections/forum-search-header";
 import ForumSearchResultsSection from "../components/sections/forum-search-results-section";
@@ -24,37 +24,65 @@ export default function ForumSearchPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const prefersReducedMotion = useReducedMotion();
 
-  const [questionList, setQuestionList] = useState<QuestionResponse[] | undefined>(
-    data?.questions,
-  );
-  const [hasMore, setHasMore] = useState<boolean | undefined>(
-    data?.pagination?.hasMore,
-  );
-  const [nextCursor, setNextCursor] = useState<string | null | undefined>(
-    data?.pagination?.nextCursor,
-  );
+  // Identity of the active filter set. Page 1 always comes from the loader;
+  // when this changes, any pages accumulated via "load more" are dropped.
+  const searchKey =
+    search +
+    (searchParams.get("sortBy") || "") +
+    (searchParams.get("categoryId") || "") +
+    (searchParams.get("tagId") || "") +
+    (searchParams.get("isUnanswered") || "") +
+    (searchParams.get("isTrending") || "");
 
-  const isLoadingMore = isLoading && (questionList ?? []).length > 0;
+  // Pages fetched *beyond* page 1. Page 1 is derived directly from the loader,
+  // so an unrelated loader revalidation (e.g. after a vote/report) refreshes it
+  // without discarding these accumulated pages.
+  const [extraPages, setExtraPages] = useState<QuestionResponse[]>([]);
+  const [extraPagination, setExtraPagination] = useState<
+    GetQuestionsResponse["pagination"] | null
+  >(null);
 
-  // When filters are applied but data is empty, trigger fetcher to load data
+  // Keep the search input in sync with the URL (e.g. on back/forward navigation).
   useEffect(() => {
-    const hasFilters =
-      search ||
-      searchParams.get("categoryId") ||
-      searchParams.get("tagId") ||
-      searchParams.get("sortBy") !== "mostRelevant" ||
-      searchParams.get("isUnanswered") === "true" ||
-      searchParams.get("isTrending") === "true";
+    setSearchValue(search);
+  }, [search]);
 
-    if (
-      hasFilters &&
-      data.questions.length === 0 &&
-      fetcher.state === "idle" &&
-      !fetcher.data
-    ) {
-      fetcher.load(window.location.pathname + window.location.search);
-    }
-  }, [data, fetcher.state, fetcher.data, search, searchParams]);
+  // Reset accumulated pages whenever the active filters change.
+  useEffect(() => {
+    setExtraPages([]);
+    setExtraPagination(null);
+  }, [searchKey]);
+
+  // Append newly fetched pages, de-duping against page 1 and prior extra pages.
+  useEffect(() => {
+    const fetcherData = fetcher.data?.data as GetQuestionsResponse | undefined;
+    if (!fetcherData) return;
+
+    setExtraPages((prev) => {
+      const seen = new Set([
+        ...(data.questions ?? []).map((q) => q.id),
+        ...prev.map((q) => q.id),
+      ]);
+      const fresh = fetcherData.questions.filter((q) => !seen.has(q.id));
+      return [...prev, ...fresh];
+    });
+    setExtraPagination(fetcherData.pagination);
+  }, [fetcher.data?.data]);
+
+  // Page 1 (fresh from the loader) + accumulated extra pages.
+  const questionList = useMemo(() => {
+    const base = data.questions ?? [];
+    if (extraPages.length === 0) return base;
+    const seen = new Set(base.map((q) => q.id));
+    return [...base, ...extraPages.filter((q) => !seen.has(q.id))];
+  }, [data.questions, extraPages]);
+
+  // Pagination follows the most recently loaded page.
+  const pagination = extraPagination ?? data.pagination;
+  const hasMore = pagination?.hasMore;
+  const nextCursor = pagination?.nextCursor ?? undefined;
+
+  const isLoadingMore = isLoading && questionList.length > 0;
 
   const buildSearchQuery = useCallback(
     (cursor?: string) => {
@@ -67,35 +95,8 @@ export default function ForumSearchPage() {
     [searchParams],
   );
 
-  useEffect(() => {
-    if (data?.questions) {
-      setQuestionList(data.questions);
-      setHasMore(data.pagination.hasMore);
-      setNextCursor(data.pagination.nextCursor ?? undefined);
-    }
-  }, [data]);
-
-  useEffect(() => {
-    const fetcherData = fetcher.data?.data as
-      | GetQuestionsResponse
-      | undefined;
-    if (fetcherData) {
-      const fetchedQuestions = fetcherData.questions;
-      setQuestionList((prev) => {
-        const existingIds = new Set((prev || []).map((q) => q.id));
-        const newQuestions = fetchedQuestions.filter(
-          (q: QuestionResponse) => !existingIds.has(q.id),
-        );
-        return [...(prev || []), ...newQuestions];
-      });
-      const pagination = fetcherData.pagination;
-      setHasMore(pagination.hasMore);
-      setNextCursor(pagination.nextCursor ?? undefined);
-    }
-  }, [fetcher.data?.data]);
-
   const handleLoadMore = useCallback(() => {
-    if (!questionList || questionList.length === 0) return;
+    if (questionList.length === 0) return;
     if (fetcher.state === "loading") return;
     if (hasMore === false) return;
 
@@ -103,7 +104,7 @@ export default function ForumSearchPage() {
       fetcher.load(buildSearchQuery(nextCursor));
     }
   }, [
-    questionList,
+    questionList.length,
     fetcher.state,
     fetcher.load,
     hasMore,
@@ -111,46 +112,42 @@ export default function ForumSearchPage() {
     buildSearchQuery,
   ]);
 
-  const handleSearch = (value: string) => {
-    const nextParams = new URLSearchParams(searchParams);
+  // Single helper for every filter/search change to the URL.
+  const updateSearchParams = useCallback(
+    (mutate: (params: URLSearchParams) => void) => {
+      const nextParams = new URLSearchParams(searchParams);
+      mutate(nextParams);
+      setSearchParams(nextParams, {
+        replace: true,
+        preventScrollReset: true,
+      });
+    },
+    [searchParams, setSearchParams],
+  );
 
-    if (value) {
-      nextParams.set("search", value);
-    } else {
-      nextParams.delete("search");
-    }
-
-    setSearchParams(nextParams, {
-      replace: true,
-      preventScrollReset: true,
+  const handleSearch = (value: string) =>
+    updateSearchParams((params) => {
+      if (value) {
+        params.set("search", value);
+      } else {
+        params.delete("search");
+      }
     });
-  };
 
-  const handleSortByChange = (value: string) => {
-    const nextParams = new URLSearchParams(searchParams);
-    nextParams.set("sortBy", value);
-    setSearchParams(nextParams, {
-      replace: true,
-      preventScrollReset: true,
-    });
-  };
+  const handleSortByChange = (value: string) =>
+    updateSearchParams((params) => params.set("sortBy", value));
 
-  const handleCategoryChange = (value: string) => {
-    const nextParams = new URLSearchParams(searchParams);
-    if (value === "all-categories") {
-      nextParams.delete("categoryId");
-    } else {
-      nextParams.set("categoryId", value);
-    }
-    setSearchParams(nextParams, {
-      replace: true,
-      preventScrollReset: true,
+  const handleCategoryChange = (value: string) =>
+    updateSearchParams((params) => {
+      if (value === "all-categories") {
+        params.delete("categoryId");
+      } else {
+        params.set("categoryId", value);
+      }
     });
-  };
 
   const handleClearAll = () => {
-    const nextParams = new URLSearchParams();
-    setSearchParams(nextParams, {
+    setSearchParams(new URLSearchParams(), {
       replace: true,
       preventScrollReset: true,
     });
@@ -168,11 +165,6 @@ export default function ForumSearchPage() {
     name: c.name,
     count: c.questionCount,
   }));
-
-  const searchKey =
-    search +
-    (searchParams.get("sortBy") || "") +
-    (searchParams.get("categoryId") || "");
 
   return (
     <div className="w-full">
@@ -194,7 +186,7 @@ export default function ForumSearchPage() {
       <div key={searchKey}>
         <ForumSearchResultsSection
           search={search}
-          data={{ ...data, questions: questionList || [] }}
+          data={{ ...data, questions: questionList }}
           categories={categoriesPicker}
           onClearSearch={handleClearAll}
           onClearSearchValue={handleClearSearchValue}

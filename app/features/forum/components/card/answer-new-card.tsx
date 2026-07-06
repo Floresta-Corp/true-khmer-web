@@ -3,6 +3,7 @@ import { Award, MessageCircle, Pencil, Trash2 } from "lucide-react";
 import AnswerVoteComponent from "../answer-vote-component";
 import { Separator } from "~/components/ui/separator";
 import { Button } from "~/components/ui/button";
+import { Badge } from "~/components/ui/badge";
 import { resolveImageURL, cn } from "~/lib/utils";
 import type { AnswerResponse } from "~/types/api-client";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
@@ -69,6 +70,23 @@ function AnswerComponent({
       ? "replies"
       : undefined;
 
+  const [accordionValue, setAccordionValue] = useState<string | undefined>(
+    openAccordion,
+  );
+  const [repliedAnswerId, setRepliedAnswerId] = useState<string | null>(null);
+
+  // After a reply succeeds we save the replied-to answer id; once it matches
+  // this answer (or one of its replies) we auto-open the replies accordion.
+  useEffect(() => {
+    if (
+      repliedAnswerId &&
+      (repliedAnswerId === answer.id ||
+        answer.repliedAnswers?.some((a) => a.id === repliedAnswerId))
+    ) {
+      setAccordionValue("replies");
+    }
+  }, [repliedAnswerId, answer.id, answer.repliedAnswers]);
+
   useEffect(() => {
     if (isHighlighted && cardRef.current) {
       setTimeout(() => {
@@ -88,7 +106,8 @@ function AnswerComponent({
       type="single"
       collapsible
       className="w-full"
-      defaultValue={openAccordion}
+      value={accordionValue}
+      onValueChange={setAccordionValue}
     >
       <AccordionItem value="replies">
         <motion.article
@@ -132,11 +151,12 @@ function AnswerComponent({
                 </div>
               </div>
               {isCurrentAuthor && (
-                <div>
-                  <div className="px-1.5 py-0.5 bg-brand-light-blue dark:bg-brand-blue/20 text-brand-blue text-[10px] font-bold rounded uppercase tracking-widest border border-brand-blue/10">
-                    Author
-                  </div>
-                </div>
+                <Badge
+                  variant="secondary"
+                  className="text-xs font-semibold bg-green-100 text-green-500"
+                >
+                  Author
+                </Badge>
               )}
             </div>
 
@@ -217,6 +237,7 @@ function AnswerComponent({
                 questionId={answer.questionId}
                 replyToAnswer={answer.id}
                 isAuthenticated={isAuthenticated}
+                onReplySuccess={setRepliedAnswerId}
                 trigger={
                   <Button
                     type="button"

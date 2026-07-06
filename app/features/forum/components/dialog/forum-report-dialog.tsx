@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { AlertTriangle, Flag, X } from "lucide-react";
 import { Link, useFetcher, useLocation } from "react-router";
+import { useFetcherOutcome } from "~/hooks/use-fetcher-outcome";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -47,7 +48,6 @@ export default function ForumReportDialog({
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [details, setDetails] = useState("");
   const fetcher = useFetcher();
-  const wasSubmitting = useRef(false);
 
   function reset() {
     setSelectedReason(null);
@@ -59,26 +59,12 @@ export default function ForumReportDialog({
     reset();
   }
 
-  useEffect(() => {
-    if (fetcher.state === "submitting") {
-      wasSubmitting.current = true;
-    }
-
-    if (wasSubmitting.current && fetcher.state === "idle" && fetcher.data) {
-      wasSubmitting.current = false;
-      const result = fetcher.data as
-        | { ok?: boolean }
-        | { data?: { ok?: boolean } };
-      const isSuccess =
-        ("ok" in result && result.ok === true) ||
-        ("data" in result && result.data?.ok === true);
-
-      if (isSuccess) {
-        setOpen(false);
-        reset();
-      }
-    }
-  }, [fetcher.state, fetcher.data]);
+  useFetcherOutcome(fetcher, {
+    onSuccess: () => {
+      setOpen(false);
+      reset();
+    },
+  });
 
   const redirectTo = `${location.pathname}${location.search}`;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;

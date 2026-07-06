@@ -3,8 +3,9 @@ import {
     deleteForumQuestion,
     voteForumAnswer,
     voteForumQuestion,
+    SubmitReport,
 } from "~/api/forum/forum.server";
-import type { VoteIntent } from "../types";
+import type { SubmitReportInput, VoteIntent } from "../types";
 
 const VALID_VOTE_TYPES: readonly VoteIntent[] = ["UPVOTE", "DOWNVOTE", "NONE"];
 
@@ -128,4 +129,38 @@ export async function deleteQuestionAction(request: Request, formData: FormData)
     };
 
     return deleteForumQuestion(request, questionId);
+}
+
+export async function reportQuestionAction(request: Request, formData: FormData) {
+    const questionId = String(formData.get("questionId") ?? "").trim();
+    const typeId = String(formData.get("typeId") ?? "").trim();
+    const description = String(formData.get("description") ?? "").trim();
+
+    if (!questionId) {
+        return { ok: false, message: "Question ID is required for reporting." };
+    }
+
+    if (!typeId) {
+        return { ok: false, message: "Report type ID is required." };
+    }
+
+    const body: SubmitReportInput = { description, typeId, questionId };
+    return SubmitReport(request, body);
+}
+
+export async function reportAnswerAction(request: Request, formData: FormData) {
+    const answerId = String(formData.get("answerId") ?? "").trim();
+    const typeId = String(formData.get("typeId") ?? "").trim();
+    const description = String(formData.get("description") ?? "").trim();
+
+    if (!answerId) {
+        return { ok: false, message: "Answer ID is required for reporting." };
+    }
+
+    if (!typeId) {
+        return { ok: false, message: "Report type ID is required." };
+    }
+
+    const body: SubmitReportInput = { description, typeId, answerId };
+    return SubmitReport(request, body);
 }

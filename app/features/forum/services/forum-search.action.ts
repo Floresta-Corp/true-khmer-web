@@ -5,9 +5,9 @@ import {
   deleteQuestionAction,
   parseVoteAction,
   submitVoteAction,
+  reportQuestionAction,
 } from "./forum.vote-helpers";
-import type { SubmitReportInput } from "../types";
-import { SubmitReport, updateForumQuestion } from "~/api/forum/forum.server";
+import { updateForumQuestion } from "~/api/forum/forum.server";
 import { validateCreateForumPostForm } from "./forum.validation";
 
 export async function forumSearchAction({
@@ -30,30 +30,7 @@ export async function forumSearchAction({
   }
 
   if (actionType === "report-question") {
-    const reportQuestionId = String(formData.get("questionId") ?? "").trim();
-    const reportTypeId = String(formData.get("typeId") ?? "").trim();
-    const reportDescription = String(formData.get("description") ?? "").trim();
-
-    if (!reportQuestionId) {
-      return respond({
-        ok: false,
-        message: "Question ID is required for reporting.",
-      });
-    }
-
-    if (!reportTypeId) {
-      return respond({
-        ok: false,
-        message: "Report type ID is required.",
-      });
-    }
-
-    const body: SubmitReportInput = {
-      description: reportDescription,
-      typeId: reportTypeId,
-      questionId: reportQuestionId,
-    };
-    return respond(await SubmitReport(request, body));
+    return respond(await reportQuestionAction(request, formData));
   }
 
   if (actionType === "vote-question") {
