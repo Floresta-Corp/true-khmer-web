@@ -90,17 +90,17 @@ export default function AccountSettingsRoute() {
     `${admin.firstName ?? ""} ${admin.lastName ?? ""}`.trim() || "Admin";
 
   return (
-    <div className="p-6 md:p-10 max-w-6xl mx-auto">
+    <div className="mx-auto max-w-6xl p-6 md:p-10">
       <div className="mb-8">
         <h1 className="text-2xl font-black text-slate-900 dark:text-white">
           Account Settings
         </h1>
-        <p className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+        <p className="mt-1 text-[11px] font-semibold tracking-widest text-slate-400 uppercase">
           Manage your profile and security settings
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-1">
           <AccountSettingsProfileCard
             admin={admin}

@@ -39,7 +39,7 @@ export function PostPreviewPanel({
         </DialogDescription>
 
         <DialogClose
-          className="absolute right-0 top-0 z-10 flex h-9 w-9 -translate-y-8 translate-x-15 items-center justify-center rounded-full cursor-pointer bg-white text-slate-700 shadow-md transition hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+          className="absolute top-3 right-3 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white text-slate-700 shadow-md transition hover:bg-slate-100 sm:top-0 sm:right-0 sm:translate-x-8 sm:-translate-y-6 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
           aria-label="Close preview"
         >
           <XIcon className="h-5 w-5" />
@@ -51,7 +51,7 @@ export function PostPreviewPanel({
               src={sourceLink}
               title="Original post preview"
               className="w-full flex-1 border-0 bg-white"
-              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+              sandbox="allow-scripts allow-same-origin"
               referrerPolicy="no-referrer"
             />
           ) : hasLink ? (

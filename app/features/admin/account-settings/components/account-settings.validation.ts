@@ -35,11 +35,20 @@ export function validatePasswordChange(values: {
   confirmPassword: string;
 }): FieldErrors {
   const errors: FieldErrors = {
-    currentPassword: validatePassword("Current password", values.currentPassword),
+    currentPassword: validatePassword(
+      "Current password",
+      values.currentPassword,
+    ),
     newPassword: validatePassword("New password", values.newPassword),
-    confirmPassword: validatePassword("Confirm password", values.confirmPassword),
+    confirmPassword: validatePassword(
+      "Confirm password",
+      values.confirmPassword,
+    ),
   };
-  if (!errors.confirmPassword && values.newPassword !== values.confirmPassword) {
+  if (
+    !errors.confirmPassword &&
+    values.newPassword !== values.confirmPassword
+  ) {
     errors.confirmPassword = "Passwords do not match.";
   }
   return errors;

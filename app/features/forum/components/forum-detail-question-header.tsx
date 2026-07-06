@@ -118,7 +118,7 @@ export default function ForumDetailQuestionHeader({
             <DropdownMenuItem asChild>
               <Link
                 to={loginHref}
-                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm font-medium text-[#595c5e] cursor-pointer"
+                className="flex w-full cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm font-medium text-[#595c5e]"
               >
                 <Bookmark className="h-4 w-4" />
                 Save
@@ -170,17 +170,17 @@ export default function ForumDetailQuestionHeader({
         {!isAuthenticated ? (
           <Link to={loginHref}>
             <Button
-              className="cursor-pointer group transition-colors hover:text-blue-500 bg-transparent text-[#595C5E]"
+              className="group cursor-pointer bg-transparent text-[#595C5E] transition-colors hover:text-blue-500"
               disabled={isSubmitting}
             >
-              <Bookmark className="group-hover:text-blue-500 transition-colors" />
+              <Bookmark className="transition-colors group-hover:text-blue-500" />
               Save
             </Button>
           </Link>
         ) : (
           <Button
             type="button"
-            className={`cursor-pointer group transition-colors hover:text-blue-500 bg-transparent text-[#595C5E] ${question.viewerSave ? "text-blue-500" : ""}`}
+            className={`group cursor-pointer bg-transparent text-[#595C5E] transition-colors hover:text-blue-500 ${question.viewerSave ? "text-blue-500" : ""}`}
             onClick={handleSave}
             disabled={isSubmitting}
           >
@@ -188,7 +188,7 @@ export default function ForumDetailQuestionHeader({
               <Spinner className="size-3.5" />
             ) : (
               <Bookmark
-                className={`group-hover:text-blue-500 transition-colors ${question.viewerSave ? "fill-blue-500" : ""}`}
+                className={`transition-colors group-hover:text-blue-500 ${question.viewerSave ? "fill-blue-500" : ""}`}
               />
             )}
 
@@ -205,9 +205,9 @@ export default function ForumDetailQuestionHeader({
           trigger={
             <Button
               type="button"
-              className="cursor-pointer group transition-colors hover:text-red-500 bg-transparent text-[#595C5E]"
+              className="group cursor-pointer bg-transparent text-[#595C5E] transition-colors hover:text-red-500"
             >
-              <Info className="group-hover:text-red-500 transition-colors" />
+              <Info className="transition-colors group-hover:text-red-500" />
               Report
             </Button>
           }

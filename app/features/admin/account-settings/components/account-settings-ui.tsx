@@ -69,13 +69,15 @@ export function SettingsCard({
   const { wrap, icon } = accentClasses[accent];
   return (
     <div className={cardClass}>
-      <div className="flex items-center gap-3 mb-6">
+      <div className="mb-6 flex items-center gap-3">
         <div
-          className={`w-8 h-8 rounded-lg flex items-center justify-center ${wrap}`}
+          className={`flex h-8 w-8 items-center justify-center rounded-lg ${wrap}`}
         >
           <Icon size={15} className={icon} />
         </div>
-        <h3 className="font-semibold text-slate-900 dark:text-white">{title}</h3>
+        <h3 className="font-semibold text-slate-900 dark:text-white">
+          {title}
+        </h3>
       </div>
       {children}
     </div>
@@ -139,7 +141,11 @@ export function SaveBar({
           transition={{ duration: 0.2, ease: "easeOut" }}
           className="flex justify-end overflow-hidden"
         >
-          <Button type="submit" disabled={isPending} className={submitButtonClass}>
+          <Button
+            type="submit"
+            disabled={isPending}
+            className={submitButtonClass}
+          >
             {isPending ? pendingLabel : label}
           </Button>
         </motion.div>

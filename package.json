@@ -11,6 +11,8 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "lint:changed": "bun scripts/lint-changed.js",
+    "fix:changed": "bun scripts/lint-changed.js --fix",
     "api": "openapi-zod-client https://true-khmer-api-stage.bongit.net/docs/openapi.json -o ./app/types/api-client.ts && bun app/lib/fix-api-client.ts",
     "api-local": "openapi-zod-client http://localhost:3000/docs/openapi.json -o ./app/types/api-client.ts && bun app/lib/fix-api-client.ts"
   },

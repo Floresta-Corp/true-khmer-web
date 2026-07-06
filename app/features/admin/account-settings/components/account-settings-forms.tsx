@@ -61,7 +61,7 @@ export function AccountSettingsForms({
             type="email"
             value={admin.email}
             readOnly
-            className={cn(inputClass, "opacity-80 cursor-not-allowed")}
+            className={cn(inputClass, "cursor-not-allowed opacity-80")}
           />
         </div>
       </SettingsCard>
@@ -125,7 +125,7 @@ function ProfileForm({
       />
 
       <SettingsCard icon={UserIcon} accent="blue" title="Personal Information">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormField
             label="First Name"
             name="firstName"
@@ -220,7 +220,7 @@ function PasswordForm({
               clearError("currentPassword");
             }}
           />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField
               label="New Password"
               type="password"
