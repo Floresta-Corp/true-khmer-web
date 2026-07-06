@@ -1,0 +1,40 @@
+name: Lint
+
+on:
+  pull_request:
+    branches: [develop]
+
+jobs:
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Get changed files
+        id: changed
+        run: |
+          git fetch origin "${{ github.base_ref }}" --depth=1
+          FILES=$(git diff --name-only --diff-filter=ACMR \
+            "origin/${{ github.base_ref }}...HEAD" \
+            -- '*.js' '*.jsx' '*.ts' '*.tsx')
+          echo "Changed files:"
+          echo "$FILES"
+          # Write to output (multiline-safe)
+          {
+            echo "files<<EOF"
+            echo "$FILES"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run ESLint on changed files
+        if: steps.changed.outputs.files != ''
+        run: echo "${{ steps.changed.outputs.files }}" | xargs -r bunx eslint

@@ -1,0 +1,15 @@
+# Build output
+build/
+.react-router/
+
+# Dependencies
+node_modules/
+
+# Generated API client (auto-generated, do not format)
+app/types/api-client.ts
+
+# Lockfiles & misc
+bun.lock
+bun.lockb
+*.min.js
+*.min.css
