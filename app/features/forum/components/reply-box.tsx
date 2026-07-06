@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useFetcher, useRevalidator } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import { Spinner } from "~/components/ui/spinner";
 import { cn } from "~/lib/utils";
 import type { QuestionResponse } from "~/types/api-client";
+import { useFetcherOutcome } from "~/hooks/use-fetcher-outcome";
 
 export interface ReplyBoxProps {
   /**
@@ -41,45 +42,26 @@ export default function ReplyBox({
   submitLabel = "Reply",
   question,
 }: ReplyBoxProps) {
-  if (!question) return null;
-
   const fetcher = useFetcher();
   const revalidator = useRevalidator();
-  const wasSubmitting = useRef(false);
   const [body, setBody] = useState("");
   const isSubmitting = fetcher.state !== "idle";
   const isBodyEmpty = body.trim().length === 0;
 
-  // Watch fetcher for outcome and reset/propagate accordingly
-  useEffect(() => {
-    if (fetcher.state === "submitting") {
-      wasSubmitting.current = true;
-    }
-
-    if (wasSubmitting.current && fetcher.state === "idle" && fetcher.data) {
-      wasSubmitting.current = false;
-
-      // server responses in this app typically return { ok: boolean, ... } or { data: { ok: boolean } }
-      const result =
-        (fetcher.data as any)?.data ?? (fetcher.data as any) ?? null;
-
-      const isSuccess =
-        (result && typeof result.ok === "boolean" && result.ok === true) ||
-        (result && result.data && result.data.ok === true);
-
-      if (isSuccess) {
-        setBody("");
-        revalidator.revalidate();
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetcher.state, fetcher.data]);
+  useFetcherOutcome(fetcher, {
+    onSuccess: () => {
+      setBody("");
+      revalidator.revalidate();
+    },
+  });
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     if (isBodyEmpty) {
       event.preventDefault();
     }
   };
+
+  if (!question) return null;
 
   return (
     <div className={cn("rounded-xl bg-[#EEF1F3] p-3", className)}>

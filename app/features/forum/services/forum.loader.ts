@@ -18,7 +18,7 @@ import type {
   GetQuestionsResponse,
   TrendingTagResponse,
 } from "~/types/api-client";
-import type { Route as ForumRoute } from "project-types/forum/route/+types/forum";
+import type { Route as ForumRoute } from "project-types/forum/route/+types/forum.new";
 import { getUserId } from "../../../lib/server/session.server";
 
 const LIMIT = 10;
@@ -82,7 +82,7 @@ export async function forumListloader({ request }: ForumRoute.LoaderArgs) {
 
   if (rawSortBy === "myActivity" && userId) {
     const queryAnswer = await getMyAnswers(request);
-    answers = queryAnswer?.data?.answers.answers || [];
+    answers = queryAnswer?.data?.answers?.answers ?? [];
   }
 
   const [qa, an] = userId

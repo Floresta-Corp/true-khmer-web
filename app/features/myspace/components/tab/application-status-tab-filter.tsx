@@ -1,5 +1,5 @@
 import { Archive } from "lucide-react";
-import { useSearchParams } from "react-router";
+import { useNavigation, useSearchParams } from "react-router";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { cn } from "~/lib/utils";
 
@@ -16,7 +16,16 @@ const statusLabels: Record<StatusTab, string> = {
 
 export default function ApplicationStatusTabFilter() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const statusParam = searchParams.get("filter");
+  const navigation = useNavigation();
+
+  // While a navigation is pending (loader still fetching), reflect the target
+  // URL's filter so the active tab switches immediately on click instead of
+  // waiting for the new data to load.
+  const activeParams =
+    navigation.state !== "idle" && navigation.location
+      ? new URLSearchParams(navigation.location.search)
+      : searchParams;
+  const statusParam = activeParams.get("filter");
   let activeStatus: StatusTab | "";
   if (statusParam === null) {
     // No filter param -> default to All

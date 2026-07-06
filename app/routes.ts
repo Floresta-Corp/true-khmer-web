@@ -14,7 +14,6 @@ export default [
       route("profile", "routes/onboarding-profile.tsx"),
       route("messages", "routes/messages.tsx"),
       route("forum", "features/forum/route/forum.new.tsx"),
-      route("forum-old", "features/forum/route/forum.tsx"),
       route("forum/search", "features/forum/route/forum.search.tsx"),
       route("forum/detail/:questionId", "features/forum/route/forum.$id.tsx"),
       route("events", "features/events/routes/events.tsx"),

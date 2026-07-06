@@ -9,6 +9,7 @@ import {
 import { motion, useReducedMotion } from "motion/react";
 import { Card, CardContent } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
+import { formatDate as formatDateValue } from "~/lib/time";
 import type { Timeline } from "~/features/myspace/types";
 
 export interface StatusTimelineProps {
@@ -21,14 +22,9 @@ export interface StatusTimelineProps {
 
 function formatDate(dateString?: string | null) {
   if (!dateString) return "TBD";
-  const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) return dateString;
-
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  // Delegate to the shared dayjs-based formatter so the "+07"/space datetime
+  // shapes from the API are parsed consistently; fall back to the raw value.
+  return formatDateValue(dateString) || dateString;
 }
 
 export function StatusTimeline({
