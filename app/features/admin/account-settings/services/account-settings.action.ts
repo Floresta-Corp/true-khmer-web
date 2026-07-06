@@ -26,6 +26,16 @@ const changePasswordSchema = z
     path: ["confirmPassword"],
   });
 
+type FieldErrors = Record<string, string | undefined>;
+
+type ActionResult =
+  | { ok: true; intent: string; message: string }
+  | { ok: false; intent: string; message: string; fieldErrors?: FieldErrors };
+
+function respond(result: ActionResult, init?: ResponseInit) {
+  return data(result, init);
+}
+
 export async function accountSettingsAction({ request }: Route.ActionArgs) {
   const { accessToken, setCookie } = await requireAdmin(request);
 
@@ -47,8 +57,17 @@ export async function accountSettingsAction({ request }: Route.ActionArgs) {
     });
 
     if (!result.success) {
-      return data(
-        { ok: false, intent, message: result.error.issues[0].message },
+      const fieldErrors = result.error.flatten().fieldErrors;
+      return respond(
+        {
+          ok: false,
+          intent,
+          message: result.error.issues[0].message,
+          fieldErrors: {
+            firstName: fieldErrors.firstName?.[0],
+            lastName: fieldErrors.lastName?.[0],
+          },
+        },
         { status: 400, headers: cookieHeader.headers },
       );
     }
@@ -64,7 +83,7 @@ export async function accountSettingsAction({ request }: Route.ActionArgs) {
         });
 
         if (!presign.ok) {
-          return data(
+          return respond(
             { ok: false, intent, message: "Failed to prepare avatar upload." },
             { status: 500, headers: cookieHeader.headers },
           );
@@ -85,7 +104,7 @@ export async function accountSettingsAction({ request }: Route.ActionArgs) {
         });
 
         if (!uploadResult.ok) {
-          return data(
+          return respond(
             { ok: false, intent, message: "Failed to upload avatar image." },
             { status: 500, headers: cookieHeader.headers },
           );
@@ -93,7 +112,7 @@ export async function accountSettingsAction({ request }: Route.ActionArgs) {
 
         avatarKey = key;
       } catch {
-        return data(
+        return respond(
           { ok: false, intent, message: "Failed to upload avatar image." },
           { status: 500, headers: cookieHeader.headers },
         );
@@ -106,18 +125,18 @@ export async function accountSettingsAction({ request }: Route.ActionArgs) {
         ...(avatarKey !== null ? { avatarKey } : {}),
       });
       await invalidateAdminMeCache(accessToken);
-      return data(
+      return respond(
         { ok: true, intent, message: "Profile updated successfully." },
         { headers: cookieHeader.headers },
       );
     } catch (err) {
       if (err instanceof ProtectedApiError) {
-        return data(
+        return respond(
           { ok: false, intent, message: err.message },
           { status: err.status, headers: cookieHeader.headers },
         );
       }
-      return data(
+      return respond(
         { ok: false, intent, message: "Failed to update profile." },
         { status: 500, headers: cookieHeader.headers },
       );
@@ -132,8 +151,18 @@ export async function accountSettingsAction({ request }: Route.ActionArgs) {
     });
 
     if (!result.success) {
-      return data(
-        { ok: false, intent, message: result.error.issues[0].message },
+      const fieldErrors = result.error.flatten().fieldErrors;
+      return respond(
+        {
+          ok: false,
+          intent,
+          message: result.error.issues[0].message,
+          fieldErrors: {
+            currentPassword: fieldErrors.currentPassword?.[0],
+            newPassword: fieldErrors.newPassword?.[0],
+            confirmPassword: fieldErrors.confirmPassword?.[0],
+          },
+        },
         { status: 400, headers: cookieHeader.headers },
       );
     }
@@ -143,25 +172,25 @@ export async function accountSettingsAction({ request }: Route.ActionArgs) {
         oldPassword: result.data.currentPassword,
         newPassword: result.data.newPassword,
       });
-      return data(
+      return respond(
         { ok: true, intent, message: "Password changed successfully." },
         { headers: cookieHeader.headers },
       );
     } catch (err) {
       if (err instanceof ProtectedApiError) {
-        return data(
+        return respond(
           { ok: false, intent, message: err.message },
           { status: err.status, headers: cookieHeader.headers },
         );
       }
-      return data(
+      return respond(
         { ok: false, intent, message: "Failed to change password." },
         { status: 500, headers: cookieHeader.headers },
       );
     }
   }
 
-  return data(
+  return respond(
     { ok: false, intent: "", message: "Unknown action." },
     { status: 400, headers: cookieHeader.headers },
   );
