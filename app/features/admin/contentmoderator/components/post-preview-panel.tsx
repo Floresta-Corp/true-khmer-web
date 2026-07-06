@@ -39,7 +39,7 @@ export function PostPreviewPanel({
         </DialogDescription>
 
         <DialogClose
-          className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full cursor-pointer bg-black/40 text-white transition hover:bg-black/60 sm:-top-12 sm:right-0 sm:bg-white sm:text-slate-700 sm:shadow-md sm:hover:bg-slate-100 dark:sm:bg-slate-800 dark:sm:text-slate-200 dark:sm:hover:bg-slate-700"
+          className="absolute right-0 top-0 z-10 flex h-9 w-9 -translate-y-8 translate-x-15 items-center justify-center rounded-full cursor-pointer bg-white text-slate-700 shadow-md transition hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
           aria-label="Close preview"
         >
           <XIcon className="h-5 w-5" />
