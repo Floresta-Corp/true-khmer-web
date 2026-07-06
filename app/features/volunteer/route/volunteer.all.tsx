@@ -194,7 +194,7 @@ export default function VolunteerAllPage() {
             }}
             className="space-y-2 will-change-transform"
           >
-            <h1 className="text-[clamp(1.9rem,3vw,2.5rem)] font-bold leading-tight text-[#020618]">
+            <h1 className="text-[clamp(1.9rem,3vw,2.5rem)] leading-tight font-bold text-[#020618]">
               Volunteer Opportunities
             </h1>
             <motion.p
@@ -223,9 +223,9 @@ export default function VolunteerAllPage() {
               event.preventDefault();
               handleSearch();
             }}
-            className="flex w-full max-w-md items-center rounded-full border border-[#e2e8f0] bg-white px-3 shadow-[0px_1px_2px_rgba(15,23,42,0.04)] lg:w-md will-change-transform"
+            className="flex w-full max-w-md items-center rounded-full border border-[#e2e8f0] bg-white px-3 shadow-[0px_1px_2px_rgba(15,23,42,0.04)] will-change-transform lg:w-md"
           >
-            <Search className="ml-1 mr-2.5 size-[17.5px] shrink-0 text-[#94a3b8]" />
+            <Search className="mr-2.5 ml-1 size-[17.5px] shrink-0 text-[#94a3b8]" />
             <Input
               type="search"
               value={searchValue}
@@ -277,7 +277,7 @@ export default function VolunteerAllPage() {
                 <AccordionTrigger className="py-4 text-[13px] font-bold text-[#020618] hover:no-underline">
                   Sort by
                 </AccordionTrigger>
-                <AccordionContent className="pb-4 pt-1">
+                <AccordionContent className="pt-1 pb-4">
                   <RadioGroup
                     value={activeSort}
                     onValueChange={handleSortChange}
@@ -309,7 +309,7 @@ export default function VolunteerAllPage() {
                 <AccordionTrigger className="py-4 text-[13px] font-bold text-[#020618] hover:no-underline">
                   Cause area
                 </AccordionTrigger>
-                <AccordionContent className="pb-4 pt-1">
+                <AccordionContent className="pt-1 pb-4">
                   <RadioGroup
                     value={activeCategoryId || "all-categories"}
                     onValueChange={(value) =>
@@ -352,7 +352,7 @@ export default function VolunteerAllPage() {
                 <AccordionTrigger className="py-4 text-[13px] font-bold text-[#020618] hover:no-underline">
                   Location
                 </AccordionTrigger>
-                <AccordionContent className="h-auto pb-4 pt-1">
+                <AccordionContent className="h-auto pt-1 pb-4">
                   <RadioGroup
                     value={activeLocationId || "all-locations"}
                     onValueChange={(value) =>
@@ -391,7 +391,7 @@ export default function VolunteerAllPage() {
                       variant="ghost"
                       type="button"
                       onClick={() => setShowAllLocations((current) => !current)}
-                      className="mt-3 text-xs cursor-pointer font-semibold text-[#2463eb] hover:text-[#1d4ed8]"
+                      className="mt-3 cursor-pointer text-xs font-semibold text-[#2463eb] hover:text-[#1d4ed8]"
                     >
                       {showAllLocations ? "Show less" : "Show more"}
                     </Button>
@@ -403,7 +403,7 @@ export default function VolunteerAllPage() {
                 <AccordionTrigger className="py-4 text-[13px] font-bold text-[#020618] hover:no-underline">
                   Time commitment
                 </AccordionTrigger>
-                <AccordionContent className="pb-1 pt-1">
+                <AccordionContent className="pt-1 pb-1">
                   <RadioGroup
                     value={activeCommitmentLabel || "all-commitment"}
                     onValueChange={(value) =>
