@@ -81,7 +81,7 @@ export function HomeHeroSection({ isAuthenticated }: HomeHeroSectionProps) {
       </div>
 
       <div className="relative mx-auto flex max-w-4xl flex-col items-center px-4 py-24 text-center sm:px-6 lg:py-32">
-        <h1 className="max-w-3xl text-[36px] font-medium leading-[1.15] tracking-[-0.06em] text-[#333333] sm:text-5xl lg:text-[60px] lg:leading-18">
+        <h1 className="max-w-3xl text-[36px] leading-[1.15] font-medium tracking-[-0.06em] text-[#333333] sm:text-5xl lg:text-[60px] lg:leading-18">
           Unleashing the Potential of Cambodia Through its People
         </h1>
         <p className="mt-5 max-w-3xl text-base leading-7 text-[#606060] sm:text-lg">

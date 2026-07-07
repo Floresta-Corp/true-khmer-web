@@ -1,7 +1,3 @@
-// Partner logos ship with different aspect ratios and built-in whitespace
-// (most are 1001×464, while Innovex/Pihun are tightly cropped). Each logo is
-// placed in a uniform box and scaled with object-contain so they share the
-// same optical footprint instead of one ballooning and another shrinking.
 const PARTNERS = [
   { src: "/images/Plumpi.svg", name: "Plumpi" },
   { src: "/images/CashewNotes.svg", name: "CashewNotes" },
