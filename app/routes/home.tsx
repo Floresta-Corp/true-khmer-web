@@ -1,10 +1,14 @@
 import type { Route } from "./+types/home";
 import { useLoaderData } from "react-router";
 import { homeLoader } from "~/features/home/services/home.loader";
+import { homeAction } from "~/features/home/services/home.action";
 import { HomeHeroSection } from "~/features/home/components/home-hero-section";
+import { HomeWelcomeHeroSection } from "~/features/home/components/home-welcome-hero-section";
+import { HomeExploreSection } from "~/features/home/components/home-explore-section";
 import { HomeTrustedBySection } from "~/features/home/components/home-trusted-by-section";
 import { HomePillarsSection } from "~/features/home/components/home-pillars-section";
 import {
+  DiscussionFeed,
   LaunchpadFeed,
   VolunteerFeed,
 } from "~/features/home/components/home-feed-sections";
@@ -21,21 +25,23 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export const loader = homeLoader;
+export const action = homeAction;
 
 export default function Home() {
-  const { user, launchpads, volunteers, upcomingEvents, events } =
+  const { user, launchpads, volunteers, discussions } =
     useLoaderData<typeof loader>();
 
   return (
     <div className="bg-white">
       {user ? (
-        // ── Authenticated: feed-first, no marketing chrome ──
+        // ── Authenticated: welcome hero + explore shortcuts + community feeds ──
         <>
-          <HomeHeroSection isAuthenticated={false} />
-          <HomeTrustedBySection />
-          <HomePillarsSection />
+          <HomeWelcomeHeroSection name={user.name} />
+          <HomeExploreSection />
+          <DiscussionFeed items={discussions} />
           <LaunchpadFeed items={launchpads} />
           <VolunteerFeed items={volunteers} />
+          {/* <EventsFeed items={upcomingEvents} /> */}
         </>
       ) : (
         // ── Guest: marketing hero + pillars, then the community feeds ──
@@ -45,8 +51,6 @@ export default function Home() {
           <HomePillarsSection />
           <LaunchpadFeed items={launchpads} />
           <VolunteerFeed items={volunteers} />
-          {/* <BlogFeed />
-          <EventsFeed title="Upcoming Events" items={upcomingEvents} /> */}
         </>
       )}
     </div>

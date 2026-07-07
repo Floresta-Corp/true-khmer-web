@@ -40,13 +40,13 @@ export function HomePillarsSection() {
         src={FLOWER}
         alt=""
         aria-hidden
-        className="pointer-events-none absolute -left-20 top-12 size-64 -rotate-12 opacity-[0.07]"
+        className="pointer-events-none absolute top-12 -left-20 size-64 -rotate-12 opacity-[0.07]"
       />
       <img
         src={FLOWER}
         alt=""
         aria-hidden
-        className="pointer-events-none absolute -right-16 top-6 size-56 rotate-12 opacity-[0.07]"
+        className="pointer-events-none absolute top-6 -right-16 size-56 rotate-12 opacity-[0.07]"
       />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

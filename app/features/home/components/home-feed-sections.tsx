@@ -7,8 +7,18 @@ import {
   EventCard,
   type EventData,
 } from "~/features/events/components/event-card";
+import { HomeDiscussionCard } from "./home-discussion-card";
 import type { LaunchpadOpportunity } from "~/features/launchpad/types";
 import type { Opportunity } from "~/features/volunteer/types/volunteer-types";
+import type { QuestionResponse } from "~/types/api-client";
+
+// Cards fill the row so an exact number show per view (rest revealed by
+// scrolling). Widths subtract the 20px (1.25rem) `gap-5` between slides:
+// N-up = (100% − (N−1)·1.25rem) / N. Mobile shows one card with a small peek.
+const THREE_UP =
+  "w-[85%] sm:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)]";
+const FOUR_UP =
+  "w-[80%] sm:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-3.75rem)/4)]";
 
 function Slide({
   width,
@@ -20,9 +30,9 @@ function Slide({
   return <div className={`${width} shrink-0 snap-start`}>{children}</div>;
 }
 
-function SeeMoreTile({ to }: { to: string }) {
+function SeeMoreTile({ to, width }: { to: string; width: string }) {
   return (
-    <Slide width="w-[320px] sm:w-[384px]">
+    <Slide width={width}>
       <Link
         to={to}
         className="flex h-full min-h-95 flex-col items-center justify-center gap-4 rounded-2xl border border-[#e1e7ef] bg-[#f8fafc] text-center transition-colors hover:border-[#2f6fe4] hover:bg-[#f1f5f9]"
@@ -43,10 +53,10 @@ export function LaunchpadFeed({ items }: { items: LaunchpadOpportunity[] }) {
   return (
     <HomeCarouselSection
       title="Launchpad"
-      trailing={<SeeMoreTile to="/launchpad/all" />}
+      trailing={<SeeMoreTile to="/launchpad/all" width={THREE_UP} />}
     >
       {items.map((item) => (
-        <Slide key={item.id} width="w-[320px] sm:w-[384px]">
+        <Slide key={item.id} width={THREE_UP}>
           <LaunchpadProjectCard
             item={item}
             onOpenOpportunity={(opportunity) =>
@@ -65,8 +75,42 @@ export function VolunteerFeed({ items }: { items: Opportunity[] }) {
   return (
     <HomeCarouselSection title="Volunteers">
       {items.map((opportunity) => (
-        <Slide key={opportunity.id} width="w-[320px] sm:w-[384px]">
+        <Slide key={opportunity.id} width={THREE_UP}>
           <OpportunityCard opportunity={opportunity} />
+        </Slide>
+      ))}
+    </HomeCarouselSection>
+  );
+}
+
+export function DiscussionFeed({ items }: { items: QuestionResponse[] }) {
+  if (items.length === 0) return null;
+
+  return (
+    <HomeCarouselSection
+      title="Popular Discussions"
+      trailing={<SeeMoreTile to="/forum" width={THREE_UP} />}
+    >
+      {items.map((question) => (
+        <Slide key={question.id} width={THREE_UP}>
+          <HomeDiscussionCard question={question} />
+        </Slide>
+      ))}
+    </HomeCarouselSection>
+  );
+}
+
+export function EventsFeed({ items }: { items: EventData[] }) {
+  if (items.length === 0) return null;
+
+  return (
+    <HomeCarouselSection
+      title="Upcoming Events"
+      trailing={<SeeMoreTile to="/events/all" width={FOUR_UP} />}
+    >
+      {items.map((event) => (
+        <Slide key={event.id} width={FOUR_UP}>
+          <EventCard event={event} />
         </Slide>
       ))}
     </HomeCarouselSection>

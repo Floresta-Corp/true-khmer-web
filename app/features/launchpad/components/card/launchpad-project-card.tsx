@@ -60,20 +60,20 @@ export default function LaunchpadProjectCard({
     <div className="relative">
       <div className="absolute top-4.5 right-4.5 z-10 flex gap-1.5">
         <IconButton
-          className="border border-gray-100 size-8"
+          className="size-8 border border-gray-100"
           icon={<Share2 className="size-3.5" />}
           ariaLabel="Share project"
           onClick={handleShareClick}
         />
         <IconButton
           className={cn(
-            "cursor-pointer flex size-8 items-center justify-center rounded-2xl border border-gray-100",
+            "flex size-8 cursor-pointer items-center justify-center rounded-2xl border border-gray-100",
             { "bg-blue-600": optimisticSaved },
           )}
           icon={
             <Bookmark
               className={cn("size-3.5", {
-                " fill-white text-white": optimisticSaved,
+                "fill-white text-white": optimisticSaved,
               })}
             />
           }
@@ -94,10 +94,10 @@ export default function LaunchpadProjectCard({
             onOpenOpportunity(item);
           }
         }}
-        className="cursor-pointer flex min-h-95 flex-col p-5 rounded-2xl bg-white transition-all hover:shadow-lg hover:-translate-y-0.5 shadow-none"
+        className="flex min-h-95 cursor-pointer flex-col rounded-2xl bg-white p-5 shadow-none transition-all hover:-translate-y-0.5 hover:shadow-lg"
       >
         <div className="flex items-center justify-between pb-3">
-          <div className="flex gap-1 items-baseline text-blue-500">
+          <div className="flex items-baseline gap-1 text-blue-500">
             <MapPin className="size-3" />
             <p className="text-sm">{item.city.name}</p>
           </div>
@@ -107,27 +107,27 @@ export default function LaunchpadProjectCard({
             <img
               src={resolveImageURL(item.logoKey || undefined)}
               alt={`${item.name} image`}
-              className="w-full h-full object-cover rounded-lg"
+              className="h-full w-full rounded-lg object-cover"
             />
           </div>
-          <div className="text-md font-semibold leading-tight line-clamp-2">
+          <div className="text-md line-clamp-2 leading-tight font-semibold">
             {item.name}
           </div>
         </div>
         <div className="flex flex-1 flex-col justify-between">
           <div className="line-clamp-4">{item.description}</div>
-          <div className="rounded-xl px-4 py-2 flex justify-between items-center bg-[#F8FAFB]">
-            <div className="text-sm text-[#99A1AF] uppercase font-medium">
+          <div className="flex items-center justify-between rounded-xl bg-[#F8FAFB] px-4 py-2">
+            <div className="text-sm font-medium text-[#99A1AF] uppercase">
               seeking:
             </div>
-            <Badge className="text-[#2F6FE4] bg-white pointer-events-none">
+            <Badge className="pointer-events-none bg-white text-[#2F6FE4]">
               {item.totalRoles} ROLES
             </Badge>
           </div>
         </div>
         <Separator className="my-6" />
-        <div className="w-full flex items-center justify-between text-[#9EACC0] text-xs">
-          <div className="flex gap-1.75 items-center">
+        <div className="flex w-full items-center justify-between text-xs text-[#9EACC0]">
+          <div className="flex items-center gap-1.75">
             <Eye size={14} />
             <div className="font-semibold">{item.totalView} Views</div>
           </div>
