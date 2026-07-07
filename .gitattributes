@@ -1,0 +1,21 @@
+# Normalize line endings across all OSes.
+# Text files are stored with LF in the repo AND checked out with LF,
+# even on Windows — so Prettier's "endOfLine": "lf" never sees CRLF.
+* text=auto eol=lf
+
+# Binary files: never modify line endings.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.svg text eol=lf
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.eot binary
+*.pdf binary
+*.mp4 binary
+*.zip binary
