@@ -9,7 +9,7 @@ export default [
   layout("layout/app-layout.tsx", [
     layout("layout/footer-layout.tsx", [
       index("routes/home.tsx"),
-      route("about", "routes/about.tsx"),
+      route("about", "features/about/route/about-page.tsx"),
       route("dashboard", "routes/dashboard.tsx"),
       route("profile", "routes/onboarding-profile.tsx"),
       route("messages", "routes/messages.tsx"),
@@ -143,7 +143,10 @@ export default [
     "features/launchpad/route/launchpad.batch-apply.ts",
   ),
   route("api/launchpad/save", "features/launchpad/route/launchpad.save.ts"),
-  route("api/notifications", "features/notifications/route/notifications.feed.ts"),
+  route(
+    "api/notifications",
+    "features/notifications/route/notifications.feed.ts",
+  ),
   route(
     "api/notifications/stream",
     "features/notifications/route/notifications.stream.ts",

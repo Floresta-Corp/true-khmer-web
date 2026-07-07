@@ -9,6 +9,7 @@ import {
   House,
   BriefcaseBusiness,
   TvMinimalPlay,
+  CircleUser,
 } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 import NotificationBellPopOver from "~/components/notification-bell-pop-over";
@@ -46,6 +47,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
     // { to: "/events", label: "Events", icon: Calendar },
     { to: "/volunteer", label: "Volunteer", icon: HeartHandshake },
     { to: "/launchpad", label: "Launchpad", icon: BriefcaseBusiness },
+    { to: "/about", label: "About", icon: CircleUser },
     { to: "/poc", label: "POC", icon: TvMinimalPlay, hide: true },
   ];
 
@@ -55,7 +57,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
       <header className="sticky top-0 z-50 w-full border-b border-[#f1f5f9] bg-white shadow-sm">
         <div className="mx-auto flex h-17 w-full max-w-300 items-center justify-between px-4 lg:px-6">
           {/* Left: Logo */}
-          <div className="flex items-center shrink-0">
+          <div className="flex shrink-0 items-center">
             <Link to="/" className="flex items-center gap-2">
               <LogoSvg
                 width={102}
@@ -67,7 +69,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
           </div>
 
           {/* Center: Navigation Links (desktop only) */}
-          <nav className="hidden md:flex items-center gap-5">
+          <nav className="hidden items-center gap-5 md:flex">
             {navLinks.map((link) => {
               const isActive =
                 link.to === "/"
@@ -82,10 +84,10 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                   className={cn(
                     "relative flex items-center gap-1.5 text-sm text-[#344256] transition-all",
                     link.to === "/workspace" &&
-                      "border-r border-[#c8d6e5] pr-6 mr-1",
+                      "mr-1 border-r border-[#c8d6e5] pr-6",
                     isActive
-                      ? "text-blue-600 font-semibold"
-                      : "hover:text-blue-600 hover:font-semibold",
+                      ? "font-semibold text-blue-600"
+                      : "hover:font-semibold hover:text-blue-600",
                   )}
                 >
                   <link.icon className="h-4 w-4" />
@@ -116,7 +118,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                 <ProfileDropDown user={user} />
               </>
             ) : (
-              <div className="hidden md:flex items-center gap-2">
+              <div className="hidden items-center gap-2 md:flex">
                 <Button variant="ghost" size="sm" asChild>
                   <Link
                     to={`/login?redirectTo=${encodeURIComponent(loginRedirectTo || "/")}`}
@@ -138,8 +140,8 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
       </header>
 
       {/* Mobile Bottom Navigation Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
-        <div className="flex items-center justify-around h-16 px-1">
+      <nav className="fixed right-0 bottom-0 left-0 z-50 border-t border-gray-200 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] md:hidden">
+        <div className="flex h-16 items-center justify-around px-1">
           {navLinks.map((link) => {
             const isActive =
               link.to === "/"
@@ -151,7 +153,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                 key={link.to}
                 to={link.to}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-[10px] font-semibold transition-colors",
+                  "flex flex-1 flex-col items-center justify-center gap-0.5 py-1 text-[10px] font-semibold transition-colors",
                   isActive ? "text-blue-600" : "text-gray-400",
                 )}
               >
