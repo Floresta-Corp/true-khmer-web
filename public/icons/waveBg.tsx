@@ -1,5 +1,4 @@
-/** biome-ignore-all lint/nursery/useUniqueElementIds: <SVG UI of the designer> */
-
+/** biome-ignore-all lint/a11y/noSvgWithoutTitle: <SVG UI of the designer> */
 const WaveBackground = ({
   width,
   height,

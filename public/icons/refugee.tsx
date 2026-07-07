@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/nursery/useUniqueElementIds: <svg code> */
+/** biome-ignore-all lint/a11y/noSvgWithoutTitle: <svg code> */
 import type { IconProps } from "~/types";
 
 const RefugeeIcon = ({ className, size = 24 }: IconProps) => {

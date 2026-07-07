@@ -1,6 +1,6 @@
 import type { IconProps } from "~/types";
 
-const BigFlower = ({ width = 178, height = 306, className }: IconProps) => {
+const BigFlower = ({ width = 20, height = 20, className }: IconProps) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

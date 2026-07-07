@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type React from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
 
 interface Pillar {
@@ -56,16 +56,20 @@ const PillarsCarousel: React.FC<PillarsCarouselProps> = ({ pillars }) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const mainCardRef = useRef<HTMLDivElement>(null);
 
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
   const handleSlideChange = (index: number) => {
     if (isTransitioning || index === activeIndex) return;
-
     setIsTransitioning(true);
-    setTimeout(() => {
+    timeoutRef.current = setTimeout(() => {
       setActiveIndex(index);
       setIsTransitioning(false);
     }, 150);
   };
-
   const goToPrevious = () => {
     const newIndex = activeIndex === 0 ? pillars.length - 1 : activeIndex - 1;
     handleSlideChange(newIndex);
@@ -122,12 +126,12 @@ const PillarsCarousel: React.FC<PillarsCarouselProps> = ({ pillars }) => {
         <div
           ref={mainCardRef}
           className={clsx(
-            "bg-base-100 w-full max-w-[707px] border-2 border-[#1c97d4]",
+            "bg-base-100 flex h-163 w-full max-w-176.75 flex-col border-2 border-[#1c97d4] md:h-110",
             "overflow-hidden rounded-3xl shadow-[0_35px_60px_-15px_rgba(28,151,212,0.4)]",
           )}
         >
-          <div className="hidden p-8 md:flex md:flex-row">
-            <div className="relative h-64 w-full overflow-hidden rounded-3xl border-3 border-[#1c97d4] md:h-80 md:w-1/2">
+          <div className="hidden min-h-0 flex-1 p-8 md:flex md:flex-row">
+            <div className="relative h-64 w-full shrink-0 overflow-hidden rounded-3xl border-3 border-[#1c97d4] md:h-80 md:w-1/2">
               <img
                 src={activePillar.imageUrl}
                 alt={activePillar.imageAlt}
@@ -141,31 +145,31 @@ const PillarsCarousel: React.FC<PillarsCarouselProps> = ({ pillars }) => {
 
             <div
               className={clsx(
-                "flex w-full flex-col items-start justify-center pt-6 pl-0 md:w-1/2 md:pt-0 md:pl-8",
+                "flex w-full min-w-0 flex-col items-start justify-center overflow-hidden pt-6 pl-0 md:w-1/2 md:pt-0 md:pl-9",
                 "transition-opacity duration-150",
                 isTransitioning ? "opacity-0" : "opacity-100",
               )}
             >
               <div className="space-y-4">
                 <h3 className="text-2xl leading-tight font-bold text-[#243d95] md:text-3xl">
-                  <div>{activePillar.title}</div>
+                  {activePillar.title}
                 </h3>
-                <p className="text-base-content/70 text-base leading-relaxed">
-                  <div>{activePillar.description}</div>
+                <p className="text-base leading-relaxed text-gray-500">
+                  {activePillar.description}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="block md:hidden">
-            <div className="flex flex-col p-8">
-              <div className="relative mb-6 h-64 w-full overflow-hidden rounded-3xl border-3 border-[#1c97d4]">
+          <div className="block min-h-0 flex-1 overflow-hidden md:hidden">
+            <div className="flex h-full flex-col">
+              <div className="relative mb-6 h-64 w-full shrink-0 overflow-hidden rounded-3xl border-3 border-[#1c97d4]">
                 <img
                   src={activePillar.imageUrl}
                   alt={activePillar.imageAlt}
                   className={clsx(
                     "h-full w-full object-cover transition-opacity duration-150",
-                    isTransitioning ? "opacity-0" : "opacity-100",
+                    isTransitioning ? "opacity-50" : "opacity-100",
                   )}
                   loading="lazy"
                 />
@@ -173,16 +177,16 @@ const PillarsCarousel: React.FC<PillarsCarouselProps> = ({ pillars }) => {
 
               <div
                 className={clsx(
-                  "flex flex-col items-start justify-center transition-opacity duration-150",
-                  isTransitioning ? "opacity-0" : "opacity-100",
+                  "min-h-0 flex-1 overflow-hidden transition-opacity duration-150",
+                  isTransitioning ? "opacity-50" : "opacity-100",
                 )}
               >
                 <div className="space-y-4">
                   <h3 className="text-2xl leading-tight font-bold text-[#243d95] md:text-3xl">
-                    <div>{activePillar.title}</div>
+                    {activePillar.title}
                   </h3>
-                  <p className="text-base-content/70 text-base leading-relaxed">
-                    <span>{activePillar.description}</span>
+                  <p className="text-base leading-relaxed text-gray-500">
+                    {activePillar.description}
                   </p>
                 </div>
               </div>
@@ -190,7 +194,7 @@ const PillarsCarousel: React.FC<PillarsCarouselProps> = ({ pillars }) => {
           </div>
 
           {/* Numbered Pagination - visible on all screens */}
-          <div className="flex justify-center gap-2 px-8 pb-4">
+          <div className="flex shrink-0 justify-center gap-2 px-8 pb-4">
             <Button
               variant="ghost"
               size="icon"

@@ -83,7 +83,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                   to={link.to}
                   className={cn(
                     "relative flex items-center gap-1.5 text-sm text-[#344256] transition-all",
-                    link.to === "/workspace" &&
+                    link.to === "/manage-post" &&
                       "mr-1 border-r border-[#c8d6e5] pr-6",
                     isActive
                       ? "font-semibold text-blue-600"
