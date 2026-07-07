@@ -28,7 +28,7 @@ export function HomeExploreSection() {
         <h2 className="text-2xl font-semibold tracking-[-0.04em] text-[#333333] sm:text-[36px] sm:leading-11">
           What Would You Like To Explore?
         </h2>
-        <div className="mt-8 grid grid-cols-3 gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4 lg:gap-8">
+        <div className="mt-8 grid grid-cols-3 gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-8">
           {EXPLORE_LINKS.map((link) => (
             <Link
               key={link.title}

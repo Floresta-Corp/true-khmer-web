@@ -9,7 +9,6 @@ import { HomeTrustedBySection } from "~/features/home/components/home-trusted-by
 import { HomePillarsSection } from "~/features/home/components/home-pillars-section";
 import {
   DiscussionFeed,
-  EventsFeed,
   LaunchpadFeed,
   VolunteerFeed,
 } from "~/features/home/components/home-feed-sections";
@@ -29,7 +28,7 @@ export const loader = homeLoader;
 export const action = homeAction;
 
 export default function Home() {
-  const { user, launchpads, volunteers, upcomingEvents, discussions } =
+  const { user, launchpads, volunteers, discussions } =
     useLoaderData<typeof loader>();
 
   return (
