@@ -161,7 +161,7 @@ const PillarsCarousel: React.FC<PillarsCarouselProps> = ({ pillars }) => {
             </div>
           </div>
 
-          <div className="block min-h-0 flex-1 overflow-hidden md:hidden">
+          <div className="block min-h-0 flex-1 overflow-hidden p-8 md:hidden">
             <div className="flex h-full flex-col">
               <div className="relative mb-6 h-64 w-full shrink-0 overflow-hidden rounded-3xl border-3 border-[#1c97d4]">
                 <img
