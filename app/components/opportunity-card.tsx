@@ -72,7 +72,7 @@ export function OpportunityCard({
 
   return (
     <motion.article
-      className="flex h-full flex-col overflow-hidden rounded-[14px] border border-[#f3f4f6] bg-white p-px shadow-[0px_10px_30px_-15px_rgba(0,0,0,0.05)] cursor-pointer"
+      className="flex h-full cursor-pointer flex-col overflow-hidden rounded-[14px] border border-[#f3f4f6] bg-white p-px shadow-[0px_10px_30px_-15px_rgba(0,0,0,0.05)]"
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       onClick={() => navigate(`/volunteer/detail/${opportunity.id}`)}
@@ -81,7 +81,7 @@ export function OpportunityCard({
         <img
           src={image}
           alt={opportunity.title}
-          className="absolute inset-0 size-full object-cover hover:scale-105 transition-transform duration-300"
+          className="absolute inset-0 size-full object-cover transition-transform duration-300 hover:scale-105"
           loading="lazy"
         />
         <span className="relative inline-flex rounded-xl border border-white/20 bg-white/95 px-2.25 py-1 text-[10px] font-semibold tracking-[-0.13px] text-[#2f6fe4]">
@@ -99,7 +99,7 @@ export function OpportunityCard({
             size="icon"
             aria-label="Save opportunity"
             className={cn(
-              "cursor-pointer flex size-[31.5px] items-center justify-center rounded-2xl bg-white/95 text-[#9aa2af] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)] transition-colors",
+              "flex size-[31.5px] cursor-pointer items-center justify-center rounded-2xl bg-white/95 text-[#9aa2af] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.1)] transition-colors",
               { "bg-blue-600": opportunity.viewerSave },
             )}
             onClick={(e) => {
@@ -122,30 +122,30 @@ export function OpportunityCard({
 
       <div className="flex flex-1 flex-col gap-6 p-5">
         <div className="flex min-h-0 flex-1 flex-col gap-3">
-          <h3 className="text-[17px] font-semibold leading-[21.25px] tracking-[-0.43px] text-[#030213]">
+          <h3 className="text-[17px] leading-[21.25px] font-semibold tracking-[-0.43px] text-[#030213]">
             {opportunity.title}
           </h3>
-          <p className="text-sm leading-[22.75px] tracking-[-0.15px] text-[#99a1af] line-clamp-3">
+          <p className="line-clamp-3 text-sm leading-[22.75px] tracking-[-0.15px] text-[#99a1af]">
             {opportunity.overview}
           </p>
         </div>
 
         <div className="flex flex-1 flex-col gap-5">
-          <div className="grid grid-cols-3 gap-1.75 font-semibold">
-            <div className="flex items-center gap-[5.25px] text-[11px] text-[#4a5565]">
-              <Calendar size={13.5} className="text-slate-500" />
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 font-semibold sm:grid sm:grid-cols-3 sm:gap-1.75">
+            <div className="flex items-center gap-[5.25px] text-[11px] whitespace-nowrap text-[#4a5565]">
+              <Calendar size={13.5} className="shrink-0 text-slate-500" />
               <span className="text-zinc-800">
                 {opportunity.startDate && opportunity.endDate
                   ? `${format(opportunity.startDate, "MMM dd")} - ${format(opportunity.endDate, "MMM dd")}`
                   : "Date TBD"}
               </span>
             </div>
-            <div className="flex items-center gap-[5.25px] text-[11px]">
-              <MapPin size={13.5} className="text-slate-500" />
+            <div className="flex items-center gap-[5.25px] text-[11px] whitespace-nowrap">
+              <MapPin size={13.5} className="shrink-0 text-slate-500" />
               <span className="text-zinc-800">{opportunity.location.name}</span>
             </div>
-            <div className="flex items-center gap-[5.25px] text-[11px]">
-              <Eye size={13.5} className="text-slate-500" />
+            <div className="flex items-center gap-[5.25px] text-[11px] whitespace-nowrap">
+              <Eye size={13.5} className="shrink-0 text-slate-500" />
               <span className="text-zinc-800">
                 {formatCompactNumber(opportunity.totalView)}{" "}
                 {opportunity.totalView > 1 ? "views" : "view"}
@@ -155,10 +155,10 @@ export function OpportunityCard({
 
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] uppercase font-medium text-gray-400">
+              <span className="text-[10px] font-medium text-gray-400 uppercase">
                 Spots filled
               </span>
-              <span className="text-xs font-black leading-4.5 text-[#2f6fe4]">
+              <span className="text-xs leading-4.5 font-black text-[#2f6fe4]">
                 {opportunity.applicationCount}/{opportunity.capacity}
               </span>
             </div>
@@ -171,7 +171,7 @@ export function OpportunityCard({
               />
             </div>
           </div>
-          <div className="flex items-center text-xs -mt-2">
+          <div className="-mt-2 flex items-center text-xs">
             <span className="text-gray-400">Application close:</span>
             <span className="font-medium text-gray-700">
               {format(opportunity.applicationDeadline, "dd/MM/yyyy")}
@@ -182,7 +182,7 @@ export function OpportunityCard({
         <Button
           asChild
           variant="ghost"
-          className="w-full h-10 cursor-pointer rounded-xl border border-slate-200 bg-white hover:bg-gray-200 text-sm font-medium text-slate-700 hover:text-blue-500 shadow-none transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300"
+          className="h-10 w-full cursor-pointer rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 shadow-none transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:bg-gray-200 hover:text-blue-500"
         >
           <Link
             to={`/volunteer/detail/${opportunity.id}?tab=open-roles`}

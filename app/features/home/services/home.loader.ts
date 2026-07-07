@@ -5,27 +5,36 @@ import {
   getPublicVolunteerOpportunities,
   getVolunteerOpportunities,
 } from "~/api/volunteer/volunteer.server";
-import {
-  getUpcomingEvents,
-  getEventList,
-} from "~/features/events/lib/events.server";
+import { getUpcomingEvents } from "~/features/events/lib/events.server";
+import { getPublicQuestionPagination } from "~/api/forum/forum-question.server";
 
 const LAUNCHPAD_LIMIT = 6;
 const VOLUNTEER_LIMIT = 6;
+const DISCUSSION_LIMIT = 6;
 
 export async function homeLoader({ request }: LoaderFunctionArgs) {
   const userId = await getUserId(request);
 
-  const [user, launchpads, volunteers, upcomingEvents, events] =
+  const [user, launchpads, volunteers, upcomingEvents, discussions] =
     await Promise.all([
       getUser(request),
       loadLaunchpads(request),
       loadVolunteers(request, userId),
       safe(() => getUpcomingEvents(), []),
-      safe(() => getEventList(), []),
+      loadDiscussions(request),
     ]);
 
-  return { user, launchpads, volunteers, upcomingEvents, events };
+  return { user, launchpads, volunteers, upcomingEvents, discussions };
+}
+
+async function loadDiscussions(request: Request) {
+  return safe(async () => {
+    const result = await getPublicQuestionPagination(request, {
+      limit: DISCUSSION_LIMIT,
+      isTrending: true,
+    });
+    return result?.data?.questions ?? [];
+  }, []);
 }
 
 async function loadLaunchpads(request: Request) {

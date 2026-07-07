@@ -5,11 +5,13 @@ import type { QuestionResponse } from "~/types/api-client";
 interface ShareQuestionButtonProps {
   question: QuestionResponse;
   className?: string;
+  iconClassName?: string;
 }
 
 export default function ShareQuestionButton({
   question,
   className = "group inline-flex items-center gap-2 text-xs font-medium text-[#48566A] text-[14px] rounded-lg cursor-pointer transition-colors hover:text-blue-600",
+  iconClassName = "size-5",
 }: ShareQuestionButtonProps) {
   if (!question) return null;
 
@@ -27,8 +29,7 @@ export default function ShareQuestionButton({
   return (
     <button onClick={handleCopy} className={className}>
       <Share2
-        size={20}
-        className="text-[#48566A] group-hover:text-blue-600 transition-colors"
+        className={`${iconClassName} text-[#48566A] transition-colors group-hover:text-blue-600`}
       />
       Share
     </button>
