@@ -9,48 +9,63 @@ import {
   type SetStateAction,
 } from "react";
 import { useNavigate } from "react-router";
+import { Bell, Flag, ShieldAlert } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { showNotificationToast } from "~/components/notification-toast";
-import { NotificationTypeIcon } from "~/components/notification-type-icon";
 import {
-  getNotificationEventType,
-  getNotificationRoute,
-  resolveNotificationIcon,
-} from "~/features/notifications/types";
-import type { ApiNotification } from "~/features/notifications/types";
+  getAdminNotificationRoute,
+  resolveAdminNotificationIcon,
+  type AdminNotificationIconName,
+} from "~/features/admin/notifications/types";
+import type { AdminNotification } from "~/features/admin/notifications/types";
 
-export type { ApiNotification } from "~/features/notifications/types";
+const ADMIN_TOAST_ICON_MAP: Record<AdminNotificationIconName, LucideIcon> = {
+  Flag,
+  ShieldAlert,
+  Bell,
+};
 
-interface NotificationContextValue {
-  unreadCount: number;
-  setUnreadCount: Dispatch<SetStateAction<number>>;
-  recentNotifications: ApiNotification[];
-  setRecentNotifications: Dispatch<SetStateAction<ApiNotification[]>>;
+// Accent gradient per notification type; content reports read as urgent,
+// everything else uses the brand primary (#2F6FE4).
+function adminToastAccent(type: string) {
+  return type === "content_report"
+    ? "from-rose-500 to-orange-500"
+    : "from-[#2F6FE4] to-[#1E5AD0]";
 }
 
-const defaultValue: NotificationContextValue = {
+export type { AdminNotification } from "~/features/admin/notifications/types";
+
+interface AdminNotificationContextValue {
+  unreadCount: number;
+  setUnreadCount: Dispatch<SetStateAction<number>>;
+  recentNotifications: AdminNotification[];
+  setRecentNotifications: Dispatch<SetStateAction<AdminNotification[]>>;
+}
+
+const defaultValue: AdminNotificationContextValue = {
   unreadCount: 0,
   setUnreadCount: () => {},
   recentNotifications: [],
   setRecentNotifications: () => {},
 };
 
-const NotificationContext =
-  createContext<NotificationContextValue>(defaultValue);
+const AdminNotificationContext =
+  createContext<AdminNotificationContextValue>(defaultValue);
 
-export function useNotifications() {
-  return useContext(NotificationContext);
+export function useAdminNotifications() {
+  return useContext(AdminNotificationContext);
 }
 
 interface Props {
   children: ReactNode;
-  /** Pass false for unauthenticated users to skip SSE entirely */
+  /** Pass false to skip SSE entirely (e.g. unauthenticated) */
   enabled?: boolean;
 }
 
-export function NotificationProvider({ children, enabled = true }: Props) {
+export function AdminNotificationProvider({ children, enabled = true }: Props) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [recentNotifications, setRecentNotifications] = useState<
-    ApiNotification[]
+    AdminNotification[]
   >([]);
   const esRef = useRef<EventSource | null>(null);
   const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -59,7 +74,7 @@ export function NotificationProvider({ children, enabled = true }: Props) {
   // Fetch initial unread count
   useEffect(() => {
     if (!enabled) return;
-    fetch("/api/notifications?limit=1&page=1")
+    fetch("/api/admin/notifications?limit=1&page=1")
       .then((r) => r.json())
       .then((d) => {
         if (typeof d?.unreadCount === "number") setUnreadCount(d.unreadCount);
@@ -67,29 +82,25 @@ export function NotificationProvider({ children, enabled = true }: Props) {
       .catch(() => {});
   }, [enabled]);
 
-  // Global SSE → toasts, always active for authenticated users
+  // Global SSE → toasts, always active for authenticated admins
   useEffect(() => {
     if (!enabled) return;
 
     function connect() {
-      const es = new EventSource("/api/notifications/stream");
+      const es = new EventSource("/api/admin/notifications/stream");
       esRef.current = es;
 
       es.addEventListener("notification", (e) => {
         try {
-          const notif = JSON.parse(e.data) as ApiNotification;
-          const iconName = resolveNotificationIcon(
-            notif.type,
-            getNotificationEventType(notif),
-          );
-          const route = getNotificationRoute(notif);
+          const notif = JSON.parse(e.data) as AdminNotification;
+          const iconName = resolveAdminNotificationIcon(notif.type);
+          const Icon = ADMIN_TOAST_ICON_MAP[iconName];
+          const route = getAdminNotificationRoute(notif);
           showNotificationToast({
-            icon: (
-              <NotificationTypeIcon iconName={iconName} className="size-5" />
-            ),
+            icon: <Icon className="size-5" />,
             title: notif.title,
             body: notif.body,
-            imageUrl: notif.imageUrl,
+            accentClassName: adminToastAccent(notif.type),
             onView: route ? () => navigate(route) : undefined,
           });
           setUnreadCount((c) => c + 1);
@@ -116,7 +127,7 @@ export function NotificationProvider({ children, enabled = true }: Props) {
   }, [enabled]);
 
   return (
-    <NotificationContext.Provider
+    <AdminNotificationContext.Provider
       value={{
         unreadCount,
         setUnreadCount,
@@ -125,6 +136,6 @@ export function NotificationProvider({ children, enabled = true }: Props) {
       }}
     >
       {children}
-    </NotificationContext.Provider>
+    </AdminNotificationContext.Provider>
   );
 }
