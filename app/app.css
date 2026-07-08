@@ -192,6 +192,13 @@ body {
   display: none; /* Chrome, Safari, Opera */
 }
 
+/* Custom styles for the icon community container */
+.icon-container-shadow {
+  box-shadow:
+    2.305px -2.305px 22.935px 0px rgba(214, 214, 214, 0.17) inset,
+    -3.456px 3.456px 3.456px 0px rgba(255, 255, 255, 0.39) inset;
+}
+
 /* Auto-dismiss progress bar for custom notification toasts */
 @keyframes toast-progress {
   from {
