@@ -38,10 +38,10 @@ export function PageHeader({
   return (
     <div className="flex items-end justify-between">
       <div className="space-y-1">
-        <h1 className="text-3xl sm:text-[40px] font-extrabold text-slate-900 dark:text-white mb-2 leading-tight tracking-tight">
-          {isPublicView ? "Public Profile" : "My Space"}
+        <h1 className="mb-2 text-3xl leading-tight font-extrabold tracking-tight text-slate-900 sm:text-[40px] dark:text-white">
+          {isPublicView ? "Public Profile" : "My Profile"}
         </h1>
-        <p className="text-slate-500 dark:text-slate-400 font-medium text-base sm:text-lg">
+        <p className="text-base font-medium text-slate-500 sm:text-lg dark:text-slate-400">
           {isPublicView
             ? "This is how you appear to other members of the Khmer community."
             : "Visualize your growth and community contributions."}
@@ -69,7 +69,7 @@ export function PageHeader({
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-12 w-12 rounded-xl cursor-pointer"
+                  className="h-12 w-12 cursor-pointer rounded-xl"
                 >
                   <MoreVertical className="h-5 w-5" />
                 </Button>

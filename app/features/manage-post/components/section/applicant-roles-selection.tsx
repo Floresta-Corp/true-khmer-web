@@ -102,7 +102,7 @@ export default function ApplicantRolesSelection({
 
   return (
     <div>
-      <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+      <p className="mb-3 text-[10px] font-bold tracking-widest text-gray-400 uppercase">
         All Submissions
       </p>
       <Accordion
@@ -171,6 +171,11 @@ export default function ApplicantRolesSelection({
                   hide: !submission.project?.motivation,
                 },
                 {
+                  title: "Relevant Experience",
+                  value: submission.project?.relevantExperience,
+                  hide: !submission.project?.relevantExperience,
+                },
+                {
                   title: "Portfolio",
                   value: submission.project?.portfolio,
                   valueClass: "text-gray-600 leading-relaxed",
@@ -207,7 +212,7 @@ export default function ApplicantRolesSelection({
               <AccordionContent className="px-4 py-4">
                 <div className="space-y-4">
                   <section>
-                    <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                    <p className="mb-2 text-[10px] font-bold tracking-widest text-slate-500 uppercase">
                       Applied Roles
                     </p>
                     <div className="flex flex-col gap-2">
@@ -255,7 +260,7 @@ export default function ApplicantRolesSelection({
                                   {ROLE_STATUS_LABELS[role.status]}
                                 </span>
                                 {isTopPick && (
-                                  <span className="shrink-0 rounded-full border border-amber-200 bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-600">
+                                  <span className="shrink-0 rounded-full border border-amber-200 bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-600 uppercase">
                                     Top Pick
                                   </span>
                                 )}
@@ -273,7 +278,7 @@ export default function ApplicantRolesSelection({
                         key={info.title}
                         className="border-t border-gray-100 pt-4"
                       >
-                        <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                        <p className="mb-2 text-[10px] font-bold tracking-widest text-slate-500 uppercase">
                           {info.title}
                         </p>
                         <p
@@ -290,7 +295,7 @@ export default function ApplicantRolesSelection({
 
                   {!!supportingDocuments?.length && (
                     <section className="border-t border-gray-100 pt-4">
-                      <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                      <p className="mb-2 text-[10px] font-bold tracking-widest text-slate-500 uppercase">
                         Uploaded Document
                       </p>
                       <div className="flex flex-col gap-2">

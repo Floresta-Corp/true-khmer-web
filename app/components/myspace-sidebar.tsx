@@ -1,10 +1,9 @@
 import {
-  Calendar,
+  BookmarkCheck,
   ChevronsUpDown,
-  ClipboardList,
-  MessagesSquare,
-  Plus,
-  Sparkles,
+  FileUser,
+  Ticket,
+  UserRound,
 } from "lucide-react";
 import { Link, useLocation, useRouteLoaderData } from "react-router";
 import { Button } from "~/components/ui/button";
@@ -33,31 +32,36 @@ type SidebarItem = {
   label: string;
   to: string;
   icon: React.ComponentType<{ className?: string }>;
-  badge?: number;
 };
 
 const primaryItems: SidebarItem[] = [
   {
-    id: "managepost",
-    label: "Manage Posting",
-    to: "/manage-post",
-    icon: ClipboardList,
+    id: "myprofile",
+    label: "My profile",
+    to: "/myspace",
+    icon: UserRound,
   },
   {
-    id: "discussion",
-    label: "My Discussions",
-    to: "/workspace",
-    icon: MessagesSquare,
+    id: "myapplications",
+    label: "My applications",
+    to: "/my-applications",
+    icon: FileUser,
   },
   // {
-  //   id: "myevents",
-  //   label: "My Events",
-  //   to: "/my-events",
-  //   icon: Calendar,
+  //   id: "myticket",
+  //   label: "My ticket",
+  //   to: "/my-ticket",
+  //   icon: Ticket,
   // },
+  {
+    id: "saveditems",
+    label: "Saved items",
+    to: "/saved-items",
+    icon: BookmarkCheck,
+  },
 ];
 
-export default function WorkSpaceSideBar() {
+export default function MySpaceSideBar() {
   const location = useLocation();
   const { setOpenMobile, isMobile } = useSidebar();
   const routeData =
@@ -98,7 +102,7 @@ export default function WorkSpaceSideBar() {
                 {displayName}
               </span>
               <span className="w-fit truncate rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-600">
-                Creator
+                Member
               </span>
             </div>
           </div>
@@ -131,10 +135,13 @@ export default function WorkSpaceSideBar() {
       <SidebarFooter className="p-2">
         <Button
           // asChild
-          className="h-12 w-full rounded-xl bg-[#0b57d0] text-sm font-bold text-white hover:bg-[#0b57d0]/90"
+          className="h-12 w-full rounded-xl bg-[#32A8FF] text-sm font-bold text-white hover:bg-[#1E90FF]"
         >
-          <Link to="/myspace" onClick={() => isMobile && setOpenMobile(false)}>
-            Switch to my space
+          <Link
+            to="/manage-post"
+            onClick={() => isMobile && setOpenMobile(false)}
+          >
+            Switch to workspace
           </Link>
         </Button>
       </SidebarFooter>

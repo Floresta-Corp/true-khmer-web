@@ -2,16 +2,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFetcher, useLoaderData, useSearchParams } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 import { Loader2 } from "lucide-react";
-import SavedItemsSidebar from "../saved-items-sidebar";
+import SavedItemsFilterBar from "../saved-items-filter-bar";
 import type { loader } from "../../route/saved-items";
 import type { SavedItemsLoaderData } from "~/features/saved-items/services/saved-items.loader";
-import type { FilterId } from "../saved-item-filter";
 import type { QuestionResponse } from "~/types/api-client";
 import type { Opportunity } from "~/features/volunteer/types/volunteer-types";
 import type { LaunchpadOpportunity } from "~/features/launchpad/types";
 import SavedItemsGrid from "../saved-items-gride";
 import type {
   CountSavedItemResponse,
+  FilterId,
   ItemElement,
 } from "~/features/saved-items/types";
 import { ForumPageLayout } from "~/features/forum/components/forum-page-layout";
@@ -155,8 +155,6 @@ export default function SaveItemPage() {
   };
 
   return (
-    // <div className="min-h-screen bg-gray-50 pb-20">
-    //   <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:pt-12">
     <ForumPageLayout>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -165,39 +163,25 @@ export default function SaveItemPage() {
           duration: prefersReducedMotion ? 0 : 0.5,
           ease: "easeOut",
         }}
-        className="flex flex-col gap-10 lg:flex-row"
       >
-        <SavedItemsSidebar
-          activeFilter={activeFilter}
-          onFilterChange={handleFilterChange}
-          counts={{
-            all: count?.all,
-            forum: count?.forum,
-            event: 0,
-            volunteer: count?.volunteer,
-            launchpad: count?.project,
-          }}
-        />
-
-        <main className="min-w-0 flex-1">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: prefersReducedMotion ? 0 : 0.5,
-              delay: prefersReducedMotion ? 0 : 0.15,
-              ease: "easeOut",
-            }}
-            className="mb-10 lg:mb-16"
-          >
+        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between lg:mb-16">
+          <div>
             <h1 className="mb-2 text-4xl font-bold tracking-tight text-slate-950 lg:text-5xl">
               Saved Items
             </h1>
             <p className="text-[15px] font-medium text-slate-500 sm:text-base">
-              Managing all your saved items across the platform.
+              Managing all your saved items across the platform (
+              {count?.all ?? 0} total).
             </p>
-          </motion.div>
+          </div>
 
+          <SavedItemsFilterBar
+            activeFilter={activeFilter}
+            onFilterChange={handleFilterChange}
+          />
+        </div>
+
+        <main className="min-w-0">
           <SavedItemsGrid
             activeFilter={activeFilter}
             savedForums={forums}
@@ -218,8 +202,6 @@ export default function SaveItemPage() {
           )}
         </main>
       </motion.div>
-      {/* </div>
-    </div> */}
     </ForumPageLayout>
   );
 }

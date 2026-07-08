@@ -29,12 +29,9 @@ export default function WorkspaceLayout() {
   return (
     <TooltipProvider>
       <SidebarProvider>
-        <div className="flex h-screen w-full">
+        <div className="flex h-[calc(100vh-68px)] w-full">
           <WorkSpaceSideBar />
-          <SidebarInset className="flex-1 flex flex-col bg-[#f8fafc] min-h-[calc(100vh-68px)] overflow-y-auto">
-            {/* <header className="flex h-14 items-center border-b bg-white p-4 lg:px-6 shrink-0">
-            </header> */}
-            {/* Only show trigger on mobile */}
+          <SidebarInset className="flex h-[calc(100vh-68px)] flex-1 flex-col overflow-y-auto bg-[#f8fafc]">
             {isMobile && <SidebarTrigger className="h-10 w-10" />}
 
             <Outlet />
