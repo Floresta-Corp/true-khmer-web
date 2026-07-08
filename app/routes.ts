@@ -96,6 +96,10 @@ export default [
       "features/admin/usermanagement/route/user-management.$userId.tsx",
     ),
     route(
+      "notifications",
+      "features/admin/notifications/route/admin-notifications.tsx",
+    ),
+    route(
       "notifications/broadcast",
       "features/admin/notifications/route/notification-broadcast.tsx",
     ),
@@ -143,7 +147,10 @@ export default [
     "features/launchpad/route/launchpad.batch-apply.ts",
   ),
   route("api/launchpad/save", "features/launchpad/route/launchpad.save.ts"),
-  route("api/notifications", "features/notifications/route/notifications.feed.ts"),
+  route(
+    "api/notifications",
+    "features/notifications/route/notifications.feed.ts",
+  ),
   route(
     "api/notifications/stream",
     "features/notifications/route/notifications.stream.ts",
@@ -155,6 +162,22 @@ export default [
   route(
     "api/notifications/read/all",
     "features/notifications/route/notifications.read.all.ts",
+  ),
+  route(
+    "api/admin/notifications",
+    "features/admin/notifications/route/admin-notifications.feed.ts",
+  ),
+  route(
+    "api/admin/notifications/stream",
+    "features/admin/notifications/route/admin-notifications.stream.ts",
+  ),
+  route(
+    "api/admin/notifications/read",
+    "features/admin/notifications/route/admin-notifications.read.ts",
+  ),
+  route(
+    "api/admin/notifications/read/all",
+    "features/admin/notifications/route/admin-notifications.read.all.ts",
   ),
   route(
     "api/candidate-note",
