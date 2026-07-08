@@ -69,6 +69,8 @@ export function AdminNotificationProvider({ children, enabled = true }: Props) {
   >([]);
   const esRef = useRef<EventSource | null>(null);
   const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const attemptRef = useRef(0);
+  const seenRef = useRef<Set<string>>(new Set());
   const navigate = useNavigate();
 
   // Fetch initial unread count
@@ -93,6 +95,10 @@ export function AdminNotificationProvider({ children, enabled = true }: Props) {
       es.addEventListener("notification", (e) => {
         try {
           const notif = JSON.parse(e.data) as AdminNotification;
+          // Ignore events the server replays after a reconnect so we don't
+          // double-toast or over-count the unread badge.
+          if (seenRef.current.has(notif.id)) return;
+          seenRef.current.add(notif.id);
           const iconName = resolveAdminNotificationIcon(notif.type);
           const Icon = ADMIN_TOAST_ICON_MAP[iconName];
           const route = getAdminNotificationRoute(notif);
@@ -112,9 +118,17 @@ export function AdminNotificationProvider({ children, enabled = true }: Props) {
 
       es.addEventListener("ping", () => {});
 
+      es.onopen = () => {
+        attemptRef.current = 0;
+      };
+
       es.onerror = () => {
         es.close();
-        retryRef.current = setTimeout(connect, 3_000);
+        // Exponential backoff (3s → 6s → … capped at 30s) so a persistently
+        // failing stream (e.g. expired auth) doesn't hammer the endpoint.
+        const delay = Math.min(30_000, 3_000 * 2 ** attemptRef.current);
+        attemptRef.current += 1;
+        retryRef.current = setTimeout(connect, delay);
       };
     }
 

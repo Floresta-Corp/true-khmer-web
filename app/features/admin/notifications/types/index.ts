@@ -55,8 +55,12 @@ export function resolveAdminNotificationIcon(
   );
 }
 
-export function getAdminNotificationRoute(notification: AdminNotification) {
-  // Every admin notification opens the related report in the content moderator,
-  // keyed by the notification's own id.
-  return `/tk-admin/content-moderator?id=${encodeURIComponent(notification.id)}`;
+export function getAdminNotificationRoute(
+  notification: AdminNotification,
+): string | undefined {
+  // Follow the backend-provided deep link, matching the user-facing
+  // notifications feature (getNotificationRoute). The content-moderator route
+  // does not read an `id`/`reportId` query param, so a hardcoded link there is
+  // a dead click — only surface a "View" target when the backend gives us one.
+  return notification.webRoute ?? notification.data?.webRoute ?? undefined;
 }

@@ -29,6 +29,7 @@ export function markAdminNotificationsReadRequest(notificationIds: string[]) {
   return postJson("/api/admin/notifications/read", { notificationIds });
 }
 
-export function markAllAdminNotificationsReadRequest() {
-  return postJson("/api/admin/notifications/read/all");
+export function markAllAdminNotificationsReadRequest(type?: string) {
+  const query = type ? `?type=${encodeURIComponent(type)}` : "";
+  return postJson(`/api/admin/notifications/read/all${query}`);
 }

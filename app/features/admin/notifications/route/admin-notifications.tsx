@@ -109,7 +109,9 @@ export default function AdminNotifications() {
     );
     setUnreadCount(0);
 
-    markAllAdminNotificationsReadRequest();
+    // Respect the active type filter so we don't clear unread items the admin
+    // isn't currently looking at.
+    markAllAdminNotificationsReadRequest(activeType || undefined);
   }
 
   function handleMarkRead(id: string) {
