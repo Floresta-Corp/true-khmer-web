@@ -131,7 +131,22 @@ export async function deleteQuestionAction(
     };
   }
 
-  return deleteForumQuestion(request, questionId);
+  try {
+    return await deleteForumQuestion(request, questionId);
+  } catch (error) {
+    if (error instanceof ProtectedApiError) {
+      return {
+        ok: false,
+        message:
+          error.message || "Failed to delete question. Please try again.",
+      };
+    }
+
+    return {
+      ok: false,
+      message: "Failed to delete question. Please try again.",
+    };
+  }
 }
 
 export async function reportQuestionAction(
