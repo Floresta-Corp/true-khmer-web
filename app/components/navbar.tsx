@@ -10,6 +10,7 @@ import {
   BriefcaseBusiness,
   TvMinimalPlay,
   UserRound,
+  CircleUser,
 } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 import NotificationBellPopOver from "~/components/notification-bell-pop-over";
@@ -74,6 +75,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
     // { to: "/events", label: "Events", icon: Calendar },
     { to: "/volunteer", label: "Volunteer", icon: HeartHandshake },
     { to: "/launchpad", label: "Launchpad", icon: BriefcaseBusiness },
+    { to: "/about", label: "About", icon: CircleUser },
     { to: "/poc", label: "POC", icon: TvMinimalPlay, hide: true },
   ];
 

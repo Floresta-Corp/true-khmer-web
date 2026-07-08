@@ -464,39 +464,217 @@ const ManagePostingsResponse = z.object({ ok: z.literal(true), postings: z.array
 
 const ManagePostingsErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
-const ManagePostingApplicantStatus = z.enum(["SUBMITTED", "UNDER_REVIEW", "APPROVED", "DECLINED", "CONFIRMED", "COMPLETED", "WITHDRAWN"]);
-
-const ManagePostingApplicationRole = z.object({ applicationId: z.string(), roleId: z.string(), title: z.string(), description: z.string().nullable(), status: ManagePostingApplicantStatus, appliedAt: z.string(), updatedAt: z.string() });
-
-const ManagePostingSubmission = z.object({ submissionKey: z.string(), roles: z.array(ManagePostingApplicationRole), topPick: z.string().nullable(), appliedAt: z.string(), updatedAt: z.string(), volunteer: z.object({ availability: z.string(), relevantExperience: z.string(), supportingDocuments: z.array(z.object({ name: z.string(), key: z.string() })) }).nullable(), project: z.object({ relevantExperience: z.string(), motivation: z.string(), portfolio: z.string(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()) }).nullable() });
-
-const ManagePostingApplicantPrivateNote = z.object({ id: z.string(), note: z.string(), createdBy: z.string(), updatedBy: z.string(), createdAt: z.string(), updatedAt: z.string() });
-
-const ManagePostingApplicant = z.object({ candidate: z.object({ id: z.string(), name: z.string(), email: z.string(), phoneNumber: z.string().nullable(), telegramUsername: z.string().nullable(), avatarKey: z.string().nullable() }), submissions: z.array(ManagePostingSubmission), submissionCount: z.number().int().gte(0), totalRoleApplied: z.number().int().gte(0), overallStatus: ManagePostingApplicantStatus, lastAppliedAt: z.string(), updatedAt: z.string(), contact: z.object({ email: z.string(), phoneNumber: z.string().nullable(), telegramUsername: z.string().nullable() }), privateNote: ManagePostingApplicantPrivateNote.nullable() });
-
-const ManagePostingCandidateDetailResponse = z.object({ ok: z.literal(true), applicant: ManagePostingApplicant });
-
-const UpsertManagePostingCandidateNoteRequest = z.object({ note: z.string().max(5000) });
-
-const UpsertManagePostingCandidateNoteResponse = z.object({ ok: z.literal(true), applicant: ManagePostingApplicant });
-
-const UpdateManagePostingActionResponse = z.object({ ok: z.literal(true), posting: ManagePostingItem });
-
-const ExtendManagePostingDeadlineRequest = z.object({ deadline: z.string() });
-
-const ExtendManagePostingDeadlineResponse = z.object({ ok: z.literal(true), posting: ManagePostingItem });
-
-const ManagePostingApplicationActionResponse = z.object({ ok: z.literal(true), applicant: ManagePostingApplicant });
-
-const ManagePostingDetail = z.object({ posting: ManagePostingItem, stats: z.object({ pending: z.number().int().gte(0), totalApplicants: z.number().int().gte(0), recruited: z.number().int().gte(0), capacity: z.number().int().gte(0), statuses: z.object({ SUBMITTED: z.number().int().gte(0), UNDER_REVIEW: z.number().int().gte(0), APPROVED: z.number().int().gte(0), DECLINED: z.number().int().gte(0), CONFIRMED: z.number().int().gte(0), COMPLETED: z.number().int().gte(0), WITHDRAWN: z.number().int().gte(0) }), filterCounts: z.object({ all: z.number().int().gte(0), new: z.number().int().gte(0), in_review: z.number().int().gte(0), approved: z.number().int().gte(0), confirmed: z.number().int().gte(0), declined: z.number().int().gte(0) }) }), applicants: z.array(ManagePostingApplicant), pagination: z.object({ page: z.number().int().gt(0), limit: z.number().int().gt(0), total: z.number().int().gte(0), totalPages: z.number().int().gte(0), hasNextPage: z.boolean(), hasPreviousPage: z.boolean() }) });
-
-const ManagePostingDetailResponse = z.object({ ok: z.literal(true), detail: ManagePostingDetail });
-
-const postV1notificationstokens_Body = z.object({ token: z.string().min(1), platform: z.enum(["web", "android", "ios"]).optional().default("web") });
-
-const postV1notificationssenduser_Body = z.object({ userId: z.string().uuid(), title: z.string().min(1), body: z.string().min(1), data: z.record(z.string(), z.string()).optional(), imageUrl: z.string().optional(), type: z.enum(["forum", "profile_view", "new_message", "achievement", "event_reminder", "application", "launchpad_update", "points", "system"]).optional().default("system"), archived: z.boolean().optional(), webRoute: z.string().optional(), mobileRoute: z.string().optional() });
-
-const postV1notificationsbroadcast_Body = z.object({ title: z.string().min(1), body: z.string().min(1), data: z.record(z.string(), z.string()).optional(), imageUrl: z.string().optional(), type: z.enum(["forum", "profile_view", "new_message", "achievement", "event_reminder", "application", "launchpad_update", "points", "system"]).optional().default("system"), archived: z.boolean().optional(), webRoute: z.string().optional(), mobileRoute: z.string().optional() });
+const ManagePostingApplicantStatus = z.enum([
+  "SUBMITTED",
+  "UNDER_REVIEW",
+  "APPROVED",
+  "DECLINED",
+  "CONFIRMED",
+  "COMPLETED",
+  "WITHDRAWN"]);
+const ManagePostingApplicationRole = z
+  .object({
+    applicationId: z.string(),
+    roleId: z.string(),
+    title: z.string(),
+    description: z.string().nullable(),
+    status: ManagePostingApplicantStatus,
+    appliedAt: z.string(),
+    updatedAt: z.string(),
+  })
+  ;
+const ManagePostingSubmission = z
+  .object({
+    submissionKey: z.string(),
+    roles: z.array(ManagePostingApplicationRole),
+    topPick: z.string().nullable(),
+    appliedAt: z.string(),
+    updatedAt: z.string(),
+    volunteer: z
+      .object({
+        availability: z.string(),
+        relevantExperience: z.string(),
+        supportingDocuments: z.array(
+          z.object({ name: z.string(), key: z.string() })
+        ),
+      })
+      
+      .nullable(),
+    project: z
+      .object({
+        motivation: z.string(),
+        portfolio: z.string(),
+        documentKeys: z.array(z.string()),
+        documentNames: z.array(z.string()),
+      })
+      
+      .nullable(),
+  })
+  ;
+const ManagePostingApplicantPrivateNote = z
+  .object({
+    id: z.string(),
+    note: z.string(),
+    createdBy: z.string(),
+    updatedBy: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+  })
+  ;
+const ManagePostingApplicant = z
+  .object({
+    candidate: z
+      .object({
+        id: z.string(),
+        name: z.string(),
+        email: z.string(),
+        phoneNumber: z.string().nullable(),
+        telegramUsername: z.string().nullable(),
+        avatarKey: z.string().nullable(),
+      })
+      ,
+    submissions: z.array(ManagePostingSubmission),
+    submissionCount: z.number().int().gte(0),
+    totalRoleApplied: z.number().int().gte(0),
+    overallStatus: ManagePostingApplicantStatus,
+    lastAppliedAt: z.string(),
+    updatedAt: z.string(),
+    contact: z
+      .object({
+        email: z.string(),
+        phoneNumber: z.string().nullable(),
+        telegramUsername: z.string().nullable(),
+      })
+      ,
+    privateNote: ManagePostingApplicantPrivateNote.nullable(),
+  })
+  ;
+const ManagePostingCandidateDetailResponse = z
+  .object({ ok: z.literal(true), applicant: ManagePostingApplicant })
+  ;
+const UpsertManagePostingCandidateNoteRequest = z
+  .object({ note: z.string().max(5000) })
+  ;
+const UpsertManagePostingCandidateNoteResponse = z
+  .object({ ok: z.literal(true), applicant: ManagePostingApplicant })
+  ;
+const UpdateManagePostingActionResponse = z
+  .object({ ok: z.literal(true), posting: ManagePostingItem })
+  ;
+const ExtendManagePostingDeadlineRequest = z
+  .object({ deadline: z.string() })
+  ;
+const ExtendManagePostingDeadlineResponse = z
+  .object({ ok: z.literal(true), posting: ManagePostingItem })
+  ;
+const ManagePostingApplicationActionResponse = z
+  .object({ ok: z.literal(true), applicant: ManagePostingApplicant })
+  ;
+const ManagePostingDetail = z
+  .object({
+    posting: ManagePostingItem,
+    stats: z
+      .object({
+        pending: z.number().int().gte(0),
+        totalApplicants: z.number().int().gte(0),
+        recruited: z.number().int().gte(0),
+        capacity: z.number().int().gte(0),
+        statuses: z
+          .object({
+            SUBMITTED: z.number().int().gte(0),
+            UNDER_REVIEW: z.number().int().gte(0),
+            APPROVED: z.number().int().gte(0),
+            DECLINED: z.number().int().gte(0),
+            CONFIRMED: z.number().int().gte(0),
+            COMPLETED: z.number().int().gte(0),
+            WITHDRAWN: z.number().int().gte(0),
+          })
+          ,
+        filterCounts: z
+          .object({
+            all: z.number().int().gte(0),
+            new: z.number().int().gte(0),
+            in_review: z.number().int().gte(0),
+            approved: z.number().int().gte(0),
+            confirmed: z.number().int().gte(0),
+            declined: z.number().int().gte(0),
+          })
+          ,
+      })
+      ,
+    applicants: z.array(ManagePostingApplicant),
+    pagination: z
+      .object({
+        page: z.number().int().gt(0),
+        limit: z.number().int().gt(0),
+        total: z.number().int().gte(0),
+        totalPages: z.number().int().gte(0),
+        hasNextPage: z.boolean(),
+        hasPreviousPage: z.boolean(),
+      })
+      ,
+  })
+  ;
+const ManagePostingDetailResponse = z
+  .object({ ok: z.literal(true), detail: ManagePostingDetail })
+  ;
+const postV1notificationstokens_Body = z
+  .object({
+    token: z.string().min(1),
+    platform: z.enum(["web", "android", "ios"]).optional().default("web"),
+  })
+  ;
+const postV1notificationssenduser_Body = z
+  .object({
+    userId: z.string().uuid(),
+    title: z.string().min(1),
+    body: z.string().min(1),
+    data: z.record(z.string(), z.string()).optional(),
+    imageUrl: z.string().optional(),
+    type: z
+      .enum([
+        "forum",
+        "profile_view",
+        "new_message",
+        "achievement",
+        "event_reminder",
+        "application",
+        "launchpad_update",
+        "points",
+        "system",
+      ])
+      .optional()
+      .default("system"),
+    archived: z.boolean().optional(),
+    webRoute: z.string().optional(),
+    mobileRoute: z.string().optional(),
+  })
+  ;
+const postV1notificationsbroadcast_Body = z
+  .object({
+    title: z.string().min(1),
+    body: z.string().min(1),
+    data: z.record(z.string(), z.string()).optional(),
+    imageUrl: z.string().optional(),
+    type: z
+      .enum([
+        "forum",
+        "profile_view",
+        "new_message",
+        "achievement",
+        "event_reminder",
+        "application",
+        "launchpad_update",
+        "points",
+        "system",
+      ])
+      .optional()
+      .default("system"),
+    archived: z.boolean().optional(),
+    webRoute: z.string().optional(),
+    mobileRoute: z.string().optional(),
+  })
+  ;
 
 export const schemas = {
 	AuthRegisterRequest,
@@ -755,4526 +933,5004 @@ export const schemas = {
 };
 
 const endpoints = makeApi([
-	{
-		method: "get",
-		path: "/v1/admin/content-moderator",
-		alias: "getV1admincontentModerator",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(20)
-			},
-			{
-				name: "cursor",
-				type: "Query",
-				schema: z.string().optional()
-			},
-			{
-				name: "status",
-				type: "Query",
-				schema: z.enum(["OPEN", "CLOSED"]).optional()
-			},
-			{
-				name: "typeId",
-				type: "Query",
-				schema: z.string().optional()
-			},
-			{
-				name: "id",
-				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
-			},
-		],
-		response: ListContentModeratorReportsResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 403,
-				description: `Super admin role required`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/admin/content-moderator",
-		alias: "postV1admincontentModerator",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: UpdateContentModeratorReportReviewRequest
-			},
-		],
-		response: UpdateContentModeratorReportReviewResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Invalid request data`,
-				schema: z.void()
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 403,
-				description: `Super admin role required`,
-				schema: z.void()
-			},
-			{
-				status: 404,
-				description: `Report or reported content not found`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/admin/dashboard",
-		alias: "getV1admindashboard",
-		requestFormat: "json",
-		response: AdminDashboardResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: AdminDashboardErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/admin/login",
-		alias: "postV1adminlogin",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: AdminLoginRequest
-			},
-		],
-		response: AdminLoginOtpChallengeResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
-			},
-			{
-				status: 401,
-				description: `Invalid credentials`,
-				schema: z.void()
-			},
-			{
-				status: 429,
-				description: `Too many requests or account locked`,
-				schema: z.void()
-			},
-			{
-				status: 500,
-				description: `OTP delivery failed`,
-				schema: z.object({ error: z.string() })
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/admin/login/verify-otp",
-		alias: "postV1adminloginverifyOtp",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: AdminVerifyLoginOtpRequest
-			},
-		],
-		response: AdminLoginResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
-			},
-			{
-				status: 401,
-				description: `Invalid or expired OTP challenge`,
-				schema: z.void()
-			},
-			{
-				status: 429,
-				description: `Too many OTP attempts`,
-				schema: z.void()
-			},
-			{
-				status: 500,
-				description: `Session creation failed`,
-				schema: z.object({ error: z.string() })
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/admin/logout",
-		alias: "postV1adminlogout",
-		requestFormat: "json",
-		response: AdminLogoutResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/admin/me",
-		alias: "getV1adminme",
-		requestFormat: "json",
-		response: AdminUser,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/admin/moderator",
-		alias: "getV1adminmoderator",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(20)
-			},
-			{
-				name: "cursor",
-				type: "Query",
-				schema: z.string().optional()
-			},
-			{
-				name: "search",
-				type: "Query",
-				schema: z.string().min(1).optional()
-			},
-			{
-				name: "role",
-				type: "Query",
-				schema: z.enum(["MODERATOR", "SUPER_ADMIN"]).optional()
-			},
-		],
-		response: ListModeratorsResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 403,
-				description: `Super admin role required`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/admin/moderator",
-		alias: "postV1adminmoderator",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: CreateModeratorRequest
-			},
-		],
-		response: z.object({ ok: z.boolean() }),
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 403,
-				description: `Super admin role required`,
-				schema: z.void()
-			},
-			{
-				status: 409,
-				description: `Email already in use`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/admin/moderator/:id",
-		alias: "getV1adminmoderatorId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "id",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: ModeratorResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 403,
-				description: `Super admin role required`,
-				schema: z.void()
-			},
-			{
-				status: 404,
-				description: `Moderator not found`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "patch",
-		path: "/v1/admin/moderator/:id",
-		alias: "patchV1adminmoderatorId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: UpdateModeratorRequest
-			},
-			{
-				name: "id",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: ModeratorResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Invalid request data`,
-				schema: z.void()
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 403,
-				description: `Super admin role required`,
-				schema: z.void()
-			},
-			{
-				status: 404,
-				description: `Moderator not found`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "delete",
-		path: "/v1/admin/moderator/:id",
-		alias: "deleteV1adminmoderatorId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "id",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: z.object({ ok: z.boolean() }),
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 403,
-				description: `Super admin role required or cannot remove own account`,
-				schema: z.void()
-			},
-			{
-				status: 404,
-				description: `Moderator not found`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/admin/moderator/accept-invite",
-		alias: "postV1adminmoderatoracceptInvite",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: AcceptModeratorInviteRequest
-			},
-		],
-		response: z.object({ ok: z.boolean() }),
-		errors: [
-			{
-				status: 400,
-				description: `Invalid or expired invite link`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/admin/notifications",
-		alias: "getV1adminnotifications",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "page",
-				type: "Query",
-				schema: z.number().int().gt(0).optional().default(1)
-			},
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(20)
-			},
-			{
-				name: "unreadOnly",
-				type: "Query",
-				schema: z.enum(["true", "false"]).optional()
-			},
-			{
-				name: "type",
-				type: "Query",
-				schema: z.enum(["content_report", "system"]).optional()
-			},
-		],
-		response: z.object({ ok: z.literal(true), notifications: z.array(z.object({ id: z.string().uuid(), title: z.string(), body: z.string(), icon: z.string(), type: z.string(), eventType: z.string().nullish(), dedupeKey: z.string().nullish(), aggregateCount: z.number().int().gt(0).optional(), data: z.record(z.string(), z.string()).nullable(), isRead: z.boolean(), readAt: z.string().nullable(), createdAt: z.string(), updatedAt: z.string().optional(), webRoute: z.string().nullish() })), total: z.number(), page: z.number(), limit: z.number(), unreadCount: z.number() }),
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 403,
-				description: `Moderator role required`,
-				schema: z.void()
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.object({ ok: z.literal(false), error: z.string() })
-			},
-		]
-	},
-	{
-		method: "patch",
-		path: "/v1/admin/notifications/read",
-		alias: "patchV1adminnotificationsread",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: patchV1adminnotificationsread_Body
-			},
-		],
-		response: z.object({ ok: z.boolean(), message: z.string() }),
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 403,
-				description: `Moderator role required`,
-				schema: z.void()
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.object({ ok: z.literal(false), error: z.string() })
-			},
-		]
-	},
-	{
-		method: "patch",
-		path: "/v1/admin/notifications/read/all",
-		alias: "patchV1adminnotificationsreadall",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "type",
-				type: "Query",
-				schema: z.enum(["content_report", "system"]).optional()
-			},
-		],
-		response: z.object({ ok: z.boolean(), message: z.string() }),
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 403,
-				description: `Moderator role required`,
-				schema: z.void()
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.object({ ok: z.literal(false), error: z.string() })
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/admin/presign-avatar",
-		alias: "postV1adminpresignAvatar",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: AdminPresignAvatarUploadRequest
-			},
-		],
-		response: AdminPresignAvatarUploadResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 500,
-				description: `Failed to generate upload URL`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "patch",
-		path: "/v1/admin/profile",
-		alias: "patchV1adminprofile",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: AdminUpdateProfileRequest
-			},
-		],
-		response: AdminUpdateProfileResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Invalid avatarKey or old password is incorrect`,
-				schema: z.void()
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 404,
-				description: `Admin not found`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/admin/refresh",
-		alias: "postV1adminrefresh",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: z.object({ refreshToken: z.string().min(1) })
-			},
-		],
-		response: AdminRefreshResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
-			},
-			{
-				status: 401,
-				description: `Invalid or expired refresh token`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/admin/user-management",
-		alias: "getV1adminuserManagement",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "page",
-				type: "Query",
-				schema: z.number().int().gt(0).optional().default(1)
-			},
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).lte(100).optional().default(20)
-			},
-			{
-				name: "status",
-				type: "Query",
-				schema: z.enum(["all", "SIGNUP_REQUIRED", "ONBOARDING_REQUIRED", "ACTIVE", "SUSPENDED"]).optional()
-			},
-			{
-				name: "tier",
-				type: "Query",
-				schema: z.enum(["all", "neary", "yothea", "reach", "preah", "indra"]).optional()
-			},
-			{
-				name: "search",
-				type: "Query",
-				schema: z.string().min(1).max(100).optional()
-			},
-		],
-		response: AdminUserManagementListResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.object({ ok: z.literal(false), error: z.string() })
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/admin/user-management/:userId",
-		alias: "getV1adminuserManagementUserId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "userId",
-				type: "Path",
-				schema: z.string().uuid()
-			},
-		],
-		response: AdminUserManagementDetailResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `User not found`,
-				schema: z.object({ ok: z.literal(false), error: z.string() })
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.object({ ok: z.literal(false), error: z.string() })
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/admin/user-management/:userId/:action",
-		alias: "postV1adminuserManagementUserIdAction",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "userId",
-				type: "Path",
-				schema: z.string().uuid()
-			},
-			{
-				name: "action",
-				type: "Path",
-				schema: z.enum(["suspend", "unsuspend"])
-			},
-		],
-		response: z.object({ ok: z.literal(true), user: AdminUserManagementDetailUser }),
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `User not found`,
-				schema: z.object({ ok: z.literal(false), error: z.string() })
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.object({ ok: z.literal(false), error: z.string() })
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/auth/2fa/email/disable",
-		alias: "postV1auth2faemaildisable",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: z.object({  }).partial()
-			},
-		],
-		response: z.object({ status: z.boolean() }),
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/auth/2fa/email/send",
-		alias: "postV1auth2faemailsend",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: z.object({  }).partial()
-			},
-		],
-		response: z.object({ status: z.boolean() }),
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 409,
-				description: `Email OTP already enabled`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/auth/2fa/email/verify",
-		alias: "postV1auth2faemailverify",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: AuthTwoFactorEmailVerifyRequest
-			},
-		],
-		response: AuthTokenResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 409,
-				description: `Email OTP already enabled`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/auth/2fa/settings",
-		alias: "getV1auth2fasettings",
-		requestFormat: "json",
-		response: AuthTwoFactorSettingsResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 404,
-				description: `User not found`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/auth/2fa/totp/disable",
-		alias: "postV1auth2fatotpdisable",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: z.object({  }).partial()
-			},
-		],
-		response: z.object({ status: z.boolean() }),
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/auth/2fa/totp/setup",
-		alias: "postV1auth2fatotpsetup",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: z.object({ password: z.string().min(1) })
-			},
-		],
-		response: AuthTwoFactorTotpSetupResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 409,
-				description: `Authenticator app already enabled`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/auth/2fa/totp/verify",
-		alias: "postV1auth2fatotpverify",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: AuthTwoFactorTotpVerifyRequest
-			},
-		],
-		response: AuthTokenResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 409,
-				description: `Authenticator app already enabled`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/auth/change-password",
-		alias: "postV1authchangePassword",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: AuthChangePasswordRequest
-			},
-		],
-		response: ChangePasswordResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed, old password is required, or old password is invalid`,
-				schema: z.object({ error: z.string() })
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/auth/forgot-password",
-		alias: "postV1authforgotPassword",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: AuthForgotPasswordRequest
-			},
-		],
-		response: ForgotPasswordResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.object({ error: z.string() })
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/auth/google",
-		alias: "postV1authgoogle",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: AuthGoogleRequest
-			},
-		],
-		response: AuthTokenResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
-			},
-			{
-				status: 401,
-				description: `Google authentication failed`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/auth/login",
-		alias: "postV1authlogin",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: AuthLoginRequest
-			},
-		],
-		response: z.union([AuthTokenResponse, AuthTwoFactorRequiredResponse]),
-		errors: [
-			{
-				status: 401,
-				description: `Invalid credentials`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/auth/login/2fa/email/send",
-		alias: "postV1authlogin2faemailsend",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: z.object({ twoFactorToken: z.string().min(1) })
-			},
-		],
-		response: z.object({ status: z.boolean() }),
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
-			},
-			{
-				status: 401,
-				description: `Invalid or expired two-factor challenge`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/auth/login/2fa/email/verify",
-		alias: "postV1authlogin2faemailverify",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: AuthLoginTwoFactorEmailVerifyRequest
-			},
-		],
-		response: AuthTokenResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
-			},
-			{
-				status: 401,
-				description: `Invalid or expired two-factor challenge`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/auth/login/2fa/totp/verify",
-		alias: "postV1authlogin2fatotpverify",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: AuthLoginTwoFactorTotpVerifyRequest
-			},
-		],
-		response: AuthTokenResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
-			},
-			{
-				status: 401,
-				description: `Invalid or expired two-factor challenge`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/auth/refresh",
-		alias: "postV1authrefresh",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: z.object({ refreshToken: z.string().min(1) })
-			},
-		],
-		response: RefreshSuccessResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Invalid refresh token`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/auth/register",
-		alias: "postV1authregister",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: AuthRegisterRequest
-			},
-		],
-		response: RegisterSuccessResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/auth/register/complete",
-		alias: "postV1authregistercomplete",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: AuthCompleteSignUpRequest
-			},
-		],
-		response: CompleteSignUpResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 404,
-				description: `User not found`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/auth/register/resend-otp",
-		alias: "postV1authregisterresendOtp",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: z.object({ email: z.string().min(1).email() })
-			},
-		],
-		response: ResendRegisterOtpResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Invalid email`,
-				schema: z.object({ error: z.string() })
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/auth/register/verify-otp",
-		alias: "postV1authregisterverifyOtp",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: AuthVerifyRegisterOtpRequest
-			},
-		],
-		response: AuthTokenResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Invalid OTP`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/auth/register/waitlist-context",
-		alias: "getV1authregisterwaitlistContext",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "waitlistId",
-				type: "Query",
-				schema: z.string().uuid()
-			},
-		],
-		response: AuthWaitlistContextResponse,
-	},
-	{
-		method: "post",
-		path: "/v1/auth/reset-password",
-		alias: "postV1authresetPassword",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: AuthResetPasswordRequest
-			},
-		],
-		response: ResetPasswordResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed or token is invalid`,
-				schema: z.object({ error: z.string() })
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/auth/session",
-		alias: "getV1authsession",
-		requestFormat: "json",
-		response: AuthSessionResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/forum/answer/create-answer",
-		alias: "postV1forumanswercreateAnswer",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: CreateAnswerRequest
-			},
-		],
-		response: CreateAnswerResponse,
-	},
-	{
-		method: "delete",
-		path: "/v1/forum/answer/delete-answer/:answerId",
-		alias: "deleteV1forumanswerdeleteAnswerAnswerId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "answerId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: z.object({ ok: z.boolean() }),
-		errors: [
-			{
-				status: 403,
-				description: `Not authorized`,
-				schema: AnswerErrorResponse
-			},
-		]
-	},
-	{
-		method: "patch",
-		path: "/v1/forum/answer/edit-answer/:answerId",
-		alias: "patchV1forumanswereditAnswerAnswerId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: z.object({ body: z.string().min(1).max(10000) })
-			},
-			{
-				name: "answerId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: EditAnswerResponse,
-		errors: [
-			{
-				status: 403,
-				description: `Not authorized`,
-				schema: AnswerErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/forum/answer/get-answers/:questionId",
-		alias: "getV1forumanswergetAnswersQuestionId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "questionId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-			{
-				name: "sortBy",
-				type: "Query",
-				schema: z.enum(["popular", "newest", "oldest"]).optional().default("popular")
-			},
-		],
-		response: GetAnswersResponse,
-	},
-	{
-		method: "post",
-		path: "/v1/forum/answer/mark-best-answer/:answerId",
-		alias: "postV1forumanswermarkBestAnswerAnswerId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "answerId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: MarkBestAnswerResponse,
-		errors: [
-			{
-				status: 403,
-				description: `Not authorized`,
-				schema: AnswerErrorResponse
-			},
-			{
-				status: 404,
-				description: `Answer not found`,
-				schema: AnswerErrorResponse
-			},
-			{
-				status: 409,
-				description: `Answer cannot be marked as best answer`,
-				schema: AnswerErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/forum/answer/my-answers",
-		alias: "getV1forumanswermyAnswers",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "search",
-				type: "Query",
-				schema: z.string().max(300).optional()
-			},
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(20)
-			},
-			{
-				name: "sortBy",
-				type: "Query",
-				schema: z.enum(["lastActivity", "mostReplies", "category"]).optional().default("lastActivity")
-			},
-			{
-				name: "cursor",
-				type: "Query",
-				schema: z.string().optional()
-			},
-		],
-		response: GetMyAnswersResponse,
-	},
-	{
-		method: "post",
-		path: "/v1/forum/answer/vote-answer/:answerId",
-		alias: "postV1forumanswervoteAnswerAnswerId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: z.object({ voteType: z.string() })
-			},
-			{
-				name: "answerId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: VoteAnswerResponse,
-	},
-	{
-		method: "get",
-		path: "/v1/forum/category",
-		alias: "getV1forumcategory",
-		requestFormat: "json",
-		response: GetCategoriesResponse,
-	},
-	{
-		method: "post",
-		path: "/v1/forum/category",
-		alias: "postV1forumcategory",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: CreateCategoryRequest
-			},
-		],
-		response: CreateCategoryResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
-			},
-			{
-				status: 409,
-				description: `Category already exists`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/forum/public/answer/get-answers/:questionId",
-		alias: "getV1forumpublicanswergetAnswersQuestionId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "questionId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-			{
-				name: "sortBy",
-				type: "Query",
-				schema: z.enum(["popular", "newest", "oldest"]).optional().default("popular")
-			},
-		],
-		response: GetAnswersResponse,
-	},
-	{
-		method: "get",
-		path: "/v1/forum/public/category",
-		alias: "getV1forumpubliccategory",
-		requestFormat: "json",
-		response: GetCategoriesResponse,
-	},
-	{
-		method: "get",
-		path: "/v1/forum/public/questions",
-		alias: "getV1forumpublicquestions",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "categoryId",
-				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
-			},
-			{
-				name: "tagId",
-				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
-			},
-			{
-				name: "search",
-				type: "Query",
-				schema: z.string().max(300).optional()
-			},
-			{
-				name: "isUnanswered",
-				type: "Query",
-				schema: isUnanswered
-			},
-			{
-				name: "isTrending",
-				type: "Query",
-				schema: isUnanswered
-			},
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(10)
-			},
-			{
-				name: "sortBy",
-				type: "Query",
-				schema: z.enum(["mostRelevant", "newest", "oldest", "mostVoted", "mostAnswered", "byCategory"]).optional().default("newest")
-			},
-			{
-				name: "cursor",
-				type: "Query",
-				schema: z.string().optional()
-			},
-		],
-		response: GetQuestionsResponse,
-	},
-	{
-		method: "get",
-		path: "/v1/forum/public/questions/:questionId",
-		alias: "getV1forumpublicquestionsQuestionId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "questionId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: GetQuestionResponse,
-		errors: [
-			{
-				status: 404,
-				description: `Question not found`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/forum/public/questions/trending-tags",
-		alias: "getV1forumpublicquestionstrendingTags",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "categoryId",
-				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
-			},
-		],
-		response: GetTrendingTagsResponse,
-		errors: [
-			{
-				status: 404,
-				description: `Category not found`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/forum/public/reporting-type",
-		alias: "getV1forumpublicreportingType",
-		requestFormat: "json",
-		response: GetReportingTypesResponse,
-		errors: [
-			{
-				status: 404,
-				description: `No reporting types found`,
-				schema: z.void()
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/forum/questions",
-		alias: "getV1forumquestions",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "categoryId",
-				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
-			},
-			{
-				name: "tagId",
-				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
-			},
-			{
-				name: "search",
-				type: "Query",
-				schema: z.string().max(300).optional()
-			},
-			{
-				name: "isUnanswered",
-				type: "Query",
-				schema: isUnanswered
-			},
-			{
-				name: "isTrending",
-				type: "Query",
-				schema: isUnanswered
-			},
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(10)
-			},
-			{
-				name: "sortBy",
-				type: "Query",
-				schema: z.enum(["mostRelevant", "newest", "oldest", "mostVoted", "mostAnswered", "byCategory"]).optional().default("newest")
-			},
-			{
-				name: "cursor",
-				type: "Query",
-				schema: z.string().optional()
-			},
-		],
-		response: GetQuestionsResponse,
-	},
-	{
-		method: "post",
-		path: "/v1/forum/questions",
-		alias: "postV1forumquestions",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: CreateQuestionRequest
-			},
-		],
-		response: CreateQuestionResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
-			},
-			{
-				status: 404,
-				description: `Category not found`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/forum/questions/:questionId",
-		alias: "getV1forumquestionsQuestionId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "questionId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: GetQuestionResponse,
-		errors: [
-			{
-				status: 404,
-				description: `Question not found`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "delete",
-		path: "/v1/forum/questions/delete-question/:questionId",
-		alias: "deleteV1forumquestionsdeleteQuestionQuestionId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "questionId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: z.object({ ok: z.boolean() }),
-		errors: [
-			{
-				status: 404,
-				description: `Question not found`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "patch",
-		path: "/v1/forum/questions/edit-question/:questionId",
-		alias: "patchV1forumquestionseditQuestionQuestionId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: EditQuestionRequest
-			},
-			{
-				name: "questionId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: CreateQuestionResponse,
-		errors: [
-			{
-				status: 404,
-				description: `Question not found`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/forum/questions/image/presign",
-		alias: "postV1forumquestionsimagepresign",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: PresignForumQuestionImageUploadRequest
-			},
-		],
-		response: PresignForumQuestionImageUploadResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/forum/questions/my-questions",
-		alias: "getV1forumquestionsmyQuestions",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "search",
-				type: "Query",
-				schema: z.string().max(300).optional()
-			},
-			{
-				name: "sortBy",
-				type: "Query",
-				schema: z.enum(["newest", "mostVoted", "mostAnswered", "byCategory"]).optional().default("newest")
-			},
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(10)
-			},
-			{
-				name: "cursor",
-				type: "Query",
-				schema: z.string().optional()
-			},
-		],
-		response: GetMyQuestionsResponse,
-	},
-	{
-		method: "post",
-		path: "/v1/forum/questions/save-question/:questionId",
-		alias: "postV1forumquestionssaveQuestionQuestionId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "questionId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: SaveQuestionResponse,
-		errors: [
-			{
-				status: 404,
-				description: `Question not found`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "delete",
-		path: "/v1/forum/questions/save-question/:questionId",
-		alias: "deleteV1forumquestionssaveQuestionQuestionId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "questionId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: SaveQuestionResponse,
-		errors: [
-			{
-				status: 404,
-				description: `Question not found`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/forum/questions/saved",
-		alias: "getV1forumquestionssaved",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(10)
-			},
-			{
-				name: "cursor",
-				type: "Query",
-				schema: z.string().optional()
-			},
-		],
-		response: GetSavedQuestionsResponse,
-	},
-	{
-		method: "get",
-		path: "/v1/forum/questions/trending-tags",
-		alias: "getV1forumquestionstrendingTags",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "categoryId",
-				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
-			},
-		],
-		response: GetTrendingTagsResponse,
-		errors: [
-			{
-				status: 404,
-				description: `Category not found`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/forum/questions/vote-question/:questionId",
-		alias: "postV1forumquestionsvoteQuestionQuestionId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: z.object({ voteType: z.string() })
-			},
-			{
-				name: "questionId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: CreateQuestionResponse,
-		errors: [
-			{
-				status: 404,
-				description: `Question not found`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/forum/reporting",
-		alias: "postV1forumreporting",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: CreateReportingRequest
-			},
-		],
-		response: CreateReportingResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Invalid request data`,
-				schema: z.void()
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: z.void()
-			},
-			{
-				status: 404,
-				description: `Reported entity not found`,
-				schema: z.void()
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/launchpad",
-		alias: "postV1launchpad",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: CreateLaunchpadRequest
-			},
-		],
-		response: CreateLaunchpadResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: LaunchpadLogoValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 409,
-				description: `Launchpad with this name already exists`,
-				schema: LaunchpadOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: LaunchpadOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/launchpad",
-		alias: "getV1launchpad",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(20)
-			},
-			{
-				name: "sortBy",
-				type: "Query",
-				schema: z.enum(["newest", "oldest", "startingSoon", "mostSpotsAvailable"]).optional().default("newest")
-			},
-			{
-				name: "cursor",
-				type: "Query",
-				schema: z.string().optional()
-			},
-			{
-				name: "categoryId",
-				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
-			},
-			{
-				name: "cityId",
-				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
-			},
-			{
-				name: "search",
-				type: "Query",
-				schema: z.string().min(1).max(120).optional()
-			},
-		],
-		response: GetLaunchpadsResponse,
-		errors: [
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: LaunchpadOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "patch",
-		path: "/v1/launchpad/:launchpadId",
-		alias: "patchV1launchpadLaunchpadId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: UpdateLaunchpadRequest
-			},
-			{
-				name: "launchpadId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: CreateLaunchpadResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: LaunchpadLogoValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Launchpad or related record not found`,
-				schema: LaunchpadOperationErrorResponse
-			},
-			{
-				status: 409,
-				description: `Launchpad edit conflict`,
-				schema: LaunchpadOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: LaunchpadOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/launchpad/:launchpadId",
-		alias: "getV1launchpadLaunchpadId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "launchpadId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: GetLaunchpadByIdResponse,
-		errors: [
-			{
-				status: 404,
-				description: `Launchpad not found`,
-				schema: LaunchpadOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: LaunchpadOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/launchpad/:launchpadId/applications",
-		alias: "postV1launchpadLaunchpadIdapplications",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: CreateLaunchpadApplicationRequest
-			},
-			{
-				name: "launchpadId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: CreateLaunchpadApplicationResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: LaunchpadApplicationValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Launchpad or role not found`,
-				schema: LaunchpadApplicationOperationErrorResponse
-			},
-			{
-				status: 409,
-				description: `Already applied for this role`,
-				schema: LaunchpadApplicationOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: LaunchpadApplicationOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/launchpad/:launchpadId/applications/:applicationId",
-		alias: "getV1launchpadLaunchpadIdapplicationsApplicationId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "launchpadId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-			{
-				name: "applicationId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: GetLaunchpadApplicationResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Application not found`,
-				schema: LaunchpadApplicationOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: LaunchpadApplicationOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/launchpad/:launchpadId/applications/batch",
-		alias: "postV1launchpadLaunchpadIdapplicationsbatch",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: CreateLaunchpadApplicationBatchRequest
-			},
-			{
-				name: "launchpadId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: CreateLaunchpadApplicationBatchResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation or business rule failed`,
-				schema: LaunchpadApplicationBatchErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Launchpad or role not found`,
-				schema: LaunchpadApplicationOperationErrorResponse
-			},
-			{
-				status: 409,
-				description: `Already applied for one or more roles`,
-				schema: LaunchpadApplicationOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: LaunchpadApplicationOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/launchpad/:launchpadId/applications/document/presign",
-		alias: "postV1launchpadLaunchpadIdapplicationsdocumentpresign",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: PresignLaunchpadApplicationDocumentUploadRequest
-			},
-			{
-				name: "launchpadId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: PresignLaunchpadApplicationDocumentUploadResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: LaunchpadApplicationValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: LaunchpadApplicationOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/launchpad/cover/presign",
-		alias: "postV1launchpadcoverpresign",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: PresignLaunchpadImageUploadRequest
-			},
-		],
-		response: PresignLaunchpadCoverUploadResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: LaunchpadLogoValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: LaunchpadOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/launchpad/document/presign",
-		alias: "postV1launchpaddocumentpresign",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: PresignLaunchpadDocumentUploadRequest
-			},
-		],
-		response: PresignLaunchpadDocumentUploadResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: LaunchpadLogoValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: LaunchpadOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/launchpad/logo/presign",
-		alias: "postV1launchpadlogopresign",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: PresignLaunchpadImageUploadRequest
-			},
-		],
-		response: PresignLaunchpadLogoUploadResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: LaunchpadLogoValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: LaunchpadOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/launchpad/public/category",
-		alias: "getV1launchpadpubliccategory",
-		requestFormat: "json",
-		response: GetLaunchpadCategoriesResponse,
-	},
-	{
-		method: "get",
-		path: "/v1/launchpad/public/category/:categoryId",
-		alias: "getV1launchpadpubliccategoryCategoryId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "categoryId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: GetLaunchpadCategoriesResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Invalid request parameters`,
-				schema: z.void()
-			},
-			{
-				status: 404,
-				description: `Launchpad category not found`,
-				schema: z.void()
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/launchpad/save/:launchpadId",
-		alias: "postV1launchpadsaveLaunchpadId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "launchpadId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: SaveLaunchpadResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Bad request`,
-				schema: LaunchpadLogoValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Launchpad not found`,
-				schema: LaunchpadOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: LaunchpadOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "delete",
-		path: "/v1/launchpad/save/:launchpadId",
-		alias: "deleteV1launchpadsaveLaunchpadId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "launchpadId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: SaveLaunchpadResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Bad request`,
-				schema: LaunchpadLogoValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Launchpad not found`,
-				schema: LaunchpadOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: LaunchpadOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/launchpad/saved",
-		alias: "getV1launchpadsaved",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(20)
-			},
-			{
-				name: "cursor",
-				type: "Query",
-				schema: z.string().optional()
-			},
-		],
-		response: GetSavedLaunchpadsResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: LaunchpadLogoValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: LaunchpadOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/me",
-		alias: "getV1me",
-		requestFormat: "json",
-		response: ProfileResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Onboarding required`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `User not found`,
-				schema: ProfileErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: ProfileErrorResponse
-			},
-		]
-	},
-	{
-		method: "patch",
-		path: "/v1/me",
-		alias: "patchV1me",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: UpdateProfileRequest
-			},
-		],
-		response: UpdateProfileResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: ProfileErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Onboarding required`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `User not found`,
-				schema: ProfileErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: ProfileErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/me/recent-activity",
-		alias: "getV1merecentActivity",
-		requestFormat: "json",
-		response: GetRecentActivitiesResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Onboarding required`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: RecentActivityErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/me/saved",
-		alias: "getV1mesaved",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "filter",
-				type: "Query",
-				schema: z.enum(["all", "project", "volunteer", "forum"]).optional().default("all")
-			},
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(20)
-			},
-			{
-				name: "cursor",
-				type: "Query",
-				schema: z.string().optional()
-			},
-		],
-		response: GetSavedItemsResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: SavedItemsErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Onboarding required`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: SavedItemsErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/me/skills/search",
-		alias: "getV1meskillssearch",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "search",
-				type: "Query",
-				schema: z.string()
-			},
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).lte(20).optional().default(10)
-			},
-		],
-		response: SearchSkillsResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: ProfileErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Onboarding required`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: ProfileErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/my-application",
-		alias: "getV1myApplication",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "type",
-				type: "Query",
-				schema: z.enum(["all", "volunteer", "projects"]).optional().default("all")
-			},
-			{
-				name: "filter",
-				type: "Query",
-				schema: z.enum(["all", "pending", "approved", "active", "completed", "archived"]).optional().default("all")
-			},
-		],
-		response: MyApplicationsResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Onboarding required`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: MyApplicationsErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/my-application/:sourceType/:applicationId/change-status/:statusAction",
-		alias: "postV1myApplicationSourceTypeApplicationIdchangeStatusStatusAction",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "sourceType",
-				type: "Path",
-				schema: z.enum(["volunteer", "projects"])
-			},
-			{
-				name: "applicationId",
-				type: "Path",
-				schema: z.string().uuid()
-			},
-			{
-				name: "statusAction",
-				type: "Path",
-				schema: z.enum(["confirm", "decline", "withdraw"])
-			},
-		],
-		response: MyApplicationStatusActionResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Onboarding required`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Application not found`,
-				schema: MyApplicationsErrorResponse
-			},
-			{
-				status: 409,
-				description: `Application status cannot be changed with this action`,
-				schema: MyApplicationsErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: MyApplicationsErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/my-application/:sourceType/:opportunityId/archive/:archiveAction",
-		alias: "postV1myApplicationSourceTypeOpportunityIdarchiveArchiveAction",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "sourceType",
-				type: "Path",
-				schema: z.enum(["volunteer", "projects"])
-			},
-			{
-				name: "opportunityId",
-				type: "Path",
-				schema: z.string().uuid()
-			},
-			{
-				name: "archiveAction",
-				type: "Path",
-				schema: z.enum(["archive", "unarchive"])
-			},
-		],
-		response: MyApplicationArchiveActionResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Onboarding required`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Opportunity application group not found`,
-				schema: MyApplicationsErrorResponse
-			},
-			{
-				status: 409,
-				description: `Only completed groups or groups containing only declined/withdrawn roles can be archived`,
-				schema: MyApplicationsErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: MyApplicationsErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/my-application/:sourceType/:postingId",
-		alias: "getV1myApplicationSourceTypePostingId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "sourceType",
-				type: "Path",
-				schema: z.enum(["volunteer", "projects"])
-			},
-			{
-				name: "postingId",
-				type: "Path",
-				schema: z.string().uuid()
-			},
-		],
-		response: MyApplicationDetailResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Onboarding required`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Posting application not found`,
-				schema: MyApplicationsErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: MyApplicationsErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/notifications",
-		alias: "getV1notifications",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "page",
-				type: "Query",
-				schema: z.number().int().gt(0).optional().default(1)
-			},
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(20)
-			},
-			{
-				name: "unreadOnly",
-				type: "Query",
-				schema: z.enum(["true", "false"]).optional()
-			},
-			{
-				name: "type",
-				type: "Query",
-				schema: z.enum(["forum", "profile_view", "new_message", "achievement", "event_reminder", "application", "launchpad_update", "points", "system"]).optional()
-			},
-			{
-				name: "archived",
-				type: "Query",
-				schema: z.enum(["true", "false"]).optional()
-			},
-		],
-		response: z.object({ ok: z.literal(true), notifications: z.array(z.object({ id: z.string().uuid(), title: z.string(), body: z.string(), imageUrl: z.string().nullish(), icon: z.string(), type: z.string(), eventType: z.string().nullish(), dedupeKey: z.string().nullish(), aggregateCount: z.number().int().gt(0).optional(), data: z.record(z.string(), z.string()).nullable(), isRead: z.boolean(), readAt: z.string().nullable(), archived: z.boolean(), createdAt: z.string(), updatedAt: z.string().optional(), webRoute: z.string().nullish(), mobileRoute: z.string().nullish() })), total: z.number(), page: z.number(), limit: z.number(), unreadCounts: z.record(z.string(), z.number()) }),
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.object({ ok: z.literal(false), error: z.string() })
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/notifications/broadcast",
-		alias: "postV1notificationsbroadcast",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: postV1notificationsbroadcast_Body
-			},
-		],
-		response: z.object({ ok: z.boolean(), successCount: z.number(), failureCount: z.number() }),
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.object({ ok: z.literal(false), error: z.string() })
-			},
-		]
-	},
-	{
-		method: "patch",
-		path: "/v1/notifications/read",
-		alias: "patchV1notificationsread",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: patchV1adminnotificationsread_Body
-			},
-		],
-		response: z.object({ ok: z.boolean(), message: z.string(), platform: z.enum(["web", "android", "ios"]).optional().default("web") }),
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.object({ ok: z.literal(false), error: z.string() })
-			},
-		]
-	},
-	{
-		method: "patch",
-		path: "/v1/notifications/read/all",
-		alias: "patchV1notificationsreadall",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "archived",
-				type: "Query",
-				schema: z.enum(["true", "false"]).optional()
-			},
-			{
-				name: "type",
-				type: "Query",
-				schema: z.enum(["forum", "profile_view", "new_message", "achievement", "event_reminder", "application", "launchpad_update", "points", "system"]).optional()
-			},
-		],
-		response: z.object({ ok: z.boolean(), message: z.string(), platform: z.enum(["web", "android", "ios"]).optional().default("web") }),
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.object({ ok: z.literal(false), error: z.string() })
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/notifications/send/user",
-		alias: "postV1notificationssenduser",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: postV1notificationssenduser_Body
-			},
-		],
-		response: z.object({ ok: z.boolean(), successCount: z.number(), failureCount: z.number() }),
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.object({ ok: z.literal(false), error: z.string() })
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/notifications/tokens",
-		alias: "postV1notificationstokens",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: postV1notificationstokens_Body
-			},
-		],
-		response: z.object({ ok: z.boolean(), message: z.string(), platform: z.enum(["web", "android", "ios"]).optional().default("web") }),
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.object({ ok: z.literal(false), error: z.string() })
-			},
-		]
-	},
-	{
-		method: "delete",
-		path: "/v1/notifications/tokens",
-		alias: "deleteV1notificationstokens",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: z.object({ token: z.string().min(1) })
-			},
-		],
-		response: z.object({ ok: z.boolean(), message: z.string(), platform: z.enum(["web", "android", "ios"]).optional().default("web") }),
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.object({ ok: z.literal(false), error: z.string() })
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/onboarding/contributions",
-		alias: "getV1onboardingcontributions",
-		requestFormat: "json",
-		response: z.record(z.string(), z.unknown().nullable()),
-	},
-	{
-		method: "get",
-		path: "/v1/onboarding/interests",
-		alias: "getV1onboardinginterests",
-		requestFormat: "json",
-		response: z.record(z.string(), z.unknown().nullable()),
-	},
-	{
-		method: "get",
-		path: "/v1/onboarding/locations/cities",
-		alias: "getV1onboardinglocationscities",
-		requestFormat: "json",
-		response: z.record(z.string(), z.unknown().nullable()),
-		errors: [
-			{
-				status: 400,
-				description: `countryId or countryName missing`,
-				schema: z.record(z.string(), z.unknown().nullable())
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/onboarding/locations/countries",
-		alias: "getV1onboardinglocationscountries",
-		requestFormat: "json",
-		response: z.record(z.string(), z.unknown().nullable()),
-	},
-	{
-		method: "get",
-		path: "/v1/onboarding/options",
-		alias: "getV1onboardingoptions",
-		requestFormat: "json",
-		response: z.record(z.string(), z.unknown().nullable()),
-	},
-	{
-		method: "get",
-		path: "/v1/onboarding/state",
-		alias: "getV1onboardingstate",
-		requestFormat: "json",
-		response: z.record(z.string(), z.unknown().nullable()),
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `User not found`,
-				schema: z.record(z.string(), z.unknown().nullable())
-			},
-		]
-	},
-	{
-		method: "put",
-		path: "/v1/onboarding/step-1-profile",
-		alias: "putV1onboardingstep1Profile",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: OnboardingProfileStepRequest
-			},
-		],
-		response: z.record(z.string(), z.unknown().nullable()),
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.record(z.string(), z.unknown().nullable())
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `User not found`,
-				schema: z.record(z.string(), z.unknown().nullable())
-			},
-		]
-	},
-	{
-		method: "put",
-		path: "/v1/onboarding/step-2-interests",
-		alias: "putV1onboardingstep2Interests",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: OnboardingInterestsStepRequest
-			},
-		],
-		response: z.record(z.string(), z.unknown().nullable()),
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.record(z.string(), z.unknown().nullable())
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `User not found`,
-				schema: z.record(z.string(), z.unknown().nullable())
-			},
-		]
-	},
-	{
-		method: "put",
-		path: "/v1/onboarding/step-3-contributions",
-		alias: "putV1onboardingstep3Contributions",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: OnboardingContributionsStepRequest
-			},
-		],
-		response: z.record(z.string(), z.unknown().nullable()),
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.record(z.string(), z.unknown().nullable())
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `User not found`,
-				schema: z.record(z.string(), z.unknown().nullable())
-			},
-		]
-	},
-	{
-		method: "put",
-		path: "/v1/onboarding/step-4-complete",
-		alias: "putV1onboardingstep4Complete",
-		requestFormat: "json",
-		response: z.record(z.string(), z.unknown().nullable()),
-		errors: [
-			{
-				status: 400,
-				description: `Onboarding prerequisites not complete`,
-				schema: z.record(z.string(), z.unknown().nullable())
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/profile/:userId",
-		alias: "getV1profileUserId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "userId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: PublicProfileResponse,
-		errors: [
-			{
-				status: 404,
-				description: `User not found`,
-				schema: ProfileErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: ProfileErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/profile/:userId/posted",
-		alias: "getV1profileUserIdposted",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "userId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-			{
-				name: "sourceType",
-				type: "Query",
-				schema: z.enum(["forum", "volunteer", "project"])
-			},
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(20)
-			},
-			{
-				name: "cursor",
-				type: "Query",
-				schema: z.string().optional()
-			},
-		],
-		response: GetMyPostedResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: MyPostedErrorResponse
-			},
-			{
-				status: 404,
-				description: `User not found`,
-				schema: MyPostedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: MyPostedErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/uploads/avatar/presign",
-		alias: "postV1uploadsavatarpresign",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: PresignAvatarUploadRequest
-			},
-		],
-		response: PresignAvatarUploadResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Invalid parameters`,
-				schema: z.void()
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/volunteer/applications",
-		alias: "postV1volunteerapplications",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: CreateVolunteerApplicationRequest
-			},
-		],
-		response: CreateVolunteerApplicationResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: VolunteerCategoryValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Volunteer role not found`,
-				schema: VolunteerOperationErrorResponse
-			},
-			{
-				status: 409,
-				description: `Duplicate volunteer application`,
-				schema: VolunteerOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: VolunteerOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/volunteer/applications/batch",
-		alias: "postV1volunteerapplicationsbatch",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: CreateVolunteerApplicationBatchRequest
-			},
-		],
-		response: CreateVolunteerApplicationBatchResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: VolunteerCategoryValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Volunteer role not found`,
-				schema: VolunteerOperationErrorResponse
-			},
-			{
-				status: 409,
-				description: `Duplicate volunteer application`,
-				schema: VolunteerOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: VolunteerOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/volunteer/applications/document/presign",
-		alias: "postV1volunteerapplicationsdocumentpresign",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: PresignVolunteerApplicationDocumentUploadRequest
-			},
-		],
-		response: PresignVolunteerApplicationDocumentUploadResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: VolunteerCategoryValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Volunteer opportunity not found`,
-				schema: VolunteerOperationErrorResponse
-			},
-			{
-				status: 409,
-				description: `Volunteer application already exists`,
-				schema: VolunteerOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: VolunteerOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/volunteer/categories",
-		alias: "getV1volunteercategories",
-		requestFormat: "json",
-		response: GetVolunteerCategoriesResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: VolunteerOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/volunteer/categories",
-		alias: "postV1volunteercategories",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: CreateVolunteerCategoryRequest
-			},
-		],
-		response: CreateVolunteerCategoryResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: VolunteerCategoryValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 409,
-				description: `Category already exists`,
-				schema: VolunteerOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: VolunteerOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/volunteer/locations",
-		alias: "getV1volunteerlocations",
-		requestFormat: "json",
-		response: GetVolunteerLocationsResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: VolunteerOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/volunteer/opportunities",
-		alias: "getV1volunteeropportunities",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "categoryId",
-				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
-			},
-			{
-				name: "locationId",
-				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
-			},
-			{
-				name: "search",
-				type: "Query",
-				schema: z.string().max(300).optional()
-			},
-			{
-				name: "filter",
-				type: "Query",
-				schema: z.enum(["recentlyAdded", "startingSoon", "mostSpotsAvailable"]).optional().default("recentlyAdded")
-			},
-			{
-				name: "timeCommitment",
-				type: "Query",
-				schema: z.enum(["Light", "Regular", "Intensive"]).optional()
-			},
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(10)
-			},
-			{
-				name: "cursor",
-				type: "Query",
-				schema: z.string().optional()
-			},
-		],
-		response: GetVolunteerOpportunitiesResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: VolunteerCategoryValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Related volunteer records were not found`,
-				schema: VolunteerOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: VolunteerOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/volunteer/opportunities",
-		alias: "postV1volunteeropportunities",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: CreateVolunteerOpportunityRequest
-			},
-		],
-		response: CreateVolunteerOpportunityResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: VolunteerCategoryValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Related volunteer records were not found`,
-				schema: VolunteerOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: VolunteerOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/volunteer/opportunities/:opportunityId",
-		alias: "getV1volunteeropportunitiesOpportunityId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "opportunityId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: GetVolunteerOpportunityResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Bad Request - invalid opportunityId`,
-				schema: VolunteerCategoryValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Volunteer opportunity not found`,
-				schema: VolunteerOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: VolunteerOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "patch",
-		path: "/v1/volunteer/opportunities/:opportunityId",
-		alias: "patchV1volunteeropportunitiesOpportunityId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: UpdateVolunteerOpportunityRequest
-			},
-			{
-				name: "opportunityId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: CreateVolunteerOpportunityResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: VolunteerCategoryValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Volunteer opportunity or related record not found`,
-				schema: VolunteerOperationErrorResponse
-			},
-			{
-				status: 409,
-				description: `Volunteer opportunity edit conflict`,
-				schema: VolunteerOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: VolunteerOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/volunteer/opportunities/cover-image/presign",
-		alias: "postV1volunteeropportunitiescoverImagepresign",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: PresignVolunteerOpportunityCoverUploadRequest
-			},
-		],
-		response: PresignVolunteerOpportunityCoverUploadResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: VolunteerCategoryValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: VolunteerOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/volunteer/public/categories",
-		alias: "getV1volunteerpubliccategories",
-		requestFormat: "json",
-		response: GetVolunteerCategoriesResponse,
-		errors: [
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: VolunteerOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/volunteer/public/locations",
-		alias: "getV1volunteerpubliclocations",
-		requestFormat: "json",
-		response: GetVolunteerLocationsResponse,
-		errors: [
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: VolunteerOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/volunteer/public/opportunities",
-		alias: "getV1volunteerpublicopportunities",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "categoryId",
-				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
-			},
-			{
-				name: "locationId",
-				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
-			},
-			{
-				name: "search",
-				type: "Query",
-				schema: z.string().max(300).optional()
-			},
-			{
-				name: "filter",
-				type: "Query",
-				schema: z.enum(["recentlyAdded", "startingSoon", "mostSpotsAvailable"]).optional().default("recentlyAdded")
-			},
-			{
-				name: "timeCommitment",
-				type: "Query",
-				schema: z.enum(["Light", "Regular", "Intensive"]).optional()
-			},
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(10)
-			},
-			{
-				name: "cursor",
-				type: "Query",
-				schema: z.string().optional()
-			},
-		],
-		response: GetVolunteerOpportunitiesResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: VolunteerCategoryValidationErrorResponse
-			},
-			{
-				status: 404,
-				description: `Related volunteer records were not found`,
-				schema: VolunteerOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: VolunteerOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/volunteer/public/opportunities/:opportunityId",
-		alias: "getV1volunteerpublicopportunitiesOpportunityId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "opportunityId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: GetPublicVolunteerOpportunityResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Invalid request`,
-				schema: VolunteerCategoryValidationErrorResponse
-			},
-			{
-				status: 404,
-				description: `Volunteer opportunity not found`,
-				schema: VolunteerOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: VolunteerOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/volunteer/save-opportunity/:opportunityId",
-		alias: "postV1volunteersaveOpportunityOpportunityId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "opportunityId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: SaveVolunteerOpportunityResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Bad Request - invalid opportunityId`,
-				schema: VolunteerCategoryValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Volunteer opportunity not found`,
-				schema: VolunteerOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: VolunteerOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "delete",
-		path: "/v1/volunteer/save-opportunity/:opportunityId",
-		alias: "deleteV1volunteersaveOpportunityOpportunityId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "opportunityId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: SaveVolunteerOpportunityResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Bad Request - invalid opportunityId`,
-				schema: VolunteerCategoryValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Volunteer opportunity not found`,
-				schema: VolunteerOperationErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: VolunteerOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/volunteer/saved",
-		alias: "getV1volunteersaved",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(10)
-			},
-			{
-				name: "cursor",
-				type: "Query",
-				schema: z.string().optional()
-			},
-		],
-		response: GetVolunteerOpportunitiesResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: VolunteerCategoryValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: VolunteerOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/workspace/manage-posting",
-		alias: "getV1workspacemanagePosting",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "type",
-				type: "Query",
-				schema: z.enum(["all", "volunteer", "projects"]).optional().default("all")
-			},
-			{
-				name: "filter",
-				type: "Query",
-				schema: z.enum(["all", "live", "draft", "in_progress", "completed", "canceled", "filled"]).optional().default("all")
-			},
-			{
-				name: "page",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(1)
-			},
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(6)
-			},
-			{
-				name: "search",
-				type: "Query",
-				schema: z.string().max(300).optional()
-			},
-		],
-		response: ManagePostingsResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Onboarding required`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: ManagePostingsErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/workspace/manage-posting/:sourceType/:postingId",
-		alias: "getV1workspacemanagePostingSourceTypePostingId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "sourceType",
-				type: "Path",
-				schema: z.enum(["volunteer", "projects"])
-			},
-			{
-				name: "postingId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-			{
-				name: "filter",
-				type: "Query",
-				schema: z.enum(["all", "new", "in_review", "approved", "confirmed", "declined"]).optional().default("all")
-			},
-			{
-				name: "search",
-				type: "Query",
-				schema: z.string().max(300).optional()
-			},
-			{
-				name: "page",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(1)
-			},
-			{
-				name: "limit",
-				type: "Query",
-				schema: z.number().int().gte(1).optional().default(10)
-			},
-		],
-		response: ManagePostingDetailResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Onboarding required`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Posting not found`,
-				schema: ManagePostingsErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: ManagePostingsErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/workspace/manage-posting/:sourceType/:postingId/:applicationId/change-status/:statusAction",
-		alias: "postV1workspacemanagePostingSourceTypePostingIdApplicationIdchangeStatusStatusAction",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "sourceType",
-				type: "Path",
-				schema: z.enum(["volunteer", "projects"])
-			},
-			{
-				name: "postingId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-			{
-				name: "applicationId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-			{
-				name: "statusAction",
-				type: "Path",
-				schema: z.enum(["under_review", "approve"])
-			},
-		],
-		response: ManagePostingApplicationActionResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Onboarding required`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Application not found`,
-				schema: ManagePostingsErrorResponse
-			},
-			{
-				status: 409,
-				description: `Application is no longer pending review`,
-				schema: ManagePostingsErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: ManagePostingsErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/workspace/manage-posting/:sourceType/:postingId/:applicationId/decline",
-		alias: "postV1workspacemanagePostingSourceTypePostingIdApplicationIddecline",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "sourceType",
-				type: "Path",
-				schema: z.enum(["volunteer", "projects"])
-			},
-			{
-				name: "postingId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-			{
-				name: "applicationId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-			{
-				name: "declineAll",
-				type: "Query",
-				schema: z.boolean().nullish().default(false)
-			},
-			{
-				name: "blockFutureApply",
-				type: "Query",
-				schema: z.boolean().nullish().default(false)
-			},
-		],
-		response: ManagePostingApplicationActionResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Onboarding required`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Application not found`,
-				schema: ManagePostingsErrorResponse
-			},
-			{
-				status: 409,
-				description: `Application cannot be declined from the current state`,
-				schema: ManagePostingsErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: ManagePostingsErrorResponse
-			},
-		]
-	},
-	{
-		method: "get",
-		path: "/v1/workspace/manage-posting/:sourceType/:postingId/:candidateId",
-		alias: "getV1workspacemanagePostingSourceTypePostingIdCandidateId",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "sourceType",
-				type: "Path",
-				schema: z.enum(["volunteer", "projects"])
-			},
-			{
-				name: "postingId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-			{
-				name: "candidateId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: ManagePostingCandidateDetailResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Onboarding required`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Candidate not found`,
-				schema: ManagePostingsErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: ManagePostingsErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/workspace/manage-posting/:sourceType/:postingId/:candidateId/note",
-		alias: "postV1workspacemanagePostingSourceTypePostingIdCandidateIdnote",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: z.object({ note: z.string().max(5000) })
-			},
-			{
-				name: "sourceType",
-				type: "Path",
-				schema: z.enum(["volunteer", "projects"])
-			},
-			{
-				name: "postingId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-			{
-				name: "candidateId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: UpsertManagePostingCandidateNoteResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: ManagePostingsErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Onboarding required`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Candidate not found`,
-				schema: ManagePostingsErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: ManagePostingsErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/workspace/manage-posting/:sourceType/:postingId/action/:postingAction",
-		alias: "postV1workspacemanagePostingSourceTypePostingIdactionPostingAction",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "sourceType",
-				type: "Path",
-				schema: z.enum(["volunteer", "projects"])
-			},
-			{
-				name: "postingId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-			{
-				name: "postingAction",
-				type: "Path",
-				schema: z.enum(["cancel", "close", "delete", "mark_complete"])
-			},
-		],
-		response: UpdateManagePostingActionResponse,
-		errors: [
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Onboarding required`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Posting not found`,
-				schema: ManagePostingsErrorResponse
-			},
-			{
-				status: 409,
-				description: `Posting action is not allowed for the current state`,
-				schema: ManagePostingsErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: ManagePostingsErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/workspace/manage-posting/:sourceType/:postingId/extend-application-deadline",
-		alias: "postV1workspacemanagePostingSourceTypePostingIdextendApplicationDeadline",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: z.object({ deadline: z.string() })
-			},
-			{
-				name: "sourceType",
-				type: "Path",
-				schema: z.enum(["volunteer", "projects"])
-			},
-			{
-				name: "postingId",
-				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
-			},
-		],
-		response: ExtendManagePostingDeadlineResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: ManagePostingsErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Onboarding required`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 404,
-				description: `Posting not found`,
-				schema: ManagePostingsErrorResponse
-			},
-			{
-				status: 409,
-				description: `Posting deadline cannot be extended from the current state`,
-				schema: ManagePostingsErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: ManagePostingsErrorResponse
-			},
-		]
-	},
+  {
+    method: "get",
+    path: "/v1/admin/content-moderator",
+    alias: "getV1admincontentModerator",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(20),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+      {
+        name: "status",
+        type: "Query",
+        schema: z.enum(["OPEN", "CLOSED"]).optional(),
+      },
+      {
+        name: "typeId",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+    ],
+    response: ListContentModeratorReportsResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 403,
+        description: `Super admin role required`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/admin/content-moderator",
+    alias: "postV1admincontentModerator",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: UpdateContentModeratorReportReviewRequest,
+      },
+    ],
+    response: UpdateContentModeratorReportReviewResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Invalid request data`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 403,
+        description: `Super admin role required`,
+        schema: z.void(),
+      },
+      {
+        status: 404,
+        description: `Report or reported content not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/admin/dashboard",
+    alias: "getV1admindashboard",
+    requestFormat: "json",
+    response: AdminDashboardResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: AdminDashboardErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/admin/login",
+    alias: "postV1adminlogin",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AdminLoginRequest,
+      },
+    ],
+    response: AdminLoginOtpChallengeResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Invalid credentials`,
+        schema: z.void(),
+      },
+      {
+        status: 429,
+        description: `Too many requests or account locked`,
+        schema: z.void(),
+      },
+      {
+        status: 500,
+        description: `OTP delivery failed`,
+        schema: z.object({ error: z.string() }),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/admin/login/verify-otp",
+    alias: "postV1adminloginverifyOtp",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AdminVerifyLoginOtpRequest,
+      },
+    ],
+    response: AdminLoginResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Invalid or expired OTP challenge`,
+        schema: z.void(),
+      },
+      {
+        status: 429,
+        description: `Too many OTP attempts`,
+        schema: z.void(),
+      },
+      {
+        status: 500,
+        description: `Session creation failed`,
+        schema: z.object({ error: z.string() }),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/admin/logout",
+    alias: "postV1adminlogout",
+    requestFormat: "json",
+    response: AdminLogoutResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/admin/me",
+    alias: "getV1adminme",
+    requestFormat: "json",
+    response: AdminUser,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/admin/moderator",
+    alias: "getV1adminmoderator",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(20),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().min(1).optional(),
+      },
+      {
+        name: "role",
+        type: "Query",
+        schema: z.enum(["MODERATOR", "SUPER_ADMIN"]).optional(),
+      },
+    ],
+    response: ListModeratorsResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 403,
+        description: `Super admin role required`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/admin/moderator",
+    alias: "postV1adminmoderator",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: CreateModeratorRequest,
+      },
+    ],
+    response: z.object({ ok: z.boolean() }),
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 403,
+        description: `Super admin role required`,
+        schema: z.void(),
+      },
+      {
+        status: 409,
+        description: `Email already in use`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/admin/moderator/:id",
+    alias: "getV1adminmoderatorId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "id",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: ModeratorResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 403,
+        description: `Super admin role required`,
+        schema: z.void(),
+      },
+      {
+        status: 404,
+        description: `Moderator not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "patch",
+    path: "/v1/admin/moderator/:id",
+    alias: "patchV1adminmoderatorId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: UpdateModeratorRequest,
+      },
+      {
+        name: "id",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: ModeratorResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Invalid request data`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 403,
+        description: `Super admin role required`,
+        schema: z.void(),
+      },
+      {
+        status: 404,
+        description: `Moderator not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "delete",
+    path: "/v1/admin/moderator/:id",
+    alias: "deleteV1adminmoderatorId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "id",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: z.object({ ok: z.boolean() }),
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 403,
+        description: `Super admin role required or cannot remove own account`,
+        schema: z.void(),
+      },
+      {
+        status: 404,
+        description: `Moderator not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/admin/moderator/accept-invite",
+    alias: "postV1adminmoderatoracceptInvite",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AcceptModeratorInviteRequest,
+      },
+    ],
+    response: z.object({ ok: z.boolean() }),
+    errors: [
+      {
+        status: 400,
+        description: `Invalid or expired invite link`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/admin/notifications",
+    alias: "getV1adminnotifications",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "page",
+        type: "Query",
+        schema: z.number().int().gt(0).optional().default(1),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(20),
+      },
+      {
+        name: "unreadOnly",
+        type: "Query",
+        schema: z.enum(["true", "false"]).optional(),
+      },
+      {
+        name: "type",
+        type: "Query",
+        schema: z.enum(["content_report", "system"]).optional(),
+      },
+    ],
+    response: z
+      .object({
+        ok: z.literal(true),
+        notifications: z.array(
+          z
+            .object({
+              id: z.string().uuid(),
+              title: z.string(),
+              body: z.string(),
+              icon: z.string(),
+              type: z.string(),
+              eventType: z.string().nullish(),
+              dedupeKey: z.string().nullish(),
+              aggregateCount: z.number().int().gt(0).optional(),
+              data: z.record(z.string(), z.string()).nullable(),
+              isRead: z.boolean(),
+              readAt: z.string().nullable(),
+              createdAt: z.string(),
+              updatedAt: z.string().optional(),
+              webRoute: z.string().nullish(),
+            })
+            
+        ),
+        total: z.number(),
+        page: z.number(),
+        limit: z.number(),
+        unreadCount: z.number(),
+      })
+      ,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 403,
+        description: `Moderator role required`,
+        schema: z.void(),
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+    ],
+  },
+  {
+    method: "patch",
+    path: "/v1/admin/notifications/read",
+    alias: "patchV1adminnotificationsread",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: patchV1adminnotificationsread_Body,
+      },
+    ],
+    response: z.object({ ok: z.boolean(), message: z.string() }),
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 403,
+        description: `Moderator role required`,
+        schema: z.void(),
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+    ],
+  },
+  {
+    method: "patch",
+    path: "/v1/admin/notifications/read/all",
+    alias: "patchV1adminnotificationsreadall",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "type",
+        type: "Query",
+        schema: z.enum(["content_report", "system"]).optional(),
+      },
+    ],
+    response: z.object({ ok: z.boolean(), message: z.string() }),
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 403,
+        description: `Moderator role required`,
+        schema: z.void(),
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/admin/presign-avatar",
+    alias: "postV1adminpresignAvatar",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AdminPresignAvatarUploadRequest,
+      },
+    ],
+    response: AdminPresignAvatarUploadResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 500,
+        description: `Failed to generate upload URL`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "patch",
+    path: "/v1/admin/profile",
+    alias: "patchV1adminprofile",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AdminUpdateProfileRequest,
+      },
+    ],
+    response: AdminUpdateProfileResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Invalid avatarKey or old password is incorrect`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 404,
+        description: `Admin not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/admin/refresh",
+    alias: "postV1adminrefresh",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({ refreshToken: z.string().min(1) }),
+      },
+    ],
+    response: AdminRefreshResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Invalid or expired refresh token`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/admin/user-management",
+    alias: "getV1adminuserManagement",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "page",
+        type: "Query",
+        schema: z.number().int().gt(0).optional().default(1),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).lte(100).optional().default(20),
+      },
+      {
+        name: "status",
+        type: "Query",
+        schema: z
+          .enum([
+            "all",
+            "SIGNUP_REQUIRED",
+            "ONBOARDING_REQUIRED",
+            "ACTIVE",
+            "SUSPENDED",
+          ])
+          .optional(),
+      },
+      {
+        name: "tier",
+        type: "Query",
+        schema: z
+          .enum(["all", "neary", "yothea", "reach", "preah", "indra"])
+          .optional(),
+      },
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().min(1).max(100).optional(),
+      },
+    ],
+    response: AdminUserManagementListResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/admin/user-management/:userId",
+    alias: "getV1adminuserManagementUserId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "userId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+    ],
+    response: AdminUserManagementDetailResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `User not found`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/admin/user-management/:userId/:action",
+    alias: "postV1adminuserManagementUserIdAction",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "userId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+      {
+        name: "action",
+        type: "Path",
+        schema: z.enum(["suspend", "unsuspend"]),
+      },
+    ],
+    response: z
+      .object({ ok: z.literal(true), user: AdminUserManagementDetailUser })
+      ,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `User not found`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/2fa/email/disable",
+    alias: "postV1auth2faemaildisable",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({}).partial(),
+      },
+    ],
+    response: z.object({ status: z.boolean() }),
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/2fa/email/send",
+    alias: "postV1auth2faemailsend",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({}).partial(),
+      },
+    ],
+    response: z.object({ status: z.boolean() }),
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 409,
+        description: `Email OTP already enabled`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/2fa/email/verify",
+    alias: "postV1auth2faemailverify",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AuthTwoFactorEmailVerifyRequest,
+      },
+    ],
+    response: AuthTokenResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 409,
+        description: `Email OTP already enabled`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/auth/2fa/settings",
+    alias: "getV1auth2fasettings",
+    requestFormat: "json",
+    response: AuthTwoFactorSettingsResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 404,
+        description: `User not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/2fa/totp/disable",
+    alias: "postV1auth2fatotpdisable",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({}).partial(),
+      },
+    ],
+    response: z.object({ status: z.boolean() }),
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/2fa/totp/setup",
+    alias: "postV1auth2fatotpsetup",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({ password: z.string().min(1) }),
+      },
+    ],
+    response: AuthTwoFactorTotpSetupResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 409,
+        description: `Authenticator app already enabled`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/2fa/totp/verify",
+    alias: "postV1auth2fatotpverify",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AuthTwoFactorTotpVerifyRequest,
+      },
+    ],
+    response: AuthTokenResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 409,
+        description: `Authenticator app already enabled`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/change-password",
+    alias: "postV1authchangePassword",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AuthChangePasswordRequest,
+      },
+    ],
+    response: ChangePasswordResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed, old password is required, or old password is invalid`,
+        schema: z.object({ error: z.string() }),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/forgot-password",
+    alias: "postV1authforgotPassword",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AuthForgotPasswordRequest,
+      },
+    ],
+    response: ForgotPasswordResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.object({ error: z.string() }),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/google",
+    alias: "postV1authgoogle",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AuthGoogleRequest,
+      },
+    ],
+    response: AuthTokenResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Google authentication failed`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/login",
+    alias: "postV1authlogin",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AuthLoginRequest,
+      },
+    ],
+    response: z.union([AuthTokenResponse, AuthTwoFactorRequiredResponse]),
+    errors: [
+      {
+        status: 401,
+        description: `Invalid credentials`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/login/2fa/email/send",
+    alias: "postV1authlogin2faemailsend",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({ twoFactorToken: z.string().min(1) }),
+      },
+    ],
+    response: z.object({ status: z.boolean() }),
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Invalid or expired two-factor challenge`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/login/2fa/email/verify",
+    alias: "postV1authlogin2faemailverify",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AuthLoginTwoFactorEmailVerifyRequest,
+      },
+    ],
+    response: AuthTokenResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Invalid or expired two-factor challenge`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/login/2fa/totp/verify",
+    alias: "postV1authlogin2fatotpverify",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AuthLoginTwoFactorTotpVerifyRequest,
+      },
+    ],
+    response: AuthTokenResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Invalid or expired two-factor challenge`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/refresh",
+    alias: "postV1authrefresh",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({ refreshToken: z.string().min(1) }),
+      },
+    ],
+    response: RefreshSuccessResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Invalid refresh token`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/register",
+    alias: "postV1authregister",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AuthRegisterRequest,
+      },
+    ],
+    response: RegisterSuccessResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/register/complete",
+    alias: "postV1authregistercomplete",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AuthCompleteSignUpRequest,
+      },
+    ],
+    response: CompleteSignUpResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 404,
+        description: `User not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/register/resend-otp",
+    alias: "postV1authregisterresendOtp",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({ email: z.string().min(1).email() }),
+      },
+    ],
+    response: ResendRegisterOtpResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Invalid email`,
+        schema: z.object({ error: z.string() }),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/auth/register/verify-otp",
+    alias: "postV1authregisterverifyOtp",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AuthVerifyRegisterOtpRequest,
+      },
+    ],
+    response: AuthTokenResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Invalid OTP`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/auth/register/waitlist-context",
+    alias: "getV1authregisterwaitlistContext",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "waitlistId",
+        type: "Query",
+        schema: z.string().uuid(),
+      },
+    ],
+    response: AuthWaitlistContextResponse,
+  },
+  {
+    method: "post",
+    path: "/v1/auth/reset-password",
+    alias: "postV1authresetPassword",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: AuthResetPasswordRequest,
+      },
+    ],
+    response: ResetPasswordResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed or token is invalid`,
+        schema: z.object({ error: z.string() }),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/auth/session",
+    alias: "getV1authsession",
+    requestFormat: "json",
+    response: AuthSessionResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/forum/answer/create-answer",
+    alias: "postV1forumanswercreateAnswer",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: CreateAnswerRequest,
+      },
+    ],
+    response: CreateAnswerResponse,
+  },
+  {
+    method: "delete",
+    path: "/v1/forum/answer/delete-answer/:answerId",
+    alias: "deleteV1forumanswerdeleteAnswerAnswerId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "answerId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: z.object({ ok: z.boolean() }),
+    errors: [
+      {
+        status: 403,
+        description: `Not authorized`,
+        schema: AnswerErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "patch",
+    path: "/v1/forum/answer/edit-answer/:answerId",
+    alias: "patchV1forumanswereditAnswerAnswerId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({ body: z.string().min(1).max(10000) }),
+      },
+      {
+        name: "answerId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: EditAnswerResponse,
+    errors: [
+      {
+        status: 403,
+        description: `Not authorized`,
+        schema: AnswerErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/forum/answer/get-answers/:questionId",
+    alias: "getV1forumanswergetAnswersQuestionId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "questionId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+      {
+        name: "sortBy",
+        type: "Query",
+        schema: z
+          .enum(["popular", "newest", "oldest"])
+          .optional()
+          .default("popular"),
+      },
+    ],
+    response: GetAnswersResponse,
+  },
+  {
+    method: "post",
+    path: "/v1/forum/answer/mark-best-answer/:answerId",
+    alias: "postV1forumanswermarkBestAnswerAnswerId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "answerId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: MarkBestAnswerResponse,
+    errors: [
+      {
+        status: 403,
+        description: `Not authorized`,
+        schema: AnswerErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Answer not found`,
+        schema: AnswerErrorResponse,
+      },
+      {
+        status: 409,
+        description: `Answer cannot be marked as best answer`,
+        schema: AnswerErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/forum/answer/my-answers",
+    alias: "getV1forumanswermyAnswers",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().max(300).optional(),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(20),
+      },
+      {
+        name: "sortBy",
+        type: "Query",
+        schema: z
+          .enum(["lastActivity", "mostReplies", "category"])
+          .optional()
+          .default("lastActivity"),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+    ],
+    response: GetMyAnswersResponse,
+  },
+  {
+    method: "post",
+    path: "/v1/forum/answer/vote-answer/:answerId",
+    alias: "postV1forumanswervoteAnswerAnswerId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({ voteType: z.string() }),
+      },
+      {
+        name: "answerId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: VoteAnswerResponse,
+  },
+  {
+    method: "get",
+    path: "/v1/forum/category",
+    alias: "getV1forumcategory",
+    requestFormat: "json",
+    response: GetCategoriesResponse,
+  },
+  {
+    method: "post",
+    path: "/v1/forum/category",
+    alias: "postV1forumcategory",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: CreateCategoryRequest,
+      },
+    ],
+    response: CreateCategoryResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 409,
+        description: `Category already exists`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/forum/public/answer/get-answers/:questionId",
+    alias: "getV1forumpublicanswergetAnswersQuestionId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "questionId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+      {
+        name: "sortBy",
+        type: "Query",
+        schema: z
+          .enum(["popular", "newest", "oldest"])
+          .optional()
+          .default("popular"),
+      },
+    ],
+    response: GetAnswersResponse,
+  },
+  {
+    method: "get",
+    path: "/v1/forum/public/category",
+    alias: "getV1forumpubliccategory",
+    requestFormat: "json",
+    response: GetCategoriesResponse,
+  },
+  {
+    method: "get",
+    path: "/v1/forum/public/questions",
+    alias: "getV1forumpublicquestions",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "categoryId",
+        type: "Query",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          )
+          .optional(),
+      },
+      {
+        name: "tagId",
+        type: "Query",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          )
+          .optional(),
+      },
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().max(300).optional(),
+      },
+      {
+        name: "isUnanswered",
+        type: "Query",
+        schema: isUnanswered,
+      },
+      {
+        name: "isTrending",
+        type: "Query",
+        schema: isUnanswered,
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(10),
+      },
+      {
+        name: "sortBy",
+        type: "Query",
+        schema: z
+          .enum([
+            "mostRelevant",
+            "newest",
+            "oldest",
+            "mostVoted",
+            "mostAnswered",
+            "byCategory",
+          ])
+          .optional()
+          .default("newest"),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+    ],
+    response: GetQuestionsResponse,
+  },
+  {
+    method: "get",
+    path: "/v1/forum/public/questions/:questionId",
+    alias: "getV1forumpublicquestionsQuestionId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "questionId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: GetQuestionResponse,
+    errors: [
+      {
+        status: 404,
+        description: `Question not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/forum/public/questions/trending-tags",
+    alias: "getV1forumpublicquestionstrendingTags",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "categoryId",
+        type: "Query",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          )
+          .optional(),
+      },
+    ],
+    response: GetTrendingTagsResponse,
+    errors: [
+      {
+        status: 404,
+        description: `Category not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/forum/public/reporting-type",
+    alias: "getV1forumpublicreportingType",
+    requestFormat: "json",
+    response: GetReportingTypesResponse,
+    errors: [
+      {
+        status: 404,
+        description: `No reporting types found`,
+        schema: z.void(),
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/forum/questions",
+    alias: "getV1forumquestions",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "categoryId",
+        type: "Query",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          )
+          .optional(),
+      },
+      {
+        name: "tagId",
+        type: "Query",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          )
+          .optional(),
+      },
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().max(300).optional(),
+      },
+      {
+        name: "isUnanswered",
+        type: "Query",
+        schema: isUnanswered,
+      },
+      {
+        name: "isTrending",
+        type: "Query",
+        schema: isUnanswered,
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(10),
+      },
+      {
+        name: "sortBy",
+        type: "Query",
+        schema: z
+          .enum([
+            "mostRelevant",
+            "newest",
+            "oldest",
+            "mostVoted",
+            "mostAnswered",
+            "byCategory",
+          ])
+          .optional()
+          .default("newest"),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+    ],
+    response: GetQuestionsResponse,
+  },
+  {
+    method: "post",
+    path: "/v1/forum/questions",
+    alias: "postV1forumquestions",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: CreateQuestionRequest,
+      },
+    ],
+    response: CreateQuestionResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+      {
+        status: 404,
+        description: `Category not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/forum/questions/:questionId",
+    alias: "getV1forumquestionsQuestionId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "questionId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: GetQuestionResponse,
+    errors: [
+      {
+        status: 404,
+        description: `Question not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "delete",
+    path: "/v1/forum/questions/delete-question/:questionId",
+    alias: "deleteV1forumquestionsdeleteQuestionQuestionId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "questionId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: z.object({ ok: z.boolean() }),
+    errors: [
+      {
+        status: 404,
+        description: `Question not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "patch",
+    path: "/v1/forum/questions/edit-question/:questionId",
+    alias: "patchV1forumquestionseditQuestionQuestionId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: EditQuestionRequest,
+      },
+      {
+        name: "questionId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: CreateQuestionResponse,
+    errors: [
+      {
+        status: 404,
+        description: `Question not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/forum/questions/image/presign",
+    alias: "postV1forumquestionsimagepresign",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: PresignForumQuestionImageUploadRequest,
+      },
+    ],
+    response: PresignForumQuestionImageUploadResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/forum/questions/my-questions",
+    alias: "getV1forumquestionsmyQuestions",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().max(300).optional(),
+      },
+      {
+        name: "sortBy",
+        type: "Query",
+        schema: z
+          .enum(["newest", "mostVoted", "mostAnswered", "byCategory"])
+          .optional()
+          .default("newest"),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(10),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+    ],
+    response: GetMyQuestionsResponse,
+  },
+  {
+    method: "post",
+    path: "/v1/forum/questions/save-question/:questionId",
+    alias: "postV1forumquestionssaveQuestionQuestionId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "questionId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: SaveQuestionResponse,
+    errors: [
+      {
+        status: 404,
+        description: `Question not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "delete",
+    path: "/v1/forum/questions/save-question/:questionId",
+    alias: "deleteV1forumquestionssaveQuestionQuestionId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "questionId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: SaveQuestionResponse,
+    errors: [
+      {
+        status: 404,
+        description: `Question not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/forum/questions/saved",
+    alias: "getV1forumquestionssaved",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(10),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+    ],
+    response: GetSavedQuestionsResponse,
+  },
+  {
+    method: "get",
+    path: "/v1/forum/questions/trending-tags",
+    alias: "getV1forumquestionstrendingTags",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "categoryId",
+        type: "Query",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          )
+          .optional(),
+      },
+    ],
+    response: GetTrendingTagsResponse,
+    errors: [
+      {
+        status: 404,
+        description: `Category not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/forum/questions/vote-question/:questionId",
+    alias: "postV1forumquestionsvoteQuestionQuestionId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({ voteType: z.string() }),
+      },
+      {
+        name: "questionId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: CreateQuestionResponse,
+    errors: [
+      {
+        status: 404,
+        description: `Question not found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/forum/reporting",
+    alias: "postV1forumreporting",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: CreateReportingRequest,
+      },
+    ],
+    response: CreateReportingResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Invalid request data`,
+        schema: z.void(),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: z.void(),
+      },
+      {
+        status: 404,
+        description: `Reported entity not found`,
+        schema: z.void(),
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/launchpad",
+    alias: "postV1launchpad",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: CreateLaunchpadRequest,
+      },
+    ],
+    response: CreateLaunchpadResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: LaunchpadLogoValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 409,
+        description: `Launchpad with this name already exists`,
+        schema: LaunchpadOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: LaunchpadOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/launchpad",
+    alias: "getV1launchpad",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(20),
+      },
+      {
+        name: "sortBy",
+        type: "Query",
+        schema: z
+          .enum(["newest", "oldest", "startingSoon", "mostSpotsAvailable"])
+          .optional()
+          .default("newest"),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+      {
+        name: "categoryId",
+        type: "Query",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          )
+          .optional(),
+      },
+      {
+        name: "cityId",
+        type: "Query",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          )
+          .optional(),
+      },
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().min(1).max(120).optional(),
+      },
+    ],
+    response: GetLaunchpadsResponse,
+    errors: [
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: LaunchpadOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "patch",
+    path: "/v1/launchpad/:launchpadId",
+    alias: "patchV1launchpadLaunchpadId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: UpdateLaunchpadRequest,
+      },
+      {
+        name: "launchpadId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: CreateLaunchpadResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: LaunchpadLogoValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Launchpad or related record not found`,
+        schema: LaunchpadOperationErrorResponse,
+      },
+      {
+        status: 409,
+        description: `Launchpad edit conflict`,
+        schema: LaunchpadOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: LaunchpadOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/launchpad/:launchpadId",
+    alias: "getV1launchpadLaunchpadId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "launchpadId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: GetLaunchpadByIdResponse,
+    errors: [
+      {
+        status: 404,
+        description: `Launchpad not found`,
+        schema: LaunchpadOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: LaunchpadOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/launchpad/:launchpadId/applications",
+    alias: "postV1launchpadLaunchpadIdapplications",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: CreateLaunchpadApplicationRequest,
+      },
+      {
+        name: "launchpadId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: CreateLaunchpadApplicationResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: LaunchpadApplicationValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Launchpad or role not found`,
+        schema: LaunchpadApplicationOperationErrorResponse,
+      },
+      {
+        status: 409,
+        description: `Already applied for this role`,
+        schema: LaunchpadApplicationOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: LaunchpadApplicationOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/launchpad/:launchpadId/applications/:applicationId",
+    alias: "getV1launchpadLaunchpadIdapplicationsApplicationId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "launchpadId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+      {
+        name: "applicationId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: GetLaunchpadApplicationResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Application not found`,
+        schema: LaunchpadApplicationOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: LaunchpadApplicationOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/launchpad/:launchpadId/applications/batch",
+    alias: "postV1launchpadLaunchpadIdapplicationsbatch",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: CreateLaunchpadApplicationBatchRequest,
+      },
+      {
+        name: "launchpadId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: CreateLaunchpadApplicationBatchResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation or business rule failed`,
+        schema: LaunchpadApplicationBatchErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Launchpad or role not found`,
+        schema: LaunchpadApplicationOperationErrorResponse,
+      },
+      {
+        status: 409,
+        description: `Already applied for one or more roles`,
+        schema: LaunchpadApplicationOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: LaunchpadApplicationOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/launchpad/:launchpadId/applications/document/presign",
+    alias: "postV1launchpadLaunchpadIdapplicationsdocumentpresign",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: PresignLaunchpadApplicationDocumentUploadRequest,
+      },
+      {
+        name: "launchpadId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: PresignLaunchpadApplicationDocumentUploadResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: LaunchpadApplicationValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: LaunchpadApplicationOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/launchpad/cover/presign",
+    alias: "postV1launchpadcoverpresign",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: PresignLaunchpadImageUploadRequest,
+      },
+    ],
+    response: PresignLaunchpadCoverUploadResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: LaunchpadLogoValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: LaunchpadOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/launchpad/document/presign",
+    alias: "postV1launchpaddocumentpresign",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: PresignLaunchpadDocumentUploadRequest,
+      },
+    ],
+    response: PresignLaunchpadDocumentUploadResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: LaunchpadLogoValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: LaunchpadOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/launchpad/logo/presign",
+    alias: "postV1launchpadlogopresign",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: PresignLaunchpadImageUploadRequest,
+      },
+    ],
+    response: PresignLaunchpadLogoUploadResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: LaunchpadLogoValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: LaunchpadOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/launchpad/public/category",
+    alias: "getV1launchpadpubliccategory",
+    requestFormat: "json",
+    response: GetLaunchpadCategoriesResponse,
+  },
+  {
+    method: "get",
+    path: "/v1/launchpad/public/category/:categoryId",
+    alias: "getV1launchpadpubliccategoryCategoryId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "categoryId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: GetLaunchpadCategoriesResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Invalid request parameters`,
+        schema: z.void(),
+      },
+      {
+        status: 404,
+        description: `Launchpad category not found`,
+        schema: z.void(),
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/launchpad/save/:launchpadId",
+    alias: "postV1launchpadsaveLaunchpadId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "launchpadId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: SaveLaunchpadResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Bad request`,
+        schema: LaunchpadLogoValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Launchpad not found`,
+        schema: LaunchpadOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: LaunchpadOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "delete",
+    path: "/v1/launchpad/save/:launchpadId",
+    alias: "deleteV1launchpadsaveLaunchpadId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "launchpadId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: SaveLaunchpadResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Bad request`,
+        schema: LaunchpadLogoValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Launchpad not found`,
+        schema: LaunchpadOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: LaunchpadOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/launchpad/saved",
+    alias: "getV1launchpadsaved",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(20),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+    ],
+    response: GetSavedLaunchpadsResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: LaunchpadLogoValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: LaunchpadOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/me",
+    alias: "getV1me",
+    requestFormat: "json",
+    response: ProfileResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Onboarding required`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `User not found`,
+        schema: ProfileErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: ProfileErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "patch",
+    path: "/v1/me",
+    alias: "patchV1me",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: UpdateProfileRequest,
+      },
+    ],
+    response: UpdateProfileResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: ProfileErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Onboarding required`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `User not found`,
+        schema: ProfileErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: ProfileErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/me/recent-activity",
+    alias: "getV1merecentActivity",
+    requestFormat: "json",
+    response: GetRecentActivitiesResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Onboarding required`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: RecentActivityErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/me/saved",
+    alias: "getV1mesaved",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "filter",
+        type: "Query",
+        schema: z
+          .enum(["all", "project", "volunteer", "forum"])
+          .optional()
+          .default("all"),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(20),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+    ],
+    response: GetSavedItemsResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: SavedItemsErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Onboarding required`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: SavedItemsErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/me/skills/search",
+    alias: "getV1meskillssearch",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string(),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).lte(20).optional().default(10),
+      },
+    ],
+    response: SearchSkillsResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: ProfileErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Onboarding required`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: ProfileErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/my-application",
+    alias: "getV1myApplication",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "type",
+        type: "Query",
+        schema: z
+          .enum(["all", "volunteer", "projects"])
+          .optional()
+          .default("all"),
+      },
+      {
+        name: "filter",
+        type: "Query",
+        schema: z
+          .enum([
+            "all",
+            "pending",
+            "approved",
+            "active",
+            "completed",
+            "archived",
+          ])
+          .optional()
+          .default("all"),
+      },
+    ],
+    response: MyApplicationsResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Onboarding required`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: MyApplicationsErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/my-application/:sourceType/:applicationId/change-status/:statusAction",
+    alias: "postV1myApplicationSourceTypeApplicationIdchangeStatusStatusAction",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "sourceType",
+        type: "Path",
+        schema: z.enum(["volunteer", "projects"]),
+      },
+      {
+        name: "applicationId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+      {
+        name: "statusAction",
+        type: "Path",
+        schema: z.enum(["confirm", "decline", "withdraw"]),
+      },
+    ],
+    response: MyApplicationStatusActionResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Onboarding required`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Application not found`,
+        schema: MyApplicationsErrorResponse,
+      },
+      {
+        status: 409,
+        description: `Application status cannot be changed with this action`,
+        schema: MyApplicationsErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: MyApplicationsErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/my-application/:sourceType/:opportunityId/archive/:archiveAction",
+    alias: "postV1myApplicationSourceTypeOpportunityIdarchiveArchiveAction",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "sourceType",
+        type: "Path",
+        schema: z.enum(["volunteer", "projects"]),
+      },
+      {
+        name: "opportunityId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+      {
+        name: "archiveAction",
+        type: "Path",
+        schema: z.enum(["archive", "unarchive"]),
+      },
+    ],
+    response: MyApplicationArchiveActionResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Onboarding required`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Opportunity application group not found`,
+        schema: MyApplicationsErrorResponse,
+      },
+      {
+        status: 409,
+        description: `Only completed groups or groups containing only declined/withdrawn roles can be archived`,
+        schema: MyApplicationsErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: MyApplicationsErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/my-application/:sourceType/:postingId",
+    alias: "getV1myApplicationSourceTypePostingId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "sourceType",
+        type: "Path",
+        schema: z.enum(["volunteer", "projects"]),
+      },
+      {
+        name: "postingId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+    ],
+    response: MyApplicationDetailResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Onboarding required`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Posting application not found`,
+        schema: MyApplicationsErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: MyApplicationsErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/notifications",
+    alias: "getV1notifications",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "page",
+        type: "Query",
+        schema: z.number().int().gt(0).optional().default(1),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(20),
+      },
+      {
+        name: "unreadOnly",
+        type: "Query",
+        schema: z.enum(["true", "false"]).optional(),
+      },
+      {
+        name: "type",
+        type: "Query",
+        schema: z
+          .enum([
+            "forum",
+            "profile_view",
+            "new_message",
+            "achievement",
+            "event_reminder",
+            "application",
+            "launchpad_update",
+            "points",
+            "system",
+          ])
+          .optional(),
+      },
+      {
+        name: "archived",
+        type: "Query",
+        schema: z.enum(["true", "false"]).optional(),
+      },
+    ],
+    response: z
+      .object({
+        ok: z.literal(true),
+        notifications: z.array(
+          z
+            .object({
+              id: z.string().uuid(),
+              title: z.string(),
+              body: z.string(),
+              imageUrl: z.string().nullish(),
+              icon: z.string(),
+              type: z.string(),
+              eventType: z.string().nullish(),
+              dedupeKey: z.string().nullish(),
+              aggregateCount: z.number().int().gt(0).optional(),
+              data: z.record(z.string(), z.string()).nullable(),
+              isRead: z.boolean(),
+              readAt: z.string().nullable(),
+              archived: z.boolean(),
+              createdAt: z.string(),
+              updatedAt: z.string().optional(),
+              webRoute: z.string().nullish(),
+              mobileRoute: z.string().nullish(),
+            })
+            
+        ),
+        total: z.number(),
+        page: z.number(),
+        limit: z.number(),
+        unreadCounts: z.record(z.string(), z.number()),
+      })
+      ,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/notifications/broadcast",
+    alias: "postV1notificationsbroadcast",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: postV1notificationsbroadcast_Body,
+      },
+    ],
+    response: z
+      .object({
+        ok: z.boolean(),
+        successCount: z.number(),
+        failureCount: z.number(),
+      })
+      ,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+    ],
+  },
+  {
+    method: "patch",
+    path: "/v1/notifications/read",
+    alias: "patchV1notificationsread",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: patchV1adminnotificationsread_Body,
+      },
+    ],
+    response: z
+      .object({
+        ok: z.boolean(),
+        message: z.string(),
+        platform: z.enum(["web", "android", "ios"]).optional().default("web"),
+      })
+      ,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+    ],
+  },
+  {
+    method: "patch",
+    path: "/v1/notifications/read/all",
+    alias: "patchV1notificationsreadall",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "archived",
+        type: "Query",
+        schema: z.enum(["true", "false"]).optional(),
+      },
+      {
+        name: "type",
+        type: "Query",
+        schema: z
+          .enum([
+            "forum",
+            "profile_view",
+            "new_message",
+            "achievement",
+            "event_reminder",
+            "application",
+            "launchpad_update",
+            "points",
+            "system",
+          ])
+          .optional(),
+      },
+    ],
+    response: z
+      .object({
+        ok: z.boolean(),
+        message: z.string(),
+        platform: z.enum(["web", "android", "ios"]).optional().default("web"),
+      })
+      ,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/notifications/send/user",
+    alias: "postV1notificationssenduser",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: postV1notificationssenduser_Body,
+      },
+    ],
+    response: z
+      .object({
+        ok: z.boolean(),
+        successCount: z.number(),
+        failureCount: z.number(),
+      })
+      ,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/notifications/tokens",
+    alias: "postV1notificationstokens",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: postV1notificationstokens_Body,
+      },
+    ],
+    response: z
+      .object({
+        ok: z.boolean(),
+        message: z.string(),
+        platform: z.enum(["web", "android", "ios"]).optional().default("web"),
+      })
+      ,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+    ],
+  },
+  {
+    method: "delete",
+    path: "/v1/notifications/tokens",
+    alias: "deleteV1notificationstokens",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({ token: z.string().min(1) }),
+      },
+    ],
+    response: z
+      .object({
+        ok: z.boolean(),
+        message: z.string(),
+        platform: z.enum(["web", "android", "ios"]).optional().default("web"),
+      })
+      ,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z
+          .object({ ok: z.literal(false), error: z.string() })
+          ,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/onboarding/contributions",
+    alias: "getV1onboardingcontributions",
+    requestFormat: "json",
+    response: z.record(z.string(), z.unknown().nullable()),
+  },
+  {
+    method: "get",
+    path: "/v1/onboarding/interests",
+    alias: "getV1onboardinginterests",
+    requestFormat: "json",
+    response: z.record(z.string(), z.unknown().nullable()),
+  },
+  {
+    method: "get",
+    path: "/v1/onboarding/locations/cities",
+    alias: "getV1onboardinglocationscities",
+    requestFormat: "json",
+    response: z.record(z.string(), z.unknown().nullable()),
+    errors: [
+      {
+        status: 400,
+        description: `countryId or countryName missing`,
+        schema: z.record(z.string(), z.unknown().nullable()),
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/onboarding/locations/countries",
+    alias: "getV1onboardinglocationscountries",
+    requestFormat: "json",
+    response: z.record(z.string(), z.unknown().nullable()),
+  },
+  {
+    method: "get",
+    path: "/v1/onboarding/options",
+    alias: "getV1onboardingoptions",
+    requestFormat: "json",
+    response: z.record(z.string(), z.unknown().nullable()),
+  },
+  {
+    method: "get",
+    path: "/v1/onboarding/state",
+    alias: "getV1onboardingstate",
+    requestFormat: "json",
+    response: z.record(z.string(), z.unknown().nullable()),
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `User not found`,
+        schema: z.record(z.string(), z.unknown().nullable()),
+      },
+    ],
+  },
+  {
+    method: "put",
+    path: "/v1/onboarding/step-1-profile",
+    alias: "putV1onboardingstep1Profile",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: OnboardingProfileStepRequest,
+      },
+    ],
+    response: z.record(z.string(), z.unknown().nullable()),
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.record(z.string(), z.unknown().nullable()),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `User not found`,
+        schema: z.record(z.string(), z.unknown().nullable()),
+      },
+    ],
+  },
+  {
+    method: "put",
+    path: "/v1/onboarding/step-2-interests",
+    alias: "putV1onboardingstep2Interests",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: OnboardingInterestsStepRequest,
+      },
+    ],
+    response: z.record(z.string(), z.unknown().nullable()),
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.record(z.string(), z.unknown().nullable()),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `User not found`,
+        schema: z.record(z.string(), z.unknown().nullable()),
+      },
+    ],
+  },
+  {
+    method: "put",
+    path: "/v1/onboarding/step-3-contributions",
+    alias: "putV1onboardingstep3Contributions",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: OnboardingContributionsStepRequest,
+      },
+    ],
+    response: z.record(z.string(), z.unknown().nullable()),
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: z.record(z.string(), z.unknown().nullable()),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `User not found`,
+        schema: z.record(z.string(), z.unknown().nullable()),
+      },
+    ],
+  },
+  {
+    method: "put",
+    path: "/v1/onboarding/step-4-complete",
+    alias: "putV1onboardingstep4Complete",
+    requestFormat: "json",
+    response: z.record(z.string(), z.unknown().nullable()),
+    errors: [
+      {
+        status: 400,
+        description: `Onboarding prerequisites not complete`,
+        schema: z.record(z.string(), z.unknown().nullable()),
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/profile/:userId",
+    alias: "getV1profileUserId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "userId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: PublicProfileResponse,
+    errors: [
+      {
+        status: 404,
+        description: `User not found`,
+        schema: ProfileErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: ProfileErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/profile/:userId/posted",
+    alias: "getV1profileUserIdposted",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "userId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+      {
+        name: "sourceType",
+        type: "Query",
+        schema: z.enum(["forum", "volunteer", "project"]),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(20),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+    ],
+    response: GetMyPostedResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: MyPostedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `User not found`,
+        schema: MyPostedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: MyPostedErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/uploads/avatar/presign",
+    alias: "postV1uploadsavatarpresign",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: PresignAvatarUploadRequest,
+      },
+    ],
+    response: PresignAvatarUploadResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Invalid parameters`,
+        schema: z.void(),
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/volunteer/applications",
+    alias: "postV1volunteerapplications",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: CreateVolunteerApplicationRequest,
+      },
+    ],
+    response: CreateVolunteerApplicationResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: VolunteerCategoryValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Volunteer role not found`,
+        schema: VolunteerOperationErrorResponse,
+      },
+      {
+        status: 409,
+        description: `Duplicate volunteer application`,
+        schema: VolunteerOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: VolunteerOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/volunteer/applications/batch",
+    alias: "postV1volunteerapplicationsbatch",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: CreateVolunteerApplicationBatchRequest,
+      },
+    ],
+    response: CreateVolunteerApplicationBatchResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: VolunteerCategoryValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Volunteer role not found`,
+        schema: VolunteerOperationErrorResponse,
+      },
+      {
+        status: 409,
+        description: `Duplicate volunteer application`,
+        schema: VolunteerOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: VolunteerOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/volunteer/applications/document/presign",
+    alias: "postV1volunteerapplicationsdocumentpresign",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: PresignVolunteerApplicationDocumentUploadRequest,
+      },
+    ],
+    response: PresignVolunteerApplicationDocumentUploadResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: VolunteerCategoryValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Volunteer opportunity not found`,
+        schema: VolunteerOperationErrorResponse,
+      },
+      {
+        status: 409,
+        description: `Volunteer application already exists`,
+        schema: VolunteerOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: VolunteerOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/volunteer/categories",
+    alias: "getV1volunteercategories",
+    requestFormat: "json",
+    response: GetVolunteerCategoriesResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: VolunteerOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/volunteer/categories",
+    alias: "postV1volunteercategories",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: CreateVolunteerCategoryRequest,
+      },
+    ],
+    response: CreateVolunteerCategoryResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: VolunteerCategoryValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 409,
+        description: `Category already exists`,
+        schema: VolunteerOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: VolunteerOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/volunteer/locations",
+    alias: "getV1volunteerlocations",
+    requestFormat: "json",
+    response: GetVolunteerLocationsResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: VolunteerOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/volunteer/opportunities",
+    alias: "getV1volunteeropportunities",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "categoryId",
+        type: "Query",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          )
+          .optional(),
+      },
+      {
+        name: "locationId",
+        type: "Query",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          )
+          .optional(),
+      },
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().max(300).optional(),
+      },
+      {
+        name: "filter",
+        type: "Query",
+        schema: z
+          .enum(["recentlyAdded", "startingSoon", "mostSpotsAvailable"])
+          .optional()
+          .default("recentlyAdded"),
+      },
+      {
+        name: "timeCommitment",
+        type: "Query",
+        schema: z.enum(["Light", "Regular", "Intensive"]).optional(),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(10),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+    ],
+    response: GetVolunteerOpportunitiesResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: VolunteerCategoryValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Related volunteer records were not found`,
+        schema: VolunteerOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: VolunteerOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/volunteer/opportunities",
+    alias: "postV1volunteeropportunities",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: CreateVolunteerOpportunityRequest,
+      },
+    ],
+    response: CreateVolunteerOpportunityResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: VolunteerCategoryValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Related volunteer records were not found`,
+        schema: VolunteerOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: VolunteerOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/volunteer/opportunities/:opportunityId",
+    alias: "getV1volunteeropportunitiesOpportunityId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "opportunityId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: GetVolunteerOpportunityResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Bad Request - invalid opportunityId`,
+        schema: VolunteerCategoryValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Volunteer opportunity not found`,
+        schema: VolunteerOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: VolunteerOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "patch",
+    path: "/v1/volunteer/opportunities/:opportunityId",
+    alias: "patchV1volunteeropportunitiesOpportunityId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: UpdateVolunteerOpportunityRequest,
+      },
+      {
+        name: "opportunityId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: CreateVolunteerOpportunityResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: VolunteerCategoryValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Volunteer opportunity or related record not found`,
+        schema: VolunteerOperationErrorResponse,
+      },
+      {
+        status: 409,
+        description: `Volunteer opportunity edit conflict`,
+        schema: VolunteerOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: VolunteerOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/volunteer/opportunities/cover-image/presign",
+    alias: "postV1volunteeropportunitiescoverImagepresign",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: PresignVolunteerOpportunityCoverUploadRequest,
+      },
+    ],
+    response: PresignVolunteerOpportunityCoverUploadResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: VolunteerCategoryValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: VolunteerOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/volunteer/public/categories",
+    alias: "getV1volunteerpubliccategories",
+    requestFormat: "json",
+    response: GetVolunteerCategoriesResponse,
+    errors: [
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: VolunteerOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/volunteer/public/locations",
+    alias: "getV1volunteerpubliclocations",
+    requestFormat: "json",
+    response: GetVolunteerLocationsResponse,
+    errors: [
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: VolunteerOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/volunteer/public/opportunities",
+    alias: "getV1volunteerpublicopportunities",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "categoryId",
+        type: "Query",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          )
+          .optional(),
+      },
+      {
+        name: "locationId",
+        type: "Query",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          )
+          .optional(),
+      },
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().max(300).optional(),
+      },
+      {
+        name: "filter",
+        type: "Query",
+        schema: z
+          .enum(["recentlyAdded", "startingSoon", "mostSpotsAvailable"])
+          .optional()
+          .default("recentlyAdded"),
+      },
+      {
+        name: "timeCommitment",
+        type: "Query",
+        schema: z.enum(["Light", "Regular", "Intensive"]).optional(),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(10),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+    ],
+    response: GetVolunteerOpportunitiesResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: VolunteerCategoryValidationErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Related volunteer records were not found`,
+        schema: VolunteerOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: VolunteerOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/volunteer/public/opportunities/:opportunityId",
+    alias: "getV1volunteerpublicopportunitiesOpportunityId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "opportunityId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: GetPublicVolunteerOpportunityResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Invalid request`,
+        schema: VolunteerCategoryValidationErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Volunteer opportunity not found`,
+        schema: VolunteerOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: VolunteerOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/volunteer/save-opportunity/:opportunityId",
+    alias: "postV1volunteersaveOpportunityOpportunityId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "opportunityId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: SaveVolunteerOpportunityResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Bad Request - invalid opportunityId`,
+        schema: VolunteerCategoryValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Volunteer opportunity not found`,
+        schema: VolunteerOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: VolunteerOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "delete",
+    path: "/v1/volunteer/save-opportunity/:opportunityId",
+    alias: "deleteV1volunteersaveOpportunityOpportunityId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "opportunityId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: SaveVolunteerOpportunityResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Bad Request - invalid opportunityId`,
+        schema: VolunteerCategoryValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Volunteer opportunity not found`,
+        schema: VolunteerOperationErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: VolunteerOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/volunteer/saved",
+    alias: "getV1volunteersaved",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(10),
+      },
+      {
+        name: "cursor",
+        type: "Query",
+        schema: z.string().optional(),
+      },
+    ],
+    response: GetVolunteerOpportunitiesResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: VolunteerCategoryValidationErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Forbidden`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: VolunteerOperationErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/workspace/manage-posting",
+    alias: "getV1workspacemanagePosting",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "type",
+        type: "Query",
+        schema: z
+          .enum(["all", "volunteer", "projects"])
+          .optional()
+          .default("all"),
+      },
+      {
+        name: "filter",
+        type: "Query",
+        schema: z
+          .enum([
+            "all",
+            "live",
+            "draft",
+            "in_progress",
+            "completed",
+            "canceled",
+            "filled",
+          ])
+          .optional()
+          .default("all"),
+      },
+      {
+        name: "page",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(1),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(6),
+      },
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().max(300).optional(),
+      },
+    ],
+    response: ManagePostingsResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Onboarding required`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: ManagePostingsErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/workspace/manage-posting/:sourceType/:postingId",
+    alias: "getV1workspacemanagePostingSourceTypePostingId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "sourceType",
+        type: "Path",
+        schema: z.enum(["volunteer", "projects"]),
+      },
+      {
+        name: "postingId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+      {
+        name: "filter",
+        type: "Query",
+        schema: z
+          .enum([
+            "all",
+            "new",
+            "in_review",
+            "approved",
+            "confirmed",
+            "declined",
+          ])
+          .optional()
+          .default("all"),
+      },
+      {
+        name: "search",
+        type: "Query",
+        schema: z.string().max(300).optional(),
+      },
+      {
+        name: "page",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(1),
+      },
+      {
+        name: "limit",
+        type: "Query",
+        schema: z.number().int().gte(1).optional().default(10),
+      },
+    ],
+    response: ManagePostingDetailResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Onboarding required`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Posting not found`,
+        schema: ManagePostingsErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: ManagePostingsErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/workspace/manage-posting/:sourceType/:postingId/:applicationId/change-status/:statusAction",
+    alias:
+      "postV1workspacemanagePostingSourceTypePostingIdApplicationIdchangeStatusStatusAction",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "sourceType",
+        type: "Path",
+        schema: z.enum(["volunteer", "projects"]),
+      },
+      {
+        name: "postingId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+      {
+        name: "applicationId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+      {
+        name: "statusAction",
+        type: "Path",
+        schema: z.enum(["under_review", "approve"]),
+      },
+    ],
+    response: ManagePostingApplicationActionResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Onboarding required`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Application not found`,
+        schema: ManagePostingsErrorResponse,
+      },
+      {
+        status: 409,
+        description: `Application is no longer pending review`,
+        schema: ManagePostingsErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: ManagePostingsErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/workspace/manage-posting/:sourceType/:postingId/:applicationId/decline",
+    alias:
+      "postV1workspacemanagePostingSourceTypePostingIdApplicationIddecline",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "sourceType",
+        type: "Path",
+        schema: z.enum(["volunteer", "projects"]),
+      },
+      {
+        name: "postingId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+      {
+        name: "applicationId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+      {
+        name: "declineAll",
+        type: "Query",
+        schema: z.boolean().nullish().default(false),
+      },
+      {
+        name: "blockFutureApply",
+        type: "Query",
+        schema: z.boolean().nullish().default(false),
+      },
+    ],
+    response: ManagePostingApplicationActionResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Onboarding required`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Application not found`,
+        schema: ManagePostingsErrorResponse,
+      },
+      {
+        status: 409,
+        description: `Application cannot be declined from the current state`,
+        schema: ManagePostingsErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: ManagePostingsErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "get",
+    path: "/v1/workspace/manage-posting/:sourceType/:postingId/:candidateId",
+    alias: "getV1workspacemanagePostingSourceTypePostingIdCandidateId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "sourceType",
+        type: "Path",
+        schema: z.enum(["volunteer", "projects"]),
+      },
+      {
+        name: "postingId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+      {
+        name: "candidateId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: ManagePostingCandidateDetailResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Onboarding required`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Candidate not found`,
+        schema: ManagePostingsErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: ManagePostingsErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/workspace/manage-posting/:sourceType/:postingId/:candidateId/note",
+    alias: "postV1workspacemanagePostingSourceTypePostingIdCandidateIdnote",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({ note: z.string().max(5000) }),
+      },
+      {
+        name: "sourceType",
+        type: "Path",
+        schema: z.enum(["volunteer", "projects"]),
+      },
+      {
+        name: "postingId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+      {
+        name: "candidateId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: UpsertManagePostingCandidateNoteResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: ManagePostingsErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Onboarding required`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Candidate not found`,
+        schema: ManagePostingsErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: ManagePostingsErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/workspace/manage-posting/:sourceType/:postingId/action/:postingAction",
+    alias: "postV1workspacemanagePostingSourceTypePostingIdactionPostingAction",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "sourceType",
+        type: "Path",
+        schema: z.enum(["volunteer", "projects"]),
+      },
+      {
+        name: "postingId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+      {
+        name: "postingAction",
+        type: "Path",
+        schema: z.enum(["cancel", "close", "delete", "mark_complete"]),
+      },
+    ],
+    response: UpdateManagePostingActionResponse,
+    errors: [
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Onboarding required`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Posting not found`,
+        schema: ManagePostingsErrorResponse,
+      },
+      {
+        status: 409,
+        description: `Posting action is not allowed for the current state`,
+        schema: ManagePostingsErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: ManagePostingsErrorResponse,
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/v1/workspace/manage-posting/:sourceType/:postingId/extend-application-deadline",
+    alias:
+      "postV1workspacemanagePostingSourceTypePostingIdextendApplicationDeadline",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z
+          .object({ deadline: z.string() })
+          ,
+      },
+      {
+        name: "sourceType",
+        type: "Path",
+        schema: z.enum(["volunteer", "projects"]),
+      },
+      {
+        name: "postingId",
+        type: "Path",
+        schema: z
+          .string()
+          .regex(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/
+          ),
+      },
+    ],
+    response: ExtendManagePostingDeadlineResponse,
+    errors: [
+      {
+        status: 400,
+        description: `Validation failed`,
+        schema: ManagePostingsErrorResponse,
+      },
+      {
+        status: 401,
+        description: `Unauthorized`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 403,
+        description: `Onboarding required`,
+        schema: AuthProtectedErrorResponse,
+      },
+      {
+        status: 404,
+        description: `Posting not found`,
+        schema: ManagePostingsErrorResponse,
+      },
+      {
+        status: 409,
+        description: `Posting deadline cannot be extended from the current state`,
+        schema: ManagePostingsErrorResponse,
+      },
+      {
+        status: 500,
+        description: `Internal server error`,
+        schema: ManagePostingsErrorResponse,
+      },
+    ],
+  },
 ]);
 
 // Generated API schema types

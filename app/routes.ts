@@ -9,7 +9,7 @@ export default [
   layout("layout/app-layout.tsx", [
     layout("layout/footer-layout.tsx", [
       index("routes/home.tsx"),
-      route("about", "routes/about.tsx"),
+      route("about", "features/about/route/about.tsx"),
       route("dashboard", "routes/dashboard.tsx"),
       route("profile", "routes/onboarding-profile.tsx"),
       route("messages", "routes/messages.tsx"),
@@ -99,6 +99,10 @@ export default [
       "features/admin/usermanagement/route/user-management.$userId.tsx",
     ),
     route(
+      "notifications",
+      "features/admin/notifications/route/admin-notifications.tsx",
+    ),
+    route(
       "notifications/broadcast",
       "features/admin/notifications/route/notification-broadcast.tsx",
     ),
@@ -161,6 +165,22 @@ export default [
   route(
     "api/notifications/read/all",
     "features/notifications/route/notifications.read.all.ts",
+  ),
+  route(
+    "api/admin/notifications",
+    "features/admin/notifications/route/admin-notifications.feed.ts",
+  ),
+  route(
+    "api/admin/notifications/stream",
+    "features/admin/notifications/route/admin-notifications.stream.ts",
+  ),
+  route(
+    "api/admin/notifications/read",
+    "features/admin/notifications/route/admin-notifications.read.ts",
+  ),
+  route(
+    "api/admin/notifications/read/all",
+    "features/admin/notifications/route/admin-notifications.read.all.ts",
   ),
   route(
     "api/candidate-note",
