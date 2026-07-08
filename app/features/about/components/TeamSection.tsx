@@ -1,5 +1,5 @@
 import { BoardMember, ExecutiveMember } from "./teamMembers";
-import { ambassadors, boardMembers, executiveMembers } from "../types/members";
+import { ambassadors, boardMembers, executiveMembers } from "../lib/members";
 
 export function TeamSection() {
   return (

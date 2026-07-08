@@ -1,5 +1,6 @@
-// Team members data
-export const boardMembers = [
+import type { Member } from "../types";
+
+export const boardMembers: Member[] = [
   {
     name: "Vireak Suo",
     imageUrl: "https://diwdu0fi8ef70.cloudfront.net/Members/1vir.jpg",
@@ -38,7 +39,7 @@ export const boardMembers = [
   },
 ];
 
-export const ambassadors = [
+export const ambassadors: Member[] = [
   {
     name: "Jessie McCaul",
     imageUrl:
@@ -62,7 +63,7 @@ export const ambassadors = [
   },
 ];
 
-export const executiveMembers = [
+export const executiveMembers: Member[] = [
   {
     name: "Moran Hadad",
     role: "Executive Director",
@@ -85,6 +86,3 @@ export const executiveMembers = [
     imageUrl: "https://diwdu0fi8ef70.cloudfront.net/Members/poiuchd.JPG",
   },
 ];
-
-// For backward compatibility
-export const teamMembers = [...boardMembers, ...executiveMembers];

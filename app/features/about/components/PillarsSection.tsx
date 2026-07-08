@@ -1,4 +1,4 @@
-import { pillars } from "../types/pillars";
+import { pillars } from "../lib/pillars";
 import PillarsCarousel from "./PillarsCarousel";
 
 export function PillarsSection() {

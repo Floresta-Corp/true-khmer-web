@@ -9,7 +9,7 @@ export default [
   layout("layout/app-layout.tsx", [
     layout("layout/footer-layout.tsx", [
       index("routes/home.tsx"),
-      route("about", "features/about/route/about-page.tsx"),
+      route("about", "features/about/route/about.tsx"),
       route("dashboard", "routes/dashboard.tsx"),
       route("profile", "routes/onboarding-profile.tsx"),
       route("messages", "routes/messages.tsx"),

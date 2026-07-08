@@ -3,14 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
-
-interface Pillar {
-  id: string;
-  title: string;
-  description: string;
-  imageUrl: string;
-  imageAlt: string;
-}
+import type { Pillar } from "../types";
 
 interface PillarsCarouselProps {
   pillars: Pillar[];
@@ -20,14 +13,12 @@ interface PreviewImageProps {
   pillar: Pillar;
   onClick: () => void;
   direction: "left" | "right";
-  onKeyPress: (event: React.KeyboardEvent, action: () => void) => void;
 }
 
 const PreviewImage: React.FC<PreviewImageProps> = ({
   pillar,
   onClick,
   direction,
-  onKeyPress,
 }) => (
   <div className="hidden lg:block">
     <button
@@ -38,7 +29,6 @@ const PreviewImage: React.FC<PreviewImageProps> = ({
         "transition-transform duration-200 hover:scale-105",
       )}
       onClick={onClick}
-      onKeyDown={(e) => onKeyPress(e, onClick)}
       aria-label={`Go to ${direction === "left" ? "previous" : "next"} slide`}
     >
       <img
@@ -52,7 +42,10 @@ const PreviewImage: React.FC<PreviewImageProps> = ({
 );
 
 const PillarsCarousel: React.FC<PillarsCarouselProps> = ({ pillars }) => {
-  const [activeIndex, setActiveIndex] = useState(2);
+  // Start on the third pillar when available, otherwise the last one.
+  const [activeIndex, setActiveIndex] = useState(() =>
+    Math.min(2, pillars.length - 1),
+  );
   const [isTransitioning, setIsTransitioning] = useState(false);
   const mainCardRef = useRef<HTMLDivElement>(null);
 
@@ -80,13 +73,6 @@ const PillarsCarousel: React.FC<PillarsCarouselProps> = ({ pillars }) => {
     handleSlideChange(newIndex);
   };
 
-  const handleKeyPress = (event: React.KeyboardEvent, action: () => void) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      action();
-    }
-  };
-
   const getLeftPreviewIndex = () => {
     return activeIndex === 0 ? pillars.length - 1 : activeIndex - 1;
   };
@@ -102,6 +88,8 @@ const PillarsCarousel: React.FC<PillarsCarouselProps> = ({ pillars }) => {
 
   const activePillar = pillars[activeIndex];
 
+  if (!activePillar) return null;
+
   return (
     <div className="mx-auto mt-12">
       <div className="flex items-center justify-center gap-4 lg:gap-6">
@@ -110,7 +98,6 @@ const PillarsCarousel: React.FC<PillarsCarouselProps> = ({ pillars }) => {
             pillar={pillars[getSecondLeftPreviewIndex()]}
             onClick={() => handleSlideChange(getSecondLeftPreviewIndex())}
             direction="left"
-            onKeyPress={handleKeyPress}
           />
         </div>
         <div>
@@ -118,7 +105,6 @@ const PillarsCarousel: React.FC<PillarsCarouselProps> = ({ pillars }) => {
             pillar={pillars[getLeftPreviewIndex()]}
             onClick={() => handleSlideChange(getLeftPreviewIndex())}
             direction="left"
-            onKeyPress={handleKeyPress}
           />
         </div>
 
@@ -241,7 +227,6 @@ const PillarsCarousel: React.FC<PillarsCarouselProps> = ({ pillars }) => {
             pillar={pillars[getRightPreviewIndex()]}
             onClick={() => handleSlideChange(getRightPreviewIndex())}
             direction="right"
-            onKeyPress={handleKeyPress}
           />
         </div>
       </div>

@@ -1,5 +1,7 @@
+import type { Pillar } from "../types";
+
 // Four Pillars of Action data
-export const pillars = [
+export const pillars: Pillar[] = [
   {
     id: "1",
     title: "People of Cambodia",

@@ -1,18 +1,20 @@
 import { Facebook, Linkedin, Youtube } from "lucide-react";
 import TikTok from "../../../../public/icons/tiktok";
-interface SocialLink {
-  platform: "youtube" | "linkedin" | "facebook" | "tiktok";
-  url: string;
-}
+import type { Member, SocialLink } from "../types";
 
-interface TeamMemberProps {
-  name: string;
-  role?: string;
-  imageUrl: string;
-  imagePosition?: string;
-  imageTransform?: string;
-  socialLinks?: SocialLink[];
-}
+// Variant-specific styling; the layout is otherwise identical across roles.
+const variantStyles = {
+  executive: {
+    avatar: "size-32",
+    name: "text-sm/7",
+    role: "text-xs/6 text-gray-400",
+  },
+  board: {
+    avatar: "size-60",
+    name: "text-base/7",
+    role: "text-base-content/60 text-sm/6",
+  },
+} as const;
 
 const SocialIcon = ({ platform }: { platform: SocialLink["platform"] }) => {
   switch (platform) {
@@ -29,17 +31,19 @@ const SocialIcon = ({ platform }: { platform: SocialLink["platform"] }) => {
   }
 };
 
-export function ExecutiveMember({
+function TeamMember({
   name,
   role,
   imageUrl,
   imagePosition,
   imageTransform,
   socialLinks = [],
-}: TeamMemberProps) {
+  variant,
+}: Member & { variant: keyof typeof variantStyles }) {
+  const styles = variantStyles[variant];
   return (
     <div>
-      <div className="mx-auto size-32 overflow-hidden rounded-full">
+      <div className={`mx-auto ${styles.avatar} overflow-hidden rounded-full`}>
         <img
           className="size-full object-cover"
           style={{
@@ -51,82 +55,42 @@ export function ExecutiveMember({
           loading="lazy"
         />
       </div>
-      <h3 className="text-base-content mt-6 text-sm/7 font-semibold tracking-tight">
+      <h3
+        className={`text-base-content mt-6 ${styles.name} font-semibold tracking-tight`}
+      >
         {name}
       </h3>
-      {role && <p className="text-xs/6 text-gray-400">{role}</p>}
+      {role && <p className={styles.role}>{role}</p>}
       {socialLinks.length > 0 && (
         <ul className="mt-6 flex justify-center gap-x-6">
-          {socialLinks.map((link) => (
-            <li key={link.platform}>
-              <a
-                href={link.url}
-                className="text-base-content/60 hover:text-primary"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${name} on ${link.platform.charAt(0).toUpperCase() + link.platform.slice(1)}`}
-              >
-                <span className="sr-only">
-                  {link.platform.charAt(0).toUpperCase() +
-                    link.platform.slice(1)}
-                </span>
-                <SocialIcon platform={link.platform} />
-              </a>
-            </li>
-          ))}
+          {socialLinks.map((link) => {
+            const platformLabel =
+              link.platform.charAt(0).toUpperCase() + link.platform.slice(1);
+            return (
+              <li key={link.platform}>
+                <a
+                  href={link.url}
+                  className="text-base-content/60 hover:text-primary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${name} on ${platformLabel}`}
+                >
+                  <span className="sr-only">{platformLabel}</span>
+                  <SocialIcon platform={link.platform} />
+                </a>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
   );
 }
 
-export function BoardMember({
-  name,
-  role,
-  imageUrl,
-  imagePosition,
-  imageTransform,
-  socialLinks = [],
-}: TeamMemberProps) {
-  return (
-    <div>
-      <div className="mx-auto size-60 overflow-hidden rounded-full">
-        <img
-          className="size-full object-cover"
-          style={{
-            objectPosition: imagePosition,
-            transform: imageTransform,
-          }}
-          src={imageUrl}
-          alt={`${name}`}
-          loading="lazy"
-        />
-      </div>
-      <h3 className="text-base-content mt-6 text-base/7 font-semibold tracking-tight">
-        {name}
-      </h3>
-      {role && <p className="text-base-content/60 text-sm/6">{role}</p>}
-      {socialLinks.length > 0 && (
-        <ul className="mt-6 flex justify-center gap-x-6">
-          {socialLinks.map((link) => (
-            <li key={link.platform}>
-              <a
-                href={link.url}
-                className="text-base-content/60 hover:text-primary"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${name} on ${link.platform.charAt(0).toUpperCase() + link.platform.slice(1)}`}
-              >
-                <span className="sr-only">
-                  {link.platform.charAt(0).toUpperCase() +
-                    link.platform.slice(1)}
-                </span>
-                <SocialIcon platform={link.platform} />
-              </a>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
+export function ExecutiveMember(props: Member) {
+  return <TeamMember {...props} variant="executive" />;
+}
+
+export function BoardMember(props: Member) {
+  return <TeamMember {...props} variant="board" />;
 }
