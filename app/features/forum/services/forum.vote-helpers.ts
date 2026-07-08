@@ -55,6 +55,8 @@ export async function submitVoteAction(
       payload.voteType,
     );
   } catch (error) {
+    // Auth redirects (thrown Response) must propagate so the user reaches login.
+    if (error instanceof Response) throw error;
     if (error instanceof ProtectedApiError) {
       return {
         ok: false,
@@ -62,6 +64,7 @@ export async function submitVoteAction(
       };
     }
 
+    console.error("Failed to submit vote:", error);
     return {
       ok: false,
       message: "Failed to submit vote. Please try again.",
@@ -105,6 +108,8 @@ export async function submitAnswerVoteAction(
   try {
     return await voteForumAnswer(request, payload.answerId, payload.voteType);
   } catch (error) {
+    // Auth redirects (thrown Response) must propagate so the user reaches login.
+    if (error instanceof Response) throw error;
     if (error instanceof ProtectedApiError) {
       return {
         ok: false,
@@ -112,6 +117,7 @@ export async function submitAnswerVoteAction(
       };
     }
 
+    console.error("Failed to submit vote:", error);
     return {
       ok: false,
       message: "Failed to submit vote. Please try again.",
@@ -134,6 +140,8 @@ export async function deleteQuestionAction(
   try {
     return await deleteForumQuestion(request, questionId);
   } catch (error) {
+    // Auth redirects (thrown Response) must propagate so the user reaches login.
+    if (error instanceof Response) throw error;
     if (error instanceof ProtectedApiError) {
       return {
         ok: false,
@@ -142,6 +150,7 @@ export async function deleteQuestionAction(
       };
     }
 
+    console.error("Failed to delete question:", error);
     return {
       ok: false,
       message: "Failed to delete question. Please try again.",
@@ -169,13 +178,16 @@ export async function reportQuestionAction(
   try {
     return await SubmitReport(request, body);
   } catch (error) {
+    // Auth redirects (thrown Response) must propagate so the user reaches login.
+    if (error instanceof Response) throw error;
     if (error instanceof ProtectedApiError) {
       return {
         ok: false,
-        message: error.message || "Failed to submit report.",
+        message: error.message || "Failed to submit report. Please try again.",
       };
     }
-    return { ok: false, message: "Failed to submit report." };
+    console.error("Failed to submit report:", error);
+    return { ok: false, message: "Failed to submit report. Please try again." };
   }
 }
 
@@ -196,12 +208,15 @@ export async function reportAnswerAction(request: Request, formData: FormData) {
   try {
     return await SubmitReport(request, body);
   } catch (error) {
+    // Auth redirects (thrown Response) must propagate so the user reaches login.
+    if (error instanceof Response) throw error;
     if (error instanceof ProtectedApiError) {
       return {
         ok: false,
-        message: error.message || "Failed to submit report.",
+        message: error.message || "Failed to submit report. Please try again.",
       };
     }
-    return { ok: false, message: "Failed to submit report." };
+    console.error("Failed to submit report:", error);
+    return { ok: false, message: "Failed to submit report. Please try again." };
   }
 }

@@ -253,10 +253,7 @@ export default function ForumReportDialog({
         }}
         title="Unable to Submit Report"
         description={errorMessage ?? undefined}
-        onConfirm={() => {
-          setOpen(false);
-          reset();
-        }}
+        onConfirm={() => setErrorMessage(null)}
       />
     </Dialog>
   );
