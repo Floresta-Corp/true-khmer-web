@@ -1068,7 +1068,7 @@ export default function EditProfile() {
                 >
                   <Button
                     type="submit"
-                    className="H-10 h-10 cursor-pointer bg-blue-600 text-white hover:bg-blue-700"
+                    className="h-10 cursor-pointer bg-blue-600 text-white hover:bg-blue-700"
                     disabled={fetcher.state !== "idle"}
                   >
                     {fetcher.state !== "idle" ? (
