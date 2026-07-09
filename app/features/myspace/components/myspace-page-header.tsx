@@ -36,7 +36,7 @@ export function PageHeader({
   };
 
   return (
-    <div className="flex items-end justify-between">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="space-y-1">
         <h1 className="mb-2 text-3xl leading-tight font-extrabold tracking-tight text-slate-900 sm:text-[40px] dark:text-white">
           {isPublicView ? "Public Profile" : "My Profile"}

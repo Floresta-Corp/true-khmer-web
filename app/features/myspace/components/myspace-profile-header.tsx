@@ -76,18 +76,18 @@ export function ProfileHeader({
   ].filter(Boolean) as LinkItem[];
 
   return (
-    <div className="rounded-3xl overflow-hidden border  flex flex-col bg-white">
-      <div className="px-8 py-7 flex items-center gap-6 bg-linear-to-br from-[#deeefe] to-[#f8fafc]">
-        <div className="shrink-0 bg-white size-20 rounded-full relative p-0.5">
-          <div className="w-full h-full rounded-full overflow-hidden">
+    <div className="flex flex-col overflow-hidden rounded-3xl border bg-white">
+      <div className="flex flex-col items-start gap-4 bg-linear-to-br from-[#deeefe] to-[#f8fafc] px-6 py-6 sm:flex-row sm:items-center sm:gap-6 sm:px-8 sm:py-7">
+        <div className="relative size-20 shrink-0 rounded-full bg-white p-0.5">
+          <div className="h-full w-full overflow-hidden rounded-full">
             {avatarKey ? (
               <img
                 src={resolveImageURL(avatarKey)}
                 alt={displayName}
-                className="object-cover size-full"
+                className="size-full object-cover"
               />
             ) : (
-              <div className="size-full bg-indigo-100 flex items-center justify-center">
+              <div className="flex size-full items-center justify-center bg-indigo-100">
                 <span className="text-xl font-bold text-indigo-500">
                   {firstName[0]}
                   {lastName[0]}
@@ -99,19 +99,19 @@ export function ProfileHeader({
 
         {/* Name + Tier + Occupation */}
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="font-bold text-[24px] tracking-tight text-[#1e2329]">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-[24px] font-bold tracking-tight text-[#1e2329]">
               {displayName}
             </span>
 
             {tier && (
-              <span className="text-[10px] font-black tracking-wider px-3 py-1 rounded-full text-white bg-[#e5b25d] ">
+              <span className="rounded-full bg-[#e5b25d] px-3 py-1 text-[10px] font-black tracking-wider text-white">
                 {tier.toUpperCase()}
               </span>
             )}
           </div>
           {occupation && (
-            <p className="text-[14px] font-semibold ">{occupation}</p>
+            <p className="text-[14px] font-semibold">{occupation}</p>
           )}
         </div>
       </div>
@@ -119,7 +119,7 @@ export function ProfileHeader({
       {/* 2. Crisp Divider Line */}
       <div className="h-px bg-[#e2e8f0]" />
 
-      <div className="bg-white px-8 py-4 flex flex-wrap gap-x-6 gap-y-2 items-center bg-linear-to-br from-blue-50/70 to-[#f8fafc]">
+      <div className="flex flex-col items-start gap-2 bg-white bg-linear-to-br from-blue-50/70 to-[#f8fafc] px-6 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-2 sm:px-8">
         {infoLinks.map((link, i) =>
           link?.href ? (
             <a
@@ -127,13 +127,13 @@ export function ProfileHeader({
               href={link?.href}
               target={link?.external ? "_blank" : undefined}
               rel={link?.external ? "noopener noreferrer" : undefined}
-              className="flex items-center gap-2 text-[13px] font-semibold text-blue-500 hover:underline transition-colors min-w-0"
+              className="flex min-w-0 items-center gap-2 text-[13px] font-semibold text-blue-500 transition-colors hover:underline"
             >
               {link?.icon}
-              <span className="truncate max-w-55">
+              <span className="max-w-55 truncate">
                 {link?.label}
                 {link?.external && (
-                  <span className="text-[10px] ml-0.5 opacity-60">↗</span>
+                  <span className="ml-0.5 text-[10px] opacity-60">↗</span>
                 )}
               </span>
             </a>

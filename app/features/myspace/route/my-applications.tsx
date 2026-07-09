@@ -20,7 +20,7 @@ export default function MyApplicationPage() {
   const initialTab = searchParams.get("filter");
 
   return (
-    <div className="min-h-full w-full bg-white py-8 dark:bg-slate-950 sm:py-10">
+    <div className="min-h-full w-full bg-white py-8 sm:py-10 dark:bg-slate-950">
       <div className="mx-auto flex max-w-350 flex-col gap-8 px-4 sm:px-6 lg:px-10">
         <MyApplicationPendingApprove />
         <div className="flex w-full flex-col gap-10 lg:flex-row lg:items-start xl:gap-14">

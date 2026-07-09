@@ -18,7 +18,7 @@ export default function SavedItemsFilterBar({
   onFilterChange,
 }: SavedItemsFilterBarProps) {
   return (
-    <div className="flex flex-wrap items-center gap-1 rounded-2xl bg-slate-100 p-1.5">
+    <div className="scrollbar-none flex max-w-full items-center gap-1 overflow-x-auto rounded-2xl bg-slate-100 p-1.5">
       {FILTERS.map(({ id, label, icon: Icon }) => {
         const isActive = activeFilter === id;
         return (
@@ -27,7 +27,7 @@ export default function SavedItemsFilterBar({
             type="button"
             aria-pressed={isActive}
             onClick={() => onFilterChange(id)}
-            className={`flex cursor-pointer items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all ${
+            className={`flex shrink-0 cursor-pointer items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition-all ${
               isActive
                 ? "bg-white text-blue-600 shadow-sm"
                 : "text-slate-500 hover:text-slate-700"

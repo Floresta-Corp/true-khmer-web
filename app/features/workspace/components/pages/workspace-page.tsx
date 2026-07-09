@@ -177,14 +177,13 @@ export default function WorkSpacePage() {
         />
 
         {/* Toolbar */}
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:items-center justify-between">
+        <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center sm:gap-3">
           <motion.div
-            className="relative min-w-0"
+            className="relative w-full min-w-0 sm:w-1/2"
             initial={false}
-            animate={{ width: "50%" }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
           >
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400 pointer-events-none" />
+            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
             <Input
               value={inputValue}
               onChange={handleSearchChange}
@@ -193,7 +192,7 @@ export default function WorkSpacePage() {
                   ? "Search your questions..."
                   : "Search your answers..."
               }
-              className="pl-9 bg-white border-slate-200 text-sm placeholder:text-slate-400 h-10 rounded-xl"
+              className="h-10 rounded-xl border-slate-200 bg-white pl-9 text-sm placeholder:text-slate-400"
             />
           </motion.div>
 
@@ -204,7 +203,7 @@ export default function WorkSpacePage() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.25, ease: "easeInOut" }}
-                className="flex items-center gap-2 shrink-0"
+                className="flex shrink-0 items-center gap-2"
               >
                 <span className="text-xs font-bold text-[#5F6368] dark:text-slate-400">
                   Sort by:
@@ -235,7 +234,7 @@ export default function WorkSpacePage() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.25, ease: "easeInOut" }}
-                className="flex items-center gap-2 shrink-0"
+                className="flex shrink-0 items-center gap-2"
               >
                 <span className="text-xs font-bold text-[#5F6368] dark:text-slate-400">
                   Sort by:
@@ -270,20 +269,20 @@ export default function WorkSpacePage() {
               </span>
             )}
             {currentSearch && (
-              <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium border border-blue-100">
+              <span className="rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 font-medium text-blue-600">
                 &ldquo;{currentSearch}&rdquo;
               </span>
             )}
             {activeTab === "answers" &&
               currentCategory &&
               categories.find((c) => c.id === currentCategory) && (
-                <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium border border-slate-200">
+                <span className="rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 font-medium text-slate-600">
                   {categories.find((c) => c.id === currentCategory)?.name}
                 </span>
               )}
             <button
               onClick={clearFilters}
-              className="ml-auto text-slate-400 hover:text-slate-600 underline underline-offset-2 transition-colors"
+              className="ml-auto text-slate-400 underline underline-offset-2 transition-colors hover:text-slate-600"
             >
               Clear filters
             </button>
