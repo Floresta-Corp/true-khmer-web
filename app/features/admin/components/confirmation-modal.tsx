@@ -30,6 +30,13 @@ const titleColor: Record<ConfirmationVariant, string> = {
   info: "text-blue-600 dark:text-blue-400",
 };
 
+const confirmButtonClass: Record<ConfirmationVariant, string> = {
+  error: "bg-rose-600 text-white hover:bg-rose-700 focus-visible:ring-rose-500/30",
+  warning:
+    "bg-amber-500 text-white hover:bg-amber-600 focus-visible:ring-amber-500/30",
+  info: "bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500/30",
+};
+
 export function ConfirmationModal({
   isOpen,
   onClose,
@@ -68,8 +75,8 @@ export function ConfirmationModal({
           </Button>
           <Button
             type="button"
-            variant={variant === "info" ? "default" : "destructive"}
-            className="flex-1"
+            variant="default"
+            className={`flex-1 ${confirmButtonClass[variant]}`}
             onClick={onConfirm}
             disabled={loading}
           >

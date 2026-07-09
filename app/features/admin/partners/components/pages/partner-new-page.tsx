@@ -7,6 +7,7 @@ import {
   useSubmit,
 } from "react-router";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
@@ -71,12 +72,10 @@ export default function PartnerNewPage() {
     if (actionData && "validationErrors" in actionData && actionData.validationErrors) {
       setErrors(actionData.validationErrors);
     }
+    if (actionData && "error" in actionData && actionData.error) {
+      toast.error(actionData.error);
+    }
   }, [actionData]);
-
-  const errorMessage =
-    actionData && "error" in actionData && !("success" in actionData && actionData.success)
-      ? actionData.error
-      : null;
 
   function handleChange(name: keyof FormValues, value: string) {
     setValues((prev) => ({ ...prev, [name]: value }));
@@ -171,12 +170,6 @@ export default function PartnerNewPage() {
             </Button>
           </div>
         </div>
-
-        {errorMessage && (
-          <div className="rounded-lg bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">
-            {errorMessage}
-          </div>
-        )}
 
         {/* Company information */}
         <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">

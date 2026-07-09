@@ -1,6 +1,7 @@
 import { useEffect, useId, useState } from "react";
 import { Form, useActionData, useNavigate, useNavigation } from "react-router";
 import { ChevronLeft, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import LogoSvg from "../../../../public/logoSvg";
 
 import { contactPersonLoader } from "../services/contact-person.loader";
@@ -60,7 +61,10 @@ export default function ContactPerson() {
 
   useEffect(() => {
     if (actionData?.validationErrors) setFormErrors(actionData.validationErrors);
-    else if (actionData?.error) setFormErrors({ general: actionData.error });
+    else if (actionData?.error) {
+      setFormErrors({});
+      toast.error(actionData.error);
+    }
   }, [actionData]);
 
   const set = (name: keyof typeof values) => (value: string) => {
@@ -237,14 +241,6 @@ export default function ContactPerson() {
                 disabled={isSubmitting}
                 error={formErrors.userLinkedinUrl}
               />
-
-              {formErrors.general && (
-                <div className="rounded-md bg-rose-50 p-4 dark:bg-rose-950/40">
-                  <h3 className="text-sm font-medium text-rose-700 dark:text-rose-300">
-                    {formErrors.general}
-                  </h3>
-                </div>
-              )}
 
               <button
                 type="submit"

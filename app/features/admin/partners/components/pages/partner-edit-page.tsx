@@ -17,6 +17,7 @@ import {
   Trash2,
   Upload,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
@@ -78,10 +79,6 @@ export default function PartnerEditPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
-  const [alert, setAlert] = useState<{
-    message: string;
-    variant: "success" | "error";
-  } | null>(null);
 
   const formRef = useRef<HTMLFormElement>(null);
   const logoInputId = useId();
@@ -93,10 +90,10 @@ export default function PartnerEditPage() {
       setErrors({});
       if (actionData.type === "photoAdd") {
         setPhotos(initialPhotos);
-        setAlert({ message: "Photo added successfully", variant: "success" });
+        toast.success("Photo added successfully");
       } else if (actionData.type === "photoDelete") {
         setPhotos(initialPhotos);
-        setAlert({ message: "Photo deleted successfully", variant: "success" });
+        toast.success("Photo deleted successfully");
       }
     } else if ("error" in actionData && actionData.error) {
       if (
@@ -106,7 +103,7 @@ export default function PartnerEditPage() {
         setErrors(actionData.validationErrors as Record<string, string>);
       }
       setPhotos(initialPhotos);
-      setAlert({ message: actionData.error, variant: "error" });
+      toast.error(actionData.error);
     }
   }, [actionData, initialPhotos]);
 
@@ -144,12 +141,9 @@ export default function PartnerEditPage() {
       if (!putRes.ok) throw new Error("Upload failed");
 
       setLogoUrl(publicUrl);
-      setAlert({ message: "Logo uploaded successfully", variant: "success" });
+      toast.success("Logo uploaded successfully");
     } catch (error) {
-      setAlert({
-        message: error instanceof Error ? error.message : "Upload failed",
-        variant: "error",
-      });
+      toast.error(error instanceof Error ? error.message : "Upload failed");
     } finally {
       setLogoUploading(false);
       event.target.value = "";
@@ -161,7 +155,7 @@ export default function PartnerEditPage() {
     if (!file) return;
 
     if (photos.length >= 4) {
-      setAlert({ message: "Maximum of 4 photos allowed", variant: "error" });
+      toast.error("Maximum of 4 photos allowed");
       return;
     }
 
@@ -205,10 +199,7 @@ export default function PartnerEditPage() {
       formData.append("photoUrl", publicUrl);
       submit(formData, { method: "post" });
     } catch (error) {
-      setAlert({
-        message: error instanceof Error ? error.message : "Upload failed",
-        variant: "error",
-      });
+      toast.error(error instanceof Error ? error.message : "Upload failed");
     } finally {
       setPhotoUploading(false);
       event.target.value = "";
@@ -307,23 +298,6 @@ export default function PartnerEditPage() {
             Cancel
           </Button>
         </div>
-
-        {actionData && "error" in actionData && actionData.error && (
-          <div className="rounded-lg bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">
-            {actionData.error}
-          </div>
-        )}
-        {alert && (
-          <div
-            className={`rounded-lg px-4 py-3 text-sm ${
-              alert.variant === "success"
-                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
-                : "bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300"
-            }`}
-          >
-            {alert.message}
-          </div>
-        )}
 
         <Form method="post" ref={formRef} className="space-y-6" noValidate>
           <input type="hidden" name="action" value="save" />
@@ -764,7 +738,7 @@ export default function PartnerEditPage() {
         onConfirm={() => {
           setLogoUrl("");
           setShowRemoveLogoModal(false);
-          setAlert({ message: "Logo removed successfully", variant: "success" });
+          toast.success("Logo removed successfully");
         }}
         title="Remove Logo"
         message="Are you sure you want to remove the logo? This action will remove the logo from the partner profile."

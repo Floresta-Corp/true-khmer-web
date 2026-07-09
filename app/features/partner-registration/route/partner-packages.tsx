@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Form,
   useActionData,
@@ -7,6 +7,7 @@ import {
   useNavigation,
 } from "react-router";
 import { ChevronLeft, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { partnerPackagesLoader } from "../services/partner-packages.loader";
 import { partnerPackagesAction } from "../services/partner-packages.action";
@@ -38,6 +39,12 @@ export default function PartnerPackages() {
     selectedPackage,
   );
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (actionData?.error) {
+      toast.error(actionData.error);
+    }
+  }, [actionData]);
 
   const toggleCard = (tierId: string) => {
     setExpandedCards((prev) => {
@@ -88,16 +95,6 @@ export default function PartnerPackages() {
               goals and budget. Each package offers unique benefits and
               visibility opportunities.
             </p>
-
-            {actionData?.error && (
-              <div className="mx-auto mt-6 max-w-2xl">
-                <div className="rounded-md bg-rose-50 p-4 dark:bg-rose-950/40">
-                  <h3 className="text-sm font-medium text-rose-700 dark:text-rose-300">
-                    {actionData.error}
-                  </h3>
-                </div>
-              </div>
-            )}
 
             <div className="mx-auto mt-10">
               <div className="mb-8 grid max-w-sm gap-8 sm:max-w-none sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

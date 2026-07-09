@@ -18,6 +18,7 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { ConfirmationModal } from "~/features/admin/components/confirmation-modal";
 import { PackageBadge, PartnerStatusBadge } from "../partner-badges";
@@ -115,10 +116,6 @@ export default function PartnerDetailPage() {
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
-  const [alert, setAlert] = useState<{
-    message: string;
-    variant: "success" | "error";
-  } | null>(null);
 
   useEffect(() => {
     if (
@@ -126,10 +123,11 @@ export default function PartnerDetailPage() {
       "message" in actionData &&
       typeof actionData.message === "string"
     ) {
-      setAlert({
-        message: actionData.message,
-        variant: "success" in actionData && actionData.success ? "success" : "error",
-      });
+      if ("success" in actionData && actionData.success) {
+        toast.success(actionData.message);
+      } else {
+        toast.error(actionData.message);
+      }
     }
   }, [actionData]);
 
@@ -302,18 +300,6 @@ export default function PartnerDetailPage() {
             </button>
           </div>
         </div>
-
-        {alert && (
-          <div
-            className={`rounded-lg px-4 py-3 text-sm ${
-              alert.variant === "success"
-                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
-                : "bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300"
-            }`}
-          >
-            {alert.message}
-          </div>
-        )}
 
         {/* Partner info card */}
         <div className="space-y-6 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
