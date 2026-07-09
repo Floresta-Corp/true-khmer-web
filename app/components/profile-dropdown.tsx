@@ -19,7 +19,8 @@ import { Separator } from "./ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import type { AuthenticatedUser } from "~/lib/server/types";
-import { cn, resolveImageURL } from "~/lib/utils";
+import { cn } from "~/lib/utils";
+import { useUserDisplay } from "~/hooks/use-user-display";
 import { Toggle } from "./ui/toggle";
 
 interface ProfileDropDownProps {
@@ -52,15 +53,7 @@ function ProfileAvatar({
 }
 
 export default function ProfileDropDown({ user }: ProfileDropDownProps) {
-  const displayName = user?.name || user?.email?.split("@")[0] || "User";
-  const initials = displayName
-    .split(/\s+/)
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-  const profileImage =
-    resolveImageURL(user?.profile?.avatarKey) || resolveImageURL(user?.image);
+  const { displayName, initials, profileImage } = useUserDisplay(user);
 
   return (
     <DropdownMenu>
@@ -76,19 +69,19 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
             displayName={displayName}
             initials={initials}
           />
-          <span className="absolute bottom-0 right-0 size-3 rounded-full bg-white p-0.5 flex items-center justify-center">
+          <span className="absolute right-0 bottom-0 flex size-3 items-center justify-center rounded-full bg-white p-0.5">
             <ChevronDown className="size-1.75 text-[#64748b]" />
           </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="min-w-[288px] pb-3 rounded-2xl border border-[#e2e8f0] px-0 pt-0 shadow-[0_16px_40px_rgba(15,23,42,0.12)]"
+        className="min-w-[288px] rounded-2xl border border-[#e2e8f0] px-0 pt-0 pb-3 shadow-[0_16px_40px_rgba(15,23,42,0.12)]"
         align="end"
         sideOffset={8}
         forceMount
       >
         {/* Profile Section */}
-        <div className="flex items-center gap-3 py-8 px-5">
+        <div className="flex items-center gap-3 px-5 py-8">
           <Avatar className="size-11 border border-[#f9fafb]">
             <AvatarImage
               src={profileImage || undefined}
@@ -100,10 +93,10 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col gap-1">
-            <span className="text-sm font-semibold text-[#344256] leading-3">
+            <span className="text-sm leading-3 font-semibold text-[#344256]">
               {displayName}
             </span>
-            <span className="text-sm font-semibold text-[#65758b] leading-3">
+            <span className="text-sm leading-3 font-semibold text-[#65758b]">
               {user.email}
             </span>
           </div>
@@ -126,63 +119,63 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
         </div>
         */}
 
-        <Separator className="bg-[#f3f4f6]" />
         {/* Action List */}
-        <div className="flex flex-col gap-1 py-1 px-1">
+        {/* <Separator className="bg-[#f3f4f6]" />
+        <div className="flex flex-col gap-1 px-1 py-1">
           <DropdownMenuItem
             asChild
-            className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
+            className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-xs font-normal text-[#344256] hover:bg-[#f3f4f6]"
           >
-            <Link to="/myspace" className="flex gap-3 items-center w-full">
+            <Link to="/myspace" className="flex w-full items-center gap-3">
               <UserRound className="size-5 shrink-0" />
               <span className="text-sm font-semibold">My space</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
             asChild
-            className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
+            className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-xs font-normal text-[#344256] hover:bg-[#f3f4f6]"
           >
             <Link
               to="/my-applications"
-              className="flex gap-3 items-center w-full"
+              className="flex w-full items-center gap-3"
             >
               <FileUser className="size-5 shrink-0" />
               <span className="text-sm font-semibold">My applications</span>
             </Link>
           </DropdownMenuItem>
-          {/* <DropdownMenuItem
+          <DropdownMenuItem
             asChild
-            className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
+            className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-xs font-normal text-[#344256] hover:bg-[#f3f4f6]"
           >
-            <Link to="/my-ticket" className="flex gap-3 items-center w-full">
+            <Link to="/my-ticket" className="flex w-full items-center gap-3">
               <Ticket className="size-5 shrink-0" />
               <span className="text-sm font-semibold">My tickets</span>
             </Link>
-          </DropdownMenuItem> */}
+          </DropdownMenuItem>
           <DropdownMenuItem
             asChild
-            className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
+            className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-xs font-normal text-[#344256] hover:bg-[#f3f4f6]"
           >
-            <Link to="/saved-items" className="flex gap-3 items-center w-full">
+            <Link to="/saved-items" className="flex w-full items-center gap-3">
               <BookmarkCheck className="size-5 shrink-0" />
               <span className="text-sm font-semibold">Saved items</span>
             </Link>
           </DropdownMenuItem>
-        </div>
+        </div> */}
         <Separator className="bg-[#f1f5f9]" />
-        <div className="flex flex-col gap-0 py-1 px-1">
+        <div className="flex flex-col gap-0 px-1 py-1">
           <DropdownMenuItem
             asChild
-            className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#344256] cursor-pointer hover:bg-[#f3f4f6]"
+            className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-xs font-normal text-[#344256] hover:bg-[#f3f4f6]"
           >
-            <Link to="/settings" className="flex gap-3 items-center w-full">
+            <Link to="/settings" className="flex w-full items-center gap-3">
               <Settings className="size-5 shrink-0" />
               <span className="text-sm font-semibold">Account settings</span>
             </Link>
           </DropdownMenuItem>
           <Form method="post" action="/logout" id="logout-form">
             <DropdownMenuItem
-              className="flex gap-3 items-center px-3 py-2 rounded-lg text-xs font-normal text-[#fb3748] hover:text-[#fb3748] cursor-pointer hover:bg-[#fbeaec]"
+              className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-xs font-normal text-[#fb3748] hover:bg-[#fbeaec] hover:text-[#fb3748]"
               onSelect={() => {
                 (
                   document.getElementById("logout-form") as HTMLFormElement

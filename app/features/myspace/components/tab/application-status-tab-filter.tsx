@@ -52,7 +52,7 @@ export default function ApplicationStatusTabFilter() {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-5">
+    <div className="flex flex-nowrap items-center gap-5">
       <Tabs
         value={activeStatus}
         onValueChange={(value) => handleStatusChange(value as StatusTab)}
@@ -75,7 +75,7 @@ export default function ApplicationStatusTabFilter() {
         aria-pressed={statusParam === "archived"}
         onClick={handleArchivedClick}
         className={cn(
-          "inline-flex h-12 items-center gap-2 rounded-xl px-2 text-xs font-bold transition-colors",
+          "inline-flex h-12 items-center gap-2 rounded-xl text-xs font-bold transition-colors",
           statusParam === "archived"
             ? "text-[#1A73E8]"
             : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100",

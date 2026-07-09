@@ -4,12 +4,12 @@ import type { CategoriesPicker } from "~/features/forum/types";
 import type { QuestionResponse } from "~/types/api-client";
 import type { Opportunity } from "~/features/volunteer/types/volunteer-types";
 import type { LaunchpadOpportunity } from "~/features/launchpad/types";
-import type { FilterId } from "./saved-item-filter";
 import { OpportunityCard } from "~/components/opportunity-card";
 import QuestionCard from "~/features/forum/components/card/question-card";
 import LaunchpadProjectCard from "~/features/launchpad/components/card/launchpad-project-card";
 import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router";
+import type { FilterId } from "../types";
 
 type SavedCardItem =
   | { type: "forum"; data: QuestionResponse }
@@ -32,6 +32,8 @@ const itemAnim = {
   transition: { duration: 0.2, ease: "easeOut" },
 } as const;
 
+const MASONRY_COLUMNS_CLASS = "columns-1 gap-6 sm:columns-2 xl:columns-3";
+
 function SkeletonCard() {
   return (
     <div className="animate-pulse rounded-2xl border border-slate-100 bg-white p-5">
@@ -48,8 +50,8 @@ function SkeletonCard() {
 
 function SkeletonGrid() {
   return (
-    <div className="columns-2 gap-6">
-      {Array.from({ length: 5 }).map((_, i) => (
+    <div className={MASONRY_COLUMNS_CLASS}>
+      {Array.from({ length: 6 }).map((_, i) => (
         <div key={`skel-${i}`} className="mb-6 break-inside-avoid">
           <SkeletonCard />
         </div>
@@ -159,7 +161,7 @@ export default function SavedItemsGrid({
 
   return (
     <AnimatePresence mode="wait" initial={true}>
-      <motion.div layout className="columns-2 gap-6">
+      <motion.div layout className={MASONRY_COLUMNS_CLASS}>
         {allItems.map((item, idx) => (
           <motion.div
             key={`${item.type}-${item.data.id}`}

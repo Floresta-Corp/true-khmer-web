@@ -18,8 +18,8 @@ export default function OnboardingWelcomePage() {
 
       <section className="relative z-10 flex w-full max-w-5xl flex-col items-center gap-8 text-center">
         <div className="tk-fade-up rounded-full border border-black/10 px-3.5 py-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#2894FA]">
-            Built by Cambodians, for Cambodians
+          <p className="text-xs font-semibold tracking-[0.16em] text-[#2894FA] uppercase">
+            by Cambodians for Cambodia
           </p>
         </div>
 
@@ -35,7 +35,7 @@ export default function OnboardingWelcomePage() {
           </span>
         </h1>
 
-        <p className="tk-fade-up-2 max-w-md text-xl font-medium leading-8 text-[#62748E]">
+        <p className="tk-fade-up-2 max-w-md text-xl leading-8 font-medium text-[#62748E]">
           Let&apos;s take 2 minutes to set up your profile and get you earning
           your first points.
         </p>

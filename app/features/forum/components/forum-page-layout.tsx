@@ -16,7 +16,7 @@ export function ForumPageLayout({
     <div className={cn("min-h-screen w-full bg-[#f8fafc]", className)}>
       <main
         className={cn(
-          "mx-auto w-full max-w-300 px-4 pb-10 pt-8 md:px-10 lg:px-6",
+          "mx-auto w-full max-w-300 px-4 pt-8 pb-10 md:px-10 lg:px-6",
           contentClassName,
         )}
       >

@@ -62,11 +62,10 @@ function TicketCard({ ticket }: { ticket: TicketItem }) {
         <div className="flex items-stretch gap-3 sm:gap-4">
           <div className="h-28 w-28 shrink-0 overflow-hidden rounded-xl sm:h-36 sm:w-36">
             {ticket.cover ? (
-              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={resolveImageURL(ticket.cover)}
                 alt={ticket.title}
-                className="w-full h-full object-cover"
+                className="h-full w-full object-cover"
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-blue-50">
@@ -82,7 +81,7 @@ function TicketCard({ ticket }: { ticket: TicketItem }) {
               {ticket.date}
               {ticket.timeRange ? ` • ${ticket.timeRange}` : ""}
             </div>
-            <h3 className="mt-2 max-w-md text-[22px] font-bold leading-[1.18] tracking-tight text-[#111827] sm:text-[26px]">
+            <h3 className="mt-2 max-w-md text-[22px] leading-[1.18] font-bold tracking-tight text-[#111827] sm:text-[26px]">
               {ticket.title}
             </h3>
             {ticket.location && (
@@ -119,7 +118,7 @@ export default function MyTicketPage() {
   );
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-10">
+    <main className="min-h-full bg-slate-50 px-4 py-8 sm:px-6 lg:px-10">
       <div className="mx-auto w-full max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -141,7 +140,7 @@ export default function MyTicketPage() {
           className="mt-6"
         >
           <h1 className="text-2xl font-bold text-[#0F1724]">My Tickets</h1>
-          <p className="text-sm text-[#64748B] mt-1">
+          <p className="mt-1 text-sm text-[#64748B]">
             Keep track of your submitted applications and event involvement
           </p>
 
@@ -149,14 +148,14 @@ export default function MyTicketPage() {
             <button
               type="button"
               onClick={() => setActiveTab("upcoming")}
-              className={`px-4 py-1 rounded-full text-sm font-semibold ${activeTab === "upcoming" ? "bg-blue-500 text-white" : "bg-white text-[#6B7280] border"}`}
+              className={`rounded-full px-4 py-1 text-sm font-semibold ${activeTab === "upcoming" ? "bg-blue-500 text-white" : "border bg-white text-[#6B7280]"}`}
             >
               Upcoming
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("past")}
-              className={`px-4 py-1 rounded-full text-sm font-semibold ${activeTab === "past" ? "bg-blue-500 text-white" : "bg-white text-[#6B7280] border"}`}
+              className={`rounded-full px-4 py-1 text-sm font-semibold ${activeTab === "past" ? "bg-blue-500 text-white" : "border bg-white text-[#6B7280]"}`}
             >
               Past
             </button>

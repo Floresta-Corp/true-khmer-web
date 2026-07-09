@@ -51,16 +51,19 @@ export default [
       ),
       route("profile/:id", "features/profile/route/profile.$id.tsx"),
     ]),
-    route("myspace", "features/myspace/route/myspace.tsx"),
     route("edit-profile", "features/myspace/route/edit-profile.tsx"),
-    route("my-applications", "features/myspace/route/my-applications.tsx"),
-    route("my-ticket", "routes/my-ticket.tsx"),
     route(
       "my-applications/detail/:sourceType/:postingId",
       "features/myspace/route/my-application.$sourceType.$postingId.tsx",
     ),
-    route("saved-items", "features/saved-items/route/saved-items.tsx"),
     route("settings", "features/settings/route/settings.tsx"),
+
+    layout("layout/myspace-layout.tsx", [
+      route("myspace", "features/myspace/route/myspace.tsx"),
+      route("my-applications", "features/myspace/route/my-applications.tsx"),
+      route("my-ticket", "routes/my-ticket.tsx"),
+      route("saved-items", "features/saved-items/route/saved-items.tsx"),
+    ]),
 
     layout("layout/workspace-layout.tsx", [
       route("workspace", "features/workspace/route/workspace.tsx"),
