@@ -19,7 +19,8 @@ import { Separator } from "./ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import type { AuthenticatedUser } from "~/lib/server/types";
-import { cn, resolveImageURL } from "~/lib/utils";
+import { cn } from "~/lib/utils";
+import { useUserDisplay } from "~/hooks/use-user-display";
 import { Toggle } from "./ui/toggle";
 
 interface ProfileDropDownProps {
@@ -52,15 +53,7 @@ function ProfileAvatar({
 }
 
 export default function ProfileDropDown({ user }: ProfileDropDownProps) {
-  const displayName = user?.name || user?.email?.split("@")[0] || "User";
-  const initials = displayName
-    .split(/\s+/)
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-  const profileImage =
-    resolveImageURL(user?.profile?.avatarKey) || resolveImageURL(user?.image);
+  const { displayName, initials, profileImage } = useUserDisplay(user);
 
   return (
     <DropdownMenu>

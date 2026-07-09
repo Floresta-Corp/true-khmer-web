@@ -173,6 +173,7 @@ export default function ApplicantRolesSelection({
                 {
                   title: "Relevant Experience",
                   value: submission.project?.relevantExperience,
+                  valueClass: "text-gray-600 leading-relaxed",
                   hide: !submission.project?.relevantExperience,
                 },
                 {

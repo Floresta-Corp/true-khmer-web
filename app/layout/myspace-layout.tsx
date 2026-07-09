@@ -1,5 +1,5 @@
 import { Outlet } from "react-router";
-import MySpaceSideBar from "~/components/myspace-sidebar";
+import AppSidebar, { mySpaceSidebarConfig } from "~/components/app-sidebar";
 import {
   SidebarInset,
   SidebarProvider,
@@ -13,9 +13,9 @@ export default function MySpaceLayout() {
   return (
     <TooltipProvider>
       <SidebarProvider>
-        <div className="flex h-[calc(100vh-68px)] w-full">
-          <MySpaceSideBar />
-          <SidebarInset className="flex h-[calc(100vh-68px)] flex-1 flex-col overflow-y-auto bg-[#f8fafc]">
+        <div className="flex h-[calc(100vh-var(--navbar-height))] w-full">
+          <AppSidebar {...mySpaceSidebarConfig} />
+          <SidebarInset className="flex h-[calc(100vh-var(--navbar-height))] flex-1 flex-col overflow-y-auto bg-[#f8fafc]">
             {isMobile && <SidebarTrigger className="h-10 w-10" />}
 
             <Outlet />

@@ -1,8 +1,8 @@
 import {
   BookmarkCheck,
-  ChevronsUpDown,
+  ClipboardList,
   FileUser,
-  Ticket,
+  MessagesSquare,
   UserRound,
 } from "lucide-react";
 import { Link, useLocation, useRouteLoaderData } from "react-router";
@@ -24,59 +24,43 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "~/components/ui/sidebar";
-import { resolveImageURL } from "~/lib/utils";
+import { useUserDisplay } from "~/hooks/use-user-display";
 import type { loader as appLayoutLoader } from "~/layout/app-layout";
 
-type SidebarItem = {
+export type SidebarNavItem = {
   id: string;
   label: string;
   to: string;
   icon: React.ComponentType<{ className?: string }>;
 };
 
-const primaryItems: SidebarItem[] = [
-  {
-    id: "myprofile",
-    label: "My profile",
-    to: "/myspace",
-    icon: UserRound,
-  },
-  {
-    id: "myapplications",
-    label: "My applications",
-    to: "/my-applications",
-    icon: FileUser,
-  },
-  // {
-  //   id: "myticket",
-  //   label: "My ticket",
-  //   to: "/my-ticket",
-  //   icon: Ticket,
-  // },
-  {
-    id: "saveditems",
-    label: "Saved items",
-    to: "/saved-items",
-    icon: BookmarkCheck,
-  },
-];
+export interface AppSidebarProps {
+  /** Role badge shown under the user's name (e.g. "Member", "Creator"). */
+  roleLabel: string;
+  /** Primary navigation links. */
+  items: SidebarNavItem[];
+  /** Footer CTA that switches the user to the other space. */
+  footer: {
+    to: string;
+    label: string;
+    /** Tailwind classes for the footer button's background/hover colors. */
+    className: string;
+  };
+}
 
-export default function MySpaceSideBar() {
+export default function AppSidebar({
+  roleLabel,
+  items,
+  footer,
+}: AppSidebarProps) {
   const location = useLocation();
   const { setOpenMobile, isMobile } = useSidebar();
   const routeData =
     useRouteLoaderData<typeof appLayoutLoader>("layout/app-layout");
   const user = routeData?.user;
+  const { displayName, initials, profileImage } = useUserDisplay(user);
 
-  const displayName = user?.name || "User";
-  const initials = displayName
-    .split(/\s+/)
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-  const profileImage =
-    resolveImageURL(user?.profile?.avatarKey) || resolveImageURL(user?.image);
+  const closeMobile = () => isMobile && setOpenMobile(false);
 
   return (
     <Sidebar
@@ -102,27 +86,26 @@ export default function MySpaceSideBar() {
                 {displayName}
               </span>
               <span className="w-fit truncate rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-600">
-                Member
+                {roleLabel}
               </span>
             </div>
           </div>
-          {/* <ChevronsUpDown className="size-4 shrink-0 text-[#94a3b8]" /> */}
         </div>
       </SidebarHeader>
       <SidebarContent className="p-2">
         <SidebarGroup>
           <SidebarMenu className="gap-2">
-            {primaryItems.map((item) => (
+            {items.map((item) => (
               <SidebarMenuItem key={item.id}>
                 <SidebarMenuButton
                   asChild
-                  isActive={location.pathname.startsWith(item.to)}
+                  isActive={
+                    location.pathname === item.to ||
+                    location.pathname.startsWith(`${item.to}/`)
+                  }
                   className="rounded-xl p-5 text-[12px] font-normal transition-all data-[active=true]:bg-blue-50 data-[active=true]:text-blue-600"
                 >
-                  <Link
-                    to={item.to}
-                    onClick={() => isMobile && setOpenMobile(false)}
-                  >
+                  <Link to={item.to} onClick={closeMobile}>
                     <item.icon className="size-5 shrink-0" />
                     <span className="text-base">{item.label}</span>
                   </Link>
@@ -133,15 +116,64 @@ export default function MySpaceSideBar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="p-2">
-        <Button className="h-12 w-full rounded-xl bg-[#32A8FF] text-sm font-bold text-white hover:bg-[#1E90FF]">
-          <Link
-            to="/manage-post"
-            onClick={() => isMobile && setOpenMobile(false)}
-          >
-            Switch to workspace
+        <Button
+          asChild
+          className={`h-12 w-full rounded-xl text-sm font-bold text-white ${footer.className}`}
+        >
+          <Link to={footer.to} onClick={closeMobile}>
+            {footer.label}
           </Link>
         </Button>
       </SidebarFooter>
     </Sidebar>
   );
 }
+
+export const mySpaceSidebarConfig: AppSidebarProps = {
+  roleLabel: "Member",
+  items: [
+    { id: "myprofile", label: "My profile", to: "/myspace", icon: UserRound },
+    {
+      id: "myapplications",
+      label: "My applications",
+      to: "/my-applications",
+      icon: FileUser,
+    },
+    // { id: "myticket", label: "My ticket", to: "/my-ticket", icon: Ticket },
+    {
+      id: "saveditems",
+      label: "Saved items",
+      to: "/saved-items",
+      icon: BookmarkCheck,
+    },
+  ],
+  footer: {
+    to: "/manage-post",
+    label: "Switch to workspace",
+    className: "bg-[#32A8FF] [a]:hover:bg-[#1E90FF]",
+  },
+};
+
+export const workSpaceSidebarConfig: AppSidebarProps = {
+  roleLabel: "Creator",
+  items: [
+    {
+      id: "managepost",
+      label: "Manage Posting",
+      to: "/manage-post",
+      icon: ClipboardList,
+    },
+    {
+      id: "discussion",
+      label: "My Discussions",
+      to: "/workspace",
+      icon: MessagesSquare,
+    },
+    // { id: "myevents", label: "My Events", to: "/my-events", icon: Calendar },
+  ],
+  footer: {
+    to: "/myspace",
+    label: "Switch to my space",
+    className: "bg-[#0b57d0] [a]:hover:bg-[#0b57d0]/90",
+  },
+};

@@ -25,6 +25,7 @@ export default function SavedItemsFilterBar({
           <button
             key={id}
             type="button"
+            aria-pressed={isActive}
             onClick={() => onFilterChange(id)}
             className={`flex cursor-pointer items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-all ${
               isActive

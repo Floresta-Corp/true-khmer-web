@@ -300,7 +300,11 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
               firstName={me.user.firstName}
               lastName={me.user.lastName}
               occupation={me.user.occupation}
-              location={me.profile?.country?.name || null}
+              location={
+                [me.profile?.city?.name, me.profile?.country?.name]
+                  .filter(Boolean)
+                  .join(", ") || null
+              }
               email={me.user.email}
               tier={me.progress.tier.name}
               socialLinks={me.socialLinks}

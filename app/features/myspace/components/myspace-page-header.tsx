@@ -69,6 +69,7 @@ export function PageHeader({
                 <Button
                   variant="outline"
                   size="icon"
+                  aria-label="More profile options"
                   className="h-12 w-12 cursor-pointer rounded-xl"
                 >
                   <MoreVertical className="h-5 w-5" />

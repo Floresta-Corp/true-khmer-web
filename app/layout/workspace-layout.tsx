@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from "react-router";
-import WorkSpaceSideBar from "~/components/workspace-sidebar";
+import AppSidebar, { workSpaceSidebarConfig } from "~/components/app-sidebar";
 import {
   SidebarInset,
   SidebarProvider,
@@ -29,9 +29,9 @@ export default function WorkspaceLayout() {
   return (
     <TooltipProvider>
       <SidebarProvider>
-        <div className="flex h-[calc(100vh-68px)] w-full">
-          <WorkSpaceSideBar />
-          <SidebarInset className="flex h-[calc(100vh-68px)] flex-1 flex-col overflow-y-auto bg-[#f8fafc]">
+        <div className="flex h-[calc(100vh-var(--navbar-height))] w-full">
+          <AppSidebar {...workSpaceSidebarConfig} />
+          <SidebarInset className="flex h-[calc(100vh-var(--navbar-height))] flex-1 flex-col overflow-y-auto bg-[#f8fafc]">
             {isMobile && <SidebarTrigger className="h-10 w-10" />}
 
             <Outlet />
