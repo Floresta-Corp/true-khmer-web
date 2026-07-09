@@ -133,10 +133,7 @@ export default function MySpaceSideBar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="p-2">
-        <Button
-          // asChild
-          className="h-12 w-full rounded-xl bg-[#32A8FF] text-sm font-bold text-white hover:bg-[#1E90FF]"
-        >
+        <Button className="h-12 w-full rounded-xl bg-[#32A8FF] text-sm font-bold text-white hover:bg-[#1E90FF]">
           <Link
             to="/manage-post"
             onClick={() => isMobile && setOpenMobile(false)}

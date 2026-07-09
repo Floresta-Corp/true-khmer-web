@@ -129,10 +129,7 @@ export default function WorkSpaceSideBar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="p-2">
-        <Button
-          // asChild
-          className="h-12 w-full rounded-xl bg-[#0b57d0] text-sm font-bold text-white hover:bg-[#0b57d0]/90"
-        >
+        <Button className="h-12 w-full rounded-xl bg-[#0b57d0] text-sm font-bold text-white hover:bg-[#0b57d0]/90">
           <Link to="/myspace" onClick={() => isMobile && setOpenMobile(false)}>
             Switch to my space
           </Link>

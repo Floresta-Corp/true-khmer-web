@@ -16,13 +16,7 @@ import type {
 } from "~/features/saved-items/types";
 import { ForumPageLayout } from "~/features/forum/components/forum-page-layout";
 
-const VALID_FILTERS: FilterId[] = [
-  "all",
-  "forum",
-  "volunteer",
-  "launchpad",
-  "event",
-];
+const VALID_FILTERS: FilterId[] = ["all", "forum", "volunteer", "launchpad"];
 
 function getFilterFromParams(searchParams: URLSearchParams): FilterId {
   const raw = searchParams.get("filter");
@@ -104,7 +98,6 @@ export default function SaveItemPage() {
 
   const loadMore = useCallback(() => {
     if (fetcher.state === "loading" || !hasMore || !nextCursor) return;
-    if (activeFilter === "event") return;
 
     const params = new URLSearchParams();
     if (activeFilter !== "all") params.set("filter", activeFilter);
@@ -146,8 +139,6 @@ export default function SaveItemPage() {
     if (id !== "all") params.set("filter", id);
 
     setSearchParams(params, { replace: true, preventScrollReset: true });
-
-    if (id === "event") return;
 
     const url = `/saved-items?${params.toString()}`;
     lastFetchUrl.current = url;

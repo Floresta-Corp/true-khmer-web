@@ -4,7 +4,7 @@ import { PaginationSchema } from "~/services/types";
 import { OpportunitySchema } from "~/features/volunteer/types";
 import { LaunchpadOpportunitySchema } from "~/features/launchpad/types";
 
-export type FilterId = "all" | "forum" | "volunteer" | "launchpad" | "event";
+export type FilterId = "all" | "forum" | "volunteer" | "launchpad";
 
 export const getSaveForumQuestionSchema = z.object({
   ok: z.boolean(),
