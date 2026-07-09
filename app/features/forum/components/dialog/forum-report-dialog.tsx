@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { AlertTriangle, Flag, X } from "lucide-react";
 import { Link, useFetcher, useLocation } from "react-router";
+import { toast } from "sonner";
 import { useFetcherOutcome } from "~/hooks/use-fetcher-outcome";
+import { AlertMessageDialog } from "~/features/forum/components/dialog/alert-message-dialog";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -47,6 +49,7 @@ export default function ForumReportDialog({
   const [open, setOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [details, setDetails] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const fetcher = useFetcher();
 
   function reset() {
@@ -60,9 +63,13 @@ export default function ForumReportDialog({
   }
 
   useFetcherOutcome(fetcher, {
-    onSuccess: () => {
+    onSuccess: (message) => {
       setOpen(false);
       reset();
+      toast.success(message ?? "Report submitted successfully.");
+    },
+    onError: (message) => {
+      setErrorMessage(message ?? "Failed to submit report.");
     },
   });
 
@@ -78,7 +85,7 @@ export default function ForumReportDialog({
     return (
       <Link
         to={loginHref}
-        className="cursor-pointer h-[22.75px] w-[22.75px] rounded-[3.5px] p-[5.25px] text-[#99a1af] transition-colors hover:bg-transparent hover:text-[#e7000b]"
+        className="h-[22.75px] w-[22.75px] cursor-pointer rounded-[3.5px] p-[5.25px] text-[#99a1af] transition-colors hover:bg-transparent hover:text-[#e7000b]"
       >
         <Flag className="h-3 w-3" />
         <span className="sr-only">Report</span>
@@ -95,7 +102,7 @@ export default function ForumReportDialog({
           <Button
             variant="ghost"
             size="icon"
-            className="cursor-pointer h-[22.75px] w-[22.75px] rounded-[3.5px] p-[5.25px] text-[#99a1af] transition-colors hover:bg-transparent hover:text-[#e7000b]"
+            className="h-[22.75px] w-[22.75px] cursor-pointer rounded-[3.5px] p-[5.25px] text-[#99a1af] transition-colors hover:bg-transparent hover:text-[#e7000b]"
           >
             <Flag className="h-3 w-3" />
             <span className="sr-only">Report</span>
@@ -112,7 +119,7 @@ export default function ForumReportDialog({
           <Button
             variant="ghost"
             size="icon"
-            className="absolute cursor-pointer right-3.75 top-3.75 h-4 w-4 rounded-sm p-0 text-[#4a5565]/70 hover:bg-transparent hover:text-[#1f2937]"
+            className="absolute top-3.75 right-3.75 h-4 w-4 cursor-pointer rounded-sm p-0 text-[#4a5565]/70 hover:bg-transparent hover:text-[#1f2937]"
           >
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
@@ -125,10 +132,10 @@ export default function ForumReportDialog({
             <AlertTriangle className="h-[17.5px] w-[17.5px] text-[#e7000b]" />
           </div>
           <div className="flex flex-col gap-1.5">
-            <DialogTitle className="text-lg font-semibold leading-7 text-[#030213]">
+            <DialogTitle className="text-lg leading-7 font-semibold text-[#030213]">
               Report Discussion
             </DialogTitle>
-            <p className="text-sm font-normal leading-5 text-[#6a7282]">
+            <p className="text-sm leading-5 font-normal text-[#6a7282]">
               Help us keep the community professional
             </p>
           </div>
@@ -157,10 +164,10 @@ export default function ForumReportDialog({
             {/* Reporting post preview */}
             {title && (
               <div className="flex flex-col gap-[3.5px] rounded-2xl border border-[#f3f4f6] bg-[#f8fafc] px-3 py-3">
-                <p className="text-[12px] font-medium leading-4.5 text-[#99a1af]">
+                <p className="text-[12px] leading-4.5 font-medium text-[#99a1af]">
                   Reporting Post:
                 </p>
-                <p className="text-[14px] font-normal leading-5.25 text-[#344256] line-clamp-6">
+                <p className="line-clamp-6 text-[14px] leading-5.25 font-normal text-[#344256]">
                   "{title}"
                 </p>
               </div>
@@ -168,7 +175,7 @@ export default function ForumReportDialog({
 
             {/* Reason selector */}
             <div className="flex flex-col gap-3">
-              <Label className="text-[14px] font-bold leading-5.25 text-[#344256]">
+              <Label className="text-[14px] leading-5.25 font-bold text-[#344256]">
                 Reason for Reporting
               </Label>
               <div className="flex flex-col gap-1.75">
@@ -179,7 +186,7 @@ export default function ForumReportDialog({
                       <div
                         key={v.id}
                         onClick={() => setSelectedReason(v.id)}
-                        className={`h-10.5 cursor-pointer w-full rounded-2xl border px-3.5 text-[13px] content-center font-medium leading-[19.5px] transition-colors ${
+                        className={`h-10.5 w-full cursor-pointer content-center rounded-2xl border px-3.5 text-[13px] leading-[19.5px] font-medium transition-colors ${
                           isSelected
                             ? "border-[#ffc9c9] bg-[#fef2f2] text-[#e7000b]"
                             : "border-[#f3f4f6] bg-white text-[#4a5565] hover:border-[#ffc9c9] hover:bg-[#fef2f2] hover:text-[#e7000b]"
@@ -196,7 +203,7 @@ export default function ForumReportDialog({
             <div className="flex flex-col gap-3">
               <Label className="text-[14px] leading-5.25 text-[#344256]">
                 <span className="font-bold">Additional Details</span>{" "}
-                <span className="font-normal italic text-[#9eacc0]">
+                <span className="font-normal text-[#9eacc0] italic">
                   (optional)
                 </span>
               </Label>
@@ -206,7 +213,7 @@ export default function ForumReportDialog({
                 onChange={(e) => setDetails(e.target.value)}
                 placeholder="Tell us more about why you are reporting this..."
                 rows={4}
-                className="w-full rounded-2xl border-[#f1f5f9] bg-[#f8fafc] px-3.5 py-[10.5px] text-[14px] font-medium leading-5.25 text-[#344256] placeholder:font-medium placeholder:text-[#9eacc0] focus-visible:ring-[#e7000b]/20"
+                className="w-full rounded-2xl border-[#f1f5f9] bg-[#f8fafc] px-3.5 py-[10.5px] text-[14px] leading-5.25 font-medium text-[#344256] placeholder:font-medium placeholder:text-[#9eacc0] focus-visible:ring-[#e7000b]/20"
               />
             </div>
           </div>
@@ -238,6 +245,16 @@ export default function ForumReportDialog({
           </div>
         </fetcher.Form>
       </DialogContent>
+
+      <AlertMessageDialog
+        open={!!errorMessage}
+        onOpenChange={(next) => {
+          if (!next) setErrorMessage(null);
+        }}
+        title="Unable to Submit Report"
+        description={errorMessage ?? undefined}
+        onConfirm={() => setErrorMessage(null)}
+      />
     </Dialog>
   );
 }
