@@ -3,6 +3,7 @@ import type { ComponentType } from "react";
 import type { LucideProps } from "lucide-react";
 import {
   Building2,
+  ClipboardCheck,
   LayoutDashboard,
   ShieldCheck,
   Users,
@@ -39,11 +40,16 @@ export const navItems: NavItem[] = [
     href: "/tk-admin/users",
   },
   {
+    id: "registrations",
+    label: "Registrations",
+    icon: ClipboardCheck,
+    href: "/tk-admin/registrations",
+  },
+  {
     id: "partners",
     label: "Partner",
     icon: Building2,
-    href: "/tk-admin",
-    disabled: true,
+    href: "/tk-admin/partners",
   },
 ];
 

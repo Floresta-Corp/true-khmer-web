@@ -18,6 +18,7 @@ const menuLabels: Record<string, string> = {
   dashboard: "Dashboard",
   moderation: "Content Moderation",
   users: "User Management",
+  registrations: "Registrations",
   partners: "Partner",
   "account-settings": "Account Settings",
 };
@@ -30,6 +31,8 @@ function getActiveMenu(pathname: string) {
     pathname.startsWith("/tk-admin/user/")
   )
     return "users";
+  if (pathname.startsWith("/tk-admin/registrations")) return "registrations";
+  if (pathname.startsWith("/tk-admin/partners")) return "partners";
   if (pathname.startsWith("/tk-admin/account-settings"))
     return "account-settings";
   return null;
@@ -109,7 +112,11 @@ export default function AdminLayout() {
           <div className="flex w-full flex-1 flex-col items-center gap-1">
             {navItems
               .filter((item) =>
-                item.id === "users" ? admin.role === "SUPER_ADMIN" : true,
+                item.id === "users" ||
+                item.id === "registrations" ||
+                item.id === "partners"
+                  ? admin.role === "SUPER_ADMIN"
+                  : true,
               )
               .map((item) => (
                 <SidebarItem
