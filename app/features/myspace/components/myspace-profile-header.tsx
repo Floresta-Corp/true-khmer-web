@@ -130,12 +130,10 @@ export function ProfileHeader({
               className="flex min-w-0 items-center gap-2 text-[13px] font-semibold text-blue-500 transition-colors hover:underline"
             >
               {link?.icon}
-              <span className="max-w-55 truncate">
-                {link?.label}
-                {link?.external && (
-                  <span className="ml-0.5 text-[10px] opacity-60">↗</span>
-                )}
-              </span>
+              <span className="max-w-55 truncate">{link?.label}</span>
+              {link?.external && (
+                <span className="text-[10px] opacity-60">↗</span>
+              )}
             </a>
           ) : (
             <div
