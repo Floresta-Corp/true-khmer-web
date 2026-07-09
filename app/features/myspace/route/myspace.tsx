@@ -50,7 +50,7 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
 
   if (!me) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-full items-center justify-center bg-background">
         <p>Loading profile...</p>
       </div>
     );
@@ -94,7 +94,7 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
 
   if (isPublicView) {
     return (
-      <ForumPageLayout>
+      <ForumPageLayout className="min-h-full">
         <motion.div
           className="space-y-6 rounded-2xl border border-[#e1e7ef] bg-white p-4 sm:p-6 lg:p-8"
           initial={{ opacity: 0 }}

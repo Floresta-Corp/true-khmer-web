@@ -119,7 +119,7 @@ export default function MyTicketPage() {
   );
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-10">
+    <main className="min-h-full bg-slate-50 px-4 py-8 sm:px-6 lg:px-10">
       <div className="mx-auto w-full max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
