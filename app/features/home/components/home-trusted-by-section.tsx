@@ -15,7 +15,7 @@ export function HomeTrustedBySection() {
         <p className="text-center text-sm font-semibold text-[#2f6fe4]">
           Trusted &amp; Loved By Cambodia's Community
         </p>
-        <div className="mt-4 flex items-center gap-x-10 overflow-x-auto px-4 [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-wrap sm:justify-center sm:gap-x-12 sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
+        <div className="mt-4 flex items-center gap-x-10 overflow-x-auto px-4 [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-wrap sm:justify-center sm:gap-x-12 sm:gap-y-6 sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
           {PARTNERS.map((partner) => (
             <img
               key={partner.src}
