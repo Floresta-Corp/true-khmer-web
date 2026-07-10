@@ -37,4 +37,6 @@ jobs:
 
       - name: Run ESLint on changed files
         if: steps.changed.outputs.files != ''
-        run: echo "${{ steps.changed.outputs.files }}" | xargs -r bunx eslint
+        env:
+          FILES: ${{ steps.changed.outputs.files }}
+        run: printf '%s\n' "$FILES" | xargs -r bunx eslint
