@@ -18,35 +18,23 @@ export function HomeWelcomeHeroSection({ name }: HomeWelcomeHeroSectionProps) {
   const firstName = name?.trim().split(/\s+/)[0];
 
   return (
-    <section className="relative flex min-h-130 flex-col overflow-hidden bg-white lg:min-h-[max(650px,70vh,34.4vw)]">
+    <section className="relative flex min-h-130 flex-col bg-white lg:min-h-[max(650px,70vh,34.4vw)]">
       <div
-        className="pointer-events-none absolute inset-0 bg-linear-to-b from-[#eef2ff] to-[#ffffff] lg:hidden"
+        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[500px] bg-linear-to-r from-[#D5EDFF] to-[#FFFFFF] lg:hidden"
+        style={{
+          clipPath: "ellipse(120% 100% at 50% 0%)",
+        }}
         aria-hidden
-      >
-        {MOBILE_DECORATIONS.map((flower, i) => (
-          <img
-            key={i}
-            src={FLOWER}
-            alt=""
-            className="absolute -translate-x-1/2 -translate-y-1/2"
-            style={{
-              left: flower.left,
-              top: flower.top,
-              width: flower.size,
-              height: flower.size,
-              opacity: flower.opacity,
-              transform: `rotate(${flower.rotate}deg)`,
-            }}
-          />
-        ))}
-      </div>
+      />
       <img
         src={HERO_BACKGROUND}
         alt=""
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 hidden h-auto w-full lg:block"
       />
-      <div className="relative mx-auto flex w-full max-w-7xl flex-1 items-center px-4 py-12 sm:px-6 lg:min-h-[max(420px,34.4vw)] lg:flex-none lg:px-8">
+
+      {/* Content Layer */}
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 items-center px-4 pt-12 pb-6 sm:px-6 lg:min-h-[max(420px,34.4vw)] lg:flex-none lg:px-8">
         <div className="mx-auto max-w-md text-center sm:max-w-xl lg:mx-0 lg:max-w-3xl lg:text-left">
           <p className="text-sm font-semibold text-[#1c5dd4]">
             {firstName ? `Welcome, ${firstName}!` : "Welcome!"}

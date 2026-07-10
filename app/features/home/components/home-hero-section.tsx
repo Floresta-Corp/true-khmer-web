@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 
 const FLOWER = "/home-romdoul-flower.svg";
+// const HERO_BACKGROUND = "/home-welcome-hero-bg.svg";
 
 const DECORATIONS = [
   {
@@ -10,7 +11,7 @@ const DECORATIONS = [
     size: "8rem",
     rotate: -30,
     opacity: 0.7,
-    hideOnMobile: false,
+    hideOnMobile: true,
   },
   {
     left: "20%",
@@ -74,31 +75,35 @@ export function HomeHeroSection({ isAuthenticated }: HomeHeroSectionProps) {
               width: flower.size,
               height: flower.size,
               opacity: flower.opacity,
-              rotate: `${flower.rotate}deg`,
+              transform: `rotate(${flower.rotate}deg)`,
             }}
           />
         ))}
       </div>
 
-      <div className="relative mx-auto flex max-w-4xl flex-col items-center px-4 py-24 text-center sm:px-6 lg:py-32">
-        <h1 className="max-w-3xl text-[36px] leading-[1.15] font-medium tracking-[-0.06em] text-[#333333] sm:text-5xl lg:text-[60px] lg:leading-18">
+      <div className="relative mx-auto flex max-w-4xl flex-col items-center px-4 text-center sm:px-6 lg:py-32">
+        <h1 className="mt-13 max-w-3xl text-[36px] leading-[1.15] font-medium tracking-[-0.06em] text-[#333333] sm:text-5xl lg:text-[60px] lg:leading-18">
           Unleashing the Potential of Cambodia Through its People
         </h1>
-        <p className="mt-5 max-w-3xl text-base leading-7 text-[#606060] sm:text-lg">
+
+        <p className="mt-3 max-w-3xl text-base leading-7 text-[#606060] sm:text-lg">
           Khmer for Khmer, together, taking an active role in shaping our
           Kingdom's future by rebuilding trust in local capacity and supporting
           Khmer products, services, and initiatives.
         </p>
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
-          <Button className="h-11 rounded-lg border border-[#1c5dd4] bg-[#1c5dd4] px-5 text-sm font-medium text-white hover:bg-[#174fb4]">
-            <Link to={"/register"}>Join as a Member</Link>
+        <div className="mt-12 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
+          <Button
+            asChild
+            className="h-11 w-full rounded-lg border border-[#1c5dd4] bg-[#1c5dd4] px-5 text-sm font-medium text-white hover:bg-[#174fb4] sm:w-auto"
+          >
+            <Link to="/register">Join as a Member</Link>
           </Button>
           <Button
             asChild
             variant="outline"
-            className="h-11 rounded-lg border-[#1c5dd4] bg-white px-5 text-sm font-medium text-[#1c5dd4] hover:bg-[#1c5dd4]/5 hover:text-[#1c5dd4]"
+            className="h-11 w-full rounded-lg border-[#1c5dd4] bg-white px-5 text-sm font-medium text-[#1c5dd4] hover:bg-[#1c5dd4]/5 hover:text-[#1c5dd4] sm:w-auto"
           >
-            <Link to="#">Learn More</Link>
+            <Link to="/about">Learn More</Link>
           </Button>
         </div>
       </div>

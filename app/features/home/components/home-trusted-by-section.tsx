@@ -15,13 +15,13 @@ export function HomeTrustedBySection() {
         <p className="text-center text-sm font-semibold text-[#2f6fe4]">
           Trusted &amp; Loved By Cambodia's Community
         </p>
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-x-10 gap-y-6 sm:gap-x-12">
+        <div className="mt-4 flex items-center gap-x-10 overflow-x-auto px-4 [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-wrap sm:justify-center sm:gap-x-12 sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
           {PARTNERS.map((partner) => (
             <img
               key={partner.src}
               src={partner.src}
               alt={partner.name}
-              className="h-12 w-32 object-contain"
+              className="h-12 w-32 shrink-0 object-contain"
               loading="lazy"
             />
           ))}
