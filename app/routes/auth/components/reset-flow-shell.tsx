@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { cn } from "~/lib/utils";
-import LogoSvg from "../../../../public/logoSvg";
+import LogoSvg from "~/components/icons/logoSvg";
 
 type ResetFlowShellProps = {
   children?: ReactNode;

@@ -1,7 +1,65 @@
-import { ChevronRight, Check, CircleX } from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import type { SVGProps } from "react";
 
 import { Button } from "~/components/ui/button";
 import type { Tier } from "../data/tiers";
+
+interface PackageBenefitIconProps extends SVGProps<SVGSVGElement> {
+  size?: number;
+}
+
+const CorrectIcon = ({
+  size = 24,
+  className,
+  ...props
+}: PackageBenefitIconProps) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+      {...props}
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  );
+};
+
+const CircleX = ({
+  size = 24,
+  className,
+  ...props
+}: PackageBenefitIconProps) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+      {...props}
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="m15 9-6 6" />
+      <path d="m9 9 6 6" />
+    </svg>
+  );
+};
 
 interface PackageCardProps {
   tier: Tier;
@@ -85,7 +143,7 @@ export function PackageCard({
           {tier.benefits.map((benefit) => (
             <li key={benefit.name} className="flex items-start gap-x-3">
               {benefit.available ? (
-                <Check className="mt-0.5 h-5 w-5 flex-none text-blue-600" />
+                <CorrectIcon className="mt-0.5 h-5 w-5 flex-none text-blue-600" />
               ) : (
                 <CircleX className="mt-0.5 h-5 w-5 flex-none text-slate-400" />
               )}
@@ -111,12 +169,12 @@ export function PackageCard({
           if (!isDisabled) onSelect();
         }}
         disabled={isDisabled}
-        className={`mt-6 block w-full rounded-md px-3 py-2 text-center text-sm font-semibold transition-all duration-200 ${
+        className={`mt-6 flex h-8 w-full items-center justify-center rounded-md px-3 text-center text-sm leading-none font-semibold transition-all duration-200 ${
           isDisabled
-            ? "cursor-not-allowed bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400"
+            ? "cursor-not-allowed border border-slate-300 bg-white text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
             : isSelected
-              ? "bg-blue-600 text-white"
-              : "text-blue-600 ring-1 ring-inset ring-blue-600/30 hover:bg-blue-600/10 hover:ring-blue-600"
+              ? "border border-blue-600 bg-white text-blue-600 hover:bg-blue-50 dark:bg-slate-900 dark:hover:bg-blue-950/30"
+              : "border border-blue-600 bg-white text-blue-600 hover:bg-blue-50 dark:bg-slate-900 dark:hover:bg-blue-950/30"
         }`}
       >
         {isDisabled

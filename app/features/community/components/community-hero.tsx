@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
-import { WaveBackground } from "./icons/wave-background";
+import WaveBackground from "~/components/icons/waveBg";
 
 export function CommunityHero() {
   return (

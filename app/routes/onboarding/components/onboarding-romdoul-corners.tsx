@@ -1,5 +1,5 @@
 import { cn } from "~/lib/utils";
-import LogoMark from "../../../../public/logoMark";
+import LogoMark from "~/components/icons/logoMark";
 
 type OnboardingRomdoulCornersProps = {
   topLeftClassName?: string;

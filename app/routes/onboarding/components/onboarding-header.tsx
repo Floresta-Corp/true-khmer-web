@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import LogoSvg from "../../../../public/logoSvg";
+import LogoSvg from "~/components/icons/logoSvg";
 
 type OnboardingHeaderProps = {
   title: string;

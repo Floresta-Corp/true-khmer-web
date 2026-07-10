@@ -11,6 +11,8 @@ import { toast } from "sonner";
 
 import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
+import { CountryField } from "~/components/form/country-field";
+import { PhoneField } from "~/components/form/phone-field";
 import { ConfirmationModal } from "~/features/admin/components/confirmation-modal";
 import {
   FormField,
@@ -184,11 +186,11 @@ export default function PartnerNewPage() {
 
             <PartnerSelectField id={packageId} label="Package" required error={errors.package} value={values.package} onValueChange={(value) => handleChange("package", value)} placeholder="Select package" disabled={isSubmitting} options={packageOptions} />
 
-            <PartnerTextField id={companyContactNumberId} label="Company Phone Number" type="tel" required error={errors.companyContactNumber} value={values.companyContactNumber} onChange={(e) => handleChange("companyContactNumber", e.target.value)} placeholder="Enter company phone number" disabled={isSubmitting} />
+            <PhoneField id={companyContactNumberId} name="companyContactNumber" label="Company Phone Number" required error={errors.companyContactNumber} value={values.companyContactNumber} onChange={(value) => handleChange("companyContactNumber", value)} disabled={isSubmitting} />
 
             <PartnerTextField id={companyAddressId} label="Company Address" required error={errors.companyAddress} value={values.companyAddress} onChange={(e) => handleChange("companyAddress", e.target.value)} placeholder="Enter company address" disabled={isSubmitting} />
 
-            <PartnerTextField id={countryId} label="Country" required error={errors.country} value={values.country} onChange={(e) => handleChange("country", e.target.value)} placeholder="Enter country" disabled={isSubmitting} />
+            <CountryField id={countryId} name="country" label="Country" required error={errors.country} value={values.country} onChange={(value) => handleChange("country", value)} disabled={isSubmitting} />
 
             <PartnerTextField id={cityId} label="City" required error={errors.city} value={values.city} onChange={(e) => handleChange("city", e.target.value)} placeholder="Enter city" disabled={isSubmitting} />
 
@@ -246,7 +248,7 @@ export default function PartnerNewPage() {
             <PartnerTextField id={userEmailId} label="Contact Person Email" type="email" required error={errors.userEmail} value={values.userEmail} onChange={(e) => handleChange("userEmail", e.target.value)} placeholder="Enter contact person email" disabled={isSubmitting} />
             <PartnerTextField id={userIdentityId} label="ID / Passport Number" error={errors.userIdentity} value={values.userIdentity} onChange={(e) => handleChange("userIdentity", e.target.value)} placeholder="Enter ID or passport number" disabled={isSubmitting} />
             <PartnerSelectField id={positionId} label="Position" required error={errors.position} value={values.position} onValueChange={(value) => handleChange("position", value)} placeholder="Select position" disabled={isSubmitting} options={partnerEmployeePositionOptions} />
-            <PartnerTextField id={userContactNumberId} label="Contact Person Phone" type="tel" required error={errors.userContactNumber} value={values.userContactNumber} onChange={(e) => handleChange("userContactNumber", e.target.value)} placeholder="Enter contact person phone" disabled={isSubmitting} />
+            <PhoneField id={userContactNumberId} name="userContactNumber" label="Contact Person Phone" required error={errors.userContactNumber} value={values.userContactNumber} onChange={(value) => handleChange("userContactNumber", value)} disabled={isSubmitting} />
           </div>
 
           <div className="my-6 border-t border-slate-100 dark:border-slate-800" />

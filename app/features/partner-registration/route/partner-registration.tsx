@@ -2,15 +2,15 @@ import { useEffect, useId, useState } from "react";
 import { Form, useActionData, useNavigation } from "react-router";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import LogoSvg from "../../../../public/logoSvg";
+import LogoSvg from "~/components/icons/logoSvg";
 
 import { Button } from "~/components/ui/button";
 import { partnerRegistrationAction } from "../services/partner-registration.action";
 import { partnerSectorOptions } from "../data/sector-options";
 import { TextField } from "../components/text-field";
 import { SearchableField } from "../components/searchable-field";
-import { CountryField } from "../components/country-field";
-import { PhoneField } from "../components/phone-field";
+import { CountryField } from "~/components/form/country-field";
+import { PhoneField } from "~/components/form/phone-field";
 
 export const action = partnerRegistrationAction;
 
@@ -53,8 +53,10 @@ export default function PartnerRegistration() {
   });
 
   useEffect(() => {
-    if (actionData?.validationErrors) setFormErrors(actionData.validationErrors);
-    else if (actionData?.error) {
+    if (actionData?.validationErrors) {
+      setFormErrors(actionData.validationErrors);
+      if (actionData.error) toast.error(actionData.error);
+    } else if (actionData?.error) {
       setFormErrors({});
       toast.error(actionData.error);
     }

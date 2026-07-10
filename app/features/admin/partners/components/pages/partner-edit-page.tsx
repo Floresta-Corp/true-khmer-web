@@ -21,6 +21,8 @@ import { toast } from "sonner";
 
 import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
+import { CountryField } from "~/components/form/country-field";
+import { PhoneField } from "~/components/form/phone-field";
 import { ConfirmationModal } from "~/features/admin/components/confirmation-modal";
 import { ImageLightbox, type LightboxImage } from "../image-lightbox";
 import {
@@ -376,7 +378,7 @@ export default function PartnerEditPage() {
                   <PartnerTextField id={nameId} label="Partner Name" name="name" required error={errors.name} defaultValue={partner.name || ""} placeholder="Enter partner name" />
                   <PartnerTextField id={nameKhId} label="Partner Name (Khmer)" name="nameKh" error={errors.nameKh} defaultValue={partner.nameKh || ""} placeholder="Enter partner name in Khmer" />
                   <PartnerTextField id={emailId} label="Email" name="email" type="email" required error={errors.email} defaultValue={partner.email} placeholder="Enter email address" />
-                  <PartnerTextField id={phoneId} label="Phone Number" name="phoneNumber" type="tel" required error={errors.phoneNumber} defaultValue={partner.phoneNumber} placeholder="Enter phone number" />
+                  <PhoneField id={phoneId} label="Phone Number" name="phoneNumber" required error={errors.phoneNumber} defaultValue={partner.phoneNumber} />
                   <PartnerTextField id={registrationNumberId} label="Registration Number" name="registrationNumber" error={errors.registrationNumber} defaultValue={partner.registrationNumber || ""} placeholder="Enter registration number" />
                   <PartnerSelectField id={sectorActivityId} label="Sector of Activity" name="sectorActivity" required error={errors.sectorActivity} defaultValue={partner.sectorActivity || ""} placeholder="Select business sector" options={partnerSectorOptions} />
                   <PartnerTextField id={sectorActivityKmId} label="Sector of Activity (Khmer)" name="sectorActivityKm" error={errors.sectorActivityKm} defaultValue={partner.sectorActivityKm || ""} placeholder="Enter business sector in Khmer" />
@@ -441,7 +443,7 @@ export default function PartnerEditPage() {
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <PartnerTextField id={addressId} label="Address" name="address" error={errors.address} defaultValue={addressField(partner.address, "street")} placeholder="Enter street address" />
                   <PartnerTextField id={addressKmId} label="Address (Khmer)" name="addressKm" error={errors.addressKm} defaultValue={addressField(partner.addressKm, "street")} placeholder="Enter street address in Khmer" />
-                  <PartnerTextField id={countryId} label="Country" name="country" required error={errors.country} defaultValue={addressField(partner.address, "country")} placeholder="Enter country" />
+                  <CountryField id={countryId} label="Country" name="country" required error={errors.country} defaultValue={addressField(partner.address, "country")} />
                   <PartnerTextField id={countryKmId} label="Country (Khmer)" name="countryKm" error={errors.countryKm} defaultValue={addressField(partner.addressKm, "country")} placeholder="Enter country in Khmer" />
                   <PartnerTextField id={cityId} label="City" name="city" required error={errors.city} defaultValue={addressField(partner.address, "city")} placeholder="Enter city" />
                   <PartnerTextField id={cityKmId} label="City (Khmer)" name="cityKm" error={errors.cityKm} defaultValue={addressField(partner.addressKm, "city")} placeholder="Enter city in Khmer" />

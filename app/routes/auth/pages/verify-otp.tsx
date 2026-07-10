@@ -21,7 +21,7 @@ import {
 import type { VerifyOtpActionData } from "~/routes/auth/domain/auth.types";
 import { Label } from "~/components/ui/label";
 import { sanitizeRedirectPath } from "~/lib/redirects";
-import LogoSvg from "../../../../public/logoSvg";
+import LogoSvg from "~/components/icons/logoSvg";
 
 export const loader = verifyOtpLoader;
 export const action = verifyOtpAction;

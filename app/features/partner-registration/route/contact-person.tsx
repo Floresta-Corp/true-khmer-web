@@ -2,7 +2,7 @@ import { useEffect, useId, useState } from "react";
 import { Form, useActionData, useNavigate, useNavigation } from "react-router";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import LogoSvg from "../../../../public/logoSvg";
+import LogoSvg from "~/components/icons/logoSvg";
 
 import { Button } from "~/components/ui/button";
 import { contactPersonLoader } from "../services/contact-person.loader";
@@ -14,7 +14,7 @@ import {
 } from "../data/sector-options";
 import { TextField } from "../components/text-field";
 import { SearchableField } from "../components/searchable-field";
-import { PhoneField } from "../components/phone-field";
+import { PhoneField } from "~/components/form/phone-field";
 
 export const loader = contactPersonLoader;
 export const action = contactPersonAction;
@@ -61,8 +61,10 @@ export default function ContactPerson() {
   });
 
   useEffect(() => {
-    if (actionData?.validationErrors) setFormErrors(actionData.validationErrors);
-    else if (actionData?.error) {
+    if (actionData?.validationErrors) {
+      setFormErrors(actionData.validationErrors);
+      if (actionData.error) toast.error(actionData.error);
+    } else if (actionData?.error) {
       setFormErrors({});
       toast.error(actionData.error);
     }

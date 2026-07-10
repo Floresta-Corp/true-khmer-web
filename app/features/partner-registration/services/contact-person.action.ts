@@ -53,7 +53,11 @@ export async function contactPersonAction({ request }: Route.ActionArgs) {
         | undefined;
       if (details?.validationErrors) {
         return data(
-          { ok: false, validationErrors: details.validationErrors },
+          {
+            ok: false,
+            error: details.error,
+            validationErrors: details.validationErrors,
+          },
           { status: error.status },
         );
       }

@@ -2,8 +2,8 @@ import {
   SingleSelectDropdown,
   type SingleSelectOption,
 } from "~/components/ui/single-select-dropdown";
-import { FieldError } from "./field-error";
-import { FloatingLabel } from "./text-field";
+import { FieldError } from "~/components/form/field-error";
+import { FloatingLabel } from "~/components/form/floating-label";
 
 // Match the plain text inputs: thin slate border, no shadow/ring.
 const triggerClasses =

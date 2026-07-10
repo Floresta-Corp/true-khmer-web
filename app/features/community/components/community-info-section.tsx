@@ -1,8 +1,8 @@
-import { BigFlower } from "./icons/big-flower";
 import { CheckList } from "./icons/check-list";
-import { FullFlower } from "./icons/full-flower";
 import { TeamIcon } from "./icons/team-icon";
 import { VerifiedBadge } from "./icons/verified-badge";
+import BigFlower from "~/components/icons/bigFlower";
+import FullFlower from "~/components/icons/fullFlower";
 
 export function CommunityInfoSection() {
   return (

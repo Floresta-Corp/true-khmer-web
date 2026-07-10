@@ -1,6 +1,6 @@
 import { Facebook, Linkedin, Youtube } from "lucide-react";
 import { Link } from "react-router";
-import LogoSvg from "../../public/logoSvg";
+import LogoSvg from "~/components/icons/logoSvg";
 
 // Inline so the icon inherits currentColor (hover/theme) like the lucide icons.
 function TikTok({ className }: { className?: string }) {

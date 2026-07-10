@@ -2,8 +2,8 @@ import type { Route } from "project-types/community/route/+types/community.$part
 import { useState } from "react";
 import { Link, useLoaderData } from "react-router";
 import { Button } from "~/components/ui/button";
-import { BigFlower } from "../components/icons/big-flower";
-import { FullFlower } from "../components/icons/full-flower";
+import BigFlower from "~/components/icons/bigFlower";
+import FullFlower from "~/components/icons/fullFlower";
 import { PartnerHeader } from "../components/detail/partner-header";
 import { PartnerInfoCards } from "../components/detail/partner-info-cards";
 import { PartnerLightbox } from "../components/detail/partner-lightbox";

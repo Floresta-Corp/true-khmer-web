@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { Building2, Calendar, Factory } from "lucide-react";
-import { FullFlower } from "../icons/full-flower";
+import FullFlower from "~/components/icons/fullFlower";
 
 interface PartnerInfoCardsProps {
   name: string;

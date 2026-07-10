@@ -1,6 +1,6 @@
-import BigFlower from "../../../../public/icons/bigFlower";
-import FullFlower from "../../../../public/icons/fullFlower";
-import WaveBackground from "../../../../public/icons/waveBg";
+import BigFlower from "~/components/icons/bigFlower";
+import FullFlower from "~/components/icons/fullFlower";
+import WaveBackground from "~/components/icons/waveBg";
 
 const visualElementBase =
   "w-24 h-40 sm:w-28 sm:h-44 md:w-32 md:h-48 lg:w-36 lg:h-44 shadow-lg drop-shadow-2xl rounded-full hover:scale-105 transition-transform duration-300 ease-in-out";

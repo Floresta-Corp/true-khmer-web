@@ -1,5 +1,5 @@
 import { Facebook, Globe, Linkedin, Send } from "lucide-react";
-import { FullFlower } from "../icons/full-flower";
+import FullFlower from "~/components/icons/fullFlower";
 
 interface PartnerOnlinePresenceProps {
   website?: string | null;
