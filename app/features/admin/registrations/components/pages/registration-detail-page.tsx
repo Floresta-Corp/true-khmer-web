@@ -11,7 +11,7 @@ export default function RegistrationDetailPage() {
   const partnerName = partner.name || "Partner";
 
   return (
-    <main className="min-h-full bg-[#f8fafc] px-4 py-6 dark:bg-slate-950 sm:px-6 lg:px-10 lg:py-8">
+    <main className="min-h-full bg-[#f8fafc] px-4 py-6 sm:px-6 lg:px-10 lg:py-8 dark:bg-slate-950">
       <div className="mx-auto w-full max-w-4xl space-y-6">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
@@ -30,7 +30,7 @@ export default function RegistrationDetailPage() {
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
+            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl dark:text-white">
               Review Partner Registration
             </h1>
             <p className="mt-1 text-slate-500 dark:text-slate-400">

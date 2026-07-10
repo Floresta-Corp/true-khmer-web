@@ -18,7 +18,9 @@ export function PartnerCardGrid({ children, variant }: PartnerCardGridProps) {
   const count = Children.count(children);
 
   if (count === 1) {
-    return <div className="flex w-full items-start justify-start">{children}</div>;
+    return (
+      <div className="flex w-full items-start justify-start">{children}</div>
+    );
   }
 
   if (count <= 3 && variant === 1) {
@@ -31,19 +33,25 @@ export function PartnerCardGrid({ children, variant }: PartnerCardGridProps) {
 
   if (count <= 3 && variant === 2) {
     return (
-      <div className="flex w-full flex-wrap justify-start gap-4 md:gap-8">{children}</div>
+      <div className="flex w-full flex-wrap justify-start gap-4 md:gap-8">
+        {children}
+      </div>
     );
   }
 
   if (count <= 4 && variant === 3) {
     return (
-      <div className="flex w-full flex-wrap justify-start gap-3 md:gap-6">{children}</div>
+      <div className="flex w-full flex-wrap justify-start gap-3 md:gap-6">
+        {children}
+      </div>
     );
   }
 
   if (count <= 5 && (variant === 4 || variant === 5)) {
     return (
-      <div className="flex w-full flex-wrap justify-start gap-3 md:gap-4">{children}</div>
+      <div className="flex w-full flex-wrap justify-start gap-3 md:gap-4">
+        {children}
+      </div>
     );
   }
 

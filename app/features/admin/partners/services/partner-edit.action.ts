@@ -68,7 +68,10 @@ function validatePartnerEdit(formData: FormData) {
   const phoneNumber = textValue(formData, "phoneNumber");
   if (phoneNumber && !/^\+?[0-9\s\-()]+$/.test(phoneNumber)) {
     errors.phoneNumber = "Please enter a valid phone number";
-  } else if (phoneNumber && (phoneNumber.length < 5 || phoneNumber.length > 30)) {
+  } else if (
+    phoneNumber &&
+    (phoneNumber.length < 5 || phoneNumber.length > 30)
+  ) {
     errors.phoneNumber = "Phone number must be 5 to 30 characters";
   }
 
@@ -113,10 +116,7 @@ function validatePartnerEdit(formData: FormData) {
   return errors;
 }
 
-export async function partnerEditAction({
-  request,
-  params,
-}: Route.ActionArgs) {
+export async function partnerEditAction({ request, params }: Route.ActionArgs) {
   await requireSuperAdmin(request, RESTRICTED_MESSAGE);
 
   const partnerId = params.partnerId;
@@ -144,7 +144,11 @@ export async function partnerEditAction({
       }
       const result = await addManagedPartnerPhoto(request, partnerId, url);
       return data(
-        { success: true, message: "Photo added successfully", type: "photoAdd" },
+        {
+          success: true,
+          message: "Photo added successfully",
+          type: "photoAdd",
+        },
         {
           ...(result.setCookie
             ? { headers: { "Set-Cookie": result.setCookie } }
@@ -232,7 +236,10 @@ export async function partnerEditAction({
         telegram: optional(formData.get("telegram")),
         logo: optional(formData.get("logo")),
         package: (formData.get("package") as PackageOption) || null,
-        packageKm: (formData.get("packageKm") as UpdateManagedPartnerRequest["packageKm"]) || null,
+        packageKm:
+          (formData.get(
+            "packageKm",
+          ) as UpdateManagedPartnerRequest["packageKm"]) || null,
         address: hasAddress ? address : null,
         addressKm: hasAddressKm ? addressKm : null,
       };

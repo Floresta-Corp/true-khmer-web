@@ -84,9 +84,9 @@ export function ReviewForm({ partner, contactPersons }: ReviewFormProps) {
   const isSubmitting = navigation.state === "submitting";
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [pendingAction, setPendingAction] = useState<"ACTIVE" | "DELETE" | null>(
-    null,
-  );
+  const [pendingAction, setPendingAction] = useState<
+    "ACTIVE" | "DELETE" | null
+  >(null);
 
   const handleActionClick = (action: "ACTIVE" | "DELETE") => {
     setPendingAction(action);
@@ -179,7 +179,7 @@ export function ReviewForm({ partner, contactPersons }: ReviewFormProps) {
             <Building2 className="size-6 text-blue-600" />
           </div>
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white md:text-2xl">
+            <h3 className="text-xl font-bold text-slate-900 md:text-2xl dark:text-white">
               {partner.name || "—"}
             </h3>
           </div>
@@ -191,7 +191,7 @@ export function ReviewForm({ partner, contactPersons }: ReviewFormProps) {
         {/* Registration Information */}
         <div className="space-y-4 sm:space-y-6">
           <div className="border-l-4 border-blue-600 pl-3 sm:pl-4">
-            <h3 className="text-base font-semibold text-slate-900 dark:text-white sm:text-lg">
+            <h3 className="text-base font-semibold text-slate-900 sm:text-lg dark:text-white">
               Registration Information
             </h3>
           </div>
@@ -249,8 +249,8 @@ export function ReviewForm({ partner, contactPersons }: ReviewFormProps) {
 
         {/* Social Links & Contact */}
         <div className="space-y-4 sm:space-y-6">
-          <div className="border-l-4 border-slate-300 pl-3 dark:border-slate-600 sm:pl-4">
-            <h3 className="text-base font-semibold text-slate-900 dark:text-white sm:text-lg">
+          <div className="border-l-4 border-slate-300 pl-3 sm:pl-4 dark:border-slate-600">
+            <h3 className="text-base font-semibold text-slate-900 sm:text-lg dark:text-white">
               Social Links &amp; Contact
             </h3>
           </div>
@@ -259,7 +259,7 @@ export function ReviewForm({ partner, contactPersons }: ReviewFormProps) {
               {socialLinks}
             </div>
           ) : (
-            <p className="text-sm italic text-slate-400 dark:text-slate-500">
+            <p className="text-sm text-slate-400 italic dark:text-slate-500">
               No social links provided
             </p>
           )}
@@ -269,7 +269,7 @@ export function ReviewForm({ partner, contactPersons }: ReviewFormProps) {
         {contactPersons.length > 0 && (
           <div className="space-y-4 sm:space-y-6">
             <div className="border-l-4 border-blue-400 pl-3 sm:pl-4">
-              <h3 className="text-base font-semibold text-slate-900 dark:text-white sm:text-lg">
+              <h3 className="text-base font-semibold text-slate-900 sm:text-lg dark:text-white">
                 Contact Persons
               </h3>
             </div>

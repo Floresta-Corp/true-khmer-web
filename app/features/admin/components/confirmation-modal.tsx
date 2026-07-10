@@ -31,7 +31,8 @@ const titleColor: Record<ConfirmationVariant, string> = {
 };
 
 const confirmButtonClass: Record<ConfirmationVariant, string> = {
-  error: "bg-rose-600 text-white hover:bg-rose-700 focus-visible:ring-rose-500/30",
+  error:
+    "bg-rose-600 text-white hover:bg-rose-700 focus-visible:ring-rose-500/30",
   warning:
     "bg-amber-500 text-white hover:bg-amber-600 focus-visible:ring-amber-500/30",
   info: "bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500/30",

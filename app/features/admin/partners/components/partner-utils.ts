@@ -74,7 +74,13 @@ export function formatPartnerAddress(
   address: PartnerAddress | null | undefined,
 ): string | null {
   if (!address) return null;
-  const parts = [address.street, address.city, address.zipCode, address.country]
-    .filter((part): part is string => typeof part === "string" && part.trim() !== "");
+  const parts = [
+    address.street,
+    address.city,
+    address.zipCode,
+    address.country,
+  ].filter(
+    (part): part is string => typeof part === "string" && part.trim() !== "",
+  );
   return parts.length > 0 ? parts.join(", ") : null;
 }

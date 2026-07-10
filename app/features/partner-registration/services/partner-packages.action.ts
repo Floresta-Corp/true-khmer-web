@@ -2,7 +2,10 @@ import { data, redirect } from "react-router";
 import type { Route } from "project-types/partner-registration/route/+types/partner-packages";
 
 import { packageSchema } from "./registration-validation";
-import { readPartnerCookie, setPartnerCookie } from "./registration-cookie.server";
+import {
+  readPartnerCookie,
+  setPartnerCookie,
+} from "./registration-cookie.server";
 
 // Step 2 — validate the chosen package, persist it, advance to contact person.
 export async function partnerPackagesAction({ request }: Route.ActionArgs) {

@@ -11,7 +11,11 @@ import {
   AdminTableHeaderRow,
   AdminTableRow,
 } from "~/features/admin/components/admin-table";
-import { PackageBadge, PartnerStatusBadge, PublishBadge } from "./partner-badges";
+import {
+  PackageBadge,
+  PartnerStatusBadge,
+  PublishBadge,
+} from "./partner-badges";
 import { formatPartnerDate } from "./partner-utils";
 import type { Partner } from "~/types/api-client";
 
@@ -42,7 +46,8 @@ export function PartnersTable({ partners }: { partners: Partner[] }) {
           <AdminTableBody>
             {partners.map((partner) => {
               const name = partner.name || partner.nameKh || "—";
-              const sector = partner.sectorActivity || partner.sectorActivityKm || "—";
+              const sector =
+                partner.sectorActivity || partner.sectorActivityKm || "—";
               const pkg = partner.package || partner.packageKm;
               return (
                 <AdminTableRow
@@ -83,22 +88,23 @@ export function PartnersTable({ partners }: { partners: Partner[] }) {
       </div>
 
       {/* Mobile / tablet card view */}
-      <div className="divide-y divide-slate-100 dark:divide-slate-800 lg:hidden">
+      <div className="divide-y divide-slate-100 lg:hidden dark:divide-slate-800">
         {partners.map((partner) => {
           const name = partner.name || partner.nameKh || "—";
-          const sector = partner.sectorActivity || partner.sectorActivityKm || "—";
+          const sector =
+            partner.sectorActivity || partner.sectorActivityKm || "—";
           const pkg = partner.package || partner.packageKm;
           return (
             <button
               key={partner.id}
               type="button"
               onClick={() => goToDetail(partner.id)}
-              className="w-full select-none p-4 text-left transition-colors hover:bg-slate-50 focus:bg-slate-50 focus:outline-none active:bg-slate-100 dark:hover:bg-slate-800/60 dark:focus:bg-slate-800/60"
+              className="w-full p-4 text-left transition-colors select-none hover:bg-slate-50 focus:bg-slate-50 focus:outline-none active:bg-slate-100 dark:hover:bg-slate-800/60 dark:focus:bg-slate-800/60"
             >
               <div className="space-y-3">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-lg font-bold leading-tight text-slate-900 dark:text-white">
+                    <h3 className="text-lg leading-tight font-bold text-slate-900 dark:text-white">
                       {name}
                     </h3>
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">

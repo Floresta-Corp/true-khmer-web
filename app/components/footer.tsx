@@ -118,7 +118,7 @@ export function Footer() {
           <div className="grid flex-1 grid-cols-2 gap-8 sm:grid-cols-3 lg:max-w-xl lg:gap-12">
             {footerColumns.map((column) => (
               <div key={column.heading} className="flex flex-col gap-4">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#2f6fe4]">
+                <h3 className="text-xs font-semibold tracking-wider text-[#2f6fe4] uppercase">
                   {column.heading}
                 </h3>
                 <ul className="flex flex-col gap-3">

@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, useActionData, useLoaderData, useNavigate, useSubmit } from "react-router";
+import {
+  Link,
+  useActionData,
+  useLoaderData,
+  useNavigate,
+  useSubmit,
+} from "react-router";
 import {
   Building2,
   Calendar,
@@ -96,7 +102,7 @@ function ContactPersonSocialLinks({ person }: { person: ContactPerson }) {
 
   if (links.length === 0) {
     return (
-      <p className="text-xs italic text-slate-400 dark:text-slate-500">
+      <p className="text-xs text-slate-400 italic dark:text-slate-500">
         No social media links
       </p>
     );
@@ -216,7 +222,9 @@ export default function PartnerDetailPage() {
   const formattedAddress = formatPartnerAddress(partner.address);
   const formattedAddressKm = formatPartnerAddress(partner.addressKm);
   const lightboxImages: LightboxImage[] = [
-    ...(partner.logo ? [{ src: partner.logo, alt: `${partnerName} logo` }] : []),
+    ...(partner.logo
+      ? [{ src: partner.logo, alt: `${partnerName} logo` }]
+      : []),
     ...photos.map((photo) => ({
       src: photo.url,
       alt: `${partnerName} gallery image`,
@@ -235,7 +243,7 @@ export default function PartnerDetailPage() {
   };
 
   return (
-    <main className="min-h-full bg-[#f8fafc] px-4 py-6 dark:bg-slate-950 sm:px-6 lg:px-10 lg:py-8">
+    <main className="min-h-full bg-[#f8fafc] px-4 py-6 sm:px-6 lg:px-10 lg:py-8 dark:bg-slate-950">
       <div className="mx-auto w-full max-w-4xl space-y-6">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
@@ -254,7 +262,7 @@ export default function PartnerDetailPage() {
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
+            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl dark:text-white">
               Partner Details
             </h1>
             <p className="mt-1 text-slate-500 dark:text-slate-400">
@@ -333,7 +341,9 @@ export default function PartnerDetailPage() {
                 <PartnerStatusBadge status={partner.status} />
               </div>
               {(partner.package || partner.packageKm) && (
-                <PackageBadge label={partner.package || partner.packageKm || ""} />
+                <PackageBadge
+                  label={partner.package || partner.packageKm || ""}
+                />
               )}
             </div>
           </div>
@@ -343,7 +353,9 @@ export default function PartnerDetailPage() {
               <h3 className="mb-1 text-lg font-semibold text-slate-900 dark:text-white">
                 Bio
               </h3>
-              <p className="text-slate-600 dark:text-slate-300">{partner.bio}</p>
+              <p className="text-slate-600 dark:text-slate-300">
+                {partner.bio}
+              </p>
             </div>
           )}
           {partner.bioKm && (
@@ -351,7 +363,9 @@ export default function PartnerDetailPage() {
               <h3 className="mb-1 text-lg font-semibold text-slate-900 dark:text-white">
                 Bio (Khmer)
               </h3>
-              <p className="text-slate-600 dark:text-slate-300">{partner.bioKm}</p>
+              <p className="text-slate-600 dark:text-slate-300">
+                {partner.bioKm}
+              </p>
             </div>
           )}
           {partner.description && (
@@ -400,7 +414,8 @@ export default function PartnerDetailPage() {
                   {partner.phoneNumber}
                 </InfoRow>
                 <InfoRow icon={Building2} label="Sector of Activity">
-                  {partner.sectorActivity || "No English sector activity available"}
+                  {partner.sectorActivity ||
+                    "No English sector activity available"}
                 </InfoRow>
                 {partner.sectorActivityKm && (
                   <InfoRow icon={Building2} label="Sector of Activity (Khmer)">

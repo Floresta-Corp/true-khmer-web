@@ -27,7 +27,7 @@ export function ResetFlowShell({
   descriptionClassName,
 }: ResetFlowShellProps) {
   return (
-    <main className="min-h-screen bg-white px-7 pb-10 pt-10 sm:px-10 sm:pt-12 lg:px-16 lg:pt-25">
+    <main className="min-h-screen bg-white px-7 pt-10 pb-10 sm:px-10 sm:pt-12 lg:px-16 lg:pt-25">
       <div className="mx-auto flex w-full max-w-[1440px] justify-center">
         <section
           className={cn(
@@ -49,12 +49,12 @@ export function ResetFlowShell({
             </div>
 
             <header className="mt-6 flex w-full flex-col items-center gap-2 text-center">
-              <h1 className="text-[2rem] font-bold leading-10 text-[#2E3139]">
+              <h1 className="text-[2rem] leading-10 font-bold text-[#2E3139]">
                 {title}
               </h1>
               <div
                 className={cn(
-                  "max-w-[346px] text-sm font-normal leading-[1.45] text-[#777777] sm:max-w-[536px] sm:text-base sm:leading-6",
+                  "max-w-[346px] text-sm leading-[1.45] font-normal text-[#777777] sm:max-w-[536px] sm:text-base sm:leading-6",
                   descriptionClassName,
                 )}
               >

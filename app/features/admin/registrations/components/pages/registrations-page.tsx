@@ -1,9 +1,5 @@
 import { Suspense } from "react";
-import {
-  Await,
-  useLoaderData,
-  useNavigate,
-} from "react-router";
+import { Await, useLoaderData, useNavigate } from "react-router";
 import { Building2, Calendar, Mail, Phone } from "lucide-react";
 
 import {
@@ -97,7 +93,7 @@ function PartnerTable({ partners }: { partners: PartnerRegistration[] }) {
       </div>
 
       {/* Mobile / tablet card view */}
-      <div className="divide-y divide-slate-100 dark:divide-slate-800 lg:hidden">
+      <div className="divide-y divide-slate-100 lg:hidden dark:divide-slate-800">
         {partners.map((partner) => {
           const pkg = partner.package;
           return (
@@ -105,12 +101,12 @@ function PartnerTable({ partners }: { partners: PartnerRegistration[] }) {
               key={partner.id}
               type="button"
               onClick={() => goToDetail(partner.id)}
-              className="w-full select-none p-4 text-left transition-colors hover:bg-slate-50 focus:bg-slate-50 focus:outline-none active:bg-slate-100 dark:hover:bg-slate-800/60 dark:focus:bg-slate-800/60"
+              className="w-full p-4 text-left transition-colors select-none hover:bg-slate-50 focus:bg-slate-50 focus:outline-none active:bg-slate-100 dark:hover:bg-slate-800/60 dark:focus:bg-slate-800/60"
             >
               <div className="space-y-3">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-lg font-bold leading-tight text-slate-900 dark:text-white">
+                    <h3 className="text-lg leading-tight font-bold text-slate-900 dark:text-white">
                       {partner.name || "—"}
                     </h3>
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -161,7 +157,7 @@ export default function RegistrationsPage() {
   const { partners } = useLoaderData<typeof registrationsLoader>();
 
   return (
-    <main className="min-h-full bg-[#f8fafc] px-4 py-6 dark:bg-slate-950 sm:px-6 lg:px-10 lg:py-8">
+    <main className="min-h-full bg-[#f8fafc] px-4 py-6 sm:px-6 lg:px-10 lg:py-8 dark:bg-slate-950">
       <div className="mx-auto w-full max-w-350">
         {/* Header */}
         <div>
@@ -174,10 +170,10 @@ export default function RegistrationsPage() {
         </div>
 
         {/* Tab bar (Companies) */}
-        <div className="relative mb-8 mt-6">
+        <div className="relative mt-6 mb-8">
           <div className="rounded-xl border border-slate-200 bg-gradient-to-r from-white to-slate-100 p-1 shadow-sm dark:border-slate-800 dark:from-slate-900 dark:to-slate-800">
             <div className="relative flex">
-              <div className="absolute bottom-0 left-0 top-0 w-full rounded-lg bg-gradient-to-r from-blue-600 to-[#1e3a8a] shadow-md" />
+              <div className="absolute top-0 bottom-0 left-0 w-full rounded-lg bg-gradient-to-r from-blue-600 to-[#1e3a8a] shadow-md" />
               <button
                 type="button"
                 className="relative z-10 flex-1 rounded-lg px-6 py-3 text-sm font-semibold text-white"

@@ -93,8 +93,10 @@ export function PackageCard({
       className={`group flex h-full flex-col rounded-3xl p-6 text-left ring-1 ring-slate-200 transition-all duration-200 dark:ring-slate-700 ${
         isDisabled
           ? "cursor-not-allowed"
-          : `cursor-pointer hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 ${
-              isSelected ? "bg-blue-50 ring-2 ring-blue-600 dark:bg-blue-950/40" : ""
+          : `cursor-pointer hover:shadow-lg focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 focus:outline-none ${
+              isSelected
+                ? "bg-blue-50 ring-2 ring-blue-600 dark:bg-blue-950/40"
+                : ""
             }`
       }`}
     >
@@ -136,9 +138,7 @@ export function PackageCard({
       </Button>
 
       {/* Benefits — always visible on desktop, toggleable on mobile */}
-      <div
-        className={`mt-6 grow ${!isExpanded ? "hidden lg:block" : "block"}`}
-      >
+      <div className={`mt-6 grow ${!isExpanded ? "hidden lg:block" : "block"}`}>
         <ul className="space-y-3 text-sm">
           {tier.benefits.map((benefit) => (
             <li key={benefit.name} className="flex items-start gap-x-3">

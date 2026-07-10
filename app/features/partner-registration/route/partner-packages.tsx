@@ -70,7 +70,7 @@ export default function PartnerPackages() {
           variant="ghost"
           onClick={() => navigate("/registration/partner-registration")}
           disabled={isSubmitting}
-          className="absolute left-4 top-4 h-auto gap-2 px-0 py-0 text-slate-700 hover:bg-transparent hover:text-blue-600 lg:left-6 lg:top-6 dark:text-slate-300"
+          className="absolute top-4 left-4 h-auto gap-2 px-0 py-0 text-slate-700 hover:bg-transparent hover:text-blue-600 lg:top-6 lg:left-6 dark:text-slate-300"
         >
           <ChevronLeft size={20} />
           <span className="text-sm font-medium">Go back</span>
@@ -88,11 +88,11 @@ export default function PartnerPackages() {
               <h2 className="text-base font-semibold text-blue-600">
                 Partnership Packages
               </h2>
-              <p className="mt-2 text-balance text-3xl font-semibold tracking-tight text-[#1e3a8a] sm:text-5xl dark:text-white">
+              <p className="mt-2 text-3xl font-semibold tracking-tight text-balance text-[#1e3a8a] sm:text-5xl dark:text-white">
                 Choose Your Partnership Package
               </p>
             </div>
-            <p className="mx-auto mt-6 max-w-2xl text-pretty text-center text-md font-medium text-slate-600 sm:text-xl dark:text-slate-400">
+            <p className="text-md mx-auto mt-6 max-w-2xl text-center font-medium text-pretty text-slate-600 sm:text-xl dark:text-slate-400">
               Select a partnership package that aligns with your organization's
               goals and budget. Each package offers unique benefits and
               visibility opportunities.

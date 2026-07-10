@@ -37,7 +37,9 @@ export function FormField({
         {required && <span className="ml-0.5 text-rose-500">*</span>}
       </Label>
       {children}
-      {error && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{error}</p>}
+      {error && (
+        <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{error}</p>
+      )}
     </div>
   );
 }
@@ -164,10 +166,12 @@ export function FormSectionHeading({
   return (
     <div
       className={`mb-4 border-l-4 pl-3 sm:pl-4 ${
-        accent === "blue" ? "border-blue-600" : "border-slate-300 dark:border-slate-600"
+        accent === "blue"
+          ? "border-blue-600"
+          : "border-slate-300 dark:border-slate-600"
       }`}
     >
-      <h3 className="text-base font-semibold text-slate-900 dark:text-white sm:text-lg">
+      <h3 className="text-base font-semibold text-slate-900 sm:text-lg dark:text-white">
         {title}
       </h3>
     </div>

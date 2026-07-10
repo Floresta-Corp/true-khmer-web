@@ -24,7 +24,8 @@ export function PartnerOnlinePresence({
       label: "Telegram",
     },
   ].filter(
-    (link): link is typeof link & { url: string } => typeof link.url === "string" && link.url.length > 0,
+    (link): link is typeof link & { url: string } =>
+      typeof link.url === "string" && link.url.length > 0,
   );
 
   return (

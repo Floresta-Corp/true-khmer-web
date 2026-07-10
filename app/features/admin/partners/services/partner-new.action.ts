@@ -99,7 +99,8 @@ function validatePartnerCreate(raw: Record<string, string>) {
     errors.zipCode = "ZIP code must be 20 characters or less";
   }
   if (raw.registrationNumber?.trim() && raw.registrationNumber.length > 100) {
-    errors.registrationNumber = "Registration number must be 100 characters or less";
+    errors.registrationNumber =
+      "Registration number must be 100 characters or less";
   }
   if (raw.userIdentity?.trim() && raw.userIdentity.length > 50) {
     errors.userIdentity = "ID / Passport number must be 50 characters or less";
@@ -118,10 +119,7 @@ export async function partnerNewAction({ request }: Route.ActionArgs) {
   await requireSuperAdmin(request, RESTRICTED_MESSAGE);
 
   const formData = await request.formData();
-  const raw = Object.fromEntries(formData.entries()) as Record<
-    string,
-    string
-  >;
+  const raw = Object.fromEntries(formData.entries()) as Record<string, string>;
 
   const validationErrors = validatePartnerCreate(raw);
   if (Object.keys(validationErrors).length > 0) {
@@ -146,7 +144,8 @@ export async function partnerNewAction({ request }: Route.ActionArgs) {
     companyFacebookUrl: raw.companyFacebookUrl || undefined,
     companyLinkedinUrl: raw.companyLinkedinUrl || undefined,
     companyTelegram: raw.companyTelegram || undefined,
-    package: (raw.package as CreateManagedPartnerRequest["package"]) || undefined,
+    package:
+      (raw.package as CreateManagedPartnerRequest["package"]) || undefined,
     bio: raw.bio || undefined,
     description: raw.description || undefined,
 

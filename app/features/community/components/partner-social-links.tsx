@@ -21,7 +21,8 @@ export function PartnerSocialLinks({
     { url: linkedin, icon: Linkedin, label: "LinkedIn" },
     { url: telegram, icon: Send, label: "Telegram" },
   ].filter(
-    (link): link is typeof link & { url: string } => typeof link.url === "string" && link.url.length > 0,
+    (link): link is typeof link & { url: string } =>
+      typeof link.url === "string" && link.url.length > 0,
   );
 
   if (links.length === 0) return null;

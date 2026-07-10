@@ -3,7 +3,10 @@ import { redirect } from "react-router";
 import { getPublicPartner } from "~/api/partner/partner-directory.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 
-export async function communityDetailLoader({ request, params }: Route.LoaderArgs) {
+export async function communityDetailLoader({
+  request,
+  params,
+}: Route.LoaderArgs) {
   const partnerId = params.partnerId;
   if (!partnerId) {
     throw new Response("Partner ID is required", { status: 400 });

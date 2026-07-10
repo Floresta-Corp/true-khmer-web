@@ -2,7 +2,10 @@ import { Suspense } from "react";
 import { Await, useLoaderData, useLocation, useNavigation } from "react-router";
 import { Building2 } from "lucide-react";
 
-import { PartnersPagination, PartnersPaginationSkeleton } from "../partners-pagination";
+import {
+  PartnersPagination,
+  PartnersPaginationSkeleton,
+} from "../partners-pagination";
 import { PartnersTable, PartnersTableSkeleton } from "../partners-table";
 import { PartnersToolbar } from "../partners-toolbar";
 import type { partnersLoader } from "../../services/partners.loader";
@@ -17,7 +20,7 @@ export default function PartnersPage() {
     navigation.location?.pathname === location.pathname;
 
   return (
-    <main className="min-h-full bg-[#f8fafc] px-4 py-6 dark:bg-slate-950 sm:px-6 lg:px-10 lg:py-8">
+    <main className="min-h-full bg-[#f8fafc] px-4 py-6 sm:px-6 lg:px-10 lg:py-8 dark:bg-slate-950">
       <div className="mx-auto w-full max-w-350 space-y-6">
         {/* Header */}
         <div>
@@ -25,8 +28,8 @@ export default function PartnersPage() {
             Partners
           </h1>
           <p className="text-slate-500 dark:text-slate-400">
-            Manage your active and inactive partners, view details, and
-            perform actions
+            Manage your active and inactive partners, view details, and perform
+            actions
           </p>
         </div>
 

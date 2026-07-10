@@ -31,7 +31,9 @@ export function OnboardingRomdoulCorners({
   return (
     <>
       {showGlow ? (
-        <div className={cn(DEFAULT_TOP_LEFT_GLOW_CLASS, topLeftGlowClassName)} />
+        <div
+          className={cn(DEFAULT_TOP_LEFT_GLOW_CLASS, topLeftGlowClassName)}
+        />
       ) : null}
       <LogoMark
         width={256}
@@ -41,7 +43,10 @@ export function OnboardingRomdoulCorners({
       />
       {showGlow ? (
         <div
-          className={cn(DEFAULT_BOTTOM_RIGHT_GLOW_CLASS, bottomRightGlowClassName)}
+          className={cn(
+            DEFAULT_BOTTOM_RIGHT_GLOW_CLASS,
+            bottomRightGlowClassName,
+          )}
         />
       ) : null}
       <LogoMark

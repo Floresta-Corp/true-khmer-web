@@ -35,7 +35,9 @@ interface CountryFieldProps {
 
 function resolveInitialSelection(value: string) {
   if (!value) return { selected: "", customName: "" };
-  const option = selectCountryOptions.find((country) => country.value === value);
+  const option = selectCountryOptions.find(
+    (country) => country.value === value,
+  );
   return option
     ? { selected: option.value, customName: "" }
     : { selected: "Other", customName: value };

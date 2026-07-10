@@ -24,11 +24,11 @@ export function RegistrationsTableSkeleton({ rows = 6 }: { rows?: number }) {
 
 export function RegistrationsPageSkeleton() {
   return (
-    <main className="min-h-full bg-[#f8fafc] px-4 py-6 dark:bg-slate-950 sm:px-6 lg:px-10 lg:py-8">
+    <main className="min-h-full bg-[#f8fafc] px-4 py-6 sm:px-6 lg:px-10 lg:py-8 dark:bg-slate-950">
       <div className="mx-auto w-full max-w-350">
         <Skeleton className="h-8 w-40" />
         <Skeleton className="mt-2 h-4 w-72" />
-        <Skeleton className="mb-8 mt-6 h-14 w-full rounded-xl" />
+        <Skeleton className="mt-6 mb-8 h-14 w-full rounded-xl" />
         <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <RegistrationsTableSkeleton />
         </div>
@@ -39,7 +39,7 @@ export function RegistrationsPageSkeleton() {
 
 export function RegistrationDetailSkeleton() {
   return (
-    <main className="min-h-full bg-[#f8fafc] px-4 py-6 dark:bg-slate-950 sm:px-6 lg:px-10 lg:py-8">
+    <main className="min-h-full bg-[#f8fafc] px-4 py-6 sm:px-6 lg:px-10 lg:py-8 dark:bg-slate-950">
       <div className="mx-auto w-full max-w-4xl space-y-6">
         <Skeleton className="h-4 w-64" />
         <div className="flex items-center justify-between gap-4">

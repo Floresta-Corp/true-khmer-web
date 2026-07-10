@@ -53,7 +53,7 @@ export function ImageLightbox({
         className="flex max-h-[90vh] max-w-4xl items-center justify-center border-none bg-black/90 p-0 shadow-none"
       >
         <DialogTitle className="sr-only">{image.alt}</DialogTitle>
-        <DialogClose className="absolute right-4 top-4 z-10 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70">
+        <DialogClose className="absolute top-4 right-4 z-10 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70">
           <X className="size-5" />
         </DialogClose>
 

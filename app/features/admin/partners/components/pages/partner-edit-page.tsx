@@ -53,8 +53,11 @@ function addressField(
 }
 
 export default function PartnerEditPage() {
-  const { partner, contactPersons, photos: initialPhotos } =
-    useLoaderData<typeof partnerDetailLoader>();
+  const {
+    partner,
+    contactPersons,
+    photos: initialPhotos,
+  } = useLoaderData<typeof partnerDetailLoader>();
   const actionData = useActionData<typeof partnerEditAction>();
   const navigate = useNavigate();
   const navigation = useNavigation();
@@ -100,10 +103,7 @@ export default function PartnerEditPage() {
         toast.success("Photo deleted successfully");
       }
     } else if ("error" in actionData && actionData.error) {
-      if (
-        "validationErrors" in actionData &&
-        actionData.validationErrors
-      ) {
+      if ("validationErrors" in actionData && actionData.validationErrors) {
         setErrors(actionData.validationErrors as Record<string, string>);
       }
       setPhotos(initialPhotos);
@@ -117,7 +117,9 @@ export default function PartnerEditPage() {
     if (status === "INACTIVE") setIsPublished(false);
   };
 
-  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -154,7 +156,9 @@ export default function PartnerEditPage() {
     }
   };
 
-  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -212,7 +216,9 @@ export default function PartnerEditPage() {
 
   const handleDeletePhotoConfirm = () => {
     if (pendingPhotoDelete) {
-      setPhotos((prev) => prev.filter((photo) => photo.id !== pendingPhotoDelete));
+      setPhotos((prev) =>
+        prev.filter((photo) => photo.id !== pendingPhotoDelete),
+      );
       const formData = new FormData();
       formData.append("action", "deletePhoto");
       formData.append("photoId", pendingPhotoDelete);
@@ -228,7 +234,10 @@ export default function PartnerEditPage() {
 
   const lightboxImages: LightboxImage[] = [
     ...(logoUrl ? [{ src: logoUrl, alt: `${partnerName} logo` }] : []),
-    ...photos.map((photo) => ({ src: photo.url, alt: `${partnerName} gallery image` })),
+    ...photos.map((photo) => ({
+      src: photo.url,
+      alt: `${partnerName} gallery image`,
+    })),
   ];
 
   const openLogoLightbox = () => {
@@ -270,11 +279,14 @@ export default function PartnerEditPage() {
   const statusId = useId();
 
   return (
-    <main className="min-h-full bg-[#f8fafc] px-4 py-6 dark:bg-slate-950 sm:px-6 lg:px-10 lg:py-8">
+    <main className="min-h-full bg-[#f8fafc] px-4 py-6 sm:px-6 lg:px-10 lg:py-8 dark:bg-slate-950">
       <div className="mx-auto w-full max-w-6xl space-y-6">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
-          <Link to="/tk-admin/partners" className="hover:text-slate-900 dark:hover:text-white">
+          <Link
+            to="/tk-admin/partners"
+            className="hover:text-slate-900 dark:hover:text-white"
+          >
             Partners
           </Link>
           <span>/</span>
@@ -291,14 +303,18 @@ export default function PartnerEditPage() {
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
+            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl dark:text-white">
               Edit Partner
             </h1>
             <p className="mt-1 text-slate-500 dark:text-slate-400">
               Edit partner information and settings
             </p>
           </div>
-          <Button type="button" variant="outline" onClick={() => setShowCancelModal(true)}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setShowCancelModal(true)}
+          >
             Cancel
           </Button>
         </div>
@@ -360,7 +376,8 @@ export default function PartnerEditPage() {
                     </p>
                     {logoUploading && (
                       <div className="mt-2 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                        <Loader2 className="size-3.5 animate-spin" /> Uploading...
+                        <Loader2 className="size-3.5 animate-spin" />{" "}
+                        Uploading...
                       </div>
                     )}
                   </div>
@@ -375,15 +392,85 @@ export default function PartnerEditPage() {
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <PartnerTextField id={nameId} label="Partner Name" name="name" required error={errors.name} defaultValue={partner.name || ""} placeholder="Enter partner name" />
-                  <PartnerTextField id={nameKhId} label="Partner Name (Khmer)" name="nameKh" error={errors.nameKh} defaultValue={partner.nameKh || ""} placeholder="Enter partner name in Khmer" />
-                  <PartnerTextField id={emailId} label="Email" name="email" type="email" required error={errors.email} defaultValue={partner.email} placeholder="Enter email address" />
-                  <PhoneField id={phoneId} label="Phone Number" name="phoneNumber" required error={errors.phoneNumber} defaultValue={partner.phoneNumber} />
-                  <PartnerTextField id={registrationNumberId} label="Registration Number" name="registrationNumber" error={errors.registrationNumber} defaultValue={partner.registrationNumber || ""} placeholder="Enter registration number" />
-                  <PartnerSelectField id={sectorActivityId} label="Sector of Activity" name="sectorActivity" required error={errors.sectorActivity} defaultValue={partner.sectorActivity || ""} placeholder="Select business sector" options={partnerSectorOptions} />
-                  <PartnerTextField id={sectorActivityKmId} label="Sector of Activity (Khmer)" name="sectorActivityKm" error={errors.sectorActivityKm} defaultValue={partner.sectorActivityKm || ""} placeholder="Enter business sector in Khmer" />
-                  <PartnerSelectField id={packageId} label="Package" name="package" error={errors.package} defaultValue={partner.package || ""} placeholder="Select package" options={packageOptions} />
-                  <PartnerSelectField id={packageKmId} label="Package (Khmer)" name="packageKm" error={errors.packageKm} defaultValue={partner.packageKm || ""} placeholder="Select package in Khmer" options={packageKmOptions} />
+                  <PartnerTextField
+                    id={nameId}
+                    label="Partner Name"
+                    name="name"
+                    required
+                    error={errors.name}
+                    defaultValue={partner.name || ""}
+                    placeholder="Enter partner name"
+                  />
+                  <PartnerTextField
+                    id={nameKhId}
+                    label="Partner Name (Khmer)"
+                    name="nameKh"
+                    error={errors.nameKh}
+                    defaultValue={partner.nameKh || ""}
+                    placeholder="Enter partner name in Khmer"
+                  />
+                  <PartnerTextField
+                    id={emailId}
+                    label="Email"
+                    name="email"
+                    type="email"
+                    required
+                    error={errors.email}
+                    defaultValue={partner.email}
+                    placeholder="Enter email address"
+                  />
+                  <PhoneField
+                    id={phoneId}
+                    label="Phone Number"
+                    name="phoneNumber"
+                    required
+                    error={errors.phoneNumber}
+                    defaultValue={partner.phoneNumber}
+                  />
+                  <PartnerTextField
+                    id={registrationNumberId}
+                    label="Registration Number"
+                    name="registrationNumber"
+                    error={errors.registrationNumber}
+                    defaultValue={partner.registrationNumber || ""}
+                    placeholder="Enter registration number"
+                  />
+                  <PartnerSelectField
+                    id={sectorActivityId}
+                    label="Sector of Activity"
+                    name="sectorActivity"
+                    required
+                    error={errors.sectorActivity}
+                    defaultValue={partner.sectorActivity || ""}
+                    placeholder="Select business sector"
+                    options={partnerSectorOptions}
+                  />
+                  <PartnerTextField
+                    id={sectorActivityKmId}
+                    label="Sector of Activity (Khmer)"
+                    name="sectorActivityKm"
+                    error={errors.sectorActivityKm}
+                    defaultValue={partner.sectorActivityKm || ""}
+                    placeholder="Enter business sector in Khmer"
+                  />
+                  <PartnerSelectField
+                    id={packageId}
+                    label="Package"
+                    name="package"
+                    error={errors.package}
+                    defaultValue={partner.package || ""}
+                    placeholder="Select package"
+                    options={packageOptions}
+                  />
+                  <PartnerSelectField
+                    id={packageKmId}
+                    label="Package (Khmer)"
+                    name="packageKm"
+                    error={errors.packageKm}
+                    defaultValue={partner.packageKm || ""}
+                    placeholder="Select package in Khmer"
+                    options={packageKmOptions}
+                  />
                 </div>
               </div>
 
@@ -393,7 +480,11 @@ export default function PartnerEditPage() {
                   Bio &amp; Description
                 </h3>
                 <div className="space-y-4">
-                  <FormField id={bioId} label={`Short Bio (${bioLength}/125)`} error={errors.bio}>
+                  <FormField
+                    id={bioId}
+                    label={`Short Bio (${bioLength}/125)`}
+                    error={errors.bio}
+                  >
                     <Textarea
                       id={bioId}
                       name="bio"
@@ -404,11 +495,17 @@ export default function PartnerEditPage() {
                       aria-invalid={Boolean(errors.bio)}
                       onChange={(e) => setBioLength(e.target.value.length)}
                     />
-                    <p className={`mt-1 text-xs ${bioLength > 105 ? "text-amber-600" : "text-slate-500 dark:text-slate-400"}`}>
+                    <p
+                      className={`mt-1 text-xs ${bioLength > 105 ? "text-amber-600" : "text-slate-500 dark:text-slate-400"}`}
+                    >
                       {125 - bioLength} characters remaining
                     </p>
                   </FormField>
-                  <FormField id={bioKmId} label="Short Bio (Khmer)" error={errors.bioKm}>
+                  <FormField
+                    id={bioKmId}
+                    label="Short Bio (Khmer)"
+                    error={errors.bioKm}
+                  >
                     <Textarea
                       id={bioKmId}
                       name="bioKm"
@@ -419,10 +516,25 @@ export default function PartnerEditPage() {
                       aria-invalid={Boolean(errors.bioKm)}
                     />
                   </FormField>
-                  <FormField id={descriptionId} label="Full Description" error={errors.description}>
-                    <Textarea id={descriptionId} name="description" defaultValue={partner.description || ""} placeholder="Detailed description about the partner" rows={5} aria-invalid={Boolean(errors.description)} />
+                  <FormField
+                    id={descriptionId}
+                    label="Full Description"
+                    error={errors.description}
+                  >
+                    <Textarea
+                      id={descriptionId}
+                      name="description"
+                      defaultValue={partner.description || ""}
+                      placeholder="Detailed description about the partner"
+                      rows={5}
+                      aria-invalid={Boolean(errors.description)}
+                    />
                   </FormField>
-                  <FormField id={descriptionKmId} label="Full Description (Khmer)" error={errors.descriptionKm}>
+                  <FormField
+                    id={descriptionKmId}
+                    label="Full Description (Khmer)"
+                    error={errors.descriptionKm}
+                  >
                     <Textarea
                       id={descriptionKmId}
                       name="descriptionKm"
@@ -441,14 +553,71 @@ export default function PartnerEditPage() {
                   Address Information
                 </h3>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <PartnerTextField id={addressId} label="Address" name="address" error={errors.address} defaultValue={addressField(partner.address, "street")} placeholder="Enter street address" />
-                  <PartnerTextField id={addressKmId} label="Address (Khmer)" name="addressKm" error={errors.addressKm} defaultValue={addressField(partner.addressKm, "street")} placeholder="Enter street address in Khmer" />
-                  <CountryField id={countryId} label="Country" name="country" required error={errors.country} defaultValue={addressField(partner.address, "country")} />
-                  <PartnerTextField id={countryKmId} label="Country (Khmer)" name="countryKm" error={errors.countryKm} defaultValue={addressField(partner.addressKm, "country")} placeholder="Enter country in Khmer" />
-                  <PartnerTextField id={cityId} label="City" name="city" required error={errors.city} defaultValue={addressField(partner.address, "city")} placeholder="Enter city" />
-                  <PartnerTextField id={cityKmId} label="City (Khmer)" name="cityKm" error={errors.cityKm} defaultValue={addressField(partner.addressKm, "city")} placeholder="Enter city in Khmer" />
-                  <PartnerTextField id={zipCodeId} label="ZIP Code" name="zipCode" error={errors.zipCode} defaultValue={addressField(partner.address, "zipCode")} placeholder="Enter ZIP code" />
-                  <PartnerTextField id={zipCodeKmId} label="ZIP Code (Khmer)" name="zipCodeKm" error={errors.zipCodeKm} defaultValue={addressField(partner.addressKm, "zipCode")} placeholder="Enter ZIP code in Khmer" />
+                  <PartnerTextField
+                    id={addressId}
+                    label="Address"
+                    name="address"
+                    error={errors.address}
+                    defaultValue={addressField(partner.address, "street")}
+                    placeholder="Enter street address"
+                  />
+                  <PartnerTextField
+                    id={addressKmId}
+                    label="Address (Khmer)"
+                    name="addressKm"
+                    error={errors.addressKm}
+                    defaultValue={addressField(partner.addressKm, "street")}
+                    placeholder="Enter street address in Khmer"
+                  />
+                  <CountryField
+                    id={countryId}
+                    label="Country"
+                    name="country"
+                    required
+                    error={errors.country}
+                    defaultValue={addressField(partner.address, "country")}
+                  />
+                  <PartnerTextField
+                    id={countryKmId}
+                    label="Country (Khmer)"
+                    name="countryKm"
+                    error={errors.countryKm}
+                    defaultValue={addressField(partner.addressKm, "country")}
+                    placeholder="Enter country in Khmer"
+                  />
+                  <PartnerTextField
+                    id={cityId}
+                    label="City"
+                    name="city"
+                    required
+                    error={errors.city}
+                    defaultValue={addressField(partner.address, "city")}
+                    placeholder="Enter city"
+                  />
+                  <PartnerTextField
+                    id={cityKmId}
+                    label="City (Khmer)"
+                    name="cityKm"
+                    error={errors.cityKm}
+                    defaultValue={addressField(partner.addressKm, "city")}
+                    placeholder="Enter city in Khmer"
+                  />
+                  <PartnerTextField
+                    id={zipCodeId}
+                    label="ZIP Code"
+                    name="zipCode"
+                    error={errors.zipCode}
+                    defaultValue={addressField(partner.address, "zipCode")}
+                    placeholder="Enter ZIP code"
+                  />
+                  <PartnerTextField
+                    id={zipCodeKmId}
+                    label="ZIP Code (Khmer)"
+                    name="zipCodeKm"
+                    error={errors.zipCodeKm}
+                    defaultValue={addressField(partner.addressKm, "zipCode")}
+                    placeholder="Enter ZIP code in Khmer"
+                  />
                 </div>
               </div>
 
@@ -458,10 +627,41 @@ export default function PartnerEditPage() {
                   Social Media
                 </h3>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <PartnerTextField id={websiteId} label="Website" name="website" type="url" error={errors.website} defaultValue={partner.website || ""} placeholder="https://example.com" />
-                  <PartnerTextField id={facebookId} label="Facebook" name="facebook" type="url" error={errors.facebook} defaultValue={partner.facebook || ""} placeholder="https://facebook.com/username" />
-                  <PartnerTextField id={linkedinId} label="LinkedIn" name="linkedin" type="url" error={errors.linkedin} defaultValue={partner.linkedin || ""} placeholder="https://linkedin.com/company/name" />
-                  <PartnerTextField id={telegramId} label="Telegram" name="telegram" error={errors.telegram} defaultValue={partner.telegram || ""} placeholder="username (without @)" />
+                  <PartnerTextField
+                    id={websiteId}
+                    label="Website"
+                    name="website"
+                    type="url"
+                    error={errors.website}
+                    defaultValue={partner.website || ""}
+                    placeholder="https://example.com"
+                  />
+                  <PartnerTextField
+                    id={facebookId}
+                    label="Facebook"
+                    name="facebook"
+                    type="url"
+                    error={errors.facebook}
+                    defaultValue={partner.facebook || ""}
+                    placeholder="https://facebook.com/username"
+                  />
+                  <PartnerTextField
+                    id={linkedinId}
+                    label="LinkedIn"
+                    name="linkedin"
+                    type="url"
+                    error={errors.linkedin}
+                    defaultValue={partner.linkedin || ""}
+                    placeholder="https://linkedin.com/company/name"
+                  />
+                  <PartnerTextField
+                    id={telegramId}
+                    label="Telegram"
+                    name="telegram"
+                    error={errors.telegram}
+                    defaultValue={partner.telegram || ""}
+                    placeholder="username (without @)"
+                  />
                 </div>
               </div>
 
@@ -469,7 +669,8 @@ export default function PartnerEditPage() {
               <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white">
-                    <ImageIcon className="size-5" /> Photo Gallery ({photos.length}/4)
+                    <ImageIcon className="size-5" /> Photo Gallery (
+                    {photos.length}/4)
                   </h3>
                   {photos.length < 4 && (
                     <label
@@ -503,7 +704,7 @@ export default function PartnerEditPage() {
                           size="icon-sm"
                           onClick={() => setPendingPhotoDelete(photo.id)}
                           title="Delete photo"
-                          className="absolute right-2 top-2 z-10 rounded-full bg-rose-600 text-white opacity-0 transition-opacity hover:bg-rose-700 group-hover:opacity-100"
+                          className="absolute top-2 right-2 z-10 rounded-full bg-rose-600 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-rose-700"
                         >
                           <Trash2 className="size-3.5" />
                         </Button>
@@ -513,7 +714,9 @@ export default function PartnerEditPage() {
                 ) : (
                   <div className="py-8 text-center">
                     <ImageIcon className="mx-auto mb-4 size-12 text-slate-300 dark:text-slate-600" />
-                    <p className="text-slate-500 dark:text-slate-400">No photos uploaded yet</p>
+                    <p className="text-slate-500 dark:text-slate-400">
+                      No photos uploaded yet
+                    </p>
                     <p className="mt-2 text-sm text-slate-400 dark:text-slate-500">
                       Add up to 4 photos to showcase your partner
                     </p>
@@ -530,7 +733,8 @@ export default function PartnerEditPage() {
                 />
                 {photoUploading && (
                   <div className="mt-4 flex items-center justify-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                    <Loader2 className="size-4 animate-spin" /> Uploading photo...
+                    <Loader2 className="size-4 animate-spin" /> Uploading
+                    photo...
                   </div>
                 )}
               </div>
@@ -571,7 +775,7 @@ export default function PartnerEditPage() {
                         className="size-4 accent-blue-600"
                       />
                     </label>
-                    <p className="mt-1 text-xs italic text-rose-500">
+                    <p className="mt-1 text-xs text-rose-500 italic">
                       {currentStatus === "INACTIVE"
                         ? "Inactive partners cannot be published"
                         : "Make partner visible to the public"}
@@ -583,7 +787,9 @@ export default function PartnerEditPage() {
                       <p className="mb-2 text-sm font-medium text-slate-900 dark:text-white">
                         Current Package:
                       </p>
-                      <PackageBadge label={partner.package || partner.packageKm || ""} />
+                      <PackageBadge
+                        label={partner.package || partner.packageKm || ""}
+                      />
                     </div>
                   )}
 
@@ -595,7 +801,9 @@ export default function PartnerEditPage() {
                         disabled={isSubmitting}
                         className="w-full bg-blue-600 hover:bg-blue-700"
                       >
-                        {isSubmitting ? <Loader2 className="size-4 animate-spin" /> : null}
+                        {isSubmitting ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : null}
                         Save Changes
                       </Button>
                       <Button
@@ -667,14 +875,18 @@ export default function PartnerEditPage() {
                 </h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="font-medium text-slate-600 dark:text-slate-300">Created:</span>
+                    <span className="font-medium text-slate-600 dark:text-slate-300">
+                      Created:
+                    </span>
                     <span className="text-slate-500 dark:text-slate-400">
                       {formatPartnerDateTime(partner.createdAt)}
                     </span>
                   </div>
                   {partner.updatedAt && (
                     <div className="flex justify-between">
-                      <span className="font-medium text-slate-600 dark:text-slate-300">Last Updated:</span>
+                      <span className="font-medium text-slate-600 dark:text-slate-300">
+                        Last Updated:
+                      </span>
                       <span className="text-slate-500 dark:text-slate-400">
                         {formatPartnerDateTime(partner.updatedAt)}
                       </span>

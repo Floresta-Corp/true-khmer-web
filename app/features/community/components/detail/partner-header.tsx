@@ -60,7 +60,10 @@ export function PartnerHeader({
 
       <div className="order-2 flex flex-col justify-center space-y-4 px-4 text-center sm:space-y-5 md:space-y-6 md:px-6 lg:text-left">
         <div className="flex flex-wrap justify-center lg:justify-start">
-          <PartnerTierBadge tier={tier ?? "None"} className="text-sm md:text-base" />
+          <PartnerTierBadge
+            tier={tier ?? "None"}
+            className="text-sm md:text-base"
+          />
         </div>
 
         <h1 className="text-2xl leading-tight font-bold text-card-foreground sm:text-3xl md:text-4xl lg:text-5xl">

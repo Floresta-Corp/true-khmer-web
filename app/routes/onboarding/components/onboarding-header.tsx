@@ -17,7 +17,7 @@ export function OnboardingHeader({
   const renderRight = () => {
     if (titlePosition === "right") {
       return (
-        <span className="font-['Inter'] text-[18px] font-medium leading-6.75 text-[#777777]">
+        <span className="font-['Inter'] text-[18px] leading-6.75 font-medium text-[#777777]">
           {title}
         </span>
       );
@@ -28,7 +28,7 @@ export function OnboardingHeader({
         return (
           <Link
             to={rightTo}
-            className="font-['Inter'] text-base font-normal leading-6 text-[#9EACC0]"
+            className="font-['Inter'] text-base leading-6 font-normal text-[#9EACC0]"
           >
             {rightText}
           </Link>
@@ -36,7 +36,7 @@ export function OnboardingHeader({
       }
 
       return (
-        <span className="font-['Inter'] text-base font-normal leading-6 text-[#9EACC0]">
+        <span className="font-['Inter'] text-base leading-6 font-normal text-[#9EACC0]">
           {rightText}
         </span>
       );
@@ -56,7 +56,7 @@ export function OnboardingHeader({
         />
 
         {titlePosition === "center" ? (
-          <p className="absolute left-1/2 -translate-x-1/2 font-['Inter'] text-[18px] font-medium leading-6.75 text-[#777777]">
+          <p className="absolute left-1/2 -translate-x-1/2 font-['Inter'] text-[18px] leading-6.75 font-medium text-[#777777]">
             {title}
           </p>
         ) : (

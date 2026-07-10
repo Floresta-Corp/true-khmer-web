@@ -33,6 +33,8 @@ export async function registrationDetailAction({
 
   // Approve (ACTIVE) or reject (DELETE) both return to the registrations list.
   return redirect("/tk-admin/registrations", {
-    ...(result.setCookie ? { headers: { "Set-Cookie": result.setCookie } } : {}),
+    ...(result.setCookie
+      ? { headers: { "Set-Cookie": result.setCookie } }
+      : {}),
   });
 }

@@ -3,10 +3,16 @@ import { Await, useLoaderData } from "react-router";
 import { CommunityHero } from "../components/community-hero";
 import { CommunityInfoSection } from "../components/community-info-section";
 import { HowToJoinSection } from "../components/how-to-join-section";
-import { PartnerCard, type PartnerCardVariant } from "../components/partner-card";
+import {
+  PartnerCard,
+  type PartnerCardVariant,
+} from "../components/partner-card";
 import { PartnerCardGrid } from "../components/partner-card-grid";
 import { PartnerCardSkeleton } from "../components/partner-card-skeleton";
-import { communityLoader, type PartnersByTier } from "../services/community.loader";
+import {
+  communityLoader,
+  type PartnersByTier,
+} from "../services/community.loader";
 
 export const loader = communityLoader;
 

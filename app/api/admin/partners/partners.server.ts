@@ -135,12 +135,10 @@ export async function updateManagedPartner(
     apiRequestWithAccessToken<
       { ok: boolean; partner: unknown },
       UpdateManagedPartnerRequest
-    >(
-      request,
-      accessToken,
-      `/admin/partner/${encodeURIComponent(partnerId)}`,
-      { method: "PATCH", body: payload },
-    ),
+    >(request, accessToken, `/admin/partner/${encodeURIComponent(partnerId)}`, {
+      method: "PATCH",
+      body: payload,
+    }),
   );
 }
 

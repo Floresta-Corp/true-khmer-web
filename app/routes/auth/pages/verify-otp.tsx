@@ -102,7 +102,7 @@ export default function VerifyOtpPage() {
         <div className="w-full pb-12">
           <Link
             to={backTo}
-            className="inline-flex items-center gap-2 text-sm font-semibold leading-5 text-[#1C5DD4] transition-colors hover:text-[#1F62DF]"
+            className="inline-flex items-center gap-2 text-sm leading-5 font-semibold text-[#1C5DD4] transition-colors hover:text-[#1F62DF]"
           >
             <ArrowLeft className="size-4" strokeWidth={2} />
             <span>Back</span>
@@ -124,24 +124,24 @@ export default function VerifyOtpPage() {
                   <img
                     src={ENVELOPE_BODY_ICON}
                     alt=""
-                    className="absolute left-[8.33%] top-[16.67%] h-[66.66%] w-[83.34%] max-w-none"
+                    className="absolute top-[16.67%] left-[8.33%] h-[66.66%] w-[83.34%] max-w-none"
                   />
                   <img
                     src={ENVELOPE_FLAP_ICON}
                     alt=""
-                    className="absolute left-[13.89%] top-[22.13%] h-[28.27%] w-[72.22%] max-w-none"
+                    className="absolute top-[22.13%] left-[13.89%] h-[28.27%] w-[72.22%] max-w-none"
                   />
                 </div>
               </div>
 
-              <h1 className="text-center text-[2rem] font-medium leading-10 text-[#18191C]">
+              <h1 className="text-center text-[2rem] leading-10 font-medium text-[#18191C]">
                 Verify Your Email Address
               </h1>
 
-              <div className="w-full space-y-6 text-center text-base font-normal leading-6 text-[#767F8C]">
+              <div className="w-full space-y-6 text-center text-base leading-6 font-normal text-[#767F8C]">
                 <p>
                   A verification code has been sent to{" "}
-                  <span className="break-words font-semibold text-[#18191C]">
+                  <span className="font-semibold break-words text-[#18191C]">
                     {email || "your email address"}
                   </span>
                 </p>
@@ -149,7 +149,7 @@ export default function VerifyOtpPage() {
                 <p>
                   Please check your inbox and enter the verification code below
                   to verify your email address. The code will expire in{" "}
-                  <span className="text-xl font-semibold leading-6 text-[#333333]">
+                  <span className="text-xl leading-6 font-semibold text-[#333333]">
                     {formatTimer(otpRemainingSeconds)}
                   </span>
                 </p>
@@ -203,7 +203,7 @@ export default function VerifyOtpPage() {
                         <InputOTPSlot
                           key={`otp-${index}`}
                           index={index}
-                          className="size-12 rounded-full border border-[#DCEBFE] text-sm font-normal text-[#2E3139] first:rounded-full first:border last:rounded-full data-[active=true]:border-[#2E88F6] data-[active=true]:text-[#2E88F6] data-[active=true]:ring-0 data-[active=true]:shadow-none data-[active=true]:aria-invalid:ring-0 [&_[class*='animate-caret-blink']]:bg-[#2E88F6]"
+                          className="size-12 rounded-full border border-[#DCEBFE] text-sm font-normal text-[#2E3139] first:rounded-full first:border last:rounded-full data-[active=true]:border-[#2E88F6] data-[active=true]:text-[#2E88F6] data-[active=true]:shadow-none data-[active=true]:ring-0 data-[active=true]:aria-invalid:ring-0 [&_[class*='animate-caret-blink']]:bg-[#2E88F6]"
                         />
                       ))}
                     </InputOTPGroup>
@@ -223,7 +223,7 @@ export default function VerifyOtpPage() {
                         .slice(0, 6);
                       setOtp(sanitized);
                     }}
-                    className="h-12 w-full rounded-full border border-[#DCEBFE] px-5 text-center text-sm tracking-[0.5em] text-[#2E3139] outline-none ring-0 placeholder:text-slate-300 focus:border-[#2E88F6]"
+                    className="h-12 w-full rounded-full border border-[#DCEBFE] px-5 text-center text-sm tracking-[0.5em] text-[#2E3139] ring-0 outline-none placeholder:text-slate-300 focus:border-[#2E88F6]"
                   />
                 )}
               </div>
@@ -248,7 +248,7 @@ export default function VerifyOtpPage() {
               <Button
                 type="submit"
                 disabled={!canVerify}
-                className="mt-9 h-10 w-full rounded-lg bg-[#F1F5F9] px-6 text-sm font-medium leading-5 text-[#1D283A] transition-colors enabled:cursor-pointer enabled:bg-[#2F6FE4] enabled:text-white enabled:hover:bg-[#1F62DF] disabled:opacity-50"
+                className="mt-9 h-10 w-full rounded-lg bg-[#F1F5F9] px-6 text-sm leading-5 font-medium text-[#1D283A] transition-colors enabled:cursor-pointer enabled:bg-[#2F6FE4] enabled:text-white enabled:hover:bg-[#1F62DF] disabled:opacity-50"
               >
                 {isVerifying ? "Verifying..." : "Verify"}
               </Button>
@@ -266,13 +266,13 @@ export default function VerifyOtpPage() {
               <input type="hidden" name="intent" value="resend" />
               <input type="hidden" name="email" value={email} />
 
-              <p className="text-base font-normal leading-6 text-[#5E6670]">
+              <p className="text-base leading-6 font-normal text-[#5E6670]">
                 Didn&apos;t receive any code?{" "}
                 <Button
                   type="submit"
                   disabled={!email || isResending || resendCooldownSeconds > 0}
                   variant="link"
-                  className="h-auto px-0 text-base font-medium leading-6 text-[#2F6FE4] transition-colors hover:text-[#1F62DF] hover:no-underline disabled:text-slate-400"
+                  className="h-auto px-0 text-base leading-6 font-medium text-[#2F6FE4] transition-colors hover:text-[#1F62DF] hover:no-underline disabled:text-slate-400"
                 >
                   {isResending
                     ? "Sending..."

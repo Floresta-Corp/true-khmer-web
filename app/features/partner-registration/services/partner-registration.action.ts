@@ -5,7 +5,10 @@ import {
   companyStepSchema,
   fieldErrorsFromZod,
 } from "./registration-validation";
-import { readPartnerCookie, setPartnerCookie } from "./registration-cookie.server";
+import {
+  readPartnerCookie,
+  setPartnerCookie,
+} from "./registration-cookie.server";
 
 // Step 1 — validate company info, persist to the cookie, advance to packages.
 export async function partnerRegistrationAction({ request }: Route.ActionArgs) {

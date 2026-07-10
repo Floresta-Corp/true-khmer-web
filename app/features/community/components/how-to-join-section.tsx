@@ -20,12 +20,11 @@ function PartnerGuideContent({ ctaSize }: { ctaSize: "default" | "lg" }) {
         As a Partner, you will:
       </h2>
       <p className="mb-4 text-sm leading-relaxed text-foreground/70 sm:text-base md:mb-12 lg:text-lg">
-        directly contribute to the movement, providing essential support to
-        fuel True Khmer&apos;s nationwide impact. You will join a group of
-        resolved Khmer leaders that allow the movement to prevail by
-        providing the necessary financial contribution. As a partner you
-        will also enjoy attractive benefits including (according to your
-        partnership plan):
+        directly contribute to the movement, providing essential support to fuel
+        True Khmer&apos;s nationwide impact. You will join a group of resolved
+        Khmer leaders that allow the movement to prevail by providing the
+        necessary financial contribution. As a partner you will also enjoy
+        attractive benefits including (according to your partnership plan):
       </p>
 
       <div className="space-y-6 md:space-y-10">
@@ -49,13 +48,17 @@ function PartnerGuideContent({ ctaSize }: { ctaSize: "default" | "lg" }) {
           </h3>
           <p className="mb-4 text-sm leading-relaxed text-foreground/70 sm:text-base md:mb-6">
             To be part of the True Khmer initiative, and/or get further
-            information, please press the &quot;Join as a Partner&quot;
-            button, fill in the required info, and our team will reach out
-            to you to proceed with your admission.
+            information, please press the &quot;Join as a Partner&quot; button,
+            fill in the required info, and our team will reach out to you to
+            proceed with your admission.
           </p>
         </div>
 
-        <div className={ctaSize === "lg" ? "flex justify-center md:justify-end" : ""}>
+        <div
+          className={
+            ctaSize === "lg" ? "flex justify-center md:justify-end" : ""
+          }
+        >
           <Button
             asChild
             size={ctaSize}
@@ -87,8 +90,8 @@ export function HowToJoinSection() {
         </h1>
         <p className="mx-auto text-sm leading-relaxed text-[#243d95] sm:max-w-4xl sm:text-xl dark:text-slate-300">
           Joining the True Khmer initiative is an easy and straight forward
-          process, first you have to choose your level of involvement, you
-          can join as a Partner.
+          process, first you have to choose your level of involvement, you can
+          join as a Partner.
         </p>
       </div>
 

@@ -105,10 +105,7 @@ export default [
         "partner-registration/choose-package/contact-person",
         "features/partner-registration/route/contact-person.tsx",
       ),
-      route(
-        "successfully",
-        "features/partner-registration/route/success.tsx",
-      ),
+      route("successfully", "features/partner-registration/route/success.tsx"),
     ],
   ),
   route("tk-admin", "features/admin/admindashboard/route/admin-layout.tsx", [
@@ -130,7 +127,10 @@ export default [
       "notifications",
       "features/admin/notifications/route/admin-notifications.tsx",
     ),
-    route("registrations", "features/admin/registrations/route/registrations.tsx"),
+    route(
+      "registrations",
+      "features/admin/registrations/route/registrations.tsx",
+    ),
     route(
       "registrations/partner/:partnerId",
       "features/admin/registrations/route/registrations.partner.$partnerId.tsx",

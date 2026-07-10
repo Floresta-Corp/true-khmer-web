@@ -3,7 +3,7 @@ import { PartnersTableSkeleton } from "./partners-table";
 
 export function PartnersPageSkeleton() {
   return (
-    <main className="min-h-full bg-[#f8fafc] px-4 py-6 dark:bg-slate-950 sm:px-6 lg:px-10 lg:py-8">
+    <main className="min-h-full bg-[#f8fafc] px-4 py-6 sm:px-6 lg:px-10 lg:py-8 dark:bg-slate-950">
       <div className="mx-auto w-full max-w-350 space-y-6">
         <div className="flex items-center justify-between gap-4">
           <div className="space-y-2">
@@ -26,7 +26,7 @@ export function PartnersPageSkeleton() {
 
 export function PartnerDetailSkeleton() {
   return (
-    <main className="min-h-full bg-[#f8fafc] px-4 py-6 dark:bg-slate-950 sm:px-6 lg:px-10 lg:py-8">
+    <main className="min-h-full bg-[#f8fafc] px-4 py-6 sm:px-6 lg:px-10 lg:py-8 dark:bg-slate-950">
       <div className="mx-auto w-full max-w-4xl space-y-6">
         <Skeleton className="h-4 w-64" />
         <div className="flex items-center justify-between gap-4">

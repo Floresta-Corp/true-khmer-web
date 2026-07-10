@@ -87,7 +87,7 @@ export default function ContactPerson() {
           type="button"
           variant="ghost"
           onClick={() => navigate(-1)}
-          className="absolute left-4 top-4 h-auto gap-2 px-0 py-0 text-slate-700 hover:bg-transparent hover:text-blue-600 lg:left-6 lg:top-6 dark:text-slate-300"
+          className="absolute top-4 left-4 h-auto gap-2 px-0 py-0 text-slate-700 hover:bg-transparent hover:text-blue-600 lg:top-6 lg:left-6 dark:text-slate-300"
         >
           <ChevronLeft size={20} />
           <span className="text-sm font-medium">Go back</span>

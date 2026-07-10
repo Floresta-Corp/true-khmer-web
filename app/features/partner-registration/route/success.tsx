@@ -36,7 +36,7 @@ export default function RegistrationSuccess() {
     <div className="relative min-h-screen overflow-hidden bg-[#f8fafc] dark:bg-slate-950">
       {/* Decorative blurred glows */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-20 top-10 size-72 rounded-full bg-blue-500/10 blur-3xl" />
+        <div className="absolute top-10 -left-20 size-72 rounded-full bg-blue-500/10 blur-3xl" />
         <div className="absolute -right-16 bottom-20 size-80 rounded-full bg-indigo-500/10 blur-3xl" />
       </div>
 
@@ -75,11 +75,11 @@ export default function RegistrationSuccess() {
             <div className="mx-auto max-w-2xl space-y-4">
               <p className="text-lg leading-relaxed text-slate-600 dark:text-slate-300">
                 Your{" "}
-                <span className="font-semibold uppercase text-blue-600">
+                <span className="font-semibold text-blue-600 uppercase">
                   {kind}
                 </span>{" "}
                 application for{" "}
-                <span className="font-semibold uppercase text-blue-600">
+                <span className="font-semibold text-blue-600 uppercase">
                   True Khmer
                 </span>{" "}
                 has been successfully submitted and is now under review.

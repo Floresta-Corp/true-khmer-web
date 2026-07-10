@@ -27,7 +27,10 @@ export function PartnerTierBadge({
   return (
     <Badge
       variant="outline"
-      className={cn(TIER_BADGE_CLASSES[tier] ?? TIER_BADGE_CLASSES.Free, className)}
+      className={cn(
+        TIER_BADGE_CLASSES[tier] ?? TIER_BADGE_CLASSES.Free,
+        className,
+      )}
     >
       {tier}
     </Badge>

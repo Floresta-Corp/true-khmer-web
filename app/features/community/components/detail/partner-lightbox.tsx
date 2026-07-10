@@ -27,7 +27,8 @@ export function PartnerLightbox({
 
   const showControls = images.length > 1;
 
-  const goPrev = () => onIndexChange((index - 1 + images.length) % images.length);
+  const goPrev = () =>
+    onIndexChange((index - 1 + images.length) % images.length);
   const goNext = () => onIndexChange((index + 1) % images.length);
 
   return (
@@ -45,7 +46,7 @@ export function PartnerLightbox({
             size="icon"
             onClick={goPrev}
             aria-label="Previous image"
-            className="absolute left-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 hover:text-white"
+            className="absolute top-1/2 left-2 -translate-y-1/2 text-white hover:bg-white/10 hover:text-white"
           >
             <ChevronLeft className="size-6" />
           </Button>
@@ -64,7 +65,7 @@ export function PartnerLightbox({
             size="icon"
             onClick={goNext}
             aria-label="Next image"
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 hover:text-white"
+            className="absolute top-1/2 right-2 -translate-y-1/2 text-white hover:bg-white/10 hover:text-white"
           >
             <ChevronRight className="size-6" />
           </Button>

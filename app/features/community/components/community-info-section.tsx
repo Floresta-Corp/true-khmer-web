@@ -16,7 +16,7 @@ export function CommunityInfoSection() {
           <div className="-translate-y-20 transform">
             <FullFlower width={162} height={158} />
           </div>
-          <div className="-translate-y-2 translate-x-20 transform">
+          <div className="translate-x-20 -translate-y-2 transform">
             <FullFlower />
           </div>
         </div>
@@ -40,9 +40,9 @@ export function CommunityInfoSection() {
               <p className="text-xs leading-relaxed text-[#243d95] sm:text-sm dark:text-slate-300">
                 A community that believes in the capacity of the Cambodian
                 people to excel, that understands that &quot;we are
-                enough&quot;, and that the time for Cambodia is now. A
-                community of leaders who share the vision and are committed to
-                the mission, ready to act today for a better tomorrow.
+                enough&quot;, and that the time for Cambodia is now. A community
+                of leaders who share the vision and are committed to the
+                mission, ready to act today for a better tomorrow.
               </p>
             </div>
           </div>
@@ -65,11 +65,11 @@ export function CommunityInfoSection() {
                 Why?
               </h2>
               <p className="text-xs leading-relaxed text-[#243d95] sm:text-sm dark:text-slate-300">
-                Because our nation&apos;s future is in our hands, and it is
-                time we restore our trust in our products and services,
-                embrace who we truly are, and empower every Cambodian to take
-                responsibility and act to shape the future and sustainable
-                development of our Kingdom.
+                Because our nation&apos;s future is in our hands, and it is time
+                we restore our trust in our products and services, embrace who
+                we truly are, and empower every Cambodian to take responsibility
+                and act to shape the future and sustainable development of our
+                Kingdom.
               </p>
             </div>
           </div>
@@ -95,12 +95,11 @@ export function CommunityInfoSection() {
                 How?
               </h2>
               <p className="text-xs leading-relaxed text-[#243d95] sm:text-sm dark:text-slate-300">
-                By providing a network of mutual support, a community
-                committed to the same goal, willing to actively support one
-                another and enhance Cambodia&apos;s economy, build trust in
-                our products and services, and lead by example to empower our
-                fellow Cambodians to join our movement and act for the better
-                of our nation.
+                By providing a network of mutual support, a community committed
+                to the same goal, willing to actively support one another and
+                enhance Cambodia&apos;s economy, build trust in our products and
+                services, and lead by example to empower our fellow Cambodians
+                to join our movement and act for the better of our nation.
               </p>
             </div>
           </div>

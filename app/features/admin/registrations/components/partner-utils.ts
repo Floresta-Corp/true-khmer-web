@@ -27,7 +27,9 @@ export function getPackageBadgeClasses(packageType: string): string {
   }
 }
 
-export function formatRegistrationDate(value: string | null | undefined): string {
+export function formatRegistrationDate(
+  value: string | null | undefined,
+): string {
   if (!value) return "N/A";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "N/A";

@@ -29,7 +29,10 @@ export default function CommunityPartnerDetail() {
 
   const lightboxImages = [
     ...(partner.logo ? [{ src: partner.logo, alt: `${name} logo` }] : []),
-    ...photos.map((photo) => ({ src: photo.url, alt: `${name} gallery image` })),
+    ...photos.map((photo) => ({
+      src: photo.url,
+      alt: `${name} gallery image`,
+    })),
   ];
 
   const openLogoLightbox = () => {
@@ -88,7 +91,9 @@ export default function CommunityPartnerDetail() {
             />
 
             <div className="rounded-xl bg-gradient-to-br from-blue-600 to-[#243d95] p-6 text-white">
-              <h3 className="mb-4 text-xl font-bold">Interested in Partnership?</h3>
+              <h3 className="mb-4 text-xl font-bold">
+                Interested in Partnership?
+              </h3>
               <p className="mb-6 text-white/90">
                 Join us right now and become part of the True Khmer community.
               </p>

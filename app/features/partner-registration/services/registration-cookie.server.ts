@@ -40,7 +40,9 @@ export function readPartnerCookie(
 }
 
 // Serialize the registration cookie (HttpOnly, 1h) for a Set-Cookie header.
-export function setPartnerCookie(data: Partial<CompanyRegistrationData>): string {
+export function setPartnerCookie(
+  data: Partial<CompanyRegistrationData>,
+): string {
   const value = encodeURIComponent(JSON.stringify(data));
   return `${COOKIE_NAME}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=3600`;
 }

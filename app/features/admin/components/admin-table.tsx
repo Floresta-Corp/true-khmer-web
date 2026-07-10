@@ -10,10 +10,7 @@ function alignClass(align: Align) {
   return "text-left";
 }
 
-export function AdminTable({
-  className,
-  ...props
-}: ComponentProps<"table">) {
+export function AdminTable({ className, ...props }: ComponentProps<"table">) {
   return (
     <table
       className={cn("w-full border-collapse text-left text-sm", className)}
@@ -119,9 +116,6 @@ export function AdminTableCell({
   align?: Align;
 }) {
   return (
-    <td
-      className={cn("px-5 py-4", alignClass(align), className)}
-      {...props}
-    />
+    <td className={cn("px-5 py-4", alignClass(align), className)} {...props} />
   );
 }

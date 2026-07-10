@@ -78,7 +78,9 @@ export function PartnerCard({ partner, variant }: PartnerCardProps) {
       <h3 className="text-center text-base font-bold text-card-foreground md:text-xl">
         {name}
       </h3>
-      <p className="text-center text-xs text-muted-foreground">{sectorActivity}</p>
+      <p className="text-center text-xs text-muted-foreground">
+        {sectorActivity}
+      </p>
       {variant === 1 ? (
         <p className="mt-2 line-clamp-3 p-2 text-center text-sm font-normal text-muted-foreground">
           {bio}
@@ -98,7 +100,10 @@ export function PartnerCard({ partner, variant }: PartnerCardProps) {
   // Only Platinum/Gold (variant 1) partners have a public detail page.
   if (variant === 1) {
     return (
-      <Link to={`/community/partner/${partner.id}`} className={CARD_CLASSES[variant]}>
+      <Link
+        to={`/community/partner/${partner.id}`}
+        className={CARD_CLASSES[variant]}
+      >
         <PartnerLogo logo={partner.logo} name={name} variant={variant} />
         {body}
       </Link>

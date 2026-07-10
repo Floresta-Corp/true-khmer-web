@@ -38,7 +38,10 @@ function parsePhoneValue(value: string) {
 
   const match = trimmed.match(/^\+(\d+)\s*(.*)$/);
   if (!match) {
-    return { country: "KH" as CountryCode, nationalNumber: sanitizePhoneNumber(trimmed) };
+    return {
+      country: "KH" as CountryCode,
+      nationalNumber: sanitizePhoneNumber(trimmed),
+    };
   }
 
   const option = phoneCountryOptions.find(
@@ -71,7 +74,9 @@ export function PhoneField({
     () => parsePhoneValue(value ?? defaultValue),
     [defaultValue, value],
   );
-  const [phoneCountry, setPhoneCountry] = useState<CountryCode>(initial.country);
+  const [phoneCountry, setPhoneCountry] = useState<CountryCode>(
+    initial.country,
+  );
   const [nationalNumber, setNationalNumber] = useState(initial.nationalNumber);
 
   const effectivePhoneCountry = phoneCountry;
