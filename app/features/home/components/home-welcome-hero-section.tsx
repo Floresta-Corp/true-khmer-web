@@ -1,14 +1,4 @@
 const HERO_BACKGROUND = "/home-welcome-hero-bg.svg";
-const FLOWER = "/home-romdoul-flower.svg";
-
-// Mobile-only romdoul flowers, matching the guest (logged-out) hero's white
-// background treatment. Placed around the edges so they frame the text.
-const MOBILE_DECORATIONS = [
-  { left: "10%", top: "10%", size: "4.5rem", rotate: -20, opacity: 0.85 },
-  { left: "80%", top: "15%", size: "9rem", rotate: 0, opacity: 0.9 },
-  { left: "90%", top: "90%", size: "4.5rem", rotate: 10, opacity: 0.8 },
-  { left: "16%", top: "83%", size: "9rem", rotate: 70, opacity: 0.9 },
-] as const;
 
 interface HomeWelcomeHeroSectionProps {
   name?: string | null;

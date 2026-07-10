@@ -2,7 +2,6 @@ import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 
 const FLOWER = "/home-romdoul-flower.svg";
-// const HERO_BACKGROUND = "/home-welcome-hero-bg.svg";
 
 const DECORATIONS = [
   {
