@@ -200,6 +200,22 @@ body {
     -3.456px 3.456px 3.456px 0px rgba(255, 255, 255, 0.39) inset;
 }
 
+/* Fade-in-up entrance for tab content on the community "How to Join" section */
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Auto-dismiss progress bar for custom notification toasts */
 @keyframes toast-progress {
   from {

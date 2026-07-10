@@ -546,6 +546,14 @@ const PartnerRegistrationResponse = z.object({ ok: z.boolean(), message: z.strin
 
 const PartnerRegistrationKmRequest = z.object({ firstNameKm: z.string().min(2).max(50), lastNameKm: z.string().min(2).max(50), registrationNumber: z.string().optional(), sectorOfActivityKm: z.string().min(2), countryKm: z.string().min(2), companyNameKm: z.string().min(2).max(150), companyAddressKm: z.string().min(5).max(200), cityKm: z.string().min(2).max(100), postalCodeKm: z.string().max(20).optional(), userContactNumber: z.string().min(5).max(30), companyContactNumber: z.string().min(5).max(30), positionKm: z.string().min(2), website: z.string().url().optional(), companyFacebookUrl: z.string().url().optional(), companyLinkedinUrl: z.string().url().optional(), companyEmail: z.string().min(1).max(100).email(), companyTelegram: z.string().optional(), userFacebookUrl: z.string().url().optional(), userLinkedinUrl: z.string().url().optional(), userEmail: z.string().min(1).max(100).email(), userIdentity: z.string().max(50).optional(), userTelegram: z.string().optional(), packageKm: z.enum(["ប្លាទីន", "មាស", "ប្រាក់", "សំរិទ្ធ", "រដ្ឋាភិបាល", "SME", "វីដេអូ", "ឥតគិតថ្លៃ"]).optional().default("សំរិទ្ធ"), titleKm: z.string().min(2).max(100), genderKm: z.string().min(2).max(10) });
 
+const PublicPartner = z.object({ id: z.string().uuid(), name: z.string().nullable(), nameKh: z.string().nullable(), logo: z.string().nullable(), description: z.string().nullable(), descriptionKm: z.string().nullable(), bio: z.string().nullable(), bioKm: z.string().nullable(), sectorActivity: z.string().nullable(), sectorActivityKm: z.string().nullable(), website: z.string().nullable(), facebook: z.string().nullable(), linkedin: z.string().nullable(), telegram: z.string().nullable(), package: z.string().nullable(), packageKm: z.string().nullable(), createdAt: z.union([z.string(), z.string()]) });
+
+const ListPublicPartnersResponse = z.object({ ok: z.boolean(), data: z.array(PublicPartner) });
+
+const PublicPartnerPhoto = z.object({ id: z.string().uuid(), url: z.string(), thumbnail: z.string().nullable() });
+
+const PublicPartnerDetailResponse = z.object({ ok: z.boolean(), partner: PublicPartner, photos: z.array(PublicPartnerPhoto) });
+
 export const schemas = {
 	AuthRegisterRequest,
 	AuthUserProfile,
@@ -824,6 +832,10 @@ export const schemas = {
 	PartnerRegistrationRequest,
 	PartnerRegistrationResponse,
 	PartnerRegistrationKmRequest,
+	PublicPartner,
+	ListPublicPartnersResponse,
+	PublicPartnerPhoto,
+	PublicPartnerDetailResponse,
 };
 
 const endpoints = makeApi([
@@ -4507,6 +4519,46 @@ const endpoints = makeApi([
 		]
 	},
 	{
+		method: "get",
+		path: "/v1/partner/public",
+		alias: "getV1partnerpublic",
+		requestFormat: "json",
+		response: ListPublicPartnersResponse,
+		errors: [
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: PartnerErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/partner/public/:id",
+		alias: "getV1partnerpublicId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: PublicPartnerDetailResponse,
+		errors: [
+			{
+				status: 404,
+				description: `Partner not found`,
+				schema: PartnerErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: PartnerErrorResponse
+			},
+		]
+	},
+	{
 		method: "post",
 		path: "/v1/partner/registration",
 		alias: "postV1partnerregistration",
@@ -6094,6 +6146,10 @@ export type postV1notificationsbroadcast_Body = z.infer<typeof schemas.postV1not
 export type PartnerRegistrationRequest = z.infer<typeof schemas.PartnerRegistrationRequest>;
 export type PartnerRegistrationResponse = z.infer<typeof schemas.PartnerRegistrationResponse>;
 export type PartnerRegistrationKmRequest = z.infer<typeof schemas.PartnerRegistrationKmRequest>;
+export type PublicPartner = z.infer<typeof schemas.PublicPartner>;
+export type ListPublicPartnersResponse = z.infer<typeof schemas.ListPublicPartnersResponse>;
+export type PublicPartnerPhoto = z.infer<typeof schemas.PublicPartnerPhoto>;
+export type PublicPartnerDetailResponse = z.infer<typeof schemas.PublicPartnerDetailResponse>;
 // End generated API schema types
 
 export const api = new Zodios(endpoints);

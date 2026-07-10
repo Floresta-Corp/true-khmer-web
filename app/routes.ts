@@ -10,6 +10,11 @@ export default [
     layout("layout/footer-layout.tsx", [
       index("routes/home.tsx"),
       route("about", "features/about/route/about.tsx"),
+      route("community", "features/community/route/community.tsx"),
+      route(
+        "community/partner/:partnerId",
+        "features/community/route/community.$partnerId.tsx",
+      ),
       route("dashboard", "routes/dashboard.tsx"),
       route("profile", "routes/onboarding-profile.tsx"),
       route("messages", "routes/messages.tsx"),
