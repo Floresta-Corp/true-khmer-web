@@ -75,6 +75,26 @@ export default function SaveItemPage() {
     }
   }, [searchParams]);
 
+  // Merge revalidated loader data (e.g. after voting on a saved question)
+  // into the accumulated list without discarding pages loaded via infinite scroll.
+  useEffect(() => {
+    const fresh = loaderData?.saveItem ?? [];
+    setCount(loaderData.count);
+
+    if (!fresh.length) return;
+
+    const freshByKey = new Map(fresh.map((i) => [`${i.type}:${i.item.id}`, i]));
+    setSaveItem((prev) => {
+      let changed = false;
+      const merged = prev.map((i) => {
+        const updated = freshByKey.get(`${i.type}:${i.item.id}`);
+        if (updated && updated !== i) changed = true;
+        return updated ?? i;
+      });
+      return changed ? merged : prev;
+    });
+  }, [loaderData]);
+
   useEffect(() => {
     const data = fetcher.data as SavedItemsLoaderData | undefined;
     if (!data) return;

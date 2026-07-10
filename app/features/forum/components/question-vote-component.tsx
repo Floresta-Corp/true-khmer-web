@@ -77,12 +77,12 @@ export default function QuestionVoteComponent({
 
   return (
     <div
-      className={`flex h-fit items-center rounded-xl overflow-hidden bg-[#f9fafb] text-[#4a5565] ${className ?? ""}`}
+      className={`flex h-fit items-center overflow-hidden rounded-xl bg-[#f9fafb] text-[#4a5565] ${className ?? ""}`}
     >
       <Button
         type="button"
         variant="ghost"
-        className={`cursor-pointer h-7 w-7 rounded-none ${upvoteClassName}`}
+        className={`h-7 w-7 cursor-pointer rounded-none ${upvoteClassName}`}
         disabled={isSubmitting}
         onClick={handleUpvote}
         aria-label="Up vote"
@@ -101,7 +101,7 @@ export default function QuestionVoteComponent({
         type="button"
         variant="ghost"
         disabled={isSubmitting}
-        className={`cursor-pointer h-7 w-7 rounded-none ${downvoteClassName}`}
+        className={`h-7 w-7 cursor-pointer rounded-none ${downvoteClassName}`}
         onClick={handleDownvote}
         aria-label="Down vote"
       >
