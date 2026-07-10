@@ -384,12 +384,12 @@ export default function EditProfile() {
 
   return (
     <motion.div
-      className="min-h-screen bg-[#F8FAFC] py-8 px-4 sm:px-6 lg:px-8"
+      className="min-h-screen bg-[#F8FAFC] px-4 py-8 sm:px-6 lg:px-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="max-w-5xl mx-auto space-y-8">
+      <div className="mx-auto max-w-5xl space-y-8">
         {/* Header Section */}
         <motion.div
           className="space-y-4"
@@ -404,7 +404,7 @@ export default function EditProfile() {
             transition={{ delay: 0.1, duration: 0.5 }}
           >
             <h1 className="text-4xl font-bold text-gray-900">Edit Profile</h1>
-            <p className="text-base text-gray-600 mt-2">
+            <p className="mt-2 text-base text-gray-600">
               Update your personal information, photo, and privacy settings.
             </p>
           </motion.div>
@@ -412,14 +412,14 @@ export default function EditProfile() {
 
         <Form method="PATCH" onSubmit={handleSubmit(onSubmit)}>
           <motion.div
-            className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+            className="grid grid-cols-1 gap-8 lg:grid-cols-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
             {/* Left Column - Main Form */}
             <motion.div
-              className="lg:col-span-2 space-y-6"
+              className="space-y-6 lg:col-span-2"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
@@ -431,7 +431,7 @@ export default function EditProfile() {
                 transition={{ delay: 0.35, duration: 0.4 }}
               >
                 <Card className="border border-gray-200">
-                  <CardContent className="p-6 space-y-6">
+                  <CardContent className="space-y-6 p-6">
                     <div className="flex gap-6">
                       <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
@@ -463,7 +463,7 @@ export default function EditProfile() {
                         <h3 className="font-semibold text-gray-900">
                           Profile Picture
                         </h3>
-                        <div className="flex gap-3">
+                        <div className="flex flex-col gap-3 sm:flex-row">
                           <motion.div
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
@@ -471,7 +471,7 @@ export default function EditProfile() {
                             <Button
                               asChild
                               variant="outline"
-                              className="gap-2 text-sm h-8.5 rounded-xl cursor-pointer"
+                              className="h-8.5 w-full cursor-pointer gap-2 rounded-xl text-sm sm:w-auto"
                             >
                               <label>
                                 <Image className="h-4 w-4" />
@@ -493,7 +493,7 @@ export default function EditProfile() {
                             <Button
                               type="button"
                               variant="outline"
-                              className="gap-2 text-sm h-8.5 rounded-xl cursor-pointer"
+                              className="h-8.5 w-full cursor-pointer gap-2 rounded-xl text-sm sm:w-auto"
                               onClick={handleDeleteAvatar}
                               disabled={!avatarPreview}
                             >
@@ -517,7 +517,7 @@ export default function EditProfile() {
                       <motion.div className="space-y-2" variants={itemVariants}>
                         <Label htmlFor="firstName">First name</Label>
                         <InputGroup className="h-10">
-                          <InputGroupAddon className="bg-transparent border-none">
+                          <InputGroupAddon className="border-none bg-transparent">
                             <User className="size-3.5 text-gray-400" />
                           </InputGroupAddon>
                           <InputGroupInput
@@ -536,7 +536,7 @@ export default function EditProfile() {
                       <motion.div className="space-y-2" variants={itemVariants}>
                         <Label htmlFor="lastName">Last name</Label>
                         <InputGroup className="h-10">
-                          <InputGroupAddon className="bg-transparent border-none">
+                          <InputGroupAddon className="border-none bg-transparent">
                             <User className="size-3.5 text-gray-400" />
                           </InputGroupAddon>
                           <InputGroupInput
@@ -563,7 +563,7 @@ export default function EditProfile() {
                       <motion.div className="space-y-2" variants={itemVariants}>
                         <Label htmlFor="occupation">Occupation</Label>
                         <InputGroup className="h-10">
-                          <InputGroupAddon className="bg-transparent border-none">
+                          <InputGroupAddon className="border-none bg-transparent">
                             <Briefcase className="size-3.5 text-gray-400" />
                           </InputGroupAddon>
                           <InputGroupInput
@@ -592,7 +592,7 @@ export default function EditProfile() {
                           icon={<User className="size-3.5 text-gray-400" />}
                         />
                         {errors.gender && (
-                          <p className="text-xs text-red-500 mt-2">
+                          <p className="mt-2 text-xs text-red-500">
                             {errors.gender.message}
                           </p>
                         )}
@@ -600,7 +600,7 @@ export default function EditProfile() {
                     </motion.div>
 
                     <motion.div
-                      className="grid grid-cols-1 sm:grid-cols-2 gap-6"
+                      className="grid grid-cols-1 gap-6 sm:grid-cols-2"
                       variants={containerVariants}
                       initial="hidden"
                       animate="visible"
@@ -658,7 +658,7 @@ export default function EditProfile() {
                       animate="visible"
                     >
                       <motion.div
-                        className="space-y-2 col-span-2"
+                        className="col-span-2 space-y-2"
                         variants={itemVariants}
                       >
                         <Label
@@ -704,10 +704,10 @@ export default function EditProfile() {
               >
                 <Card className="border border-gray-200">
                   <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="mb-4 flex items-center justify-between">
                       <h3 className="font-semibold text-gray-900">Skills</h3>
                     </div>
-                    <div className="flex gap-2 mb-4">
+                    <div className="mb-4 flex gap-2">
                       <div className="relative flex-1">
                         <Input
                           value={newSkill}
@@ -773,7 +773,7 @@ export default function EditProfile() {
                             }
                           }}
                           placeholder="Add a skill (e.g. Graphic Design)"
-                          className="text-sm h-10"
+                          className="h-10 text-sm"
                           autoComplete="off"
                           aria-autocomplete="list"
                           aria-expanded={isSkillSuggestionsOpen}
@@ -786,7 +786,7 @@ export default function EditProfile() {
                             <div
                               id="skill-suggestions"
                               role="listbox"
-                              className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-md border border-gray-200 bg-white shadow-lg"
+                              className="absolute top-full right-0 left-0 z-20 mt-2 overflow-hidden rounded-md border border-gray-200 bg-white shadow-lg"
                             >
                               {isSearchingSkills &&
                                 skillSuggestions.length === 0 && (
@@ -853,7 +853,7 @@ export default function EditProfile() {
                         >
                           <Badge
                             variant="outline"
-                            className="flex items-center gap-2 cursor-pointer hover:bg-gray-100"
+                            className="flex cursor-pointer items-center gap-2 hover:bg-gray-100"
                             onClick={() => handleRemoveSkill(skill)}
                           >
                             {skill}
@@ -874,7 +874,7 @@ export default function EditProfile() {
               >
                 <Card className="border border-gray-200">
                   <CardContent className="p-6">
-                    <h3 className="font-semibold text-gray-900 mb-4">
+                    <h3 className="mb-4 font-semibold text-gray-900">
                       Social Links
                     </h3>
                     <motion.div
@@ -915,7 +915,7 @@ export default function EditProfile() {
                       </motion.div>
                     </motion.div>
                     <motion.div
-                      className="grid grid-cols-2 gap-6 mt-6"
+                      className="mt-6 grid grid-cols-2 gap-6"
                       variants={containerVariants}
                       initial="hidden"
                       animate="visible"
@@ -963,7 +963,7 @@ export default function EditProfile() {
               >
                 <Card className="border border-gray-200">
                   <CardContent className="p-6">
-                    <h3 className="font-semibold text-gray-900 mb-4">
+                    <h3 className="mb-4 font-semibold text-gray-900">
                       Contact Details
                     </h3>
                     <motion.div
@@ -1008,7 +1008,7 @@ export default function EditProfile() {
                           >
                             <SelectTrigger
                               aria-label="Country calling code"
-                              className="h-full w-24 rounded-l-lg rounded-r-none border-[#C3C6D6] border-r-0 bg-slate-50 px-3 text-sm font-medium leading-5 text-[#434654] shadow-none focus:ring-[#2F6FE4]/20 focus:ring-offset-0"
+                              className="h-full w-24 rounded-l-lg rounded-r-none border-r-0 border-[#C3C6D6] bg-slate-50 px-3 text-sm leading-5 font-medium text-[#434654] shadow-none focus:ring-[#2F6FE4]/20 focus:ring-offset-0"
                             >
                               <span className="truncate">
                                 {selectedPhoneCountry.dialCode}
@@ -1056,7 +1056,7 @@ export default function EditProfile() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="cursor-pointer h-10"
+                    className="h-10 cursor-pointer"
                     onClick={() => navigate("/myspace")}
                   >
                     Cancel
@@ -1068,7 +1068,7 @@ export default function EditProfile() {
                 >
                   <Button
                     type="submit"
-                    className="cursor-pointer H-10 bg-blue-600 hover:bg-blue-700 text-white h-10"
+                    className="h-10 cursor-pointer bg-blue-600 text-white hover:bg-blue-700"
                     disabled={fetcher.state !== "idle"}
                   >
                     {fetcher.state !== "idle" ? (
@@ -1154,9 +1154,9 @@ export default function EditProfile() {
                                         option,
                                       )
                                     }
-                                    className={`h-9 rounded-lg px-4 gap-5 text-xs font-medium transition-all border-0 shadow-none ${
+                                    className={`h-9 gap-5 rounded-lg border-0 px-4 text-xs font-medium shadow-none transition-all ${
                                       isActive
-                                        ? "bg-blue-600 hover:bg-blue-700 text-white"
+                                        ? "bg-blue-600 text-white hover:bg-blue-700"
                                         : "bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700"
                                     }`}
                                   >
@@ -1170,7 +1170,7 @@ export default function EditProfile() {
                         </motion.div>
                       ))}
                     </motion.div>
-                    <p className="mt-6 text-xs italic text-gray-400">
+                    <p className="mt-6 text-xs text-gray-400 italic">
                       Visibility settings affect how your data appears in search
                       results and to other community members.
                     </p>

@@ -94,7 +94,7 @@ export default function ApplicantSideBar({
         animate={{ opacity: applicant ? 1 : 0 }}
         onClick={onClose}
         className={cn(
-          "fixed inset-0 bg-black/20 backdrop-blur-xs z-40 transition-all",
+          "fixed inset-0 z-40 bg-black/20 backdrop-blur-xs transition-all",
           applicant ? "pointer-events-auto" : "pointer-events-none",
         )}
       />
@@ -104,12 +104,12 @@ export default function ApplicantSideBar({
         initial={{ x: "100%" }}
         animate={{ x: applicant ? 0 : "100%" }}
         transition={{ type: "spring", bounce: 0.1, duration: 0.4 }}
-        className="fixed top-0 right-0 h-full w-95 bg-white shadow-2xl z-50 flex pb-5 flex-col overflow-y-auto"
+        className="fixed top-0 right-0 z-50 flex h-full w-95 flex-col overflow-y-auto bg-white pb-5 shadow-2xl"
       >
         {applicant && (
           <>
             {/* Header */}
-            <div className="flex items-start justify-between px-6 py-4 border-b border-gray-100">
+            <div className="flex items-start justify-between border-b border-gray-100 px-6 py-4">
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12 border border-gray-100">
                   <AvatarImage
@@ -117,7 +117,7 @@ export default function ApplicantSideBar({
                     alt={applicant.candidate.name}
                     className="object-cover"
                   />
-                  <AvatarFallback className="text-sm font-semibold bg-gray-100 text-gray-600">
+                  <AvatarFallback className="bg-gray-100 text-sm font-semibold text-gray-600">
                     {applicant.candidate.name
                       .split(" ")
                       .map((n) => n[0])
@@ -132,13 +132,13 @@ export default function ApplicantSideBar({
                     {applicant.candidate.email}
                   </p>
                   {isNew ? (
-                    <Badge className="bg-blue-100 text-blue-700 border-blue-200 hover:bg-gray-100 text-xs mt-1">
+                    <Badge className="mt-1 border-blue-200 bg-blue-100 text-xs text-blue-700 hover:bg-gray-100">
                       NEW
                     </Badge>
                   ) : (
                     <Badge
                       className={cn(
-                        "text-xs font-semibold border mt-1 pointer-events-none",
+                        "pointer-events-none mt-1 border text-xs font-semibold",
                         STATUS_STYLES[overallStatus],
                       )}
                     >
@@ -150,22 +150,22 @@ export default function ApplicantSideBar({
               <Button
                 variant="ghost"
                 onClick={onClose}
-                className="p-1.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                className="rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
               >
                 <X size={16} />
               </Button>
             </div>
 
-            <div className="flex flex-col gap-4  px-6 py-4">
+            <div className="flex flex-col gap-4 px-6 py-4">
               <div className="flex items-center justify-around rounded-xl border border-gray-100 bg-white p-2">
                 {/* Submissions Stat */}
-                <div className="flex flex-col items-center justify-center flex-1 text-center">
+                <div className="flex flex-1 flex-col items-center justify-center text-center">
                   <div className="flex h-8 items-center justify-center">
                     <span className="text-sm font-semibold text-gray-900">
                       {applicant?.submissionCount ?? "0"}
                     </span>
                   </div>
-                  <span className="mt-1 text-[9px] font-semibold uppercase tracking-wider text-gray-400">
+                  <span className="mt-1 text-[9px] font-semibold tracking-wider text-gray-400 uppercase">
                     Submissions
                   </span>
                 </div>
@@ -173,13 +173,13 @@ export default function ApplicantSideBar({
                 <div className="h-10 w-px bg-gray-100" />
 
                 {/* Roles Applied Stat */}
-                <div className="flex flex-col items-center justify-center flex-1 text-center">
+                <div className="flex flex-1 flex-col items-center justify-center text-center">
                   <div className="flex h-8 items-center justify-center">
                     <span className="text-sm font-semibold text-gray-900">
                       {applicant?.totalRoleApplied ?? "0"}
                     </span>
                   </div>
-                  <span className="mt-1 text-[9px] font-semibold uppercase tracking-wider text-gray-400">
+                  <span className="mt-1 text-[9px] font-semibold tracking-wider text-gray-400 uppercase">
                     Roles Applied
                   </span>
                 </div>
@@ -187,7 +187,7 @@ export default function ApplicantSideBar({
                 <div className="h-10 w-px bg-gray-100" />
 
                 {/* Overall Status Stat */}
-                <div className="flex flex-col items-center justify-center flex-1 text-center">
+                <div className="flex flex-1 flex-col items-center justify-center text-center">
                   <div className="flex h-8 items-center justify-center">
                     <span
                       className={cn(
@@ -201,7 +201,7 @@ export default function ApplicantSideBar({
                       {STATUS_LABELS[overallStatus]}
                     </span>
                   </div>
-                  <span className="mt-1 text-[9px] font-semibold uppercase tracking-wider text-gray-400">
+                  <span className="mt-1 text-[9px] font-semibold tracking-wider text-gray-400 uppercase">
                     Overall Status
                   </span>
                 </div>

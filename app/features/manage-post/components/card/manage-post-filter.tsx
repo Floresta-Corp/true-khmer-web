@@ -45,14 +45,14 @@ export default function ManagePostFilters({
   onSearchChange,
 }: Props) {
   return (
-    <div className="flex items-center justify-between gap-4 flex-wrap w-full m-4">
-      <div className="flex bg-gray-100 dark:bg-slate-900 p-1 rounded-xl shadow-inner sm:w-max">
+    <div className="mt-4 flex w-full flex-wrap items-center justify-between gap-4">
+      <div className="scrollbar-none flex w-full max-w-full overflow-x-auto rounded-xl bg-gray-100 p-1 shadow-inner sm:w-max dark:bg-slate-900">
         {STATUS_TABS.map((tab) => (
           <button
             key={tab.value}
             onClick={() => onFilterChange(tab.value as FilterType)}
             aria-pressed={filter === tab.value}
-            className="relative px-5 py-1.5 text-[14px] font-bold transition-colors duration-300 cursor-pointer z-10"
+            className="relative z-10 shrink-0 cursor-pointer px-3 py-1.5 text-[14px] font-bold whitespace-nowrap transition-colors duration-300 sm:px-5 sm:text-[14px]"
           >
             <span
               className={cn(
@@ -68,7 +68,7 @@ export default function ManagePostFilters({
             {filter === tab.value && (
               <motion.div
                 layoutId="managePostActiveTab"
-                className="absolute inset-0 bg-white dark:bg-slate-800 rounded-lg shadow-sm z-10"
+                className="absolute inset-0 z-10 rounded-lg bg-white shadow-sm dark:bg-slate-800"
                 transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
               />
             )}
@@ -81,7 +81,7 @@ export default function ManagePostFilters({
           value={activeType}
           onValueChange={(value) => onTypeChange(value as TabType)}
         >
-          <SelectTrigger className="w-30 md:w-36 h-10 text-[14px] font-medium border-slate-200 bg-white rounded-xl focus:ring-blue-500/20">
+          <SelectTrigger className="h-10 w-30 rounded-xl border-slate-200 bg-white text-[14px] font-medium focus:ring-blue-500/20 md:w-36">
             <SelectValue placeholder="All Types" />
           </SelectTrigger>
           <SelectContent className="rounded-xl border-slate-200">
@@ -91,13 +91,13 @@ export default function ManagePostFilters({
           </SelectContent>
         </Select>
 
-        <div className="relative w-56">
+        <div className="relative w-fit md:w-72">
           <Search
             size={16}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+            className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400"
           />
           <Input
-            className="h-10 pl-11 pr-4 text-[14px] border-slate-200 bg-white rounded-xl focus-visible:ring-blue-500/20 placeholder:text-slate-400 placeholder:font-medium transition-all"
+            className="h-10 rounded-xl border-slate-200 bg-white pr-4 pl-11 text-[14px] transition-all placeholder:font-medium placeholder:text-slate-400 focus-visible:ring-blue-500/20"
             placeholder="Search postings name..."
             value={searchInput}
             onChange={(e) => {

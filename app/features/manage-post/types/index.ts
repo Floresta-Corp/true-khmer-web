@@ -170,6 +170,7 @@ export const ProjectSchema = z.object({
   documentNames: z.array(z.string()),
   motivation: z.string(),
   portfolio: z.string(),
+  relevantExperience: z.string(),
 });
 export type Project = z.infer<typeof ProjectSchema>;
 
