@@ -2,11 +2,20 @@ import { Calendar, Mail, Phone } from "lucide-react";
 import { useNavigate } from "react-router";
 
 import { Skeleton } from "~/components/ui/skeleton";
+import {
+  AdminHeaderCell,
+  AdminTable,
+  AdminTableBody,
+  AdminTableCell,
+  AdminTableHead,
+  AdminTableHeaderRow,
+  AdminTableRow,
+} from "~/features/admin/components/admin-table";
 import { PackageBadge, PartnerStatusBadge, PublishBadge } from "./partner-badges";
 import { formatPartnerDate } from "./partner-utils";
-import type { ManagedPartner } from "../types";
+import type { Partner } from "~/types/api-client";
 
-export function PartnersTable({ partners }: { partners: ManagedPartner[] }) {
+export function PartnersTable({ partners }: { partners: Partner[] }) {
   const navigate = useNavigate();
 
   const goToDetail = (partnerId: string) => {
@@ -17,27 +26,28 @@ export function PartnersTable({ partners }: { partners: ManagedPartner[] }) {
     <>
       {/* Desktop table view */}
       <div className="hidden overflow-x-auto lg:block">
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="bg-gradient-to-r from-blue-600 to-[#1e3a8a] text-white">
-              <th className="px-4 py-3 font-semibold">Full Name</th>
-              <th className="px-4 py-3 font-semibold">Email</th>
-              <th className="px-4 py-3 font-semibold">Phone</th>
-              <th className="px-4 py-3 font-semibold">Sector of Activity</th>
-              <th className="px-4 py-3 font-semibold">Package</th>
-              <th className="px-4 py-3 font-semibold">Status</th>
-              <th className="px-4 py-3 font-semibold">Publish</th>
-              <th className="px-4 py-3 font-semibold">Registration Date</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+        <AdminTable>
+          <AdminTableHead>
+            <AdminTableHeaderRow>
+              <AdminHeaderCell label="Full Name" />
+              <AdminHeaderCell label="Email" />
+              <AdminHeaderCell label="Phone" />
+              <AdminHeaderCell label="Sector of Activity" />
+              <AdminHeaderCell label="Package" />
+              <AdminHeaderCell label="Status" />
+              <AdminHeaderCell label="Publish" />
+              <AdminHeaderCell label="Registration Date" />
+            </AdminTableHeaderRow>
+          </AdminTableHead>
+          <AdminTableBody>
             {partners.map((partner) => {
               const name = partner.name || partner.nameKh || "—";
               const sector = partner.sectorActivity || partner.sectorActivityKm || "—";
               const pkg = partner.package || partner.packageKm;
               return (
-                <tr
+                <AdminTableRow
                   key={partner.id}
+                  interactive
                   onClick={() => goToDetail(partner.id)}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
@@ -46,33 +56,30 @@ export function PartnersTable({ partners }: { partners: ManagedPartner[] }) {
                     }
                   }}
                   tabIndex={0}
-                  className="cursor-pointer text-slate-700 transition-colors hover:bg-slate-50 focus:bg-slate-50 focus:outline-none dark:text-slate-300 dark:hover:bg-slate-800/60 dark:focus:bg-slate-800/60"
                 >
-                  <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">
+                  <AdminTableCell className="font-medium text-slate-900 dark:text-white">
                     {name}
-                  </td>
-                  <td className="px-4 py-3">{partner.email}</td>
-                  <td className="px-4 py-3">{partner.phoneNumber}</td>
-                  <td className="px-4 py-3">
-                    {sector}
-                  </td>
-                  <td className="px-4 py-3">
+                  </AdminTableCell>
+                  <AdminTableCell>{partner.email}</AdminTableCell>
+                  <AdminTableCell>{partner.phoneNumber}</AdminTableCell>
+                  <AdminTableCell>{sector}</AdminTableCell>
+                  <AdminTableCell>
                     {pkg ? <PackageBadge label={pkg} /> : "N/A"}
-                  </td>
-                  <td className="px-4 py-3">
+                  </AdminTableCell>
+                  <AdminTableCell>
                     <PartnerStatusBadge status={partner.status} />
-                  </td>
-                  <td className="px-4 py-3">
+                  </AdminTableCell>
+                  <AdminTableCell>
                     <PublishBadge isPublished={partner.isPublished} />
-                  </td>
-                  <td className="px-4 py-3">
+                  </AdminTableCell>
+                  <AdminTableCell>
                     {formatPartnerDate(partner.createdAt)}
-                  </td>
-                </tr>
+                  </AdminTableCell>
+                </AdminTableRow>
               );
             })}
-          </tbody>
-        </table>
+          </AdminTableBody>
+        </AdminTable>
       </div>
 
       {/* Mobile / tablet card view */}
@@ -139,8 +146,8 @@ export function PartnersTable({ partners }: { partners: ManagedPartner[] }) {
 export function PartnersTableSkeleton({ rows = 6 }: { rows?: number }) {
   return (
     <div className="divide-y divide-slate-100 dark:divide-slate-800">
-      <div className="hidden bg-gradient-to-r from-blue-600 to-[#1e3a8a] px-4 py-3 lg:block">
-        <Skeleton className="h-4 w-40 bg-white/30" />
+      <div className="hidden border-b border-slate-100 bg-slate-50 px-5 py-4 lg:block dark:border-slate-800 dark:bg-slate-900">
+        <Skeleton className="h-4 w-40" />
       </div>
       {Array.from({ length: rows }).map((_, index) => (
         <div

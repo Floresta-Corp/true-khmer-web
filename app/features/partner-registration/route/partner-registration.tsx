@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import LogoSvg from "../../../../public/logoSvg";
 
+import { Button } from "~/components/ui/button";
 import { partnerRegistrationAction } from "../services/partner-registration.action";
 import { partnerSectorOptions } from "../data/sector-options";
 import { TextField } from "../components/text-field";
@@ -243,10 +244,10 @@ export default function PartnerRegistration() {
                 error={formErrors.companyLinkedinUrl}
               />
 
-              <button
+              <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-60"
+                className="h-12 w-full gap-2 bg-blue-600 px-6 font-semibold text-white shadow-sm hover:bg-blue-700"
               >
                 {isSubmitting ? (
                   <>
@@ -256,7 +257,7 @@ export default function PartnerRegistration() {
                 ) : (
                   "Continue to Package Selection"
                 )}
-              </button>
+              </Button>
             </Form>
           </div>
         </div>

@@ -1,6 +1,29 @@
-import type { CompanyRegistrationData } from "../types";
+import type { PartnerRegistrationRequest } from "~/types/api-client";
 
 const COOKIE_NAME = "partnerFormData";
+
+export type CompanyRegistrationData = Pick<
+  PartnerRegistrationRequest,
+  | "companyName"
+  | "companyEmail"
+  | "sectorOfActivity"
+  | "companyAddress"
+  | "city"
+  | "country"
+  | "companyContactNumber"
+> &
+  Partial<
+    Pick<
+      PartnerRegistrationRequest,
+      | "registrationNumber"
+      | "zipCode"
+      | "website"
+      | "companyTelegram"
+      | "companyFacebookUrl"
+      | "companyLinkedinUrl"
+      | "package"
+    >
+  >;
 
 // Read + parse the multi-step registration cookie. Returns null if absent/invalid.
 export function readPartnerCookie(

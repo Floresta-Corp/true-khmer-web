@@ -38,7 +38,9 @@ import {
 } from "../partner-options";
 import type { partnerDetailLoader } from "../../services/partner-detail.loader";
 import type { partnerEditAction } from "../../services/partner-edit.action";
-import type { PartnerAddress, PartnerPhoto } from "../../types";
+import type { Partner, PartnerPhoto } from "~/types/api-client";
+
+type PartnerAddress = NonNullable<Partner["address"]>;
 
 function addressField(
   address: PartnerAddress | null | undefined,
@@ -341,13 +343,14 @@ export default function PartnerEditPage() {
                         {logoUrl ? "Change Logo" : "Upload Logo"}
                       </label>
                       {logoUrl && (
-                        <button
+                        <Button
                           type="button"
+                          variant="outline"
                           onClick={() => setShowRemoveLogoModal(true)}
-                          className="inline-flex items-center gap-2 rounded-lg border border-rose-300 px-3 py-1.5 text-sm font-medium text-rose-600 hover:bg-rose-50 dark:border-rose-900 dark:text-rose-400 dark:hover:bg-rose-950/40"
+                          className="h-8 gap-2 border-rose-300 px-3 text-rose-600 hover:bg-rose-50 dark:border-rose-900 dark:text-rose-400 dark:hover:bg-rose-950/40"
                         >
                           <Trash2 className="size-3.5" /> Remove
-                        </button>
+                        </Button>
                       )}
                     </div>
                     <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
@@ -492,14 +495,16 @@ export default function PartnerEditPage() {
                             className="size-full object-cover transition-transform group-hover:scale-105"
                           />
                         </button>
-                        <button
+                        <Button
                           type="button"
+                          variant="destructive"
+                          size="icon-sm"
                           onClick={() => setPendingPhotoDelete(photo.id)}
                           title="Delete photo"
-                          className="absolute right-2 top-2 z-10 rounded-full bg-rose-600 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                          className="absolute right-2 top-2 z-10 rounded-full bg-rose-600 text-white opacity-0 transition-opacity hover:bg-rose-700 group-hover:opacity-100"
                         >
                           <Trash2 className="size-3.5" />
-                        </button>
+                        </Button>
                       </div>
                     ))}
                   </div>

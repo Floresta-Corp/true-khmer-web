@@ -20,13 +20,14 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { Button } from "~/components/ui/button";
 import { ConfirmationModal } from "~/features/admin/components/confirmation-modal";
 import { PackageBadge, PartnerStatusBadge } from "../partner-badges";
 import { formatPartnerAddress, formatPartnerDate } from "../partner-utils";
 import { ImageLightbox, type LightboxImage } from "../image-lightbox";
 import type { partnerDetailLoader } from "../../services/partner-detail.loader";
 import type { partnerDetailAction } from "../../services/partner-detail.action";
-import type { ContactPerson } from "../../types";
+import type { ContactPerson } from "~/types/api-client";
 
 function InfoRow({
   icon: Icon,
@@ -262,42 +263,43 @@ export default function PartnerDetailPage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <button
+            <Button
               type="button"
               onClick={() => navigate(`/tk-admin/partners/${partner.id}/edit`)}
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+              className="gap-2 bg-blue-600 text-white hover:bg-blue-700"
             >
               <Edit className="size-4" /> Edit
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={() => setShowStatusModal(true)}
-              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors ${
+              className={`gap-2 text-white ${
                 partner.status === "ACTIVE"
                   ? "bg-amber-500 hover:bg-amber-600"
                   : "bg-emerald-600 hover:bg-emerald-700"
               }`}
             >
               {partner.status === "ACTIVE" ? "Deactivate" : "Activate"}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={() => setShowPublishModal(true)}
-              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors ${
+              className={`gap-2 text-white ${
                 partner.isPublished
                   ? "bg-amber-500 hover:bg-amber-600"
                   : "bg-emerald-600 hover:bg-emerald-700"
               }`}
             >
               {partner.isPublished ? "Unpublish" : "Publish"}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="outline"
               onClick={() => setShowDeleteModal(true)}
-              className="inline-flex items-center gap-2 rounded-lg border border-rose-300 px-3 py-2 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50 dark:border-rose-900 dark:text-rose-400 dark:hover:bg-rose-950/40"
+              className="gap-2 border-rose-300 text-rose-600 hover:bg-rose-50 dark:border-rose-900 dark:text-rose-400 dark:hover:bg-rose-950/40"
             >
               <Trash2 className="size-4" /> Delete
-            </button>
+            </Button>
           </div>
         </div>
 

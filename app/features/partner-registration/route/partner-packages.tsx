@@ -9,6 +9,7 @@ import {
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { Button } from "~/components/ui/button";
 import { partnerPackagesLoader } from "../services/partner-packages.loader";
 import { partnerPackagesAction } from "../services/partner-packages.action";
 import { tiers } from "../data/tiers";
@@ -64,15 +65,16 @@ export default function PartnerPackages() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[url('/images/registerBG2.webp')] bg-cover bg-no-repeat">
       <div className="relative flex min-h-screen flex-col items-center overflow-hidden bg-white p-5 lg:py-10 xl:px-24 dark:bg-slate-950">
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => navigate("/registration/partner-registration")}
           disabled={isSubmitting}
-          className="absolute left-4 top-4 flex items-center gap-2 text-slate-700 transition-colors hover:text-blue-600 lg:left-6 lg:top-6 dark:text-slate-300"
+          className="absolute left-4 top-4 h-auto gap-2 px-0 py-0 text-slate-700 hover:bg-transparent hover:text-blue-600 lg:left-6 lg:top-6 dark:text-slate-300"
         >
           <ChevronLeft size={20} />
           <span className="text-sm font-medium">Go back</span>
-        </button>
+        </Button>
 
         <Form method="post" className="w-full max-w-7xl p-8">
           <input
@@ -112,10 +114,10 @@ export default function PartnerPackages() {
               </div>
 
               <div className="mt-12 flex justify-center">
-                <button
+                <Button
                   type="submit"
                   disabled={!selectedTier || isSubmitting}
-                  className="inline-flex min-w-64 items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-60"
+                  className="h-12 min-w-64 gap-2 bg-blue-600 px-6 font-semibold text-white shadow-sm hover:bg-blue-700"
                 >
                   {isSubmitting ? (
                     <>
@@ -127,7 +129,7 @@ export default function PartnerPackages() {
                   ) : (
                     "Select a Package to Continue"
                   )}
-                </button>
+                </Button>
               </div>
             </div>
           </div>

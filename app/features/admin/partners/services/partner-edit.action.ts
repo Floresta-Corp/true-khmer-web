@@ -10,10 +10,13 @@ import {
 } from "~/api/admin/partners/partners.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import type {
-  PackageOption,
-  PartnerAddress,
-  UpdateManagedPartnerPayload,
-} from "../types";
+  CreateManagedPartnerRequest,
+  Partner,
+  UpdateManagedPartnerRequest,
+} from "~/types/api-client";
+
+type PackageOption = NonNullable<CreateManagedPartnerRequest["package"]>;
+type PartnerAddress = NonNullable<Partner["address"]>;
 
 const RESTRICTED_MESSAGE = "Partner management is restricted to Super Admins.";
 
@@ -209,7 +212,7 @@ export async function partnerEditAction({
       };
       const hasAddressKm = Object.values(addressKm).some(Boolean);
 
-      const payload: UpdateManagedPartnerPayload = {
+      const payload: UpdateManagedPartnerRequest = {
         name,
         nameKh: optional(formData.get("nameKh")),
         email,
@@ -229,7 +232,7 @@ export async function partnerEditAction({
         telegram: optional(formData.get("telegram")),
         logo: optional(formData.get("logo")),
         package: (formData.get("package") as PackageOption) || null,
-        packageKm: (formData.get("packageKm") as UpdateManagedPartnerPayload["packageKm"]) || null,
+        packageKm: (formData.get("packageKm") as UpdateManagedPartnerRequest["packageKm"]) || null,
         address: hasAddress ? address : null,
         addressKm: hasAddressKm ? addressKm : null,
       };

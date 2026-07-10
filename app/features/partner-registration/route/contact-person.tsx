@@ -4,6 +4,7 @@ import { ChevronLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import LogoSvg from "../../../../public/logoSvg";
 
+import { Button } from "~/components/ui/button";
 import { contactPersonLoader } from "../services/contact-person.loader";
 import { contactPersonAction } from "../services/contact-person.action";
 import {
@@ -80,14 +81,15 @@ export default function ContactPerson() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[url('/images/registerBG2.webp')] bg-cover bg-no-repeat">
       <div className="relative flex min-h-screen flex-col items-center overflow-hidden bg-white p-5 lg:py-10 xl:px-24 dark:bg-slate-950">
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => navigate(-1)}
-          className="absolute left-4 top-4 flex items-center gap-2 text-slate-700 transition-colors hover:text-blue-600 lg:left-6 lg:top-6 dark:text-slate-300"
+          className="absolute left-4 top-4 h-auto gap-2 px-0 py-0 text-slate-700 hover:bg-transparent hover:text-blue-600 lg:left-6 lg:top-6 dark:text-slate-300"
         >
           <ChevronLeft size={20} />
           <span className="text-sm font-medium">Go back</span>
-        </button>
+        </Button>
 
         <div className="flex w-full max-w-4xl flex-col items-center gap-4 lg:gap-10">
           <div className="mb-6 flex w-full items-center justify-center">
@@ -242,11 +244,11 @@ export default function ContactPerson() {
                 error={formErrors.userLinkedinUrl}
               />
 
-              <button
+              <Button
                 type="submit"
                 title="Double-check your information before submitting."
                 disabled={isSubmitting}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-60"
+                className="h-12 w-full gap-2 bg-blue-600 px-6 font-semibold text-white shadow-sm hover:bg-blue-700"
               >
                 {isSubmitting ? (
                   <>
@@ -256,7 +258,7 @@ export default function ContactPerson() {
                 ) : (
                   "Join as a Partner"
                 )}
-              </button>
+              </Button>
             </Form>
           </div>
         </div>

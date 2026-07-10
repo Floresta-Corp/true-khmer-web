@@ -6,14 +6,14 @@ import {
 } from "~/lib/server/api-client.server";
 import { getAdminAccessToken } from "~/lib/server/session.server";
 import type {
-  CreateManagedPartnerPayload,
+  CreateManagedPartnerRequest,
   CreateManagedPartnerResponse,
   ListManagedPartnersResponse,
   ManagedPartnerDetailResponse,
   PresignPartnerLogoResponse,
   PresignPartnerPhotoResponse,
-  UpdateManagedPartnerPayload,
-} from "~/features/admin/partners/types";
+  UpdateManagedPartnerRequest,
+} from "~/types/api-client";
 
 async function retryAdminRequestAfterRefresh<T>(
   request: Request,
@@ -112,12 +112,12 @@ export async function getManagedPartner(
 // POST /v1/admin/partner — admin-created partner (status ACTIVE).
 export async function createManagedPartner(
   request: Request,
-  payload: CreateManagedPartnerPayload,
+  payload: CreateManagedPartnerRequest,
 ) {
   return retryAdminRequestAfterRefresh(request, (accessToken) =>
     apiRequestWithAccessToken<
       CreateManagedPartnerResponse,
-      CreateManagedPartnerPayload
+      CreateManagedPartnerRequest
     >(request, accessToken, "/admin/partner", {
       method: "POST",
       body: payload,
@@ -129,12 +129,12 @@ export async function createManagedPartner(
 export async function updateManagedPartner(
   request: Request,
   partnerId: string,
-  payload: UpdateManagedPartnerPayload,
+  payload: UpdateManagedPartnerRequest,
 ) {
   return retryAdminRequestAfterRefresh(request, (accessToken) =>
     apiRequestWithAccessToken<
       { ok: boolean; partner: unknown },
-      UpdateManagedPartnerPayload
+      UpdateManagedPartnerRequest
     >(
       request,
       accessToken,

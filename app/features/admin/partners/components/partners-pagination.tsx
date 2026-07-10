@@ -3,7 +3,9 @@ import { useSearchParams } from "react-router";
 
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
-import type { PartnerListMeta } from "../types";
+import type { ListManagedPartnersResponse } from "~/types/api-client";
+
+type PartnerListMeta = ListManagedPartnersResponse["meta"];
 
 export function PartnersPagination({ meta }: { meta: PartnerListMeta }) {
   const [, setSearchParams] = useSearchParams();

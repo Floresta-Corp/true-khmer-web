@@ -1,4 +1,6 @@
-import type { PartnerAddress } from "../types";
+import type { Partner } from "~/types/api-client";
+
+type PartnerAddress = NonNullable<Partner["address"]>;
 
 export function getPackageBadgeClasses(packageType: string): string {
   switch (packageType) {

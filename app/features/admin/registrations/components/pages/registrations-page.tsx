@@ -6,25 +6,20 @@ import {
 } from "react-router";
 import { Building2, Calendar, Mail, Phone } from "lucide-react";
 
-import type { PartnerRegistration } from "../../types";
 import {
-  formatRegistrationDate,
-  getPackageBadgeClasses,
-} from "../partner-utils";
+  AdminHeaderCell,
+  AdminTable,
+  AdminTableBody,
+  AdminTableCell,
+  AdminTableHead,
+  AdminTableHeaderRow,
+  AdminTableRow,
+} from "~/features/admin/components/admin-table";
+import { PackageBadge } from "~/features/admin/partners/components/partner-badges";
+import type { PartnerRegistration } from "../../types";
+import { formatRegistrationDate } from "../partner-utils";
 import { RegistrationsTableSkeleton } from "../registrations-page-skeleton";
 import type { registrationsLoader } from "../../services/registrations.loader";
-
-function PackagePill({ label }: { label: string }) {
-  return (
-    <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${getPackageBadgeClasses(
-        label,
-      )}`}
-    >
-      {label}
-    </span>
-  );
-}
 
 function PartnerTable({ partners }: { partners: PartnerRegistration[] }) {
   const navigate = useNavigate();
@@ -53,23 +48,24 @@ function PartnerTable({ partners }: { partners: PartnerRegistration[] }) {
     <>
       {/* Desktop table view */}
       <div className="hidden overflow-x-auto lg:block">
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="bg-gradient-to-r from-blue-600 to-[#1e3a8a] text-white">
-              <th className="px-4 py-3 font-semibold">Company Name</th>
-              <th className="px-4 py-3 font-semibold">Email</th>
-              <th className="px-4 py-3 font-semibold">Phone</th>
-              <th className="px-4 py-3 font-semibold">Sector</th>
-              <th className="px-4 py-3 font-semibold">Package</th>
-              <th className="px-4 py-3 font-semibold">Registration Date</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+        <AdminTable>
+          <AdminTableHead>
+            <AdminTableHeaderRow>
+              <AdminHeaderCell label="Company Name" />
+              <AdminHeaderCell label="Email" />
+              <AdminHeaderCell label="Phone" />
+              <AdminHeaderCell label="Sector" />
+              <AdminHeaderCell label="Package" />
+              <AdminHeaderCell label="Registration Date" />
+            </AdminTableHeaderRow>
+          </AdminTableHead>
+          <AdminTableBody>
             {partners.map((partner) => {
               const pkg = partner.package;
               return (
-                <tr
+                <AdminTableRow
                   key={partner.id}
+                  interactive
                   onClick={() => goToDetail(partner.id)}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
@@ -78,27 +74,26 @@ function PartnerTable({ partners }: { partners: PartnerRegistration[] }) {
                     }
                   }}
                   tabIndex={0}
-                  className="cursor-pointer text-slate-700 transition-colors hover:bg-slate-50 focus:bg-slate-50 focus:outline-none dark:text-slate-300 dark:hover:bg-slate-800/60 dark:focus:bg-slate-800/60"
                 >
-                  <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">
+                  <AdminTableCell className="font-medium text-slate-900 dark:text-white">
                     {partner.name || "—"}
-                  </td>
-                  <td className="px-4 py-3">{partner.email}</td>
-                  <td className="px-4 py-3">{partner.phoneNumber}</td>
-                  <td className="px-4 py-3">
+                  </AdminTableCell>
+                  <AdminTableCell>{partner.email}</AdminTableCell>
+                  <AdminTableCell>{partner.phoneNumber}</AdminTableCell>
+                  <AdminTableCell>
                     {partner.sectorActivity || "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    {pkg ? <PackagePill label={pkg} /> : "N/A"}
-                  </td>
-                  <td className="px-4 py-3">
+                  </AdminTableCell>
+                  <AdminTableCell>
+                    {pkg ? <PackageBadge label={pkg} /> : "N/A"}
+                  </AdminTableCell>
+                  <AdminTableCell>
                     {formatRegistrationDate(partner.createdAt)}
-                  </td>
-                </tr>
+                  </AdminTableCell>
+                </AdminTableRow>
               );
             })}
-          </tbody>
-        </table>
+          </AdminTableBody>
+        </AdminTable>
       </div>
 
       {/* Mobile / tablet card view */}
@@ -124,7 +119,7 @@ function PartnerTable({ partners }: { partners: PartnerRegistration[] }) {
                   </div>
                   <div className="shrink-0">
                     {pkg ? (
-                      <PackagePill label={pkg} />
+                      <PackageBadge label={pkg} />
                     ) : (
                       <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-semibold text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
                         N/A

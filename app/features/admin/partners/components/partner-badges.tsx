@@ -3,7 +3,9 @@ import {
   getPublishBadgeClasses,
   getStatusBadgeClasses,
 } from "./partner-utils";
-import type { PartnerStatus } from "../types";
+import type { Partner } from "~/types/api-client";
+
+type PartnerStatus = Partner["status"];
 
 export function PackageBadge({ label }: { label: string }) {
   return (

@@ -1,7 +1,8 @@
+import { Input } from "~/components/ui/input";
 import { FieldError } from "./field-error";
 
 const inputClasses =
-  "block w-full rounded-md bg-white px-4 py-3 text-sm text-slate-900 outline-1 -outline-offset-1 outline-slate-300 placeholder:text-slate-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 disabled:opacity-60 md:px-6 dark:bg-slate-900 dark:text-white dark:outline-slate-700";
+  "h-[46px] rounded-md border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-none ring-0 placeholder:text-slate-400 focus-visible:border-blue-600 focus-visible:ring-0 md:px-6 dark:border-slate-700 dark:bg-slate-900 dark:text-white";
 
 interface TextFieldProps {
   id: string;
@@ -55,7 +56,7 @@ export function TextField({
       <FloatingLabel htmlFor={id} required={required}>
         {label}
       </FloatingLabel>
-      <input
+      <Input
         id={id}
         name={name}
         type={type}
@@ -64,6 +65,7 @@ export function TextField({
         onChange={(event) => onChange(event.target.value)}
         required={required}
         disabled={disabled}
+        aria-invalid={Boolean(error)}
         className={inputClasses}
       />
       <FieldError message={error} />

@@ -123,7 +123,8 @@ export function PartnersToolbar() {
 
       <Button
         asChild
-        className="h-10 rounded-lg font-medium shadow-none sm:ml-auto"
+        variant="outline"
+        className="h-10 rounded-lg font-medium shadow-none sm:ml-auto dark:text-white"
       >
         <Link to="/tk-admin/partners/new">
           <Plus />

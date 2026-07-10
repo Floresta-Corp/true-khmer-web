@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "~/components/ui/dialog";
+import { Button } from "~/components/ui/button";
 
 export interface LightboxImage {
   src: string;
@@ -57,16 +58,18 @@ export function ImageLightbox({
         </DialogClose>
 
         {hasMultiple && (
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={() =>
               onIndexChange((index - 1 + images.length) % images.length)
             }
-            className="absolute left-2 z-10 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
+            className="absolute left-2 z-10 rounded-full bg-black/50 text-white hover:bg-black/70 hover:text-white"
             aria-label="Previous image"
           >
             <ChevronLeft className="size-5" />
-          </button>
+          </Button>
         )}
 
         <img
@@ -76,14 +79,16 @@ export function ImageLightbox({
         />
 
         {hasMultiple && (
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={() => onIndexChange((index + 1) % images.length)}
-            className="absolute right-16 z-10 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
+            className="absolute right-16 z-10 rounded-full bg-black/50 text-white hover:bg-black/70 hover:text-white"
             aria-label="Next image"
           >
             <ChevronRight className="size-5" />
-          </button>
+          </Button>
         )}
       </DialogContent>
     </Dialog>

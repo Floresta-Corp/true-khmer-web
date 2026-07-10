@@ -1,5 +1,6 @@
 import { ChevronRight, Check, CircleX } from "lucide-react";
 
+import { Button } from "~/components/ui/button";
 import type { Tier } from "../data/tiers";
 
 interface PackageCardProps {
@@ -54,8 +55,9 @@ export function PackageCard({
       </p>
 
       {/* Mobile toggle button */}
-      <button
+      <Button
         type="button"
+        variant="ghost"
         onClick={(event) => {
           event.stopPropagation();
           onToggle();
@@ -73,7 +75,7 @@ export function PackageCard({
             isExpanded ? "rotate-90" : ""
           }`}
         />
-      </button>
+      </Button>
 
       {/* Benefits — always visible on desktop, toggleable on mobile */}
       <div
@@ -102,7 +104,7 @@ export function PackageCard({
         </ul>
       </div>
 
-      <button
+      <Button
         type="button"
         onClick={(event) => {
           event.stopPropagation();
@@ -122,7 +124,7 @@ export function PackageCard({
           : isSelected
             ? "Selected"
             : `Choose ${tier.name}`}
-      </button>
+      </Button>
     </div>
   );
 }

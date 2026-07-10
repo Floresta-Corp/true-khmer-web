@@ -4,9 +4,11 @@ import type { Route } from "project-types/admin/partners/route/+types/partners";
 import { getAdminAccessToken } from "~/lib/server/session.server";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 import { getManagedPartners } from "~/api/admin/partners/partners.server";
-import type { PartnerSortField, PartnerSortOrder } from "../types";
 
 const RESTRICTED_MESSAGE = "Partner management is restricted to Super Admins.";
+
+type PartnerSortField = "name" | "createdAt";
+type PartnerSortOrder = "asc" | "desc";
 
 function positiveInteger(value: string | null, fallback: number) {
   const parsed = Number(value);

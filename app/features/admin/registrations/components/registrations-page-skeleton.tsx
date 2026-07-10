@@ -3,8 +3,8 @@ import { Skeleton } from "~/components/ui/skeleton";
 export function RegistrationsTableSkeleton({ rows = 6 }: { rows?: number }) {
   return (
     <div className="divide-y divide-slate-100 dark:divide-slate-800">
-      <div className="hidden bg-gradient-to-r from-blue-600 to-[#1e3a8a] px-4 py-3 lg:block">
-        <Skeleton className="h-4 w-40 bg-white/30" />
+      <div className="hidden border-b border-slate-100 bg-slate-50 px-5 py-4 lg:block dark:border-slate-800 dark:bg-slate-900">
+        <Skeleton className="h-4 w-40" />
       </div>
       {Array.from({ length: rows }).map((_, index) => (
         <div

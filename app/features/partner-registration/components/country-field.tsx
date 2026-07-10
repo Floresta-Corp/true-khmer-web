@@ -4,6 +4,7 @@ import {
   SingleSelectDropdown,
   type SingleSelectOption,
 } from "~/components/ui/single-select-dropdown";
+import { Input } from "~/components/ui/input";
 import { countries } from "../data/countries";
 import { FieldError } from "./field-error";
 import { FloatingLabel } from "./text-field";
@@ -70,7 +71,7 @@ export function CountryField({
         ariaInvalid={Boolean(error)}
       />
       {isOther && (
-        <input
+        <Input
           type="text"
           value={customName}
           onChange={(event) => {
@@ -80,7 +81,7 @@ export function CountryField({
           placeholder="Enter your country name"
           disabled={disabled}
           required={required}
-          className="mt-2 block w-full rounded-md bg-white px-4 py-3 text-sm text-slate-900 outline-1 -outline-offset-1 outline-slate-300 placeholder:text-slate-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 md:px-6 dark:bg-slate-900 dark:text-white dark:outline-slate-700"
+          className="mt-2 h-[46px] rounded-md border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-none ring-0 placeholder:text-slate-400 focus-visible:border-blue-600 focus-visible:ring-0 md:px-6 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
         />
       )}
       <FieldError message={error} />

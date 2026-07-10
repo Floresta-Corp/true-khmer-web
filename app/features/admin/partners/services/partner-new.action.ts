@@ -4,11 +4,11 @@ import type { Route } from "project-types/admin/partners/route/+types/partners.n
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 import { createManagedPartner } from "~/api/admin/partners/partners.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
-import type { CreateManagedPartnerPayload } from "../types";
+import type { CreateManagedPartnerRequest } from "~/types/api-client";
 
 const RESTRICTED_MESSAGE = "Partner management is restricted to Super Admins.";
 
-const REQUIRED_FIELDS: Array<keyof CreateManagedPartnerPayload> = [
+const REQUIRED_FIELDS: Array<keyof CreateManagedPartnerRequest> = [
   "companyName",
   "companyEmail",
   "companyContactNumber",
@@ -132,7 +132,7 @@ export async function partnerNewAction({ request }: Route.ActionArgs) {
     });
   }
 
-  const payload: CreateManagedPartnerPayload = {
+  const payload: CreateManagedPartnerRequest = {
     companyName: raw.companyName,
     registrationNumber: raw.registrationNumber || undefined,
     companyEmail: raw.companyEmail,
@@ -146,7 +146,7 @@ export async function partnerNewAction({ request }: Route.ActionArgs) {
     companyFacebookUrl: raw.companyFacebookUrl || undefined,
     companyLinkedinUrl: raw.companyLinkedinUrl || undefined,
     companyTelegram: raw.companyTelegram || undefined,
-    package: (raw.package as CreateManagedPartnerPayload["package"]) || undefined,
+    package: (raw.package as CreateManagedPartnerRequest["package"]) || undefined,
     bio: raw.bio || undefined,
     description: raw.description || undefined,
 

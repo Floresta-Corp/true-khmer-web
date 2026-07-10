@@ -3,16 +3,18 @@ import type { Route } from "project-types/partner-registration/route/+types/cont
 
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { submitPartnerRegistration } from "~/api/partner/partner-registration.server";
-import type {
-  CompanyRegistrationData,
-  PartnerPackage,
-  PartnerRegistrationPayload,
-} from "../types";
+import type { PartnerRegistrationRequest } from "~/types/api-client";
 import {
   contactStepSchema,
   fieldErrorsFromZod,
 } from "./registration-validation";
-import { clearPartnerCookie, readPartnerCookie } from "./registration-cookie.server";
+import {
+  clearPartnerCookie,
+  readPartnerCookie,
+  type CompanyRegistrationData,
+} from "./registration-cookie.server";
+
+type PartnerPackage = NonNullable<PartnerRegistrationRequest["package"]>;
 
 // Step 3 (final) — validate contact info, assemble the full payload, POST to the
 // API, clear the cookie and redirect to the success page.
@@ -36,7 +38,7 @@ export async function contactPersonAction({ request }: Route.ActionArgs) {
     );
   }
 
-  const payload: PartnerRegistrationPayload = {
+  const payload: PartnerRegistrationRequest = {
     ...(cookie as CompanyRegistrationData),
     package: cookie.package as PartnerPackage,
     ...parsed.data,
