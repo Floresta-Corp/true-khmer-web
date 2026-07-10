@@ -28,21 +28,21 @@ export function HomeExploreSection() {
         <h2 className="text-2xl font-semibold tracking-[-0.04em] text-[#333333] sm:text-[36px] sm:leading-11">
           What Would You Like To Explore?
         </h2>
-        <div className="mt-8 grid grid-cols-3 gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-8">
+        <div className="mt-8 flex gap-3 overflow-x-auto px-4 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-5 sm:px-0 lg:grid lg:grid-cols-3 lg:gap-8 lg:overflow-visible [&::-webkit-scrollbar]:hidden">
           {EXPLORE_LINKS.map((link) => (
             <Link
               key={link.title}
               to={link.to}
-              className="flex flex-col items-center gap-2 text-center sm:flex-row sm:items-center sm:gap-5 sm:rounded-2xl sm:border sm:border-[#e1e7ef] sm:bg-white sm:px-4 sm:py-5 sm:text-left sm:shadow-[0px_2px_4px_0px_rgba(27,28,29,0.04)] sm:transition-colors sm:hover:border-[#2f6fe4]"
+              className="flex w-[65%] shrink-0 items-center gap-3 rounded-2xl border border-[#e1e7ef] bg-white px-3 py-4 text-left shadow-[0px_2px_4px_0px_rgba(27,28,29,0.04)] transition-colors hover:border-[#2f6fe4] sm:w-auto sm:gap-5 sm:px-4 sm:py-5 lg:shrink"
             >
-              <span className="flex size-16 shrink-0 items-center justify-center rounded-full bg-[#eef2ff] sm:size-12 sm:rounded-none sm:bg-transparent">
-                <img src={link.icon} alt="" className="size-9 sm:size-12" />
+              <span className="flex size-12 shrink-0 items-center justify-center">
+                <img src={link.icon} alt="" className="size-12" />
               </span>
               <div className="min-w-0">
-                <p className="text-xs font-medium text-[#171717] sm:text-lg sm:font-semibold">
+                <p className="text-sm font-medium text-[#171717] sm:text-lg sm:font-semibold">
                   {link.title}
                 </p>
-                <p className="hidden text-sm text-[#606060] sm:block">
+                <p className="text-xs text-[#606060] sm:text-sm">
                   {link.description}
                 </p>
               </div>
