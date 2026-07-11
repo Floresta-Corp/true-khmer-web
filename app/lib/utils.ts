@@ -9,6 +9,19 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function getSafeExternalUrl(value: string | null | undefined) {
+  if (!value) return undefined;
+
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:"
+      ? url.href
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export function debounce<TArgs extends unknown[]>(
   fn: (...args: TArgs) => void,
   delay = 300,

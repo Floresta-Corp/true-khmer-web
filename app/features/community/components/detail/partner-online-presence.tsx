@@ -1,5 +1,6 @@
 import { Facebook, Globe, Linkedin, Send } from "lucide-react";
 import FullFlower from "~/components/icons/fullFlower";
+import { getSafeExternalUrl } from "~/lib/utils";
 
 interface PartnerOnlinePresenceProps {
   website?: string | null;
@@ -23,10 +24,12 @@ export function PartnerOnlinePresence({
       icon: Send,
       label: "Telegram",
     },
-  ].filter(
-    (link): link is typeof link & { url: string } =>
-      typeof link.url === "string" && link.url.length > 0,
-  );
+  ]
+    .map((link) => ({ ...link, url: getSafeExternalUrl(link.url) }))
+    .filter(
+      (link): link is typeof link & { url: string } =>
+        typeof link.url === "string",
+    );
 
   return (
     <div>

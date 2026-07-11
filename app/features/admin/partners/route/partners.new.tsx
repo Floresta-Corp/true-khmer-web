@@ -2,8 +2,10 @@ import { isRouteErrorResponse, useRouteError } from "react-router";
 
 import PartnerNewPage from "../components/pages/partner-new-page";
 import { partnerNewAction } from "../services/partner-new.action";
+import { partnerNewLoader } from "../services/partner-new.loader";
 import { AccessRestricted } from "~/features/admin/components/access-restricted";
 
+export const loader = partnerNewLoader;
 export const action = partnerNewAction;
 
 export function meta() {

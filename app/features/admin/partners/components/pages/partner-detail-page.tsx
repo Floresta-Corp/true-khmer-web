@@ -28,6 +28,7 @@ import { toast } from "sonner";
 
 import { Button } from "~/components/ui/button";
 import { ConfirmationModal } from "~/features/admin/components/confirmation-modal";
+import { getSafeExternalUrl } from "~/lib/utils";
 import { PackageBadge, PartnerStatusBadge } from "../partner-badges";
 import { formatPartnerAddress, formatPartnerDate } from "../partner-utils";
 import { ImageLightbox, type LightboxImage } from "../image-lightbox";
@@ -64,7 +65,7 @@ function ContactPersonSocialLinks({ person }: { person: ContactPerson }) {
     links.push(
       <a
         key="facebook"
-        href={person.facebook}
+        href={getSafeExternalUrl(person.facebook)}
         target="_blank"
         rel="noopener noreferrer"
         className="inline-flex items-center gap-1.5 text-xs text-blue-600 hover:underline"
@@ -77,7 +78,7 @@ function ContactPersonSocialLinks({ person }: { person: ContactPerson }) {
     links.push(
       <a
         key="linkedin"
-        href={person.linkedin}
+        href={getSafeExternalUrl(person.linkedin)}
         target="_blank"
         rel="noopener noreferrer"
         className="inline-flex items-center gap-1.5 text-xs text-blue-600 hover:underline"
@@ -166,7 +167,7 @@ export default function PartnerDetailPage() {
     socialLinks.push(
       <InfoRow key="facebook" icon={Facebook} label="Facebook">
         <a
-          href={partner.facebook}
+          href={getSafeExternalUrl(partner.facebook)}
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-600 hover:underline"
@@ -180,7 +181,7 @@ export default function PartnerDetailPage() {
     socialLinks.push(
       <InfoRow key="linkedin" icon={Linkedin} label="LinkedIn">
         <a
-          href={partner.linkedin}
+          href={getSafeExternalUrl(partner.linkedin)}
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-600 hover:underline"
@@ -208,7 +209,7 @@ export default function PartnerDetailPage() {
     socialLinks.push(
       <InfoRow key="website" icon={Globe} label="Website">
         <a
-          href={partner.website}
+          href={getSafeExternalUrl(partner.website)}
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-600 hover:underline"

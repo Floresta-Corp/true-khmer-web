@@ -58,6 +58,7 @@ export async function partnerDetailAction({
 
       const result = await updateManagedPartner(request, partnerId, {
         status: newStatus,
+        ...(newStatus === "INACTIVE" ? { isPublished: false } : {}),
       });
       return data(
         {

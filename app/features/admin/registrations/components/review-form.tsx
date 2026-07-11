@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 
 import { ConfirmationModal } from "~/features/admin/components/confirmation-modal";
+import { getSafeExternalUrl } from "~/lib/utils";
 import {
   formatRegistrationDate,
   getPackageBadgeClasses,
@@ -114,7 +115,7 @@ export function ReviewForm({ partner, contactPersons }: ReviewFormProps) {
       <div key="facebook" className="flex items-center gap-2">
         <Facebook className="size-4 text-blue-600" />
         <a
-          href={partner.facebook}
+          href={getSafeExternalUrl(partner.facebook)}
           target="_blank"
           rel="noopener noreferrer"
           className="text-sm text-blue-600 hover:underline"
@@ -129,7 +130,7 @@ export function ReviewForm({ partner, contactPersons }: ReviewFormProps) {
       <div key="linkedin" className="flex items-center gap-2">
         <Linkedin className="size-4 text-blue-600" />
         <a
-          href={partner.linkedin}
+          href={getSafeExternalUrl(partner.linkedin)}
           target="_blank"
           rel="noopener noreferrer"
           className="text-sm text-blue-600 hover:underline"
@@ -159,7 +160,7 @@ export function ReviewForm({ partner, contactPersons }: ReviewFormProps) {
       <div key="website" className="flex items-center gap-2">
         <Globe className="size-4 text-blue-600" />
         <a
-          href={partner.website}
+          href={getSafeExternalUrl(partner.website)}
           target="_blank"
           rel="noopener noreferrer"
           className="text-sm text-blue-600 hover:underline"
@@ -341,7 +342,7 @@ export function ReviewForm({ partner, contactPersons }: ReviewFormProps) {
                         <div className="flex items-center gap-2">
                           <Linkedin className="size-3.5 shrink-0 text-blue-600/70" />
                           <a
-                            href={contact.linkedin}
+                            href={getSafeExternalUrl(contact.linkedin)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:underline"
@@ -354,7 +355,7 @@ export function ReviewForm({ partner, contactPersons }: ReviewFormProps) {
                         <div className="flex items-center gap-2">
                           <Facebook className="size-3.5 shrink-0 text-blue-600/70" />
                           <a
-                            href={contact.facebook}
+                            href={getSafeExternalUrl(contact.facebook)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:underline"

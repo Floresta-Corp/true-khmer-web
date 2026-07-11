@@ -39,14 +39,14 @@ export function readPartnerCookie(
   }
 }
 
-// Serialize the registration cookie (HttpOnly, 1h) for a Set-Cookie header.
+// Serialize the registration cookie (HttpOnly, Secure, 1h) for a Set-Cookie header.
 export function setPartnerCookie(
   data: Partial<CompanyRegistrationData>,
 ): string {
   const value = encodeURIComponent(JSON.stringify(data));
-  return `${COOKIE_NAME}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=3600`;
+  return `${COOKIE_NAME}=${value}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=3600`;
 }
 
 export function clearPartnerCookie(): string {
-  return `${COOKIE_NAME}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+  return `${COOKIE_NAME}=; Path=/; HttpOnly; Secure; SameSite=Lax; Expires=Thu, 01 Jan 1970 00:00:00 GMT`;
 }

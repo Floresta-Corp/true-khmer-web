@@ -4,7 +4,7 @@ import { PartnersTableSkeleton } from "./partners-table";
 export function PartnersPageSkeleton() {
   return (
     <main className="min-h-full bg-[#f8fafc] px-4 py-6 sm:px-6 lg:px-10 lg:py-8 dark:bg-slate-950">
-      <div className="mx-auto w-full max-w-350 space-y-6">
+      <div className="mx-auto w-full max-w-[1400px] space-y-6">
         <div className="flex items-center justify-between gap-4">
           <div className="space-y-2">
             <Skeleton className="h-8 w-40" />

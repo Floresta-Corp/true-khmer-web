@@ -70,7 +70,7 @@ export async function getManagedPartners(
   existingAccessToken?: string,
 ) {
   const searchParams = new URLSearchParams();
-  if (query.page) searchParams.set("page", String(query.page));
+  if (query.page !== undefined) searchParams.set("page", String(query.page));
   if (query.search) searchParams.set("search", query.search);
   if (query.sortField) searchParams.set("sortField", query.sortField);
   if (query.sortOrder) searchParams.set("sortOrder", query.sortOrder);

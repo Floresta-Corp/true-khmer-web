@@ -28,9 +28,10 @@ export async function partnerDetailLoader({
     const result = await getManagedPartner(request, partnerId, accessToken);
 
     if (result.data.partner.status === "PENDING") {
-      throw new Response("Partner is still pending approval", {
-        status: 403,
-      });
+      throw data(
+        { message: "Partner is still pending approval" },
+        { status: 403 },
+      );
     }
 
     const responseCookie = result.setCookie ?? setCookie;

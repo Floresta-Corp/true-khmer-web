@@ -1,4 +1,5 @@
 import { Facebook, Globe, Linkedin, Send } from "lucide-react";
+import { getSafeExternalUrl } from "~/lib/utils";
 
 interface PartnerSocialLinksProps {
   website?: string | null;
@@ -19,11 +20,17 @@ export function PartnerSocialLinks({
     { url: website, icon: Globe, label: "Website" },
     { url: facebook, icon: Facebook, label: "Facebook" },
     { url: linkedin, icon: Linkedin, label: "LinkedIn" },
-    { url: telegram, icon: Send, label: "Telegram" },
-  ].filter(
-    (link): link is typeof link & { url: string } =>
-      typeof link.url === "string" && link.url.length > 0,
-  );
+    {
+      url: telegram ? `https://t.me/${telegram.replace("@", "")}` : null,
+      icon: Send,
+      label: "Telegram",
+    },
+  ]
+    .map((link) => ({ ...link, url: getSafeExternalUrl(link.url) }))
+    .filter(
+      (link): link is typeof link & { url: string } =>
+        typeof link.url === "string",
+    );
 
   if (links.length === 0) return null;
 
