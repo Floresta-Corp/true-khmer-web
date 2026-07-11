@@ -21,15 +21,10 @@ export default function QuestionVoteComponent({
   useFetcherOutcome(fetcher, {
     onError: (message) => toast.error(message ?? "Failed to submit vote."),
   });
-
-  // Optimistic state: while a vote is in flight, trust the intent we just
-  // submitted instead of the (stale) prop. Reads straight from the fetcher,
-  // so the buttons update on click without waiting for the parent to
-  // re-render — no useEffect, no revalidation dependency, no loop risk.
   const serverVote = question?.viewerVote ?? ViewerVote.NONE;
-  const pendingVote = fetcher.formData?.get("voteType") as
-    | ViewerVote
-    | undefined;
+  const pendingVote = isSubmitting
+    ? (fetcher.formData?.get("voteType") as ViewerVote | undefined)
+    : undefined;
   const currentVote = pendingVote ?? serverVote;
 
   const voteValue = (v: ViewerVote) =>

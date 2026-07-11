@@ -88,8 +88,16 @@ export default function SaveItemPage() {
       let changed = false;
       const merged = prev.map((i) => {
         const updated = freshByKey.get(`${i.type}:${i.item.id}`);
-        if (updated && updated !== i) changed = true;
-        return updated ?? i;
+
+        if (
+          updated &&
+          (updated.item.score !== i.item.score ||
+            updated.item.viewerVote !== i.item.viewerVote)
+        ) {
+          changed = true;
+          return updated;
+        }
+        return i;
       });
       return changed ? merged : prev;
     });

@@ -26,14 +26,10 @@ export default function AnswerVoteComponent({
     onError: (message) => toast.error(message ?? "Failed to submit vote."),
   });
 
-  // Optimistic state: while a vote is in flight, trust the intent we just
-  // submitted instead of the (stale) prop. Reads straight from the fetcher,
-  // so the buttons update on click without waiting for the parent to
-  // re-render — no useEffect, no revalidation dependency, no loop risk.
   const serverVote = viewerVote ?? ViewerVote.NONE;
-  const pendingVote = fetcher.formData?.get("voteType") as
-    | ViewerVote
-    | undefined;
+  const pendingVote = isSubmitting
+    ? (fetcher.formData?.get("voteType") as ViewerVote | undefined)
+    : undefined;
   const currentVote = pendingVote ?? serverVote;
 
   const voteValue = (v: ViewerVote) =>
@@ -80,7 +76,7 @@ export default function AnswerVoteComponent({
   return (
     <div
       className={cn(
-        "flex h-fit bg-[#f9fafb] shrink-0 flex-col items-center gap-[5.25px] text-[#99a1af] pt-[3.5px] rounded-xl overflow-hidden transition-all",
+        "flex h-fit shrink-0 flex-col items-center gap-[5.25px] overflow-hidden rounded-xl bg-[#f9fafb] pt-[3.5px] text-[#99a1af] transition-all",
         className,
       )}
     >
@@ -88,7 +84,7 @@ export default function AnswerVoteComponent({
         type="button"
         variant="ghost"
         className={cn(
-          `flex h-7 w-7 items-center cursor-pointer justify-center rounded-none`,
+          `flex h-7 w-7 cursor-pointer items-center justify-center rounded-none`,
           upvoteClassName,
         )}
         disabled={isSubmitting}
@@ -100,7 +96,7 @@ export default function AnswerVoteComponent({
 
       <span
         className={cn(
-          `text-[11px] font-semibold leading-[16.5px] mx-1`,
+          `mx-1 text-[11px] leading-[16.5px] font-semibold`,
           scoreClassName,
         )}
       >
@@ -112,7 +108,7 @@ export default function AnswerVoteComponent({
         variant="ghost"
         disabled={isSubmitting}
         className={cn(
-          `flex h-7 w-7 items-center cursor-pointer justify-center rounded-none`,
+          `flex h-7 w-7 cursor-pointer items-center justify-center rounded-none`,
           downvoteClassName,
         )}
         onClick={handleDownvote}
