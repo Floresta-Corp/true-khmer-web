@@ -17,23 +17,21 @@ import LaunchpadPostPage2 from "./launchpad-post-page-2";
 import type { loader } from "../../route/launchpad.edit.$id";
 import type { LaunchpadDetail } from "~/features/launchpad/types";
 import { resolveImageURL } from "~/lib/utils";
+import {
+  COVER_MAX_FILE_SIZE,
+  getImageFileError,
+} from "~/features/launchpad/lib/launchpad-image-validation";
 
 enum State {
   DETAIL = "Detail",
   ROLE = "Role",
 }
 
-const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
-const ALLOWED_IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp"]);
-const LOGO_MAX_FILE_SIZE = 5 * 1024 * 1024;
-const COVER_MAX_FILE_SIZE = 10 * 1024 * 1024;
-
 type DetailErrors = {
   name?: string;
   categoryId?: string;
   cityId?: string;
   deadline?: string;
-  logoFile?: string;
   coverFile?: string;
 };
 
@@ -51,28 +49,6 @@ function isValidEmail(value: string) {
   return /^\S+@\S+\.\S+$/.test(value.trim());
 }
 
-function isSupportedImageFile(file: File | null) {
-  if (!file) return false;
-  if (ALLOWED_IMAGE_TYPES.has(file.type)) return true;
-  const extension = file.name.split(".").pop()?.toLowerCase();
-  return !!extension && ALLOWED_IMAGE_EXTENSIONS.has(extension);
-}
-
-function getImageFileError(
-  file: File | null,
-  maxFileSize: number,
-  fileLabel: string,
-) {
-  if (!file) return null;
-  if (!isSupportedImageFile(file))
-    return "Invalid file type. Use JPG, JPEG, PNG, or WebP.";
-  if (file.size > maxFileSize) {
-    const maxSizeInMb = maxFileSize / (1024 * 1024);
-    return `${fileLabel} must be ${maxSizeInMb}MB or smaller.`;
-  }
-  return null;
-}
-
 function mapProjectToFormFields(project: LaunchpadDetail) {
   return {
     name: project.name ?? "",
@@ -83,7 +59,6 @@ function mapProjectToFormFields(project: LaunchpadDetail) {
     email: project.email ?? "",
     phoneNumber: project.phoneNumber ?? "",
     telegramUsername: project.telegramUsername ?? "",
-    logoKey: project.logoKey ?? "",
     coverKey: project.coverKey ?? "",
     materialDocumentKey: project.documentKeys ?? [],
     materialDocumentName: project.documentNames ?? [],
@@ -106,7 +81,6 @@ const launchpadEditSchema = z.object({
   email: z.string().email("Please enter a valid email").or(z.literal("")),
   phoneNumber: z.string().min(1, "Phone number is required"),
   telegramUsername: z.string(),
-  logoKey: z.string(),
   coverKey: z.string(),
   materialDocumentKey: z.array(z.string()),
   materialDocumentName: z.array(z.string()),
@@ -153,16 +127,11 @@ export default function LaunchpadEditPage() {
 
   const values = watch();
 
-  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [materialDocuments, setMaterialDocuments] = useState<File[]>([]);
   const [detailErrors, setDetailErrors] = useState<DetailErrors>({});
   const [roleErrors, setRoleErrors] = useState<RoleErrors>({});
 
-  const existingLogoUrl = useMemo(
-    () => resolveImageURL(project?.logoKey ?? undefined),
-    [project],
-  );
   const existingCoverUrl = useMemo(
     () => resolveImageURL(project?.coverKey ?? undefined),
     [project],
@@ -249,21 +218,11 @@ export default function LaunchpadEditPage() {
     const errors: DetailErrors = {};
 
     if (!values.name.trim()) errors.name = "Project name is required.";
-    if (!values.categoryId.trim())
-      errors.categoryId = "Category is required.";
+    if (!values.categoryId.trim()) errors.categoryId = "Category is required.";
     if (!values.cityId.trim()) errors.cityId = "City is required.";
     if (!values.deadline.trim()) errors.deadline = "Deadline is required.";
 
-    // Only validate images if user selected new files
-    if (logoFile) {
-      const logoFileError = getImageFileError(
-        logoFile,
-        LOGO_MAX_FILE_SIZE,
-        "Project logo",
-      );
-      if (logoFileError) errors.logoFile = logoFileError;
-    }
-
+    // Only validate the cover if the user selected a new file
     if (coverFile) {
       const coverFileError = getImageFileError(
         coverFile,
@@ -301,15 +260,6 @@ export default function LaunchpadEditPage() {
     if (!values.deadline.trim())
       detailValidationErrors.deadline = "Deadline is required.";
 
-    if (logoFile) {
-      const logoFileError = getImageFileError(
-        logoFile,
-        LOGO_MAX_FILE_SIZE,
-        "Project logo",
-      );
-      if (logoFileError) detailValidationErrors.logoFile = logoFileError;
-    }
-
     if (coverFile) {
       const coverFileError = getImageFileError(
         coverFile,
@@ -331,9 +281,11 @@ export default function LaunchpadEditPage() {
       errors.role = "At least one role is required.";
     }
 
-    if (values.materialDocumentKey.length === 0 && materialDocuments.length === 0) {
-      errors.materialDocuments =
-        "At least one material document is required.";
+    if (
+      values.materialDocumentKey.length === 0 &&
+      materialDocuments.length === 0
+    ) {
+      errors.materialDocuments = "At least one material document is required.";
     }
 
     if (!values.email.trim()) {
@@ -351,21 +303,7 @@ export default function LaunchpadEditPage() {
       return;
     }
 
-    // Log file check
-    if (logoFile) {
-      const logoFileError = getImageFileError(
-        logoFile,
-        LOGO_MAX_FILE_SIZE,
-        "Project logo",
-      );
-      if (logoFileError) {
-        detailValidationErrors.logoFile = logoFileError;
-        setDetailErrors(detailValidationErrors);
-        setState(State.DETAIL);
-        return;
-      }
-    }
-
+    // Cover file check
     if (coverFile) {
       const coverFileError = getImageFileError(
         coverFile,
@@ -386,7 +324,6 @@ export default function LaunchpadEditPage() {
       categoryId: values.categoryId,
       cityId: values.cityId,
       deadline: values.deadline,
-      logoKey: logoFile ? "" : values.logoKey,
       coverKey: coverFile ? "" : values.coverKey,
       role: values.roles.map((role) => ({
         id: role.id || undefined,
@@ -404,10 +341,6 @@ export default function LaunchpadEditPage() {
     const multipart = new FormData();
     multipart.append("actionType", "update-launchpad");
     multipart.append("data", JSON.stringify(submitData));
-
-    if (logoFile) {
-      multipart.append("logoFile", logoFile);
-    }
 
     if (coverFile) {
       multipart.append("coverFile", coverFile);
@@ -448,9 +381,9 @@ export default function LaunchpadEditPage() {
               delay: prefersReducedMotion ? 0 : 0.05,
             }}
           >
-            <div className="relative flex gap-3.5 transition-all items-center p-1 rounded-full">
+            <div className="relative flex items-center gap-3.5 rounded-full p-1 transition-all">
               <motion.div
-                className="h-3 w-20 bg-blue-500 rounded-full absolute top-1 left-1"
+                className="absolute top-1 left-1 h-3 w-20 rounded-full bg-blue-500"
                 initial={{ x: 0, y: 0 }}
                 animate={{ x: state === State.DETAIL ? 0 : 80 + 13 }}
                 transition={{
@@ -458,11 +391,11 @@ export default function LaunchpadEditPage() {
                 }}
               />
               <div
-                className="cursor-pointer h-3 w-20 bg-gray-200 rounded-full"
+                className="h-3 w-20 cursor-pointer rounded-full bg-gray-200"
                 onClick={() => setState(State.DETAIL)}
               />
               <div
-                className="cursor-pointer h-3 w-20 bg-gray-200 rounded-full"
+                className="h-3 w-20 cursor-pointer rounded-full bg-gray-200"
                 onClick={() => setState(State.ROLE)}
               />
             </div>
@@ -479,9 +412,7 @@ export default function LaunchpadEditPage() {
             }}
           >
             <div className="text-4xl">Edit Project</div>
-            <div className="text-[#65758B]">
-              Update your project details.
-            </div>
+            <div className="text-[#65758B]">Update your project details.</div>
           </motion.div>
 
           <AnimatePresence mode="wait">
@@ -522,7 +453,9 @@ export default function LaunchpadEditPage() {
                   onResetRoles={() => setValue("roles", originalRoles)}
                   onMaterialDocumentsChange={setMaterialDocuments}
                   onEmailChange={(value) => setValue("email", value)}
-                  onPhoneNumberChange={(value) => setValue("phoneNumber", value)}
+                  onPhoneNumberChange={(value) =>
+                    setValue("phoneNumber", value)
+                  }
                   onTelegramUsernameChange={(value) =>
                     setValue("telegramUsername", value)
                   }
@@ -547,7 +480,6 @@ export default function LaunchpadEditPage() {
                   categoryId={values.categoryId}
                   cityId={values.cityId}
                   deadline={values.deadline}
-                  logoFile={logoFile}
                   coverFile={coverFile}
                   description={values.description}
                   categories={
@@ -562,14 +494,12 @@ export default function LaunchpadEditPage() {
                       name: item.name,
                     })) ?? []
                   }
-                  existingLogoUrl={existingLogoUrl}
                   existingCoverUrl={existingCoverUrl}
                   errors={detailErrors}
                   onNameChange={(value) => setValue("name", value)}
                   onCategoryChange={(value) => setValue("categoryId", value)}
                   onCityChange={(value) => setValue("cityId", value)}
                   onDeadlineChange={(value) => setValue("deadline", value)}
-                  onLogoChange={(file) => setLogoFile(file)}
                   onCoverChange={(file) => setCoverFile(file)}
                   onDescriptionChange={(value) =>
                     setValue("description", value)

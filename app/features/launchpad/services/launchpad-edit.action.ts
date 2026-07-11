@@ -11,7 +11,6 @@ import {
   updateLaunchpad,
   uploadLaunchpadCoverPresign,
   uploadLaunchpadDocumentPresign,
-  uploadLaunchpadLogoPresign,
 } from "~/api/launchpad/launchpad.server";
 import {
   LaunchpadUpdateInputSchema,
@@ -279,9 +278,7 @@ export async function launchpadEditAction({
 
   if (actionType !== "update-launchpad") {
     return respond(
-      toLaunchpadEditActionResponse(
-        errorActionResponse("Invalid action type"),
-      ),
+      toLaunchpadEditActionResponse(errorActionResponse("Invalid action type")),
     );
   }
 
@@ -297,43 +294,13 @@ export async function launchpadEditAction({
   try {
     const parsedData = JSON.parse(dataStr);
 
-    const logoFile = toUploadFile(formData.get("logoFile"));
     const coverFile = toUploadFile(formData.get("coverFile"));
     const documentFiles = formData
       .getAll("documentFiles")
       .map((entry) => toUploadFile(entry))
       .filter((value): value is File => value instanceof File);
 
-    let logoKey = parsedData.logoKey ?? "";
     let coverKey = parsedData.coverKey ?? "";
-
-    if (logoFile) {
-      const logoRes = await uploadLaunchpadLogoPresign(request, {
-        contentType: logoFile.type,
-        fileSize: logoFile.size,
-      });
-
-      const logoPresign = resolvePresignedUpload(logoRes.data);
-      if (!logoPresign) {
-        return respond(
-          toLaunchpadEditActionResponse(
-            errorActionResponse("Unable to get logo upload payload"),
-          ),
-        );
-      }
-
-      const newLogoKey = getUploadKey(logoPresign) ?? getUploadKey(logoRes.data);
-      if (!newLogoKey) {
-        return respond(
-          toLaunchpadEditActionResponse(
-            errorActionResponse("Unable to get logo upload key"),
-          ),
-        );
-      }
-
-      await uploadToStorage(logoPresign, logoFile);
-      logoKey = newLogoKey;
-    }
 
     if (coverFile) {
       const coverRes = await uploadLaunchpadCoverPresign(request, {
@@ -411,7 +378,6 @@ export async function launchpadEditAction({
 
     const updatePayload = {
       ...parsedData,
-      logoKey,
       coverKey,
       materialDocumentKey,
       materialDocumentName,
