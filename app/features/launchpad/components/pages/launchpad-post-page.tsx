@@ -13,23 +13,21 @@ import LaunchpadPostPage1 from "./launchpad-post-page-1";
 import LaunchpadPostPage2 from "./launchpad-post-page-2";
 import type { loader } from "../../route/launchpad.create";
 import { useLaunchpadCreateStore } from "~/stores/launchpad-create-store";
+import {
+  COVER_MAX_FILE_SIZE,
+  getImageFileError,
+} from "~/features/launchpad/lib/launchpad-image-validation";
 
 enum State {
   DETAIL = "Detail",
   ROLE = "Role",
 }
 
-const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
-const ALLOWED_IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp"]);
-const LOGO_MAX_FILE_SIZE = 5 * 1024 * 1024;
-const COVER_MAX_FILE_SIZE = 10 * 1024 * 1024;
-
 type DetailErrors = {
   name?: string;
   categoryId?: string;
   cityId?: string;
   deadline?: string;
-  logoFile?: string;
   coverFile?: string;
 };
 
@@ -45,38 +43,6 @@ type ApiFieldErrors = Record<string, string>;
 
 function isValidEmail(value: string) {
   return /^\S+@\S+\.\S+$/.test(value.trim());
-}
-
-function isSupportedImageFile(file: File | null) {
-  if (!file) return false;
-
-  if (ALLOWED_IMAGE_TYPES.has(file.type)) {
-    return true;
-  }
-
-  const extension = file.name.split(".").pop()?.toLowerCase();
-  return !!extension && ALLOWED_IMAGE_EXTENSIONS.has(extension);
-}
-
-function getImageFileError(
-  file: File | null,
-  maxFileSize: number,
-  fileLabel: string,
-) {
-  if (!file) {
-    return `${fileLabel} is required.`;
-  }
-
-  if (!isSupportedImageFile(file)) {
-    return "Invalid file type. Use JPG, JPEG, PNG, or WebP.";
-  }
-
-  if (file.size > maxFileSize) {
-    const maxSizeInMb = maxFileSize / (1024 * 1024);
-    return `${fileLabel} must be ${maxSizeInMb}MB or smaller.`;
-  }
-
-  return null;
 }
 
 export default function LaunchpadPostPage() {
@@ -184,17 +150,11 @@ export default function LaunchpadPostPage() {
     if (!store.cityId.trim()) errors.cityId = "City is required.";
     if (!store.deadline.trim()) errors.deadline = "Deadline is required.";
 
-    const logoFileError = getImageFileError(
-      store.logoFile,
-      LOGO_MAX_FILE_SIZE,
-      "Project logo",
-    );
-    if (logoFileError) errors.logoFile = logoFileError;
-
     const coverFileError = getImageFileError(
       store.coverFile,
       COVER_MAX_FILE_SIZE,
       "Project cover",
+      { required: true },
     );
     if (coverFileError) errors.coverFile = coverFileError;
 
@@ -227,19 +187,11 @@ export default function LaunchpadPostPage() {
     if (!store.deadline.trim())
       detailValidationErrors.deadline = "Deadline is required.";
 
-    const logoFileError = getImageFileError(
-      store.logoFile,
-      LOGO_MAX_FILE_SIZE,
-      "Project logo",
-    );
-    if (logoFileError) {
-      detailValidationErrors.logoFile = logoFileError;
-    }
-
     const coverFileError = getImageFileError(
       store.coverFile,
       COVER_MAX_FILE_SIZE,
       "Project cover",
+      { required: true },
     );
     if (coverFileError) {
       detailValidationErrors.coverFile = coverFileError;
@@ -299,10 +251,6 @@ export default function LaunchpadPostPage() {
     multipart.append("actionType", "create-launchpad");
     multipart.append("data", JSON.stringify(submitData));
 
-    if (store.logoFile) {
-      multipart.append("logoFile", store.logoFile);
-    }
-
     if (store.coverFile) {
       multipart.append("coverFile", store.coverFile);
     }
@@ -340,9 +288,9 @@ export default function LaunchpadPostPage() {
               delay: prefersReducedMotion ? 0 : 0.05,
             }}
           >
-            <div className="relative flex gap-3.5 transition-all items-center p-1 rounded-full">
+            <div className="relative flex items-center gap-3.5 rounded-full p-1 transition-all">
               <motion.div
-                className="h-3 w-20 bg-blue-500 rounded-full absolute top-1 left-1"
+                className="absolute top-1 left-1 h-3 w-20 rounded-full bg-blue-500"
                 initial={{ x: 0, y: 0 }}
                 animate={{ x: state === State.DETAIL ? 0 : 80 + 13 }}
                 transition={{
@@ -350,11 +298,11 @@ export default function LaunchpadPostPage() {
                 }}
               />
               <div
-                className="cursor-pointer h-3 w-20 bg-gray-200 rounded-full"
+                className="h-3 w-20 cursor-pointer rounded-full bg-gray-200"
                 onClick={() => setState(State.DETAIL)}
               />
               <div
-                className="cursor-pointer h-3 w-20 bg-gray-200 rounded-full"
+                className="h-3 w-20 cursor-pointer rounded-full bg-gray-200"
                 onClick={() => setState(State.ROLE)}
               />
             </div>
@@ -429,7 +377,6 @@ export default function LaunchpadPostPage() {
                   categoryId={store.categoryId}
                   cityId={store.cityId}
                   deadline={store.deadline}
-                  logoFile={store.logoFile}
                   coverFile={store.coverFile}
                   description={store.description}
                   categories={
@@ -449,7 +396,6 @@ export default function LaunchpadPostPage() {
                   onCategoryChange={(value) => store.setCategoryId(value)}
                   onCityChange={(value) => store.setCityId(value)}
                   onDeadlineChange={(value) => store.setDeadline(value)}
-                  onLogoChange={(file) => store.setLogoFile(file)}
                   onCoverChange={(file) => store.setCoverFile(file)}
                   onDescriptionChange={(value) => store.setDescription(value)}
                   onSaveClicked={onSaveClicked}

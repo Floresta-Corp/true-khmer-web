@@ -166,6 +166,7 @@ export function LaunchpadAvailableOpportunities({
                       <LaunchpadProjectCard
                         item={item}
                         onOpenOpportunity={onOpenOpportunity}
+                        showApplyButton
                       />
                     </motion.div>
                   ))}
