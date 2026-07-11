@@ -11,7 +11,6 @@ import {
   createLaunchpad,
   uploadLaunchpadCoverPresign,
   uploadLaunchpadDocumentPresign,
-  uploadLaunchpadLogoPresign,
 } from "~/api/launchpad/launchpad.server";
 import {
   LaunchpadCreateDraftInputSchema,
@@ -294,20 +293,11 @@ export async function launchpadCreateAction({ request }: Route.ActionArgs) {
       JSON.parse(dataStr),
     );
 
-    const logoFile = toUploadFile(formData.get("logoFile"));
     const coverFile = toUploadFile(formData.get("coverFile"));
     const documentFiles = formData
       .getAll("documentFiles")
       .map((entry) => toUploadFile(entry))
       .filter((value): value is File => value instanceof File);
-
-    if (!logoFile) {
-      return respond(
-        toLaunchpadCreateActionResponse(
-          errorActionResponse("Project logo is required"),
-        ),
-      );
-    }
 
     if (!coverFile) {
       return respond(
@@ -333,43 +323,32 @@ export async function launchpadCreateAction({ request }: Route.ActionArgs) {
       );
     }
 
-    const [logoRes, coverRes] = await Promise.all([
-      uploadLaunchpadLogoPresign(request, {
-        contentType: logoFile.type,
-        fileSize: logoFile.size,
-      }),
-      uploadLaunchpadCoverPresign(request, {
-        contentType: coverFile.type,
-        fileSize: coverFile.size,
-      }),
-    ]);
+    const coverRes = await uploadLaunchpadCoverPresign(request, {
+      contentType: coverFile.type,
+      fileSize: coverFile.size,
+    });
 
-    const logoPresign = resolvePresignedUpload(logoRes.data);
     const coverPresign = resolvePresignedUpload(coverRes.data);
 
-    if (!logoPresign || !coverPresign) {
+    if (!coverPresign) {
       return respond(
         toLaunchpadCreateActionResponse(
-          errorActionResponse("Unable to get logo/cover upload payload"),
+          errorActionResponse("Unable to get cover upload payload"),
         ),
       );
     }
 
-    const logoKey = getUploadKey(logoPresign) ?? getUploadKey(logoRes.data);
     const coverKey = getUploadKey(coverPresign) ?? getUploadKey(coverRes.data);
 
-    if (!logoKey || !coverKey) {
+    if (!coverKey) {
       return respond(
         toLaunchpadCreateActionResponse(
-          errorActionResponse("Unable to get logo/cover upload key"),
+          errorActionResponse("Unable to get cover upload key"),
         ),
       );
     }
 
-    await Promise.all([
-      uploadToStorage(logoPresign, logoFile),
-      uploadToStorage(coverPresign, coverFile),
-    ]);
+    await uploadToStorage(coverPresign, coverFile);
 
     const materialDocumentKey: string[] = [];
 
@@ -411,7 +390,6 @@ export async function launchpadCreateAction({ request }: Route.ActionArgs) {
 
     const result = await createLaunchpad(request, {
       ...parsedDraft,
-      logoKey,
       coverKey,
       materialDocumentKey,
       materialDocumentName,

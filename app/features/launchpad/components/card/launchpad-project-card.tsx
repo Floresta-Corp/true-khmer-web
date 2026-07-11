@@ -1,9 +1,9 @@
-import { MapPin, Share2, Eye, Bookmark } from "lucide-react";
+import { Share2, Eye, Bookmark } from "lucide-react";
 import { Card } from "~/components/ui/card";
 
 import IconButton from "~/components/icon-button";
 import { Badge } from "~/components/ui/badge";
-import { Separator } from "~/components/ui/separator";
+import { Button } from "~/components/ui/button";
 import type { LaunchpadOpportunity } from "~/features/launchpad/types";
 import { cn, resolveImageURL } from "~/lib/utils";
 import { buildAbsoluteUrl, copyToClipboard } from "~/lib/clipboard";
@@ -12,11 +12,13 @@ import { useFetcher } from "react-router";
 interface LaunchpadProjectCardProps {
   item: LaunchpadOpportunity;
   onOpenOpportunity: (opportunity: LaunchpadOpportunity) => void;
+  showApplyButton?: boolean;
 }
 
 export default function LaunchpadProjectCard({
   item,
   onOpenOpportunity,
+  showApplyButton = false,
 }: LaunchpadProjectCardProps) {
   const fetcher = useFetcher<{ ok: boolean; saved: boolean }>();
   const isSubmitting = fetcher.state !== "idle";
@@ -44,6 +46,11 @@ export default function LaunchpadProjectCard({
     );
   };
 
+  const handleApplyClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onOpenOpportunity(item);
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
@@ -58,17 +65,19 @@ export default function LaunchpadProjectCard({
 
   return (
     <div className="relative">
-      <div className="absolute top-4.5 right-4.5 z-10 flex gap-1.5">
+      <div className="absolute top-3.5 right-3.5 z-10 flex gap-1.5">
         <IconButton
-          className="size-8 border border-gray-100"
+          className="size-9 bg-white text-[#65758b] shadow-sm hover:bg-white"
           icon={<Share2 className="size-3.5" />}
           ariaLabel="Share project"
           onClick={handleShareClick}
         />
         <IconButton
           className={cn(
-            "flex size-8 cursor-pointer items-center justify-center rounded-2xl border border-gray-100",
-            { "bg-blue-600": optimisticSaved },
+            "size-9 bg-white text-[#65758b] shadow-sm hover:bg-white",
+            {
+              "bg-blue-600 text-white hover:bg-blue-600": optimisticSaved,
+            },
           )}
           icon={
             <Bookmark
@@ -94,46 +103,55 @@ export default function LaunchpadProjectCard({
             onOpenOpportunity(item);
           }
         }}
-        className="flex min-h-95 cursor-pointer flex-col rounded-2xl bg-white p-5 shadow-none transition-all hover:-translate-y-0.5 hover:shadow-lg"
+        className="flex min-h-112.5 cursor-pointer flex-col overflow-hidden rounded-2xl bg-white p-0 shadow-none transition-all hover:-translate-y-0.5 hover:shadow-lg"
       >
-        <div className="flex items-center justify-between pb-3">
-          <div className="flex items-baseline gap-1 text-blue-500">
-            <MapPin className="size-3" />
-            <p className="text-sm">{item.city.name}</p>
-          </div>
+        <div className="relative">
+          <img
+            src={resolveImageURL(item.coverKey || undefined)}
+            alt={`${item.name} cover`}
+            className="h-44 w-full object-cover"
+          />
+          <Badge className="pointer-events-none absolute top-3.5 left-3.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#2F6FE4]">
+            {item.category.name}
+          </Badge>
         </div>
-        <div className="flex items-center gap-3.5 pb-6">
-          <div className="size-12.25 shrink-0 rounded-md border">
-            <img
-              src={resolveImageURL(item.logoKey || undefined)}
-              alt={`${item.name} image`}
-              className="h-full w-full rounded-lg object-cover"
-            />
-          </div>
-          <div className="text-md line-clamp-2 leading-tight font-semibold">
-            {item.name}
-          </div>
-        </div>
-        <div className="flex flex-1 flex-col justify-between">
-          <div className="line-clamp-4">{item.description}</div>
-          <div className="flex items-center justify-between rounded-xl bg-[#F8FAFB] px-4 py-2">
-            <div className="text-sm font-medium text-[#99A1AF] uppercase">
-              seeking:
+        <div className="flex flex-1 flex-col p-5">
+          <div className="text-lg leading-tight font-semibold">{item.name}</div>
+          <p className="mt-2 line-clamp-2 text-sm text-[#6B7280]">
+            {item.description}
+          </p>
+          <div className="mt-auto">
+            <div className="flex items-center justify-between rounded-xl bg-[#F8FAFB] px-4 py-2.5">
+              <div className="text-sm font-medium text-[#99A1AF] uppercase">
+                seeking:
+              </div>
+              <Badge className="pointer-events-none bg-white text-[#2F6FE4]">
+                {item.totalRoles} ROLES
+              </Badge>
             </div>
-            <Badge className="pointer-events-none bg-white text-[#2F6FE4]">
-              {item.totalRoles} ROLES
-            </Badge>
-          </div>
-        </div>
-        <Separator className="my-6" />
-        <div className="flex w-full items-center justify-between text-xs text-[#9EACC0]">
-          <div className="flex items-center gap-1.75">
-            <Eye size={14} />
-            <div className="font-semibold">{item.totalView} Views</div>
-          </div>
-          <div className="flex items-center gap-1.75">
-            <div>Application close:</div>
-            <div>{formatDate(item.deadline)}</div>
+            <div className="mt-4 flex w-full items-center justify-between text-xs text-[#9EACC0]">
+              <div className="flex items-center gap-1.75">
+                <Eye size={14} />
+                <div className="font-semibold">
+                  {item.totalView.toLocaleString()} Views
+                </div>
+              </div>
+              <div className="flex items-center gap-1.75">
+                <div>Application close:</div>
+                <div className="font-semibold text-[#65758b]">
+                  {formatDate(item.deadline)}
+                </div>
+              </div>
+            </div>
+            {showApplyButton && (
+              <Button
+                variant="outline"
+                onClick={handleApplyClick}
+                className="mt-5 h-11 w-full rounded-xl border-gray-200 text-sm font-medium"
+              >
+                Apply
+              </Button>
+            )}
           </div>
         </div>
       </Card>
