@@ -52,11 +52,11 @@ export default function WorkspaceQuestionItem({
       onHoverEnd={() => {
         setIsHovered(false);
       }}
-      className="w-full rounded-xl sm:rounded-2xl bg-white p-4 sm:p-4 lg:p-6 border border-slate-200"
+      className="w-full rounded-xl border border-slate-200 bg-white p-4 sm:rounded-2xl sm:p-4 lg:p-6"
     >
-      <div className="flex justify-between items-start mb-3 gap-2">
-        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
-          <Avatar className="border border-[#f3f4f6] shrink-0 h-8 w-8 sm:h-10 sm:w-10">
+      <div className="mb-3 flex items-start justify-between gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-2.5">
+          <Avatar className="h-8 w-8 shrink-0 border border-[#f3f4f6] sm:h-10 sm:w-10">
             <AvatarImage
               src={profileImage}
               alt={question.author?.name || "User"}
@@ -64,32 +64,32 @@ export default function WorkspaceQuestionItem({
             />
           </Avatar>
 
-          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 min-w-0 flex-1">
-            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-              <p className="text-xs sm:text-sm font-semibold text-[#344256] truncate">
+          <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <p className="truncate text-xs font-semibold text-[#344256] sm:text-sm">
                 {question.author?.name}
               </p>
-              <span className="hidden sm:inline text-[#d1d5db]">·</span>
+              <span className="hidden text-[#d1d5db] sm:inline">·</span>
               <span
                 // to={`/forum?categoryId=${question.category.id}`}
-                className="text-xs sm:text-sm font-semibold text-blue-600 truncate"
+                className="truncate text-xs font-semibold text-blue-600 sm:text-sm"
               >
                 {question.category.name}
               </span>
             </div>
 
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <span className="hidden sm:inline text-[#d1d5db]">·</span>
-              <span className="text-[10px] sm:text-xs text-[#9eacc0]">
+              <span className="hidden text-[#d1d5db] sm:inline">·</span>
+              <span className="text-[10px] text-[#9eacc0] sm:text-xs">
                 {createdAgoLabel}
               </span>
-              <Badge className="text-[10px] sm:text-xs font-semibold bg-green-100 text-green-500 hover:bg-gray-100 px-1.5 sm:px-2">
+              <Badge className="bg-green-100 px-1.5 text-[10px] font-semibold text-green-500 hover:bg-gray-100 sm:px-2 sm:text-xs">
                 Author
               </Badge>
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex shrink-0 items-center gap-1.5">
           <div className="flex items-center justify-end">
             <SlideToLeftHoverAnimation isHovered={isHovered}>
               <AskQuestionDialog
@@ -133,22 +133,22 @@ export default function WorkspaceQuestionItem({
       </div>
 
       <Link to={`/forum/detail/${question.id}`}>
-        <h2 className="text-sm sm:text-base lg:text-lg font-semibold text-[#030213] mb-2 leading-snug hover:text-[#2f6fe4] transition-colors">
+        <h2 className="mb-2 text-sm leading-snug font-semibold text-[#030213] transition-colors hover:text-[#2f6fe4] sm:text-base lg:text-lg">
           {question.title}
         </h2>
       </Link>
 
-      <p className="text-xs sm:text-sm text-[#65758b] mb-2 sm:mb-3 line-clamp-2 sm:line-clamp-3 leading-relaxed">
+      <p className="mb-2 line-clamp-2 text-xs leading-relaxed text-[#65758b] sm:mb-3 sm:line-clamp-3 sm:text-sm">
         {question.body}
       </p>
 
       {question.tags && question.tags.length > 0 && (
-        <div className="flex gap-1.5 flex-wrap">
+        <div className="flex flex-wrap gap-1.5">
           {question.tags.slice(0, 6).map((tag, idx) => (
             <span
               key={tag.id}
               className={cn(
-                "text-[10px] sm:text-xs text-[#99a1af]  rounded px-1.5 sm:px-2 py-0.5",
+                "rounded px-1.5 py-0.5 text-[10px] text-[#99a1af] sm:px-2 sm:text-xs",
                 idx >= 3 ? "hidden sm:inline-block" : "inline-block",
               )}
             >
@@ -159,20 +159,20 @@ export default function WorkspaceQuestionItem({
       )}
 
       {/* Divider */}
-      <div className="border-t border-[#f9fafb] my-3 sm:my-4" />
+      <div className="my-3 border-t border-[#f9fafb] sm:my-4" />
 
       {/* Footer with vote, answer count, and share */}
-      <div className="flex items-center gap-2 sm:gap-3.5 shrink-0">
+      <div className="flex shrink-0 items-center gap-2 sm:gap-3.5">
         <QuestionVoteComponent question={question} className="h-7.5" />
 
         <button
           aria-label={`${question.answerCount} answers`}
           onClick={handleGoToDetail}
-          className="group inline-flex items-center gap-2 text-xs font-medium text-[#48566A] text-[14px] rounded-lg cursor-pointer transition-colors hover:text-blue-600"
+          className="group inline-flex cursor-pointer items-center gap-2 rounded-lg text-xs text-[14px] font-medium text-[#48566A] transition-colors hover:text-blue-600"
         >
           <MessageCircle
             size={20}
-            className="text-[#48566A] group-hover:text-blue-600 transition-colors"
+            className="text-[#48566A] transition-colors group-hover:text-blue-600"
           />
           <span>
             {question.answerCount}

@@ -6,12 +6,32 @@ import {
   SaveVolunteerOpportunity,
   UnsaveVolunteerOpportunity,
 } from "~/api/volunteer";
+import {
+  parseVoteAction,
+  submitVoteAction,
+} from "~/features/forum/services/forum.vote-helpers";
 
 export async function savedItemsAction({ request }: Route.ActionArgs) {
   const auth = await requireUser(request);
 
   const formData = await request.formData();
   const rawActionType = formData.get("actionType");
+
+  if (rawActionType === "vote-question") {
+    const parsedVoteAction = parseVoteAction(formData);
+    if (!parsedVoteAction.ok) {
+      return withAuthJson(
+        auth,
+        { ok: false, error: parsedVoteAction.message },
+        { status: 400 },
+      );
+    }
+    return withAuthJson(
+      auth,
+      await submitVoteAction(request, parsedVoteAction),
+    );
+  }
+
   const rawOpportunityId = formData.get("opportunityId");
 
   if (
