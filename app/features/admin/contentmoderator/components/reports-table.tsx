@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Clock } from "lucide-react";
 import { StatusBadge } from "./status-badge";
 import { EmptyState } from "./empty-state";
@@ -10,23 +11,22 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import type { ContentModeratorReport } from "~/types/api-client";
-import {
-  formatDateMonthYear,
-  formatEventDateTime,
-} from "~/features/events/lib/event-formatters";
+import { formatEventDateTime } from "~/features/events/lib/event-formatters";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
-import { resolveImageURL } from "~/lib/utils";
+import { cn, resolveImageURL } from "~/lib/utils";
 import { ReportTypeBadge } from "./report-type-badge";
+import { highlightReportClassName } from "../utils";
 
 interface ReportsTableProps {
   reports: ContentModeratorReport[];
   onSelect: (report: ContentModeratorReport) => void;
+  highlightedReportId?: string | null;
 }
 
 interface ReportRowProps {
   report: ContentModeratorReport;
   onSelect: (report: ContentModeratorReport) => void;
+  highlightedReportId?: string | null;
 }
 
 function getSubTypeColor(subType: "QUESTION" | "ANSWER" | null) {
@@ -48,14 +48,36 @@ function getSubTypeColor(subType: "QUESTION" | "ANSWER" | null) {
   return map[subType];
 }
 
-function ReportRow({ report, onSelect }: ReportRowProps) {
+function ReportRow({ report, onSelect, highlightedReportId }: ReportRowProps) {
+  const rowRef = useRef<HTMLTableRowElement>(null);
+  const [showAnimation, setShowAnimation] = useState(false);
+  const isHighlighted = highlightedReportId === report.id;
+
+  useEffect(() => {
+    if (!isHighlighted) return;
+    const scrollTimer = setTimeout(() => {
+      rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
+    setShowAnimation(true);
+    const fadeTimer = setTimeout(() => setShowAnimation(false), 1500);
+    return () => {
+      clearTimeout(scrollTimer);
+      clearTimeout(fadeTimer);
+    };
+  }, [isHighlighted]);
+
   return (
     <TableRow
+      ref={rowRef}
+      id={`report-${report.id}`}
       onClick={() => onSelect(report)}
-      className="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors cursor-pointer group"
+      className={cn(
+        "group cursor-pointer transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-800/30",
+        showAnimation && highlightReportClassName,
+      )}
     >
       <TableCell className="text-center align-middle">
-        <span className="text-xs font-medium text-slate-400 group-hover:text-blue-600 transition-colors tracking-wide">
+        <span className="text-xs font-medium tracking-wide text-slate-400 transition-colors group-hover:text-blue-600">
           REP-{String(report.reportId).padStart(3, "0")}
         </span>
       </TableCell>
@@ -66,8 +88,8 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
 
       <TableCell className="min-w-0 px-5 py-4 align-middle">
         <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="px-1.5 py-0.5 text-[10px] font-semibold text-blue-500 uppercase tracking-wide bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-slate-200 dark:border-blue-600/20">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="rounded-lg border border-slate-200 bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-blue-500 uppercase dark:border-blue-600/20 dark:bg-blue-900/20">
               {report.reportType}
             </span>
             {report.reportSubType &&
@@ -75,34 +97,34 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
                 const sub = getSubTypeColor(report.reportSubType);
                 return sub ? (
                   <span
-                    className={`px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide rounded-lg border ${sub.badge}`}
+                    className={`rounded-lg border px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase ${sub.badge}`}
                   >
                     {sub.label}
                   </span>
                 ) : null;
               })()}
-            <p className="min-w-0 text-sm font-medium italic text-slate-900 dark:text-white leading-tight truncate">
+            <p className="min-w-0 truncate text-sm leading-tight font-medium text-slate-900 italic dark:text-white">
               "{report.contentPreview}"
             </p>
           </div>
-          <div className="flex items-center gap-2 min-w-0">
-            <Avatar className="shrink-0 size-5 border  dark:border-slate-700">
+          <div className="flex min-w-0 items-center gap-2">
+            <Avatar className="size-5 shrink-0 border dark:border-slate-700">
               <AvatarImage
                 src={resolveImageURL(report.reportingBy?.avatarKey)}
                 alt={report.reportingBy?.name}
               />
-              <AvatarFallback className="text-xs font-black bg-slate-100 dark:bg-slate-800 text-slate-400">
+              <AvatarFallback className="bg-slate-100 text-xs font-black text-slate-400 dark:bg-slate-800">
                 {report.reportingBy?.name?.charAt(0) ?? "?"}
               </AvatarFallback>
             </Avatar>
-            <span className="min-w-0 text-xs text-slate-400 truncate">
+            <span className="min-w-0 truncate text-xs text-slate-400">
               Reported by {report.reportingBy?.name}
             </span>
           </div>
         </div>
       </TableCell>
 
-      <TableCell className="px-5 py-4 text-center text-sm text-slate-500 dark:text-slate-400 align-middle">
+      <TableCell className="px-5 py-4 text-center align-middle text-sm text-slate-500 dark:text-slate-400">
         <div className="flex items-center justify-center gap-2">
           <Clock size={14} />
           <span>{formatEventDateTime(report.dateTime)}</span>
@@ -117,7 +139,7 @@ function ReportRow({ report, onSelect }: ReportRowProps) {
         <button
           type="button"
           aria-label="Open report details"
-          className="p-2 text-slate-400 hover:text-slate-900 transition-colors cursor-pointer"
+          className="cursor-pointer p-2 text-slate-400 transition-colors hover:text-slate-900"
         >
           <ArrowRight size={20} />
         </button>
@@ -134,7 +156,11 @@ const COLUMNS = [
   { label: "Action", width: "8%", align: "text-center" },
 ];
 
-export function ReportsTable({ reports, onSelect }: ReportsTableProps) {
+export function ReportsTable({
+  reports,
+  onSelect,
+  highlightedReportId,
+}: ReportsTableProps) {
   return (
     <div className="overflow-x-auto">
       <Table className="w-full min-w-225 table-fixed border-collapse">
@@ -145,11 +171,11 @@ export function ReportsTable({ reports, onSelect }: ReportsTableProps) {
         </colgroup>
 
         <TableHeader>
-          <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent dark:hover:bg-transparent">
+          <TableRow className="border-b border-slate-100 hover:bg-transparent dark:border-slate-800 dark:hover:bg-transparent">
             {COLUMNS.map((col) => (
               <TableHead
                 key={col.label}
-                className={`px-5 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide ${col.align}`}
+                className={`px-5 py-4 text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400 ${col.align}`}
               >
                 {col.label}
               </TableHead>
@@ -160,7 +186,12 @@ export function ReportsTable({ reports, onSelect }: ReportsTableProps) {
         <TableBody className="divide-y divide-slate-100 dark:divide-slate-800">
           {reports.length > 0 ? (
             reports.map((report) => (
-              <ReportRow key={report.id} report={report} onSelect={onSelect} />
+              <ReportRow
+                key={report.id}
+                report={report}
+                onSelect={onSelect}
+                highlightedReportId={highlightedReportId}
+              />
             ))
           ) : (
             <TableRow>

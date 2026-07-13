@@ -10,4 +10,5 @@ export type ContentModeratorData = {
   types: Array<{ id: string; name: string }>;
   pagination: CursorPagination | null;
   userId: string | null;
+  highlightedReportId: string | null;
 };

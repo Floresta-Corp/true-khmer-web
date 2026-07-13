@@ -14,28 +14,28 @@ type Props = {
 
 function AnswerCardSkeleton() {
   return (
-    <div className="w-full rounded-xl sm:rounded-2xl bg-white p-4 sm:p-5 lg:p-6 border border-slate-200">
-      <div className="flex justify-between items-start mb-4 gap-2">
-        <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          <Skeleton className="h-10 w-10 rounded-full shrink-0" />
-          <div className="flex items-center gap-2 flex-wrap">
+    <div className="w-full rounded-xl border border-slate-200 bg-white p-4 sm:rounded-2xl sm:p-5 lg:p-6">
+      <div className="mb-4 flex items-start justify-between gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-2.5">
+          <Skeleton className="h-10 w-10 shrink-0 rounded-full" />
+          <div className="flex flex-wrap items-center gap-2">
             <Skeleton className="h-3.5 w-24" />
             <Skeleton className="h-3.5 w-20" />
             <Skeleton className="h-3 w-16" />
           </div>
         </div>
-        <div className="flex gap-1.5 shrink-0">
+        <div className="flex shrink-0 gap-1.5">
           <Skeleton className="h-6.5 w-6.5 rounded-xl" />
           <Skeleton className="h-6.5 w-6.5 rounded-xl" />
         </div>
       </div>
-      <Skeleton className="h-3 w-24 mb-1.5" />
-      <Skeleton className="h-5 w-3/4 mb-3" />
-      <div className="bg-slate-50 border-l-4 border-slate-200 rounded-r-lg px-4 py-3 mb-4">
-        <Skeleton className="h-3.5 w-full mb-1.5" />
+      <Skeleton className="mb-1.5 h-3 w-24" />
+      <Skeleton className="mb-3 h-5 w-3/4" />
+      <div className="mb-4 rounded-r-lg border-l-4 border-slate-200 bg-slate-50 px-4 py-3">
+        <Skeleton className="mb-1.5 h-3.5 w-full" />
         <Skeleton className="h-3.5 w-5/6" />
       </div>
-      <div className="pt-3 border-t border-slate-100">
+      <div className="border-t border-slate-100 pt-3">
         <Skeleton className="h-4 w-32" />
       </div>
     </div>

@@ -1,6 +1,11 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { useSearchParams, useFetcher, useLoaderData, useNavigation } from "react-router";
+import {
+  useSearchParams,
+  useFetcher,
+  useLoaderData,
+  useNavigation,
+} from "react-router";
 import { FilterBar } from "../filter-bar";
 import { ReportsTable } from "../reports-table";
 import { ReportsTableSkeleton } from "../reports-table-skeleton";
@@ -10,10 +15,18 @@ import type { ContentModeratorReport } from "~/types/api-client";
 import type { CategoryOption } from "../../types";
 
 export default function ContentModeratorPage() {
-  const { content, types } = useLoaderData<typeof contentModeratorLoader>();
+  const { content, types, highlightedReportId } =
+    useLoaderData<typeof contentModeratorLoader>();
   const fetcher = useFetcher();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigation = useNavigation();
+  useEffect(() => {
+    if (!highlightedReportId) return;
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has("contentId")) return;
+    url.searchParams.delete("contentId");
+    window.history.replaceState(null, "", `${url.pathname}${url.search}`);
+  }, [highlightedReportId]);
 
   const isFiltering =
     navigation.state === "loading" &&
@@ -85,15 +98,15 @@ export default function ContentModeratorPage() {
   );
 
   return (
-    <div className="flex flex-col h-full bg-[#f8fafc] dark:bg-slate-950 relative">
-      <div className="flex-1 p-6 overflow-auto custom-scrollbar">
-        <div className="max-w-350 mx-auto space-y-4">
+    <div className="relative flex h-full flex-col bg-[#f8fafc] dark:bg-slate-950">
+      <div className="custom-scrollbar flex-1 overflow-auto p-6">
+        <div className="mx-auto max-w-350 space-y-4">
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl dark:text-white">
                 Content Moderation
               </h1>
-              <p className="text-slate-500 font-medium text-base mt-1">
+              <p className="mt-1 text-base font-medium text-slate-500">
                 Streamlined moderation control for community integrity.
               </p>
             </div>
@@ -114,13 +127,17 @@ export default function ContentModeratorPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col relative"
+              className="relative flex flex-col rounded-2xl border border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-900"
             >
-              <div className="flex-1 overflow-auto min-h-0">
+              <div className="min-h-0 flex-1 overflow-auto">
                 {isFiltering ? (
                   <ReportsTableSkeleton />
                 ) : (
-                  <ReportsTable reports={content} onSelect={handleSelect} />
+                  <ReportsTable
+                    reports={content}
+                    onSelect={handleSelect}
+                    highlightedReportId={highlightedReportId}
+                  />
                 )}
               </div>
             </motion.div>

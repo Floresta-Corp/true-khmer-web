@@ -55,12 +55,33 @@ export function resolveAdminNotificationIcon(
   );
 }
 
+const ADMIN_NOTIFICATION_DEFAULT_ROUTE: Partial<
+  Record<AdminNotificationType, string>
+> = {
+  content_report: "/tk-admin/content-moderator",
+};
+
 export function getAdminNotificationRoute(
   notification: AdminNotification,
 ): string | undefined {
-  // Follow the backend-provided deep link, matching the user-facing
-  // notifications feature (getNotificationRoute). The content-moderator route
-  // does not read an `id`/`reportId` query param, so a hardcoded link there is
-  // a dead click — only surface a "View" target when the backend gives us one.
-  return notification.webRoute ?? notification.data?.webRoute ?? undefined;
+  // For content reports, always land on the moderation table — the backend's
+  // webRoute for this type currently points at the reported content itself
+  // (e.g. the forum thread/answer being reported), which is where the *user*
+  // notification for that content would go, not where a moderator should
+  // land. Other types still follow the backend-provided deep link, matching
+  // the user-facing notifications feature (getNotificationRoute).
+  const defaultRoute =
+    ADMIN_NOTIFICATION_DEFAULT_ROUTE[
+      notification.type as AdminNotificationType
+    ];
+  const route =
+    defaultRoute ?? notification.webRoute ?? notification.data?.webRoute;
+  if (!route) return undefined;
+
+  const contentId = notification.data?.contentId;
+  if (contentId) {
+    const separator = route.includes("?") ? "&" : "?";
+    return `${route}${separator}contentId=${encodeURIComponent(contentId)}`;
+  }
+  return route;
 }
