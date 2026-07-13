@@ -20,8 +20,8 @@ import {
   Send,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { getCountries, getCountryCallingCode } from "libphonenumber-js";
 import BackToButton from "~/components/back-to-button";
+import { phoneCountryOptions } from "~/components/form/phone-country-options";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -85,23 +85,6 @@ type SkillSearchFetcherData =
       message: string;
       skills: [];
     };
-
-const countryNameFormatter =
-  typeof Intl !== "undefined" && "DisplayNames" in Intl
-    ? new Intl.DisplayNames(["en"], { type: "region" })
-    : null;
-
-const phoneCountryOptions = getCountries()
-  .map((country) => ({
-    country,
-    dialCode: `+${getCountryCallingCode(country)}`,
-    label: `${countryNameFormatter?.of(country) ?? country} +${getCountryCallingCode(country)}`,
-  }))
-  .sort((first, second) => {
-    if (first.country === "KH") return -1;
-    if (second.country === "KH") return 1;
-    return first.label.localeCompare(second.label);
-  });
 
 export function meta() {
   return [
@@ -180,6 +163,7 @@ export default function EditProfile() {
     ({
       country: "KH",
       dialCode: "+855",
+      countryName: "Cambodia",
       label: "Cambodia +855",
     } satisfies (typeof phoneCountryOptions)[number]);
   const [newSkill, setNewSkill] = useState("");

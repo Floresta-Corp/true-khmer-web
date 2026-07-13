@@ -17,7 +17,7 @@ import NotificationBellPopOver from "~/components/notification-bell-pop-over";
 import { cn } from "~/lib/utils";
 import type { AuthenticatedUser } from "~/lib/server/types";
 import ProfileDropDown from "./profile-dropdown";
-import LogoSvg from "../../public/logoSvg";
+import LogoSvg from "~/components/icons/logoSvg";
 
 interface NavbarProps {
   user: AuthenticatedUser | null;

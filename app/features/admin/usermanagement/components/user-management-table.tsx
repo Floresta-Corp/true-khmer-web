@@ -3,6 +3,15 @@ import { Link } from "react-router";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Skeleton } from "~/components/ui/skeleton";
+import {
+  AdminHeaderCell,
+  AdminTable,
+  AdminTableBody,
+  AdminTableCell,
+  AdminTableHead,
+  AdminTableHeaderRow,
+  AdminTableRow,
+} from "~/features/admin/components/admin-table";
 import { resolveImageURL } from "~/lib/utils";
 import type { AdminUserManagementUser } from "~/types/api-client";
 
@@ -12,47 +21,62 @@ import { StatusBadge, UserTierBadge } from "./user-management-badges";
 export function UserTable({ users }: { users: AdminUserManagementUser[] }) {
   return (
     <div className="min-h-0 flex-1 overflow-auto">
-      <table className="w-full min-w-180 table-fixed border-collapse text-left">
-        <thead className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">
-          <tr className="border-b border-slate-100 dark:border-slate-800">
-            <HeaderCell label="User" className="w-[24%]" />
-            <HeaderCell label="Tier" align="center" className="w-[16%]" />
-            <HeaderCell label="Points" align="center" className="w-[14%]" />
-            <HeaderCell label="Status" align="center" className="w-[20%]" />
-            <HeaderCell
+      <AdminTable className="min-w-180 table-fixed">
+        <AdminTableHead>
+          <AdminTableHeaderRow>
+            <AdminHeaderCell label="User" className="w-[24%]" />
+            <AdminHeaderCell label="Tier" align="center" className="w-[16%]" />
+            <AdminHeaderCell
+              label="Points"
+              align="center"
+              className="w-[14%]"
+            />
+            <AdminHeaderCell
+              label="Status"
+              align="center"
+              className="w-[20%]"
+            />
+            <AdminHeaderCell
               label="Last active"
               align="center"
               className="w-[18%]"
             />
-            <HeaderCell label="Actions" align="center" className="w-[8%]" />
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <AdminHeaderCell
+              label="Actions"
+              align="center"
+              className="w-[8%]"
+            />
+          </AdminTableHeaderRow>
+        </AdminTableHead>
+        <AdminTableBody>
           {users.map((user) => (
-            <tr
-              key={user.id}
-              className="transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-800/30"
-            >
+            <AdminTableRow key={user.id}>
               <UserCell user={user} />
-              <td className="px-5 py-4 text-center">
+              <AdminTableCell align="center">
                 <UserTierBadge tier={user.tier} />
-              </td>
-              <td className="px-5 py-4 text-center text-sm font-semibold text-slate-800 tabular-nums dark:text-slate-100">
+              </AdminTableCell>
+              <AdminTableCell
+                className="text-sm font-semibold text-slate-800 tabular-nums dark:text-slate-100"
+                align="center"
+              >
                 {user.totalPoints.toLocaleString()}
-              </td>
-              <td className="px-5 py-4 text-center">
+              </AdminTableCell>
+              <AdminTableCell align="center">
                 <StatusBadge status={user.status} />
-              </td>
-              <td className="px-5 py-4 text-center text-sm text-slate-500 dark:text-slate-400">
+              </AdminTableCell>
+              <AdminTableCell
+                className="text-sm text-slate-500 dark:text-slate-400"
+                align="center"
+              >
                 {formatLastActive(user.lastActive)}
-              </td>
-              <td className="px-5 py-4 text-center">
+              </AdminTableCell>
+              <AdminTableCell align="center">
                 <UserManagementActionsMenu user={user} />
-              </td>
-            </tr>
+              </AdminTableCell>
+            </AdminTableRow>
           ))}
-        </tbody>
-      </table>
+        </AdminTableBody>
+      </AdminTable>
     </div>
   );
 }
@@ -60,25 +84,37 @@ export function UserTable({ users }: { users: AdminUserManagementUser[] }) {
 export function UserManagementTableSkeleton({ rows = 6 }: { rows?: number }) {
   return (
     <div className="min-h-0 flex-1 overflow-auto" aria-label="Loading users">
-      <table className="w-full min-w-180 table-fixed border-collapse text-left">
-        <thead className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">
-          <tr className="border-b border-slate-100 dark:border-slate-800">
-            <HeaderCell label="User" className="w-[24%]" />
-            <HeaderCell label="Tier" align="center" className="w-[16%]" />
-            <HeaderCell label="Points" align="center" className="w-[14%]" />
-            <HeaderCell label="Status" align="center" className="w-[20%]" />
-            <HeaderCell
+      <AdminTable className="min-w-180 table-fixed">
+        <AdminTableHead>
+          <AdminTableHeaderRow>
+            <AdminHeaderCell label="User" className="w-[24%]" />
+            <AdminHeaderCell label="Tier" align="center" className="w-[16%]" />
+            <AdminHeaderCell
+              label="Points"
+              align="center"
+              className="w-[14%]"
+            />
+            <AdminHeaderCell
+              label="Status"
+              align="center"
+              className="w-[20%]"
+            />
+            <AdminHeaderCell
               label="Last active"
               align="center"
               className="w-[18%]"
             />
-            <HeaderCell label="Actions" align="center" className="w-[8%]" />
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <AdminHeaderCell
+              label="Actions"
+              align="center"
+              className="w-[8%]"
+            />
+          </AdminTableHeaderRow>
+        </AdminTableHead>
+        <AdminTableBody>
           {Array.from({ length: rows }).map((_, index) => (
-            <tr className="h-18" key={index}>
-              <td className="px-5 py-4">
+            <AdminTableRow className="h-18" key={index}>
+              <AdminTableCell>
                 <div className="flex items-center gap-3">
                   <Skeleton className="size-10 shrink-0 rounded-full" />
                   <div className="min-w-0 flex-1 space-y-2">
@@ -86,51 +122,27 @@ export function UserManagementTableSkeleton({ rows = 6 }: { rows?: number }) {
                     <Skeleton className="h-3 w-40 max-w-full rounded" />
                   </div>
                 </div>
-              </td>
-              <td className="px-5 py-4 text-center">
+              </AdminTableCell>
+              <AdminTableCell align="center">
                 <Skeleton className="mx-auto h-6 w-20 rounded-lg" />
-              </td>
-              <td className="px-5 py-4 text-center">
+              </AdminTableCell>
+              <AdminTableCell align="center">
                 <Skeleton className="mx-auto h-4 w-10 rounded" />
-              </td>
-              <td className="px-5 py-4 text-center">
+              </AdminTableCell>
+              <AdminTableCell align="center">
                 <Skeleton className="mx-auto h-7 w-24 rounded-lg" />
-              </td>
-              <td className="px-5 py-4 text-center">
+              </AdminTableCell>
+              <AdminTableCell align="center">
                 <Skeleton className="mx-auto h-4 w-20 rounded" />
-              </td>
-              <td className="px-5 py-4 text-center">
+              </AdminTableCell>
+              <AdminTableCell align="center">
                 <Skeleton className="mx-auto size-8 rounded-lg" />
-              </td>
-            </tr>
+              </AdminTableCell>
+            </AdminTableRow>
           ))}
-        </tbody>
-      </table>
+        </AdminTableBody>
+      </AdminTable>
     </div>
-  );
-}
-
-function HeaderCell({
-  label,
-  align = "left",
-  className,
-}: {
-  label: string;
-  align?: "left" | "center" | "right";
-  className?: string;
-}) {
-  return (
-    <th
-      className={`px-5 py-4 text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400 ${
-        align === "right"
-          ? "text-right"
-          : align === "center"
-            ? "text-center"
-            : "text-left"
-      } ${className ?? ""}`}
-    >
-      {label}
-    </th>
   );
 }
 
@@ -145,7 +157,7 @@ function UserCell({ user }: { user: AdminUserManagementUser }) {
     .toUpperCase();
 
   return (
-    <td className="min-w-0 px-5 py-4">
+    <AdminTableCell className="min-w-0">
       <Link
         to={`/tk-admin/user/${user.id}`}
         className="flex items-center gap-3 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
@@ -170,7 +182,7 @@ function UserCell({ user }: { user: AdminUserManagementUser }) {
           </p>
         </div>
       </Link>
-    </td>
+    </AdminTableCell>
   );
 }
 

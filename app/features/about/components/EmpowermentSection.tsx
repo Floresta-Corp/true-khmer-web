@@ -1,9 +1,9 @@
 import clsx from "clsx";
-import UserChange from "../../../../public/icons/userChange";
-import RefugeeIcon from "../../../../public/icons/refugee";
-import Certificate from "../../../../public/icons/certificate";
-import TrophyStar from "../../../../public/icons/trophyStar";
-import BigFlower from "../../../../public/icons/bigFlower";
+import UserChange from "~/components/icons/userChange";
+import RefugeeIcon from "~/components/icons/refugee";
+import Certificate from "~/components/icons/certificate";
+import TrophyStar from "~/components/icons/trophyStar";
+import BigFlower from "~/components/icons/bigFlower";
 
 const empowermentCards = [
   {

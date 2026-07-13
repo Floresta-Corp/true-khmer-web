@@ -1,5 +1,5 @@
 import { Facebook, Linkedin, Youtube } from "lucide-react";
-import TikTok from "../../../../public/icons/tiktok";
+import TikTok from "~/components/icons/tiktok";
 import type { Member, SocialLink } from "../types";
 
 // Variant-specific styling; the layout is otherwise identical across roles.

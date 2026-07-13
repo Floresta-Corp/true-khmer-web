@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import LogoMark from "../../../../public/logoMark";
+import LogoMark from "~/components/icons/logoMark";
 
 interface RankedUser {
   name: string;

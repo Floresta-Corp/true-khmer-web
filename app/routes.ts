@@ -10,6 +10,11 @@ export default [
     layout("layout/footer-layout.tsx", [
       index("routes/home.tsx"),
       route("about", "features/about/route/about.tsx"),
+      route("community", "features/community/route/community.tsx"),
+      route(
+        "community/partner/:partnerId",
+        "features/community/route/community.$partnerId.tsx",
+      ),
       route("dashboard", "routes/dashboard.tsx"),
       route("profile", "routes/onboarding-profile.tsx"),
       route("messages", "routes/messages.tsx"),
@@ -83,6 +88,26 @@ export default [
     route("contribution", "routes/onboarding/pages/contribution.tsx"),
     route("tier", "routes/onboarding/pages/tier.tsx"),
   ]),
+  route(
+    "registration",
+    "features/partner-registration/route/registration-layout.tsx",
+    [
+      index("features/partner-registration/route/registration-index.tsx"),
+      route(
+        "partner-registration",
+        "features/partner-registration/route/partner-registration.tsx",
+      ),
+      route(
+        "partner-registration/choose-package",
+        "features/partner-registration/route/partner-packages.tsx",
+      ),
+      route(
+        "partner-registration/choose-package/contact-person",
+        "features/partner-registration/route/contact-person.tsx",
+      ),
+      route("successfully", "features/partner-registration/route/success.tsx"),
+    ],
+  ),
   route("tk-admin", "features/admin/admindashboard/route/admin-layout.tsx", [
     index("features/admin/dashboard/route/admin-dashboard.tsx"),
     route(
@@ -101,6 +126,24 @@ export default [
     route(
       "notifications",
       "features/admin/notifications/route/admin-notifications.tsx",
+    ),
+    route(
+      "registrations",
+      "features/admin/registrations/route/registrations.tsx",
+    ),
+    route(
+      "registrations/partner/:partnerId",
+      "features/admin/registrations/route/registrations.partner.$partnerId.tsx",
+    ),
+    route("partners", "features/admin/partners/route/partners.tsx"),
+    route("partners/new", "features/admin/partners/route/partners.new.tsx"),
+    route(
+      "partners/:partnerId",
+      "features/admin/partners/route/partners.$partnerId.tsx",
+    ),
+    route(
+      "partners/:partnerId/edit",
+      "features/admin/partners/route/partners.$partnerId.edit.tsx",
     ),
     route(
       "notifications/broadcast",
@@ -139,6 +182,14 @@ export default [
   route(
     "api/uploads/avatar/presign",
     "routes/api/api.uploads.avatar.presign.tsx",
+  ),
+  route(
+    "api/admin/partners/:partnerId/logo-presign",
+    "routes/api/api.admin.partners.$partnerId.logo-presign.tsx",
+  ),
+  route(
+    "api/admin/partners/:partnerId/photo-presign",
+    "routes/api/api.admin.partners.$partnerId.photo-presign.tsx",
   ),
   route("api/me", "routes/api/api.me.tsx"),
   route(
