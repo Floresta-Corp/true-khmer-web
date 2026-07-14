@@ -22,7 +22,6 @@ export const DETAIL_REPORT_STATUSES = [
 export interface ContentModeratorParams {
   cursor?: string;
   limit?: string;
-  id?: string;
   status?: ReportStatus;
   typeId?: string;
 }
@@ -35,7 +34,6 @@ export async function getContentModerator(
   const queryParams = new URLSearchParams();
   if (params.cursor) queryParams.set("cursor", params.cursor);
   if (params.typeId) queryParams.set("typeId", params.typeId);
-  if (params.id) queryParams.set("id", params.id);
   if (params.limit !== undefined)
     queryParams.set("limit", params.limit.toString());
   if (params.status) queryParams.set("status", params.status);
