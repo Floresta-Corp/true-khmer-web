@@ -1,5 +1,3 @@
-// Adapted from the old app's `getPackageBadgeColor` (daisyUI badge classes) to
-// shadcn/Tailwind outline pills that match the new admin dashboard palette.
 export function getPackageBadgeClasses(packageType: string): string {
   switch (packageType) {
     case "Platinum":

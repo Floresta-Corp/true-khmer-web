@@ -7,6 +7,7 @@ import {
   useSearchParams,
 } from "react-router";
 import { UserPlus } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "~/components/ui/button";
 import { InviteMemberModal } from "../invite-member-modal";
@@ -28,7 +29,9 @@ export default function ManageModeratorPage() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [fetcherError, setFetcherError] = useState<string | null>(null);
   const [inviteError, setInviteError] = useState<string | null>(null);
-  const [searchInput, setSearchInput] = useState(searchParams.get("search") ?? "");
+  const [searchInput, setSearchInput] = useState(
+    searchParams.get("search") ?? "",
+  );
   const lastIntent = useRef<string | null>(null);
 
   const roleParam = searchParams.get("role");
@@ -85,7 +88,11 @@ export default function ManageModeratorPage() {
     setSearchParams(nextParams, { replace: true });
   };
 
-  const handleRoleConfirm = (memberId: string, currentRole: string, newRole: string) => {
+  const handleRoleConfirm = (
+    memberId: string,
+    currentRole: string,
+    newRole: string,
+  ) => {
     lastIntent.current = "update-role";
     const formData = new FormData();
     formData.append("intent", "update-role");
@@ -105,6 +112,10 @@ export default function ManageModeratorPage() {
           setShowSuccessModal(true);
           setShowInviteModal(false);
           setInviteError(null);
+        } else if (intent === "remove") {
+          toast.success("Moderator removed successfully.");
+        } else if (intent === "update-role") {
+          toast.success("Moderator role updated successfully.");
         }
         setFetcherError(null);
       } else {
@@ -114,42 +125,44 @@ export default function ManageModeratorPage() {
           "update-role": "update moderator role",
         };
         const label = actions[intent] ?? "perform action";
-        const message = fetcher.data?.message ?? `Failed to ${label}. Please try again.`;
+        const message =
+          fetcher.data?.message ?? `Failed to ${label}. Please try again.`;
         if (intent === "invite") {
           setInviteError(message);
         } else {
           setFetcherError(message);
+          toast.error(message);
         }
       }
     }
   }, [fetcher.data, fetcher.state]);
 
   return (
-    <div className="p-10 space-y-10 max-w-7xl mx-auto">
+    <div className="mx-auto max-w-7xl space-y-10 p-10">
       <div className="flex items-end justify-between">
         <div className="space-y-1">
-          <h1 className="text-4xl font-semibold text-slate-900 dark:text-white tracking-tighter">
+          <h1 className="text-4xl font-semibold tracking-tighter text-slate-900 dark:text-white">
             Team Member
           </h1>
-          <p className="text-slate-500 font-medium font-sans">
+          <p className="font-sans font-medium text-slate-500">
             Manage administrative privileges and workspace collaboration.
           </p>
         </div>
         <Button
           onClick={() => setShowInviteModal(true)}
-          className="flex items-center gap-3 px-8 py-6 bg-blue-600 text-white rounded-xl text-[11px] font-semibold uppercase tracking-widest active:scale-95 transition-all"
+          className="flex items-center gap-3 rounded-xl bg-blue-600 px-8 py-6 text-[11px] font-semibold tracking-widest text-white uppercase transition-all active:scale-95"
         >
           <UserPlus size={16} /> Invite Member
         </Button>
       </div>
 
       {fetcherError && (
-        <div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800 rounded-xl p-4 text-rose-600 dark:text-rose-400 text-sm font-medium">
+        <div className="rounded-xl border border-rose-100 bg-rose-50 p-4 text-sm font-medium text-rose-600 dark:border-rose-800 dark:bg-rose-900/20 dark:text-rose-400">
           {fetcherError}
         </div>
       )}
 
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <ManageModeratorToolbar
           searchValue={searchInput}
           roleValue={roleFilter}
