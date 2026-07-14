@@ -52,9 +52,11 @@ function ReportRow({ report, onSelect, highlightedReportId }: ReportRowProps) {
   const rowRef = useRef<HTMLTableRowElement>(null);
   const [showAnimation, setShowAnimation] = useState(false);
   const isHighlighted = highlightedReportId === report.id;
-
   useEffect(() => {
-    if (!isHighlighted) return;
+    if (!isHighlighted) {
+      setShowAnimation(false);
+      return;
+    }
     const scrollTimer = setTimeout(() => {
       rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 100);

@@ -22,11 +22,11 @@ export default function ContentModeratorPage() {
   const navigation = useNavigation();
   useEffect(() => {
     if (!highlightedReportId) return;
-    const url = new URL(window.location.href);
-    if (!url.searchParams.has("contentId")) return;
-    url.searchParams.delete("contentId");
-    window.history.replaceState(null, "", `${url.pathname}${url.search}`);
-  }, [highlightedReportId]);
+    if (!searchParams.has("contentId")) return;
+    const next = new URLSearchParams(searchParams);
+    next.delete("contentId");
+    setSearchParams(next, { replace: true, preventScrollReset: true });
+  }, [highlightedReportId, searchParams, setSearchParams]);
 
   const isFiltering =
     navigation.state === "loading" &&
