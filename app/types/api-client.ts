@@ -384,17 +384,13 @@ const GetLaunchpadCategoriesResponse = z.object({ ok: z.boolean(), categories: z
 
 const PresignLaunchpadImageUploadRequest = z.object({ contentType: z.string(), fileSize: z.number().int().gt(0).lte(5242880) });
 
-const PresignLaunchpadLogoUploadResult = z.object({ uploadUrl: z.string(), method: z.literal("PUT"), requiredHeaders: z.object({ "Content-Length": z.string(), "Content-Type": z.string() }), logoImageKey: z.string(), publicUrl: z.string().nullable(), expiresInSeconds: z.number() });
-
-const PresignLaunchpadLogoUploadResponse = z.object({ ok: z.literal(true), upload: PresignLaunchpadLogoUploadResult });
-
-const LaunchpadLogoValidationErrorResponse = z.object({ ok: z.literal(false), error: z.string(), issues: z.array(z.object({ path: z.string(), message: z.string() })) });
-
-const LaunchpadOperationErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
-
 const PresignLaunchpadCoverUploadResult = z.object({ uploadUrl: z.string(), method: z.literal("PUT"), requiredHeaders: z.object({ "Content-Length": z.string(), "Content-Type": z.string() }), coverImageKey: z.string(), publicUrl: z.string().nullable(), expiresInSeconds: z.number() });
 
 const PresignLaunchpadCoverUploadResponse = z.object({ ok: z.literal(true), upload: PresignLaunchpadCoverUploadResult });
+
+const LaunchpadValidationErrorResponse = z.object({ ok: z.literal(false), error: z.string(), issues: z.array(z.object({ path: z.string(), message: z.string() })) });
+
+const LaunchpadOperationErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
 const PresignLaunchpadDocumentUploadRequest = z.object({ contentType: z.string(), fileSize: z.number().int().gt(0).lte(10485760) });
 
@@ -402,21 +398,21 @@ const PresignLaunchpadDocumentUploadResult = z.object({ uploadUrl: z.string(), m
 
 const PresignLaunchpadDocumentUploadResponse = z.object({ ok: z.literal(true), upload: PresignLaunchpadDocumentUploadResult });
 
-const GetSavedLaunchpadsResponse = z.object({ ok: z.literal(true), launchpads: z.array(z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), logoKey: z.string().nullable(), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.literal(true), savedAt: z.string() })), nextCursor: z.string().nullable() });
+const GetSavedLaunchpadsResponse = z.object({ ok: z.literal(true), launchpads: z.array(z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.literal(true), savedAt: z.string() })), nextCursor: z.string().nullable() });
 
 const SaveLaunchpadResponse = z.object({ ok: z.literal(true) });
 
-const CreateLaunchpadRequest = z.object({ name: z.string().min(1).max(120), description: z.string().nullish(), categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), deadline: z.string(), logoKey: z.string().min(1).max(255), coverKey: z.string().min(1).max(255), role: z.array(z.object({ name: z.string().min(1).max(100), description: z.string().nullish(), capacity: z.number().int().gt(0).lte(1000).optional().default(1) })).min(1), materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5), materialDocumentName: z.array(z.string().min(1).max(255)).min(1).max(5), phoneNumber: z.string(), email: z.string().max(255).email(), telegramUsername: z.string().nullish() });
+const CreateLaunchpadRequest = z.object({ name: z.string().min(1).max(120), description: z.string().nullish(), categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), deadline: z.string(), coverKey: z.string().min(1).max(255), role: z.array(z.object({ name: z.string().min(1).max(100), description: z.string().nullish(), capacity: z.number().int().gt(0).lte(1000).optional().default(1) })).min(1), materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5), materialDocumentName: z.array(z.string().min(1).max(255)).min(1).max(5), phoneNumber: z.string(), email: z.string().max(255).email(), telegramUsername: z.string().nullish() });
 
-const CreateLaunchpadResponse = z.object({ ok: z.literal(true), launchpad: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), logoKey: z.string().nullable(), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), totalView: z.number(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), roles: z.array(z.object({ id: z.string(), title: z.string(), description: z.string().nullable(), capacity: z.number() })) }) });
+const CreateLaunchpadResponse = z.object({ ok: z.literal(true), launchpad: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), totalView: z.number(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), roles: z.array(z.object({ id: z.string(), title: z.string(), description: z.string().nullable(), capacity: z.number() })) }) });
 
-const GetLaunchpadsResponse = z.object({ ok: z.literal(true), launchpads: z.array(z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), logoKey: z.string().nullable(), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.boolean() })), nextCursor: z.string().nullable() });
+const GetLaunchpadsResponse = z.object({ ok: z.literal(true), launchpads: z.array(z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.boolean() })), nextCursor: z.string().nullable() });
 
 const UpdateLaunchpadRoleRequest = z.object({ id: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional(), name: z.string().min(1).max(100), description: z.string().nullish(), capacity: z.number().int().gt(0).lte(1000).optional().default(1) });
 
-const UpdateLaunchpadRequest = z.object({ name: z.string(), description: z.string().nullable(), categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), deadline: z.string(), logoKey: z.string().min(1).max(255), coverKey: z.string().min(1).max(255), role: z.array(UpdateLaunchpadRoleRequest).min(1), materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5), materialDocumentName: z.array(z.string().min(1).max(255)).min(1).max(5), phoneNumber: z.string(), email: z.string().max(255).email(), telegramUsername: z.string().nullable() }).partial();
+const UpdateLaunchpadRequest = z.object({ name: z.string(), description: z.string().nullable(), categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), deadline: z.string(), coverKey: z.string().min(1).max(255), role: z.array(UpdateLaunchpadRoleRequest).min(1), materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5), materialDocumentName: z.array(z.string().min(1).max(255)).min(1).max(5), phoneNumber: z.string(), email: z.string().max(255).email(), telegramUsername: z.string().nullable() }).partial();
 
-const GetLaunchpadByIdResponse = z.object({ ok: z.literal(true), launchpad: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), logoKey: z.string().nullable(), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), roles: z.array(z.object({ id: z.string(), title: z.string(), description: z.string().nullable(), capacity: z.number() })), viewerBlocked: z.boolean(), totalView: z.number() }) });
+const GetLaunchpadByIdResponse = z.object({ ok: z.literal(true), launchpad: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), roles: z.array(z.object({ id: z.string(), title: z.string(), description: z.string().nullable(), capacity: z.number() })), viewerBlocked: z.boolean(), totalView: z.number() }) });
 
 const PresignLaunchpadApplicationDocumentUploadRequest = z.object({ contentType: z.string(), fileSize: z.number().int().gt(0).lte(10485760) });
 
@@ -486,13 +482,13 @@ const RecentActivityErrorResponse = z.object({ ok: z.literal(false), error: z.st
 
 const SearchSkillsResponse = z.object({ ok: z.literal(true), skills: z.array(z.object({ id: z.string(), name: z.string() })) });
 
-const GetSavedItemsResponse = z.object({ ok: z.literal(true), items: z.array(z.union([z.object({ type: z.literal("project"), savedAt: z.string(), item: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), logoKey: z.string().nullable(), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.literal(true), savedAt: z.string() }) }), z.object({ type: z.literal("volunteer"), savedAt: z.string(), item: VolunteerOpportunityListItemResponse }), z.object({ type: z.literal("forum"), savedAt: z.string(), item: QuestionResponse })])), pagination: z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }), counts: z.object({ all: z.number().int().gte(0), project: z.number().int().gte(0), volunteer: z.number().int().gte(0), forum: z.number().int().gte(0) }) });
+const GetSavedItemsResponse = z.object({ ok: z.literal(true), items: z.array(z.union([z.object({ type: z.literal("project"), savedAt: z.string(), item: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.literal(true), savedAt: z.string() }) }), z.object({ type: z.literal("volunteer"), savedAt: z.string(), item: VolunteerOpportunityListItemResponse }), z.object({ type: z.literal("forum"), savedAt: z.string(), item: QuestionResponse })])), pagination: z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }), counts: z.object({ all: z.number().int().gte(0), project: z.number().int().gte(0), volunteer: z.number().int().gte(0), forum: z.number().int().gte(0) }) });
 
 const SavedItemsErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
 const PublicProfileResponse = z.object({ ok: z.literal(true), profile: z.object({ user: z.object({ id: z.string(), firstName: z.string(), lastName: z.string(), displayName: z.string().nullable(), occupation: z.string().nullable(), email: z.string().nullable(), phone: z.object({ country: z.string(), nationalNumber: z.string() }).nullable(), telegramUsername: z.string().nullable() }), profile: z.object({ avatarKey: z.string().nullable(), bio: z.string().nullable(), country: z.object({ id: z.string(), name: z.string(), iso2: z.string().nullable() }).nullable(), city: z.object({ id: z.string(), name: z.string() }).nullable() }), skills: z.array(z.object({ id: z.string(), name: z.string() })), socialLinks: z.object({ website: z.string().nullable(), linkedin: z.string().nullable(), twitter: z.string().nullable(), facebook: z.string().nullable() }), tier: z.object({ id: z.string(), slug: z.string(), name: z.string(), rankOrder: z.number(), minPoints: z.number() }).nullable(), postedCounts: z.object({ forum: z.number().int().gte(0), volunteer: z.number().int().gte(0), project: z.number().int().gte(0) }).nullable() }) });
 
-const GetMyPostedResponse = z.union([z.object({ ok: z.literal(true), sourceType: z.literal("forum"), questions: z.array(QuestionResponse), pagination: z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) }), z.object({ ok: z.literal(true), sourceType: z.literal("volunteer"), opportunities: z.array(VolunteerOpportunityListItemResponse), pagination: VolunteerOpportunitiesPaginationResponse }), z.object({ ok: z.literal(true), sourceType: z.literal("project"), launchpads: z.array(z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), logoKey: z.string().nullable(), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.boolean() })), nextCursor: z.string().nullable() })]);
+const GetMyPostedResponse = z.union([z.object({ ok: z.literal(true), sourceType: z.literal("forum"), questions: z.array(QuestionResponse), pagination: z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) }), z.object({ ok: z.literal(true), sourceType: z.literal("volunteer"), opportunities: z.array(VolunteerOpportunityListItemResponse), pagination: VolunteerOpportunitiesPaginationResponse }), z.object({ ok: z.literal(true), sourceType: z.literal("project"), launchpads: z.array(z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.boolean() })), nextCursor: z.string().nullable() })]);
 
 const MyPostedErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
@@ -548,7 +544,7 @@ const PartnerRegistrationKmRequest = z.object({ firstNameKm: z.string().min(2).m
 
 const PublicPartner = z.object({ id: z.string().uuid(), name: z.string().nullable(), nameKh: z.string().nullable(), logo: z.string().nullable(), description: z.string().nullable(), descriptionKm: z.string().nullable(), bio: z.string().nullable(), bioKm: z.string().nullable(), sectorActivity: z.string().nullable(), sectorActivityKm: z.string().nullable(), website: z.string().nullable(), facebook: z.string().nullable(), linkedin: z.string().nullable(), telegram: z.string().nullable(), package: z.string().nullable(), packageKm: z.string().nullable(), createdAt: z.union([z.string(), z.string()]) });
 
-const ListPublicPartnersResponse = z.object({ ok: z.boolean(), data: z.array(PublicPartner) });
+const ListPublicPartnersResponse = z.object({ ok: z.boolean(), data: z.array(PublicPartner), total: z.number().int().gte(0), page: z.number().int().gt(0), limit: z.number().int().gt(0), totalPages: z.number().int().gte(0) });
 
 const PublicPartnerPhoto = z.object({ id: z.string().uuid(), url: z.string(), thumbnail: z.string().nullable() });
 
@@ -751,12 +747,10 @@ export const schemas = {
 	LaunchpadCategoryResponse,
 	GetLaunchpadCategoriesResponse,
 	PresignLaunchpadImageUploadRequest,
-	PresignLaunchpadLogoUploadResult,
-	PresignLaunchpadLogoUploadResponse,
-	LaunchpadLogoValidationErrorResponse,
-	LaunchpadOperationErrorResponse,
 	PresignLaunchpadCoverUploadResult,
 	PresignLaunchpadCoverUploadResponse,
+	LaunchpadValidationErrorResponse,
+	LaunchpadOperationErrorResponse,
 	PresignLaunchpadDocumentUploadRequest,
 	PresignLaunchpadDocumentUploadResult,
 	PresignLaunchpadDocumentUploadResponse,
@@ -3178,7 +3172,7 @@ const endpoints = makeApi([
 			{
 				status: 400,
 				description: `Validation failed`,
-				schema: LaunchpadLogoValidationErrorResponse
+				schema: LaunchpadValidationErrorResponse
 			},
 			{
 				status: 401,
@@ -3270,7 +3264,7 @@ const endpoints = makeApi([
 			{
 				status: 400,
 				description: `Validation failed`,
-				schema: LaunchpadLogoValidationErrorResponse
+				schema: LaunchpadValidationErrorResponse
 			},
 			{
 				status: 401,
@@ -3526,7 +3520,7 @@ const endpoints = makeApi([
 			{
 				status: 400,
 				description: `Validation failed`,
-				schema: LaunchpadLogoValidationErrorResponse
+				schema: LaunchpadValidationErrorResponse
 			},
 			{
 				status: 401,
@@ -3562,43 +3556,7 @@ const endpoints = makeApi([
 			{
 				status: 400,
 				description: `Validation failed`,
-				schema: LaunchpadLogoValidationErrorResponse
-			},
-			{
-				status: 401,
-				description: `Unauthorized`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 403,
-				description: `Forbidden`,
-				schema: AuthProtectedErrorResponse
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: LaunchpadOperationErrorResponse
-			},
-		]
-	},
-	{
-		method: "post",
-		path: "/v1/launchpad/logo/presign",
-		alias: "postV1launchpadlogopresign",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: PresignLaunchpadImageUploadRequest
-			},
-		],
-		response: PresignLaunchpadLogoUploadResponse,
-		errors: [
-			{
-				status: 400,
-				description: `Validation failed`,
-				schema: LaunchpadLogoValidationErrorResponse
+				schema: LaunchpadValidationErrorResponse
 			},
 			{
 				status: 401,
@@ -3672,7 +3630,7 @@ const endpoints = makeApi([
 			{
 				status: 400,
 				description: `Bad request`,
-				schema: LaunchpadLogoValidationErrorResponse
+				schema: LaunchpadValidationErrorResponse
 			},
 			{
 				status: 401,
@@ -3713,7 +3671,7 @@ const endpoints = makeApi([
 			{
 				status: 400,
 				description: `Bad request`,
-				schema: LaunchpadLogoValidationErrorResponse
+				schema: LaunchpadValidationErrorResponse
 			},
 			{
 				status: 401,
@@ -3759,7 +3717,7 @@ const endpoints = makeApi([
 			{
 				status: 400,
 				description: `Validation failed`,
-				schema: LaunchpadLogoValidationErrorResponse
+				schema: LaunchpadValidationErrorResponse
 			},
 			{
 				status: 401,
@@ -4523,6 +4481,18 @@ const endpoints = makeApi([
 		path: "/v1/partner/public",
 		alias: "getV1partnerpublic",
 		requestFormat: "json",
+		parameters: [
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gt(0).optional().default(1)
+			},
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(100).optional().default(20)
+			},
+		],
 		response: ListPublicPartnersResponse,
 		errors: [
 			{
@@ -6065,12 +6035,10 @@ export type CreateReportingResponse = z.infer<typeof schemas.CreateReportingResp
 export type LaunchpadCategoryResponse = z.infer<typeof schemas.LaunchpadCategoryResponse>;
 export type GetLaunchpadCategoriesResponse = z.infer<typeof schemas.GetLaunchpadCategoriesResponse>;
 export type PresignLaunchpadImageUploadRequest = z.infer<typeof schemas.PresignLaunchpadImageUploadRequest>;
-export type PresignLaunchpadLogoUploadResult = z.infer<typeof schemas.PresignLaunchpadLogoUploadResult>;
-export type PresignLaunchpadLogoUploadResponse = z.infer<typeof schemas.PresignLaunchpadLogoUploadResponse>;
-export type LaunchpadLogoValidationErrorResponse = z.infer<typeof schemas.LaunchpadLogoValidationErrorResponse>;
-export type LaunchpadOperationErrorResponse = z.infer<typeof schemas.LaunchpadOperationErrorResponse>;
 export type PresignLaunchpadCoverUploadResult = z.infer<typeof schemas.PresignLaunchpadCoverUploadResult>;
 export type PresignLaunchpadCoverUploadResponse = z.infer<typeof schemas.PresignLaunchpadCoverUploadResponse>;
+export type LaunchpadValidationErrorResponse = z.infer<typeof schemas.LaunchpadValidationErrorResponse>;
+export type LaunchpadOperationErrorResponse = z.infer<typeof schemas.LaunchpadOperationErrorResponse>;
 export type PresignLaunchpadDocumentUploadRequest = z.infer<typeof schemas.PresignLaunchpadDocumentUploadRequest>;
 export type PresignLaunchpadDocumentUploadResult = z.infer<typeof schemas.PresignLaunchpadDocumentUploadResult>;
 export type PresignLaunchpadDocumentUploadResponse = z.infer<typeof schemas.PresignLaunchpadDocumentUploadResponse>;
