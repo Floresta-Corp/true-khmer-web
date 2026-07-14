@@ -23,6 +23,7 @@ export async function contentModeratorLoader({ request }: Route.LoaderArgs) {
       types: [],
       pagination: null,
       userId: null,
+      highlightedReportId: null,
     } satisfies ContentModeratorData);
   }
 
@@ -30,9 +31,15 @@ export async function contentModeratorLoader({ request }: Route.LoaderArgs) {
   const cursor = url.searchParams.get("cursor") ?? undefined;
   const typeId = url.searchParams.get("typeId") ?? undefined;
   const rawStatus = url.searchParams.get("status")?.toUpperCase();
-  const status = (REPORT_STATUSES as readonly string[]).includes(rawStatus ?? "")
+  const status = (REPORT_STATUSES as readonly string[]).includes(
+    rawStatus ?? "",
+  )
     ? (rawStatus as ReportStatus)
     : undefined;
+  // A notification link (?contentId=<uuid>) targets the reported content. The
+  // list endpoint can't be filtered by contentId, so we match the report on
+  // the current page via its sourceLink (which embeds the content id) below.
+  const contentId = url.searchParams.get("contentId") ?? undefined;
 
   const [result, allTypesResult] = await Promise.all([
     getContentModerator(request, accessToken, { cursor, status, typeId }),
@@ -46,10 +53,26 @@ export async function contentModeratorLoader({ request }: Route.LoaderArgs) {
     }
   }
 
+  let content = result.data.reports ?? [];
+  // Match the report for the reported content by its sourceLink, which embeds
+  // the content id. Only reports on the current page can be matched (the list
+  // endpoint has no contentId filter).
+  const targetReport = contentId
+    ? content.find((r) => r.sourceLink?.includes(contentId))
+    : undefined;
+
+  if (targetReport) {
+    content = [
+      targetReport,
+      ...content.filter((r) => r.id !== targetReport.id),
+    ];
+  }
+
   return withAuthData(auth, {
-    content: result.data.reports ?? [],
+    content,
     types: Array.from(typesMap.entries()).map(([id, name]) => ({ id, name })),
     pagination: result.data.pagination ?? null,
     userId,
+    highlightedReportId: targetReport?.id ?? null,
   } satisfies ContentModeratorData);
 }

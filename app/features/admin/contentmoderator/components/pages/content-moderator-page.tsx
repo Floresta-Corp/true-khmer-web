@@ -16,10 +16,18 @@ import type { ContentModeratorReport } from "~/types/api-client";
 import type { CategoryOption } from "../../types";
 
 export default function ContentModeratorPage() {
-  const { content, types } = useLoaderData<typeof contentModeratorLoader>();
+  const { content, types, highlightedReportId } =
+    useLoaderData<typeof contentModeratorLoader>();
   const fetcher = useFetcher();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigation = useNavigation();
+  useEffect(() => {
+    if (!highlightedReportId) return;
+    if (!searchParams.has("contentId")) return;
+    const next = new URLSearchParams(searchParams);
+    next.delete("contentId");
+    setSearchParams(next, { replace: true, preventScrollReset: true });
+  }, [highlightedReportId, searchParams, setSearchParams]);
 
   const isFiltering =
     navigation.state === "loading" &&
@@ -135,7 +143,11 @@ export default function ContentModeratorPage() {
                 {isFiltering ? (
                   <ReportsTableSkeleton />
                 ) : (
-                  <ReportsTable reports={content} onSelect={handleSelect} />
+                  <ReportsTable
+                    reports={content}
+                    onSelect={handleSelect}
+                    highlightedReportId={highlightedReportId}
+                  />
                 )}
               </div>
             </motion.div>

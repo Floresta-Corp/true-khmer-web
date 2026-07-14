@@ -2,7 +2,6 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useFetcher } from "react-router";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
-import { Spinner } from "~/components/ui/spinner";
 import { ViewerVote } from "~/services/types";
 import type { QuestionResponse } from "~/types/api-client";
 import { useFetcherOutcome } from "~/hooks/use-fetcher-outcome";
@@ -22,18 +21,25 @@ export default function QuestionVoteComponent({
   useFetcherOutcome(fetcher, {
     onError: (message) => toast.error(message ?? "Failed to submit vote."),
   });
+  const serverVote = question?.viewerVote ?? ViewerVote.NONE;
+  const pendingVote = isSubmitting
+    ? (fetcher.formData?.get("voteType") as ViewerVote | undefined)
+    : undefined;
+  const currentVote = pendingVote ?? serverVote;
 
-  const isUpvoteActive = question?.viewerVote === ViewerVote.UPVOTE;
-  const isDownvoteActive = question?.viewerVote === ViewerVote.DOWNVOTE;
+  const voteValue = (v: ViewerVote) =>
+    v === ViewerVote.UPVOTE ? 1 : v === ViewerVote.DOWNVOTE ? -1 : 0;
+
+  const displayScore =
+    (question?.score ?? 0) + voteValue(currentVote) - voteValue(serverVote);
+
+  const isUpvoteActive = currentVote === ViewerVote.UPVOTE;
+  const isDownvoteActive = currentVote === ViewerVote.DOWNVOTE;
 
   const upvoteIntent =
-    question?.viewerVote === ViewerVote.UPVOTE
-      ? ViewerVote.NONE
-      : ViewerVote.UPVOTE;
+    currentVote === ViewerVote.UPVOTE ? ViewerVote.NONE : ViewerVote.UPVOTE;
   const downvoteIntent =
-    question?.viewerVote === ViewerVote.DOWNVOTE
-      ? ViewerVote.NONE
-      : ViewerVote.DOWNVOTE;
+    currentVote === ViewerVote.DOWNVOTE ? ViewerVote.NONE : ViewerVote.DOWNVOTE;
 
   const scoreClassName = isUpvoteActive
     ? "text-[#009966]"
@@ -77,12 +83,12 @@ export default function QuestionVoteComponent({
 
   return (
     <div
-      className={`flex h-fit items-center rounded-xl overflow-hidden bg-[#f9fafb] text-[#4a5565] ${className ?? ""}`}
+      className={`flex h-fit items-center overflow-hidden rounded-xl bg-[#f9fafb] text-[#4a5565] ${className ?? ""}`}
     >
       <Button
         type="button"
         variant="ghost"
-        className={`cursor-pointer h-7 w-7 rounded-none ${upvoteClassName}`}
+        className={`h-7 w-7 cursor-pointer rounded-none ${upvoteClassName}`}
         disabled={isSubmitting}
         onClick={handleUpvote}
         aria-label="Up vote"
@@ -90,18 +96,14 @@ export default function QuestionVoteComponent({
         <ChevronUp className="h-3.5 w-3.5" />
       </Button>
 
-      {isSubmitting ? (
-        <Spinner className="mx-1 size-3" />
-      ) : (
-        <span className={`px-2 text-xs font-semibold ${scoreClassName}`}>
-          {question.score}
-        </span>
-      )}
+      <span className={`px-2 text-xs font-semibold ${scoreClassName}`}>
+        {displayScore}
+      </span>
       <Button
         type="button"
         variant="ghost"
         disabled={isSubmitting}
-        className={`cursor-pointer h-7 w-7 rounded-none ${downvoteClassName}`}
+        className={`h-7 w-7 cursor-pointer rounded-none ${downvoteClassName}`}
         onClick={handleDownvote}
         aria-label="Down vote"
       >

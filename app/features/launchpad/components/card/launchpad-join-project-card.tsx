@@ -58,11 +58,11 @@ export default function LaunchpadJoinProjectCard({
         Join this project
       </div>
 
-      <div className="mt-6 space-y-3.5 pb-5 border-b border-[#f1f5f9] text-[14px]">
+      <div className="mt-6 space-y-3.5 border-b border-[#f1f5f9] pb-5 text-[14px]">
         <div className="flex items-center justify-between">
           <span className="text-[#64748b]">Open Roles</span>
           <span className="flex items-center justify-center rounded-md bg-[#eff6ff] px-2.5 py-1 text-[13px] font-bold text-[#2f6fe4]">
-            {totalCapacity} Spots
+            {totalCapacity} spots
           </span>
         </div>
         <div className="flex items-center justify-between">
@@ -77,13 +77,13 @@ export default function LaunchpadJoinProjectCard({
         <div className="mb-4">
           <div className="flex items-center justify-between">
             <h3 className="text-[15px] font-bold text-[#0f172a]">
-              Selected Roles
+              Select Roles
             </h3>
             <span className="flex h-5.5 min-w-5.5 items-center justify-center rounded bg-[#f1f5f9] px-1.5 text-[12px] font-semibold text-[#475569]">
               {selectedRoles.length}
             </span>
           </div>
-          <p className="text-[13px] text-[#64748b] mt-1">
+          <p className="mt-1 text-[13px] text-[#64748b]">
             Mark your most preferred role with a star
           </p>
         </div>
@@ -112,10 +112,10 @@ export default function LaunchpadJoinProjectCard({
                       : "border-[#f1f5f9] bg-[#fcfcfd]",
                   )}
                 >
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className="flex min-w-0 flex-1 items-center gap-2">
                     <span
                       className={cn(
-                        "truncate font-bold text-[15px]",
+                        "truncate text-[15px] font-bold",
                         topPickRoleId === role.id
                           ? "text-[#c2410c]"
                           : "text-[#0f172a]",
@@ -124,7 +124,7 @@ export default function LaunchpadJoinProjectCard({
                       {role.title}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0 ml-3">
+                  <div className="ml-3 flex shrink-0 items-center gap-2">
                     <button
                       type="button"
                       onClick={() => setTopPick(role.id)}
@@ -146,7 +146,7 @@ export default function LaunchpadJoinProjectCard({
                     <Button
                       onClick={() => removeRole(role.id)}
                       variant={"ghost"}
-                      className="flex size-8 items-center justify-center rounded-full overflow-hidden transition-colors hover:bg-red-50 hover:text-red-500"
+                      className="flex size-8 items-center justify-center overflow-hidden rounded-full transition-colors hover:bg-red-50 hover:text-red-500"
                       title="Remove"
                     >
                       <Trash2 className="size-4" />
@@ -170,7 +170,7 @@ export default function LaunchpadJoinProjectCard({
           >
             <Button
               onClick={onApplyNoRoles}
-              className="mt-5 h-10 w-full rounded-lg bg-[#2F6FE4] text-sm font-semibold text-white hover:bg-[#245cc2] gap-2"
+              className="mt-5 h-10 w-full gap-2 rounded-lg bg-[#2F6FE4] text-sm font-semibold text-white hover:bg-[#245cc2]"
             >
               Show Available Roles
             </Button>
@@ -193,7 +193,7 @@ export default function LaunchpadJoinProjectCard({
                 trigger={
                   <Button
                     disabled={disableApplyButton || isNoRolesSelected}
-                    className="mt-5 h-10 w-full rounded-lg bg-[#2F6FE4] text-sm font-semibold text-white hover:bg-[#245cc2] disabled:opacity-50 gap-2"
+                    className="mt-5 h-10 w-full gap-2 rounded-lg bg-[#2F6FE4] text-sm font-semibold text-white hover:bg-[#245cc2] disabled:opacity-50"
                   >
                     <Send className="size-4" />
                     Apply Now
@@ -208,7 +208,7 @@ export default function LaunchpadJoinProjectCard({
                     `/login?redirectTo=${encodeURIComponent(redirectTo)}`,
                   );
                 }}
-                className="mt-5 h-10 w-full rounded-lg bg-[#2F6FE4] text-sm font-semibold text-white hover:bg-[#245cc2] gap-2"
+                className="mt-5 h-10 w-full gap-2 rounded-lg bg-[#2F6FE4] text-sm font-semibold text-white hover:bg-[#245cc2]"
               >
                 <Send className="size-4" />
                 Apply Now
@@ -223,7 +223,7 @@ export default function LaunchpadJoinProjectCard({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="mt-3 py-1.5 px-3 rounded-lg bg-amber-100 flex items-center gap-3 text-gray-500"
+            className="mt-3 flex items-center gap-3 rounded-lg bg-amber-100 px-3 py-1.5 text-gray-500"
           >
             <Info className="size-6" />
             <p className="text-xs">{disableButtonMessage}</p>

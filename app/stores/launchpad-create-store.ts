@@ -73,10 +73,8 @@ export type LaunchpadFormState = {
   email: string;
   phoneNumber: string;
   telegramUsername: string;
-  logoFile: File | null;
   coverFile: File | null;
   materialDocuments: File[];
-  logoFileSnapshot: PersistedFileSnapshot | null;
   coverFileSnapshot: PersistedFileSnapshot | null;
   materialDocumentSnapshots: PersistedFileSnapshot[];
   roles: LaunchpadRoleInput[];
@@ -91,7 +89,6 @@ export type LaunchpadCreateStore = LaunchpadFormState & {
   setEmail: (value: string) => void;
   setPhoneNumber: (value: string) => void;
   setTelegramUsername: (value: string) => void;
-  setLogoFile: (file: File | null) => void;
   setCoverFile: (file: File | null) => void;
   setMaterialDocuments: (files: File[]) => void;
   setRoles: (roles: LaunchpadRoleInput[]) => void;
@@ -109,10 +106,8 @@ const initialState: LaunchpadFormState = {
   email: "",
   phoneNumber: "",
   telegramUsername: "",
-  logoFile: null,
   coverFile: null,
   materialDocuments: [],
-  logoFileSnapshot: null,
   coverFileSnapshot: null,
   materialDocumentSnapshots: [],
   roles: [],
@@ -131,23 +126,6 @@ export const useLaunchpadCreateStore = create<LaunchpadCreateStore>()(
       setEmail: (value: string) => set({ email: value }),
       setPhoneNumber: (value: string) => set({ phoneNumber: value }),
       setTelegramUsername: (value: string) => set({ telegramUsername: value }),
-      setLogoFile: (file: File | null) => {
-        set({ logoFile: file, logoFileSnapshot: null });
-
-        if (!file) return;
-
-        void toSnapshot(file)
-          .then((snapshot) => {
-            set((state) =>
-              isSameFile(state.logoFile, file)
-                ? { logoFileSnapshot: snapshot }
-                : {},
-            );
-          })
-          .catch((error) => {
-            console.error("Failed to persist logo file snapshot", error);
-          });
-      },
       setCoverFile: (file: File | null) => {
         set({ coverFile: file, coverFileSnapshot: null });
 
@@ -192,39 +170,31 @@ export const useLaunchpadCreateStore = create<LaunchpadCreateStore>()(
 
       rehydrateFiles: async () => {
         const {
-          logoFile,
           coverFile,
           materialDocuments,
-          logoFileSnapshot,
           coverFileSnapshot,
           materialDocumentSnapshots,
         } = get();
 
         if (
-          logoFile ||
           coverFile ||
           materialDocuments.length > 0 ||
-          (!logoFileSnapshot &&
-            !coverFileSnapshot &&
-            materialDocumentSnapshots.length === 0)
+          (!coverFileSnapshot && materialDocumentSnapshots.length === 0)
         ) {
           return;
         }
 
         try {
-          const [restoredLogo, restoredCover, restoredDocuments] =
-            await Promise.all([
-              fromSnapshot(logoFileSnapshot),
-              fromSnapshot(coverFileSnapshot),
-              Promise.all(
-                materialDocumentSnapshots.map((snapshot) =>
-                  fromSnapshot(snapshot),
-                ),
+          const [restoredCover, restoredDocuments] = await Promise.all([
+            fromSnapshot(coverFileSnapshot),
+            Promise.all(
+              materialDocumentSnapshots.map((snapshot) =>
+                fromSnapshot(snapshot),
               ),
-            ]);
+            ),
+          ]);
 
           set({
-            logoFile: restoredLogo,
             coverFile: restoredCover,
             materialDocuments: restoredDocuments.filter(
               (value): value is File => value instanceof File,
@@ -286,10 +256,8 @@ export const useLaunchpadCreateStore = create<LaunchpadCreateStore>()(
           phoneNumber: state.phoneNumber,
           telegramUsername: state.telegramUsername,
           roles: state.roles,
-          logoFile: null,
           coverFile: null,
           materialDocuments: [],
-          logoFileSnapshot: state.logoFileSnapshot,
           coverFileSnapshot: state.coverFileSnapshot,
           materialDocumentSnapshots: state.materialDocumentSnapshots,
         }) as any,

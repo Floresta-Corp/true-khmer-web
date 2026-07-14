@@ -26,8 +26,10 @@ export type GetMyApplicationDetailResponse =
 // Aliases used in components
 export type Application = import("~/types/api-client").MyApplicationItem;
 export type ApplicationGroup = import("~/types/api-client").MyApplicationItem;
-export type ApplicationRoleSummary = import("~/types/api-client").MyApplicationRole;
-export type ApplicationDetail = import("~/types/api-client").MyApplicationDetail;
+export type ApplicationRoleSummary =
+  import("~/types/api-client").MyApplicationRole;
+export type ApplicationDetail =
+  import("~/types/api-client").MyApplicationDetail;
 export type ApplicationDetailRole =
   import("~/types/api-client").MyApplicationRoleDetail;
 export type Summary = import("~/types/api-client").MyApplicationsSummary;

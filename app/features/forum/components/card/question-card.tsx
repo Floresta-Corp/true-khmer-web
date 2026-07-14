@@ -55,26 +55,26 @@ export default function QuestionCard({
       onHoverEnd={() => setIsHovered(false)}
     >
       {/* Header with author info */}
-      <div className="flex justify-between items-start mb-3 sm:mb-5 gap-2">
-        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-          <Avatar className="border border-[#f3f4f6] shrink-0">
+      <div className="mb-3 flex items-start justify-between gap-2 sm:mb-5">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-2.5">
+          <Avatar className="shrink-0 border border-[#f3f4f6]">
             <AvatarImage
               src={profileImage}
               alt={question.author.name}
               className="object-cover"
             />
           </Avatar>
-          <div className="flex flex-col gap-0.5 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <div className="flex flex-wrap items-center gap-2">
               <ProfileLinkWrapper
                 authorId={question.author.id}
                 isAuthor={userId === question.author.id ? true : false}
-                className="text-xs sm:text-sm font-semibold text-[#344256] truncate"
+                className="truncate text-xs font-semibold text-[#344256] sm:text-sm"
               >
                 {question.author.name}
               </ProfileLinkWrapper>
               <span className="hidden text-[#595c5e] sm:inline">•</span>
-              <span className="hidden text-[#595c5e] text-sm sm:inline">
+              <span className="hidden text-sm text-[#595c5e] sm:inline">
                 in
               </span>
               <Link
@@ -88,7 +88,7 @@ export default function QuestionCard({
               {isCurrentAuthor && (
                 <Badge
                   variant="secondary"
-                  className="text-xs font-semibold bg-green-100 text-green-500"
+                  className="bg-green-100 text-xs font-semibold text-green-500"
                 >
                   Author
                 </Badge>
@@ -99,7 +99,7 @@ export default function QuestionCard({
 
         {/* Edit/Delete actions */}
         {isCurrentAuthor ? (
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             {/* Mobile: Dropdown menu */}
             <div className="sm:hidden">
               <MobileAuthorOptions
@@ -127,7 +127,7 @@ export default function QuestionCard({
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="h-[26.25px] w-[26.25px] rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256] cursor-pointer"
+                      className="h-[26.25px] w-[26.25px] cursor-pointer rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
                       aria-label="Edit question"
                     >
                       <Pencil size={12.25} />
@@ -141,7 +141,7 @@ export default function QuestionCard({
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="h-[26.25px] min-w-[26.25px] flex-1 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256] cursor-pointer"
+                      className="h-[26.25px] min-w-[26.25px] flex-1 cursor-pointer rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
                       aria-label="Delete question"
                     >
                       <Trash2 size={12.25} />
@@ -157,13 +157,13 @@ export default function QuestionCard({
       {/* Question Title */}
       <h2
         onClick={handleGoToDetail}
-        className="text-sm sm:text-2xl font-semibold text-[#030213] mb-2 leading-snug cursor-pointer hover:text-[#2f6fe4] transition-colors"
+        className="mb-2 cursor-pointer text-sm leading-snug font-semibold text-[#030213] transition-colors hover:text-[#2f6fe4] sm:text-2xl"
       >
         {question.title}
       </h2>
 
       {/* Question Body */}
-      <p className="text-xs sm:text-sm text-[#65758b] mb-3 sm:mb-4 line-clamp-2 leading-relaxed">
+      <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-[#65758b] sm:mb-4 sm:text-sm">
         {question.body}
       </p>
 
@@ -172,13 +172,13 @@ export default function QuestionCard({
           <button
             type="button"
             onClick={() => setLightboxIndex(0)}
-            className="w-full p-0 bg-transparent"
+            className="w-full bg-transparent p-0"
             aria-label="Open image preview"
           >
             <img
               src={resolveImageURL(question.imageKey)}
               alt="Question image"
-              className="aspect-video object-cover rounded-xl sm:mb-4 w-full"
+              className="aspect-video w-full rounded-xl object-cover sm:mb-4"
             />
           </button>
 
@@ -195,11 +195,11 @@ export default function QuestionCard({
 
       {/* Tags */}
       {question.tags.length > 0 && (
-        <div className="flex gap-1.5 sm:gap-2 mb-3 sm:mb-4 flex-wrap">
+        <div className="mb-3 flex flex-wrap gap-1.5 sm:mb-4 sm:gap-2">
           {question.tags.slice(0, 5).map((tag) => (
             <span
               key={tag.id}
-              className="text-xs text-[#99a1af] rounded-md px-2 py-0.5"
+              className="rounded-md px-2 py-0.5 text-xs text-[#99a1af]"
             >
               #{tag.name}
             </span>
@@ -208,19 +208,19 @@ export default function QuestionCard({
       )}
 
       {/* Divider */}
-      <div className="border-t border-[#f9fafb] my-3 sm:my-4" />
+      <div className="my-3 border-t border-[#f9fafb] sm:my-4" />
 
       {/* Footer with vote, answer count, and share */}
-      <div className="flex items-center gap-2 sm:gap-3.5 shrink-0">
+      <div className="flex shrink-0 items-center gap-2 sm:gap-3.5">
         <QuestionVoteComponent question={question} className="h-7.5" />
 
         <button
           onClick={handleGoToDetail}
-          className="group inline-flex items-center gap-2 text-xs font-medium text-[#48566A] text-[14px] rounded-lg cursor-pointer transition-colors hover:text-blue-600"
+          className="group inline-flex cursor-pointer items-center gap-2 rounded-lg text-xs text-[14px] font-medium text-[#48566A] transition-colors hover:text-blue-600"
         >
           <MessageCircle
             size={20}
-            className="text-[#48566A] group-hover:text-blue-600 transition-colors"
+            className="text-[#48566A] transition-colors group-hover:text-blue-600"
           />
           <span>
             {question.answerCount}

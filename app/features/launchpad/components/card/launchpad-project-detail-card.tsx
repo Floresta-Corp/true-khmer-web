@@ -25,7 +25,7 @@ export default function LaunchpadProjectDetailCard({
     <div className="space-y-6">
       <div className="flex flex-wrap items-start gap-x-10 gap-y-4">
         <div>
-          <div className="pb-1 text-[11px] font-medium uppercase tracking-wide text-[#9EACC0]">
+          <div className="pb-1 text-[11px] font-medium tracking-wide text-[#9EACC0] uppercase">
             Location
           </div>
           <div className="text-[15px] font-semibold text-[#0F1729]">
@@ -33,7 +33,7 @@ export default function LaunchpadProjectDetailCard({
           </div>
         </div>
         <div>
-          <div className="pb-1 text-[11px] font-medium uppercase tracking-wide text-[#9EACC0]">
+          <div className="pb-1 text-[11px] font-medium tracking-wide text-[#9EACC0] uppercase">
             Deadline
           </div>
           <div className="text-[15px] font-semibold text-[#0F1729]">
@@ -41,8 +41,8 @@ export default function LaunchpadProjectDetailCard({
           </div>
         </div>
         <div>
-          <div className="pb-1 text-[11px] font-medium uppercase tracking-wide text-[#9EACC0]">
-            Visibility
+          <div className="pb-1 text-[11px] font-medium tracking-wide text-[#9EACC0] uppercase">
+            View
           </div>
           <div className="text-[15px] font-semibold text-[#0F1729]">
             {project.totalView.toLocaleString()} views
@@ -51,8 +51,8 @@ export default function LaunchpadProjectDetailCard({
       </div>
       <Separator />
       <div>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight">
-          Project Overview
+        <h2 className="mb-6 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+          Opportunity Overview
         </h2>
         <ExpandableText className="mb-4">{project.description}</ExpandableText>
       </div>
