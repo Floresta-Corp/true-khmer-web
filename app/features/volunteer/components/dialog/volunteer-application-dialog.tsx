@@ -174,7 +174,7 @@ export default function VolunteerApplicationDialog({
           </h2>
         </div>
 
-        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-4 sm:px-6">
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 sm:px-6">
           <div className="mb-5 flex items-center gap-3.5 rounded-[14px] border-[0.8px] border-[rgba(47,111,228,0.1)] bg-[#f0f6ff] px-[18.3px] py-[20.8px]">
             <div className="flex size-8.75 items-center justify-center rounded-2xl bg-[#2f6fe4]">
               <User className="size-6 text-white" />
@@ -288,7 +288,7 @@ export default function VolunteerApplicationDialog({
             )}
           </div>
 
-          <div className="mb-5 flex justify-between space-y-3">
+          <div className="mb-5 flex justify-between">
             <input
               type="file"
               ref={fileInputRef}
