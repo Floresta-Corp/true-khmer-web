@@ -54,12 +54,15 @@ export default function LaunchpadAllPage() {
   useEffect(() => {
     const mediaQueryList = window.matchMedia("(max-width: 1023px)");
     const onChange = () => {
-      if (mediaQueryList.matches) setOpenFilterSections([]);
+      setOpenFilterSections(
+        mediaQueryList.matches ? [] : ["sort-by", "category", "location"],
+      );
     };
     onChange();
     mediaQueryList.addEventListener("change", onChange);
     return () => mediaQueryList.removeEventListener("change", onChange);
   }, []);
+
   useEffect(() => {
     setSearchValue(searchParams.get("search") || "");
   }, [searchParams]);

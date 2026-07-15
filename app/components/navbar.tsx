@@ -12,6 +12,7 @@ import {
   TvMinimalPlay,
   UserRound,
   CircleUser,
+  ClipboardPen,
 } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 import NotificationBellPopOver from "~/components/notification-bell-pop-over";
@@ -107,6 +108,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
     // { to: "/events", label: "Events", icon: Calendar },
     { to: "/volunteer", label: "Volunteer", icon: HeartHandshake },
     { to: "/launchpad", label: "Launchpad", icon: BriefcaseBusiness },
+    { to: "/blog", label: "Blog", icon: ClipboardPen },
     { to: "/about", label: "About", icon: CircleUser, hide: !!user },
     { to: "/poc", label: "POC", icon: TvMinimalPlay, hide: true },
   ];

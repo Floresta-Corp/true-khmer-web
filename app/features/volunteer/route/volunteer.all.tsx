@@ -56,22 +56,21 @@ export default function VolunteerAllPage() {
     searchParams.get("search") || "",
   );
   const [showAllLocations, setShowAllLocations] = useState(false);
-  const [openFilterSections, setOpenFilterSections] = useState([
-    "sort-by",
-    "cause-area",
-    "location",
-    "time-commitment",
-  ]);
-
+  const ALL_SECTIONS = ["sort-by", "cause-area", "location", "time-commitment"];
+  const [openFilterSections, setOpenFilterSections] = useState(() =>
+    typeof window !== "undefined" &&
+    window.matchMedia("(max-width: 1023px)").matches
+      ? []
+      : ALL_SECTIONS,
+  );
   useEffect(() => {
     const mediaQueryList = window.matchMedia("(max-width: 1023px)");
-    const onChange = () => {
-      if (mediaQueryList.matches) setOpenFilterSections([]);
-    };
-    onChange();
+    const onChange = () =>
+      setOpenFilterSections(mediaQueryList.matches ? [] : ALL_SECTIONS);
     mediaQueryList.addEventListener("change", onChange);
     return () => mediaQueryList.removeEventListener("change", onChange);
   }, []);
+
   const locationCount = locations?.length ?? 0;
   const visibleLocations = showAllLocations
     ? (locations ?? [])
