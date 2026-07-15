@@ -34,42 +34,48 @@ export default function ProfileHeaderCard({
       : `https://${website}`
     : undefined;
   return (
-    <Card className="shadow-none overflow-hidden rounded-3xl  relative w-full bg-linear-to-br from-indigo-50/70 via-sky-50 to-white dark:from-slate-900 dark:via-blue-950/20 dark:to-slate-900">
-      <div className="flex flex-col md:flex-row gap-5 sm:gap-6 items-start md:items-center px-6 py-6 sm:px-8 sm:py-8">
-        <div className="w-20 h-20 sm:w-27.5 sm:h-27.5 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-md bg-slate-50 shrink-0 relative z-10 select-none">
+    <Card className="relative w-full overflow-hidden rounded-3xl bg-white shadow-none dark:bg-slate-900">
+      <img
+        src="/images/myspace-header.svg"
+        alt=""
+        aria-hidden
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+      />
+      <div className="relative flex flex-col items-start gap-5 px-6 py-6 sm:gap-6 sm:px-8 sm:py-8 md:flex-row md:items-center">
+        <div className="relative z-10 h-20 w-20 shrink-0 overflow-hidden rounded-full border-4 border-white bg-slate-50 shadow-none select-none sm:h-27.5 sm:w-27.5 dark:border-slate-800">
           <img
             src={displayImage}
             alt="Profile"
-            className="object-cover h-full w-full"
+            className="h-full w-full object-cover"
           />
         </div>
 
-        <div className="text-left select-text flex-1">
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <h2 className="text-2xl sm:text-[28px] font-extrabold text-slate-900 dark:text-white leading-tight tracking-tight">
+        <div className="flex-1 text-left select-text">
+          <div className="mb-1 flex flex-wrap items-center gap-2">
+            <h2 className="text-2xl leading-tight font-extrabold tracking-tight text-slate-900 sm:text-[28px] dark:text-white">
               {profileName}
             </h2>
             <svg
-              className="w-5 h-5 text-blue-500 fill-current inline-block shrink-0"
+              className="inline-block h-5 w-5 shrink-0 fill-current text-blue-500"
               viewBox="0 0 24 24"
             >
               <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
             </svg>
-            <span className="px-2.5 py-0.5 text-[9px] sm:text-[10px] uppercase font-black tracking-wider text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-950/45 rounded-full border border-amber-100 dark:border-amber-900/30 shrink-0">
+            <span className="shrink-0 rounded-full border border-amber-100 bg-amber-50 px-2.5 py-0.5 text-[9px] font-black tracking-wider text-amber-600 uppercase sm:text-[10px] dark:border-amber-900/30 dark:bg-amber-950/45 dark:text-amber-400">
               {tierName}
             </span>
           </div>
-          <p className="text-slate-500 dark:text-slate-400 font-bold text-sm sm:text-base leading-snug">
+          <p className="text-sm leading-snug font-bold text-slate-500 sm:text-base dark:text-slate-400">
             {occupation}
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button className="bg-blue-600 h-11 px-5 rounded-full font-bold">
+          <Button className="h-11 rounded-full bg-blue-600 px-5 font-bold">
             Message
           </Button>
           <Button
             variant="outline"
-            className="h-11 px-5 rounded-full font-bold"
+            className="h-11 rounded-full px-5 font-bold"
           >
             <Plus />
             Follow
@@ -77,7 +83,7 @@ export default function ProfileHeaderCard({
           <ProfileCardPopover profileId={profileId} />
         </div>
       </div>
-      <div className="border-t border-slate-200/60 dark:border-slate-800/60 px-6 py-4 sm:px-8 bg-white/40 dark:bg-slate-950/20 flex flex-wrap gap-x-5 gap-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+      <div className="relative flex flex-wrap gap-x-5 gap-y-2.5 border-t border-slate-200/60 bg-white/40 px-6 py-4 text-xs text-slate-600 sm:px-8 sm:text-sm dark:border-slate-800/60 dark:bg-slate-950/20 dark:text-slate-400">
         {cityName && countryName && (
           <div className="flex items-center gap-1.5">
             <MapPin size={14} />
@@ -89,7 +95,7 @@ export default function ProfileHeaderCard({
             <Mail size={14} />
             <a
               href={`mailto:${email}`}
-              className="font-bold text-blue-600 hover:underline wrap-break-word"
+              className="font-bold wrap-break-word text-blue-600 hover:underline"
             >
               {email}
             </a>
@@ -102,7 +108,7 @@ export default function ProfileHeaderCard({
               href={websiteUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-bold text-blue-600 hover:underline wrap-break-word"
+              className="font-bold wrap-break-word text-blue-600 hover:underline"
             >
               {website}
             </a>

@@ -52,7 +52,7 @@ export default function ManagePostFilters({
             key={tab.value}
             onClick={() => onFilterChange(tab.value as FilterType)}
             aria-pressed={filter === tab.value}
-            className="relative z-10 shrink-0 cursor-pointer px-3 py-1.5 text-[14px] font-bold whitespace-nowrap transition-colors duration-300 sm:px-5 sm:text-[14px]"
+            className="relative z-10 shrink-0 cursor-pointer px-5 py-2 text-[14px] font-bold whitespace-nowrap transition-colors duration-300 sm:px-5 sm:text-[14px]"
           >
             <span
               className={cn(

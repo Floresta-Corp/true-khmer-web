@@ -56,6 +56,22 @@ export default function VolunteerAllPage() {
     searchParams.get("search") || "",
   );
   const [showAllLocations, setShowAllLocations] = useState(false);
+  const [openFilterSections, setOpenFilterSections] = useState([
+    "sort-by",
+    "cause-area",
+    "location",
+    "time-commitment",
+  ]);
+
+  useEffect(() => {
+    const mediaQueryList = window.matchMedia("(max-width: 1023px)");
+    const onChange = () => {
+      if (mediaQueryList.matches) setOpenFilterSections([]);
+    };
+    onChange();
+    mediaQueryList.addEventListener("change", onChange);
+    return () => mediaQueryList.removeEventListener("change", onChange);
+  }, []);
   const locationCount = locations?.length ?? 0;
   const visibleLocations = showAllLocations
     ? (locations ?? [])
@@ -262,12 +278,8 @@ export default function VolunteerAllPage() {
 
             <Accordion
               type="multiple"
-              defaultValue={[
-                "sort-by",
-                "cause-area",
-                "location",
-                "time-commitment",
-              ]}
+              value={openFilterSections}
+              onValueChange={setOpenFilterSections}
               className="mt-1 gap-0"
             >
               <AccordionItem

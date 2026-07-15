@@ -29,27 +29,33 @@ export default function LaunchpadCollaborationCard({
   const topPick = isTopPick(data.id);
 
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-[#EEF2F7] bg-[#F8FAFC] p-4">
-      <div className="flex size-10 items-center justify-center rounded-xl bg-[#EAF2FF]">
-        <Users className="size-4.25 text-blue-500" />
-      </div>
-      <div className="flex-1 text-sm">
-        <div className="font-semibold text-[#0F1729]">{data.title}</div>
-        <p className="line-clamp-1 text-[13px] text-[#94A3B8]">
-          {data.details}
-        </p>
-      </div>
-      <div className="text-right min-w-15">
-        <div className="text-[#9EACC0] text-xs">Available</div>
-        <p className="text-sm text-blue-500 font-semibold">
-          {data.availableSpot} {spotLabel}
-        </p>
+    <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[#EEF2F7] bg-[#F8FAFC] p-4 sm:flex-nowrap sm:gap-4">
+      <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#EAF2FF]">
+          <Users className="size-4.25 text-blue-500" />
+        </div>
+        <div className="min-w-0 flex-1 text-sm">
+          <div className="truncate font-semibold text-[#0F1729]">
+            {data.title}
+          </div>
+          <p className="line-clamp-1 text-[13px] text-[#94A3B8]">
+            {data.details}
+          </p>
+        </div>
+        <div className="shrink-0 text-right">
+          <div className="text-xs whitespace-nowrap text-[#9EACC0]">
+            Available
+          </div>
+          <p className="text-sm font-semibold whitespace-nowrap text-blue-500">
+            {data.availableSpot} {spotLabel}
+          </p>
+        </div>
       </div>
       {!hideApplyButton && (
-        <div className="flex items-center gap-1.5">
+        <div className="flex w-full items-center gap-1.5 sm:w-auto">
           <Button
             className={cn(
-              "h-8 px-4 text-sm font-medium hover:bg-blue-600",
+              "h-9 flex-1 px-4 text-sm font-medium hover:bg-blue-600 sm:h-8 sm:flex-none",
               selected ? "bg-[#1c5dd4]" : "bg-blue-500",
             )}
             onClick={() => {
@@ -83,7 +89,7 @@ export default function LaunchpadCollaborationCard({
                   type="button"
                   variant={topPick ? "default" : "outline"}
                   className={cn(
-                    "h-8 px-2 text-xs",
+                    "h-9 shrink-0 px-2 text-xs sm:h-8",
                     topPick
                       ? "bg-[#2f6fe4] text-white hover:bg-[#245fca]"
                       : "border-[#e1e7ef] text-[#65758b] hover:bg-[#f8fafc]",
@@ -108,7 +114,7 @@ export default function LaunchpadCollaborationCard({
                 <Button
                   type="button"
                   variant="destructive"
-                  className="h-8 px-2 text-xs border-red-200 text-red-500 hover:bg-red-50"
+                  className="h-9 shrink-0 border-red-200 px-2 text-xs text-red-500 hover:bg-red-50 sm:h-8"
                   onClick={() => removeRole(data.id)}
                 >
                   Remove

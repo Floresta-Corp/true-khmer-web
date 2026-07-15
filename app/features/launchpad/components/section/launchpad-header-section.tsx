@@ -31,7 +31,7 @@ function LaunchpadHeroBackdrop() {
         alt=""
         src={launchpadHeroBackgroundImage}
         animate={floatAnimation}
-        className="absolute inset-[-5%] h-[110%] w-[110%] object-cover object-center"
+        className="absolute inset-[0%] h-[110%] w-[110%] object-cover object-center"
       />
       <div className="absolute inset-0 bg-[linear-gradient(170deg,rgba(255,255,255,0.25)_0%,rgba(255,255,255,0.75)_30%,rgba(255,255,255,1)_100%)]" />
     </div>
@@ -52,7 +52,7 @@ export default function LaunchpadHeaderSection() {
         transition: { duration: 0.2 * dur, ease: "easeInOut" as const },
       }}
       transition={{ duration: 0.4 * dur, ease: "easeInOut" as const }}
-      className="relative flex w-full h-125 justify-center overflow-hidden px-4 py-16 sm:px-6 sm:py-20 lg:py-24"
+      className="relative flex min-h-125 w-full justify-center overflow-hidden px-4 py-16 sm:px-6 sm:py-20 lg:py-24"
     >
       <LaunchpadHeroBackdrop />
 
@@ -71,7 +71,7 @@ export default function LaunchpadHeaderSection() {
           }}
           className="flex flex-col items-center gap-4 sm:gap-5"
         >
-          <h1 className="max-w-3xl text-[clamp(2.25rem,6vw,4.5rem)] font-semibold leading-[0.98] tracking-[-0.05em] text-slate-900 sm:tracking-[-0.06em]">
+          <h1 className="max-w-3xl text-[clamp(2.25rem,6vw,4.5rem)] leading-[0.98] font-semibold tracking-[-0.05em] text-slate-900 sm:tracking-[-0.06em]">
             Where Ideas Take{" "}
             <motion.span
               animate={
@@ -105,7 +105,7 @@ export default function LaunchpadHeaderSection() {
               delay: 0.15 * dur,
               ease: easings.enter,
             }}
-            className="max-w-2xl text-base font-medium leading-7 text-slate-500 sm:text-lg sm:leading-8"
+            className="max-w-2xl text-base leading-7 font-medium text-slate-500 sm:text-lg sm:leading-8"
           >
             Connect with founders, explore the next generation of Khmer impact,
             and find co-operation opportunities.

@@ -10,7 +10,7 @@ export function HomeWelcomeHeroSection({ name }: HomeWelcomeHeroSectionProps) {
   return (
     <section className="relative flex min-h-130 flex-col overflow-hidden bg-white lg:min-h-[max(650px,70vh,34.4vw)]">
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-125 bg-linear-to-r from-[#D5EDFF] to-[#FFFFFF] lg:hidden"
+        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-115 bg-linear-to-r from-[#D5EDFF] to-[#FFFFFF] lg:hidden"
         style={{
           clipPath: "ellipse(120% 100% at 50% 0%)",
         }}

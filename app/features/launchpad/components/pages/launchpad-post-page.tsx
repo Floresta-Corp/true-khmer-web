@@ -318,8 +318,10 @@ export default function LaunchpadPostPage() {
               delay: prefersReducedMotion ? 0 : 0.1,
             }}
           >
-            <div className="text-4xl">Launch a New Project</div>
-            <div className="text-[#65758B]">
+            <div className="text-3xl font-semibold md:text-4xl">
+              Launch a New Project
+            </div>
+            <div className="text-base leading-6 text-[#65758B]">
               Tell the community what you're building and who you need.
             </div>
           </motion.div>

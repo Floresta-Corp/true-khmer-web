@@ -73,7 +73,10 @@ export function VolunteerFeed({ items }: { items: Opportunity[] }) {
   if (items.length === 0) return null;
 
   return (
-    <HomeCarouselSection title="Volunteers">
+    <HomeCarouselSection
+      title="Volunteers"
+      trailing={<SeeMoreTile to="/volunteer/all" width={THREE_UP} />}
+    >
       {items.map((opportunity) => (
         <Slide key={opportunity.id} width={THREE_UP}>
           <OpportunityCard opportunity={opportunity} />

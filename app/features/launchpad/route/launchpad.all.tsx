@@ -45,6 +45,21 @@ export default function LaunchpadAllPage() {
     searchParams.get("search") || "",
   );
 
+  const [openFilterSections, setOpenFilterSections] = useState<string[]>([
+    "sort-by",
+    "category",
+    "location",
+  ]);
+
+  useEffect(() => {
+    const mediaQueryList = window.matchMedia("(max-width: 1023px)");
+    const onChange = () => {
+      if (mediaQueryList.matches) setOpenFilterSections([]);
+    };
+    onChange();
+    mediaQueryList.addEventListener("change", onChange);
+    return () => mediaQueryList.removeEventListener("change", onChange);
+  }, []);
   useEffect(() => {
     setSearchValue(searchParams.get("search") || "");
   }, [searchParams]);
@@ -132,7 +147,7 @@ export default function LaunchpadAllPage() {
             }}
             className="space-y-2 will-change-transform"
           >
-            <h1 className="text-[clamp(1.9rem,3vw,2.5rem)] font-bold leading-tight text-[#020618]">
+            <h1 className="text-[clamp(1.9rem,3vw,2.5rem)] leading-tight font-bold text-[#020618]">
               All Projects
             </h1>
             <motion.p
@@ -161,9 +176,9 @@ export default function LaunchpadAllPage() {
               event.preventDefault();
               handleSearch();
             }}
-            className="flex w-full max-w-md items-center rounded-full border border-[#e2e8f0] bg-white px-3 shadow-[0px_1px_2px_rgba(15,23,42,0.04)] lg:w-md will-change-transform"
+            className="flex w-full max-w-md items-center rounded-full border border-[#e2e8f0] bg-white px-3 shadow-[0px_1px_2px_rgba(15,23,42,0.04)] will-change-transform lg:w-md"
           >
-            <Search className="ml-1 mr-2.5 size-[17.5px] shrink-0 text-[#94a3b8]" />
+            <Search className="mr-2.5 ml-1 size-[17.5px] shrink-0 text-[#94a3b8]" />
             <Input
               type="search"
               value={searchValue}
@@ -193,14 +208,15 @@ export default function LaunchpadAllPage() {
               <Button
                 variant="ghost"
                 onClick={handleClearAll}
-                className="text-xs font-semibold cursor-pointer text-[#2463eb] hover:text-[#1d4ed8]"
+                className="cursor-pointer text-xs font-semibold text-[#2463eb] hover:text-[#1d4ed8]"
               >
                 Clear all
               </Button>
             </div>
             <Accordion
               type="multiple"
-              defaultValue={["sort-by", "category", "location"]}
+              value={openFilterSections}
+              onValueChange={setOpenFilterSections}
               className="mt-1 gap-0"
             >
               <AccordionItem
@@ -210,7 +226,7 @@ export default function LaunchpadAllPage() {
                 <AccordionTrigger className="py-4 text-[13px] font-bold text-[#020618] hover:no-underline">
                   Sort by
                 </AccordionTrigger>
-                <AccordionContent className="pb-4 pt-1">
+                <AccordionContent className="pt-1 pb-4">
                   <RadioGroup
                     value={activeSort}
                     onValueChange={handleSortChange}
@@ -241,7 +257,7 @@ export default function LaunchpadAllPage() {
                 <AccordionTrigger className="py-4 text-[13px] font-bold text-[#020618] hover:no-underline">
                   Categories
                 </AccordionTrigger>
-                <AccordionContent className="pb-4 pt-1">
+                <AccordionContent className="pt-1 pb-4">
                   <RadioGroup
                     value={activeCategoryId || "all-categories"}
                     onValueChange={(v) =>
@@ -281,7 +297,7 @@ export default function LaunchpadAllPage() {
                 <AccordionTrigger className="py-4 text-[13px] font-bold text-[#020618] hover:no-underline">
                   Location
                 </AccordionTrigger>
-                <AccordionContent className="pb-4 pt-1">
+                <AccordionContent className="pt-1 pb-4">
                   <RadioGroup
                     value={activeLocationId || "all-locations"}
                     onValueChange={(v) =>

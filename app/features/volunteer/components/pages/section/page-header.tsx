@@ -38,10 +38,10 @@ export default function PageHeader({
         }}
       >
         <section className="flex flex-col gap-1.75">
-          <h1 className="text-[32px] font-semibold leading-[38.4px] tracking-[-0.8px] text-[#030213]">
+          <h1 className="text-3xl leading-[38.4px] font-semibold tracking-[-0.8px] text-[#030213] md:text-4xl">
             {title}
           </h1>
-          <p className="text-base font-medium leading-6 text-[#65758B]">
+          <p className="text-base leading-6 font-medium text-[#65758B]">
             {subtitle}
           </p>
         </section>

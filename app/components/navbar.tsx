@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router";
+import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
   Mail,
@@ -11,7 +12,6 @@ import {
   TvMinimalPlay,
   UserRound,
   CircleUser,
-  Users,
 } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 import NotificationBellPopOver from "~/components/notification-bell-pop-over";
@@ -47,25 +47,56 @@ function isInSection(pathname: string, sectionPaths: string[]) {
   );
 }
 
+const LAST_SECTION_STORAGE_KEY = "navbar:last-section";
+type NavSection = "myspace" | "workspace";
+
 export function Navbar({ user, loginRedirectTo }: NavbarProps) {
   const location = useLocation();
 
   const isInMySpace = isInSection(location.pathname, MYSPACE_SECTION_PATHS);
   const isInWorkspace = isInSection(location.pathname, WORKSPACE_SECTION_PATHS);
 
-  const sectionLink: NavLink = isInMySpace
-    ? {
-        to: "/myspace",
-        label: "My space",
-        icon: UserRound,
-        forceActive: true,
-      }
-    : {
-        to: "/manage-post",
-        label: "Workspace",
-        icon: LayoutDashboard,
-        forceActive: isInWorkspace,
-      };
+  const [lastSection, setLastSection] = useState<NavSection>("myspace");
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem(LAST_SECTION_STORAGE_KEY);
+    if (stored === "myspace" || stored === "workspace") {
+      setLastSection(stored);
+    }
+  }, []);
+
+  useEffect(() => {
+    const currentSection: NavSection | null = isInMySpace
+      ? "myspace"
+      : isInWorkspace
+        ? "workspace"
+        : null;
+    if (currentSection) {
+      setLastSection(currentSection);
+      window.localStorage.setItem(LAST_SECTION_STORAGE_KEY, currentSection);
+    }
+  }, [isInMySpace, isInWorkspace]);
+
+  const activeSection: NavSection = isInMySpace
+    ? "myspace"
+    : isInWorkspace
+      ? "workspace"
+      : lastSection;
+
+  const sectionLink: NavLink =
+    activeSection === "myspace"
+      ? {
+          to: "/myspace",
+          label: "My space",
+          icon: UserRound,
+          forceActive: isInMySpace,
+        }
+      : {
+          to: "/manage-post",
+          label: "Workspace",
+          icon: LayoutDashboard,
+          forceActive: isInWorkspace,
+        };
 
   const navLinks: NavLink[] = [
     { ...sectionLink, hide: !user },
@@ -76,8 +107,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
     // { to: "/events", label: "Events", icon: Calendar },
     { to: "/volunteer", label: "Volunteer", icon: HeartHandshake },
     { to: "/launchpad", label: "Launchpad", icon: BriefcaseBusiness },
-    { to: "/community", label: "Community", icon: Users },
-    { to: "/about", label: "About", icon: CircleUser },
+    { to: "/about", label: "About", icon: CircleUser, hide: !!user },
     { to: "/poc", label: "POC", icon: TvMinimalPlay, hide: true },
   ];
 
@@ -129,7 +159,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
           </nav>
 
           {/* Right side */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             {user ? (
               <>
                 {/* Notification icons */}
@@ -171,8 +201,8 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
       </header>
 
       {/* Mobile Bottom Navigation Bar */}
-      <nav className="fixed right-0 bottom-0 left-0 z-50 border-t border-gray-200 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] md:hidden">
-        <div className="flex h-16 items-center justify-around px-1">
+      <nav className="fixed right-3 bottom-2.5 left-3 z-50 rounded-[24px] border-t border-gray-200 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] md:hidden">
+        <div className="flex h-16 items-center justify-around gap-1.5 px-4">
           {navLinks.map((link) => {
             if (link.hide) return null;
             const isActive =
@@ -186,7 +216,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                 key={link.to}
                 to={link.to}
                 className={cn(
-                  "flex flex-1 flex-col items-center justify-center gap-0.5 py-1 text-[10px] font-semibold transition-colors",
+                  "flex flex-1 flex-col items-center justify-center gap-0.5 py-1 text-[11px] font-semibold transition-colors",
                   isActive ? "text-blue-600" : "text-gray-400",
                 )}
               >

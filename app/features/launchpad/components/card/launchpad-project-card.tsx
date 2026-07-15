@@ -131,15 +131,15 @@ export default function LaunchpadProjectCard({
             </div>
             <div className="mt-4 flex w-full items-center justify-between text-xs text-[#9EACC0]">
               <div className="flex items-center gap-1.75">
-                <Eye size={14} />
-                <div className="font-semibold">
-                  {item.totalView.toLocaleString()} Views
-                </div>
-              </div>
-              <div className="flex items-center gap-1.75">
                 <div>Application close:</div>
                 <div className="font-semibold text-[#65758b]">
                   {formatDate(item.deadline)}
+                </div>
+              </div>
+              <div className="flex items-center gap-1.75">
+                <Eye size={14} />
+                <div className="font-semibold">
+                  {item.totalView.toLocaleString()} Views
                 </div>
               </div>
             </div>

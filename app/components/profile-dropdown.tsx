@@ -21,7 +21,6 @@ import { Button } from "./ui/button";
 import type { AuthenticatedUser } from "~/lib/server/types";
 import { cn } from "~/lib/utils";
 import { useUserDisplay } from "~/hooks/use-user-display";
-import { Toggle } from "./ui/toggle";
 
 interface ProfileDropDownProps {
   user: AuthenticatedUser;
@@ -81,7 +80,7 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
         forceMount
       >
         {/* Profile Section */}
-        <div className="flex items-center gap-3 px-5 py-8">
+        <div className="flex items-center gap-3 px-5 py-5">
           <Avatar className="size-11 border border-[#f9fafb]">
             <AvatarImage
               src={profileImage || undefined}
@@ -96,7 +95,7 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
             <span className="text-sm leading-3 font-semibold text-[#344256]">
               {displayName}
             </span>
-            <span className="text-sm leading-3 font-semibold text-[#65758b]">
+            <span className="text-xs leading-3 font-semibold text-[#65758b]">
               {user.email}
             </span>
           </div>

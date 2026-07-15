@@ -73,7 +73,7 @@ function DiscussionHeading({ question }: { question: DiscussionQuestion }) {
 
   return (
     <>
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-lg font-bold leading-none text-[#1A73E8]">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-lg leading-none font-bold text-[#1A73E8]">
         ?
       </span>
       <span className="min-w-0 flex-1">
@@ -87,7 +87,7 @@ function DiscussionHeading({ question }: { question: DiscussionQuestion }) {
               goToDiscussion(e);
             }
           }}
-          className="block w-fit cursor-pointer text-base font-semibold text-[#1f2937] hover:text-blue-600 hover:underline transition-colors"
+          className="block w-fit cursor-pointer text-base font-semibold text-[#1f2937] transition-colors hover:text-blue-600 hover:underline"
         >
           {question.title}
         </span>
@@ -116,7 +116,7 @@ function AnswerActionsMenu({
         <button
           type="button"
           aria-label="Answer options"
-          className="cursor-pointer shrink-0 rounded-lg p-1 text-[#99a1af] outline-none hover:bg-[#f1f5f9] hover:text-[#344256] focus-visible:ring-2 focus-visible:ring-blue-500/40"
+          className="shrink-0 cursor-pointer rounded-lg p-1 text-[#99a1af] outline-none hover:bg-[#f1f5f9] hover:text-[#344256] focus-visible:ring-2 focus-visible:ring-blue-500/40"
         >
           <MoreVertical size={16} />
         </button>
@@ -165,7 +165,7 @@ function AnswerRow({
   return (
     <li className="relative pl-6">
       {/* Timeline dot */}
-      <span className="absolute left-0 top-1.5 size-2.5 rounded-full bg-blue-500 ring-4 ring-white" />
+      <span className="absolute top-1.5 left-0 size-2.5 rounded-full bg-blue-500 ring-4 ring-white" />
 
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
@@ -183,7 +183,7 @@ function AnswerRow({
           </Link>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex shrink-0 items-center gap-2">
           <AnswerVoteComponent
             answerId={answer.id}
             score={answer.score}
@@ -201,7 +201,7 @@ function ViewFullDiscussion({ questionId }: { questionId: string }) {
   return (
     <Link
       to={`/forum/detail/${questionId}`}
-      className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+      className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 transition-colors hover:text-blue-700"
     >
       View full discussion
       <ExternalLink size={14} />
@@ -253,7 +253,7 @@ export default function WorkspaceDiscussionCard({
                   {timeAgo(answer.createdAt)}
                 </span>
               </p>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex shrink-0 items-center gap-2">
                 <AnswerVoteComponent
                   answerId={answer.id}
                   score={answer.score}
@@ -295,13 +295,13 @@ export default function WorkspaceDiscussionCard({
 
           <AccordionContent className="px-4 pb-0 sm:px-6">
             <div className="border-t border-slate-100 pt-4">
-              <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-[#9ca3af]">
+              <p className="mb-4 text-xs font-semibold tracking-wide text-[#9ca3af] uppercase">
                 Your answers in this discussion
               </p>
 
               <ul className="relative space-y-5">
                 {/* Connecting line behind the timeline dots */}
-                <span className="absolute left-1.25 top-2 bottom-2 w-px bg-slate-200" />
+                <span className="absolute top-2 bottom-2 left-1.25 w-px bg-slate-200" />
                 {answers.map((answer) => (
                   <AnswerRow
                     key={answer.id}
@@ -328,7 +328,7 @@ export default function WorkspaceDiscussionCard({
           <button
             type="button"
             onClick={() => setOpenValue(itemValue)}
-            className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+            className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-blue-600 transition-colors hover:text-blue-700"
           >
             View your answer
             <ChevronDown size={16} />
