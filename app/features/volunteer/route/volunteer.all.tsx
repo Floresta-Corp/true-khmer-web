@@ -57,16 +57,13 @@ export default function VolunteerAllPage() {
   );
   const [showAllLocations, setShowAllLocations] = useState(false);
   const ALL_SECTIONS = ["sort-by", "cause-area", "location", "time-commitment"];
-  const [openFilterSections, setOpenFilterSections] = useState(() =>
-    typeof window !== "undefined" &&
-    window.matchMedia("(max-width: 1023px)").matches
-      ? []
-      : ALL_SECTIONS,
-  );
+  const [openFilterSections, setOpenFilterSections] =
+    useState<string[]>(ALL_SECTIONS);
   useEffect(() => {
     const mediaQueryList = window.matchMedia("(max-width: 1023px)");
     const onChange = () =>
       setOpenFilterSections(mediaQueryList.matches ? [] : ALL_SECTIONS);
+    onChange();
     mediaQueryList.addEventListener("change", onChange);
     return () => mediaQueryList.removeEventListener("change", onChange);
   }, []);
