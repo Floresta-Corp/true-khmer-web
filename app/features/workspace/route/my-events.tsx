@@ -161,7 +161,7 @@ function EventCard({
             isList ? "aspect-4/3 md:aspect-auto md:h-full" : "aspect-4/3",
           )}
         />
-        <div className="absolute left-3 top-3 flex items-center gap-2">
+        <div className="absolute top-3 left-3 flex items-center gap-2">
           <Badge
             className={cn(
               "rounded-full border-0 px-2.5 py-1 text-[11px] font-semibold shadow-sm hover:bg-white",
@@ -189,7 +189,7 @@ function EventCard({
           type="button"
           variant="ghost"
           size="icon"
-          className="absolute right-3 top-3 h-7 w-7 rounded-full bg-white/90 text-[#64748B] shadow-sm hover:bg-white"
+          className="absolute top-3 right-3 h-7 w-7 rounded-full bg-white/90 text-[#64748B] shadow-sm hover:bg-white"
         >
           <EllipsisVertical className="size-4" />
         </Button>
@@ -198,7 +198,7 @@ function EventCard({
       <CardContent className={cn("flex-1 p-4", isList ? "md:p-5" : "")}>
         <div className="flex h-full flex-col">
           <div className="min-w-0">
-            <h3 className="truncate text-[20px] font-semibold leading-tight text-[#182031]">
+            <h3 className="truncate text-[20px] leading-tight font-semibold text-[#182031]">
               {event.title}
             </h3>
             <div className="mt-3 space-y-2 text-sm text-[#7B8BA0]">
@@ -235,7 +235,7 @@ function EventCard({
                 <span>{event.kind}</span>
               </div>
               {event.archived && (
-                <span className="text-xs font-medium uppercase tracking-[0.12em] text-[#9AA7B8]">
+                <span className="text-xs font-medium tracking-[0.12em] text-[#9AA7B8] uppercase">
                   Archived
                 </span>
               )}
@@ -340,12 +340,12 @@ export default function MyEventsPage() {
 
         <div className="flex flex-col gap-3 md:flex-row md:items-center">
           <div className="relative w-full md:w-90">
-            <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#C3CEDA]" />
+            <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-[#C3CEDA]" />
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search..."
-              className="h-11 rounded-full border-white bg-white pl-11 pr-4 shadow-sm placeholder:text-[#C3CEDA]"
+              className="h-11 rounded-full border-white bg-white pr-4 pl-11 shadow-sm placeholder:text-[#C3CEDA]"
             />
           </div>
 
