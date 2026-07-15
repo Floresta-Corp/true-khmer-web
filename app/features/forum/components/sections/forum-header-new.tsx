@@ -5,7 +5,7 @@ import { motion, useReducedMotion } from "motion/react";
 import AskQuestionDialog from "../dialog/ask-question-dialog";
 import type { loader } from "../../route/forum.new";
 
-const heroBackgroundImage = "/images/hero-background-image.jpg";
+const heroBackgroundImage = "/images/hero-background-image.webp";
 const avatarImage = "/images/forum-avatar.jpg";
 const trendingIcon = "/icons/apollo-icon.svg";
 const activeIcon = "/icons/conversation-icon.svg";
@@ -112,7 +112,7 @@ export default function ForumHeaderNew() {
           }}
           className="flex w-full max-w-2xl flex-col gap-4 md:flex-row md:items-center md:justify-center"
         >
-          <div className="flex h-12 flex-1 items-center gap-3 rounded-lg border border-[#e1e7ef] bg-white pl-3 pr-2 py-3  md:rounded-xl">
+          <div className="flex h-12 flex-1 items-center gap-3 rounded-lg border border-[#e1e7ef] bg-white py-3 pr-2 pl-3 md:rounded-xl">
             <Search className="size-4.5 shrink-0 text-[#8f9294]" />
             <input
               type="search"
@@ -158,7 +158,7 @@ export default function ForumHeaderNew() {
             trigger={
               <button
                 type="button"
-                className="inline-flex h-8 md:h-12 items-center justify-center gap-2 rounded-lg md:rounded-xl bg-[#0050d4] px-6 text-base font-semibold text-[#f1f2ff] transition-colors hover:bg-[#0044b4]"
+                className="inline-flex h-8 items-center justify-center gap-2 rounded-lg bg-[#0050d4] px-6 text-base font-semibold text-[#f1f2ff] transition-colors hover:bg-[#0044b4] md:h-12 md:rounded-xl"
               >
                 <span className="text-[18px] leading-none">+</span>
                 Ask a Question
@@ -184,7 +184,7 @@ export default function ForumHeaderNew() {
               delay: 0.5,
             },
           }}
-          className="pointer-events-none absolute -left-2 top-8 hidden rotate-6 rounded-xl border border-[#d5e2fa] bg-white/80 p-4 shadow-[0px_32px_64px_0px_rgba(44,47,49,0.06)] backdrop-blur-sm lg:block"
+          className="pointer-events-none absolute top-8 -left-2 hidden rotate-6 rounded-xl border border-[#d5e2fa] bg-white/80 p-4 shadow-[0px_32px_64px_0px_rgba(44,47,49,0.06)] backdrop-blur-sm lg:block"
         >
           <div className="flex items-center gap-3">
             <img
@@ -219,7 +219,7 @@ export default function ForumHeaderNew() {
               delay: 0.3,
             },
           }}
-          className="pointer-events-none absolute -right-5 top-0 hidden rotate-12 rounded-[14.5px] border border-[#d5edff] bg-white/70 p-5 shadow-[0px_38px_77px_0px_rgba(44,47,49,0.06)] backdrop-blur-md lg:block"
+          className="pointer-events-none absolute top-0 -right-5 hidden rotate-12 rounded-[14.5px] border border-[#d5edff] bg-white/70 p-5 shadow-[0px_38px_77px_0px_rgba(44,47,49,0.06)] backdrop-blur-md lg:block"
         >
           <div className="flex flex-col gap-2.5">
             <div className="flex items-center gap-2.5">

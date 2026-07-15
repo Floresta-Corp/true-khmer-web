@@ -17,19 +17,19 @@ const PILLARS: Pillar[] = [
     title: "Support",
     description:
       "A growing network of businesses and individuals united by True Khmer's mission, recognized through physical and digital badges.",
-    image: "/images/Support.png",
+    image: "/images/Support.webp",
   },
   {
     title: "Activation",
     description:
       "National bi-monthly campaigns driving public conversations on Khmer identity, generational dialogue, and reimagining cultural legacy as a force for growth.",
-    image: "/images/Activation.png",
+    image: "/images/Activation.webp",
   },
   {
     title: "Reward",
     description:
       "A Cambodian award ceremony recognizing those who have contributed to the country's development and its journey toward ambitious goals.",
-    image: "/images/Reward.png",
+    image: "/images/Reward.webp",
   },
 ];
 

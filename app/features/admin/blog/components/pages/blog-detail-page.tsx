@@ -68,7 +68,7 @@ export function BlogDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-full space-y-6 bg-[#f8fafc] p-6 text-slate-950 dark:bg-slate-950 dark:text-slate-100">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -105,13 +105,13 @@ export function BlogDetailPage() {
               {post.placement.toLowerCase()}
             </Badge>
           </div>
-          <h1 className="text-4xl font-bold text-(--blog-secondary)">
+          <h1 className="text-4xl font-bold text-(--blog-secondary) dark:text-blue-300">
             {post.title}
           </h1>
-          <p className="mt-3 max-w-3xl text-lg text-foreground/70">
+          <p className="mt-3 max-w-3xl text-lg text-slate-600 dark:text-slate-300">
             {post.excerpt}
           </p>
-          <div className="mt-4 text-sm text-foreground/60">
+          <div className="mt-4 text-sm text-slate-500 dark:text-slate-400">
             {post.authorName}
             {post.authorRole ? ` • ${post.authorRole}` : ""}
             {" • "}
@@ -135,14 +135,14 @@ export function BlogDetailPage() {
       </div>
 
       {post.coverImageUrl ? (
-        <figure className="overflow-hidden rounded-[2rem] border border-border bg-background shadow-sm">
+        <figure className="overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
           <img
             src={post.coverImageUrl}
             alt={post.coverImageAlt || post.title}
             className="h-[420px] w-full object-cover"
           />
           {post.coverImageCaption ? (
-            <figcaption className="px-6 py-4 text-center text-sm text-[#8f857c] italic">
+            <figcaption className="px-6 py-4 text-center text-sm text-slate-500 italic dark:text-slate-400">
               {post.coverImageCaption}
             </figcaption>
           ) : null}
@@ -150,7 +150,7 @@ export function BlogDetailPage() {
       ) : null}
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <Card className="rounded-[2rem] p-6 lg:p-10">
+        <Card className="rounded-[2rem] border-slate-100 bg-white p-6 lg:p-10 dark:border-slate-800 dark:bg-slate-900">
           <SanitizedHtml
             html={post.content}
             className="blog-rich-text max-w-none"
@@ -160,7 +160,7 @@ export function BlogDetailPage() {
         </Card>
 
         <div className="space-y-6">
-          <Card className="rounded-[2rem] p-6">
+          <Card className="rounded-[2rem] border-slate-100 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
             <h2 className="text-lg font-semibold">Publishing</h2>
             <div className="mt-4 space-y-3 text-sm">
               <div>
@@ -186,7 +186,7 @@ export function BlogDetailPage() {
             </div>
           </Card>
 
-          <Card className="rounded-[2rem] p-6">
+          <Card className="rounded-[2rem] border-slate-100 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
             <h2 className="text-lg font-semibold">Category</h2>
             <div className="mt-4">
               {post.categoryName ? (
@@ -194,12 +194,14 @@ export function BlogDetailPage() {
                   {post.categoryName}
                 </Badge>
               ) : (
-                <span className="text-sm text-foreground/60">No category</span>
+                <span className="text-sm text-slate-500 dark:text-slate-400">
+                  No category
+                </span>
               )}
             </div>
           </Card>
 
-          <Card className="rounded-[2rem] p-6">
+          <Card className="rounded-[2rem] border-slate-100 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
             <h2 className="text-lg font-semibold">Tags</h2>
             <div className="mt-4 flex flex-wrap gap-2">
               {post.tags.length > 0 ? (
@@ -209,7 +211,9 @@ export function BlogDetailPage() {
                   </Badge>
                 ))
               ) : (
-                <span className="text-sm text-foreground/60">No tags</span>
+                <span className="text-sm text-slate-500 dark:text-slate-400">
+                  No tags
+                </span>
               )}
             </div>
           </Card>

@@ -22,7 +22,7 @@ const floatAnimation = {
   },
 };
 
-const volunteerHeroBackgroundImage = "/images/volunteer-header-background.png";
+const volunteerHeroBackgroundImage = "/images/volunteer-header-background.webp";
 
 function VolunteerHeroBackdrop() {
   return (
@@ -72,22 +72,22 @@ function VolunteerSearchForm({
       }}
       className="w-full max-w-107.5"
     >
-      <div className="flex w-full items-stretch overflow-hidden rounded-[22px] border border-slate-200/80 bg-white p-2 shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur-sm transition-shadow duration-300 ease-out has-[button:hover]:shadow-[0_18px_50px_rgba(36,99,235,0.12)] has-[button:focus-visible]:shadow-[0_18px_50px_rgba(36,99,235,0.12)]">
+      <div className="flex w-full items-stretch overflow-hidden rounded-[22px] border border-slate-200/80 bg-white p-2 shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur-sm transition-shadow duration-300 ease-out has-[button:focus-visible]:shadow-[0_18px_50px_rgba(36,99,235,0.12)] has-[button:hover]:shadow-[0_18px_50px_rgba(36,99,235,0.12)]">
         <div className="relative min-w-0 flex-1">
-          <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+          <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-slate-400" />
           <Input
             type="search"
             value={searchValue}
             onChange={(event) => onSearchValueChange(event.currentTarget.value)}
             placeholder="Search by cause or location..."
             aria-label="Search volunteer opportunities"
-            className="h-12 border-0 bg-transparent pl-11 pr-4 text-sm font-medium text-slate-700 placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="h-12 border-0 bg-transparent pr-4 pl-11 text-sm font-medium text-slate-700 placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0"
           />
         </div>
         <Button
           type="submit"
           size="lg"
-          className="cursor-pointer h-12 rounded-[16px] bg-[#2463eb] px-6 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(36,99,235,0.18)] transition-transform duration-200 hover:-translate-y-px hover:bg-[#1d56d2]"
+          className="h-12 cursor-pointer rounded-[16px] bg-[#2463eb] px-6 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(36,99,235,0.18)] transition-transform duration-200 hover:-translate-y-px hover:bg-[#1d56d2]"
           style={{ transitionDuration: dur ? "200ms" : "0ms" }}
         >
           Explore
@@ -112,7 +112,7 @@ function VolunteerPostButton({ to, dur }: { to: string; dur: number }) {
         delay: 0.35 * dur,
         ease: easings.enter,
       }}
-      className="w-full md:w-auto rounded-[18px]"
+      className="w-full rounded-[18px] md:w-auto"
     >
       <Button
         asChild
@@ -203,7 +203,7 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
           }}
           className="flex flex-col items-center gap-4 sm:gap-5"
         >
-          <h1 className="max-w-3xl text-[clamp(2.25rem,6vw,4.5rem)] font-semibold leading-[0.98] tracking-[-0.05em] text-slate-900 sm:tracking-[-0.06em]">
+          <h1 className="max-w-3xl text-[clamp(2.25rem,6vw,4.5rem)] leading-[0.98] font-semibold tracking-[-0.05em] text-slate-900 sm:tracking-[-0.06em]">
             Make an impact that{" "}
             <motion.span
               animate={
@@ -237,7 +237,7 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
               delay: 0.15 * dur,
               ease: easings.enter,
             }}
-            className="max-w-2xl text-base font-medium leading-7 text-slate-500 sm:text-lg sm:leading-8"
+            className="max-w-2xl text-base leading-7 font-medium text-slate-500 sm:text-lg sm:leading-8"
           >
             Find meaningful ways to give back. Explore opportunities that match
             your skills and make a real difference.
@@ -265,7 +265,7 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
               delay: 0.3 * dur,
               ease: easings.enter,
             }}
-            className="flex w-full max-w-[18rem] items-center gap-4 px-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400 sm:max-w-[20rem]"
+            className="flex w-full max-w-[18rem] items-center gap-4 px-2 text-[11px] font-semibold tracking-[0.24em] text-slate-400 uppercase sm:max-w-[20rem]"
           >
             <motion.span
               initial={{ scaleX: 0 }}
@@ -283,7 +283,7 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
                   repeat: Infinity,
                 },
               }}
-              className="h-px origin-left flex-1 bg-slate-200"
+              className="h-px flex-1 origin-left bg-slate-200"
             />
             <motion.span
               initial={{ opacity: 0, scale: 0.5 }}
@@ -313,7 +313,7 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
                   delay: 2,
                 },
               }}
-              className="h-px origin-right flex-1 bg-slate-200"
+              className="h-px flex-1 origin-right bg-slate-200"
             />
           </motion.div>
 

@@ -221,6 +221,12 @@ body {
   --blog-primary: #1c97d4;
   --blog-secondary: #243d95;
   --blog-content: oklch(21% 0.034 264.665);
+  --blog-surface: white;
+}
+
+.dark {
+  --blog-content: oklch(87% 0.02 253);
+  --blog-surface: oklch(20.8% 0.042 265.755);
 }
 
 .blog-compose-title {
@@ -272,7 +278,7 @@ body {
   float: left;
   height: 0;
   pointer-events: none;
-  color: #7a7a7a;
+  color: color-mix(in oklab, var(--blog-content) 52%, transparent);
 }
 
 .blog-rich-text .ql-align-center {
@@ -386,7 +392,7 @@ body {
 .blog-rich-text blockquote {
   border-left: 0;
   border-radius: 1.5rem;
-  background: color-mix(in oklab, var(--blog-primary) 10%, white);
+  background: color-mix(in oklab, var(--blog-primary) 10%, var(--blog-surface));
   padding: 1.5rem 1.75rem;
 }
 
@@ -401,7 +407,7 @@ body {
 .blog-tiptap code,
 .blog-rich-text code {
   border-radius: 0.45rem;
-  background: color-mix(in oklab, var(--blog-primary) 12%, white);
+  background: color-mix(in oklab, var(--blog-primary) 12%, var(--blog-surface));
   padding: 0.1rem 0.4rem;
   font-size: 0.95em;
   color: var(--blog-primary);

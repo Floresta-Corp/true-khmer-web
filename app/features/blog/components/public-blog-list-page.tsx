@@ -10,7 +10,7 @@ import { formatDate } from "~/lib/time";
 import type { blogLoader } from "../services/blog.loader";
 import { PublicBlogCard } from "./public-blog-card";
 
-const FALLBACK_BLOG_IMAGE = "/images/hero-background-image.jpg";
+const FALLBACK_BLOG_IMAGE = "/images/hero-background-image.webp";
 
 function buildBlogUrl(input: {
   page?: number;

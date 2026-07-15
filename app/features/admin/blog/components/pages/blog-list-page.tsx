@@ -24,6 +24,15 @@ import { formatDate } from "~/lib/time";
 import { toast } from "sonner";
 import type { blogLoader } from "../../services/blog.loader";
 
+const postStatusStyles = {
+  DRAFT:
+    "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-900/60 dark:bg-sky-950/40 dark:text-sky-300",
+  PUBLISHED:
+    "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300",
+  ARCHIVED:
+    "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300",
+} as const;
+
 export function BlogListPage() {
   const { posts, meta, categories, currentUserId, filters } =
     useLoaderData<typeof blogLoader>();
@@ -128,16 +137,19 @@ export function BlogListPage() {
       <div className="mx-auto w-full max-w-[1400px] space-y-6 lg:space-y-8">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl dark:text-white">
               Blogs
             </h1>
-            <p className="mt-1 max-w-4xl text-sm leading-6 text-foreground/60 sm:text-base">
+            <p className="mt-1 max-w-4xl text-sm leading-6 text-slate-500 sm:text-base dark:text-slate-400">
               Moderators can draft, publish, and manage long-form editorial blog
               posts here. Published blogs can be featured one at a time from the
               list below.
             </p>
           </div>
-          <Button asChild className="h-10 w-full shrink-0 px-4 sm:w-auto">
+          <Button
+            asChild
+            className="h-10 w-full shrink-0 bg-blue-600 px-4 text-white hover:bg-blue-700 sm:w-auto dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"
+          >
             <Link to="/tk-admin/blog/new">
               <Plus className="size-4.5" />
               New Blog
@@ -145,15 +157,15 @@ export function BlogListPage() {
           </Button>
         </header>
 
-        <Card className="overflow-hidden rounded-2xl border-border bg-background shadow-sm">
+        <Card className="overflow-hidden rounded-2xl border-slate-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
           <div className="p-4 sm:p-6">
-            <section className="mb-5 rounded-2xl border border-border bg-muted/20 p-4 sm:mb-6 sm:p-5 lg:p-6">
+            <section className="mb-5 rounded-2xl border border-slate-100 bg-slate-50/60 p-4 sm:mb-6 sm:p-5 lg:p-6 dark:border-slate-800 dark:bg-slate-950/50">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
                 <div className="min-w-0 lg:flex-1">
-                  <h2 className="text-xl font-semibold text-foreground">
+                  <h2 className="text-xl font-semibold text-slate-950 dark:text-white">
                     Categories
                   </h2>
-                  <p className="mt-1 max-w-2xl text-sm text-foreground/60">
+                  <p className="mt-1 max-w-2xl text-sm text-slate-500 dark:text-slate-400">
                     Moderators control which categories appear in the public
                     blog filter and inside the editor category dropdown.
                   </p>
@@ -170,12 +182,12 @@ export function BlogListPage() {
                     value={newCategoryName}
                     onChange={(event) => setNewCategoryName(event.target.value)}
                     placeholder="Add a new category"
-                    className="h-10 min-w-0 flex-1"
+                    className="h-10 min-w-0 flex-1 border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
                   />
                   <Button
                     type="submit"
                     disabled={categoryFetcher.state !== "idle"}
-                    className="h-10 w-full px-4 whitespace-nowrap sm:w-auto"
+                    className="h-10 w-full bg-blue-600 px-4 whitespace-nowrap text-white hover:bg-blue-700 sm:w-auto dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"
                   >
                     Create Category
                   </Button>
@@ -183,7 +195,7 @@ export function BlogListPage() {
               </div>
 
               {categoryError ? (
-                <div className="mt-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div className="mt-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300">
                   {categoryError}
                 </div>
               ) : null}
@@ -193,7 +205,7 @@ export function BlogListPage() {
                   categories.map((category) => (
                     <div
                       key={category.id}
-                      className="flex w-full min-w-0 flex-wrap items-center gap-2 rounded-2xl border border-border bg-background px-3 py-3 shadow-sm sm:w-auto sm:gap-3 sm:rounded-full sm:px-4"
+                      className="flex w-full min-w-0 flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 transition-colors sm:w-auto sm:gap-3 sm:px-4 dark:border-slate-700 dark:bg-slate-900"
                     >
                       {editingCategoryId === category.id ? (
                         <categoryFetcher.Form
@@ -217,13 +229,18 @@ export function BlogListPage() {
                             className="min-w-0 flex-1 sm:w-44 sm:flex-none"
                             aria-label={`Edit ${category.name} category`}
                           />
-                          <Button type="submit" size="xs">
+                          <Button
+                            type="submit"
+                            size="xs"
+                            className="bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"
+                          >
                             Save
                           </Button>
                           <Button
                             type="button"
                             size="xs"
                             variant="ghost"
+                            className="text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
                             onClick={() => setEditingCategoryId(null)}
                           >
                             Cancel
@@ -231,23 +248,26 @@ export function BlogListPage() {
                         </categoryFetcher.Form>
                       ) : (
                         <div className="min-w-0 flex-1 sm:flex-none">
-                          <div className="text-sm font-semibold break-words text-foreground">
+                          <div className="text-sm font-semibold break-words text-slate-950 dark:text-slate-100">
                             {category.name}
                           </div>
-                          <div className="text-xs text-foreground/55">
+                          <div className="text-xs text-slate-500 dark:text-slate-400">
                             {category.postCount} article
                             {category.postCount === 1 ? "" : "s"}
                           </div>
                         </div>
                       )}
                       <Badge
-                        variant={category.isVisible ? "default" : "secondary"}
-                        className={`rounded-full ${
+                        variant="outline"
+                        className={`gap-1.5 rounded-lg px-2 py-1 text-[10px] font-bold tracking-wider uppercase ${
                           category.isVisible
-                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
-                            : ""
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
+                            : "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
                         }`}
                       >
+                        <span
+                          className={`size-1.5 rounded-full ${category.isVisible ? "bg-emerald-500" : "bg-slate-400"}`}
+                        />
                         {category.isVisible ? "Visible" : "Hidden"}
                       </Badge>
                       {editingCategoryId === category.id ? null : (
@@ -255,6 +275,7 @@ export function BlogListPage() {
                           type="button"
                           size="xs"
                           variant="ghost"
+                          className="rounded-lg px-2.5 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
                           onClick={() => setEditingCategoryId(category.id)}
                         >
                           Edit
@@ -276,14 +297,19 @@ export function BlogListPage() {
                           name="isVisible"
                           value={category.isVisible ? "false" : "true"}
                         />
-                        <Button type="submit" size="xs" variant="outline">
+                        <Button
+                          type="submit"
+                          size="xs"
+                          variant="ghost"
+                          className="rounded-lg px-2.5 text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+                        >
                           {category.isVisible ? "Hide" : "Show"}
                         </Button>
                       </categoryFetcher.Form>
                     </div>
                   ))
                 ) : (
-                  <div className="w-full rounded-xl border border-dashed border-border bg-background px-4 py-5 text-sm leading-6 text-foreground/60">
+                  <div className="w-full rounded-xl border border-dashed border-slate-200 bg-white px-4 py-5 text-sm leading-6 text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
                     No categories yet. Create one so editors can assign blogs to
                     it.
                   </div>
@@ -300,7 +326,7 @@ export function BlogListPage() {
                     value={searchValue}
                     onChange={(event) => setSearchValue(event.target.value)}
                     placeholder="Search by title, excerpt, or author..."
-                    className="pr-9 pl-9"
+                    className="h-10 border-slate-200 bg-white pr-9 pl-9 dark:border-slate-700 dark:bg-slate-950/60"
                   />
                   {searchValue ? (
                     <Button
@@ -318,8 +344,12 @@ export function BlogListPage() {
               </div>
               <Button
                 type="button"
-                variant={hasFilters ? "default" : "outline"}
-                className={`w-full sm:w-auto ${hasFilters ? "bg-(--blog-secondary)" : ""}`}
+                variant="ghost"
+                className={`h-10 w-full rounded-lg border sm:w-auto ${
+                  hasFilters
+                    ? "border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:text-white dark:border-blue-500 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"
+                    : "border-slate-200 bg-white text-slate-700 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-blue-500 dark:hover:bg-blue-950/40 dark:hover:text-blue-300"
+                }`}
                 onClick={() => setShowFilters((current) => !current)}
               >
                 <Filter className="size-4" />
@@ -328,7 +358,7 @@ export function BlogListPage() {
             </div>
 
             {showFilters ? (
-              <div className="mt-4 rounded-2xl bg-muted p-4 sm:p-6">
+              <div className="mt-4 rounded-2xl bg-slate-50 p-4 sm:p-6 dark:bg-slate-950/60">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                   <h3 className="text-lg font-semibold">Filter Options</h3>
                   {hasFilters && (
@@ -348,7 +378,7 @@ export function BlogListPage() {
                     value={filters.status || "all"}
                     onValueChange={(value) => updateQuery("status", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-10 border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
                       <SelectValue placeholder="All statuses" />
                     </SelectTrigger>
                     <SelectContent>
@@ -362,7 +392,7 @@ export function BlogListPage() {
                     value={filters.placement || "all"}
                     onValueChange={(value) => updateQuery("placement", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-10 border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
                       <SelectValue placeholder="All placements" />
                     </SelectTrigger>
                     <SelectContent>
@@ -379,11 +409,11 @@ export function BlogListPage() {
         </Card>
 
         {posts.length === 0 ? (
-          <div className="flex min-h-64 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border bg-background px-5 py-12 text-center sm:min-h-80">
-            <p className="text-lg font-semibold text-foreground sm:text-xl">
+          <div className="flex min-h-64 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-white px-5 py-12 text-center sm:min-h-80 dark:border-slate-800 dark:bg-slate-900">
+            <p className="text-lg font-semibold text-slate-950 sm:text-xl dark:text-white">
               No blogs found
             </p>
-            <p className="max-w-md text-sm leading-6 text-foreground/70 sm:text-base">
+            <p className="max-w-md text-sm leading-6 text-slate-500 sm:text-base dark:text-slate-400">
               Create the first blog for the moderator team.
             </p>
           </div>
@@ -393,7 +423,7 @@ export function BlogListPage() {
               {posts.map((post) => (
                 <Card
                   key={post.id}
-                  className="h-full min-w-0 rounded-2xl border border-border bg-background p-4 shadow-sm sm:p-6"
+                  className="h-full min-w-0 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-colors sm:p-6 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none dark:hover:border-slate-700"
                 >
                   <div className="flex h-full min-w-0 flex-col gap-5 md:flex-row">
                     {post.coverImageUrl ? (
@@ -403,7 +433,7 @@ export function BlogListPage() {
                         className="aspect-video h-auto w-full shrink-0 rounded-xl object-cover md:aspect-auto md:h-52 md:w-56 xl:w-44 2xl:w-52"
                       />
                     ) : (
-                      <div className="flex aspect-video h-auto w-full shrink-0 flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/45 px-4 text-center text-foreground/45 md:aspect-auto md:h-52 md:w-56 xl:w-44 2xl:w-52">
+                      <div className="flex aspect-video h-auto w-full shrink-0 flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 text-center text-slate-400 md:aspect-auto md:h-52 md:w-56 xl:w-44 2xl:w-52 dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-500">
                         <div className="text-sm font-medium">
                           No cover image
                         </div>
@@ -414,45 +444,74 @@ export function BlogListPage() {
                     )}
                     <div className="flex min-w-0 flex-1 flex-col">
                       <div className="mb-3 flex flex-wrap gap-2">
-                        <Badge variant="outline" className="capitalize">
+                        <Badge
+                          variant="outline"
+                          className={`gap-1.5 rounded-lg px-2 py-1 text-[10px] font-bold tracking-wider uppercase ${postStatusStyles[post.status]}`}
+                        >
+                          <span
+                            className={`size-1.5 rounded-full ${
+                              post.status === "PUBLISHED"
+                                ? "bg-emerald-500"
+                                : post.status === "ARCHIVED"
+                                  ? "bg-rose-500"
+                                  : "bg-sky-500"
+                            }`}
+                          />
                           {post.status.toLowerCase()}
                         </Badge>
-                        <Badge variant="secondary" className="capitalize">
+                        <Badge
+                          variant="outline"
+                          className="rounded-lg border-slate-200 bg-slate-100 px-2 py-1 text-[10px] font-bold tracking-wider text-slate-600 uppercase dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                        >
                           {post.placement.toLowerCase()}
                         </Badge>
                         {post.categoryId ? (
-                          <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400">
+                          <Badge
+                            variant="outline"
+                            className="rounded-lg border-amber-200 bg-amber-50 px-2 py-1 text-[10px] font-bold tracking-wider text-amber-700 uppercase dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300"
+                          >
                             {post.categoryName || "Unknown Category"}
                           </Badge>
                         ) : null}
                         {post.isFeatured ? (
-                          <Badge>Featured on Blog</Badge>
+                          <Badge
+                            variant="outline"
+                            className="rounded-lg border-blue-200 bg-blue-50 px-2 py-1 text-[10px] font-bold tracking-wider text-blue-700 uppercase dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300"
+                          >
+                            Featured on Blog
+                          </Badge>
                         ) : null}
                       </div>
                       <h2
-                        className="line-clamp-3 text-xl leading-tight font-semibold break-words text-(--blog-secondary) sm:text-2xl xl:min-h-[5.5rem]"
+                        className="line-clamp-3 text-xl leading-tight font-semibold break-words text-(--blog-secondary) sm:text-2xl xl:min-h-[5.5rem] dark:text-blue-300"
                         title={post.title}
                       >
                         {post.title}
                       </h2>
-                      <p className="mt-3 line-clamp-2 text-sm leading-6 text-foreground/70 sm:min-h-[3rem] sm:text-base">
+                      <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600 sm:min-h-[3rem] sm:text-base dark:text-slate-300">
                         {post.excerpt}
                       </p>
-                      <div className="mt-4 text-sm break-words text-foreground/60">
+                      <div className="mt-4 text-sm break-words text-slate-500 dark:text-slate-400">
                         {post.authorName}
                         {" • "}
                         {formatDate(post.publishedAt || post.updatedAt)}
                       </div>
                       <div className="mt-auto flex flex-wrap gap-2 pt-5">
-                        <Button asChild variant="outline">
+                        <Button
+                          asChild
+                          variant="ghost"
+                          className="rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                        >
                           <Link to={`/tk-admin/blog/${post.id}`}>View</Link>
                         </Button>
                         {post.status === "PUBLISHED" ? (
                           <Button
                             type="button"
-                            variant={post.isFeatured ? "default" : "outline"}
+                            variant="ghost"
                             className={
-                              post.isFeatured ? "bg-(--blog-secondary)" : ""
+                              post.isFeatured
+                                ? "rounded-lg border border-blue-900/60 bg-blue-950/40 text-blue-300"
+                                : "rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-900/50"
                             }
                             disabled={post.isFeatured}
                             onClick={() => {
@@ -472,14 +531,18 @@ export function BlogListPage() {
                         ) : null}
                         {post.createdBy === currentUserId ? (
                           <>
-                            <Button asChild>
+                            <Button
+                              asChild
+                              className="rounded-lg bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"
+                            >
                               <Link to={`/tk-admin/blog/${post.id}/edit`}>
                                 Edit
                               </Link>
                             </Button>
                             <Button
                               type="button"
-                              variant="destructive"
+                              variant="ghost"
+                              className="rounded-lg border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-900/50 dark:hover:text-rose-200"
                               onClick={() =>
                                 setConfirmDelete({
                                   isOpen: true,
@@ -501,7 +564,7 @@ export function BlogListPage() {
 
             {meta.totalPages > 1 && (
               <div className="flex flex-col items-center gap-4 pb-2 text-center">
-                <div className="text-sm text-foreground/70">
+                <div className="text-sm text-slate-600 dark:text-slate-400">
                   Showing{" "}
                   <span className="font-medium">
                     {(meta.page - 1) * meta.pageSize + 1}
@@ -522,7 +585,7 @@ export function BlogListPage() {
                     <ChevronLeft className="size-4" />
                     Previous
                   </Button>
-                  <span className="mx-0 text-xs font-medium whitespace-nowrap text-foreground/70 sm:mx-2 sm:text-sm">
+                  <span className="mx-0 text-xs font-medium whitespace-nowrap text-slate-600 sm:mx-2 sm:text-sm dark:text-slate-400">
                     Page {meta.page} of {meta.totalPages}
                   </span>
                   <Button

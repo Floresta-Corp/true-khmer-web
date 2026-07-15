@@ -107,8 +107,9 @@ function ToolbarButton({
       disabled={disabled}
       title={title}
       className={clsx(
-        "h-11 min-w-11 px-2 text-muted-foreground",
-        active && "bg-muted text-foreground",
+        "h-11 min-w-11 px-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white",
+        active &&
+          "bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-white",
         className,
       )}
     >
@@ -118,7 +119,9 @@ function ToolbarButton({
 }
 
 function ToolbarDivider() {
-  return <div className="mx-2 h-8 w-px shrink-0 bg-border" />;
+  return (
+    <div className="mx-2 h-8 w-px shrink-0 bg-slate-200 dark:bg-slate-700" />
+  );
 }
 
 function ToolbarMenuItem({
@@ -143,13 +146,13 @@ function ToolbarMenuItem({
       className={clsx(
         "h-auto w-full justify-between gap-3 rounded-xl px-3 py-2 text-left",
         active
-          ? "bg-muted text-foreground"
-          : "text-muted-foreground hover:bg-muted",
+          ? "bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-white"
+          : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white",
       )}
     >
       <span className="flex items-center gap-2">
         {leading ? (
-          <span className="text-muted-foreground">{leading}</span>
+          <span className="text-slate-400 dark:text-slate-500">{leading}</span>
         ) : null}
         <span>{label}</span>
       </span>
@@ -326,7 +329,7 @@ function BlogToolbarInner({
   return (
     <div
       ref={toolbarRef}
-      className="mx-auto flex max-w-[1180px] items-center overflow-visible px-4 text-foreground lg:px-6"
+      className="mx-auto flex max-w-[1180px] items-center overflow-visible px-4 text-slate-900 lg:px-6 dark:text-slate-100"
     >
       <div className="flex w-full items-center justify-center">
         <div className="flex items-center gap-0.5 pr-1">
@@ -361,15 +364,15 @@ function BlogToolbarInner({
             className={clsx(
               "h-11 min-w-[120px] gap-1.5 px-4",
               openMenu === "style"
-                ? "bg-muted text-foreground"
-                : "text-foreground hover:bg-muted",
+                ? "bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-white"
+                : "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white",
             )}
           >
             {activeTextStyleLabel}
             <ChevronDown className="h-3.5 w-3.5" />
           </Button>
           {openMenu === "style" ? (
-            <div className="absolute top-12 left-0 z-40 mt-1 w-52 rounded-2xl border border-border bg-background p-2 shadow-xl">
+            <div className="absolute top-12 left-0 z-40 mt-1 w-52 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-700 dark:bg-slate-900">
               <ToolbarMenuItem
                 label="Normal text"
                 active={editor.isActive("paragraph")}
@@ -465,8 +468,8 @@ function BlogToolbarInner({
             <ImageIcon className="h-4 w-4" />
           </ToolbarButton>
           {openMenu === "image" ? (
-            <div className="absolute top-12 left-10 z-40 mt-1 w-[320px] rounded-3xl border border-border bg-background p-4 shadow-[0_18px_48px_rgba(15,23,42,0.16)]">
-              <p className="text-sm font-semibold text-foreground">
+            <div className="absolute top-12 left-10 z-40 mt-1 w-[320px] rounded-2xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-700 dark:bg-slate-900">
+              <p className="text-sm font-semibold text-slate-950 dark:text-white">
                 Insert image
               </p>
               <div className="mt-3 space-y-3">
@@ -477,16 +480,16 @@ function BlogToolbarInner({
                     handleInsertImage();
                     setOpenMenu(null);
                   }}
-                  className="h-10 w-full rounded-2xl bg-muted"
+                  className="h-10 w-full rounded-xl border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
                 >
                   Upload image
                 </Button>
                 <div className="flex items-center gap-3">
-                  <div className="h-px flex-1 bg-border" />
-                  <span className="text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
+                  <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+                  <span className="text-xs font-medium tracking-[0.14em] text-slate-400 uppercase">
                     Or use URL
                   </span>
-                  <div className="h-px flex-1 bg-border" />
+                  <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
                 </div>
                 <Input
                   ref={imageUrlInputRef}
@@ -494,7 +497,7 @@ function BlogToolbarInner({
                   value={imageUrl}
                   onChange={(event) => setImageUrl(event.target.value)}
                   placeholder="https://example.com/image.jpg"
-                  className="h-10 rounded-2xl px-3.5"
+                  className="h-10 rounded-xl border-slate-200 bg-white px-3.5 dark:border-slate-700 dark:bg-slate-950/60"
                   onKeyDown={(event) => {
                     if (event.key === "Enter") {
                       event.preventDefault();
@@ -507,7 +510,7 @@ function BlogToolbarInner({
                 <Button
                   type="button"
                   onClick={handleSubmitImageUrl}
-                  className="rounded-2xl px-3.5"
+                  className="rounded-xl bg-blue-600 px-3.5 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"
                 >
                   Insert
                 </Button>
@@ -518,7 +521,7 @@ function BlogToolbarInner({
                     setImageUrl("");
                     setOpenMenu(null);
                   }}
-                  className="rounded-2xl px-3.5 text-muted-foreground"
+                  className="rounded-xl bg-slate-100 px-3.5 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                 >
                   Cancel
                 </Button>
@@ -568,8 +571,8 @@ function BlogToolbarInner({
             className={clsx(
               "h-11 min-w-[88px] gap-1.5 px-4",
               openMenu === "align"
-                ? "bg-muted text-foreground"
-                : "text-foreground hover:bg-muted",
+                ? "bg-slate-100 text-slate-950 dark:bg-slate-800 dark:text-white"
+                : "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white",
             )}
             title="Text alignment"
           >
@@ -585,7 +588,7 @@ function BlogToolbarInner({
             <ChevronDown className="h-3.5 w-3.5" />
           </Button>
           {openMenu === "align" ? (
-            <div className="absolute top-12 left-0 z-40 mt-1 w-52 rounded-2xl border border-border bg-background p-2 shadow-xl">
+            <div className="absolute top-12 left-0 z-40 mt-1 w-52 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-700 dark:bg-slate-900">
               <ToolbarMenuItem
                 label="Align left"
                 active={activeTextAlign === "left"}
@@ -629,13 +632,15 @@ function BlogToolbarInner({
       {openMenu === "link" && linkPopoverPosition ? (
         <div
           ref={linkPopoverRef}
-          className="fixed z-70 w-[320px] rounded-3xl border border-border bg-background p-4 shadow-[0_18px_48px_rgba(15,23,42,0.16)]"
+          className="fixed z-70 w-[320px] rounded-2xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-700 dark:bg-slate-900"
           style={{
             top: `${linkPopoverPosition.top}px`,
             left: `${linkPopoverPosition.left}px`,
           }}
         >
-          <p className="text-sm font-semibold text-foreground">Create a link</p>
+          <p className="text-sm font-semibold text-slate-950 dark:text-white">
+            Create a link
+          </p>
           <div className="mt-3 space-y-3">
             <Input
               ref={linkTextInputRef}
@@ -643,7 +648,7 @@ function BlogToolbarInner({
               value={linkText}
               onChange={(event) => setLinkText(event.target.value)}
               placeholder="Enter text..."
-              className="h-10 rounded-2xl px-3.5"
+              className="h-10 rounded-xl border-slate-200 bg-white px-3.5 dark:border-slate-700 dark:bg-slate-950/60"
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
                   event.preventDefault();
@@ -656,7 +661,7 @@ function BlogToolbarInner({
               value={linkUrl}
               onChange={(event) => setLinkUrl(event.target.value)}
               placeholder="Enter URL..."
-              className="h-10 rounded-2xl px-3.5"
+              className="h-10 rounded-xl border-slate-200 bg-white px-3.5 dark:border-slate-700 dark:bg-slate-950/60"
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
                   event.preventDefault();
@@ -669,7 +674,7 @@ function BlogToolbarInner({
             <Button
               type="button"
               onClick={handleSubmitLink}
-              className="rounded-2xl px-3.5"
+              className="rounded-xl bg-blue-600 px-3.5 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"
             >
               Link
             </Button>
@@ -680,7 +685,7 @@ function BlogToolbarInner({
                 setOpenMenu(null);
                 setLinkPopoverPosition(null);
               }}
-              className="rounded-2xl px-3.5 text-muted-foreground"
+              className="rounded-xl bg-slate-100 px-3.5 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               Cancel
             </Button>
@@ -702,7 +707,7 @@ export function BlogEditorToolbar({
   return (
     <div
       className={clsx(
-        "sticky top-0 z-30 border-y border-border bg-background/95 backdrop-blur",
+        "sticky top-0 z-30 rounded-2xl border border-slate-100 bg-white/95 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/95 dark:shadow-none",
         className,
       )}
     >

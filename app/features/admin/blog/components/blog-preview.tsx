@@ -40,8 +40,8 @@ export function BlogPreview() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="border-b border-border bg-background">
+    <div className="min-h-screen bg-white text-slate-950 dark:bg-slate-950 dark:text-slate-100">
+      <div className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div>
             <p className="text-sm font-semibold tracking-[0.22em] text-muted-foreground uppercase">
@@ -64,21 +64,21 @@ export function BlogPreview() {
       </div>
 
       {draft ? (
-        <div className="bg-background px-6 py-8 sm:px-10 lg:px-14">
+        <div className="bg-white px-6 py-8 sm:px-10 lg:px-14 dark:bg-slate-950">
           <div className="mx-auto max-w-4xl">
             <div className="text-xs font-medium tracking-[0.2em] text-muted-foreground/70 uppercase">
               Home • Blog • {draft.categoryName || "Blog Preview"}
             </div>
 
             {draft.coverImageUrl ? (
-              <figure className="mt-6 overflow-hidden rounded-[2rem] border border-border bg-background shadow-sm">
+              <figure className="mt-6 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
                 <img
                   src={draft.coverImageUrl}
                   alt={draft.coverImageAlt || draft.title || "Blog cover"}
                   className="max-h-[520px] w-full object-cover"
                 />
                 {draft.coverImageCaption ? (
-                  <figcaption className="px-6 py-4 text-center text-sm text-[#8f857c] italic">
+                  <figcaption className="px-6 py-4 text-center text-sm text-slate-500 italic dark:text-slate-400">
                     {draft.coverImageCaption}
                   </figcaption>
                 ) : null}
@@ -112,18 +112,18 @@ export function BlogPreview() {
               )}
             </div>
 
-            <h1 className="mt-5 text-4xl leading-[0.98] font-semibold tracking-[-0.05em] text-[#222222] sm:text-5xl lg:text-[4rem]">
+            <h1 className="mt-5 text-4xl leading-[0.98] font-semibold tracking-[-0.05em] text-slate-950 sm:text-5xl lg:text-[4rem] dark:text-white">
               {draft.title || "Title"}
             </h1>
 
-            <p className="mt-5 max-w-3xl text-xl leading-9 text-foreground/65">
+            <p className="mt-5 max-w-3xl text-xl leading-9 text-slate-600 dark:text-slate-300">
               {draft.excerpt ||
                 "Add a subtitle to preview the blog summary here."}
             </p>
 
             <div className="mt-8 flex items-center justify-between gap-4 border-y border-border py-5">
               <div>
-                <p className="font-medium text-[#2b2b2b]">
+                <p className="font-medium text-slate-900 dark:text-slate-100">
                   {draft.authorName || "Author"}
                 </p>
                 <p className="text-sm text-muted-foreground">
@@ -149,11 +149,11 @@ export function BlogPreview() {
         </div>
       ) : (
         <div className="mx-auto max-w-3xl px-6 py-20">
-          <Card className="rounded-[30px] p-10 text-center">
-            <h1 className="text-3xl font-semibold text-foreground">
+          <Card className="rounded-[30px] border-slate-200 bg-white p-10 text-center dark:border-slate-800 dark:bg-slate-900">
+            <h1 className="text-3xl font-semibold text-slate-950 dark:text-white">
               No preview data found
             </h1>
-            <p className="mt-4 text-foreground/65">
+            <p className="mt-4 text-slate-600 dark:text-slate-400">
               Open preview from the blog editor so the current draft can be
               loaded here.
             </p>

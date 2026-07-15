@@ -30,7 +30,7 @@ export default function BlogNewRoute() {
   const draftKey = searchParams.get("fresh") ?? "new";
 
   return (
-    <div className="p-6">
+    <div className="min-h-full bg-[#f8fafc] p-6 text-slate-950 dark:bg-slate-950 dark:text-white">
       <BlogForm categories={categories} draftKey={`new:${draftKey}`} />
     </div>
   );
