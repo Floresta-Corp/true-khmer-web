@@ -19,7 +19,7 @@ const floatAnimation = {
   },
 };
 
-const launchpadHeroBackgroundImage = "/images/volunteer-header-background.png";
+const launchpadHeroBackgroundImage = "/images/volunteer-header-background.webp";
 
 function LaunchpadHeroBackdrop() {
   return (
@@ -52,7 +52,7 @@ export default function LaunchpadHeaderSection() {
         transition: { duration: 0.2 * dur, ease: "easeInOut" as const },
       }}
       transition={{ duration: 0.4 * dur, ease: "easeInOut" as const }}
-      className="relative flex min-h-125 w-full justify-center overflow-hidden px-4 py-16 sm:px-6 sm:py-20 lg:py-24"
+      className="relative flex h-125 w-full justify-center overflow-hidden px-4 py-16 sm:px-6 sm:py-20 lg:py-24"
     >
       <LaunchpadHeroBackdrop />
 

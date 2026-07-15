@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Loader2 } from "lucide-react";
 import { useFetcher } from "react-router";
+import { toast } from "sonner";
 
 import { Button } from "~/components/ui/button";
 import {
@@ -30,14 +31,29 @@ export function UserSuspensionDialog({
   onOpenChange,
 }: UserSuspensionDialogProps) {
   const fetcher = useFetcher<typeof userManagementDetailAction>();
+  const handledResultRef = useRef(fetcher.data);
   const isSubmitting = fetcher.state !== "idle";
   const isSuspend = action === "suspend";
 
   useEffect(() => {
+    if (!fetcher.data || handledResultRef.current === fetcher.data) return;
+    handledResultRef.current = fetcher.data;
+
     if (fetcher.state === "idle" && fetcher.data?.ok) {
+      toast.success(
+        isSuspend
+          ? `${userName} was suspended successfully.`
+          : `${userName} was unsuspended successfully.`,
+      );
       onOpenChange(false);
+    } else if (
+      fetcher.state === "idle" &&
+      fetcher.data &&
+      "error" in fetcher.data
+    ) {
+      toast.error(fetcher.data.error || "Unable to update this account.");
     }
-  }, [fetcher.data, fetcher.state, onOpenChange]);
+  }, [fetcher.data, fetcher.state, isSuspend, onOpenChange, userName]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

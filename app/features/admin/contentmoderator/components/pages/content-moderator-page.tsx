@@ -6,6 +6,7 @@ import {
   useLoaderData,
   useNavigation,
 } from "react-router";
+import { toast } from "sonner";
 import { FilterBar } from "../filter-bar";
 import { ReportsTable } from "../reports-table";
 import { ReportsTableSkeleton } from "../reports-table-skeleton";
@@ -45,6 +46,15 @@ export default function ContentModeratorPage() {
   const [confirmAction, setConfirmAction] = useState<"dismiss" | "hide" | null>(
     null,
   );
+
+  useEffect(() => {
+    if (!fetcher.data) return;
+    if (fetcher.data.success) {
+      toast.success("Report updated successfully.");
+    } else if (fetcher.data.error) {
+      toast.error(fetcher.data.error);
+    }
+  }, [fetcher.data]);
 
   const handleResolve = useCallback(
     (id: string, resolveAction: "dismiss" | "hide") => {

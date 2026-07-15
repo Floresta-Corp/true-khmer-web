@@ -74,4 +74,20 @@ export function formatDate(
   return date.format("MMM D, YYYY");
 }
 
+export function formatDateTime(
+  dateInput: Date | string | number | null | undefined,
+) {
+  if (dateInput === null || dateInput === undefined || dateInput === "") {
+    return "";
+  }
+
+  const date = dayjs(normalizeDateInput(dateInput));
+
+  if (!date.isValid()) {
+    return "";
+  }
+
+  return date.format("MMM D, YYYY [at] h:mm A");
+}
+
 export const formatMinutesOrHoursAgo = formatRelativeTime;

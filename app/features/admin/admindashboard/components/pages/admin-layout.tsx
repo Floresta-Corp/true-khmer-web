@@ -20,6 +20,7 @@ const menuLabels: Record<string, string> = {
   users: "User Management",
   registrations: "Registrations",
   partners: "Partner",
+  blog: "Blog",
   "account-settings": "Account Settings",
 };
 
@@ -33,6 +34,7 @@ function getActiveMenu(pathname: string) {
     return "users";
   if (pathname.startsWith("/tk-admin/registrations")) return "registrations";
   if (pathname.startsWith("/tk-admin/partners")) return "partners";
+  if (pathname.startsWith("/tk-admin/blog")) return "blog";
   if (pathname.startsWith("/tk-admin/account-settings"))
     return "account-settings";
   return null;
@@ -60,7 +62,7 @@ export default function AdminLayout() {
 
   return (
     <AdminNotificationProvider>
-      <div className="flex min-h-screen flex-col bg-[#f8fafc] font-sans text-slate-900 antialiased transition-colors duration-300 md:flex-row dark:bg-slate-950">
+      <div className="flex min-h-screen flex-col bg-[#f8fafc] font-sans text-slate-900 antialiased transition-colors duration-300 md:flex-row dark:bg-slate-950 dark:text-slate-100">
         {/* Mobile top bar */}
         <header className="sticky top-0 z-60 flex h-16 items-center justify-between border-b border-slate-100 bg-white px-6 md:hidden dark:border-slate-800 dark:bg-slate-950">
           <div className="flex items-center gap-3">
@@ -134,7 +136,7 @@ export default function AdminLayout() {
         </aside>
 
         {/* Main content */}
-        <main className="ml-0 flex min-h-screen flex-1 flex-col bg-[#f8fafc] transition-all duration-300 md:ml-18 dark:bg-slate-950">
+        <main className="ml-0 flex min-h-screen min-w-0 flex-1 flex-col bg-[#f8fafc] transition-all duration-300 md:ml-18 md:w-[calc(100%-4.5rem)] md:flex-none dark:bg-slate-950">
           <header className="sticky top-0 z-30 flex h-16 items-center justify-end border-b border-slate-100 bg-[#f8fafc]/80 px-6 backdrop-blur-md transition-all duration-300 md:top-0 md:h-20 md:px-10 dark:border-slate-800 dark:bg-slate-950/80">
             <div className="flex items-center gap-2">
               <AdminThemeSwitcher />
