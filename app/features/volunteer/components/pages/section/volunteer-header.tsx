@@ -22,7 +22,7 @@ const floatAnimation = {
   },
 };
 
-const volunteerHeroBackgroundImage = "/images/volunteer-header-background.png";
+const volunteerHeroBackgroundImage = "/images/volunteer-header-background.webp";
 
 function VolunteerHeroBackdrop() {
   return (

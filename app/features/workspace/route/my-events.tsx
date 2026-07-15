@@ -68,7 +68,7 @@ const EVENTS: MyEvent[] = [
     id: "global-wellness-session-2",
     title: "Global Wellness Session",
     status: "Published",
-    cover: "/images/hero-background-image.jpg",
+    cover: "/images/hero-background-image.webp",
     date: "Thu, Mar 12",
     time: "8:00 GMT+7",
     venue: "Virtual Event",

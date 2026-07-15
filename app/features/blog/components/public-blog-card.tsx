@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import { formatDate } from "~/lib/time";
 import type { BlogPostListingItemResponse } from "~/types/api-client";
 
-const FALLBACK_BLOG_IMAGE = "/images/hero-background-image.jpg";
+const FALLBACK_BLOG_IMAGE = "/images/hero-background-image.webp";
 
 export function PublicBlogCard({
   post,

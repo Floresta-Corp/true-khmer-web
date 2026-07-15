@@ -34,7 +34,7 @@ export default function BlogEditRoute() {
   const { post, categories } = useLoaderData<typeof blogEditLoader>();
 
   return (
-    <div className="p-6">
+    <div className="min-h-full bg-[#f8fafc] p-6 text-slate-950 dark:bg-slate-950 dark:text-white">
       <BlogForm post={post} categories={categories} draftKey={post.id} />
     </div>
   );

@@ -5,7 +5,7 @@ import { motion, useReducedMotion } from "motion/react";
 import AskQuestionDialog from "../dialog/ask-question-dialog";
 import type { loader } from "../../route/forum.new";
 
-const heroBackgroundImage = "/images/hero-background-image.jpg";
+const heroBackgroundImage = "/images/hero-background-image.webp";
 const avatarImage = "/images/forum-avatar.jpg";
 const trendingIcon = "/icons/apollo-icon.svg";
 const activeIcon = "/icons/conversation-icon.svg";

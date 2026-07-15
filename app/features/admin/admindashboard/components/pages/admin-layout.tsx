@@ -62,7 +62,7 @@ export default function AdminLayout() {
 
   return (
     <AdminNotificationProvider>
-      <div className="flex min-h-screen flex-col bg-[#f8fafc] font-sans text-slate-900 antialiased transition-colors duration-300 md:flex-row dark:bg-slate-950">
+      <div className="flex min-h-screen flex-col bg-[#f8fafc] font-sans text-slate-900 antialiased transition-colors duration-300 md:flex-row dark:bg-slate-950 dark:text-slate-100">
         {/* Mobile top bar */}
         <header className="sticky top-0 z-60 flex h-16 items-center justify-between border-b border-slate-100 bg-white px-6 md:hidden dark:border-slate-800 dark:bg-slate-950">
           <div className="flex items-center gap-3">

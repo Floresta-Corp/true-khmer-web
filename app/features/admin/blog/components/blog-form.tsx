@@ -478,8 +478,27 @@ export function BlogForm({ post, categories, draftKey }: BlogFormProps) {
         ? "Archived"
         : "Draft";
 
+  const statusStyle =
+    status === "PUBLISHED"
+      ? {
+          badge:
+            "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300",
+          dot: "bg-emerald-500",
+        }
+      : status === "ARCHIVED"
+        ? {
+            badge:
+              "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300",
+            dot: "bg-rose-500",
+          }
+        : {
+            badge:
+              "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-900/60 dark:bg-sky-950/40 dark:text-sky-300",
+            dot: "bg-sky-500",
+          };
+
   return (
-    <div className="mx-auto max-w-[1180px] space-y-8 px-0 pt-0 pb-20">
+    <div className="mx-auto max-w-[1180px] space-y-8 px-0 pt-0 pb-20 text-slate-950 dark:text-slate-100">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Button
@@ -487,25 +506,29 @@ export function BlogForm({ post, categories, draftKey }: BlogFormProps) {
             variant="outline"
             size="icon-lg"
             onClick={handleGoBack}
-            className="rounded-full text-muted-foreground"
+            className="rounded-full border-slate-200 bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
             aria-label="Go back"
           >
             <ArrowLeft className="h-4.5 w-4.5" />
           </Button>
 
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+          <div
+            className={`inline-flex items-center gap-1.5 rounded-lg border px-2 py-1.5 text-[10px] font-bold tracking-widest uppercase ${statusStyle.badge}`}
+          >
+            <span className={`h-1.5 w-1.5 rounded-full ${statusStyle.dot}`} />
             {statusLabel}
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <p className="text-sm text-muted-foreground">{autosaveLabel}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            {autosaveLabel}
+          </p>
           <Button
             type="button"
             variant="outline"
             onClick={handleOpenPreview}
-            className="h-10 px-5"
+            className="h-10 border-slate-200 bg-white px-5 text-slate-700 hover:bg-slate-100 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
           >
             Preview
           </Button>
@@ -515,7 +538,7 @@ export function BlogForm({ post, categories, draftKey }: BlogFormProps) {
               variant="outline"
               onClick={() => submitForm("ARCHIVED")}
               disabled={isSubmitting}
-              className="h-10 px-5"
+              className="h-10 border-slate-200 bg-white px-5 text-slate-700 hover:bg-slate-100 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
             >
               Unpublish
             </Button>
@@ -524,7 +547,7 @@ export function BlogForm({ post, categories, draftKey }: BlogFormProps) {
             type="button"
             onClick={primaryAction.onClick}
             disabled={isSubmitting}
-            className="h-10 px-6"
+            className="h-10 bg-blue-600 px-6 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"
           >
             {isSubmitting && <Loader2 className="size-4 animate-spin" />}
             {primaryAction.label}
@@ -534,7 +557,7 @@ export function BlogForm({ post, categories, draftKey }: BlogFormProps) {
 
       <BlogEditorToolbar {...editor} />
 
-      <div className="mx-auto max-w-[1140px] px-6">
+      <div className="mx-auto max-w-[1140px] rounded-2xl border border-slate-100 bg-white px-6 pb-10 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
         <input
           ref={coverImageInputRef}
           type="file"
@@ -546,7 +569,7 @@ export function BlogForm({ post, categories, draftKey }: BlogFormProps) {
         <div className="space-y-10 pt-4">
           <div className="mx-auto max-w-[1120px] space-y-4">
             {coverImageUrl ? (
-              <div className="relative overflow-hidden rounded-[28px] border border-border bg-muted">
+              <div className="relative overflow-hidden rounded-[28px] border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-950/60">
                 <img
                   src={coverImageUrl}
                   alt={title || "Blog cover"}
@@ -596,8 +619,8 @@ export function BlogForm({ post, categories, draftKey }: BlogFormProps) {
                 </DropdownMenu>
               </div>
             ) : (
-              <div className="flex min-h-[440px] flex-col items-center justify-center rounded-[28px] border border-dashed border-border bg-muted/60 px-6 py-16 text-center">
-                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl text-muted-foreground">
+              <div className="flex min-h-[440px] flex-col items-center justify-center rounded-[28px] border border-dashed border-slate-200 bg-slate-50 px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-950/50">
+                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl text-slate-400 dark:text-slate-500">
                   <svg
                     viewBox="0 0 24 24"
                     aria-hidden="true"
@@ -614,12 +637,12 @@ export function BlogForm({ post, categories, draftKey }: BlogFormProps) {
                     <circle cx="9" cy="9" r="1.2" />
                   </svg>
                 </div>
-                <p className="text-[16px] font-medium text-foreground/75">
+                <p className="text-[16px] font-medium text-slate-700 dark:text-slate-300">
                   {isUploadingCover
                     ? "Uploading cover image..."
                     : "Add a cover photo"}
                 </p>
-                <p className="mt-3 text-[14px] text-muted-foreground">
+                <p className="mt-3 text-[14px] text-slate-500 dark:text-slate-400">
                   Will be cropped to a 3:2 aspect ratio
                 </p>
                 <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
@@ -627,7 +650,7 @@ export function BlogForm({ post, categories, draftKey }: BlogFormProps) {
                     type="button"
                     variant="outline"
                     onClick={() => coverImageInputRef.current?.click()}
-                    className="h-12 rounded-[14px] px-6 text-base shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+                    className="h-12 rounded-[14px] border-slate-200 bg-white px-6 text-base text-slate-700 shadow-none hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
                   >
                     Upload
                   </Button>
@@ -635,7 +658,7 @@ export function BlogForm({ post, categories, draftKey }: BlogFormProps) {
                     type="button"
                     variant="outline"
                     onClick={handleOpenCoverUrlDialog}
-                    className="h-12 rounded-[14px] px-6 text-base shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+                    className="h-12 rounded-[14px] border-slate-200 bg-white px-6 text-base text-slate-700 shadow-none hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
                   >
                     URL
                   </Button>
@@ -644,7 +667,7 @@ export function BlogForm({ post, categories, draftKey }: BlogFormProps) {
             )}
 
             {showImageCreditEditor || coverImageCaption ? (
-              <div className="rounded-2xl bg-background px-4 py-3">
+              <div className="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-950/60">
                 <p className="text-[11px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
                   Image credit
                 </p>
@@ -652,7 +675,7 @@ export function BlogForm({ post, categories, draftKey }: BlogFormProps) {
                   type="text"
                   value={coverImageCaption}
                   onChange={(event) => setCoverImageCaption(event.target.value)}
-                  className="mt-1 border-0 bg-transparent px-0 text-sm text-muted-foreground italic shadow-none focus-visible:ring-0"
+                  className="mt-1 border-0 bg-transparent px-0 text-sm text-slate-500 italic shadow-none focus-visible:ring-0 dark:bg-transparent dark:text-slate-400"
                   placeholder="Photo by / Source"
                 />
               </div>
@@ -729,7 +752,7 @@ export function BlogForm({ post, categories, draftKey }: BlogFormProps) {
                   excerptInputRef.current?.focus();
                 }}
                 rows={1}
-                className="blog-compose-title min-h-0 w-full resize-none border-0 bg-transparent px-0 text-foreground outline-none placeholder:text-muted-foreground/70 focus:outline-none"
+                className="blog-compose-title min-h-0 w-full resize-none border-0 bg-transparent px-0 text-slate-950 outline-none placeholder:text-slate-400 focus:outline-none dark:bg-transparent dark:text-white dark:placeholder:text-slate-500"
                 placeholder="Title"
               />
               <Textarea
@@ -740,28 +763,28 @@ export function BlogForm({ post, categories, draftKey }: BlogFormProps) {
                   resizeTextarea(event.currentTarget);
                 }}
                 rows={1}
-                className="blog-compose-subtitle min-h-0 w-full resize-none border-0 bg-transparent px-0 text-foreground/70 outline-none placeholder:text-muted-foreground/70 focus:outline-none"
+                className="blog-compose-subtitle min-h-0 w-full resize-none border-0 bg-transparent px-0 text-slate-600 outline-none placeholder:text-slate-400 focus:outline-none dark:bg-transparent dark:text-slate-300 dark:placeholder:text-slate-500"
                 placeholder="Add a subtitle..."
               />
             </div>
 
             <div className="flex flex-wrap items-center gap-2 pt-1">
-              <div className="inline-flex min-h-11 max-w-full items-center gap-3 rounded-full border border-border bg-muted px-4 py-2 text-sm text-foreground/70 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
-                <CircleUserRound className="h-4.5 w-4.5 shrink-0 text-muted-foreground" />
+              <div className="inline-flex min-h-11 max-w-full items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-300">
+                <CircleUserRound className="h-4.5 w-4.5 shrink-0 text-slate-400" />
                 <Input
                   type="text"
                   value={authorName}
                   onChange={(event) => setAuthorName(event.target.value)}
-                  className="h-auto border-0 bg-transparent px-0 text-sm text-foreground/70 shadow-none focus-visible:ring-0"
+                  className="h-auto border-0 bg-transparent px-0 text-sm text-slate-700 shadow-none focus-visible:ring-0 dark:bg-transparent dark:text-slate-300"
                   placeholder="Author's Name"
                 />
               </div>
-              <div className="flex h-11 min-w-[220px] items-center gap-2 rounded-full border border-(--blog-primary)/20 bg-(--blog-primary)/10 px-4 py-1.5 text-sm text-foreground/75 shadow-[0_1px_2px_rgba(34,94,38,0.04)]">
+              <div className="flex h-11 min-w-[220px] items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-1.5 text-sm text-blue-800 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300">
                 <span className="inline-flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-full bg-(--blog-primary)/15 text-(--blog-primary)">
                   <LayoutGrid className="h-3.5 w-3.5" />
                 </span>
                 <Select value={categoryId} onValueChange={setCategoryId}>
-                  <SelectTrigger className="h-auto min-w-0 border-0 bg-transparent px-0 text-foreground/75 shadow-none focus:ring-0">
+                  <SelectTrigger className="h-auto min-w-0 border-0 bg-transparent px-0 text-blue-800 shadow-none focus:ring-0 dark:bg-transparent dark:text-blue-300">
                     <SelectValue
                       placeholder={
                         categories.length > 0
@@ -779,14 +802,14 @@ export function BlogForm({ post, categories, draftKey }: BlogFormProps) {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex min-h-11 basis-full flex-wrap items-center gap-2 rounded-[24px] border border-amber-500/20 bg-amber-500/10 px-4 py-2 text-sm text-foreground/75 shadow-[0_1px_2px_rgba(120,84,31,0.04)] xl:min-w-[220px] xl:flex-1 xl:basis-auto">
+              <div className="flex min-h-11 basis-full flex-wrap items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800 xl:min-w-[220px] xl:flex-1 xl:basis-auto dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300">
                 <span className="inline-flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-amber-600">
                   <Tags className="h-3.5 w-3.5" />
                 </span>
                 {tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex h-8 items-center gap-2 rounded-full bg-amber-500/15 px-3 text-sm font-medium text-foreground/80"
+                    className="inline-flex h-8 items-center gap-2 rounded-lg border border-amber-200 bg-amber-100 px-3 text-sm font-medium text-amber-800 dark:border-amber-900/60 dark:bg-amber-900/40 dark:text-amber-200"
                   >
                     {tag}
                     <Button
@@ -807,7 +830,7 @@ export function BlogForm({ post, categories, draftKey }: BlogFormProps) {
                   onChange={(event) => setTagInput(event.target.value)}
                   onKeyDown={handleTagKeyDown}
                   onBlur={() => tagInput.trim() && addTag(tagInput)}
-                  className="h-auto min-w-[120px] flex-1 border-0 bg-transparent px-0 text-sm leading-none text-foreground/75 shadow-none focus-visible:ring-0"
+                  className="h-auto min-w-[120px] flex-1 border-0 bg-transparent px-0 text-sm leading-none text-amber-800 shadow-none focus-visible:ring-0 dark:bg-transparent dark:text-amber-300"
                   placeholder={
                     tags.length >= BLOG_TAG_LIMIT
                       ? "Maximum 5 tags"

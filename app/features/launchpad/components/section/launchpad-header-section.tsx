@@ -19,7 +19,7 @@ const floatAnimation = {
   },
 };
 
-const launchpadHeroBackgroundImage = "/images/volunteer-header-background.png";
+const launchpadHeroBackgroundImage = "/images/volunteer-header-background.webp";
 
 function LaunchpadHeroBackdrop() {
   return (

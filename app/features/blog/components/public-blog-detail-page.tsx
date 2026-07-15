@@ -179,7 +179,7 @@ export function PublicBlogDetailPage() {
                   <img
                     src={
                       relatedPost.coverImageUrl ||
-                      "/images/hero-background-image.jpg"
+                      "/images/hero-background-image.webp"
                     }
                     alt={relatedPost.coverImageAlt || relatedPost.title}
                     className="h-[206px] w-full object-cover"
