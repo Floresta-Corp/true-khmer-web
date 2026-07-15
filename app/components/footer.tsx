@@ -34,14 +34,14 @@ const footerColumns = [
     links: [
       { label: "Sponsors", to: "/" },
       { label: "Success Stories", to: "/" },
-      { label: "Partners", to: "/" },
+      { label: "Community", to: "/community" },
       { label: "News", to: "/" },
     ],
   },
   {
     heading: "About",
     links: [
-      { label: "Our Story", to: "/about" },
+      { label: "About Us", to: "/about" },
       { label: "Our Team", to: "/" },
     ],
   },

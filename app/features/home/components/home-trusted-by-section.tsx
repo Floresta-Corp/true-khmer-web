@@ -15,7 +15,23 @@ export function HomeTrustedBySection() {
         <p className="text-center text-sm font-semibold text-[#2f6fe4]">
           Trusted &amp; Loved By Cambodia's Community
         </p>
-        <div className="mt-4 flex items-center gap-x-10 overflow-x-auto px-4 [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-wrap sm:justify-center sm:gap-x-12 sm:gap-y-6 sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
+        {/* Mobile: auto-scrolling marquee (duplicated track for a seamless loop) */}
+        <div className="scrollbar-hide mt-4 overflow-x-auto sm:hidden">
+          <div className="animate-marquee flex w-max items-center">
+            {[...PARTNERS, ...PARTNERS].map((partner, index) => (
+              <img
+                key={`${partner.src}-${index}`}
+                src={partner.src}
+                alt={partner.name}
+                className="mr-10 h-12 w-32 shrink-0 object-contain"
+                loading="lazy"
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Desktop static wrapped layout */}
+        <div className="mt-4 hidden items-center gap-x-12 gap-y-6 sm:flex sm:flex-wrap sm:justify-center">
           {PARTNERS.map((partner) => (
             <img
               key={partner.src}

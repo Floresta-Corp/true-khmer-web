@@ -301,8 +301,8 @@ export default function LaunchpadSubmitApplicationDialog({
       <DialogContent
         className={
           isSuccess
-            ? "w-[320px] max-w-[320px] gap-5 rounded-[14px] border-[0.8px] border-[#D0FAE5] bg-[#ECFDF5] px-4.25 py-5.5 shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.10),0px_4px_6px_-2px_rgba(0,0,0,0.05)] sm:max-w-[320px] [&>button]:right-3 [&>button]:top-3 [&>button]:size-4 [&>button]:rounded-full [&>button]:p-0 [&>button]:text-[#65758B] [&>button_svg]:size-4"
-            : "max-w-140 gap-4 rounded-lg border border-[#E2E8F0] p-6 shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.10),0px_4px_6px_-2px_rgba(0,0,0,0.05)] sm:max-w-140 [&>button]:right-3.75 [&>button]:top-3.75 [&>button]:size-4 [&>button]:rounded-full [&>button]:p-0 [&>button]:text-[#65758B] [&>button_svg]:size-4"
+            ? "w-[320px] max-w-[320px] gap-5 rounded-[14px] border-[0.8px] border-[#D0FAE5] bg-[#ECFDF5] px-4.25 py-5.5 shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.10),0px_4px_6px_-2px_rgba(0,0,0,0.05)] sm:max-w-[320px] [&>button]:top-3 [&>button]:right-3 [&>button]:size-4 [&>button]:rounded-full [&>button]:p-0 [&>button]:text-[#65758B] [&>button_svg]:size-4"
+            : "flex max-h-[90vh] flex-col gap-4 rounded-lg border border-[#E2E8F0] p-4 shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.10),0px_4px_6px_-2px_rgba(0,0,0,0.05)] sm:max-w-140 sm:p-6 [&>button]:top-3.75 [&>button]:right-3.75 [&>button]:size-4 [&>button]:rounded-full [&>button]:p-0 [&>button]:text-[#65758B] [&>button_svg]:size-4"
         }
       >
         {isSuccess ? (
@@ -320,15 +320,15 @@ export default function LaunchpadSubmitApplicationDialog({
           />
         ) : (
           <>
-            <DialogHeader className="gap-0">
+            <DialogHeader className="shrink-0 gap-0">
               <DialogTitle className="text-lg font-semibold text-[#0F1729]">
                 Apply for project
               </DialogTitle>
             </DialogHeader>
 
-            <Separator className="bg-[#E1E7EF]" />
+            <Separator className="shrink-0 bg-[#E1E7EF]" />
 
-            <div className="flex items-center gap-3.5 rounded-[14px] border-[0.8px] border-[rgba(47,111,228,0.10)] bg-[#F0F6FF] px-4.5 py-[20.8px]">
+            <div className="flex shrink-0 items-center gap-3.5 rounded-[14px] border-[0.8px] border-[rgba(47,111,228,0.10)] bg-[#F0F6FF] px-4.5 py-[20.8px]">
               <div className="flex size-8.75 items-center justify-center rounded-2xl bg-[#2F6FE4] text-white">
                 <User className="size-6" />
               </div>
@@ -343,219 +343,224 @@ export default function LaunchpadSubmitApplicationDialog({
             </div>
 
             {errorMessage && (
-              <p className="rounded-lg bg-red-50 px-4 py-2 text-xs text-red-600">
+              <p className="shrink-0 rounded-lg bg-red-50 px-4 py-2 text-xs text-red-600">
                 {errorMessage}
               </p>
             )}
 
-            <form className="space-y-5" onSubmit={handleSubmit}>
-              {selectedRolesList.length > 0 && (
+            <form
+              className="flex min-h-0 flex-1 flex-col"
+              onSubmit={handleSubmit}
+            >
+              <div className="min-h-0 flex-1 space-y-5 overflow-y-auto">
+                {selectedRolesList.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs leading-4.5 font-medium text-[#364153]">
+                      Roles of Interest
+                    </p>
+                    <div className="space-y-2">
+                      {selectedRolesList.map((role) => (
+                        <div
+                          key={role.id}
+                          className={cn(
+                            "flex items-center justify-between rounded-lg border px-3 py-2 text-sm",
+                            topPickRoleId === role.id
+                              ? "border-[#2f6fe4] bg-[#f0f6ff]"
+                              : "border-[#e1e7ef] bg-[#f8fafc]",
+                          )}
+                        >
+                          <div className="flex min-w-0 flex-1 items-center gap-2">
+                            {topPickRoleId === role.id && (
+                              <Star className="size-3.5 shrink-0 fill-[#2f6fe4] text-[#2f6fe4]" />
+                            )}
+                            <span className="truncate font-medium text-[#030213]">
+                              {role.title}
+                            </span>
+                            {topPickRoleId === role.id && (
+                              <span className="shrink-0 text-[10px] font-semibold text-[#2f6fe4] uppercase">
+                                Top Pick
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-2">
                   <p className="text-xs leading-4.5 font-medium text-[#364153]">
-                    Roles of Interest
+                    Why do you want to join this project?
                   </p>
-                  <div className="space-y-2">
-                    {selectedRolesList.map((role) => (
-                      <div
-                        key={role.id}
-                        className={cn(
-                          "flex items-center justify-between rounded-lg border px-3 py-2 text-sm",
-                          topPickRoleId === role.id
-                            ? "border-[#2f6fe4] bg-[#f0f6ff]"
-                            : "border-[#e1e7ef] bg-[#f8fafc]",
-                        )}
-                      >
-                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                          {topPickRoleId === role.id && (
-                            <Star className="size-3.5 shrink-0 fill-[#2f6fe4] text-[#2f6fe4]" />
-                          )}
-                          <span className="truncate font-medium text-[#030213]">
-                            {role.title}
-                          </span>
-                          {topPickRoleId === role.id && (
-                            <span className="shrink-0 text-[10px] font-semibold text-[#2f6fe4] uppercase">
-                              Top Pick
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <p className="text-xs leading-4.5 font-medium text-[#364153]">
-                  Why do you want to join this project?
-                </p>
-                <Textarea
-                  value={motivation}
-                  onChange={(e) => {
-                    const nextValue = e.target.value.slice(0, 2000);
-                    setMotivation(nextValue);
-                    if (clientErrors.motivation) {
-                      setClientErrors((previous) => ({
-                        ...previous,
-                        motivation: getLaunchpadApplicationErrors({
-                          motivation: nextValue,
-                          relevantExperience,
-                          portfolioUrl,
-                        }).motivation,
-                      }));
-                    }
-                  }}
-                  onBlur={() => validateCurrentValues()}
-                  placeholder="Share what excites you about this project and what you bring to the team."
-                  required
-                  rows={3}
-                  aria-invalid={Boolean(clientErrors.motivation)}
-                  className="w-full resize-none rounded-lg border-0 bg-[#F8FAFC] px-3 py-2.5 text-xs text-[#344256] outline-none placeholder:text-[#9EACC0] focus:ring-0"
-                />
-                {clientErrors.motivation && (
-                  <p className="text-xs text-red-500">
-                    {clientErrors.motivation}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-xs leading-4.5 font-medium text-[#364153]">
-                  Relevant Experience
-                </p>
-                <Textarea
-                  value={relevantExperience}
-                  onChange={(e) => {
-                    const nextValue = e.target.value.slice(0, 2000);
-                    setRelevantExperience(nextValue);
-                    if (clientErrors.relevantExperience) {
-                      setClientErrors((previous) => ({
-                        ...previous,
-                        relevantExperience: getLaunchpadApplicationErrors({
-                          motivation,
-                          relevantExperience: nextValue,
-                          portfolioUrl,
-                        }).relevantExperience,
-                      }));
-                    }
-                  }}
-                  onBlur={() => validateCurrentValues()}
-                  placeholder="Tell us about the experience that makes you a strong fit for these roles."
-                  required
-                  rows={3}
-                  aria-invalid={Boolean(clientErrors.relevantExperience)}
-                  className="w-full resize-none rounded-lg border-0 bg-[#F8FAFC] px-3 py-2.5 text-xs text-[#344256] outline-none placeholder:text-[#9EACC0] focus:ring-0"
-                />
-                {clientErrors.relevantExperience && (
-                  <p className="text-xs text-red-500">
-                    {clientErrors.relevantExperience}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-xs leading-4.5 font-medium text-[#364153]">
-                  Portfolio
-                </p>
-                <InputGroup className="h-11 rounded-lg bg-[#F8FAFC]">
-                  <InputGroupAddon>
-                    <Globe className="size-4 shrink-0 text-[#9EACC0]" />
-                  </InputGroupAddon>
-                  <InputGroupInput
-                    type="url"
-                    value={portfolioUrl}
+                  <Textarea
+                    value={motivation}
                     onChange={(e) => {
-                      const nextValue = (
-                        e.target as HTMLInputElement
-                      ).value.slice(0, 255);
-                      setPortfolioUrl(nextValue);
-                      if (clientErrors.portfolioUrl) {
+                      const nextValue = e.target.value.slice(0, 2000);
+                      setMotivation(nextValue);
+                      if (clientErrors.motivation) {
                         setClientErrors((previous) => ({
                           ...previous,
-                          portfolioUrl: getLaunchpadApplicationErrors({
-                            motivation,
+                          motivation: getLaunchpadApplicationErrors({
+                            motivation: nextValue,
                             relevantExperience,
-                            portfolioUrl: nextValue,
-                          }).portfolioUrl,
+                            portfolioUrl,
+                          }).motivation,
                         }));
                       }
                     }}
                     onBlur={() => validateCurrentValues()}
-                    aria-invalid={Boolean(clientErrors.portfolioUrl)}
-                    placeholder="https://..."
-                    className="h-full bg-transparent p-0 text-xs text-[#344256] placeholder:text-[#9EACC0] focus-visible:ring-0"
+                    placeholder="Share what excites you about this project and what you bring to the team."
+                    required
+                    rows={3}
+                    aria-invalid={Boolean(clientErrors.motivation)}
+                    className="w-full resize-none rounded-lg border-0 bg-[#F8FAFC] px-3 py-2.5 text-xs text-[#344256] outline-none placeholder:text-[#9EACC0] focus:ring-0"
                   />
-                </InputGroup>
-                {clientErrors.portfolioUrl && (
-                  <p className="text-xs text-red-500">
-                    {clientErrors.portfolioUrl}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-start justify-between">
-                  <p className="text-xs leading-4.5 font-medium text-[#364153]">
-                    Supporting Documents
-                  </p>
-                  {documents.length < 5 && (
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="cursor-pointer text-xs leading-4.5 font-semibold text-[#2F6FE4]"
-                    >
-                      + Add
-                    </button>
+                  {clientErrors.motivation && (
+                    <p className="text-xs text-red-500">
+                      {clientErrors.motivation}
+                    </p>
                   )}
                 </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept="application/pdf"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-                {documents.length > 0 && (
-                  <div className="space-y-2">
-                    {documents.map((file, index) => (
-                      <div
-                        key={`${file.name}-${index}`}
-                        className="flex items-center justify-between rounded-lg border border-[#F1F5F9] p-2.5"
-                      >
-                        <div className="flex min-w-0 items-center gap-2">
-                          <FileText className="size-6 shrink-0 text-[#344256]" />
-                          <p className="truncate text-xs leading-3.75 text-[#0A0A0A]">
-                            {file.name}
-                          </p>
-                        </div>
-                        <div className="flex shrink-0 items-center gap-1">
-                          <button
-                            type="button"
-                            onClick={() => replaceDocument(index)}
-                            className="rounded-full bg-[#F8FAFC] px-3 py-1 text-xs leading-[19.5px] font-medium text-[#65758B]"
-                          >
-                            Replace
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => removeDocument(index)}
-                            className="flex size-6 items-center justify-center cursor-pointer rounded-full text-[#9EACC0] hover:text-[#64748B]"
-                          >
-                            <X className="size-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {clientErrors.documents && (
-                  <p className="text-xs text-red-500">
-                    {clientErrors.documents}
+
+                <div className="space-y-2">
+                  <p className="text-xs leading-4.5 font-medium text-[#364153]">
+                    Relevant Experience
                   </p>
-                )}
+                  <Textarea
+                    value={relevantExperience}
+                    onChange={(e) => {
+                      const nextValue = e.target.value.slice(0, 2000);
+                      setRelevantExperience(nextValue);
+                      if (clientErrors.relevantExperience) {
+                        setClientErrors((previous) => ({
+                          ...previous,
+                          relevantExperience: getLaunchpadApplicationErrors({
+                            motivation,
+                            relevantExperience: nextValue,
+                            portfolioUrl,
+                          }).relevantExperience,
+                        }));
+                      }
+                    }}
+                    onBlur={() => validateCurrentValues()}
+                    placeholder="Tell us about the experience that makes you a strong fit for these roles."
+                    required
+                    rows={3}
+                    aria-invalid={Boolean(clientErrors.relevantExperience)}
+                    className="w-full resize-none rounded-lg border-0 bg-[#F8FAFC] px-3 py-2.5 text-xs text-[#344256] outline-none placeholder:text-[#9EACC0] focus:ring-0"
+                  />
+                  {clientErrors.relevantExperience && (
+                    <p className="text-xs text-red-500">
+                      {clientErrors.relevantExperience}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-xs leading-4.5 font-medium text-[#364153]">
+                    Portfolio
+                  </p>
+                  <InputGroup className="h-11 rounded-lg bg-[#F8FAFC]">
+                    <InputGroupAddon>
+                      <Globe className="size-4 shrink-0 text-[#9EACC0]" />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      type="url"
+                      value={portfolioUrl}
+                      onChange={(e) => {
+                        const nextValue = (
+                          e.target as HTMLInputElement
+                        ).value.slice(0, 255);
+                        setPortfolioUrl(nextValue);
+                        if (clientErrors.portfolioUrl) {
+                          setClientErrors((previous) => ({
+                            ...previous,
+                            portfolioUrl: getLaunchpadApplicationErrors({
+                              motivation,
+                              relevantExperience,
+                              portfolioUrl: nextValue,
+                            }).portfolioUrl,
+                          }));
+                        }
+                      }}
+                      onBlur={() => validateCurrentValues()}
+                      aria-invalid={Boolean(clientErrors.portfolioUrl)}
+                      placeholder="https://..."
+                      className="h-full bg-transparent p-0 text-xs text-[#344256] placeholder:text-[#9EACC0] focus-visible:ring-0"
+                    />
+                  </InputGroup>
+                  {clientErrors.portfolioUrl && (
+                    <p className="text-xs text-red-500">
+                      {clientErrors.portfolioUrl}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between">
+                    <p className="text-xs leading-4.5 font-medium text-[#364153]">
+                      Supporting Documents
+                    </p>
+                    {documents.length < 5 && (
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="cursor-pointer text-xs leading-4.5 font-semibold text-[#2F6FE4]"
+                      >
+                        + Add
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept="application/pdf"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                  {documents.length > 0 && (
+                    <div className="space-y-2">
+                      {documents.map((file, index) => (
+                        <div
+                          key={`${file.name}-${index}`}
+                          className="flex items-center justify-between rounded-lg border border-[#F1F5F9] p-2.5"
+                        >
+                          <div className="flex min-w-0 items-center gap-2">
+                            <FileText className="size-6 shrink-0 text-[#344256]" />
+                            <p className="truncate text-xs leading-3.75 text-[#0A0A0A]">
+                              {file.name}
+                            </p>
+                          </div>
+                          <div className="flex shrink-0 items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => replaceDocument(index)}
+                              className="rounded-full bg-[#F8FAFC] px-3 py-1 text-xs leading-[19.5px] font-medium text-[#65758B]"
+                            >
+                              Replace
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => removeDocument(index)}
+                              className="flex size-6 cursor-pointer items-center justify-center rounded-full text-[#9EACC0] hover:text-[#64748B]"
+                            >
+                              <X className="size-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {clientErrors.documents && (
+                    <p className="text-xs text-red-500">
+                      {clientErrors.documents}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              <DialogFooter className="mx-0 mb-0 mt-4 border-0 bg-transparent p-0 sm:justify-end">
+              <DialogFooter className="mx-0 mt-4 mb-0 shrink-0 border-0 bg-transparent p-0 sm:justify-end">
                 <DialogClose asChild>
                   <Button
                     type="button"
@@ -570,7 +575,7 @@ export default function LaunchpadSubmitApplicationDialog({
                   disabled={
                     isSubmitting || selectedRoleIds.length === 0 || !isFormValid
                   }
-                  className="h-10 rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white hover:bg-[#245cc2] disabled:opacity-50 gap-2"
+                  className="h-10 gap-2 rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white hover:bg-[#245cc2] disabled:opacity-50"
                 >
                   <Send className="size-4" />
                   {isSubmitting ? "Submitting…" : "Submit application"}
@@ -597,8 +602,8 @@ function SuccessState({
 }) {
   return (
     <div className="flex flex-col items-center gap-5 text-center">
-      <div className="flex w-14 h-14 items-center justify-center rounded-full bg-[#DCFCE7]">
-        <div className="flex w-11 h-11 items-center justify-center rounded-full bg-[#00BC7D]">
+      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#DCFCE7]">
+        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#00BC7D]">
           <CheckCircle2 className="size-6 text-white" />
         </div>
       </div>

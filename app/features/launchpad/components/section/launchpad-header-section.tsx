@@ -31,7 +31,7 @@ function LaunchpadHeroBackdrop() {
         alt=""
         src={launchpadHeroBackgroundImage}
         animate={floatAnimation}
-        className="absolute inset-[-5%] h-[110%] w-[110%] object-cover object-center"
+        className="absolute inset-[0%] h-[110%] w-[110%] object-cover object-center"
       />
       <div className="absolute inset-0 bg-[linear-gradient(170deg,rgba(255,255,255,0.25)_0%,rgba(255,255,255,0.75)_30%,rgba(255,255,255,1)_100%)]" />
     </div>

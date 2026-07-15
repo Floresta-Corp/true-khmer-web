@@ -167,32 +167,31 @@ export default function VolunteerApplicationDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-
-      <DialogContent className="min-w-lg rounded-[14px] border border-[#e1e7ef] p-0 [&>button]:right-6 [&>button]:top-5.5 [&>button]:rounded-full [&>button]:p-1.5 [&>button]:text-[#99a1af] [&>button]:opacity-100">
-        <div className="border-b border-[#f3f4f6] px-6 pb-3.75 pt-5 mb-6">
-          <h2 className="text-[20px] font-semibold leading-[25.2px] text-[#030213]">
+      <DialogContent className="flex max-h-[90vh] flex-col rounded-[14px] border border-[#e1e7ef] p-0 sm:min-w-lg [&>button]:top-5.5 [&>button]:right-6 [&>button]:rounded-full [&>button]:p-1.5 [&>button]:text-[#99a1af] [&>button]:opacity-100">
+        <div className="mb-6 shrink-0 border-b border-[#f3f4f6] px-4 pt-5 pb-3.75 sm:px-6">
+          <h2 className="text-[18px] leading-[25.2px] font-semibold text-[#030213] sm:text-[20px]">
             Volunteer Application
           </h2>
         </div>
 
-        <div className="space-y-5 px-6 max-h-[70vh] overflow-y-auto">
-          <div className="flex items-center gap-3.5 rounded-[14px] border-[0.8px] border-[rgba(47,111,228,0.1)] bg-[#f0f6ff] px-[18.3px] py-[20.8px] mb-5">
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 sm:px-6">
+          <div className="mb-5 flex items-center gap-3.5 rounded-[14px] border-[0.8px] border-[rgba(47,111,228,0.1)] bg-[#f0f6ff] px-[18.3px] py-[20.8px]">
             <div className="flex size-8.75 items-center justify-center rounded-2xl bg-[#2f6fe4]">
               <User className="size-6 text-white" />
             </div>
             <div>
-              <p className="text-[13px] font-bold leading-[19.5px] text-[#2f6fe4]">
+              <p className="text-[13px] leading-[19.5px] font-bold text-[#2f6fe4]">
                 Your True Khmer profile will be automatically shared
               </p>
-              <p className="text-[11px] font-medium leading-[16.5px] text-[rgba(47,111,228,0.7)]">
+              <p className="text-[11px] leading-[16.5px] font-medium text-[rgba(47,111,228,0.7)]">
                 The project owner will see your profile, tier, and details.
               </p>
             </div>
           </div>
 
           {selectedRoles.length > 0 && (
-            <div className="space-y-2 mb-6">
-              <p className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">
+            <div className="mb-6 space-y-2">
+              <p className="ml-1 text-xs font-black tracking-widest text-gray-400 uppercase">
                 Roles of Interest
               </p>
               <div className="space-y-2">
@@ -206,7 +205,7 @@ export default function VolunteerApplicationDialog({
                         : "border-[#e1e7ef] bg-[#f8fafc]",
                     )}
                   >
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <div className="flex min-w-0 flex-1 items-center gap-2">
                       {topPickRoleId === role.id && (
                         <Star className="size-3.5 shrink-0 fill-[#2f6fe4] text-[#2f6fe4]" />
                       )}
@@ -225,10 +224,10 @@ export default function VolunteerApplicationDialog({
             </div>
           )}
 
-          <div className="space-y-2 mb-6">
+          <div className="mb-6 space-y-2">
             <label
               htmlFor="availability"
-              className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1"
+              className="ml-1 text-xs font-black tracking-widest text-gray-400 uppercase"
             >
               Why do you want to join this project?
             </label>
@@ -257,10 +256,10 @@ export default function VolunteerApplicationDialog({
             )}
           </div>
 
-          <div className="space-y-2 mb-5">
+          <div className="mb-5 space-y-2">
             <label
               htmlFor="experience"
-              className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1"
+              className="ml-1 text-xs font-black tracking-widest text-gray-400 uppercase"
             >
               Relevant experience
             </label>
@@ -289,7 +288,7 @@ export default function VolunteerApplicationDialog({
             )}
           </div>
 
-          <div className="space-y-3 mb-5 flex justify-between">
+          <div className="mb-5 flex justify-between">
             <input
               type="file"
               ref={fileInputRef}
@@ -298,13 +297,13 @@ export default function VolunteerApplicationDialog({
               accept=".pdf,.doc,.docx"
               multiple
             />
-            <p className={`text-sm font-medium leading-5.25`}>
+            <p className={`text-sm leading-5.25 font-medium`}>
               Supporting Documents (Optional)
             </p>
             <Button
               type="button"
               variant="ghost"
-              className={`text-sm font-semibold leading-4.5`}
+              className={`text-sm leading-4.5 font-semibold`}
               onClick={handleTriggerUpload}
             >
               + Add
@@ -325,14 +324,14 @@ export default function VolunteerApplicationDialog({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <FileText className="size-6 text-[#2f6fe4]" />
-                    <p className="text-xs font-medium leading-[19.5px] text-[#0a0a0a]">
+                    <p className="text-xs leading-[19.5px] font-medium text-[#0a0a0a]">
                       {file.name}
                     </p>
                   </div>
                   <Button
                     type="button"
                     variant="ghost"
-                    className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-medium leading-[19.5px] text-[#ef4444] hover:text-[#dc2626]"
+                    className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs leading-[19.5px] font-medium text-[#ef4444] hover:text-[#dc2626]"
                     onClick={() => handleRemoveFile(index)}
                   >
                     Remove
@@ -343,14 +342,17 @@ export default function VolunteerApplicationDialog({
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2.5 px-6 pb-6">
+        <div className="flex shrink-0 flex-col-reverse items-center justify-end gap-2.5 px-4 pb-4 sm:flex-row sm:px-6 sm:pb-6">
           <DialogClose asChild>
-            <Button variant="outline" className="h-10 rounded-lg px-6 text-sm">
+            <Button
+              variant="outline"
+              className="h-10 w-full rounded-lg px-6 text-sm sm:w-auto"
+            >
               Cancel
             </Button>
           </DialogClose>
           <Button
-            className="h-10 rounded-lg bg-[#2f6fe4] px-6 text-sm text-[#f8fafc] hover:bg-[#245fca]"
+            className="h-10 w-full rounded-lg bg-[#2f6fe4] px-6 text-sm text-[#f8fafc] hover:bg-[#245fca] sm:w-auto"
             onClick={handleSubmit}
             disabled={fetcher.state !== "idle"}
           >

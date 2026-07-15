@@ -211,7 +211,7 @@ export default function QuestionCard({
       <div className="my-3 border-t border-[#f9fafb] sm:my-4" />
 
       {/* Footer with vote, answer count, and share */}
-      <div className="flex shrink-0 items-center gap-2 sm:gap-3.5">
+      <div className="flex shrink-0 items-center gap-2 sm:justify-start sm:gap-3.5">
         <QuestionVoteComponent question={question} className="h-7.5" />
 
         <button
