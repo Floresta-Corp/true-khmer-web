@@ -550,6 +550,49 @@ const PublicPartnerPhoto = z.object({ id: z.string().uuid(), url: z.string(), th
 
 const PublicPartnerDetailResponse = z.object({ ok: z.boolean(), partner: PublicPartner, photos: z.array(PublicPartnerPhoto) });
 
+const BlogCategoryResponse = z.object({ id: z.string().uuid(), name: z.string(), slug: z.string(), isVisible: z.boolean(), createdBy: z.string().uuid(), updatedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string() });
+const BlogCategoryWithUsageResponse = BlogCategoryResponse.and(z.object({ postCount: z.number() }));
+
+const GetBlogCategoriesResponse = z.object({ ok: z.boolean(), categories: z.array(BlogCategoryWithUsageResponse) });
+
+const CreateBlogCategoryRequest = z.object({ name: z.string().min(1).max(120), slug: z.string().min(1).max(140) });
+
+const CreateBlogCategoryResponse = z.object({ ok: z.boolean(), category: BlogCategoryResponse });
+
+const UpdateBlogCategoryRequest = z.object({ name: z.string().min(1).max(120), slug: z.string().min(1).max(140), isVisible: z.boolean() }).partial();
+
+const UpdateBlogCategoryResponse = z.object({ ok: z.boolean(), category: BlogCategoryResponse });
+
+const PaginationMeta = z.object({ page: z.number().int().gt(0), pageSize: z.number().int().gt(0), total: z.number().int().gte(0), totalPages: z.number().int().gte(0) });
+
+const ListModeratorBlogPostsResponse = z.object({ ok: z.boolean(), data: z.array(z.object({ id: z.string().uuid(), title: z.string(), slug: z.string(), excerpt: z.string(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), coverImageAlt: z.string().nullable(), coverImageCaption: z.string().nullable(), authorName: z.string(), authorRole: z.string().nullable(), tags: z.array(z.string()), categoryId: z.string().uuid().nullable(), categoryName: z.string().nullish(), isFeatured: z.boolean(), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]), placement: z.enum(["HOME", "CONTACT", "NONE"]), publishedAt: z.string().nullable(), createdBy: z.string().uuid(), updatedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string() })), meta: PaginationMeta });
+
+const CreateBlogPostRequest = z.object({ title: z.string().min(1).max(255), slug: z.string().max(255).optional(), excerpt: z.string().min(1), coverImageKey: z.string().max(600).nullish(), coverImageAlt: z.string().max(255).nullish(), coverImageCaption: z.string().nullish(), authorName: z.string().min(1).max(120), authorRole: z.string().max(120).nullish(), content: z.string().optional().default(""), tags: z.array(z.string().min(1).max(40)).max(5).optional(), categoryId: z.string().uuid().nullish(), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional().default("DRAFT"), placement: z.enum(["HOME", "CONTACT", "NONE"]).optional().default("HOME") });
+
+const BlogPostResponse = z.object({ id: z.string().uuid(), title: z.string(), slug: z.string(), excerpt: z.string(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), coverImageAlt: z.string().nullable(), coverImageCaption: z.string().nullable(), authorName: z.string(), authorRole: z.string().nullable(), content: z.string(), tags: z.array(z.string()), categoryId: z.string().uuid().nullable(), categoryName: z.string().nullish(), isFeatured: z.boolean(), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]), placement: z.enum(["HOME", "CONTACT", "NONE"]), publishedAt: z.string().nullable(), createdBy: z.string().uuid(), updatedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string() });
+
+const CreateBlogPostResponse = z.object({ ok: z.boolean(), post: BlogPostResponse });
+
+const PresignBlogImageUploadRequest = z.object({ contentType: z.string(), fileSize: z.number().int().gt(0).lte(5242880) });
+
+const PresignBlogImageUploadResponse = z.object({ ok: z.boolean(), upload: z.object({ uploadUrl: z.string(), method: z.literal("PUT"), requiredHeaders: z.record(z.string(), z.string()), imageKey: z.string(), publicUrl: z.string().nullable(), expiresInSeconds: z.number() }) });
+
+const GetBlogPostResponse = z.object({ ok: z.boolean(), post: BlogPostResponse });
+
+const UpdateBlogPostRequest = z.object({ title: z.string().min(1).max(255), slug: z.string().max(255), excerpt: z.string().min(1), coverImageKey: z.string().max(600).nullable(), coverImageAlt: z.string().max(255).nullable(), coverImageCaption: z.string().nullable(), authorName: z.string().min(1).max(120), authorRole: z.string().max(120).nullable(), content: z.string().default(""), tags: z.array(z.string().min(1).max(40)).max(5), categoryId: z.string().uuid().nullable(), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).default("DRAFT"), placement: z.enum(["HOME", "CONTACT", "NONE"]).default("HOME") }).partial();
+
+const UpdateBlogPostResponse = z.object({ ok: z.boolean(), post: BlogPostResponse });
+
+const DeleteBlogPostResponse = z.object({ ok: z.boolean() });
+
+const SetBlogPostFeaturedRequest = z.object({ isFeatured: z.boolean() });
+
+const BlogPostListingItemResponse = z.object({ id: z.string().uuid(), title: z.string(), slug: z.string(), excerpt: z.string(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), coverImageAlt: z.string().nullable(), coverImageCaption: z.string().nullable(), authorName: z.string(), authorRole: z.string().nullable(), tags: z.array(z.string()), categoryId: z.string().uuid().nullable(), categoryName: z.string().nullish(), isFeatured: z.boolean(), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]), placement: z.enum(["HOME", "CONTACT", "NONE"]), publishedAt: z.string().nullable(), createdBy: z.string().uuid(), updatedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string(), previewText: z.string() });
+
+const ListPublicBlogPostsResponse = z.object({ ok: z.boolean(), data: z.array(BlogPostListingItemResponse), meta: PaginationMeta, featuredPost: BlogPostListingItemResponse.nullable() });
+
+const GetPublicBlogPostResponse = z.object({ ok: z.boolean(), post: BlogPostResponse, relatedPosts: z.array(BlogPostListingItemResponse) });
+
 export const schemas = {
 	AuthRegisterRequest,
 	AuthUserProfile,
@@ -830,9 +873,300 @@ export const schemas = {
 	ListPublicPartnersResponse,
 	PublicPartnerPhoto,
 	PublicPartnerDetailResponse,
+	BlogCategoryResponse,
+	BlogCategoryWithUsageResponse,
+	GetBlogCategoriesResponse,
+	CreateBlogCategoryRequest,
+	CreateBlogCategoryResponse,
+	UpdateBlogCategoryRequest,
+	UpdateBlogCategoryResponse,
+	PaginationMeta,
+	ListModeratorBlogPostsResponse,
+	CreateBlogPostRequest,
+	BlogPostResponse,
+	CreateBlogPostResponse,
+	PresignBlogImageUploadRequest,
+	PresignBlogImageUploadResponse,
+	GetBlogPostResponse,
+	UpdateBlogPostRequest,
+	UpdateBlogPostResponse,
+	DeleteBlogPostResponse,
+	SetBlogPostFeaturedRequest,
+	BlogPostListingItemResponse,
+	ListPublicBlogPostsResponse,
+	GetPublicBlogPostResponse,
 };
 
 const endpoints = makeApi([
+	{
+		method: "get",
+		path: "/v1/admin/blog/category",
+		alias: "getV1adminblogcategory",
+		requestFormat: "json",
+		response: GetBlogCategoriesResponse,
+	},
+	{
+		method: "post",
+		path: "/v1/admin/blog/category",
+		alias: "postV1adminblogcategory",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: CreateBlogCategoryRequest
+			},
+		],
+		response: CreateBlogCategoryResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Category already exists`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "patch",
+		path: "/v1/admin/blog/category/:id",
+		alias: "patchV1adminblogcategoryId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: UpdateBlogCategoryRequest
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: UpdateBlogCategoryResponse,
+		errors: [
+			{
+				status: 404,
+				description: `Category not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Category already exists`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/blog/posts",
+		alias: "getV1adminblogposts",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gt(0).optional().default(1)
+			},
+			{
+				name: "pageSize",
+				type: "Query",
+				schema: z.number().int().gt(0).lte(100).optional()
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().optional()
+			},
+			{
+				name: "status",
+				type: "Query",
+				schema: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional()
+			},
+			{
+				name: "placement",
+				type: "Query",
+				schema: z.enum(["HOME", "CONTACT", "NONE"]).optional()
+			},
+			{
+				name: "sortField",
+				type: "Query",
+				schema: z.enum(["createdAt", "updatedAt", "publishedAt", "title"]).optional().default("updatedAt")
+			},
+			{
+				name: "sortOrder",
+				type: "Query",
+				schema: z.enum(["asc", "desc"]).optional().default("desc")
+			},
+		],
+		response: ListModeratorBlogPostsResponse,
+	},
+	{
+		method: "post",
+		path: "/v1/admin/blog/posts",
+		alias: "postV1adminblogposts",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: CreateBlogPostRequest
+			},
+		],
+		response: CreateBlogPostResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/blog/posts/:id",
+		alias: "getV1adminblogpostsId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetBlogPostResponse,
+		errors: [
+			{
+				status: 404,
+				description: `Blog post not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "patch",
+		path: "/v1/admin/blog/posts/:id",
+		alias: "patchV1adminblogpostsId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: UpdateBlogPostRequest
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: UpdateBlogPostResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Not the owner of this blog post`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Blog post not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/admin/blog/posts/:id",
+		alias: "deleteV1adminblogpostsId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: z.object({ ok: z.boolean() }),
+		errors: [
+			{
+				status: 403,
+				description: `Not the owner of this blog post`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Blog post not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/blog/posts/:id/featured",
+		alias: "postV1adminblogpostsIdfeatured",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: z.object({ isFeatured: z.boolean() })
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: UpdateBlogPostResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Only published blog posts can be featured`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Not the owner of this blog post`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Blog post not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/blog/posts/image/presign",
+		alias: "postV1adminblogpostsimagepresign",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: PresignBlogImageUploadRequest
+			},
+		],
+		response: PresignBlogImageUploadResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+		]
+	},
 	{
 		method: "get",
 		path: "/v1/admin/content-moderator",
@@ -2487,6 +2821,63 @@ const endpoints = makeApi([
 				status: 401,
 				description: `Unauthorized`,
 				schema: AuthProtectedErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/blog/public/category",
+		alias: "getV1blogpubliccategory",
+		requestFormat: "json",
+		response: GetBlogCategoriesResponse,
+	},
+	{
+		method: "get",
+		path: "/v1/blog/public/posts",
+		alias: "getV1blogpublicposts",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gt(0).optional().default(1)
+			},
+			{
+				name: "pageSize",
+				type: "Query",
+				schema: z.number().int().gt(0).lte(50).optional()
+			},
+			{
+				name: "categorySlug",
+				type: "Query",
+				schema: z.string().optional()
+			},
+			{
+				name: "sort",
+				type: "Query",
+				schema: z.enum(["newest", "oldest"]).optional().default("newest")
+			},
+		],
+		response: ListPublicBlogPostsResponse,
+	},
+	{
+		method: "get",
+		path: "/v1/blog/public/posts/:slug",
+		alias: "getV1blogpublicpostsSlug",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "slug",
+				type: "Path",
+				schema: z.string().min(1)
+			},
+		],
+		response: GetPublicBlogPostResponse,
+		errors: [
+			{
+				status: 404,
+				description: `Blog post not found`,
+				schema: z.void()
 			},
 		]
 	},
@@ -6118,6 +6509,28 @@ export type PublicPartner = z.infer<typeof schemas.PublicPartner>;
 export type ListPublicPartnersResponse = z.infer<typeof schemas.ListPublicPartnersResponse>;
 export type PublicPartnerPhoto = z.infer<typeof schemas.PublicPartnerPhoto>;
 export type PublicPartnerDetailResponse = z.infer<typeof schemas.PublicPartnerDetailResponse>;
+export type BlogCategoryResponse = z.infer<typeof schemas.BlogCategoryResponse>;
+export type BlogCategoryWithUsageResponse = z.infer<typeof schemas.BlogCategoryWithUsageResponse>;
+export type GetBlogCategoriesResponse = z.infer<typeof schemas.GetBlogCategoriesResponse>;
+export type CreateBlogCategoryRequest = z.infer<typeof schemas.CreateBlogCategoryRequest>;
+export type CreateBlogCategoryResponse = z.infer<typeof schemas.CreateBlogCategoryResponse>;
+export type UpdateBlogCategoryRequest = z.infer<typeof schemas.UpdateBlogCategoryRequest>;
+export type UpdateBlogCategoryResponse = z.infer<typeof schemas.UpdateBlogCategoryResponse>;
+export type PaginationMeta = z.infer<typeof schemas.PaginationMeta>;
+export type ListModeratorBlogPostsResponse = z.infer<typeof schemas.ListModeratorBlogPostsResponse>;
+export type CreateBlogPostRequest = z.infer<typeof schemas.CreateBlogPostRequest>;
+export type BlogPostResponse = z.infer<typeof schemas.BlogPostResponse>;
+export type CreateBlogPostResponse = z.infer<typeof schemas.CreateBlogPostResponse>;
+export type PresignBlogImageUploadRequest = z.infer<typeof schemas.PresignBlogImageUploadRequest>;
+export type PresignBlogImageUploadResponse = z.infer<typeof schemas.PresignBlogImageUploadResponse>;
+export type GetBlogPostResponse = z.infer<typeof schemas.GetBlogPostResponse>;
+export type UpdateBlogPostRequest = z.infer<typeof schemas.UpdateBlogPostRequest>;
+export type UpdateBlogPostResponse = z.infer<typeof schemas.UpdateBlogPostResponse>;
+export type DeleteBlogPostResponse = z.infer<typeof schemas.DeleteBlogPostResponse>;
+export type SetBlogPostFeaturedRequest = z.infer<typeof schemas.SetBlogPostFeaturedRequest>;
+export type BlogPostListingItemResponse = z.infer<typeof schemas.BlogPostListingItemResponse>;
+export type ListPublicBlogPostsResponse = z.infer<typeof schemas.ListPublicBlogPostsResponse>;
+export type GetPublicBlogPostResponse = z.infer<typeof schemas.GetPublicBlogPostResponse>;
 // End generated API schema types
 
 export const api = new Zodios(endpoints);

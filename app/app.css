@@ -216,6 +216,300 @@ body {
   }
 }
 
+/* Blog writing and rendering typography. */
+:root {
+  --blog-primary: #1c97d4;
+  --blog-secondary: #243d95;
+  --blog-content: oklch(21% 0.034 264.665);
+}
+
+.blog-compose-title {
+  font-family: var(--font-sans);
+  font-size: clamp(2.6rem, 3.9vw, 3.8rem);
+  line-height: 1.04;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.blog-compose-subtitle {
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 1.45vw, 1.2rem);
+  line-height: 1.55;
+  font-weight: 400;
+}
+
+.blog-rich-text,
+.blog-tiptap {
+  color: color-mix(in oklab, var(--blog-content) 88%, transparent);
+  font-size: 1.125rem;
+  line-height: 1.85;
+  font-family: var(--font-sans);
+}
+
+.blog-tiptap > :first-child {
+  margin-top: 0;
+}
+
+.blog-tiptap .blog-image-node {
+  position: relative;
+}
+
+.blog-tiptap .blog-image-node figcaption {
+  margin-top: 0.75rem;
+  text-align: center;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  font-style: italic;
+  color: color-mix(in oklab, var(--blog-content) 50%, transparent);
+}
+
+.blog-tiptap .blog-image-node.is-selected .blog-image-frame {
+  box-shadow: 0 0 0 2px #f97316;
+}
+
+.blog-tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: #7a7a7a;
+}
+
+.blog-rich-text .ql-align-center {
+  text-align: center;
+}
+.blog-rich-text .ql-align-right {
+  text-align: right;
+}
+.blog-rich-text .ql-align-justify {
+  text-align: justify;
+}
+
+.blog-rich-text p img,
+.blog-rich-text .ql-align-center img,
+.blog-rich-text .ql-align-right img,
+.blog-rich-text .ql-align-justify img {
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+}
+
+.blog-rich-text figure {
+  margin: 2rem auto;
+  max-width: 100%;
+}
+.blog-rich-text figure img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+.blog-rich-text figure figcaption {
+  margin-top: 0.75rem;
+  text-align: center;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: color-mix(in oklab, var(--blog-content) 50%, transparent);
+}
+
+.blog-tiptap h1,
+.blog-tiptap h2,
+.blog-tiptap h3,
+.blog-tiptap h4,
+.blog-tiptap h5,
+.blog-tiptap h6,
+.blog-rich-text h1,
+.blog-rich-text h2,
+.blog-rich-text h3,
+.blog-rich-text h4,
+.blog-rich-text h5,
+.blog-rich-text h6 {
+  color: var(--blog-content);
+  font-family: var(--font-sans);
+  letter-spacing: -0.03em;
+}
+
+.blog-tiptap h1,
+.blog-rich-text h1 {
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
+  line-height: 1.05;
+  font-weight: 700;
+}
+.blog-tiptap h2,
+.blog-rich-text h2 {
+  font-size: clamp(2rem, 3.1vw, 2.75rem);
+  line-height: 1.12;
+  font-weight: 700;
+}
+.blog-tiptap h3,
+.blog-rich-text h3 {
+  font-size: clamp(1.55rem, 2.35vw, 2.05rem);
+  line-height: 1.2;
+  font-weight: 700;
+}
+.blog-tiptap h4,
+.blog-rich-text h4 {
+  font-size: clamp(1.25rem, 1.8vw, 1.55rem);
+  line-height: 1.3;
+  font-weight: 650;
+}
+.blog-tiptap h5,
+.blog-rich-text h5 {
+  font-size: 1.05rem;
+  line-height: 1.4;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.blog-tiptap h6,
+.blog-rich-text h6 {
+  font-size: 0.95rem;
+  line-height: 1.45;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: color-mix(in oklab, var(--blog-content) 68%, transparent);
+}
+
+.blog-tiptap h1 + p,
+.blog-tiptap h2 + p,
+.blog-tiptap h3 + p,
+.blog-tiptap h4 + p,
+.blog-rich-text h1 + p,
+.blog-rich-text h2 + p,
+.blog-rich-text h3 + p,
+.blog-rich-text h4 + p {
+  margin-top: 0.7rem;
+}
+
+.blog-tiptap blockquote,
+.blog-rich-text blockquote {
+  border-left: 0;
+  border-radius: 1.5rem;
+  background: color-mix(in oklab, var(--blog-primary) 10%, white);
+  padding: 1.5rem 1.75rem;
+}
+
+.blog-tiptap pre,
+.blog-rich-text pre {
+  border-radius: 1.5rem;
+  background: #191919;
+  padding: 1.25rem 1.5rem;
+  color: white;
+}
+
+.blog-tiptap code,
+.blog-rich-text code {
+  border-radius: 0.45rem;
+  background: color-mix(in oklab, var(--blog-primary) 12%, white);
+  padding: 0.1rem 0.4rem;
+  font-size: 0.95em;
+  color: var(--blog-primary);
+}
+
+.blog-tiptap ul,
+.blog-rich-text ul {
+  list-style: disc;
+  list-style-position: outside;
+  padding-left: 1.5rem;
+}
+.blog-tiptap ol,
+.blog-rich-text ol {
+  list-style: decimal;
+  list-style-position: outside;
+  padding-left: 1.75rem;
+}
+.blog-tiptap li,
+.blog-rich-text li {
+  display: list-item;
+}
+.blog-tiptap ul > li::marker,
+.blog-rich-text ul > li::marker,
+.blog-tiptap ol > li::marker,
+.blog-rich-text ol > li::marker {
+  color: color-mix(in oklab, var(--blog-content) 68%, transparent);
+}
+
+.blog-tiptap p,
+.blog-rich-text p {
+  margin: 0;
+}
+.blog-tiptap p:has(> br:only-child),
+.blog-rich-text p:has(> br:only-child) {
+  min-height: 1.1em;
+}
+.blog-tiptap p + p,
+.blog-tiptap ul + p,
+.blog-tiptap ol + p,
+.blog-tiptap p + ul,
+.blog-tiptap p + ol,
+.blog-tiptap blockquote + p,
+.blog-tiptap pre + p,
+.blog-rich-text p + p,
+.blog-rich-text ul + p,
+.blog-rich-text ol + p,
+.blog-rich-text p + ul,
+.blog-rich-text p + ol,
+.blog-rich-text blockquote + p,
+.blog-rich-text pre + p {
+  margin-top: 1.1rem;
+}
+
+.blog-tiptap a,
+.blog-rich-text a {
+  color: var(--blog-primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.blog-rich-text p:empty {
+  display: block;
+  min-height: 1.1em;
+}
+.blog-rich-text p:empty::after {
+  content: "\00a0";
+  visibility: hidden;
+}
+.blog-rich-text p:has(> br:only-child) + p,
+.blog-rich-text p:empty + p,
+.blog-rich-text p + p:has(> br:only-child),
+.blog-rich-text p + p:empty,
+.blog-rich-text ul + p:has(> br:only-child),
+.blog-rich-text ul + p:empty,
+.blog-rich-text ol + p:has(> br:only-child),
+.blog-rich-text ol + p:empty {
+  margin-top: 1.1rem;
+}
+
+.blog-rich-text figure[data-type="article-image"] {
+  margin: 2rem auto;
+}
+.blog-rich-text
+  figure[data-type="article-image"][data-display-width="content"] {
+  max-width: 48rem;
+}
+.blog-rich-text figure[data-type="article-image"][data-display-width="wide"] {
+  max-width: 64rem;
+}
+.blog-rich-text figure[data-type="article-image"][data-display-width="full"] {
+  max-width: 100%;
+}
+.blog-rich-text figure[data-type="article-image"] img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 1.75rem;
+}
+.blog-rich-text figure[data-type="article-image"] figcaption {
+  margin-top: 0.75rem;
+  text-align: center;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  font-style: italic;
+  color: color-mix(in oklab, var(--blog-content) 50%, transparent);
+}
+
 /* Auto-dismiss progress bar for custom notification toasts */
 @keyframes toast-progress {
   from {

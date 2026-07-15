@@ -40,6 +40,8 @@ export default [
       ),
       route("poc", "features/poc/routes/poc.tsx"),
       route("poc/detail/:id", "features/poc/routes/poc.$id.tsx"),
+      route("blog", "features/blog/route/blog.tsx"),
+      route("blog/:slug", "features/blog/route/blog.$slug.tsx"),
       route("launchpad", "features/launchpad/route/launchpad.tsx"),
       route("launchpad/all", "features/launchpad/route/launchpad.all.tsx"),
       route(
@@ -135,6 +137,14 @@ export default [
       "registrations/partner/:partnerId",
       "features/admin/registrations/route/registrations.partner.$partnerId.tsx",
     ),
+    route("blog", "features/admin/blog/route/blog.tsx"),
+    route("blog/new", "features/admin/blog/route/blog.new.tsx"),
+    route("blog/preview", "features/admin/blog/route/blog.preview.tsx"),
+    route("blog/:postId", "features/admin/blog/route/blog.$postId.tsx"),
+    route(
+      "blog/:postId/edit",
+      "features/admin/blog/route/blog.$postId.edit.tsx",
+    ),
     route("partners", "features/admin/partners/route/partners.tsx"),
     route("partners/new", "features/admin/partners/route/partners.new.tsx"),
     route(
@@ -186,6 +196,14 @@ export default [
   route(
     "api/admin/partners/:partnerId/logo-presign",
     "routes/api/api.admin.partners.$partnerId.logo-presign.tsx",
+  ),
+  route(
+    "api/admin/blog/image-presign",
+    "features/admin/blog/route/blog.image-presign.ts",
+  ),
+  route(
+    "api/moderator/blog/autosave",
+    "features/admin/blog/route/blog.autosave.ts",
   ),
   route(
     "api/admin/partners/:partnerId/photo-presign",

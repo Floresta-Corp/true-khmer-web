@@ -5,6 +5,7 @@ import {
   Building2,
   ClipboardCheck,
   LayoutDashboard,
+  Newspaper,
   ShieldCheck,
   Users,
 } from "lucide-react";
@@ -50,6 +51,12 @@ export const navItems: NavItem[] = [
     label: "Partner",
     icon: Building2,
     href: "/tk-admin/partners",
+  },
+  {
+    id: "blog",
+    label: "Blog",
+    icon: Newspaper,
+    href: "/tk-admin/blog",
   },
 ];
 
