@@ -1,5 +1,6 @@
 import { isRouteErrorResponse, useRouteError } from "react-router";
 import { AccessRestricted } from "~/features/admin/components/access-restricted";
+import { BlogListPageSkeleton } from "../components/blog-list-page-skeleton";
 import { BlogListPage } from "../components/pages/blog-list-page";
 import { blogAction } from "../services/blog.action";
 import { blogLoader } from "../services/blog.loader";
@@ -9,6 +10,10 @@ export const action = blogAction;
 
 export function meta() {
   return [{ title: "Blog | True Khmer" }];
+}
+
+export function HydrateFallback() {
+  return <BlogListPageSkeleton />;
 }
 
 export function ErrorBoundary() {

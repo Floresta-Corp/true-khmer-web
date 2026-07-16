@@ -1,5 +1,13 @@
-import { useCallback, useEffect, useState } from "react";
-import { Link, useFetcher, useLoaderData, useSearchParams } from "react-router";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import {
+  Await,
+  Link,
+  useFetcher,
+  useLoaderData,
+  useLocation,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
 import {
   ChevronLeft,
   ChevronRight,
@@ -22,6 +30,10 @@ import {
 import { ConfirmationModal } from "~/features/admin/components/confirmation-modal";
 import { formatDate } from "~/lib/time";
 import { toast } from "sonner";
+import {
+  BlogCategoriesSkeleton,
+  BlogPostsGridSkeleton,
+} from "../blog-list-page-skeleton";
 import type { blogLoader } from "../../services/blog.loader";
 
 const postStatusStyles = {
@@ -34,8 +46,13 @@ const postStatusStyles = {
 } as const;
 
 export function BlogListPage() {
-  const { posts, meta, categories, currentUserId, filters } =
+  const { content, currentUserId, filters } =
     useLoaderData<typeof blogLoader>();
+  const location = useLocation();
+  const navigation = useNavigation();
+  const isLoadingContent =
+    navigation.state === "loading" &&
+    navigation.location?.pathname === location.pathname;
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryFetcher = useFetcher<{
     ok: boolean;
@@ -200,121 +217,140 @@ export function BlogListPage() {
                 </div>
               ) : null}
 
-              <div className="mt-5 flex flex-wrap gap-3">
-                {categories.length > 0 ? (
-                  categories.map((category) => (
-                    <div
-                      key={category.id}
-                      className="flex w-full min-w-0 flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 transition-colors sm:w-auto sm:gap-3 sm:px-4 dark:border-slate-700 dark:bg-slate-900"
-                    >
-                      {editingCategoryId === category.id ? (
-                        <categoryFetcher.Form
-                          method="post"
-                          className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto"
-                        >
-                          <input
-                            type="hidden"
-                            name="intent"
-                            value="updateCategory"
-                          />
-                          <input
-                            type="hidden"
-                            name="categoryId"
-                            value={category.id}
-                          />
-                          <Input
-                            type="text"
-                            name="name"
-                            defaultValue={category.name}
-                            className="min-w-0 flex-1 sm:w-44 sm:flex-none"
-                            aria-label={`Edit ${category.name} category`}
-                          />
-                          <Button
-                            type="submit"
-                            size="xs"
-                            className="bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"
-                          >
-                            Save
-                          </Button>
-                          <Button
-                            type="button"
-                            size="xs"
-                            variant="ghost"
-                            className="text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
-                            onClick={() => setEditingCategoryId(null)}
-                          >
-                            Cancel
-                          </Button>
-                        </categoryFetcher.Form>
-                      ) : (
-                        <div className="min-w-0 flex-1 sm:flex-none">
-                          <div className="text-sm font-semibold break-words text-slate-950 dark:text-slate-100">
-                            {category.name}
+              {isLoadingContent ? (
+                <BlogCategoriesSkeleton />
+              ) : (
+                <Suspense fallback={<BlogCategoriesSkeleton />}>
+                  <Await
+                    resolve={content}
+                    errorElement={
+                      <div className="mt-5 rounded-xl border border-dashed border-rose-200 bg-rose-50 px-4 py-5 text-center text-sm text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300">
+                        Failed to load categories.
+                      </div>
+                    }
+                  >
+                    {(resolved) => (
+                      <div className="mt-5 flex flex-wrap gap-3">
+                        {resolved.categories.length > 0 ? (
+                          resolved.categories.map((category) => (
+                            <div
+                              key={category.id}
+                              className="flex w-full min-w-0 flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 transition-colors sm:w-auto sm:gap-3 sm:px-4 dark:border-slate-700 dark:bg-slate-900"
+                            >
+                              {editingCategoryId === category.id ? (
+                                <categoryFetcher.Form
+                                  method="post"
+                                  className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto"
+                                >
+                                  <input
+                                    type="hidden"
+                                    name="intent"
+                                    value="updateCategory"
+                                  />
+                                  <input
+                                    type="hidden"
+                                    name="categoryId"
+                                    value={category.id}
+                                  />
+                                  <Input
+                                    type="text"
+                                    name="name"
+                                    defaultValue={category.name}
+                                    className="min-w-0 flex-1 sm:w-44 sm:flex-none"
+                                    aria-label={`Edit ${category.name} category`}
+                                  />
+                                  <Button
+                                    type="submit"
+                                    size="xs"
+                                    className="bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"
+                                  >
+                                    Save
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    size="xs"
+                                    variant="ghost"
+                                    className="text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+                                    onClick={() => setEditingCategoryId(null)}
+                                  >
+                                    Cancel
+                                  </Button>
+                                </categoryFetcher.Form>
+                              ) : (
+                                <div className="min-w-0 flex-1 sm:flex-none">
+                                  <div className="text-sm font-semibold break-words text-slate-950 dark:text-slate-100">
+                                    {category.name}
+                                  </div>
+                                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                                    {category.postCount} article
+                                    {category.postCount === 1 ? "" : "s"}
+                                  </div>
+                                </div>
+                              )}
+                              <Badge
+                                variant="outline"
+                                className={`gap-1.5 rounded-lg px-2 py-1 text-[10px] font-bold tracking-wider uppercase ${
+                                  category.isVisible
+                                    ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
+                                    : "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                                }`}
+                              >
+                                <span
+                                  className={`size-1.5 rounded-full ${category.isVisible ? "bg-emerald-500" : "bg-slate-400"}`}
+                                />
+                                {category.isVisible ? "Visible" : "Hidden"}
+                              </Badge>
+                              {editingCategoryId === category.id ? null : (
+                                <Button
+                                  type="button"
+                                  size="xs"
+                                  variant="ghost"
+                                  className="rounded-lg px-2.5 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
+                                  onClick={() =>
+                                    setEditingCategoryId(category.id)
+                                  }
+                                >
+                                  Edit
+                                </Button>
+                              )}
+                              <categoryFetcher.Form method="post">
+                                <input
+                                  type="hidden"
+                                  name="intent"
+                                  value="toggleCategoryVisibility"
+                                />
+                                <input
+                                  type="hidden"
+                                  name="categoryId"
+                                  value={category.id}
+                                />
+                                <input
+                                  type="hidden"
+                                  name="isVisible"
+                                  value={category.isVisible ? "false" : "true"}
+                                />
+                                <Button
+                                  type="submit"
+                                  size="xs"
+                                  variant="ghost"
+                                  className="rounded-lg px-2.5 text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+                                >
+                                  {category.isVisible ? "Hide" : "Show"}
+                                </Button>
+                              </categoryFetcher.Form>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="w-full rounded-xl border border-dashed border-slate-200 bg-white px-4 py-5 text-sm leading-6 text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+                            No categories yet. Create one so editors can assign
+                            blogs to it.
                           </div>
-                          <div className="text-xs text-slate-500 dark:text-slate-400">
-                            {category.postCount} article
-                            {category.postCount === 1 ? "" : "s"}
-                          </div>
-                        </div>
-                      )}
-                      <Badge
-                        variant="outline"
-                        className={`gap-1.5 rounded-lg px-2 py-1 text-[10px] font-bold tracking-wider uppercase ${
-                          category.isVisible
-                            ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300"
-                            : "border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                        }`}
-                      >
-                        <span
-                          className={`size-1.5 rounded-full ${category.isVisible ? "bg-emerald-500" : "bg-slate-400"}`}
-                        />
-                        {category.isVisible ? "Visible" : "Hidden"}
-                      </Badge>
-                      {editingCategoryId === category.id ? null : (
-                        <Button
-                          type="button"
-                          size="xs"
-                          variant="ghost"
-                          className="rounded-lg px-2.5 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
-                          onClick={() => setEditingCategoryId(category.id)}
-                        >
-                          Edit
-                        </Button>
-                      )}
-                      <categoryFetcher.Form method="post">
-                        <input
-                          type="hidden"
-                          name="intent"
-                          value="toggleCategoryVisibility"
-                        />
-                        <input
-                          type="hidden"
-                          name="categoryId"
-                          value={category.id}
-                        />
-                        <input
-                          type="hidden"
-                          name="isVisible"
-                          value={category.isVisible ? "false" : "true"}
-                        />
-                        <Button
-                          type="submit"
-                          size="xs"
-                          variant="ghost"
-                          className="rounded-lg px-2.5 text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
-                        >
-                          {category.isVisible ? "Hide" : "Show"}
-                        </Button>
-                      </categoryFetcher.Form>
-                    </div>
-                  ))
-                ) : (
-                  <div className="w-full rounded-xl border border-dashed border-slate-200 bg-white px-4 py-5 text-sm leading-6 text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
-                    No categories yet. Create one so editors can assign blogs to
-                    it.
-                  </div>
-                )}
-              </div>
+                        )}
+                      </div>
+                    )}
+                  </Await>
+                </Suspense>
+              )}
             </section>
 
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -408,199 +444,230 @@ export function BlogListPage() {
           </div>
         </Card>
 
-        {posts.length === 0 ? (
-          <div className="flex min-h-64 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-white px-5 py-12 text-center sm:min-h-80 dark:border-slate-800 dark:bg-slate-900">
-            <p className="text-lg font-semibold text-slate-950 sm:text-xl dark:text-white">
-              No blogs found
-            </p>
-            <p className="max-w-md text-sm leading-6 text-slate-500 sm:text-base dark:text-slate-400">
-              Create the first blog for the moderator team.
-            </p>
-          </div>
+        {isLoadingContent ? (
+          <BlogPostsGridSkeleton />
         ) : (
-          <>
-            <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-              {posts.map((post) => (
-                <Card
-                  key={post.id}
-                  className="h-full min-w-0 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-colors sm:p-6 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none dark:hover:border-slate-700"
-                >
-                  <div className="flex h-full min-w-0 flex-col gap-5 md:flex-row">
-                    {post.coverImageUrl ? (
-                      <img
-                        src={post.coverImageUrl}
-                        alt={post.coverImageAlt || post.title}
-                        className="aspect-video h-auto w-full shrink-0 rounded-xl object-cover md:aspect-auto md:h-52 md:w-56 xl:w-44 2xl:w-52"
-                      />
-                    ) : (
-                      <div className="flex aspect-video h-auto w-full shrink-0 flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 text-center text-slate-400 md:aspect-auto md:h-52 md:w-56 xl:w-44 2xl:w-52 dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-500">
-                        <div className="text-sm font-medium">
-                          No cover image
-                        </div>
-                        <div className="mt-1 text-xs">
-                          Add a hero image to improve the card preview.
-                        </div>
-                      </div>
-                    )}
-                    <div className="flex min-w-0 flex-1 flex-col">
-                      <div className="mb-3 flex flex-wrap gap-2">
-                        <Badge
-                          variant="outline"
-                          className={`gap-1.5 rounded-lg px-2 py-1 text-[10px] font-bold tracking-wider uppercase ${postStatusStyles[post.status]}`}
-                        >
-                          <span
-                            className={`size-1.5 rounded-full ${
-                              post.status === "PUBLISHED"
-                                ? "bg-emerald-500"
-                                : post.status === "ARCHIVED"
-                                  ? "bg-rose-500"
-                                  : "bg-sky-500"
-                            }`}
-                          />
-                          {post.status.toLowerCase()}
-                        </Badge>
-                        <Badge
-                          variant="outline"
-                          className="rounded-lg border-slate-200 bg-slate-100 px-2 py-1 text-[10px] font-bold tracking-wider text-slate-600 uppercase dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                        >
-                          {post.placement.toLowerCase()}
-                        </Badge>
-                        {post.categoryId ? (
-                          <Badge
-                            variant="outline"
-                            className="rounded-lg border-amber-200 bg-amber-50 px-2 py-1 text-[10px] font-bold tracking-wider text-amber-700 uppercase dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300"
-                          >
-                            {post.categoryName || "Unknown Category"}
-                          </Badge>
-                        ) : null}
-                        {post.isFeatured ? (
-                          <Badge
-                            variant="outline"
-                            className="rounded-lg border-blue-200 bg-blue-50 px-2 py-1 text-[10px] font-bold tracking-wider text-blue-700 uppercase dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300"
-                          >
-                            Featured on Blog
-                          </Badge>
-                        ) : null}
-                      </div>
-                      <h2
-                        className="line-clamp-3 text-xl leading-tight font-semibold break-words text-(--blog-secondary) sm:text-2xl xl:min-h-[5.5rem] dark:text-blue-300"
-                        title={post.title}
-                      >
-                        {post.title}
-                      </h2>
-                      <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600 sm:min-h-[3rem] sm:text-base dark:text-slate-300">
-                        {post.excerpt}
+          <Suspense fallback={<BlogPostsGridSkeleton />}>
+            <Await
+              resolve={content}
+              errorElement={
+                <div className="flex min-h-64 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-rose-200 bg-rose-50 px-5 py-12 text-center sm:min-h-80 dark:border-rose-900/60 dark:bg-rose-950/40">
+                  <p className="text-lg font-semibold text-rose-700 sm:text-xl dark:text-rose-300">
+                    Failed to load blogs
+                  </p>
+                </div>
+              }
+            >
+              {({ posts, meta }) => (
+                <>
+                  {posts.length === 0 ? (
+                    <div className="flex min-h-64 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-white px-5 py-12 text-center sm:min-h-80 dark:border-slate-800 dark:bg-slate-900">
+                      <p className="text-lg font-semibold text-slate-950 sm:text-xl dark:text-white">
+                        No blogs found
                       </p>
-                      <div className="mt-4 text-sm break-words text-slate-500 dark:text-slate-400">
-                        {post.authorName}
-                        {" • "}
-                        {formatDate(post.publishedAt || post.updatedAt)}
-                      </div>
-                      <div className="mt-auto flex flex-wrap gap-2 pt-5">
-                        <Button
-                          asChild
-                          variant="ghost"
-                          className="rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
-                        >
-                          <Link to={`/tk-admin/blog/${post.id}`}>View</Link>
-                        </Button>
-                        {post.status === "PUBLISHED" ? (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            className={
-                              post.isFeatured
-                                ? "rounded-lg border border-blue-900/60 bg-blue-950/40 text-blue-300"
-                                : "rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-900/50"
-                            }
-                            disabled={post.isFeatured}
-                            onClick={() => {
-                              if (post.isFeatured) return;
-                              postFetcher.submit(
-                                {
-                                  intent: "feature",
-                                  postId: post.id,
-                                  isFeatured: "true",
-                                },
-                                { method: "post" },
-                              );
-                            }}
+                      <p className="max-w-md text-sm leading-6 text-slate-500 sm:text-base dark:text-slate-400">
+                        Create the first blog for the moderator team.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+                        {posts.map((post) => (
+                          <Card
+                            key={post.id}
+                            className="h-full min-w-0 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-colors sm:p-6 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none dark:hover:border-slate-700"
                           >
-                            {post.isFeatured ? "Featured" : "Set as Featured"}
-                          </Button>
-                        ) : null}
-                        {post.createdBy === currentUserId ? (
-                          <>
-                            <Button
-                              asChild
-                              className="rounded-lg bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"
-                            >
-                              <Link to={`/tk-admin/blog/${post.id}/edit`}>
-                                Edit
-                              </Link>
-                            </Button>
+                            <div className="flex h-full min-w-0 flex-col gap-5 md:flex-row">
+                              {post.coverImageUrl ? (
+                                <img
+                                  src={post.coverImageUrl}
+                                  alt={post.coverImageAlt || post.title}
+                                  className="aspect-video h-auto w-full shrink-0 rounded-xl object-cover md:aspect-auto md:h-52 md:w-56 xl:w-44 2xl:w-52"
+                                />
+                              ) : (
+                                <div className="flex aspect-video h-auto w-full shrink-0 flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 text-center text-slate-400 md:aspect-auto md:h-52 md:w-56 xl:w-44 2xl:w-52 dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-500">
+                                  <div className="text-sm font-medium">
+                                    No cover image
+                                  </div>
+                                  <div className="mt-1 text-xs">
+                                    Add a hero image to improve the card
+                                    preview.
+                                  </div>
+                                </div>
+                              )}
+                              <div className="flex min-w-0 flex-1 flex-col">
+                                <div className="mb-3 flex flex-wrap gap-2">
+                                  <Badge
+                                    variant="outline"
+                                    className={`gap-1.5 rounded-lg px-2 py-1 text-[10px] font-bold tracking-wider uppercase ${postStatusStyles[post.status]}`}
+                                  >
+                                    <span
+                                      className={`size-1.5 rounded-full ${
+                                        post.status === "PUBLISHED"
+                                          ? "bg-emerald-500"
+                                          : post.status === "ARCHIVED"
+                                            ? "bg-rose-500"
+                                            : "bg-sky-500"
+                                      }`}
+                                    />
+                                    {post.status.toLowerCase()}
+                                  </Badge>
+                                  <Badge
+                                    variant="outline"
+                                    className="rounded-lg border-slate-200 bg-slate-100 px-2 py-1 text-[10px] font-bold tracking-wider text-slate-600 uppercase dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                                  >
+                                    {post.placement.toLowerCase()}
+                                  </Badge>
+                                  {post.categoryId ? (
+                                    <Badge
+                                      variant="outline"
+                                      className="rounded-lg border-amber-200 bg-amber-50 px-2 py-1 text-[10px] font-bold tracking-wider text-amber-700 uppercase dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300"
+                                    >
+                                      {post.categoryName || "Unknown Category"}
+                                    </Badge>
+                                  ) : null}
+                                  {post.isFeatured ? (
+                                    <Badge
+                                      variant="outline"
+                                      className="rounded-lg border-blue-200 bg-blue-50 px-2 py-1 text-[10px] font-bold tracking-wider text-blue-700 uppercase dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300"
+                                    >
+                                      Featured on Blog
+                                    </Badge>
+                                  ) : null}
+                                </div>
+                                <h2
+                                  className="line-clamp-3 text-xl leading-tight font-semibold break-words text-(--blog-secondary) sm:text-2xl xl:min-h-[5.5rem] dark:text-blue-300"
+                                  title={post.title}
+                                >
+                                  {post.title}
+                                </h2>
+                                <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600 sm:min-h-[3rem] sm:text-base dark:text-slate-300">
+                                  {post.excerpt}
+                                </p>
+                                <div className="mt-4 text-sm break-words text-slate-500 dark:text-slate-400">
+                                  {post.authorName}
+                                  {" • "}
+                                  {formatDate(
+                                    post.publishedAt || post.updatedAt,
+                                  )}
+                                </div>
+                                <div className="mt-auto flex flex-wrap gap-2 pt-5">
+                                  <Button
+                                    asChild
+                                    variant="ghost"
+                                    className="rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                                  >
+                                    <Link to={`/tk-admin/blog/${post.id}`}>
+                                      View
+                                    </Link>
+                                  </Button>
+                                  {post.status === "PUBLISHED" ? (
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      className={
+                                        post.isFeatured
+                                          ? "rounded-lg border border-blue-900/60 bg-blue-950/40 text-blue-300"
+                                          : "rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-900/50"
+                                      }
+                                      disabled={post.isFeatured}
+                                      onClick={() => {
+                                        if (post.isFeatured) return;
+                                        postFetcher.submit(
+                                          {
+                                            intent: "feature",
+                                            postId: post.id,
+                                            isFeatured: "true",
+                                          },
+                                          { method: "post" },
+                                        );
+                                      }}
+                                    >
+                                      {post.isFeatured
+                                        ? "Featured"
+                                        : "Set as Featured"}
+                                    </Button>
+                                  ) : null}
+                                  {post.createdBy === currentUserId ? (
+                                    <>
+                                      <Button
+                                        asChild
+                                        className="rounded-lg bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"
+                                      >
+                                        <Link
+                                          to={`/tk-admin/blog/${post.id}/edit`}
+                                        >
+                                          Edit
+                                        </Link>
+                                      </Button>
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        className="rounded-lg border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-900/50 dark:hover:text-rose-200"
+                                        onClick={() =>
+                                          setConfirmDelete({
+                                            isOpen: true,
+                                            postId: post.id,
+                                            title: post.title,
+                                          })
+                                        }
+                                      >
+                                        Delete
+                                      </Button>
+                                    </>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+
+                      {meta.totalPages > 1 && (
+                        <div className="flex flex-col items-center gap-4 pb-2 text-center">
+                          <div className="text-sm text-slate-600 dark:text-slate-400">
+                            Showing{" "}
+                            <span className="font-medium">
+                              {(meta.page - 1) * meta.pageSize + 1}
+                            </span>{" "}
+                            to{" "}
+                            <span className="font-medium">
+                              {Math.min(meta.page * meta.pageSize, meta.total)}
+                            </span>{" "}
+                            of <span className="font-medium">{meta.total}</span>{" "}
+                            results
+                          </div>
+                          <div className="flex w-full items-center justify-center gap-1 sm:gap-2">
                             <Button
                               type="button"
                               variant="ghost"
-                              className="rounded-lg border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-900/50 dark:hover:text-rose-200"
-                              onClick={() =>
-                                setConfirmDelete({
-                                  isOpen: true,
-                                  postId: post.id,
-                                  title: post.title,
-                                })
-                              }
+                              disabled={meta.page <= 1}
+                              onClick={() => goToPage(meta.page - 1)}
                             >
-                              Delete
+                              <ChevronLeft className="size-4" />
+                              Previous
                             </Button>
-                          </>
-                        ) : null}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-
-            {meta.totalPages > 1 && (
-              <div className="flex flex-col items-center gap-4 pb-2 text-center">
-                <div className="text-sm text-slate-600 dark:text-slate-400">
-                  Showing{" "}
-                  <span className="font-medium">
-                    {(meta.page - 1) * meta.pageSize + 1}
-                  </span>{" "}
-                  to{" "}
-                  <span className="font-medium">
-                    {Math.min(meta.page * meta.pageSize, meta.total)}
-                  </span>{" "}
-                  of <span className="font-medium">{meta.total}</span> results
-                </div>
-                <div className="flex w-full items-center justify-center gap-1 sm:gap-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    disabled={meta.page <= 1}
-                    onClick={() => goToPage(meta.page - 1)}
-                  >
-                    <ChevronLeft className="size-4" />
-                    Previous
-                  </Button>
-                  <span className="mx-0 text-xs font-medium whitespace-nowrap text-slate-600 sm:mx-2 sm:text-sm dark:text-slate-400">
-                    Page {meta.page} of {meta.totalPages}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    disabled={meta.page >= meta.totalPages}
-                    onClick={() => goToPage(meta.page + 1)}
-                  >
-                    Next
-                    <ChevronRight className="size-4" />
-                  </Button>
-                </div>
-              </div>
-            )}
-          </>
+                            <span className="mx-0 text-xs font-medium whitespace-nowrap text-slate-600 sm:mx-2 sm:text-sm dark:text-slate-400">
+                              Page {meta.page} of {meta.totalPages}
+                            </span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              disabled={meta.page >= meta.totalPages}
+                              onClick={() => goToPage(meta.page + 1)}
+                            >
+                              Next
+                              <ChevronRight className="size-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+            </Await>
+          </Suspense>
         )}
 
         <ConfirmationModal
