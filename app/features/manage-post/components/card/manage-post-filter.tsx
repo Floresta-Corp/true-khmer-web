@@ -91,7 +91,7 @@ export default function ManagePostFilters({
           </SelectContent>
         </Select>
 
-        <div className="relative w-63 md:w-72">
+        <div className="relative min-w-0 flex-1 sm:w-63 sm:flex-none md:w-72">
           <Search
             size={16}
             className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400"

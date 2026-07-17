@@ -162,7 +162,7 @@ export default function AskQuestionDialog({
               : "Question posted successfully!"),
         );
         reset();
-        if (preview && !existingImageKey) {
+        if (preview) {
           URL.revokeObjectURL(preview);
         }
         setPreview(null);
@@ -188,7 +188,6 @@ export default function AskQuestionDialog({
     reset,
     setError,
     preview,
-    existingImageKey,
   ]);
 
   useEffect(() => {
@@ -220,9 +219,9 @@ export default function AskQuestionDialog({
 
   useEffect(() => {
     return () => {
-      if (preview && !existingImageKey) URL.revokeObjectURL(preview);
+      if (preview) URL.revokeObjectURL(preview);
     };
-  }, [preview, existingImageKey]);
+  }, [preview]);
 
   const addTag = (rawValue: string) => {
     const nextTag = rawValue.trim();
@@ -522,7 +521,7 @@ export default function AskQuestionDialog({
               <Button
                 type="submit"
                 disabled={isBusy || !hasRequiredInput}
-                className="min-h-10 w-full flex-1 shrink-0 rounded-lg border-[#D1D9E6] text-sm font-medium text-[#344256] sm:h-9 sm:min-h-0 sm:w-auto sm:flex-none"
+                className="min-h-10 w-full flex-1 shrink-0 rounded-lg bg-[#2F6FE4] text-sm font-medium text-white hover:bg-[#1F62DF] sm:h-9 sm:min-h-0 sm:w-auto sm:flex-none"
               >
                 {isBusy ? "Updating..." : "Update question"}
               </Button>
