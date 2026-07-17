@@ -85,7 +85,7 @@ export default function QuestionCard({
               </Link>
               <span className="hidden text-[#595c5e] sm:inline">•</span>
               <span className="basis-full sm:hidden" aria-hidden="true" />
-              <span className="-mt-3 text-xs text-[#9eacc0]">
+              <span className="-mt-3 text-xs text-[#9eacc0] sm:mt-0">
                 {createdAgoLabel}
               </span>
               {isCurrentAuthor && (
