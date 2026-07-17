@@ -158,7 +158,7 @@ export default function ForumHeaderNew() {
             trigger={
               <button
                 type="button"
-                className="inline-flex h-8 items-center justify-center gap-2 rounded-lg bg-[#0050d4] px-6 text-base font-semibold text-[#f1f2ff] transition-colors hover:bg-[#0044b4] md:h-12 md:rounded-xl"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#0050d4] px-6 text-base font-semibold text-[#f1f2ff] transition-colors hover:bg-[#0044b4] md:h-11 md:rounded-xl"
               >
                 <span className="text-[18px] leading-none">+</span>
                 Ask a Question

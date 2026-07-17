@@ -51,7 +51,7 @@ export default function LaunchpadProjectDetailCard({
       </div>
       <Separator />
       <div>
-        <h2 className="mb-6 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+        <h2 className="mb-3 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
           Opportunity Overview
         </h2>
         <ExpandableText className="mb-4">{project.description}</ExpandableText>

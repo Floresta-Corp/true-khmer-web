@@ -18,6 +18,7 @@ import {
   User,
   Briefcase,
   Send,
+  X,
 } from "lucide-react";
 import { motion } from "motion/react";
 import BackToButton from "~/components/back-to-button";
@@ -368,7 +369,7 @@ export default function EditProfile() {
 
   return (
     <motion.div
-      className="min-h-screen bg-[#F8FAFC] px-4 py-8 sm:px-6 lg:px-8"
+      className="min-h-screen bg-[#F8FAFC] px-4 py-8 pb-28 sm:px-6 md:pb-8 lg:px-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -493,7 +494,7 @@ export default function EditProfile() {
 
                     {/* Basic Information */}
                     <motion.div
-                      className="grid grid-cols-2 gap-6"
+                      className="grid grid-cols-1 gap-6 md:grid-cols-2"
                       variants={containerVariants}
                       initial="hidden"
                       animate="visible"
@@ -539,7 +540,7 @@ export default function EditProfile() {
                     </motion.div>
 
                     <motion.div
-                      className="grid grid-cols-2 gap-6"
+                      className="grid grid-cols-1 gap-6 sm:grid-cols-2"
                       variants={containerVariants}
                       initial="hidden"
                       animate="visible"
@@ -837,11 +838,13 @@ export default function EditProfile() {
                         >
                           <Badge
                             variant="outline"
-                            className="flex cursor-pointer items-center gap-2 hover:bg-gray-100"
+                            className="flex h-10 cursor-pointer items-center gap-2 text-[13px] hover:bg-gray-100"
                             onClick={() => handleRemoveSkill(skill)}
                           >
                             {skill}
-                            <span className="ml-1">×</span>
+                            <span className="ml-1">
+                              <X size={12} />
+                            </span>
                           </Badge>
                         </motion.div>
                       ))}
@@ -862,7 +865,7 @@ export default function EditProfile() {
                       Social Links
                     </h3>
                     <motion.div
-                      className="grid grid-cols-2 gap-6"
+                      className="grid grid-cols-1 gap-6 sm:grid-cols-2"
                       variants={containerVariants}
                       initial="hidden"
                       animate="visible"
@@ -899,7 +902,7 @@ export default function EditProfile() {
                       </motion.div>
                     </motion.div>
                     <motion.div
-                      className="mt-6 grid grid-cols-2 gap-6"
+                      className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2"
                       variants={containerVariants}
                       initial="hidden"
                       animate="visible"
@@ -951,7 +954,7 @@ export default function EditProfile() {
                       Contact Details
                     </h3>
                     <motion.div
-                      className="grid grid-cols-2 gap-6"
+                      className="grid grid-cols-1 gap-6 sm:grid-cols-2"
                       variants={containerVariants}
                       initial="hidden"
                       animate="visible"
@@ -1025,52 +1028,11 @@ export default function EditProfile() {
                   </CardContent>
                 </Card>
               </motion.div>
-
-              {/* Action Buttons */}
-              <motion.div
-                className="flex justify-end gap-3"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.55, duration: 0.4 }}
-              >
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-10 cursor-pointer"
-                    onClick={() => navigate("/myspace")}
-                  >
-                    Cancel
-                  </Button>
-                </motion.div>
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Button
-                    type="submit"
-                    className="h-10 cursor-pointer bg-blue-600 text-white hover:bg-blue-700"
-                    disabled={fetcher.state !== "idle"}
-                  >
-                    {fetcher.state !== "idle" ? (
-                      <span className="inline-flex items-center gap-2">
-                        <Spinner className="size-4" />
-                        Saving...
-                      </span>
-                    ) : (
-                      "Save Changes"
-                    )}
-                  </Button>
-                </motion.div>
-              </motion.div>
             </motion.div>
 
             {/* Right Column - Profile Visibility */}
             <motion.div
-              className="space-y-4"
+              className="space-y-4 lg:col-start-3 lg:row-span-2 lg:row-start-1"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.35, duration: 0.5 }}
@@ -1113,7 +1075,7 @@ export default function EditProfile() {
                           <p className="text-sm font-semibold text-gray-800">
                             {label}
                           </p>
-                          <div className="flex gap-3">
+                          <div className="flex justify-between gap-2 sm:justify-start sm:gap-3">
                             {["public", "members", "private"].map((option) => {
                               const isActive =
                                 watch(key as keyof EditProfileFormData) ===
@@ -1121,6 +1083,7 @@ export default function EditProfile() {
                               return (
                                 <motion.div
                                   key={option}
+                                  className="flex-1 sm:flex-none"
                                   whileHover={{ scale: 1.03 }}
                                   whileTap={{ scale: 0.97 }}
                                 >
@@ -1138,7 +1101,7 @@ export default function EditProfile() {
                                         option,
                                       )
                                     }
-                                    className={`h-9 gap-5 rounded-lg border-0 px-4 text-xs font-medium shadow-none transition-all ${
+                                    className={`h-9 w-full gap-5 rounded-lg border-0 px-4 text-xs font-medium shadow-none transition-all sm:w-auto ${
                                       isActive
                                         ? "bg-blue-600 text-white hover:bg-blue-700"
                                         : "bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700"
@@ -1160,6 +1123,47 @@ export default function EditProfile() {
                     </p>
                   </CardContent>
                 </Card>
+              </motion.div>
+            </motion.div>
+
+            {/* Action Buttons */}
+            <motion.div
+              className="flex justify-end gap-3 lg:col-span-2 lg:col-start-1 lg:row-start-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.55, duration: 0.4 }}
+            >
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-10 cursor-pointer"
+                  onClick={() => navigate("/myspace")}
+                >
+                  Cancel
+                </Button>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  type="submit"
+                  className="h-10 cursor-pointer bg-blue-600 text-white hover:bg-blue-700"
+                  disabled={fetcher.state !== "idle"}
+                >
+                  {fetcher.state !== "idle" ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Spinner className="size-4" />
+                      Saving...
+                    </span>
+                  ) : (
+                    "Save Changes"
+                  )}
+                </Button>
               </motion.div>
             </motion.div>
           </motion.div>

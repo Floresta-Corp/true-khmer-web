@@ -25,19 +25,19 @@ export default function BenefitsSection({
   if (compact) {
     return (
       <div>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight">
+        <h2 className="mb-3.5 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
           {!hideIcon && (
-            <span className="inline-block mr-2 align-middle">
+            <span className="mr-2 inline-block align-middle">
               <Award className="size-[17.5px] text-[#2f6fe4]" />
             </span>
           )}
           Benefits
         </h2>
-        <div className="grid md:grid-cols-1 gap-4">
+        <div className="grid gap-4 md:grid-cols-1">
           {benefits.map((item) => (
             <div
               key={item}
-              className="flex gap-3 text-gray-600 dark:text-slate-300 items-start"
+              className="flex items-start gap-3 text-gray-600 dark:text-slate-300"
             >
               <CheckCircle2 className="mt-0.5 size-[17.5px] shrink-0 text-[#009966]" />
               {item}
@@ -58,7 +58,7 @@ export default function BenefitsSection({
         {benefits.map((item) => (
           <li
             key={item}
-            className="flex items-start gap-2 text-sm font-medium leading-[22.75px] text-[#4a5565]"
+            className="flex items-start gap-2 text-sm leading-[22.75px] font-medium text-[#4a5565]"
           >
             <CheckCircle2 className="mt-0.5 size-[17.5px] shrink-0 text-[#009966]" />
             {item}

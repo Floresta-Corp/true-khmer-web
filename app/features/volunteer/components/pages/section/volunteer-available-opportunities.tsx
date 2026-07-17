@@ -162,19 +162,19 @@ export function VolunteerAvailableOpportunities({
 
   return (
     <section
-      className={className || "w-full bg-gray-50 px-6 py-14 md:px-12 lg:px-28"}
+      className={className || "w-full bg-gray-50 px-6 py-10 md:px-12 lg:px-28"}
     >
       <div className="mx-auto flex w-full max-w-304 flex-col gap-8">
         {showHeader && (
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-[32px] font-bold leading-12 text-[#020618]">
+            <h2 className="text-2xl leading-12 font-bold text-[#020618] md:text-[32px]">
               Available Opportunities
             </h2>
             <Link to="/volunteer/all">
               <Button
                 type="button"
                 variant="ghost"
-                className="h-9 px-4 text-sm text-blue-500 hover:text-blue-700 hover:bg-transparent hover:underline"
+                className="h-9 px-4 text-sm text-blue-500 hover:bg-transparent hover:text-blue-700 hover:underline"
               >
                 View all
               </Button>

@@ -41,7 +41,9 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
     searchParams.get("tab") === "open-roles" ? "open-roles" : "details",
   );
   useEffect(() => {
-    setActiveTab(searchParams.get("tab") === "open-roles" ? "open-roles" : "details");
+    setActiveTab(
+      searchParams.get("tab") === "open-roles" ? "open-roles" : "details",
+    );
   }, [searchParams]);
   const handleTabChange = (value: string) => {
     setActiveTab(value === "open-roles" ? "open-roles" : "details");
@@ -107,7 +109,7 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
               size="icon"
               aria-label={isSaved ? "Unsave opportunity" : "Save opportunity"}
               className={cn(
-                "cursor-pointer size-8.75 rounded-[16px] border-0 bg-[#f8fafb] text-[#9eacc0] hover:bg-[#eff3f8] hover:text-[#65758b]",
+                "size-8.75 cursor-pointer rounded-[16px] border-0 bg-[#f8fafb] text-[#9eacc0] hover:bg-[#eff3f8] hover:text-[#65758b]",
                 {
                   "bg-blue-600 text-white hover:bg-blue-700 hover:text-white":
                     isSaved,
@@ -119,7 +121,7 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
                 <Spinner />
               ) : (
                 <Bookmark
-                  className={cn("size-3.5", {
+                  className={cn("size-4.5 md:size-4", {
                     "fill-white text-white": isSaved,
                   })}
                 />
@@ -132,9 +134,9 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="cursor-pointer size-8.75 rounded-[16px] border-0 bg-[#f8fafb] text-[#9eacc0] hover:bg-[#eff3f8] hover:text-[#65758b]"
+                  className="size-8.75 cursor-pointer rounded-[16px] border-0 bg-[#f8fafb] text-[#9eacc0] hover:bg-[#eff3f8] hover:text-[#65758b]"
                 >
-                  <EllipsisVertical className="size-3.5" />
+                  <EllipsisVertical className="size-4.5 md:size-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-40">
@@ -149,7 +151,7 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
                   onClick={handleReport}
                   className="cursor-pointer gap-2"
                 >
-                  <Flag className="size-3.5" />
+                  <Flag className="size-4.5 md:size-4" />
                   Report
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -173,7 +175,7 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
             </motion.article>
 
             <Tabs value={activeTab} onValueChange={handleTabChange}>
-              <TabsList variant="line" className="transition-all ">
+              <TabsList variant="line" className="transition-all">
                 <TabsTrigger value="details" className={tabItemClassName}>
                   Details
                 </TabsTrigger>
@@ -190,7 +192,7 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
                   transition={{ duration: prefersReducedMotion ? 0 : 0.25 }}
                 >
                   <Card className="rounded-3xl bg-white shadow-none">
-                    <CardContent className="p-10 [&_h2]:text-xl [&_h3]:text-xl [&_h2]:font-semibold [&_h3]:font-semibold space-y-8">
+                    <CardContent className="space-y-5 p-8 md:space-y-8 md:p-10 [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:text-xl [&_h3]:font-semibold">
                       <OpportunityDetailsGrid volunteer={volunteer} hideIcon />
                       <Separator />
                       <ProjectOverviewSection volunteer={volunteer} />

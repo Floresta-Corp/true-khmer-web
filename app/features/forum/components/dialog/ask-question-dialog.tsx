@@ -262,7 +262,7 @@ export default function AskQuestionDialog({
     return (
       <Link
         to={loginHref}
-        className="cursor-pointer flex h-10 w-full sm:w-auto items-center justify-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca]"
+        className="flex h-10 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca] sm:w-auto"
       >
         <Plus size={24} />
         Ask question
@@ -278,7 +278,7 @@ export default function AskQuestionDialog({
         {trigger || (
           <Button
             variant={"default"}
-            className="cursor-pointer flex h-10 w-full sm:w-auto items-center justify-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca]"
+            className="flex h-10 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca] sm:w-auto"
           >
             <Plus size={24} />
             Ask question
@@ -290,7 +290,7 @@ export default function AskQuestionDialog({
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
         showCloseButton={false}
-        className="max-w-[calc(100%-1rem)] gap-4 overflow-hidden rounded-2xl border border-[#e2e8f0] p-6 shadow-lg sm:max-w-130"
+        className="max-h-[90dvh] max-w-[calc(100%-1rem)] gap-4 overflow-y-auto rounded-2xl border border-[#e2e8f0] p-4 shadow-lg sm:max-h-[90vh] sm:max-w-130 sm:p-6"
       >
         <DialogClose asChild>
           <Button
@@ -312,7 +312,7 @@ export default function AskQuestionDialog({
           </DialogDescription>
         </div>
 
-        <div className="-mx-6 border-t border-[#e2e8f0]" />
+        <div className="-mx-4 border-t border-[#e2e8f0] sm:-mx-6" />
 
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -368,7 +368,7 @@ export default function AskQuestionDialog({
               {...register("body")}
               placeholder="What are the best resources for learning Khmer business law?"
               aria-invalid={Boolean(errors.body)}
-              className="h-30 overflow-x-auto max-w-full text-wrap rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm text-[#344256] placeholder:text-[#9eacc0] outline-none focus:border-[#2f6fe4] aria-invalid:border-red-500"
+              className="h-30 max-w-full overflow-x-auto rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm text-wrap text-[#344256] outline-none placeholder:text-[#9eacc0] focus:border-[#2f6fe4] aria-invalid:border-red-500"
               rows={1}
             />
             {errors.body ? (
@@ -382,7 +382,7 @@ export default function AskQuestionDialog({
             </Label>
             {preview ? (
               <div className="mt-2 flex gap-2">
-                <div className="group relative w-56 aspect-video overflow-hidden rounded-lg border-2 border-dashed border-[#d1d5db] bg-transparent hover:border-[#2f6fe4] focus-within:border-[#2f6fe4]">
+                <div className="group relative aspect-video w-full overflow-hidden rounded-lg border-2 border-dashed border-[#d1d5db] bg-transparent focus-within:border-[#2f6fe4] hover:border-[#2f6fe4] sm:w-56">
                   <img
                     src={preview}
                     alt={existingImageKey ? "existing image" : "preview"}
@@ -401,7 +401,7 @@ export default function AskQuestionDialog({
                       setSelectedFile(null);
                       setPreview(null);
                     }}
-                    className="absolute right-1 top-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/80 text-[#64748b] hover:bg-white"
+                    className="absolute top-1 right-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/80 text-[#64748b] hover:bg-white"
                     aria-label="Remove image"
                   >
                     <X className="h-3 w-3" />
@@ -411,7 +411,7 @@ export default function AskQuestionDialog({
             ) : (
               <label
                 htmlFor="images-upload"
-                className="group flex w-56 aspect-video cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-[#d1d5db] bg-transparent px-18 text-center hover:border-[#2f6fe4] focus-within:border-[#2f6fe4]"
+                className="group flex aspect-video w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-[#d1d5db] bg-transparent px-4 text-center focus-within:border-[#2f6fe4] hover:border-[#2f6fe4] sm:w-56"
               >
                 <div className="flex flex-col items-center gap-2">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#2f6fe4] shadow-sm">
@@ -496,12 +496,12 @@ export default function AskQuestionDialog({
             </div>
           ) : null}
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
             <DialogClose asChild>
               <Button
                 type="button"
                 variant="outline"
-                className="h-8 rounded-lg border-[#e1e7ef] px-3 text-sm font-medium text-[#1d283a]"
+                className="h-8 w-full rounded-lg border-[#e1e7ef] px-3 text-sm font-medium text-[#1d283a] sm:w-auto"
                 disabled={isBusy}
               >
                 Cancel
@@ -511,7 +511,7 @@ export default function AskQuestionDialog({
               <Button
                 type="submit"
                 disabled={isBusy}
-                className="h-8 rounded-lg bg-[#2f6fe4] px-3 text-sm font-medium text-white hover:bg-[#245fca]"
+                className="h-8 w-full rounded-lg bg-[#2f6fe4] px-3 text-sm font-medium text-white hover:bg-[#245fca] sm:w-auto"
               >
                 {isBusy ? "Updating..." : "Update question"}
               </Button>
@@ -519,7 +519,7 @@ export default function AskQuestionDialog({
               <Button
                 type="submit"
                 disabled={isBusy}
-                className="h-8 rounded-lg bg-[#2f6fe4] px-3 text-sm font-medium text-white hover:bg-[#245fca]"
+                className="h-8 w-full rounded-lg bg-[#2f6fe4] px-3 text-sm font-medium text-white hover:bg-[#245fca] sm:w-auto"
               >
                 {isBusy ? "Posting..." : "Post question"}
               </Button>

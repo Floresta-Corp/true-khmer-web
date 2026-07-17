@@ -12,7 +12,7 @@ export default function ProjectOverviewSection({
 
   return (
     <div className="space-y-3.5">
-      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight">
+      <h2 className="mb-3.5 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
         Opportunity Overview
       </h2>
       <ExpandableText>{overview}</ExpandableText>

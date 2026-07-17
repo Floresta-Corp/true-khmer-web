@@ -36,6 +36,7 @@ type NavLink = {
 
 const MYSPACE_SECTION_PATHS = [
   "/myspace",
+  "/edit-profile",
   "/my-applications",
   "/my-ticket",
   "/saved-items",
@@ -108,10 +109,14 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
     // { to: "/events", label: "Events", icon: Calendar },
     { to: "/volunteer", label: "Volunteer", icon: HeartHandshake },
     { to: "/launchpad", label: "Launchpad", icon: BriefcaseBusiness },
-    { to: "/blog", label: "Blog", icon: ClipboardPen },
     { to: "/about", label: "About", icon: CircleUser, hide: !!user },
     { to: "/poc", label: "POC", icon: TvMinimalPlay, hide: true },
   ];
+
+  // Mobile bottom nav shows the section link (My space / Workspace) at the
+  // far right instead of the left, while the desktop nav keeps it first.
+  const [firstNavLink, ...restNavLinks] = navLinks;
+  const mobileNavLinks: NavLink[] = [...restNavLinks, firstNavLink];
 
   return (
     <>
@@ -205,7 +210,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
       {/* Mobile Bottom Navigation Bar */}
       <nav className="fixed right-3 bottom-2.5 left-3 z-50 rounded-[24px] border-t border-gray-200 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] md:hidden">
         <div className="flex h-16 items-center justify-around gap-1.5 px-4">
-          {navLinks.map((link) => {
+          {mobileNavLinks.map((link) => {
             if (link.hide) return null;
             const isActive =
               link.forceActive ??

@@ -45,7 +45,7 @@ export default function ManagePostFilters({
   onSearchChange,
 }: Props) {
   return (
-    <div className="mt-4 flex w-full flex-wrap items-center justify-between gap-4">
+    <div className="mt-5 flex w-full flex-wrap items-center justify-between gap-4">
       <div className="scrollbar-none flex w-full max-w-full overflow-x-auto rounded-xl bg-gray-100 p-1 shadow-inner sm:w-max dark:bg-slate-900">
         {STATUS_TABS.map((tab) => (
           <button
@@ -81,7 +81,7 @@ export default function ManagePostFilters({
           value={activeType}
           onValueChange={(value) => onTypeChange(value as TabType)}
         >
-          <SelectTrigger className="h-10 w-30 rounded-xl border-slate-200 bg-white text-[14px] font-medium focus:ring-blue-500/20 md:w-36">
+          <SelectTrigger className="h-10 w-30 rounded-xl border-none bg-white text-[14px] focus:ring-blue-500/20 md:w-36">
             <SelectValue placeholder="All Types" />
           </SelectTrigger>
           <SelectContent className="rounded-xl border-slate-200">
@@ -91,14 +91,14 @@ export default function ManagePostFilters({
           </SelectContent>
         </Select>
 
-        <div className="relative w-fit md:w-72">
+        <div className="relative w-63 md:w-72">
           <Search
             size={16}
             className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400"
           />
           <Input
             className="h-10 rounded-xl border-slate-200 bg-white pr-4 pl-11 text-[14px] transition-all placeholder:font-medium placeholder:text-slate-400 focus-visible:ring-blue-500/20"
-            placeholder="Search postings name..."
+            placeholder="Search postings..."
             value={searchInput}
             onChange={(e) => {
               onSearchChange(e.target.value);

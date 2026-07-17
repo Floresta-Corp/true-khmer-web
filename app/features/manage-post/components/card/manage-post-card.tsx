@@ -80,7 +80,7 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
         className="group relative flex h-full cursor-pointer flex-col rounded-2xl border border-gray-100 bg-white p-3 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-gray-200/60"
       >
         {!isCompleted && (
-          <div className="absolute right-5  z-10">
+          <div className="absolute right-5 z-10">
             <ManagePostOption
               title={posting.title}
               status={posting.status}
@@ -106,13 +106,13 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
                 <HandHeart size={18} />
               )}
             </div>
-            <span className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-900">
+            <span className="text-[11px] font-black tracking-[0.18em] text-slate-900 uppercase">
               {posting.sourceType === "PROJECT" ? "Project" : "Volunteer"}
             </span>
           </div>
           <span
             className={cn(
-              "ml-auto rounded-full border px-3.5 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all pointer-events-none",
+              "pointer-events-none ml-auto rounded-full border px-3.5 py-1.5 text-[10px] font-black tracking-wider uppercase transition-all",
               !isCompleted && "mr-12",
               STATUS_STYLES[posting.status],
             )}
@@ -140,7 +140,7 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
         </div>
 
         <div className="mt-5 min-h-19 grow space-y-2">
-          <h3 className="line-clamp-1 text-xl font-bold leading-tight text-black transition-colors group-hover:text-blue-600">
+          <h3 className="line-clamp-1 text-xl leading-tight font-bold text-black transition-colors group-hover:text-blue-600">
             {posting.title}
           </h3>
           <p className="line-clamp-2 text-sm leading-relaxed text-slate-400">
@@ -151,31 +151,31 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
         <div className="mt-5 border-t border-slate-100 pt-4">
           <div className="grid grid-cols-3">
             <div className="flex flex-col items-center">
-              <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-slate-500">
-                <UsersRound className="size-3 " />
+              <span className="flex items-center gap-1 text-[9px] font-black tracking-widest text-slate-500 uppercase">
+                <UsersRound className="size-3" />
                 Roles
               </span>
-              <span className="mt-1 text-2xl font-semibold leading-none text-black">
+              <span className="mt-1 text-2xl leading-none font-semibold text-black">
                 {posting.roleCount}
               </span>
             </div>
 
             <div className="flex flex-col items-center border-x border-slate-200">
-              <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-slate-500">
-                <UsersRound className="size-3 " />
+              <span className="flex items-center gap-1 text-[9px] font-black tracking-widest text-slate-500 uppercase">
+                <UsersRound className="size-3" />
                 Applicants
               </span>
-              <span className="mt-1 text-2xl font-semibold leading-none text-black">
+              <span className="mt-1 text-2xl leading-none font-semibold text-black">
                 {posting.applicantCount}
               </span>
             </div>
 
             <div className="flex flex-col items-center">
-              <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-slate-500">
-                <Target className="size-3 " />
+              <span className="flex items-center gap-1 text-[9px] font-black tracking-widest text-slate-500 uppercase">
+                <Target className="size-3" />
                 Progress
               </span>
-              <span className="mt-1 text-2xl font-semibold leading-none text-black">
+              <span className="mt-1 text-2xl leading-none font-semibold text-black">
                 {posting.confirmedCount}/{posting.capacity}
               </span>
             </div>
@@ -186,7 +186,7 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
           {isCompleted ? (
             <Button
               variant="outline"
-              className="h-10 w-full rounded-xl border-slate-200 bg-slate-50 text-sm font-semibold  tracking-wider text-slate-600 transition-all hover:bg-blue-600 hover:text-white active:scale-[0.98]"
+              className="h-10 w-full rounded-xl border-slate-200 bg-slate-50 text-sm font-semibold tracking-wider text-slate-600 transition-all hover:bg-blue-600 hover:text-white active:scale-[0.98]"
               asChild
             >
               <Link to={cardHref}>
@@ -197,7 +197,7 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
           ) : (
             <Button
               variant="outline"
-              className="h-10 w-full rounded-xl border-slate-200 bg-slate-50 text-sm font-semibold  tracking-wider text-slate-500 transition-all hover:bg-blue-600 hover:text-white active:scale-[0.98]"
+              className="h-10 w-full rounded-xl border-slate-200 bg-slate-50 text-sm font-semibold tracking-wider text-slate-500 transition-all hover:bg-blue-600 hover:text-white active:scale-[0.98]"
               asChild
             >
               <Link to={cardHref}>{ACTION_LABELS[posting.sourceType]}</Link>

@@ -121,7 +121,7 @@ export default function ManagePostingPage() {
       subtitle="Manage and monitor your active community opportunities postings."
       action={<CreateOpportunityDialog />}
     >
-      <div className="mb-10 -mt-5 max-w-none">
+      <div className="-mt-5 mb-5 max-w-none">
         <ManagePostFilters
           activeType={activeType}
           filter={filter}
@@ -132,7 +132,7 @@ export default function ManagePostingPage() {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 xl:grid-cols-3">
         {isLoading ? (
           Array.from({ length: 6 }).map((_, i) => (
             <ManagePostCardSkeleton key={i} />
@@ -156,13 +156,13 @@ export default function ManagePostingPage() {
                 trigger={
                   <button
                     type="button"
-                    className="w-full h-full outline-dashed outline-2 outline-gray-200 border-none rounded-2xl p-5 flex flex-col items-center justify-center gap-2 min-h-55 hover:bg-gray-50 hover:outline-blue-400 transition-all group cursor-pointer"
+                    className="group flex h-full min-h-55 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-none p-5 outline-2 outline-gray-200 transition-all outline-dashed hover:bg-gray-50 hover:outline-blue-400"
                   >
-                    <div className="w-10 h-10 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-400 group-hover:border-blue-400 group-hover:text-blue-500 transition-colors shadow-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 shadow-sm transition-colors group-hover:border-blue-400 group-hover:text-blue-500">
                       <Plus size={20} strokeWidth={2.5} />
                     </div>
                     <div className="text-center">
-                      <p className="text-[15px] font-bold text-gray-500 group-hover:text-blue-600 transition-colors">
+                      <p className="text-[15px] font-bold text-gray-500 transition-colors group-hover:text-blue-600">
                         New Posting
                       </p>
                       <p className="text-[12px] text-gray-400">

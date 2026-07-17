@@ -32,10 +32,10 @@ const footerColumns = [
   {
     heading: "Community",
     links: [
-      { label: "Sponsors", to: "/" },
-      { label: "Success Stories", to: "/" },
-      { label: "Community", to: "/community" },
-      { label: "News", to: "/" },
+      // { label: "Sponsors", to: "/" },
+      // { label: "Success Stories", to: "/" },
+      { label: "Blog", to: "/blog" },
+      { label: "Partners", to: "/community" },
     ],
   },
   {

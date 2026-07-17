@@ -4,7 +4,6 @@ import { formatDistanceToNow } from "date-fns";
 import NotificationsList, {
   type NotificationItem,
 } from "~/features/notifications/components/notifications-list";
-import { useIsMobile } from "~/hooks/use-mobile";
 import NotificationFilterSidebar from "../notification-filter-sidebar";
 import { TooltipProvider } from "~/components/ui/tooltip";
 import { useNotifications } from "~/context/notification-context";
@@ -54,7 +53,6 @@ function toItem(notif: ApiNotification): NotificationItem {
 
 export default function NotificationPage() {
   const loaderData = useLoaderData<typeof loader>();
-  const isMobile = useIsMobile();
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const { setRecentNotifications, setUnreadCount } = useNotifications();
@@ -166,12 +164,10 @@ export default function NotificationPage() {
 
   return (
     <TooltipProvider>
-      <div className="min-h-[calc(100vh-4rem)] w-full bg-blue-gray-50 px-28 py-10">
-        <div className="flex gap-7 items-start w-full">
-          {!isMobile && (
-            <NotificationFilterSidebar unreadCount={data?.unreadCount ?? 0} />
-          )}
-          <div className="flex-1 flex flex-col">
+      <div className="bg-blue-gray-50 min-h-[calc(100dvh-4rem)] w-full px-4 pt-6 pb-24 sm:px-6 sm:py-10 md:px-10 md:pb-10 lg:px-16 xl:px-28">
+        <div className="flex w-full flex-col items-start gap-4 md:flex-row md:gap-7">
+          <NotificationFilterSidebar unreadCount={data?.unreadCount ?? 0} />
+          <div className="flex w-full flex-1 flex-col">
             <NotificationsList
               notifications={(data?.notifications ?? []).map(toItem)}
               unreadCount={data?.unreadCount ?? 0}

@@ -50,15 +50,15 @@ export default function VolunteerDateRangeField({
             type="button"
             variant="outline"
             aria-invalid={Boolean(error)}
-            className={`relative h-11 w-full justify-start rounded-lg bg-[#F8FAFC] pl-9 pr-3 text-left text-sm font-medium shadow-none hover:bg-[#F8FAFC] focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${
-              selectedRange?.from ? "text-[#364153]" : "text-[#C8D6E5]"
+            className={`relative mt-1.5 h-11 w-full justify-start rounded-lg bg-[#F8FAFC] pr-3 pl-9 text-left text-sm font-medium shadow-none hover:bg-[#F8FAFC] focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-blue-500 ${
+              selectedRange?.from ? "text-[#364153]" : "text-muted-foreground"
             } ${error ? "border-red-500" : "border-transparent"}`}
           >
-            <CalendarIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#99a1af]" />
+            <CalendarIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#99a1af]" />
             {displayValue}
           </Button>
         </PopoverTrigger>
-        <PopoverContent align="start" className="w-auto p-2 flex justify-start">
+        <PopoverContent align="start" className="flex w-auto justify-start p-2">
           <Calendar
             defaultMonth={new Date()}
             mode="range"

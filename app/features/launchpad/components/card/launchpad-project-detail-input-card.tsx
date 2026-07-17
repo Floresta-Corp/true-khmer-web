@@ -124,7 +124,7 @@ export default function LaunchpadProjectDetailInputCard({
           aria-invalid={Boolean(errors?.name)}
           aria-describedby={errors?.name ? projectNameErrorId : undefined}
           placeholder="e.g., Digital Literacy for Artisans"
-          className="h-12.5 rounded-xl border-none bg-[#F8FAFC] px-4 focus-visible:border-transparent focus-visible:ring-1 focus-visible:ring-blue-500/45 aria-invalid:ring-1 aria-invalid:ring-red-400/60"
+          className="mt-1.5 h-12.5 rounded-xl border-none bg-[#F8FAFC] px-4 focus-visible:border-transparent focus-visible:ring-1 focus-visible:ring-blue-500/45 aria-invalid:ring-1 aria-invalid:ring-red-400/60"
         />
         {errors?.name ? (
           <p id={projectNameErrorId} className="text-xs text-red-500">
@@ -143,7 +143,7 @@ export default function LaunchpadProjectDetailInputCard({
             ariaInvalid={Boolean(errors?.categoryId)}
             ariaDescribedBy={errors?.categoryId ? categoryErrorId : undefined}
             placeholder="e.g., Education"
-            triggerClassName="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC] focus:ring-blue-500/45 data-[state=open]:ring-blue-500/45 aria-invalid:ring-1 aria-invalid:ring-red-400/60"
+            triggerClassName="mt-1.5 h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC] focus:ring-blue-500/45 data-[state=open]:ring-blue-500/45 aria-invalid:ring-1 aria-invalid:ring-red-400/60"
           />
           {errors?.categoryId ? (
             <p id={categoryErrorId} className="text-xs text-red-500">
@@ -161,7 +161,7 @@ export default function LaunchpadProjectDetailInputCard({
             ariaInvalid={Boolean(errors?.cityId)}
             ariaDescribedBy={errors?.cityId ? cityErrorId : undefined}
             placeholder="e.g., Phnom Penh"
-            triggerClassName="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC] focus:ring-blue-500/45 data-[state=open]:ring-blue-500/45 aria-invalid:ring-1 aria-invalid:ring-red-400/60"
+            triggerClassName="mt-1.5 h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC] focus:ring-blue-500/45 data-[state=open]:ring-blue-500/45 aria-invalid:ring-1 aria-invalid:ring-red-400/60"
           />
           {errors?.cityId ? (
             <p id={cityErrorId} className="text-xs text-red-500">
