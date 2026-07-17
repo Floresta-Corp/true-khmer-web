@@ -8,6 +8,7 @@ import { HomeExploreSection } from "~/features/home/components/home-explore-sect
 import { HomeTrustedBySection } from "~/features/home/components/home-trusted-by-section";
 import { HomePillarsSection } from "~/features/home/components/home-pillars-section";
 import {
+  BlogFeed,
   DiscussionFeed,
   LaunchpadFeed,
   VolunteerFeed,
@@ -28,7 +29,7 @@ export const loader = homeLoader;
 export const action = homeAction;
 
 export default function Home() {
-  const { user, launchpads, volunteers, discussions } =
+  const { user, launchpads, volunteers, discussions, blogPosts } =
     useLoaderData<typeof loader>();
 
   return (
@@ -41,6 +42,7 @@ export default function Home() {
           <DiscussionFeed items={discussions} />
           <LaunchpadFeed items={launchpads} />
           <VolunteerFeed items={volunteers} />
+          <BlogFeed items={blogPosts} />
           {/* <EventsFeed items={upcomingEvents} /> */}
         </>
       ) : (
@@ -51,6 +53,7 @@ export default function Home() {
           <HomePillarsSection />
           <LaunchpadFeed items={launchpads} />
           <VolunteerFeed items={volunteers} />
+          <BlogFeed items={blogPosts} />
         </>
       )}
     </div>

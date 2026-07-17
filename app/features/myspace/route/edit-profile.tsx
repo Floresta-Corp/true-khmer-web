@@ -501,7 +501,7 @@ export default function EditProfile() {
                     >
                       <motion.div className="space-y-2" variants={itemVariants}>
                         <Label htmlFor="firstName">First name</Label>
-                        <InputGroup className="h-10">
+                        <InputGroup className="mt-1.5 h-12 has-[[data-slot=input-group-control]:focus-visible]:border-blue-500 has-[[data-slot=input-group-control]:focus-visible]:ring-blue-500/20 md:h-10">
                           <InputGroupAddon className="border-none bg-transparent">
                             <User className="size-3.5 text-gray-400" />
                           </InputGroupAddon>
@@ -520,7 +520,7 @@ export default function EditProfile() {
                       </motion.div>
                       <motion.div className="space-y-2" variants={itemVariants}>
                         <Label htmlFor="lastName">Last name</Label>
-                        <InputGroup className="h-10">
+                        <InputGroup className="mt-1.5 h-12 has-[[data-slot=input-group-control]:focus-visible]:border-blue-500 has-[[data-slot=input-group-control]:focus-visible]:ring-blue-500/20 md:h-10">
                           <InputGroupAddon className="border-none bg-transparent">
                             <User className="size-3.5 text-gray-400" />
                           </InputGroupAddon>
@@ -547,7 +547,7 @@ export default function EditProfile() {
                     >
                       <motion.div className="space-y-2" variants={itemVariants}>
                         <Label htmlFor="occupation">Occupation</Label>
-                        <InputGroup className="h-10">
+                        <InputGroup className="mt-1.5 h-12 has-[[data-slot=input-group-control]:focus-visible]:border-blue-500 has-[[data-slot=input-group-control]:focus-visible]:ring-blue-500/20 md:h-10">
                           <InputGroupAddon className="border-none bg-transparent">
                             <Briefcase className="size-3.5 text-gray-400" />
                           </InputGroupAddon>
@@ -575,6 +575,7 @@ export default function EditProfile() {
                           ]}
                           placeholder="Select gender"
                           icon={<User className="size-3.5 text-gray-400" />}
+                          className="ring-blue-500 focus:ring-blue-500 focus-visible:border-blue-500 focus-visible:ring-blue-500"
                         />
                         {errors.gender && (
                           <p className="mt-2 text-xs text-red-500">
@@ -612,6 +613,7 @@ export default function EditProfile() {
                           searchable={true}
                           searchPlaceholder="Search country..."
                           icon={<MapPin className="size-3.5 text-gray-400" />}
+                          className="ring-blue-500 focus:ring-blue-500 focus-visible:border-blue-500 focus-visible:ring-blue-500"
                         />
                       </motion.div>
 
@@ -632,6 +634,7 @@ export default function EditProfile() {
                           searchable={true}
                           searchPlaceholder="Search city..."
                           icon={<MapPin className="size-3.5 text-gray-400" />}
+                          className="ring-blue-500 focus:ring-blue-500 focus-visible:border-blue-500 focus-visible:ring-blue-500"
                         />
                       </motion.div>
                     </motion.div>
@@ -658,7 +661,7 @@ export default function EditProfile() {
                           type="date"
                           {...register("dateOfBirth")}
                           placeholder="Date"
-                          className="h-10"
+                          className="h-10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                         />
                       </motion.div>
                     </motion.div>
@@ -675,6 +678,7 @@ export default function EditProfile() {
                         {...register("bio")}
                         placeholder="Tell us about yourself"
                         rows={6}
+                        className="focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                       />
                     </motion.div>
                   </CardContent>
@@ -758,7 +762,7 @@ export default function EditProfile() {
                             }
                           }}
                           placeholder="Add a skill (e.g. Graphic Design)"
-                          className="h-10 text-sm"
+                          className="h-10 text-sm focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                           autoComplete="off"
                           aria-autocomplete="list"
                           aria-expanded={isSkillSuggestionsOpen}
@@ -881,7 +885,7 @@ export default function EditProfile() {
                         <Input
                           id="website"
                           {...register("website")}
-                          className="h-10"
+                          className="h-10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                           placeholder="https://truekhmer.org"
                         />
                       </motion.div>
@@ -897,7 +901,7 @@ export default function EditProfile() {
                           id="linkedin"
                           {...register("linkedin")}
                           placeholder="LinkedIn Profile URL"
-                          className="h-10"
+                          className="h-10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                         />
                       </motion.div>
                     </motion.div>
@@ -919,7 +923,7 @@ export default function EditProfile() {
                           id="twitter"
                           {...register("twitter")}
                           placeholder="Twitter Profile URL"
-                          className="h-10"
+                          className="h-10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                         />
                       </motion.div>
                       <motion.div className="space-y-2" variants={itemVariants}>
@@ -934,7 +938,7 @@ export default function EditProfile() {
                           id="facebook"
                           {...register("facebook")}
                           placeholder="Facebook Profile URL"
-                          className="h-10"
+                          className="h-10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
                         />
                       </motion.div>
                     </motion.div>
@@ -967,7 +971,7 @@ export default function EditProfile() {
                           <Send className="h-4 w-4 text-blue-600" />
                           Telegram username
                         </Label>
-                        <InputGroup className="h-10">
+                        <InputGroup className="h-10 has-[[data-slot=input-group-control]:focus-visible]:border-blue-500 has-[[data-slot=input-group-control]:focus-visible]:ring-blue-500/20">
                           <InputGroupAddon className="bg-blue-gray-50 border-r border-input px-3 text-sm font-medium text-gray-600">
                             @
                           </InputGroupAddon>

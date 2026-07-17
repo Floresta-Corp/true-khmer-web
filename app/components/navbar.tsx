@@ -218,10 +218,21 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                 ? location.pathname === "/"
                 : location.pathname === link.to ||
                   location.pathname.startsWith(`${link.to}/`));
+            // The My space / Workspace item is the only one with forceActive
+            // defined. Double-tapping it opens the space sidebar drawer.
+            const isSectionLink = link.forceActive !== undefined;
             return (
               <Link
                 key={link.to}
                 to={link.to}
+                onDoubleClick={
+                  isSectionLink
+                    ? () =>
+                        window.dispatchEvent(
+                          new CustomEvent("space-sidebar:open"),
+                        )
+                    : undefined
+                }
                 className={cn(
                   "flex flex-1 flex-col items-center justify-center gap-0.5 py-1 text-[11px] font-semibold transition-colors",
                   isActive ? "text-blue-600" : "text-gray-400",

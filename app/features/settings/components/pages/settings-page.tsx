@@ -15,19 +15,19 @@ export default function SettingsPage() {
   const [view, setView] = useState<View>("security");
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <div className="min-h-screen bg-[#F5F7FA] px-4 pt-10 pb-24 sm:px-6 md:pb-10 lg:px-8">
+      <div className="mx-auto max-w-5xl space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-[#1A2233]">Settings</h1>
-          <p className="text-sm text-[#6B7A99] mt-1">
+          <p className="mt-1 text-sm text-[#6B7A99]">
             Update your personal information, photo, and privacy settings.
           </p>
         </div>
 
-        <Card className="border border-[#E5EAF2] shadow-sm rounded-2xl overflow-hidden">
+        <Card className="overflow-hidden rounded-2xl border border-[#E5EAF2] shadow-sm">
           <CardContent className="p-0">
-            <div className="flex flex-col md:flex-row min-h-130">
-              <nav className="w-full md:w-64 border-b md:border-b-0 md:border-r border-[#E5EAF2] p-4 space-y-1 shrink-0">
+            <div className="flex min-h-130 flex-col md:flex-row">
+              <nav className="w-full shrink-0 space-y-1 border-b border-[#E5EAF2] p-4 md:w-64 md:border-r md:border-b-0">
                 <SidebarItem
                   icon={<ShieldCheck className="size-4" />}
                   label="Account Security"

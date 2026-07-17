@@ -113,7 +113,10 @@ export default function ForumDetailQuestionHeader({
             <span className="sr-only">Open actions</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-36">
+        <DropdownMenuContent
+          align="end"
+          className="flex min-w-36 flex-col gap-1 md:min-w-64"
+        >
           {!isAuthenticated ? (
             <DropdownMenuItem asChild>
               <Link

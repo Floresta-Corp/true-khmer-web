@@ -167,7 +167,7 @@ export function VolunteerAvailableOpportunities({
       <div className="mx-auto flex w-full max-w-304 flex-col gap-8">
         {showHeader && (
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-2xl leading-12 font-bold text-[#020618] md:text-[32px]">
+            <h2 className="text-xl leading-12 font-bold text-[#020618] md:text-[32px]">
               Available Opportunities
             </h2>
             <Link to="/volunteer/all">

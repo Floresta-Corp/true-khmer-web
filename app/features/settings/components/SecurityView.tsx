@@ -17,6 +17,7 @@ import { Divider } from "./Divider";
 import { SecurityRow } from "./SecurityRow";
 import { TwoFactorToggle } from "./TwoFactorToggle";
 import type { SettingsActionData } from "../types";
+import { Badge } from "~/components/ui/badge";
 
 type PasswordErrors = {
   oldPassword?: string;
@@ -97,6 +98,10 @@ export function SecurityView({
   const successMessage =
     data?.ok && data.intent === "change-password" ? data.message : undefined;
 
+  const hasRequiredInput = setupNewPassword
+    ? Boolean(newPassword && confirmPassword)
+    : Boolean(oldPassword && newPassword && confirmPassword);
+
   return (
     <div className="space-y-10">
       <h2 className="text-2xl font-bold text-[#1A2233]">Account Security</h2>
@@ -111,7 +116,12 @@ export function SecurityView({
         label="Email address"
         description="The email address associated with your account."
       >
-        <span className="text-sm text-[#344256] font-medium">{email}</span>
+        <div className="flex items-center gap-2">
+          <Badge className="pointer-events-none inline-flex bg-gray-200 text-gray-500 sm:hidden">
+            can't change
+          </Badge>
+          <span className="text-sm font-medium text-[#344256]">{email}</span>
+        </div>
       </SecurityRow>
 
       <Divider />
@@ -128,18 +138,20 @@ export function SecurityView({
           <DialogTrigger asChild>
             <Button
               variant="outline"
-              className="rounded-lg border-[#D1D9E6] text-[#344256] font-medium text-sm h-9 px-4 hover:bg-[#F0F4FA]"
+              className="h-9 rounded-lg border-[#D1D9E6] px-4 text-sm font-medium text-[#344256] hover:bg-[#F0F4FA]"
             >
               {setupNewPassword ? "Set Password" : "Change Password"}
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogContent className="rounded-2xl sm:max-w-md">
             <DialogHeader>
-              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-[#EEF3FD] mx-auto mb-2">
+              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-[#EEF3FD]">
                 <Key className="size-5 text-[#2F6FE4]" />
               </div>
               <DialogTitle className="text-center text-[#1A2233]">
-                {setupNewPassword ? "Set your password" : "Change your password"}
+                {setupNewPassword
+                  ? "Set your password"
+                  : "Change your password"}
               </DialogTitle>
               <DialogDescription className="text-center text-[#6B7A99]">
                 {setupNewPassword
@@ -226,7 +238,8 @@ export function SecurityView({
                 }
               />
 
-              {serverErrors?.form || (setupNewPassword && serverErrors?.oldPassword) ? (
+              {serverErrors?.form ||
+              (setupNewPassword && serverErrors?.oldPassword) ? (
                 <p className="text-sm font-medium text-red-600">
                   {serverErrors.form ?? serverErrors.oldPassword}
                 </p>
@@ -234,17 +247,9 @@ export function SecurityView({
 
               <DialogFooter className="flex-col gap-2 rounded-b-2xl sm:flex-row">
                 <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1 rounded-lg border-[#D1D9E6] text-[#344256]"
-                  onClick={() => setOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 rounded-lg bg-[#2F6FE4] text-white hover:bg-[#1F62DF]"
+                  disabled={isSubmitting || !hasRequiredInput}
+                  className="min-h-10 w-full flex-1 shrink-0 rounded-lg bg-[#2F6FE4] text-base font-medium text-white hover:bg-[#1F62DF] sm:h-9 sm:min-h-0 sm:w-auto sm:text-sm"
                 >
                   {isSubmitting
                     ? setupNewPassword
@@ -253,6 +258,14 @@ export function SecurityView({
                     : setupNewPassword
                       ? "Set password"
                       : "Change password"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="min-h-10 w-full flex-1 shrink-0 rounded-lg border-[#D1D9E6] text-base font-medium text-[#344256] sm:h-9 sm:min-h-0 sm:w-auto sm:text-sm"
+                  onClick={() => setOpen(false)}
+                >
+                  Cancel
                 </Button>
               </DialogFooter>
             </fetcher.Form>

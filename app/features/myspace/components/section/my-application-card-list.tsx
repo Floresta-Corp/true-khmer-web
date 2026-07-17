@@ -183,7 +183,7 @@ function ApplicationCardActions({ application }: { application: Application }) {
   }
 
   return (
-    <div className="absolute right-5 top-5 z-10">
+    <div className="absolute top-5 right-5 z-10">
       <MyApplicationActions
         application={application}
         detailsHref={targetHref}
@@ -222,7 +222,7 @@ function ApplicationGroupCard({ application }: { application: Application }) {
 
           <Link
             to={targetHref}
-            className="group flex h-full w-full flex-col items-start gap-6 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 sm:flex-row sm:items-center sm:gap-8"
+            className="group flex h-full w-full flex-col items-start gap-6 rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none sm:flex-row sm:items-center sm:gap-8"
             aria-label={`View application detail for ${
               application.opportunityTitle || "application"
             }`}
@@ -235,7 +235,7 @@ function ApplicationGroupCard({ application }: { application: Application }) {
               />
               <span
                 className={cn(
-                  "absolute left-3 top-3 rounded-lg px-2.5 py-1 text-[9px] font-black uppercase tracking-widest shadow-sm",
+                  "absolute top-3 left-3 rounded-lg px-2.5 py-1 text-[9px] font-black tracking-widest uppercase shadow-sm",
                   getSourceTypeStyle(application.sourceType),
                 )}
               >
@@ -245,12 +245,12 @@ function ApplicationGroupCard({ application }: { application: Application }) {
 
             <div className="flex h-full min-w-0 flex-1 flex-col justify-center pr-10 sm:pr-12">
               <div className="flex flex-col gap-1">
-                <h2 className="line-clamp-2 text-2xl font-bold leading-tight tracking-tight text-[#111827] transition-colors group-hover:text-[#1A73E8] dark:text-white">
+                <h2 className="line-clamp-2 text-2xl leading-tight font-bold tracking-tight text-[#111827] transition-colors group-hover:text-[#1A73E8] dark:text-white">
                   {application.opportunityTitle || "Application"}
                 </h2>
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-medium text-gray-500 dark:text-slate-500">
+              <div className="mt-4 flex flex-col items-start gap-2 text-sm font-medium text-gray-500 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-2 dark:text-slate-500">
                 <div className="flex items-center gap-2">
                   <Calendar className="size-4 text-[#BDC1C6]" />
                   <span>{formatDate(application.deadline)}</span>
@@ -311,7 +311,7 @@ function ApplicationApprovedCard({
 
           <Link
             to={targetHref}
-            className="group flex w-full flex-col items-start gap-6 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 sm:flex-row sm:items-center sm:gap-8"
+            className="group flex w-full flex-col items-start gap-6 rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none sm:flex-row sm:items-center sm:gap-8"
             aria-label={`View application detail for ${
               application.opportunityTitle || "application"
             }`}
@@ -324,7 +324,7 @@ function ApplicationApprovedCard({
               />
               <span
                 className={cn(
-                  "absolute left-3 top-3 rounded-lg px-2.5 py-1 text-[9px] font-black uppercase tracking-widest shadow-sm",
+                  "absolute top-3 left-3 rounded-lg px-2.5 py-1 text-[9px] font-black tracking-widest uppercase shadow-sm",
                   getSourceTypeStyle(application.sourceType),
                 )}
               >
@@ -335,11 +335,11 @@ function ApplicationApprovedCard({
             <div className="min-w-0 flex-1 pr-10 sm:pr-12">
               <div className="flex flex-col gap-1">
                 <div className="flex flex-wrap items-start gap-x-3 gap-y-2">
-                  <h2 className="text-2xl font-bold leading-tight tracking-tight text-[#111827] transition-colors group-hover:text-[#1A73E8] dark:text-white">
+                  <h2 className="text-2xl leading-tight font-bold tracking-tight text-[#111827] transition-colors group-hover:text-[#1A73E8] dark:text-white">
                     {application.opportunityTitle || "Application"}
                   </h2>
                   {pendingRole ? (
-                    <span className="mt-1 inline-flex rounded-md bg-[#E6F4EA] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[#1E8E3E]">
+                    <span className="mt-1 inline-flex rounded-md bg-[#E6F4EA] px-3 py-1 text-[10px] font-black tracking-widest text-[#1E8E3E] uppercase">
                       Approved
                     </span>
                   ) : null}

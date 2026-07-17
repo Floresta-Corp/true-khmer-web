@@ -84,7 +84,10 @@ export default function QuestionCard({
                 {question.category.name}
               </Link>
               <span className="hidden text-[#595c5e] sm:inline">•</span>
-              <span className="text-xs text-[#9eacc0]">{createdAgoLabel}</span>
+              <span className="basis-full sm:hidden" aria-hidden="true" />
+              <span className="-mt-3 text-xs text-[#9eacc0]">
+                {createdAgoLabel}
+              </span>
               {isCurrentAuthor && (
                 <Badge
                   variant="secondary"

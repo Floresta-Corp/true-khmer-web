@@ -23,16 +23,24 @@ export default function MobileQuestionFilter({
   activeTab,
   onTabChange,
 }: MobileQuestionFilterProps) {
+  const label =
+    tabItems.find((t) => t.value === activeTab)?.label ?? tabItems[0].label;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="rounded-full px-4 py-2.5 text-sm">
-          {tabItems.find((t) => t.value === activeTab)?.label ??
-            tabItems[0].label}
-          <ChevronDown className="ml-2 size-3" />
+        <Button
+          variant="ghost"
+          className="inline-flex items-center gap-1 rounded-full px-3 py-2 text-xs font-semibold sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
+        >
+          <span className="truncate">{label}</span>
+          <ChevronDown className="ml-1 size-3 shrink-0 sm:ml-2" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
+      <DropdownMenuContent
+        align="start"
+        className="flex min-w-46.25 flex-col gap-1 md:min-w-64"
+      >
         {tabItems.map((tab) => (
           <DropdownMenuItem
             key={tab.value}

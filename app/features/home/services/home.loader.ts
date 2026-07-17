@@ -7,24 +7,34 @@ import {
 } from "~/api/volunteer/volunteer.server";
 import { getUpcomingEvents } from "~/features/events/lib/events.server";
 import { getPublicQuestionPagination } from "~/api/forum/forum-question.server";
+import { getPublicBlogPosts } from "~/api/blog/blog-public.server";
 
 const LAUNCHPAD_LIMIT = 6;
 const VOLUNTEER_LIMIT = 6;
 const DISCUSSION_LIMIT = 6;
+const BLOG_POST_LIMIT = 6;
 
 export async function homeLoader({ request }: LoaderFunctionArgs) {
   const userId = await getUserId(request);
 
-  const [user, launchpads, volunteers, upcomingEvents, discussions] =
+  const [user, launchpads, volunteers, upcomingEvents, discussions, blogPosts] =
     await Promise.all([
       getUser(request),
       loadLaunchpads(request),
       loadVolunteers(request, userId),
       safe(() => getUpcomingEvents(), []),
       loadDiscussions(request),
+      loadBlogPosts(request),
     ]);
 
-  return { user, launchpads, volunteers, upcomingEvents, discussions };
+  return {
+    user,
+    launchpads,
+    volunteers,
+    upcomingEvents,
+    discussions,
+    blogPosts,
+  };
 }
 
 async function loadDiscussions(request: Request) {
@@ -53,6 +63,15 @@ async function loadVolunteers(request: Request, userId: string | null) {
       ? await getVolunteerOpportunities(request, filter)
       : await getPublicVolunteerOpportunities(request, filter);
     return result?.data?.opportunities ?? [];
+  }, []);
+}
+
+async function loadBlogPosts(request: Request) {
+  return safe(async () => {
+    const result = await getPublicBlogPosts(request, {
+      pageSize: BLOG_POST_LIMIT,
+    });
+    return result?.data?.data ?? [];
   }, []);
 }
 

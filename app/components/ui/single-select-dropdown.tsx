@@ -109,7 +109,7 @@ export function SingleSelectDropdown({
             aria-invalid={ariaInvalid}
             aria-describedby={ariaDescribedBy}
             className={cn(
-              "flex h-10 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none ring-offset-background transition-colors placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate",
+              "mt-1.5 flex h-12 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs ring-offset-background transition-colors outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:h-10 [&>span]:truncate",
               triggerClassName,
               open && "ring-2 ring-ring ring-offset-2",
               className,
@@ -120,7 +120,7 @@ export function SingleSelectDropdown({
               <span
                 className={cn(
                   "truncate",
-                  !selected && "text-muted-foreground font-normal",
+                  !selected && "font-normal text-muted-foreground",
                 )}
               >
                 {selected?.label ?? placeholder}
@@ -153,13 +153,13 @@ export function SingleSelectDropdown({
               <div className="relative mb-2">
                 <Search
                   size={14}
-                  className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[#94A3B8]"
+                  className="pointer-events-none absolute top-1/2 left-2 -translate-y-1/2 text-[#94A3B8]"
                 />
                 <Input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder={searchPlaceholder}
-                  className="h-9 rounded-md border-[#E2E8F0] bg-white pl-7 pr-2 text-sm"
+                  className="h-9 rounded-md border-[#E2E8F0] bg-white pr-2 pl-7 text-sm"
                   onKeyDown={(event) => event.stopPropagation()}
                 />
               </div>

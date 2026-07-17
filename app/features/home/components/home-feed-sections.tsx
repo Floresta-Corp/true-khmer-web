@@ -10,7 +10,11 @@ import {
 import { HomeDiscussionCard } from "./home-discussion-card";
 import type { LaunchpadOpportunity } from "~/features/launchpad/types";
 import type { Opportunity } from "~/features/volunteer/types/volunteer-types";
-import type { QuestionResponse } from "~/types/api-client";
+import type {
+  BlogPostListingItemResponse,
+  QuestionResponse,
+} from "~/types/api-client";
+import { PublicBlogCard } from "~/features/blog/components/public-blog-card";
 
 // Cards fill the row so an exact number show per view (rest revealed by
 // scrolling). Widths subtract the 20px (1.25rem) `gap-5` between slides:
@@ -97,6 +101,23 @@ export function DiscussionFeed({ items }: { items: QuestionResponse[] }) {
       {items.map((question) => (
         <Slide key={question.id} width={THREE_UP}>
           <HomeDiscussionCard question={question} />
+        </Slide>
+      ))}
+    </HomeCarouselSection>
+  );
+}
+
+export function BlogFeed({ items }: { items: BlogPostListingItemResponse[] }) {
+  if (items.length === 0) return null;
+
+  return (
+    <HomeCarouselSection
+      title="Blogs"
+      trailing={<SeeMoreTile to="/blog" width={THREE_UP} />}
+    >
+      {items.map((post) => (
+        <Slide key={post.id} width={THREE_UP}>
+          <PublicBlogCard post={post} />
         </Slide>
       ))}
     </HomeCarouselSection>
