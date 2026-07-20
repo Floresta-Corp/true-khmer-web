@@ -247,7 +247,7 @@ export default function VolunteerApplicationDialog({
               }}
               aria-invalid={!!errors.availability}
               placeholder="e.g. Weekend only, 2-4 hours per week..."
-              className="h-21 w-full resize-none rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm font-medium text-[#364153] placeholder:text-[#65758b] focus-visible:border-[#2f6fe4] focus-visible:outline-none"
+              className="h-21 w-full resize-none rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm font-medium text-[#364153] placeholder:text-[#65758b] focus-visible:border-[#2f6fe4] focus-visible:ring-0"
             />
             {errors.availability && (
               <p className="text-[11px] font-medium text-red-500">
@@ -279,7 +279,7 @@ export default function VolunteerApplicationDialog({
               }}
               aria-invalid={!!errors.relevantExperience}
               placeholder="Briefly describe your experience relevant to this role..."
-              className="h-23.75 w-full resize-none rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm font-medium text-[#364153] placeholder:text-[#65758b] focus-visible:border-[#2f6fe4] focus-visible:outline-none"
+              className="h-23.75 w-full resize-none rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm font-medium text-[#364153] placeholder:text-[#65758b] focus-visible:border-[#2f6fe4] focus-visible:ring-0"
             />
             {errors.relevantExperience && (
               <p className="text-[11px] font-medium text-red-500">

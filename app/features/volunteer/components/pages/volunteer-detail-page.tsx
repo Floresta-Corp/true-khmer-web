@@ -22,7 +22,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "~/components/ui/dropdown-menu";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import CommitmentSection from "../sections/commitment-section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import AvailableRolesSection from "../sections/available-role-section";
@@ -45,8 +45,20 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
       searchParams.get("tab") === "open-roles" ? "open-roles" : "details",
     );
   }, [searchParams]);
+  const rolesSectionRef = useRef<HTMLDivElement>(null);
   const handleTabChange = (value: string) => {
     setActiveTab(value === "open-roles" ? "open-roles" : "details");
+  };
+  const handleShowAvailableRoles = () => {
+    setActiveTab("open-roles");
+    if (typeof window !== "undefined" && window.innerWidth < 1280) {
+      requestAnimationFrame(() => {
+        rolesSectionRef.current?.scrollIntoView({
+          behavior: prefersReducedMotion ? "auto" : "smooth",
+          block: "start",
+        });
+      });
+    }
   };
   const saving = fetcher.state === "loading" || fetcher.state === "submitting";
 
@@ -174,7 +186,12 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
               <OpportunityCover volunteer={volunteer} />
             </motion.article>
 
-            <Tabs value={activeTab} onValueChange={handleTabChange}>
+            <Tabs
+              ref={rolesSectionRef}
+              value={activeTab}
+              onValueChange={handleTabChange}
+              className="scroll-mt-24"
+            >
               <TabsList variant="line" className="transition-all">
                 <TabsTrigger value="details" className={tabItemClassName}>
                   Details
@@ -248,7 +265,7 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
                 totalCapacity={totalCapacity}
                 disableApplyButton={hideApplyButton}
                 disableButtonMessage="You cannot apply for this opportunity as you are the organizer"
-                onApplyNoRoles={() => setActiveTab("open-roles")}
+                onApplyNoRoles={handleShowAvailableRoles}
                 isActiveTabOpenRoles={activeTab === "open-roles"}
               />
               <OrganizerCard volunteer={volunteer} userId={userId ?? ""} />

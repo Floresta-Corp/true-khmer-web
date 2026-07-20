@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from "motion/react";
 import { useLoaderData } from "react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { EllipsisVertical } from "lucide-react";
 import LaunchpadProjectDetailCard from "../card/launchpad-project-detail-card";
 import LaunchpadProjectCoverCard from "../card/launchpad-project-cover-card";
@@ -34,8 +34,20 @@ export default function LaunchpadDetailPage() {
   const [activeTab, setActiveTab] = useState<"details" | "open-roles">(
     "details",
   );
+  const rolesSectionRef = useRef<HTMLDivElement>(null);
   const handleTabChange = (value: string) => {
     setActiveTab(value === "open-roles" ? "open-roles" : "details");
+  };
+  const handleShowAvailableRoles = () => {
+    setActiveTab("open-roles");
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      requestAnimationFrame(() => {
+        rolesSectionRef.current?.scrollIntoView({
+          behavior: prefersReducedMotion ? "auto" : "smooth",
+          block: "start",
+        });
+      });
+    }
   };
   const authorCardProps = {
     name: project.createdBy.name,
@@ -97,7 +109,12 @@ export default function LaunchpadDetailPage() {
               <LaunchpadProjectCoverCard project={project} />
             </motion.article>
 
-            <Tabs value={activeTab} onValueChange={handleTabChange}>
+            <Tabs
+              ref={rolesSectionRef}
+              value={activeTab}
+              onValueChange={handleTabChange}
+              className="scroll-mt-24"
+            >
               <TabsList variant="line" className="transition-all">
                 <TabsTrigger value="details" className={tabItemClassName}>
                   Details
@@ -153,7 +170,7 @@ export default function LaunchpadDetailPage() {
                 project={project}
                 userId={userId}
                 isActiveTabOpenRoles={activeTab === "open-roles"}
-                onApplyNoRoles={() => setActiveTab("open-roles")}
+                onApplyNoRoles={handleShowAvailableRoles}
                 disableApplyButton={hideApplyButton}
                 disableButtonMessage="You cannot apply for this project as you are the creator"
               />
