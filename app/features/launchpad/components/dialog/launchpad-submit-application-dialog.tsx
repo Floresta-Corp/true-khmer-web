@@ -413,7 +413,7 @@ export default function LaunchpadSubmitApplicationDialog({
                     required
                     rows={3}
                     aria-invalid={Boolean(clientErrors.motivation)}
-                    className="w-full resize-none rounded-lg border-0 bg-[#F8FAFC] px-3 py-2.5 text-xs text-[#344256] outline-none placeholder:text-[#9EACC0] focus:ring-0"
+                    className="w-full resize-none rounded-lg border bg-[#F8FAFC] px-3 py-2.5 text-xs text-[#344256] outline-none placeholder:text-[#9EACC0] focus-visible:border-[#2f6fe4] focus-visible:ring-0"
                   />
                   {clientErrors.motivation && (
                     <p className="text-xs text-red-500">
@@ -447,7 +447,7 @@ export default function LaunchpadSubmitApplicationDialog({
                     required
                     rows={3}
                     aria-invalid={Boolean(clientErrors.relevantExperience)}
-                    className="w-full resize-none rounded-lg border-0 bg-[#F8FAFC] px-3 py-2.5 text-xs text-[#344256] outline-none placeholder:text-[#9EACC0] focus:ring-0"
+                    className="w-full resize-none rounded-lg border bg-[#F8FAFC] px-3 py-2.5 text-xs text-[#344256] outline-none placeholder:text-[#9EACC0] focus-visible:border-[#2f6fe4] focus-visible:ring-0"
                   />
                   {clientErrors.relevantExperience && (
                     <p className="text-xs text-red-500">
@@ -460,7 +460,7 @@ export default function LaunchpadSubmitApplicationDialog({
                   <p className="text-xs leading-4.5 font-medium text-[#364153]">
                     Portfolio
                   </p>
-                  <InputGroup className="h-11 rounded-lg bg-[#F8FAFC]">
+                  <InputGroup className="h-11 rounded-lg bg-[#F8FAFC] has-[[data-slot=input-group-control]:focus-visible]:border-[#2f6fe4] has-[[data-slot=input-group-control]:focus-visible]:ring-0">
                     <InputGroupAddon>
                       <Globe className="size-4 shrink-0 text-[#9EACC0]" />
                     </InputGroupAddon>
@@ -486,7 +486,7 @@ export default function LaunchpadSubmitApplicationDialog({
                       onBlur={() => validateCurrentValues()}
                       aria-invalid={Boolean(clientErrors.portfolioUrl)}
                       placeholder="https://..."
-                      className="h-full bg-transparent p-0 text-xs text-[#344256] placeholder:text-[#9EACC0] focus-visible:ring-0"
+                      className="h-full border-0 bg-transparent p-0 text-xs text-[#344256] placeholder:text-[#9EACC0] focus-visible:border-[#2f6fe4] focus-visible:ring-0"
                     />
                   </InputGroup>
                   {clientErrors.portfolioUrl && (

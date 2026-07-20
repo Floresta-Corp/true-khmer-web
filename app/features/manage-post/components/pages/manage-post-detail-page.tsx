@@ -59,23 +59,23 @@ export default function ManagePostingDetailPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
-      className="max-w-7xl w-full mx-auto "
+      className="mx-auto w-full max-w-7xl"
     >
-      <div className="p-4 sm:p-8 pb-24 md:p-10">
+      <div className="p-4 pb-24 sm:p-8 md:p-10">
         <motion.div className="mb-6" {...fadeUp(0.05)}>
           <BackToButton to="/manage-post" />
         </motion.div>
 
         {/* Header Layout: Stacked on mobile, side-by-side on desktop */}
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           {/* Left: Metadata & Title */}
           <motion.div
             {...fadeUp(0.15)}
-            className="flex flex-col gap-3 min-w-0 w-full"
+            className="flex w-full min-w-0 flex-col gap-3"
           >
             <div className="flex flex-wrap items-center gap-3">
               <div
-                className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
                   isProjectPosting
                     ? "bg-blue-50 text-blue-600"
                     : "bg-indigo-50 text-indigo-600"
@@ -87,13 +87,13 @@ export default function ManagePostingDetailPage() {
                   <HandHeart size={18} />
                 )}
               </div>
-              <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
+              <span className="text-xs font-black tracking-[0.2em] text-slate-400 uppercase">
                 {isProjectPosting ? "Project" : "Volunteer"}
               </span>
-              <div className="w-px h-4 bg-gray-200" />
+              <div className="h-4 w-px bg-gray-200" />
               <span
                 className={cn(
-                  "px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border pointer-events-none",
+                  "pointer-events-none rounded-full border px-3 py-1 text-[10px] font-black tracking-widest uppercase",
                   STATUS_STYLES[
                     (postDetail?.posting?.status?.toUpperCase() ??
                       "DRAFT") as ManagePostStatus
@@ -105,7 +105,7 @@ export default function ManagePostingDetailPage() {
             </div>
 
             {/* Title: Wraps on mobile, truncates cleanly on large displays if needed */}
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight wrap-break-word">
+            <h1 className="text-2xl leading-tight font-bold wrap-break-word text-gray-900 sm:text-3xl">
               {postDetail?.posting?.title}
             </h1>
 
@@ -124,12 +124,12 @@ export default function ManagePostingDetailPage() {
           {/* Right: actions */}
           <motion.div
             {...fadeUp(0.2)}
-            className="flex items-center gap-3 w-full sm:w-auto shrink-0 md:self-start"
+            className="flex w-full shrink-0 items-center gap-3 sm:w-auto md:self-start"
           >
             {/* Edit Button */}
             <Link
               to={editRoute}
-              className="flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-brand-blue/20 hover:scale-[1.02] active:scale-95 transition-all w-full sm:w-auto whitespace-nowrap h-11"
+              className="shadow-brand-blue/20 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-bold whitespace-nowrap text-white shadow-lg transition-all hover:scale-[1.02] active:scale-95 sm:w-auto"
             >
               <Pencil size={18} />
               Edit Posting
@@ -140,7 +140,7 @@ export default function ManagePostingDetailPage() {
               <Share2 size={20} />
             </button> */}
 
-            <div className="shrink-0 h-11 w-11 relative">
+            <div className="relative h-11 w-11 shrink-0">
               {postDetail?.posting ? (
                 <ManagePostOption
                   status={postDetail.posting.status as ManagePostStatus}
