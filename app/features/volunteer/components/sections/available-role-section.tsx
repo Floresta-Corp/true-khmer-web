@@ -83,20 +83,20 @@ function RoleCard({ role, hideApplyButton, userId }: RoleCardProps) {
     }
     addRole(role.id);
   };
-  
+
   return (
     <AccordionItem
       value={role.id}
       className="overflow-hidden rounded-[16px] border border-gray-200"
     >
-      <AccordionTrigger className="px-5.25 py-4 text-left no-underline hover:no-underline [&>svg]:size-[17.5px] [&>svg]:text-[#2f6fe4] rounded-none items-center">
-        <div className="flex items-center justify-between w-full">
+      <AccordionTrigger className="items-center rounded-none px-5.25 py-4 text-left no-underline hover:no-underline [&>svg]:size-[17.5px] [&>svg]:text-[#2f6fe4]">
+        <div className="flex w-full items-center justify-between">
           <div>
             <h3 className="text-[16px] font-bold text-[#0a0a0a]">
               {role.title}
             </h3>
             <p className="mt-1 flex items-center gap-2 text-[14px] font-medium text-[#99A1AF]">
-              <span className="text-[#009966] text-[14px] font-medium">
+              <span className="text-[14px] font-medium text-[#009966]">
                 {role.capacity} spots open
               </span>
             </p>
@@ -104,15 +104,15 @@ function RoleCard({ role, hideApplyButton, userId }: RoleCardProps) {
         </div>
       </AccordionTrigger>
 
-      <AccordionContent className="px-5.25 pt-7.25 rounded-b-[16px] border-t border-[#0000001A]">
+      <AccordionContent className="rounded-b-[16px] border-t border-[#0000001A] px-5.25 pt-7.25">
         <div className="grid gap-5 lg:grid-cols-2">
           <ResponsibilitiesSection items={role.responsibilities} />
           <RequirementsSection items={role.requirements} />
         </div>
 
         {!hideApplyButton ? (
-          <div className="my-7.25 pt-7.25 w-full pb-3">
-            <div className="flex items-center gap-2 w-full">
+          <div className="my-7.25 w-full pt-7.25 pb-3">
+            <div className="flex w-full items-center gap-2">
               <Button
                 disabled={role.viewerApplied}
                 className={cn(
@@ -194,7 +194,7 @@ function RoleCard({ role, hideApplyButton, userId }: RoleCardProps) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 6 }}
                   transition={{ duration: 0.18 }}
-                  className="mt-3 py-2 px-3 bg-emerald-500 text-white font-semibold rounded-lg"
+                  className="mt-3 rounded-lg bg-emerald-500 px-3 py-2 font-semibold text-white"
                 >
                   <p className="flex items-center gap-1.5 text-xs">
                     <CheckCircle2 className="size-4" />
@@ -218,11 +218,11 @@ interface ResponsibilitiesSectionProps {
 
 function ResponsibilitiesSection({ items }: ResponsibilitiesSectionProps) {
   return (
-    <div className="space-y-3.5">
-      <h4 className="font-semibold text-[16px] text-[#030213] uppercase">
+    <div className="space-y-2.5">
+      <h4 className="text-[16px] font-semibold text-[#030213] uppercase">
         Responsibilities
       </h4>
-      <ul className="space-y-3.5">
+      <ul className="space-y-2.5">
         {items.map((item) => (
           <li
             key={item}
@@ -244,7 +244,7 @@ interface RequirementsSectionProps {
 function RequirementsSection({ items }: RequirementsSectionProps) {
   return (
     <div className="space-y-3.5">
-      <h4 className="font-semibold text-[16px] text-[#030213] uppercase">
+      <h4 className="text-[16px] font-semibold text-[#030213] uppercase">
         Requirements
       </h4>
       <ul className="space-y-3.5">

@@ -65,7 +65,7 @@ function CustomTextarea({
       ref={textareaRef}
       id={id}
       className={cn(
-        "w-full rounded-lg bg-[#F8FAFC] px-4 py-3 text-sm font-medium leading-5 text-[#364153] placeholder:text-[#C8D6E5] focus:outline-none",
+        "w-full rounded-lg bg-[#F8FAFC] px-4 py-3 text-sm leading-5 font-medium text-[#364153] placeholder:text-muted-foreground focus:outline-none",
         "border",
         hasError
           ? "border-red-500 ring-2 ring-red-200 focus:ring-red-500"
@@ -208,7 +208,7 @@ export default function VolunteerPostPage1({
   return (
     <div className="flex flex-col gap-8">
       <section className="rounded-2xl border border-[#E1E7EF] bg-white p-6">
-        <h2 className="text-[22px] font-bold leading-8.25 text-[#344256]">
+        <h2 className="text-[22px] leading-8.25 font-bold text-[#344256]">
           Opportunity Details
           <span className="inline-block text-red-600">*</span>
         </h2>
@@ -217,7 +217,7 @@ export default function VolunteerPostPage1({
 
         <div className="mt-6 space-y-6">
           <div className="space-y-4">
-            <FieldLabel className="text-[13px] font-semibold leading-[19.5px] text-[#344256]">
+            <FieldLabel className="text-[13px] leading-[19.5px] font-semibold text-[#344256]">
               Opportunity name
             </FieldLabel>
             <Input
@@ -227,7 +227,7 @@ export default function VolunteerPostPage1({
               onChange={(e) => onUpdateField("title", e.target.value)}
               placeholder="e.g., Digital Literacy for Artisans"
               aria-invalid={Boolean(errors?.title)}
-              className={`h-12.5 rounded-[14px] bg-[#F8FAFC] px-4.5 text-sm text-[#364153] placeholder:text-[#C8D6E5] focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:border-transparent ${errors?.title ? "border-red-500" : "border-transparent"}`}
+              className={`mt-1.5 h-12.5 rounded-[14px] bg-[#F8FAFC] px-4.5 text-sm text-[#364153] placeholder:text-muted-foreground focus-visible:ring-2 ${errors?.title ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/45" : "border-transparent focus-visible:border-transparent focus-visible:ring-blue-500/45"}`}
             />
             {errors?.title ? (
               <p className="text-xs text-red-500">{errors.title}</p>
@@ -239,7 +239,7 @@ export default function VolunteerPostPage1({
               <FieldLabel>Category</FieldLabel>
               <SelectOption
                 id="categoryId"
-                triggerClassName="h-11 w-full rounded-[14px] border border-[#E1E7EF] bg-[#F8FAFC] px-3 text-sm font-medium text-black shadow-none hover:bg-[#F8FAFC] focus:ring-blue-500/45 data-[state=open]:ring-blue-500/45"
+                triggerClassName="mt-1.5 h-11 w-full rounded-[14px] border border-[#E1E7EF] bg-[#F8FAFC] px-3 text-sm font-medium text-black shadow-none hover:bg-[#F8FAFC] focus:ring-blue-500/45 data-[state=open]:ring-blue-500/45"
                 ariaInvalid={Boolean(errors?.categoryId)}
                 data={categories}
                 defaultValue={formData.categoryId}
@@ -255,7 +255,7 @@ export default function VolunteerPostPage1({
               <FieldLabel>Location</FieldLabel>
               <SelectOption
                 id="locationId"
-                triggerClassName="h-11 w-full rounded-[14px] border border-[#E1E7EF] bg-[#F8FAFC] px-3 text-sm font-medium text-black shadow-none hover:bg-[#F8FAFC] focus:ring-blue-500/45 data-[state=open]:ring-blue-500/45"
+                triggerClassName="mt-1.5 h-11 w-full rounded-[14px] border border-[#E1E7EF] bg-[#F8FAFC] px-3 text-sm font-medium text-black shadow-none hover:bg-[#F8FAFC] focus:ring-blue-500/45 data-[state=open]:ring-blue-500/45"
                 ariaInvalid={Boolean(errors?.locationId)}
                 data={locations}
                 defaultValue={formData.locationId}
@@ -295,7 +295,7 @@ export default function VolunteerPostPage1({
           </div>
 
           <div className="space-y-2">
-            <FieldLabel className="mb-3.5 text-[13px] font-semibold leading-[19.5px] text-[#344256]">
+            <FieldLabel className="mb-3.5 text-[13px] leading-[19.5px] font-semibold text-[#344256]">
               Cover Image
             </FieldLabel>
             <label
@@ -314,7 +314,7 @@ export default function VolunteerPostPage1({
                 }
               }}
               className={cn(
-                "relative flex aspect-video cursor-pointer flex-col items-center justify-center rounded-2xl bg-[#fafafa] px-4 py-3 text-center",
+                "relative mt-1.5 flex aspect-video cursor-pointer flex-col items-center justify-center rounded-2xl bg-[#fafafa] px-4 py-3 text-center",
                 errors?.coverImageKey
                   ? "border border-red-500 ring-4 ring-red-200"
                   : "border border-dashed border-[#e5e5e5]",
@@ -370,7 +370,7 @@ export default function VolunteerPostPage1({
                 <>
                   <ImageIcon className="size-8 text-[#a3a3a3]" />
 
-                  <p className="mt-3 text-xs font-semibold leading-4.5">
+                  <p className="mt-3 text-xs leading-4.5 font-semibold">
                     <span className="text-[#0ea5e9]">Click to upload</span>{" "}
                     <span className="text-[#525252]">or drag and drop</span>
                   </p>
@@ -403,7 +403,7 @@ export default function VolunteerPostPage1({
       </section>
 
       <section className="rounded-2xl border border-[#E1E7EF] bg-white p-6">
-        <h3 className="text-[22px] font-bold leading-8.25 text-[#1D283A]">
+        <h3 className="text-[22px] leading-8.25 font-bold text-[#1D283A]">
           Project Overview
           <span className="text-red-600">*</span>
         </h3>
@@ -461,7 +461,7 @@ export default function VolunteerPostPage1({
         </Button>
         <Button
           type="button"
-          className="cursor-pointer h-10 rounded-lg bg-[#2f6fe4] px-6 text-sm font-medium text-white hover:bg-[#245fca]"
+          className="h-10 cursor-pointer rounded-lg bg-[#2f6fe4] px-6 text-sm font-medium text-white hover:bg-[#245fca]"
           onClick={onContinueToRole}
         >
           Save & Continue

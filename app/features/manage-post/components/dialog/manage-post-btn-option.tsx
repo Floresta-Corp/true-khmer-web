@@ -24,15 +24,15 @@ export default function OptionCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex-1 text-left p-8 rounded-[24px] transition-all duration-300 flex flex-col gap-4 border-2",
+        "flex flex-1 flex-col gap-3 rounded-2xl border-2 p-4 text-left transition-all duration-300 sm:gap-4 sm:rounded-[24px] sm:p-8",
         isSelected
-          ? "bg-white border-blue-600 shadow-xl shadow-blue-500/10 scale-[1.02]"
-          : "bg-slate-50 border-transparent hover:bg-slate-100",
+          ? "scale-[1.02] border-blue-600 bg-white shadow-xl shadow-blue-500/10"
+          : "border-transparent bg-slate-50 hover:bg-slate-100",
       )}
     >
       <div
         className={cn(
-          "w-14 h-14 rounded-[20px] flex items-center justify-center text-white shadow-lg transition-colors",
+          "flex h-10 w-10 items-center justify-center rounded-2xl text-white shadow-lg transition-colors sm:h-14 sm:w-14 sm:rounded-[20px] [&>svg]:size-5 sm:[&>svg]:size-7",
           isSelected
             ? "bg-blue-600 shadow-blue-600/20"
             : "bg-blue-500 shadow-blue-500/20",
@@ -41,12 +41,14 @@ export default function OptionCard({
         {icon}
       </div>
 
-      <div className="space-y-2">
-        <h3 className="text-xl font-bold text-slate-900">{title}</h3>
-        <p className="text-sm text-slate-500 leading-relaxed">{description}</p>
+      <div className="space-y-1 sm:space-y-2">
+        <h3 className="text-base font-bold text-slate-900 sm:text-xl">
+          {title}
+        </h3>
+        <p className="text-sm leading-relaxed text-slate-500">{description}</p>
       </div>
 
-      <div className="mt-auto pt-2 flex items-center gap-1.5 text-blue-600 font-bold text-sm">
+      <div className="mt-auto flex items-center gap-1.5 pt-2 text-sm font-bold text-blue-600">
         {actionText} <Plus size={16} strokeWidth={3} />
       </div>
     </button>

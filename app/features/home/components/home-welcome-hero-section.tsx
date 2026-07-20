@@ -8,7 +8,7 @@ export function HomeWelcomeHeroSection({ name }: HomeWelcomeHeroSectionProps) {
   const firstName = name?.trim().split(/\s+/)[0];
 
   return (
-    <section className="relative flex min-h-130 flex-col overflow-hidden bg-white lg:min-h-[max(650px,70vh,34.4vw)]">
+    <section className="relative flex min-h-115 flex-col overflow-hidden bg-white lg:min-h-[max(650px,70vh,34.4vw)]">
       <div
         className="pointer-events-none absolute inset-x-0 top-0 z-0 h-115 bg-linear-to-r from-[#D5EDFF] to-[#FFFFFF] lg:hidden"
         style={{
@@ -24,7 +24,7 @@ export function HomeWelcomeHeroSection({ name }: HomeWelcomeHeroSectionProps) {
       />
 
       {/* Content Layer */}
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 items-center px-4 pt-12 pb-6 sm:px-6 lg:min-h-[max(420px,34.4vw)] lg:flex-none lg:px-8">
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 items-center px-4 pt-4 pb-6 sm:px-6 sm:pt-8 lg:min-h-[max(420px,34.4vw)] lg:flex-none lg:items-center lg:px-8 lg:pt-0">
         <div className="mx-auto max-w-md text-center sm:max-w-xl lg:mx-0 lg:max-w-3xl lg:text-left">
           <p className="text-sm font-semibold text-[#1c5dd4]">
             {firstName ? `Welcome, ${firstName}!` : "Welcome!"}

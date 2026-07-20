@@ -69,13 +69,13 @@ export default function LaunchpadDetailPage() {
               projectId={project.id}
               trigger={
                 <IconButton
-                  icon={<Share2 className="size-4" />}
+                  icon={<Share2 className="size-5 md:size-4" />}
                   ariaLabel="Share project"
                 />
               }
             />
             <IconButton
-              icon={<EllipsisVertical className="size-4" />}
+              icon={<EllipsisVertical className="size-5 md:size-4" />}
               ariaLabel="More options"
               disabled
             />
@@ -114,8 +114,8 @@ export default function LaunchpadDetailPage() {
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: prefersReducedMotion ? 0 : 0.25 }}
                 >
-                  <Card className="rounded-3xl bg-white shadow-none border-[#E7ECF3]">
-                    <CardContent className="p-10 space-y-8">
+                  <Card className="rounded-3xl border-[#E7ECF3] bg-white shadow-none">
+                    <CardContent className="space-y-5 p-8 md:p-10">
                       <LaunchpadProjectDetailCard project={project} />
                       <LaunchpadPresentationCard project={project} />
                     </CardContent>

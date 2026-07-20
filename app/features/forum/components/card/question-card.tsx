@@ -84,7 +84,10 @@ export default function QuestionCard({
                 {question.category.name}
               </Link>
               <span className="hidden text-[#595c5e] sm:inline">•</span>
-              <span className="text-xs text-[#9eacc0]">{createdAgoLabel}</span>
+              <span className="basis-full sm:hidden" aria-hidden="true" />
+              <span className="-mt-3 text-xs text-[#9eacc0] sm:mt-0">
+                {createdAgoLabel}
+              </span>
               {isCurrentAuthor && (
                 <Badge
                   variant="secondary"
@@ -211,7 +214,7 @@ export default function QuestionCard({
       <div className="my-3 border-t border-[#f9fafb] sm:my-4" />
 
       {/* Footer with vote, answer count, and share */}
-      <div className="flex shrink-0 items-center gap-2 sm:justify-start sm:gap-3.5">
+      <div className="flex shrink-0 items-center gap-4 sm:justify-start sm:gap-3.5">
         <QuestionVoteComponent question={question} className="h-7.5" />
 
         <button
@@ -225,7 +228,7 @@ export default function QuestionCard({
           <span>
             {question.answerCount}
             <span className="hidden sm:inline"> answers</span>
-            <span className="sm:hidden"> ans</span>
+            <span className="sm:hidden"> answers</span>
           </span>
         </button>
         <ShareQuestionDialog question={question} />

@@ -16,7 +16,7 @@ export function HomeTrustedBySection() {
           Trusted &amp; Loved By Cambodia's Community
         </p>
         {/* Mobile: auto-scrolling marquee (duplicated track for a seamless loop) */}
-        <div className="scrollbar-hide mt-4 overflow-x-auto sm:hidden">
+        <div className="mt-4 overflow-hidden sm:hidden">
           <div className="animate-marquee flex w-max items-center">
             {[...PARTNERS, ...PARTNERS].map((partner, index) => (
               <img

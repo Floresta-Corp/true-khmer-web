@@ -1,8 +1,5 @@
 import { z } from "zod";
 
-export const fcmPlatformEnum = z.enum(["web", "android", "ios"]);
-export type FcmTokenPlatform = z.infer<typeof fcmPlatformEnum>;
-
 export const notificationTypeEnum = z.enum([
   "forum",
   "profile_view",
@@ -45,15 +42,13 @@ export const NOTIFICATION_ICON_MAP: Record<
   system: "Bell",
 };
 
-export const NOTIFICATION_EVENT_ICON_MAP: Record<
-  string,
-  NotificationIconName
-> = {
-  forum_answer_created: "MessageCircle",
-  forum_answer_reply_created: "MessageCircle",
-  forum_question_upvoted: "ThumbsUp",
-  forum_answer_upvoted: "ThumbsUp",
-};
+export const NOTIFICATION_EVENT_ICON_MAP: Record<string, NotificationIconName> =
+  {
+    forum_answer_created: "MessageCircle",
+    forum_answer_reply_created: "MessageCircle",
+    forum_question_upvoted: "ThumbsUp",
+    forum_answer_upvoted: "ThumbsUp",
+  };
 
 export interface ApiNotification {
   id: string;

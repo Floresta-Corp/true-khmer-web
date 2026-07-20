@@ -8,6 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
+import { useIsMobile } from "~/hooks/use-mobile";
 
 export function PageHeader({
   isPublicView,
@@ -19,6 +20,7 @@ export function PageHeader({
   profileId?: string | null;
 }) {
   const [open, setOpen] = React.useState(false);
+  const isMobile = useIsMobile();
 
   const handleShareProfileLink = async () => {
     const shareUrl = profileId
@@ -75,7 +77,7 @@ export function PageHeader({
                   <MoreVertical className="h-5 w-5" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent align="end" className="w-56 p-2">
+              <PopoverContent align="end" className="w-48 p-2 md:w-56">
                 <Button
                   type="button"
                   variant="ghost"

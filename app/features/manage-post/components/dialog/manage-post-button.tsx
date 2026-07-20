@@ -34,24 +34,24 @@ export default function CreateOpportunityDialog({
     <Dialog>
       <DialogTrigger asChild>
         {trigger || (
-          <Button className="bg-blue-600 hover:bg-blue-700 cursor-pointer text-[14px] text-white rounded-xl gap-2 font-semibold p-6 shadow-lg shadow-brand-blue/20 hover:scale-[1.02] active:scale-95 transition-all w-full sm:w-auto whitespace-nowrap">
+          <Button className="shadow-brand-blue/20 w-full cursor-pointer gap-2 rounded-xl bg-blue-600 p-6 text-[14px] font-semibold whitespace-nowrap text-white shadow-lg transition-all hover:scale-[1.02] hover:bg-blue-700 active:scale-95 sm:w-auto">
             <Plus size={18} strokeWidth={2.5} />
             New Opportunity
           </Button>
         )}
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-3xl p-10 rounded-[40px] gap-8 border-none [&>button]:top-8 [&>button]:right-8 shadow-2xl">
+      <DialogContent className="w-92 max-w-[calc(100%-2rem)] gap-5 rounded-3xl border border-slate-200 p-5 shadow-2xl sm:w-auto sm:max-w-3xl sm:gap-8 sm:rounded-[40px] sm:border-none sm:p-10 [&>button]:top-4 [&>button]:right-4 sm:[&>button]:top-8 sm:[&>button]:right-8">
         <DialogHeader>
-          <DialogTitle className="text-3xl font-bold text-slate-900">
+          <DialogTitle className="text-xl font-bold text-slate-900 sm:text-3xl">
             Post New Opportunity
           </DialogTitle>
-          <DialogDescription className="text-slate-500 text-base">
+          <DialogDescription className="text-sm text-slate-500 sm:text-base">
             Choose the type of engagement you want to create.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col sm:flex-row gap-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
           <OptionCard
             title="Volunteer"
             description="Perfect for community tasks, seasonal events, or recurring help functions."
@@ -72,14 +72,14 @@ export default function CreateOpportunityDialog({
         </div>
 
         {/* Footer Button  */}
-        <div className="flex justify-end pt-4">
+        <div className="flex justify-end pt-2 sm:pt-4">
           <Button
             disabled={!selected || isLoading}
             onClick={handleConfirm}
-            className={`relative cursor-pointer overflow-hidden rounded-2xl py-7 font-bold text-base text-white transition-[width,background-color,color] duration-300 ease-out disabled:bg-slate-200 disabled:text-slate-400 ${
+            className={`relative w-full cursor-pointer overflow-hidden rounded-2xl py-5 text-base font-bold text-white transition-[width,background-color,color] duration-300 ease-out disabled:bg-slate-200 disabled:text-slate-400 sm:py-7 ${
               isLoading
-                ? "w-55 bg-blue-600 hover:bg-blue-700"
-                : "w-80 bg-blue-600 hover:bg-blue-700"
+                ? "bg-blue-600 hover:bg-blue-700 sm:w-55"
+                : "bg-blue-600 hover:bg-blue-700 sm:w-80"
             }`}
           >
             <span

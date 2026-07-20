@@ -37,12 +37,12 @@ interface NotificationsListProps {
 
 function NotificationSkeletonRow() {
   return (
-    <div className="relative flex gap-5 items-center p-5 border-b border-gray-100 last:border-b-0">
-      <Skeleton className="shrink-0 w-12 h-12 rounded-3xl" />
-      <div className="flex-1 flex flex-col gap-2">
+    <div className="relative flex items-center gap-5 border-b border-gray-100 p-5 last:border-b-0">
+      <Skeleton className="h-12 w-12 shrink-0 rounded-3xl" />
+      <div className="flex flex-1 flex-col gap-2">
         <div className="flex items-center gap-3">
           <Skeleton className="h-4 w-1/3 rounded" />
-          <Skeleton className="h-4 w-1/4 rounded ml-auto" />
+          <Skeleton className="ml-auto h-4 w-1/4 rounded" />
         </div>
         <Skeleton className="h-3.5 w-full rounded" />
         <Skeleton className="h-3.5 w-3/4 rounded" />
@@ -65,23 +65,23 @@ export default function NotificationsList({
 }: NotificationsListProps) {
   return (
     <>
-      <Card className="w-full bg-white rounded-3xl shadow-none overflow-hidden">
+      <Card className="w-full overflow-hidden rounded-3xl bg-white shadow-none">
         {/* Header */}
-        <div className="flex items-center justify-between h-18 border-b border-gray-100 px-5 py-px">
-          <h2 className="text-base font-semibold text-gray-900">
+        <div className="flex min-h-18 flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-4 py-3 sm:px-5 sm:py-px">
+          <h2 className="text-sm font-semibold text-gray-900 sm:text-base">
             All notifications
             {totalCount > 0 && (
-              <span className="ml-2 text-gray-400 font-medium">
+              <span className="ml-2 font-medium text-gray-400">
                 ({totalCount})
               </span>
             )}
           </h2>
-          <div className="flex gap-2.5 items-center">
+          <div className="flex items-center gap-2.5">
             {unreadCount > 0 && (
               <Button
                 variant={"default"}
                 onClick={onMarkAllRead}
-                className="cursor-pointer bg-blue-600 hover:bg-blue-700 h-8.5  text-white rounded-2xl px-5 py-2 text-xs font-semibold"
+                className="h-8.5 cursor-pointer rounded-2xl bg-blue-600 px-3 py-2 text-xs font-semibold whitespace-nowrap text-white hover:bg-blue-700 sm:px-5"
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 Mark all as read
@@ -112,49 +112,49 @@ export default function NotificationsList({
             notifications.map((notif) => (
               <div
                 key={notif.id}
-                className={`group relative flex gap-4 items-start p-5 border-b border-gray-100 last:border-b-0 ${
+                className={`group relative flex items-start gap-3 border-b border-gray-100 p-3 last:border-b-0 sm:gap-4 sm:p-5 ${
                   !notif.isRead ? "bg-blue-50/50" : ""
                 }`}
               >
                 {!notif.isRead && (
-                  <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-10 bg-blue-500 rounded-xl" />
+                  <span className="absolute top-1/2 right-0 h-10 w-1 -translate-y-1/2 rounded-xl bg-blue-500" />
                 )}
                 <button
                   type="button"
                   onClick={() => onNotificationClick?.(notif)}
-                  className="flex min-w-0 flex-1 cursor-pointer items-start gap-4 text-left"
+                  className="flex min-w-0 flex-1 cursor-pointer items-start gap-3 text-left sm:gap-4"
                 >
                   {/* Icon */}
                   <div
-                    className={`flex items-center justify-center shrink-0 w-12 h-12 rounded-full ${notif.iconBgColor} ${notif.iconColor}`}
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full sm:h-12 sm:w-12 ${notif.iconBgColor} ${notif.iconColor}`}
                   >
                     {notif.icon}
                   </div>
 
                   {/* Content Area */}
-                  <div className="flex-1 min-w-0 pr-4">
+                  <div className="min-w-0 flex-1 pr-2 sm:pr-4">
                     {/* Title + Category */}
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="truncate text-[15px] font-semibold text-gray-900 leading-snug">
+                    <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <h3 className="truncate text-sm leading-snug font-semibold text-gray-900 sm:text-[15px]">
                         {notif.title}
                       </h3>
                       {notif.category && (
-                        <span className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded bg-gray-100 text-gray-700 text-[11px] font-semibold">
+                        <span className="inline-flex shrink-0 items-center rounded bg-gray-100 px-1.5 py-0.5 text-[11px] font-semibold text-gray-700">
                           {notif.category}
                         </span>
                       )}
                     </div>
 
                     {/* Description */}
-                    <p className="truncate text-sm font-normal text-gray-500 leading-normal">
+                    <p className="truncate text-xs leading-normal font-normal text-gray-500 sm:text-sm">
                       {notif.description}
                     </p>
                   </div>
                 </button>
 
-                <div className="shrink-0 flex flex-col items-end justify-between h-12 min-w-17.5">
+                <div className="flex h-12 min-w-14 shrink-0 flex-col items-end justify-between sm:min-w-17.5">
                   {/*  Unread Dot or Dropdown Menu on Hover */}
-                  <div className="flex items-center justify-end gap-1 h-5 min-w-full">
+                  <div className="flex h-5 min-w-full items-center justify-end gap-1">
                     {/* Dropdown Menu */}
                     {!notif.isRead && onMarkRead && (
                       <div className="flex items-center">
@@ -165,14 +165,14 @@ export default function NotificationsList({
                               type="button"
                               aria-label={`Open actions for "${notif.title}"`}
                               title="Notification read actions"
-                              className="flex items-center justify-center rounded-full cursor-pointer text-black hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                              className="flex cursor-pointer items-center justify-center rounded-full text-black transition-colors hover:bg-gray-100 hover:text-gray-600"
                             >
                               <EllipsisVertical className="h-4.5 w-4.5" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-40 p-1">
                             <DropdownMenuItem
-                              className="cursor-pointer text-sm font-semibold text-gray-700 hover:bg-gray-100 rounded"
+                              className="cursor-pointer rounded text-sm font-semibold text-gray-700 hover:bg-gray-100"
                               onClick={() => onMarkRead(notif.id)}
                             >
                               <CheckCircle2 className="h-4 w-4 text-blue-500" />
@@ -185,7 +185,7 @@ export default function NotificationsList({
                   </div>
 
                   {/* Time Stamp */}
-                  <span className="text-[10px] font-normal text-gray-400 whitespace-nowrap">
+                  <span className="text-[10px] font-normal whitespace-nowrap text-gray-400">
                     {notif.timeAgo}
                   </span>
                 </div>
@@ -202,7 +202,7 @@ export default function NotificationsList({
             onClick={onLoadMore}
             disabled={isLoading}
             variant="outline"
-            className="border border-gray-300 bg-white text-gray-900 rounded-lg px-6 py-2.5 font-medium text-sm"
+            className="rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-900"
           >
             {isLoading ? "Loading..." : "Load older notifications"}
           </Button>

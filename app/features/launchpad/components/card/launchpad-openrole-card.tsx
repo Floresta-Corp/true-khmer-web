@@ -35,7 +35,7 @@ export default function LaunchpadOpenRoleCard({
   const roleErrorId = useId();
 
   return (
-    <Card className="p-6 space-y-5">
+    <Card className="space-y-5 p-6">
       <div className="flex items-center gap-3">
         <Users2 size={17.5} className="text-blue-500" />
         <div className="text-xl font-medium">
@@ -50,7 +50,7 @@ export default function LaunchpadOpenRoleCard({
             value={name}
             onChange={(event) => onNameChange(event.target.value)}
             placeholder="e.g., Field Researcher"
-            className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC] focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:border-transparent"
+            className="mt-1.5 h-12.5 rounded-xl border-none bg-[#F8FAFC] px-4 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-blue-500/45"
           />
         </div>
         <div className="space-y-3">
@@ -65,16 +65,16 @@ export default function LaunchpadOpenRoleCard({
               onCapacityChange(Number.isFinite(nextValue) ? nextValue : 1);
             }}
             placeholder="1"
-            className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC] focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:border-transparent"
+            className="mt-1.5 h-12.5 rounded-xl border-none bg-[#F8FAFC] px-4 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-blue-500/45"
           />
         </div>
-        <div className="space-y-3 col-span-2">
+        <div className="col-span-2 space-y-3">
           <FieldLabel>Role Description</FieldLabel>
           <Textarea
             value={description}
             onChange={(event) => onDescriptionChange(event.target.value)}
             placeholder="What will this person do and what skills are you looking for?"
-            className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC] focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:border-transparent"
+            className="mt-1.5 h-12.5 rounded-xl border-none bg-[#F8FAFC] px-4 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-blue-500/45"
           />
         </div>
         <div className="col-span-2 flex items-center gap-3">
@@ -83,7 +83,7 @@ export default function LaunchpadOpenRoleCard({
             onClick={onAddRole}
             disabled={name.trim() === ""}
             aria-describedby={roleError ? roleErrorId : undefined}
-            className="cursor-pointer h-10 bg-blue-500 hover:bg-blue-600"
+            className="h-10 cursor-pointer bg-blue-500 hover:bg-blue-600"
           >
             <Plus /> {editingIndex !== null ? "Save Changes" : "Add role"}
           </Button>
@@ -92,7 +92,7 @@ export default function LaunchpadOpenRoleCard({
               type="button"
               variant="ghost"
               onClick={onCancelEdit}
-              className="cursor-pointer h-10 text-[#99a1af]"
+              className="h-10 cursor-pointer text-[#99a1af]"
             >
               Cancel
             </Button>

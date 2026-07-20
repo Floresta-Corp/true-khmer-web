@@ -72,10 +72,10 @@ export default function ForumDetailQuestionHeader({
           <img
             src={authorProfile}
             alt={question.author.name}
-            className="h-6 w-6 rounded-full object-cover"
+            className="h-6 w-6 shrink-0 rounded-full object-cover"
           />
         ) : (
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-200 text-[10px] font-semibold text-slate-500">
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-200 text-[10px] font-semibold text-slate-500">
             {question.author.name?.[0]?.toUpperCase() ?? "?"}
           </div>
         )}
@@ -113,7 +113,10 @@ export default function ForumDetailQuestionHeader({
             <span className="sr-only">Open actions</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-36">
+        <DropdownMenuContent
+          align="end"
+          className="flex min-w-36 flex-col gap-1 md:min-w-64"
+        >
           {!isAuthenticated ? (
             <DropdownMenuItem asChild>
               <Link

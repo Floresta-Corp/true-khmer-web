@@ -13,7 +13,7 @@ export default function CommunityImpactSection({
   hideIcon = false,
 }: CommunityImpactSectionProps) {
   const content = (
-    <p className="text-gray-600 dark:text-slate-400 leading-relaxed">
+    <p className="leading-relaxed text-gray-600 dark:text-slate-400">
       {volunteer?.communityImpact}
     </p>
   );
@@ -21,9 +21,9 @@ export default function CommunityImpactSection({
   if (compact) {
     return (
       <div>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight">
+        <h2 className="mb-2.5 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
           {!hideIcon && (
-            <span className="inline-block mr-2 align-middle">
+            <span className="mr-2 inline-block align-middle">
               <Target className="size-[17.5px] text-[#2f6fe4]" />
             </span>
           )}

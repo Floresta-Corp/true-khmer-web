@@ -52,17 +52,18 @@ export default function ApplicationStatusTabFilter() {
   };
 
   return (
-    <div className="flex flex-nowrap items-center gap-5">
+    <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-center md:gap-5">
       <Tabs
         value={activeStatus}
         onValueChange={(value) => handleStatusChange(value as StatusTab)}
+        className="w-full md:w-auto"
       >
-        <TabsList className="grid grid-cols-4 items-center rounded-2xl bg-[#F1F3F4] p-[3.5px] text-[#1A73E7] group-data-horizontal/tabs:h-12">
+        <TabsList className="grid w-full grid-cols-4 items-center rounded-2xl bg-[#F1F3F4] p-[3.5px] text-[#1A73E7] group-data-horizontal/tabs:h-12 md:w-auto">
           {statusItems.map((status) => (
             <TabsTrigger
               key={status}
               value={status}
-              className="h-full min-w-18 cursor-pointer rounded-xl px-2.5 py-1.5 text-xs font-bold transition-colors data-[state=active]:bg-white data-[state=active]:text-[#0F59E2] data-[state=inactive]:text-[#5E6D82]"
+              className="h-full cursor-pointer rounded-xl px-2.5 py-1.5 text-xs font-bold transition-colors data-[state=active]:bg-white data-[state=active]:text-[#0F59E2] data-[state=inactive]:text-[#5E6D82] md:min-w-18"
             >
               {statusLabels[status]}
             </TabsTrigger>
@@ -75,9 +76,9 @@ export default function ApplicationStatusTabFilter() {
         aria-pressed={statusParam === "archived"}
         onClick={handleArchivedClick}
         className={cn(
-          "inline-flex h-12 items-center gap-2 rounded-xl text-xs font-bold transition-colors",
+          "inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#F1F3F4] text-xs font-bold transition-colors md:w-auto md:justify-start md:border-none md:px-0",
           statusParam === "archived"
-            ? "text-[#1A73E8]"
+            ? "border-transparent bg-[#F1F3F4] text-[#1A73E8] md:bg-transparent"
             : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100",
         )}
       >

@@ -40,7 +40,7 @@ export default function ApplicationSummary({
   });
 
   return (
-    <aside className="rounded-[14px] border border-[#e1e7ef] bg-white p-8 h-fit">
+    <aside className="h-fit rounded-[14px] border border-[#e1e7ef] bg-white p-8">
       <h2 className="text-lg font-semibold tracking-[-0.44px] text-[#030213]">
         Application Summary
       </h2>
@@ -86,7 +86,7 @@ function SummaryDetails({
 }: SummaryDetailsProps) {
   return (
     <div className="mt-6">
-      <div className="space-y-3.5 pb-5 border-b border-[#f1f5f9] text-[14px]">
+      <div className="space-y-3 border-b border-[#f1f5f9] pb-5 text-[14px]">
         <div className="flex items-center justify-between">
           <span className="text-[#64748b]">Open Roles</span>
           <span className="flex items-center justify-center rounded-md bg-[#eff6ff] px-2.5 py-1 text-[13px] font-bold text-[#2f6fe4]">
@@ -111,7 +111,7 @@ function SummaryDetails({
               {selectedRoles.length}
             </span>
           </div>
-          <p className="text-[13px] text-[#64748b] mt-1">
+          <p className="mt-1 text-[13px] text-[#64748b]">
             Mark your most preferred role with a star
           </p>
         </div>
@@ -140,10 +140,10 @@ function SummaryDetails({
                       : "border-[#f1f5f9] bg-[#fcfcfd]",
                   )}
                 >
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className="flex min-w-0 flex-1 items-center gap-2">
                     <span
                       className={cn(
-                        "truncate font-bold text-[15px]",
+                        "truncate text-[15px] font-bold",
                         topPickRoleId === role.id
                           ? "text-[#c2410c]"
                           : "text-[#0f172a]",
@@ -152,7 +152,7 @@ function SummaryDetails({
                       {role.title}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0 ml-3">
+                  <div className="ml-3 flex shrink-0 items-center gap-2">
                     <button
                       type="button"
                       onClick={() => setTopPick(role.id)}
@@ -174,7 +174,7 @@ function SummaryDetails({
                     <Button
                       variant={"ghost"}
                       onClick={() => removeRole(role.id)}
-                      className="flex size-8 items-center justify-center rounded-full overflow-hidden transition-colors hover:bg-red-50 hover:text-red-500"
+                      className="flex size-8 items-center justify-center overflow-hidden rounded-full transition-colors hover:bg-red-50 hover:text-red-500"
                       title="Remove"
                     >
                       <Trash2 className="size-4" />
@@ -227,7 +227,7 @@ function ActionButtons({
             <Button
               // disabled={disableApplyButton}
               onClick={onApplyNoRoles}
-              className="h-10 w-full bg-[#2f6fe4] text-sm font-medium text-[#f8fafc] hover:bg-[#245fca] gap-2"
+              className="h-10 w-full gap-2 bg-[#2f6fe4] text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]"
             >
               Show Available Roles
             </Button>
@@ -248,7 +248,7 @@ function ActionButtons({
               trigger={
                 <Button
                   disabled={disableApplyButton || isNoRolesSelected}
-                  className="h-10 w-full bg-[#2f6fe4] text-sm font-medium text-[#f8fafc] hover:bg-[#245fca] gap-2"
+                  className="h-10 w-full gap-2 bg-[#2f6fe4] text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]"
                 >
                   <Send className="size-4" />
                   Apply Now
@@ -263,7 +263,7 @@ function ActionButtons({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="py-1.5 px-3 rounded-lg bg-amber-100 flex items-center gap-3 text-gray-500"
+            className="flex items-center gap-3 rounded-lg bg-amber-100 px-3 py-1.5 text-gray-500"
           >
             <Info className="size-6" />
             <p className="text-xs">{disableButtonMessage}</p>

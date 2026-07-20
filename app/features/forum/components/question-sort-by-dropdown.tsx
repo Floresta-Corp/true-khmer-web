@@ -36,13 +36,16 @@ export default function QuestionSortByDropdown({
         <Button
           type="button"
           variant="ghost"
-          className="inline-flex items-center gap-2 px-2 text-sm font-semibold text-[#0050d4] hover:text-[#0046bd]"
+          className="inline-flex items-center gap-1 px-2 text-xs font-semibold text-[#0050d4] hover:text-[#0046bd] sm:max-w-none sm:gap-2 sm:text-sm"
         >
-          {label}
-          <ChevronDown className="ml-2 size-3" />
+          <span className="truncate">{label}</span>
+          <ChevronDown className="ml-1 size-3 shrink-0 sm:ml-2" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent
+        align="end"
+        className="flex min-w-46 flex-col gap-1 md:min-w-64"
+      >
         {sortByItems.map((item) => (
           <DropdownMenuItem
             key={item.value}
