@@ -76,12 +76,12 @@ export default function ManagePostFilters({
         ))}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex w-full min-w-0 items-center gap-3 sm:w-auto">
         <Select
           value={activeType}
           onValueChange={(value) => onTypeChange(value as TabType)}
         >
-          <SelectTrigger className="h-10 w-30 rounded-xl border-none bg-white text-[14px] focus:ring-blue-500/20 md:w-36">
+          <SelectTrigger className="h-10 w-30 shrink-0 rounded-xl border-none bg-white text-[14px] focus:ring-blue-500/20 md:w-36">
             <SelectValue placeholder="All Types" />
           </SelectTrigger>
           <SelectContent className="rounded-xl border-slate-200">

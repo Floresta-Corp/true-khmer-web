@@ -227,7 +227,7 @@ export default function VolunteerPostPage1({
               onChange={(e) => onUpdateField("title", e.target.value)}
               placeholder="e.g., Digital Literacy for Artisans"
               aria-invalid={Boolean(errors?.title)}
-              className={`mt-1.5 h-12.5 rounded-[14px] bg-[#F8FAFC] px-4.5 text-sm text-[#364153] placeholder:text-muted-foreground focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-blue-500/45 ${errors?.title ? "border-red-500" : "border-transparent"}`}
+              className={`mt-1.5 h-12.5 rounded-[14px] bg-[#F8FAFC] px-4.5 text-sm text-[#364153] placeholder:text-muted-foreground focus-visible:ring-2 ${errors?.title ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/45" : "border-transparent focus-visible:border-transparent focus-visible:ring-blue-500/45"}`}
             />
             {errors?.title ? (
               <p className="text-xs text-red-500">{errors.title}</p>

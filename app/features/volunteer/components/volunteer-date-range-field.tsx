@@ -50,9 +50,9 @@ export default function VolunteerDateRangeField({
             type="button"
             variant="outline"
             aria-invalid={Boolean(error)}
-            className={`relative mt-1.5 h-11 w-full justify-start rounded-lg bg-[#F8FAFC] pr-3 pl-9 text-left text-sm font-medium shadow-none hover:bg-[#F8FAFC] focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-blue-500 ${
+            className={`relative mt-1.5 h-11 w-full justify-start rounded-lg bg-[#F8FAFC] pr-3 pl-9 text-left text-sm font-medium shadow-none hover:bg-[#F8FAFC] focus-visible:ring-2 ${
               selectedRange?.from ? "text-[#364153]" : "text-muted-foreground"
-            } ${error ? "border-red-500" : "border-transparent"}`}
+            } ${error ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500" : "border-transparent focus-visible:border-transparent focus-visible:ring-blue-500"}`}
           >
             <CalendarIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#99a1af]" />
             {displayValue}

@@ -44,7 +44,7 @@ export default function QuestionSortByDropdown({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="flex min-w-46.25 flex-col gap-1 md:min-w-64"
+        className="flex min-w-46 flex-col gap-1 md:min-w-64"
       >
         {sortByItems.map((item) => (
           <DropdownMenuItem

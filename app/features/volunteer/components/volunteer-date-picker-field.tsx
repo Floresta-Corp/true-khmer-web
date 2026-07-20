@@ -71,8 +71,10 @@ export default function VolunteerDatePickerField({
         <Popover>
           <PopoverTrigger asChild>
             <InputGroup
-              className={`relative mt-1.5 flex cursor-pointer items-center gap-2 rounded-lg bg-[#F8FAFC] px-1 py-5 has-[[data-slot=input-group-control]:focus-visible]:border-blue-500/45 has-[[data-slot=input-group-control]:focus-visible]:ring-blue-500/45 ${
-                error ? "border-red-500" : "border-transparent"
+              className={`relative mt-1.5 flex cursor-pointer items-center gap-2 rounded-lg bg-[#F8FAFC] px-1 py-5 ${
+                error
+                  ? "border-red-500 has-[[data-slot=input-group-control]:focus-visible]:border-red-500 has-[[data-slot=input-group-control]:focus-visible]:ring-red-500/45"
+                  : "border-transparent has-[[data-slot=input-group-control]:focus-visible]:border-blue-500/45 has-[[data-slot=input-group-control]:focus-visible]:ring-blue-500/45"
               }`}
             >
               <InputGroupAddon>

@@ -34,6 +34,13 @@ import type { ForumPostFormFieldErrors } from "~/features/forum/services/forum.v
 import { Textarea } from "~/components/ui/textarea";
 import { resolveImageURL } from "~/lib/utils";
 
+// Only object URLs created via URL.createObjectURL need revoking. Resolved
+// remote image URLs must be left untouched, so key the cleanup on the URL
+// itself rather than on whether an existing image key is present.
+const revokeBlobUrl = (url: string | null) => {
+  if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
+};
+
 interface AskQuestionDialogProps {
   categories: CategoryOption[];
   isEditing?: boolean;
@@ -162,9 +169,7 @@ export default function AskQuestionDialog({
               : "Question posted successfully!"),
         );
         reset();
-        if (preview) {
-          URL.revokeObjectURL(preview);
-        }
+        revokeBlobUrl(preview);
         setPreview(null);
         setSelectedFile(null);
         setExistingImageKey(null);
@@ -205,7 +210,7 @@ export default function AskQuestionDialog({
       // reset file selection and previews when opening
       setSelectedFile(null);
       setRemoveExistingImage(false);
-      if (preview) URL.revokeObjectURL(preview);
+      revokeBlobUrl(preview);
       setPreview(null);
       // set existing image preview when editing
       if (isEditing && data?.imageKey) {
@@ -219,7 +224,7 @@ export default function AskQuestionDialog({
 
   useEffect(() => {
     return () => {
-      if (preview) URL.revokeObjectURL(preview);
+      revokeBlobUrl(preview);
     };
   }, [preview]);
 
@@ -402,9 +407,7 @@ export default function AskQuestionDialog({
                           setRemoveExistingImage(true);
                           setExistingImageKey(null);
                         }
-                        if (preview && !existingImageKey) {
-                          URL.revokeObjectURL(preview);
-                        }
+                        revokeBlobUrl(preview);
                         setSelectedFile(null);
                         setPreview(null);
                       }}
@@ -435,9 +438,7 @@ export default function AskQuestionDialog({
                     accept="image/*"
                     onChange={(e) => {
                       const file = e.target.files ? e.target.files[0] : null;
-                      if (preview && !existingImageKey) {
-                        URL.revokeObjectURL(preview);
-                      }
+                      revokeBlobUrl(preview);
                       setSelectedFile(file);
                       setPreview(file ? URL.createObjectURL(file) : null);
                       setRemoveExistingImage(false);
