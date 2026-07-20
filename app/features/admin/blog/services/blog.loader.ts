@@ -1,11 +1,10 @@
 import { z } from "zod";
-import { data, redirect } from "react-router";
+import { data } from "react-router";
 import type { Route } from "project-types/admin/blog/route/+types/blog";
 import {
   getModeratorBlogCategories,
   getModeratorBlogPosts,
 } from "~/api/admin/blog/blog.server";
-import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { requireAdmin } from "~/lib/server/route-guards.server";
 
 const querySchema = z.object({
@@ -25,34 +24,29 @@ export async function blogLoader({ request }: Route.LoaderArgs) {
     ? { headers: { "Set-Cookie": setCookie } }
     : {};
 
-  try {
-    const [postsResult, categoriesResult] = await Promise.all([
-      getModeratorBlogPosts(request, {
-        page: query.page,
-        pageSize: 12,
-        search: query.search,
-        status: query.status,
-        placement: query.placement,
-        sortField: "updatedAt",
-        sortOrder: "desc",
-      }),
-      getModeratorBlogCategories(request),
-    ]);
+  const content = Promise.all([
+    getModeratorBlogPosts(request, {
+      page: query.page,
+      pageSize: 12,
+      search: query.search,
+      status: query.status,
+      placement: query.placement,
+      sortField: "updatedAt",
+      sortOrder: "desc",
+    }),
+    getModeratorBlogCategories(request),
+  ]).then(([postsResult, categoriesResult]) => ({
+    posts: postsResult.data.data,
+    meta: postsResult.data.meta,
+    categories: categoriesResult.data.categories,
+  }));
 
-    return data(
-      {
-        posts: postsResult.data.data,
-        meta: postsResult.data.meta,
-        categories: categoriesResult.data.categories,
-        currentUserId: admin?.id ?? "",
-        filters: query,
-      },
-      cookieHeader,
-    );
-  } catch (err) {
-    if (err instanceof ProtectedApiError && err.status === 401) {
-      throw redirect("/tk-admin/login");
-    }
-    throw err;
-  }
+  return data(
+    {
+      content,
+      currentUserId: admin?.id ?? "",
+      filters: query,
+    },
+    cookieHeader,
+  );
 }
