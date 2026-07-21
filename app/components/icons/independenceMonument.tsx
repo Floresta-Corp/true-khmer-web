@@ -1,3 +1,4 @@
+import { useId } from "react";
 import type { IconProps } from "~/types";
 
 const IndependenceMonument = ({
@@ -7,6 +8,10 @@ const IndependenceMonument = ({
   className,
   ...props
 }: IconProps) => {
+  const uid = useId();
+  const patternId = `${uid}-pattern`;
+  const imageId = `${uid}-image`;
+
   return (
     <svg
       width={width}
@@ -19,21 +24,21 @@ const IndependenceMonument = ({
       aria-hidden="true"
       {...props}
     >
-      <rect width="130" height="240" fill="url(#pattern0_19011_9630)" />
+      <rect width="130" height="240" fill={`url(#${patternId})`} />
       <defs>
         <pattern
-          id="pattern0_19011_9630"
+          id={patternId}
           patternContentUnits="objectBoundingBox"
           width="1"
           height="1"
         >
           <use
-            xlinkHref="#image0_19011_9630"
+            xlinkHref={`#${imageId}`}
             transform="matrix(0.00129039 0 0 0.00069688 -0.716839 -0.68561)"
           />
         </pattern>
         <image
-          id="image0_19011_9630"
+          id={imageId}
           width="1886"
           height="4096"
           preserveAspectRatio="none"
