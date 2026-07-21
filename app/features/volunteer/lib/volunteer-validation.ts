@@ -7,6 +7,13 @@ import { isBefore, isValid, parseISO } from "date-fns";
 const hasText = (value: unknown): value is string =>
   typeof value === "string" && value.trim().length > 0;
 
+// Mirror the backend normalization (trim + collapse whitespace) so the
+// character count matches what the API validates against.
+const normalizeText = (value: string) => value.trim().replace(/\s+/g, " ");
+
+const MAX_BENEFITS = 12;
+const MAX_BENEFIT_LENGTH = 180;
+
 const VolunteerDateRangeSchema = z
   .object({
     startDate: z.string().min(1, "Start date is required."),
@@ -77,11 +84,19 @@ export const validateDetailStep = (
   // Benefits: require at least one benefit for continue and submit
   if (formData.benefits.length === 0) {
     errors.benefitErrors = ["At least one benefit is required."];
+  } else if (formData.benefits.length > MAX_BENEFITS) {
+    errors.benefitErrors = [`You can add at most ${MAX_BENEFITS} benefits.`];
   } else {
-    // Validate each benefit item is non-empty (both continue and submit)
-    const benefitErrors = formData.benefits.map((benefit) =>
-      hasText(benefit) ? "" : "Benefit is required.",
-    );
+    // Validate each benefit is non-empty and within the backend length limit.
+    const benefitErrors = formData.benefits.map((benefit) => {
+      if (!hasText(benefit)) {
+        return "Benefit is required.";
+      }
+      if (normalizeText(benefit).length > MAX_BENEFIT_LENGTH) {
+        return `Benefit must be at most ${MAX_BENEFIT_LENGTH} characters.`;
+      }
+      return "";
+    });
     if (benefitErrors.some((error) => error.length > 0)) {
       errors.benefitErrors = benefitErrors;
     }

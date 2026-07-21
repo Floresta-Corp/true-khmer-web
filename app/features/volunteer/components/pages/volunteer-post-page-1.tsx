@@ -42,6 +42,7 @@ function CustomTextarea({
   onChange,
   id,
   hasError,
+  maxLength,
 }: {
   placeholder: string;
   rows?: number;
@@ -49,6 +50,7 @@ function CustomTextarea({
   onChange: (value: string) => void;
   id?: string;
   hasError?: boolean;
+  maxLength?: number;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -75,6 +77,7 @@ function CustomTextarea({
       value={value}
       onChange={handleChange}
       rows={rows}
+      maxLength={maxLength}
       aria-invalid={hasError}
       aria-describedby={hasError ? `${id}-error` : undefined}
     />
