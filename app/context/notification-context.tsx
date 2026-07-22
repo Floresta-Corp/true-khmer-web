@@ -10,7 +10,10 @@ import {
 } from "react";
 import { useNavigate } from "react-router";
 import { showNotificationToast } from "~/components/notification-toast";
-import { NotificationTypeIcon } from "~/components/notification-type-icon";
+import {
+  NOTIFICATION_ICON_ACCENT_MAP,
+  NotificationTypeIcon,
+} from "~/components/notification-type-icon";
 import {
   getNotificationEventType,
   getNotificationRoute,
@@ -96,6 +99,7 @@ export function NotificationProvider({ children, enabled = true }: Props) {
             title: notif.title,
             body: notif.body,
             imageUrl: notif.imageUrl,
+            accentClassName: NOTIFICATION_ICON_ACCENT_MAP[iconName],
             onView: route ? () => navigate(route) : undefined,
           });
           setUnreadCount((c) => c + 1);

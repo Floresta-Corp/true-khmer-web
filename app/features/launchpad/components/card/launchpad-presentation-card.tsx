@@ -35,18 +35,18 @@ export default function LaunchpadPresentationCard({
             rel="noreferrer"
             className="flex items-center gap-3 rounded-xl border border-[#E7ECF3] p-3 transition-all hover:bg-slate-50"
           >
-            <div className="flex size-9 items-center justify-center rounded-lg border border-[#E7ECF3] bg-white">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-[#E7ECF3] bg-white">
               <Download size={16} className="text-blue-500" />
             </div>
-            <div className="flex-1">
-              <div className="line-clamp-1 text-sm font-medium text-[#0F1729]">
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-medium text-[#0F1729]">
                 {file.name}
               </div>
               <div className="text-xs font-semibold text-[#99A1AF]">
                 {file.sizeLabel}
               </div>
             </div>
-            <ArrowRight className="text-[#D1D5DC]" size={16} />
+            <ArrowRight className="shrink-0 text-[#D1D5DC]" size={16} />
           </a>
         ))}
       </div>

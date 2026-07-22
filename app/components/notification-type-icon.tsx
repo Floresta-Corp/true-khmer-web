@@ -29,19 +29,42 @@ export const NOTIFICATION_ICON_STYLE_MAP: Record<
   Bell: { bg: "bg-gray-100", fg: "text-gray-600" },
 };
 
-const NOTIFICATION_ICON_COMPONENT_MAP: Record<NotificationIconName, LucideIcon> =
-  {
-    User,
-    MessageSquare,
-    MessageCircle,
-    ThumbsUp,
-    Trophy,
-    Clock,
-    Briefcase,
-    Zap,
-    Star,
-    Bell,
-  };
+/**
+ * Gradient accent per icon type, used by the SSE notification toast
+ * (icon chip, top strip, and progress bar). Hues mirror the `fg` colors
+ * above so a streamed toast matches its notification's list styling.
+ */
+export const NOTIFICATION_ICON_ACCENT_MAP: Record<
+  NotificationIconName,
+  string
+> = {
+  User: "from-[#2F6FE4] to-[#1E5AD0]",
+  MessageSquare: "from-[#2F6FE4] to-[#1E5AD0]",
+  MessageCircle: "from-[#2F6FE4] to-[#1E5AD0]",
+  ThumbsUp: "from-[#2F6FE4] to-[#1E5AD0]",
+  Trophy: "from-[#2F6FE4] to-[#1E5AD0]",
+  Clock: "from-[#FFB366] to-[#F59E0B]",
+  Briefcase: "from-[#1FC16B] to-[#16A34A]",
+  Zap: "from-[#2F6FE4] to-[#1E5AD0]",
+  Star: "from-amber-400 to-amber-600",
+  Bell: "from-gray-500 to-gray-700",
+};
+
+const NOTIFICATION_ICON_COMPONENT_MAP: Record<
+  NotificationIconName,
+  LucideIcon
+> = {
+  User,
+  MessageSquare,
+  MessageCircle,
+  ThumbsUp,
+  Trophy,
+  Clock,
+  Briefcase,
+  Zap,
+  Star,
+  Bell,
+};
 
 export function NotificationTypeIcon({
   iconName,

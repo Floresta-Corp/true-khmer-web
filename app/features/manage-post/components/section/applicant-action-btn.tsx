@@ -66,7 +66,7 @@ export default function ApplicantActionButton({
         className="w-44 rounded-2xl p-1.5 shadow-xl"
       >
         <DropdownMenuItem
-          className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium cursor-pointer"
+          className="flex cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium"
           onClick={(e) => {
             e.stopPropagation();
             onViewDetail(applicant);
@@ -76,26 +76,26 @@ export default function ApplicantActionButton({
           View Full Detail
         </DropdownMenuItem>
 
-        {!isActioned(displayStatus) &&
+        {/* {!isActioned(displayStatus) &&
           applicant.submissions[0]?.roles.length === 1 && (
             <>
               <DropdownMenuSeparator className="my-1" />
               {displayStatus !== "approve" && (
                 <DropdownMenuItem
-                  className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-green-600 cursor-pointer focus:text-green-600 focus:bg-green-50"
+                  className="flex cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-green-600 focus:bg-green-50 focus:text-green-600"
                   onClick={(e) => handleAction(e, "approve")}
                 >
                   Approve
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem
-                className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-red-500 cursor-pointer focus:text-red-500 focus:bg-red-50"
+                className="flex cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-red-500 focus:bg-red-50 focus:text-red-500"
                 onClick={(e) => handleAction(e, "decline")}
               >
                 Decline
               </DropdownMenuItem>
             </>
-          )}
+          )} */}
       </DropdownMenuContent>
     </DropdownMenu>
   );
