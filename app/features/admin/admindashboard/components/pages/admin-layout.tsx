@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { Menu, X as CloseIcon } from "lucide-react";
+import {
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
+  X as CloseIcon,
+} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   Outlet,
@@ -13,16 +18,6 @@ import { NotificationsDropdown } from "../NotificationsDropdown";
 import AdminUserMenu from "../AdminUserMenu";
 import { AdminThemeSwitcher } from "../admin-theme-switcher";
 import { AdminNotificationProvider } from "~/context/admin-notification-context";
-
-const menuLabels: Record<string, string> = {
-  dashboard: "Dashboard",
-  moderation: "Content Moderation",
-  users: "User Management",
-  registrations: "Registrations",
-  partners: "Partner",
-  blog: "Blog",
-  "account-settings": "Account Settings",
-};
 
 function getActiveMenu(pathname: string) {
   if (pathname === "/tk-admin" || pathname === "/tk-admin/") return "dashboard";
@@ -46,6 +41,30 @@ export default function AdminLayout() {
   const navigation = useNavigation();
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isDesktop, setIsDesktop] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("admin-sidebar-collapsed");
+    if (stored !== null) setIsCollapsed(stored === "true");
+
+    const mediaQuery = window.matchMedia("(min-width: 768px)");
+    const syncIsDesktop = () => setIsDesktop(mediaQuery.matches);
+    syncIsDesktop();
+    setMounted(true);
+
+    mediaQuery.addEventListener("change", syncIsDesktop);
+    return () => mediaQuery.removeEventListener("change", syncIsDesktop);
+  }, []);
+
+  const toggleCollapsed = () => {
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem("admin-sidebar-collapsed", String(next));
+      return next;
+    });
+  };
 
   useEffect(() => {
     const next = getActiveMenu(location.pathname);
@@ -58,100 +77,121 @@ export default function AdminLayout() {
       ? (getActiveMenu(pendingPathname) ?? activeMenu)
       : activeMenu;
 
-  const pageLabel = menuLabels[visibleActiveMenu] ?? "Admin";
+  // On mobile the sidebar is a slide-in drawer with room for labels, so only
+  // honor the collapsed preference on desktop.
+  const effectiveCollapsed = isDesktop ? isCollapsed : false;
 
   return (
     <AdminNotificationProvider>
-      <div className="flex min-h-screen flex-col bg-[#f8fafc] font-sans text-slate-900 antialiased transition-colors duration-300 md:flex-row dark:bg-slate-950 dark:text-slate-100">
-        {/* Mobile top bar */}
-        <header className="sticky top-0 z-60 flex h-16 items-center justify-between border-b border-slate-100 bg-white px-6 md:hidden dark:border-slate-800 dark:bg-slate-950">
+      <div className="flex min-h-screen flex-col bg-[#f8fafc] font-sans text-slate-900 antialiased transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
+        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-slate-100 bg-white/80 px-4 backdrop-blur-md transition-all duration-300 md:h-20 md:px-8 dark:border-slate-800 dark:bg-slate-950/80">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-[10px] font-black tracking-tight text-white">
-              TK
-            </div>
-            <span className="text-sm font-black tracking-widest text-slate-900 uppercase dark:text-white">
-              {pageLabel}
-            </span>
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 text-slate-400 transition-colors hover:text-slate-900 md:hidden dark:hover:text-white"
+              aria-label="Toggle admin menu"
+            >
+              {isMobileMenuOpen ? <CloseIcon size={24} /> : <Menu size={24} />}
+            </button>
+            <img
+              src="/Logofullsize.svg"
+              alt="True Khmer"
+              className="h-8 w-auto md:h-9"
+            />
           </div>
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 text-slate-400 transition-colors hover:text-slate-900 dark:hover:text-white"
-            aria-label="Toggle admin menu"
-          >
-            {isMobileMenuOpen ? <CloseIcon size={24} /> : <Menu size={24} />}
-          </button>
+
+          <div className="flex items-center gap-2">
+            <AdminThemeSwitcher />
+            <div className="mx-1 hidden h-6 w-px bg-slate-100 sm:block dark:bg-slate-800" />
+            <div className="ml-0 flex items-center gap-1 sm:ml-4 sm:gap-2">
+              <NotificationsDropdown />
+              <AdminUserMenu admin={admin} />
+            </div>
+          </div>
         </header>
 
-        {/* Mobile sidebar backdrop */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 z-70 bg-slate-900/40 backdrop-blur-sm md:hidden"
-            />
-          )}
-        </AnimatePresence>
+        <div className="flex min-h-0 flex-1">
+          {/* Mobile sidebar backdrop */}
+          <AnimatePresence>
+            {isMobileMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="fixed inset-x-0 top-16 bottom-0 z-70 bg-slate-900/40 backdrop-blur-sm md:hidden"
+              />
+            )}
+          </AnimatePresence>
 
-        {/* Sidebar */}
-        <aside
-          className={`fixed z-80 h-full flex-col items-center border-r border-slate-100 bg-white py-5 transition-all duration-300 md:flex dark:border-slate-800/60 dark:bg-slate-950 ${
-            isMobileMenuOpen
-              ? "w-18 translate-x-0"
-              : "w-0 -translate-x-full md:w-18 md:translate-x-0"
-          }`}
-        >
-          <div className="mb-8 hidden md:block">
-            <div className="flex h-10 w-10 items-center justify-center">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-600 text-[11px] font-black tracking-tight text-white">
-                TK
-              </div>
+          {/* Sidebar */}
+          <aside
+            className={`fixed top-16 left-0 z-80 flex h-[calc(100vh-4rem)] flex-col border-r border-slate-100 bg-white py-5 md:sticky md:top-20 md:z-auto md:h-[calc(100vh-5rem)] md:translate-x-0 dark:border-slate-800/60 dark:bg-slate-950 ${
+              mounted
+                ? "transition-[width,transform] duration-300 ease-in-out will-change-[width]"
+                : ""
+            } ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} ${
+              effectiveCollapsed ? "w-18" : "w-64"
+            }`}
+          >
+            {/* Label + collapse toggle */}
+            <div
+              className={`mb-6 hidden items-center md:flex ${
+                isCollapsed ? "justify-center px-0" : "justify-between px-5"
+              }`}
+            >
+              {!isCollapsed && (
+                <span className="text-xs font-bold tracking-widest text-slate-400 uppercase dark:text-slate-500">
+                  Administration
+                </span>
+              )}
+              <button
+                onClick={toggleCollapsed}
+                className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:hover:bg-slate-800/50 dark:hover:text-white"
+                aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              >
+                {isCollapsed ? (
+                  <PanelLeftOpen size={20} />
+                ) : (
+                  <PanelLeftClose size={20} />
+                )}
+              </button>
             </div>
-          </div>
 
-          <div className="flex w-full flex-1 flex-col items-center gap-1">
-            {navItems
-              .filter((item) =>
-                item.id === "users" ||
-                item.id === "registrations" ||
-                item.id === "partners"
-                  ? admin.role === "SUPER_ADMIN"
-                  : true,
-              )
-              .map((item) => (
-                <SidebarItem
-                  key={item.id}
-                  {...item}
-                  active={visibleActiveMenu === item.id}
-                  onNavigate={() => setIsMobileMenuOpen(false)}
-                />
-              ))}
-          </div>
-
-          <div className="mt-auto flex w-full flex-col items-center gap-1 pb-8">
-            <div className="mx-auto mb-4 h-px w-8 bg-slate-50 dark:bg-slate-800" />
-          </div>
-        </aside>
-
-        {/* Main content */}
-        <main className="ml-0 flex min-h-screen min-w-0 flex-1 flex-col bg-[#f8fafc] transition-all duration-300 md:ml-18 md:w-[calc(100%-4.5rem)] md:flex-none dark:bg-slate-950">
-          <header className="sticky top-0 z-30 flex h-16 items-center justify-end border-b border-slate-100 bg-[#f8fafc]/80 px-6 backdrop-blur-md transition-all duration-300 md:top-0 md:h-20 md:px-10 dark:border-slate-800 dark:bg-slate-950/80">
-            <div className="flex items-center gap-2">
-              <AdminThemeSwitcher />
-              <div className="mx-1 hidden h-6 w-px bg-slate-100 sm:block dark:bg-slate-800" />
-              <div className="ml-0 flex items-center gap-1 sm:ml-4 sm:gap-2">
-                <NotificationsDropdown />
-                <AdminUserMenu admin={admin} />
-              </div>
+            <div
+              className={`flex w-full flex-1 flex-col gap-1 overflow-y-auto ${
+                effectiveCollapsed ? "items-center" : "items-stretch px-2"
+              }`}
+            >
+              {navItems
+                .filter((item) =>
+                  item.id === "users" ||
+                  item.id === "registrations" ||
+                  item.id === "partners"
+                    ? admin.role === "SUPER_ADMIN"
+                    : true,
+                )
+                .map((item) => (
+                  <SidebarItem
+                    key={item.id}
+                    {...item}
+                    collapsed={effectiveCollapsed}
+                    active={visibleActiveMenu === item.id}
+                    onNavigate={() => setIsMobileMenuOpen(false)}
+                  />
+                ))}
             </div>
-          </header>
 
-          <div className="w-full flex-1 bg-slate-50 dark:bg-[#020617]">
+            <div className="mt-auto flex w-full flex-col items-center gap-1 pb-8">
+              <div className="mx-auto mb-4 h-px w-8 bg-slate-50 dark:bg-slate-800" />
+            </div>
+          </aside>
+
+          {/* Main content */}
+          <main className="flex min-w-0 flex-1 flex-col bg-slate-50 contain-layout dark:bg-[#020617]">
             <Outlet context={{ isSuperAdmin: admin.role === "SUPER_ADMIN" }} />
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
     </AdminNotificationProvider>
   );

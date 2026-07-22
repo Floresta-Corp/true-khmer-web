@@ -56,7 +56,7 @@ export function ConfirmationModal({
         if (!open && !loading) onClose();
       }}
     >
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md dark:bg-slate-900 dark:ring-slate-800">
         <DialogHeader>
           <DialogTitle className={titleColor[variant]}>{title}</DialogTitle>
           <DialogDescription className="text-slate-600 dark:text-slate-300">
@@ -64,11 +64,11 @@ export function ConfirmationModal({
           </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter className="gap-2 sm:gap-3">
+        <DialogFooter className="gap-2 sm:gap-3 dark:border-slate-800 dark:bg-slate-950/50">
           <Button
             type="button"
             variant="outline"
-            className="flex-1"
+            className="flex-1 dark:border-slate-700 dark:bg-slate-950/50 dark:text-white dark:hover:bg-slate-800/50"
             onClick={onClose}
             disabled={loading}
           >

@@ -87,7 +87,7 @@ export function AdminThemeSwitcher() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className="p-2 md:p-2.5 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-xl cursor-pointer transition-all text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 border border-transparent hover:border-slate-100 dark:hover:border-slate-800"
+          className="cursor-pointer rounded-xl border border-transparent p-2 text-slate-400 transition-all hover:border-slate-100 hover:bg-slate-50 hover:text-slate-900 md:p-2.5 dark:hover:border-slate-800 dark:hover:bg-slate-900 dark:hover:text-slate-100"
           aria-label="Select theme"
           title={`Theme: ${themePreference}`}
         >
@@ -96,7 +96,7 @@ export function AdminThemeSwitcher() {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-44 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/60 rounded-xl shadow-lg p-1.5"
+        className="w-44 rounded-xl border-slate-200 bg-white p-1.5 shadow-lg dark:border-slate-700/60 dark:bg-slate-900"
       >
         <DropdownMenuRadioGroup
           value={themePreference}
@@ -104,7 +104,7 @@ export function AdminThemeSwitcher() {
         >
           <DropdownMenuRadioItem
             value="light"
-            className="cursor-pointer rounded-lg py-2 pr-3 text-[13px] font-medium dark:text-white data-[state=checked]:bg-blue-50 dark:data-[state=checked]:bg-blue-900/20 data-[state=checked]:text-blue-600 dark:data-[state=checked]:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all"
+            className="cursor-pointer rounded-lg py-2 pr-3 text-[13px] font-medium transition-all hover:bg-slate-50 data-[state=checked]:bg-blue-50 data-[state=checked]:text-blue-600 dark:text-white dark:hover:bg-slate-800/50 dark:data-[state=checked]:bg-blue-900/20 dark:data-[state=checked]:text-blue-400"
           >
             <div className="flex items-center gap-3">
               <Sun size={15} className="shrink-0" />
@@ -113,7 +113,7 @@ export function AdminThemeSwitcher() {
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem
             value="dark"
-            className="cursor-pointer rounded-lg py-2 pr-3 text-[13px] font-medium dark:text-white data-[state=checked]:bg-blue-50 dark:data-[state=checked]:bg-blue-900/20 data-[state=checked]:text-blue-600 dark:data-[state=checked]:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all"
+            className="cursor-pointer rounded-lg py-2 pr-3 text-[13px] font-medium transition-all hover:bg-slate-50 data-[state=checked]:bg-blue-50 data-[state=checked]:text-blue-600 dark:text-white dark:hover:bg-slate-800/50 dark:data-[state=checked]:bg-blue-900/20 dark:data-[state=checked]:text-blue-400"
           >
             <div className="flex items-center gap-3">
               <Moon size={15} className="shrink-0" />
@@ -122,7 +122,7 @@ export function AdminThemeSwitcher() {
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem
             value="system"
-            className="cursor-pointer rounded-lg py-2 pr-3 text-[13px] font-medium dark:text-white data-[state=checked]:bg-blue-50 dark:data-[state=checked]:bg-blue-900/20 data-[state=checked]:text-blue-600 dark:data-[state=checked]:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all"
+            className="cursor-pointer rounded-lg py-2 pr-3 text-[13px] font-medium transition-all hover:bg-slate-50 data-[state=checked]:bg-blue-50 data-[state=checked]:text-blue-600 dark:text-white dark:hover:bg-slate-800/50 dark:data-[state=checked]:bg-blue-900/20 dark:data-[state=checked]:text-blue-400"
           >
             <div className="flex items-center gap-3">
               <Monitor size={15} className="shrink-0" />

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { ComponentType } from "react";
 import type { LucideProps } from "lucide-react";
 import {
@@ -61,11 +62,13 @@ export const navItems: NavItem[] = [
 ];
 
 type SidebarItemProps = {
+  id?: string;
   icon: ComponentType<LucideProps>;
   label: string;
   active?: boolean;
   badge?: number;
   disabled?: boolean;
+  collapsed?: boolean;
   href: string;
   onNavigate?: () => void;
 };
@@ -76,10 +79,52 @@ export function SidebarItem({
   active = false,
   badge = 0,
   disabled = false,
+  collapsed = false,
   href,
   onNavigate,
 }: SidebarItemProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
+  const anchorRef = useRef<HTMLElement>(null);
+
+  useEffect(() => setMounted(true), []);
+
+  const showTooltip = () => {
+    const rect = anchorRef.current?.getBoundingClientRect();
+    if (rect) {
+      setTooltipPos({
+        top: rect.top + rect.height / 2,
+        left: rect.right + 12,
+      });
+    }
+    setIsHovered(true);
+  };
+
+  const hideTooltip = () => setIsHovered(false);
+
+  // Tooltip is portaled to <body> so the sidebar's overflow-y-auto (which also
+  // clips overflow-x) can't cut it off when the sidebar is collapsed.
+  const tooltip =
+    mounted && isHovered && !disabled && collapsed
+      ? createPortal(
+          <AnimatePresence>
+            <motion.div
+              key="tooltip"
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              style={{ top: tooltipPos.top, left: tooltipPos.left }}
+              className="pointer-events-none fixed z-[100] flex -translate-y-1/2 items-center rounded-xl border border-slate-200/50 bg-slate-100 px-3 py-1.5 text-[13px] font-medium whitespace-nowrap text-slate-900 shadow-md dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            >
+              <div className="absolute -left-1 h-2 w-2 rotate-45 rounded-sm border-b border-l border-slate-200/50 bg-slate-100 dark:border-slate-700 dark:bg-slate-800" />
+              {label}
+            </motion.div>
+          </AnimatePresence>,
+          document.body,
+        )
+      : null;
 
   const content = (
     <>
@@ -93,6 +138,18 @@ export function SidebarItem({
         <Icon size={20} />
       </div>
 
+      {!collapsed && (
+        <span
+          className={`ml-3 flex-1 truncate text-sm ${
+            active
+              ? "font-semibold text-blue-600 dark:text-blue-400"
+              : "font-medium text-slate-500 group-hover:text-slate-900 dark:text-slate-400 dark:group-hover:text-slate-100"
+          }`}
+        >
+          {label}
+        </span>
+      )}
+
       {badge > 0 && (
         <span className="pointer-events-none absolute top-2 right-3 z-10 min-w-4.5 rounded-full border-2 border-white bg-rose-500 px-1 py-0.5 text-center text-[10px] font-bold text-white dark:border-slate-900">
           {badge}
@@ -102,51 +159,46 @@ export function SidebarItem({
       {active && (
         <div className="absolute left-0 h-6 w-1.5 rounded-r-full bg-blue-600" />
       )}
-
-      <AnimatePresence>
-        {isHovered && !disabled && (
-          <motion.div
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 10 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className="pointer-events-none absolute left-16 z-100 flex items-center rounded-xl border border-slate-200/50 bg-slate-100 px-3 py-1.5 text-[13px] font-medium whitespace-nowrap text-slate-900 shadow-md dark:bg-slate-800 dark:text-slate-100"
-          >
-            <div className="absolute -left-1 h-2 w-2 rotate-45 rounded-sm border-b border-l border-slate-200/50 bg-slate-100 dark:bg-slate-800" />
-            {label}
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   );
 
-  const className = `relative flex items-center justify-center py-2.5 w-full ${
-    disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer group"
+  const className = `relative flex items-center py-2.5 w-full rounded-xl transition-colors duration-200 ${
+    collapsed ? "justify-center" : "justify-start px-2"
+  } ${
+    disabled
+      ? "cursor-not-allowed opacity-40"
+      : `cursor-pointer group ${
+          active ? "" : "hover:bg-slate-100 dark:hover:bg-slate-800/50"
+        }`
   }`;
 
   if (disabled) {
     return (
       <div
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        ref={anchorRef as React.RefObject<HTMLDivElement>}
+        onMouseEnter={showTooltip}
+        onMouseLeave={hideTooltip}
         className={className}
       >
         {content}
+        {tooltip}
       </div>
     );
   }
 
   return (
     <Link
+      ref={anchorRef as React.RefObject<HTMLAnchorElement>}
       to={href}
       prefetch="intent"
       onClick={onNavigate}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={showTooltip}
+      onMouseLeave={hideTooltip}
       className={className}
       aria-label={label}
     >
       {content}
+      {tooltip}
     </Link>
   );
 }

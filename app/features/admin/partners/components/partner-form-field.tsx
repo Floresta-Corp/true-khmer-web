@@ -11,7 +11,7 @@ import {
 import { cn } from "~/lib/utils";
 
 const fieldControlClass =
-  "h-11 rounded-xl px-4 text-base shadow-none md:text-sm";
+  "h-11 rounded-xl px-4 text-base shadow-none md:text-sm dark:border-slate-700 dark:bg-slate-950/50 dark:text-white";
 
 interface FormFieldProps {
   id: string;
