@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router";
+import IndependenceMonument from "~/components/icons/independenceMonument";
 import { OnboardingPageShell } from "~/routes/onboarding/components/onboarding-page-shell";
 import { OnboardingRomdoulCorners } from "~/routes/onboarding/components/onboarding-romdoul-corners";
 
@@ -17,6 +18,12 @@ export default function OnboardingWelcomePage() {
       <OnboardingRomdoulCorners />
 
       <section className="relative z-10 flex w-full max-w-5xl flex-col items-center gap-8 text-center">
+        <IndependenceMonument
+          width={130}
+          height={240}
+          className="tk-fade-up h-auto w-24 md:w-32.5"
+        />
+
         <div className="tk-fade-up rounded-full border border-black/10 px-3.5 py-2">
           <p className="text-xs font-semibold tracking-[0.16em] text-[#2894FA] uppercase">
             by Cambodians for Cambodia
