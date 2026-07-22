@@ -154,8 +154,11 @@ function toSectorData(
   partners: AdminDashboardData["partners"],
 ): PartnerSector[] {
   if (!Array.isArray(partners.sectors)) return [];
-  return partners.sectors.reduce<PartnerSector[]>((acc, raw, i) => {
-    if (typeof raw !== "object" || raw === null) return acc;
+
+  const totals = new Map<string, { name: string; value: number }>();
+
+  for (const raw of partners.sectors) {
+    if (typeof raw !== "object" || raw === null) continue;
     const { label, name, count, value } = raw as Record<string, unknown>;
     const sectorName =
       typeof label === "string"
@@ -169,15 +172,27 @@ function toSectorData(
         : typeof value === "number"
           ? value
           : null;
-    if (sectorName !== null && sectorValue !== null) {
-      acc.push({
-        name: sectorName,
-        value: sectorValue,
-        color: SECTOR_COLORS[i % SECTOR_COLORS.length],
-      });
+    if (sectorName === null || sectorValue === null) continue;
+
+    for (const part of sectorName.split(/[,/&;]/)) {
+      const display = part.trim().replace(/\s+/g, " ");
+      if (!display) continue;
+      const key = display.toLowerCase();
+      const existing = totals.get(key);
+      if (existing) {
+        existing.value += sectorValue;
+      } else {
+        totals.set(key, { name: display, value: sectorValue });
+      }
     }
-    return acc;
-  }, []);
+  }
+
+  return [...totals.values()]
+    .sort((a, b) => b.value - a.value)
+    .map((entry, i) => ({
+      ...entry,
+      color: SECTOR_COLORS[i % SECTOR_COLORS.length],
+    }));
 }
 
 // ── page ──────────────────────────────────────────────────────────────────
@@ -216,24 +231,24 @@ export default function AdminDashboardPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6 space-y-6">
+    <div className="min-h-screen space-y-6 bg-slate-50 p-6 dark:bg-slate-950">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-(--admin-text)">
           Admin Dashboard
         </h1>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {stats.map((item, i) => (
           <KpiCard key={item.id} item={item} index={i} />
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         <QuickActionsSidebar actions={quickActions} />
 
-        <div className="lg:col-span-8 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-6 lg:col-span-8">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <RegistrationsChart
               data={registrationData}
               changePercent={dashboard.newRegistrations.changePercent}
