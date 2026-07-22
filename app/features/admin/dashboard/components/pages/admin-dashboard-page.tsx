@@ -174,7 +174,7 @@ function toSectorData(
           : null;
     if (sectorName === null || sectorValue === null) continue;
 
-    for (const part of sectorName.split(/[,/&;]/)) {
+    for (const part of sectorName.split(",")) {
       const display = part.trim().replace(/\s+/g, " ");
       if (!display) continue;
       const key = display.toLowerCase();

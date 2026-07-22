@@ -103,24 +103,24 @@ export function SidebarItem({
 
   const hideTooltip = () => setIsHovered(false);
 
-  // Tooltip is portaled to <body> so the sidebar's overflow-y-auto (which also
-  // clips overflow-x) can't cut it off when the sidebar is collapsed.
   const tooltip =
-    mounted && isHovered && !disabled && collapsed
+    mounted && !disabled && collapsed
       ? createPortal(
           <AnimatePresence>
-            <motion.div
-              key="tooltip"
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 10 }}
-              transition={{ duration: 0.15, ease: "easeOut" }}
-              style={{ top: tooltipPos.top, left: tooltipPos.left }}
-              className="pointer-events-none fixed z-[100] flex -translate-y-1/2 items-center rounded-xl border border-slate-200/50 bg-slate-100 px-3 py-1.5 text-[13px] font-medium whitespace-nowrap text-slate-900 shadow-md dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-            >
-              <div className="absolute -left-1 h-2 w-2 rotate-45 rounded-sm border-b border-l border-slate-200/50 bg-slate-100 dark:border-slate-700 dark:bg-slate-800" />
-              {label}
-            </motion.div>
+            {isHovered && (
+              <motion.div
+                key="tooltip"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+                style={{ top: tooltipPos.top, left: tooltipPos.left }}
+                className="pointer-events-none fixed z-100 flex -translate-y-1/2 items-center rounded-xl border border-slate-200/50 bg-slate-100 px-3 py-1.5 text-[13px] font-medium whitespace-nowrap text-slate-900 shadow-md dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+              >
+                <div className="absolute -left-1 h-2 w-2 rotate-45 rounded-sm border-b border-l border-slate-200/50 bg-slate-100 dark:border-slate-700 dark:bg-slate-800" />
+                {label}
+              </motion.div>
+            )}
           </AnimatePresence>,
           document.body,
         )
