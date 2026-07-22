@@ -142,20 +142,20 @@ export default function ManagePostingDetailTable({
       <ApplicantTabRange />
 
       {/* Embedded Title, Search, and Data Box Header */}
-      <div className="bg-white dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-900 shadow-sm overflow-hidden flex flex-col">
+      <div className="flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm dark:border-slate-900 dark:bg-slate-950">
         {/* Table Inner Layout Header Block */}
-        <div className="p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-50 dark:border-slate-900">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+        <div className="flex flex-col gap-4 border-b border-slate-50 p-5 sm:flex-row sm:items-center sm:justify-between dark:border-slate-900">
+          <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
             All Applications
           </h2>
 
           <div className="relative w-full sm:max-w-xs">
             <Search
               size={15}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+              className="absolute top-1/2 left-3.5 -translate-y-1/2 text-slate-400"
             />
             <Input
-              className="h-9 pl-10 pr-4 text-[13px] border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 rounded-xl focus-visible:ring-blue-500/20 placeholder:text-slate-400 transition-all w-full"
+              className="h-9 w-full rounded-xl border-slate-200 bg-slate-50/50 pr-4 pl-10 text-[13px] transition-all placeholder:text-slate-400 focus-visible:ring-blue-500/20 dark:border-slate-800 dark:bg-slate-900/50"
               placeholder="Search applicants..."
               value={searchInput}
               onChange={(e) => {
@@ -167,26 +167,26 @@ export default function ManagePostingDetailTable({
         </div>
 
         {/* Responsive Scrolling Core Layout Wrapper */}
-        <div className="overflow-x-auto w-full">
+        <div className="w-full overflow-x-auto">
           <Table>
-            <TableHeader className="bg-slate-50/70 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-900 text-[11px] font-bold uppercase tracking-wider">
+            <TableHeader className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-bold tracking-wider uppercase dark:border-slate-900 dark:bg-slate-900/30">
               <TableRow className="hover:bg-transparent">
-                <TableHead className="text-slate-500 h-11 px-5">
+                <TableHead className="h-11 px-5 text-slate-500">
                   Applicant
                 </TableHead>
-                <TableHead className="text-slate-500 h-11 px-5">
+                <TableHead className="h-11 px-5 text-slate-500">
                   Submission
                 </TableHead>
-                <TableHead className="text-slate-500 h-11 px-5">
+                <TableHead className="h-11 px-5 text-slate-500">
                   Applied for
                 </TableHead>
-                <TableHead className="text-slate-500  h-11 px-5">
+                <TableHead className="h-11 px-5 text-slate-500">
                   Status
                 </TableHead>
-                <TableHead className=" text-slate-500 h-11 px-5">
+                <TableHead className="h-11 px-5 text-slate-500">
                   Contact
                 </TableHead>
-                <TableHead className="text-right text-slate-500 h-11 px-5">
+                <TableHead className="h-11 px-5 text-right text-slate-500">
                   Action
                 </TableHead>
               </TableRow>
@@ -203,11 +203,11 @@ export default function ManagePostingDetailTable({
                   <TableRow
                     key={`${applicant.candidate.id} ${idx}`}
                     onClick={() => handleRowClick(applicant)}
-                    className="hover:bg-slate-50/40 dark:hover:bg-slate-900/20 transition-colors cursor-pointer"
+                    className="cursor-pointer transition-colors hover:bg-slate-50/40 dark:hover:bg-slate-900/20"
                   >
                     <TableCell className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <Avatar className="border border-slate-100 dark:border-slate-800 shrink-0 h-9 w-9">
+                        <Avatar className="h-9 w-9 shrink-0 border border-slate-100 dark:border-slate-800">
                           <AvatarImage
                             src={resolveImageURL(applicant.candidate.avatarKey)}
                             alt={applicant.candidate.name || "User"}
@@ -216,17 +216,17 @@ export default function ManagePostingDetailTable({
                         </Avatar>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <p className="text-[14px] font-semibold text-slate-900 dark:text-slate-100 truncate">
+                            <p className="truncate text-[14px] font-semibold text-slate-900 dark:text-slate-100">
                               {applicant.candidate.name}
                             </p>
                             {isBlocked && (
-                              <span className="shrink-0 text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-md bg-red-100 text-red-600 border border-red-200">
+                              <span className="shrink-0 rounded-md border border-red-200 bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-600 uppercase">
                                 Blocked
                               </span>
                             )}
                           </div>
 
-                          <p className="text-xs text-slate-400 truncate">
+                          <p className="truncate text-xs text-slate-400">
                             {applicant.candidate.email}
                           </p>
                         </div>
@@ -246,7 +246,7 @@ export default function ManagePostingDetailTable({
                               {submissionCount > 1 ? "s" : ""}
                             </span>
 
-                            <span className="text-[11px] text-slate-400 font-medium">
+                            <span className="text-[11px] font-medium text-slate-400">
                               {formatDateMonthYear(
                                 applicant.lastAppliedAt ??
                                   applicant.submissions[0]?.appliedAt ??
@@ -258,7 +258,7 @@ export default function ManagePostingDetailTable({
                       })()}
                     </TableCell>
 
-                    <TableCell className="px-5 py-3.5 text-sm  text-slate-500 whitespace-nowrap">
+                    <TableCell className="px-5 py-3.5 text-sm whitespace-nowrap text-slate-500">
                       {(() => {
                         const totalRoles =
                           applicant.totalRoleApplied ??
@@ -280,7 +280,7 @@ export default function ManagePostingDetailTable({
                                 : "N/A"}
                             </span>
                             {otherRoles > 0 && (
-                              <span className="text-[11px] text-slate-400 font-medium">
+                              <span className="text-[11px] font-medium text-slate-400">
                                 {otherRoles} other{otherRoles > 1 ? "s" : ""}{" "}
                                 roles
                               </span>
@@ -293,7 +293,7 @@ export default function ManagePostingDetailTable({
                     <TableCell className="px-5 py-3.5">
                       <Badge
                         className={cn(
-                          "text-[12px] font-semibold px-2 py-0.5 tracking-wider rounded-md border capitalize pointer-events-none shadow-none",
+                          "pointer-events-none rounded-md border px-2 py-0.5 text-[12px] font-semibold tracking-wider capitalize shadow-none",
                           STATUS_STYLES[displayStatus],
                         )}
                       >
@@ -322,7 +322,7 @@ export default function ManagePostingDetailTable({
                 <TableRow>
                   <TableCell
                     colSpan={6}
-                    className="h-32 text-center text-slate-400 text-sm"
+                    className="h-32 text-center text-sm text-slate-400"
                   >
                     No applicants found for this project.
                   </TableCell>

@@ -24,6 +24,7 @@ export default function BenefitsSection({
     onChange: (value: string) => void;
     id?: string;
     hasError?: boolean;
+    maxLength?: number;
   }>;
   benefitErrors?: string[];
 }) {
@@ -64,6 +65,7 @@ export default function BenefitsSection({
                     onChange={(value) => onChange(benefit.id, value)}
                     id={`benefit-${benefit.id}`}
                     hasError={Boolean(benefitErrors && benefitErrors[idx])}
+                    maxLength={180}
                   />
                   {benefitErrors && benefitErrors[idx] ? (
                     <p
