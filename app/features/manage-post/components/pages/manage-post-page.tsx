@@ -63,6 +63,17 @@ export default function ManagePostingPage() {
     navigation.state === "loading" &&
     navigation.location?.pathname === "/manage-post";
 
+  const pageSize = pagination?.limit ?? 6;
+  const total = pagination?.total ?? postings.length;
+  const totalPages = Math.max(
+    1,
+    pagination?.totalPages ?? Math.ceil(total / pageSize),
+  );
+  const rawPage = Number.parseInt(searchParams.get("page") ?? "1", 10);
+  const currentPage =
+    Number.isFinite(rawPage) && rawPage > 0 ? Math.min(rawPage, totalPages) : 1;
+  const isLastPage = currentPage === totalPages;
+
   useEffect(() => {
     const rawType = searchParams.get("type");
     const nextType = isValidTab(rawType) ? rawType : "all";
@@ -146,33 +157,35 @@ export default function ManagePostingPage() {
                 posting={posting}
               />
             ))}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.3 }}
-            >
-              <CreateOpportunityDialog
-                trigger={
-                  <button
-                    type="button"
-                    className="group flex h-full min-h-55 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-none p-5 outline-2 outline-gray-200 transition-all outline-dashed hover:bg-gray-50 hover:outline-blue-400"
-                  >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 shadow-sm transition-colors group-hover:border-blue-400 group-hover:text-blue-500">
-                      <Plus size={20} strokeWidth={2.5} />
-                    </div>
-                    <div className="text-center">
-                      <p className="text-[15px] font-bold text-gray-500 transition-colors group-hover:text-blue-600">
-                        New Posting
-                      </p>
-                      <p className="text-[12px] text-gray-400">
-                        Start a new community opportunity
-                      </p>
-                    </div>
-                  </button>
-                }
-              />
-            </motion.div>
+            {isLastPage && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.3 }}
+              >
+                <CreateOpportunityDialog
+                  trigger={
+                    <button
+                      type="button"
+                      className="group flex h-full min-h-55 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-none p-5 outline-2 outline-gray-200 transition-all outline-dashed hover:bg-gray-50 hover:outline-blue-400"
+                    >
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 shadow-sm transition-colors group-hover:border-blue-400 group-hover:text-blue-500">
+                        <Plus size={20} strokeWidth={2.5} />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-[15px] font-bold text-gray-500 transition-colors group-hover:text-blue-600">
+                          New Posting
+                        </p>
+                        <p className="text-[12px] text-gray-400">
+                          Start a new community opportunity
+                        </p>
+                      </div>
+                    </button>
+                  }
+                />
+              </motion.div>
+            )}
           </>
         )}
       </div>
