@@ -5,6 +5,7 @@ import ManagePostCard from "../card/manage-post-card";
 import ManagePostCardSkeleton from "../manage-post-skeleton";
 import ManagePostFilters from "../card/manage-post-filter";
 import type { loader } from "../../route/manage-post";
+import type { ManagePost } from "../../types";
 import CreateOpportunityDialog from "../dialog/manage-post-button";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -63,16 +64,7 @@ export default function ManagePostingPage() {
     navigation.state === "loading" &&
     navigation.location?.pathname === "/manage-post";
 
-  const pageSize = pagination?.limit ?? 6;
-  const total = pagination?.total ?? postings.length;
-  const totalPages = Math.max(
-    1,
-    pagination?.totalPages ?? Math.ceil(total / pageSize),
-  );
-  const rawPage = Number.parseInt(searchParams.get("page") ?? "1", 10);
-  const currentPage =
-    Number.isFinite(rawPage) && rawPage > 0 ? Math.min(rawPage, totalPages) : 1;
-  const isLastPage = currentPage === totalPages;
+  const isLastPage = pagination ? !pagination.hasNextPage : true;
 
   useEffect(() => {
     const rawType = searchParams.get("type");
@@ -150,7 +142,7 @@ export default function ManagePostingPage() {
           ))
         ) : (
           <>
-            {postings.map((posting: any, index: number) => (
+            {postings.map((posting: ManagePost, index: number) => (
               <ManagePostCard
                 key={posting.id}
                 index={index}
