@@ -104,7 +104,7 @@ export default function ApplicantSideBar({
         initial={{ x: "100%" }}
         animate={{ x: applicant ? 0 : "100%" }}
         transition={{ type: "spring", bounce: 0.1, duration: 0.4 }}
-        className="fixed top-0 right-0 z-50 flex h-full w-95 flex-col overflow-y-auto bg-white pb-5 shadow-2xl"
+        className="fixed top-0 right-0 z-50 flex h-full w-95 flex-col overflow-hidden bg-white shadow-2xl"
       >
         {applicant && (
           <>
@@ -156,72 +156,74 @@ export default function ApplicantSideBar({
               </Button>
             </div>
 
-            <div className="flex flex-col gap-4 px-6 py-4">
-              <div className="flex items-center justify-around rounded-xl border border-gray-100 bg-white p-2">
-                {/* Submissions Stat */}
-                <div className="flex flex-1 flex-col items-center justify-center text-center">
-                  <div className="flex h-8 items-center justify-center">
-                    <span className="text-sm font-semibold text-gray-900">
-                      {applicant?.submissionCount ?? "0"}
+            <div className="flex flex-1 flex-col overflow-y-auto">
+              <div className="flex flex-col gap-4 px-6 py-4">
+                <div className="flex items-center justify-around rounded-xl border border-gray-100 bg-white p-2">
+                  {/* Submissions Stat */}
+                  <div className="flex flex-1 flex-col items-center justify-center text-center">
+                    <div className="flex h-8 items-center justify-center">
+                      <span className="text-sm font-semibold text-gray-900">
+                        {applicant?.submissionCount ?? "0"}
+                      </span>
+                    </div>
+                    <span className="mt-1 text-[9px] font-semibold tracking-wider text-gray-400 uppercase">
+                      Submissions
                     </span>
                   </div>
-                  <span className="mt-1 text-[9px] font-semibold tracking-wider text-gray-400 uppercase">
-                    Submissions
-                  </span>
-                </div>
 
-                <div className="h-10 w-px bg-gray-100" />
+                  <div className="h-10 w-px bg-gray-100" />
 
-                {/* Roles Applied Stat */}
-                <div className="flex flex-1 flex-col items-center justify-center text-center">
-                  <div className="flex h-8 items-center justify-center">
-                    <span className="text-sm font-semibold text-gray-900">
-                      {applicant?.totalRoleApplied ?? "0"}
+                  {/* Roles Applied Stat */}
+                  <div className="flex flex-1 flex-col items-center justify-center text-center">
+                    <div className="flex h-8 items-center justify-center">
+                      <span className="text-sm font-semibold text-gray-900">
+                        {applicant?.totalRoleApplied ?? "0"}
+                      </span>
+                    </div>
+                    <span className="mt-1 text-[9px] font-semibold tracking-wider text-gray-400 uppercase">
+                      Roles Applied
                     </span>
                   </div>
-                  <span className="mt-1 text-[9px] font-semibold tracking-wider text-gray-400 uppercase">
-                    Roles Applied
-                  </span>
-                </div>
 
-                <div className="h-10 w-px bg-gray-100" />
+                  <div className="h-10 w-px bg-gray-100" />
 
-                {/* Overall Status Stat */}
-                <div className="flex flex-1 flex-col items-center justify-center text-center">
-                  <div className="flex h-8 items-center justify-center">
-                    <span
-                      className={cn(
-                        "text-xs font-semibold",
-                        STATUS_STYLES[overallStatus]
-                          ?.split(" ")
-                          .filter((c) => c.includes("text-"))
-                          .join(" "),
-                      )}
-                    >
-                      {STATUS_LABELS[overallStatus]}
+                  {/* Overall Status Stat */}
+                  <div className="flex flex-1 flex-col items-center justify-center text-center">
+                    <div className="flex h-8 items-center justify-center">
+                      <span
+                        className={cn(
+                          "text-xs font-semibold",
+                          STATUS_STYLES[overallStatus]
+                            ?.split(" ")
+                            .filter((c) => c.includes("text-"))
+                            .join(" "),
+                        )}
+                      >
+                        {STATUS_LABELS[overallStatus]}
+                      </span>
+                    </div>
+                    <span className="mt-1 text-[9px] font-semibold tracking-wider text-gray-400 uppercase">
+                      Overall Status
                     </span>
                   </div>
-                  <span className="mt-1 text-[9px] font-semibold tracking-wider text-gray-400 uppercase">
-                    Overall Status
-                  </span>
                 </div>
+
+                <ApplicantRolesSelection
+                  applicant={applicant}
+                  sourceType={sourceType}
+                />
+
+                {/* Private Note */}
+                <ApplicantNoteAction
+                  sourceType={normalizedSourceType as PostSourceType}
+                  postingId={postingId}
+                  candidateId={applicant.candidate.id}
+                  existingNote={existingNote}
+                  onSaved={(note) =>
+                    onApplicantNoteSaved?.(applicant.candidate.id, note)
+                  }
+                />
               </div>
-
-              <ApplicantRolesSelection
-                applicant={applicant}
-                sourceType={sourceType}
-              />
-
-              {/* Private Note */}
-              <ApplicantNoteAction
-                sourceType={normalizedSourceType as PostSourceType}
-                postingId={postingId}
-                candidateId={applicant.candidate.id}
-                existingNote={existingNote}
-                onSaved={(note) =>
-                  onApplicantNoteSaved?.(applicant.candidate.id, note)
-                }
-              />
             </div>
 
             {/* Accept / Decline */}
