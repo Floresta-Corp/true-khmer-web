@@ -1,9 +1,19 @@
 import { useState } from "react";
 import { useLoaderData, useOutletContext } from "react-router";
-import { Users, Handshake, ShieldAlert, UserCog, Bell } from "lucide-react";
+import {
+  Users,
+  Handshake,
+  ShieldAlert,
+  UserCog,
+  Bell,
+  UserPlus,
+  Building2,
+  ClipboardList,
+} from "lucide-react";
 
 import { KpiCard } from "../kpi-card";
-import { QuickActionsSidebar } from "../quick-actions-sidebar";
+import { WelcomeCard } from "../welcome-card";
+import { QuickActionsCard } from "../quick-actions-card";
 import { RegistrationsChart } from "../registrations-chart";
 import { ActiveUsersChart } from "../active-users-chart";
 import { GenderBreakdownChart } from "../gender-breakdown-chart";
@@ -11,6 +21,7 @@ import { AgeGroupsChart } from "../age-groups-chart";
 import { PartnerSectorsChart } from "../partner-sectors-chart";
 import { SendNotificationDialog } from "~/features/admin/notifications/components/send-notification-dialog";
 import { InviteMemberFlow } from "../invite-member-flow";
+import type { AdminUser } from "~/types/api-client";
 import type { adminDashboardLoader } from "../../services/admin-dashboard.loader";
 import type {
   AdminDashboardData,
@@ -37,7 +48,7 @@ const STAT_META: Omit<StatItem, "value">[] = [
     id: "partners",
     label: "Total Partners",
     icon: Handshake,
-    to: "/tk-admin/partner",
+    to: "/tk-admin/partners",
     iconBg: "bg-(--admin-card-muted)",
     iconColor: "text-(--admin-text-secondary)",
   },
@@ -68,15 +79,9 @@ const SECTOR_COLORS = [
   "#f43f5e",
 ];
 
+// Real, working actions come first; the rest are placeholders shown as
+// "coming soon" so the row still reads like the design.
 const BASE_QUICK_ACTIONS: Omit<QuickAction, "onClick">[] = [
-  // {
-  //   id: "add-partner",
-  //   label: "Add Partner",
-  //   subtitle: "New Ecosystem Entry",
-  //   icon: Building2,
-  //   iconClass: "bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400",
-  //   to: "/tk-admin/partner/add",
-  // },
   {
     id: "invite-team",
     label: "Invite Team",
@@ -92,6 +97,30 @@ const BASE_QUICK_ACTIONS: Omit<QuickAction, "onClick">[] = [
     icon: Bell,
     iconClass:
       "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400",
+  },
+  {
+    id: "add-user",
+    label: "Add User",
+    subtitle: "Coming soon",
+    icon: UserPlus,
+    iconClass: "bg-(--admin-card-muted) text-(--admin-text-secondary)",
+    disabled: true,
+  },
+  {
+    id: "add-partner",
+    label: "Add Partner",
+    subtitle: "Coming soon",
+    icon: Building2,
+    iconClass: "bg-(--admin-card-muted) text-(--admin-text-secondary)",
+    disabled: true,
+  },
+  {
+    id: "create-listing",
+    label: "Create Listing",
+    subtitle: "Coming soon",
+    icon: ClipboardList,
+    iconClass: "bg-(--admin-card-muted) text-(--admin-text-secondary)",
+    disabled: true,
   },
 ];
 
@@ -198,9 +227,11 @@ function toSectorData(
 // ── page ──────────────────────────────────────────────────────────────────
 export default function AdminDashboardPage() {
   const { dashboard } = useLoaderData<typeof adminDashboardLoader>();
-  const { isSuperAdmin } = useOutletContext<{ isSuperAdmin: boolean }>();
+  const { admin, isSuperAdmin } = useOutletContext<{
+    admin: AdminUser;
+    isSuperAdmin: boolean;
+  }>();
   const [showNotificationDialog, setShowNotificationDialog] = useState(false);
-
   const [showInviteModal, setShowInviteModal] = useState(false);
 
   const stats = toStats(dashboard.summary).map((stat) =>
@@ -217,25 +248,29 @@ export default function AdminDashboardPage() {
     dashboard.partners.total !== null && sectorData.length > 0;
 
   const quickActions: QuickAction[] = BASE_QUICK_ACTIONS.map((action) => {
+    if (action.disabled) return action;
     if (!isSuperAdmin) return { ...action, disabled: true };
     if (action.id === "send-notification") {
       return { ...action, onClick: () => setShowNotificationDialog(true) };
     }
-    if (action.id === "invite-team")
-      return {
-        ...action,
-        to: undefined,
-        onClick: () => setShowInviteModal(true),
-      };
+    if (action.id === "invite-team") {
+      return { ...action, onClick: () => setShowInviteModal(true) };
+    }
     return action;
   });
 
   return (
     <div className="min-h-screen space-y-6 bg-slate-50 p-6 dark:bg-slate-950">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-(--admin-text)">
-          Admin Dashboard
-        </h1>
+      <div>
+        <h1 className="text-2xl font-bold text-(--admin-text)">Dashboard</h1>
+        <p className="mt-1 text-(--admin-text-secondary)">
+          Platform overview and things that need your attention
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <WelcomeCard admin={admin} className="lg:col-span-7" />
+        <QuickActionsCard actions={quickActions} className="lg:col-span-5" />
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -244,28 +279,24 @@ export default function AdminDashboardPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <QuickActionsSidebar actions={quickActions} />
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <RegistrationsChart
+            data={registrationData}
+            changePercent={dashboard.newRegistrations.changePercent}
+          />
+          <ActiveUsersChart
+            data={activeUsersData}
+            liveNow={dashboard.activeUsers.liveNow}
+          />
+        </div>
 
-        <div className="space-y-6 lg:col-span-8">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <RegistrationsChart
-              data={registrationData}
-              changePercent={dashboard.newRegistrations.changePercent}
-            />
-            <ActiveUsersChart
-              data={activeUsersData}
-              liveNow={dashboard.activeUsers.liveNow}
-            />
-          </div>
-
-          <div
-            className={`grid grid-cols-1 gap-6 ${showPartnerSectors ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}
-          >
-            <GenderBreakdownChart data={genderData} />
-            <AgeGroupsChart data={ageData} />
-            {showPartnerSectors && <PartnerSectorsChart data={sectorData} />}
-          </div>
+        <div
+          className={`grid grid-cols-1 gap-6 ${showPartnerSectors ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}
+        >
+          <GenderBreakdownChart data={genderData} />
+          <AgeGroupsChart data={ageData} />
+          {showPartnerSectors && <PartnerSectorsChart data={sectorData} />}
         </div>
       </div>
 

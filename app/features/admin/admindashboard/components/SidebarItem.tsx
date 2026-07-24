@@ -13,12 +13,25 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { Link } from "react-router";
 
+export type NavSection = "overview" | "manage" | "system";
+
+export const sectionLabels: Record<NavSection, string> = {
+  overview: "Overview",
+  manage: "Manage",
+  system: "System",
+};
+
+export const sectionOrder: NavSection[] = ["overview", "manage", "system"];
+
 export type NavItem = {
   id: string;
   label: string;
   icon: ComponentType<LucideProps>;
   href: string;
+  section: NavSection;
   badge?: number;
+  /** Marks a work-in-progress item — renders a "WIP" pill (does NOT disable). */
+  wip?: boolean;
   disabled?: boolean;
 };
 
@@ -28,36 +41,42 @@ export const navItems: NavItem[] = [
     label: "Dashboard",
     icon: LayoutDashboard,
     href: "/tk-admin",
-  },
-  {
-    id: "moderation",
-    label: "Content Moderation",
-    icon: ShieldCheck,
-    href: "/tk-admin/content-moderator",
+    section: "overview",
   },
   {
     id: "users",
     label: "User Management",
     icon: Users,
     href: "/tk-admin/users",
-  },
-  {
-    id: "registrations",
-    label: "Registrations",
-    icon: ClipboardCheck,
-    href: "/tk-admin/registrations",
-  },
-  {
-    id: "partners",
-    label: "Partner",
-    icon: Building2,
-    href: "/tk-admin/partners",
+    section: "manage",
   },
   {
     id: "blog",
     label: "Blog",
     icon: Newspaper,
     href: "/tk-admin/blog",
+    section: "manage",
+  },
+  {
+    id: "partners",
+    label: "Partner",
+    icon: Building2,
+    href: "/tk-admin/partners",
+    section: "manage",
+  },
+  {
+    id: "registrations",
+    label: "Registrations",
+    icon: ClipboardCheck,
+    href: "/tk-admin/registrations",
+    section: "manage",
+  },
+  {
+    id: "moderation",
+    label: "Content Moderation",
+    icon: ShieldCheck,
+    href: "/tk-admin/content-moderator",
+    section: "manage",
   },
 ];
 
@@ -67,6 +86,7 @@ type SidebarItemProps = {
   label: string;
   active?: boolean;
   badge?: number;
+  wip?: boolean;
   disabled?: boolean;
   collapsed?: boolean;
   href: string;
@@ -78,6 +98,7 @@ export function SidebarItem({
   label,
   active = false,
   badge = 0,
+  wip = false,
   disabled = false,
   collapsed = false,
   href,
@@ -128,47 +149,45 @@ export function SidebarItem({
 
   const content = (
     <>
-      <div
-        className={`rounded-xl p-2.5 transition-all duration-200 ${
-          active
-            ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
-            : "text-slate-400 group-hover:bg-slate-50 group-hover:text-slate-900 dark:group-hover:bg-slate-800/50 dark:group-hover:text-slate-100"
-        }`}
-      >
-        <Icon size={20} />
-      </div>
+      <Icon size={20} className="shrink-0" />
 
       {!collapsed && (
-        <span
-          className={`ml-3 flex-1 truncate text-sm ${
-            active
-              ? "font-semibold text-blue-600 dark:text-blue-400"
-              : "font-medium text-slate-500 group-hover:text-slate-900 dark:text-slate-400 dark:group-hover:text-slate-100"
-          }`}
-        >
-          {label}
+        <span className="ml-3 flex-1 truncate text-sm">{label}</span>
+      )}
+
+      {/* WIP pill (visual only — the item stays navigable) */}
+      {!collapsed && wip && (
+        <span className="ml-auto rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-slate-400 uppercase dark:bg-slate-800 dark:text-slate-500">
+          WIP
         </span>
       )}
 
-      {badge > 0 && (
-        <span className="pointer-events-none absolute top-2 right-3 z-10 min-w-4.5 rounded-full border-2 border-white bg-rose-500 px-1 py-0.5 text-center text-[10px] font-bold text-white dark:border-slate-900">
-          {badge}
-        </span>
-      )}
-
-      {active && (
-        <div className="absolute left-0 h-6 w-1.5 rounded-r-full bg-blue-600" />
-      )}
+      {badge > 0 &&
+        (collapsed ? (
+          <span className="pointer-events-none absolute top-1.5 right-1.5 z-10 min-w-4.5 rounded-full border-2 border-white bg-rose-500 px-1 py-0.5 text-center text-[10px] font-bold text-white dark:border-slate-950">
+            {badge}
+          </span>
+        ) : (
+          <span className="ml-auto min-w-5 rounded-full bg-rose-500 px-1.5 py-0.5 text-center text-[11px] font-bold text-white">
+            {badge}
+          </span>
+        ))}
     </>
   );
 
-  const className = `relative flex items-center py-2.5 w-full rounded-xl transition-colors duration-200 ${
-    collapsed ? "justify-center" : "justify-start px-2"
+  const className = `relative flex items-center rounded-lg transition-colors duration-200 ${
+    collapsed ? "h-11 w-11 justify-center" : "w-full justify-start px-3 py-2.5"
+  } ${
+    active
+      ? "bg-blue-50 font-semibold text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
+      : "font-medium text-slate-500 dark:text-slate-400"
   } ${
     disabled
       ? "cursor-not-allowed opacity-40"
       : `cursor-pointer group ${
-          active ? "" : "hover:bg-slate-100 dark:hover:bg-slate-800/50"
+          active
+            ? ""
+            : "hover:bg-slate-50 hover:text-slate-900 dark:hover:bg-slate-800/50 dark:hover:text-slate-100"
         }`
   }`;
 

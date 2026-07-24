@@ -13,7 +13,12 @@ import {
   useNavigation,
 } from "react-router";
 import type { adminLayoutLoader } from "../../services/admin-layout.loader";
-import { SidebarItem, navItems } from "../SidebarItem";
+import {
+  SidebarItem,
+  navItems,
+  sectionLabels,
+  sectionOrder,
+} from "../SidebarItem";
 import { NotificationsDropdown } from "../NotificationsDropdown";
 import AdminUserMenu from "../AdminUserMenu";
 import { AdminThemeSwitcher } from "../admin-theme-switcher";
@@ -76,9 +81,6 @@ export default function AdminLayout() {
     navigation.state !== "idle" && pendingPathname
       ? (getActiveMenu(pendingPathname) ?? activeMenu)
       : activeMenu;
-
-  // On mobile the sidebar is a slide-in drawer with room for labels, so only
-  // honor the collapsed preference on desktop.
   const effectiveCollapsed = isDesktop ? isCollapsed : false;
 
   return (
@@ -134,51 +136,79 @@ export default function AdminLayout() {
               effectiveCollapsed ? "w-18" : "w-64"
             }`}
           >
-            {/* Label + collapse toggle */}
-            <div
-              className={`mb-6 hidden items-center md:flex ${
-                isCollapsed ? "justify-center px-0" : "justify-between px-5"
-              }`}
-            >
-              {!isCollapsed && (
-                <span className="text-xs font-bold tracking-widest text-slate-400 uppercase dark:text-slate-500">
-                  Administration
-                </span>
-              )}
-              <button
-                onClick={toggleCollapsed}
-                className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:hover:bg-slate-800/50 dark:hover:text-white"
-                aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-              >
-                {isCollapsed ? (
+            {/* Collapse toggle (centered) — only when collapsed; when expanded
+                it lives inline with the first section header below */}
+            {effectiveCollapsed && (
+              <div className="mb-2 hidden items-center justify-center md:flex">
+                <button
+                  onClick={toggleCollapsed}
+                  className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:hover:bg-slate-800/50 dark:hover:text-white"
+                  aria-label="Expand sidebar"
+                >
                   <PanelLeftOpen size={20} />
-                ) : (
-                  <PanelLeftClose size={20} />
-                )}
-              </button>
-            </div>
+                </button>
+              </div>
+            )}
 
             <div
-              className={`flex w-full flex-1 flex-col gap-1 overflow-y-auto ${
-                effectiveCollapsed ? "items-center" : "items-stretch px-2"
+              className={`flex w-full flex-1 flex-col overflow-y-auto ${
+                effectiveCollapsed ? "items-center gap-1" : "items-stretch px-3"
               }`}
             >
-              {navItems
-                .filter((item) =>
-                  item.id === "users" ||
-                  item.id === "registrations" ||
-                  item.id === "partners"
-                    ? admin.role === "SUPER_ADMIN"
-                    : true,
-                )
-                .map((item) => (
-                  <SidebarItem
-                    key={item.id}
-                    {...item}
-                    collapsed={effectiveCollapsed}
-                    active={visibleActiveMenu === item.id}
-                    onNavigate={() => setIsMobileMenuOpen(false)}
-                  />
+              {sectionOrder
+                .map((section) => ({
+                  section,
+                  items: navItems
+                    .filter((item) => item.section === section)
+                    .filter((item) =>
+                      item.id === "users" ||
+                      item.id === "registrations" ||
+                      item.id === "partners"
+                        ? admin.role === "SUPER_ADMIN"
+                        : true,
+                    ),
+                }))
+                .filter(({ items }) => items.length > 0)
+                .map(({ section, items }, groupIndex) => (
+                  <div
+                    key={section}
+                    className={`flex w-full flex-col gap-1 ${
+                      effectiveCollapsed ? "items-center" : "items-stretch"
+                    }`}
+                  >
+                    {effectiveCollapsed ? (
+                      groupIndex > 0 && (
+                        <div className="mx-auto my-2 h-px w-6 bg-slate-100 dark:bg-slate-800" />
+                      )
+                    ) : groupIndex === 0 ? (
+                      <div className="mt-1 mb-1 flex items-center justify-between px-3">
+                        <span className="text-[11px] font-bold tracking-widest text-slate-400 uppercase dark:text-slate-500">
+                          {sectionLabels[section]}
+                        </span>
+                        <button
+                          onClick={toggleCollapsed}
+                          className="hidden rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-900 md:inline-flex dark:hover:bg-slate-800/50 dark:hover:text-white"
+                          aria-label="Collapse sidebar"
+                        >
+                          <PanelLeftClose size={18} />
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="mt-5 mb-1 px-3 text-[11px] font-bold tracking-widest text-slate-400 uppercase dark:text-slate-500">
+                        {sectionLabels[section]}
+                      </span>
+                    )}
+
+                    {items.map((item) => (
+                      <SidebarItem
+                        key={item.id}
+                        {...item}
+                        collapsed={effectiveCollapsed}
+                        active={visibleActiveMenu === item.id}
+                        onNavigate={() => setIsMobileMenuOpen(false)}
+                      />
+                    ))}
+                  </div>
                 ))}
             </div>
 
@@ -188,8 +218,10 @@ export default function AdminLayout() {
           </aside>
 
           {/* Main content */}
-          <main className="flex min-w-0 flex-1 flex-col bg-slate-50 contain-layout dark:bg-[#020617]">
-            <Outlet context={{ isSuperAdmin: admin.role === "SUPER_ADMIN" }} />
+          <main className="flex min-w-0 flex-1 flex-col bg-slate-50 dark:bg-[#020617]">
+            <Outlet
+              context={{ admin, isSuperAdmin: admin.role === "SUPER_ADMIN" }}
+            />
           </main>
         </div>
       </div>
