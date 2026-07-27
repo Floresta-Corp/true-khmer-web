@@ -12,7 +12,7 @@ export function PublicBlogCard({
   return (
     <Link
       to={`/blog/${post.slug}`}
-      className="group block overflow-hidden rounded-[12px] border border-[#e2e8f0]/80 bg-white shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition-all duration-200 hover:-translate-y-1 hover:border-[#1c97d4]/30 hover:shadow-[0_12px_28px_rgba(15,23,42,0.10)] dark:border-white/10 dark:bg-slate-950"
+      className="group block overflow-hidden rounded-[12px] border border-[#e2e8f0]/80 bg-white shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition-all duration-200 hover:-translate-y-1 hover:border-[#1c97d4]/30 dark:border-white/10 dark:bg-slate-950"
     >
       <div className="relative overflow-hidden rounded-[12px]">
         <img

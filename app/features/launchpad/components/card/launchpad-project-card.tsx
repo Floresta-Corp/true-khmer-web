@@ -103,7 +103,7 @@ export default function LaunchpadProjectCard({
             onOpenOpportunity(item);
           }
         }}
-        className="flex min-h-112.5 cursor-pointer flex-col overflow-hidden rounded-2xl bg-white p-0 shadow-none transition-all hover:-translate-y-0.5 hover:shadow-lg"
+        className="flex min-h-112.5 cursor-pointer flex-col overflow-hidden rounded-2xl bg-white p-0 shadow-none transition-all hover:-translate-y-0.5"
       >
         <div className="relative">
           <img
