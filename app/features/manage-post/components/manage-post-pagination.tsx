@@ -23,6 +23,8 @@ export default function PostingPagination({
 
   const showing = Math.min(currentPage * pageSize, total);
 
+  const pageNumbers = getPageNumbers(currentPage, totalPages);
+
   const goToPage = (page: number) => {
     const nextPage = Math.min(Math.max(page, 1), totalPages);
     setSearchParams((prev) => {
@@ -49,9 +51,16 @@ export default function PostingPagination({
         >
           ‹
         </Button>
-        {Array.from({ length: Math.min(totalPages, 3) }, (_, i) => {
-          const page = i + 1;
-          return (
+        {pageNumbers.map((page, i) =>
+          page === "ellipsis" ? (
+            <span
+              key={`ellipsis-${i}`}
+              className="flex h-8 w-8 items-center justify-center text-gray-400"
+              aria-hidden="true"
+            >
+              …
+            </span>
+          ) : (
             <Button
               key={page}
               size="icon"
@@ -67,8 +76,8 @@ export default function PostingPagination({
             >
               {page}
             </Button>
-          );
-        })}
+          ),
+        )}
         <Button
           variant="outline"
           size="icon"
@@ -82,4 +91,41 @@ export default function PostingPagination({
       </div>
     </div>
   );
+}
+
+function getPageNumbers(
+  currentPage: number,
+  totalPages: number,
+): (number | "ellipsis")[] {
+  const siblings = 1;
+  const boundary = 1;
+
+  if (totalPages <= 3) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const pages = new Set<number>();
+
+  for (let i = 1; i <= boundary; i++) {
+    pages.add(i);
+    pages.add(totalPages - i + 1);
+  }
+
+  for (let i = currentPage - siblings; i <= currentPage + siblings; i++) {
+    if (i >= 1 && i <= totalPages) {
+      pages.add(i);
+    }
+  }
+
+  const sorted = Array.from(pages).sort((a, b) => a - b);
+  const result: (number | "ellipsis")[] = [];
+
+  for (let i = 0; i < sorted.length; i++) {
+    if (i > 0 && sorted[i] - sorted[i - 1] > 1) {
+      result.push("ellipsis");
+    }
+    result.push(sorted[i]);
+  }
+
+  return result;
 }
