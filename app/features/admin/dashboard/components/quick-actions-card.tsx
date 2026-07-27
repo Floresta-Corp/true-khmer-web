@@ -1,5 +1,4 @@
 import { motion } from "motion/react";
-import { Link } from "react-router";
 import type { QuickAction } from "../types";
 
 interface QuickActionsCardProps {
@@ -9,46 +8,17 @@ interface QuickActionsCardProps {
 
 function ActionItem({ action }: { action: QuickAction }) {
   const Icon = action.icon;
-
-  const inner = (
-    <>
-      <div
-        className={`flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-105 ${action.iconClass}`}
+  return (
+    <div className="flex flex-col items-center gap-2 rounded-xl px-1 py-2">
+      <span
+        className={`flex h-11 w-11 items-center justify-center rounded-xl ${action.iconClass}`}
       >
         <Icon className="h-5 w-5" />
-      </div>
-      <span className="text-center text-[11px] font-medium text-(--admin-text-secondary)">
+      </span>
+      <span className="text-center text-[11.5px] leading-tight font-semibold text-(--admin-text)">
         {action.label}
       </span>
-    </>
-  );
-
-  if (action.disabled) {
-    return (
-      <div
-        aria-disabled="true"
-        className="flex cursor-not-allowed flex-col items-center gap-2 opacity-50 select-none"
-      >
-        {inner}
-      </div>
-    );
-  }
-
-  const baseClass =
-    "group flex cursor-pointer flex-col items-center gap-2 transition-colors";
-
-  if (action.to) {
-    return (
-      <Link to={action.to} className={baseClass}>
-        {inner}
-      </Link>
-    );
-  }
-
-  return (
-    <button type="button" onClick={action.onClick} className={baseClass}>
-      {inner}
-    </button>
+    </div>
   );
 }
 
@@ -61,11 +31,16 @@ export function QuickActionsCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.2 }}
-      className={`rounded-xl border border-(--admin-border) p-6 md:p-8 dark:bg-slate-900 ${className}`}
+      className={`rounded-2xl border border-(--admin-border) bg-(--admin-card-bg) p-5 ${className}`}
     >
-      <h3 className="text-lg font-bold text-(--admin-text)">Quick actions</h3>
+      <div className="mb-3.5 flex items-center gap-2">
+        <h3 className="text-lg font-bold text-(--admin-text)">Quick actions</h3>
+        <span className="rounded-full bg-(--admin-card-muted) px-2 py-0.75 text-[10.5px] font-bold tracking-wide text-(--admin-text-secondary) uppercase">
+          Coming soon
+        </span>
+      </div>
 
-      <div className="mt-6 grid grid-cols-5 gap-3">
+      <div className="grid grid-cols-5 gap-2.5 opacity-50 select-none">
         {actions.map((action) => (
           <ActionItem key={action.id} action={action} />
         ))}

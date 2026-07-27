@@ -36,36 +36,33 @@ export function WelcomeCard({ admin, className = "" }: WelcomeCardProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
-      className={`relative overflow-hidden rounded-xl border border-(--admin-border) bg-linear-to-br from-sky-50 to-blue-50 dark:from-slate-900 dark:to-slate-900/60 ${className}`}
+      className={`relative flex items-center gap-5 overflow-hidden rounded-2xl p-6 sm:px-7 ${className}`}
     >
-      {/* Decorative banner */}
+      {/* Gradient cover — True Khmer primary → accent */}
+      <div className="absolute inset-0 z-0 bg-linear-to-br from-blue-100 to-sky-100 dark:from-blue-950/60 dark:to-sky-950/60" />
+      {/* Decorative floral banner */}
       <img
         src="/images/myspace-header.svg"
         alt=""
         aria-hidden
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover object-right dark:opacity-20"
+        className="pointer-events-none absolute inset-0 z-0 h-full w-full object-cover object-right opacity-60 dark:opacity-20"
       />
 
-      <div className="relative flex items-center gap-5 px-6 py-5 md:px-8 md:py-10">
-        <Avatar className="h-16 w-16 shrink-0 border-4 border-white shadow-sm md:h-25 md:w-25 dark:border-slate-800">
-          <AvatarImage src={resolveImageURL(admin.avatarKey)} alt={firstName} />
-          <AvatarFallback className="text-lg font-bold">
-            {initials}
-          </AvatarFallback>
-        </Avatar>
+      <Avatar className="relative z-1 h-20 w-20 shrink-0 border-4 border-white sm:h-24 sm:w-24 dark:border-slate-800">
+        <AvatarImage src={resolveImageURL(admin.avatarKey)} alt={firstName} />
+        <AvatarFallback className="text-xl font-bold">
+          {initials}
+        </AvatarFallback>
+      </Avatar>
 
-        <div>
-          <h2 className="text-2xl font-bold text-(--admin-text) md:text-3xl">
-            {greeting},{" "}
-            <span className="text-blue-600 dark:text-blue-400">
-              {firstName}
-            </span>
-            !
-          </h2>
-          <p className="mt-1 text-sm text-(--admin-text-secondary) md:text-base">
-            Here's what's happening with True Khmer today.
-          </p>
-        </div>
+      <div className="relative z-1 min-w-0">
+        <h2 className="text-2xl font-extrabold text-(--admin-text) sm:text-[28px]">
+          {greeting},{" "}
+          <span className="text-blue-700 dark:text-blue-400">{firstName}</span>!
+        </h2>
+        <p className="mt-1.5 text-base text-(--admin-text-secondary)">
+          Here's what's happening with True Khmer today.
+        </p>
       </div>
     </motion.div>
   );

@@ -1,61 +1,45 @@
 import { motion } from "motion/react";
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-} from "recharts";
 import type { AgeItem } from "../types";
-import {
-  TOOLTIP_STYLE,
-  TOOLTIP_CURSOR,
-  GRID_COLOR,
-  TEXT_SECONDARY,
-} from "../types";
-import { useChartReady } from "./use-chart-ready";
+import { BRAND_COLOR } from "../types";
 
 interface AgeGroupsChartProps {
   data: AgeItem[];
 }
 
 export function AgeGroupsChart({ data }: AgeGroupsChartProps) {
-  const ready = useChartReady();
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.7 }}
-      className="rounded-xl border border-(--admin-border) dark:bg-slate-900 p-6"
+      className="rounded-2xl border border-(--admin-border) bg-(--admin-card-bg) p-6"
     >
-      <h3 className="text-xs font-black text-(--admin-text) uppercase tracking-widest mb-5">
-        Age Groups
-      </h3>
-      <div className="h-55 w-full">
-        {ready && (
-          <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-            <BarChart data={data} layout="vertical">
-              <CartesianGrid
-                strokeDasharray="3 3"
-                horizontal={false}
-                stroke={GRID_COLOR}
-              />
-              <XAxis type="number" hide />
-              <YAxis
-                dataKey="range"
-                type="category"
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 10, fontWeight: 700, fill: TEXT_SECONDARY }}
-                width={40}
-              />
-              <Tooltip cursor={TOOLTIP_CURSOR} contentStyle={TOOLTIP_STYLE} />
-              <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
+      <h3 className="text-base font-bold text-(--admin-text)">Age group</h3>
+      <div className="mt-4.5">
+        {data.map((item) => {
+          const pct = total > 0 ? Math.round((item.value / total) * 100) : 0;
+          return (
+            <div key={item.range} className="mb-3.5 last:mb-0">
+              <div className="mb-1.5 flex justify-between text-[13px]">
+                <span className="text-(--admin-text)">{item.range}</span>
+                <span className="font-bold text-(--admin-text)">
+                  {item.value.toLocaleString("en-US")}
+                  <span className="ml-1 font-medium text-(--admin-text-secondary)">
+                    ({pct}%)
+                  </span>
+                </span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: `${pct}%`, background: BRAND_COLOR }}
+                />
+              </div>
+            </div>
+          );
+        })}
       </div>
     </motion.div>
   );

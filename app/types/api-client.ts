@@ -131,9 +131,13 @@ const UpdateContentModeratorReportReviewRequest = z.object({ reportUuid: z.strin
 
 const UpdateContentModeratorReportReviewResponse = z.object({ ok: z.boolean(), report: ContentModeratorReport });
 
-const AdminDashboardResponse = z.object({ ok: z.literal(true), dashboard: z.object({ summary: z.object({ totalUsers: z.number().int().gte(0), totalPartners: z.unknown().nullable(), openReports: z.number().int().gte(0) }), newRegistrations: z.object({ days: z.number().int().gt(0), changePercent: z.number().nullable(), trend: z.array(z.object({ label: z.string(), count: z.number().int().gte(0), date: z.string() })) }), activeUsers: z.object({ countLast24Hours: z.number().int().gte(0), windowHours: z.literal(24), liveNow: z.boolean(), period: z.enum(["7d", "30d", "12w", "6m", "12m"]), trend: z.array(z.object({ label: z.string(), count: z.number().int().gte(0), date: z.string() })) }), demographics: z.object({ genderBreakdown: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })), ageGroups: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })) }), partners: z.object({ total: z.unknown().nullable(), sectors: z.unknown().nullable() }) }) });
+const AdminDashboardOverviewResponse = z.object({ ok: z.literal(true), dashboard: z.object({ summary: z.object({ totalUsers: z.number().int().gte(0), totalPartners: z.unknown().nullable(), openReports: z.number().int().gte(0) }), demographics: z.object({ genderBreakdown: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })), ageGroups: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })) }), partners: z.object({ total: z.unknown().nullable(), sectors: z.unknown().nullable() }) }) });
 
 const AdminDashboardErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
+
+const AdminDashboardActiveUsersResponse = z.object({ ok: z.literal(true), activeUsers: z.object({ count: z.number().int().gte(0), changePercent: z.number().nullable(), countLast24Hours: z.number().int().gte(0), windowHours: z.literal(24), liveNow: z.boolean(), period: z.enum(["7d", "30d", "12w", "6m", "12m"]), trend: z.array(z.object({ label: z.string(), count: z.number().int().gte(0), date: z.string() })) }) });
+
+const AdminDashboardNewRegistrationsResponse = z.object({ ok: z.literal(true), newRegistrations: z.object({ period: z.enum(["7d", "30d", "12w", "6m", "12m"]), changePercent: z.number().nullable(), trend: z.array(z.object({ label: z.string(), count: z.number().int().gte(0), date: z.string() })) }) });
 
 const AcceptModeratorInviteRequest = z.object({ token: z.string().min(1), firstName: z.string().min(1).max(100), lastName: z.string().min(1).max(100), password: z.string().min(8) });
 
@@ -673,8 +677,10 @@ export const schemas = {
 	ListContentModeratorReportsResponse,
 	UpdateContentModeratorReportReviewRequest,
 	UpdateContentModeratorReportReviewResponse,
-	AdminDashboardResponse,
+	AdminDashboardOverviewResponse,
 	AdminDashboardErrorResponse,
+	AdminDashboardActiveUsersResponse,
+	AdminDashboardNewRegistrationsResponse,
 	AcceptModeratorInviteRequest,
 	InviteModeratorResponse,
 	Moderator,
@@ -1272,6 +1278,30 @@ const endpoints = makeApi([
 		path: "/v1/admin/dashboard",
 		alias: "getV1admindashboard",
 		requestFormat: "json",
+		response: AdminDashboardOverviewResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Forbidden`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: AdminDashboardErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/dashboard/active-users",
+		alias: "getV1admindashboardactiveUsers",
+		requestFormat: "json",
 		parameters: [
 			{
 				name: "period",
@@ -1279,7 +1309,38 @@ const endpoints = makeApi([
 				schema: z.enum(["7d", "30d", "12w", "6m", "12m"]).optional()
 			},
 		],
-		response: AdminDashboardResponse,
+		response: AdminDashboardActiveUsersResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Forbidden`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: AdminDashboardErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/dashboard/new-registrations",
+		alias: "getV1admindashboardnewRegistrations",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "period",
+				type: "Query",
+				schema: z.enum(["7d", "30d", "12w", "6m", "12m"]).optional()
+			},
+		],
+		response: AdminDashboardNewRegistrationsResponse,
 		errors: [
 			{
 				status: 401,
@@ -6364,8 +6425,10 @@ export type CursorPagination = z.infer<typeof schemas.CursorPagination>;
 export type ListContentModeratorReportsResponse = z.infer<typeof schemas.ListContentModeratorReportsResponse>;
 export type UpdateContentModeratorReportReviewRequest = z.infer<typeof schemas.UpdateContentModeratorReportReviewRequest>;
 export type UpdateContentModeratorReportReviewResponse = z.infer<typeof schemas.UpdateContentModeratorReportReviewResponse>;
-export type AdminDashboardResponse = z.infer<typeof schemas.AdminDashboardResponse>;
+export type AdminDashboardOverviewResponse = z.infer<typeof schemas.AdminDashboardOverviewResponse>;
 export type AdminDashboardErrorResponse = z.infer<typeof schemas.AdminDashboardErrorResponse>;
+export type AdminDashboardActiveUsersResponse = z.infer<typeof schemas.AdminDashboardActiveUsersResponse>;
+export type AdminDashboardNewRegistrationsResponse = z.infer<typeof schemas.AdminDashboardNewRegistrationsResponse>;
 export type AcceptModeratorInviteRequest = z.infer<typeof schemas.AcceptModeratorInviteRequest>;
 export type InviteModeratorResponse = z.infer<typeof schemas.InviteModeratorResponse>;
 export type Moderator = z.infer<typeof schemas.Moderator>;

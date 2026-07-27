@@ -1,67 +1,43 @@
-import { useState } from "react";
 import { useLoaderData, useOutletContext } from "react-router";
 import {
-  Users,
-  Handshake,
-  ShieldAlert,
-  UserCog,
-  Bell,
   UserPlus,
   Building2,
   ClipboardList,
+  Shield,
+  Users,
 } from "lucide-react";
 
 import { KpiCard } from "../kpi-card";
 import { WelcomeCard } from "../welcome-card";
 import { QuickActionsCard } from "../quick-actions-card";
-import { RegistrationsChart } from "../registrations-chart";
+import { RangeSelect } from "../range-select";
+import { NewSignupsChart } from "../new-signups-chart";
 import { ActiveUsersChart } from "../active-users-chart";
+import {
+  useActiveUsersSeries,
+  useDashboardSummary,
+  useNewRegistrationsSeries,
+} from "../use-chart-series";
 import { GenderBreakdownChart } from "../gender-breakdown-chart";
 import { AgeGroupsChart } from "../age-groups-chart";
 import { PartnerSectorsChart } from "../partner-sectors-chart";
-import { SendNotificationDialog } from "~/features/admin/notifications/components/send-notification-dialog";
-import { InviteMemberFlow } from "../invite-member-flow";
 import type { AdminUser } from "~/types/api-client";
 import type { adminDashboardLoader } from "../../services/admin-dashboard.loader";
+import { CHART_PERIOD_OPTIONS } from "../../types";
 import type {
-  AdminDashboardData,
-  StatItem,
-  ChartBarItem,
+  ActiveUsersData,
+  ChartPeriod,
+  DashboardOverview,
   GenderItem,
   AgeItem,
+  MetricPoint,
+  NewRegistrationsData,
   PartnerSector,
-  ActiveUserPoint,
   QuickAction,
+  StatItem,
 } from "../../types";
 
 // ── static data ───────────────────────────────────────────────────────────
-const STAT_META: Omit<StatItem, "value">[] = [
-  {
-    id: "users",
-    label: "Total Users",
-    icon: Users,
-    to: "/tk-admin/users",
-    iconBg: "bg-(--admin-card-muted)",
-    iconColor: "text-(--admin-text-secondary)",
-  },
-  {
-    id: "partners",
-    label: "Total Partners",
-    icon: Handshake,
-    to: "/tk-admin/partners",
-    iconBg: "bg-(--admin-card-muted)",
-    iconColor: "text-(--admin-text-secondary)",
-  },
-  {
-    id: "reports",
-    label: "Open Reports",
-    icon: ShieldAlert,
-    to: "/tk-admin/content-moderator",
-    iconBg: "bg-rose-50 dark:bg-rose-950/60",
-    iconColor: "text-rose-600 dark:text-rose-400",
-  },
-];
-
 const GENDER_COLORS: Record<string, string> = {
   male: "#3b82f6",
   female: "#f43f5e",
@@ -69,97 +45,96 @@ const GENDER_COLORS: Record<string, string> = {
 
 const GENDER_FALLBACK_COLORS = ["#8b5cf6", "#10b981", "#f59e0b", "#06b6d4"];
 
-const SECTOR_COLORS = [
-  "#8b5cf6",
-  "#10b981",
-  "#f59e0b",
-  "#3b82f6",
-  "#ec4899",
-  "#06b6d4",
-  "#f43f5e",
-];
+// Quick actions are not yet wired up — the design shows them as an upcoming
+// ("Coming soon") feature, rendered non-interactive.
+const QUICK_ACTION_ICON =
+  "bg-indigo-50 text-indigo-400 dark:bg-indigo-900/20 dark:text-indigo-400";
 
-// Real, working actions come first; the rest are placeholders shown as
-// "coming soon" so the row still reads like the design.
-const BASE_QUICK_ACTIONS: Omit<QuickAction, "onClick">[] = [
-  {
-    id: "invite-team",
-    label: "Invite Team",
-    subtitle: "Collaborator Access",
-    icon: UserCog,
-    iconClass:
-      "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400",
-  },
-  {
-    id: "send-notification",
-    label: "Send Notification",
-    subtitle: "Platform Broadcast",
-    icon: Bell,
-    iconClass:
-      "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400",
-  },
+const QUICK_ACTIONS: QuickAction[] = [
   {
     id: "add-user",
     label: "Add User",
-    subtitle: "Coming soon",
     icon: UserPlus,
-    iconClass: "bg-(--admin-card-muted) text-(--admin-text-secondary)",
-    disabled: true,
+    iconClass: QUICK_ACTION_ICON,
   },
   {
     id: "add-partner",
     label: "Add Partner",
-    subtitle: "Coming soon",
     icon: Building2,
-    iconClass: "bg-(--admin-card-muted) text-(--admin-text-secondary)",
-    disabled: true,
+    iconClass: QUICK_ACTION_ICON,
   },
   {
     id: "create-listing",
     label: "Create Listing",
-    subtitle: "Coming soon",
     icon: ClipboardList,
-    iconClass: "bg-(--admin-card-muted) text-(--admin-text-secondary)",
-    disabled: true,
+    iconClass: QUICK_ACTION_ICON,
+  },
+  {
+    id: "view-reports",
+    label: "View Reports",
+    icon: Shield,
+    iconClass: QUICK_ACTION_ICON,
+  },
+  {
+    id: "team-members",
+    label: "Team Members",
+    icon: Users,
+    iconClass: QUICK_ACTION_ICON,
   },
 ];
 
 // ── mappers ───────────────────────────────────────────────────────────────
-function toStats(summary: AdminDashboardData["summary"]): StatItem[] {
-  const values: Record<string, number | null> = {
-    users: summary.totalUsers,
-    partners:
-      typeof summary.totalPartners === "number" ? summary.totalPartners : null,
-    reports: summary.openReports,
-  };
-  return STAT_META.map((meta) => {
-    const value = values[meta.id];
-    return {
-      ...meta,
-      value: typeof value === "number" ? value.toLocaleString("en-US") : "—",
-    };
-  });
-}
+// KPI headline numbers reflect the default period served by the loader; the
+// charts below carry their own period filters and refetch independently.
+function toStats(
+  overview: DashboardOverview,
+  activeUsers: ActiveUsersData,
+  newRegistrations: NewRegistrationsData,
+  isSuperAdmin: boolean,
+): StatItem[] {
+  const { summary } = overview;
+  const signups = newRegistrations.trend.reduce((sum, p) => sum + p.count, 0);
 
-function toRegistrationData(
-  newRegistrations: AdminDashboardData["newRegistrations"],
-): ChartBarItem[] {
-  const peak = Math.max(...newRegistrations.trend.map((p) => p.count));
-  return newRegistrations.trend.map((p) => ({
-    day: p.label,
-    value: p.count,
-    highlight: p.count === peak,
-  }));
-}
+  const restricted = (value: number | null) =>
+    !isSuperAdmin || value === null ? "—" : value.toLocaleString("en-US");
 
-function toActiveUsersData(
-  activeUsers: AdminDashboardData["activeUsers"],
-): ActiveUserPoint[] {
-  return activeUsers.trend.map((p) => ({ time: p.label, value: p.count }));
+  // Turn a period-over-period change % into the badge fields, or nothing.
+  const delta = (change: number | null) =>
+    typeof change === "number"
+      ? {
+          delta: `${change >= 0 ? "+" : ""}${change}%`,
+          deltaTone: change >= 0 ? ("up" as const) : ("down" as const),
+        }
+      : {};
+
+  return [
+    {
+      id: "users",
+      label: "Total Users",
+      value: restricted(summary.totalUsers),
+    },
+    {
+      id: "active",
+      label: "Active Users",
+      value: activeUsers.count.toLocaleString("en-US"),
+      ...delta(activeUsers.changePercent),
+    },
+    {
+      id: "partners",
+      label: "Total Partners",
+      value: restricted(summary.totalPartners),
+    },
+    {
+      id: "signups",
+      label: "New Signups",
+      value: signups.toLocaleString("en-US"),
+      ...delta(newRegistrations.changePercent),
+    },
+  ];
 }
 
 function toGenderData(
-  demographics: AdminDashboardData["demographics"],
+  demographics: DashboardOverview["demographics"],
 ): GenderItem[] {
   return demographics.genderBreakdown.map((item, i) => ({
     name: item.label,
@@ -170,145 +145,116 @@ function toGenderData(
   }));
 }
 
-function toAgeData(
-  demographics: AdminDashboardData["demographics"],
-): AgeItem[] {
-  return demographics.ageGroups.map((item) => ({
+function toAgeData(demographics: DashboardOverview["demographics"]): AgeItem[] {
+  return demographics.ageGroups.slice(0, 5).map((item) => ({
     range: item.label,
     value: item.count,
   }));
 }
 
-function toSectorData(
-  partners: AdminDashboardData["partners"],
-): PartnerSector[] {
-  if (!Array.isArray(partners.sectors)) return [];
+function toSectorData(sectors: MetricPoint[] | null): PartnerSector[] {
+  if (!Array.isArray(sectors)) return [];
 
   const totals = new Map<string, { name: string; value: number }>();
 
-  for (const raw of partners.sectors) {
-    if (typeof raw !== "object" || raw === null) continue;
-    const { label, name, count, value } = raw as Record<string, unknown>;
-    const sectorName =
-      typeof label === "string"
-        ? label
-        : typeof name === "string"
-          ? name
-          : null;
-    const sectorValue =
-      typeof count === "number"
-        ? count
-        : typeof value === "number"
-          ? value
-          : null;
-    if (sectorName === null || sectorValue === null) continue;
-
-    for (const part of sectorName.split(",")) {
+  for (const { label, count } of sectors) {
+    for (const part of label.split(",")) {
       const display = part.trim().replace(/\s+/g, " ");
       if (!display) continue;
       const key = display.toLowerCase();
       const existing = totals.get(key);
       if (existing) {
-        existing.value += sectorValue;
+        existing.value += count;
       } else {
-        totals.set(key, { name: display, value: sectorValue });
+        totals.set(key, { name: display, value: count });
       }
     }
   }
 
   return [...totals.values()]
     .sort((a, b) => b.value - a.value)
-    .map((entry, i) => ({
-      ...entry,
-      color: SECTOR_COLORS[i % SECTOR_COLORS.length],
-    }));
+    .slice(0, 5);
 }
 
 // ── page ──────────────────────────────────────────────────────────────────
 export default function AdminDashboardPage() {
-  const { dashboard } = useLoaderData<typeof adminDashboardLoader>();
+  const { overview, summary, charts } =
+    useLoaderData<typeof adminDashboardLoader>();
   const { admin, isSuperAdmin } = useOutletContext<{
     admin: AdminUser;
     isSuperAdmin: boolean;
   }>();
-  const [showNotificationDialog, setShowNotificationDialog] = useState(false);
-  const [showInviteModal, setShowInviteModal] = useState(false);
 
-  const stats = toStats(dashboard.summary).map((stat) =>
-    !isSuperAdmin && (stat.id === "users" || stat.id === "partners")
-      ? { ...stat, disabled: true }
-      : stat,
+  // The top date filter drives the headline KPI tiles; each chart below keeps
+  // its own dropdown and refetches independently.
+  const summaryData = useDashboardSummary(
+    summary.period,
+    summary.activeUsers,
+    summary.newRegistrations,
   );
-  const registrationData = toRegistrationData(dashboard.newRegistrations);
-  const activeUsersData = toActiveUsersData(dashboard.activeUsers);
-  const genderData = toGenderData(dashboard.demographics);
-  const ageData = toAgeData(dashboard.demographics);
-  const sectorData = toSectorData(dashboard.partners);
-  const showPartnerSectors =
-    dashboard.partners.total !== null && sectorData.length > 0;
+  const activeUsersSeries = useActiveUsersSeries(charts.activeUsers);
+  const newRegistrationsSeries = useNewRegistrationsSeries(
+    charts.newRegistrations,
+  );
 
-  const quickActions: QuickAction[] = BASE_QUICK_ACTIONS.map((action) => {
-    if (action.disabled) return action;
-    if (!isSuperAdmin) return { ...action, disabled: true };
-    if (action.id === "send-notification") {
-      return { ...action, onClick: () => setShowNotificationDialog(true) };
-    }
-    if (action.id === "invite-team") {
-      return { ...action, onClick: () => setShowInviteModal(true) };
-    }
-    return action;
-  });
+  const stats = toStats(
+    overview,
+    summaryData.activeUsers,
+    summaryData.newRegistrations,
+    isSuperAdmin,
+  );
+  const genderData = toGenderData(overview.demographics);
+  const ageData = toAgeData(overview.demographics);
+  const sectorData = toSectorData(overview.partners.sectors);
+  const showPartnerSectors =
+    overview.partners.total !== null && sectorData.length > 0;
 
   return (
-    <div className="min-h-screen space-y-6 bg-slate-50 p-6 dark:bg-slate-950">
-      <div>
-        <h1 className="text-2xl font-bold text-(--admin-text)">Dashboard</h1>
-        <p className="mt-1 text-(--admin-text-secondary)">
-          Platform overview and things that need your attention
-        </p>
+    <div className="min-h-screen space-y-4 bg-(--admin-page-bg) px-8 py-7">
+      <div className="flex flex-wrap items-end justify-between gap-3.5">
+        <div>
+          <h1 className="text-[26px] font-extrabold tracking-[-0.02em] text-(--admin-text)">
+            Dashboard
+          </h1>
+          <p className="mt-1 text-sm text-(--admin-text-secondary)">
+            Platform overview and things that need your attention
+          </p>
+        </div>
+        <RangeSelect
+          options={CHART_PERIOD_OPTIONS}
+          value={summaryData.period}
+          onChange={(id) => summaryData.setPeriod(id as ChartPeriod)}
+          disabled={summaryData.loading}
+          withCalendar
+        />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <WelcomeCard admin={admin} className="lg:col-span-7" />
-        <QuickActionsCard actions={quickActions} className="lg:col-span-5" />
+      <div className="flex flex-wrap items-stretch gap-4">
+        <WelcomeCard admin={admin} className="flex-[1_1_480px]" />
+        <QuickActionsCard
+          actions={QUICK_ACTIONS}
+          className="min-w-70 flex-[1_1_300px]"
+        />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {stats.map((item, i) => (
           <KpiCard key={item.id} item={item} index={i} />
         ))}
       </div>
 
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <RegistrationsChart
-            data={registrationData}
-            changePercent={dashboard.newRegistrations.changePercent}
-          />
-          <ActiveUsersChart
-            data={activeUsersData}
-            liveNow={dashboard.activeUsers.liveNow}
-          />
-        </div>
-
-        <div
-          className={`grid grid-cols-1 gap-6 ${showPartnerSectors ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}
-        >
-          <GenderBreakdownChart data={genderData} />
-          <AgeGroupsChart data={ageData} />
-          {showPartnerSectors && <PartnerSectorsChart data={sectorData} />}
-        </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <ActiveUsersChart series={activeUsersSeries} />
+        <NewSignupsChart series={newRegistrationsSeries} />
       </div>
 
-      <SendNotificationDialog
-        show={showNotificationDialog}
-        onClose={() => setShowNotificationDialog(false)}
-      />
-
-      <InviteMemberFlow
-        isOpen={showInviteModal}
-        onClose={() => setShowInviteModal(false)}
-      />
+      <div
+        className={`grid grid-cols-1 gap-4 ${showPartnerSectors ? "md:grid-cols-3" : "md:grid-cols-2"}`}
+      >
+        <GenderBreakdownChart data={genderData} />
+        <AgeGroupsChart data={ageData} />
+        {showPartnerSectors && <PartnerSectorsChart data={sectorData} />}
+      </div>
     </div>
   );
 }
