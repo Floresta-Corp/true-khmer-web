@@ -55,11 +55,21 @@ export async function patchContentModerator(
   request: Request,
   accessToken: string,
   status: DetailReportStatus,
+  note?: string,
 ) {
+  const body: UpdateContentModeratorReportReviewRequest = {
+    reportUuid,
+    status,
+    ...(note ? { note } : {}),
+  };
+
   return apiRequestWithAccessToken<UpdateContentModeratorReportReviewResponse>(
     request,
     accessToken,
     `/admin/content-moderator`,
-    { method: "POST", body: { reportUuid, status } },
+    {
+      method: "POST",
+      body,
+    },
   );
 }

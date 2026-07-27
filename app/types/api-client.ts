@@ -69,6 +69,14 @@ const AuthForgotPasswordRequest = z.object({ email: z.string().min(1).email(), r
 
 const ForgotPasswordResponse = z.object({ success: z.literal(true), message: z.string() });
 
+const AuthForgotPasswordRequestOtpRequest = z.object({ email: z.string().min(1).email() });
+
+const ForgotPasswordRequestOtpResponse = z.object({ success: z.literal(true), message: z.string() });
+
+const AuthForgotPasswordVerifyOtpRequest = z.object({ email: z.string().min(1).email(), otp: z.string().regex(/^\d{6}$/) });
+
+const ForgotPasswordVerifyOtpResponse = z.object({ success: z.literal(true), message: z.string(), token: z.string() });
+
 const AuthResetPasswordRequest = z.object({ token: z.string().min(1), newPassword: z.string().min(8).regex(/^\S+$/) });
 
 const ResetPasswordResponse = z.object({ success: z.literal(true), message: z.string() });
@@ -103,23 +111,27 @@ const AdminUpdateProfileResponse = z.object({ ok: z.boolean(), admin: z.object({
 
 const AdminLogoutResponse = z.object({ success: z.boolean(), message: z.string() });
 
+const ContentModeratorReportsSummary = z.object({ openReports: z.number().int().gte(0), resolvedReports: z.number().int().gte(0), totalReports: z.number().int().gte(0), avgResolutionTime: z.string().nullable() });
+
 const ContentModeratorReportType = z.object({ id: z.string(), name: z.string() });
 
 const ContentModeratorReportReporter = z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable() });
 
+const ContentModeratorReportAuthor = z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable() });
+
 const ContentModeratorReportSolver = z.object({ id: z.string(), firstName: z.string().nullable(), lastName: z.string().nullable() });
 
-const ContentModeratorReport = z.object({ id: z.string().uuid(), reportId: z.number().int().gt(0), type: ContentModeratorReportType, reportType: z.literal("FORUM"), reportSubType: z.enum(["QUESTION", "ANSWER"]).nullable(), contentPreview: z.string(), sourceLink: z.string(), dateTime: z.string(), status: z.enum(["OPEN", "CLOSED"]), confirmStatus: z.enum(["CONTENT HIDDEN", "DISMISSED"]).nullable(), reportingBy: ContentModeratorReportReporter.nullable(), solvedBy: ContentModeratorReportSolver.nullable(), solvedAt: z.string().nullable() });
+const ContentModeratorReport = z.object({ id: z.string().uuid(), reportId: z.number().int().gt(0), type: ContentModeratorReportType, reportType: z.literal("FORUM"), reportSubType: z.enum(["QUESTION", "ANSWER"]).nullable(), contentPreview: z.string(), sourceLink: z.string(), dateTime: z.string(), status: z.enum(["OPEN", "CLOSED"]), confirmStatus: z.enum(["CONTENT HIDDEN", "DISMISSED"]).nullable(), reportingBy: ContentModeratorReportReporter.nullable(), postedBy: ContentModeratorReportAuthor.nullable(), solvedBy: ContentModeratorReportSolver.nullable(), note: z.string().nullable(), solvedAt: z.string().nullable() });
 
 const CursorPagination = z.object({ limit: z.number().int().gt(0), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) });
 
-const ListContentModeratorReportsResponse = z.object({ ok: z.boolean(), reports: z.array(ContentModeratorReport), pagination: CursorPagination });
+const ListContentModeratorReportsResponse = z.object({ ok: z.boolean(), summary: ContentModeratorReportsSummary.nullable(), reports: z.array(ContentModeratorReport), pagination: CursorPagination });
 
-const UpdateContentModeratorReportReviewRequest = z.object({ reportUuid: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), status: z.enum(["SAFE", "HIDE"]) });
+const UpdateContentModeratorReportReviewRequest = z.object({ reportUuid: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), status: z.enum(["SAFE", "HIDE"]), note: z.string().max(1000).optional() });
 
 const UpdateContentModeratorReportReviewResponse = z.object({ ok: z.boolean(), report: ContentModeratorReport });
 
-const AdminDashboardResponse = z.object({ ok: z.literal(true), dashboard: z.object({ summary: z.object({ totalUsers: z.number().int().gte(0), totalPartners: z.unknown().nullable(), openReports: z.number().int().gte(0) }), newRegistrations: z.object({ days: z.number().int().gt(0), changePercent: z.number().nullable(), trend: z.array(z.object({ label: z.string(), count: z.number().int().gte(0), date: z.string() })) }), activeUsers: z.object({ countLast24Hours: z.number().int().gte(0), windowHours: z.literal(24), liveNow: z.boolean(), trend: z.array(z.object({ label: z.string(), count: z.number().int().gte(0), hour: z.string() })) }), demographics: z.object({ genderBreakdown: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })), ageGroups: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })) }), partners: z.object({ total: z.unknown().nullable(), sectors: z.unknown().nullable() }) }) });
+const AdminDashboardResponse = z.object({ ok: z.literal(true), dashboard: z.object({ summary: z.object({ totalUsers: z.number().int().gte(0), totalPartners: z.unknown().nullable(), openReports: z.number().int().gte(0) }), newRegistrations: z.object({ days: z.number().int().gt(0), changePercent: z.number().nullable(), trend: z.array(z.object({ label: z.string(), count: z.number().int().gte(0), date: z.string() })) }), activeUsers: z.object({ countLast24Hours: z.number().int().gte(0), windowHours: z.literal(24), liveNow: z.boolean(), period: z.enum(["7d", "30d", "12w", "6m", "12m"]), trend: z.array(z.object({ label: z.string(), count: z.number().int().gte(0), date: z.string() })) }), demographics: z.object({ genderBreakdown: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })), ageGroups: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })) }), partners: z.object({ total: z.unknown().nullable(), sectors: z.unknown().nullable() }) }) });
 
 const AdminDashboardErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
@@ -404,7 +416,7 @@ const SaveLaunchpadResponse = z.object({ ok: z.literal(true) });
 
 const CreateLaunchpadRequest = z.object({ name: z.string().min(1).max(120), description: z.string().nullish(), categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), deadline: z.string(), coverKey: z.string().min(1).max(255), role: z.array(z.object({ name: z.string().min(1).max(100), description: z.string().nullish(), capacity: z.number().int().gt(0).lte(1000).optional().default(1) })).min(1), materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5), materialDocumentName: z.array(z.string().min(1).max(255)).min(1).max(5), phoneNumber: z.string(), email: z.string().max(255).email(), telegramUsername: z.string().nullish() });
 
-const CreateLaunchpadResponse = z.object({ ok: z.literal(true), launchpad: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), totalView: z.number(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), roles: z.array(z.object({ id: z.string(), title: z.string(), description: z.string().nullable(), capacity: z.number() })) }) });
+const CreateLaunchpadResponse = z.object({ ok: z.literal(true), launchpad: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), totalView: z.number(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), roles: z.array(z.object({ id: z.string(), title: z.string(), description: z.string().nullable(), capacity: z.number(), viewerApplied: z.boolean() })) }) });
 
 const GetLaunchpadsResponse = z.object({ ok: z.literal(true), launchpads: z.array(z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.boolean() })), nextCursor: z.string().nullable() });
 
@@ -412,7 +424,7 @@ const UpdateLaunchpadRoleRequest = z.object({ id: z.string().regex(/^[0-9a-f]{8}
 
 const UpdateLaunchpadRequest = z.object({ name: z.string(), description: z.string().nullable(), categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), deadline: z.string(), coverKey: z.string().min(1).max(255), role: z.array(UpdateLaunchpadRoleRequest).min(1), materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5), materialDocumentName: z.array(z.string().min(1).max(255)).min(1).max(5), phoneNumber: z.string(), email: z.string().max(255).email(), telegramUsername: z.string().nullable() }).partial();
 
-const GetLaunchpadByIdResponse = z.object({ ok: z.literal(true), launchpad: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), roles: z.array(z.object({ id: z.string(), title: z.string(), description: z.string().nullable(), capacity: z.number() })), viewerBlocked: z.boolean(), totalView: z.number() }) });
+const GetLaunchpadByIdResponse = z.object({ ok: z.literal(true), launchpad: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), roles: z.array(z.object({ id: z.string(), title: z.string(), description: z.string().nullable(), capacity: z.number(), viewerApplied: z.boolean() })), viewerBlocked: z.boolean(), totalView: z.number() }) });
 
 const PresignLaunchpadApplicationDocumentUploadRequest = z.object({ contentType: z.string(), fileSize: z.number().int().gt(0).lte(10485760) });
 
@@ -486,7 +498,7 @@ const GetSavedItemsResponse = z.object({ ok: z.literal(true), items: z.array(z.u
 
 const SavedItemsErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
-const PublicProfileResponse = z.object({ ok: z.literal(true), profile: z.object({ user: z.object({ id: z.string(), firstName: z.string(), lastName: z.string(), displayName: z.string().nullable(), occupation: z.string().nullable(), email: z.string().nullable(), phone: z.object({ country: z.string(), nationalNumber: z.string() }).nullable(), telegramUsername: z.string().nullable() }), profile: z.object({ avatarKey: z.string().nullable(), bio: z.string().nullable(), country: z.object({ id: z.string(), name: z.string(), iso2: z.string().nullable() }).nullable(), city: z.object({ id: z.string(), name: z.string() }).nullable() }), skills: z.array(z.object({ id: z.string(), name: z.string() })), socialLinks: z.object({ website: z.string().nullable(), linkedin: z.string().nullable(), twitter: z.string().nullable(), facebook: z.string().nullable() }), tier: z.object({ id: z.string(), slug: z.string(), name: z.string(), rankOrder: z.number(), minPoints: z.number() }).nullable(), postedCounts: z.object({ forum: z.number().int().gte(0), volunteer: z.number().int().gte(0), project: z.number().int().gte(0) }).nullable() }) });
+const PublicProfileResponse = z.object({ ok: z.literal(true), profile: z.object({ user: z.object({ id: z.string(), firstName: z.string(), lastName: z.string(), displayName: z.string().nullable(), occupation: z.string().nullable(), email: z.string().nullable(), phone: z.object({ country: z.string(), nationalNumber: z.string() }).nullable(), telegramUsername: z.string().nullable() }), profile: z.object({ avatarKey: z.string().nullable(), bio: z.string().nullable(), country: z.object({ id: z.string(), name: z.string(), iso2: z.string().nullable() }).nullable(), city: z.object({ id: z.string(), name: z.string() }).nullable() }), skills: z.array(z.object({ id: z.string(), name: z.string() })), socialLinks: z.object({ website: z.string().nullable(), linkedin: z.string().nullable(), twitter: z.string().nullable(), facebook: z.string().nullable() }), tier: z.object({ id: z.string(), slug: z.string(), name: z.string(), rankOrder: z.number(), minPoints: z.number() }).nullable(), postedCounts: z.object({ forum: z.number().int().gte(0), volunteer: z.number().int().gte(0), project: z.number().int().gte(0) }).nullable(), badges: z.array(z.object({ slug: z.string(), name: z.string(), description: z.string(), category: z.enum(["ONBOARDING", "COLLABORATION", "KNOWLEDGE", "VOLUNTEER", "LAUNCHPAD"]), awardedAt: z.string() })) }) });
 
 const GetMyPostedResponse = z.union([z.object({ ok: z.literal(true), sourceType: z.literal("forum"), questions: z.array(QuestionResponse), pagination: z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) }), z.object({ ok: z.literal(true), sourceType: z.literal("volunteer"), opportunities: z.array(VolunteerOpportunityListItemResponse), pagination: VolunteerOpportunitiesPaginationResponse }), z.object({ ok: z.literal(true), sourceType: z.literal("project"), launchpads: z.array(z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.boolean() })), nextCursor: z.string().nullable() })]);
 
@@ -530,7 +542,7 @@ const ManagePostingDetail = z.object({ posting: ManagePostingItem, stats: z.obje
 
 const ManagePostingDetailResponse = z.object({ ok: z.literal(true), detail: ManagePostingDetail });
 
-const postV1notificationstokens_Body = z.object({ token: z.string().min(1), platform: z.enum(["web", "android", "ios"]).optional().default("web") });
+const postV1notificationstokens_Body = z.object({ token: z.string().min(1), platform: z.enum(["android", "ios"]) });
 
 const postV1notificationssenduser_Body = z.object({ userId: z.string().uuid(), title: z.string().min(1), body: z.string().min(1), data: z.record(z.string(), z.string()).optional(), imageUrl: z.string().optional(), type: z.enum(["forum", "profile_view", "new_message", "achievement", "event_reminder", "application", "launchpad_update", "points", "system"]).optional().default("system"), archived: z.boolean().optional(), webRoute: z.string().optional(), mobileRoute: z.string().optional() });
 
@@ -630,6 +642,10 @@ export const schemas = {
 	AuthLoginTwoFactorEmailVerifyRequest,
 	AuthForgotPasswordRequest,
 	ForgotPasswordResponse,
+	AuthForgotPasswordRequestOtpRequest,
+	ForgotPasswordRequestOtpResponse,
+	AuthForgotPasswordVerifyOtpRequest,
+	ForgotPasswordVerifyOtpResponse,
 	AuthResetPasswordRequest,
 	ResetPasswordResponse,
 	AuthChangePasswordRequest,
@@ -647,8 +663,10 @@ export const schemas = {
 	AdminUpdateProfileRequest,
 	AdminUpdateProfileResponse,
 	AdminLogoutResponse,
+	ContentModeratorReportsSummary,
 	ContentModeratorReportType,
 	ContentModeratorReportReporter,
+	ContentModeratorReportAuthor,
 	ContentModeratorReportSolver,
 	ContentModeratorReport,
 	CursorPagination,
@@ -1254,6 +1272,13 @@ const endpoints = makeApi([
 		path: "/v1/admin/dashboard",
 		alias: "getV1admindashboard",
 		requestFormat: "json",
+		parameters: [
+			{
+				name: "period",
+				type: "Query",
+				schema: z.enum(["7d", "30d", "12w", "6m", "12m"]).optional()
+			},
+		],
 		response: AdminDashboardResponse,
 		errors: [
 			{
@@ -2531,6 +2556,48 @@ const endpoints = makeApi([
 			{
 				status: 400,
 				description: `Validation failed`,
+				schema: z.object({ error: z.string() })
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/auth/forgot-password/request-otp",
+		alias: "postV1authforgotPasswordrequestOtp",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: z.object({ email: z.string().min(1).email() })
+			},
+		],
+		response: ForgotPasswordRequestOtpResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.object({ error: z.string() })
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/auth/forgot-password/verify-otp",
+		alias: "postV1authforgotPasswordverifyOtp",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: AuthForgotPasswordVerifyOtpRequest
+			},
+		],
+		response: ForgotPasswordVerifyOtpResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed or OTP is invalid/expired`,
 				schema: z.object({ error: z.string() })
 			},
 		]
@@ -4571,7 +4638,7 @@ const endpoints = makeApi([
 				schema: patchV1adminnotificationsread_Body
 			},
 		],
-		response: z.object({ ok: z.boolean(), message: z.string(), platform: z.enum(["web", "android", "ios"]).optional().default("web") }),
+		response: z.object({ ok: z.boolean(), message: z.string(), platform: z.enum(["android", "ios"]).optional() }),
 		errors: [
 			{
 				status: 401,
@@ -4602,7 +4669,7 @@ const endpoints = makeApi([
 				schema: z.enum(["forum", "profile_view", "new_message", "achievement", "event_reminder", "application", "launchpad_update", "points", "system"]).optional()
 			},
 		],
-		response: z.object({ ok: z.boolean(), message: z.string(), platform: z.enum(["web", "android", "ios"]).optional().default("web") }),
+		response: z.object({ ok: z.boolean(), message: z.string(), platform: z.enum(["android", "ios"]).optional() }),
 		errors: [
 			{
 				status: 401,
@@ -4654,7 +4721,7 @@ const endpoints = makeApi([
 				schema: postV1notificationstokens_Body
 			},
 		],
-		response: z.object({ ok: z.boolean(), message: z.string(), platform: z.enum(["web", "android", "ios"]).optional().default("web") }),
+		response: z.object({ ok: z.boolean(), message: z.string(), platform: z.enum(["android", "ios"]).optional() }),
 		errors: [
 			{
 				status: 401,
@@ -4680,7 +4747,7 @@ const endpoints = makeApi([
 				schema: z.object({ token: z.string().min(1) })
 			},
 		],
-		response: z.object({ ok: z.boolean(), message: z.string(), platform: z.enum(["web", "android", "ios"]).optional().default("web") }),
+		response: z.object({ ok: z.boolean(), message: z.string(), platform: z.enum(["android", "ios"]).optional() }),
 		errors: [
 			{
 				status: 401,
@@ -6266,6 +6333,10 @@ export type AuthTwoFactorEmailVerifyRequest = z.infer<typeof schemas.AuthTwoFact
 export type AuthLoginTwoFactorEmailVerifyRequest = z.infer<typeof schemas.AuthLoginTwoFactorEmailVerifyRequest>;
 export type AuthForgotPasswordRequest = z.infer<typeof schemas.AuthForgotPasswordRequest>;
 export type ForgotPasswordResponse = z.infer<typeof schemas.ForgotPasswordResponse>;
+export type AuthForgotPasswordRequestOtpRequest = z.infer<typeof schemas.AuthForgotPasswordRequestOtpRequest>;
+export type ForgotPasswordRequestOtpResponse = z.infer<typeof schemas.ForgotPasswordRequestOtpResponse>;
+export type AuthForgotPasswordVerifyOtpRequest = z.infer<typeof schemas.AuthForgotPasswordVerifyOtpRequest>;
+export type ForgotPasswordVerifyOtpResponse = z.infer<typeof schemas.ForgotPasswordVerifyOtpResponse>;
 export type AuthResetPasswordRequest = z.infer<typeof schemas.AuthResetPasswordRequest>;
 export type ResetPasswordResponse = z.infer<typeof schemas.ResetPasswordResponse>;
 export type AuthChangePasswordRequest = z.infer<typeof schemas.AuthChangePasswordRequest>;
@@ -6283,8 +6354,10 @@ export type AdminPresignAvatarUploadResponse = z.infer<typeof schemas.AdminPresi
 export type AdminUpdateProfileRequest = z.infer<typeof schemas.AdminUpdateProfileRequest>;
 export type AdminUpdateProfileResponse = z.infer<typeof schemas.AdminUpdateProfileResponse>;
 export type AdminLogoutResponse = z.infer<typeof schemas.AdminLogoutResponse>;
+export type ContentModeratorReportsSummary = z.infer<typeof schemas.ContentModeratorReportsSummary>;
 export type ContentModeratorReportType = z.infer<typeof schemas.ContentModeratorReportType>;
 export type ContentModeratorReportReporter = z.infer<typeof schemas.ContentModeratorReportReporter>;
+export type ContentModeratorReportAuthor = z.infer<typeof schemas.ContentModeratorReportAuthor>;
 export type ContentModeratorReportSolver = z.infer<typeof schemas.ContentModeratorReportSolver>;
 export type ContentModeratorReport = z.infer<typeof schemas.ContentModeratorReport>;
 export type CursorPagination = z.infer<typeof schemas.CursorPagination>;

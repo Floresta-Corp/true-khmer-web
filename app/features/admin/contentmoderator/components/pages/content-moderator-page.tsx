@@ -8,6 +8,7 @@ import {
 } from "react-router";
 import { toast } from "sonner";
 import { FilterBar } from "../filter-bar";
+import { ReportStatsCards } from "../report-stats-cards";
 import { ReportsTable } from "../reports-table";
 import { ReportsTableSkeleton } from "../reports-table-skeleton";
 import { ReportDrawer } from "../report-drawer";
@@ -16,7 +17,7 @@ import type { ContentModeratorReport } from "~/types/api-client";
 import type { CategoryOption } from "../../types";
 
 export default function ContentModeratorPage() {
-  const { content, types, highlightedReportId } =
+  const { content, types, stats, highlightedReportId } =
     useLoaderData<typeof contentModeratorLoader>();
   const fetcher = useFetcher();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -57,11 +58,12 @@ export default function ContentModeratorPage() {
   }, [fetcher.data]);
 
   const handleResolve = useCallback(
-    (id: string, resolveAction: "dismiss" | "hide") => {
+    (id: string, resolveAction: "dismiss" | "hide", note?: string) => {
       fetcher.submit(
         {
           reportUuid: id,
           status: resolveAction === "dismiss" ? "SAFE" : "HIDE",
+          ...(note ? { note } : {}),
         },
         { method: "POST", action: "/tk-admin/content-moderator" },
       );
@@ -121,6 +123,9 @@ export default function ContentModeratorPage() {
               </p>
             </div>
           </div>
+
+          <ReportStatsCards stats={stats} />
+
           <div>
             <FilterBar
               categoryOptions={categoryOptions}

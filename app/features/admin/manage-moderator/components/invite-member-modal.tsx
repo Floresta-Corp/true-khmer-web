@@ -82,7 +82,7 @@ export function InviteMemberModal({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={handleClose}
-        className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl"
+        className="absolute inset-0 backdrop-blur-sm"
       />
 
       <motion.div
@@ -90,10 +90,10 @@ export function InviteMemberModal({
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
         onClick={(e) => e.stopPropagation()}
-        className="relative bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl p-10 overflow-visible border border-slate-100 dark:border-slate-800 shadow-2xl"
+        className="relative w-full max-w-lg overflow-visible rounded-2xl border border-slate-100 bg-white p-10 shadow-2xl dark:border-slate-800 dark:bg-slate-900"
       >
-        <div className="flex items-center justify-between mb-8">
-          <div className="p-3 dark:bg-slate-900 dark:text-white rounded-xl">
+        <div className="mb-8 flex items-center justify-between">
+          <div className="rounded-xl p-3 dark:bg-slate-900 dark:text-white">
             <UserPlus size={24} />
           </div>
           <Button
@@ -105,17 +105,17 @@ export function InviteMemberModal({
           </Button>
         </div>
 
-        <h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-2 tracking-tight">
+        <h3 className="mb-2 text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
           Invite Team Member
         </h3>
-        <p className="text-slate-500 text-sm font-medium mb-10 leading-relaxed">
+        <p className="mb-10 text-sm leading-relaxed font-medium text-slate-500">
           Send an invitation email to add a new administrator or moderator to
           your workspace.
         </p>
 
         <div className="space-y-6">
           <div className="space-y-2">
-            <Label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+            <Label className="ml-1 text-[11px] font-bold tracking-widest text-slate-400 uppercase">
               Email Address
             </Label>
             <Input
@@ -123,29 +123,29 @@ export function InviteMemberModal({
               value={inviteEmail}
               onChange={handleEmailChange}
               placeholder="name@company.com"
-              className={`w-full bg-slate-50 dark:bg-slate-950 rounded-xl py-5 px-4 text-sm dark:text-white focus:outline-none transition-all ${
+              className={`w-full rounded-xl bg-slate-50 px-4 py-5 text-sm transition-all focus:outline-none dark:bg-slate-950 dark:text-white ${
                 emailError
                   ? "border-2 border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                  : "border border-slate-100 dark:border-slate-800 focus:border-slate-900"
+                  : "border border-slate-100 focus:border-slate-900 dark:border-slate-800"
               }`}
             />
             {emailError && (
-              <p className="text-xs font-semibold text-red-500 ml-1 transition-all">
+              <p className="ml-1 text-xs font-semibold text-red-500 transition-all">
                 {emailError}
               </p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+            <Label className="ml-1 text-[11px] font-bold tracking-widest text-slate-400 uppercase">
               Assign Role
             </Label>
             <Select value={role} onValueChange={setRole}>
-              <SelectTrigger className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:text-white dark:border-slate-800 rounded-md py-3 px-4 text-sm focus:outline-none focus:border-slate-900 transition-all focus:ring-0 focus:ring-offset-0 h-auto [&>svg]:opacity-50">
+              <SelectTrigger className="h-auto w-full rounded-md border border-slate-100 bg-slate-50 px-4 py-3 text-sm transition-all focus:border-slate-900 focus:ring-0 focus:ring-offset-0 focus:outline-none dark:border-slate-800 dark:bg-slate-950 dark:text-white [&>svg]:opacity-50">
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
 
-              <SelectContent className="rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 z-110">
+              <SelectContent className="z-110 rounded-xl border border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-900">
                 {ROLE_OPTIONS.map((option) => (
                   <SelectItem
                     key={option.value}
@@ -160,23 +160,23 @@ export function InviteMemberModal({
           </div>
 
           {serverError && (
-            <p className="text-xs font-semibold text-red-500 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl px-4 py-3">
+            <p className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-xs font-semibold text-red-500 dark:border-red-800 dark:bg-red-900/20">
               {serverError}
             </p>
           )}
 
-          <div className="pt-6 flex gap-4">
+          <div className="flex gap-4 pt-6">
             <Button
               variant="ghost"
               onClick={handleClose}
-              className="flex-1 py-5 border border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-200 rounded-xl text-[11px] font-semibold uppercase tracking-widest hover:bg-slate-50 transition-all"
+              className="flex-1 rounded-xl border border-slate-100 py-5 text-[11px] font-semibold tracking-widest text-slate-500 uppercase transition-all hover:bg-slate-50 dark:border-slate-800 dark:text-slate-200"
             >
               Cancel
             </Button>
             <Button
               onClick={handleSend}
               disabled={isLoading}
-              className="flex-1 py-5 bg-blue-600 text-white rounded-xl text-[11px] font-semibold uppercase tracking-widest hover:bg-blue-800 active:scale-95 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 py-5 text-[11px] font-semibold tracking-widest text-white uppercase transition-all hover:bg-blue-800 active:scale-95 disabled:opacity-70"
             >
               {isLoading ? (
                 <>

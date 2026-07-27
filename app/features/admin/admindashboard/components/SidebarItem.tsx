@@ -78,6 +78,13 @@ export const navItems: NavItem[] = [
     href: "/tk-admin/content-moderator",
     section: "manage",
   },
+  {
+    id: "myteam",
+    label: "My Team",
+    icon: Users,
+    href: "/tk-admin/manage-moderator/team",
+    section: "system",
+  },
 ];
 
 type SidebarItemProps = {

@@ -1,57 +1,81 @@
-import { ShieldCheck } from "lucide-react";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
-import { formatMinutesOrHoursAgo } from "~/lib/time";
+import { formatDateTime } from "~/lib/time";
+import { getInitials } from "~/routes/onboarding/domain/profile/profile-utils";
 import type { ContentModeratorReport } from "~/types/api-client";
 
 export function ResolutionLog({ report }: { report: ContentModeratorReport }) {
   const fullName =
     `${report.solvedBy?.firstName ?? ""} ${report.solvedBy?.lastName ?? ""}`.trim();
-  const initials =
-    fullName
-      .split(" ")
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0])
-      .join("")
-      .toUpperCase() || "?";
-  return (
-    <div className="p-5 bg-emerald-50 border border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-800/50 rounded-2xl space-y-4">
-      <div className="flex items-center gap-2">
-        <ShieldCheck size={14} className="text-emerald-500" />
-        <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
-          Resolved By
-        </span>
-      </div>
+  const solvedAt = formatDateTime(report.solvedAt);
 
-      <div className="flex items-center gap-3">
-        <Avatar className="shrink-0 w-8 h-8 border border-slate-200 dark:border-slate-700">
-          <AvatarFallback className="text-xs font-black bg-slate-100 dark:bg-slate-800 text-slate-400">
-            {initials}
-          </AvatarFallback>
-        </Avatar>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between mb-0.5">
-            <p className="text-sm font-semibold text-(--admin-text) truncate">
+  const isHidden = report.confirmStatus === "CONTENT HIDDEN";
+  const actionTaken = isHidden ? "Content removed" : "Report dismissed";
+
+  return (
+    <div
+      className={`space-y-3.5 rounded-2xl border p-6 ${
+        isHidden
+          ? "border-rose-200 bg-rose-50/60 dark:border-rose-900/50 dark:bg-rose-950/20"
+          : "border-(--admin-border) bg-(--admin-card-bg)"
+      }`}
+    >
+      <h3
+        className={`text-lg font-semibold tracking-tight ${
+          isHidden ? "text-rose-600 dark:text-rose-400" : "text-(--admin-text)"
+        }`}
+      >
+        Action details
+      </h3>
+
+      <div className="space-y-3">
+        <Row label="Action taken">
+          <span className="font-medium text-(--admin-text)">{actionTaken}</span>
+        </Row>
+
+        <Row label="Reason selected">
+          <span className="text-(--admin-text)">{report.type.name}</span>
+        </Row>
+
+        <Row label="Notes (optional)">
+          <span className="text-(--admin-text-secondary)">
+            {report.note?.trim() || "-"}
+          </span>
+        </Row>
+
+        <Row label="Action taken by">
+          <span className="inline-flex items-center gap-2">
+            <Avatar className="h-7 w-7 shrink-0">
+              <AvatarFallback className="bg-indigo-600 text-[10px] font-bold text-white">
+                {getInitials(fullName) || "?"}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-(--admin-text)">
               {fullName || "Unknown Moderator"}
-            </p>
-            {report.confirmStatus && (
-              <span
-                className={`px-2 py-0.5 text-[10px] font-semibold rounded uppercase tracking-wide dark:bg-green-600/20 bg-green-100 text-green-600 dark:text-green-400`}
-              >
-                {report.confirmStatus}
-              </span>
-            )}
-          </div>
-          <div className="flex items-center justify-between">
-            <p className="text-[10px] text-(--admin-text-secondary) font-medium">
-              Platform Moderator
-            </p>
-            <span className="text-[10px] text-(--admin-text-secondary) font-medium lowercase first-letter:uppercase">
-              {report.solvedAt ? formatMinutesOrHoursAgo(report.solvedAt) : "—"}
             </span>
-          </div>
-        </div>
+          </span>
+        </Row>
+
+        <Row label="Date & time">
+          <span className="text-(--admin-text)">{solvedAt || "—"}</span>
+        </Row>
       </div>
+    </div>
+  );
+}
+
+function Row({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <span className="text-[14px] font-medium text-(--admin-text-secondary)">
+        {label}
+      </span>
+      <span className="text-right text-[14px]">{children}</span>
     </div>
   );
 }

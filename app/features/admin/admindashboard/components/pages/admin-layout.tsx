@@ -35,6 +35,7 @@ function getActiveMenu(pathname: string) {
   if (pathname.startsWith("/tk-admin/registrations")) return "registrations";
   if (pathname.startsWith("/tk-admin/partners")) return "partners";
   if (pathname.startsWith("/tk-admin/blog")) return "blog";
+  if (pathname.startsWith("/tk-admin/manage-moderator/team")) return "myteam";
   if (pathname.startsWith("/tk-admin/account-settings"))
     return "account-settings";
   return null;
@@ -136,8 +137,6 @@ export default function AdminLayout() {
               effectiveCollapsed ? "w-18" : "w-64"
             }`}
           >
-            {/* Collapse toggle (centered) — only when collapsed; when expanded
-                it lives inline with the first section header below */}
             {effectiveCollapsed && (
               <div className="mb-2 hidden items-center justify-center md:flex">
                 <button
