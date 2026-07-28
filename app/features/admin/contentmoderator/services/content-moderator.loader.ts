@@ -37,6 +37,7 @@ export async function contentModeratorLoader({ request }: Route.LoaderArgs) {
 
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor") ?? undefined;
+  const search = url.searchParams.get("search")?.trim() ?? undefined;
   const typeId = url.searchParams.get("typeId") ?? undefined;
   const rawStatus = url.searchParams.get("status")?.toUpperCase();
   const status = (REPORT_STATUSES as readonly string[]).includes(
@@ -50,7 +51,12 @@ export async function contentModeratorLoader({ request }: Route.LoaderArgs) {
   const contentId = url.searchParams.get("contentId") ?? undefined;
 
   const [result, allTypesResult] = await Promise.all([
-    getContentModerator(request, accessToken, { cursor, status, typeId }),
+    getContentModerator(request, accessToken, {
+      cursor,
+      status,
+      typeId,
+      search,
+    }),
     getContentModerator(request, accessToken, {}),
   ]);
   const stats: ContentModeratorStats =

@@ -14,9 +14,13 @@ import {
 } from "../user-management-table";
 import { UserManagementToolbar } from "../user-management-toolbar";
 import type { userManagementLoader } from "../../services/user-management.loader";
+import {
+  UserManagementStatsCards,
+  UserManagementStatsCardsSkeleton,
+} from "../user-management-card-stats";
 
 export default function UserManagementPage() {
-  const { users } = useLoaderData<typeof userManagementLoader>();
+  const { users, stats } = useLoaderData<typeof userManagementLoader>();
   const location = useLocation();
   const navigation = useNavigation();
 
@@ -28,9 +32,19 @@ export default function UserManagementPage() {
     <Suspense fallback={<UserManagementPageSkeleton />}>
       <Await resolve={users}>
         {(result) => (
-          <main className="min-h-full bg-[#f8fafc] px-4 py-6 dark:bg-slate-950 sm:px-6 lg:px-10 lg:py-8">
+          <main className="min-h-full bg-[#f8fafc] px-4 py-6 sm:px-6 lg:px-10 lg:py-8 dark:bg-slate-950">
             <div className="mx-auto w-full max-w-350">
               <UserManagementHeader />
+
+              {/* Stats are supplementary: hide the row if it fails rather
+                  than leaving a skeleton loading forever. */}
+              <Suspense fallback={<UserManagementStatsCardsSkeleton />}>
+                <Await resolve={stats} errorElement={<></>}>
+                  {(resolvedStats) => (
+                    <UserManagementStatsCards stats={resolvedStats} />
+                  )}
+                </Await>
+              </Suspense>
 
               <section
                 className="flex h-[clamp(32rem,calc(100dvh-12rem),48rem)] flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"

@@ -161,6 +161,10 @@ const AdminUserManagementUser = z.object({ id: z.string().uuid(), name: z.string
 
 const AdminUserManagementListResponse = z.object({ ok: z.literal(true), users: z.array(AdminUserManagementUser), total: z.number().int(), page: z.number().int(), limit: z.number().int(), totalPages: z.number().int() });
 
+const AdminUserManagementStats = z.object({ totalUsers: z.object({ count: z.number().int(), growthPercent: z.number().nullable() }), activeUsers: z.object({ count: z.number().int(), percentOfTotal: z.number().nullable() }), newThisMonth: z.object({ count: z.number().int(), changePercent: z.number().nullable() }), topTier: z.object({ slug: z.string(), name: z.string() }).nullable() });
+
+const AdminUserManagementStatsResponse = z.object({ ok: z.literal(true), stats: AdminUserManagementStats });
+
 const AdminUserManagementPoints = z.object({ activePoints: z.number().int(), tierPoints: z.number().int(), legacyPoints: z.number().int(), totalPoints: z.number().int() });
 
 const AdminUserManagementActivity = z.object({ id: z.string().uuid(), title: z.string(), actionType: z.string(), points: z.number().int(), pool: z.string(), mode: z.string(), referenceType: z.string().nullable(), referenceId: z.string().uuid().nullable(), createdAt: z.string() });
@@ -692,6 +696,8 @@ export const schemas = {
 	AdminUserManagementTier,
 	AdminUserManagementUser,
 	AdminUserManagementListResponse,
+	AdminUserManagementStats,
+	AdminUserManagementStatsResponse,
 	AdminUserManagementPoints,
 	AdminUserManagementActivity,
 	AdminUserManagementDetailUser,
@@ -1221,6 +1227,11 @@ const endpoints = makeApi([
 				name: "id",
 				type: "Query",
 				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().optional()
 			},
 		],
 		response: ListContentModeratorReportsResponse,
@@ -2371,6 +2382,30 @@ const endpoints = makeApi([
 				status: 404,
 				description: `User not found`,
 				schema: z.object({ ok: z.literal(false), error: z.string() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string() })
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/user-management/stats",
+		alias: "getV1adminuserManagementstats",
+		requestFormat: "json",
+		response: AdminUserManagementStatsResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Forbidden`,
+				schema: AuthProtectedErrorResponse
 			},
 			{
 				status: 500,
@@ -6440,6 +6475,8 @@ export type DeleteModeratorResponse = z.infer<typeof schemas.DeleteModeratorResp
 export type AdminUserManagementTier = z.infer<typeof schemas.AdminUserManagementTier>;
 export type AdminUserManagementUser = z.infer<typeof schemas.AdminUserManagementUser>;
 export type AdminUserManagementListResponse = z.infer<typeof schemas.AdminUserManagementListResponse>;
+export type AdminUserManagementStats = z.infer<typeof schemas.AdminUserManagementStats>;
+export type AdminUserManagementStatsResponse = z.infer<typeof schemas.AdminUserManagementStatsResponse>;
 export type AdminUserManagementPoints = z.infer<typeof schemas.AdminUserManagementPoints>;
 export type AdminUserManagementActivity = z.infer<typeof schemas.AdminUserManagementActivity>;
 export type AdminUserManagementDetailUser = z.infer<typeof schemas.AdminUserManagementDetailUser>;

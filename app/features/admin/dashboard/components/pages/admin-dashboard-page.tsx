@@ -171,9 +171,7 @@ function toSectorData(sectors: MetricPoint[] | null): PartnerSector[] {
     }
   }
 
-  return [...totals.values()]
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 5);
+  return [...totals.values()].sort((a, b) => b.value - a.value).slice(0, 5);
 }
 
 // ── page ──────────────────────────────────────────────────────────────────

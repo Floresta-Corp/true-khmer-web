@@ -8,6 +8,7 @@ import { getAdminAccessToken } from "~/lib/server/session.server";
 import type {
   AdminUserManagementDetailResponse,
   AdminUserManagementListResponse,
+  AdminUserManagementStatsResponse,
   api,
 } from "~/types/api-client";
 
@@ -80,6 +81,23 @@ export async function getAdminUserManagement(
         request,
         accessToken,
         `/admin/user-management${queryString ? `?${queryString}` : ""}`,
+        { method: "GET" },
+      ),
+    existingAccessToken,
+  );
+}
+
+export async function getAdminUserManagementStats(
+  request: Request,
+  existingAccessToken?: string,
+) {
+  return retryAdminRequestAfterRefresh(
+    request,
+    (accessToken) =>
+      apiRequestWithAccessToken<AdminUserManagementStatsResponse>(
+        request,
+        accessToken,
+        "/admin/user-management/stats",
         { method: "GET" },
       ),
     existingAccessToken,

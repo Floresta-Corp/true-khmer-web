@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Check, ChevronDown, ListFilter } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Check, ListFilter, Search } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Popover,
@@ -7,11 +7,15 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import type { CategoryOption } from "../types";
+import { Input } from "~/components/ui/input";
+import { debounce } from "~/lib/utils";
+
+const SEARCH_DEBOUNCE_MS = 300;
 
 export const STATUSES = [
-  { label: "All Reports", value: "all", color: "slate" },
-  { label: "Open", value: "open", color: "emerald" },
-  { label: "Resolved", value: "closed", color: "rose" },
+  { label: "All Reports", value: "all" },
+  { label: "Open", value: "open" },
+  { label: "Resolved", value: "closed" },
 ] as const;
 
 interface FilterBarProps {
@@ -20,22 +24,16 @@ interface FilterBarProps {
   onCategoryChange: (typeId: string | null) => void;
   selectedStatus: string;
   onStatusChange: (status: string) => void;
+  /** Committed search term from the URL. */
+  searchValue: string;
+  /** Called with the debounced search term. */
+  onSearchChange: (value: string) => void;
 }
 
-function getStatusColor(color: string, isActive: boolean): string {
-  const colors: Record<string, string> = {
-    slate: isActive
-      ? "bg-blue-600/70 text-white"
-      : "text-slate-400 hover:dark:text-white hover:bg-slate-50 hover:dark:bg-slate-500/50",
-    rose: isActive
-      ? "bg-rose-600/70 text-white"
-      : "text-slate-400 hover:bg-rose-50 hover:text-rose-600 hover:dark:text-white hover:dark:bg-rose-500/40",
-    emerald: isActive
-      ? "bg-emerald-600/70 text-white"
-      : "text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 hover:dark:text-white hover:dark:bg-emerald-500/40 ",
-  };
-
-  return colors[color] ?? "text-slate-400";
+function getStatusColor(isActive: boolean): string {
+  return isActive
+    ? "bg-blue-600/70 text-white"
+    : "text-slate-400 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-500/40 dark:hover:text-white";
 }
 
 export function FilterBar({
@@ -44,6 +42,8 @@ export function FilterBar({
   onCategoryChange,
   selectedStatus,
   onStatusChange,
+  searchValue,
+  onSearchChange,
 }: FilterBarProps) {
   const selectedLabel =
     selectedTypeId === null
@@ -52,6 +52,31 @@ export function FilterBar({
         "Select Type…");
 
   const [open, setOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState(searchValue);
+
+  // Keep the input in sync when the URL changes elsewhere (back/forward, reset).
+  useEffect(() => {
+    setSearchInput(searchValue);
+  }, [searchValue]);
+
+  const onSearchChangeRef = useRef(onSearchChange);
+  useEffect(() => {
+    onSearchChangeRef.current = onSearchChange;
+  }, [onSearchChange]);
+
+  const debouncedSearchRef = useRef(
+    debounce((value: string) => {
+      onSearchChangeRef.current(value);
+    }, SEARCH_DEBOUNCE_MS),
+  );
+  useEffect(() => {
+    return () => debouncedSearchRef.current.cancel();
+  }, []);
+
+  const handleSearchInput = (value: string) => {
+    setSearchInput(value);
+    debouncedSearchRef.current(value);
+  };
 
   const handleSelect = (id: string | null) => {
     onCategoryChange(id);
@@ -70,7 +95,6 @@ export function FilterBar({
                 key={status.value}
                 onClick={() => onStatusChange(status.value)}
                 className={`h-8 cursor-pointer rounded-md px-4 text-xs font-medium tracking-wide uppercase transition-all ${getStatusColor(
-                  status.color,
                   isActive,
                 )}`}
               >
@@ -114,6 +138,22 @@ export function FilterBar({
               })}
             </PopoverContent>
           </Popover>
+        </div>
+
+        <div className="relative min-w-0 flex-1 sm:w-63 sm:flex-none md:w-72">
+          <Search
+            size={16}
+            className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400 dark:text-slate-500"
+          />
+          <Input
+            type="search"
+            aria-label="Search reports"
+            maxLength={100}
+            className="h-10 rounded-xl border-slate-200 bg-white pr-4 pl-11 text-[14px] text-slate-900 transition-all placeholder:font-medium placeholder:text-slate-400 focus-visible:ring-blue-500/20 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-100 dark:placeholder:text-slate-500"
+            placeholder="Search report..."
+            value={searchInput}
+            onChange={(e) => handleSearchInput(e.target.value)}
+          />
         </div>
       </div>
     </div>
