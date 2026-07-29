@@ -161,6 +161,7 @@ export default function PartnerNewPage() {
           <div className="flex items-center gap-3">
             <Button
               type="button"
+              className="rounded-lg font-medium shadow-none sm:ml-auto dark:border-slate-800 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800/50"
               variant="outline"
               disabled={isSubmitting}
               onClick={() => setShowCancelModal(true)}
@@ -329,6 +330,7 @@ export default function PartnerNewPage() {
                 maxLength={300}
                 disabled={isSubmitting}
                 aria-invalid={Boolean(errors.bio)}
+                className="rounded-xl dark:border-slate-700 dark:bg-slate-950/50 dark:text-white"
               />
             </FormField>
 
@@ -346,6 +348,7 @@ export default function PartnerNewPage() {
                 rows={5}
                 disabled={isSubmitting}
                 aria-invalid={Boolean(errors.description)}
+                className="rounded-xl dark:border-slate-700 dark:bg-slate-950/50 dark:text-white"
               />
             </FormField>
           </div>

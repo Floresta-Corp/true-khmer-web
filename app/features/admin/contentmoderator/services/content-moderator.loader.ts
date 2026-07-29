@@ -7,7 +7,14 @@ import {
 } from "~/api/admin/content-moderator/content-moderator.server";
 import type { ReportStatus } from "~/api/admin/content-moderator/content-moderator.server";
 import { requireAdmin } from "~/lib/server/route-guards.server";
-import type { ContentModeratorData } from "../types";
+import type { ContentModeratorData, ContentModeratorStats } from "../types";
+
+const EMPTY_STATS: ContentModeratorStats = {
+  openReports: 0,
+  resolvedReports: 0,
+  totalReports: 0,
+  avgResolutionTime: null,
+};
 
 export async function contentModeratorLoader({ request }: Route.LoaderArgs) {
   const auth = await requireAdmin(request);
@@ -22,6 +29,7 @@ export async function contentModeratorLoader({ request }: Route.LoaderArgs) {
       content: [],
       types: [],
       pagination: null,
+      stats: EMPTY_STATS,
       userId: null,
       highlightedReportId: null,
     } satisfies ContentModeratorData);
@@ -29,6 +37,7 @@ export async function contentModeratorLoader({ request }: Route.LoaderArgs) {
 
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor") ?? undefined;
+  const search = url.searchParams.get("search")?.trim() ?? undefined;
   const typeId = url.searchParams.get("typeId") ?? undefined;
   const rawStatus = url.searchParams.get("status")?.toUpperCase();
   const status = (REPORT_STATUSES as readonly string[]).includes(
@@ -42,9 +51,16 @@ export async function contentModeratorLoader({ request }: Route.LoaderArgs) {
   const contentId = url.searchParams.get("contentId") ?? undefined;
 
   const [result, allTypesResult] = await Promise.all([
-    getContentModerator(request, accessToken, { cursor, status, typeId }),
+    getContentModerator(request, accessToken, {
+      cursor,
+      status,
+      typeId,
+      search,
+    }),
     getContentModerator(request, accessToken, {}),
   ]);
+  const stats: ContentModeratorStats =
+    allTypesResult.data.summary ?? EMPTY_STATS;
 
   const typesMap = new Map<string, string>();
   for (const report of allTypesResult.data.reports ?? []) {
@@ -72,6 +88,7 @@ export async function contentModeratorLoader({ request }: Route.LoaderArgs) {
     content,
     types: Array.from(typesMap.entries()).map(([id, name]) => ({ id, name })),
     pagination: result.data.pagination ?? null,
+    stats,
     userId,
     highlightedReportId: targetReport?.id ?? null,
   } satisfies ContentModeratorData);

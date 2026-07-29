@@ -3,7 +3,10 @@ import type { Route } from "project-types/admin/usermanagement/route/+types/user
 
 import { getAdminAccessToken } from "~/lib/server/session.server";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
-import { getAdminUserManagement } from "~/api/admin/user-management/user-management.server";
+import {
+  getAdminUserManagement,
+  getAdminUserManagementStats,
+} from "~/api/admin/user-management/user-management.server";
 
 function positiveInteger(value: string | null, fallback: number) {
   const parsed = Number(value);
@@ -40,7 +43,14 @@ export async function userManagementLoader({ request }: Route.LoaderArgs) {
     accessToken,
   ).then((result) => result.data);
 
-  return data({ users }, {
-    ...(setCookie ? { headers: { "Set-Cookie": setCookie } } : {}),
-  });
+  const stats = getAdminUserManagementStats(request, accessToken).then(
+    (result) => result.data.stats,
+  );
+
+  return data(
+    { users, stats },
+    {
+      ...(setCookie ? { headers: { "Set-Cookie": setCookie } } : {}),
+    },
+  );
 }

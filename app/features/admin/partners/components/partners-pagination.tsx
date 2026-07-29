@@ -43,7 +43,7 @@ export function PartnersPagination({ meta }: { meta: PartnerListMeta }) {
           disabled={page <= 1}
           onClick={() => goToPage(page - 1)}
           aria-label="Previous page"
-          className="shadow-none"
+          className="shadow-none dark:border-slate-700 dark:bg-slate-950/50 dark:text-white dark:hover:bg-slate-800/50"
         >
           <ChevronLeft />
         </Button>
@@ -57,7 +57,7 @@ export function PartnersPagination({ meta }: { meta: PartnerListMeta }) {
           disabled={page >= totalPages}
           onClick={() => goToPage(page + 1)}
           aria-label="Next page"
-          className="shadow-none"
+          className="shadow-none dark:border-slate-700 dark:bg-slate-950/50 dark:text-white dark:hover:bg-slate-800/50"
         >
           <ChevronRight />
         </Button>

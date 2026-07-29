@@ -1,10 +1,7 @@
 import { useEffect } from "react";
 import { motion } from "motion/react";
-import { Link } from "react-router";
-import { ArrowRight } from "lucide-react";
+import { TrendingUp, TrendingDown } from "lucide-react";
 import type { StatItem } from "../types";
-
-const MotionLink = motion.create(Link);
 
 // Cards should animate in once per session. Any incidental re-render or
 // remount afterwards (e.g. from a notification context update) must not
@@ -16,9 +13,40 @@ interface KpiCardProps {
   index: number;
 }
 
-export function KpiCard({ item, index }: KpiCardProps) {
-  const Icon = item.icon;
+function DeltaBadge({
+  delta,
+  tone,
+}: {
+  delta: string;
+  tone: StatItem["deltaTone"];
+}) {
+  if (tone === "neutral" || !tone) {
+    return (
+      <span className="inline-flex items-center rounded-full bg-(--admin-card-muted) px-2 py-0.5 text-[11px] font-semibold text-(--admin-text-secondary)">
+        {delta}
+      </span>
+    );
+  }
+  const isUp = tone === "up";
+  return (
+    <span
+      className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+        isUp
+          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
+          : "bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400"
+      }`}
+    >
+      {isUp ? (
+        <TrendingUp className="h-3 w-3" />
+      ) : (
+        <TrendingDown className="h-3 w-3" />
+      )}
+      {delta}
+    </span>
+  );
+}
 
+export function KpiCard({ item, index }: KpiCardProps) {
   const hasAnimated = animatedCardIds.has(item.id);
   useEffect(() => {
     animatedCardIds.add(item.id);
@@ -28,59 +56,23 @@ export function KpiCard({ item, index }: KpiCardProps) {
   const entranceTransition = hasAnimated
     ? { duration: 0 }
     : { duration: 0.4, delay: index * 0.1 };
-  const content = (
-    <>
-      <div className="flex items-start gap-4 p-5">
-        <div
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${item.iconBg}`}
-        >
-          <Icon className={`h-5 w-5 ${item.iconColor}`} />
-        </div>
-        <div>
-          <p className="text-[13px] text-(--admin-text-secondary)">
-            {item.label}
-          </p>
-          <p className="mt-1 text-[30px] leading-none font-bold tracking-tight text-(--admin-text)">
-            {item.value}
-          </p>
-        </div>
-      </div>
-      <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50/50 px-5 py-3 transition-all group-hover/card:bg-slate-50 dark:border-slate-800 dark:bg-slate-800/30 dark:group-hover/card:bg-slate-800">
-        <span className="text-sm font-bold text-slate-500 transition-colors group-hover/card:text-slate-900 dark:group-hover/card:text-white">
-          {item.disabled ? "Restricted" : "See in details"}
-        </span>
-        <ArrowRight
-          size={16}
-          className="text-slate-300 transition-all group-hover/card:translate-x-1 group-hover/card:text-slate-900 dark:group-hover/card:text-white"
-        />
-      </div>
-    </>
-  );
-
-  if (item.disabled) {
-    return (
-      <motion.div
-        initial={entranceInitial}
-        animate={{ opacity: 1, y: 0 }}
-        transition={entranceTransition}
-        className="group/card overflow-hidden rounded-xl border border-(--admin-border) opacity-60 select-none dark:bg-slate-900"
-        aria-disabled="true"
-      >
-        {content}
-      </motion.div>
-    );
-  }
 
   return (
-    <MotionLink
-      to={item.to}
+    <motion.div
       initial={entranceInitial}
       animate={{ opacity: 1, y: 0 }}
       transition={entranceTransition}
-      whileHover={{ y: -3 }}
-      className="group/card block overflow-hidden rounded-xl border border-(--admin-border) transition-shadow dark:bg-slate-900"
+      className="rounded-2xl border border-(--admin-border) bg-(--admin-card-bg) p-5"
     >
-      {content}
-    </MotionLink>
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-[13px] font-medium text-(--admin-text-secondary)">
+          {item.label}
+        </p>
+        {item.delta && <DeltaBadge delta={item.delta} tone={item.deltaTone} />}
+      </div>
+      <p className="mt-2.5 text-[30px] leading-none font-bold tracking-tight text-(--admin-text)">
+        {item.value}
+      </p>
+    </motion.div>
   );
 }

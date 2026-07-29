@@ -1,10 +1,19 @@
-import { motion } from "motion/react";
-import { ShieldCheck, EyeOff, type LucideIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ShieldCheck, EyeOff, type LucideIcon, XCircle } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
+import { NOTE_MAX_LENGTH } from "../utils";
 
 interface ConfirmationModalProps {
-  action: "dismiss" | "hide";
-  onConfirm: () => void;
+  action: "dismiss" | "hide" | null;
+  onConfirm: (note?: string) => void;
   onCancel: () => void;
 }
 
@@ -16,26 +25,26 @@ interface ActionConfig {
   confirmClass: string;
 }
 
-const CONFIG: Record<ConfirmationModalProps["action"], ActionConfig> = {
+const CONFIG: Record<"dismiss" | "hide", ActionConfig> = {
   hide: {
     icon: EyeOff,
     title: "Agree & Hide Content?",
     description:
-      "This action will permanently hide the content from the public feed and record a violation against the author.",
+      "This will hide the reported content from the feed. This action cannot be undone.",
     iconWrap:
       "bg-rose-100 text-rose-600 ring-1 ring-rose-200 dark:bg-rose-500/15 dark:text-rose-400 dark:ring-rose-500/20",
     confirmClass:
-      "bg-rose-600 text-white hover:bg-rose-700 shadow-md shadow-rose-600/20 dark:shadow-rose-950/40",
+      "bg-rose-600 text-white hover:bg-rose-700  shadow-rose-600/20 dark:shadow-rose-950/40",
   },
   dismiss: {
-    icon: ShieldCheck,
+    icon: XCircle,
     title: "Dismiss This Report?",
     description:
-      "This action will mark the report as safe, keeping the content live and closing the investigation.",
+      "This will dismiss the report with no action taken. This action cannot be undone.",
     iconWrap:
       "bg-emerald-100 text-emerald-600 ring-1 ring-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:ring-emerald-500/20",
     confirmClass:
-      "bg-emerald-600 text-white hover:bg-emerald-700 shadow-md shadow-emerald-600/20 dark:shadow-emerald-950/40",
+      "bg-emerald-600 text-white hover:bg-emerald-700  shadow-emerald-600/20 dark:shadow-emerald-950/40",
   },
 };
 
@@ -44,61 +53,90 @@ export function ConfirmationModal({
   onConfirm,
   onCancel,
 }: ConfirmationModalProps) {
+  const open = action !== null;
+
+  const [lastAction, setLastAction] = useState<"dismiss" | "hide">("dismiss");
+  const [note, setNote] = useState("");
+
+  useEffect(() => {
+    if (action) {
+      setLastAction(action);
+      setNote("");
+    }
+  }, [action]);
+
   const {
     icon: Icon,
     title,
     description,
     iconWrap,
     confirmClass,
-  } = CONFIG[action];
+  } = CONFIG[lastAction];
+
+  const handleConfirm = () => {
+    const trimmed = note.trim();
+    onConfirm(trimmed === "" ? undefined : trimmed);
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="absolute inset-0 bg-white/90 dark:bg-slate-900/95 backdrop-blur-md flex flex-col items-center justify-center p-8 sm:p-12 text-center rounded-2xl"
-      style={{ zIndex: 80 }}
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) onCancel();
+      }}
     >
-      {/* Icon */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.6 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-6 ${iconWrap}`}
-      >
-        <Icon size={36} strokeWidth={2.25} />
-      </motion.div>
+      <DialogContent className="z-80 sm:max-w-md dark:bg-slate-900 dark:ring-slate-800">
+        <DialogHeader>
+          <div
+            className={`mb-2 flex h-12 w-12 items-center justify-center rounded-xl ${iconWrap}`}
+          >
+            <Icon size={22} strokeWidth={2.25} />
+          </div>
+          <DialogTitle className="text-xl font-semibold tracking-tight text-slate-900 dark:text-white">
+            {title}
+          </DialogTitle>
+          <DialogDescription className="text-sm leading-relaxed font-medium text-slate-600 dark:text-slate-300">
+            {description}
+          </DialogDescription>
+        </DialogHeader>
 
-      {/* Title */}
-      <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white mb-2">
-        {title}
-      </h3>
+        {/* Optional note */}
+        <div className="mt-2">
+          <label
+            htmlFor="moderation-note"
+            className="mb-2 block text-[11px] font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400"
+          >
+            Notes (Optional)
+          </label>
+          <textarea
+            id="moderation-note"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            rows={3}
+            maxLength={NOTE_MAX_LENGTH}
+            placeholder="Add context for this decision..."
+            className="w-full resize-y rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-200 focus:outline-none dark:border-slate-700 dark:bg-slate-950/50 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-slate-600 dark:focus:ring-slate-700"
+          />
+        </div>
 
-      {/* Description */}
-      <p className="text-slate-500 dark:text-slate-400 font-medium mb-10 max-w-xs text-sm leading-relaxed">
-        {description}
-      </p>
-
-      {/* Actions */}
-      <div className="flex flex-col w-full gap-3">
-        <Button
-          onClick={onConfirm}
-          className={`w-full cursor-pointer py-4 font-black text-xs uppercase tracking-widest transition-colors ${confirmClass}`}
-        >
-          Confirm Decision
-        </Button>
-        <Button
-          variant="ghost"
-          onClick={onCancel}
-          className="w-full cursor-pointer py-4 font-black text-xs uppercase tracking-widest
-            border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900
-            dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white
-            transition-colors"
-        >
-          Cancel
-        </Button>
-      </div>
-    </motion.div>
+        <DialogFooter className="dark:border-slate-800 dark:bg-slate-950/50">
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={onCancel}
+              className="cursor-pointer text-xs font-medium tracking-widest uppercase dark:border-slate-700 dark:bg-slate-950/50 dark:text-white dark:hover:bg-slate-800/50"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirm}
+              className={`cursor-pointer text-xs font-medium tracking-widest uppercase transition-colors ${confirmClass}`}
+            >
+              Confirm Decision
+            </Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

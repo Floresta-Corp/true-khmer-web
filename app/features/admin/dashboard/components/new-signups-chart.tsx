@@ -1,24 +1,34 @@
 import { motion } from "motion/react";
-import { ResponsiveContainer, AreaChart, Area, XAxis, Tooltip } from "recharts";
-import type { ActiveUsersData, ChartPeriod, ChartSeries } from "../types";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  Tooltip,
+  LabelList,
+} from "recharts";
 import {
   TOOLTIP_STYLE,
   TOOLTIP_CURSOR,
   TEXT_MUTED,
+  TEXT_SECONDARY,
   BRAND_COLOR,
   CHART_PERIOD_OPTIONS,
+  type ChartPeriod,
+  type ChartSeries,
+  type NewRegistrationsData,
 } from "../types";
 import { RangeSelect } from "./range-select";
 import { useChartReady } from "./use-chart-ready";
 
-interface ActiveUsersChartProps {
-  series: ChartSeries<ActiveUsersData>;
+interface NewSignupsChartProps {
+  series: ChartSeries<NewRegistrationsData>;
 }
 
-export function ActiveUsersChart({ series }: ActiveUsersChartProps) {
+export function NewSignupsChart({ series }: NewSignupsChartProps) {
   const ready = useChartReady();
   const { data: seriesData, period, loading, error, setPeriod } = series;
-  const data = seriesData.trend.map((p) => ({ time: p.label, value: p.count }));
+  const data = seriesData.trend.map((p) => ({ day: p.label, value: p.count }));
 
   return (
     <motion.div
@@ -28,13 +38,13 @@ export function ActiveUsersChart({ series }: ActiveUsersChartProps) {
       className="rounded-2xl border border-(--admin-border) bg-(--admin-card-bg) p-6"
     >
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold text-(--admin-text)">Active users</h3>
+        <h3 className="text-lg font-bold text-(--admin-text)">New signups</h3>
         <RangeSelect
           options={CHART_PERIOD_OPTIONS}
           value={period}
           onChange={(id) => setPeriod(id as ChartPeriod)}
           disabled={loading}
-          label="Active users date range"
+          label="New signups date range"
         />
       </div>
       <div
@@ -50,45 +60,34 @@ export function ActiveUsersChart({ series }: ActiveUsersChartProps) {
         ) : (
           ready && (
             <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-              <AreaChart
+              <BarChart
                 data={data}
-                margin={{ top: 4, right: 4, left: 4, bottom: 0 }}
+                barCategoryGap="28%"
+                margin={{ top: 20, right: 4, left: 4, bottom: 0 }}
               >
-                <defs>
-                  <linearGradient
-                    id="activeUsersFill"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop
-                      offset="0%"
-                      stopColor={BRAND_COLOR}
-                      stopOpacity={0.22}
-                    />
-                    <stop
-                      offset="100%"
-                      stopColor={BRAND_COLOR}
-                      stopOpacity={0}
-                    />
-                  </linearGradient>
-                </defs>
                 <XAxis
-                  dataKey="time"
+                  dataKey="day"
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12, fill: TEXT_MUTED, fontWeight: 500 }}
                 />
-                <Tooltip cursor={TOOLTIP_CURSOR} contentStyle={TOOLTIP_STYLE} />
-                <Area
-                  type="monotone"
-                  dataKey="value"
-                  stroke={BRAND_COLOR}
-                  strokeWidth={2}
-                  fill="url(#activeUsersFill)"
+                <Tooltip
+                  cursor={TOOLTIP_CURSOR}
+                  contentStyle={TOOLTIP_STYLE}
+                  itemStyle={{ color: "var(--admin-text)" }}
                 />
-              </AreaChart>
+                <Bar dataKey="value" fill={BRAND_COLOR} radius={[6, 6, 0, 0]}>
+                  <LabelList
+                    dataKey="value"
+                    position="top"
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      fill: TEXT_SECONDARY,
+                    }}
+                  />
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
           )
         )}

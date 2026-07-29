@@ -89,7 +89,7 @@ export function UserManagementToolbar() {
         role="search"
         onSubmit={submitSearch}
       >
-        <InputGroup className="h-10 flex-1 bg-slate-50 sm:w-72 dark:bg-slate-950/50">
+        <InputGroup className="h-10 flex-1 bg-slate-50 sm:w-72 dark:border-slate-800 dark:bg-slate-950/50">
           <InputGroupAddon className="pl-3">
             <Search className="size-4 text-slate-400" />
           </InputGroupAddon>
@@ -117,7 +117,7 @@ export function UserManagementToolbar() {
       >
         <SelectTrigger
           aria-label="Filter by tier"
-          className="h-10 w-full rounded-lg bg-white text-sm font-medium shadow-none sm:w-40 dark:bg-slate-950/50 dark:text-white"
+          className="h-10 w-full rounded-lg bg-white text-sm font-medium shadow-none sm:w-40 dark:border-slate-800 dark:bg-slate-950/50 dark:text-white"
         >
           <SelectValue placeholder="All Tiers" />
         </SelectTrigger>
@@ -136,7 +136,7 @@ export function UserManagementToolbar() {
       >
         <SelectTrigger
           aria-label="Filter by status"
-          className="h-10 w-full rounded-lg bg-white text-sm font-medium shadow-none sm:w-48 dark:bg-slate-950/50 dark:text-white"
+          className="h-10 w-full rounded-lg bg-white text-sm font-medium shadow-none sm:w-48 dark:border-slate-800 dark:bg-slate-950/50 dark:text-white"
         >
           <SelectValue placeholder="All Status" />
         </SelectTrigger>
@@ -154,7 +154,7 @@ export function UserManagementToolbar() {
         variant="outline"
         disabled
         title="Export will be integrated in a later step."
-        className="h-10 rounded-lg font-medium shadow-none sm:ml-auto dark:text-white"
+        className="h-10 rounded-lg font-medium shadow-none sm:ml-auto dark:border-slate-800 dark:bg-slate-950/50 dark:text-white dark:hover:bg-slate-800/50"
       >
         <Download />
         Export

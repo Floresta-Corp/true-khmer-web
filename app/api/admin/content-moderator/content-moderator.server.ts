@@ -24,6 +24,7 @@ export interface ContentModeratorParams {
   limit?: string;
   status?: ReportStatus;
   typeId?: string;
+  search?: string;
 }
 
 export async function getContentModerator(
@@ -34,6 +35,7 @@ export async function getContentModerator(
   const queryParams = new URLSearchParams();
   if (params.cursor) queryParams.set("cursor", params.cursor);
   if (params.typeId) queryParams.set("typeId", params.typeId);
+  if (params.search) queryParams.set("search", params.search);
   if (params.limit !== undefined)
     queryParams.set("limit", params.limit.toString());
   if (params.status) queryParams.set("status", params.status);
@@ -55,11 +57,21 @@ export async function patchContentModerator(
   request: Request,
   accessToken: string,
   status: DetailReportStatus,
+  note?: string,
 ) {
+  const body: UpdateContentModeratorReportReviewRequest = {
+    reportUuid,
+    status,
+    ...(note ? { note } : {}),
+  };
+
   return apiRequestWithAccessToken<UpdateContentModeratorReportReviewResponse>(
     request,
     accessToken,
     `/admin/content-moderator`,
-    { method: "POST", body: { reportUuid, status } },
+    {
+      method: "POST",
+      body,
+    },
   );
 }

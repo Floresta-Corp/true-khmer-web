@@ -83,7 +83,7 @@ export function PartnersToolbar() {
         role="search"
         onSubmit={submitSearch}
       >
-        <InputGroup className="h-10 flex-1 bg-slate-50 sm:w-72 dark:bg-slate-950/50">
+        <InputGroup className="h-10 flex-1 bg-slate-50 sm:w-72 dark:border-slate-800 dark:bg-slate-950/50">
           <InputGroupAddon className="pl-3">
             <Search className="size-4 text-slate-400" />
           </InputGroupAddon>
@@ -108,7 +108,7 @@ export function PartnersToolbar() {
       <Select value={currentSortValue} onValueChange={handleSortChange}>
         <SelectTrigger
           aria-label="Sort partners"
-          className="h-10 w-full rounded-lg bg-white text-sm font-medium shadow-none sm:w-48 dark:bg-slate-950/50 dark:text-white"
+          className="h-10 w-full rounded-lg bg-white text-sm font-medium shadow-none sm:w-48 dark:border-slate-800 dark:bg-slate-950/50 dark:text-white"
         >
           <SelectValue placeholder="Sort by" />
         </SelectTrigger>
@@ -124,7 +124,7 @@ export function PartnersToolbar() {
       <Button
         asChild
         variant="outline"
-        className="h-10 rounded-lg font-medium shadow-none sm:ml-auto dark:text-white"
+        className="h-10 rounded-lg font-medium shadow-none sm:ml-auto dark:border-slate-800 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800/50"
       >
         <Link to="/tk-admin/partners/new">
           <Plus />

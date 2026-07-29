@@ -236,6 +236,14 @@ export default [
     "features/notifications/route/notifications.read.all.ts",
   ),
   route(
+    "api/admin/dashboard/active-users",
+    "features/admin/dashboard/route/dashboard.active-users.ts",
+  ),
+  route(
+    "api/admin/dashboard/new-registrations",
+    "features/admin/dashboard/route/dashboard.new-registrations.ts",
+  ),
+  route(
     "api/admin/notifications",
     "features/admin/notifications/route/admin-notifications.feed.ts",
   ),

@@ -8,6 +8,7 @@ import {
 } from "react-router";
 import { toast } from "sonner";
 import { FilterBar } from "../filter-bar";
+import { ReportStatsCards } from "../report-stats-cards";
 import { ReportsTable } from "../reports-table";
 import { ReportsTableSkeleton } from "../reports-table-skeleton";
 import { ReportDrawer } from "../report-drawer";
@@ -16,7 +17,7 @@ import type { ContentModeratorReport } from "~/types/api-client";
 import type { CategoryOption } from "../../types";
 
 export default function ContentModeratorPage() {
-  const { content, types, highlightedReportId } =
+  const { content, types, stats, highlightedReportId } =
     useLoaderData<typeof contentModeratorLoader>();
   const fetcher = useFetcher();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -35,6 +36,7 @@ export default function ContentModeratorPage() {
 
   const selectedTypeId = searchParams.get("typeId") || null;
   const selectedStatus = searchParams.get("status") || "all";
+  const searchValue = searchParams.get("search") ?? "";
 
   const categoryOptions = useMemo<CategoryOption[]>(
     () => [{ id: null, name: "All Types" }, ...types],
@@ -57,11 +59,12 @@ export default function ContentModeratorPage() {
   }, [fetcher.data]);
 
   const handleResolve = useCallback(
-    (id: string, resolveAction: "dismiss" | "hide") => {
+    (id: string, resolveAction: "dismiss" | "hide", note?: string) => {
       fetcher.submit(
         {
           reportUuid: id,
           status: resolveAction === "dismiss" ? "SAFE" : "HIDE",
+          ...(note ? { note } : {}),
         },
         { method: "POST", action: "/tk-admin/content-moderator" },
       );
@@ -81,30 +84,37 @@ export default function ContentModeratorPage() {
     setConfirmAction(null);
   }, []);
 
-  const handleCategoryChange = useCallback(
-    (typeId: string | null) => {
+  /**
+   * Applies a filter change and drops the cursor, since a cursor from the
+   * previous result set is meaningless once the filters change.
+   */
+  const applyFilter = useCallback(
+    (key: "typeId" | "status" | "search", value: string | null) => {
       const next = new URLSearchParams(searchParams);
-      if (typeId === null) {
-        next.delete("typeId");
+      if (value) {
+        next.set(key, value);
       } else {
-        next.set("typeId", typeId);
+        next.delete(key);
       }
+      next.delete("cursor");
       setSearchParams(next, { preventScrollReset: true, replace: true });
     },
     [searchParams, setSearchParams],
   );
 
+  const handleCategoryChange = useCallback(
+    (typeId: string | null) => applyFilter("typeId", typeId),
+    [applyFilter],
+  );
+
   const handleStatusChange = useCallback(
-    (status: string) => {
-      const next = new URLSearchParams(searchParams);
-      if (status === "all") {
-        next.delete("status");
-      } else {
-        next.set("status", status);
-      }
-      setSearchParams(next, { preventScrollReset: true, replace: true });
-    },
-    [searchParams, setSearchParams],
+    (status: string) => applyFilter("status", status === "all" ? null : status),
+    [applyFilter],
+  );
+
+  const handleSearchChange = useCallback(
+    (value: string) => applyFilter("search", value.trim() || null),
+    [applyFilter],
   );
 
   return (
@@ -121,6 +131,9 @@ export default function ContentModeratorPage() {
               </p>
             </div>
           </div>
+
+          <ReportStatsCards stats={stats} />
+
           <div>
             <FilterBar
               categoryOptions={categoryOptions}
@@ -128,6 +141,8 @@ export default function ContentModeratorPage() {
               onCategoryChange={handleCategoryChange}
               selectedStatus={selectedStatus}
               onStatusChange={handleStatusChange}
+              searchValue={searchValue}
+              onSearchChange={handleSearchChange}
             />
           </div>
 

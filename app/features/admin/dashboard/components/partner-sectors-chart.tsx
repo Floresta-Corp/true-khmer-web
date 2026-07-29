@@ -1,56 +1,48 @@
 import { motion } from "motion/react";
-import {
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-} from "recharts";
 import type { PartnerSector } from "../types";
-import { TOOLTIP_STYLE, TOOLTIP_CURSOR, TEXT_SECONDARY } from "../types";
-import { useChartReady } from "./use-chart-ready";
+import { CATEGORICAL_COLORS } from "../types";
 
 interface PartnerSectorsChartProps {
   data: PartnerSector[];
 }
 
 export function PartnerSectorsChart({ data }: PartnerSectorsChartProps) {
-  const ready = useChartReady();
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.8 }}
-      className="rounded-xl border border-(--admin-border) bg-(--admin-card-bg) p-6"
+      className="rounded-2xl border border-(--admin-border) bg-(--admin-card-bg) p-6"
     >
-      <h3 className="text-xs font-black text-(--admin-text) uppercase tracking-widest mb-5">
-        Partner Sectors
+      <h3 className="text-base font-bold text-(--admin-text)">
+        Top partner sector
       </h3>
-      <div className="h-55 w-full">
-        {ready && (
-          <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-            <PieChart>
-              <Pie
-                data={data}
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                dataKey="value"
-                stroke="none"
-              >
-                {data.map((entry, index) => (
-                  <Cell key={index} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip cursor={TOOLTIP_CURSOR} contentStyle={TOOLTIP_STYLE} />
-              <Legend
-                iconType="square"
-                wrapperStyle={{ fontSize: "11px", color: TEXT_SECONDARY }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        )}
+      <div className="mt-4.5">
+        {data.map((item, index) => {
+          const pct = total > 0 ? Math.round((item.value / total) * 100) : 0;
+          const color = CATEGORICAL_COLORS[index % CATEGORICAL_COLORS.length];
+          return (
+            <div key={item.name} className="mb-3 last:mb-0">
+              <div className="mb-1.5 flex justify-between text-[13px]">
+                <span className="text-(--admin-text)">{item.name}</span>
+                <span className="font-bold text-(--admin-text)">
+                  {item.value.toLocaleString("en-US")}
+                  <span className="ml-1 font-medium text-(--admin-text-secondary)">
+                    ({pct}%)
+                  </span>
+                </span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: `${pct}%`, background: color }}
+                />
+              </div>
+            </div>
+          );
+        })}
       </div>
     </motion.div>
   );

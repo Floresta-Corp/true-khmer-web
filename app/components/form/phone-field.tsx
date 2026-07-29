@@ -128,7 +128,7 @@ export function PhoneField({
           <SelectTrigger
             aria-label="Country calling code"
             className={cn(
-              "h-full w-28 rounded-none border-0 border-r border-slate-200 bg-slate-50 px-3 text-sm font-medium text-slate-700 shadow-none focus:ring-0 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200",
+              "h-full w-28 rounded-none border-0 border-r border-slate-200 bg-slate-50 px-3 text-sm font-medium text-slate-700 shadow-none focus:ring-0 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200",
               triggerClassName,
             )}
           >
@@ -161,7 +161,7 @@ export function PhoneField({
             );
           }}
           className={cn(
-            "h-full flex-1 rounded-none border-0 bg-white px-4 text-sm text-slate-900 shadow-none focus-visible:ring-0 md:px-6 dark:bg-slate-900 dark:text-white",
+            "h-full flex-1 rounded-none border-0 bg-white px-4 text-sm text-slate-900 shadow-none focus-visible:ring-0 md:px-6 dark:bg-slate-950/50 dark:text-white",
             inputClassName,
           )}
         />
