@@ -19,6 +19,12 @@ const EXPLORE_LINKS = [
     icon: "/home-explore-volunteer.png",
     to: "/volunteer",
   },
+  {
+    title: "Khmer Voice",
+    description: "Articles & insights",
+    icon: "/home-explore-blog.svg",
+    to: "/blog",
+  },
 ] as const;
 
 export function HomeExploreSection() {
@@ -28,7 +34,7 @@ export function HomeExploreSection() {
         <h2 className="text-2xl font-semibold tracking-[-0.04em] text-[#333333] sm:text-[36px] sm:leading-11">
           What Would You Like To Explore?
         </h2>
-        <div className="mt-8 flex gap-3 overflow-x-auto px-4 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-5 sm:px-0 lg:grid lg:grid-cols-3 lg:gap-8 lg:overflow-visible [&::-webkit-scrollbar]:hidden">
+        <div className="mt-8 flex gap-3 overflow-x-auto px-4 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-5 sm:px-0 lg:grid lg:grid-cols-4 lg:gap-8 lg:overflow-visible [&::-webkit-scrollbar]:hidden">
           {EXPLORE_LINKS.map((link) => (
             <Link
               key={link.title}

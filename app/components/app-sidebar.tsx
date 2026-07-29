@@ -118,7 +118,7 @@ export default function AppSidebar({
       <SidebarFooter className="p-2">
         <Button
           asChild
-          className={`h-12 w-full rounded-xl text-sm font-bold text-white ${footer.className}`}
+          className={`mb-5 h-12 w-full rounded-xl text-sm font-bold text-white ${footer.className}`}
         >
           <Link to={footer.to} onClick={closeMobile}>
             {footer.label}
