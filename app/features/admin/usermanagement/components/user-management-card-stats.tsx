@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 
 import { Skeleton } from "~/components/ui/skeleton";
 import type { AdminUserManagementStats } from "~/types/api-client";
@@ -45,6 +45,7 @@ export function UserManagementStatsCards({
 }: {
   stats: AdminUserManagementStats;
 }) {
+  const prefersReducedMotion = useReducedMotion();
   const totalGrowth = toPercent(stats.totalUsers.growthPercent);
   const activeShare = toPercent(stats.activeUsers.percentOfTotal);
   const newChange = toPercent(stats.newThisMonth.changePercent);
@@ -89,9 +90,13 @@ export function UserManagementStatsCards({
       {cards.map((card, index) => (
         <motion.div
           key={card.id}
-          initial={{ opacity: 0, y: 12 }}
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: index * 0.06 }}
+          transition={
+            prefersReducedMotion
+              ? { duration: 0 }
+              : { duration: 0.3, delay: index * 0.06 }
+          }
           className="rounded-2xl border border-(--admin-border) bg-white p-5 dark:bg-slate-900"
         >
           <div className="flex items-center justify-between gap-2">

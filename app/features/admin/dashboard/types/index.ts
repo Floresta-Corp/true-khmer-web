@@ -118,6 +118,15 @@ export const GRID_COLOR = "var(--admin-grid)";
 export const BRAND_COLOR = "#1c5dd4"; // --tk-primary-600
 export const BRAND_FILL = "#d5e2fa"; // --tk-primary-100
 
+/** Distinct hues for categorical bar/segment charts so each row reads apart. */
+export const CATEGORICAL_COLORS = [
+  "#1c5dd4",
+  "#8b5cf6",
+  "#10b981",
+  "#f59e0b",
+  "#06b6d4",
+] as const;
+
 export const TOOLTIP_STYLE = {
   border: "1px solid var(--admin-tooltip-border)",
   borderRadius: "12px",

@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import type { ContentModeratorReport } from "~/types/api-client";
-import { formatDateMonthYear } from "~/features/events/lib/event-formatters";
+import { formatDateTime } from "~/lib/time";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { cn, resolveImageURL } from "~/lib/utils";
 import { ReportTypeBadge } from "./report-type-badge";
@@ -94,7 +94,7 @@ function ReportRow({ report, onSelect, highlightedReportId }: ReportRowProps) {
       <TableCell className="px-5 py-4 text-center align-middle text-sm text-slate-500 dark:text-slate-400">
         <div className="flex items-center justify-center gap-2">
           <Clock size={14} />
-          <span>{formatDateMonthYear(report.dateTime)}</span>
+          <span>{formatDateTime(report.dateTime)}</span>
         </div>
       </TableCell>
 

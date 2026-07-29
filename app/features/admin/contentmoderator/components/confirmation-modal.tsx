@@ -30,7 +30,7 @@ const CONFIG: Record<"dismiss" | "hide", ActionConfig> = {
     icon: EyeOff,
     title: "Agree & Hide Content?",
     description:
-      "This will Remove Content for Comment. This action cannot be undone.",
+      "This will hide the reported content from the feed. This action cannot be undone.",
     iconWrap:
       "bg-rose-100 text-rose-600 ring-1 ring-rose-200 dark:bg-rose-500/15 dark:text-rose-400 dark:ring-rose-500/20",
     confirmClass:
@@ -40,7 +40,7 @@ const CONFIG: Record<"dismiss" | "hide", ActionConfig> = {
     icon: XCircle,
     title: "Dismiss This Report?",
     description:
-      "This will Dismiss Report for Post. This action cannot be undone.",
+      "This will dismiss the report with no action taken. This action cannot be undone.",
     iconWrap:
       "bg-emerald-100 text-emerald-600 ring-1 ring-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:ring-emerald-500/20",
     confirmClass:

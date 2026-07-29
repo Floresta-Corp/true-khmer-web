@@ -84,8 +84,9 @@ const QUICK_ACTIONS: QuickAction[] = [
 ];
 
 // ── mappers ───────────────────────────────────────────────────────────────
-// KPI headline numbers reflect the default period served by the loader; the
-// charts below carry their own period filters and refetch independently.
+// "Active Users" / "New Signups" follow the top-of-page period filter; the
+// total tiles are period-independent, and each chart below carries its own
+// filter and refetches independently.
 function toStats(
   overview: DashboardOverview,
   activeUsers: ActiveUsersData,
@@ -158,7 +159,9 @@ function toSectorData(sectors: MetricPoint[] | null): PartnerSector[] {
   const totals = new Map<string, { name: string; value: number }>();
 
   for (const { label, count } of sectors) {
-    for (const part of label.split(",")) {
+    // Sectors arrive comma-separated (e.g. "Food & Beverage, Retail"); split on
+    // commas only so multi-word names like "Food & Beverage" stay intact.
+    for (const part of label.split(/\s*,\s*/)) {
       const display = part.trim().replace(/\s+/g, " ");
       if (!display) continue;
       const key = display.toLowerCase();

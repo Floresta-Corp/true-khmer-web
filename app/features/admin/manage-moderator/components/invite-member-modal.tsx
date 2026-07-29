@@ -108,7 +108,7 @@ export function InviteMemberModal({
         <h3 className="mb-2 text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
           Invite Team Member
         </h3>
-        <p className="mb-10 text-sm leading-relaxed font-medium text-slate-500">
+        <p className="mb-10 text-sm leading-relaxed font-medium text-slate-500 dark:text-slate-400">
           Send an invitation email to add a new administrator or moderator to
           your workspace.
         </p>

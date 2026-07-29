@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import type { PartnerSector } from "../types";
-import { BRAND_COLOR } from "../types";
+import { CATEGORICAL_COLORS } from "../types";
 
 interface PartnerSectorsChartProps {
   data: PartnerSector[];
@@ -20,8 +20,9 @@ export function PartnerSectorsChart({ data }: PartnerSectorsChartProps) {
         Top partner sector
       </h3>
       <div className="mt-4.5">
-        {data.map((item) => {
+        {data.map((item, index) => {
           const pct = total > 0 ? Math.round((item.value / total) * 100) : 0;
+          const color = CATEGORICAL_COLORS[index % CATEGORICAL_COLORS.length];
           return (
             <div key={item.name} className="mb-3 last:mb-0">
               <div className="mb-1.5 flex justify-between text-[13px]">
@@ -36,7 +37,7 @@ export function PartnerSectorsChart({ data }: PartnerSectorsChartProps) {
               <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
                 <div
                   className="h-full rounded-full"
-                  style={{ width: `${pct}%`, background: BRAND_COLOR }}
+                  style={{ width: `${pct}%`, background: color }}
                 />
               </div>
             </div>
