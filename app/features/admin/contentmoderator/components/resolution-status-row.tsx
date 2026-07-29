@@ -46,7 +46,7 @@ export function ResolutionStatusRow({
     badge,
     iconWrap,
     badgeClass,
-  } = RESOLUTION_STATUS[status];
+  } = RESOLUTION_STATUS[status] ?? RESOLUTION_STATUS.DISMISSED;
 
   const fullName =
     `${report.solvedBy?.firstName ?? ""} ${report.solvedBy?.lastName ?? ""}`.trim();

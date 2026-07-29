@@ -30,7 +30,7 @@ export type NavItem = {
   href: string;
   section: NavSection;
   badge?: number;
-  /** Marks a work-in-progress item — renders a "WIP" pill (does NOT disable). */
+  superAdminOnly?: boolean;
   wip?: boolean;
   disabled?: boolean;
 };
@@ -49,6 +49,7 @@ export const navItems: NavItem[] = [
     icon: Users,
     href: "/tk-admin/users",
     section: "manage",
+    superAdminOnly: true,
   },
   {
     id: "blog",
@@ -63,6 +64,7 @@ export const navItems: NavItem[] = [
     icon: Building2,
     href: "/tk-admin/partners",
     section: "manage",
+    superAdminOnly: true,
   },
   {
     id: "registrations",
@@ -70,6 +72,7 @@ export const navItems: NavItem[] = [
     icon: ClipboardCheck,
     href: "/tk-admin/registrations",
     section: "manage",
+    superAdminOnly: true,
   },
   {
     id: "moderation",
@@ -84,6 +87,7 @@ export const navItems: NavItem[] = [
     icon: Users,
     href: "/tk-admin/manage-moderator/team",
     section: "system",
+    superAdminOnly: true,
   },
 ];
 
@@ -132,7 +136,7 @@ export function SidebarItem({
   const hideTooltip = () => setIsHovered(false);
 
   const tooltip =
-    mounted && !disabled && collapsed
+    mounted && collapsed
       ? createPortal(
           <AnimatePresence>
             {isHovered && (

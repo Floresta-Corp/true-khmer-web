@@ -24,9 +24,7 @@ interface FilterBarProps {
   onCategoryChange: (typeId: string | null) => void;
   selectedStatus: string;
   onStatusChange: (status: string) => void;
-  /** Committed search term from the URL. */
   searchValue: string;
-  /** Called with the debounced search term. */
   onSearchChange: (value: string) => void;
 }
 
@@ -53,26 +51,25 @@ export function FilterBar({
 
   const [open, setOpen] = useState(false);
   const [searchInput, setSearchInput] = useState(searchValue);
-
-  // Keep the input in sync when the URL changes elsewhere (back/forward, reset).
+  const lastEmittedRef = useRef(searchValue);
   useEffect(() => {
+    if (searchValue === lastEmittedRef.current) return;
+    lastEmittedRef.current = searchValue;
     setSearchInput(searchValue);
   }, [searchValue]);
-
   const onSearchChangeRef = useRef(onSearchChange);
   useEffect(() => {
     onSearchChangeRef.current = onSearchChange;
   }, [onSearchChange]);
-
   const debouncedSearchRef = useRef(
     debounce((value: string) => {
+      lastEmittedRef.current = value.trim();
       onSearchChangeRef.current(value);
     }, SEARCH_DEBOUNCE_MS),
   );
   useEffect(() => {
     return () => debouncedSearchRef.current.cancel();
   }, []);
-
   const handleSearchInput = (value: string) => {
     setSearchInput(value);
     debouncedSearchRef.current(value);

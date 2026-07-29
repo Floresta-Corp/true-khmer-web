@@ -159,12 +159,9 @@ export default function AdminLayout() {
                   section,
                   items: navItems
                     .filter((item) => item.section === section)
-                    .filter((item) =>
-                      item.id === "users" ||
-                      item.id === "registrations" ||
-                      item.id === "partners"
-                        ? admin.role === "SUPER_ADMIN"
-                        : true,
+                    .filter(
+                      (item) =>
+                        !item.superAdminOnly || admin.role === "SUPER_ADMIN",
                     ),
                 }))
                 .filter(({ items }) => items.length > 0)

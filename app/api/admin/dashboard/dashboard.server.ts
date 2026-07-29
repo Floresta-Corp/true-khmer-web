@@ -2,15 +2,15 @@ import { apiRequestWithAccessToken } from "~/lib/server/api-client.server";
 import type {
   AdminDashboardActiveUsersResponse,
   AdminDashboardNewRegistrationsResponse,
-  AdminDashboardOverviewResponse,
   ChartPeriod,
+  DashboardOverviewResponse,
 } from "~/features/admin/dashboard/types";
 
 export async function getAdminDashboardOverview(
   request: Request,
   accessToken: string,
 ) {
-  return apiRequestWithAccessToken<AdminDashboardOverviewResponse>(
+  return apiRequestWithAccessToken<DashboardOverviewResponse>(
     request,
     accessToken,
     "/admin/dashboard",

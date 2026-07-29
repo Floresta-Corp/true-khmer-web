@@ -218,13 +218,23 @@ export default function AdminDashboardPage() {
             Platform overview and things that need your attention
           </p>
         </div>
-        <RangeSelect
-          options={CHART_PERIOD_OPTIONS}
-          value={summaryData.period}
-          onChange={(id) => summaryData.setPeriod(id as ChartPeriod)}
-          disabled={summaryData.loading}
-          withCalendar
-        />
+        <div className="flex flex-col items-end gap-1">
+          <RangeSelect
+            options={CHART_PERIOD_OPTIONS}
+            value={summaryData.period}
+            onChange={(id) => summaryData.setPeriod(id as ChartPeriod)}
+            disabled={summaryData.loading}
+            withCalendar
+          />
+          {summaryData.error && (
+            <p
+              role="status"
+              className="text-xs text-rose-600 dark:text-rose-400"
+            >
+              {summaryData.error}
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-wrap items-stretch gap-4">

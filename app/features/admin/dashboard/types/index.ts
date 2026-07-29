@@ -1,14 +1,36 @@
 // ── API response shapes ─────────────────────────────────────────────────────
 // The admin dashboard API is split into three independently-filterable
-// endpoints. These types are hand-authored to match the backend schemas until
-// `bun run api` regenerates `~/types/api-client` from the deployed OpenAPI spec.
+// endpoints. Everything below is derived from the generated client so there is
+// a single source of truth — regenerate with `bun run api` when the spec moves.
+
+import type {
+  AdminDashboardActiveUsersResponse,
+  AdminDashboardErrorResponse,
+  AdminDashboardNewRegistrationsResponse,
+} from "~/types/api-client";
+
+export type {
+  AdminDashboardActiveUsersResponse,
+  AdminDashboardErrorResponse,
+  AdminDashboardNewRegistrationsResponse,
+};
 
 export type MetricPoint = { label: string; count: number };
 export type DatedMetricPoint = MetricPoint & { date: string };
 
-/** Chart range values accepted by the active-users / new-registrations endpoints. */
-export type ChartPeriod = "7d" | "30d" | "12w" | "6m" | "12m";
+export type ActiveUsersData = AdminDashboardActiveUsersResponse["activeUsers"];
+export type NewRegistrationsData =
+  AdminDashboardNewRegistrationsResponse["newRegistrations"];
 
+/** Chart range values accepted by the active-users / new-registrations endpoints. */
+export type ChartPeriod = ActiveUsersData["period"];
+
+/**
+ * Narrowed view of `AdminDashboardOverviewResponse["dashboard"]`. The generated
+ * schema types `totalPartners`, `partners.total` and `partners.sectors` as
+ * `unknown` (the spec leaves them untyped), so this restates the shape the UI
+ * actually relies on. Everything else here derives from the generated client.
+ */
 export type DashboardOverview = {
   summary: {
     totalUsers: number;
@@ -25,43 +47,20 @@ export type DashboardOverview = {
   };
 };
 
-export type ActiveUsersData = {
-  /** Distinct users active anywhere within the selected period. */
-  count: number;
-  /** Percentage change vs the equally-long window before the selected period. */
-  changePercent: number | null;
-  countLast24Hours: number;
-  windowHours: number;
-  liveNow: boolean;
-  period: ChartPeriod;
-  trend: DatedMetricPoint[];
-};
-
-export type NewRegistrationsData = {
-  period: ChartPeriod;
-  changePercent: number | null;
-  trend: DatedMetricPoint[];
+export type DashboardOverviewResponse = {
+  ok: true;
+  dashboard: DashboardOverview;
 };
 
 /** A chart's live series state, owned by the page and shared with its KPI tile. */
 export type ChartSeries<T> = {
+  /** The last payload that loaded successfully — never the failed period's. */
   data: T;
   period: ChartPeriod;
   loading: boolean;
+  /** Set when the most recent fetch failed, so `data` predates `period`. */
+  error: string | null;
   setPeriod: (period: ChartPeriod) => void;
-};
-
-export type AdminDashboardOverviewResponse = {
-  ok: true;
-  dashboard: DashboardOverview;
-};
-export type AdminDashboardActiveUsersResponse = {
-  ok: true;
-  activeUsers: ActiveUsersData;
-};
-export type AdminDashboardNewRegistrationsResponse = {
-  ok: true;
-  newRegistrations: NewRegistrationsData;
 };
 
 export type StatItem = {
@@ -153,7 +152,7 @@ export const DEFAULT_SUMMARY_PERIOD: ChartPeriod = "7d";
 /** Coerce an untrusted query value into a valid ChartPeriod. */
 export function resolveChartPeriod(
   value: string | null | undefined,
-  fallback: ChartPeriod = "30d",
+  fallback: ChartPeriod,
 ): ChartPeriod {
   return CHART_PERIOD_OPTIONS.some((option) => option.id === value)
     ? (value as ChartPeriod)

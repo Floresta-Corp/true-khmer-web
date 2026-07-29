@@ -1,13 +1,42 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import type {
   ActiveUsersData,
   AdminDashboardActiveUsersResponse,
+  AdminDashboardErrorResponse,
   AdminDashboardNewRegistrationsResponse,
   ChartPeriod,
   ChartSeries,
   NewRegistrationsData,
 } from "../types";
+
+type ActiveUsersResult =
+  | AdminDashboardActiveUsersResponse
+  | AdminDashboardErrorResponse;
+type NewRegistrationsResult =
+  | AdminDashboardNewRegistrationsResponse
+  | AdminDashboardErrorResponse;
+
+const FALLBACK_ERROR = "Couldn't load this range. Try again.";
+
+/**
+ * Holds on to the last payload that actually loaded. A failed refetch must not
+ * fall back to the initial snapshot — that would relabel the first period's
+ * numbers as the newly selected one.
+ */
+function useLastLoaded<T>(initial: T, loaded: T | undefined): T {
+  const lastLoaded = useRef(initial);
+  if (loaded !== undefined) lastLoaded.current = loaded;
+  return lastLoaded.current;
+}
+
+/** `{ ok: false, error }` responses come back with a 500, not a thrown error. */
+function resultError(
+  result: ActiveUsersResult | NewRegistrationsResult | undefined,
+): string | null {
+  if (!result || result.ok !== false) return null;
+  return result.error || FALLBACK_ERROR;
+}
 
 /**
  * Owns the Active Users chart's own period filter and independently-refetched
@@ -16,20 +45,26 @@ import type {
 export function useActiveUsersSeries(
   initial: ActiveUsersData,
 ): ChartSeries<ActiveUsersData> {
-  const fetcher = useFetcher<AdminDashboardActiveUsersResponse>();
+  const fetcher = useFetcher<ActiveUsersResult>();
   const [period, setPeriodState] = useState<ChartPeriod>(initial.period);
 
-  const data =
-    fetcher.data && "activeUsers" in fetcher.data
-      ? fetcher.data.activeUsers
-      : initial;
+  const data = useLastLoaded(
+    initial,
+    fetcher.data?.ok ? fetcher.data.activeUsers : undefined,
+  );
 
   const setPeriod = (next: ChartPeriod) => {
     setPeriodState(next);
     fetcher.load(`/api/admin/dashboard/active-users?period=${next}`);
   };
 
-  return { data, period, loading: fetcher.state !== "idle", setPeriod };
+  return {
+    data,
+    period,
+    loading: fetcher.state !== "idle",
+    error: resultError(fetcher.data),
+    setPeriod,
+  };
 }
 
 export type DashboardSummary = {
@@ -37,6 +72,9 @@ export type DashboardSummary = {
   activeUsers: ActiveUsersData;
   newRegistrations: NewRegistrationsData;
   loading: boolean;
+  /** Set when either metric's most recent fetch failed; the tiles then show
+   * the last period that loaded, not `period`. */
+  error: string | null;
   setPeriod: (period: ChartPeriod) => void;
 };
 
@@ -50,20 +88,22 @@ export function useDashboardSummary(
   initialActiveUsers: ActiveUsersData,
   initialNewRegistrations: NewRegistrationsData,
 ): DashboardSummary {
-  const activeUsersFetcher = useFetcher<AdminDashboardActiveUsersResponse>();
-  const newRegistrationsFetcher =
-    useFetcher<AdminDashboardNewRegistrationsResponse>();
+  const activeUsersFetcher = useFetcher<ActiveUsersResult>();
+  const newRegistrationsFetcher = useFetcher<NewRegistrationsResult>();
   const [period, setPeriodState] = useState<ChartPeriod>(initialPeriod);
 
-  const activeUsers =
-    activeUsersFetcher.data && "activeUsers" in activeUsersFetcher.data
+  const activeUsers = useLastLoaded(
+    initialActiveUsers,
+    activeUsersFetcher.data?.ok
       ? activeUsersFetcher.data.activeUsers
-      : initialActiveUsers;
-  const newRegistrations =
-    newRegistrationsFetcher.data &&
-    "newRegistrations" in newRegistrationsFetcher.data
+      : undefined,
+  );
+  const newRegistrations = useLastLoaded(
+    initialNewRegistrations,
+    newRegistrationsFetcher.data?.ok
       ? newRegistrationsFetcher.data.newRegistrations
-      : initialNewRegistrations;
+      : undefined,
+  );
 
   const setPeriod = (next: ChartPeriod) => {
     setPeriodState(next);
@@ -77,24 +117,34 @@ export function useDashboardSummary(
     activeUsersFetcher.state !== "idle" ||
     newRegistrationsFetcher.state !== "idle";
 
-  return { period, activeUsers, newRegistrations, loading, setPeriod };
+  const error =
+    resultError(activeUsersFetcher.data) ??
+    resultError(newRegistrationsFetcher.data);
+
+  return { period, activeUsers, newRegistrations, loading, error, setPeriod };
 }
 
 export function useNewRegistrationsSeries(
   initial: NewRegistrationsData,
 ): ChartSeries<NewRegistrationsData> {
-  const fetcher = useFetcher<AdminDashboardNewRegistrationsResponse>();
+  const fetcher = useFetcher<NewRegistrationsResult>();
   const [period, setPeriodState] = useState<ChartPeriod>(initial.period);
 
-  const data =
-    fetcher.data && "newRegistrations" in fetcher.data
-      ? fetcher.data.newRegistrations
-      : initial;
+  const data = useLastLoaded(
+    initial,
+    fetcher.data?.ok ? fetcher.data.newRegistrations : undefined,
+  );
 
   const setPeriod = (next: ChartPeriod) => {
     setPeriodState(next);
     fetcher.load(`/api/admin/dashboard/new-registrations?period=${next}`);
   };
 
-  return { data, period, loading: fetcher.state !== "idle", setPeriod };
+  return {
+    data,
+    period,
+    loading: fetcher.state !== "idle",
+    error: resultError(fetcher.data),
+    setPeriod,
+  };
 }

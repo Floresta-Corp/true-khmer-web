@@ -27,7 +27,7 @@ interface NewSignupsChartProps {
 
 export function NewSignupsChart({ series }: NewSignupsChartProps) {
   const ready = useChartReady();
-  const { data: seriesData, period, loading, setPeriod } = series;
+  const { data: seriesData, period, loading, error, setPeriod } = series;
   const data = seriesData.trend.map((p) => ({ day: p.label, value: p.count }));
 
   return (
@@ -44,42 +44,52 @@ export function NewSignupsChart({ series }: NewSignupsChartProps) {
           value={period}
           onChange={(id) => setPeriod(id as ChartPeriod)}
           disabled={loading}
+          label="New signups date range"
         />
       </div>
       <div
         className={`mt-6 h-45 transition-opacity ${loading ? "opacity-50" : ""}`}
       >
-        {ready && (
-          <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-            <BarChart
-              data={data}
-              barCategoryGap="28%"
-              margin={{ top: 20, right: 4, left: 4, bottom: 0 }}
-            >
-              <XAxis
-                dataKey="day"
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 12, fill: TEXT_MUTED, fontWeight: 500 }}
-              />
-              <Tooltip
-                cursor={TOOLTIP_CURSOR}
-                contentStyle={TOOLTIP_STYLE}
-                itemStyle={{ color: "var(--admin-text)" }}
-              />
-              <Bar dataKey="value" fill={BRAND_COLOR} radius={[6, 6, 0, 0]}>
-                <LabelList
-                  dataKey="value"
-                  position="top"
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 600,
-                    fill: TEXT_SECONDARY,
-                  }}
+        {error ? (
+          <p
+            role="status"
+            className="flex h-full items-center justify-center text-center text-sm text-(--admin-text-secondary)"
+          >
+            {error}
+          </p>
+        ) : (
+          ready && (
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+              <BarChart
+                data={data}
+                barCategoryGap="28%"
+                margin={{ top: 20, right: 4, left: 4, bottom: 0 }}
+              >
+                <XAxis
+                  dataKey="day"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: TEXT_MUTED, fontWeight: 500 }}
                 />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+                <Tooltip
+                  cursor={TOOLTIP_CURSOR}
+                  contentStyle={TOOLTIP_STYLE}
+                  itemStyle={{ color: "var(--admin-text)" }}
+                />
+                <Bar dataKey="value" fill={BRAND_COLOR} radius={[6, 6, 0, 0]}>
+                  <LabelList
+                    dataKey="value"
+                    position="top"
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      fill: TEXT_SECONDARY,
+                    }}
+                  />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          )
         )}
       </div>
     </motion.div>

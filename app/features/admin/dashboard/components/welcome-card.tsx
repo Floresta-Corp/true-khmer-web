@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { resolveImageURL } from "~/lib/utils";
+import { getInitials } from "~/routes/onboarding/domain/profile/profile-utils";
 import type { AdminUser } from "~/types/api-client";
 
 function getGreeting(hour: number) {
@@ -9,27 +11,18 @@ function getGreeting(hour: number) {
   return "Good evening";
 }
 
-function getInitials(name: string) {
-  return (
-    name
-      .split(" ")
-      .map((part) => part[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2) || "TK"
-  );
-}
-
 interface WelcomeCardProps {
   admin: AdminUser;
   className?: string;
 }
 
 export function WelcomeCard({ admin, className = "" }: WelcomeCardProps) {
-  const greeting = getGreeting(new Date().getHours());
+  const [greeting, setGreeting] = useState("Welcome back");
+  useEffect(() => setGreeting(getGreeting(new Date().getHours())), []);
+
   const firstName = admin.firstName?.trim() || "there";
   const fullName = `${admin.firstName ?? ""} ${admin.lastName ?? ""}`.trim();
-  const initials = getInitials(fullName);
+  const initials = getInitials(fullName) || "TK";
 
   return (
     <motion.div
