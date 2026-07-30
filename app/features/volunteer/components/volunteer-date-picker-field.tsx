@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { format, isValid, parse, parseISO } from "date-fns";
+import { format, isValid, parse, parseISO, startOfToday } from "date-fns";
 import { Calendar } from "~/components/ui/calendar";
 import {
   Popover,
@@ -20,6 +20,7 @@ type VolunteerDatePickerFieldProps = {
   onChange: (value: string) => void;
   error?: string;
   placeholder?: string;
+  disablePastDates?: boolean;
 };
 
 export default function VolunteerDatePickerField({
@@ -27,10 +28,12 @@ export default function VolunteerDatePickerField({
   onChange,
   error,
   placeholder = "Select application deadline",
+  disablePastDates = true,
 }: VolunteerDatePickerFieldProps) {
   const parsedDate = value ? parseISO(value) : undefined;
   const selectedDate =
     parsedDate && isValid(parsedDate) ? parsedDate : undefined;
+  const minDate = disablePastDates ? startOfToday() : undefined;
 
   const [inputValue, setInputValue] = useState(
     selectedDate ? format(selectedDate, DATE_FORMAT) : "",
@@ -50,7 +53,7 @@ export default function VolunteerDatePickerField({
     }
 
     const parsed = parse(raw, DATE_FORMAT, new Date());
-    if (isValid(parsed)) {
+    if (isValid(parsed) && (!minDate || parsed >= minDate)) {
       onChange(parsed.toISOString());
     }
   }
@@ -93,6 +96,9 @@ export default function VolunteerDatePickerField({
               mode="single"
               selected={selectedDate}
               onSelect={handleCalendarSelect}
+              disabled={minDate ? { before: minDate } : undefined}
+              startMonth={minDate}
+              defaultMonth={selectedDate ?? minDate}
             />
           </PopoverContent>
         </Popover>

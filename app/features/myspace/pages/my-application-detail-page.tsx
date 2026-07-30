@@ -32,7 +32,7 @@ import { StatusTimeline } from "../components/status-timeline";
 import type { loader } from "../route/my-application.$sourceType.$postingId";
 
 function formatDate(dateString?: string | null) {
-  if (!dateString) return "TBD";
+  if (!dateString) return "-";
   const date = new Date(dateString);
   if (Number.isNaN(date.getTime())) return dateString;
 
@@ -135,9 +135,9 @@ function StatusSummary({
                   ? "bg-blue-100 text-blue-600"
                   : isClosed
                     ? "bg-red-50 text-red-600"
-                  : isWithdrawn
-                    ? "bg-slate-100 text-slate-500"
-                    : "bg-slate-100 text-slate-600",
+                    : isWithdrawn
+                      ? "bg-slate-100 text-slate-500"
+                      : "bg-slate-100 text-slate-600",
             )}
           >
             {isApproved ? (
@@ -154,7 +154,7 @@ function StatusSummary({
             <div className="mb-1.5 flex flex-wrap items-center gap-2">
               <span
                 className={cn(
-                  "text-xs font-extrabold uppercase tracking-wider",
+                  "text-xs font-extrabold tracking-wider uppercase",
                   isApproved
                     ? "text-emerald-800 dark:text-emerald-300"
                     : "text-slate-400",
@@ -165,7 +165,7 @@ function StatusSummary({
               <Badge
                 variant="outline"
                 className={cn(
-                  "rounded-md border-none px-3 py-1 text-[10px] font-black uppercase tracking-widest shadow-none",
+                  "rounded-md border-none px-3 py-1 text-[10px] font-black tracking-widest uppercase shadow-none",
                   getStatusBadgeClass(status),
                 )}
               >
@@ -174,7 +174,7 @@ function StatusSummary({
             </div>
             <p
               className={cn(
-                "max-w-2xl text-sm font-medium leading-6",
+                "max-w-2xl text-sm leading-6 font-medium",
                 isApproved
                   ? "text-emerald-900 dark:text-emerald-200"
                   : "text-slate-600 dark:text-slate-400",
@@ -280,18 +280,13 @@ function StatusSummary({
 }
 
 export default function MyApplicationDetailPage() {
-  const {
-    application,
-    applicationTitle,
-    postingId,
-    statusLabel,
-    sourceType,
-  } = useLoaderData<typeof loader>();
+  const { application, applicationTitle, postingId, statusLabel, sourceType } =
+    useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const archiveFetcher = useFetcher();
-  const pendingStatusAction = useRef<
-    "confirm" | "decline" | "withdraw" | null
-  >(null);
+  const pendingStatusAction = useRef<"confirm" | "decline" | "withdraw" | null>(
+    null,
+  );
   const pendingArchiveAction = useRef<"archive" | "unarchive" | null>(null);
   const prefersReducedMotion = useReducedMotion();
   const [copiedPostingLink, setCopiedPostingLink] = useState(false);
@@ -347,7 +342,9 @@ export default function MyApplicationDetailPage() {
 
     if (archiveFetcher.data.ok) {
       toast.success(
-        action === "archive" ? "Application archived." : "Application restored.",
+        action === "archive"
+          ? "Application archived."
+          : "Application restored.",
       );
       return;
     }
@@ -387,9 +384,7 @@ export default function MyApplicationDetailPage() {
   const ownerRole = owner.postedCount
     ? `${owner.postedCount} posts created`
     : "Organizer";
-  const inactive = ["DECLINED", "WITHDRAWN"].includes(
-    roleStatus.toUpperCase(),
-  );
+  const inactive = ["DECLINED", "WITHDRAWN"].includes(roleStatus.toUpperCase());
   const postingDetailHref =
     sourceType === "volunteer"
       ? `/volunteer/detail/${postingId}`
@@ -459,7 +454,7 @@ export default function MyApplicationDetailPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white px-4 py-8 dark:bg-slate-950 sm:px-6 lg:px-10">
+    <main className="min-h-screen bg-white px-4 py-8 sm:px-6 lg:px-10 dark:bg-slate-950">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -511,16 +506,16 @@ export default function MyApplicationDetailPage() {
             duration: prefersReducedMotion ? 0 : 0.3,
             delay: prefersReducedMotion ? 0 : 0.05,
           }}
-          className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900 sm:p-8"
+          className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 dark:border-slate-800 dark:bg-slate-900"
         >
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
             <div>
-              <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-[#1A73E8] dark:text-blue-400">
+              <span className="mb-1 block text-xs font-bold tracking-widest text-[#1A73E8] uppercase dark:text-blue-400">
                 {sourceType === "volunteer"
                   ? "Volunteer Posting"
                   : "Project Posting"}
               </span>
-              <h1 className="text-2xl font-extrabold leading-tight tracking-tight text-[#202124] dark:text-white sm:text-3xl">
+              <h1 className="text-2xl leading-tight font-extrabold tracking-tight text-[#202124] sm:text-3xl dark:text-white">
                 {title}
               </h1>
             </div>
@@ -558,8 +553,8 @@ export default function MyApplicationDetailPage() {
               }}
             >
               <DetailAndContactCard
-                date={scheduleLabel || "TBD"}
-                location={detail.opportunity.location?.name ?? "TBD"}
+                date={scheduleLabel || "-"}
+                location={detail.opportunity.location?.name ?? "-"}
                 rewardPoints={rewardPoints}
                 organizer={{
                   avatar: ownerAvatar,
