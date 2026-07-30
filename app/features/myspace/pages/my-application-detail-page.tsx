@@ -554,7 +554,7 @@ export default function MyApplicationDetailPage() {
             >
               <DetailAndContactCard
                 date={scheduleLabel || "-"}
-                location={detail.opportunity.location?.name ?? "-"}
+                location={detail.opportunity.location?.name || "-"}
                 rewardPoints={rewardPoints}
                 organizer={{
                   avatar: ownerAvatar,

@@ -266,7 +266,7 @@ function ApplicationGroupCard({ application }: { application: Application }) {
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="size-4 text-[#BDC1C6]" />
-                  <span>{application.location?.name ?? "-"}</span>
+                  <span>{application.location?.name || "-"}</span>
                 </div>
               </div>
 
@@ -372,7 +372,7 @@ function ApplicationApprovedCard({
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="size-4 text-[#BDC1C6]" />
-                  <span>{application.location?.name ?? "-"}</span>
+                  <span>{application.location?.name || "-"}</span>
                 </div>
               </div>
 

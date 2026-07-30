@@ -27,13 +27,13 @@ function getCompactStatus(status: string) {
       return {
         label: "Submitted",
         className:
-          "border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-50 dark:bg-blue-900/20 dark:hover:bg-blue-900/20",
+          "border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-50 dark:border-blue-900/30 dark:bg-blue-950/40 dark:text-blue-400 dark:hover:bg-blue-950/40",
       };
     case "UNDER_REVIEW":
       return {
         label: "Reviewing",
         className:
-          "border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-50 dark:bg-blue-900/20 dark:hover:bg-blue-900/20",
+          "border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-50 dark:border-blue-900/30 dark:bg-blue-950/40 dark:text-blue-400 dark:hover:bg-blue-950/40",
       };
     case "APPROVED":
       return {
@@ -45,30 +45,31 @@ function getCompactStatus(status: string) {
       return {
         label: "Active",
         className:
-          "border-green-100 bg-green-50 text-green-600 hover:bg-green-50",
+          "border-green-100 bg-green-50 text-green-600 hover:bg-green-50 dark:border-green-900/30 dark:bg-green-950/40 dark:text-green-400 dark:hover:bg-green-950/40",
       };
     case "COMPLETED":
       return {
         label: "Completed",
         className:
-          "border-green-100 bg-green-50 text-green-600 hover:bg-green-50",
+          "border-green-100 bg-green-50 text-green-600 hover:bg-green-50 dark:border-green-900/30 dark:bg-green-950/40 dark:text-green-400 dark:hover:bg-green-950/40",
       };
     case "WITHDRAWN":
       return {
         label: "Withdrawn",
         className:
-          "border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-50",
+          "border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800/40 dark:text-slate-400 dark:hover:bg-slate-800/40",
       };
     case "DECLINED":
       return {
         label: "Declined",
-        className: "border-red-100 bg-red-50 text-red-600 hover:bg-red-50",
+        className:
+          "border-red-100 bg-red-50 text-red-600 hover:bg-red-50 dark:border-red-900/30 dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-950/40",
       };
     default:
       return {
         label: status.replaceAll("_", " "),
         className:
-          "border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-50 dark:bg-blue-900/20 dark:hover:bg-blue-900/20",
+          "border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-50 dark:border-blue-900/30 dark:bg-blue-950/40 dark:text-blue-400 dark:hover:bg-blue-950/40",
       };
   }
 }
