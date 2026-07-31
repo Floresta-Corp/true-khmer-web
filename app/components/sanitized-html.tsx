@@ -41,6 +41,8 @@ const BASE_ALLOWED_TAGS = [
 const BASE_ALLOWED_ATTRIBUTES: sanitize.IOptions["allowedAttributes"] = {
   a: ["href", "target", "rel"],
   img: ["src", "alt", "width", "height"],
+  ol: ["start", "type", "reversed"],
+  li: ["value"],
   "*": ["class", "style"],
 };
 
