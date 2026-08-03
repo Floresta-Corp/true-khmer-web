@@ -150,8 +150,8 @@ export function BlogListPage() {
   }
 
   return (
-    <main className="min-h-full bg-[#f8fafc] px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8 dark:bg-[#020617]">
-      <div className="mx-auto w-full max-w-[1400px] space-y-6 lg:space-y-8">
+    <main className="min-h-full bg-[#f8fafc] px-4 py-5 sm:px-6 sm:py-6 lg:px-10 lg:py-8 dark:bg-[#020617]">
+      <div className="max-w-full space-y-6 lg:space-y-8">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl dark:text-white">
