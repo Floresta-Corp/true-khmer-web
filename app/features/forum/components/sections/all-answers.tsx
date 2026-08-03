@@ -116,7 +116,6 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
                   index={i}
                   isCurrentAuthor={isCurrentAuthor}
                   isAuthenticated={Boolean(userId)}
-                  isQuestionAuthor={userId === question?.author.id}
                   questionAuthorId={question?.author.id ?? null}
                   reportReasons={
                     reportReasons?.reportingTypes.map((v) => ({

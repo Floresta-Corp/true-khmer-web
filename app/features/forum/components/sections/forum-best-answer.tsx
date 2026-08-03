@@ -28,7 +28,6 @@ export default function ForumBestAnswer({
 
   const isCurrentAuthor = userId === answer.author.id;
   const isAuthenticated = Boolean(userId);
-  const isQuestionAuthor = userId === question?.author.id;
   const repliesKey = answer.repliedAnswers?.map((r) => r.id).join(",") ?? "";
   const mappedReportReasons =
     reportReasons?.reportingTypes.map((v) => ({
@@ -59,7 +58,6 @@ export default function ForumBestAnswer({
 
       <AnswerNewCard
         reportReasons={mappedReportReasons}
-        isQuestionAuthor={isQuestionAuthor}
         answer={answer}
         isBestAnswer={true}
         isAuthenticated={isAuthenticated}

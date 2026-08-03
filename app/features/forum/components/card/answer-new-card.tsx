@@ -33,7 +33,6 @@ interface AnswerNewCardProps {
   index?: number;
   isCurrentAuthor?: boolean;
   isAuthenticated?: boolean;
-  isQuestionAuthor?: boolean;
   isBestAnswer?: boolean;
   reportReasons?: ReportReasonData[];
   userId: string | null;
@@ -47,12 +46,12 @@ function AnswerComponent({
   isAuthenticated = false,
   isBestAnswer = false,
   isCurrentAuthor = false,
-  isQuestionAuthor = false,
   reportReasons,
   questionAuthorId,
 }: AnswerNewCardProps) {
   const isAnswerByQuestionAuthor =
     Boolean(questionAuthorId) && answer.author.id === questionAuthorId;
+  const isViewerQuestionAuthor = Boolean(userId) && userId === questionAuthorId;
   const formattedDate = formatMinutesOrHoursAgo(answer.createdAt);
   const imageUrl = resolveImageURL(answer.author.avatarKey);
   const replyCount = answer.replyCount;
@@ -166,7 +165,7 @@ function AnswerComponent({
 
             <div className="flex items-center gap-2">
               <SlideToLeftHoverAnimation isHovered={isHovered}>
-                {isQuestionAuthor && !isBestAnswer && (
+                {isViewerQuestionAuthor && !isBestAnswer && (
                   <MarkBestAnswerDialog
                     answerId={answer.id}
                     trigger={

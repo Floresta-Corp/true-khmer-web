@@ -88,7 +88,8 @@ export default function QuestionCard({
               <span className="-mt-3 text-xs text-[#9eacc0] sm:mt-0">
                 {createdAgoLabel}
               </span>
-              {isCurrentAuthor && (
+
+              {question.author.id && (
                 <Badge
                   variant="secondary"
                   className="pointer-events-none bg-green-100 text-xs font-semibold text-green-500"

@@ -158,7 +158,7 @@ export default function LaunchpadProjectCard({
               <Button
                 variant="outline"
                 onClick={handleApplyClick}
-                className="mt-5 h-11 w-full rounded-xl border-slate-200 bg-white text-sm font-medium text-slate-700 shadow-none transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:bg-gray-200 hover:text-blue-500"
+                className="mt-5 h-11 w-full rounded-xl border-slate-200 bg-white text-sm font-medium text-slate-700 shadow-none transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:bg-gray-200 hover:text-blue-700"
               >
                 Apply
               </Button>
