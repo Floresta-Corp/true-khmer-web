@@ -37,6 +37,7 @@ interface AnswerNewCardProps {
   isBestAnswer?: boolean;
   reportReasons?: ReportReasonData[];
   userId: string | null;
+  questionAuthorId?: string | null;
 }
 
 function AnswerComponent({
@@ -48,7 +49,10 @@ function AnswerComponent({
   isCurrentAuthor = false,
   isQuestionAuthor = false,
   reportReasons,
+  questionAuthorId,
 }: AnswerNewCardProps) {
+  const isAnswerByQuestionAuthor =
+    Boolean(questionAuthorId) && answer.author.id === questionAuthorId;
   const formattedDate = formatMinutesOrHoursAgo(answer.createdAt);
   const imageUrl = resolveImageURL(answer.author.avatarKey);
   const replyCount = answer.replyCount;
@@ -139,7 +143,7 @@ function AnswerComponent({
                 </div>
                 <div className="flex flex-col">
                   <ProfileLinkWrapper
-                    className="text-base font-semibold leading-6 text-[#2c2f31]"
+                    className="text-base leading-6 font-semibold text-[#2c2f31]"
                     authorId={answer.author.id}
                     isAuthor={isCurrentAuthor}
                   >
@@ -150,10 +154,10 @@ function AnswerComponent({
                   </span>
                 </div>
               </div>
-              {isCurrentAuthor && (
+              {isAnswerByQuestionAuthor && (
                 <Badge
                   variant="secondary"
-                  className="text-xs font-semibold bg-green-100 text-green-500"
+                  className="pointer-events-none bg-green-100 text-xs font-semibold text-green-500"
                 >
                   Author
                 </Badge>
@@ -217,7 +221,7 @@ function AnswerComponent({
           </div>
 
           <div className="pb-2">
-            <p className="text-base leading-6.5 text-[#595c5e] whitespace-pre-line">
+            <p className="text-base leading-6.5 whitespace-pre-line text-[#595c5e]">
               {answer.body}
             </p>
           </div>
@@ -242,7 +246,7 @@ function AnswerComponent({
                   <Button
                     type="button"
                     variant="ghost"
-                    className="h-auto cursor-pointer p-0 text-sm font-semibold leading-5 text-[#0050d4] hover:bg-transparent hover:text-[#0045b8]"
+                    className="h-auto cursor-pointer p-0 text-sm leading-5 font-semibold text-[#0050d4] hover:bg-transparent hover:text-[#0045b8]"
                   >
                     Reply
                   </Button>
@@ -310,6 +314,10 @@ function AnswerComponent({
                         repliedAnswer={repliedAnswer}
                         questionId={answer.questionId}
                         isCurrentAuthor={userId === repliedAnswer.author.id}
+                        isAnswerByQuestionAuthor={
+                          Boolean(questionAuthorId) &&
+                          repliedAnswer.author.id === questionAuthorId
+                        }
                         isAuthenticated={isAuthenticated}
                       />
                     </CommentWrapper>
@@ -324,26 +332,6 @@ function AnswerComponent({
   );
 }
 
-export default function AnswerNewCard({
-  answer,
-  index = 0,
-  isCurrentAuthor,
-  isAuthenticated = false,
-  isQuestionAuthor,
-  reportReasons,
-  isBestAnswer = false,
-  userId,
-}: AnswerNewCardProps) {
-  return (
-    <AnswerComponent
-      answer={answer}
-      userId={userId}
-      index={index}
-      isAuthenticated={isAuthenticated}
-      isBestAnswer={isBestAnswer}
-      isCurrentAuthor={isCurrentAuthor}
-      isQuestionAuthor={isQuestionAuthor}
-      reportReasons={reportReasons}
-    />
-  );
+export default function AnswerNewCard(props: AnswerNewCardProps) {
+  return <AnswerComponent {...props} />;
 }

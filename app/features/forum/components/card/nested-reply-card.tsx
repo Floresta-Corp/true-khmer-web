@@ -24,6 +24,7 @@ interface NestedReplyCardProps {
   isCurrentAuthor?: boolean;
   isAuthenticated?: boolean;
   reportReasons: ReportReasonData[];
+  isAnswerByQuestionAuthor?: boolean;
 }
 
 export default function NestedReplyCard({
@@ -32,6 +33,7 @@ export default function NestedReplyCard({
   isAuthenticated = false,
   isCurrentAuthor,
   reportReasons,
+  isAnswerByQuestionAuthor = false,
 }: NestedReplyCardProps) {
   const formattedDate = formatMinutesOrHoursAgo(repliedAnswer.createdAt);
   const imageUrl = resolveImageURL(repliedAnswer.author.avatarKey);
@@ -67,7 +69,7 @@ export default function NestedReplyCard({
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       className={cn(
-        "w-full rounded-xl bg-[#fffefe] border border-slate-200 px-5 py-5 shadow-[0px_1px_2px_rgba(15,23,42,0.04)]",
+        "w-full rounded-xl border border-slate-200 bg-[#fffefe] px-5 py-5 shadow-[0px_1px_2px_rgba(15,23,42,0.04)]",
         showAnimation && highlightAnswerClassName,
       )}
     >
@@ -82,7 +84,7 @@ export default function NestedReplyCard({
               />
             </div>
             <div className="flex flex-col">
-              <div className="text-base font-semibold leading-6 text-[#2c2f31]">
+              <div className="text-base leading-6 font-semibold text-[#2c2f31]">
                 {repliedAnswer.author.name}
               </div>
               <span className="text-xs leading-4 text-[#595c5e]">
@@ -90,9 +92,9 @@ export default function NestedReplyCard({
               </span>
             </div>
           </div>
-          {isCurrentAuthor && (
+          {isAnswerByQuestionAuthor && (
             <div>
-              <div className="px-1.5 py-0.5 bg-brand-light-blue dark:bg-brand-blue/20 text-brand-blue text-[10px] font-bold rounded uppercase tracking-widest border border-brand-blue/10">
+              <div className="bg-brand-light-blue dark:bg-brand-blue/20 text-brand-blue border-brand-blue/10 rounded border px-1.5 py-0.5 text-[10px] font-bold tracking-widest uppercase">
                 Author
               </div>
             </div>
@@ -137,7 +139,7 @@ export default function NestedReplyCard({
         </div>
       </div>
 
-      <p className="mt-4 text-sm leading-[22.75px] text-[#595c5e] whitespace-pre-line">
+      <p className="mt-4 text-sm leading-[22.75px] whitespace-pre-line text-[#595c5e]">
         {repliedAnswer.body}
       </p>
 

@@ -81,12 +81,12 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
     >
       {/* Heading */}
       <div className="flex items-center justify-between">
-        <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white flex gap-3">
+        <h3 className="flex gap-3 text-lg font-bold text-gray-900 md:text-xl dark:text-white">
           All Answers{" "}
           <p className="text-slate-400">({displayedAnswers.length})</p>
         </h3>
         <div className="flex items-center gap-3">
-          <p className="text-sm font-semibold leading-5 text-[#595c5e]">
+          <p className="text-sm leading-5 font-semibold text-[#595c5e]">
             Sort by:
           </p>
 
@@ -94,7 +94,7 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
             value={selectedSort}
             onChange={(v) => handleSortChange(v as SortValue)}
             options={SORT_OPTIONS}
-            className="inline-flex bg-transparent items-center text-base font-semibold leading-6 text-[#0050d4]"
+            className="inline-flex items-center bg-transparent text-base leading-6 font-semibold text-[#0050d4]"
           />
         </div>
       </div>
@@ -117,6 +117,7 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
                   isCurrentAuthor={isCurrentAuthor}
                   isAuthenticated={Boolean(userId)}
                   isQuestionAuthor={userId === question?.author.id}
+                  questionAuthorId={question?.author.id ?? null}
                   reportReasons={
                     reportReasons?.reportingTypes.map((v) => ({
                       id: v.id,

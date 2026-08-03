@@ -91,7 +91,7 @@ export default function QuestionCard({
               {isCurrentAuthor && (
                 <Badge
                   variant="secondary"
-                  className="bg-green-100 text-xs font-semibold text-green-500"
+                  className="pointer-events-none bg-green-100 text-xs font-semibold text-green-500"
                 >
                   Author
                 </Badge>

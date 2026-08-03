@@ -44,7 +44,7 @@ export default function ForumBestAnswer({
     >
       {/* Heading */}
       <div
-        className="flex gap-2 items-center"
+        className="flex items-center gap-2"
         data-node-id="15523:5113"
         data-name="Heading 3"
       >
@@ -64,6 +64,7 @@ export default function ForumBestAnswer({
         isBestAnswer={true}
         isAuthenticated={isAuthenticated}
         isCurrentAuthor={isCurrentAuthor}
+        questionAuthorId={question?.author.id ?? null}
         index={0}
         userId={userId}
         key={repliesKey}
