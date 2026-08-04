@@ -16,27 +16,36 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import type { AdminAuditLogMember } from "~/types/api-client";
-import type { AdminAuditLogCategoryFilter } from "../types";
-
-const ALL_FILTERS = "all";
-
-const SEARCH_MAX_LENGTH = 100;
+import {
+  ADMIN_AUDIT_LOG_ALL_FILTER,
+  ADMIN_AUDIT_LOG_CATEGORY_LABELS,
+  ADMIN_AUDIT_LOG_CATEGORY_VALUES,
+  ADMIN_AUDIT_LOG_SEARCH_MAX_LENGTH,
+} from "../constants";
+import type {
+  AdminAuditLogCategoryFilter,
+  AdminAuditLogFilters,
+} from "../types";
 
 const CATEGORY_OPTIONS = [
-  { value: ALL_FILTERS, label: "All Categories" },
-  { value: "TEAM", label: "Team" },
-  { value: "CONTENT", label: "Content" },
-  { value: "USERS", label: "Users" },
-  { value: "SYSTEM", label: "System" },
+  { value: ADMIN_AUDIT_LOG_ALL_FILTER, label: "All Categories" },
+  ...ADMIN_AUDIT_LOG_CATEGORY_VALUES.map((value) => ({
+    value,
+    label: ADMIN_AUDIT_LOG_CATEGORY_LABELS[value],
+  })),
 ] satisfies Array<{ value: AdminAuditLogCategoryFilter; label: string }>;
 
 export function AdminAuditLogToolbar({
   members,
+  filters,
 }: {
   members: AdminAuditLogMember[];
+  filters: AdminAuditLogFilters;
 }) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const search = searchParams.get("search") ?? "";
+  const [, setSearchParams] = useSearchParams();
+  // Mirror the loader's validated filters, not the raw params, so a hand-edited
+  // URL cannot show a filter the results were never narrowed by.
+  const search = filters.search ?? "";
   const [searchInput, setSearchInput] = useState(search);
 
   useEffect(() => {
@@ -62,7 +71,7 @@ export function AdminAuditLogToolbar({
     setSearchParams((current) => {
       const next = new URLSearchParams(current);
 
-      if (value === ALL_FILTERS) next.delete(name);
+      if (value === ADMIN_AUDIT_LOG_ALL_FILTER) next.delete(name);
       else next.set(name, value);
 
       next.delete("page");
@@ -86,7 +95,7 @@ export function AdminAuditLogToolbar({
             aria-label="Search actions"
             placeholder="Search actions..."
             value={searchInput}
-            maxLength={SEARCH_MAX_LENGTH}
+            maxLength={ADMIN_AUDIT_LOG_SEARCH_MAX_LENGTH}
             onChange={(event) => setSearchInput(event.target.value)}
             className="px-2 text-sm font-medium placeholder:font-normal"
           />
@@ -97,7 +106,7 @@ export function AdminAuditLogToolbar({
       </form>
 
       <Select
-        value={searchParams.get("category") ?? ALL_FILTERS}
+        value={filters.category}
         onValueChange={(value) => updateFilter("category", value)}
       >
         <SelectTrigger
@@ -116,7 +125,7 @@ export function AdminAuditLogToolbar({
       </Select>
 
       <Select
-        value={searchParams.get("adminId") ?? ALL_FILTERS}
+        value={filters.adminId ?? ADMIN_AUDIT_LOG_ALL_FILTER}
         onValueChange={(value) => updateFilter("adminId", value)}
       >
         <SelectTrigger
@@ -126,7 +135,9 @@ export function AdminAuditLogToolbar({
           <SelectValue placeholder="All Members" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value={ALL_FILTERS}>All Members</SelectItem>
+          <SelectItem value={ADMIN_AUDIT_LOG_ALL_FILTER}>
+            All Members
+          </SelectItem>
           {members.map((member) => (
             <SelectItem key={member.id} value={member.id}>
               {member.name || member.email}

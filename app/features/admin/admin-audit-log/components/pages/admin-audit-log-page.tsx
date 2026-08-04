@@ -14,7 +14,7 @@ import { AdminAuditLogToolbar } from "../admin-audit-log-toolbar";
 import type { AdminAuditLogLoaderData } from "../../types";
 
 export default function AdminAuditLogPage() {
-  const { entries, members, pagination } =
+  const { entries, members, pagination, filters } =
     useLoaderData<AdminAuditLogLoaderData>();
   const location = useLocation();
   const navigation = useNavigation();
@@ -32,7 +32,7 @@ export default function AdminAuditLogPage() {
           className="flex h-[clamp(32rem,calc(100dvh-12rem),48rem)] flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
           aria-busy={isLoadingEntries}
         >
-          <AdminAuditLogToolbar members={members} />
+          <AdminAuditLogToolbar members={members} filters={filters} />
 
           {isLoadingEntries ? (
             <>
@@ -45,7 +45,14 @@ export default function AdminAuditLogPage() {
               <AdminAuditLogPagination {...pagination} />
             </>
           ) : (
-            <AdminAuditLogEmptyState />
+            <>
+              <AdminAuditLogEmptyState />
+              {/* An out-of-range `page` yields no rows but a non-zero total —
+                  keep the controls so the admin can navigate back. */}
+              {pagination.total > 0 ? (
+                <AdminAuditLogPagination {...pagination} />
+              ) : null}
+            </>
           )}
         </section>
       </div>

@@ -5,22 +5,11 @@ import type {
   AdminAuditLogMembersResponse,
 } from "~/types/api-client";
 
-export type AdminLogCategory = "all" | AdminAuditLogEntry["category"];
-export const ADMIN_AUDIT_LOG_CATEGORIES = [
-  "all",
-  "TEAM",
-  "CONTENT",
-  "USERS",
-  "SYSTEM",
-] as const satisfies readonly AdminLogCategory[];
-
-export const ADMIN_AUDIT_LOG_MAX_LIMIT = 100;
-export const ADMIN_AUDIT_LOG_SEARCH_MAX_LENGTH = 100;
-
 export interface AdminAuditLogParams {
   page?: number;
   limit?: number;
-  category?: AdminLogCategory;
+  /** Omit to query every category — the API has no "all" value. */
+  category?: AdminAuditLogEntry["category"];
   adminId?: string;
   search?: string;
   from?: string | null;

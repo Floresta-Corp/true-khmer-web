@@ -127,7 +127,7 @@ const CursorPagination = z.object({ limit: z.number().int().gt(0), hasMore: z.bo
 
 const ListContentModeratorReportsResponse = z.object({ ok: z.boolean(), summary: ContentModeratorReportsSummary.nullable(), reports: z.array(ContentModeratorReport), pagination: CursorPagination });
 
-const UpdateContentModeratorReportReviewRequest = z.object({ reportUuid: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), status: z.enum(["SAFE", "HIDE"]), note: z.string().max(1000).optional() });
+const UpdateContentModeratorReportReviewRequest = z.object({ reportUuid: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), status: z.enum(["SAFE", "HIDE"]), note: z.string().max(1000).optional() });
 
 const UpdateContentModeratorReportReviewResponse = z.object({ ok: z.boolean(), report: ContentModeratorReport });
 
@@ -230,9 +230,9 @@ const OnboardingOkResponse = z.record(z.string(), z.unknown().nullable());
 
 const OnboardingErrorResponse = z.record(z.string(), z.unknown().nullable());
 
-const OnboardingProfileStepRequest = z.object({ bio: z.string().max(1000).optional(), countryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), avatarKey: z.string().min(1).max(600).optional() });
+const OnboardingProfileStepRequest = z.object({ bio: z.string().max(1000).optional(), countryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), avatarKey: z.string().min(1).max(600).optional() });
 
-const OnboardingInterestsStepRequest = z.object({ interestIds: z.array(z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)).min(2).max(20) });
+const OnboardingInterestsStepRequest = z.object({ interestIds: z.array(z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)).min(2).max(20) });
 
 const OnboardingContributionsStepRequest = z.object({ community_member: z.boolean(), find_volunteers: z.boolean(), launch_project: z.boolean(), organize_event: z.boolean() }).partial();
 
@@ -259,7 +259,7 @@ const QuestionResponse = z.object({ id: z.string(), title: z.string(), body: z.s
 
 const GetQuestionsResponse = z.object({ ok: z.boolean(), questions: z.array(QuestionResponse), pagination: z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) });
 
-const CreateQuestionRequest = z.object({ categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), title: z.string().min(1).max(300), body: z.string().min(1).max(10000), tags: z.union([z.array(z.string()), z.string()]).optional(), imageKey: z.string().min(1).max(600).nullish(), status: z.string().optional() });
+const CreateQuestionRequest = z.object({ categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), title: z.string().min(1).max(300), body: z.string().min(1).max(10000), tags: z.union([z.array(z.string()), z.string()]).optional(), imageKey: z.string().min(1).max(600).nullish(), status: z.string().optional() });
 
 const CreateQuestionResponse = z.object({ ok: z.boolean(), question: QuestionResponse });
 
@@ -279,7 +279,7 @@ const PresignForumQuestionImageUploadResult = z.object({ uploadUrl: z.string(), 
 
 const PresignForumQuestionImageUploadResponse = z.object({ ok: z.literal(true), upload: PresignForumQuestionImageUploadResult });
 
-const EditQuestionRequest = z.object({ categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), title: z.string().min(1).max(300), body: z.string().min(1).max(10000), tags: z.union([z.array(z.string()), z.string()]), imageKey: z.string().min(1).max(600).nullable(), status: z.string() }).partial();
+const EditQuestionRequest = z.object({ categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), title: z.string().min(1).max(300), body: z.string().min(1).max(10000), tags: z.union([z.array(z.string()), z.string()]), imageKey: z.string().min(1).max(600).nullable(), status: z.string() }).partial();
 
 const VoteQuestionRequest = z.object({ voteType: z.string() });
 
@@ -301,7 +301,7 @@ const MyAnswersPaginationResponse = z.object({ limit: z.number().int().gt(0), ha
 
 const GetMyAnswersResponse = z.object({ ok: z.boolean(), discussions: z.array(MyAnswerDiscussionResponse), totalAnswers: z.number().int().gte(0), pagination: MyAnswersPaginationResponse });
 
-const CreateAnswerRequest = z.object({ questionId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), replyToAnswer: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).nullish(), body: z.string().min(1).max(10000) });
+const CreateAnswerRequest = z.object({ questionId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), replyToAnswer: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).nullish(), body: z.string().min(1).max(10000) });
 
 const CreateAnswerResponse = z.object({ ok: z.boolean(), answer: AnswerResponse });
 
@@ -342,7 +342,7 @@ const PresignVolunteerOpportunityCoverUploadResult = z.object({ uploadUrl: z.str
 
 const PresignVolunteerOpportunityCoverUploadResponse = z.object({ ok: z.literal(true), upload: PresignVolunteerOpportunityCoverUploadResult });
 
-const PresignVolunteerApplicationDocumentUploadRequest = z.object({ opportunityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), files: z.array(z.object({ fileName: z.string().min(1).max(255), contentType: z.string(), fileSize: z.number().int().gt(0).lte(10485760) })).min(1).max(3) });
+const PresignVolunteerApplicationDocumentUploadRequest = z.object({ opportunityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), files: z.array(z.object({ fileName: z.string().min(1).max(255), contentType: z.string(), fileSize: z.number().int().gt(0).lte(10485760) })).min(1).max(3) });
 
 const PresignVolunteerApplicationDocumentUploadResult = z.object({ uploadUrl: z.string(), method: z.literal("PUT"), requiredHeaders: z.object({ "Content-Length": z.string(), "Content-Type": z.string() }), supportingDocument: z.object({ name: z.string(), key: z.string() }), expiresInSeconds: z.number() });
 
@@ -404,7 +404,7 @@ const ReportingTypeResponse = z.object({ id: z.string(), type: z.string() });
 
 const GetReportingTypesResponse = z.object({ ok: z.boolean(), reportingTypes: z.array(ReportingTypeResponse) });
 
-const CreateReportingRequest = z.object({ questionId: z.string(), answerId: z.string(), typeId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), description: z.string().max(10000).optional() });
+const CreateReportingRequest = z.object({ questionId: z.string(), answerId: z.string(), typeId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), description: z.string().max(10000).optional() });
 
 const CreateReportingResponse = z.object({ ok: z.boolean(), reportingId: z.string().uuid() });
 
@@ -432,15 +432,15 @@ const GetSavedLaunchpadsResponse = z.object({ ok: z.literal(true), launchpads: z
 
 const SaveLaunchpadResponse = z.object({ ok: z.literal(true) });
 
-const CreateLaunchpadRequest = z.object({ name: z.string().min(1).max(120), description: z.string().nullish(), categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), deadline: z.string(), coverKey: z.string().min(1).max(255), role: z.array(z.object({ name: z.string().min(1).max(100), description: z.string().nullish(), capacity: z.number().int().gt(0).lte(1000).optional().default(1) })).min(1), materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5), materialDocumentName: z.array(z.string().min(1).max(255)).min(1).max(5), phoneNumber: z.string(), email: z.string().max(255).email(), telegramUsername: z.string().nullish() });
+const CreateLaunchpadRequest = z.object({ name: z.string().min(1).max(120), description: z.string().nullish(), categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), deadline: z.string(), coverKey: z.string().min(1).max(255), role: z.array(z.object({ name: z.string().min(1).max(100), description: z.string().nullish(), capacity: z.number().int().gt(0).lte(1000).optional().default(1) })).min(1), materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5), materialDocumentName: z.array(z.string().min(1).max(255)).min(1).max(5), phoneNumber: z.string(), email: z.string().max(255).email(), telegramUsername: z.string().nullish() });
 
 const CreateLaunchpadResponse = z.object({ ok: z.literal(true), launchpad: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), totalView: z.number(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), roles: z.array(z.object({ id: z.string(), title: z.string(), description: z.string().nullable(), capacity: z.number(), viewerApplied: z.boolean() })) }) });
 
 const GetLaunchpadsResponse = z.object({ ok: z.literal(true), launchpads: z.array(z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.boolean() })), nextCursor: z.string().nullable() });
 
-const UpdateLaunchpadRoleRequest = z.object({ id: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional(), name: z.string().min(1).max(100), description: z.string().nullish(), capacity: z.number().int().gt(0).lte(1000).optional().default(1) });
+const UpdateLaunchpadRoleRequest = z.object({ id: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional(), name: z.string().min(1).max(100), description: z.string().nullish(), capacity: z.number().int().gt(0).lte(1000).optional().default(1) });
 
-const UpdateLaunchpadRequest = z.object({ name: z.string(), description: z.string().nullable(), categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), deadline: z.string(), coverKey: z.string().min(1).max(255), role: z.array(UpdateLaunchpadRoleRequest).min(1), materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5), materialDocumentName: z.array(z.string().min(1).max(255)).min(1).max(5), phoneNumber: z.string(), email: z.string().max(255).email(), telegramUsername: z.string().nullable() }).partial();
+const UpdateLaunchpadRequest = z.object({ name: z.string(), description: z.string().nullable(), categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), deadline: z.string(), coverKey: z.string().min(1).max(255), role: z.array(UpdateLaunchpadRoleRequest).min(1), materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5), materialDocumentName: z.array(z.string().min(1).max(255)).min(1).max(5), phoneNumber: z.string(), email: z.string().max(255).email(), telegramUsername: z.string().nullable() }).partial();
 
 const GetLaunchpadByIdResponse = z.object({ ok: z.literal(true), launchpad: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), roles: z.array(z.object({ id: z.string(), title: z.string(), description: z.string().nullable(), capacity: z.number(), viewerApplied: z.boolean() })), viewerBlocked: z.boolean(), totalView: z.number() }) });
 
@@ -454,7 +454,7 @@ const LaunchpadApplicationValidationErrorResponse = z.object({ ok: z.literal(fal
 
 const LaunchpadApplicationOperationErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
-const CreateLaunchpadApplicationRequest = z.object({ motivation: z.string().min(5).max(2000), portfolio: z.string().max(255).url().optional(), documentKeys: z.array(z.string().min(1).max(500)).max(5).optional(), documentNames: z.array(z.string().min(1).max(255)).max(5).optional(), topPickRoleId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).nullish(), launchpadRoleId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), relevantExperience: z.string().min(1).max(5000).optional().default("") });
+const CreateLaunchpadApplicationRequest = z.object({ motivation: z.string().min(5).max(2000), portfolio: z.string().max(255).url().optional(), documentKeys: z.array(z.string().min(1).max(500)).max(5).optional(), documentNames: z.array(z.string().min(1).max(255)).max(5).optional(), topPickRoleId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).nullish(), launchpadRoleId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), relevantExperience: z.string().min(1).max(5000).optional().default("") });
 
 const LaunchpadApplicationLog = z.object({ id: z.string(), status: z.enum(["SUBMITTED", "UNDER_REVIEW", "APPROVED", "DECLINED", "CONFIRMED", "COMPLETED", "WITHDRAWN"]), declinedBy: z.enum(["POSTER", "APPLICANT", "SYSTEM"]).nullable(), createdBy: z.string(), createdAt: z.string() });
 
@@ -462,7 +462,7 @@ const LaunchpadApplication = z.object({ id: z.string(), launchpadId: z.string(),
 
 const CreateLaunchpadApplicationResponse = z.object({ ok: z.literal(true), application: LaunchpadApplication });
 
-const CreateLaunchpadApplicationBatchRequest = z.object({ motivation: z.string().min(5).max(2000), portfolio: z.string().max(255).url().optional(), documentKeys: z.array(z.string().min(1).max(500)).max(5).optional(), documentNames: z.array(z.string().min(1).max(255)).max(5).optional(), topPickRoleId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).nullish(), relevantExperience: z.string().min(1).max(5000), launchpadRoleIds: z.array(z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)).min(1).max(20) });
+const CreateLaunchpadApplicationBatchRequest = z.object({ motivation: z.string().min(5).max(2000), portfolio: z.string().max(255).url().optional(), documentKeys: z.array(z.string().min(1).max(500)).max(5).optional(), documentNames: z.array(z.string().min(1).max(255)).max(5).optional(), topPickRoleId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).nullish(), relevantExperience: z.string().min(1).max(5000), launchpadRoleIds: z.array(z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)).min(1).max(20) });
 
 const CreateLaunchpadApplicationBatchResponse = z.object({ ok: z.literal(true), applications: z.array(LaunchpadApplication) });
 
@@ -500,7 +500,7 @@ const ProfileResponse = z.object({ ok: z.literal(true), profile: z.object({ user
 
 const ProfileErrorResponse = z.object({ ok: z.literal(false), error: z.string(), issues: z.array(z.string()).optional() });
 
-const UpdateProfileRequest = z.object({ firstName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u), lastName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u), gender: z.enum(["male", "female", "other"]), dateOfBirth: z.union([z.string(), z.unknown()]), occupation: z.union([z.string(), z.unknown()]), phone: z.union([z.object({ country: z.string().min(2).max(2), nationalNumber: z.string().min(1) }), z.unknown()]), telegramUsername: z.union([z.string(), z.unknown()]), bio: z.union([z.string(), z.unknown()]), countryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), avatarKey: z.union([z.string(), z.unknown()]), skills: z.array(z.string()).max(20), socialLinks: z.object({ website: z.union([z.string(), z.string(), z.unknown()]), linkedin: z.union([z.string(), z.string(), z.unknown()]), twitter: z.union([z.string(), z.string(), z.unknown()]), facebook: z.union([z.string(), z.string(), z.unknown()]) }).partial(), visibility: z.object({ profile: z.enum(["public", "members", "private"]), contact: z.enum(["public", "members", "private"]), socialLinks: z.enum(["public", "members", "private"]), contributions: z.enum(["public", "members", "private"]) }).partial() }).partial();
+const UpdateProfileRequest = z.object({ firstName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u), lastName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u), gender: z.enum(["male", "female", "other"]), dateOfBirth: z.union([z.string(), z.unknown()]), occupation: z.union([z.string(), z.unknown()]), phone: z.union([z.object({ country: z.string().min(2).max(2), nationalNumber: z.string().min(1) }), z.unknown()]), telegramUsername: z.union([z.string(), z.unknown()]), bio: z.union([z.string(), z.unknown()]), countryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), avatarKey: z.union([z.string(), z.unknown()]), skills: z.array(z.string()).max(20), socialLinks: z.object({ website: z.union([z.string(), z.string(), z.unknown()]), linkedin: z.union([z.string(), z.string(), z.unknown()]), twitter: z.union([z.string(), z.string(), z.unknown()]), facebook: z.union([z.string(), z.string(), z.unknown()]) }).partial(), visibility: z.object({ profile: z.enum(["public", "members", "private"]), contact: z.enum(["public", "members", "private"]), socialLinks: z.enum(["public", "members", "private"]), contributions: z.enum(["public", "members", "private"]) }).partial() }).partial();
 
 const UpdateProfileResponse = z.object({ ok: z.literal(true), profile: z.object({ user: z.object({ id: z.string(), firstName: z.string(), lastName: z.string(), displayName: z.string().nullable(), email: z.string(), gender: z.enum(["male", "female", "other"]), dateOfBirth: z.string().nullable(), occupation: z.string().nullable(), phone: z.object({ country: z.string(), nationalNumber: z.string() }).nullable(), telegramUsername: z.string().nullable() }), profile: z.object({ avatarKey: z.string().nullable(), bio: z.string().nullable(), country: z.object({ id: z.string(), name: z.string(), iso2: z.string().nullable() }).nullable(), city: z.object({ id: z.string(), name: z.string() }).nullable(), visibility: z.object({ profile: z.enum(["public", "members", "private"]), contact: z.enum(["public", "members", "private"]), socialLinks: z.enum(["public", "members", "private"]), contributions: z.enum(["public", "members", "private"]) }) }), skills: z.array(z.object({ id: z.string(), name: z.string() })), socialLinks: z.object({ website: z.string().nullable(), linkedin: z.string().nullable(), twitter: z.string().nullable(), facebook: z.string().nullable() }), progress: z.object({ totalPoints: z.number(), rank: z.number().nullable(), tier: z.object({ id: z.string(), slug: z.string(), name: z.string(), rankOrder: z.number(), minPoints: z.number() }).nullable(), nextTier: z.object({ id: z.string(), slug: z.string(), name: z.string(), rankOrder: z.number(), minPoints: z.number() }).nullable(), pointsUntilNextTier: z.number() }), badges: z.array(z.object({ slug: z.string(), name: z.string(), description: z.string(), category: z.enum(["ONBOARDING", "COLLABORATION", "KNOWLEDGE", "VOLUNTEER", "LAUNCHPAD"]), awardedAt: z.string() })) }) });
 
@@ -1377,7 +1377,7 @@ const endpoints = makeApi([
 			{
 				name: "id",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "search",
@@ -1994,7 +1994,7 @@ const endpoints = makeApi([
 			{
 				name: "id",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: ModeratorResponse,
@@ -2030,7 +2030,7 @@ const endpoints = makeApi([
 			{
 				name: "id",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: ModeratorResponse,
@@ -2066,7 +2066,7 @@ const endpoints = makeApi([
 			{
 				name: "id",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: z.object({ ok: z.boolean() }),
@@ -4012,7 +4012,7 @@ const endpoints = makeApi([
 			{
 				name: "answerId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: z.object({ ok: z.boolean() }),
@@ -4038,7 +4038,7 @@ const endpoints = makeApi([
 			{
 				name: "answerId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: EditAnswerResponse,
@@ -4059,7 +4059,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "sortBy",
@@ -4078,7 +4078,7 @@ const endpoints = makeApi([
 			{
 				name: "answerId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: MarkBestAnswerResponse,
@@ -4143,7 +4143,7 @@ const endpoints = makeApi([
 			{
 				name: "answerId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: VoteAnswerResponse,
@@ -4190,7 +4190,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "sortBy",
@@ -4216,12 +4216,12 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "tagId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "search",
@@ -4265,7 +4265,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetQuestionResponse,
@@ -4286,7 +4286,7 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 		],
 		response: GetTrendingTagsResponse,
@@ -4326,12 +4326,12 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "tagId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "search",
@@ -4401,7 +4401,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetQuestionResponse,
@@ -4422,7 +4422,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: z.object({ ok: z.boolean() }),
@@ -4448,7 +4448,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: CreateQuestionResponse,
@@ -4519,7 +4519,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: SaveQuestionResponse,
@@ -4540,7 +4540,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: SaveQuestionResponse,
@@ -4580,7 +4580,7 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 		],
 		response: GetTrendingTagsResponse,
@@ -4606,7 +4606,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: CreateQuestionResponse,
@@ -4719,12 +4719,12 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "cityId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "search",
@@ -4755,7 +4755,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: CreateLaunchpadResponse,
@@ -4801,7 +4801,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetLaunchpadByIdResponse,
@@ -4832,7 +4832,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: CreateLaunchpadApplicationResponse,
@@ -4878,12 +4878,12 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "applicationId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetLaunchpadApplicationResponse,
@@ -4924,7 +4924,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: CreateLaunchpadApplicationBatchResponse,
@@ -4975,7 +4975,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: PresignLaunchpadApplicationDocumentUploadResponse,
@@ -5090,7 +5090,7 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetLaunchpadCategoriesResponse,
@@ -5121,7 +5121,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: SaveLaunchpadResponse,
@@ -5162,7 +5162,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: SaveLaunchpadResponse,
@@ -6098,7 +6098,7 @@ const endpoints = makeApi([
 			{
 				name: "userId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: PublicProfileResponse,
@@ -6124,7 +6124,7 @@ const endpoints = makeApi([
 			{
 				name: "userId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "sourceType",
@@ -6423,12 +6423,12 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "locationId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "search",
@@ -6535,7 +6535,7 @@ const endpoints = makeApi([
 			{
 				name: "opportunityId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetVolunteerOpportunityResponse,
@@ -6581,7 +6581,7 @@ const endpoints = makeApi([
 			{
 				name: "opportunityId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: CreateVolunteerOpportunityResponse,
@@ -6691,12 +6691,12 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "locationId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "search",
@@ -6752,7 +6752,7 @@ const endpoints = makeApi([
 			{
 				name: "opportunityId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetPublicVolunteerOpportunityResponse,
@@ -6783,7 +6783,7 @@ const endpoints = makeApi([
 			{
 				name: "opportunityId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: SaveVolunteerOpportunityResponse,
@@ -6824,7 +6824,7 @@ const endpoints = makeApi([
 			{
 				name: "opportunityId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: SaveVolunteerOpportunityResponse,
@@ -6962,7 +6962,7 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "filter",
@@ -7023,12 +7023,12 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "applicationId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "statusAction",
@@ -7079,12 +7079,12 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "applicationId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "declineAll",
@@ -7140,12 +7140,12 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "candidateId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: ManagePostingCandidateDetailResponse,
@@ -7191,12 +7191,12 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "candidateId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: UpsertManagePostingCandidateNoteResponse,
@@ -7242,7 +7242,7 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "postingAction",
@@ -7298,7 +7298,7 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: ExtendManagePostingDeadlineResponse,

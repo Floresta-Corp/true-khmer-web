@@ -3,19 +3,21 @@ import { redirect } from "react-router";
 import type { Route } from "project-types/admin/admin-audit-log/route/+types/admin-audit-log";
 
 import {
-  ADMIN_AUDIT_LOG_CATEGORIES,
-  ADMIN_AUDIT_LOG_MAX_LIMIT,
-  ADMIN_AUDIT_LOG_SEARCH_MAX_LENGTH,
   getAdminAuditLog,
   getAdminAuditLogMembers,
 } from "~/api/admin/admin-audit-log/admin-audit-log.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
+import {
+  ADMIN_AUDIT_LOG_ALL_FILTER,
+  ADMIN_AUDIT_LOG_CATEGORIES,
+  ADMIN_AUDIT_LOG_DEFAULT_LIMIT,
+  ADMIN_AUDIT_LOG_MAX_LIMIT,
+  ADMIN_AUDIT_LOG_SEARCH_MAX_LENGTH,
+} from "../constants";
 import type { AdminAuditLogFilters } from "../types";
 export type { AdminAuditLogFilters, AdminAuditLogLoaderData } from "../types";
-
-export const ADMIN_AUDIT_LOG_DEFAULT_LIMIT = 20;
 
 const urlSchema = z.object({
   page: z.coerce.number().int().positive().catch(1),
@@ -25,7 +27,9 @@ const urlSchema = z.object({
     .positive()
     .catch(ADMIN_AUDIT_LOG_DEFAULT_LIMIT)
     .transform((value) => Math.min(value, ADMIN_AUDIT_LOG_MAX_LIMIT)),
-  category: z.enum(ADMIN_AUDIT_LOG_CATEGORIES).catch("all"),
+  category: z
+    .enum(ADMIN_AUDIT_LOG_CATEGORIES)
+    .catch(ADMIN_AUDIT_LOG_ALL_FILTER),
   adminId: z.string().uuid().optional().catch(undefined),
   search: z
     .string()
@@ -34,8 +38,10 @@ const urlSchema = z.object({
       const trimmed = value?.trim().slice(0, ADMIN_AUDIT_LOG_SEARCH_MAX_LENGTH);
       return trimmed || undefined;
     }),
-  from: z.string().optional(),
-  to: z.string().optional(),
+  // Drop malformed ranges instead of forwarding them: the API rejects anything
+  // that is not a YYYY-MM-DD date, which would surface as a 400 to the admin.
+  from: z.iso.date().optional().catch(undefined),
+  to: z.iso.date().optional().catch(undefined),
 });
 
 export async function adminAuditLogLoader({ request }: Route.LoaderArgs) {
@@ -58,7 +64,10 @@ export async function adminAuditLogLoader({ request }: Route.LoaderArgs) {
       getAdminAuditLog(request, accessToken, {
         page: filters.page,
         limit: filters.limit,
-        category: filters.category === "all" ? undefined : filters.category,
+        category:
+          filters.category === ADMIN_AUDIT_LOG_ALL_FILTER
+            ? undefined
+            : filters.category,
         adminId: filters.adminId,
         search: filters.search,
         from: filters.from,

@@ -1,4 +1,4 @@
-import { Trash2, XCircle } from "lucide-react";
+import { EyeOff, XCircle } from "lucide-react";
 
 interface ReportActionsProps {
   onAction: (action: "dismiss" | "hide") => void;
@@ -11,10 +11,10 @@ export function ReportActionButton({ onAction }: ReportActionsProps) {
         onClick={() => onAction("hide")}
         className="flex w-full cursor-pointer items-center gap-3 rounded-xl border border-rose-200 bg-rose-50 p-3.5 text-left transition-all hover:border-rose-300 hover:bg-rose-100 dark:border-rose-900/60 dark:bg-rose-950/30 dark:hover:border-rose-800 dark:hover:bg-rose-950/50"
       >
-        <Trash2 size={20} className="shrink-0 text-rose-500" />
+        <EyeOff size={20} className="shrink-0 text-rose-500" />
         <div>
           <h4 className="mb-1 text-sm font-semibold text-rose-600 dark:text-rose-400">
-            Remove Content
+            Hide Content
           </h4>
           <p className="text-xs text-rose-500 dark:text-rose-400/80">
             Report is valid

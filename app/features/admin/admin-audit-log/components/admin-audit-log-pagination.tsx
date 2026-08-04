@@ -17,8 +17,12 @@ export function AdminAuditLogPagination({
   total,
 }: AdminAuditLogPaginationProps) {
   const [, setSearchParams] = useSearchParams();
-  const firstItem = total === 0 ? 0 : (page - 1) * limit + 1;
-  const lastItem = Math.min(page * limit, total);
+  // A hand-edited `?page=` can exceed the real page count; clamp so the controls
+  // stay usable instead of stranding the admin past the end of the results.
+  const lastPage = Math.max(totalPages, 1);
+  const currentPage = Math.min(Math.max(page, 1), lastPage);
+  const firstItem = total === 0 ? 0 : (currentPage - 1) * limit + 1;
+  const lastItem = Math.min(currentPage * limit, total);
 
   function goToPage(nextPage: number) {
     setSearchParams((current) => {
@@ -47,22 +51,22 @@ export function AdminAuditLogPagination({
           type="button"
           variant="outline"
           size="icon"
-          disabled={page <= 1}
-          onClick={() => goToPage(page - 1)}
+          disabled={currentPage <= 1}
+          onClick={() => goToPage(currentPage - 1)}
           aria-label="Previous page"
           className="shadow-none"
         >
           <ChevronLeft />
         </Button>
         <span className="min-w-24 text-center text-sm font-medium text-slate-600 dark:text-slate-300">
-          Page {page} of {Math.max(totalPages, 1)}
+          Page {currentPage} of {lastPage}
         </span>
         <Button
           type="button"
           variant="outline"
           size="icon"
-          disabled={page >= totalPages}
-          onClick={() => goToPage(page + 1)}
+          disabled={currentPage >= lastPage}
+          onClick={() => goToPage(currentPage + 1)}
           aria-label="Next page"
           className="shadow-none"
         >
