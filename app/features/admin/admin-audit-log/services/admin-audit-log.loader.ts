@@ -23,8 +23,8 @@ const urlSchema = z.object({
     .number()
     .int()
     .positive()
-    .max(ADMIN_AUDIT_LOG_MAX_LIMIT)
-    .catch(ADMIN_AUDIT_LOG_DEFAULT_LIMIT),
+    .catch(ADMIN_AUDIT_LOG_DEFAULT_LIMIT)
+    .transform((value) => Math.min(value, ADMIN_AUDIT_LOG_MAX_LIMIT)),
   category: z.enum(ADMIN_AUDIT_LOG_CATEGORIES).catch("all"),
   adminId: z.string().uuid().optional().catch(undefined),
   search: z

@@ -180,16 +180,14 @@ export function ReportDrawer({
             </>
           )}
 
-          {/* Original post (open reports only) & action grid, or resolution log */}
+          {/* Reported content, then the action grid or the resolution log */}
+          <OriginalPostCard
+            report={report}
+            contentLabel={contentLabel}
+            onPreview={() => setPreviewOpen(true)}
+          />
           {isOpen ? (
-            <>
-              <OriginalPostCard
-                report={report}
-                contentLabel={contentLabel}
-                onPreview={() => setPreviewOpen(true)}
-              />
-              <ReportActionButton onAction={onConfirmChange} />
-            </>
+            <ReportActionButton onAction={onConfirmChange} />
           ) : (
             <ResolutionLog report={report} />
           )}
