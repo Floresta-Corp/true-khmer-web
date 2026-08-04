@@ -107,7 +107,7 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
             ))
           : displayedAnswers.map((answer, i) => {
               const isCurrentAuthor =
-                userId === answer.author.id ? true : false;
+                Boolean(userId) && userId === answer.author.id;
               return (
                 <AnswerNewCard
                   userId={userId}

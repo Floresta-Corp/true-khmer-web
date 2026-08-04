@@ -312,7 +312,9 @@ function AnswerComponent({
                         reportReasons={reportReasons || []}
                         repliedAnswer={repliedAnswer}
                         questionId={answer.questionId}
-                        isCurrentAuthor={userId === repliedAnswer.author.id}
+                        isCurrentAuthor={
+                          Boolean(userId) && userId === repliedAnswer.author.id
+                        }
                         isAnswerByQuestionAuthor={
                           Boolean(questionAuthorId) &&
                           repliedAnswer.author.id === questionAuthorId

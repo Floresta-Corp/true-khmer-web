@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format, isValid, parse, parseISO, startOfToday } from "date-fns";
 import { Calendar } from "~/components/ui/calendar";
@@ -33,7 +33,15 @@ export default function VolunteerDatePickerField({
   const parsedDate = value ? parseISO(value) : undefined;
   const selectedDate =
     parsedDate && isValid(parsedDate) ? parsedDate : undefined;
-  const minDate = disablePastDates ? startOfToday() : undefined;
+  // Memoised so the `disabled` matcher keeps a stable identity across renders.
+  const minDate = useMemo(
+    () => (disablePastDates ? startOfToday() : undefined),
+    [disablePastDates],
+  );
+  const disabledDays = useMemo(
+    () => (minDate ? { before: minDate } : undefined),
+    [minDate],
+  );
 
   const [inputValue, setInputValue] = useState(
     selectedDate ? format(selectedDate, DATE_FORMAT) : "",
@@ -53,9 +61,13 @@ export default function VolunteerDatePickerField({
     }
 
     const parsed = parse(raw, DATE_FORMAT, new Date());
-    if (isValid(parsed) && (!minDate || parsed >= minDate)) {
-      onChange(parsed.toISOString());
+    if (!isValid(parsed)) {
+      return;
     }
+
+    // A fully typed-out past date must not silently keep the previously
+    // committed value; clear it so the field's own validation surfaces.
+    onChange(minDate && parsed < minDate ? "" : parsed.toISOString());
   }
 
   function handleCalendarSelect(date: Date | undefined) {
@@ -96,7 +108,7 @@ export default function VolunteerDatePickerField({
               mode="single"
               selected={selectedDate}
               onSelect={handleCalendarSelect}
-              disabled={minDate ? { before: minDate } : undefined}
+              disabled={disabledDays}
               startMonth={minDate}
               defaultMonth={selectedDate ?? minDate}
             />

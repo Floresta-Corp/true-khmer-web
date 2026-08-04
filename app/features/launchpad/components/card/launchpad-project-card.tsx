@@ -11,6 +11,18 @@ import { useFetcher } from "react-router";
 import { motion } from "motion/react";
 import { useState } from "react";
 
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return "Invalid date";
+  }
+  return date.toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
+
 interface LaunchpadProjectCardProps {
   item: LaunchpadOpportunity;
   onOpenOpportunity: (opportunity: LaunchpadOpportunity) => void;
@@ -53,23 +65,19 @@ export default function LaunchpadProjectCard({
     onOpenOpportunity(item);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      return "Invalid date";
-    }
-    return date.toLocaleDateString("en-US", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
-
   return (
     <motion.div
-      className="relative"
+      className="group relative"
       onHoverStart={() => setIsHover(true)}
       onHoverEnd={() => setIsHover(false)}
+      // Without this the share/save buttons stay at opacity 0 while remaining
+      // focusable, so keyboard users tab into invisible controls.
+      onFocus={() => setIsHover(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          setIsHover(false);
+        }
+      }}
     >
       <motion.div
         initial={{ opacity: 0, x: 20 }}
@@ -120,7 +128,7 @@ export default function LaunchpadProjectCard({
           <img
             src={resolveImageURL(item.coverKey || undefined)}
             alt={`${item.name} cover`}
-            className="h-44 w-full object-cover transition-transform duration-300 hover:scale-105"
+            className="h-44 w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
           <Badge className="pointer-events-none absolute top-3.5 left-3.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#2F6FE4]">
             {item.category.name}

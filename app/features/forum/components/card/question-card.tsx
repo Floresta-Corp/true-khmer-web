@@ -68,7 +68,7 @@ export default function QuestionCard({
             <div className="flex flex-wrap items-center gap-2">
               <ProfileLinkWrapper
                 authorId={question.author.id}
-                isAuthor={userId === question.author.id ? true : false}
+                isAuthor={isCurrentAuthor}
                 className="truncate text-xs font-semibold text-[#344256] sm:text-sm"
               >
                 {question.author.name}
