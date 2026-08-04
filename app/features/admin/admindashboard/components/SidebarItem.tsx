@@ -5,6 +5,7 @@ import type { LucideProps } from "lucide-react";
 import {
   Building2,
   ClipboardCheck,
+  History,
   LayoutDashboard,
   Newspaper,
   ShieldCheck,
@@ -86,6 +87,14 @@ export const navItems: NavItem[] = [
     label: "My Team",
     icon: Users,
     href: "/tk-admin/manage-moderator/team",
+    section: "system",
+    superAdminOnly: true,
+  },
+  {
+    id: "audit-log",
+    label: "Audit Log",
+    icon: History,
+    href: "/tk-admin/admin-audit-log",
     section: "system",
     superAdminOnly: true,
   },

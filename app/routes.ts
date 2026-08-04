@@ -163,6 +163,10 @@ export default [
       "account-settings",
       "features/admin/account-settings/route/account-settings.tsx",
     ),
+    route(
+      "admin-audit-log",
+      "features/admin/admin-audit-log/route/admin-audit-log.tsx",
+    ),
   ]),
   route("tk-admin/login", "features/admin/auth/route/admin-login.tsx"),
   route("tk-admin/login/otp", "features/admin/auth/route/admin-login-otp.tsx"),
