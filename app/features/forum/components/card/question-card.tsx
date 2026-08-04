@@ -68,7 +68,7 @@ export default function QuestionCard({
             <div className="flex flex-wrap items-center gap-2">
               <ProfileLinkWrapper
                 authorId={question.author.id}
-                isAuthor={userId === question.author.id ? true : false}
+                isAuthor={isCurrentAuthor}
                 className="truncate text-xs font-semibold text-[#344256] sm:text-sm"
               >
                 {question.author.name}
@@ -88,10 +88,11 @@ export default function QuestionCard({
               <span className="-mt-3 text-xs text-[#9eacc0] sm:mt-0">
                 {createdAgoLabel}
               </span>
+
               {isCurrentAuthor && (
                 <Badge
                   variant="secondary"
-                  className="bg-green-100 text-xs font-semibold text-green-500"
+                  className="pointer-events-none bg-green-100 text-xs font-semibold text-green-500"
                 >
                   Author
                 </Badge>

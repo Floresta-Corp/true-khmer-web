@@ -10,7 +10,7 @@ interface AppliedRoleCardProps {
 }
 
 function formatDate(dateString?: string | null) {
-  if (!dateString) return "TBD";
+  if (!dateString) return "-";
   const date = new Date(dateString);
   if (Number.isNaN(date.getTime())) return dateString;
 
@@ -27,13 +27,13 @@ function getCompactStatus(status: string) {
       return {
         label: "Submitted",
         className:
-          "border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-50 dark:bg-blue-900/20 dark:hover:bg-blue-900/20",
+          "border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-50 dark:border-blue-900/30 dark:bg-blue-950/40 dark:text-blue-400 dark:hover:bg-blue-950/40",
       };
     case "UNDER_REVIEW":
       return {
         label: "Reviewing",
         className:
-          "border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-50 dark:bg-blue-900/20 dark:hover:bg-blue-900/20",
+          "border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-50 dark:border-blue-900/30 dark:bg-blue-950/40 dark:text-blue-400 dark:hover:bg-blue-950/40",
       };
     case "APPROVED":
       return {
@@ -44,28 +44,32 @@ function getCompactStatus(status: string) {
     case "CONFIRMED":
       return {
         label: "Active",
-        className: "border-green-100 bg-green-50 text-green-600 hover:bg-green-50",
+        className:
+          "border-green-100 bg-green-50 text-green-600 hover:bg-green-50 dark:border-green-900/30 dark:bg-green-950/40 dark:text-green-400 dark:hover:bg-green-950/40",
       };
     case "COMPLETED":
       return {
         label: "Completed",
-        className: "border-green-100 bg-green-50 text-green-600 hover:bg-green-50",
+        className:
+          "border-green-100 bg-green-50 text-green-600 hover:bg-green-50 dark:border-green-900/30 dark:bg-green-950/40 dark:text-green-400 dark:hover:bg-green-950/40",
       };
     case "WITHDRAWN":
       return {
         label: "Withdrawn",
-        className: "border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-50",
+        className:
+          "border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800/40 dark:text-slate-400 dark:hover:bg-slate-800/40",
       };
     case "DECLINED":
       return {
         label: "Declined",
-        className: "border-red-100 bg-red-50 text-red-600 hover:bg-red-50",
+        className:
+          "border-red-100 bg-red-50 text-red-600 hover:bg-red-50 dark:border-red-900/30 dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-950/40",
       };
     default:
       return {
         label: status.replaceAll("_", " "),
         className:
-          "border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-50 dark:bg-blue-900/20 dark:hover:bg-blue-900/20",
+          "border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-50 dark:border-blue-900/30 dark:bg-blue-950/40 dark:text-blue-400 dark:hover:bg-blue-950/40",
       };
   }
 }
@@ -79,7 +83,7 @@ export function AppliedRoleCard({
     <Card className="rounded-3xl border-slate-200 bg-white shadow-none dark:border-slate-800 dark:bg-slate-900">
       <CardContent className="p-6">
         <div className="mb-4">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+          <h3 className="text-sm font-bold tracking-wider text-slate-900 uppercase dark:text-white">
             Applied Roles
           </h3>
           <p className="mt-1 text-xs text-slate-400">
@@ -108,42 +112,42 @@ export function AppliedRoleCard({
                       ? "border-amber-500 bg-amber-50/30 ring-1 ring-amber-500/30 dark:border-amber-800 dark:bg-amber-950/10"
                       : isDeclined
                         ? "border-red-500 bg-red-50/20 ring-1 ring-red-500/20 dark:border-red-900 dark:bg-red-950/10"
-                      : isWithdrawn
-                        ? "border-slate-400 bg-slate-50 ring-1 ring-slate-300 dark:border-slate-700 dark:bg-slate-800/30"
-                        : "border-blue-500 bg-blue-50/10 ring-1 ring-blue-500/20 dark:border-blue-800 dark:bg-blue-950/10"
+                        : isWithdrawn
+                          ? "border-slate-400 bg-slate-50 ring-1 ring-slate-300 dark:border-slate-700 dark:bg-slate-800/30"
+                          : "border-blue-500 bg-blue-50/10 ring-1 ring-blue-500/20 dark:border-blue-800 dark:bg-blue-950/10"
                     : needsAction
                       ? "border-amber-200 bg-amber-50/10 hover:border-amber-300 dark:border-amber-900/50 dark:bg-amber-950/5"
                       : isDeclined
                         ? "border-red-100 bg-white hover:border-red-200 hover:bg-red-50/20 dark:border-red-950/40 dark:bg-slate-900 dark:hover:bg-red-950/10"
-                      : isWithdrawn
-                        ? "border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/40"
-                      : "border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/40",
+                        : isWithdrawn
+                          ? "border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/40"
+                          : "border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/40",
                 )}
               >
                 {isSelected || isInactive ? (
                   <div
                     className={cn(
-                      "absolute bottom-0 left-0 top-0 w-1.5",
+                      "absolute top-0 bottom-0 left-0 w-1.5",
                       needsAction
                         ? "bg-amber-500"
                         : isDeclined
                           ? "bg-red-500"
-                        : isWithdrawn
-                          ? "bg-slate-400"
-                          : "bg-blue-600",
+                          : isWithdrawn
+                            ? "bg-slate-400"
+                            : "bg-blue-600",
                     )}
                   />
                 ) : null}
                 {isInactive ? (
                   <span
                     className={cn(
-                      "absolute right-3 top-3 size-2 rounded-full",
+                      "absolute top-3 right-3 size-2 rounded-full",
                       isDeclined ? "bg-red-500" : "bg-slate-400",
                     )}
                   />
                 ) : null}
                 {needsAction ? (
-                  <span className="absolute right-3 top-3 flex size-2">
+                  <span className="absolute top-3 right-3 flex size-2">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
                     <span className="relative inline-flex size-2 rounded-full bg-amber-500" />
                   </span>
@@ -157,9 +161,9 @@ export function AppliedRoleCard({
                         ? "text-amber-700 dark:text-amber-400"
                         : isDeclined
                           ? "text-red-600 dark:text-red-400"
-                        : isWithdrawn
-                          ? "text-slate-500 dark:text-slate-400"
-                        : "text-blue-600 dark:text-blue-400"
+                          : isWithdrawn
+                            ? "text-slate-500 dark:text-slate-400"
+                            : "text-blue-600 dark:text-blue-400"
                       : "text-slate-800 dark:text-slate-200",
                   )}
                 >

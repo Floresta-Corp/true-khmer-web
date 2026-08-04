@@ -8,6 +8,20 @@ import type { LaunchpadOpportunity } from "~/features/launchpad/types";
 import { cn, resolveImageURL } from "~/lib/utils";
 import { buildAbsoluteUrl, copyToClipboard } from "~/lib/clipboard";
 import { useFetcher } from "react-router";
+import { motion } from "motion/react";
+import { useState } from "react";
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return "Invalid date";
+  }
+  return date.toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
 
 interface LaunchpadProjectCardProps {
   item: LaunchpadOpportunity;
@@ -22,7 +36,7 @@ export default function LaunchpadProjectCard({
 }: LaunchpadProjectCardProps) {
   const fetcher = useFetcher<{ ok: boolean; saved: boolean }>();
   const isSubmitting = fetcher.state !== "idle";
-
+  const [isHover, setIsHover] = useState(false);
   const optimisticSaved =
     fetcher.state !== "idle"
       ? fetcher.formData?.get("intent") === "save"
@@ -51,21 +65,26 @@ export default function LaunchpadProjectCard({
     onOpenOpportunity(item);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      return "Invalid date";
-    }
-    return date.toLocaleDateString("en-US", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
-
   return (
-    <div className="relative">
-      <div className="absolute top-3.5 right-3.5 z-10 flex gap-1.5">
+    <motion.div
+      className="group relative"
+      onHoverStart={() => setIsHover(true)}
+      onHoverEnd={() => setIsHover(false)}
+      // Without this the share/save buttons stay at opacity 0 while remaining
+      // focusable, so keyboard users tab into invisible controls.
+      onFocus={() => setIsHover(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          setIsHover(false);
+        }
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: isHover ? 1 : 0, x: isHover ? 0 : 20 }}
+        transition={{ duration: 0.2 }}
+        className="absolute top-3.5 right-3.5 z-10 flex gap-1.5"
+      >
         <IconButton
           className="size-9 bg-white text-[#65758b] shadow-sm hover:bg-white"
           icon={<Share2 className="size-3.5" />}
@@ -92,7 +111,7 @@ export default function LaunchpadProjectCard({
           onClick={handleSaveClick}
           disabled={isSubmitting}
         />
-      </div>
+      </motion.div>
       <Card
         role="button"
         tabIndex={0}
@@ -103,13 +122,13 @@ export default function LaunchpadProjectCard({
             onOpenOpportunity(item);
           }
         }}
-        className="flex min-h-112.5 cursor-pointer flex-col overflow-hidden rounded-2xl bg-white p-0 shadow-none transition-all hover:-translate-y-0.5"
+        className="flex min-h-112.5 cursor-pointer flex-col overflow-hidden rounded-2xl bg-white p-0 shadow-none"
       >
-        <div className="relative">
+        <div className="relative overflow-hidden">
           <img
             src={resolveImageURL(item.coverKey || undefined)}
             alt={`${item.name} cover`}
-            className="h-44 w-full object-cover"
+            className="h-44 w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
           <Badge className="pointer-events-none absolute top-3.5 left-3.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#2F6FE4]">
             {item.category.name}
@@ -147,7 +166,7 @@ export default function LaunchpadProjectCard({
               <Button
                 variant="outline"
                 onClick={handleApplyClick}
-                className="mt-5 h-11 w-full rounded-xl border-gray-200 text-sm font-medium"
+                className="mt-5 h-11 w-full rounded-xl border-slate-200 bg-white text-sm font-medium text-slate-700 shadow-none transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:bg-gray-200 hover:text-blue-700"
               >
                 Apply
               </Button>
@@ -155,6 +174,6 @@ export default function LaunchpadProjectCard({
           </div>
         </div>
       </Card>
-    </div>
+    </motion.div>
   );
 }

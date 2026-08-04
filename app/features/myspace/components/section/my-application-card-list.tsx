@@ -56,7 +56,7 @@ function getSourceTypeStyle(sourceType: Application["sourceType"]) {
 }
 
 function formatDate(dateString: string | null): string {
-  if (!dateString) return "TBD";
+  if (!dateString) return "-";
   const date = new Date(dateString);
   if (Number.isNaN(date.getTime())) return dateString;
 
@@ -71,7 +71,7 @@ function formatDateRange(
   startDate: string | null | undefined,
   endDate: string | null | undefined,
 ) {
-  if (!startDate && !endDate) return "TBD";
+  if (!startDate && !endDate) return "-";
 
   const formattedStartDate = startDate ? formatDate(startDate) : null;
   const formattedEndDate = endDate ? formatDate(endDate) : null;
@@ -82,7 +82,7 @@ function formatDateRange(
       : `${formattedStartDate} - ${formattedEndDate}`;
   }
 
-  return formattedStartDate ?? formattedEndDate ?? "TBD";
+  return formattedStartDate ?? formattedEndDate ?? "-";
 }
 
 function ApprovedActionPanel({
@@ -266,7 +266,7 @@ function ApplicationGroupCard({ application }: { application: Application }) {
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="size-4 text-[#BDC1C6]" />
-                  <span>{application.location?.name ?? "TBD"}</span>
+                  <span>{application.location?.name || "-"}</span>
                 </div>
               </div>
 
@@ -372,7 +372,7 @@ function ApplicationApprovedCard({
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="size-4 text-[#BDC1C6]" />
-                  <span>{application.location?.name ?? "TBD"}</span>
+                  <span>{application.location?.name || "-"}</span>
                 </div>
               </div>
 

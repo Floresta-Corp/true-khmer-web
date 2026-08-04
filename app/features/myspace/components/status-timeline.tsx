@@ -21,7 +21,7 @@ export interface StatusTimelineProps {
 }
 
 function formatDate(dateString?: string | null) {
-  if (!dateString) return "TBD";
+  if (!dateString) return "-";
   // Delegate to the shared dayjs-based formatter so the "+07"/space datetime
   // shapes from the API are parsed consistently; fall back to the raw value.
   return formatDateValue(dateString) || dateString;
@@ -106,10 +106,7 @@ export function StatusTimeline({
           },
           terminalStep,
         ]
-    : [
-        baseSteps[0],
-        terminalStep,
-      ];
+      : [baseSteps[0], terminalStep];
   const steps = inactive ? terminalSteps : baseSteps;
   const clampedActiveStep = inactive
     ? steps.length
@@ -123,14 +120,14 @@ export function StatusTimeline({
       ? "left-[16.67%] right-[16.67%]"
       : steps.length === 2
         ? "left-[25%] right-[25%]"
-      : steps.length === 4
-        ? "left-[12.5%] right-[12.5%]"
-      : "left-[10%] right-[10%]";
+        : steps.length === 4
+          ? "left-[12.5%] right-[12.5%]"
+          : "left-[10%] right-[10%]";
 
   return (
     <Card className="rounded-3xl border-slate-200 bg-white shadow-none dark:border-slate-800 dark:bg-slate-900">
       <CardContent className="p-6 sm:p-8">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+        <h2 className="text-sm font-bold tracking-wider text-slate-900 uppercase dark:text-white">
           Application Progress
         </h2>
 
@@ -191,7 +188,7 @@ export function StatusTimeline({
                     >
                       <StepIcon className="size-4.5" />
                     </div>
-                    <div className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full border border-white bg-slate-100 text-[9px] font-black text-slate-500 dark:border-slate-900 dark:bg-slate-800">
+                    <div className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full border border-white bg-slate-100 text-[9px] font-black text-slate-500 dark:border-slate-900 dark:bg-slate-800">
                       {stepNumber}
                     </div>
                   </div>
@@ -213,7 +210,7 @@ export function StatusTimeline({
                     <p className="mt-1 text-[10px] leading-normal text-slate-400 dark:text-slate-500">
                       {step.subtext}
                     </p>
-                    <p className="mt-1 text-[10px] italic text-slate-400 dark:text-slate-500">
+                    <p className="mt-1 text-[10px] text-slate-400 italic dark:text-slate-500">
                       {step.date}
                     </p>
                   </div>
