@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { format, isValid, parse, parseISO } from "date-fns";
+import { format, isValid, parse, parseISO, startOfToday } from "date-fns";
 import { Calendar } from "~/components/ui/calendar";
 import {
   Popover,
@@ -20,6 +20,7 @@ type VolunteerDatePickerFieldProps = {
   onChange: (value: string) => void;
   error?: string;
   placeholder?: string;
+  disablePastDates?: boolean;
 };
 
 export default function VolunteerDatePickerField({
@@ -27,10 +28,20 @@ export default function VolunteerDatePickerField({
   onChange,
   error,
   placeholder = "Select application deadline",
+  disablePastDates = true,
 }: VolunteerDatePickerFieldProps) {
   const parsedDate = value ? parseISO(value) : undefined;
   const selectedDate =
     parsedDate && isValid(parsedDate) ? parsedDate : undefined;
+  // Memoised so the `disabled` matcher keeps a stable identity across renders.
+  const minDate = useMemo(
+    () => (disablePastDates ? startOfToday() : undefined),
+    [disablePastDates],
+  );
+  const disabledDays = useMemo(
+    () => (minDate ? { before: minDate } : undefined),
+    [minDate],
+  );
 
   const [inputValue, setInputValue] = useState(
     selectedDate ? format(selectedDate, DATE_FORMAT) : "",
@@ -50,9 +61,13 @@ export default function VolunteerDatePickerField({
     }
 
     const parsed = parse(raw, DATE_FORMAT, new Date());
-    if (isValid(parsed)) {
-      onChange(parsed.toISOString());
+    if (!isValid(parsed)) {
+      return;
     }
+
+    // A fully typed-out past date must not silently keep the previously
+    // committed value; clear it so the field's own validation surfaces.
+    onChange(minDate && parsed < minDate ? "" : parsed.toISOString());
   }
 
   function handleCalendarSelect(date: Date | undefined) {
@@ -93,6 +108,9 @@ export default function VolunteerDatePickerField({
               mode="single"
               selected={selectedDate}
               onSelect={handleCalendarSelect}
+              disabled={disabledDays}
+              startMonth={minDate}
+              defaultMonth={selectedDate ?? minDate}
             />
           </PopoverContent>
         </Popover>

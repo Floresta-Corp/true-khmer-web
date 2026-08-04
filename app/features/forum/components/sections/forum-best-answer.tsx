@@ -28,7 +28,6 @@ export default function ForumBestAnswer({
 
   const isCurrentAuthor = userId === answer.author.id;
   const isAuthenticated = Boolean(userId);
-  const isQuestionAuthor = userId === question?.author.id;
   const repliesKey = answer.repliedAnswers?.map((r) => r.id).join(",") ?? "";
   const mappedReportReasons =
     reportReasons?.reportingTypes.map((v) => ({
@@ -44,7 +43,7 @@ export default function ForumBestAnswer({
     >
       {/* Heading */}
       <div
-        className="flex gap-2 items-center"
+        className="flex items-center gap-2"
         data-node-id="15523:5113"
         data-name="Heading 3"
       >
@@ -59,11 +58,11 @@ export default function ForumBestAnswer({
 
       <AnswerNewCard
         reportReasons={mappedReportReasons}
-        isQuestionAuthor={isQuestionAuthor}
         answer={answer}
         isBestAnswer={true}
         isAuthenticated={isAuthenticated}
         isCurrentAuthor={isCurrentAuthor}
+        questionAuthorId={question?.author.id ?? null}
         index={0}
         userId={userId}
         key={repliesKey}

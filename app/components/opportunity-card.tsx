@@ -137,7 +137,7 @@ export function OpportunityCard({
               <span className="text-zinc-800">
                 {opportunity.startDate && opportunity.endDate
                   ? `${format(opportunity.startDate, "MMM dd")} - ${format(opportunity.endDate, "MMM dd")}`
-                  : "Date TBD"}
+                  : "-"}
               </span>
             </div>
             <div className="flex items-center gap-[5.25px] text-[11px] whitespace-nowrap">
