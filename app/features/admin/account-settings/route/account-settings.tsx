@@ -90,7 +90,7 @@ export default function AccountSettingsRoute() {
     `${admin.firstName ?? ""} ${admin.lastName ?? ""}`.trim() || "Admin";
 
   return (
-    <div className="mx-auto max-w-6xl p-6 md:p-10">
+    <div className="max-w-full p-6 md:p-10">
       <div className="mb-8">
         <h1 className="text-2xl font-black text-slate-900 dark:text-white">
           Account Settings

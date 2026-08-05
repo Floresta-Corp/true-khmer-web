@@ -1,18 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { Filter, Search } from "lucide-react";
+import { Search } from "lucide-react";
 
-import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { cn, debounce } from "~/lib/utils";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { debounce } from "~/lib/utils";
 
 const ROLES = ["moderator", "super_admin"] as const;
 type RoleFilter = (typeof ROLES)[number] | "all";
@@ -60,50 +57,37 @@ export function ManageModeratorToolbar({
   };
 
   return (
-    <div className="p-6 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between gap-4">
-      <div className="relative flex-1 max-w-md">
+    <div className="flex items-center gap-3 border-b border-slate-50 p-6 dark:border-slate-800">
+      <div className="relative max-w-md flex-1">
         <Search
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"
+          className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400"
           size={18}
         />
         <Input
           value={inputValue}
           onChange={(e) => handleInputChange(e.target.value)}
           placeholder="Search by name or email..."
-          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl py-5 pl-12 pr-4 text-sm font-medium focus:outline-none focus:border-slate-950 transition-all"
+          className="h-11 w-full rounded-lg border border-slate-200 bg-white pr-4 pl-11 text-sm font-medium transition-all focus:border-slate-950 focus:outline-none dark:border-slate-800 dark:bg-slate-950"
         />
       </div>
-      <div className="flex items-center gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className={cn(
-                "p-3 rounded-xl transition-all",
-                roleValue !== "all"
-                  ? "bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white"
-                  : "text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:text-white",
-              )}
-            >
-              <Filter size={20} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuLabel>Filter by role</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuRadioGroup
-              value={roleValue}
-              onValueChange={(value) => onRoleChange(value as RoleFilter)}
-            >
-              {(["all", ...ROLES] as const).map((role) => (
-                <DropdownMenuRadioItem key={role} value={role}>
-                  {ROLE_LABELS[role]}
-                </DropdownMenuRadioItem>
-              ))}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      <Select
+        value={roleValue}
+        onValueChange={(value) => onRoleChange(value as RoleFilter)}
+      >
+        <SelectTrigger
+          aria-label="Filter by role"
+          className="h-11 w-36 shrink-0 cursor-pointer rounded-lg border-slate-200 bg-white px-4 text-sm font-medium text-slate-900 transition-all dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent align="end">
+          {(["all", ...ROLES] as const).map((role) => (
+            <SelectItem key={role} value={role}>
+              {ROLE_LABELS[role]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }

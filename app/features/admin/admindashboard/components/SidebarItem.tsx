@@ -5,24 +5,42 @@ import type { LucideProps } from "lucide-react";
 import {
   Building2,
   ClipboardCheck,
+  ClipboardList,
+  Heart,
   History,
+  Hotel,
   LayoutDashboard,
+  MessageSquare,
   Newspaper,
+  Rocket,
+  Settings,
+  ShieldAlert,
   ShieldCheck,
+  UserCog,
   Users,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Link } from "react-router";
 
-export type NavSection = "overview" | "manage" | "system";
+export type NavSection =
+  | "overview"
+  | "manage"
+  | "content_management"
+  | "system";
 
 export const sectionLabels: Record<NavSection, string> = {
   overview: "Overview",
   manage: "Manage",
+  content_management: "Content Management",
   system: "System",
 };
 
-export const sectionOrder: NavSection[] = ["overview", "manage", "system"];
+export const sectionOrder: NavSection[] = [
+  "overview",
+  "manage",
+  "content_management",
+  "system",
+];
 
 export type NavItem = {
   id: string;
@@ -46,9 +64,17 @@ export const navItems: NavItem[] = [
   },
   {
     id: "users",
-    label: "User Management",
+    label: "Users ",
     icon: Users,
     href: "/tk-admin/users",
+    section: "manage",
+    superAdminOnly: true,
+  },
+  {
+    id: "partners",
+    label: "Partners",
+    icon: Hotel,
+    href: "/tk-admin/partners",
     section: "manage",
     superAdminOnly: true,
   },
@@ -60,32 +86,49 @@ export const navItems: NavItem[] = [
     section: "manage",
   },
   {
-    id: "partners",
-    label: "Partner",
-    icon: Building2,
-    href: "/tk-admin/partners",
-    section: "manage",
-    superAdminOnly: true,
-  },
-  {
     id: "registrations",
     label: "Registrations",
-    icon: ClipboardCheck,
+    icon: ClipboardList,
     href: "/tk-admin/registrations",
     section: "manage",
     superAdminOnly: true,
   },
   {
     id: "moderation",
-    label: "Content Moderation",
-    icon: ShieldCheck,
+    label: "Moderation",
+    icon: ShieldAlert,
     href: "/tk-admin/content-moderator",
     section: "manage",
   },
+  // Content Management is not built yet — shown but not navigable.
+  {
+    id: "manage-volunteer",
+    label: "Volunteer",
+    icon: Heart,
+    href: "#",
+    section: "content_management",
+    disabled: true,
+  },
+  {
+    id: "manage-launchpad",
+    label: "Launchpad",
+    icon: Rocket,
+    href: "#",
+    section: "content_management",
+    disabled: true,
+  },
+  {
+    id: "manage-forum",
+    label: "Forum",
+    icon: MessageSquare,
+    href: "#",
+    section: "content_management",
+    disabled: true,
+  },
   {
     id: "myteam",
-    label: "My Team",
-    icon: Users,
+    label: "Team Members",
+    icon: UserCog,
     href: "/tk-admin/manage-moderator/team",
     section: "system",
     superAdminOnly: true,
@@ -95,6 +138,14 @@ export const navItems: NavItem[] = [
     label: "Audit Log",
     icon: History,
     href: "/tk-admin/admin-audit-log",
+    section: "system",
+    superAdminOnly: true,
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    icon: Settings,
+    href: "/tk-admin/account-settings",
     section: "system",
     superAdminOnly: true,
   },
