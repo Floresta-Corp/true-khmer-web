@@ -168,6 +168,10 @@ export default [
       "features/admin/admin-audit-log/route/admin-audit-log.tsx",
     ),
   ]),
+  route(
+    "tk-admin/admin-audit-log/export",
+    "features/admin/admin-audit-log/route/admin-audit-log.export.tsx",
+  ),
   route("tk-admin/login", "features/admin/auth/route/admin-login.tsx"),
   route("tk-admin/login/otp", "features/admin/auth/route/admin-login-otp.tsx"),
   route(

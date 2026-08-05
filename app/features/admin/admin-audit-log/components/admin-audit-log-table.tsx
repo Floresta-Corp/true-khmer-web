@@ -33,7 +33,7 @@ export function AdminAuditLogTable({
   entries: AdminAuditLogEntry[];
 }) {
   return (
-    <div className="min-h-0 flex-1 overflow-auto">
+    <div className="overflow-x-auto">
       <AdminTable className="min-w-200 table-fixed">
         <AdminAuditLogTableHead />
         <AdminTableBody>
@@ -69,10 +69,7 @@ export function AdminAuditLogTable({
 
 export function AdminAuditLogTableSkeleton({ rows = 8 }: { rows?: number }) {
   return (
-    <div
-      className="min-h-0 flex-1 overflow-auto"
-      aria-label="Loading audit log entries"
-    >
+    <div className="overflow-x-auto" aria-label="Loading audit log entries">
       <AdminTable className="min-w-200 table-fixed">
         <AdminAuditLogTableHead />
         <AdminTableBody>

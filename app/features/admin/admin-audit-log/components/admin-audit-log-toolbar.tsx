@@ -42,11 +42,14 @@ export function AdminAuditLogToolbar({
   members: AdminAuditLogMember[];
   filters: AdminAuditLogFilters;
 }) {
-  const [, setSearchParams] = useSearchParams();
-  // Mirror the loader's validated filters, not the raw params, so a hand-edited
-  // URL cannot show a filter the results were never narrowed by.
+  const [searchParams, setSearchParams] = useSearchParams();
   const search = filters.search ?? "";
   const [searchInput, setSearchInput] = useState(search);
+
+  const exportParams = new URLSearchParams(searchParams);
+  exportParams.delete("cursor");
+  exportParams.delete("limit");
+  const exportQuery = exportParams.toString();
 
   useEffect(() => {
     setSearchInput(search);
@@ -55,28 +58,34 @@ export function AdminAuditLogToolbar({
   function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    setSearchParams((current) => {
-      const next = new URLSearchParams(current);
-      const normalizedSearch = searchInput.trim();
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+        const normalizedSearch = searchInput.trim();
 
-      if (normalizedSearch) next.set("search", normalizedSearch);
-      else next.delete("search");
+        if (normalizedSearch) next.set("search", normalizedSearch);
+        else next.delete("search");
 
-      next.delete("page");
-      return next;
-    });
+        next.delete("cursor");
+        return next;
+      },
+      { preventScrollReset: true, replace: true },
+    );
   }
 
   function updateFilter(name: "category" | "adminId", value: string) {
-    setSearchParams((current) => {
-      const next = new URLSearchParams(current);
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current);
 
-      if (value === ADMIN_AUDIT_LOG_ALL_FILTER) next.delete(name);
-      else next.set(name, value);
+        if (value === ADMIN_AUDIT_LOG_ALL_FILTER) next.delete(name);
+        else next.set(name, value);
 
-      next.delete("page");
-      return next;
-    });
+        next.delete("cursor");
+        return next;
+      },
+      { preventScrollReset: true, replace: true },
+    );
   }
 
   return (
@@ -147,14 +156,18 @@ export function AdminAuditLogToolbar({
       </Select>
 
       <Button
-        type="button"
+        asChild
         variant="outline"
-        disabled
-        title="Export coming soon"
         className="h-10 rounded-lg font-medium shadow-none sm:ml-auto dark:border-slate-800 dark:bg-slate-950/50 dark:text-white dark:hover:bg-slate-800/50"
       >
-        <Download />
-        Export
+        <a
+          href={`/tk-admin/admin-audit-log/export${exportQuery ? `?${exportQuery}` : ""}`}
+          download
+          title="Export the filtered audit log as CSV"
+        >
+          <Download />
+          Export
+        </a>
       </Button>
     </div>
   );

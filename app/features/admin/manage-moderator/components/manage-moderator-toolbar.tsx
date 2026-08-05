@@ -64,6 +64,7 @@ export function ManageModeratorToolbar({
           size={18}
         />
         <Input
+          aria-label="Search moderators by name or email"
           value={inputValue}
           onChange={(e) => handleInputChange(e.target.value)}
           placeholder="Search by name or email..."

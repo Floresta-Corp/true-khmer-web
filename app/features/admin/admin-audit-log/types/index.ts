@@ -1,27 +1,23 @@
 import type {
   AdminAuditLogEntry,
   AdminAuditLogMember,
+  AdminAuditLogPagination,
 } from "~/types/api-client";
+
+export type { AdminAuditLogPagination };
 
 export type AdminAuditLogCategoryFilter =
   | "all"
   | AdminAuditLogEntry["category"];
 
 export type AdminAuditLogFilters = {
-  page: number;
+  cursor?: string;
   limit: number;
   category: AdminAuditLogCategoryFilter;
   adminId?: string;
   search?: string;
   from?: string;
   to?: string;
-};
-
-export type AdminAuditLogPagination = {
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
 };
 
 export type AdminAuditLogLoaderData = {

@@ -1,11 +1,15 @@
-import { useLoaderData, useLocation, useNavigation } from "react-router";
+import { useCallback, useEffect, useState } from "react";
+import {
+  useFetcher,
+  useLoaderData,
+  useLocation,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
 
+import { InfiniteScrollTrigger } from "~/components/infinite-scroll-trigger";
 import { AdminAuditLogEmptyState } from "../admin-audit-log-empty-state";
 import { AdminAuditLogHeader } from "../admin-audit-log-header";
-import {
-  AdminAuditLogPagination,
-  AdminAuditLogPaginationSkeleton,
-} from "../admin-audit-log-pagination";
 import {
   AdminAuditLogTable,
   AdminAuditLogTableSkeleton,
@@ -14,48 +18,87 @@ import { AdminAuditLogToolbar } from "../admin-audit-log-toolbar";
 import type { AdminAuditLogLoaderData } from "../../types";
 
 export default function AdminAuditLogPage() {
-  const { entries, members, pagination, filters } =
-    useLoaderData<AdminAuditLogLoaderData>();
+  const {
+    entries: firstPageEntries,
+    members,
+    pagination: firstPagePagination,
+    filters,
+  } = useLoaderData<AdminAuditLogLoaderData>();
   const location = useLocation();
   const navigation = useNavigation();
+  const [searchParams] = useSearchParams();
+  const fetcher = useFetcher<AdminAuditLogLoaderData>();
+
+  const [entries, setEntries] = useState(firstPageEntries);
+  const [pagination, setPagination] = useState(firstPagePagination);
+
+  useEffect(() => {
+    setEntries(firstPageEntries);
+    setPagination(firstPagePagination);
+  }, [firstPageEntries, firstPagePagination]);
+
+  useEffect(() => {
+    const data = fetcher.data;
+    if (!data) return;
+
+    setEntries((previous) => {
+      const seen = new Set(previous.map((entry) => entry.id));
+      return [
+        ...previous,
+        ...data.entries.filter((entry) => !seen.has(entry.id)),
+      ];
+    });
+    setPagination(data.pagination);
+  }, [fetcher.data]);
 
   const isLoadingEntries =
     navigation.state === "loading" &&
     navigation.location?.pathname === location.pathname;
+  const isLoadingMore = fetcher.state !== "idle";
+
+  const loadMore = useCallback(() => {
+    if (isLoadingMore || !pagination.hasMore || !pagination.nextCursor) return;
+
+    const next = new URLSearchParams(searchParams);
+    next.set("cursor", pagination.nextCursor);
+    fetcher.load(`${location.pathname}?${next.toString()}`);
+  }, [
+    fetcher,
+    isLoadingMore,
+    location.pathname,
+    pagination.hasMore,
+    pagination.nextCursor,
+    searchParams,
+  ]);
 
   return (
-    <main className="min-h-full bg-[#f8fafc] px-4 py-6 sm:px-6 lg:px-10 lg:py-8 dark:bg-slate-950">
-      <div className="max-w-full">
-        <AdminAuditLogHeader />
+    <div className="relative flex h-full flex-col bg-[#f8fafc] dark:bg-slate-950">
+      <div className="flex-1 overflow-auto p-6 lg:px-10 lg:py-8">
+        <div className="max-w-full">
+          <AdminAuditLogHeader />
 
-        <section
-          className="flex h-[clamp(32rem,calc(100dvh-12rem),48rem)] flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
-          aria-busy={isLoadingEntries}
-        >
-          <AdminAuditLogToolbar members={members} filters={filters} />
+          <section
+            className="flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
+            aria-busy={isLoadingEntries}
+          >
+            <AdminAuditLogToolbar members={members} filters={filters} />
 
-          {isLoadingEntries ? (
-            <>
+            {isLoadingEntries ? (
               <AdminAuditLogTableSkeleton rows={8} />
-              <AdminAuditLogPaginationSkeleton />
-            </>
-          ) : entries.length > 0 ? (
-            <>
+            ) : entries.length > 0 ? (
               <AdminAuditLogTable entries={entries} />
-              <AdminAuditLogPagination {...pagination} />
-            </>
-          ) : (
-            <>
+            ) : (
               <AdminAuditLogEmptyState />
-              {/* An out-of-range `page` yields no rows but a non-zero total —
-                  keep the controls so the admin can navigate back. */}
-              {pagination.total > 0 ? (
-                <AdminAuditLogPagination {...pagination} />
-              ) : null}
-            </>
-          )}
-        </section>
+            )}
+          </section>
+
+          <InfiniteScrollTrigger
+            hasMore={pagination.hasMore}
+            isLoading={isLoadingMore}
+            onTrigger={loadMore}
+          />
+        </div>
       </div>
-    </main>
+    </div>
   );
 }

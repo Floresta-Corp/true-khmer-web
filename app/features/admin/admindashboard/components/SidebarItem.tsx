@@ -147,7 +147,6 @@ export const navItems: NavItem[] = [
     icon: Settings,
     href: "/tk-admin/account-settings",
     section: "system",
-    superAdminOnly: true,
   },
 ];
 

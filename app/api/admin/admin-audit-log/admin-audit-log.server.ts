@@ -6,7 +6,7 @@ import type {
 } from "~/types/api-client";
 
 export interface AdminAuditLogParams {
-  page?: number;
+  cursor?: string;
   limit?: number;
   /** Omit to query every category — the API has no "all" value. */
   category?: AdminAuditLogEntry["category"];
@@ -23,7 +23,7 @@ export async function getAdminAuditLog(
 ) {
   const queryParams = new URLSearchParams();
 
-  if (params.page) queryParams.set("page", String(params.page));
+  if (params.cursor) queryParams.set("cursor", params.cursor);
   if (params.limit) queryParams.set("limit", String(params.limit));
   if (params.category) queryParams.set("category", params.category);
   if (params.adminId) queryParams.set("adminId", params.adminId);

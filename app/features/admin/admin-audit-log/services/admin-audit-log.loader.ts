@@ -5,6 +5,7 @@ import type { Route } from "project-types/admin/admin-audit-log/route/+types/adm
 import {
   getAdminAuditLog,
   getAdminAuditLogMembers,
+  type AdminAuditLogParams,
 } from "~/api/admin/admin-audit-log/admin-audit-log.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
@@ -16,11 +17,14 @@ import {
   ADMIN_AUDIT_LOG_MAX_LIMIT,
   ADMIN_AUDIT_LOG_SEARCH_MAX_LENGTH,
 } from "../constants";
-import type { AdminAuditLogFilters } from "../types";
+import type { AdminAuditLogFilters, AdminAuditLogLoaderData } from "../types";
 export type { AdminAuditLogFilters, AdminAuditLogLoaderData } from "../types";
 
 const urlSchema = z.object({
-  page: z.coerce.number().int().positive().catch(1),
+  cursor: z
+    .string()
+    .optional()
+    .transform((value) => value?.trim() || undefined),
   limit: z.coerce
     .number()
     .int()
@@ -44,6 +48,30 @@ const urlSchema = z.object({
   to: z.iso.date().optional().catch(undefined),
 });
 
+export function parseAdminAuditLogFilters(
+  request: Request,
+): AdminAuditLogFilters {
+  const url = new URL(request.url);
+  return urlSchema.parse(Object.fromEntries(url.searchParams.entries()));
+}
+
+export function toAdminAuditLogParams(
+  filters: AdminAuditLogFilters,
+): AdminAuditLogParams {
+  return {
+    cursor: filters.cursor,
+    limit: filters.limit,
+    category:
+      filters.category === ADMIN_AUDIT_LOG_ALL_FILTER
+        ? undefined
+        : filters.category,
+    adminId: filters.adminId,
+    search: filters.search,
+    from: filters.from,
+    to: filters.to,
+  };
+}
+
 export async function adminAuditLogLoader({ request }: Route.LoaderArgs) {
   const auth = await requireSuperAdmin(
     request,
@@ -54,36 +82,20 @@ export async function adminAuditLogLoader({ request }: Route.LoaderArgs) {
     throw redirect("/tk-admin/login");
   }
 
-  const url = new URL(request.url);
-  const filters: AdminAuditLogFilters = urlSchema.parse(
-    Object.fromEntries(url.searchParams.entries()),
-  );
+  const filters = parseAdminAuditLogFilters(request);
 
   try {
     const [logResult, membersResult] = await Promise.all([
-      getAdminAuditLog(request, accessToken, {
-        page: filters.page,
-        limit: filters.limit,
-        category:
-          filters.category === ADMIN_AUDIT_LOG_ALL_FILTER
-            ? undefined
-            : filters.category,
-        adminId: filters.adminId,
-        search: filters.search,
-        from: filters.from,
-        to: filters.to,
-      }),
+      getAdminAuditLog(request, accessToken, toAdminAuditLogParams(filters)),
       getAdminAuditLogMembers(request, accessToken),
     ]);
 
-    const { entries, total, page, limit, totalPages } = logResult.data;
-
     return withAuthData(auth, {
-      entries,
+      entries: logResult.data.entries,
       members: membersResult.data.members,
-      pagination: { total, page, limit, totalPages },
+      pagination: logResult.data.pagination,
       filters,
-    });
+    } satisfies AdminAuditLogLoaderData);
   } catch (err) {
     if (err instanceof ProtectedApiError && err.status === 401) {
       throw redirect("/tk-admin/login");

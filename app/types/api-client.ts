@@ -180,7 +180,9 @@ const AdminAuditActor = z.object({ id: z.string().uuid(), name: z.string().nulla
 
 const AdminAuditLogEntry = z.object({ id: z.string().uuid(), actor: AdminAuditActor, category: z.enum(["TEAM", "CONTENT", "USERS", "SYSTEM"]), action: z.string(), summary: z.string(), detail: z.string().nullable(), targetType: z.string().nullable(), targetId: z.string().nullable(), metadata: z.record(z.string(), z.unknown().nullable()).nullable(), ipAddress: z.string().nullable(), userAgent: z.string().nullable(), createdAt: z.string() });
 
-const AdminAuditLogListResponse = z.object({ ok: z.literal(true), entries: z.array(AdminAuditLogEntry), total: z.number().int(), page: z.number().int(), limit: z.number().int(), totalPages: z.number().int() });
+const AdminAuditLogPagination = z.object({ limit: z.number().int().gt(0), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) });
+
+const AdminAuditLogListResponse = z.object({ ok: z.literal(true), entries: z.array(AdminAuditLogEntry), pagination: AdminAuditLogPagination });
 
 const patchV1adminnotificationsread_Body = z.object({ notificationIds: z.array(z.string().uuid()).min(1) });
 
@@ -750,6 +752,7 @@ export const schemas = {
 	AdminAuditLogMembersResponse,
 	AdminAuditActor,
 	AdminAuditLogEntry,
+	AdminAuditLogPagination,
 	AdminAuditLogListResponse,
 	patchV1adminnotificationsread_Body,
 	Partner,
@@ -1001,14 +1004,14 @@ const endpoints = makeApi([
 		requestFormat: "json",
 		parameters: [
 			{
-				name: "page",
-				type: "Query",
-				schema: z.number().int().gt(0).optional().default(1)
-			},
-			{
 				name: "limit",
 				type: "Query",
-				schema: z.number().int().gte(1).lte(5000).optional().default(20)
+				schema: z.number().int().gte(1).lte(500).optional().default(20)
+			},
+			{
+				name: "cursor",
+				type: "Query",
+				schema: z.string().optional()
 			},
 			{
 				name: "category",
@@ -7430,6 +7433,7 @@ export type AdminAuditLogMember = z.infer<typeof schemas.AdminAuditLogMember>;
 export type AdminAuditLogMembersResponse = z.infer<typeof schemas.AdminAuditLogMembersResponse>;
 export type AdminAuditActor = z.infer<typeof schemas.AdminAuditActor>;
 export type AdminAuditLogEntry = z.infer<typeof schemas.AdminAuditLogEntry>;
+export type AdminAuditLogPagination = z.infer<typeof schemas.AdminAuditLogPagination>;
 export type AdminAuditLogListResponse = z.infer<typeof schemas.AdminAuditLogListResponse>;
 export type patchV1adminnotificationsread_Body = z.infer<typeof schemas.patchV1adminnotificationsread_Body>;
 export type Partner = z.infer<typeof schemas.Partner>;
