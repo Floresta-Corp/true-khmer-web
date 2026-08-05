@@ -6,6 +6,7 @@ import { resolveImageURL } from "~/lib/utils";
 import type { QuestionResponse } from "~/types/api-client";
 import ShareQuestionButton from "~/features/forum/components/dialog/share-question-dialog";
 import QuestionVoteComponent from "~/features/forum/components/question-vote-component";
+import ProfileLinkWrapper from "~/components/profile-link-wrapper";
 
 interface HomeDiscussionCardProps {
   question: QuestionResponse;
@@ -28,9 +29,12 @@ export function HomeDiscussionCard({ question }: HomeDiscussionCardProps) {
         </Avatar>
         <div className="flex min-w-0 flex-col gap-1">
           <div className="flex flex-wrap items-center gap-x-3">
-            <span className="truncate text-sm font-semibold text-[#2c2f31]">
+            <ProfileLinkWrapper
+              authorId={question.author.id}
+              className="truncate text-sm font-semibold text-[#2c2f31]"
+            >
               {question.author.name}
-            </span>
+            </ProfileLinkWrapper>
             <Link
               to={`/forum?categoryId=${question.category.id}`}
               className="truncate text-sm font-semibold text-[#1c5dd4]"
