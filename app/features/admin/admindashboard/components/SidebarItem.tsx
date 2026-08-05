@@ -13,7 +13,6 @@ import {
   MessageSquare,
   Newspaper,
   Rocket,
-  Settings,
   ShieldAlert,
   ShieldCheck,
   UserCog,
@@ -141,13 +140,6 @@ export const navItems: NavItem[] = [
     section: "system",
     superAdminOnly: true,
   },
-  {
-    id: "settings",
-    label: "Settings",
-    icon: Settings,
-    href: "/tk-admin/account-settings",
-    section: "system",
-  },
 ];
 
 type SidebarItemProps = {
@@ -246,7 +238,9 @@ export function SidebarItem({
   );
 
   const className = `relative flex items-center rounded-lg transition-colors duration-200 ${
-    collapsed ? "h-11 w-11 justify-center" : "w-full justify-start px-3 py-2.5"
+    collapsed
+      ? "h-11 w-11 justify-center [@media(max-height:820px)]:h-10 [@media(max-height:820px)]:w-10"
+      : "w-full justify-start px-3 py-2 [@media(max-height:820px)]:py-1.5"
   } ${
     active
       ? "bg-blue-50 font-semibold text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"

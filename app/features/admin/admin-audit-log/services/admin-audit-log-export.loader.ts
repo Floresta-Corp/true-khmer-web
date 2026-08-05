@@ -23,7 +23,6 @@ const CSV_HEADER = [
   "Admin Email",
   "Admin Role",
   "Category",
-  "Action",
   "Summary",
   "IP Address",
 ];
@@ -35,7 +34,6 @@ function toCsvRow(entry: AdminAuditLogEntry) {
     entry.actor.email,
     entry.actor.role,
     ADMIN_AUDIT_LOG_CATEGORY_LABELS[entry.category] ?? entry.category,
-    entry.action,
     entry.summary,
     entry.ipAddress,
   ];
