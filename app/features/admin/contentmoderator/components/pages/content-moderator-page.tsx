@@ -120,7 +120,7 @@ export default function ContentModeratorPage() {
   return (
     <div className="relative flex h-full flex-col bg-[#f8fafc] dark:bg-slate-950">
       <div className="custom-scrollbar flex-1 overflow-auto p-6">
-        <div className="mx-auto max-w-350 space-y-4">
+        <div className="max-w-full space-y-4">
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl dark:text-white">

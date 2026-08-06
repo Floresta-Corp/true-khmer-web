@@ -110,7 +110,7 @@ export default [
       route("successfully", "features/partner-registration/route/success.tsx"),
     ],
   ),
-  route("tk-admin", "features/admin/admindashboard/route/admin-layout.tsx", [
+  route("tk-admin", "features/admin/layout/route/admin-layout.tsx", [
     index("features/admin/dashboard/route/admin-dashboard.tsx"),
     route(
       "manage-moderator/team",
@@ -163,7 +163,15 @@ export default [
       "account-settings",
       "features/admin/account-settings/route/account-settings.tsx",
     ),
+    route(
+      "admin-audit-log",
+      "features/admin/admin-audit-log/route/admin-audit-log.tsx",
+    ),
   ]),
+  route(
+    "tk-admin/admin-audit-log/export",
+    "features/admin/admin-audit-log/route/admin-audit-log.export.tsx",
+  ),
   route("tk-admin/login", "features/admin/auth/route/admin-login.tsx"),
   route("tk-admin/login/otp", "features/admin/auth/route/admin-login-otp.tsx"),
   route(

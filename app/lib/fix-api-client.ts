@@ -21,6 +21,11 @@ const replacements = [
   // the display layer, so the generated client stays self-contained.
   [/z\.string\(\)\.datetime\(\{[^}]*\}\)/g, "z.string()"],
   [/z\.string\(\)\.datetime\(\)/g, "z.string()"],
+  // The backend's OpenAPI UUID patterns embed the case-insensitive flag inside
+  // the pattern string ("...$/i"). The generator escapes that into the regex
+  // body as "$\/i", so `$` is followed by a literal "/i" and no value can ever
+  // match. Lift the flag out of the pattern so the check works as intended.
+  [/\$\\\/i\//g, "$$/i"],
   [/\.passthrough\(\)/g, ""],
   [/\.and\(z\.unknown\(\)\)/g, ".nullable()"],
   [

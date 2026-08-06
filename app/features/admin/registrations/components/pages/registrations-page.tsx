@@ -158,7 +158,7 @@ export default function RegistrationsPage() {
 
   return (
     <main className="min-h-full bg-[#f8fafc] px-4 py-6 sm:px-6 lg:px-10 lg:py-8 dark:bg-slate-950">
-      <div className="mx-auto w-full max-w-350">
+      <div className="max-w-full">
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white">

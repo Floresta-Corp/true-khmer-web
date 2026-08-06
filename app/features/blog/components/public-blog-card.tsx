@@ -12,9 +12,9 @@ export function PublicBlogCard({
   return (
     <Link
       to={`/blog/${post.slug}`}
-      className="group block overflow-hidden rounded-[12px] border border-[#e2e8f0]/80 bg-white shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition-all duration-200 hover:border-[#1c97d4]/30 dark:border-white/10 dark:bg-slate-950"
+      className="group flex h-full flex-col overflow-hidden rounded-[12px] border border-[#e2e8f0]/80 bg-white shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition-all duration-200 hover:border-[#1c97d4]/30 dark:border-white/10 dark:bg-slate-950"
     >
-      <div className="relative overflow-hidden rounded-[12px]">
+      <div className="relative shrink-0 overflow-hidden rounded-t-[12px]">
         <img
           src={post.coverImageUrl || FALLBACK_BLOG_IMAGE}
           alt={post.coverImageAlt || post.title}
@@ -38,16 +38,16 @@ export function PublicBlogCard({
         ) : null}
       </div>
 
-      <div className="px-8 pt-8 pb-8">
+      <div className="flex flex-1 flex-col px-8 pt-8 pb-8">
         <div className="flex items-center gap-2 text-[14px] font-medium text-[#1c97d4]">
           <span>{post.authorName}</span>
           <span className="h-1 w-1 rounded-full bg-[#1c97d4]/70" />
           <span>{formatDate(post.publishedAt || post.createdAt)}</span>
         </div>
-        <h2 className="mt-4 text-xl leading-tight font-semibold tracking-tight text-[#243d95] transition-colors group-hover:text-[#1c97d4] dark:text-slate-100">
+        <h2 className="mt-4 line-clamp-2 min-h-12.5 text-xl leading-tight font-semibold tracking-tight text-[#243d95] transition-colors group-hover:text-[#1c97d4] dark:text-slate-100">
           {post.title}
         </h2>
-        <p className="mt-4 line-clamp-3 text-[14px] leading-5 text-slate-600 dark:text-slate-400">
+        <p className="mt-4 line-clamp-3 min-h-15 text-[14px] leading-5 text-slate-600 dark:text-slate-400">
           {post.previewText}
         </p>
       </div>

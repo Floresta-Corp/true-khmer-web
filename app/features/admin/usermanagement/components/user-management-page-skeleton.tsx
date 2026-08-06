@@ -7,7 +7,7 @@ import { UserManagementToolbarSkeleton } from "./user-management-toolbar";
 export function UserManagementPageSkeleton() {
   return (
     <main className="min-h-full bg-[#f8fafc] px-4 py-6 sm:px-6 lg:px-10 lg:py-8 dark:bg-slate-950">
-      <div className="mx-auto w-full max-w-350">
+      <div className="max-w-full">
         <UserManagementHeader />
 
         <UserManagementStatsCardsSkeleton />

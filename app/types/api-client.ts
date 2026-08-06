@@ -121,13 +121,13 @@ const ContentModeratorReportAuthor = z.object({ id: z.string(), name: z.string()
 
 const ContentModeratorReportSolver = z.object({ id: z.string(), firstName: z.string().nullable(), lastName: z.string().nullable() });
 
-const ContentModeratorReport = z.object({ id: z.string().uuid(), reportId: z.number().int().gt(0), type: ContentModeratorReportType, reportType: z.literal("FORUM"), reportSubType: z.enum(["QUESTION", "ANSWER"]).nullable(), contentPreview: z.string(), sourceLink: z.string(), dateTime: z.string(), status: z.enum(["OPEN", "CLOSED"]), confirmStatus: z.enum(["CONTENT HIDDEN", "DISMISSED"]).nullable(), reportingBy: ContentModeratorReportReporter.nullable(), postedBy: ContentModeratorReportAuthor.nullable(), solvedBy: ContentModeratorReportSolver.nullable(), note: z.string().nullable(), solvedAt: z.string().nullable() });
+const ContentModeratorReport = z.object({ id: z.string().uuid(), reportId: z.number().int().gt(0), type: ContentModeratorReportType, reportType: z.literal("FORUM"), reportSubType: z.enum(["QUESTION", "ANSWER"]).nullable(), contentPreview: z.string(), sourceLink: z.string(), dateTime: z.string(), status: z.enum(["OPEN", "CLOSED"]), confirmStatus: z.enum(["CONTENT HIDDEN", "DISMISSED"]).nullable(), reportingBy: ContentModeratorReportReporter.nullable(), postedBy: ContentModeratorReportAuthor.nullable(), solvedBy: ContentModeratorReportSolver.nullable(), reporterNote: z.string().nullable(), note: z.string().nullable(), solvedAt: z.string().nullable() });
 
 const CursorPagination = z.object({ limit: z.number().int().gt(0), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) });
 
 const ListContentModeratorReportsResponse = z.object({ ok: z.boolean(), summary: ContentModeratorReportsSummary.nullable(), reports: z.array(ContentModeratorReport), pagination: CursorPagination });
 
-const UpdateContentModeratorReportReviewRequest = z.object({ reportUuid: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), status: z.enum(["SAFE", "HIDE"]), note: z.string().max(1000).optional() });
+const UpdateContentModeratorReportReviewRequest = z.object({ reportUuid: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), status: z.enum(["SAFE", "HIDE"]), note: z.string().max(1000).optional() });
 
 const UpdateContentModeratorReportReviewResponse = z.object({ ok: z.boolean(), report: ContentModeratorReport });
 
@@ -171,6 +171,18 @@ const AdminUserManagementActivity = z.object({ id: z.string().uuid(), title: z.s
 const AdminUserManagementDetailUser = AdminUserManagementUser.and(z.object({ dateOfBirth: z.string().nullable(), occupation: z.string().nullable(), telegramUsername: z.string().nullable(), location: z.object({ city: z.string().nullable(), country: z.string().nullable() }).nullable(), points: AdminUserManagementPoints, recentActivity: z.array(AdminUserManagementActivity) }));
 
 const AdminUserManagementDetailResponse = z.object({ ok: z.literal(true), user: AdminUserManagementDetailUser });
+
+const AdminAuditLogMember = z.object({ id: z.string().uuid(), name: z.string().nullable(), email: z.string().email(), role: z.string(), avatarKey: z.string().nullable(), entryCount: z.number().int() });
+
+const AdminAuditLogMembersResponse = z.object({ ok: z.literal(true), members: z.array(AdminAuditLogMember) });
+
+const AdminAuditActor = z.object({ id: z.string().uuid(), name: z.string().nullable(), email: z.string().email(), role: z.string(), avatarKey: z.string().nullable(), removedAt: z.string().nullable() });
+
+const AdminAuditLogEntry = z.object({ id: z.string().uuid(), actor: AdminAuditActor, category: z.enum(["TEAM", "CONTENT", "USERS", "SYSTEM"]), action: z.string(), summary: z.string(), detail: z.string().nullable(), targetType: z.string().nullable(), targetId: z.string().nullable(), metadata: z.record(z.string(), z.unknown().nullable()).nullable(), ipAddress: z.string().nullable(), userAgent: z.string().nullable(), createdAt: z.string() });
+
+const AdminAuditLogPagination = z.object({ limit: z.number().int().gt(0), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) });
+
+const AdminAuditLogListResponse = z.object({ ok: z.literal(true), entries: z.array(AdminAuditLogEntry), pagination: AdminAuditLogPagination });
 
 const patchV1adminnotificationsread_Body = z.object({ notificationIds: z.array(z.string().uuid()).min(1) });
 
@@ -220,9 +232,9 @@ const OnboardingOkResponse = z.record(z.string(), z.unknown().nullable());
 
 const OnboardingErrorResponse = z.record(z.string(), z.unknown().nullable());
 
-const OnboardingProfileStepRequest = z.object({ bio: z.string().max(1000).optional(), countryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), avatarKey: z.string().min(1).max(600).optional() });
+const OnboardingProfileStepRequest = z.object({ bio: z.string().max(1000).optional(), countryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), avatarKey: z.string().min(1).max(600).optional() });
 
-const OnboardingInterestsStepRequest = z.object({ interestIds: z.array(z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)).min(2).max(20) });
+const OnboardingInterestsStepRequest = z.object({ interestIds: z.array(z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)).min(2).max(20) });
 
 const OnboardingContributionsStepRequest = z.object({ community_member: z.boolean(), find_volunteers: z.boolean(), launch_project: z.boolean(), organize_event: z.boolean() }).partial();
 
@@ -249,7 +261,7 @@ const QuestionResponse = z.object({ id: z.string(), title: z.string(), body: z.s
 
 const GetQuestionsResponse = z.object({ ok: z.boolean(), questions: z.array(QuestionResponse), pagination: z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) });
 
-const CreateQuestionRequest = z.object({ categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), title: z.string().min(1).max(300), body: z.string().min(1).max(10000), tags: z.union([z.array(z.string()), z.string()]).optional(), imageKey: z.string().min(1).max(600).nullish(), status: z.string().optional() });
+const CreateQuestionRequest = z.object({ categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), title: z.string().min(1).max(300), body: z.string().min(1).max(10000), tags: z.union([z.array(z.string()), z.string()]).optional(), imageKey: z.string().min(1).max(600).nullish(), status: z.string().optional() });
 
 const CreateQuestionResponse = z.object({ ok: z.boolean(), question: QuestionResponse });
 
@@ -269,7 +281,7 @@ const PresignForumQuestionImageUploadResult = z.object({ uploadUrl: z.string(), 
 
 const PresignForumQuestionImageUploadResponse = z.object({ ok: z.literal(true), upload: PresignForumQuestionImageUploadResult });
 
-const EditQuestionRequest = z.object({ categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), title: z.string().min(1).max(300), body: z.string().min(1).max(10000), tags: z.union([z.array(z.string()), z.string()]), imageKey: z.string().min(1).max(600).nullable(), status: z.string() }).partial();
+const EditQuestionRequest = z.object({ categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), title: z.string().min(1).max(300), body: z.string().min(1).max(10000), tags: z.union([z.array(z.string()), z.string()]), imageKey: z.string().min(1).max(600).nullable(), status: z.string() }).partial();
 
 const VoteQuestionRequest = z.object({ voteType: z.string() });
 
@@ -291,7 +303,7 @@ const MyAnswersPaginationResponse = z.object({ limit: z.number().int().gt(0), ha
 
 const GetMyAnswersResponse = z.object({ ok: z.boolean(), discussions: z.array(MyAnswerDiscussionResponse), totalAnswers: z.number().int().gte(0), pagination: MyAnswersPaginationResponse });
 
-const CreateAnswerRequest = z.object({ questionId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), replyToAnswer: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).nullish(), body: z.string().min(1).max(10000) });
+const CreateAnswerRequest = z.object({ questionId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), replyToAnswer: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).nullish(), body: z.string().min(1).max(10000) });
 
 const CreateAnswerResponse = z.object({ ok: z.boolean(), answer: AnswerResponse });
 
@@ -332,7 +344,7 @@ const PresignVolunteerOpportunityCoverUploadResult = z.object({ uploadUrl: z.str
 
 const PresignVolunteerOpportunityCoverUploadResponse = z.object({ ok: z.literal(true), upload: PresignVolunteerOpportunityCoverUploadResult });
 
-const PresignVolunteerApplicationDocumentUploadRequest = z.object({ opportunityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), files: z.array(z.object({ fileName: z.string().min(1).max(255), contentType: z.string(), fileSize: z.number().int().gt(0).lte(10485760) })).min(1).max(3) });
+const PresignVolunteerApplicationDocumentUploadRequest = z.object({ opportunityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), files: z.array(z.object({ fileName: z.string().min(1).max(255), contentType: z.string(), fileSize: z.number().int().gt(0).lte(10485760) })).min(1).max(3) });
 
 const PresignVolunteerApplicationDocumentUploadResult = z.object({ uploadUrl: z.string(), method: z.literal("PUT"), requiredHeaders: z.object({ "Content-Length": z.string(), "Content-Type": z.string() }), supportingDocument: z.object({ name: z.string(), key: z.string() }), expiresInSeconds: z.number() });
 
@@ -394,7 +406,7 @@ const ReportingTypeResponse = z.object({ id: z.string(), type: z.string() });
 
 const GetReportingTypesResponse = z.object({ ok: z.boolean(), reportingTypes: z.array(ReportingTypeResponse) });
 
-const CreateReportingRequest = z.object({ questionId: z.string(), answerId: z.string(), typeId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), description: z.string().max(10000).optional() });
+const CreateReportingRequest = z.object({ questionId: z.string(), answerId: z.string(), typeId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), description: z.string().max(10000).optional() });
 
 const CreateReportingResponse = z.object({ ok: z.boolean(), reportingId: z.string().uuid() });
 
@@ -422,15 +434,15 @@ const GetSavedLaunchpadsResponse = z.object({ ok: z.literal(true), launchpads: z
 
 const SaveLaunchpadResponse = z.object({ ok: z.literal(true) });
 
-const CreateLaunchpadRequest = z.object({ name: z.string().min(1).max(120), description: z.string().nullish(), categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), deadline: z.string(), coverKey: z.string().min(1).max(255), role: z.array(z.object({ name: z.string().min(1).max(100), description: z.string().nullish(), capacity: z.number().int().gt(0).lte(1000).optional().default(1) })).min(1), materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5), materialDocumentName: z.array(z.string().min(1).max(255)).min(1).max(5), phoneNumber: z.string(), email: z.string().max(255).email(), telegramUsername: z.string().nullish() });
+const CreateLaunchpadRequest = z.object({ name: z.string().min(1).max(120), description: z.string().nullish(), categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), deadline: z.string(), coverKey: z.string().min(1).max(255), role: z.array(z.object({ name: z.string().min(1).max(100), description: z.string().nullish(), capacity: z.number().int().gt(0).lte(1000).optional().default(1) })).min(1), materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5), materialDocumentName: z.array(z.string().min(1).max(255)).min(1).max(5), phoneNumber: z.string(), email: z.string().max(255).email(), telegramUsername: z.string().nullish() });
 
 const CreateLaunchpadResponse = z.object({ ok: z.literal(true), launchpad: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), totalView: z.number(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), roles: z.array(z.object({ id: z.string(), title: z.string(), description: z.string().nullable(), capacity: z.number(), viewerApplied: z.boolean() })) }) });
 
 const GetLaunchpadsResponse = z.object({ ok: z.literal(true), launchpads: z.array(z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.boolean() })), nextCursor: z.string().nullable() });
 
-const UpdateLaunchpadRoleRequest = z.object({ id: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional(), name: z.string().min(1).max(100), description: z.string().nullish(), capacity: z.number().int().gt(0).lte(1000).optional().default(1) });
+const UpdateLaunchpadRoleRequest = z.object({ id: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional(), name: z.string().min(1).max(100), description: z.string().nullish(), capacity: z.number().int().gt(0).lte(1000).optional().default(1) });
 
-const UpdateLaunchpadRequest = z.object({ name: z.string(), description: z.string().nullable(), categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), deadline: z.string(), coverKey: z.string().min(1).max(255), role: z.array(UpdateLaunchpadRoleRequest).min(1), materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5), materialDocumentName: z.array(z.string().min(1).max(255)).min(1).max(5), phoneNumber: z.string(), email: z.string().max(255).email(), telegramUsername: z.string().nullable() }).partial();
+const UpdateLaunchpadRequest = z.object({ name: z.string(), description: z.string().nullable(), categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), deadline: z.string(), coverKey: z.string().min(1).max(255), role: z.array(UpdateLaunchpadRoleRequest).min(1), materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5), materialDocumentName: z.array(z.string().min(1).max(255)).min(1).max(5), phoneNumber: z.string(), email: z.string().max(255).email(), telegramUsername: z.string().nullable() }).partial();
 
 const GetLaunchpadByIdResponse = z.object({ ok: z.literal(true), launchpad: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), roles: z.array(z.object({ id: z.string(), title: z.string(), description: z.string().nullable(), capacity: z.number(), viewerApplied: z.boolean() })), viewerBlocked: z.boolean(), totalView: z.number() }) });
 
@@ -444,7 +456,7 @@ const LaunchpadApplicationValidationErrorResponse = z.object({ ok: z.literal(fal
 
 const LaunchpadApplicationOperationErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
-const CreateLaunchpadApplicationRequest = z.object({ motivation: z.string().min(5).max(2000), portfolio: z.string().max(255).url().optional(), documentKeys: z.array(z.string().min(1).max(500)).max(5).optional(), documentNames: z.array(z.string().min(1).max(255)).max(5).optional(), topPickRoleId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).nullish(), launchpadRoleId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), relevantExperience: z.string().min(1).max(5000).optional().default("") });
+const CreateLaunchpadApplicationRequest = z.object({ motivation: z.string().min(5).max(2000), portfolio: z.string().max(255).url().optional(), documentKeys: z.array(z.string().min(1).max(500)).max(5).optional(), documentNames: z.array(z.string().min(1).max(255)).max(5).optional(), topPickRoleId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).nullish(), launchpadRoleId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), relevantExperience: z.string().min(1).max(5000).optional().default("") });
 
 const LaunchpadApplicationLog = z.object({ id: z.string(), status: z.enum(["SUBMITTED", "UNDER_REVIEW", "APPROVED", "DECLINED", "CONFIRMED", "COMPLETED", "WITHDRAWN"]), declinedBy: z.enum(["POSTER", "APPLICANT", "SYSTEM"]).nullable(), createdBy: z.string(), createdAt: z.string() });
 
@@ -452,7 +464,7 @@ const LaunchpadApplication = z.object({ id: z.string(), launchpadId: z.string(),
 
 const CreateLaunchpadApplicationResponse = z.object({ ok: z.literal(true), application: LaunchpadApplication });
 
-const CreateLaunchpadApplicationBatchRequest = z.object({ motivation: z.string().min(5).max(2000), portfolio: z.string().max(255).url().optional(), documentKeys: z.array(z.string().min(1).max(500)).max(5).optional(), documentNames: z.array(z.string().min(1).max(255)).max(5).optional(), topPickRoleId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).nullish(), relevantExperience: z.string().min(1).max(5000), launchpadRoleIds: z.array(z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)).min(1).max(20) });
+const CreateLaunchpadApplicationBatchRequest = z.object({ motivation: z.string().min(5).max(2000), portfolio: z.string().max(255).url().optional(), documentKeys: z.array(z.string().min(1).max(500)).max(5).optional(), documentNames: z.array(z.string().min(1).max(255)).max(5).optional(), topPickRoleId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).nullish(), relevantExperience: z.string().min(1).max(5000), launchpadRoleIds: z.array(z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)).min(1).max(20) });
 
 const CreateLaunchpadApplicationBatchResponse = z.object({ ok: z.literal(true), applications: z.array(LaunchpadApplication) });
 
@@ -490,7 +502,7 @@ const ProfileResponse = z.object({ ok: z.literal(true), profile: z.object({ user
 
 const ProfileErrorResponse = z.object({ ok: z.literal(false), error: z.string(), issues: z.array(z.string()).optional() });
 
-const UpdateProfileRequest = z.object({ firstName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u), lastName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u), gender: z.enum(["male", "female", "other"]), dateOfBirth: z.union([z.string(), z.unknown()]), occupation: z.union([z.string(), z.unknown()]), phone: z.union([z.object({ country: z.string().min(2).max(2), nationalNumber: z.string().min(1) }), z.unknown()]), telegramUsername: z.union([z.string(), z.unknown()]), bio: z.union([z.string(), z.unknown()]), countryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), avatarKey: z.union([z.string(), z.unknown()]), skills: z.array(z.string()).max(20), socialLinks: z.object({ website: z.union([z.string(), z.string(), z.unknown()]), linkedin: z.union([z.string(), z.string(), z.unknown()]), twitter: z.union([z.string(), z.string(), z.unknown()]), facebook: z.union([z.string(), z.string(), z.unknown()]) }).partial(), visibility: z.object({ profile: z.enum(["public", "members", "private"]), contact: z.enum(["public", "members", "private"]), socialLinks: z.enum(["public", "members", "private"]), contributions: z.enum(["public", "members", "private"]) }).partial() }).partial();
+const UpdateProfileRequest = z.object({ firstName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u), lastName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u), gender: z.enum(["male", "female", "other"]), dateOfBirth: z.union([z.string(), z.unknown()]), occupation: z.union([z.string(), z.unknown()]), phone: z.union([z.object({ country: z.string().min(2).max(2), nationalNumber: z.string().min(1) }), z.unknown()]), telegramUsername: z.union([z.string(), z.unknown()]), bio: z.union([z.string(), z.unknown()]), countryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), avatarKey: z.union([z.string(), z.unknown()]), skills: z.array(z.string()).max(20), socialLinks: z.object({ website: z.union([z.string(), z.string(), z.unknown()]), linkedin: z.union([z.string(), z.string(), z.unknown()]), twitter: z.union([z.string(), z.string(), z.unknown()]), facebook: z.union([z.string(), z.string(), z.unknown()]) }).partial(), visibility: z.object({ profile: z.enum(["public", "members", "private"]), contact: z.enum(["public", "members", "private"]), socialLinks: z.enum(["public", "members", "private"]), contributions: z.enum(["public", "members", "private"]) }).partial() }).partial();
 
 const UpdateProfileResponse = z.object({ ok: z.literal(true), profile: z.object({ user: z.object({ id: z.string(), firstName: z.string(), lastName: z.string(), displayName: z.string().nullable(), email: z.string(), gender: z.enum(["male", "female", "other"]), dateOfBirth: z.string().nullable(), occupation: z.string().nullable(), phone: z.object({ country: z.string(), nationalNumber: z.string() }).nullable(), telegramUsername: z.string().nullable() }), profile: z.object({ avatarKey: z.string().nullable(), bio: z.string().nullable(), country: z.object({ id: z.string(), name: z.string(), iso2: z.string().nullable() }).nullable(), city: z.object({ id: z.string(), name: z.string() }).nullable(), visibility: z.object({ profile: z.enum(["public", "members", "private"]), contact: z.enum(["public", "members", "private"]), socialLinks: z.enum(["public", "members", "private"]), contributions: z.enum(["public", "members", "private"]) }) }), skills: z.array(z.object({ id: z.string(), name: z.string() })), socialLinks: z.object({ website: z.string().nullable(), linkedin: z.string().nullable(), twitter: z.string().nullable(), facebook: z.string().nullable() }), progress: z.object({ totalPoints: z.number(), rank: z.number().nullable(), tier: z.object({ id: z.string(), slug: z.string(), name: z.string(), rankOrder: z.number(), minPoints: z.number() }).nullable(), nextTier: z.object({ id: z.string(), slug: z.string(), name: z.string(), rankOrder: z.number(), minPoints: z.number() }).nullable(), pointsUntilNextTier: z.number() }), badges: z.array(z.object({ slug: z.string(), name: z.string(), description: z.string(), category: z.enum(["ONBOARDING", "COLLABORATION", "KNOWLEDGE", "VOLUNTEER", "LAUNCHPAD"]), awardedAt: z.string() })) }) });
 
@@ -613,6 +625,40 @@ const ListPublicBlogPostsResponse = z.object({ ok: z.boolean(), data: z.array(Bl
 
 const GetPublicBlogPostResponse = z.object({ ok: z.boolean(), post: BlogPostResponse, relatedPosts: z.array(BlogPostListingItemResponse) });
 
+const CourseCategoryResponse = z.object({ id: z.string().uuid(), name: z.string(), slug: z.string().nullable(), iconKey: z.string().nullable(), mobileIconType: z.string().nullable(), mobileIconName: z.string().nullable(), createdAt: z.string(), updatedAt: z.string() });
+
+const ListCourseCategoriesResponse = z.object({ ok: z.literal(true), categories: z.array(CourseCategoryResponse) });
+
+const CreateCourseCategoryRequest = z.object({ name: z.string().min(1).max(120), slug: z.string().min(1).max(140).nullish(), iconKey: z.union([z.string(), z.unknown()]).optional(), mobileIconType: z.union([z.string(), z.unknown()]).optional(), mobileIconName: z.union([z.string(), z.unknown()]).optional() });
+
+const GetCourseCategoryResponse = z.object({ ok: z.literal(true), category: CourseCategoryResponse });
+
+const UpdateCourseCategoryRequest = z.object({ name: z.string().min(1).max(120), slug: z.string().min(1).max(140).nullable(), iconKey: z.union([z.string(), z.unknown()]), mobileIconType: z.union([z.string(), z.unknown()]), mobileIconName: z.union([z.string(), z.unknown()]) }).partial();
+
+const DeleteCourseCategoryResponse = z.object({ ok: z.literal(true) });
+
+const PresignCourseCoverUploadRequest = z.object({ contentType: z.string(), fileSize: z.number().int().gt(0).lte(5242880) });
+
+const PresignCourseCoverUploadResponse = z.object({ ok: z.literal(true), upload: z.object({ uploadUrl: z.string(), method: z.literal("PUT"), requiredHeaders: z.record(z.string(), z.string()), coverImageKey: z.string(), publicUrl: z.string().nullable(), expiresInSeconds: z.number() }) });
+
+const CreateCourseRequest = z.object({ title: z.string().min(1).max(255), description: z.string().min(1).max(20000), categoryId: z.string().uuid(), coverImageKey: z.string().min(1).max(600).nullish() });
+
+const CourseResponse = z.object({ id: z.string().uuid(), title: z.string(), description: z.string(), categoryId: z.string().uuid(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), price: z.number(), status: z.enum(["DRAFT", "PENDING", "PUBLISHED", "UNPUBLISHED"]), createdBy: z.string().uuid(), updatedBy: z.string().uuid().nullable(), publishedAt: z.string().nullable(), publishedBy: z.string().uuid().nullable(), unpublishedAt: z.string().nullable(), unpublishedBy: z.string().uuid().nullable(), rejectionNote: z.string().nullable(), rejectedAt: z.string().nullable(), rejectedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string() });
+
+const GetCourseResponse = z.object({ ok: z.literal(true), course: CourseResponse });
+
+const ListMyCoursesResponse = z.object({ ok: z.literal(true), courses: z.array(CourseResponse), pagination: z.object({ limit: z.number().int().gt(0), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) });
+
+const UpdateCourseRequest = z.object({ title: z.string().min(1).max(255), description: z.string().min(1).max(20000), categoryId: z.string().uuid(), coverImageKey: z.string().min(1).max(600).nullable(), price: z.number().gte(0).lte(9999999999.99) }).partial();
+
+const DeleteCourseResponse = z.object({ ok: z.literal(true) });
+
+const AdminListCoursesResponse = z.object({ ok: z.literal(true), courses: z.array(CourseResponse), pagination: z.object({ limit: z.number().int().gt(0), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) });
+
+const AdminUpdateCourseRequest = z.object({ title: z.string().min(1).max(255), description: z.string().min(1).max(20000), categoryId: z.string().uuid(), coverImageKey: z.string().min(1).max(600).nullable(), price: z.number().gte(0).lte(9999999999.99) }).partial();
+
+const RejectCourseRequest = z.object({ note: z.string().min(1).max(2000) }).partial();
+
 export const schemas = {
 	AuthRegisterRequest,
 	AuthUserProfile,
@@ -702,6 +748,12 @@ export const schemas = {
 	AdminUserManagementActivity,
 	AdminUserManagementDetailUser,
 	AdminUserManagementDetailResponse,
+	AdminAuditLogMember,
+	AdminAuditLogMembersResponse,
+	AdminAuditActor,
+	AdminAuditLogEntry,
+	AdminAuditLogPagination,
+	AdminAuditLogListResponse,
 	patchV1adminnotificationsread_Body,
 	Partner,
 	ListPendingPartnersResponse,
@@ -925,9 +977,111 @@ export const schemas = {
 	BlogPostListingItemResponse,
 	ListPublicBlogPostsResponse,
 	GetPublicBlogPostResponse,
+	CourseCategoryResponse,
+	ListCourseCategoriesResponse,
+	CreateCourseCategoryRequest,
+	GetCourseCategoryResponse,
+	UpdateCourseCategoryRequest,
+	DeleteCourseCategoryResponse,
+	PresignCourseCoverUploadRequest,
+	PresignCourseCoverUploadResponse,
+	CreateCourseRequest,
+	CourseResponse,
+	GetCourseResponse,
+	ListMyCoursesResponse,
+	UpdateCourseRequest,
+	DeleteCourseResponse,
+	AdminListCoursesResponse,
+	AdminUpdateCourseRequest,
+	RejectCourseRequest,
 };
 
 const endpoints = makeApi([
+	{
+		method: "get",
+		path: "/v1/admin/audit-log",
+		alias: "getV1adminauditLog",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(500).optional().default(20)
+			},
+			{
+				name: "cursor",
+				type: "Query",
+				schema: z.string().optional()
+			},
+			{
+				name: "category",
+				type: "Query",
+				schema: z.enum(["all", "TEAM", "CONTENT", "USERS", "SYSTEM"]).optional()
+			},
+			{
+				name: "adminId",
+				type: "Query",
+				schema: z.string().uuid().optional()
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().min(1).max(100).optional()
+			},
+			{
+				name: "from",
+				type: "Query",
+				schema: z.string().nullish()
+			},
+			{
+				name: "to",
+				type: "Query",
+				schema: z.string().nullish()
+			},
+		],
+		response: AdminAuditLogListResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Forbidden`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string() })
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/audit-log/members",
+		alias: "getV1adminauditLogmembers",
+		requestFormat: "json",
+		response: AdminAuditLogMembersResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Forbidden`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string() })
+			},
+		]
+	},
 	{
 		method: "get",
 		path: "/v1/admin/blog/category",
@@ -1226,7 +1380,7 @@ const endpoints = makeApi([
 			{
 				name: "id",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "search",
@@ -1367,6 +1521,298 @@ const endpoints = makeApi([
 				status: 500,
 				description: `Internal server error`,
 				schema: AdminDashboardErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/education-center/courses",
+		alias: "getV1admineducationCentercourses",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(100).optional().default(20)
+			},
+			{
+				name: "cursor",
+				type: "Query",
+				schema: z.string().optional()
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().min(1).max(255).optional()
+			},
+			{
+				name: "status",
+				type: "Query",
+				schema: z.enum(["PENDING", "PUBLISHED", "UNPUBLISHED"]).optional()
+			},
+			{
+				name: "sortBy",
+				type: "Query",
+				schema: z.enum(["newest", "oldest"]).optional().default("newest")
+			},
+			{
+				name: "createdBy",
+				type: "Query",
+				schema: z.string().uuid().optional()
+			},
+		],
+		response: AdminListCoursesResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid creator ID`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/education-center/courses/:id",
+		alias: "getV1admineducationCentercoursesId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "put",
+		path: "/v1/admin/education-center/courses/:id",
+		alias: "putV1admineducationCentercoursesId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: AdminUpdateCourseRequest
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation or status transition failed`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/admin/education-center/courses/:id",
+		alias: "deleteV1admineducationCentercoursesId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: DeleteCourseResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/education-center/courses/:id/approve",
+		alias: "postV1admineducationCentercoursesIdapprove",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Only pending courses can be approved`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course status changed concurrently`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "put",
+		path: "/v1/admin/education-center/courses/:id/publication/:action",
+		alias: "putV1admineducationCentercoursesIdpublicationAction",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+			{
+				name: "action",
+				type: "Path",
+				schema: z.enum(["PUBLISH", "UNPUBLISH"])
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid course status transition`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course status changed concurrently`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/education-center/courses/:id/reject",
+		alias: "postV1admineducationCentercoursesIdreject",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: z.object({ note: z.string().min(1).max(2000) }).partial().optional()
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Only pending courses can be rejected`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course status changed concurrently`,
+				schema: z.void()
 			},
 		]
 	},
@@ -1551,7 +1997,7 @@ const endpoints = makeApi([
 			{
 				name: "id",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: ModeratorResponse,
@@ -1587,7 +2033,7 @@ const endpoints = makeApi([
 			{
 				name: "id",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: ModeratorResponse,
@@ -1623,7 +2069,7 @@ const endpoints = makeApi([
 			{
 				name: "id",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: z.object({ ok: z.boolean() }),
@@ -3045,6 +3491,508 @@ const endpoints = makeApi([
 		]
 	},
 	{
+		method: "get",
+		path: "/v1/education-center/categories",
+		alias: "getV1educationCentercategories",
+		requestFormat: "json",
+		response: ListCourseCategoriesResponse,
+		errors: [
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/education-center/categories",
+		alias: "postV1educationCentercategories",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: CreateCourseCategoryRequest
+			},
+		],
+		response: GetCourseCategoryResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Admin role required`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course category name already exists`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/education-center/categories/:id",
+		alias: "getV1educationCentercategoriesId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseCategoryResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid category ID`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course category not found`,
+				schema: z.void()
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "put",
+		path: "/v1/education-center/categories/:id",
+		alias: "putV1educationCentercategoriesId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: UpdateCourseCategoryRequest
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseCategoryResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Admin role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course category not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course category name already exists`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/education-center/categories/:id",
+		alias: "deleteV1educationCentercategoriesId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: DeleteCourseCategoryResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid category ID`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Admin role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course category not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course category still has courses`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/education-center/courses",
+		alias: "postV1educationCentercourses",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: CreateCourseRequest
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed or category not found`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `User access is restricted`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/education-center/courses/:id",
+		alias: "getV1educationCentercoursesId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid course ID`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found or not visible`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "put",
+		path: "/v1/education-center/courses/:id",
+		alias: "putV1educationCentercoursesId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: UpdateCourseRequest
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation or status transition failed`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Not permitted to update this course`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course status changed concurrently`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/education-center/courses/:id",
+		alias: "deleteV1educationCentercoursesId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: DeleteCourseResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Not permitted to delete this course`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/education-center/courses/:id/submit",
+		alias: "postV1educationCentercoursesIdsubmit",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Course cannot be submitted from its current status`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Not the course owner`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course status changed concurrently`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/education-center/courses/:id/unpublish",
+		alias: "postV1educationCentercoursesIdunpublish",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Course is not published`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Not the course owner`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course status changed concurrently`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/education-center/courses/:id/withdraw",
+		alias: "postV1educationCentercoursesIdwithdraw",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Course is not pending`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Not the course owner`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course status changed concurrently`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/education-center/courses/cover/presign",
+		alias: "postV1educationCentercoursescoverpresign",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: PresignCourseCoverUploadRequest
+			},
+		],
+		response: PresignCourseCoverUploadResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `User access is restricted`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/education-center/courses/mine",
+		alias: "getV1educationCentercoursesmine",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(100).optional().default(20)
+			},
+			{
+				name: "cursor",
+				type: "Query",
+				schema: z.string().optional()
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().min(1).max(255).optional()
+			},
+			{
+				name: "status",
+				type: "Query",
+				schema: z.enum(["DRAFT", "PENDING", "PUBLISHED", "UNPUBLISHED"]).optional()
+			},
+			{
+				name: "sortBy",
+				type: "Query",
+				schema: z.enum(["newest", "oldest"]).optional().default("newest")
+			},
+		],
+		response: ListMyCoursesResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `User access is restricted`,
+				schema: z.void()
+			},
+		]
+	},
+	{
 		method: "post",
 		path: "/v1/forum/answer/create-answer",
 		alias: "postV1forumanswercreateAnswer",
@@ -3067,7 +4015,7 @@ const endpoints = makeApi([
 			{
 				name: "answerId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: z.object({ ok: z.boolean() }),
@@ -3093,7 +4041,7 @@ const endpoints = makeApi([
 			{
 				name: "answerId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: EditAnswerResponse,
@@ -3114,7 +4062,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "sortBy",
@@ -3133,7 +4081,7 @@ const endpoints = makeApi([
 			{
 				name: "answerId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: MarkBestAnswerResponse,
@@ -3198,7 +4146,7 @@ const endpoints = makeApi([
 			{
 				name: "answerId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: VoteAnswerResponse,
@@ -3245,7 +4193,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "sortBy",
@@ -3271,12 +4219,12 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "tagId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "search",
@@ -3320,7 +4268,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetQuestionResponse,
@@ -3341,7 +4289,7 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 		],
 		response: GetTrendingTagsResponse,
@@ -3381,12 +4329,12 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "tagId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "search",
@@ -3456,7 +4404,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetQuestionResponse,
@@ -3477,7 +4425,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: z.object({ ok: z.boolean() }),
@@ -3503,7 +4451,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: CreateQuestionResponse,
@@ -3574,7 +4522,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: SaveQuestionResponse,
@@ -3595,7 +4543,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: SaveQuestionResponse,
@@ -3635,7 +4583,7 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 		],
 		response: GetTrendingTagsResponse,
@@ -3661,7 +4609,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: CreateQuestionResponse,
@@ -3774,12 +4722,12 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "cityId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "search",
@@ -3810,7 +4758,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: CreateLaunchpadResponse,
@@ -3856,7 +4804,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetLaunchpadByIdResponse,
@@ -3887,7 +4835,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: CreateLaunchpadApplicationResponse,
@@ -3933,12 +4881,12 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "applicationId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetLaunchpadApplicationResponse,
@@ -3979,7 +4927,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: CreateLaunchpadApplicationBatchResponse,
@@ -4030,7 +4978,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: PresignLaunchpadApplicationDocumentUploadResponse,
@@ -4145,7 +5093,7 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetLaunchpadCategoriesResponse,
@@ -4176,7 +5124,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: SaveLaunchpadResponse,
@@ -4217,7 +5165,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: SaveLaunchpadResponse,
@@ -5153,7 +6101,7 @@ const endpoints = makeApi([
 			{
 				name: "userId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: PublicProfileResponse,
@@ -5179,7 +6127,7 @@ const endpoints = makeApi([
 			{
 				name: "userId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "sourceType",
@@ -5478,12 +6426,12 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "locationId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "search",
@@ -5590,7 +6538,7 @@ const endpoints = makeApi([
 			{
 				name: "opportunityId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetVolunteerOpportunityResponse,
@@ -5636,7 +6584,7 @@ const endpoints = makeApi([
 			{
 				name: "opportunityId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: CreateVolunteerOpportunityResponse,
@@ -5746,12 +6694,12 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "locationId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "search",
@@ -5807,7 +6755,7 @@ const endpoints = makeApi([
 			{
 				name: "opportunityId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetPublicVolunteerOpportunityResponse,
@@ -5838,7 +6786,7 @@ const endpoints = makeApi([
 			{
 				name: "opportunityId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: SaveVolunteerOpportunityResponse,
@@ -5879,7 +6827,7 @@ const endpoints = makeApi([
 			{
 				name: "opportunityId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: SaveVolunteerOpportunityResponse,
@@ -6017,7 +6965,7 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "filter",
@@ -6078,12 +7026,12 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "applicationId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "statusAction",
@@ -6134,12 +7082,12 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "applicationId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "declineAll",
@@ -6195,12 +7143,12 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "candidateId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: ManagePostingCandidateDetailResponse,
@@ -6246,12 +7194,12 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "candidateId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: UpsertManagePostingCandidateNoteResponse,
@@ -6297,7 +7245,7 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "postingAction",
@@ -6353,7 +7301,7 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: ExtendManagePostingDeadlineResponse,
@@ -6481,6 +7429,12 @@ export type AdminUserManagementPoints = z.infer<typeof schemas.AdminUserManageme
 export type AdminUserManagementActivity = z.infer<typeof schemas.AdminUserManagementActivity>;
 export type AdminUserManagementDetailUser = z.infer<typeof schemas.AdminUserManagementDetailUser>;
 export type AdminUserManagementDetailResponse = z.infer<typeof schemas.AdminUserManagementDetailResponse>;
+export type AdminAuditLogMember = z.infer<typeof schemas.AdminAuditLogMember>;
+export type AdminAuditLogMembersResponse = z.infer<typeof schemas.AdminAuditLogMembersResponse>;
+export type AdminAuditActor = z.infer<typeof schemas.AdminAuditActor>;
+export type AdminAuditLogEntry = z.infer<typeof schemas.AdminAuditLogEntry>;
+export type AdminAuditLogPagination = z.infer<typeof schemas.AdminAuditLogPagination>;
+export type AdminAuditLogListResponse = z.infer<typeof schemas.AdminAuditLogListResponse>;
 export type patchV1adminnotificationsread_Body = z.infer<typeof schemas.patchV1adminnotificationsread_Body>;
 export type Partner = z.infer<typeof schemas.Partner>;
 export type ListPendingPartnersResponse = z.infer<typeof schemas.ListPendingPartnersResponse>;
@@ -6704,6 +7658,23 @@ export type SetBlogPostFeaturedRequest = z.infer<typeof schemas.SetBlogPostFeatu
 export type BlogPostListingItemResponse = z.infer<typeof schemas.BlogPostListingItemResponse>;
 export type ListPublicBlogPostsResponse = z.infer<typeof schemas.ListPublicBlogPostsResponse>;
 export type GetPublicBlogPostResponse = z.infer<typeof schemas.GetPublicBlogPostResponse>;
+export type CourseCategoryResponse = z.infer<typeof schemas.CourseCategoryResponse>;
+export type ListCourseCategoriesResponse = z.infer<typeof schemas.ListCourseCategoriesResponse>;
+export type CreateCourseCategoryRequest = z.infer<typeof schemas.CreateCourseCategoryRequest>;
+export type GetCourseCategoryResponse = z.infer<typeof schemas.GetCourseCategoryResponse>;
+export type UpdateCourseCategoryRequest = z.infer<typeof schemas.UpdateCourseCategoryRequest>;
+export type DeleteCourseCategoryResponse = z.infer<typeof schemas.DeleteCourseCategoryResponse>;
+export type PresignCourseCoverUploadRequest = z.infer<typeof schemas.PresignCourseCoverUploadRequest>;
+export type PresignCourseCoverUploadResponse = z.infer<typeof schemas.PresignCourseCoverUploadResponse>;
+export type CreateCourseRequest = z.infer<typeof schemas.CreateCourseRequest>;
+export type CourseResponse = z.infer<typeof schemas.CourseResponse>;
+export type GetCourseResponse = z.infer<typeof schemas.GetCourseResponse>;
+export type ListMyCoursesResponse = z.infer<typeof schemas.ListMyCoursesResponse>;
+export type UpdateCourseRequest = z.infer<typeof schemas.UpdateCourseRequest>;
+export type DeleteCourseResponse = z.infer<typeof schemas.DeleteCourseResponse>;
+export type AdminListCoursesResponse = z.infer<typeof schemas.AdminListCoursesResponse>;
+export type AdminUpdateCourseRequest = z.infer<typeof schemas.AdminUpdateCourseRequest>;
+export type RejectCourseRequest = z.infer<typeof schemas.RejectCourseRequest>;
 // End generated API schema types
 
 export const api = new Zodios(endpoints);

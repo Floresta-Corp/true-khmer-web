@@ -9,7 +9,7 @@ export function ResolutionLog({ report }: { report: ContentModeratorReport }) {
   const solvedAt = formatDateTime(report.solvedAt);
 
   const isHidden = report.confirmStatus === "CONTENT HIDDEN";
-  const actionTaken = isHidden ? "Content removed" : "Report dismissed";
+  const actionTaken = isHidden ? "Content hidden" : "Report dismissed";
 
   return (
     <div

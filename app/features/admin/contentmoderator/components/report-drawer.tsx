@@ -112,7 +112,7 @@ export function ReportDrawer({
               <StatusBadge status={report.status} />
             </div>
             <h2 className="text-xl font-semibold tracking-tight text-(--admin-text)">
-              {contentLabel}
+              Additional Details
             </h2>
           </div>
           <button
@@ -125,11 +125,13 @@ export function ReportDrawer({
         </div>
 
         {/* ── Content ────────────────────────────────────────────────────── */}
-        <div className="flex-1 space-y-5 overflow-auto px-8 py-4">
-          {/* Reported quote */}
-          <p className="text-base leading-relaxed text-(--admin-text)">
-            &ldquo;{report.contentPreview}&rdquo;
-          </p>
+        <div className="flex-1 space-y-5 overflow-auto px-8 py-2">
+          {/* Reporter quote — only when the reporter actually wrote something */}
+          {report.reporterNote?.trim() ? (
+            <p className="text-base leading-relaxed text-(--admin-text)">
+              &ldquo;{report.reporterNote.trim()}&rdquo;
+            </p>
+          ) : null}
 
           {/* Metadata rows */}
           <div className="space-y-5">
@@ -178,16 +180,14 @@ export function ReportDrawer({
             </>
           )}
 
-          {/* Original post (open reports only) & action grid, or resolution log */}
+          {/* Reported content, then the action grid or the resolution log */}
+          <OriginalPostCard
+            report={report}
+            contentLabel={contentLabel}
+            onPreview={() => setPreviewOpen(true)}
+          />
           {isOpen ? (
-            <>
-              <OriginalPostCard
-                report={report}
-                contentLabel={contentLabel}
-                onPreview={() => setPreviewOpen(true)}
-              />
-              <ReportActionButton onAction={onConfirmChange} />
-            </>
+            <ReportActionButton onAction={onConfirmChange} />
           ) : (
             <ResolutionLog report={report} />
           )}
