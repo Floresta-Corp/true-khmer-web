@@ -5,8 +5,10 @@ import { ProtectedApiError } from "~/lib/server/api-client.server";
 
 export function headers() {
   return {
-    "Cache-Control":
-      "public, max-age=60, s-maxage=300, stale-while-revalidate=600",
+    // The document response includes app-layout's SSR'd navbar, which is
+    // per-user. A shared cache (Vercel's CDN) keys on URL only, so any
+    // `public`/`s-maxage` value here serves one visitor's account to everyone.
+    "Cache-Control": "private, no-cache, no-store, must-revalidate",
   };
 }
 
