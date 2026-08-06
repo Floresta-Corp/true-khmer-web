@@ -32,6 +32,9 @@ export const CSV_BOM = "﻿";
 
 /** Quotes a filename for `Content-Disposition`, with an ASCII-safe fallback. */
 export function csvContentDisposition(filename: string) {
-  const asciiFallback = filename.replace(/[^\x20-\x7e]/g, "_");
+  // Drop non-ASCII plus the quote/backslash that would otherwise terminate the
+  // quoted value and let a caller-supplied name inject header parameters. The
+  // `filename*` form below still carries the exact name.
+  const asciiFallback = filename.replace(/[^\x20-\x7e]|["\\]/g, "_");
   return `attachment; filename="${asciiFallback}"; filename*=UTF-8''${encodeURIComponent(filename)}`;
 }
