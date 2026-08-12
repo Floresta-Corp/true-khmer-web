@@ -110,7 +110,7 @@ export default [
       route("successfully", "features/partner-registration/route/success.tsx"),
     ],
   ),
-  route("tk-admin", "features/admin/admindashboard/route/admin-layout.tsx", [
+  route("tk-admin", "features/admin/layout/route/admin-layout.tsx", [
     index("features/admin/dashboard/route/admin-dashboard.tsx"),
     route(
       "manage-moderator/team",

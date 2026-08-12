@@ -32,18 +32,20 @@ export default function AdminAuditLogPage() {
   const [entries, setEntries] = useState(firstPageEntries);
   const [pagination, setPagination] = useState(firstPagePagination);
 
-  // Identity of the active filter set, cursor excluded: a "load more" belongs to
-  // whichever filters were in the URL when it was issued.
-  const filterKey = useMemo(() => {
+  // Identifies the active filter set — everything in the URL except the cursor.
+  // A "load more" response may only be merged while this key is unchanged.
+  const filtersKey = useMemo(() => {
     const next = new URLSearchParams(searchParams);
     next.delete("cursor");
-    next.sort();
     return next.toString();
   }, [searchParams]);
 
-  const requestedFilterKeyRef = useRef(filterKey);
+  const pendingFiltersKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
+    // Fresh loader data replaces the accumulated pages, so a "load more"
+    // request still in flight belongs to the previous result set — drop it.
+    pendingFiltersKeyRef.current = null;
     setEntries(firstPageEntries);
     setPagination(firstPagePagination);
   }, [firstPageEntries, firstPagePagination]);
@@ -51,9 +53,6 @@ export default function AdminAuditLogPage() {
   useEffect(() => {
     const data = fetcher.data;
     if (!data) return;
-    // A page that lands after the filters changed belongs to an abandoned list:
-    // merging it would mix rows and overwrite the cursor with a stale one.
-    if (requestedFilterKeyRef.current !== filterKey) return;
 
     setEntries((previous) => {
       const seen = new Set(previous.map((entry) => entry.id));
@@ -63,7 +62,7 @@ export default function AdminAuditLogPage() {
       ];
     });
     setPagination(data.pagination);
-  }, [fetcher.data, filterKey]);
+  }, [fetcher.data, filtersKey]);
 
   const isLoadingEntries =
     navigation.state === "loading" &&
@@ -75,11 +74,11 @@ export default function AdminAuditLogPage() {
 
     const next = new URLSearchParams(searchParams);
     next.set("cursor", pagination.nextCursor);
-    requestedFilterKeyRef.current = filterKey;
+    pendingFiltersKeyRef.current = filtersKey;
     fetcher.load(`${location.pathname}?${next.toString()}`);
   }, [
     fetcher,
-    filterKey,
+    filtersKey,
     isLoadingMore,
     location.pathname,
     pagination.hasMore,
