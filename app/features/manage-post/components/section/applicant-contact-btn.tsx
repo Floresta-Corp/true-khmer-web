@@ -16,7 +16,7 @@ export default function ApplicantContactBtn({ candidate }: CandidateProps) {
   const emailUrl = `mailto:${candidate.email}`;
 
   return (
-    <div className="flex items-center gap-2 ">
+    <div className="flex items-center gap-2">
       {telegramUrl ? (
         <Button
           asChild

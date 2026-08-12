@@ -22,6 +22,7 @@ interface QuestionCardProps {
   categories: CategoriesPicker[];
   userId?: string;
   index?: number;
+  actions?: React.ReactNode;
 }
 
 export default function QuestionCard({
@@ -29,6 +30,7 @@ export default function QuestionCard({
   categories,
   userId,
   index = 0,
+  actions,
 }: QuestionCardProps) {
   const prefersReducedMotion = useReducedMotion();
   const createdAgoLabel = formatMinutesOrHoursAgo(question.createdAt);
@@ -102,60 +104,67 @@ export default function QuestionCard({
         </div>
 
         {/* Edit/Delete actions */}
-        {isCurrentAuthor ? (
-          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-            {/* Mobile: Dropdown menu */}
-            <div className="sm:hidden">
-              <MobileAuthorOptions
-                question={question}
-                categories={categories}
-              />
-            </div>
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          {actions}
 
-            {/* Desktop: Inline buttons with animation */}
-            <div className="hidden sm:block">
-              <motion.div
-                className="flex items-center gap-1.5"
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : 10 }}
-                transition={{ duration: 0.2 }}
-              >
-                <AskQuestionDialog
-                  categories={categories.filter(
-                    (category) => category.id !== "all-categories",
-                  )}
-                  isEditing
-                  data={question}
-                  trigger={
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-[26.25px] w-[26.25px] cursor-pointer rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
-                      aria-label="Edit question"
-                    >
-                      <Pencil size={12.25} />
-                    </Button>
-                  }
+          {isCurrentAuthor ? (
+            <>
+              {/* Mobile: Dropdown menu */}
+              <div className="sm:hidden">
+                <MobileAuthorOptions
+                  question={question}
+                  categories={categories}
                 />
-                <DeleteQuestionDialog
-                  questionId={question.id}
-                  trigger={
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-[26.25px] min-w-[26.25px] flex-1 cursor-pointer rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
-                      aria-label="Delete question"
-                    >
-                      <Trash2 size={12.25} />
-                    </Button>
-                  }
-                />
-              </motion.div>
-            </div>
-          </div>
-        ) : null}
+              </div>
+
+              {/* Desktop: Inline buttons with animation */}
+              <div className="hidden sm:block">
+                <motion.div
+                  className="flex items-center gap-1.5"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{
+                    opacity: isHovered ? 1 : 0,
+                    x: isHovered ? 0 : 10,
+                  }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <AskQuestionDialog
+                    categories={categories.filter(
+                      (category) => category.id !== "all-categories",
+                    )}
+                    isEditing
+                    data={question}
+                    trigger={
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-[26.25px] w-[26.25px] cursor-pointer rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
+                        aria-label="Edit question"
+                      >
+                        <Pencil size={12.25} />
+                      </Button>
+                    }
+                  />
+                  <DeleteQuestionDialog
+                    questionId={question.id}
+                    trigger={
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-[26.25px] min-w-[26.25px] flex-1 cursor-pointer rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
+                        aria-label="Delete question"
+                      >
+                        <Trash2 size={12.25} />
+                      </Button>
+                    }
+                  />
+                </motion.div>
+              </div>
+            </>
+          ) : null}
+        </div>
       </div>
 
       {/* Question Title */}

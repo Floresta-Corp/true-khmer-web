@@ -167,6 +167,30 @@ export default [
       "admin-audit-log",
       "features/admin/admin-audit-log/route/admin-audit-log.tsx",
     ),
+    route(
+      "manage-forum",
+      "features/admin/manage-content/route/manage-forum.tsx",
+    ),
+    route(
+      "manage-forum/:questionId",
+      "features/admin/manage-content/route/manage-forum.$questionId.tsx",
+    ),
+    route(
+      "manage-launchpad",
+      "features/admin/manage-content/route/manage-launchpad.tsx",
+    ),
+    route(
+      "manage-launchpad/:launchpadId",
+      "features/admin/manage-content/route/manage-launchpad.$launchpadId.tsx",
+    ),
+    route(
+      "manage-volunteer",
+      "features/admin/manage-content/route/manage-volunteer.tsx",
+    ),
+    route(
+      "manage-volunteer/:opportunityId",
+      "features/admin/manage-content/route/manage-volunteer.$opportunityId.tsx",
+    ),
   ]),
   route(
     "tk-admin/admin-audit-log/export",

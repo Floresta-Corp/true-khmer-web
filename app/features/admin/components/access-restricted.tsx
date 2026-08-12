@@ -14,7 +14,7 @@ export function AccessRestricted({
         <h1 className="mt-4 text-3xl font-bold text-slate-950 dark:text-white">
           Access Restricted
         </h1>
-        <span className="mt-2 tracking-wide text-md text-slate-500 dark:text-slate-400">
+        <span className="text-md mt-2 tracking-wide text-slate-500 dark:text-slate-400">
           {message}
         </span>
       </div>

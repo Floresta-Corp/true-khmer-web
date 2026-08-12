@@ -57,7 +57,10 @@ export async function acceptInviteAction({ request }: Route.ActionArgs) {
 
   const passwordComplexityError = getPasswordValidationError(password);
   if (passwordComplexityError) {
-    return data({ errors: { password: passwordComplexityError } }, { status: 400 });
+    return data(
+      { errors: { password: passwordComplexityError } },
+      { status: 400 },
+    );
   }
 
   try {
@@ -78,7 +81,9 @@ export async function acceptInviteAction({ request }: Route.ActionArgs) {
           form: inviteErrorMessage(error),
           token:
             error instanceof ProtectedApiError &&
-            (error.status === 400 || error.status === 404 || error.status === 410)
+            (error.status === 400 ||
+              error.status === 404 ||
+              error.status === 410)
               ? "Invalid or expired invite link."
               : undefined,
         },

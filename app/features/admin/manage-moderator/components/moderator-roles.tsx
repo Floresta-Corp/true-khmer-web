@@ -71,7 +71,7 @@ export function ModeratorRoles({
         onValueChange={handleRoleSelect}
         disabled={disabled}
       >
-        <SelectTrigger className="h-10 w-full rounded-lg cursor-pointer bg-white dark:border-slate-800 border text-sm font-medium shadow-none sm:w-40 dark:bg-slate-900/50 dark:text-slate-300">
+        <SelectTrigger className="h-10 w-full cursor-pointer rounded-lg border bg-white text-sm font-medium shadow-none sm:w-40 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-300">
           <SelectValue placeholder="Select a role" />
         </SelectTrigger>
 
@@ -96,10 +96,10 @@ export function ModeratorRoles({
       >
         <DialogContent
           showCloseButton={false}
-          className="sm:max-w-sm p-0 overflow-hidden gap-0 bg-white dark:bg-[#020617] border-slate-100 dark:border-slate-800 rounded-2xl"
+          className="gap-0 overflow-hidden rounded-2xl border-slate-100 bg-white p-0 sm:max-w-sm dark:border-slate-800 dark:bg-[#020617]"
         >
-          <DialogHeader className="p-6 pb-5 border-b border-slate-100 dark:border-slate-800 flex-row items-center gap-3 space-y-0">
-            <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-600 dark:border-none flex items-center justify-center shrink-0">
+          <DialogHeader className="flex-row items-center gap-3 space-y-0 border-b border-slate-100 p-6 pb-5 dark:border-slate-800">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-amber-600 bg-amber-50 text-amber-600 dark:border-none dark:bg-amber-900/20 dark:text-amber-400">
               <Shield size={18} />
             </div>
             <DialogTitle className="text-base font-bold text-slate-900 dark:text-white">
@@ -114,8 +114,8 @@ export function ModeratorRoles({
             </button>
           </DialogHeader>
 
-          <div className="p-6 space-y-6">
-            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <div className="space-y-6 p-6">
+            <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">
               Are you sure you want to change this member's access role to{" "}
               <span className="font-semibold text-slate-900 dark:text-slate-100">
                 {pendingRoleChange ? formatRoleLabel(pendingRoleChange) : ""}
@@ -128,14 +128,14 @@ export function ModeratorRoles({
                 type="button"
                 variant="outline"
                 onClick={handleCancel}
-                className="h-11 px-6 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95"
+                className="h-11 rounded-xl border-slate-200 px-6 text-[11px] font-black tracking-widest text-slate-600 uppercase transition-all hover:bg-slate-50 active:scale-95 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 Cancel
               </Button>
               <Button
                 type="button"
                 onClick={handleConfirm}
-                className="h-11 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black uppercase tracking-widest active:scale-95 transition-all"
+                className="h-11 rounded-xl bg-blue-600 px-6 text-xs font-black tracking-widest text-white uppercase transition-all hover:bg-blue-700 active:scale-95"
               >
                 Confirm
               </Button>

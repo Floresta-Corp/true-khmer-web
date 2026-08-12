@@ -139,12 +139,12 @@ function ProfileDetail({
         <dt className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
           <span>{label}</span>
           {verified ? (
-            <span className="text-xs font-sm text-emerald-600 dark:text-emerald-400">
+            <span className="font-sm text-xs text-emerald-600 dark:text-emerald-400">
               Verified
             </span>
           ) : null}
         </dt>
-        <dd className="mt-0.5 break-words text-sm font-medium text-slate-800 dark:text-slate-200">
+        <dd className="mt-0.5 text-sm font-medium break-words text-slate-800 dark:text-slate-200">
           {value}
         </dd>
       </div>
@@ -295,7 +295,7 @@ export function RecentActivity({
   activities: AdminUserManagementActivity[];
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900">
       <div>
         <h2 className="text-base font-semibold text-slate-950 dark:text-white">
           Recent Activity

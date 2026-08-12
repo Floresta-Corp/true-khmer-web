@@ -60,6 +60,8 @@ export type LaunchpadOpportunity = z.infer<typeof LaunchpadOpportunitySchema>;
 export const LaunchpadDetailSchema = z.object({
   id: z.string(),
   name: z.string(),
+  suspendedAt: z.string().nullish(),
+  suspensionReason: z.string().nullish(),
   category: CategorySchema,
   city: CitySchema,
   description: z.string(),

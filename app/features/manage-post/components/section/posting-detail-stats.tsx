@@ -22,61 +22,61 @@ export default function ManagePostingDetailStats() {
   const isGoalReached = totalApplicant >= capacity && capacity > 0;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-4">
       {/* 1. Pending Card */}
-      <div className="bg-blue-500 rounded-[24px] p-6 flex justify-between items-start relative overflow-hidden h-40 ">
+      <div className="relative flex h-40 items-start justify-between overflow-hidden rounded-[24px] bg-blue-500 p-6">
         <div className="relative z-20">
-          <p className="text-[14px] font-semibold text-white/70  tracking-wider mb-4">
+          <p className="mb-4 text-[14px] font-semibold tracking-wider text-white/70">
             Pending
           </p>
         </div>
 
         {/* Bottom text + watermark */}
-        <div className="absolute bottom-4 left-6 z-20 pointer-events-none">
-          <p className="text-4xl font-bold text-white tracking-tight">
+        <div className="pointer-events-none absolute bottom-4 left-6 z-20">
+          <p className="text-4xl font-bold tracking-tight text-white">
             {postDetail?.stats?.pending ?? 0}
           </p>
-          <span className="text-white/75 text-xs font-medium">
+          <span className="text-xs font-medium text-white/75">
             Requires immediate review
           </span>
         </div>
 
-        <div className="absolute inset-0 bg-linear-to-br from-indigo-600/0 via-indigo-600/0 to-black/10 z-10 pointer-events-none" />
+        <div className="pointer-events-none absolute inset-0 z-10 bg-linear-to-br from-indigo-600/0 via-indigo-600/0 to-black/10" />
       </div>
 
       {/* 2. Total Applicants */}
-      <div className="bg-white rounded-[24px] border border-gray-100 p-6 flex justify-between items-start relative overflow-hidden h-40 ">
+      <div className="relative flex h-40 items-start justify-between overflow-hidden rounded-[24px] border border-gray-100 bg-white p-6">
         <div className="relative z-20">
-          <p className="text-[14px] font-semibold text-gray-400 tracking-wider mb-4">
+          <p className="mb-4 text-[14px] font-semibold tracking-wider text-gray-400">
             Total Applicants
           </p>
         </div>
-        <div className="absolute bottom-4 left-6 z-20 pointer-events-none">
-          <p className="text-4xl font-bold text-black tracking-tight">
+        <div className="pointer-events-none absolute bottom-4 left-6 z-20">
+          <p className="text-4xl font-bold tracking-tight text-black">
             {postDetail?.stats?.totalApplicants ?? 0}
           </p>
-          <span className="text-green-500 text-xs font-medium">
+          <span className="text-xs font-medium text-green-500">
             +12% this week
           </span>
         </div>
         <HeartHandshake
           size={120}
-          className="absolute -bottom-4 -right-4 text-violet-400 opacity-[0.10] -rotate-12 pointer-events-none"
+          className="pointer-events-none absolute -right-4 -bottom-4 -rotate-12 text-violet-400 opacity-[0.10]"
           strokeWidth={1.5}
         />
       </div>
 
       {/* 4. Recruitment Goal */}
       <div
-        className={`rounded-[24px] border p-6 flex justify-between items-start relative overflow-hidden h-40 transition-all duration-300 ${
+        className={`relative flex h-40 items-start justify-between overflow-hidden rounded-[24px] border p-6 transition-all duration-300 ${
           isGoalReached
-            ? "bg-emerald-50 border-emerald-200 shadow-md shadow-emerald-500/5"
-            : "bg-white border-gray-100 "
+            ? "border-emerald-200 bg-emerald-50 shadow-md shadow-emerald-500/5"
+            : "border-gray-100 bg-white"
         }`}
       >
         <div className="relative z-20">
           <p
-            className={`text-[14px] font-semibold tracking-wider mb-4 ${
+            className={`mb-4 text-[14px] font-semibold tracking-wider ${
               isGoalReached ? "text-emerald-700/70" : "text-gray-400"
             }`}
           >
@@ -101,7 +101,7 @@ export default function ManagePostingDetailStats() {
           </p>
 
           {isGoalReached ? (
-            <span className="text-xs font-bold text-emerald-600 flex items-center gap-1 animate-pulse self-center">
+            <span className="flex animate-pulse items-center gap-1 self-center text-xs font-bold text-emerald-600">
               Goal Achieved!
             </span>
           ) : (
@@ -115,35 +115,35 @@ export default function ManagePostingDetailStats() {
         {isGoalReached ? (
           <CheckCircle2
             size={120}
-            className="absolute -bottom-6 -right-2 text-emerald-500 opacity-[0.08] -rotate-12 pointer-events-none"
+            className="pointer-events-none absolute -right-2 -bottom-6 -rotate-12 text-emerald-500 opacity-[0.08]"
             strokeWidth={1.5}
           />
         ) : (
           <CalendarDays
             size={120}
-            className="absolute -bottom-6 -right-2 text-amber-400 opacity-[0.15] -rotate-12 pointer-events-none"
+            className="pointer-events-none absolute -right-2 -bottom-6 -rotate-12 text-amber-400 opacity-[0.15]"
             strokeWidth={1.5}
           />
         )}
       </div>
 
       {/* 3. Total Views */}
-      <div className="bg-white rounded-[24px] border border-gray-100 p-6 flex justify-between items-start relative overflow-hidden h-40 ">
+      <div className="relative flex h-40 items-start justify-between overflow-hidden rounded-[24px] border border-gray-100 bg-white p-6">
         <div className="relative z-20">
-          <p className="text-[14px] font-semibold text-gray-400 tracking-wider mb-4">
+          <p className="mb-4 text-[14px] font-semibold tracking-wider text-gray-400">
             Total Views
           </p>
         </div>
-        <div className="absolute bottom-4 left-6 z-20 pointer-events-none">
-          <p className="text-4xl font-bold text-black tracking-tight">
+        <div className="pointer-events-none absolute bottom-4 left-6 z-20">
+          <p className="text-4xl font-bold tracking-tight text-black">
             {postDetail?.posting?.views ?? 0}
           </p>
-          <span className="text-green-500 text-xs font-medium">+450 today</span>
+          <span className="text-xs font-medium text-green-500">+450 today</span>
         </div>
 
         <ScanSearch
           size={120}
-          className="absolute -bottom-4 -right-4 text-green-500 opacity-[0.10] -rotate-12 pointer-events-none"
+          className="pointer-events-none absolute -right-4 -bottom-4 -rotate-12 text-green-500 opacity-[0.10]"
           strokeWidth={1.5}
         />
       </div>
