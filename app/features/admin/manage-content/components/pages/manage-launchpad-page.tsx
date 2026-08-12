@@ -39,12 +39,8 @@ export default function ManageLaunchpadPage() {
   const { categoryId: activeCategory, cityId: activeCity } =
     readLaunchpadFilters(searchParams);
   const activeStatus = searchParams.get("status") || ALL_STATUSES;
-  const [searchInput, setSearchInput] = useState(
-    searchParams.get("search") ?? "",
-  );
+  const activeSearch = searchParams.get("search") ?? "";
 
-  // The chip row leads with an "all" pseudo-category whose count is the sum of
-  // the rest, matching the forum toolbar.
   const categoryOptions = useMemo(
     () => [
       {
@@ -71,7 +67,6 @@ export default function ManageLaunchpadPage() {
           const next = new URLSearchParams(prev);
           if (value) next.set(key, value);
           else next.delete(key);
-          // A filter change restarts the list, so the old cursor is invalid.
           next.delete("cursor");
           return next;
         },
@@ -81,18 +76,20 @@ export default function ManageLaunchpadPage() {
     [setSearchParams],
   );
 
-  // Typing shouldn't stack history entries, so search replaces the URL rather
-  // than pushing to it.
   const handleSearchChange = useCallback(
     (value: string) => {
-      setSearchInput(value);
-      const next = new URLSearchParams(searchParams);
-      if (value) next.set("search", value);
-      else next.delete("search");
-      next.delete("cursor");
-      setSearchParams(next, { replace: true });
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (value) next.set("search", value);
+          else next.delete("search");
+          next.delete("cursor");
+          return next;
+        },
+        { replace: true, preventScrollReset: true },
+      );
     },
-    [searchParams, setSearchParams],
+    [setSearchParams],
   );
 
   const handleStatusChange = useCallback(
@@ -101,30 +98,22 @@ export default function ManageLaunchpadPage() {
     [updateFilter],
   );
 
-  // Identity of the active filter set (URL-derived). Keying the boundaries on
-  // it swaps the resolved grid back to its skeleton the moment a filter changes.
   const searchKey = filterKeyOf(searchParams);
 
   const isRevalidating =
     navigation.state === "loading" &&
     navigation.location?.pathname === BASE_PATH;
 
-  // The loader still awaits the filter options before the new page renders, so
-  // the Suspense boundary alone would leave the stale grid on screen for that
-  // whole window. Show the skeleton as soon as the pending URL differs — but
-  // not for a plain revalidation (a delete or suspend), which keeps its cards.
   const isFiltering =
     isRevalidating &&
     filterKeyOf(new URLSearchParams(navigation.location?.search)) !== searchKey;
 
   const hasFilters =
-    searchInput !== "" ||
+    activeSearch !== "" ||
     activeCategory !== ALL_CATEGORIES ||
     activeCity !== ALL_CITIES ||
     activeStatus !== ALL_STATUSES;
 
-  // Counts from a previous filter set would be misleading, so only trust stats
-  // reported for the filters currently in the URL.
   const currentStats = stats?.key === searchKey ? stats : null;
 
   return (
@@ -177,7 +166,7 @@ export default function ManageLaunchpadPage() {
           <ManageLaunchpadToolbar
             categories={categoryOptions}
             cities={cities}
-            searchValue={searchInput}
+            searchValue={activeSearch}
             statusValue={activeStatus}
             allValue={ALL_STATUSES}
             onSearchChange={handleSearchChange}

@@ -7,7 +7,6 @@ import {
   unsuspendForumQuestion,
 } from "~/api/admin/manage-forum/manage-forum.server";
 
-/** Mirrors `AdminSuspendPostBody.reason` in the API schema. */
 const REASON_MAX_LENGTH = 500;
 
 const INTENTS = {

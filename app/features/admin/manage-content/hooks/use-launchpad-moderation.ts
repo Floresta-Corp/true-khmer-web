@@ -10,7 +10,6 @@ type ModerationIntent =
   | "unsuspendLaunchpad";
 
 type UseLaunchpadModerationOptions = {
-  /** Runs after a delete succeeds (the detail page navigates away). */
   onDeleted?: (launchpadId: string) => void;
 };
 
@@ -20,17 +19,6 @@ const VERBS: Record<ModerationIntent, { failed: string; done: string }> = {
   unsuspendLaunchpad: { failed: "restore", done: "restored" },
 };
 
-/**
- * Owns the moderation fetcher for the launchpad screens.
- *
- * The fetcher deliberately lives on the page rather than inside each dialog: a
- * successful delete revalidates the loader, the deleted card drops out of the
- * list, and the dialog unmounts before its own effect can fire — swallowing the
- * toast. The page outlives every card, so results always land.
- *
- * Suspends need no local bookkeeping: the admin read endpoints return projects
- * at any status, so the revalidated loader already reflects the new state.
- */
 export function useLaunchpadModeration({
   onDeleted,
 }: UseLaunchpadModerationOptions = {}) {
@@ -98,8 +86,6 @@ export function useLaunchpadModeration({
 
     if (!target || target.intent !== "deleteLaunchpad") return;
 
-    // Deleted cards linger in already-fetched pages until the next full load,
-    // so track them and filter on render.
     setRemovedIds((prev) => new Set(prev).add(target.id));
     onDeleted?.(target.id);
   }, [fetcher.state, fetcher.data, onDeleted]);
@@ -110,7 +96,6 @@ export function useLaunchpadModeration({
     deleteProject,
     suspendProject,
     unsuspendProject,
-    /** True while any moderation submission is in flight. */
     isModerating: fetcher.state !== "idle",
   };
 }

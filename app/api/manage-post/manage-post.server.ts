@@ -166,17 +166,11 @@ export async function updateApplicantNote(
   );
 }
 
-/** What the poster is told about a moderation hold on their own post. */
 export type PostingSuspension = {
   suspendedAt: string | null;
   suspensionReason: string | null;
 };
 
-/**
- * The manage-posting payload reports the hold but not why it was placed, so the
- * reason is read from the source post — which the API serves, with the reason
- * attached, only to its poster.
- */
 export async function getPostingSuspension(
   request: Request,
   sourceType: PostSourceType,
@@ -202,8 +196,6 @@ export async function getPostingSuspension(
       suspensionReason: opportunity.suspensionReason ?? null,
     };
   } catch {
-    // The banner still explains the hold without a reason, so a failure here
-    // must not take the whole page down.
     return null;
   }
 }

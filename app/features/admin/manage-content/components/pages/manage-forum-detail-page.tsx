@@ -94,16 +94,12 @@ function AnswersSection({
   onUnsuspend,
   isDeleting,
 }: AnswersSectionProps) {
-  // The admin answers endpoint returns one flat list rather than splitting the
-  // accepted answer out, so identify it by the question's `bestAnswerId` and
-  // pin it to the top. Answers deleted this session are dropped until reload.
   const kept = answers.filter((answer) => !removedIds.has(answer.id));
-  const visibleAnswers = bestAnswerId
-    ? [...kept].sort((a, b) => {
-        if (a.id === bestAnswerId) return -1;
-        if (b.id === bestAnswerId) return 1;
-        return 0;
-      })
+  const best = bestAnswerId
+    ? kept.find((answer) => answer.id === bestAnswerId)
+    : undefined;
+  const visibleAnswers = best
+    ? [best, ...kept.filter((answer) => answer.id !== bestAnswerId)]
     : kept;
 
   if (visibleAnswers.length === 0) {
@@ -140,7 +136,6 @@ function AnswersSection({
   );
 }
 
-/** The answers are supplementary: a failed fetch must not lose the question. */
 function AnswersError() {
   return (
     <div className="flex items-center gap-2.5 rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-6 dark:border-slate-800 dark:bg-slate-900">
@@ -248,7 +243,6 @@ export default function ManageForumDetailPage() {
             />
           )}
 
-          {/* Question */}
           <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
             {thumbnail && (
               <ContentImagePreview
@@ -343,14 +337,12 @@ export default function ManageForumDetailPage() {
             </div>
           </article>
 
-          {/* Answers */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-base font-bold text-slate-950 dark:text-white">
-              {/* {totalAnswers} answer{totalAnswers === 1 ? "" : "s"} */}
+              {question.answerCount} answer
+              {question.answerCount === 1 ? "" : "s"}
             </h2>
 
-            {/* Outside the boundary below: the sort control stays usable while
-                the reordered answers stream in. */}
             {question.answerCount > 0 && (
               <Select value={activeSort} onValueChange={handleSortChange}>
                 <SelectTrigger
@@ -370,8 +362,6 @@ export default function ManageForumDetailPage() {
             )}
           </div>
 
-          {/* Keyed on the sort: a new key is a fresh boundary, so picking a
-              different order swaps straight to the answer skeletons. */}
           <Suspense
             key={activeSort}
             fallback={

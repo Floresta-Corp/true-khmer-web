@@ -1,11 +1,5 @@
 import { Badge } from "~/components/ui/badge";
 
-/**
- * The two inline suspension affordances used across forum answers and replies:
- * a badge next to the author and the reason line under it. Kept together
- * because they always appear as a pair and share the same orange palette.
- */
-
 export function SuspendedBadge() {
   return (
     <Badge

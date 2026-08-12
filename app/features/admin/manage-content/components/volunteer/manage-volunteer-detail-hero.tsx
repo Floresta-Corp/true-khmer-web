@@ -62,7 +62,6 @@ export default function ManageVolunteerDetailHero({
           {opportunity.overview}
         </p>
 
-        {/* Applications against capacity, the headline moderation signal */}
         <div className="mt-5 rounded-xl border border-slate-200/70 bg-slate-50/60 p-4 dark:border-slate-800 dark:bg-slate-900/50">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">

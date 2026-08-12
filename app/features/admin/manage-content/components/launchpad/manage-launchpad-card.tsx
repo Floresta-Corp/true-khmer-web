@@ -51,7 +51,6 @@ export default function ManageLaunchpadCard({
 
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_10px_28px_-14px_rgb(15_23_42/0.25)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700">
-      {/* Cover */}
       <div className="relative aspect-video w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
         {cover ? (
           <img
@@ -107,7 +106,6 @@ export default function ManageLaunchpadCard({
             to={detailPath}
             className="line-clamp-1 text-[15px] font-semibold text-slate-900 transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400"
           >
-            {/* Stretched hit area: the whole card opens the project */}
             <span className="absolute inset-0 z-0" aria-hidden="true" />
             {project.name}
           </Link>

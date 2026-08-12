@@ -1,18 +1,11 @@
 import { EyeOff } from "lucide-react";
 
 interface ModerationHoldNoticeProps {
-  /** The thing on hold, lowercase: "opportunity", "project", "question". */
   noun: string;
-  /** Who can still see it and what is blocked, e.g. "Only its poster can see it, and nobody can apply." */
   visibility: string;
   reason: string | null;
 }
 
-/**
- * Banner shown at the top of a suspended item's detail page. The reason comes
- * from the moderator who suspended it and may be absent on older records, so
- * the copy falls back rather than rendering a dangling "Reason:".
- */
 export default function ModerationHoldNotice({
   noun,
   visibility,
@@ -30,7 +23,7 @@ export default function ModerationHoldNotice({
         </p>
         <p className="mt-0.5 text-xs text-orange-700/80 dark:text-orange-400/80">
           {visibility}{" "}
-          {reason ? `Reason: ${reason}` : "No reason was recorded."}
+          {reason?.trim() ? `Reason: ${reason}` : "No reason was recorded."}
         </p>
       </div>
     </div>

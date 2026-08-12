@@ -56,9 +56,7 @@ export default function ManageForumPage() {
 
   const { categoryId: activeCategory } = readForumFilters(searchParams);
   const activeStatus = searchParams.get("status") || ALL_STATUSES;
-  const [searchInput, setSearchInput] = useState(
-    searchParams.get("search") ?? "",
-  );
+  const searchInput = searchParams.get("search") ?? "";
 
   const updateFilter = useCallback(
     (key: (typeof FILTER_KEYS)[number], value: string | null) => {
@@ -76,14 +74,21 @@ export default function ManageForumPage() {
     [setSearchParams],
   );
 
-  const handleSearchChange = (value: string) => {
-    setSearchInput(value);
-    const nextParams = new URLSearchParams(searchParams);
-    if (value) nextParams.set("search", value);
-    else nextParams.delete("search");
-    nextParams.delete("cursor");
-    setSearchParams(nextParams, { replace: true });
-  };
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (value) next.set("search", value);
+          else next.delete("search");
+          next.delete("cursor");
+          return next;
+        },
+        { replace: true, preventScrollReset: true },
+      );
+    },
+    [setSearchParams],
+  );
 
   const handleStatusChange = useCallback(
     (status: string) =>

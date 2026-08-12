@@ -59,7 +59,6 @@ export default function ManageVolunteerCard({
 
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_10px_28px_-14px_rgb(15_23_42/0.25)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700">
-      {/* Cover */}
       <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
         {cover ? (
           <img
@@ -141,8 +140,6 @@ export default function ManageVolunteerCard({
           </Meta>
         </div>
 
-        {/* Applications against capacity — the signal that tells a moderator
-            whether pulling this listing would strand a queue of applicants. */}
         <div className="mt-auto pt-3">
           <div className="flex items-center justify-between gap-2 text-xs">
             <span className="font-medium text-slate-400 dark:text-slate-500">

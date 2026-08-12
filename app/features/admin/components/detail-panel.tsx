@@ -1,7 +1,3 @@
-/**
- * Titled card used to section the admin content-detail pages. The uppercase
- * label is the only chrome, so panels stack without competing with the hero.
- */
 export default function DetailPanel({
   title,
   children,

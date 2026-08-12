@@ -126,7 +126,6 @@ export default function ManageLaunchpadDetailPage() {
             />
           )}
 
-          {/* Hero */}
           <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
             {cover ? (
               <ContentImagePreview
@@ -184,7 +183,6 @@ export default function ManageLaunchpadDetailPage() {
           </section>
 
           <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
-            {/* Roles */}
             <DetailPanel title={`Open roles (${project.roles.length})`}>
               {project.roles.length === 0 ? (
                 <p className="py-4 text-center text-xs text-slate-400 dark:text-slate-500">
@@ -264,10 +262,10 @@ export default function ManageLaunchpadDetailPage() {
               {documents.length > 0 && (
                 <DetailPanel title={`Materials (${documents.length})`}>
                   <ul className="space-y-2">
-                    {documents.map((document) => (
-                      <li key={document.key}>
+                    {documents.map((material) => (
+                      <li key={material.key}>
                         <a
-                          href={document.url}
+                          href={material.url}
                           target="_blank"
                           rel="noreferrer"
                           className="flex items-center gap-2.5 rounded-xl border border-slate-200/70 bg-slate-50/60 p-2.5 transition-colors hover:border-slate-300 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800"
@@ -276,7 +274,7 @@ export default function ManageLaunchpadDetailPage() {
                             <FileText size={14} />
                           </span>
                           <span className="min-w-0 flex-1 truncate text-xs font-semibold text-slate-700 dark:text-slate-200">
-                            {document.name}
+                            {material.name}
                           </span>
                           <ExternalLink
                             size={13}

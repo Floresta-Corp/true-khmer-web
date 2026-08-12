@@ -3,7 +3,6 @@ import { CalendarClock } from "lucide-react";
 import { cn } from "~/lib/utils";
 
 const DAY_MS = 86_400_000;
-/** Inside this window a project is flagged as closing, not simply open. */
 const CLOSING_SOON_DAYS = 7;
 
 export type DeadlineState = {
@@ -12,11 +11,6 @@ export type DeadlineState = {
   daysLeft: number | null;
 };
 
-/**
- * Launchpad projects and volunteer opportunities carry no moderation status the
- * list endpoints expose, so the deadline is the signal worth surfacing: it tells
- * a moderator whether a listing is still recruiting before they act on it.
- */
 export function resolveDeadlineState(deadline: string | null): DeadlineState {
   if (!deadline) {
     return { label: "No deadline", tone: "none", daysLeft: null };
@@ -27,7 +21,6 @@ export function resolveDeadlineState(deadline: string | null): DeadlineState {
     return { label: "No deadline", tone: "none", daysLeft: null };
   }
 
-  // Compare whole days so a deadline "today" doesn't read as expired at 09:00.
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
   parsed.setHours(0, 0, 0, 0);

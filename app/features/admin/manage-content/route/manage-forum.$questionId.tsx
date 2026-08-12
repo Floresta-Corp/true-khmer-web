@@ -17,6 +17,10 @@ export function meta() {
 export const loader = manageForumDetailLoader;
 export const action = manageForumDetailAction;
 
+export function HydrateFallback() {
+  return <ManageForumDetailSkeleton />;
+}
+
 export function shouldRevalidate({
   formData,
   defaultShouldRevalidate,

@@ -49,7 +49,6 @@ export default function ManageLaunchpadProjects({
   >([]);
   const [extraCursor, setExtraCursor] = useState<string | null | undefined>();
   const [loadMoreFailed, setLoadMoreFailed] = useState(false);
-  /** Cursor of the page already requested, so the sentinel cannot ask twice. */
   const requestedCursorRef = useRef<string | null>(null);
 
   const {
@@ -96,8 +95,6 @@ export default function ManageLaunchpadProjects({
         setExtraCursor(nextPage.nextCursor);
       })
       .catch(() => {
-        // A rejected page leaves the cursor where it was, so without this the
-        // sentinel would keep re-requesting it. Surface a retry instead.
         if (cancelled) return;
         setLoadMoreFailed(true);
       });
@@ -107,7 +104,6 @@ export default function ManageLaunchpadProjects({
     };
   }, [fetcher.data?.data, firstPage.launchpads]);
 
-  // Page 1 + accumulated extra pages, minus anything moderated away this session.
   const projects = useMemo(() => {
     const seen = new Set(firstPage.launchpads.map((project) => project.id));
     const merged = [
@@ -118,11 +114,9 @@ export default function ManageLaunchpadProjects({
     return merged.filter((project) => !removedIds.has(project.id));
   }, [firstPage.launchpads, extraPages, removedIds]);
 
-  // Pagination follows the most recently loaded page.
   const cursor = extraCursor === undefined ? firstPage.nextCursor : extraCursor;
   const hasMore = Boolean(cursor);
 
-  // Feed the header pill, which sits outside this subtree.
   useEffect(() => {
     onStatsChange({ key: searchKey, loaded: projects.length, hasMore });
   }, [onStatsChange, searchKey, projects.length, hasMore]);
@@ -133,8 +127,6 @@ export default function ManageLaunchpadProjects({
     if (!cursor) return;
     if (isLoadingMore) return;
     if (loadMoreFailed) return;
-    // The cursor only advances once a page lands, so guard against asking for
-    // the same one twice.
     if (requestedCursorRef.current === cursor) return;
 
     requestedCursorRef.current = cursor;

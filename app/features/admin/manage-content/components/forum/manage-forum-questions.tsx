@@ -50,7 +50,6 @@ export default function ManageForumQuestions({
     GetQuestionsResponse["pagination"] | null
   >(null);
   const [loadMoreFailed, setLoadMoreFailed] = useState(false);
-  /** Cursor of the page already requested, so the sentinel cannot ask twice. */
   const requestedCursorRef = useRef<string | null>(null);
 
   const {
@@ -76,8 +75,6 @@ export default function ManageForumQuestions({
     [searchParams],
   );
 
-  // Append newly fetched pages, de-duping against page 1 and prior extra pages.
-  // The loader streams its payload, so a fetcher load hands back a promise.
   useEffect(() => {
     const pending = fetcher.data?.data;
     if (!pending) return;
@@ -100,8 +97,6 @@ export default function ManageForumQuestions({
         setExtraPagination(nextPage.pagination);
       })
       .catch(() => {
-        // A rejected page leaves the cursor where it was, so without this the
-        // sentinel would keep re-requesting it. Surface a retry instead.
         if (cancelled) return;
         setLoadMoreFailed(true);
       });
@@ -111,7 +106,6 @@ export default function ManageForumQuestions({
     };
   }, [fetcher.data?.data, firstPage.questions]);
 
-  // Page 1 + accumulated extra pages, minus anything moderated away this session.
   const questions = useMemo(() => {
     const seen = new Set(firstPage.questions.map((question) => question.id));
     const merged = [
@@ -122,13 +116,11 @@ export default function ManageForumQuestions({
     return merged.filter((question) => !removedIds.has(question.id));
   }, [firstPage.questions, extraPages, removedIds]);
 
-  // Pagination follows the most recently loaded page.
   const pagination = extraPagination ?? firstPage.pagination;
   const totalCount = pagination.total ?? questions.length;
   const hasMore = pagination.hasMore;
   const nextCursor = pagination.nextCursor ?? undefined;
 
-  // Feed the header pill, which sits outside this subtree.
   useEffect(() => {
     onStatsChange({
       key: searchKey,

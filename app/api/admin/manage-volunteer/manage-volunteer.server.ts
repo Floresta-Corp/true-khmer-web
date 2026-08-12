@@ -17,11 +17,6 @@ export interface VolunteerPaginationParams {
   status?: VolunteerStatusFilter;
 }
 
-/**
- * The moderation listing: suspended posts are included (the member and public
- * lists hide them), as are posts in an archived category or deactivated city.
- * Deleted posts appear only when `status=DELETED` is asked for.
- */
 export async function getAdminVolunteer(
   request: Request,
   accessToken: string,
@@ -43,11 +38,6 @@ export async function getAdminVolunteer(
   );
 }
 
-/**
- * Reads a post at any status — live, in progress, completed, canceled,
- * suspended, or deleted — with its suspension reason. The view count is not
- * incremented, so moderating a listing doesn't inflate its stats.
- */
 export async function getAdminVolunteerById(
   request: Request,
   accessToken: string,

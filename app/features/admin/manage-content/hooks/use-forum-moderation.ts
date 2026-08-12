@@ -19,7 +19,6 @@ type PendingAction = {
 };
 
 type UseForumModerationOptions = {
-  /** Runs after a question delete succeeds (the detail page navigates away). */
   onQuestionDeleted?: (questionId: string) => void;
 };
 
@@ -32,17 +31,6 @@ const VERBS: Record<ModerationIntent, { failed: string; done: string }> = {
   unsuspendAnswer: { failed: "restore", done: "restored" },
 };
 
-/**
- * Owns the moderation fetcher for the forum screens.
- *
- * The fetcher deliberately lives on the page rather than inside each dialog: a
- * successful delete revalidates the loader, the deleted row drops out of the
- * list, and the dialog unmounts before its own effect can fire — swallowing the
- * toast. The page outlives every row, so results always land.
- *
- * Suspends need no local bookkeeping: the admin read endpoints return content
- * at any status, so the revalidated loader already reflects the new state.
- */
 export function useForumModeration({
   onQuestionDeleted,
 }: UseForumModerationOptions = {}) {
@@ -161,8 +149,6 @@ export function useForumModeration({
       target.intent === "deleteQuestion" ||
       target.intent === "deleteAnswer"
     ) {
-      // Deleted rows linger in already-fetched pages (and in nested reply
-      // lists) until the next full load, so track them and filter on render.
       setRemovedIds((prev) => new Set(prev).add(target.id));
 
       if (target.intent === "deleteQuestion") {
@@ -180,7 +166,6 @@ export function useForumModeration({
     unsuspendQuestion,
     suspendAnswer,
     unsuspendAnswer,
-    /** True while any moderation submission is in flight. */
     isDeleting: fetcher.state !== "idle",
   };
 }

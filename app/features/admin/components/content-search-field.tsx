@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Search, X } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
@@ -20,17 +20,24 @@ export default function ContentSearchField({
   onChange,
 }: ContentSearchFieldProps) {
   const [draft, setDraft] = useState(value);
-
-  // Keep the field in step when the URL changes from elsewhere (back button,
-  // a cleared filter) without fighting the user mid-type.
-  useEffect(() => setDraft(value), [value]);
+  const emittedRef = useRef(value);
 
   useEffect(() => {
-    if (draft === value) return;
+    if (value === emittedRef.current) return;
+    emittedRef.current = value;
+    setDraft(value);
+  }, [value]);
 
-    const timer = setTimeout(() => onChange(draft.trim()), SEARCH_DEBOUNCE_MS);
+  useEffect(() => {
+    const next = draft.trim();
+    if (next === emittedRef.current) return;
+
+    const timer = setTimeout(() => {
+      emittedRef.current = next;
+      onChange(next);
+    }, SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(timer);
-  }, [draft, value, onChange]);
+  }, [draft, onChange]);
 
   return (
     <div className="relative min-w-0">

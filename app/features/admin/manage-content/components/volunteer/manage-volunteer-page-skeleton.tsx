@@ -1,6 +1,5 @@
 import { Skeleton } from "~/components/ui/skeleton";
 
-/** Mirrors the layout of `ManageVolunteerCard` so the swap does not shift rows. */
 function VolunteerCardSkeleton() {
   return (
     <article className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
@@ -14,7 +13,6 @@ function VolunteerCardSkeleton() {
           <Skeleton className="h-3 w-5/6" />
         </div>
 
-        {/* Location / commitment / views */}
         <div className="mt-3 flex items-center gap-3">
           <Skeleton className="h-3 w-24" />
           <Skeleton className="h-3 w-16" />

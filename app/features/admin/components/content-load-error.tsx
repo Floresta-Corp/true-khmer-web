@@ -1,12 +1,6 @@
 import { RotateCcw, TriangleAlert } from "lucide-react";
 import { useRevalidator } from "react-router";
 
-/**
- * Fallback for a rejected list promise. Without an `errorElement` on the
- * surrounding `<Await>`, the rejection escapes to the route error boundary and
- * takes the whole screen — header, toolbar, and the filters the moderator just
- * set. Confining it here keeps those on screen and offers a retry.
- */
 export default function ContentLoadError({ noun }: { noun: string }) {
   const { revalidate, state } = useRevalidator();
 
@@ -41,10 +35,6 @@ export default function ContentLoadError({ noun }: { noun: string }) {
   );
 }
 
-/**
- * Stand-in for the header count pill when its promise rejects. Keeps the pill's
- * footprint so the header does not reflow, and says nothing it cannot back up.
- */
 export function ContentCountUnavailable() {
   return (
     <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-400 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-500">

@@ -15,7 +15,6 @@ export default function ManageVolunteerOrganizerPanel({
 }) {
   const { contact } = organizer;
 
-  // Every contact channel is optional, so drop the empty ones rather than
   const contacts = [
     contact.email && {
       icon: <Mail size={13} />,

@@ -1,7 +1,3 @@
-/**
- * Icon + label on the left, value on the right. Meant to be stacked inside a
- * `divide-y` container so a run of rows reads as one metadata table.
- */
 export default function DetailRow({
   icon,
   label,

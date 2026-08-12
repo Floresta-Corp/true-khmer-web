@@ -41,7 +41,6 @@ const FILTER_KEYS: FilterKey[] = [
   "status",
 ];
 
-/** Identity of a filter set, cursor excluded, so paging keeps the same key. */
 const filterKeyOf = (params: URLSearchParams) =>
   FILTER_KEYS.map((key) => params.get(key) || "").join("|");
 
@@ -56,6 +55,7 @@ export default function ManageVolunteerPage() {
   const [extraPagination, setExtraPagination] = useState<
     AdminVolunteerPostsResponse["pagination"] | null
   >(null);
+  const requestedCursorRef = useRef<string | null>(null);
 
   const {
     removedIds,
@@ -109,6 +109,7 @@ export default function ManageVolunteerPage() {
   useEffect(() => {
     setExtraPages([]);
     setExtraPagination(null);
+    requestedCursorRef.current = null;
     resetRemoved();
   }, [searchKey, resetRemoved]);
 
@@ -128,7 +129,6 @@ export default function ManageVolunteerPage() {
     setExtraPagination(page.pagination);
   }, [fetcher.data, searchKey]);
 
-  // Page 1 (fresh from the loader) + accumulated extra pages.
   const visibleOpportunities = useMemo(() => {
     const seen = new Set(opportunities.map((item) => item.id));
     const merged = [
@@ -142,9 +142,6 @@ export default function ManageVolunteerPage() {
   const activePagination = extraPagination ?? pagination;
   const hasMore = Boolean(activePagination?.hasMore);
   const nextCursor = activePagination?.nextCursor ?? null;
-  const [searchInput, setSearchInput] = useState(
-    searchParams.get("search") ?? "",
-  );
 
   const isRevalidating =
     navigation.state === "loading" &&
@@ -158,7 +155,9 @@ export default function ManageVolunteerPage() {
   const handleLoadMore = useCallback(() => {
     if (!hasMore || !nextCursor) return;
     if (isLoadingMore || isRevalidating) return;
+    if (requestedCursorRef.current === nextCursor) return;
 
+    requestedCursorRef.current = nextCursor;
     requestedKeyRef.current = searchKey;
     fetcher.load(buildQuery(nextCursor));
   }, [
@@ -175,14 +174,18 @@ export default function ManageVolunteerPage() {
 
   const handleSearchChange = useCallback(
     (value: string) => {
-      setSearchInput(value);
-      const next = new URLSearchParams(searchParams);
-      if (value) next.set("search", value);
-      else next.delete("search");
-      next.delete("cursor");
-      setSearchParams(next, { replace: true });
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (value) next.set("search", value);
+          else next.delete("search");
+          next.delete("cursor");
+          return next;
+        },
+        { replace: true, preventScrollReset: true },
+      );
     },
-    [searchParams, setSearchParams],
+    [setSearchParams],
   );
 
   const handleStatusChange = useCallback(
@@ -247,7 +250,7 @@ export default function ManageVolunteerPage() {
           <ManageVolunteerToolbar
             categories={categories}
             locations={locations}
-            searchValue={searchInput}
+            searchValue={activeSearch}
             statusValue={activeStatus}
             allValue={ALL_STATUSES}
             onSearchChange={handleSearchChange}

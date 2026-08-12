@@ -37,10 +37,6 @@ function AnswerCardSkeleton() {
   );
 }
 
-/**
- * Just the answer list — used while the streamed answers resolve, so the
- * question card and the sort control above it stay live.
- */
 export function ManageForumAnswersSkeleton({
   answers = 3,
 }: {
@@ -78,7 +74,6 @@ export function ManageForumDetailSkeleton({
             </div>
           </div>
 
-          {/* Question */}
           <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
             <div className="p-6">
               <div className="flex flex-wrap items-center gap-2">
@@ -120,7 +115,6 @@ export function ManageForumDetailSkeleton({
             </div>
           </article>
 
-          {/* Answers */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Skeleton className="h-5 w-28" />
             <Skeleton className="h-10 w-44 rounded-lg" />

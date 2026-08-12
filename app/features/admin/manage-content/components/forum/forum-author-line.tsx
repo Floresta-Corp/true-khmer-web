@@ -12,7 +12,6 @@ interface ForumAuthorLineProps {
   author: AnswerResponse["author"];
   createdAt: string;
   isQuestionAuthor: boolean;
-  /** `md` for top-level answers, `sm` for the indented replies beneath them. */
   size?: "sm" | "md";
 }
 
