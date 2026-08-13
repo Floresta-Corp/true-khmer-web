@@ -1,4 +1,7 @@
-const HERO_BACKGROUND = "/home-welcome-hero-bg.svg";
+import WelcomeHeroBg from "~/components/icons/welcomeHeroBg";
+
+const ALIGN_TO_CONTAINER =
+  "translateX(calc(min(100%, 75rem) / 2 - 1.5rem - 44.709%))";
 
 interface HomeWelcomeHeroSectionProps {
   name?: string | null;
@@ -16,12 +19,16 @@ export function HomeWelcomeHeroSection({ name }: HomeWelcomeHeroSectionProps) {
         }}
         aria-hidden
       />
-      <img
-        src={HERO_BACKGROUND}
-        alt=""
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 hidden lg:block"
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 hidden h-auto w-full lg:block"
-      />
+      >
+        <div className="relative" style={{ transform: ALIGN_TO_CONTAINER }}>
+          <div className="absolute top-0 right-full h-[72.795%] w-screen bg-[#D5EDFF]" />
+          <div className="absolute top-0 left-full h-[84.99%] w-screen bg-linear-to-b from-white to-[#FCFEFF]" />
+          <WelcomeHeroBg className="h-auto w-full" />
+        </div>
+      </div>
 
       {/* Content Layer */}
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 items-center px-4 pt-4 pb-6 sm:px-6 sm:pt-8 lg:min-h-[max(420px,34.4vw)] lg:flex-none lg:items-center lg:px-8 lg:pt-0">

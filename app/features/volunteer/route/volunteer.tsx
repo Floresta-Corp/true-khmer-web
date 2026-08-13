@@ -48,7 +48,7 @@ export default function VolunteerPage() {
             delay: sectionDelay,
             ease: "easeOut" as const,
           }}
-          className="lg:pt-17.5 will-change-transform"
+          className="will-change-transform lg:pt-17.5"
         >
           <VolunteerCategoriesSection
             categories={categories || []}

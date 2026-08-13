@@ -184,6 +184,10 @@ body {
   }
 }
 
+@utility site-container {
+  @apply mx-auto w-full max-w-300 px-4 lg:px-2;
+}
+
 /* Hide scrollbar but keep scroll functionality */
 .scrollbar-hide {
   -ms-overflow-style: none; /* IE and Edge */
