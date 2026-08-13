@@ -12,6 +12,12 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import { Textarea } from "~/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { cn } from "~/lib/utils";
 
 const REASON_MAX_LENGTH = 500;
@@ -70,8 +76,8 @@ export default function SuspendForumPostDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {withLabel ? (
+      {withLabel ? (
+        <DialogTrigger asChild>
           <Button
             type="button"
             variant="ghost"
@@ -88,25 +94,34 @@ export default function SuspendForumPostDialog({
             <Icon size={14} />
             {actionLabel}
           </Button>
-        ) : (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            disabled={disabled}
-            className={cn(
-              "size-8 shrink-0 cursor-pointer rounded-xl bg-[#f9fafb] text-[#99a1af] transition-colors dark:bg-slate-800 dark:text-slate-400",
-              suspended
-                ? "hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-500/10 dark:hover:text-emerald-400"
-                : "hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-500/10 dark:hover:text-amber-400",
-              className,
-            )}
-            aria-label={ariaLabel}
-          >
-            <Icon size={14} />
-          </Button>
-        )}
-      </DialogTrigger>
+        </DialogTrigger>
+      ) : (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DialogTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  disabled={disabled}
+                  className={cn(
+                    "size-8 shrink-0 cursor-pointer rounded-xl bg-[#f9fafb] text-[#99a1af] transition-colors dark:bg-slate-800 dark:text-slate-400",
+                    suspended
+                      ? "hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-500/10 dark:hover:text-emerald-400"
+                      : "hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-500/10 dark:hover:text-amber-400",
+                    className,
+                  )}
+                  aria-label={ariaLabel}
+                >
+                  <Icon size={14} />
+                </Button>
+              </DialogTrigger>
+            </TooltipTrigger>
+            <TooltipContent>{actionLabel}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
 
       <DialogContent className="max-w-sm rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-xl dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:shadow-black/40">
         <DialogTitle>

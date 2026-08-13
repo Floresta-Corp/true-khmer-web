@@ -30,9 +30,6 @@ const ALL_STATUSES = "all-statuses";
 export default function ManageForumPage() {
   const { data, categories } = useLoaderData<typeof manageForumLoader>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigation = useNavigation();
-
-  const [stats, setStats] = useState<ListStats | null>(null);
 
   const categoryOptions = useMemo<CategoriesPicker[]>(
     () => [
@@ -96,12 +93,6 @@ export default function ManageForumPage() {
     [updateFilter],
   );
 
-  const isRevalidating =
-    navigation.state === "loading" &&
-    navigation.location?.pathname === BASE_PATH;
-
-  const currentStats = stats?.key === searchKey ? stats : null;
-
   return (
     <div className="relative flex h-[calc(100vh-4rem)] flex-col bg-[#f8fafc] md:h-[calc(100vh-5rem)] dark:bg-slate-950">
       <div className="custom-scrollbar flex-1 overflow-auto p-6">
@@ -115,28 +106,6 @@ export default function ManageForumPage() {
                 Review and moderate questions posted by the community.
               </p>
             </div>
-
-            <Suspense
-              key={searchKey}
-              fallback={<Skeleton className="h-7 w-40 rounded-full" />}
-            >
-              <Await resolve={data} errorElement={<ContentCountUnavailable />}>
-                {(firstPage) => (
-                  <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
-                    <span
-                      className={cn(
-                        "size-1.5 rounded-full",
-                        isRevalidating
-                          ? "animate-pulse bg-amber-400"
-                          : "bg-emerald-500",
-                      )}
-                    />
-                    Showing {currentStats?.loaded ?? firstPage.questions.length}{" "}
-                    of {currentStats?.total ?? firstPage.pagination.total}
-                  </span>
-                )}
-              </Await>
-            </Suspense>
           </div>
           <ManageForumToolbar
             categories={categoryOptions}
@@ -157,7 +126,6 @@ export default function ManageForumPage() {
                   firstPage={firstPage}
                   searchKey={searchKey}
                   activeCategory={activeCategory}
-                  onStatsChange={setStats}
                 />
               )}
             </Await>

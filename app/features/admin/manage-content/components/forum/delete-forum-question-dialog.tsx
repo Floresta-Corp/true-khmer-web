@@ -10,6 +10,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 
 interface DeleteForumQuestionDialogProps {
   questionId: string;
@@ -35,8 +41,8 @@ export default function DeleteForumQuestionDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {withLabel ? (
+      {withLabel ? (
+        <DialogTrigger asChild>
           <Button
             type="button"
             variant="ghost"
@@ -47,19 +53,28 @@ export default function DeleteForumQuestionDialog({
             <Trash2 size={14} />
             Delete question
           </Button>
-        ) : (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            disabled={disabled}
-            className="h-[26.25px] w-[26.25px] cursor-pointer rounded-xl bg-[#f9fafb] text-[#99a1af] transition-colors hover:bg-red-50 hover:text-red-600 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-red-500/10 dark:hover:text-red-400"
-            aria-label={`Delete question: ${questionTitle}`}
-          >
-            <Trash2 size={12.25} />
-          </Button>
-        )}
-      </DialogTrigger>
+        </DialogTrigger>
+      ) : (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DialogTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  disabled={disabled}
+                  className="h-[26.25px] w-[26.25px] cursor-pointer rounded-xl bg-[#f9fafb] text-[#99a1af] transition-colors hover:bg-red-50 hover:text-red-600 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+                  aria-label={`Delete question: ${questionTitle}`}
+                >
+                  <Trash2 size={12.25} />
+                </Button>
+              </DialogTrigger>
+            </TooltipTrigger>
+            <TooltipContent>Delete question</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
 
       <DialogContent className="max-w-sm rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-xl dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:shadow-black/40">
         <DialogTitle>Delete this question?</DialogTitle>

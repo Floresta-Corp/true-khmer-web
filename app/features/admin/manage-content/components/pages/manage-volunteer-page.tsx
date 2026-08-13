@@ -229,22 +229,6 @@ export default function ManageVolunteerPage() {
                 organizers.
               </p>
             </div>
-
-            {isFiltering ? (
-              <Skeleton className="h-7 w-32 rounded-full" />
-            ) : (
-              <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
-                <span
-                  className={cn(
-                    "size-1.5 rounded-full",
-                    isRevalidating
-                      ? "animate-pulse bg-amber-400"
-                      : "bg-emerald-500",
-                  )}
-                />
-                {visibleOpportunities.length} loaded{hasMore ? "+" : ""}
-              </span>
-            )}
           </div>
 
           <ManageVolunteerToolbar

@@ -114,8 +114,6 @@ export default function ManageLaunchpadPage() {
     activeCity !== ALL_CITIES ||
     activeStatus !== ALL_STATUSES;
 
-  const currentStats = stats?.key === searchKey ? stats : null;
-
   return (
     <div className="relative flex h-[calc(100vh-4rem)] flex-col bg-[#f8fafc] md:h-[calc(100vh-5rem)] dark:bg-slate-950">
       <div className="custom-scrollbar flex-1 overflow-auto p-6">
@@ -129,38 +127,6 @@ export default function ManageLaunchpadPage() {
                 Review and moderate projects posted to the launchpad.
               </p>
             </div>
-
-            {isFiltering ? (
-              <Skeleton className="h-7 w-32 rounded-full" />
-            ) : (
-              <Suspense
-                key={searchKey}
-                fallback={<Skeleton className="h-7 w-32 rounded-full" />}
-              >
-                <Await
-                  resolve={data}
-                  errorElement={<ContentCountUnavailable />}
-                >
-                  {(firstPage) => (
-                    <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
-                      <span
-                        className={cn(
-                          "size-1.5 rounded-full",
-                          isRevalidating
-                            ? "animate-pulse bg-amber-400"
-                            : "bg-emerald-500",
-                        )}
-                      />
-                      {currentStats?.loaded ?? firstPage.launchpads.length}{" "}
-                      loaded
-                      {(currentStats?.hasMore ?? Boolean(firstPage.nextCursor))
-                        ? "+"
-                        : ""}
-                    </span>
-                  )}
-                </Await>
-              </Suspense>
-            )}
           </div>
 
           <ManageLaunchpadToolbar
@@ -189,7 +155,6 @@ export default function ManageLaunchpadPage() {
                     firstPage={firstPage}
                     searchKey={searchKey}
                     hasFilters={hasFilters}
-                    onStatsChange={setStats}
                   />
                 )}
               </Await>

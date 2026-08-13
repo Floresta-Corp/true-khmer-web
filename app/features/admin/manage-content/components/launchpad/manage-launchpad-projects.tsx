@@ -32,14 +32,12 @@ interface ManageLaunchpadProjectsProps {
   firstPage: AdminLaunchpadPostsResponse;
   searchKey: string;
   hasFilters: boolean;
-  onStatsChange: (stats: ListStats) => void;
 }
 
 export default function ManageLaunchpadProjects({
   firstPage,
   searchKey,
   hasFilters,
-  onStatsChange,
 }: ManageLaunchpadProjectsProps) {
   const [searchParams] = useSearchParams();
   const fetcher = useFetcher<typeof manageLaunchpadLoader>();
@@ -116,10 +114,6 @@ export default function ManageLaunchpadProjects({
 
   const cursor = extraCursor === undefined ? firstPage.nextCursor : extraCursor;
   const hasMore = Boolean(cursor);
-
-  useEffect(() => {
-    onStatsChange({ key: searchKey, loaded: projects.length, hasMore });
-  }, [onStatsChange, searchKey, projects.length, hasMore]);
 
   const isLoadingMore = fetcher.state === "loading";
 

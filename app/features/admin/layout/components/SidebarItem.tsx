@@ -105,7 +105,6 @@ export const navItems: NavItem[] = [
     icon: Heart,
     href: "/tk-admin/manage-volunteer",
     section: "content_management",
-    wip: true,
   },
   {
     id: "manage-launchpad",
@@ -113,7 +112,6 @@ export const navItems: NavItem[] = [
     icon: Rocket,
     href: "/tk-admin/manage-launchpad",
     section: "content_management",
-    wip: true,
   },
   {
     id: "manage-forum",
@@ -121,7 +119,6 @@ export const navItems: NavItem[] = [
     icon: MessageSquare,
     href: "/tk-admin/manage-forum",
     section: "content_management",
-    wip: true,
   },
   {
     id: "myteam",

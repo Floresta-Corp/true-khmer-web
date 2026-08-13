@@ -33,14 +33,12 @@ interface ManageForumQuestionsProps {
   firstPage: GetQuestionsResponse;
   searchKey: string;
   activeCategory: string;
-  onStatsChange: (stats: ListStats) => void;
 }
 
 export default function ManageForumQuestions({
   firstPage,
   searchKey,
   activeCategory,
-  onStatsChange,
 }: ManageForumQuestionsProps) {
   const [searchParams] = useSearchParams();
   const fetcher = useFetcher<typeof manageForumLoader>();
@@ -120,14 +118,6 @@ export default function ManageForumQuestions({
   const totalCount = pagination.total ?? questions.length;
   const hasMore = pagination.hasMore;
   const nextCursor = pagination.nextCursor ?? undefined;
-
-  useEffect(() => {
-    onStatsChange({
-      key: searchKey,
-      loaded: questions.length,
-      total: totalCount,
-    });
-  }, [onStatsChange, searchKey, questions.length, totalCount]);
 
   const isLoadingMore = fetcher.state === "loading";
 
