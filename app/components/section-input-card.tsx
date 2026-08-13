@@ -6,6 +6,7 @@ interface SectionInputCardProps extends PropsWithChildren {
   header: {
     title: string;
     icon: React.ReactNode;
+    description?: React.ReactNode;
     required?: boolean;
     action?: React.ReactNode;
   };
@@ -22,16 +23,21 @@ function SectionInputCard({
     return (
       <div className="flex items-center gap-3">
         <div className="text-blue-500">{header.icon}</div>
-        <p className="text-xl font-medium flex-1">
-          {header.title}
-          {header.required && <span className="text-red-500">*</span>}
-        </p>
+        <div className="flex-1">
+          <p className="text-xl font-medium">
+            {header.title}
+            {header.required && <span className="text-red-500">*</span>}
+          </p>
+          {header.description && (
+            <p className="text-sm text-gray-500">{header.description}</p>
+          )}
+        </div>
         {header.action && <>{header.action}</>}
       </div>
     );
   };
   return (
-    <Card className="p-6 space-y-6">
+    <Card className="space-y-6 p-6">
       <Header />
       {!hideSeparator && <Separator />}
       {children}

@@ -47,7 +47,7 @@ export default function RemoveModeratorMember({
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 data-[state=open]:bg-slate-100 dark:data-[state=open]:bg-slate-900 data-[state=open]:text-slate-900 dark:data-[state=open]:text-white"
+            className="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-900 data-[state=open]:bg-slate-100 data-[state=open]:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white dark:data-[state=open]:bg-slate-900 dark:data-[state=open]:text-white"
           >
             <MoreVertical size={18} />
           </Button>
@@ -55,11 +55,11 @@ export default function RemoveModeratorMember({
 
         <DropdownMenuContent
           align="end"
-          className="w-48 p-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl"
+          className="w-48 rounded-xl border border-slate-100 bg-white p-2 dark:border-slate-800 dark:bg-slate-900"
         >
           <DropdownMenuItem
             onSelect={() => setShowConfirm(true)}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest text-rose-500 transition-colors cursor-pointer focus:bg-rose-500/10 focus:text-rose-600 dark:focus:bg-rose-500/20 dark:focus:text-rose-400"
+            className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-black tracking-widest text-rose-500 uppercase transition-colors focus:bg-rose-500/10 focus:text-rose-600 dark:focus:bg-rose-500/20 dark:focus:text-rose-400"
           >
             <Trash2 size={14} /> Remove Member
           </DropdownMenuItem>
@@ -69,10 +69,10 @@ export default function RemoveModeratorMember({
       <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
         <DialogContent
           showCloseButton={false}
-          className="sm:max-w-sm p-0 overflow-hidden gap-0 bg-white dark:bg-[#020617] border-slate-100 dark:border-slate-800 rounded-2xl"
+          className="gap-0 overflow-hidden rounded-2xl border-slate-100 bg-white p-0 sm:max-w-sm dark:border-slate-800 dark:bg-[#020617]"
         >
-          <DialogHeader className="p-6 pb-5 border-b border-slate-100 dark:border-slate-800 flex-row items-center gap-3 space-y-0">
-            <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-900/20 text-rose-600  dark:text-rose-400 border border-rose-600 dark:border-none flex items-center justify-center shrink-0">
+          <DialogHeader className="flex-row items-center gap-3 space-y-0 border-b border-slate-100 p-6 pb-5 dark:border-slate-800">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-rose-600 bg-rose-50 text-rose-600 dark:border-none dark:bg-rose-900/20 dark:text-rose-400">
               <AlertTriangle size={18} />
             </div>
             <DialogTitle className="text-base font-bold text-slate-900 dark:text-white">
@@ -89,8 +89,8 @@ export default function RemoveModeratorMember({
             </Button>
           </DialogHeader>
 
-          <div className="p-6 space-y-6">
-            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <div className="space-y-6 p-6">
+            <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">
               Are you sure you want to remove{" "}
               <span className="font-semibold text-slate-900 dark:text-slate-100">
                 {firstName} {lastName ?? ""}
@@ -103,14 +103,14 @@ export default function RemoveModeratorMember({
                 type="button"
                 variant="outline"
                 onClick={() => setShowConfirm(false)}
-                className="h-11 px-6 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95"
+                className="h-11 rounded-xl border-slate-200 px-6 text-[11px] font-black tracking-widest text-slate-600 uppercase transition-all hover:bg-slate-50 active:scale-95 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 Cancel
               </Button>
               <Button
                 type="button"
                 onClick={handleConfirm}
-                className="h-11 px-6 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-black uppercase tracking-widest active:scale-95 transition-all"
+                className="h-11 rounded-xl bg-rose-500 px-6 text-xs font-black tracking-widest text-white uppercase transition-all hover:bg-rose-600 active:scale-95"
               >
                 Remove
               </Button>

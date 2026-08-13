@@ -16,18 +16,18 @@ export function ManageModeratorPagination({
   if (!pagination.hasMore && !hasCursor) return null;
 
   return (
-    <div className="px-8 py-4 border-slate-50 dark:border-slate-800 flex items-center justify-between">
+    <div className="flex items-center justify-between border-slate-50 px-8 py-4 dark:border-slate-800">
       <button
         onClick={() => onCursorChange(null)}
         disabled={!hasCursor}
-        className="flex items-center gap-2 px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+        className="flex items-center gap-2 px-4 py-2 text-xs font-black tracking-widest text-slate-400 uppercase transition-all hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:text-slate-100"
       >
         <ChevronsLeft size={14} /> First
       </button>
       <button
         onClick={() => onCursorChange(pagination.nextCursor)}
         disabled={!pagination.hasMore}
-        className="flex items-center gap-2 px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+        className="flex items-center gap-2 px-4 py-2 text-xs font-black tracking-widest text-slate-400 uppercase transition-all hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:text-slate-100"
       >
         Next <ChevronRight size={14} />
       </button>

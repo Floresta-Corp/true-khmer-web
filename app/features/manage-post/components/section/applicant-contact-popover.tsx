@@ -37,12 +37,12 @@ function ContactItem({
         {icon}
       </span>
       <span className="min-w-0">
-        <span className="block text-[9px] font-semibold leading-3 text-[#99A1AF]">
+        <span className="block text-[9px] leading-3 font-semibold text-[#99A1AF]">
           {label}
         </span>
         <span
           className={cn(
-            "block truncate text-xs font-bold leading-4",
+            "block truncate text-xs leading-4 font-bold",
             isAvailable ? "text-[#344256]" : "text-[#99A1AF]",
           )}
         >
@@ -93,7 +93,7 @@ export default function ApplicantContactPopover({ candidate }: Props) {
         sideOffset={12}
         className="w-56.5 gap-0 overflow-hidden rounded-xl border border-[#EEF1F5] bg-white p-0 shadow-lg ring-0"
       >
-        <div className="border-b border-[#F0F2F5] bg-[#F8FAFC] px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-[#99A1AF]">
+        <div className="border-b border-[#F0F2F5] bg-[#F8FAFC] px-4 py-3 text-[10px] font-bold tracking-widest text-[#99A1AF] uppercase">
           Available Contacts
         </div>
         <ContactItem

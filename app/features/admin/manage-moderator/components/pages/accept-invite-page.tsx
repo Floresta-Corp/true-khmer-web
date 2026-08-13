@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { Lock, UserRound } from "lucide-react";
-import { Form, useActionData, useNavigation, useSearchParams } from "react-router";
+import {
+  Form,
+  useActionData,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
 
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -45,19 +50,26 @@ export default function AcceptInvitePage() {
 
         {!token && (
           <p className="text-center text-sm text-red-500">
-            Your invitation link is missing or invalid. Please ask an admin to send a new invite.
+            Your invitation link is missing or invalid. Please ask an admin to
+            send a new invite.
           </p>
         )}
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="firstName" className="block text-xs font-semibold text-slate-500">
+                <Label
+                  htmlFor="firstName"
+                  className="block text-xs font-semibold text-slate-500"
+                >
                   First name
                 </Label>
                 <div className="relative w-full">
-                  <UserRound size={14} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#899CC9]" />
+                  <UserRound
+                    size={14}
+                    className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-[#899CC9]"
+                  />
                   <Input
                     id="firstName"
                     name="firstName"
@@ -65,17 +77,23 @@ export default function AcceptInvitePage() {
                     onChange={(e) => setFirstName(e.target.value)}
                     autoComplete="given-name"
                     placeholder="Enter your first name.."
-                    className="h-12 w-full rounded-xl border-[#DCEBFE] bg-white py-3 pl-11 pr-4 text-sm text-[#2E3139] placeholder:text-[#899CC9] focus-visible:border-[#2F6FE4] focus-visible:ring-2 focus-visible:ring-[#2F6FE4]/15 focus-visible:ring-offset-0"
+                    className="h-12 w-full rounded-xl border-[#DCEBFE] bg-white py-3 pr-4 pl-11 text-sm text-[#2E3139] placeholder:text-[#899CC9] focus-visible:border-[#2F6FE4] focus-visible:ring-2 focus-visible:ring-[#2F6FE4]/15 focus-visible:ring-offset-0"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="lastName" className="block text-xs font-semibold text-slate-500">
+                <Label
+                  htmlFor="lastName"
+                  className="block text-xs font-semibold text-slate-500"
+                >
                   Last name
                 </Label>
                 <div className="relative w-full">
-                  <UserRound size={14} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#899CC9]" />
+                  <UserRound
+                    size={14}
+                    className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-[#899CC9]"
+                  />
                   <Input
                     id="lastName"
                     name="lastName"
@@ -83,14 +101,16 @@ export default function AcceptInvitePage() {
                     onChange={(e) => setLastName(e.target.value)}
                     autoComplete="family-name"
                     placeholder="Enter your last name.."
-                    className="h-12 w-full rounded-xl border-[#DCEBFE] bg-white py-3 pl-11 pr-4 text-sm text-[#2E3139] placeholder:text-[#899CC9] focus-visible:border-[#2F6FE4] focus-visible:ring-2 focus-visible:ring-[#2F6FE4]/15 focus-visible:ring-offset-0"
+                    className="h-12 w-full rounded-xl border-[#DCEBFE] bg-white py-3 pr-4 pl-11 text-sm text-[#2E3139] placeholder:text-[#899CC9] focus-visible:border-[#2F6FE4] focus-visible:ring-2 focus-visible:ring-[#2F6FE4]/15 focus-visible:ring-offset-0"
                   />
                 </div>
               </div>
             </div>
 
             {actionData?.errors?.name && (
-              <p className="text-xs text-red-500 mt-1">{actionData.errors.name}</p>
+              <p className="mt-1 text-xs text-red-500">
+                {actionData.errors.name}
+              </p>
             )}
           </div>
 
@@ -128,7 +148,9 @@ export default function AcceptInvitePage() {
         </div>
 
         {actionData?.errors?.token && (
-          <p className="text-center text-xs text-red-500">{actionData.errors.token}</p>
+          <p className="text-center text-xs text-red-500">
+            {actionData.errors.token}
+          </p>
         )}
 
         <Button

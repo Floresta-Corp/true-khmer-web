@@ -18,7 +18,7 @@ export default function UserManagementDetailPage() {
     <Suspense fallback={<UserManagementDetailSkeleton />}>
       <Await resolve={user}>
         {(resolvedUser) => (
-          <main className="min-h-full bg-[#f8fafc] px-4 py-6 dark:bg-slate-950 sm:px-6 lg:px-10 lg:py-8">
+          <main className="min-h-full bg-[#f8fafc] px-4 py-6 sm:px-6 lg:px-10 lg:py-8 dark:bg-slate-950">
             <div className="mx-auto w-full max-w-7xl">
               <UserManagementDetailHeader />
 

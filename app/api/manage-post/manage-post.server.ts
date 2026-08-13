@@ -1,3 +1,5 @@
+import { GetLaunchpadDetail } from "~/api/launchpad/launchpad.server";
+import { getOpportunityById } from "~/api/volunteer/volunteer.opportunities.server";
 import { apiRequestWithSession } from "~/lib/server/api-client.server";
 import type {
   ApplicantFilter,
@@ -162,4 +164,38 @@ export async function updateApplicantNote(
     `/workspace/manage-posting/${sourceType}/${postingId}/${candidateId}/note`,
     { method: "POST", body },
   );
+}
+
+export type PostingSuspension = {
+  suspendedAt: string | null;
+  suspensionReason: string | null;
+};
+
+export async function getPostingSuspension(
+  request: Request,
+  sourceType: PostSourceType,
+  postingId: string,
+): Promise<PostingSuspension | null> {
+  try {
+    if (sourceType === "projects") {
+      const launchpad = await GetLaunchpadDetail(postingId, request);
+      if (!launchpad) return null;
+
+      return {
+        suspendedAt: launchpad.suspendedAt ?? null,
+        suspensionReason: launchpad.suspensionReason ?? null,
+      };
+    }
+
+    const result = await getOpportunityById(request, postingId);
+    const opportunity = result?.data?.opportunity;
+    if (!opportunity) return null;
+
+    return {
+      suspendedAt: opportunity.suspendedAt ?? null,
+      suspensionReason: opportunity.suspensionReason ?? null,
+    };
+  } catch {
+    return null;
+  }
 }

@@ -177,7 +177,7 @@ export default function ApplicantStatusChangeButton({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setDialogMode(null)}
-              className="fixed inset-0 bg-black/40 z-60"
+              className="fixed inset-0 z-60 bg-black/40"
             />
 
             {/* Process Dialog */}
@@ -187,22 +187,22 @@ export default function ApplicantStatusChangeButton({
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 8 }}
                 transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
-                className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-70 w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 flex flex-col gap-5"
+                className="fixed top-1/2 left-1/2 z-70 flex w-full max-w-md -translate-x-1/2 -translate-y-1/2 flex-col gap-5 rounded-2xl bg-white p-6 shadow-2xl"
               >
                 {/* Header */}
                 <div className="flex items-start justify-between">
                   <div>
-                    <h2 className="text-base font-bold text-gray-900 ">
+                    <h2 className="text-base font-bold text-gray-900">
                       Process Application
                     </h2>
-                    <p className="text-sm text-gray-400 mt-0.5">
+                    <p className="mt-0.5 text-sm text-gray-400">
                       {applicant.candidate.name} • {applicant.candidate.email}
                     </p>
                   </div>
                   <Button
                     variant="ghost"
                     onClick={() => setDialogMode(null)}
-                    className="p-1.5 rounded-full hover:bg-gray-100 cursor-pointer text-gray-400 hover:text-gray-600 transition-colors"
+                    className="cursor-pointer rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
                   >
                     <X size={16} />
                   </Button>
@@ -210,10 +210,10 @@ export default function ApplicantStatusChangeButton({
 
                 {/* Roles list */}
                 <div className="flex flex-col gap-2">
-                  <p className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                  <p className="text-xs font-bold tracking-widest text-gray-400 uppercase">
                     Applications
                   </p>
-                  <div className="flex flex-col gap-2 max-h-52 overflow-y-auto pr-1">
+                  <div className="flex max-h-52 flex-col gap-2 overflow-y-auto pr-1">
                     {roles.map((role) => {
                       const isSelected = selectedDialogRoleId === role.roleId;
                       const isFinalized = [
@@ -227,34 +227,34 @@ export default function ApplicantStatusChangeButton({
                           disabled={isFinalized}
                           onClick={() => setSelectedDialogRoleId(role.roleId)}
                           className={cn(
-                            "flex items-center justify-between cursor-pointer gap-3 w-full rounded-xl border p-5 text-left transition-all text-sm font-semibold",
+                            "flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border p-5 text-left text-sm font-semibold transition-all",
                             isSelected
                               ? "border-blue-400 bg-blue-50 text-blue-700"
                               : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50",
-                            isFinalized && "opacity-40 cursor-default",
+                            isFinalized && "cursor-default opacity-40",
                           )}
                         >
                           <div className="flex items-center gap-2.5">
                             <div
                               className={cn(
-                                "w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0",
+                                "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2",
                                 isSelected
                                   ? "border-blue-500 bg-blue-500"
                                   : "border-gray-300",
                               )}
                             >
                               {isSelected && (
-                                <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                                <div className="h-1.5 w-1.5 rounded-full bg-white" />
                               )}
                             </div>
                             {role.title}
                           </div>
                           <span
                             className={cn(
-                              "text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border",
+                              "rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase",
                               role.status === "UNDER_REVIEW"
-                                ? "bg-purple-50 text-purple-600 border-purple-200"
-                                : "bg-gray-50 text-gray-400 border-gray-200",
+                                ? "border-purple-200 bg-purple-50 text-purple-600"
+                                : "border-gray-200 bg-gray-50 text-gray-400",
                             )}
                           >
                             {role.status === "UNDER_REVIEW"
@@ -267,12 +267,12 @@ export default function ApplicantStatusChangeButton({
                   </div>
 
                   {/* {hasMultipleRoles && ( */}
-                  <div className="flex gap-2 rounded-xl bg-amber-50 border border-amber-200 p-3 mt-1">
+                  <div className="mt-1 flex gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3">
                     <TriangleAlert
-                      className="text-amber-500 shrink-0 mt-0.5"
+                      className="mt-0.5 shrink-0 text-amber-500"
                       size={14}
                     />
-                    <p className="text-xs text-amber-700 leading-relaxed">
+                    <p className="text-xs leading-relaxed text-amber-700">
                       Note: You can only approve one application per candidate.
                     </p>
                   </div>
@@ -287,7 +287,7 @@ export default function ApplicantStatusChangeButton({
                     variant="ghost"
                     onClick={openDeclineConfirm}
                     disabled={isLoading || !resolvedApplicationId}
-                    className="py-6 h-auto rounded-2xl border cursor-pointer border-red-200 bg-red-50/50  font-bold hover:bg-red-100 transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1.5"
+                    className="flex h-auto cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl border border-red-200 bg-red-50/50 py-6 font-bold transition-all hover:bg-red-100 disabled:opacity-50"
                   >
                     <X className="size-5 text-red-500" strokeWidth={2.5} />
                     <span className="text-sm text-red-600">
@@ -305,13 +305,13 @@ export default function ApplicantStatusChangeButton({
                       (resolvedRole?.status &&
                         FINAL_STATUSES.includes(resolvedRole.status))
                     }
-                    className="py-6 h-auto rounded-2xl border cursor-pointer border-emerald-200 bg-emerald-50/50 font-bold hover:bg-emerald-100 transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-1.5"
+                    className="flex h-auto cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl border border-emerald-200 bg-emerald-50/50 py-6 font-bold transition-all hover:bg-emerald-100 disabled:opacity-50"
                   >
                     <CircleCheck
-                      className="size-5 text-emerald-500 "
+                      className="size-5 text-emerald-500"
                       strokeWidth={2.5}
                     />
-                    <span className="text-sm text-emerald-600 ">
+                    <span className="text-sm text-emerald-600">
                       Approve Application
                     </span>
                   </Button>
@@ -321,7 +321,7 @@ export default function ApplicantStatusChangeButton({
                   <Button
                     variant="outline"
                     onClick={() => setDialogMode(null)}
-                    className="text-xs  text-gray-500 hover:text-gray-600 cursor-pointer uppercase tracking-widest transition-colors"
+                    className="cursor-pointer text-xs tracking-widest text-gray-500 uppercase transition-colors hover:text-gray-600"
                   >
                     Close
                   </Button>
@@ -336,17 +336,17 @@ export default function ApplicantStatusChangeButton({
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 8 }}
                 transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
-                className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-70 w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 flex flex-col gap-5"
+                className="fixed top-1/2 left-1/2 z-70 flex w-full max-w-md -translate-x-1/2 -translate-y-1/2 flex-col gap-5 rounded-2xl bg-white p-6 shadow-2xl"
               >
                 <div className="flex items-start gap-4">
-                  <div className="shrink-0 w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-green-100">
                     <CircleCheck className="text-green-600" size={22} />
                   </div>
                   <div>
                     <h2 className="text-base font-bold text-gray-900">
                       Confirm Approval
                     </h2>
-                    <p className="text-sm text-gray-500 mt-1 leading-relaxed">
+                    <p className="mt-1 text-sm leading-relaxed text-gray-500">
                       Are you sure you want to approve the application of{" "}
                       <span className="font-semibold text-gray-900">
                         {applicant.candidate.name}
@@ -361,12 +361,12 @@ export default function ApplicantStatusChangeButton({
                 </div>
 
                 {/* {hasMultipleRoles && ( */}
-                <div className="flex gap-2.5 rounded-xl bg-amber-50 border border-amber-200 p-3.5">
+                <div className="flex gap-2.5 rounded-xl border border-amber-200 bg-amber-50 p-3.5">
                   <TriangleAlert
-                    className="text-amber-500 shrink-0 mt-0.5"
+                    className="mt-0.5 shrink-0 text-amber-500"
                     size={15}
                   />
-                  <p className="text-xs text-amber-700  font-semibold leading-relaxed">
+                  <p className="text-xs leading-relaxed font-semibold text-amber-700">
                     Other pending applications will be marked as declined
                     automatically.
                   </p>
@@ -378,14 +378,14 @@ export default function ApplicantStatusChangeButton({
                 <div className="flex items-center justify-end gap-3">
                   <Button
                     onClick={() => setDialogMode("process")}
-                    className="h-10 px-5 rounded-xl border border-gray-200 cursor-pointer bg-white text-gray-700 font-semibold hover:bg-gray-50 shadow-none"
+                    className="h-10 cursor-pointer rounded-xl border border-gray-200 bg-white px-5 font-semibold text-gray-700 shadow-none hover:bg-gray-50"
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={handleApprove}
                     disabled={isLoading}
-                    className="h-10 px-5 rounded-xl bg-green-500 cursor-pointer text-white font-semibold hover:bg-green-700  shadow-green-600/20 disabled:opacity-50"
+                    className="h-10 cursor-pointer rounded-xl bg-green-500 px-5 font-semibold text-white shadow-green-600/20 hover:bg-green-700 disabled:opacity-50"
                   >
                     {isLoading ? "Approving..." : "Confirm Approval"}
                   </Button>
@@ -400,17 +400,17 @@ export default function ApplicantStatusChangeButton({
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 8 }}
                 transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
-                className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-70 w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 flex flex-col gap-5"
+                className="fixed top-1/2 left-1/2 z-70 flex w-full max-w-md -translate-x-1/2 -translate-y-1/2 flex-col gap-5 rounded-2xl bg-white p-6 shadow-2xl"
               >
                 <div className="flex items-start gap-4">
-                  <div className="shrink-0 w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-100">
                     <TriangleAlert className="text-red-500" size={22} />
                   </div>
                   <div>
                     <h2 className="text-base font-bold text-gray-900">
                       Confirm Decline
                     </h2>
-                    <p className="text-sm text-gray-500 mt-1 leading-relaxed">
+                    <p className="mt-1 text-sm leading-relaxed text-gray-500">
                       Are you sure you want to decline the application of{" "}
                       <span className="font-bold text-gray-900">
                         {applicant.candidate.name}
@@ -428,21 +428,21 @@ export default function ApplicantStatusChangeButton({
 
                 {/* Options */}
                 <div className="flex flex-col gap-3">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">
+                  <p className="text-xs font-semibold tracking-widest text-gray-500 uppercase">
                     You also can:
                   </p>
 
                   <Button
                     variant="ghost"
                     onClick={() => setDeclineAll((v) => !v)}
-                    className="flex justify-start cursor-pointer gap-3 text-left group"
+                    className="group flex cursor-pointer justify-start gap-3 text-left"
                   >
                     <div
                       className={cn(
-                        "w-5 h-5 rounded flex items-center justify-center shrink-0 transition-colors border",
+                        "flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors",
                         declineAll
-                          ? "bg-red-500 border-red-500"
-                          : "bg-white border-gray-300 group-hover:border-red-300",
+                          ? "border-red-500 bg-red-500"
+                          : "border-gray-300 bg-white group-hover:border-red-300",
                       )}
                     >
                       {declineAll && (
@@ -457,14 +457,14 @@ export default function ApplicantStatusChangeButton({
                   <Button
                     variant="ghost"
                     onClick={() => setBlockFutureApply((v) => !v)}
-                    className="flex justify-start cursor-pointer gap-3 text-left group"
+                    className="group flex cursor-pointer justify-start gap-3 text-left"
                   >
                     <div
                       className={cn(
-                        "w-5 h-5 rounded flex shrink-0 transition-colors border",
+                        "flex h-5 w-5 shrink-0 rounded border transition-colors",
                         blockFutureApply
-                          ? "bg-red-500 border-red-500"
-                          : "bg-white border-gray-300 group-hover:border-red-300",
+                          ? "border-red-500 bg-red-500"
+                          : "border-gray-300 bg-white group-hover:border-red-300",
                       )}
                     >
                       {blockFutureApply && (
@@ -482,14 +482,14 @@ export default function ApplicantStatusChangeButton({
                 <div className="flex items-center justify-end gap-3">
                   <Button
                     onClick={() => setDialogMode("process")}
-                    className="h-10 px-5 rounded-xl border cursor-pointer border-gray-200 bg-white text-gray-700 font-semibold hover:bg-gray-50 shadow-none"
+                    className="h-10 cursor-pointer rounded-xl border border-gray-200 bg-white px-5 font-semibold text-gray-700 shadow-none hover:bg-gray-50"
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={handleDecline}
                     disabled={isLoading}
-                    className="h-10 px-5 rounded-xl cursor-pointer bg-red-600 text-white font-semibold hover:bg-red-700 shadow-md shadow-red-600/20 disabled:opacity-50"
+                    className="h-10 cursor-pointer rounded-xl bg-red-600 px-5 font-semibold text-white shadow-md shadow-red-600/20 hover:bg-red-700 disabled:opacity-50"
                   >
                     {isLoading ? "Declining..." : "Confirm Decline"}
                   </Button>
@@ -511,11 +511,11 @@ export default function ApplicantStatusChangeButton({
             <div className="grid grid-cols-2 gap-3">
               <ApplicantContactPopover candidate={applicant.candidate} />
               <Button
-                className="h-11 w-full rounded-xl border cursor-pointer border-red-200 bg-red-50 text-red-600 font-semibold hover:bg-red-100 transition-all"
+                className="h-11 w-full cursor-pointer rounded-xl border border-red-200 bg-red-50 font-semibold text-red-600 transition-all hover:bg-red-100"
                 onClick={openReprocess}
                 disabled={isLoading}
               >
-                <X className="size-4 " />
+                <X className="size-4" />
                 Change Decision
               </Button>
             </div>
@@ -545,7 +545,7 @@ export default function ApplicantStatusChangeButton({
                 onClick={() => setDialogMode("process")}
                 disabled={isLoading}
               >
-                <CircleCheck className="size-4 mr-1.5" />
+                <CircleCheck className="mr-1.5 size-4" />
                 {isFinalPending || isDeclining ? "Processing..." : "Process"}
               </Button>
             </div>

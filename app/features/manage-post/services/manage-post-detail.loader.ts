@@ -5,6 +5,8 @@ import { withAuthData } from "~/lib/server/auth-response.server";
 import {
   getCandidateNote,
   getManagePostDetail,
+  getPostingSuspension,
+  type PostingSuspension,
 } from "~/api/manage-post/manage-post.server";
 import {
   PostingApplicantFilter,
@@ -19,6 +21,7 @@ type ManagePostDetailLoaderData = {
   pagination: PostDetailPagination | null;
   userId: string | null;
   candidateNote: DetailCandidateResponse | null;
+  suspension: PostingSuspension | null;
 };
 
 export async function managePostDetailLoader({
@@ -34,6 +37,7 @@ export async function managePostDetailLoader({
       pagination: null,
       userId: null,
       candidateNote: null,
+      suspension: null,
     } satisfies ManagePostDetailLoaderData);
   }
 
@@ -47,6 +51,7 @@ export async function managePostDetailLoader({
       pagination: null,
       userId,
       candidateNote: null,
+      suspension: null,
     } satisfies ManagePostDetailLoaderData);
   }
 
@@ -74,10 +79,20 @@ export async function managePostDetailLoader({
       : Promise.resolve(null),
   ]);
 
+  const postDetail = result?.data?.detail ?? null;
+
+  // The hold's reason lives on the source post, so it is only worth a second
+  // request once the posting reports itself suspended.
+  const suspension =
+    postDetail?.posting?.status === "SUSPENDED"
+      ? await getPostingSuspension(request, sourceType, params.id)
+      : null;
+
   return withAuthData(auth, {
-    postDetail: result?.data?.detail ?? null,
-    pagination: result?.data?.detail?.pagination ?? null,
+    postDetail,
+    pagination: postDetail?.pagination ?? null,
     userId,
     candidateNote: candidateNoteResult?.data ?? null,
+    suspension,
   } satisfies ManagePostDetailLoaderData);
 }
