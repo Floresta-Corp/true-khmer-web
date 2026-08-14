@@ -24,8 +24,5 @@ export async function loader({ request }: Route.LoaderArgs) {
     candidateId,
   );
 
-  return withAuthJson(
-    auth,
-    result?.data?.applicant?.privateNote?.note ?? null,
-  );
+  return withAuthJson(auth, result?.data?.applicant?.privateNote?.note ?? null);
 }

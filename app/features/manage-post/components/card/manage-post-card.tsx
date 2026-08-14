@@ -23,6 +23,7 @@ const STATUS_STYLES: Record<ManagePostStatus, string> = {
   IN_PROGRESS: "bg-indigo-100 text-indigo-700 border-indigo-200",
   CANCELED: "bg-red-100 text-red-700 border-red-200",
   FILLED: "bg-blue-100 text-blue-700 border-blue-200",
+  SUSPENDED: "bg-orange-100 text-orange-700 border-orange-200",
 };
 
 const normalizeStatus = (status: ManagePostStatus): string => {
@@ -33,6 +34,7 @@ const normalizeStatus = (status: ManagePostStatus): string => {
     IN_PROGRESS: "in progress",
     CANCELED: "canceled",
     FILLED: "filled",
+    SUSPENDED: "suspended",
   };
 
   return statusMap[status] ?? status.toLowerCase().replace("_", " ");

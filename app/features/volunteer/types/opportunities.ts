@@ -93,6 +93,8 @@ export const OpportunityDetailSchema = z.object({
   coverImageKey: z.string(),
   benefits: z.array(z.string()),
   status: z.string(),
+  suspendedAt: z.string().nullish(),
+  suspensionReason: z.string().nullish(),
   publishedAt: z.string().nullish(),
   organizer: OrganizerSchema,
   createdBy: z.string(),

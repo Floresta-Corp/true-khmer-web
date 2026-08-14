@@ -49,8 +49,8 @@ export default function ApplicantTabRange() {
 
   return (
     /* Handles horizontal swipe overflow on mobile without clipping shadows */
-    <div className="w-full overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-2">
-      <div className="flex gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl shadow-inner w-max relative isolate min-w-max">
+    <div className="-mx-4 no-scrollbar w-full overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+      <div className="relative isolate flex w-max min-w-max gap-1 rounded-xl bg-slate-100 p-1 shadow-inner dark:bg-slate-900">
         {FILTER.map((filter) => {
           const isActive = activeType === filter.value;
 
@@ -59,7 +59,7 @@ export default function ApplicantTabRange() {
               key={filter.value}
               onClick={() => handleTypeChange(filter.value)}
               className={cn(
-                "relative px-4 sm:px-5 py-1.5 text-[14px] font-bold transition-colors duration-300 cursor-pointer isolate rounded-lg whitespace-nowrap",
+                "relative isolate cursor-pointer rounded-lg px-4 py-1.5 text-[14px] font-bold whitespace-nowrap transition-colors duration-300 sm:px-5",
                 isActive
                   ? "text-blue-600 dark:text-white"
                   : "text-gray-500 hover:text-slate-800",
@@ -70,7 +70,7 @@ export default function ApplicantTabRange() {
               {isActive && (
                 <motion.div
                   layoutId="activeTabBackground"
-                  className="absolute inset-0 bg-white dark:bg-slate-800 rounded-lg shadow-sm z-10"
+                  className="absolute inset-0 z-10 rounded-lg bg-white shadow-sm dark:bg-slate-800"
                   transition={{
                     type: "spring",
                     bounce: 0.2,

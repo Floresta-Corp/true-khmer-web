@@ -104,14 +104,14 @@ export default function AdminLoginOtpPage() {
         >
           <div className="flex items-center gap-2 text-[#1C5DD4]">
             <Shield className="h-6 w-6" />
-            <span className="text-sm font-semibold uppercase tracking-widest">
+            <span className="text-sm font-semibold tracking-widest uppercase">
               Admin Verification
             </span>
           </div>
-          <h1 className="text-3xl font-bold leading-9 text-[#111827]">
+          <h1 className="text-3xl leading-9 font-bold text-[#111827]">
             Enter the OTP Code
           </h1>
-          <p className="text-base font-normal leading-6 text-[#4B5563]">
+          <p className="text-base leading-6 font-normal text-[#4B5563]">
             We sent a six-digit code to the admin email address.
           </p>
         </motion.header>
@@ -122,8 +122,8 @@ export default function AdminLoginOtpPage() {
             {challengeExhausted
               ? "This code can no longer be used."
               : isExpired
-              ? "This code has expired."
-              : `Code expires in ${formatRemainingTime(remainingMs)}.`}
+                ? "This code has expired."
+                : `Code expires in ${formatRemainingTime(remainingMs)}.`}
           </span>
         </div>
 
@@ -145,7 +145,11 @@ export default function AdminLoginOtpPage() {
           }}
         >
           <Form method="post" className="space-y-6">
-            <input type="hidden" name="redirectTo" value={loaderData.redirectTo} />
+            <input
+              type="hidden"
+              name="redirectTo"
+              value={loaderData.redirectTo}
+            />
 
             <div className="space-y-3">
               <InputOTP
@@ -192,7 +196,7 @@ export default function AdminLoginOtpPage() {
 
         <motion.p
           variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
-          className="text-center text-sm font-normal leading-5 text-[#4B5563]"
+          className="text-center text-sm leading-5 font-normal text-[#4B5563]"
         >
           Need a new code?{" "}
           <Link

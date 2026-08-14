@@ -10,6 +10,8 @@ export const StatusSchema = z.enum([
   "COMPLETED",
   "IN_PROGRESS",
   "LIVE",
+  // A moderator hold. Only the poster is served the post while it lasts.
+  "SUSPENDED",
 ]);
 export type ManagePostStatus = z.infer<typeof StatusSchema>;
 
@@ -92,6 +94,7 @@ export const PostingStatusSchema = z.enum([
   "COMPLETED",
   "IN_PROGRESS",
   "LIVE",
+  "SUSPENDED",
 ]);
 export type PostingStatus = z.infer<typeof PostingStatusSchema>;
 

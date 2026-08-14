@@ -28,7 +28,7 @@ export function EmptySearchState({
       {onClear && (
         <button
           onClick={onClear}
-          className="mt-6 text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-500 dark:hover:text-blue-400 transition-colors"
+          className="mt-6 text-sm font-semibold text-blue-600 transition-colors hover:text-blue-700 dark:text-blue-500 dark:hover:text-blue-400"
         >
           Clear search
         </button>

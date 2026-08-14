@@ -45,7 +45,7 @@ export function StatusBadge({
   return (
     <Badge
       variant="outline"
-      className={`gap-1.5 rounded-lg px-2.5 py-1 whitespace-nowrap text-xs font-semibold ${style}`}
+      className={`gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold whitespace-nowrap ${style}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${dotColor}`} />
       {normalizedStatus

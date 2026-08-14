@@ -42,21 +42,21 @@ function adminOtpError(error: unknown): AdminOtpActionData {
         challengeExhausted: true,
         retryAfterSeconds: retryAfterSeconds(error),
         errors: {
-          form:
-            "Too many failed attempts. Please sign in again to get a new code.",
+          form: "Too many failed attempts. Please sign in again to get a new code.",
         },
       };
     }
     if (error.status === 401) {
       return {
         errors: {
-          form:
-            "The code is invalid, expired, already used, or has too many failed attempts.",
+          form: "The code is invalid, expired, already used, or has too many failed attempts.",
         },
       };
     }
     return {
-      errors: { form: "Unable to verify the code right now. Please try again." },
+      errors: {
+        form: "Unable to verify the code right now. Please try again.",
+      },
     };
   }
 
@@ -76,7 +76,9 @@ export async function adminOtpAction({ request }: Route.ActionArgs) {
     return data<AdminOtpActionData>(
       {
         challengeExhausted: true,
-        errors: { form: "Your OTP challenge has expired. Please sign in again." },
+        errors: {
+          form: "Your OTP challenge has expired. Please sign in again.",
+        },
       },
       { status: 401 },
     );
@@ -94,7 +96,10 @@ export async function adminOtpAction({ request }: Route.ActionArgs) {
     };
   }
 
-  const redirectTo = sanitizeRedirectPath(parseResult.data.redirectTo, "/tk-admin");
+  const redirectTo = sanitizeRedirectPath(
+    parseResult.data.redirectTo,
+    "/tk-admin",
+  );
 
   try {
     const auth = await verifyAdminLoginOtp(

@@ -52,10 +52,7 @@ export default function AdminAuditLogPage() {
 
   useEffect(() => {
     const data = fetcher.data;
-    // Ignore a response whose filters no longer match the URL: merging it would
-    // splice entries from the previous filter set into the current results.
-    if (!data || pendingFiltersKeyRef.current !== filtersKey) return;
-    pendingFiltersKeyRef.current = null;
+    if (!data) return;
 
     setEntries((previous) => {
       const seen = new Set(previous.map((entry) => entry.id));

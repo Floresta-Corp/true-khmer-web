@@ -32,20 +32,20 @@ export function AccountSettingsProfileCard({
     (admin.avatarKey ? resolveImageURL(admin.avatarKey) : undefined);
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 overflow-hidden">
+    <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-900">
       <div className="h-1 bg-blue-600" />
-      <div className="p-8 flex flex-col items-center text-center">
+      <div className="flex flex-col items-center p-8 text-center">
         <button
           type="button"
           onClick={onChangeAvatar}
-          className="relative group focus:outline-none cursor-pointer"
+          className="group relative cursor-pointer focus:outline-none"
           aria-label="Change avatar"
         >
-          <div className="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center overflow-hidden">
+          <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
             {displaySrc ? (
-              <Avatar className="w-full h-full rounded-full">
+              <Avatar className="h-full w-full rounded-full">
                 <AvatarImage src={displaySrc} alt={fullName} />
-                <AvatarFallback className="bg-blue-600 text-white font-bold text-xl">
+                <AvatarFallback className="bg-blue-600 text-xl font-bold text-white">
                   {initials}
                 </AvatarFallback>
               </Avatar>
@@ -55,7 +55,7 @@ export function AccountSettingsProfileCard({
               </span>
             )}
           </div>
-          <div className="absolute inset-0 rounded-full bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center rounded-full bg-slate-900/60 opacity-0 transition-opacity group-hover:opacity-100">
             <Camera size={20} className="text-white" />
           </div>
         </button>
@@ -63,7 +63,7 @@ export function AccountSettingsProfileCard({
         <h2 className="mt-5 text-lg font-semibold text-slate-900 dark:text-white">
           {fullName}
         </h2>
-        <p className="mt-1 text-[10px] font-medium uppercase tracking-widest text-slate-400">
+        <p className="mt-1 text-[10px] font-medium tracking-widest text-slate-400 uppercase">
           {role ? formatRole(role) : "-"}
         </p>
       </div>

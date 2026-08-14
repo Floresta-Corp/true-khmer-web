@@ -144,7 +144,7 @@ function ProfileDetail({
             </span>
           ) : null}
         </dt>
-        <dd className="mt-0.5 text-sm font-medium wrap-break-word text-slate-800 dark:text-slate-200">
+        <dd className="mt-0.5 text-sm font-medium break-words text-slate-800 dark:text-slate-200">
           {value}
         </dd>
       </div>
