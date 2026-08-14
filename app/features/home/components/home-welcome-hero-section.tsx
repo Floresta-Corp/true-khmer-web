@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from "motion/react";
-import WelcomeHeroBg from "~/components/icons/welcomeHeroBg";
 import { HERO_EASE } from "./home-motion";
+
+const HERO_BACKGROUND = "/home-welcome-hero-bg.svg";
 
 const ALIGN_TO_CONTAINER =
   "translateX(calc(min(100%, 75rem) / 2 - 1.5rem - 44.709%))";
@@ -36,7 +37,7 @@ export function HomeWelcomeHeroSection({ name }: HomeWelcomeHeroSectionProps) {
         <div className="relative" style={{ transform: ALIGN_TO_CONTAINER }}>
           <div className="absolute top-0 right-full h-[72.795%] w-screen bg-[#D5EDFF]" />
           <div className="absolute top-0 left-full h-[84.99%] w-screen bg-linear-to-b from-white to-[#FCFEFF]" />
-          <WelcomeHeroBg className="h-auto w-full" />
+          <img src={HERO_BACKGROUND} alt="" className="h-auto w-full" />
         </div>
       </motion.div>
 

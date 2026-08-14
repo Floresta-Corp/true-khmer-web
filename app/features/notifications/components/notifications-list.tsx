@@ -169,6 +169,7 @@ export default function NotificationsList({
                     scale: prefersReducedMotion ? 1 : 0.96,
                   }}
                   animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
                   transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
                 >
                   <CheckCircle2 className="h-8 w-8 opacity-30" />

@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { formatDate } from "~/lib/time";
+import { cn } from "~/lib/utils";
 import type { blogLoader } from "../services/blog.loader";
 import { PublicBlogCard } from "./public-blog-card";
 
@@ -115,17 +116,17 @@ export function PublicBlogListPage() {
           >
             <Link
               to={`/blog/${featuredPost.slug}`}
-              className="group relative block overflow-hidden rounded-[12px] bg-slate-100"
+              className="group relative block overflow-hidden rounded-xl bg-slate-100"
             >
               <img
                 src={featuredPost.coverImageUrl || FALLBACK_BLOG_IMAGE}
                 alt={featuredPost.coverImageAlt || featuredPost.title}
-                className="h-[320px] w-full object-cover transition-transform duration-500 group-hover:scale-[1.015] sm:h-[360px] md:h-[420px] lg:h-[480px] xl:h-[520px]"
+                className="h-80 w-full object-cover transition-transform duration-500 group-hover:scale-[1.015] sm:h-90 md:h-105 lg:h-120 xl:h-130"
               />
               <div className="absolute inset-0 bg-linear-to-r from-black/75 via-black/40 to-black/10" />
               <div className="absolute inset-0 flex items-end">
                 <motion.div
-                  className="w-full max-w-[720px] px-6 pb-6 text-white sm:px-8 sm:pb-8 lg:px-10 lg:pb-10 xl:max-w-[760px] xl:px-12 xl:pb-12"
+                  className="w-full max-w-180 px-6 pb-6 text-white sm:px-8 sm:pb-8 lg:px-10 lg:pb-10 xl:max-w-190 xl:px-12 xl:pb-12"
                   initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{
@@ -211,7 +212,7 @@ export function PublicBlogListPage() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-2 text-sm font-semibold tracking-[0.1em] text-slate-500 uppercase">
+          <div className="flex items-center gap-2 text-sm font-semibold tracking-widest text-slate-500 uppercase">
             <span>Sort by:</span>
             <Select
               value={sort}
@@ -286,11 +287,16 @@ export function PublicBlogListPage() {
                 prefersReducedMotion || isLoadingMore ? {} : { scale: 0.99 }
               }
               transition={{ duration: 0.15, ease: "easeOut" }}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-[12px] border border-slate-200 bg-white p-4 text-center text-[14px] font-medium text-slate-700 transition-colors hover:border-[#1c97d4]/40 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-white/10 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-white/5"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white p-4 text-center text-[14px] font-medium text-slate-700 transition-colors hover:border-[#1c97d4]/40 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-white/10 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-white/5"
             >
               {isLoadingMore ? (
                 <>
-                  <Loader2 className="size-4 animate-spin" />
+                  <Loader2
+                    className={cn(
+                      "size-4",
+                      !prefersReducedMotion && "animate-spin",
+                    )}
+                  />
                   Loading...
                 </>
               ) : (
