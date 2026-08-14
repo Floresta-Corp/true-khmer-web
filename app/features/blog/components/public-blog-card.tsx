@@ -20,7 +20,7 @@ export function PublicBlogCard({
           alt={post.coverImageAlt || post.title}
           loading="lazy"
           decoding="async"
-          className="h-64 w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+          className="h-64 w-full object-cover transition-transform duration-300 group-hover:scale-[1.02] motion-reduce:transform-none motion-reduce:transition-none"
         />
         {post.isFeatured || post.categoryName ? (
           <div className="absolute top-4 left-4 flex flex-wrap gap-2">
