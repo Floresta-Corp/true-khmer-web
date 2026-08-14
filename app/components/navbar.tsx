@@ -78,6 +78,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
       window.localStorage.setItem(LAST_SECTION_STORAGE_KEY, currentSection);
     }
   }, [isInMySpace, isInWorkspace]);
+  const isInSpaceSection = isInMySpace || isInWorkspace;
 
   const activeSection: NavSection = isInMySpace
     ? "myspace"
@@ -123,7 +124,12 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
     <>
       {/* Top Header Bar */}
       <header className="sticky top-0 z-50 w-full border-b border-[#f1f5f9] bg-white shadow-sm">
-        <div className="mx-auto flex h-(--navbar-height) w-full max-w-300 items-center justify-between px-4 lg:px-6">
+        <div
+          className={cn(
+            "flex h-(--navbar-height) items-center justify-between",
+            isInSpaceSection ? "w-full px-10" : "site-container",
+          )}
+        >
           {/* Left: Logo */}
           <div className="flex shrink-0 items-center">
             <Link to="/" className="flex items-center gap-2">

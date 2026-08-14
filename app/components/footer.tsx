@@ -79,7 +79,7 @@ const legalLinks = [
 export function Footer() {
   return (
     <footer className="w-full border-t border-[#e2e8f0] bg-[#f9fafb]">
-      <div className="w-full px-6 py-14 md:px-12 lg:px-20">
+      <div className="site-container py-14">
         <div className="flex flex-col gap-10 lg:flex-row lg:justify-between lg:gap-20">
           {/* Brand section */}
           <div className="flex max-w-sm shrink-0 flex-col gap-5">

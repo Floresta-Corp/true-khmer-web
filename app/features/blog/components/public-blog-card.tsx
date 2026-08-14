@@ -12,7 +12,7 @@ export function PublicBlogCard({
   return (
     <Link
       to={`/blog/${post.slug}`}
-      className="group flex h-full flex-col overflow-hidden rounded-[12px] border border-[#e2e8f0]/80 bg-white shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition-all duration-200 hover:border-[#1c97d4]/30 dark:border-white/10 dark:bg-slate-950"
+      className="group flex h-full flex-col overflow-hidden rounded-[12px] border border-[#e2e8f0]/80 bg-white shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#1c97d4]/30 hover:shadow-[0_18px_36px_rgba(15,23,42,0.10)] motion-reduce:transform-none motion-reduce:transition-none dark:border-white/10 dark:bg-slate-950"
     >
       <div className="relative shrink-0 overflow-hidden rounded-t-[12px]">
         <img
@@ -20,7 +20,7 @@ export function PublicBlogCard({
           alt={post.coverImageAlt || post.title}
           loading="lazy"
           decoding="async"
-          className="h-64 w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+          className="h-64 w-full object-cover transition-transform duration-300 group-hover:scale-[1.02] motion-reduce:transform-none motion-reduce:transition-none"
         />
         {post.isFeatured || post.categoryName ? (
           <div className="absolute top-4 left-4 flex flex-wrap gap-2">

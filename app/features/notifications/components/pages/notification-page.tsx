@@ -164,10 +164,10 @@ export default function NotificationPage() {
 
   return (
     <TooltipProvider>
-      <div className="bg-blue-gray-50 min-h-[calc(100dvh-4rem)] w-full px-4 pt-6 pb-24 sm:px-6 sm:py-10 md:px-10 md:pb-10 lg:px-16 xl:px-28">
-        <div className="flex w-full flex-col items-start gap-4 md:flex-row md:gap-7">
+      <div className="bg-blue-gray-50 min-h-[calc(100dvh-4rem)] w-full pt-6 pb-24 sm:py-10 md:pb-10">
+        <div className="mx-auto flex w-full max-w-300 flex-col items-start gap-4 px-4 md:flex-row md:gap-7 lg:px-2">
           <NotificationFilterSidebar unreadCount={data?.unreadCount ?? 0} />
-          <div className="flex w-full flex-1 flex-col">
+          <div className="flex w-full min-w-0 flex-1 flex-col">
             <NotificationsList
               notifications={(data?.notifications ?? []).map(toItem)}
               unreadCount={data?.unreadCount ?? 0}
