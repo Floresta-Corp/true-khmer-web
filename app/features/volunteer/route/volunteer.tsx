@@ -70,6 +70,8 @@ export default function VolunteerPage() {
         className="will-change-transform"
       >
         <VolunteerAvailableOpportunities
+          className="w-full bg-gray-50 py-10"
+          containerClassName="site-container"
           opportunities={opportunities ?? []}
           pagination={pagination}
           onMutationComplete={() => reloadOpportunities()}

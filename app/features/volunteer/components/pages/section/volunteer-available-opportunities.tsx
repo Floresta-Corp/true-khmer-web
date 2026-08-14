@@ -7,6 +7,7 @@ import OpportunityCardSkeleton from "../../sections/opportunity-card-skeleton";
 import { OpportunityCard } from "~/components/opportunity-card";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { cn } from "~/lib/utils";
 
 const DEFAULT_LIMIT = 6;
 
@@ -15,6 +16,12 @@ interface VolunteerAvailableOpportunitiesProps {
   pagination?: Pagination;
   showHeader?: boolean;
   className?: string;
+  /**
+   * Width/gutters for the inner content. Pass `"site-container"` to line the
+   * grid up with the navbar and footer; the default keeps the legacy width for
+   * pages that embed this section inside their own container.
+   */
+  containerClassName?: string;
   isLoading?: boolean;
   onMutationComplete?: () => void;
   limit?: number;
@@ -25,6 +32,7 @@ export function VolunteerAvailableOpportunities({
   pagination: initialPagination,
   showHeader = true,
   className = "",
+  containerClassName = "mx-auto w-full max-w-304",
   isLoading: externalLoading = false,
   onMutationComplete,
   limit = DEFAULT_LIMIT,
@@ -164,7 +172,7 @@ export function VolunteerAvailableOpportunities({
     <section
       className={className || "w-full bg-gray-50 px-6 py-10 md:px-12 lg:px-28"}
     >
-      <div className="mx-auto flex w-full max-w-304 flex-col gap-8">
+      <div className={cn("flex flex-col gap-8", containerClassName)}>
         {showHeader && (
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-xl leading-12 font-bold text-[#020618] md:text-[32px]">

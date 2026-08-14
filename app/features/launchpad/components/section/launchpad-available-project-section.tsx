@@ -21,8 +21,8 @@ export function LaunchpadAvailableProjectsSection() {
   const displayedProjects = projects.slice(0, PAGE_SIZE);
 
   return (
-    <section className="w-full bg-white px-4 sm:px-6 md:px-12 lg:px-[121.5px]">
-      <div className="mx-auto w-full max-w-304">
+    <section className="w-full bg-white">
+      <div className="site-container">
         <header className="flex items-center justify-between py-10">
           <div className="text-3xl font-bold">All Projects</div>
           <Button

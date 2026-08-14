@@ -103,7 +103,7 @@ export function PublicBlogListPage() {
 
   return (
     <main className="bg-white py-14 font-sans lg:py-16 dark:bg-slate-950">
-      <div className="mx-auto max-w-[1328px] px-5 lg:px-8">
+      <div className="site-container">
         {featuredPost ? (
           <motion.div
             initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
