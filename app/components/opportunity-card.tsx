@@ -72,17 +72,23 @@ export function OpportunityCard({
 
   return (
     <motion.article
-      className="flex h-full cursor-pointer flex-col overflow-hidden rounded-[14px] border border-[#f3f4f6] bg-white p-px shadow-[0px_10px_30px_-15px_rgba(0,0,0,0.05)]"
+      className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-[14px] border border-[#f3f4f6] bg-white p-px shadow-[0px_10px_30px_-15px_rgba(0,0,0,0.05)] transition-[border-color,box-shadow] duration-300 hover:border-[#dbe4f7] hover:shadow-[0px_6px_20px_-12px_rgba(47,111,228,0.12)]"
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       onClick={() => navigate(`/volunteer/detail/${opportunity.id}`)}
+      whileTap={{ scale: 0.99 }}
+      transition={{ type: "spring", stiffness: 260, damping: 22 }}
     >
       <div className="relative h-39.25 w-full overflow-hidden p-3.5">
         <img
           src={image}
           alt={opportunity.title}
-          className="absolute inset-0 size-full object-cover transition-transform duration-300 hover:scale-105"
+          className="absolute inset-0 size-full object-cover transition-transform duration-500 ease-out group-hover:scale-110 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           loading="lazy"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-linear-to-t from-black/15 via-black/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
         />
         <span className="relative inline-flex rounded-xl border border-white/20 bg-white/95 px-2.25 py-1 text-[10px] font-semibold tracking-[-0.13px] text-[#2f6fe4]">
           {opportunity.category.name}
@@ -122,7 +128,7 @@ export function OpportunityCard({
 
       <div className="flex flex-1 flex-col gap-6 p-5">
         <div className="flex min-h-0 flex-1 flex-col gap-3">
-          <h3 className="text-[17px] leading-[21.25px] font-semibold tracking-[-0.43px] text-[#030213]">
+          <h3 className="text-[17px] leading-[21.25px] font-semibold tracking-[-0.43px] text-[#030213] transition-colors duration-300 group-hover:text-[#2f6fe4]">
             {opportunity.title}
           </h3>
           <p className="line-clamp-3 text-sm leading-[22.75px] tracking-[-0.15px] text-[#99a1af]">

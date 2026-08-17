@@ -92,7 +92,7 @@ export function HomeCarouselSection({
 
           <div
             ref={rowRef}
-            className="-mx-4 flex snap-x snap-mandatory scroll-pl-4 gap-5 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:scroll-pl-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
+            className="-mx-4 flex snap-x snap-mandatory scroll-pl-4 gap-5 overflow-x-auto overflow-y-hidden px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:scroll-pl-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
           >
             {children}
             {trailing}
