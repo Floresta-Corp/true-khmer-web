@@ -1,8 +1,10 @@
 import { useEffect, useId, useState } from "react";
 import { toast } from "sonner";
+import { motion } from "motion/react";
 import { Input } from "~/components/ui/input";
-import { Calendar } from "lucide-react";
+import { Calendar, Trash2 } from "lucide-react";
 import FieldLabel from "~/components/field-label";
+import IconButton from "~/components/icon-button";
 import SectionInputCard from "~/components/section-input-card";
 import { SelectOption } from "~/components/ui/select-option";
 import VolunteerDatePickerField from "~/features/volunteer/components/volunteer-date-picker-field";
@@ -71,6 +73,8 @@ export default function LaunchpadProjectDetailInputCard({
   const [projectCoverPreview, setProjectCoverPreview] = useState<
     string | undefined
   >(undefined);
+  const [isCoverRemoved, setIsCoverRemoved] = useState(false);
+  const [previewHovered, setPreviewHovered] = useState(false);
 
   useEffect(() => {
     if (coverFile) {
@@ -81,16 +85,15 @@ export default function LaunchpadProjectDetailInputCard({
       };
     }
 
-    if (existingCoverUrl) {
+    if (existingCoverUrl && !isCoverRemoved) {
       setProjectCoverPreview(existingCoverUrl);
       return;
     }
 
     setProjectCoverPreview(undefined);
-  }, [coverFile, existingCoverUrl]);
+  }, [coverFile, existingCoverUrl, isCoverRemoved]);
 
-  const handleCoverChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.currentTarget.files?.[0] ?? null;
+  const selectCoverFile = (file: File | null) => {
     const error = getImageFileError(
       file,
       COVER_MAX_FILE_SIZE,
@@ -103,9 +106,24 @@ export default function LaunchpadProjectDetailInputCard({
       toast.error(error);
       onCoverChange(null);
     } else {
+      setIsCoverRemoved(false);
       onCoverChange(file);
     }
+  };
+
+  const handleCoverChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    selectCoverFile(event.currentTarget.files?.[0] ?? null);
     event.currentTarget.value = "";
+  };
+
+  const handleCoverRemove: React.MouseEventHandler<HTMLButtonElement> = (
+    event,
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setPreviewHovered(false);
+    setIsCoverRemoved(true);
+    onCoverChange(null);
   };
 
   return (
@@ -181,18 +199,44 @@ export default function LaunchpadProjectDetailInputCard({
         />
       </div>
       <div className="space-y-3">
-        <FieldLabel>Project Cover Image</FieldLabel>
+        <FieldLabel>Project cover image</FieldLabel>
         <div className="mt-2">
           <label htmlFor={projectCoverInputId}>
             <div
-              className={`h-37 w-74.25 cursor-pointer rounded-2xl border border-dashed bg-gray-50 text-center hover:bg-gray-100 ${errors?.coverFile ? "border-red-400 ring-1 ring-red-400/60" : "border-gray-200"}`}
+              className={`relative h-37 w-74.25 cursor-pointer rounded-2xl border border-dashed bg-gray-50 text-center hover:bg-gray-100 ${errors?.coverFile ? "border-red-400 ring-1 ring-red-400/60" : "border-gray-200"}`}
             >
               {projectCoverPreview ? (
-                <img
-                  src={projectCoverPreview}
-                  alt="Project cover preview"
-                  className="h-full w-full rounded-2xl object-cover"
-                />
+                <motion.div
+                  className="h-full w-full"
+                  onHoverStart={() => setPreviewHovered(true)}
+                  onHoverEnd={() => setPreviewHovered(false)}
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <img
+                    src={projectCoverPreview}
+                    alt="Project cover preview"
+                    className="h-full w-full rounded-2xl object-cover"
+                  />
+                  <motion.span
+                    className="absolute top-2 right-2 z-10"
+                    initial={{ y: -8, opacity: 0 }}
+                    animate={
+                      previewHovered
+                        ? { y: 0, opacity: 1 }
+                        : { y: -8, opacity: 0 }
+                    }
+                    transition={{ duration: 0.18 }}
+                    style={{ pointerEvents: previewHovered ? "auto" : "none" }}
+                  >
+                    <IconButton
+                      icon={<Trash2 className="size-4" />}
+                      ariaLabel="Remove cover image"
+                      onClick={handleCoverRemove}
+                    />
+                  </motion.span>
+                </motion.div>
               ) : (
                 <div className="flex flex-col items-center justify-center p-6.5">
                   <img
@@ -202,7 +246,7 @@ export default function LaunchpadProjectDetailInputCard({
                   <div className="text-xs font-semibold text-blue-500">
                     Click to upload
                   </div>
-                  <div className="w-53.75 text-[11px] text-gray-400">
+                  <div className="mt-1.5 w-53.75 text-[11px] text-gray-400">
                     JPG, JPEG, PNG, or WebP • 10MB max Recommended size: 1280 ×
                     720 px (16:9)
                   </div>
@@ -220,22 +264,15 @@ export default function LaunchpadProjectDetailInputCard({
             onChange={handleCoverChange}
           />
         </div>
-        <p className="text-[11px] text-gray-400">
-          JPG, JPEG, PNG, or WebP • 10MB max
-        </p>
+        {/* <div className="space-y-0.5 text-[12px] text-gray-400">
+          <p>JPG, JPEG, PNG, or WebP • 10MB max</p>
+          <p>Recommended size: 1280 × 720 px (16:9)</p>
+        </div> */}
         {errors?.coverFile ? (
           <p id={coverErrorId} className="text-xs text-red-500">
             {errors.coverFile}
           </p>
         ) : null}
-
-        {/* <Input
-          id={projectCoverPreview}
-          type="file"
-          accept="image/*"
-          className="sr-only"
-          onChange={handleProjectCoverChange}
-        /> */}
       </div>
     </SectionInputCard>
   );

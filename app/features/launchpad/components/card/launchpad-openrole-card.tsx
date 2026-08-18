@@ -69,7 +69,7 @@ export default function LaunchpadOpenRoleCard({
           />
         </div>
         <div className="col-span-2 space-y-3">
-          <FieldLabel>Role Description</FieldLabel>
+          <FieldLabel>Role description</FieldLabel>
           <Textarea
             value={description}
             onChange={(event) => onDescriptionChange(event.target.value)}
