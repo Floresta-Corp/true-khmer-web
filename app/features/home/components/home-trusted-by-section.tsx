@@ -11,7 +11,7 @@ const PARTNERS = [
 export function HomeTrustedBySection() {
   return (
     <section className="bg-white py-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="site-container">
         <p className="text-center text-sm font-semibold text-[#2f6fe4]">
           Trusted &amp; Loved By Cambodia's Community
         </p>

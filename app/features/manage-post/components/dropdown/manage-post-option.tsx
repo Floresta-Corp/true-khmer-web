@@ -197,7 +197,7 @@ export default function ManagePostOption({
           <button
             aria-label="Open posting actions"
             onClick={(e) => e.stopPropagation()}
-            className="h-11 w-11 rounded-xl  text-gray-400 bg-white hover:text-blue-600 hover:border-blue-600 flex items-center justify-center shrink-0 cursor-pointer"
+            className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-white text-gray-400 hover:border-blue-600 hover:text-blue-600"
           >
             <MoreHorizontal size={20} />
           </button>
@@ -206,13 +206,13 @@ export default function ManagePostOption({
         <DropdownMenuContent
           onClick={(e) => e.stopPropagation()}
           align="end"
-          className="w-52 rounded-2xl p-2 shadow-xl border-gray-100"
+          className="w-52 rounded-2xl border-gray-100 p-2 shadow-xl"
         >
           {status === "LIVE" && (
             <>
               <DropdownMenuItem
                 onClick={handleEdit}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
+                className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-slate-700"
               >
                 <Pencil size={16} className="text-slate-400" />
                 Edit Posting
@@ -220,7 +220,7 @@ export default function ManagePostOption({
 
               <DropdownMenuItem
                 onClick={() => handleAction("close")}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
+                className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-slate-700"
               >
                 <X size={16} className="text-slate-400" />
                 Close Recruitment
@@ -228,7 +228,7 @@ export default function ManagePostOption({
               {isProject && (
                 <DropdownMenuItem
                   onClick={handleSharePosting}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
+                  className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-slate-700"
                 >
                   <Share2 size={16} className="text-slate-400" />
                   Share Posting
@@ -237,7 +237,7 @@ export default function ManagePostOption({
               <DropdownMenuSeparator className="my-1" />
               <DropdownMenuItem
                 onClick={() => handleAction("cancel")}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-red-500 font-medium focus:text-red-500 focus:bg-red-50"
+                className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-red-500 focus:bg-red-50 focus:text-red-500"
               >
                 <Trash2 size={16} />
                 Cancel Posting
@@ -249,7 +249,7 @@ export default function ManagePostOption({
             <>
               <DropdownMenuItem
                 onClick={handleEdit}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
+                className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-slate-700"
               >
                 <Pencil size={16} className="text-slate-400" />
                 Edit Posting
@@ -260,14 +260,14 @@ export default function ManagePostOption({
                   setDeadlineError(undefined);
                   setDeadlineDialogOpen(true);
                 }}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
+                className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-slate-700"
               >
                 <CalendarClock size={16} className="text-slate-400" />
                 Extend Deadline
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => handleAction("mark_complete")}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-green-600 font-medium"
+                className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-green-600"
               >
                 <CheckCircle size={16} className="text-green-600" />
                 Mark as Completed
@@ -275,7 +275,7 @@ export default function ManagePostOption({
               {isProject && (
                 <DropdownMenuItem
                   onClick={handleSharePosting}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
+                  className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-slate-700"
                 >
                   <Share2 size={16} className="text-slate-400" />
                   Share Posting
@@ -284,7 +284,7 @@ export default function ManagePostOption({
               <DropdownMenuSeparator className="my-1" />
               <DropdownMenuItem
                 onClick={() => handleAction("cancel")}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-red-500 font-medium focus:text-red-500 focus:bg-red-50"
+                className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-red-500 focus:bg-red-50 focus:text-red-500"
               >
                 <Trash2 size={16} />
                 Cancel Posting
@@ -296,14 +296,14 @@ export default function ManagePostOption({
             <>
               <DropdownMenuItem
                 onClick={handleEdit}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
+                className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-slate-700"
               >
                 <Pencil size={16} className="text-slate-400" />
                 Edit Posting
               </DropdownMenuItem>
               <DropdownMenuItem
                 // onClick={() => handleAction("")}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
+                className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-slate-700"
               >
                 <Globe size={16} className="text-slate-400" />
                 Publish
@@ -311,7 +311,7 @@ export default function ManagePostOption({
               {isProject && (
                 <DropdownMenuItem
                   onClick={handleSharePosting}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
+                  className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-slate-700"
                 >
                   <Share2 size={16} className="text-slate-400" />
                   Share Posting
@@ -320,7 +320,7 @@ export default function ManagePostOption({
               <DropdownMenuSeparator className="my-1" />
               <DropdownMenuItem
                 onClick={() => handleAction("delete")}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-red-500 font-medium focus:text-red-500 focus:bg-red-50"
+                className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-red-500 focus:bg-red-50 focus:text-red-500"
               >
                 <Trash2 size={16} />
                 Delete
@@ -332,14 +332,14 @@ export default function ManagePostOption({
             <>
               <DropdownMenuItem
                 // onClick={() => handleAction("")}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
+                className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-slate-700"
               >
                 <Users size={16} className="text-slate-400" />
                 View Participants
               </DropdownMenuItem>
               <DropdownMenuItem
                 // onClick={() => handleAction("")}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
+                className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-slate-700"
               >
                 <Star size={16} className="text-slate-400" />
                 Rate Participants
@@ -348,7 +348,7 @@ export default function ManagePostOption({
               <DropdownMenuSeparator className="my-1" />
               <DropdownMenuItem
                 // onClick={() => handleAction("")}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-700 font-medium"
+                className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-slate-700"
               >
                 <Archive size={16} className="text-slate-400" />
                 Archive Project
@@ -360,7 +360,7 @@ export default function ManagePostOption({
             <>
               <DropdownMenuItem
                 onClick={() => handleAction("delete")}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-red-500 font-medium focus:text-red-500 focus:bg-red-50"
+                className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-red-500 focus:bg-red-50 focus:text-red-500"
               >
                 <Trash2 size={16} />
                 Delete Posting
@@ -373,24 +373,24 @@ export default function ManagePostOption({
       <Dialog open={deadlineDialogOpen} onOpenChange={setDeadlineDialogOpen}>
         <DialogContent
           onClick={(e) => e.stopPropagation()}
-          className="max-w-md rounded-2xl py-8 px-6"
+          className="max-w-md rounded-2xl px-6 py-8"
         >
           <div className="flex items-start gap-4">
-            <div className="shrink-0 w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-100">
               <Calendar className="text-blue-600" size={22} />
             </div>
             <div>
               <DialogTitle className="text-base font-semibold text-gray-900">
                 Confirm Application Deadline
               </DialogTitle>
-              <p className="text-sm text-gray-500 mt-1 leading-relaxed">
+              <p className="mt-1 text-sm leading-relaxed text-gray-500">
                 {title}
               </p>
             </div>
           </div>
           <Separator />
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 ">
-            <div className="flex justify-between text-sm font-semibold text-slate-500  mb-1">
+          <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+            <div className="mb-1 flex justify-between text-sm font-semibold text-slate-500">
               <span>Current Deadline</span>
               <span className="font-bold text-slate-700 dark:text-slate-300">
                 {currentDeadline
@@ -399,7 +399,7 @@ export default function ManagePostOption({
               </span>
             </div>
           </div>
-          <span className="font-semibold tracking-wide text-sm text-gray-700">
+          <span className="text-sm font-semibold tracking-wide text-gray-700">
             New Deadline <span className="text-red-500">*</span>
           </span>
 
@@ -417,7 +417,7 @@ export default function ManagePostOption({
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <span className="text-xs font-semibold tracking-wide text-slate-400 uppercase">
               Quick presets
             </span>
             <div className="flex gap-2">
@@ -434,7 +434,7 @@ export default function ManagePostOption({
                     setDeadlineError(undefined);
                     setPickerKey((k) => k + 1);
                   }}
-                  className="flex-1 h-9 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-colors cursor-pointer"
+                  className="h-9 flex-1 cursor-pointer rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50"
                 >
                   {label}
                 </Button>
@@ -442,7 +442,7 @@ export default function ManagePostOption({
             </div>
           </div>
 
-          <DialogFooter className="mt-2 border-0 bg-transparent p-3 ">
+          <DialogFooter className="mt-2 border-0 bg-transparent p-3">
             <Button
               variant="outline"
               className="cursor-pointer p-4"
@@ -452,7 +452,7 @@ export default function ManagePostOption({
               Cancel
             </Button>
             <Button
-              className="cursor-pointer bg-blue-500 text-white hover:bg-blue-600 p-4 px-4 "
+              className="cursor-pointer bg-blue-500 p-4 px-4 text-white hover:bg-blue-600"
               disabled={isExtendingDeadline}
               onClick={handleExtendDeadline}
             >

@@ -34,6 +34,15 @@ export function withAuthJson<T>(
   return Response.json(payload, withAuthHeaders(auth, init));
 }
 
+/** For raw bodies (file downloads, streams) that still need refreshed cookies. */
+export function withAuthResponse(
+  auth: AuthCookie,
+  body: BodyInit,
+  init?: ResponseInit,
+) {
+  return new Response(body, withAuthHeaders(auth, init));
+}
+
 export function withAuthRedirect(
   auth: AuthCookie,
   url: string,

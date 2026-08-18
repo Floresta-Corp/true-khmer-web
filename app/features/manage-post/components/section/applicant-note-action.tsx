@@ -46,26 +46,26 @@ export default function ApplicantNoteAction({
   }, [existingNote]);
 
   return (
-    <div className="mt-3 border-t border-gray-150/60 dark:border-slate-800/60 pt-5">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+    <div className="border-gray-150/60 mt-3 border-t pt-5 dark:border-slate-800/60">
+      <div className="mb-3 flex items-center justify-between">
+        <span className="text-[10px] font-black tracking-widest text-gray-400 uppercase">
           Private Note
         </span>
-        <span className="text-[9px] font-bold text-gray-500 bg-gray-100 dark:text-slate-400 dark:bg-slate-800 px-2 py-0.5 rounded tracking-wide">
+        <span className="rounded bg-gray-100 px-2 py-0.5 text-[9px] font-bold tracking-wide text-gray-500 dark:bg-slate-800 dark:text-slate-400">
           Not visible to the candidate
         </span>
       </div>
 
       <fetcher.Form method="POST" className="w-full">
         {!editMode && savedNote ? (
-          <div className="border border-gray-150 rounded-2xl p-4">
-            <p className="text-sm text-gray-850 dark:text-gray-100 font-sans leading-relaxed whitespace-pre-wrap">
+          <div className="border-gray-150 rounded-2xl border p-4">
+            <p className="text-gray-850 font-sans text-sm leading-relaxed whitespace-pre-wrap dark:text-gray-100">
               {savedNote}
             </p>
             <div className="mt-3 flex justify-end">
               <Button
                 onClick={() => setEditMode(true)}
-                className="text-xs font-bold text-blue-500 bg-white hover:underline cursor-pointer flex items-center gap-1.5"
+                className="flex cursor-pointer items-center gap-1.5 bg-white text-xs font-bold text-blue-500 hover:underline"
               >
                 <Pencil size={8} />
                 Edit Note
@@ -73,7 +73,7 @@ export default function ApplicantNoteAction({
             </div>
           </div>
         ) : (
-          <div className="border-gray-200 dark:border-slate-800 rounded-2xl ">
+          <div className="rounded-2xl border-gray-200 dark:border-slate-800">
             <input type="hidden" name="actionType" value="note" />
             <input type="hidden" name="candidateId" value={candidateId} />
             <input type="hidden" name="sourceType" value={sourceType} />
@@ -84,7 +84,7 @@ export default function ApplicantNoteAction({
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
               placeholder="Type personal evaluation notes or review status here..."
-              className="w-full p-3.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-brand-blue dark:focus:border-brand-blue font-sans text-gray-850 dark:text-gray-100 placeholder-gray-400 dark:placeholder-slate-500 transition-all leading-relaxed shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]"
+              className="focus:border-brand-blue dark:focus:border-brand-blue text-gray-850 w-full rounded-xl border border-gray-200 bg-white p-3.5 font-sans text-sm leading-relaxed placeholder-gray-400 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)] transition-all focus:outline-none dark:border-slate-800 dark:bg-slate-900 dark:text-gray-100 dark:placeholder-slate-500"
             />
             {hasChanges && (
               <div className="mt-3 flex items-center justify-end gap-2.5">
@@ -94,7 +94,7 @@ export default function ApplicantNoteAction({
                       setNoteText(savedNote);
                       setEditMode(false);
                     }}
-                    className="px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:bg-gray-200/80 transition-all"
+                    className="cursor-pointer rounded-lg bg-gray-100 px-3.5 py-1.5 text-xs font-semibold text-gray-600 transition-all hover:bg-gray-200/80 dark:bg-slate-800 dark:text-slate-300"
                   >
                     Cancel
                   </Button>
@@ -103,7 +103,7 @@ export default function ApplicantNoteAction({
                   type="submit"
                   // onClick={handleSave}
                   disabled={isSubmitting}
-                  className="px-5 py-1.5 rounded-lg text-xs font-semibold tracking-wide cursor-pointer bg-brand-blue text-white bg-blue-500 transition-all shadow-sm disabled:opacity-50"
+                  className="bg-brand-blue cursor-pointer rounded-lg bg-blue-500 px-5 py-1.5 text-xs font-semibold tracking-wide text-white shadow-sm transition-all disabled:opacity-50"
                 >
                   {isSubmitting ? "Saving..." : "Save Note"}
                 </Button>

@@ -48,7 +48,7 @@ export default function VolunteerPage() {
             delay: sectionDelay,
             ease: "easeOut" as const,
           }}
-          className="lg:pt-17.5 will-change-transform"
+          className="will-change-transform lg:pt-17.5"
         >
           <VolunteerCategoriesSection
             categories={categories || []}
@@ -70,6 +70,8 @@ export default function VolunteerPage() {
         className="will-change-transform"
       >
         <VolunteerAvailableOpportunities
+          className="w-full bg-gray-50 py-10"
+          containerClassName="site-container"
           opportunities={opportunities ?? []}
           pagination={pagination}
           onMutationComplete={() => reloadOpportunities()}

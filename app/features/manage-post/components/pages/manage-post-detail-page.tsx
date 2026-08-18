@@ -2,6 +2,7 @@ import { Link, useLoaderData, useParams } from "react-router";
 import {
   Briefcase,
   CalendarRange,
+  EyeOff,
   HandHeart,
   Pencil,
   Share2,
@@ -18,6 +19,8 @@ import type {
 } from "~/features/manage-post/types";
 import { cn } from "~/lib/utils";
 import BackToButton from "~/components/back-to-button";
+import SuspensionNoticeDialog from "~/components/suspension-notice-dialog";
+import { useDismissibleNotice } from "~/hooks/use-dismissible-notice";
 import ManagePostOption from "../dropdown/manage-post-option";
 
 const STATUS_STYLES: Record<ManagePostStatus, string> = {
@@ -27,17 +30,27 @@ const STATUS_STYLES: Record<ManagePostStatus, string> = {
   IN_PROGRESS: "bg-indigo-100 text-indigo-700 border-indigo-200",
   CANCELED: "bg-red-100 text-red-700 border-red-200",
   FILLED: "bg-blue-100 text-blue-700 border-blue-200",
+  SUSPENDED: "bg-orange-100 text-orange-700 border-orange-200",
 };
 
 const ease = [0.25, 0.1, 0.25, 1] as const;
 
 export default function ManagePostingDetailPage() {
-  const { postDetail } = useLoaderData<typeof loader>();
+  const { postDetail, suspension } = useLoaderData<typeof loader>();
   const { sourceType, id } = useParams();
   const prefersReducedMotion = useReducedMotion();
   const postingSourceType = postDetail?.posting?.sourceType ?? sourceType;
   const isProjectPosting =
     postingSourceType === "PROJECT" || postingSourceType === "projects";
+
+  const isSuspended = postDetail?.posting?.status === "SUSPENDED";
+  const postingNoun = isProjectPosting ? "project" : "opportunity";
+  // Keyed on the suspension, not the posting: a re-suspension notifies again.
+  const suspensionNotice = useDismissibleNotice(
+    isSuspended && postDetail?.posting
+      ? `posting:${postDetail.posting.id}:${suspension?.suspendedAt ?? ""}`
+      : null,
+  );
   const managePostSourceType: PostingType = isProjectPosting
     ? "projects"
     : "volunteer";
@@ -65,6 +78,37 @@ export default function ManagePostingDetailPage() {
         <motion.div className="mb-6" {...fadeUp(0.05)}>
           <BackToButton to="/manage-post" />
         </motion.div>
+
+        {isSuspended && (
+          <>
+            <SuspensionNoticeDialog
+              open={suspensionNotice.isOpen}
+              onOpenChange={(open) => !open && suspensionNotice.dismiss()}
+              noun={postingNoun}
+              reason={suspension?.suspensionReason}
+              suspendedAt={suspension?.suspendedAt}
+            />
+
+            {/* The dialog auto-opens once; this keeps the reason reachable after. */}
+            <motion.div
+              {...fadeUp(0.1)}
+              className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3"
+            >
+              <EyeOff className="h-4 w-4 shrink-0 text-orange-600" />
+              <p className="min-w-0 flex-1 text-sm font-medium text-orange-800">
+                This {postingNoun} is on moderation hold — only you can see it,
+                and nobody can apply while it is held.
+              </p>
+              <button
+                type="button"
+                onClick={suspensionNotice.reopen}
+                className="shrink-0 cursor-pointer rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-orange-700 ring-1 ring-orange-200 transition-colors hover:bg-orange-100"
+              >
+                See reason
+              </button>
+            </motion.div>
+          </>
+        )}
 
         {/* Header Layout: Stacked on mobile, side-by-side on desktop */}
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">

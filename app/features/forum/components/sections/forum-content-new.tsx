@@ -81,9 +81,7 @@ export default function ForumContentNew({
   }, [hasMore, isLoading, onLoadMore]);
 
   return (
-    // <section className="bg-[#f8fafc] px-4 py-10 md:px-10 lg:px-30">
-    //   <div className="mx-auto flex w-full max-w-300 gap-10">
-    <ForumPageLayout contentClassName="mx-auto flex w-full max-w-300 gap-10">
+    <ForumPageLayout contentClassName="flex gap-10">
       <div className="flex min-w-0 flex-1 flex-col gap-5">
         <motion.div
           initial={{ opacity: 0, y: -12 }}
@@ -92,7 +90,7 @@ export default function ForumContentNew({
           className="flex flex-wrap items-center justify-between gap-3"
         >
           <div className="flex flex-wrap items-center gap-2">
-            <div className="hidden sm:flex flex-wrap items-center gap-2">
+            <div className="hidden flex-wrap items-center gap-2 sm:flex">
               {tabItems.map((tab) => {
                 const isActive = activeTab === tab.value;
                 return (
@@ -193,7 +191,7 @@ export default function ForumContentNew({
         )}
       </div>
 
-      <aside className="hidden w-70 shrink-0 lg:block space-y-5">
+      <aside className="hidden w-70 shrink-0 space-y-5 lg:block">
         {userId && (
           <motion.div
             initial={{ opacity: 0, y: 16 }}

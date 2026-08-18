@@ -23,13 +23,23 @@ import { getUserId } from "../../../lib/server/session.server";
 
 const LIMIT = 10;
 
+async function getReportReasons(request: Request) {
+  try {
+    const result = await GetPublicReportType(request);
+    return (result?.data as GetReportingTypesResponse | null) ?? null;
+  } catch (error) {
+    console.error("Failed to load forum report reasons", error);
+    return null;
+  }
+}
+
 type ForumListLoaderData = {
   data: GetQuestionsResponse;
   categories: CategoryResponse[];
   userId: string | null;
   tags: TrendingTagResponse[];
   answers: AnswerResponse[];
-  reportReasons: GetReportingTypesResponse;
+  reportReasons: GetReportingTypesResponse | null;
   questionCount: number;
   answerCount: number;
 };
@@ -61,7 +71,7 @@ export async function forumListloader({ request }: ForumRoute.LoaderArgs) {
         }),
         getCategories(request),
         getTrendingTags(request),
-        GetPublicReportType(request),
+        getReportReasons(request),
       ])
     : await Promise.all([
         getPublicQuestionPagination(request, {
@@ -75,7 +85,7 @@ export async function forumListloader({ request }: ForumRoute.LoaderArgs) {
         }),
         getPublicCategories(request),
         getPublicTrendingTags(request),
-        GetPublicReportType(request),
+        getReportReasons(request),
       ]);
 
   let answers: AnswerResponse[] = [];
@@ -97,7 +107,7 @@ export async function forumListloader({ request }: ForumRoute.LoaderArgs) {
     userId: userId || null,
     tags: tags.data.tags,
     answers,
-    reportReasons: reportReasons.data as GetReportingTypesResponse,
+    reportReasons,
     questionCount,
     answerCount,
   } satisfies ForumListLoaderData;

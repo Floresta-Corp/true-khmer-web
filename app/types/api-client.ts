@@ -121,13 +121,13 @@ const ContentModeratorReportAuthor = z.object({ id: z.string(), name: z.string()
 
 const ContentModeratorReportSolver = z.object({ id: z.string(), firstName: z.string().nullable(), lastName: z.string().nullable() });
 
-const ContentModeratorReport = z.object({ id: z.string().uuid(), reportId: z.number().int().gt(0), type: ContentModeratorReportType, reportType: z.literal("FORUM"), reportSubType: z.enum(["QUESTION", "ANSWER"]).nullable(), contentPreview: z.string(), sourceLink: z.string(), dateTime: z.string(), status: z.enum(["OPEN", "CLOSED"]), confirmStatus: z.enum(["CONTENT HIDDEN", "DISMISSED"]).nullable(), reportingBy: ContentModeratorReportReporter.nullable(), postedBy: ContentModeratorReportAuthor.nullable(), solvedBy: ContentModeratorReportSolver.nullable(), note: z.string().nullable(), solvedAt: z.string().nullable() });
+const ContentModeratorReport = z.object({ id: z.string().uuid(), reportId: z.number().int().gt(0), type: ContentModeratorReportType, reportType: z.enum(["FORUM", "VOLUNTEER", "LAUNCHPAD"]), reportSubType: z.enum(["QUESTION", "ANSWER", "OPPORTUNITY", "PROJECT"]).nullable(), contentPreview: z.string(), sourceLink: z.string(), dateTime: z.string(), status: z.enum(["OPEN", "CLOSED"]), confirmStatus: z.enum(["CONTENT HIDDEN", "DISMISSED"]).nullable(), reportingBy: ContentModeratorReportReporter.nullable(), postedBy: ContentModeratorReportAuthor.nullable(), solvedBy: ContentModeratorReportSolver.nullable(), reporterNote: z.string().nullable(), note: z.string().nullable(), solvedAt: z.string().nullable() });
 
 const CursorPagination = z.object({ limit: z.number().int().gt(0), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) });
 
 const ListContentModeratorReportsResponse = z.object({ ok: z.boolean(), summary: ContentModeratorReportsSummary.nullable(), reports: z.array(ContentModeratorReport), pagination: CursorPagination });
 
-const UpdateContentModeratorReportReviewRequest = z.object({ reportUuid: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), status: z.enum(["SAFE", "HIDE"]), note: z.string().max(1000).optional() });
+const UpdateContentModeratorReportReviewRequest = z.object({ reportUuid: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), status: z.enum(["SAFE", "HIDE"]), note: z.string().max(1000).optional() });
 
 const UpdateContentModeratorReportReviewResponse = z.object({ ok: z.boolean(), report: ContentModeratorReport });
 
@@ -171,6 +171,18 @@ const AdminUserManagementActivity = z.object({ id: z.string().uuid(), title: z.s
 const AdminUserManagementDetailUser = AdminUserManagementUser.and(z.object({ dateOfBirth: z.string().nullable(), occupation: z.string().nullable(), telegramUsername: z.string().nullable(), location: z.object({ city: z.string().nullable(), country: z.string().nullable() }).nullable(), points: AdminUserManagementPoints, recentActivity: z.array(AdminUserManagementActivity) }));
 
 const AdminUserManagementDetailResponse = z.object({ ok: z.literal(true), user: AdminUserManagementDetailUser });
+
+const AdminAuditLogMember = z.object({ id: z.string().uuid(), name: z.string().nullable(), email: z.string().email(), role: z.string(), avatarKey: z.string().nullable(), entryCount: z.number().int() });
+
+const AdminAuditLogMembersResponse = z.object({ ok: z.literal(true), members: z.array(AdminAuditLogMember) });
+
+const AdminAuditActor = z.object({ id: z.string().uuid(), name: z.string().nullable(), email: z.string().email(), role: z.string(), avatarKey: z.string().nullable(), removedAt: z.string().nullable() });
+
+const AdminAuditLogEntry = z.object({ id: z.string().uuid(), actor: AdminAuditActor, category: z.enum(["TEAM", "CONTENT", "USERS", "SYSTEM"]), action: z.string(), summary: z.string(), detail: z.string().nullable(), targetType: z.string().nullable(), targetId: z.string().nullable(), metadata: z.record(z.string(), z.unknown().nullable()).nullable(), ipAddress: z.string().nullable(), userAgent: z.string().nullable(), createdAt: z.string() });
+
+const AdminAuditLogPagination = z.object({ limit: z.number().int().gt(0), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) });
+
+const AdminAuditLogListResponse = z.object({ ok: z.literal(true), entries: z.array(AdminAuditLogEntry), pagination: AdminAuditLogPagination });
 
 const patchV1adminnotificationsread_Body = z.object({ notificationIds: z.array(z.string().uuid()).min(1) });
 
@@ -216,13 +228,65 @@ const PresignPartnerLogoResponse = z.object({ ok: z.boolean(), upload: z.object(
 
 const PresignPartnerPhotoResponse = z.object({ ok: z.boolean(), upload: z.object({ uploadUrl: z.string(), method: z.literal("PUT"), requiredHeaders: z.object({ "Content-Length": z.string(), "Content-Type": z.string() }), publicUrl: z.string().nullable(), expiresInSeconds: z.number(), photoKey: z.string() }) });
 
+const QuestionTagResponse = z.object({ id: z.string(), name: z.string() });
+
+const QuestionResponse = z.object({ id: z.string(), title: z.string(), body: z.string(), imageKey: z.string().nullable(), status: z.enum(["PUBLISHED", "CLOSED", "DELETED", "SUSPENDED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), upvoteCount: z.number().int().gte(0), downvoteCount: z.number().int().gte(0), answerCount: z.number().int().gte(0), viewCount: z.number().int().gte(0), bestAnswerId: z.string().nullable(), bestAnswerSelectedAt: z.string().nullable(), score: z.number().int(), viewerVote: z.enum(["UPVOTE", "DOWNVOTE"]).nullable(), viewerSave: z.boolean(), category: z.object({ id: z.string(), name: z.string() }), author: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable() }), tags: z.array(QuestionTagResponse), createdAt: z.string(), updatedAt: z.string() });
+
+const GetQuestionsResponse = z.object({ ok: z.boolean(), questions: z.array(QuestionResponse), pagination: z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) });
+
+const GetQuestionResponse = z.object({ ok: z.boolean(), question: QuestionResponse });
+
+const AdminDeletePostErrorResponse = z.object({ ok: z.boolean(), error: z.string() });
+
+const AdminDeletePostResponse = z.object({ ok: z.boolean() });
+
+const RepliedAnswerResponse = z.object({ id: z.string(), body: z.string(), author: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable() }), upvoteCount: z.number(), downvoteCount: z.number(), replyCount: z.number(), score: z.number(), viewerVote: z.enum(["UPVOTE", "DOWNVOTE"]).nullable(), createdAt: z.string(), updatedAt: z.string(), questionId: z.string(), status: z.enum(["PUBLISHED", "SUSPENDED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), replyTo: z.string().nullable() });
+
+const AnswerResponse = z.object({ id: z.string(), body: z.string(), author: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable() }), upvoteCount: z.number(), downvoteCount: z.number(), replyCount: z.number(), score: z.number(), viewerVote: z.enum(["UPVOTE", "DOWNVOTE"]).nullable(), createdAt: z.string(), updatedAt: z.string(), questionId: z.string(), status: z.enum(["PUBLISHED", "SUSPENDED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), replyTo: z.string().nullable(), repliedAnswers: z.array(RepliedAnswerResponse).nullable() });
+
+const GetAnswersResponse = z.object({ ok: z.boolean(), answers: z.object({ bestAnswer: z.array(AnswerResponse), answers: z.array(AnswerResponse) }) });
+
+const AdminSuspendPostBody = z.object({ reason: z.string().max(500) }).partial();
+
+const AdminSuspendPostResponse = z.object({ ok: z.literal(true), status: z.enum(["SUSPENDED", "PUBLISHED", "CLOSED"]) });
+
+const VolunteerOpportunityReference = z.object({ id: z.string(), name: z.string() });
+
+const AdminVolunteerPostListItemResponse = z.object({ id: z.string(), title: z.string(), overview: z.string(), startDate: z.string().nullable(), endDate: z.string().nullable(), commitmentLabel: z.string().nullable(), commitmentDescription: z.string().nullable(), applicationDeadline: z.string(), applicationCount: z.number(), capacity: z.number(), filled: z.boolean(), totalView: z.number(), coverImageKey: z.string(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED", "DELETED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), createdAt: z.string(), viewerSave: z.boolean(), category: VolunteerOpportunityReference, location: VolunteerOpportunityReference });
+
+const VolunteerOpportunitiesPaginationResponse = z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) });
+
+const AdminVolunteerPostsResponse = z.object({ ok: z.literal(true), opportunities: z.array(AdminVolunteerPostListItemResponse), pagination: VolunteerOpportunitiesPaginationResponse });
+
+const VolunteerOpportunityContactResponse = z.object({ email: z.string(), telegramUsername: z.string().nullable(), phone: z.string().nullable(), websiteUrl: z.string().nullable() });
+
+const VolunteerOpportunityOrganizerResponse = z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), opportunityCount: z.number(), organizerLocation: VolunteerOpportunityReference.nullable(), contact: VolunteerOpportunityContactResponse });
+
+const VolunteerOpportunityRoleResponse = z.object({ id: z.string(), title: z.string(), capacity: z.number(), responsibilities: z.array(z.string()), requirements: z.array(z.string()), displayOrder: z.number(), viewerApplied: z.boolean() });
+
+const AdminVolunteerPostDetailResponse = z.object({ id: z.string(), category: VolunteerOpportunityReference, location: VolunteerOpportunityReference, title: z.string(), overview: z.string(), communityImpact: z.string().nullable(), startDate: z.string().nullable(), endDate: z.string().nullable(), commitmentLabel: z.string().nullable(), commitmentDescription: z.string().nullable(), applicationDeadline: z.string(), applicationCount: z.number(), capacity: z.number(), filled: z.boolean(), totalView: z.number(), coverImageKey: z.string(), benefits: z.array(z.string()), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED", "DELETED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), publishedAt: z.string().nullable(), organizer: VolunteerOpportunityOrganizerResponse, createdBy: z.string(), createdAt: z.string(), updatedAt: z.string(), viewerSave: z.boolean().nullable(), viewerTopPicked: z.string().nullable(), viewerBlocked: z.boolean(), roles: z.array(VolunteerOpportunityRoleResponse) });
+
+const AdminVolunteerPostResponse = z.object({ ok: z.literal(true), opportunity: AdminVolunteerPostDetailResponse });
+
+const AdminSuspendVolunteerPostResponse = z.object({ ok: z.literal(true), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED", "DELETED"]) });
+
+const AdminLaunchpadPostListItemResponse = z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED", "DELETED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.boolean() });
+
+const AdminLaunchpadPostsResponse = z.object({ ok: z.literal(true), launchpads: z.array(AdminLaunchpadPostListItemResponse), nextCursor: z.string().nullable() });
+
+const AdminLaunchpadPostDetailResponse = z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED", "DELETED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), roles: z.array(z.object({ id: z.string(), title: z.string(), description: z.string().nullable(), capacity: z.number(), viewerApplied: z.boolean() })), viewerBlocked: z.boolean(), isSaved: z.boolean().nullable(), totalView: z.number() });
+
+const AdminLaunchpadPostResponse = z.object({ ok: z.literal(true), launchpad: AdminLaunchpadPostDetailResponse });
+
+const AdminSuspendLaunchpadPostResponse = z.object({ ok: z.literal(true), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED", "DELETED"]) });
+
 const OnboardingOkResponse = z.record(z.string(), z.unknown().nullable());
 
 const OnboardingErrorResponse = z.record(z.string(), z.unknown().nullable());
 
-const OnboardingProfileStepRequest = z.object({ bio: z.string().max(1000).optional(), countryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), avatarKey: z.string().min(1).max(600).optional() });
+const OnboardingProfileStepRequest = z.object({ bio: z.string().max(1000).optional(), countryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), avatarKey: z.string().min(1).max(600).optional() });
 
-const OnboardingInterestsStepRequest = z.object({ interestIds: z.array(z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)).min(2).max(20) });
+const OnboardingInterestsStepRequest = z.object({ interestIds: z.array(z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)).min(2).max(20) });
 
 const OnboardingContributionsStepRequest = z.object({ community_member: z.boolean(), find_volunteers: z.boolean(), launch_project: z.boolean(), organize_event: z.boolean() }).partial();
 
@@ -243,13 +307,7 @@ const CreateCategoryResponse = z.object({ ok: z.boolean(), category: CategoryRes
 
 const isUnanswered = z.union([z.boolean(), z.string()]).optional();
 
-const QuestionTagResponse = z.object({ id: z.string(), name: z.string() });
-
-const QuestionResponse = z.object({ id: z.string(), title: z.string(), body: z.string(), imageKey: z.string().nullable(), status: z.enum(["PUBLISHED", "CLOSED", "DELETED"]), upvoteCount: z.number().int().gte(0), downvoteCount: z.number().int().gte(0), answerCount: z.number().int().gte(0), viewCount: z.number().int().gte(0), bestAnswerId: z.string().nullable(), bestAnswerSelectedAt: z.string().nullable(), score: z.number().int(), viewerVote: z.enum(["UPVOTE", "DOWNVOTE"]).nullable(), viewerSave: z.boolean(), category: z.object({ id: z.string(), name: z.string() }), author: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable() }), tags: z.array(QuestionTagResponse), createdAt: z.string(), updatedAt: z.string() });
-
-const GetQuestionsResponse = z.object({ ok: z.boolean(), questions: z.array(QuestionResponse), pagination: z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) });
-
-const CreateQuestionRequest = z.object({ categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), title: z.string().min(1).max(300), body: z.string().min(1).max(10000), tags: z.union([z.array(z.string()), z.string()]).optional(), imageKey: z.string().min(1).max(600).nullish(), status: z.string().optional() });
+const CreateQuestionRequest = z.object({ categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), title: z.string().min(1).max(300), body: z.string().min(1).max(10000), tags: z.union([z.array(z.string()), z.string()]).optional(), imageKey: z.string().min(1).max(600).nullish(), status: z.string().optional() });
 
 const CreateQuestionResponse = z.object({ ok: z.boolean(), question: QuestionResponse });
 
@@ -261,29 +319,21 @@ const GetMyQuestionsResponse = z.object({ ok: z.boolean(), questions: z.array(Qu
 
 const GetSavedQuestionsResponse = z.object({ ok: z.boolean(), questions: z.array(QuestionResponse), pagination: z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) });
 
-const GetQuestionResponse = z.object({ ok: z.boolean(), question: QuestionResponse });
-
 const PresignForumQuestionImageUploadRequest = z.object({ contentType: z.string(), fileSize: z.number().int().gt(0).lte(5242880) });
 
 const PresignForumQuestionImageUploadResult = z.object({ uploadUrl: z.string(), method: z.literal("PUT"), requiredHeaders: z.object({ "Content-Length": z.string(), "Content-Type": z.string() }), imageKey: z.string(), publicUrl: z.string().nullable(), expiresInSeconds: z.number() });
 
 const PresignForumQuestionImageUploadResponse = z.object({ ok: z.literal(true), upload: PresignForumQuestionImageUploadResult });
 
-const EditQuestionRequest = z.object({ categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), title: z.string().min(1).max(300), body: z.string().min(1).max(10000), tags: z.union([z.array(z.string()), z.string()]), imageKey: z.string().min(1).max(600).nullable(), status: z.string() }).partial();
+const EditQuestionRequest = z.object({ categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), title: z.string().min(1).max(300), body: z.string().min(1).max(10000), tags: z.union([z.array(z.string()), z.string()]), imageKey: z.string().min(1).max(600).nullable(), status: z.string() }).partial();
 
 const VoteQuestionRequest = z.object({ voteType: z.string() });
 
 const SaveQuestionResponse = z.object({ ok: z.literal(true) });
 
-const RepliedAnswerResponse = z.object({ id: z.string(), body: z.string(), author: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable() }), upvoteCount: z.number(), downvoteCount: z.number(), replyCount: z.number(), score: z.number(), viewerVote: z.enum(["UPVOTE", "DOWNVOTE"]).nullable(), createdAt: z.string(), updatedAt: z.string(), questionId: z.string(), status: z.literal("PUBLISHED"), replyTo: z.string().nullable() });
+const AnswerQuestionResponse = z.object({ id: z.string(), categoryId: z.string(), title: z.string(), body: z.string(), imageKey: z.string().nullable(), status: z.enum(["PUBLISHED", "CLOSED", "DELETED", "SUSPENDED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), answerCount: z.number().int().gte(0), upvoteCount: z.number().int().gte(0), downvoteCount: z.number().int().gte(0), viewCount: z.number().int().gte(0), bestAnswerId: z.string().nullable(), bestAnswerSelectedAt: z.string().nullable(), createdAt: z.string(), updatedAt: z.string(), author: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable() }), category: CategoryResponse });
 
-const AnswerResponse = z.object({ id: z.string(), body: z.string(), author: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable() }), upvoteCount: z.number(), downvoteCount: z.number(), replyCount: z.number(), score: z.number(), viewerVote: z.enum(["UPVOTE", "DOWNVOTE"]).nullable(), createdAt: z.string(), updatedAt: z.string(), questionId: z.string(), status: z.literal("PUBLISHED"), replyTo: z.string().nullable(), repliedAnswers: z.array(RepliedAnswerResponse).nullable() });
-
-const GetAnswersResponse = z.object({ ok: z.boolean(), answers: z.object({ bestAnswer: z.array(AnswerResponse), answers: z.array(AnswerResponse) }) });
-
-const AnswerQuestionResponse = z.object({ id: z.string(), categoryId: z.string(), title: z.string(), body: z.string(), imageKey: z.string().nullable(), status: z.enum(["PUBLISHED", "CLOSED", "DELETED"]), answerCount: z.number().int().gte(0), upvoteCount: z.number().int().gte(0), downvoteCount: z.number().int().gte(0), viewCount: z.number().int().gte(0), bestAnswerId: z.string().nullable(), bestAnswerSelectedAt: z.string().nullable(), createdAt: z.string(), updatedAt: z.string(), author: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable() }), category: CategoryResponse });
-
-const MyAnswerResponse = z.object({ id: z.string(), body: z.string(), author: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable() }), upvoteCount: z.number(), downvoteCount: z.number(), replyCount: z.number(), score: z.number(), viewerVote: z.enum(["UPVOTE", "DOWNVOTE"]).nullable(), createdAt: z.string(), updatedAt: z.string(), questionId: z.string(), status: z.literal("PUBLISHED"), replyTo: z.string().nullable(), isBestAnswer: z.boolean() });
+const MyAnswerResponse = z.object({ id: z.string(), body: z.string(), author: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable() }), upvoteCount: z.number(), downvoteCount: z.number(), replyCount: z.number(), score: z.number(), viewerVote: z.enum(["UPVOTE", "DOWNVOTE"]).nullable(), createdAt: z.string(), updatedAt: z.string(), questionId: z.string(), status: z.enum(["PUBLISHED", "SUSPENDED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), replyTo: z.string().nullable(), isBestAnswer: z.boolean() });
 
 const MyAnswerDiscussionResponse = z.object({ question: AnswerQuestionResponse, answers: z.array(MyAnswerResponse), myAnswerCount: z.number().int().gt(0), lastActivityAt: z.string() });
 
@@ -291,7 +341,7 @@ const MyAnswersPaginationResponse = z.object({ limit: z.number().int().gt(0), ha
 
 const GetMyAnswersResponse = z.object({ ok: z.boolean(), discussions: z.array(MyAnswerDiscussionResponse), totalAnswers: z.number().int().gte(0), pagination: MyAnswersPaginationResponse });
 
-const CreateAnswerRequest = z.object({ questionId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), replyToAnswer: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).nullish(), body: z.string().min(1).max(10000) });
+const CreateAnswerRequest = z.object({ questionId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), replyToAnswer: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).nullish(), body: z.string().min(1).max(10000) });
 
 const CreateAnswerResponse = z.object({ ok: z.boolean(), answer: AnswerResponse });
 
@@ -332,17 +382,13 @@ const PresignVolunteerOpportunityCoverUploadResult = z.object({ uploadUrl: z.str
 
 const PresignVolunteerOpportunityCoverUploadResponse = z.object({ ok: z.literal(true), upload: PresignVolunteerOpportunityCoverUploadResult });
 
-const PresignVolunteerApplicationDocumentUploadRequest = z.object({ opportunityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), files: z.array(z.object({ fileName: z.string().min(1).max(255), contentType: z.string(), fileSize: z.number().int().gt(0).lte(10485760) })).min(1).max(3) });
+const PresignVolunteerApplicationDocumentUploadRequest = z.object({ opportunityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), files: z.array(z.object({ fileName: z.string().min(1).max(255), contentType: z.string(), fileSize: z.number().int().gt(0).lte(10485760) })).min(1).max(3) });
 
 const PresignVolunteerApplicationDocumentUploadResult = z.object({ uploadUrl: z.string(), method: z.literal("PUT"), requiredHeaders: z.object({ "Content-Length": z.string(), "Content-Type": z.string() }), supportingDocument: z.object({ name: z.string(), key: z.string() }), expiresInSeconds: z.number() });
 
 const PresignVolunteerApplicationDocumentUploadResponse = z.object({ ok: z.literal(true), uploads: z.array(PresignVolunteerApplicationDocumentUploadResult) });
 
-const VolunteerOpportunityReference = z.object({ id: z.string(), name: z.string() });
-
-const VolunteerOpportunityListItemResponse = z.object({ id: z.string(), title: z.string(), overview: z.string(), startDate: z.string().nullable(), endDate: z.string().nullable(), commitmentLabel: z.string().nullable(), commitmentDescription: z.string().nullable(), applicationDeadline: z.string(), applicationCount: z.number(), capacity: z.number(), filled: z.boolean(), totalView: z.number(), coverImageKey: z.string(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), createdAt: z.string(), viewerSave: z.boolean(), category: VolunteerOpportunityReference, location: VolunteerOpportunityReference });
-
-const VolunteerOpportunitiesPaginationResponse = z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) });
+const VolunteerOpportunityListItemResponse = z.object({ id: z.string(), title: z.string(), overview: z.string(), startDate: z.string().nullable(), endDate: z.string().nullable(), commitmentLabel: z.string().nullable(), commitmentDescription: z.string().nullable(), applicationDeadline: z.string(), applicationCount: z.number(), capacity: z.number(), filled: z.boolean(), totalView: z.number(), coverImageKey: z.string(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), createdAt: z.string(), viewerSave: z.boolean(), category: VolunteerOpportunityReference, location: VolunteerOpportunityReference });
 
 const GetVolunteerOpportunitiesResponse = z.object({ ok: z.literal(true), opportunities: z.array(VolunteerOpportunityListItemResponse), pagination: VolunteerOpportunitiesPaginationResponse });
 
@@ -353,13 +399,7 @@ const VolunteerOpportunityRoleRequest = z.object({ title: z.string(), capacity: 
 const CreateVolunteerOpportunityPayload = z.object({ categoryId: z.string().uuid(), locationId: z.string().uuid(), title: z.string(), overview: z.string(), communityImpact: z.string().nullish(), startDate: z.string().nullish(), endDate: z.string().nullish(), commitmentLabel: z.string().nullish(), commitmentDescription: z.string().nullish(), applicationDeadline: z.string(), benefits: z.array(z.string()).max(12).nullish(), contact: VolunteerOpportunityContact, roles: z.array(VolunteerOpportunityRoleRequest).min(1).max(20) });
 const CreateVolunteerOpportunityRequest = CreateVolunteerOpportunityPayload.and(z.object({ coverImageKey: z.string().min(1).max(600) }));
 
-const VolunteerOpportunityContactResponse = z.object({ email: z.string(), telegramUsername: z.string().nullable(), phone: z.string().nullable(), websiteUrl: z.string().nullable() });
-
-const VolunteerOpportunityOrganizerResponse = z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), opportunityCount: z.number(), organizerLocation: VolunteerOpportunityReference.nullable(), contact: VolunteerOpportunityContactResponse });
-
-const VolunteerOpportunityRoleResponse = z.object({ id: z.string(), title: z.string(), capacity: z.number(), responsibilities: z.array(z.string()), requirements: z.array(z.string()), displayOrder: z.number(), viewerApplied: z.boolean() });
-
-const VolunteerOpportunityResponse = z.object({ id: z.string(), category: VolunteerOpportunityReference, location: VolunteerOpportunityReference, title: z.string(), overview: z.string(), communityImpact: z.string().nullable(), startDate: z.string().nullable(), endDate: z.string().nullable(), commitmentLabel: z.string().nullable(), commitmentDescription: z.string().nullable(), applicationDeadline: z.string(), applicationCount: z.number(), capacity: z.number(), filled: z.boolean(), totalView: z.number(), coverImageKey: z.string(), benefits: z.array(z.string()), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), publishedAt: z.string().nullable(), organizer: VolunteerOpportunityOrganizerResponse, createdBy: z.string(), createdAt: z.string(), updatedAt: z.string(), viewerSave: z.boolean(), viewerTopPicked: z.string().nullable(), viewerBlocked: z.boolean(), roles: z.array(VolunteerOpportunityRoleResponse) });
+const VolunteerOpportunityResponse = z.object({ id: z.string(), category: VolunteerOpportunityReference, location: VolunteerOpportunityReference, title: z.string(), overview: z.string(), communityImpact: z.string().nullable(), startDate: z.string().nullable(), endDate: z.string().nullable(), commitmentLabel: z.string().nullable(), commitmentDescription: z.string().nullable(), applicationDeadline: z.string(), applicationCount: z.number(), capacity: z.number(), filled: z.boolean(), totalView: z.number(), coverImageKey: z.string(), benefits: z.array(z.string()), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), publishedAt: z.string().nullable(), organizer: VolunteerOpportunityOrganizerResponse, createdBy: z.string(), createdAt: z.string(), updatedAt: z.string(), viewerSave: z.boolean().nullable(), viewerTopPicked: z.string().nullable(), viewerBlocked: z.boolean(), roles: z.array(VolunteerOpportunityRoleResponse) });
 
 const CreateVolunteerOpportunityResponse = z.object({ ok: z.literal(true), opportunity: VolunteerOpportunityResponse });
 
@@ -374,7 +414,7 @@ const SaveVolunteerOpportunityResponse = z.object({ ok: z.literal(true) });
 
 const CreateVolunteerApplicationRequest = z.object({ availability: z.string(), relevantExperience: z.string(), supportingDocuments: z.array(z.object({ name: z.string().min(1).max(255), key: z.string().min(1).max(600) })).max(3).optional().default([]), topPickRoleId: z.string().uuid().nullish(), roleId: z.string().uuid() });
 
-const VolunteerApplicationOpportunity = z.object({ id: z.string(), title: z.string(), coverImageKey: z.string(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), applicationDeadline: z.string(), filled: z.boolean(), category: VolunteerOpportunityReference, location: VolunteerOpportunityReference });
+const VolunteerApplicationOpportunity = z.object({ id: z.string(), title: z.string(), coverImageKey: z.string(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED"]), applicationDeadline: z.string(), filled: z.boolean(), category: VolunteerOpportunityReference, location: VolunteerOpportunityReference });
 
 const VolunteerApplicationRoleResponse = z.object({ id: z.string(), title: z.string() });
 
@@ -386,7 +426,7 @@ const CreateVolunteerApplicationBatchRequest = z.object({ availability: z.string
 
 const CreateVolunteerApplicationBatchResponse = z.object({ ok: z.literal(true), applications: z.array(VolunteerApplicationResponse) });
 
-const PublicVolunteerOpportunityResponse = z.object({ id: z.string(), category: VolunteerOpportunityReference, location: VolunteerOpportunityReference, title: z.string(), overview: z.string(), communityImpact: z.string().nullable(), startDate: z.string().nullable(), endDate: z.string().nullable(), commitmentLabel: z.string().nullable(), commitmentDescription: z.string().nullable(), applicationDeadline: z.string(), applicationCount: z.number(), capacity: z.number(), filled: z.boolean(), totalView: z.number(), coverImageKey: z.string(), benefits: z.array(z.string()), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), publishedAt: z.string().nullable(), organizer: VolunteerOpportunityOrganizerResponse, createdAt: z.string(), updatedAt: z.string(), viewerSave: z.boolean(), viewerTopPicked: z.string().nullable(), viewerBlocked: z.boolean(), roles: z.array(VolunteerOpportunityRoleResponse) });
+const PublicVolunteerOpportunityResponse = z.object({ id: z.string(), category: VolunteerOpportunityReference, location: VolunteerOpportunityReference, title: z.string(), overview: z.string(), communityImpact: z.string().nullable(), startDate: z.string().nullable(), endDate: z.string().nullable(), commitmentLabel: z.string().nullable(), commitmentDescription: z.string().nullable(), applicationDeadline: z.string(), applicationCount: z.number(), capacity: z.number(), filled: z.boolean(), totalView: z.number(), coverImageKey: z.string(), benefits: z.array(z.string()), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), publishedAt: z.string().nullable(), organizer: VolunteerOpportunityOrganizerResponse, createdAt: z.string(), updatedAt: z.string(), viewerSave: z.boolean().nullable(), viewerTopPicked: z.string().nullable(), viewerBlocked: z.boolean(), roles: z.array(VolunteerOpportunityRoleResponse) });
 
 const GetPublicVolunteerOpportunityResponse = z.object({ ok: z.literal(true), opportunity: PublicVolunteerOpportunityResponse });
 
@@ -394,9 +434,17 @@ const ReportingTypeResponse = z.object({ id: z.string(), type: z.string() });
 
 const GetReportingTypesResponse = z.object({ ok: z.boolean(), reportingTypes: z.array(ReportingTypeResponse) });
 
-const CreateReportingRequest = z.object({ questionId: z.string(), answerId: z.string(), typeId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), description: z.string().max(10000).optional() });
+const CreateReportingRequest = z.object({ questionId: z.string(), answerId: z.string(), typeId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), description: z.string().max(10000).optional() });
 
 const CreateReportingResponse = z.object({ ok: z.boolean(), reportingId: z.string().uuid() });
+
+const CreateVolunteerReportingRequest = z.object({ opportunityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), typeId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), description: z.string().max(10000).optional() });
+
+const CreateVolunteerReportingResponse = z.object({ ok: z.boolean(), reportingId: z.string().uuid() });
+
+const CreateLaunchpadReportingRequest = z.object({ launchpadId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), typeId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), description: z.string().max(10000).optional() });
+
+const CreateLaunchpadReportingResponse = z.object({ ok: z.boolean(), reportingId: z.string().uuid() });
 
 const LaunchpadCategoryResponse = z.object({ id: z.string(), name: z.string(), slug: z.string(), iconKey: z.string(), mobileIconType: z.string().nullable(), mobileIconName: z.string().nullable(), displayOrder: z.number(), status: z.enum(["ACTIVE", "ARCHIVED", "HIDDEN"]), totalLaunchpad: z.number(), createdBy: z.string(), updatedBy: z.string().nullable(), createdAt: z.string(), updatedAt: z.string() });
 
@@ -418,21 +466,21 @@ const PresignLaunchpadDocumentUploadResult = z.object({ uploadUrl: z.string(), m
 
 const PresignLaunchpadDocumentUploadResponse = z.object({ ok: z.literal(true), upload: PresignLaunchpadDocumentUploadResult });
 
-const GetSavedLaunchpadsResponse = z.object({ ok: z.literal(true), launchpads: z.array(z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.literal(true), savedAt: z.string() })), nextCursor: z.string().nullable() });
+const GetSavedLaunchpadsResponse = z.object({ ok: z.literal(true), launchpads: z.array(z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.literal(true), savedAt: z.string() })), nextCursor: z.string().nullable() });
 
 const SaveLaunchpadResponse = z.object({ ok: z.literal(true) });
 
-const CreateLaunchpadRequest = z.object({ name: z.string().min(1).max(120), description: z.string().nullish(), categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), deadline: z.string(), coverKey: z.string().min(1).max(255), role: z.array(z.object({ name: z.string().min(1).max(100), description: z.string().nullish(), capacity: z.number().int().gt(0).lte(1000).optional().default(1) })).min(1), materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5), materialDocumentName: z.array(z.string().min(1).max(255)).min(1).max(5), phoneNumber: z.string(), email: z.string().max(255).email(), telegramUsername: z.string().nullish() });
+const CreateLaunchpadRequest = z.object({ name: z.string().min(1).max(120), description: z.string().nullish(), categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), deadline: z.string(), coverKey: z.string().min(1).max(255), role: z.array(z.object({ name: z.string().min(1).max(100), description: z.string().nullish(), capacity: z.number().int().gt(0).lte(1000).optional().default(1) })).min(1), materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5), materialDocumentName: z.array(z.string().min(1).max(255)).min(1).max(5), phoneNumber: z.string(), email: z.string().max(255).email(), telegramUsername: z.string().nullish() });
 
-const CreateLaunchpadResponse = z.object({ ok: z.literal(true), launchpad: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), totalView: z.number(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), roles: z.array(z.object({ id: z.string(), title: z.string(), description: z.string().nullable(), capacity: z.number(), viewerApplied: z.boolean() })) }) });
+const CreateLaunchpadResponse = z.object({ ok: z.literal(true), launchpad: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), totalView: z.number(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), roles: z.array(z.object({ id: z.string(), title: z.string(), description: z.string().nullable(), capacity: z.number(), viewerApplied: z.boolean() })) }) });
 
-const GetLaunchpadsResponse = z.object({ ok: z.literal(true), launchpads: z.array(z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.boolean() })), nextCursor: z.string().nullable() });
+const GetLaunchpadsResponse = z.object({ ok: z.literal(true), launchpads: z.array(z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.boolean() })), nextCursor: z.string().nullable() });
 
-const UpdateLaunchpadRoleRequest = z.object({ id: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional(), name: z.string().min(1).max(100), description: z.string().nullish(), capacity: z.number().int().gt(0).lte(1000).optional().default(1) });
+const UpdateLaunchpadRoleRequest = z.object({ id: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional(), name: z.string().min(1).max(100), description: z.string().nullish(), capacity: z.number().int().gt(0).lte(1000).optional().default(1) });
 
-const UpdateLaunchpadRequest = z.object({ name: z.string(), description: z.string().nullable(), categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), deadline: z.string(), coverKey: z.string().min(1).max(255), role: z.array(UpdateLaunchpadRoleRequest).min(1), materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5), materialDocumentName: z.array(z.string().min(1).max(255)).min(1).max(5), phoneNumber: z.string(), email: z.string().max(255).email(), telegramUsername: z.string().nullable() }).partial();
+const UpdateLaunchpadRequest = z.object({ name: z.string(), description: z.string().nullable(), categoryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), deadline: z.string(), coverKey: z.string().min(1).max(255), role: z.array(UpdateLaunchpadRoleRequest).min(1), materialDocumentKey: z.array(z.string().min(1).max(255)).min(1).max(5), materialDocumentName: z.array(z.string().min(1).max(255)).min(1).max(5), phoneNumber: z.string(), email: z.string().max(255).email(), telegramUsername: z.string().nullable() }).partial();
 
-const GetLaunchpadByIdResponse = z.object({ ok: z.literal(true), launchpad: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), roles: z.array(z.object({ id: z.string(), title: z.string(), description: z.string().nullable(), capacity: z.number(), viewerApplied: z.boolean() })), viewerBlocked: z.boolean(), totalView: z.number() }) });
+const GetLaunchpadByIdResponse = z.object({ ok: z.literal(true), launchpad: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), roles: z.array(z.object({ id: z.string(), title: z.string(), description: z.string().nullable(), capacity: z.number(), viewerApplied: z.boolean() })), viewerBlocked: z.boolean(), isSaved: z.boolean().nullable(), totalView: z.number() }) });
 
 const PresignLaunchpadApplicationDocumentUploadRequest = z.object({ contentType: z.string(), fileSize: z.number().int().gt(0).lte(10485760) });
 
@@ -444,7 +492,7 @@ const LaunchpadApplicationValidationErrorResponse = z.object({ ok: z.literal(fal
 
 const LaunchpadApplicationOperationErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
-const CreateLaunchpadApplicationRequest = z.object({ motivation: z.string().min(5).max(2000), portfolio: z.string().max(255).url().optional(), documentKeys: z.array(z.string().min(1).max(500)).max(5).optional(), documentNames: z.array(z.string().min(1).max(255)).max(5).optional(), topPickRoleId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).nullish(), launchpadRoleId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), relevantExperience: z.string().min(1).max(5000).optional().default("") });
+const CreateLaunchpadApplicationRequest = z.object({ motivation: z.string().min(5).max(2000), portfolio: z.string().max(255).url().optional(), documentKeys: z.array(z.string().min(1).max(500)).max(5).optional(), documentNames: z.array(z.string().min(1).max(255)).max(5).optional(), topPickRoleId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).nullish(), launchpadRoleId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), relevantExperience: z.string().min(1).max(5000).optional().default("") });
 
 const LaunchpadApplicationLog = z.object({ id: z.string(), status: z.enum(["SUBMITTED", "UNDER_REVIEW", "APPROVED", "DECLINED", "CONFIRMED", "COMPLETED", "WITHDRAWN"]), declinedBy: z.enum(["POSTER", "APPLICANT", "SYSTEM"]).nullable(), createdBy: z.string(), createdAt: z.string() });
 
@@ -452,7 +500,7 @@ const LaunchpadApplication = z.object({ id: z.string(), launchpadId: z.string(),
 
 const CreateLaunchpadApplicationResponse = z.object({ ok: z.literal(true), application: LaunchpadApplication });
 
-const CreateLaunchpadApplicationBatchRequest = z.object({ motivation: z.string().min(5).max(2000), portfolio: z.string().max(255).url().optional(), documentKeys: z.array(z.string().min(1).max(500)).max(5).optional(), documentNames: z.array(z.string().min(1).max(255)).max(5).optional(), topPickRoleId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).nullish(), relevantExperience: z.string().min(1).max(5000), launchpadRoleIds: z.array(z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)).min(1).max(20) });
+const CreateLaunchpadApplicationBatchRequest = z.object({ motivation: z.string().min(5).max(2000), portfolio: z.string().max(255).url().optional(), documentKeys: z.array(z.string().min(1).max(500)).max(5).optional(), documentNames: z.array(z.string().min(1).max(255)).max(5).optional(), topPickRoleId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).nullish(), relevantExperience: z.string().min(1).max(5000), launchpadRoleIds: z.array(z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)).min(1).max(20) });
 
 const CreateLaunchpadApplicationBatchResponse = z.object({ ok: z.literal(true), applications: z.array(LaunchpadApplication) });
 
@@ -490,7 +538,7 @@ const ProfileResponse = z.object({ ok: z.literal(true), profile: z.object({ user
 
 const ProfileErrorResponse = z.object({ ok: z.literal(false), error: z.string(), issues: z.array(z.string()).optional() });
 
-const UpdateProfileRequest = z.object({ firstName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u), lastName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u), gender: z.enum(["male", "female", "other"]), dateOfBirth: z.union([z.string(), z.unknown()]), occupation: z.union([z.string(), z.unknown()]), phone: z.union([z.object({ country: z.string().min(2).max(2), nationalNumber: z.string().min(1) }), z.unknown()]), telegramUsername: z.union([z.string(), z.unknown()]), bio: z.union([z.string(), z.unknown()]), countryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/), avatarKey: z.union([z.string(), z.unknown()]), skills: z.array(z.string()).max(20), socialLinks: z.object({ website: z.union([z.string(), z.string(), z.unknown()]), linkedin: z.union([z.string(), z.string(), z.unknown()]), twitter: z.union([z.string(), z.string(), z.unknown()]), facebook: z.union([z.string(), z.string(), z.unknown()]) }).partial(), visibility: z.object({ profile: z.enum(["public", "members", "private"]), contact: z.enum(["public", "members", "private"]), socialLinks: z.enum(["public", "members", "private"]), contributions: z.enum(["public", "members", "private"]) }).partial() }).partial();
+const UpdateProfileRequest = z.object({ firstName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u), lastName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u), gender: z.enum(["male", "female", "other"]), dateOfBirth: z.union([z.string(), z.unknown()]), occupation: z.union([z.string(), z.unknown()]), phone: z.union([z.object({ country: z.string().min(2).max(2), nationalNumber: z.string().min(1) }), z.unknown()]), telegramUsername: z.union([z.string(), z.unknown()]), bio: z.union([z.string(), z.unknown()]), countryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), avatarKey: z.union([z.string(), z.unknown()]), skills: z.array(z.string()).max(20), socialLinks: z.object({ website: z.union([z.string(), z.string(), z.unknown()]), linkedin: z.union([z.string(), z.string(), z.unknown()]), twitter: z.union([z.string(), z.string(), z.unknown()]), facebook: z.union([z.string(), z.string(), z.unknown()]) }).partial(), visibility: z.object({ profile: z.enum(["public", "members", "private"]), contact: z.enum(["public", "members", "private"]), socialLinks: z.enum(["public", "members", "private"]), contributions: z.enum(["public", "members", "private"]) }).partial() }).partial();
 
 const UpdateProfileResponse = z.object({ ok: z.literal(true), profile: z.object({ user: z.object({ id: z.string(), firstName: z.string(), lastName: z.string(), displayName: z.string().nullable(), email: z.string(), gender: z.enum(["male", "female", "other"]), dateOfBirth: z.string().nullable(), occupation: z.string().nullable(), phone: z.object({ country: z.string(), nationalNumber: z.string() }).nullable(), telegramUsername: z.string().nullable() }), profile: z.object({ avatarKey: z.string().nullable(), bio: z.string().nullable(), country: z.object({ id: z.string(), name: z.string(), iso2: z.string().nullable() }).nullable(), city: z.object({ id: z.string(), name: z.string() }).nullable(), visibility: z.object({ profile: z.enum(["public", "members", "private"]), contact: z.enum(["public", "members", "private"]), socialLinks: z.enum(["public", "members", "private"]), contributions: z.enum(["public", "members", "private"]) }) }), skills: z.array(z.object({ id: z.string(), name: z.string() })), socialLinks: z.object({ website: z.string().nullable(), linkedin: z.string().nullable(), twitter: z.string().nullable(), facebook: z.string().nullable() }), progress: z.object({ totalPoints: z.number(), rank: z.number().nullable(), tier: z.object({ id: z.string(), slug: z.string(), name: z.string(), rankOrder: z.number(), minPoints: z.number() }).nullable(), nextTier: z.object({ id: z.string(), slug: z.string(), name: z.string(), rankOrder: z.number(), minPoints: z.number() }).nullable(), pointsUntilNextTier: z.number() }), badges: z.array(z.object({ slug: z.string(), name: z.string(), description: z.string(), category: z.enum(["ONBOARDING", "COLLABORATION", "KNOWLEDGE", "VOLUNTEER", "LAUNCHPAD"]), awardedAt: z.string() })) }) });
 
@@ -502,17 +550,17 @@ const RecentActivityErrorResponse = z.object({ ok: z.literal(false), error: z.st
 
 const SearchSkillsResponse = z.object({ ok: z.literal(true), skills: z.array(z.object({ id: z.string(), name: z.string() })) });
 
-const GetSavedItemsResponse = z.object({ ok: z.literal(true), items: z.array(z.union([z.object({ type: z.literal("project"), savedAt: z.string(), item: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.literal(true), savedAt: z.string() }) }), z.object({ type: z.literal("volunteer"), savedAt: z.string(), item: VolunteerOpportunityListItemResponse }), z.object({ type: z.literal("forum"), savedAt: z.string(), item: QuestionResponse })])), pagination: z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }), counts: z.object({ all: z.number().int().gte(0), project: z.number().int().gte(0), volunteer: z.number().int().gte(0), forum: z.number().int().gte(0) }) });
+const GetSavedItemsResponse = z.object({ ok: z.literal(true), items: z.array(z.union([z.object({ type: z.literal("project"), savedAt: z.string(), item: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.literal(true), savedAt: z.string() }) }), z.object({ type: z.literal("volunteer"), savedAt: z.string(), item: VolunteerOpportunityListItemResponse }), z.object({ type: z.literal("forum"), savedAt: z.string(), item: QuestionResponse })])), pagination: z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }), counts: z.object({ all: z.number().int().gte(0), project: z.number().int().gte(0), volunteer: z.number().int().gte(0), forum: z.number().int().gte(0) }) });
 
 const SavedItemsErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
 const PublicProfileResponse = z.object({ ok: z.literal(true), profile: z.object({ user: z.object({ id: z.string(), firstName: z.string(), lastName: z.string(), displayName: z.string().nullable(), occupation: z.string().nullable(), email: z.string().nullable(), phone: z.object({ country: z.string(), nationalNumber: z.string() }).nullable(), telegramUsername: z.string().nullable() }), profile: z.object({ avatarKey: z.string().nullable(), bio: z.string().nullable(), country: z.object({ id: z.string(), name: z.string(), iso2: z.string().nullable() }).nullable(), city: z.object({ id: z.string(), name: z.string() }).nullable() }), skills: z.array(z.object({ id: z.string(), name: z.string() })), socialLinks: z.object({ website: z.string().nullable(), linkedin: z.string().nullable(), twitter: z.string().nullable(), facebook: z.string().nullable() }), tier: z.object({ id: z.string(), slug: z.string(), name: z.string(), rankOrder: z.number(), minPoints: z.number() }).nullable(), postedCounts: z.object({ forum: z.number().int().gte(0), volunteer: z.number().int().gte(0), project: z.number().int().gte(0) }).nullable(), badges: z.array(z.object({ slug: z.string(), name: z.string(), description: z.string(), category: z.enum(["ONBOARDING", "COLLABORATION", "KNOWLEDGE", "VOLUNTEER", "LAUNCHPAD"]), awardedAt: z.string() })) }) });
 
-const GetMyPostedResponse = z.union([z.object({ ok: z.literal(true), sourceType: z.literal("forum"), questions: z.array(QuestionResponse), pagination: z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) }), z.object({ ok: z.literal(true), sourceType: z.literal("volunteer"), opportunities: z.array(VolunteerOpportunityListItemResponse), pagination: VolunteerOpportunitiesPaginationResponse }), z.object({ ok: z.literal(true), sourceType: z.literal("project"), launchpads: z.array(z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.boolean() })), nextCursor: z.string().nullable() })]);
+const GetMyPostedResponse = z.union([z.object({ ok: z.literal(true), sourceType: z.literal("forum"), questions: z.array(QuestionResponse), pagination: z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) }), z.object({ ok: z.literal(true), sourceType: z.literal("volunteer"), opportunities: z.array(VolunteerOpportunityListItemResponse), pagination: VolunteerOpportunitiesPaginationResponse }), z.object({ ok: z.literal(true), sourceType: z.literal("project"), launchpads: z.array(z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.boolean() })), nextCursor: z.string().nullable() })]);
 
 const MyPostedErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
-const ManagePostingStatus = z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "DELETED"]);
+const ManagePostingStatus = z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "DELETED", "SUSPENDED"]);
 
 const ManagePostingItem = z.object({ id: z.string(), sourceType: z.enum(["VOLUNTEER", "PROJECT"]), title: z.string(), description: z.string().nullable(), imageKey: z.string().nullable(), status: ManagePostingStatus, filled: z.boolean(), roleCount: z.number().int().gte(0), applicantCount: z.number().int().gte(0), confirmedCount: z.number().int().gte(0), capacity: z.number().int().gte(0), views: z.number().int().gte(0), deadline: z.string().nullable(), isEditable: z.boolean(), createdAt: z.string() });
 
@@ -613,6 +661,40 @@ const ListPublicBlogPostsResponse = z.object({ ok: z.boolean(), data: z.array(Bl
 
 const GetPublicBlogPostResponse = z.object({ ok: z.boolean(), post: BlogPostResponse, relatedPosts: z.array(BlogPostListingItemResponse) });
 
+const CourseCategoryResponse = z.object({ id: z.string().uuid(), name: z.string(), slug: z.string().nullable(), iconKey: z.string().nullable(), mobileIconType: z.string().nullable(), mobileIconName: z.string().nullable(), createdAt: z.string(), updatedAt: z.string() });
+
+const ListCourseCategoriesResponse = z.object({ ok: z.literal(true), categories: z.array(CourseCategoryResponse) });
+
+const CreateCourseCategoryRequest = z.object({ name: z.string().min(1).max(120), slug: z.string().min(1).max(140).nullish(), iconKey: z.union([z.string(), z.unknown()]).optional(), mobileIconType: z.union([z.string(), z.unknown()]).optional(), mobileIconName: z.union([z.string(), z.unknown()]).optional() });
+
+const GetCourseCategoryResponse = z.object({ ok: z.literal(true), category: CourseCategoryResponse });
+
+const UpdateCourseCategoryRequest = z.object({ name: z.string().min(1).max(120), slug: z.string().min(1).max(140).nullable(), iconKey: z.union([z.string(), z.unknown()]), mobileIconType: z.union([z.string(), z.unknown()]), mobileIconName: z.union([z.string(), z.unknown()]) }).partial();
+
+const DeleteCourseCategoryResponse = z.object({ ok: z.literal(true) });
+
+const PresignCourseCoverUploadRequest = z.object({ contentType: z.string(), fileSize: z.number().int().gt(0).lte(5242880) });
+
+const PresignCourseCoverUploadResponse = z.object({ ok: z.literal(true), upload: z.object({ uploadUrl: z.string(), method: z.literal("PUT"), requiredHeaders: z.record(z.string(), z.string()), coverImageKey: z.string(), publicUrl: z.string().nullable(), expiresInSeconds: z.number() }) });
+
+const CreateCourseRequest = z.object({ title: z.string().min(1).max(255), description: z.string().min(1).max(20000), categoryId: z.string().uuid(), coverImageKey: z.string().min(1).max(600).nullish() });
+
+const CourseResponse = z.object({ id: z.string().uuid(), title: z.string(), description: z.string(), categoryId: z.string().uuid(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), price: z.number(), status: z.enum(["DRAFT", "PENDING", "PUBLISHED", "UNPUBLISHED"]), createdBy: z.string().uuid(), updatedBy: z.string().uuid().nullable(), publishedAt: z.string().nullable(), publishedBy: z.string().uuid().nullable(), unpublishedAt: z.string().nullable(), unpublishedBy: z.string().uuid().nullable(), rejectionNote: z.string().nullable(), rejectedAt: z.string().nullable(), rejectedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string() });
+
+const GetCourseResponse = z.object({ ok: z.literal(true), course: CourseResponse });
+
+const ListMyCoursesResponse = z.object({ ok: z.literal(true), courses: z.array(CourseResponse), pagination: z.object({ limit: z.number().int().gt(0), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) });
+
+const UpdateCourseRequest = z.object({ title: z.string().min(1).max(255), description: z.string().min(1).max(20000), categoryId: z.string().uuid(), coverImageKey: z.string().min(1).max(600).nullable(), price: z.number().gte(0).lte(9999999999.99) }).partial();
+
+const DeleteCourseResponse = z.object({ ok: z.literal(true) });
+
+const AdminListCoursesResponse = z.object({ ok: z.literal(true), courses: z.array(CourseResponse), pagination: z.object({ limit: z.number().int().gt(0), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) });
+
+const AdminUpdateCourseRequest = z.object({ title: z.string().min(1).max(255), description: z.string().min(1).max(20000), categoryId: z.string().uuid(), coverImageKey: z.string().min(1).max(600).nullable(), price: z.number().gte(0).lte(9999999999.99) }).partial();
+
+const RejectCourseRequest = z.object({ note: z.string().min(1).max(2000) }).partial();
+
 export const schemas = {
 	AuthRegisterRequest,
 	AuthUserProfile,
@@ -702,6 +784,12 @@ export const schemas = {
 	AdminUserManagementActivity,
 	AdminUserManagementDetailUser,
 	AdminUserManagementDetailResponse,
+	AdminAuditLogMember,
+	AdminAuditLogMembersResponse,
+	AdminAuditActor,
+	AdminAuditLogEntry,
+	AdminAuditLogPagination,
+	AdminAuditLogListResponse,
 	patchV1adminnotificationsread_Body,
 	Partner,
 	ListPendingPartnersResponse,
@@ -724,6 +812,32 @@ export const schemas = {
 	PresignPartnerAssetRequest,
 	PresignPartnerLogoResponse,
 	PresignPartnerPhotoResponse,
+	QuestionTagResponse,
+	QuestionResponse,
+	GetQuestionsResponse,
+	GetQuestionResponse,
+	AdminDeletePostErrorResponse,
+	AdminDeletePostResponse,
+	RepliedAnswerResponse,
+	AnswerResponse,
+	GetAnswersResponse,
+	AdminSuspendPostBody,
+	AdminSuspendPostResponse,
+	VolunteerOpportunityReference,
+	AdminVolunteerPostListItemResponse,
+	VolunteerOpportunitiesPaginationResponse,
+	AdminVolunteerPostsResponse,
+	VolunteerOpportunityContactResponse,
+	VolunteerOpportunityOrganizerResponse,
+	VolunteerOpportunityRoleResponse,
+	AdminVolunteerPostDetailResponse,
+	AdminVolunteerPostResponse,
+	AdminSuspendVolunteerPostResponse,
+	AdminLaunchpadPostListItemResponse,
+	AdminLaunchpadPostsResponse,
+	AdminLaunchpadPostDetailResponse,
+	AdminLaunchpadPostResponse,
+	AdminSuspendLaunchpadPostResponse,
 	OnboardingOkResponse,
 	OnboardingErrorResponse,
 	OnboardingProfileStepRequest,
@@ -738,25 +852,18 @@ export const schemas = {
 	CreateCategoryRequest,
 	CreateCategoryResponse,
 	isUnanswered,
-	QuestionTagResponse,
-	QuestionResponse,
-	GetQuestionsResponse,
 	CreateQuestionRequest,
 	CreateQuestionResponse,
 	TrendingTagResponse,
 	GetTrendingTagsResponse,
 	GetMyQuestionsResponse,
 	GetSavedQuestionsResponse,
-	GetQuestionResponse,
 	PresignForumQuestionImageUploadRequest,
 	PresignForumQuestionImageUploadResult,
 	PresignForumQuestionImageUploadResponse,
 	EditQuestionRequest,
 	VoteQuestionRequest,
 	SaveQuestionResponse,
-	RepliedAnswerResponse,
-	AnswerResponse,
-	GetAnswersResponse,
 	AnswerQuestionResponse,
 	MyAnswerResponse,
 	MyAnswerDiscussionResponse,
@@ -786,17 +893,12 @@ export const schemas = {
 	PresignVolunteerApplicationDocumentUploadRequest,
 	PresignVolunteerApplicationDocumentUploadResult,
 	PresignVolunteerApplicationDocumentUploadResponse,
-	VolunteerOpportunityReference,
 	VolunteerOpportunityListItemResponse,
-	VolunteerOpportunitiesPaginationResponse,
 	GetVolunteerOpportunitiesResponse,
 	VolunteerOpportunityContact,
 	VolunteerOpportunityRoleRequest,
 	CreateVolunteerOpportunityPayload,
 	CreateVolunteerOpportunityRequest,
-	VolunteerOpportunityContactResponse,
-	VolunteerOpportunityOrganizerResponse,
-	VolunteerOpportunityRoleResponse,
 	VolunteerOpportunityResponse,
 	CreateVolunteerOpportunityResponse,
 	GetVolunteerOpportunityResponse,
@@ -817,6 +919,10 @@ export const schemas = {
 	GetReportingTypesResponse,
 	CreateReportingRequest,
 	CreateReportingResponse,
+	CreateVolunteerReportingRequest,
+	CreateVolunteerReportingResponse,
+	CreateLaunchpadReportingRequest,
+	CreateLaunchpadReportingResponse,
 	LaunchpadCategoryResponse,
 	GetLaunchpadCategoriesResponse,
 	PresignLaunchpadImageUploadRequest,
@@ -925,9 +1031,111 @@ export const schemas = {
 	BlogPostListingItemResponse,
 	ListPublicBlogPostsResponse,
 	GetPublicBlogPostResponse,
+	CourseCategoryResponse,
+	ListCourseCategoriesResponse,
+	CreateCourseCategoryRequest,
+	GetCourseCategoryResponse,
+	UpdateCourseCategoryRequest,
+	DeleteCourseCategoryResponse,
+	PresignCourseCoverUploadRequest,
+	PresignCourseCoverUploadResponse,
+	CreateCourseRequest,
+	CourseResponse,
+	GetCourseResponse,
+	ListMyCoursesResponse,
+	UpdateCourseRequest,
+	DeleteCourseResponse,
+	AdminListCoursesResponse,
+	AdminUpdateCourseRequest,
+	RejectCourseRequest,
 };
 
 const endpoints = makeApi([
+	{
+		method: "get",
+		path: "/v1/admin/audit-log",
+		alias: "getV1adminauditLog",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(500).optional().default(20)
+			},
+			{
+				name: "cursor",
+				type: "Query",
+				schema: z.string().optional()
+			},
+			{
+				name: "category",
+				type: "Query",
+				schema: z.enum(["all", "TEAM", "CONTENT", "USERS", "SYSTEM"]).optional()
+			},
+			{
+				name: "adminId",
+				type: "Query",
+				schema: z.string().uuid().optional()
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().min(1).max(100).optional()
+			},
+			{
+				name: "from",
+				type: "Query",
+				schema: z.string().nullish()
+			},
+			{
+				name: "to",
+				type: "Query",
+				schema: z.string().nullish()
+			},
+		],
+		response: AdminAuditLogListResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Forbidden`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string() })
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/audit-log/members",
+		alias: "getV1adminauditLogmembers",
+		requestFormat: "json",
+		response: AdminAuditLogMembersResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Forbidden`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string() })
+			},
+		]
+	},
 	{
 		method: "get",
 		path: "/v1/admin/blog/category",
@@ -1219,6 +1427,11 @@ const endpoints = makeApi([
 				schema: z.enum(["OPEN", "CLOSED"]).optional()
 			},
 			{
+				name: "reportType",
+				type: "Query",
+				schema: z.enum(["FORUM", "VOLUNTEER", "LAUNCHPAD"]).optional()
+			},
+			{
 				name: "typeId",
 				type: "Query",
 				schema: z.string().optional()
@@ -1226,7 +1439,7 @@ const endpoints = makeApi([
 			{
 				name: "id",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "search",
@@ -1367,6 +1580,298 @@ const endpoints = makeApi([
 				status: 500,
 				description: `Internal server error`,
 				schema: AdminDashboardErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/education-center/courses",
+		alias: "getV1admineducationCentercourses",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(100).optional().default(20)
+			},
+			{
+				name: "cursor",
+				type: "Query",
+				schema: z.string().optional()
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().min(1).max(255).optional()
+			},
+			{
+				name: "status",
+				type: "Query",
+				schema: z.enum(["PENDING", "PUBLISHED", "UNPUBLISHED"]).optional()
+			},
+			{
+				name: "sortBy",
+				type: "Query",
+				schema: z.enum(["newest", "oldest"]).optional().default("newest")
+			},
+			{
+				name: "createdBy",
+				type: "Query",
+				schema: z.string().uuid().optional()
+			},
+		],
+		response: AdminListCoursesResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid creator ID`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/education-center/courses/:id",
+		alias: "getV1admineducationCentercoursesId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "put",
+		path: "/v1/admin/education-center/courses/:id",
+		alias: "putV1admineducationCentercoursesId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: AdminUpdateCourseRequest
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation or status transition failed`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/admin/education-center/courses/:id",
+		alias: "deleteV1admineducationCentercoursesId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: DeleteCourseResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/education-center/courses/:id/approve",
+		alias: "postV1admineducationCentercoursesIdapprove",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Only pending courses can be approved`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course status changed concurrently`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "put",
+		path: "/v1/admin/education-center/courses/:id/publication/:action",
+		alias: "putV1admineducationCentercoursesIdpublicationAction",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+			{
+				name: "action",
+				type: "Path",
+				schema: z.enum(["PUBLISH", "UNPUBLISH"])
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid course status transition`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course status changed concurrently`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/education-center/courses/:id/reject",
+		alias: "postV1admineducationCentercoursesIdreject",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: z.object({ note: z.string().min(1).max(2000) }).partial().optional()
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Only pending courses can be rejected`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course status changed concurrently`,
+				schema: z.void()
 			},
 		]
 	},
@@ -1551,7 +2056,7 @@ const endpoints = makeApi([
 			{
 				name: "id",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: ModeratorResponse,
@@ -1587,7 +2092,7 @@ const endpoints = makeApi([
 			{
 				name: "id",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: ModeratorResponse,
@@ -1623,7 +2128,7 @@ const endpoints = makeApi([
 			{
 				name: "id",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: z.object({ ok: z.boolean() }),
@@ -2176,6 +2681,874 @@ const endpoints = makeApi([
 				status: 404,
 				description: `Partner not found`,
 				schema: PartnerErrorResponse
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/admin/posts/forum/answers/:answerId",
+		alias: "deleteV1adminpostsforumanswersAnswerId",
+		description: `Soft-deletes a forum answer regardless of its author. Deleting a top-level answer also removes its replies; deleting a reply decrements its parent&#x27;s reply count. The question&#x27;s answer count is adjusted and a best-answer selection pointing at the removed answer is cleared.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "answerId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: z.object({ ok: z.boolean() }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Forum answer not found`,
+				schema: AdminDeletePostErrorResponse
+			},
+			{
+				status: 409,
+				description: `Forum answer is already deleted`,
+				schema: AdminDeletePostErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/posts/forum/answers/:answerId/suspend",
+		alias: "postV1adminpostsforumanswersAnswerIdsuspend",
+		description: `Puts a forum answer on moderation hold. Only its author still sees it — along with the suspension reason — and the author is notified. Replies to the answer are left published but stop being reachable while their parent is hidden. The question&#x27;s answer count is unchanged, since the answer is hidden rather than removed.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: z.object({ reason: z.string().max(500) }).partial().optional()
+			},
+			{
+				name: "answerId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: AdminSuspendPostResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Forum answer not found`,
+				schema: AdminDeletePostErrorResponse
+			},
+			{
+				status: 409,
+				description: `Forum answer is deleted or already suspended`,
+				schema: AdminDeletePostErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/posts/forum/answers/:answerId/unsuspend",
+		alias: "postV1adminpostsforumanswersAnswerIdunsuspend",
+		description: `Republishes a suspended forum answer and notifies its author that it is visible again.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "answerId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: AdminSuspendPostResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Forum answer not found`,
+				schema: AdminDeletePostErrorResponse
+			},
+			{
+				status: 409,
+				description: `Forum answer is not suspended`,
+				schema: AdminDeletePostErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/posts/forum/questions",
+		alias: "getV1adminpostsforumquestions",
+		description: `Lists forum questions the way moderators need to see them: suspended questions are included instead of being hidden the way the public and member endpoints hide them. Deleted questions are left out unless status&#x3D;DELETED is requested. viewerVote and viewerSave are always null/false because an admin is not a forum member.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "status",
+				type: "Query",
+				schema: z.string().optional()
+			},
+			{
+				name: "categoryId",
+				type: "Query",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
+			},
+			{
+				name: "tagId",
+				type: "Query",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().max(300).optional()
+			},
+			{
+				name: "sortBy",
+				type: "Query",
+				schema: z.enum(["mostRelevant", "newest", "oldest", "mostVoted", "mostAnswered", "byCategory"]).optional().default("newest")
+			},
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).optional().default(10)
+			},
+			{
+				name: "cursor",
+				type: "Query",
+				schema: z.string().optional()
+			},
+		],
+		response: GetQuestionsResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/posts/forum/questions/:questionId",
+		alias: "getV1adminpostsforumquestionsQuestionId",
+		description: `Returns a single forum question whatever its status — published, closed, suspended, or deleted — together with its suspension reason. The view count is not incremented.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "questionId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: GetQuestionResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Forum question not found`,
+				schema: AdminDeletePostErrorResponse
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/admin/posts/forum/questions/:questionId",
+		alias: "deleteV1adminpostsforumquestionsQuestionId",
+		description: `Soft-deletes a forum question regardless of its author or status. The question drops out of every listing and detail endpoint; its answers stay attached to the removed question.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "questionId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: z.object({ ok: z.boolean() }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Forum question not found`,
+				schema: AdminDeletePostErrorResponse
+			},
+			{
+				status: 409,
+				description: `Forum question is already deleted`,
+				schema: AdminDeletePostErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/posts/forum/questions/:questionId/answers",
+		alias: "getV1adminpostsforumquestionsQuestionIdanswers",
+		description: `Lists the answers of a question with suspended answers included, so a moderator can review what the forum no longer shows. Deleted answers stay out.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "questionId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+			{
+				name: "sortBy",
+				type: "Query",
+				schema: z.enum(["popular", "newest", "oldest"]).optional().default("popular")
+			},
+		],
+		response: GetAnswersResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Forum question not found`,
+				schema: AdminDeletePostErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/posts/forum/questions/:questionId/suspend",
+		alias: "postV1adminpostsforumquestionsQuestionIdsuspend",
+		description: `Puts a forum question on moderation hold. It disappears from every listing, search result, and detail endpoint except for its author, who keeps seeing it with the suspension reason attached, and is notified that it was suspended. The hold is reversible and the pre-hold status (PUBLISHED or CLOSED) is restored when it is lifted.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: z.object({ reason: z.string().max(500) }).partial().optional()
+			},
+			{
+				name: "questionId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: AdminSuspendPostResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Forum question not found`,
+				schema: AdminDeletePostErrorResponse
+			},
+			{
+				status: 409,
+				description: `Forum question is deleted or already suspended`,
+				schema: AdminDeletePostErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/posts/forum/questions/:questionId/unsuspend",
+		alias: "postV1adminpostsforumquestionsQuestionIdunsuspend",
+		description: `Restores a suspended forum question to the status it held before the hold and notifies its author that it is public again.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "questionId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: AdminSuspendPostResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Forum question not found`,
+				schema: AdminDeletePostErrorResponse
+			},
+			{
+				status: 409,
+				description: `Forum question is not suspended`,
+				schema: AdminDeletePostErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/posts/launchpad",
+		alias: "getV1adminpostslaunchpad",
+		description: `Lists launchpad posts the way moderators need to see them: suspended posts are included instead of being hidden the way the member and public endpoints hide them. Deleted posts are left out unless status&#x3D;DELETED is requested. Accepts the same filters as the member-facing list; isSaved is always false because an admin is not a member.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).optional().default(20)
+			},
+			{
+				name: "sortBy",
+				type: "Query",
+				schema: z.enum(["newest", "oldest", "startingSoon", "mostSpotsAvailable"]).optional().default("newest")
+			},
+			{
+				name: "cursor",
+				type: "Query",
+				schema: z.string().optional()
+			},
+			{
+				name: "categoryId",
+				type: "Query",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
+			},
+			{
+				name: "cityId",
+				type: "Query",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().min(1).max(120).optional()
+			},
+			{
+				name: "status",
+				type: "Query",
+				schema: z.string().optional()
+			},
+		],
+		response: AdminLaunchpadPostsResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/posts/launchpad/:launchpadId",
+		alias: "getV1adminpostslaunchpadLaunchpadId",
+		description: `Returns a single launchpad post whatever its status — live, in progress, completed, canceled, suspended, or deleted — together with its suspension reason. The view count is not incremented.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "launchpadId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: AdminLaunchpadPostResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Launchpad post not found`,
+				schema: AdminDeletePostErrorResponse
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/admin/posts/launchpad/:launchpadId",
+		alias: "deleteV1adminpostslaunchpadLaunchpadId",
+		description: `Soft-deletes a launchpad project regardless of its poster, status, or applicant count. Existing applications are left untouched.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "launchpadId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: z.object({ ok: z.boolean() }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Launchpad post not found`,
+				schema: AdminDeletePostErrorResponse
+			},
+			{
+				status: 409,
+				description: `Launchpad post is already deleted`,
+				schema: AdminDeletePostErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/posts/launchpad/:launchpadId/suspend",
+		alias: "postV1adminpostslaunchpadLaunchpadIdsuspend",
+		description: `Puts a launchpad post on moderation hold. It disappears from every listing, search result, saved list, and detail endpoint except for its poster, who keeps seeing it with the suspension reason attached and is notified that it was suspended. Nobody can apply to it or save it while it is held, and the poster cannot edit it or run status actions on it. Existing applications are left untouched. The hold is reversible and the pre-hold status is restored when it is lifted.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: z.object({ reason: z.string().max(500) }).partial().optional()
+			},
+			{
+				name: "launchpadId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: AdminSuspendLaunchpadPostResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Launchpad post not found`,
+				schema: AdminDeletePostErrorResponse
+			},
+			{
+				status: 409,
+				description: `Launchpad post is deleted or already suspended`,
+				schema: AdminDeletePostErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/posts/launchpad/:launchpadId/unsuspend",
+		alias: "postV1adminpostslaunchpadLaunchpadIdunsuspend",
+		description: `Restores a suspended launchpad post to the status it held before the hold and notifies its poster that it is public again.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "launchpadId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: AdminSuspendLaunchpadPostResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Launchpad post not found`,
+				schema: AdminDeletePostErrorResponse
+			},
+			{
+				status: 409,
+				description: `Launchpad post is not suspended`,
+				schema: AdminDeletePostErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/posts/volunteer",
+		alias: "getV1adminpostsvolunteer",
+		description: `Lists volunteer posts the way moderators need to see them: suspended posts are included instead of being hidden the way the member and public endpoints hide them, and posts sitting in an archived category or a deactivated city are kept too. Deleted posts are left out unless status&#x3D;DELETED is requested. Unpublished drafts never appear, since the listing is ordered and paginated by publication time. Accepts the same filters as the member-facing list; viewerSave is always false because an admin is not a member.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "categoryId",
+				type: "Query",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
+			},
+			{
+				name: "locationId",
+				type: "Query",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().max(300).optional()
+			},
+			{
+				name: "filter",
+				type: "Query",
+				schema: z.enum(["recentlyAdded", "startingSoon", "mostSpotsAvailable"]).optional().default("recentlyAdded")
+			},
+			{
+				name: "timeCommitment",
+				type: "Query",
+				schema: z.enum(["Light", "Regular", "Intensive"]).optional()
+			},
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).optional().default(10)
+			},
+			{
+				name: "cursor",
+				type: "Query",
+				schema: z.string().optional()
+			},
+			{
+				name: "status",
+				type: "Query",
+				schema: z.string().optional()
+			},
+		],
+		response: AdminVolunteerPostsResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/posts/volunteer/:opportunityId",
+		alias: "getV1adminpostsvolunteerOpportunityId",
+		description: `Returns a single volunteer post whatever its status — live, in progress, completed, canceled, suspended, or deleted — together with its suspension reason. The view count is not incremented.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "opportunityId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: AdminVolunteerPostResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Volunteer post not found`,
+				schema: AdminDeletePostErrorResponse
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/admin/posts/volunteer/:opportunityId",
+		alias: "deleteV1adminpostsvolunteerOpportunityId",
+		description: `Soft-deletes a volunteer opportunity regardless of its poster, status, or applicant count. Existing applications are left untouched.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "opportunityId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: z.object({ ok: z.boolean() }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Volunteer post not found`,
+				schema: AdminDeletePostErrorResponse
+			},
+			{
+				status: 409,
+				description: `Volunteer post is already deleted`,
+				schema: AdminDeletePostErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/posts/volunteer/:opportunityId/suspend",
+		alias: "postV1adminpostsvolunteerOpportunityIdsuspend",
+		description: `Puts a volunteer post on moderation hold. It disappears from every listing, search result, saved list, and detail endpoint except for its poster, who keeps seeing it with the suspension reason attached and is notified that it was suspended. Nobody can apply to it or save it while it is held, and the poster cannot edit it or run status actions on it. Existing applications are left untouched. The hold is reversible and the pre-hold status is restored when it is lifted.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: z.object({ reason: z.string().max(500) }).partial().optional()
+			},
+			{
+				name: "opportunityId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: AdminSuspendVolunteerPostResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Volunteer post not found`,
+				schema: AdminDeletePostErrorResponse
+			},
+			{
+				status: 409,
+				description: `Volunteer post is deleted or already suspended`,
+				schema: AdminDeletePostErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/posts/volunteer/:opportunityId/unsuspend",
+		alias: "postV1adminpostsvolunteerOpportunityIdunsuspend",
+		description: `Restores a suspended volunteer post to the status it held before the hold and notifies its poster that it is public again.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "opportunityId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: AdminSuspendVolunteerPostResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Volunteer post not found`,
+				schema: AdminDeletePostErrorResponse
+			},
+			{
+				status: 409,
+				description: `Volunteer post is not suspended`,
+				schema: AdminDeletePostErrorResponse
 			},
 		]
 	},
@@ -3045,6 +4418,508 @@ const endpoints = makeApi([
 		]
 	},
 	{
+		method: "get",
+		path: "/v1/education-center/categories",
+		alias: "getV1educationCentercategories",
+		requestFormat: "json",
+		response: ListCourseCategoriesResponse,
+		errors: [
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/education-center/categories",
+		alias: "postV1educationCentercategories",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: CreateCourseCategoryRequest
+			},
+		],
+		response: GetCourseCategoryResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Admin role required`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course category name already exists`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/education-center/categories/:id",
+		alias: "getV1educationCentercategoriesId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseCategoryResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid category ID`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course category not found`,
+				schema: z.void()
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "put",
+		path: "/v1/education-center/categories/:id",
+		alias: "putV1educationCentercategoriesId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: UpdateCourseCategoryRequest
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseCategoryResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Admin role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course category not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course category name already exists`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/education-center/categories/:id",
+		alias: "deleteV1educationCentercategoriesId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: DeleteCourseCategoryResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid category ID`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Admin role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course category not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course category still has courses`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/education-center/courses",
+		alias: "postV1educationCentercourses",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: CreateCourseRequest
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed or category not found`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `User access is restricted`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/education-center/courses/:id",
+		alias: "getV1educationCentercoursesId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid course ID`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found or not visible`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "put",
+		path: "/v1/education-center/courses/:id",
+		alias: "putV1educationCentercoursesId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: UpdateCourseRequest
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation or status transition failed`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Not permitted to update this course`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course status changed concurrently`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/education-center/courses/:id",
+		alias: "deleteV1educationCentercoursesId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: DeleteCourseResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Not permitted to delete this course`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/education-center/courses/:id/submit",
+		alias: "postV1educationCentercoursesIdsubmit",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Course cannot be submitted from its current status`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Not the course owner`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course status changed concurrently`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/education-center/courses/:id/unpublish",
+		alias: "postV1educationCentercoursesIdunpublish",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Course is not published`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Not the course owner`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course status changed concurrently`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/education-center/courses/:id/withdraw",
+		alias: "postV1educationCentercoursesIdwithdraw",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Course is not pending`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Not the course owner`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Course status changed concurrently`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/education-center/courses/cover/presign",
+		alias: "postV1educationCentercoursescoverpresign",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: PresignCourseCoverUploadRequest
+			},
+		],
+		response: PresignCourseCoverUploadResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `User access is restricted`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/education-center/courses/mine",
+		alias: "getV1educationCentercoursesmine",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(100).optional().default(20)
+			},
+			{
+				name: "cursor",
+				type: "Query",
+				schema: z.string().optional()
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().min(1).max(255).optional()
+			},
+			{
+				name: "status",
+				type: "Query",
+				schema: z.enum(["DRAFT", "PENDING", "PUBLISHED", "UNPUBLISHED"]).optional()
+			},
+			{
+				name: "sortBy",
+				type: "Query",
+				schema: z.enum(["newest", "oldest"]).optional().default("newest")
+			},
+		],
+		response: ListMyCoursesResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `User access is restricted`,
+				schema: z.void()
+			},
+		]
+	},
+	{
 		method: "post",
 		path: "/v1/forum/answer/create-answer",
 		alias: "postV1forumanswercreateAnswer",
@@ -3067,7 +4942,7 @@ const endpoints = makeApi([
 			{
 				name: "answerId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: z.object({ ok: z.boolean() }),
@@ -3093,7 +4968,7 @@ const endpoints = makeApi([
 			{
 				name: "answerId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: EditAnswerResponse,
@@ -3114,7 +4989,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "sortBy",
@@ -3133,7 +5008,7 @@ const endpoints = makeApi([
 			{
 				name: "answerId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: MarkBestAnswerResponse,
@@ -3198,7 +5073,7 @@ const endpoints = makeApi([
 			{
 				name: "answerId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: VoteAnswerResponse,
@@ -3245,7 +5120,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "sortBy",
@@ -3271,12 +5146,12 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "tagId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "search",
@@ -3320,7 +5195,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetQuestionResponse,
@@ -3341,7 +5216,7 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 		],
 		response: GetTrendingTagsResponse,
@@ -3355,25 +5230,6 @@ const endpoints = makeApi([
 	},
 	{
 		method: "get",
-		path: "/v1/forum/public/reporting-type",
-		alias: "getV1forumpublicreportingType",
-		requestFormat: "json",
-		response: GetReportingTypesResponse,
-		errors: [
-			{
-				status: 404,
-				description: `No reporting types found`,
-				schema: z.void()
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "get",
 		path: "/v1/forum/questions",
 		alias: "getV1forumquestions",
 		requestFormat: "json",
@@ -3381,12 +5237,12 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "tagId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "search",
@@ -3456,7 +5312,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetQuestionResponse,
@@ -3477,7 +5333,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: z.object({ ok: z.boolean() }),
@@ -3503,7 +5359,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: CreateQuestionResponse,
@@ -3574,7 +5430,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: SaveQuestionResponse,
@@ -3595,7 +5451,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: SaveQuestionResponse,
@@ -3635,7 +5491,7 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 		],
 		response: GetTrendingTagsResponse,
@@ -3661,7 +5517,7 @@ const endpoints = makeApi([
 			{
 				name: "questionId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: CreateQuestionResponse,
@@ -3774,12 +5630,12 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "cityId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "search",
@@ -3810,7 +5666,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: CreateLaunchpadResponse,
@@ -3856,7 +5712,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetLaunchpadByIdResponse,
@@ -3887,7 +5743,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: CreateLaunchpadApplicationResponse,
@@ -3933,12 +5789,12 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "applicationId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetLaunchpadApplicationResponse,
@@ -3979,7 +5835,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: CreateLaunchpadApplicationBatchResponse,
@@ -4030,7 +5886,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: PresignLaunchpadApplicationDocumentUploadResponse,
@@ -4145,7 +6001,7 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetLaunchpadCategoriesResponse,
@@ -4169,6 +6025,42 @@ const endpoints = makeApi([
 	},
 	{
 		method: "post",
+		path: "/v1/launchpad/reporting",
+		alias: "postV1launchpadreporting",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: CreateLaunchpadReportingRequest
+			},
+		],
+		response: CreateLaunchpadReportingResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Reported entity not found`,
+				schema: z.void()
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
 		path: "/v1/launchpad/save/:launchpadId",
 		alias: "postV1launchpadsaveLaunchpadId",
 		requestFormat: "json",
@@ -4176,7 +6068,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: SaveLaunchpadResponse,
@@ -4217,7 +6109,7 @@ const endpoints = makeApi([
 			{
 				name: "launchpadId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: SaveLaunchpadResponse,
@@ -5153,7 +7045,7 @@ const endpoints = makeApi([
 			{
 				name: "userId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: PublicProfileResponse,
@@ -5179,7 +7071,7 @@ const endpoints = makeApi([
 			{
 				name: "userId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "sourceType",
@@ -5213,6 +7105,25 @@ const endpoints = makeApi([
 				status: 500,
 				description: `Internal server error`,
 				schema: MyPostedErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/public/reporting-type",
+		alias: "getV1publicreportingType",
+		requestFormat: "json",
+		response: GetReportingTypesResponse,
+		errors: [
+			{
+				status: 404,
+				description: `No reporting types found`,
+				schema: z.void()
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.void()
 			},
 		]
 	},
@@ -5478,12 +7389,12 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "locationId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "search",
@@ -5590,7 +7501,7 @@ const endpoints = makeApi([
 			{
 				name: "opportunityId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetVolunteerOpportunityResponse,
@@ -5636,7 +7547,7 @@ const endpoints = makeApi([
 			{
 				name: "opportunityId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: CreateVolunteerOpportunityResponse,
@@ -5746,12 +7657,12 @@ const endpoints = makeApi([
 			{
 				name: "categoryId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "locationId",
 				type: "Query",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/).optional()
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
 			},
 			{
 				name: "search",
@@ -5807,7 +7718,7 @@ const endpoints = makeApi([
 			{
 				name: "opportunityId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: GetPublicVolunteerOpportunityResponse,
@@ -5831,6 +7742,42 @@ const endpoints = makeApi([
 	},
 	{
 		method: "post",
+		path: "/v1/volunteer/reporting",
+		alias: "postV1volunteerreporting",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: CreateVolunteerReportingRequest
+			},
+		],
+		response: CreateVolunteerReportingResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Reported entity not found`,
+				schema: z.void()
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
 		path: "/v1/volunteer/save-opportunity/:opportunityId",
 		alias: "postV1volunteersaveOpportunityOpportunityId",
 		requestFormat: "json",
@@ -5838,7 +7785,7 @@ const endpoints = makeApi([
 			{
 				name: "opportunityId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: SaveVolunteerOpportunityResponse,
@@ -5879,7 +7826,7 @@ const endpoints = makeApi([
 			{
 				name: "opportunityId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: SaveVolunteerOpportunityResponse,
@@ -6017,7 +7964,7 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "filter",
@@ -6078,12 +8025,12 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "applicationId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "statusAction",
@@ -6134,12 +8081,12 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "applicationId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "declineAll",
@@ -6195,12 +8142,12 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "candidateId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: ManagePostingCandidateDetailResponse,
@@ -6246,12 +8193,12 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "candidateId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: UpsertManagePostingCandidateNoteResponse,
@@ -6297,7 +8244,7 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 			{
 				name: "postingAction",
@@ -6353,7 +8300,7 @@ const endpoints = makeApi([
 			{
 				name: "postingId",
 				type: "Path",
-				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\/i/)
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
 			},
 		],
 		response: ExtendManagePostingDeadlineResponse,
@@ -6481,6 +8428,12 @@ export type AdminUserManagementPoints = z.infer<typeof schemas.AdminUserManageme
 export type AdminUserManagementActivity = z.infer<typeof schemas.AdminUserManagementActivity>;
 export type AdminUserManagementDetailUser = z.infer<typeof schemas.AdminUserManagementDetailUser>;
 export type AdminUserManagementDetailResponse = z.infer<typeof schemas.AdminUserManagementDetailResponse>;
+export type AdminAuditLogMember = z.infer<typeof schemas.AdminAuditLogMember>;
+export type AdminAuditLogMembersResponse = z.infer<typeof schemas.AdminAuditLogMembersResponse>;
+export type AdminAuditActor = z.infer<typeof schemas.AdminAuditActor>;
+export type AdminAuditLogEntry = z.infer<typeof schemas.AdminAuditLogEntry>;
+export type AdminAuditLogPagination = z.infer<typeof schemas.AdminAuditLogPagination>;
+export type AdminAuditLogListResponse = z.infer<typeof schemas.AdminAuditLogListResponse>;
 export type patchV1adminnotificationsread_Body = z.infer<typeof schemas.patchV1adminnotificationsread_Body>;
 export type Partner = z.infer<typeof schemas.Partner>;
 export type ListPendingPartnersResponse = z.infer<typeof schemas.ListPendingPartnersResponse>;
@@ -6503,6 +8456,32 @@ export type PartnerPhotoResponse = z.infer<typeof schemas.PartnerPhotoResponse>;
 export type PresignPartnerAssetRequest = z.infer<typeof schemas.PresignPartnerAssetRequest>;
 export type PresignPartnerLogoResponse = z.infer<typeof schemas.PresignPartnerLogoResponse>;
 export type PresignPartnerPhotoResponse = z.infer<typeof schemas.PresignPartnerPhotoResponse>;
+export type QuestionTagResponse = z.infer<typeof schemas.QuestionTagResponse>;
+export type QuestionResponse = z.infer<typeof schemas.QuestionResponse>;
+export type GetQuestionsResponse = z.infer<typeof schemas.GetQuestionsResponse>;
+export type GetQuestionResponse = z.infer<typeof schemas.GetQuestionResponse>;
+export type AdminDeletePostErrorResponse = z.infer<typeof schemas.AdminDeletePostErrorResponse>;
+export type AdminDeletePostResponse = z.infer<typeof schemas.AdminDeletePostResponse>;
+export type RepliedAnswerResponse = z.infer<typeof schemas.RepliedAnswerResponse>;
+export type AnswerResponse = z.infer<typeof schemas.AnswerResponse>;
+export type GetAnswersResponse = z.infer<typeof schemas.GetAnswersResponse>;
+export type AdminSuspendPostBody = z.infer<typeof schemas.AdminSuspendPostBody>;
+export type AdminSuspendPostResponse = z.infer<typeof schemas.AdminSuspendPostResponse>;
+export type VolunteerOpportunityReference = z.infer<typeof schemas.VolunteerOpportunityReference>;
+export type AdminVolunteerPostListItemResponse = z.infer<typeof schemas.AdminVolunteerPostListItemResponse>;
+export type VolunteerOpportunitiesPaginationResponse = z.infer<typeof schemas.VolunteerOpportunitiesPaginationResponse>;
+export type AdminVolunteerPostsResponse = z.infer<typeof schemas.AdminVolunteerPostsResponse>;
+export type VolunteerOpportunityContactResponse = z.infer<typeof schemas.VolunteerOpportunityContactResponse>;
+export type VolunteerOpportunityOrganizerResponse = z.infer<typeof schemas.VolunteerOpportunityOrganizerResponse>;
+export type VolunteerOpportunityRoleResponse = z.infer<typeof schemas.VolunteerOpportunityRoleResponse>;
+export type AdminVolunteerPostDetailResponse = z.infer<typeof schemas.AdminVolunteerPostDetailResponse>;
+export type AdminVolunteerPostResponse = z.infer<typeof schemas.AdminVolunteerPostResponse>;
+export type AdminSuspendVolunteerPostResponse = z.infer<typeof schemas.AdminSuspendVolunteerPostResponse>;
+export type AdminLaunchpadPostListItemResponse = z.infer<typeof schemas.AdminLaunchpadPostListItemResponse>;
+export type AdminLaunchpadPostsResponse = z.infer<typeof schemas.AdminLaunchpadPostsResponse>;
+export type AdminLaunchpadPostDetailResponse = z.infer<typeof schemas.AdminLaunchpadPostDetailResponse>;
+export type AdminLaunchpadPostResponse = z.infer<typeof schemas.AdminLaunchpadPostResponse>;
+export type AdminSuspendLaunchpadPostResponse = z.infer<typeof schemas.AdminSuspendLaunchpadPostResponse>;
 export type OnboardingOkResponse = z.infer<typeof schemas.OnboardingOkResponse>;
 export type OnboardingErrorResponse = z.infer<typeof schemas.OnboardingErrorResponse>;
 export type OnboardingProfileStepRequest = z.infer<typeof schemas.OnboardingProfileStepRequest>;
@@ -6517,25 +8496,18 @@ export type GetCategoriesResponse = z.infer<typeof schemas.GetCategoriesResponse
 export type CreateCategoryRequest = z.infer<typeof schemas.CreateCategoryRequest>;
 export type CreateCategoryResponse = z.infer<typeof schemas.CreateCategoryResponse>;
 export type isUnanswered = z.infer<typeof schemas.isUnanswered>;
-export type QuestionTagResponse = z.infer<typeof schemas.QuestionTagResponse>;
-export type QuestionResponse = z.infer<typeof schemas.QuestionResponse>;
-export type GetQuestionsResponse = z.infer<typeof schemas.GetQuestionsResponse>;
 export type CreateQuestionRequest = z.infer<typeof schemas.CreateQuestionRequest>;
 export type CreateQuestionResponse = z.infer<typeof schemas.CreateQuestionResponse>;
 export type TrendingTagResponse = z.infer<typeof schemas.TrendingTagResponse>;
 export type GetTrendingTagsResponse = z.infer<typeof schemas.GetTrendingTagsResponse>;
 export type GetMyQuestionsResponse = z.infer<typeof schemas.GetMyQuestionsResponse>;
 export type GetSavedQuestionsResponse = z.infer<typeof schemas.GetSavedQuestionsResponse>;
-export type GetQuestionResponse = z.infer<typeof schemas.GetQuestionResponse>;
 export type PresignForumQuestionImageUploadRequest = z.infer<typeof schemas.PresignForumQuestionImageUploadRequest>;
 export type PresignForumQuestionImageUploadResult = z.infer<typeof schemas.PresignForumQuestionImageUploadResult>;
 export type PresignForumQuestionImageUploadResponse = z.infer<typeof schemas.PresignForumQuestionImageUploadResponse>;
 export type EditQuestionRequest = z.infer<typeof schemas.EditQuestionRequest>;
 export type VoteQuestionRequest = z.infer<typeof schemas.VoteQuestionRequest>;
 export type SaveQuestionResponse = z.infer<typeof schemas.SaveQuestionResponse>;
-export type RepliedAnswerResponse = z.infer<typeof schemas.RepliedAnswerResponse>;
-export type AnswerResponse = z.infer<typeof schemas.AnswerResponse>;
-export type GetAnswersResponse = z.infer<typeof schemas.GetAnswersResponse>;
 export type AnswerQuestionResponse = z.infer<typeof schemas.AnswerQuestionResponse>;
 export type MyAnswerResponse = z.infer<typeof schemas.MyAnswerResponse>;
 export type MyAnswerDiscussionResponse = z.infer<typeof schemas.MyAnswerDiscussionResponse>;
@@ -6565,17 +8537,12 @@ export type PresignVolunteerOpportunityCoverUploadResponse = z.infer<typeof sche
 export type PresignVolunteerApplicationDocumentUploadRequest = z.infer<typeof schemas.PresignVolunteerApplicationDocumentUploadRequest>;
 export type PresignVolunteerApplicationDocumentUploadResult = z.infer<typeof schemas.PresignVolunteerApplicationDocumentUploadResult>;
 export type PresignVolunteerApplicationDocumentUploadResponse = z.infer<typeof schemas.PresignVolunteerApplicationDocumentUploadResponse>;
-export type VolunteerOpportunityReference = z.infer<typeof schemas.VolunteerOpportunityReference>;
 export type VolunteerOpportunityListItemResponse = z.infer<typeof schemas.VolunteerOpportunityListItemResponse>;
-export type VolunteerOpportunitiesPaginationResponse = z.infer<typeof schemas.VolunteerOpportunitiesPaginationResponse>;
 export type GetVolunteerOpportunitiesResponse = z.infer<typeof schemas.GetVolunteerOpportunitiesResponse>;
 export type VolunteerOpportunityContact = z.infer<typeof schemas.VolunteerOpportunityContact>;
 export type VolunteerOpportunityRoleRequest = z.infer<typeof schemas.VolunteerOpportunityRoleRequest>;
 export type CreateVolunteerOpportunityPayload = z.infer<typeof schemas.CreateVolunteerOpportunityPayload>;
 export type CreateVolunteerOpportunityRequest = z.infer<typeof schemas.CreateVolunteerOpportunityRequest>;
-export type VolunteerOpportunityContactResponse = z.infer<typeof schemas.VolunteerOpportunityContactResponse>;
-export type VolunteerOpportunityOrganizerResponse = z.infer<typeof schemas.VolunteerOpportunityOrganizerResponse>;
-export type VolunteerOpportunityRoleResponse = z.infer<typeof schemas.VolunteerOpportunityRoleResponse>;
 export type VolunteerOpportunityResponse = z.infer<typeof schemas.VolunteerOpportunityResponse>;
 export type CreateVolunteerOpportunityResponse = z.infer<typeof schemas.CreateVolunteerOpportunityResponse>;
 export type GetVolunteerOpportunityResponse = z.infer<typeof schemas.GetVolunteerOpportunityResponse>;
@@ -6596,6 +8563,10 @@ export type ReportingTypeResponse = z.infer<typeof schemas.ReportingTypeResponse
 export type GetReportingTypesResponse = z.infer<typeof schemas.GetReportingTypesResponse>;
 export type CreateReportingRequest = z.infer<typeof schemas.CreateReportingRequest>;
 export type CreateReportingResponse = z.infer<typeof schemas.CreateReportingResponse>;
+export type CreateVolunteerReportingRequest = z.infer<typeof schemas.CreateVolunteerReportingRequest>;
+export type CreateVolunteerReportingResponse = z.infer<typeof schemas.CreateVolunteerReportingResponse>;
+export type CreateLaunchpadReportingRequest = z.infer<typeof schemas.CreateLaunchpadReportingRequest>;
+export type CreateLaunchpadReportingResponse = z.infer<typeof schemas.CreateLaunchpadReportingResponse>;
 export type LaunchpadCategoryResponse = z.infer<typeof schemas.LaunchpadCategoryResponse>;
 export type GetLaunchpadCategoriesResponse = z.infer<typeof schemas.GetLaunchpadCategoriesResponse>;
 export type PresignLaunchpadImageUploadRequest = z.infer<typeof schemas.PresignLaunchpadImageUploadRequest>;
@@ -6704,6 +8675,23 @@ export type SetBlogPostFeaturedRequest = z.infer<typeof schemas.SetBlogPostFeatu
 export type BlogPostListingItemResponse = z.infer<typeof schemas.BlogPostListingItemResponse>;
 export type ListPublicBlogPostsResponse = z.infer<typeof schemas.ListPublicBlogPostsResponse>;
 export type GetPublicBlogPostResponse = z.infer<typeof schemas.GetPublicBlogPostResponse>;
+export type CourseCategoryResponse = z.infer<typeof schemas.CourseCategoryResponse>;
+export type ListCourseCategoriesResponse = z.infer<typeof schemas.ListCourseCategoriesResponse>;
+export type CreateCourseCategoryRequest = z.infer<typeof schemas.CreateCourseCategoryRequest>;
+export type GetCourseCategoryResponse = z.infer<typeof schemas.GetCourseCategoryResponse>;
+export type UpdateCourseCategoryRequest = z.infer<typeof schemas.UpdateCourseCategoryRequest>;
+export type DeleteCourseCategoryResponse = z.infer<typeof schemas.DeleteCourseCategoryResponse>;
+export type PresignCourseCoverUploadRequest = z.infer<typeof schemas.PresignCourseCoverUploadRequest>;
+export type PresignCourseCoverUploadResponse = z.infer<typeof schemas.PresignCourseCoverUploadResponse>;
+export type CreateCourseRequest = z.infer<typeof schemas.CreateCourseRequest>;
+export type CourseResponse = z.infer<typeof schemas.CourseResponse>;
+export type GetCourseResponse = z.infer<typeof schemas.GetCourseResponse>;
+export type ListMyCoursesResponse = z.infer<typeof schemas.ListMyCoursesResponse>;
+export type UpdateCourseRequest = z.infer<typeof schemas.UpdateCourseRequest>;
+export type DeleteCourseResponse = z.infer<typeof schemas.DeleteCourseResponse>;
+export type AdminListCoursesResponse = z.infer<typeof schemas.AdminListCoursesResponse>;
+export type AdminUpdateCourseRequest = z.infer<typeof schemas.AdminUpdateCourseRequest>;
+export type RejectCourseRequest = z.infer<typeof schemas.RejectCourseRequest>;
 // End generated API schema types
 
 export const api = new Zodios(endpoints);

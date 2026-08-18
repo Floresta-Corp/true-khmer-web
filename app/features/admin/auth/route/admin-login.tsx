@@ -5,6 +5,10 @@ import AdminLoginPage from "../components/pages/admin-login-page";
 export const loader = adminLoginLoader;
 export const action = adminLoginAction;
 
+export function meta() {
+  return [{ title: "Admin Sign In | True Khmer" }];
+}
+
 export default function AdminLogin() {
   return <AdminLoginPage />;
 }

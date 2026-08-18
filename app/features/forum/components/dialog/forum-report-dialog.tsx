@@ -16,6 +16,7 @@ import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
 import { Spinner } from "~/components/ui/spinner";
 import { Textarea } from "~/components/ui/textarea";
+import { REPORT_DESCRIPTION_MAX_LENGTH } from "~/features/forum/types";
 
 export interface ReportReasonData {
   id: string;
@@ -145,20 +146,16 @@ export default function ForumReportDialog({
 
         <fetcher.Form method="post" className="flex min-h-0 flex-1 flex-col">
           <input
-            hidden
+            type="hidden"
             name="actionType"
-            value={
-              type === ReportDialogType.ANSWER
-                ? "report-answer"
-                : "report-question"
-            }
+            value={isAnswer ? "report-answer" : "report-question"}
           />
           <input
-            hidden
+            type="hidden"
             name={isAnswer ? "answerId" : "questionId"}
             value={id}
           />
-          <input hidden name="typeId" value={selectedReason || ""} />
+          <input type="hidden" name="typeId" value={selectedReason ?? ""} />
           {/* Scrollable body */}
           <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-1 pb-4 sm:pb-5">
             {/* Reporting post preview */}
@@ -213,6 +210,7 @@ export default function ForumReportDialog({
                 onChange={(e) => setDetails(e.target.value)}
                 placeholder="Tell us more about why you are reporting this..."
                 rows={4}
+                maxLength={REPORT_DESCRIPTION_MAX_LENGTH}
                 className="w-full rounded-2xl border-[#f1f5f9] bg-[#f8fafc] px-3.5 py-[10.5px] text-[14px] leading-5.25 font-medium text-[#344256] placeholder:font-medium placeholder:text-[#9eacc0] focus-visible:ring-[#e7000b]/20"
               />
             </div>

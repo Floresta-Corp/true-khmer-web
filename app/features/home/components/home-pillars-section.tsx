@@ -49,7 +49,7 @@ export function HomePillarsSection() {
         className="pointer-events-none absolute top-6 -right-16 size-56 rotate-12 opacity-[0.07]"
       />
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative site-container">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold text-[#2f6fe4]">
             Four Pillars of Action

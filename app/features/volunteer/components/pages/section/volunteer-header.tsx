@@ -118,7 +118,7 @@ function VolunteerPostButton({ to, dur }: { to: string; dur: number }) {
         asChild
         variant="outline"
         size="lg"
-        className="h-14 w-full rounded-[18px] border-[#d7e3ff] bg-white px-6 text-[15px] font-semibold text-[#2463eb] shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:scale-[1.02] hover:border-[#2463eb] hover:bg-blue-50 hover:shadow-[0_12px_32px_rgba(36,99,235,0.12)] md:w-auto md:min-w-54"
+        className="h-12 w-full rounded-[18px] border-[#d7e3ff] bg-white px-6 text-[15px] font-semibold text-[#2463eb] shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:scale-[1.02] hover:border-[#2463eb] hover:bg-blue-50 hover:shadow-[0_12px_32px_rgba(36,99,235,0.12)] md:w-auto md:min-w-54"
       >
         <Link to={to}>
           <motion.span
@@ -184,11 +184,11 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
         transition: { duration: 0.2, ease: "easeInOut" as const },
       }}
       transition={{ duration: 0.4 * dur, ease: "easeInOut" as const }}
-      className="relative flex w-full justify-center overflow-hidden px-4 py-16 sm:px-6 sm:py-20 lg:py-24"
+      className="relative flex w-full justify-center overflow-hidden px-4 py-10 sm:px-6 sm:py-12 lg:py-14"
     >
       <VolunteerHeroBackdrop />
 
-      <div className="relative flex w-full max-w-4xl flex-col items-center gap-8 text-center sm:gap-10">
+      <div className="relative flex w-full max-w-4xl flex-col items-center gap-6 text-center sm:gap-7">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -201,9 +201,9 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
             duration: 0.7 * dur,
             ease: easings.enter,
           }}
-          className="flex flex-col items-center gap-4 sm:gap-5"
+          className="flex flex-col items-center gap-3 sm:gap-4"
         >
-          <h1 className="max-w-3xl text-[clamp(2.25rem,6vw,4.5rem)] leading-[0.98] font-semibold tracking-[-0.05em] text-slate-900 sm:tracking-[-0.06em]">
+          <h1 className="max-w-3xl text-[clamp(2rem,4.5vw,3.5rem)] leading-[1.05] font-semibold tracking-[-0.05em] text-slate-900 sm:tracking-[-0.06em]">
             Make an impact that{" "}
             <motion.span
               animate={
@@ -244,7 +244,7 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
           </motion.p>
         </motion.div>
 
-        <div className="flex w-full flex-col items-center gap-5 sm:gap-6">
+        <div className="flex w-full flex-col items-center gap-4">
           <VolunteerSearchForm
             dur={dur}
             searchValue={searchValue}

@@ -244,15 +244,23 @@ export default function WorkspaceDiscussionCard({
         <div className="px-4 sm:px-6">
           <div className="rounded-xl border border-slate-100 bg-[#fafbfc] p-4">
             <div className="flex items-start justify-between gap-3">
-              <p className="text-sm">
-                <span className="font-semibold text-[#344256]">
-                  Your posted answer
-                </span>
-                <span className="mx-1.5 text-[#d1d5db]">•</span>
-                <span className="text-[#9ca3af]">
-                  {timeAgo(answer.createdAt)}
-                </span>
-              </p>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm">
+                  <span className="font-semibold text-[#344256]">
+                    Your posted answer
+                  </span>
+                  <span className="mx-1.5 text-[#d1d5db]">•</span>
+                  <span className="text-[#9ca3af]">
+                    {timeAgo(answer.createdAt)}
+                  </span>
+                </p>
+                <Link
+                  to={`/forum/detail/${questionId}#answer-${answer.id}`}
+                  className={`mt-2 w-fit ${ANSWER_BODY_LINK_CLASS}`}
+                >
+                  {answer.body}
+                </Link>
+              </div>
               <div className="flex shrink-0 items-center gap-2">
                 <AnswerVoteComponent
                   answerId={answer.id}
@@ -262,12 +270,6 @@ export default function WorkspaceDiscussionCard({
                 <AnswerActionsMenu answer={answer} questionId={questionId} />
               </div>
             </div>
-            <Link
-              to={`/forum/detail/${questionId}#answer-${answer.id}`}
-              className={`mt-2 ${ANSWER_BODY_LINK_CLASS}`}
-            >
-              {answer.body}
-            </Link>
           </div>
 
           <div className="mt-4 border-t border-slate-100 py-4">

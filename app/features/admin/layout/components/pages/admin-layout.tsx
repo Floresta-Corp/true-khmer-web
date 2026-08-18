@@ -36,6 +36,12 @@ function getActiveMenu(pathname: string) {
   if (pathname.startsWith("/tk-admin/partners")) return "partners";
   if (pathname.startsWith("/tk-admin/blog")) return "blog";
   if (pathname.startsWith("/tk-admin/manage-moderator/team")) return "myteam";
+  if (pathname.startsWith("/tk-admin/admin-audit-log")) return "audit-log";
+  if (pathname.startsWith("/tk-admin/manage-forum")) return "manage-forum";
+  if (pathname.startsWith("/tk-admin/manage-launchpad"))
+    return "manage-launchpad";
+  if (pathname.startsWith("/tk-admin/manage-volunteer"))
+    return "manage-volunteer";
   if (pathname.startsWith("/tk-admin/account-settings"))
     return "account-settings";
   return null;
@@ -127,7 +133,7 @@ export default function AdminLayout() {
 
           {/* Sidebar */}
           <aside
-            className={`fixed top-16 left-0 z-80 flex h-[calc(100vh-4rem)] flex-col border-r border-slate-100 bg-white py-5 md:sticky md:top-20 md:z-auto md:h-[calc(100vh-5rem)] md:translate-x-0 dark:border-slate-800/60 dark:bg-slate-950 ${
+            className={`fixed top-16 left-0 z-80 flex h-[calc(100vh-4rem)] flex-col border-r border-slate-100 bg-white py-4 md:sticky md:top-20 md:z-auto md:h-[calc(100vh-5rem)] md:translate-x-0 dark:border-slate-800/60 dark:bg-slate-950 [@media(max-height:820px)]:py-2 ${
               mounted
                 ? "transition-[width,transform] duration-300 ease-in-out will-change-[width]"
                 : ""
@@ -148,7 +154,7 @@ export default function AdminLayout() {
             )}
 
             <div
-              className={`flex w-full flex-1 flex-col overflow-y-auto ${
+              className={`scrollbar-hide flex min-h-0 w-full flex-1 flex-col overflow-y-auto overscroll-contain ${
                 effectiveCollapsed ? "items-center gap-1" : "items-stretch px-3"
               }`}
             >
@@ -188,7 +194,7 @@ export default function AdminLayout() {
                         </button>
                       </div>
                     ) : (
-                      <span className="mt-5 mb-1 px-3 text-[11px] font-bold tracking-widest text-slate-400 uppercase dark:text-slate-500">
+                      <span className="mt-4 mb-1 px-3 text-[11px] font-bold tracking-widest text-slate-400 uppercase dark:text-slate-500 [@media(max-height:820px)]:mt-2">
                         {sectionLabels[section]}
                       </span>
                     )}
@@ -204,10 +210,6 @@ export default function AdminLayout() {
                     ))}
                   </div>
                 ))}
-            </div>
-
-            <div className="mt-auto flex w-full flex-col items-center gap-1 pb-8">
-              <div className="mx-auto mb-4 h-px w-8 bg-slate-50 dark:bg-slate-800" />
             </div>
           </aside>
 

@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "react-router";
 import { ArrowRight } from "lucide-react";
+import { motion } from "motion/react";
 import { HomeCarouselSection } from "./home-carousel-section";
+import { slideUpVariants } from "./home-motion";
 import LaunchpadProjectCard from "~/features/launchpad/components/card/launchpad-project-card";
 import { OpportunityCard } from "~/components/opportunity-card";
 import {
@@ -31,7 +33,14 @@ function Slide({
   width: string;
   children: React.ReactNode;
 }) {
-  return <div className={`${width} shrink-0 snap-start`}>{children}</div>;
+  return (
+    <motion.div
+      variants={slideUpVariants}
+      className={`${width} shrink-0 snap-start`}
+    >
+      {children}
+    </motion.div>
+  );
 }
 
 function SeeMoreTile({ to, width }: { to: string; width: string }) {

@@ -138,7 +138,7 @@ export default function ManageModeratorPage() {
   }, [fetcher.data, fetcher.state]);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-10 p-10">
+    <div className="max-w-full space-y-10 p-10">
       <div className="flex items-end justify-between">
         <div className="space-y-1">
           <h1 className="text-4xl font-semibold tracking-tighter text-slate-900 dark:text-white">

@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { Form, Link, useActionData, useNavigation, useSearchParams } from "react-router";
+import {
+  Form,
+  Link,
+  useActionData,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
 import { Shield } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
@@ -85,14 +91,14 @@ export default function AdminLoginPage() {
         >
           <div className="flex items-center gap-2 text-[#1C5DD4]">
             <Shield className="h-6 w-6" />
-            <span className="text-sm font-semibold uppercase tracking-widest">
+            <span className="text-sm font-semibold tracking-widest uppercase">
               Admin Access
             </span>
           </div>
-          <h1 className="text-3xl font-bold leading-9 text-[#111827]">
+          <h1 className="text-3xl leading-9 font-bold text-[#111827]">
             Admin Sign In
           </h1>
-          <p className="text-base font-normal leading-6 text-[#4B5563]">
+          <p className="text-base leading-6 font-normal text-[#4B5563]">
             Sign in with your admin credentials to receive a verification code.
           </p>
         </motion.header>
@@ -123,7 +129,7 @@ export default function AdminLoginPage() {
             <div className="space-y-2">
               <Label
                 htmlFor="email"
-                className="block text-sm font-semibold leading-5 text-[#111827]"
+                className="block text-sm leading-5 font-semibold text-[#111827]"
               >
                 Email Address
               </Label>
@@ -185,7 +191,7 @@ export default function AdminLoginPage() {
 
         <motion.p
           variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
-          className="text-center text-sm font-normal leading-5 text-[#4B5563]"
+          className="text-center text-sm leading-5 font-normal text-[#4B5563]"
         >
           Not an admin?{" "}
           <Link

@@ -1,15 +1,17 @@
+import { useState } from "react";
 import { useLoaderData, useOutletContext } from "react-router";
 import {
-  UserPlus,
-  Building2,
   ClipboardList,
-  Shield,
-  Users,
+  Users2,
+  Hotel,
+  ShieldAlert,
+  UserCog,
 } from "lucide-react";
 
 import { KpiCard } from "../kpi-card";
 import { WelcomeCard } from "../welcome-card";
 import { QuickActionsCard } from "../quick-actions-card";
+import { InviteMemberFlow } from "../invite-member-flow";
 import { RangeSelect } from "../range-select";
 import { NewSignupsChart } from "../new-signups-chart";
 import { ActiveUsersChart } from "../active-users-chart";
@@ -45,43 +47,53 @@ const GENDER_COLORS: Record<string, string> = {
 
 const GENDER_FALLBACK_COLORS = ["#8b5cf6", "#10b981", "#f59e0b", "#06b6d4"];
 
-// Quick actions are not yet wired up — the design shows them as an upcoming
-// ("Coming soon") feature, rendered non-interactive.
 const QUICK_ACTION_ICON =
   "bg-indigo-50 text-indigo-400 dark:bg-indigo-900/20 dark:text-indigo-400";
 
-const QUICK_ACTIONS: QuickAction[] = [
-  {
-    id: "add-user",
-    label: "Add User",
-    icon: UserPlus,
-    iconClass: QUICK_ACTION_ICON,
-  },
-  {
-    id: "add-partner",
-    label: "Add Partner",
-    icon: Building2,
-    iconClass: QUICK_ACTION_ICON,
-  },
-  {
-    id: "create-listing",
-    label: "Create Listing",
-    icon: ClipboardList,
-    iconClass: QUICK_ACTION_ICON,
-  },
-  {
-    id: "view-reports",
-    label: "View Reports",
-    icon: Shield,
-    iconClass: QUICK_ACTION_ICON,
-  },
-  {
-    id: "team-members",
-    label: "Team Members",
-    icon: Users,
-    iconClass: QUICK_ACTION_ICON,
-  },
-];
+const SUPER_ADMIN_ONLY = "Super admins only";
+
+function buildQuickActions(
+  isSuperAdmin: boolean,
+  onInviteTeam: () => void,
+): QuickAction[] {
+  return [
+    {
+      id: "add-user",
+      label: "Add User",
+      icon: Users2,
+      iconClass: QUICK_ACTION_ICON,
+    },
+    {
+      id: "add-partner",
+      label: "Add Partner",
+      icon: Hotel,
+      iconClass: QUICK_ACTION_ICON,
+      to: isSuperAdmin ? "/tk-admin/partners/new" : undefined,
+      disabledReason: SUPER_ADMIN_ONLY,
+    },
+    {
+      id: "create-listing",
+      label: "Create Listing",
+      icon: ClipboardList,
+      iconClass: QUICK_ACTION_ICON,
+    },
+    {
+      id: "view-reports",
+      label: "View Reports",
+      icon: ShieldAlert,
+      iconClass: QUICK_ACTION_ICON,
+      to: "/tk-admin/content-moderator?status=open",
+    },
+    {
+      id: "team-members",
+      label: "Invite Team",
+      icon: UserCog,
+      iconClass: QUICK_ACTION_ICON,
+      onSelect: isSuperAdmin ? onInviteTeam : undefined,
+      disabledReason: SUPER_ADMIN_ONLY,
+    },
+  ];
+}
 
 // ── mappers ───────────────────────────────────────────────────────────────
 // "Active Users" / "New Signups" follow the top-of-page period filter; the
@@ -185,6 +197,7 @@ export default function AdminDashboardPage() {
     admin: AdminUser;
     isSuperAdmin: boolean;
   }>();
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   // The top date filter drives the headline KPI tiles; each chart below keeps
   // its own dropdown and refetches independently.
@@ -209,6 +222,10 @@ export default function AdminDashboardPage() {
   const sectorData = toSectorData(overview.partners.sectors);
   const showPartnerSectors =
     overview.partners.total !== null && sectorData.length > 0;
+
+  const quickActions = buildQuickActions(isSuperAdmin, () =>
+    setInviteOpen(true),
+  );
 
   return (
     <div className="min-h-screen space-y-4 bg-(--admin-page-bg) px-8 py-7">
@@ -243,10 +260,17 @@ export default function AdminDashboardPage() {
       <div className="flex flex-wrap items-stretch gap-4">
         <WelcomeCard admin={admin} className="flex-[1_1_480px]" />
         <QuickActionsCard
-          actions={QUICK_ACTIONS}
+          actions={quickActions}
           className="min-w-70 flex-[1_1_300px]"
         />
       </div>
+
+      {isSuperAdmin && (
+        <InviteMemberFlow
+          isOpen={inviteOpen}
+          onClose={() => setInviteOpen(false)}
+        />
+      )}
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {stats.map((item, i) => (

@@ -103,6 +103,9 @@ export type QuickAction = {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   iconClass: string;
+  to?: string;
+  onSelect?: () => void;
+  disabledReason?: string;
 };
 
 export type RangeOption = {

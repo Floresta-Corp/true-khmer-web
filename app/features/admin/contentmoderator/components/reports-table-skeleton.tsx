@@ -22,21 +22,21 @@ function ReportSkeletonRow() {
     <TableRow className="pointer-events-none">
       {/* ID */}
       <TableCell className="text-center align-middle">
-        <Skeleton className="mx-auto h-3 w-12 dark:bg-slate-700  rounded" />
+        <Skeleton className="mx-auto h-3 w-12 rounded dark:bg-slate-700" />
       </TableCell>
 
       {/* Type */}
       <TableCell className="text-center align-middle">
-        <Skeleton className="mx-auto h-5 w-20 dark:bg-slate-700 rounded-md" />
+        <Skeleton className="mx-auto h-5 w-20 rounded-md dark:bg-slate-700" />
       </TableCell>
 
       {/* Content Preview */}
-      <TableCell className="px-5 py-4 min-w-0 align-middle">
+      <TableCell className="min-w-0 px-5 py-4 align-middle">
         <div className="flex flex-col gap-2">
-          <Skeleton className="h-4 w-48 dark:bg-slate-700 rounded" />
-          <div className="flex items-center gap-2 min-w-0">
-            <Skeleton className="size-5 shrink-0 dark:bg-slate-700 rounded-full" />
-            <Skeleton className="h-3 w-28 dark:bg-slate-700 rounded" />
+          <Skeleton className="h-4 w-48 rounded dark:bg-slate-700" />
+          <div className="flex min-w-0 items-center gap-2">
+            <Skeleton className="size-5 shrink-0 rounded-full dark:bg-slate-700" />
+            <Skeleton className="h-3 w-28 rounded dark:bg-slate-700" />
           </div>
         </div>
       </TableCell>
@@ -44,19 +44,19 @@ function ReportSkeletonRow() {
       {/* Date & Time */}
       <TableCell className="px-5 py-4 text-center align-middle">
         <div className="flex items-center justify-center gap-2">
-          <Skeleton className="h-3 w-3.5 dark:bg-slate-700 rounded-full" />
-          <Skeleton className="h-3 w-20 dark:bg-slate-700 rounded" />
+          <Skeleton className="h-3 w-3.5 rounded-full dark:bg-slate-700" />
+          <Skeleton className="h-3 w-20 rounded dark:bg-slate-700" />
         </div>
       </TableCell>
 
       {/* Status */}
       <TableCell className="px-5 py-4 text-center align-middle">
-        <Skeleton className="mx-auto h-5 w-16 dark:bg-slate-700 rounded-full" />
+        <Skeleton className="mx-auto h-5 w-16 rounded-full dark:bg-slate-700" />
       </TableCell>
 
       {/* Action */}
       <TableCell className="px-5 py-4 text-right align-middle">
-        <Skeleton className="ml-auto h-5 w-5 dark:bg-slate-700 rounded-full" />
+        <Skeleton className="ml-auto h-5 w-5 rounded-full dark:bg-slate-700" />
       </TableCell>
     </TableRow>
   );
@@ -73,11 +73,11 @@ export function ReportsTableSkeleton({ rows = 6 }: { rows?: number }) {
         </colgroup>
 
         <TableHeader>
-          <TableRow className="border-b border-slate-50 dark:border-slate-800 hover:bg-transparent dark:hover:bg-transparent">
+          <TableRow className="border-b border-slate-50 hover:bg-transparent dark:border-slate-800 dark:hover:bg-transparent">
             {COLUMNS.map((col) => (
               <TableHead
                 key={col.label}
-                className={`px-5 py-4 text-[12px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide ${col.align}`}
+                className={`px-5 py-4 text-[12px] font-semibold tracking-wide text-slate-400 uppercase dark:text-slate-500 ${col.align}`}
               >
                 {col.label}
               </TableHead>

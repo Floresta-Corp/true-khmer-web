@@ -6,7 +6,9 @@ import {
   type ReactNode,
 } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { motion, MotionConfig } from "motion/react";
 import { cn } from "~/lib/utils";
+import { slideUpVariants, staggerContainerVariants } from "./home-motion";
 
 interface HomeCarouselSectionProps {
   title: string;
@@ -56,37 +58,48 @@ export function HomeCarouselSection({
   };
 
   return (
-    <section className={cn("py-6 lg:py-8", className)}>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-9 flex items-center justify-between gap-4">
-          <h2 className="text-2xl font-semibold tracking-[-0.04em] text-[#333333] sm:text-[36px] sm:leading-11">
-            {title}
-          </h2>
-          <div className="flex items-center gap-2">
-            <ArrowButton
-              label="Scroll left"
-              onClick={() => scrollBy(-1)}
-              disabled={!canScrollLeft}
-              icon={<ChevronLeft className="size-5" />}
-            />
-            <ArrowButton
-              label="Scroll right"
-              onClick={() => scrollBy(1)}
-              disabled={!canScrollRight}
-              icon={<ChevronRight className="size-5" />}
-            />
+    <MotionConfig reducedMotion="user">
+      <motion.section
+        className={cn("py-6 lg:py-8", className)}
+        variants={staggerContainerVariants}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.15 }}
+      >
+        <div className="site-container">
+          <motion.div
+            variants={slideUpVariants}
+            className="mb-9 flex items-center justify-between gap-4"
+          >
+            <h2 className="text-2xl font-semibold tracking-[-0.04em] text-[#333333] sm:text-[36px] sm:leading-11">
+              {title}
+            </h2>
+            <div className="flex items-center gap-2">
+              <ArrowButton
+                label="Scroll left"
+                onClick={() => scrollBy(-1)}
+                disabled={!canScrollLeft}
+                icon={<ChevronLeft className="size-5" />}
+              />
+              <ArrowButton
+                label="Scroll right"
+                onClick={() => scrollBy(1)}
+                disabled={!canScrollRight}
+                icon={<ChevronRight className="size-5" />}
+              />
+            </div>
+          </motion.div>
+
+          <div
+            ref={rowRef}
+            className="-mx-4 flex snap-x snap-mandatory scroll-pl-4 gap-5 overflow-x-auto overflow-y-hidden px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:scroll-pl-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
+          >
+            {children}
+            {trailing}
           </div>
         </div>
-
-        <div
-          ref={rowRef}
-          className="-mx-4 flex snap-x snap-mandatory scroll-pl-4 gap-5 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:scroll-pl-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
-        >
-          {children}
-          {trailing}
-        </div>
-      </div>
-    </section>
+      </motion.section>
+    </MotionConfig>
   );
 }
 

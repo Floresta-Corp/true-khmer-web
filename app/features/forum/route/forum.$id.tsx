@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLoaderData } from "react-router";
-import { MessageCircle } from "lucide-react";
+import { EyeOff, MessageCircle } from "lucide-react";
 import { motion } from "motion/react";
 import QuestionVoteComponent from "../components/question-vote-component";
 import AllAnswers from "../components/sections/all-answers";
@@ -15,6 +15,10 @@ import ForumBestAnswer from "../components/sections/forum-best-answer";
 import { resolveImageURL } from "~/lib/utils";
 import { ImageLightbox } from "~/components/image-lightbox";
 import { ForumPageLayout } from "../components/forum-page-layout";
+import SuspensionNoticeDialog from "~/components/suspension-notice-dialog";
+import { isSuspendedForViewer } from "../utils";
+import { useDismissibleNotice } from "~/hooks/use-dismissible-notice";
+import { useRestorationNotice } from "~/hooks/use-restoration-notice";
 
 export const loader = forumDetailLoader;
 export const action = forumDetailAction;
@@ -41,84 +45,27 @@ const fadeUp = {
   }),
 };
 
-// ─── Mock data for related discussions ───────────────────────────────────────
-// const MOCK_RELATED_DISCUSSIONS = [
-//   {
-//     id: "mock-1",
-//     title: "Best practices for carbon-aware computing in 2026",
-//     body: "Mock discussion",
-//     status: "PUBLISHED" as const,
-//     answerCount: 15,
-//     upvoteCount: 45,
-//     downvoteCount: 2,
-//     score: 43,
-//     viewerVote: "NONE" as const,
-//     viewerSave: false,
-//     bestAnswerId: null,
-//     bestAnswerSelectedAt: null,
-//     category: { id: "cat-1", name: "Sustainability" },
-//     author: {
-//       id: "auth-1",
-//       name: "John Developer",
-//       avatarKey: "mock-avatar-1",
-//     },
-//     tags: [{ id: "tag-1", name: "carbon" }],
-//     createdAt: new Date().toISOString(),
-//     updatedAt: new Date().toISOString(),
-//   },
-//   {
-//     id: "mock-2",
-//     title: "How to measure digital sustainability metrics",
-//     body: "Mock discussion",
-//     status: "PUBLISHED" as const,
-//     answerCount: 15,
-//     upvoteCount: 32,
-//     downvoteCount: 1,
-//     score: 31,
-//     viewerVote: "NONE" as const,
-//     viewerSave: false,
-//     bestAnswerId: null,
-//     bestAnswerSelectedAt: null,
-//     category: { id: "cat-1", name: "Sustainability" },
-//     author: {
-//       id: "auth-2",
-//       name: "Jane Smith",
-//       avatarKey: "mock-avatar-2",
-//     },
-//     tags: [{ id: "tag-2", name: "metrics" }],
-//     createdAt: new Date().toISOString(),
-//     updatedAt: new Date().toISOString(),
-//   },
-//   {
-//     id: "mock-3",
-//     title: "Green coding frameworks comparison",
-//     body: "Mock discussion",
-//     status: "PUBLISHED" as const,
-//     answerCount: 15,
-//     upvoteCount: 28,
-//     downvoteCount: 0,
-//     score: 28,
-//     viewerVote: "NONE" as const,
-//     viewerSave: false,
-//     bestAnswerId: null,
-//     bestAnswerSelectedAt: null,
-//     category: { id: "cat-2", name: "Development" },
-//     author: {
-//       id: "auth-3",
-//       name: "Alex Code",
-//       avatarKey: "mock-avatar-3",
-//     },
-//     tags: [{ id: "tag-3", name: "frameworks" }],
-//     createdAt: new Date().toISOString(),
-//     updatedAt: new Date().toISOString(),
-//   },
-// ];
-
 // ─── Page ────────────────────────────────────────────────────────────────────
 export default function ForumDetailPage() {
   const { question, bestAnswer, answers, userId, reportReasons } =
     useLoaderData<typeof loader>();
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Only the author is served a suspended question, and only they see why.
+  const isSuspended = isSuspendedForViewer(question, userId);
+  // Keyed on the suspension, not the question: a re-suspension notifies again.
+  const suspensionNotice = useDismissibleNotice(
+    isSuspended && question
+      ? `question:${question.id}:${question.suspendedAt ?? ""}`
+      : null,
+  );
+  // A lifted hold leaves nothing on the payload to detect, so it is inferred
+  // from having seen this question suspended earlier on this browser.
+  const isAuthor = Boolean(question && userId && question.author.id === userId);
+  const restorationNotice = useRestorationNotice(
+    isAuthor && question ? question.id : null,
+    isSuspended,
+  );
 
   if (!question) {
     return (
@@ -157,6 +104,41 @@ export default function ForumDetailPage() {
       >
         <BackToButton to="/forum" />
       </motion.div>
+
+      <SuspensionNoticeDialog
+        open={restorationNotice.isOpen}
+        onOpenChange={(open) => !open && restorationNotice.dismiss()}
+        variant="restored"
+        noun="question"
+      />
+
+      {isSuspended && (
+        <>
+          <SuspensionNoticeDialog
+            open={suspensionNotice.isOpen}
+            onOpenChange={(open) => !open && suspensionNotice.dismiss()}
+            noun="question"
+            reason={question.suspensionReason}
+            suspendedAt={question.suspendedAt}
+          />
+
+          {/* The dialog auto-opens once; this keeps the reason reachable after. */}
+          <div className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3">
+            <EyeOff className="h-4 w-4 shrink-0 text-orange-600" />
+            <p className="min-w-0 flex-1 text-sm font-medium text-orange-800">
+              This question is on moderation hold — only you can see it.
+            </p>
+            <button
+              type="button"
+              onClick={suspensionNotice.reopen}
+              className="shrink-0 cursor-pointer rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-orange-700 ring-1 ring-orange-200 transition-colors hover:bg-orange-100"
+            >
+              See reason
+            </button>
+          </div>
+        </>
+      )}
+
       <section className="mx-auto flex w-full flex-col items-start justify-center gap-8 xl:flex-row xl:gap-10">
         <div className="w-full">
           {/* Main question card */}
@@ -197,7 +179,7 @@ export default function ForumDetailPage() {
                     <img
                       src={resolveImageURL(question.imageKey)}
                       alt={question.title}
-                      className="w-full aspect-video rounded-xl object-cover"
+                      className="aspect-video w-full rounded-xl object-cover"
                     />
                   </button>
 
@@ -213,7 +195,7 @@ export default function ForumDetailPage() {
               ) : null}
 
               {question.tags?.length > 0 && (
-                <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium leading-4.5 text-[#8a93a3] sm:text-sm sm:leading-5.25">
+                <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs leading-4.5 font-medium text-[#8a93a3] sm:text-sm sm:leading-5.25">
                   {question.tags.map((tag) => (
                     <span key={tag.id}>#{tag.name}</span>
                   ))}
@@ -224,14 +206,18 @@ export default function ForumDetailPage() {
                 <div className="flex flex-wrap items-center gap-3 text-[#48566a] sm:gap-5">
                   <QuestionVoteComponent question={question} />
 
-                  <div className="inline-flex items-center gap-2 text-xs font-medium leading-4.5 sm:text-sm sm:leading-5.25">
+                  <div className="inline-flex items-center gap-2 text-xs leading-4.5 font-medium sm:text-sm sm:leading-5.25">
                     <MessageCircle className="h-5 w-5" />
-                    <span>{question.answerCount} answers</span>
+                    <span>
+                      {`${question.answerCount} ${
+                        question.answerCount > 1 ? "answers" : "answer"
+                      }`}
+                    </span>
                   </div>
 
                   <ShareQuestionDialog
                     question={question}
-                    className="cursor-pointer inline-flex items-center gap-2 text-xs font-medium leading-4.5 hover:text-[#245fca] sm:text-sm sm:leading-5.25"
+                    className="inline-flex cursor-pointer items-center gap-2 text-xs leading-4.5 font-medium hover:text-[#245fca] sm:text-sm sm:leading-5.25"
                   />
                 </div>
               </div>

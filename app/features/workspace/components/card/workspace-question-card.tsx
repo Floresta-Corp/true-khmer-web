@@ -166,7 +166,9 @@ export default function WorkspaceQuestionItem({
         <QuestionVoteComponent question={question} className="h-7.5" />
 
         <button
-          aria-label={`${question.answerCount} answers`}
+          aria-label={`${question.answerCount} ${
+            question.answerCount > 1 ? "answers" : "answer"
+          }`}
           onClick={handleGoToDetail}
           className="group inline-flex cursor-pointer items-center gap-2 rounded-lg text-xs text-[14px] font-medium text-[#48566A] transition-colors hover:text-blue-600"
         >
@@ -175,9 +177,9 @@ export default function WorkspaceQuestionItem({
             className="text-[#48566A] transition-colors group-hover:text-blue-600"
           />
           <span>
-            {question.answerCount}
-            <span className="hidden sm:inline"> answers</span>
-            <span className="sm:hidden"> answers</span>
+            {`${question.answerCount} ${
+              question.answerCount > 1 ? "answers" : "answer"
+            }`}
           </span>
         </button>
 

@@ -5,6 +5,9 @@ import { Button } from "~/components/ui/button";
 import LaunchpadMaterialComponent from "../launchpad-material-component";
 import SectionInputCard from "~/components/section-input-card";
 
+const MAX_FILE_SIZE_MB = 10;
+const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 interface ExistingDocument {
   name: string;
   url?: string;
@@ -31,18 +34,17 @@ export default function LaunchpadProjectMaterialCard({
     const incoming = Array.from(event.target.files ?? []);
     if (incoming.length === 0) return;
 
-    const previousCount = files.length;
-    const nextFiles = [...files, ...incoming].slice(0, 5);
-    const droppedCount = previousCount + incoming.length - nextFiles.length;
+    const [file] = incoming;
+    event.currentTarget.value = "";
 
-    if (droppedCount > 0) {
-      toast.warning(
-        `Only ${5 - previousCount} file${5 - previousCount !== 1 ? "s" : ""} can be added. ${droppedCount} file${droppedCount !== 1 ? "s" : ""} ${droppedCount === 1 ? "was" : "were"} not added.`,
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error(
+        `${file.name} is too large. Maximum file size is ${MAX_FILE_SIZE_MB} MB.`,
       );
+      return;
     }
 
-    onChange(nextFiles);
-    event.currentTarget.value = "";
+    onChange([file]);
   };
 
   const handleRemoveFile = (index: number) => {
@@ -55,21 +57,21 @@ export default function LaunchpadProjectMaterialCard({
         title: "Project Deck & Materials",
         icon: <Paperclip size={17.5} className="text-blue-500" />,
         required: true,
+        description: `PDF only, 1 file, up to ${MAX_FILE_SIZE_MB} MB.`,
         action: (
           <>
             <Button
               type="button"
               variant="outline"
-              className="h-10 bg-gray-100 hover:bg-gray-200 border-none"
+              className="h-10 border-none bg-gray-100 hover:bg-gray-200"
               onClick={() => inputRef.current?.click()}
             >
-              <Plus /> Add file
+              <Plus /> {files.length > 0 ? "Replace file" : "Add file"}
             </Button>
             <input
               ref={inputRef}
               id={inputId}
               type="file"
-              multiple
               accept="application/pdf"
               className="sr-only"
               aria-invalid={Boolean(error)}
@@ -84,7 +86,7 @@ export default function LaunchpadProjectMaterialCard({
       {existingDocuments?.map((doc, index) => (
         <div
           key={`existing-${doc.name}-${index}`}
-          className="flex items-center border border-[#F3F4F6] rounded-lg px-4 py-2"
+          className="flex items-center rounded-lg border border-[#F3F4F6] px-4 py-2"
         >
           <div className="flex-1">{doc.name}</div>
           {doc.url ? (
