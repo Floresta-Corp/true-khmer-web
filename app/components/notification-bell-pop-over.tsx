@@ -144,16 +144,16 @@ export default function NotificationBellPopOver() {
       <PopoverContent
         align="end"
         sideOffset={8}
-        className="w-80 p-0 rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+        className="w-80 overflow-hidden rounded-2xl border border-gray-100 p-0 shadow-xl"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-100">
+        <div className="flex items-center justify-between border-b border-gray-100 px-4 pt-4 pb-3">
           <div>
             <h3 className="text-sm font-semibold text-gray-900">
               Notifications
             </h3>
             {localUnreadCount > 0 && (
-              <p className="text-xs text-gray-400 font-medium">
+              <p className="text-xs font-medium text-gray-400">
                 {localUnreadCount} UNREAD
               </p>
             )}
@@ -161,7 +161,7 @@ export default function NotificationBellPopOver() {
           {localUnreadCount > 0 && (
             <button
               onClick={handleMarkAllRead}
-              className="cursor-pointer flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-500"
+              className="flex cursor-pointer items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-500"
             >
               <CheckCircle2 className="h-3.5 w-3.5" />
               Mark all as read
@@ -170,15 +170,15 @@ export default function NotificationBellPopOver() {
         </div>
 
         {/* Notifications */}
-        <div className="flex flex-col max-h-96 overflow-y-auto">
+        <div className="flex max-h-96 flex-col overflow-y-auto">
           {loadFetcher.state === "loading" ? (
             Array.from({ length: 5 }).map((_, i) => (
               <div
                 key={i}
-                className="flex items-start gap-3 px-4 py-3 border-b border-gray-100 last:border-b-0"
+                className="flex items-start gap-3 border-b border-gray-100 px-4 py-3 last:border-b-0"
               >
-                <Skeleton className="shrink-0 w-9 h-9 rounded-xl" />
-                <div className="flex-1 flex flex-col gap-1.5">
+                <Skeleton className="h-9 w-9 shrink-0 rounded-xl" />
+                <div className="flex flex-1 flex-col gap-1.5">
                   <Skeleton className="h-3 w-2/3 rounded" />
                   <Skeleton className="h-3 w-full rounded" />
                   <Skeleton className="h-2.5 w-1/3 rounded" />
@@ -211,7 +211,7 @@ export default function NotificationBellPopOver() {
                   {/* Icon */}
                   <div
                     className={cn(
-                      "flex items-center justify-center shrink-0 rounded-xl w-9 h-9 mt-0.5",
+                      "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
                       iconStyle.bg,
                       iconStyle.fg,
                     )}
@@ -223,19 +223,19 @@ export default function NotificationBellPopOver() {
                   </div>
 
                   {/* Content */}
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1">
-                      <p className="text-xs font-semibold text-gray-900 truncate">
+                      <p className="truncate text-xs font-semibold text-gray-900">
                         {notif.title}
                       </p>
                       {!notif.isRead && (
-                        <span className="shrink-0 h-1.5 w-1.5 rounded-full bg-blue-600" />
+                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-blue-600" />
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">
+                    <p className="line-clamp-2 text-xs leading-relaxed text-gray-500">
                       {notif.body}
                     </p>
-                    <p className="text-[10px] text-gray-400 mt-1">
+                    <p className="mt-1 text-[10px] text-gray-400">
                       {formatDistanceToNow(new Date(notif.updatedAt), {
                         addSuffix: true,
                       })}
@@ -252,7 +252,7 @@ export default function NotificationBellPopOver() {
           <Link
             to="/notifications"
             onClick={() => setOpen(false)}
-            className="flex items-center justify-center py-3 text-xs font-semibold text-gray-600 hover:text-blue-600 hover:bg-gray-50 transition-colors"
+            className="flex items-center justify-center py-3 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-50 hover:text-blue-600"
           >
             View all notifications
           </Link>
