@@ -70,6 +70,8 @@ export default function LaunchpadProjectCard({
       className="group relative"
       onHoverStart={() => setIsHover(true)}
       onHoverEnd={() => setIsHover(false)}
+      whileTap={{ scale: 0.99 }}
+      transition={{ type: "spring", stiffness: 260, damping: 22 }}
       // Without this the share/save buttons stay at opacity 0 while remaining
       // focusable, so keyboard users tab into invisible controls.
       onFocus={() => setIsHover(true)}
@@ -122,20 +124,26 @@ export default function LaunchpadProjectCard({
             onOpenOpportunity(item);
           }
         }}
-        className="flex min-h-112.5 cursor-pointer flex-col overflow-hidden rounded-2xl bg-white p-0 shadow-none"
+        className="flex min-h-112.5 cursor-pointer flex-col overflow-hidden rounded-2xl border border-transparent bg-white p-0 shadow-none transition-[border-color,box-shadow] duration-300 group-hover:border-[#dbe4f7] group-hover:shadow-[0px_6px_20px_-12px_rgba(47,111,228,0.12)]"
       >
         <div className="relative overflow-hidden">
           <img
             src={resolveImageURL(item.coverKey || undefined)}
             alt={`${item.name} cover`}
-            className="h-44 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-44 w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+          />
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-linear-to-t from-black/15 via-black/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
           />
           <Badge className="pointer-events-none absolute top-3.5 left-3.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#2F6FE4]">
             {item.category.name}
           </Badge>
         </div>
         <div className="flex flex-1 flex-col p-5">
-          <div className="text-lg leading-tight font-semibold">{item.name}</div>
+          <div className="text-lg leading-tight font-semibold transition-colors duration-300 group-hover:text-[#2F6FE4]">
+            {item.name}
+          </div>
           <p className="mt-2 line-clamp-2 text-sm text-[#6B7280]">
             {item.description}
           </p>
