@@ -208,7 +208,11 @@ export default function ForumDetailPage() {
 
                   <div className="inline-flex items-center gap-2 text-xs leading-4.5 font-medium sm:text-sm sm:leading-5.25">
                     <MessageCircle className="h-5 w-5" />
-                    <span>{question.answerCount} answers</span>
+                    <span>
+                      {`${question.answerCount} ${
+                        question.answerCount > 1 ? "answers" : "answer"
+                      }`}
+                    </span>
                   </div>
 
                   <ShareQuestionDialog

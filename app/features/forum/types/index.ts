@@ -25,7 +25,9 @@ export const CreateForumQuestionInputSchema = z.object({
   imageKey: z.string().nullable(),
   status: ForumQuestionStatusSchema,
 });
-export type CreateForumQuestionInput = z.infer<typeof CreateForumQuestionInputSchema>;
+export type CreateForumQuestionInput = z.infer<
+  typeof CreateForumQuestionInputSchema
+>;
 
 // ── Answer types ───────────────────────────────────────────────────────────────
 
@@ -65,14 +67,23 @@ export const ForumQuestionImagePresignInputSchema = z.object({
     .positive()
     .max(5 * 1024 * 1024, "Image must be 5MB or smaller"),
 });
-export type ForumQuestionImagePresignInput = z.infer<typeof ForumQuestionImagePresignInputSchema>;
+export type ForumQuestionImagePresignInput = z.infer<
+  typeof ForumQuestionImagePresignInputSchema
+>;
 
 // ── Report types ───────────────────────────────────────────────────────────────
 
+export const REPORT_DESCRIPTION_MAX_LENGTH = 10000;
+
+const REPORTING_TYPE_ID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export const SubmitReportInputSchema = z.object({
-  questionId: z.string().optional(),
-  answerId: z.string().optional(),
-  typeId: z.string(),
-  description: z.string(),
+  questionId: z.string(),
+  answerId: z.string(),
+  typeId: z
+    .string()
+    .regex(REPORTING_TYPE_ID_REGEX, "Invalid report type selected."),
+  description: z.string().max(REPORT_DESCRIPTION_MAX_LENGTH).optional(),
 });
 export type SubmitReportInput = z.infer<typeof SubmitReportInputSchema>;

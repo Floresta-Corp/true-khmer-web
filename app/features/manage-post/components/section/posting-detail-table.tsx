@@ -281,8 +281,8 @@ export default function ManagePostingDetailTable({
                             </span>
                             {otherRoles > 0 && (
                               <span className="text-[11px] font-medium text-slate-400">
-                                {otherRoles} other{otherRoles > 1 ? "s" : ""}{" "}
-                                roles
+                                {otherRoles} other role
+                                {otherRoles > 1 ? "s" : ""}
                               </span>
                             )}
                           </div>

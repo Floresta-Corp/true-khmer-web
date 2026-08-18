@@ -21,6 +21,16 @@ type ForumDetailLoaderData = {
   reportReasons: GetReportingTypesResponse | null;
 };
 
+async function getReportReasons(request: Request) {
+  try {
+    const result = await GetPublicReportType(request);
+    return (result?.data as GetReportingTypesResponse | null) ?? null;
+  } catch (error) {
+    console.error("Failed to load forum report reasons", error);
+    return null;
+  }
+}
+
 export async function forumDetailLoader({
   request,
   params,
@@ -35,27 +45,25 @@ export async function forumDetailLoader({
   const url = new URL(request.url);
   const sortBy = url.searchParams.get("sortBy") ?? undefined;
 
-  const [questionResult, answersResult, reportReasonsResult] =
-    await Promise.all(
-      userId
-        ? [
-            getQuestionById(request, questionId),
-            getAnswersByQuestionId(request, questionId, sortBy),
-            GetPublicReportType(request),
-          ]
-        : [
-            getPublicQuestionById(request, questionId),
-            getPublicAnswersByQuestionId(request, questionId, sortBy),
-            GetPublicReportType(request),
-          ],
-    );
+  const [questionResult, answersResult, reportReasons] = await Promise.all(
+    userId
+      ? ([
+          getQuestionById(request, questionId),
+          getAnswersByQuestionId(request, questionId, sortBy),
+          getReportReasons(request),
+        ] as const)
+      : ([
+          getPublicQuestionById(request, questionId),
+          getPublicAnswersByQuestionId(request, questionId, sortBy),
+          getReportReasons(request),
+        ] as const),
+  );
 
   return {
     question: questionResult?.data.question ?? null,
     bestAnswer: answersResult?.data.answers.bestAnswer ?? [],
     answers: answersResult?.data.answers.answers ?? [],
     userId: userId ?? null,
-    reportReasons:
-      (reportReasonsResult?.data as GetReportingTypesResponse | null) ?? null,
+    reportReasons,
   } satisfies ForumDetailLoaderData;
 }

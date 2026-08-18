@@ -77,7 +77,7 @@ export async function forumDetailAction({
   }
 
   if (actionType === "report-answer") {
-    return respond(await reportAnswerAction(request, formData));
+    return respond(await reportAnswerAction(request, formData, questionId));
   }
 
   if (actionType === "vote-question") {
@@ -174,7 +174,9 @@ export async function forumDetailAction({
       });
     }
 
-    return respond(await submitAnswerVoteAction(request, parsedAnswerVoteAction));
+    return respond(
+      await submitAnswerVoteAction(request, parsedAnswerVoteAction),
+    );
   }
 
   if (actionType === "delete-answer") {

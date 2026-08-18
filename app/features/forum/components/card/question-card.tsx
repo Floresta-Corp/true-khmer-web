@@ -236,9 +236,9 @@ export default function QuestionCard({
             className="text-[#48566A] transition-colors group-hover:text-blue-600"
           />
           <span>
-            {question.answerCount}
-            <span className="hidden sm:inline"> answers</span>
-            <span className="sm:hidden"> answers</span>
+            {`${question.answerCount} ${
+              question.answerCount > 1 ? "answers" : "answer"
+            }`}
           </span>
         </button>
         <ShareQuestionDialog question={question} />

@@ -153,7 +153,7 @@ export default function LaunchpadProjectCard({
                 seeking:
               </div>
               <Badge className="pointer-events-none bg-white text-[#2F6FE4]">
-                {item.totalRoles} ROLES
+                {item.totalRoles} {item.totalRoles > 1 ? "ROLES" : "ROLE"}
               </Badge>
             </div>
             <div className="mt-4 flex w-full items-center justify-between text-xs text-[#9EACC0]">
@@ -166,7 +166,7 @@ export default function LaunchpadProjectCard({
               <div className="flex items-center gap-1.75">
                 <Eye size={14} />
                 <div className="font-semibold">
-                  {item.totalView.toLocaleString()} Views
+                  {`${item.totalView.toLocaleString()} ${item.totalView > 1 ? "Views" : "View"}`}
                 </div>
               </div>
             </div>

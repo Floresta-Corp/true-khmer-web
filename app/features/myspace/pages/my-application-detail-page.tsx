@@ -382,7 +382,7 @@ export default function MyApplicationDetailPage() {
     "/images/avatar_placeholder.webp",
   );
   const ownerRole = owner.postedCount
-    ? `${owner.postedCount} posts created`
+    ? `${owner.postedCount} ${owner.postedCount === 1 ? "post" : "posts"} created`
     : "Organizer";
   const inactive = ["DECLINED", "WITHDRAWN"].includes(roleStatus.toUpperCase());
   const postingDetailHref =
