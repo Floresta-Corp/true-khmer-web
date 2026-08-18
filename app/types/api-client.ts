@@ -121,7 +121,7 @@ const ContentModeratorReportAuthor = z.object({ id: z.string(), name: z.string()
 
 const ContentModeratorReportSolver = z.object({ id: z.string(), firstName: z.string().nullable(), lastName: z.string().nullable() });
 
-const ContentModeratorReport = z.object({ id: z.string().uuid(), reportId: z.number().int().gt(0), type: ContentModeratorReportType, reportType: z.literal("FORUM"), reportSubType: z.enum(["QUESTION", "ANSWER"]).nullable(), contentPreview: z.string(), sourceLink: z.string(), dateTime: z.string(), status: z.enum(["OPEN", "CLOSED"]), confirmStatus: z.enum(["CONTENT HIDDEN", "DISMISSED"]).nullable(), reportingBy: ContentModeratorReportReporter.nullable(), postedBy: ContentModeratorReportAuthor.nullable(), solvedBy: ContentModeratorReportSolver.nullable(), reporterNote: z.string().nullable(), note: z.string().nullable(), solvedAt: z.string().nullable() });
+const ContentModeratorReport = z.object({ id: z.string().uuid(), reportId: z.number().int().gt(0), type: ContentModeratorReportType, reportType: z.enum(["FORUM", "VOLUNTEER", "LAUNCHPAD"]), reportSubType: z.enum(["QUESTION", "ANSWER", "OPPORTUNITY", "PROJECT"]).nullable(), contentPreview: z.string(), sourceLink: z.string(), dateTime: z.string(), status: z.enum(["OPEN", "CLOSED"]), confirmStatus: z.enum(["CONTENT HIDDEN", "DISMISSED"]).nullable(), reportingBy: ContentModeratorReportReporter.nullable(), postedBy: ContentModeratorReportAuthor.nullable(), solvedBy: ContentModeratorReportSolver.nullable(), reporterNote: z.string().nullable(), note: z.string().nullable(), solvedAt: z.string().nullable() });
 
 const CursorPagination = z.object({ limit: z.number().int().gt(0), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) });
 
@@ -437,6 +437,14 @@ const GetReportingTypesResponse = z.object({ ok: z.boolean(), reportingTypes: z.
 const CreateReportingRequest = z.object({ questionId: z.string(), answerId: z.string(), typeId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), description: z.string().max(10000).optional() });
 
 const CreateReportingResponse = z.object({ ok: z.boolean(), reportingId: z.string().uuid() });
+
+const CreateVolunteerReportingRequest = z.object({ opportunityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), typeId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), description: z.string().max(10000).optional() });
+
+const CreateVolunteerReportingResponse = z.object({ ok: z.boolean(), reportingId: z.string().uuid() });
+
+const CreateLaunchpadReportingRequest = z.object({ launchpadId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), typeId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), description: z.string().max(10000).optional() });
+
+const CreateLaunchpadReportingResponse = z.object({ ok: z.boolean(), reportingId: z.string().uuid() });
 
 const LaunchpadCategoryResponse = z.object({ id: z.string(), name: z.string(), slug: z.string(), iconKey: z.string(), mobileIconType: z.string().nullable(), mobileIconName: z.string().nullable(), displayOrder: z.number(), status: z.enum(["ACTIVE", "ARCHIVED", "HIDDEN"]), totalLaunchpad: z.number(), createdBy: z.string(), updatedBy: z.string().nullable(), createdAt: z.string(), updatedAt: z.string() });
 
@@ -911,6 +919,10 @@ export const schemas = {
 	GetReportingTypesResponse,
 	CreateReportingRequest,
 	CreateReportingResponse,
+	CreateVolunteerReportingRequest,
+	CreateVolunteerReportingResponse,
+	CreateLaunchpadReportingRequest,
+	CreateLaunchpadReportingResponse,
 	LaunchpadCategoryResponse,
 	GetLaunchpadCategoriesResponse,
 	PresignLaunchpadImageUploadRequest,
@@ -1413,6 +1425,11 @@ const endpoints = makeApi([
 				name: "status",
 				type: "Query",
 				schema: z.enum(["OPEN", "CLOSED"]).optional()
+			},
+			{
+				name: "reportType",
+				type: "Query",
+				schema: z.enum(["FORUM", "VOLUNTEER", "LAUNCHPAD"]).optional()
 			},
 			{
 				name: "typeId",
@@ -5213,25 +5230,6 @@ const endpoints = makeApi([
 	},
 	{
 		method: "get",
-		path: "/v1/forum/public/reporting-type",
-		alias: "getV1forumpublicreportingType",
-		requestFormat: "json",
-		response: GetReportingTypesResponse,
-		errors: [
-			{
-				status: 404,
-				description: `No reporting types found`,
-				schema: z.void()
-			},
-			{
-				status: 500,
-				description: `Internal server error`,
-				schema: z.void()
-			},
-		]
-	},
-	{
-		method: "get",
 		path: "/v1/forum/questions",
 		alias: "getV1forumquestions",
 		requestFormat: "json",
@@ -6016,6 +6014,42 @@ const endpoints = makeApi([
 			{
 				status: 404,
 				description: `Launchpad category not found`,
+				schema: z.void()
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/launchpad/reporting",
+		alias: "postV1launchpadreporting",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: CreateLaunchpadReportingRequest
+			},
+		],
+		response: CreateLaunchpadReportingResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Reported entity not found`,
 				schema: z.void()
 			},
 			{
@@ -7075,6 +7109,25 @@ const endpoints = makeApi([
 		]
 	},
 	{
+		method: "get",
+		path: "/v1/public/reporting-type",
+		alias: "getV1publicreportingType",
+		requestFormat: "json",
+		response: GetReportingTypesResponse,
+		errors: [
+			{
+				status: 404,
+				description: `No reporting types found`,
+				schema: z.void()
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.void()
+			},
+		]
+	},
+	{
 		method: "post",
 		path: "/v1/uploads/avatar/presign",
 		alias: "postV1uploadsavatarpresign",
@@ -7684,6 +7737,42 @@ const endpoints = makeApi([
 				status: 500,
 				description: `Internal server error`,
 				schema: VolunteerOperationErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/volunteer/reporting",
+		alias: "postV1volunteerreporting",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: CreateVolunteerReportingRequest
+			},
+		],
+		response: CreateVolunteerReportingResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid request data`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Reported entity not found`,
+				schema: z.void()
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.void()
 			},
 		]
 	},
@@ -8474,6 +8563,10 @@ export type ReportingTypeResponse = z.infer<typeof schemas.ReportingTypeResponse
 export type GetReportingTypesResponse = z.infer<typeof schemas.GetReportingTypesResponse>;
 export type CreateReportingRequest = z.infer<typeof schemas.CreateReportingRequest>;
 export type CreateReportingResponse = z.infer<typeof schemas.CreateReportingResponse>;
+export type CreateVolunteerReportingRequest = z.infer<typeof schemas.CreateVolunteerReportingRequest>;
+export type CreateVolunteerReportingResponse = z.infer<typeof schemas.CreateVolunteerReportingResponse>;
+export type CreateLaunchpadReportingRequest = z.infer<typeof schemas.CreateLaunchpadReportingRequest>;
+export type CreateLaunchpadReportingResponse = z.infer<typeof schemas.CreateLaunchpadReportingResponse>;
 export type LaunchpadCategoryResponse = z.infer<typeof schemas.LaunchpadCategoryResponse>;
 export type GetLaunchpadCategoriesResponse = z.infer<typeof schemas.GetLaunchpadCategoriesResponse>;
 export type PresignLaunchpadImageUploadRequest = z.infer<typeof schemas.PresignLaunchpadImageUploadRequest>;

@@ -20,20 +20,20 @@ const ForumSearchHeader = forwardRef<HTMLInputElement, ForumSearchHeaderProps>(
     const keywords = searchParams.get("search")?.trim() || "";
     const { data } = useLoaderData<typeof loader>();
     const count = data.questions.length;
-    const countResult = `Found ${count} discussion${count > 1 ? "s" : ""}`;
+    const countResult = `Found ${count} discussion${count === 1 ? "" : "s"}`;
     const handleSearch = () => {
       onSearch(searchValue.trim());
     };
 
     return (
       <section
-        className="w-full flex flex-col items-center px-3.5 pt-10 pb-10"
+        className="flex w-full flex-col items-center px-3.5 pt-10 pb-10"
         style={{
           backgroundImage:
             "linear-gradient(171.139deg, rgb(232, 236, 249) 0%, rgb(234, 238, 251) 16.667%, rgb(236, 240, 253) 33.333%, rgb(238, 242, 255) 50%, rgb(240, 244, 255) 57.143%, rgb(243, 246, 255) 64.286%, rgb(245, 248, 255) 71.429%, rgb(248, 249, 255) 78.571%, rgb(250, 251, 255) 85.714%, rgb(253, 253, 255) 92.857%, rgb(255, 255, 255) 100%)",
         }}
       >
-        <div className="w-full max-w-300 flex flex-col gap-5.25 px-0.5">
+        <div className="flex w-full max-w-300 flex-col gap-5.25 px-0.5">
           <div>
             <BackToButton to="/forum" />
           </div>
@@ -42,10 +42,10 @@ const ForumSearchHeader = forwardRef<HTMLInputElement, ForumSearchHeaderProps>(
             <h1 className="text-[32px] leading-12 font-bold text-[#2c2f31]">
               Search result: <span className="text-[#2f6fe4]">{keywords}</span>
             </h1>
-            <p className="text-base text-[#595c5e] leading-6">{countResult}</p>
+            <p className="text-base leading-6 text-[#595c5e]">{countResult}</p>
           </div>
 
-          <div className="w-full max-w-2xl flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+          <div className="flex w-full max-w-2xl flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
             <div className="flex h-12 flex-1 items-center rounded-xl border border-[#e1e7ef] bg-white p-2">
               <div className="flex w-full min-w-0 items-center gap-3 px-4">
                 <Search className="size-4.5 shrink-0 text-[#8f9294]" />

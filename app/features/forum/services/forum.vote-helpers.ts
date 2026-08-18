@@ -174,7 +174,12 @@ export async function reportQuestionAction(
     return { ok: false, message: "Report type ID is required." };
   }
 
-  const body: SubmitReportInput = { description, typeId, questionId };
+  const body: SubmitReportInput = {
+    questionId,
+    answerId: "",
+    typeId,
+    description: description || undefined,
+  };
   try {
     return await SubmitReport(request, body);
   } catch (error) {
@@ -191,7 +196,11 @@ export async function reportQuestionAction(
   }
 }
 
-export async function reportAnswerAction(request: Request, formData: FormData) {
+export async function reportAnswerAction(
+  request: Request,
+  formData: FormData,
+  questionId: string,
+) {
   const answerId = String(formData.get("answerId") ?? "").trim();
   const typeId = String(formData.get("typeId") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
@@ -200,11 +209,20 @@ export async function reportAnswerAction(request: Request, formData: FormData) {
     return { ok: false, message: "Answer ID is required for reporting." };
   }
 
+  if (!questionId) {
+    return { ok: false, message: "Question ID is required for reporting." };
+  }
+
   if (!typeId) {
     return { ok: false, message: "Report type ID is required." };
   }
 
-  const body: SubmitReportInput = { description, typeId, answerId };
+  const body: SubmitReportInput = {
+    questionId,
+    answerId,
+    typeId,
+    description: description || undefined,
+  };
   try {
     return await SubmitReport(request, body);
   } catch (error) {

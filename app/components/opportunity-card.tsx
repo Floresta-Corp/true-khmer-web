@@ -148,7 +148,7 @@ export function OpportunityCard({
               <Eye size={13.5} className="shrink-0 text-slate-500" />
               <span className="text-zinc-800">
                 {formatCompactNumber(opportunity.totalView)}{" "}
-                {opportunity.totalView > 1 ? "views" : "view"}
+                {opportunity.totalView === 1 ? "view" : "views"}
               </span>
             </div>
           </div>
