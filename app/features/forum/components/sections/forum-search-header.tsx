@@ -20,7 +20,7 @@ const ForumSearchHeader = forwardRef<HTMLInputElement, ForumSearchHeaderProps>(
     const keywords = searchParams.get("search")?.trim() || "";
     const { data } = useLoaderData<typeof loader>();
     const count = data.questions.length;
-    const countResult = `Found ${count} discussion${count === 1 ? "" : "s"}`;
+    const countResult = `Found ${count} discussion${count > 1 ? "s" : ""}`;
     const handleSearch = () => {
       onSearch(searchValue.trim());
     };

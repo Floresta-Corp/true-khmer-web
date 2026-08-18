@@ -48,9 +48,7 @@ export function VolunteerCategoriesSection({
                   updatedBy: category.updatedBy ?? undefined,
                 }}
                 displayName={
-                  (category?.opportunityCount || 0) === 1
-                    ? "listing"
-                    : "listings"
+                  (category?.opportunityCount || 0) > 1 ? "listings" : "listing"
                 }
               />
             </div>

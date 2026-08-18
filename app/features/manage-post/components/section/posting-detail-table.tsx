@@ -243,7 +243,7 @@ export default function ManagePostingDetailTable({
                           <div className="flex flex-col gap-0.5">
                             <span className="text-[14px] font-semibold text-slate-800 dark:text-slate-200">
                               {submissionCount} submission
-                              {submissionCount === 1 ? "" : "s"}
+                              {submissionCount > 1 ? "s" : ""}
                             </span>
 
                             <span className="text-[11px] font-medium text-slate-400">
@@ -282,7 +282,7 @@ export default function ManagePostingDetailTable({
                             {otherRoles > 0 && (
                               <span className="text-[11px] font-medium text-slate-400">
                                 {otherRoles} other role
-                                {otherRoles === 1 ? "" : "s"}
+                                {otherRoles > 1 ? "s" : ""}
                               </span>
                             )}
                           </div>

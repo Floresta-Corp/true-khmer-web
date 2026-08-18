@@ -181,12 +181,12 @@ export default function ManageForumQuestionRow({
               <Stat
                 icon={<MessageCircle size={13} />}
                 value={question.answerCount}
-                label={question.answerCount === 1 ? "answer" : "answers"}
+                label="answers"
               />
               <Stat
                 icon={<Eye size={13} />}
                 value={question.viewCount}
-                label={question.viewCount === 1 ? "view" : "views"}
+                label="views"
               />
             </div>
           </div>

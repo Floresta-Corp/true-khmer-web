@@ -210,7 +210,7 @@ export default function ForumDetailPage() {
                     <MessageCircle className="h-5 w-5" />
                     <span>
                       {`${question.answerCount} ${
-                        question.answerCount === 1 ? "answer" : "answers"
+                        question.answerCount > 1 ? "answers" : "answer"
                       }`}
                     </span>
                   </div>

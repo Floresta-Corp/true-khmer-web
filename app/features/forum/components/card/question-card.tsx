@@ -237,7 +237,7 @@ export default function QuestionCard({
           />
           <span>
             {`${question.answerCount} ${
-              question.answerCount === 1 ? "answer" : "answers"
+              question.answerCount > 1 ? "answers" : "answer"
             }`}
           </span>
         </button>

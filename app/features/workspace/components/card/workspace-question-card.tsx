@@ -167,7 +167,7 @@ export default function WorkspaceQuestionItem({
 
         <button
           aria-label={`${question.answerCount} ${
-            question.answerCount === 1 ? "answer" : "answers"
+            question.answerCount > 1 ? "answers" : "answer"
           }`}
           onClick={handleGoToDetail}
           className="group inline-flex cursor-pointer items-center gap-2 rounded-lg text-xs text-[14px] font-medium text-[#48566A] transition-colors hover:text-blue-600"
@@ -178,7 +178,7 @@ export default function WorkspaceQuestionItem({
           />
           <span>
             {`${question.answerCount} ${
-              question.answerCount === 1 ? "answer" : "answers"
+              question.answerCount > 1 ? "answers" : "answer"
             }`}
           </span>
         </button>
