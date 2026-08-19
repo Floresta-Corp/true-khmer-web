@@ -75,7 +75,6 @@ export async function VolunteerDetailAction({
         result?.data ?? { ok: false, message: "Unexpected response format" },
       );
     } catch (error) {
-      if (error instanceof Response) throw error;
       return transformActionResponse(error);
     }
   }

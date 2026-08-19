@@ -151,7 +151,6 @@ export default function VolunteerReportDialog({
         <fetcher.Form method="post" className="flex min-h-0 flex-1 flex-col">
           <input type="hidden" name="actionType" value="report-opportunity" />
           <input type="hidden" name="opportunityId" value={opportunityId} />
-          <input type="hidden" name="typeId" value={selectedReason ?? ""} />
 
           <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-1 pb-4 sm:pb-5">
             {title && (
@@ -164,31 +163,37 @@ export default function VolunteerReportDialog({
                 </p>
               </div>
             )}
-
-            <div className="flex flex-col gap-3">
-              <Label className="text-[14px] leading-5.25 font-bold text-[#344256]">
+            <fieldset className="min-w-0">
+              <legend className="text-[14px] leading-5.25 font-bold text-[#344256]">
                 Reason for Reporting
-              </Label>
-              <div className="flex flex-col gap-1.75">
-                {reportReasons &&
-                  reportReasons.map((v) => {
-                    const isSelected = selectedReason === v.id;
-                    return (
-                      <div
-                        key={v.id}
-                        onClick={() => setSelectedReason(v.id)}
-                        className={`h-10.5 w-full cursor-pointer content-center rounded-2xl border px-3.5 text-[13px] leading-[19.5px] font-medium transition-colors ${
+              </legend>
+              <div className="mt-3 flex flex-col gap-1.75">
+                {reportReasons?.map((v) => {
+                  const isSelected = selectedReason === v.id;
+                  return (
+                    <label key={v.id} className="cursor-pointer">
+                      <input
+                        type="radio"
+                        name="typeId"
+                        value={v.id}
+                        checked={isSelected}
+                        onChange={() => setSelectedReason(v.id)}
+                        className="peer sr-only"
+                      />
+                      <span
+                        className={`flex h-10.5 w-full items-center rounded-2xl border px-3.5 text-[13px] leading-[19.5px] font-medium transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-[#e7000b]/40 ${
                           isSelected
                             ? "border-[#ffc9c9] bg-[#fef2f2] text-[#e7000b]"
                             : "border-[#f3f4f6] bg-white text-[#4a5565] hover:border-[#ffc9c9] hover:bg-[#fef2f2] hover:text-[#e7000b]"
                         }`}
                       >
                         {v.reason}
-                      </div>
-                    );
-                  })}
+                      </span>
+                    </label>
+                  );
+                })}
               </div>
-            </div>
+            </fieldset>
 
             <div className="flex flex-col gap-3">
               <Label className="text-[14px] leading-5.25 text-[#344256]">
