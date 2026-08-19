@@ -116,13 +116,13 @@ export default function ForumReportDialog({
         className="flex max-h-[90dvh] w-[calc(100%-1.5rem)] max-w-160 flex-col gap-4 overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white p-4 shadow-lg sm:p-6"
       >
         {/* Close */}
-        <DialogClose>
+        <DialogClose asChild>
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-3.75 right-3.75 h-4 w-4 cursor-pointer rounded-sm p-0 text-[#4a5565]/70 hover:bg-transparent hover:text-[#1f2937]"
+            className="absolute top-1.75 right-1.75 h-8 w-8 cursor-pointer rounded-sm p-0 text-[#4a5565]/70 hover:bg-transparent hover:text-[#1f2937]"
           >
-            <X className="h-4 w-4" />
+            <X className="size-4" />
             <span className="sr-only">Close</span>
           </Button>
         </DialogClose>
