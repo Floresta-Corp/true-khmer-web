@@ -4,12 +4,14 @@ import {
   ApplyBatchApplication,
   SaveVolunteerOpportunity,
   UnsaveVolunteerOpportunity,
+  SubmitVolunteerReport,
 } from "~/api/volunteer";
 import {
   UploadApplicationDocumentSchema,
   ApplyApplicationInputSchema,
   BatchApplyApplicationInputSchema,
   type UploadApplicationDocumentInput,
+  type SubmitVolunteerReportInput,
 } from "~/features/volunteer/types";
 import type { Route as VolunteerDetailRoute } from "project-types/volunteer/route/+types/volunteer.$id";
 import {
@@ -43,6 +45,37 @@ export async function VolunteerDetailAction({
         result?.data ?? { ok: false, message: "Unexpected response format" },
       );
     } catch (error) {
+      return transformActionResponse(error);
+    }
+  }
+
+  if (actionType === "report-opportunity") {
+    const opportunityId =
+      String(formData.get("opportunityId") ?? "").trim() || id;
+    const typeId = String(formData.get("typeId") ?? "").trim();
+    const description = String(formData.get("description") ?? "").trim();
+
+    if (!opportunityId) {
+      return errorActionResponse("Opportunity ID is required for reporting.");
+    }
+
+    if (!typeId) {
+      return errorActionResponse("Please select a reason for reporting.");
+    }
+
+    const input: SubmitVolunteerReportInput = {
+      opportunityId,
+      typeId,
+      description: description || undefined,
+    };
+
+    try {
+      const result = await SubmitVolunteerReport(request, input);
+      return transformActionResponse(
+        result?.data ?? { ok: false, message: "Unexpected response format" },
+      );
+    } catch (error) {
+      if (error instanceof Response) throw error;
       return transformActionResponse(error);
     }
   }
