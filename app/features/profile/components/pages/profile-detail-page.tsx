@@ -64,9 +64,9 @@ export default function ProfileDetailPage() {
 
   if (!profile) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-400">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center text-gray-400">
         <p className="text-lg font-medium">Profile not found</p>
-        <p className="text-sm mt-1">
+        <p className="mt-1 text-sm">
           The user you are looking for does not exist or has been removed
         </p>
         <BackToButton to={"/"} className="mt-6" />
@@ -83,7 +83,7 @@ export default function ProfileDetailPage() {
     >
       <motion.div
         variants={itemVariants}
-        className="flex items-center justify-between mb-8"
+        className="mb-8 flex items-center justify-between"
       >
         <BackToButton to={"/"} />
       </motion.div>
@@ -93,9 +93,9 @@ export default function ProfileDetailPage() {
           profileImage={profile.profile.avatarKey ?? ""}
           profileName={profile.user.displayName ?? ""}
           occupation={profile.user.occupation ?? ""}
-          tierName={profile.tier.name}
-          cityName={profile.profile.city.name}
-          countryName={profile.profile.country.name}
+          tierName={profile.tier?.name}
+          cityName={profile.profile.city?.name}
+          countryName={profile.profile.country?.name}
           email={profile.user.email ?? ""}
           website={profile.socialLinks.website ?? ""}
           profileId={profile.user.id}
@@ -104,19 +104,19 @@ export default function ProfileDetailPage() {
 
       <motion.div variants={itemVariants}>
         <Tabs defaultValue={defaultTab} onValueChange={handleTabChange}>
-          <div className="w-full border-b mb-8">
-            <TabsList className="bg-transparent flex gap-10" variant={"line"}>
+          <div className="mb-8 w-full border-b">
+            <TabsList className="flex gap-10 bg-transparent" variant={"line"}>
               <TabsTrigger className={TAB_TRIGGER_CLASS} value="about">
                 About
               </TabsTrigger>
               <TabsTrigger className={TAB_TRIGGER_CLASS} value="forum">
-                Forum ({profile.postedCounts.forum})
+                Forum ({profile.postedCounts?.forum ?? 0})
               </TabsTrigger>
               <TabsTrigger className={TAB_TRIGGER_CLASS} value="volunteer">
-                Volunteer ({profile.postedCounts.volunteer})
+                Volunteer ({profile.postedCounts?.volunteer ?? 0})
               </TabsTrigger>
               <TabsTrigger className={TAB_TRIGGER_CLASS} value="project">
-                Launchpad ({profile.postedCounts.project})
+                Launchpad ({profile.postedCounts?.project ?? 0})
               </TabsTrigger>
             </TabsList>
           </div>
@@ -130,7 +130,7 @@ export default function ProfileDetailPage() {
             ) : (
               <div className="flex flex-col items-center justify-center py-16 text-gray-400">
                 <p className="text-lg font-medium">No information available</p>
-                <p className="text-sm mt-1">
+                <p className="mt-1 text-sm">
                   This user has not added any details yet
                 </p>
               </div>
@@ -160,7 +160,7 @@ export default function ProfileDetailPage() {
                   />
                 </>
               ) : (
-                <p className="text-center text-gray-500 py-8">
+                <p className="py-8 text-center text-gray-500">
                   No forum posts yet
                 </p>
               )}
@@ -168,7 +168,7 @@ export default function ProfileDetailPage() {
           </TabsContent>
 
           <TabsContent value="volunteer">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {isTabLoading ? (
                 Array.from({ length: 3 }).map((_, i) => (
                   <OpportunityCardSkeleton key={i} />
@@ -190,7 +190,7 @@ export default function ProfileDetailPage() {
                   </div>
                 </>
               ) : (
-                <p className="col-span-full text-center text-gray-500 py-8">
+                <p className="col-span-full py-8 text-center text-gray-500">
                   No volunteer posts yet
                 </p>
               )}
@@ -198,7 +198,7 @@ export default function ProfileDetailPage() {
           </TabsContent>
 
           <TabsContent value="project">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {isTabLoading ? (
                 Array.from({ length: 3 }).map((_, i) => (
                   <LaunchpadProjectCardSkeleton
@@ -226,7 +226,7 @@ export default function ProfileDetailPage() {
                   </div>
                 </>
               ) : (
-                <p className="col-span-full text-center text-gray-500 py-8">
+                <p className="col-span-full py-8 text-center text-gray-500">
                   No launchpad posts yet
                 </p>
               )}

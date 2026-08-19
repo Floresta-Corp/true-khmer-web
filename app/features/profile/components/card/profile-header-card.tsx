@@ -28,6 +28,7 @@ export default function ProfileHeaderCard({
   profileId,
 }: ProfileHeaderCardProps) {
   const displayImage = resolveImageURL(profileImage);
+  const location = [cityName, countryName].filter(Boolean).join(", ");
   const websiteUrl = website
     ? website.startsWith("http")
       ? website
@@ -61,9 +62,11 @@ export default function ProfileHeaderCard({
             >
               <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
             </svg>
-            <span className="shrink-0 rounded-full border border-amber-100 bg-amber-50 px-2.5 py-0.5 text-[9px] font-black tracking-wider text-amber-600 uppercase sm:text-[10px] dark:border-amber-900/30 dark:bg-amber-950/45 dark:text-amber-400">
-              {tierName}
-            </span>
+            {tierName && (
+              <span className="shrink-0 rounded-full border border-amber-100 bg-amber-50 px-2.5 py-0.5 text-[9px] font-black tracking-wider text-amber-600 uppercase sm:text-[10px] dark:border-amber-900/30 dark:bg-amber-950/45 dark:text-amber-400">
+                {tierName}
+              </span>
+            )}
           </div>
           <p className="text-sm leading-snug font-bold text-slate-500 sm:text-base dark:text-slate-400">
             {occupation}
@@ -84,10 +87,10 @@ export default function ProfileHeaderCard({
         </div>
       </div>
       <div className="relative flex flex-wrap gap-x-5 gap-y-2.5 border-t border-slate-200/60 bg-white/40 px-6 py-4 text-xs text-slate-600 sm:px-8 sm:text-sm dark:border-slate-800/60 dark:bg-slate-950/20 dark:text-slate-400">
-        {cityName && countryName && (
+        {location && (
           <div className="flex items-center gap-1.5">
             <MapPin size={14} />
-            <span className="font-bold">{`${cityName}, ${countryName}`}</span>
+            <span className="font-bold">{location}</span>
           </div>
         )}
         {email && (
