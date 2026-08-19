@@ -50,7 +50,7 @@ export function AuthPageShell({
             to={backTo ?? ".."}
             onClick={handleBack}
             className={cn(
-              "absolute left-5 top-5 z-10 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[1.1px] text-[#99A1AF] transition-colors hover:text-[#637081] lg:left-7 lg:top-7",
+              "group absolute left-5 top-5 z-10 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[1.1px] text-[#99A1AF] transition-colors hover:text-[#637081] lg:left-7 lg:top-7",
               backLinkClassName,
             )}
           >
@@ -62,7 +62,13 @@ export function AuthPageShell({
             >
               <ArrowLeft size={12} />
             </span>
-            {backLabel}
+            <span className="relative">
+              {backLabel}
+              <span
+                aria-hidden
+                className="absolute -bottom-0.5 left-0 h-px w-full origin-center scale-x-0 rounded-full bg-current transition-transform duration-200 ease-out group-hover:scale-x-100"
+              />
+            </span>
           </Link>
 
           <div
