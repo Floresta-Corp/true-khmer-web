@@ -50,7 +50,7 @@ export function AuthPageShell({
             to={backTo ?? ".."}
             onClick={handleBack}
             className={cn(
-              "group absolute left-5 top-5 z-10 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[1.1px] text-[#99A1AF] transition-colors hover:text-[#637081] lg:left-7 lg:top-7",
+              "group absolute top-5 left-5 z-10 inline-flex items-center gap-2 text-[11px] font-semibold tracking-[1.1px] text-[#99A1AF] uppercase transition-colors hover:text-[#637081] lg:top-7 lg:left-7",
               backLinkClassName,
             )}
           >
@@ -73,7 +73,7 @@ export function AuthPageShell({
 
           <div
             className={cn(
-              "tk-fade-up w-full max-w-sm pb-2 pt-10 lg:pb-2 lg:pt-11",
+              "tk-fade-up w-full max-w-sm pt-10 pb-2 lg:pt-11 lg:pb-2",
               contentClassName,
             )}
           >
@@ -87,7 +87,7 @@ export function AuthPageShell({
           ) : null}
           <div
             className={cn(
-              "relative flex h-full w-full items-center justify-center text-[42px] font-semibold leading-8 text-[#030213]",
+              "relative flex h-full w-full items-center justify-center text-[42px] leading-8 font-semibold text-[#030213]",
               rightPanelContentClassName,
             )}
           >
@@ -111,10 +111,10 @@ export function AuthBrandPanel() {
 
       <div className="relative flex h-full flex-col items-start justify-between p-16">
         <header className="w-full space-y-4">
-          <div className="inline-flex rounded-full border border-white/30 bg-white/20 px-3 py-1 text-xs font-bold uppercase leading-4 tracking-widest text-white shadow-sm backdrop-blur-md">
+          <div className="inline-flex rounded-full border border-white/30 bg-white/20 px-3 py-1 text-xs leading-4 font-bold tracking-widest text-white uppercase shadow-sm backdrop-blur-md">
             Global Business Excellence
           </div>
-          <h2 className="text-5xl font-bold leading-[60px] text-white">
+          <h2 className="text-5xl leading-[60px] font-bold text-white">
             Empowering
             <br />
             Cambodia&apos;s Future
@@ -128,12 +128,10 @@ export function AuthBrandPanel() {
                 <TrendingUp className="size-5" strokeWidth={2.25} />
               </div>
               <div>
-                <p className="text-sm font-semibold leading-5 text-white/80">
+                <p className="text-sm leading-5 font-semibold text-white/80">
                   Market Growth
                 </p>
-                <p className="text-xl font-bold leading-7">
-                  +24.8%
-                </p>
+                <p className="text-xl leading-7 font-bold">+24.8%</p>
               </div>
             </div>
 
@@ -155,20 +153,16 @@ export function AuthBrandPanel() {
 
           <div className="mt-6 grid grid-cols-2 border-t border-white/10 pt-6 text-center">
             <div className="border-r border-white/10">
-              <p className="text-xs font-normal uppercase leading-4 tracking-wide text-white/60">
+              <p className="text-xs leading-4 font-normal tracking-wide text-white/60 uppercase">
                 Active Users
               </p>
-              <p className="text-base font-bold leading-6">
-                1,842
-              </p>
+              <p className="text-base leading-6 font-bold">1,842</p>
             </div>
             <div>
-              <p className="text-xs font-normal uppercase leading-4 tracking-wide text-white/60">
+              <p className="text-xs leading-4 font-normal tracking-wide text-white/60 uppercase">
                 Projects
               </p>
-              <p className="text-base font-bold leading-6">
-                48
-              </p>
+              <p className="text-base leading-6 font-bold">48</p>
             </div>
           </div>
         </div>
@@ -183,21 +177,21 @@ export function RegisterBrandPanel() {
       <img
         src="/images/auth/tk-login-cover.png"
         alt="signup-cover"
-        className="absolute inset--0 h-full w-auto object-cover object-center opacity-40 mix-blend-overlay"
+        className="inset--0 absolute h-full w-auto object-cover object-center opacity-40 mix-blend-overlay"
       />
       <div className="absolute inset-0 [background:radial-gradient(ellipse_141%_141%_at_0%_0%,#005CE6_0%,rgba(0,92,230,0)_50%),radial-gradient(ellipse_71%_141%_at_50%_0%,#003399_0%,rgba(0,51,153,0)_50%),radial-gradient(ellipse_141%_141%_at_100%_0%,#0066CC_0%,rgba(0,102,204,0)_50%)]" />
 
       <div className="relative flex h-full items-center justify-center p-12">
         <div className="flex w-full max-w-lg flex-col gap-12">
           <header className="space-y-2">
-            <h2 className="text-3xl font-bold leading-9 text-white">
+            <h2 className="text-3xl leading-9 font-bold text-white">
               True Khmer
             </h2>
             <div className="h-1 w-12 rounded-full bg-indigo-300" />
           </header>
 
           <section className="space-y-8">
-            <h3 className="text-4xl font-bold leading-[45px] text-white">
+            <h3 className="text-4xl leading-[45px] font-bold text-white">
               Building the foundations of a smarter tomorrow.
             </h3>
 
@@ -209,10 +203,10 @@ export function RegisterBrandPanel() {
                   className="size-12 rounded-2xl"
                 />
                 <div>
-                  <p className="text-xl font-bold leading-7">
+                  <p className="text-xl leading-7 font-bold">
                     Digital Empowerment
                   </p>
-                  <p className="text-sm font-normal leading-5 text-indigo-300">
+                  <p className="text-sm leading-5 font-normal text-indigo-300">
                     Empowering Cambodia&apos;s Digital Future
                   </p>
                 </div>
@@ -220,14 +214,14 @@ export function RegisterBrandPanel() {
 
               <div className="grid grid-cols-2 gap-6 py-8">
                 <div>
-                  <p className="text-3xl font-bold leading-9">92%</p>
-                  <p className="text-xs font-semibold uppercase leading-4 tracking-wide text-indigo-300">
+                  <p className="text-3xl leading-9 font-bold">92%</p>
+                  <p className="text-xs leading-4 font-semibold tracking-wide text-indigo-300 uppercase">
                     User Satisfaction
                   </p>
                 </div>
                 <div>
-                  <p className="text-3xl font-bold leading-9">250+</p>
-                  <p className="text-xs font-semibold uppercase leading-4 tracking-wide text-indigo-300">
+                  <p className="text-3xl leading-9 font-bold">250+</p>
+                  <p className="text-xs leading-4 font-semibold tracking-wide text-indigo-300 uppercase">
                     Active Projects
                   </p>
                 </div>
@@ -250,11 +244,11 @@ export function RegisterBrandPanel() {
                     alt=""
                     className="size-10 rounded-full border-2 border-[#005CE6]/20 object-cover"
                   />
-                  <div className="flex size-10 items-center justify-center rounded-full border-2 border-[#005CE6]/20 bg-indigo-300 text-xs font-bold leading-4 text-sky-950">
+                  <div className="flex size-10 items-center justify-center rounded-full border-2 border-[#005CE6]/20 bg-indigo-300 text-xs leading-4 font-bold text-sky-950">
                     +15k
                   </div>
                 </div>
-                <p className="text-sm italic leading-5 text-white/80">
+                <p className="text-sm leading-5 text-white/80 italic">
                   Join our growing community.
                 </p>
               </div>
