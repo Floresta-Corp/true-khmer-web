@@ -26,7 +26,7 @@ import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { sanitizeRedirectPath } from "~/lib/redirects";
+import { getBackDestination, sanitizeRedirectPath } from "~/lib/redirects";
 
 const LOGIN_NOTICE_MESSAGES = {
   reset_password_success: "Password reset completed successfully.",
@@ -80,6 +80,7 @@ export default function LoginPage() {
   const navigation = useNavigation();
   const [searchParams] = useSearchParams();
   const redirectTo = sanitizeRedirectPath(searchParams.get("redirectTo"));
+  const back = getBackDestination(searchParams.get("redirectTo"));
   const notice = searchParams.get("notice");
   const successMessage = notice
     ? (LOGIN_NOTICE_MESSAGES[notice as keyof typeof LOGIN_NOTICE_MESSAGES] ??
@@ -106,8 +107,8 @@ export default function LoginPage() {
 
   return (
     <AuthPageShell
-      backTo="/"
-      backLabel="Back to Home"
+      backTo={back.to}
+      backLabel={back.label}
       leftSectionClassName="items-start justify-center px-6 py-10 sm:px-10 lg:px-8 lg:py-0 xl:px-12"
       contentClassName="max-w-md pb-10 pt-20 lg:pt-36 xl:pt-40"
       backLinkClassName="left-6 top-8 text-sm font-semibold normal-case tracking-normal text-[#1C5DD4] hover:text-[#164CB0] sm:left-10 lg:left-1/2 lg:top-16 lg:-translate-x-56 xl:top-24"
@@ -138,10 +139,10 @@ export default function LoginPage() {
           }}
           className="space-y-2"
         >
-          <h1 className="text-3xl font-bold leading-9 text-[#111827]">
+          <h1 className="text-3xl leading-9 font-bold text-[#111827]">
             Welcome Back
           </h1>
-          <p className="text-base font-normal leading-6 text-[#4B5563]">
+          <p className="text-base leading-6 font-normal text-[#4B5563]">
             Please enter your details to sign in.
           </p>
         </motion.header>
@@ -200,7 +201,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <Label
                 htmlFor="email"
-                className="block text-sm font-semibold leading-5 text-[#111827]"
+                className="block text-sm leading-5 font-semibold text-[#111827]"
               >
                 Email Address
               </Label>
@@ -247,7 +248,7 @@ export default function LoginPage() {
             </div>
 
             <div className="flex items-center justify-between gap-4">
-              <Label className="flex items-center gap-2 text-sm font-semibold leading-5 text-[#1D283A]">
+              <Label className="flex items-center gap-2 text-sm leading-5 font-semibold text-[#1D283A]">
                 <Checkbox
                   checked={rememberMe}
                   onCheckedChange={(checked) => setRememberMe(checked === true)}
@@ -259,7 +260,7 @@ export default function LoginPage() {
               <Button
                 asChild
                 variant="link"
-                className="h-auto px-0 text-sm font-semibold leading-5 text-[#1C5DD4] hover:text-[#164CB0]"
+                className="h-auto px-0 text-sm leading-5 font-semibold text-[#1C5DD4] hover:text-[#164CB0]"
               >
                 <Link to="/forgot-password">Forgot password?</Link>
               </Button>
@@ -277,7 +278,7 @@ export default function LoginPage() {
 
         <motion.p
           variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
-          className="text-center text-sm font-normal leading-5 text-[#4B5563]"
+          className="text-center text-sm leading-5 font-normal text-[#4B5563]"
         >
           New to True Khmer?{" "}
           <Link

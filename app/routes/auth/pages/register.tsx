@@ -46,7 +46,7 @@ import {
 } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
 import { sanitizePhoneNumber } from "~/lib/phone";
-import { sanitizeRedirectPath } from "~/lib/redirects";
+import { getBackDestination, sanitizeRedirectPath } from "~/lib/redirects";
 
 export const loader = registerLoader;
 export const action = registerAction;
@@ -107,7 +107,7 @@ function RegisterLabel({
   return (
     <Label
       htmlFor={htmlFor}
-      className="block text-sm font-semibold leading-5 text-zinc-900"
+      className="block text-sm leading-5 font-semibold text-zinc-900"
     >
       {children}
       {required ? <RequiredMark /> : null}
@@ -192,6 +192,7 @@ export default function RegisterPage() {
   const [googleError, setGoogleError] = useState("");
 
   const redirectTo = sanitizeRedirectPath(searchParams.get("redirectTo"));
+  const back = getBackDestination(searchParams.get("redirectTo"));
   const selectedPhoneCountry =
     phoneCountryOptions.find((option) => option.country === phoneCountry) ??
     ({
@@ -245,8 +246,8 @@ export default function RegisterPage() {
 
   return (
     <AuthPageShell
-      backTo="/"
-      backLabel="Back to Home"
+      backTo={back.to}
+      backLabel={back.label}
       leftSectionClassName="items-start justify-center px-6 py-10 sm:px-10 lg:px-8 lg:py-0 xl:px-12"
       contentClassName="max-w-md pb-10 pt-20 lg:pt-40"
       backLinkClassName="left-6 top-8 text-sm font-semibold normal-case tracking-normal text-[#1C5DD4] hover:text-[#164CB0] sm:left-10 lg:left-1/2 lg:top-24 lg:-translate-x-56"
@@ -257,10 +258,10 @@ export default function RegisterPage() {
     >
       <div className="space-y-8">
         <header className="space-y-2">
-          <h1 className="text-3xl font-bold leading-9 text-[#111827]">
+          <h1 className="text-3xl leading-9 font-bold text-[#111827]">
             Create Your Account
           </h1>
-          <p className="text-base font-normal leading-6 text-[#4B5563]">
+          <p className="text-base leading-6 font-normal text-[#4B5563]">
             Please choose your participation type
           </p>
         </header>
@@ -271,7 +272,7 @@ export default function RegisterPage() {
             onClick={() => setParticipation("member")}
             variant="ghost"
             className={cn(
-              "h-10 rounded-xl px-4 py-2 text-sm font-semibold leading-5 transition-colors",
+              "h-10 rounded-xl px-4 py-2 text-sm leading-5 font-semibold transition-colors",
               participation === "member"
                 ? "bg-white text-[#0046AC] shadow-sm"
                 : "text-[#434654]",
@@ -284,7 +285,7 @@ export default function RegisterPage() {
             onClick={() => setParticipation("partner")}
             variant="ghost"
             className={cn(
-              "h-10 rounded-xl px-4 py-2 text-sm font-semibold leading-5 transition-colors",
+              "h-10 rounded-xl px-4 py-2 text-sm leading-5 font-semibold transition-colors",
               participation === "partner"
                 ? "bg-white text-[#0046AC] shadow-sm"
                 : "text-[#434654]",
@@ -423,7 +424,7 @@ export default function RegisterPage() {
               >
                 <SelectTrigger
                   aria-label="Country calling code"
-                  className="h-full w-34 rounded-l-lg rounded-r-none border-[#C3C6D6] border-r-0 bg-slate-50 px-3 text-sm font-medium leading-5 text-[#434654] shadow-none focus:ring-[#2F6FE4]/20 focus:ring-offset-0"
+                  className="h-full w-34 rounded-l-lg rounded-r-none border-r-0 border-[#C3C6D6] bg-slate-50 px-3 text-sm leading-5 font-medium text-[#434654] shadow-none focus:ring-[#2F6FE4]/20 focus:ring-offset-0"
                 >
                   <span className="truncate">
                     {selectedPhoneCountry.dialCode}
@@ -475,15 +476,15 @@ export default function RegisterPage() {
               onValueChange={setGender}
               className="flex flex-wrap gap-6"
             >
-              <Label className="flex items-center gap-2 text-sm font-normal leading-5 text-zinc-900">
+              <Label className="flex items-center gap-2 text-sm leading-5 font-normal text-zinc-900">
                 <RadioGroupItem value="male" className="border-[#C3C6D6]" />
                 Male
               </Label>
-              <Label className="flex items-center gap-2 text-sm font-normal leading-5 text-zinc-900">
+              <Label className="flex items-center gap-2 text-sm leading-5 font-normal text-zinc-900">
                 <RadioGroupItem value="female" className="border-[#C3C6D6]" />
                 Female
               </Label>
-              <Label className="flex items-center gap-2 text-sm font-normal leading-5 text-zinc-900">
+              <Label className="flex items-center gap-2 text-sm leading-5 font-normal text-zinc-900">
                 <RadioGroupItem value="other" className="border-[#C3C6D6]" />
                 Other
               </Label>
@@ -493,7 +494,7 @@ export default function RegisterPage() {
             ) : null}
           </div>
 
-          <Label className="flex items-center gap-3 pl-1 text-sm font-semibold leading-5 text-gray-700">
+          <Label className="flex items-center gap-3 pl-1 text-sm leading-5 font-semibold text-gray-700">
             <Checkbox
               checked={agreeToDirectory}
               onCheckedChange={(checked) =>
@@ -513,7 +514,7 @@ export default function RegisterPage() {
           </Button>
         </Form>
 
-        <p className="text-center text-base font-normal leading-6 text-gray-700">
+        <p className="text-center text-base leading-6 font-normal text-gray-700">
           Already have an account?{" "}
           <Link
             to="/login"
