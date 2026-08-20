@@ -127,7 +127,7 @@ export function OpportunityCard({
       </div>
 
       <div className="flex flex-1 flex-col gap-6 p-5">
-        <div className="flex min-h-0 flex-1 flex-col gap-3">
+        <div className="flex shrink-0 grow basis-auto flex-col gap-3">
           <h3 className="text-[17px] leading-[21.25px] font-semibold tracking-[-0.43px] text-[#030213] transition-colors duration-300 group-hover:text-[#2f6fe4]">
             {opportunity.title}
           </h3>
@@ -137,7 +137,7 @@ export function OpportunityCard({
         </div>
 
         <div className="flex flex-1 flex-col gap-5">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 font-semibold sm:grid sm:grid-cols-3 sm:gap-1.75">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 font-semibold">
             <div className="flex items-center gap-[5.25px] text-[11px] whitespace-nowrap text-[#4a5565]">
               <Calendar size={13.5} className="shrink-0 text-slate-500" />
               <span className="text-zinc-800">
@@ -177,7 +177,7 @@ export function OpportunityCard({
               />
             </div>
           </div>
-          <div className="-mt-2 flex items-center text-xs">
+          <div className="-mt-2 flex items-center gap-1 text-xs">
             <span className="text-gray-400">Application close:</span>
             <span className="font-medium text-gray-700">
               {format(opportunity.applicationDeadline, "dd/MM/yyyy")}
