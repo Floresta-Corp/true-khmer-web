@@ -12,6 +12,13 @@ export function sanitizeRedirectPath(
   return redirectTo;
 }
 
+export function withRedirectTo(path: string, value: string | null | undefined) {
+  const redirectTo = sanitizeRedirectPath(value);
+  if (redirectTo === "/") return path;
+
+  return `${path}?redirectTo=${encodeURIComponent(redirectTo)}`;
+}
+
 const BACK_LABELS: Record<string, string> = {
   forum: "Back to Forum",
   launchpad: "Back to Launchpad",

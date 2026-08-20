@@ -71,7 +71,7 @@ export default function QuestionCard({
               <ProfileLinkWrapper
                 authorId={question.author.id}
                 isAuthor={isCurrentAuthor}
-                className="truncate text-xs font-semibold text-[#344256] sm:text-sm"
+                className="truncate text-xs font-semibold text-[#344256] no-underline underline-offset-4 sm:text-sm"
               >
                 {question.author.name}
               </ProfileLinkWrapper>
@@ -81,7 +81,7 @@ export default function QuestionCard({
               </span>
               <Link
                 to={`/forum?categoryId=${question.category.id}`}
-                className="inline-flex h-auto max-w-full truncate p-0 text-sm font-semibold text-blue-600"
+                className="inline-flex h-auto max-w-full truncate p-0 text-sm font-semibold text-blue-600 underline decoration-transparent decoration-1 underline-offset-4 transition-[color,text-decoration-color] duration-200 hover:text-blue-700 hover:decoration-blue-500"
               >
                 {question.category.name}
               </Link>

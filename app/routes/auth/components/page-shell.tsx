@@ -63,7 +63,13 @@ export function AuthPageShell({
             >
               <ArrowLeft size={12} />
             </span>
-            {backLabel}
+            <span className="relative">
+              {backLabel}
+              <span
+                aria-hidden
+                className="absolute -bottom-0.5 left-0 h-px w-full origin-center scale-x-0 rounded-full bg-current transition-transform duration-200 ease-out group-hover:scale-x-100"
+              />
+            </span>
           </Link>
 
           <div
@@ -172,7 +178,7 @@ export function RegisterBrandPanel() {
       <img
         src="/images/auth/tk-login-cover.png"
         alt="signup-cover"
-        className="inset--0 absolute h-full w-auto object-cover object-center opacity-40 mix-blend-overlay"
+        className="absolute inset-0 h-full w-auto object-cover object-center opacity-40 mix-blend-overlay"
       />
       <div className="absolute inset-0 [background:radial-gradient(ellipse_141%_141%_at_0%_0%,#005CE6_0%,rgba(0,92,230,0)_50%),radial-gradient(ellipse_71%_141%_at_50%_0%,#003399_0%,rgba(0,51,153,0)_50%),radial-gradient(ellipse_141%_141%_at_100%_0%,#0066CC_0%,rgba(0,102,204,0)_50%)]" />
 

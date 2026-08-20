@@ -26,7 +26,11 @@ import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { getBackDestination, sanitizeRedirectPath } from "~/lib/redirects";
+import {
+  getBackDestination,
+  sanitizeRedirectPath,
+  withRedirectTo,
+} from "~/lib/redirects";
 
 const LOGIN_NOTICE_MESSAGES = {
   reset_password_success: "Password reset completed successfully.",
@@ -262,7 +266,15 @@ export default function LoginPage() {
                 variant="link"
                 className="h-auto px-0 text-sm leading-5 font-semibold text-[#1C5DD4] hover:text-[#164CB0]"
               >
-                <Link to="/forgot-password">Forgot password?</Link>
+                <Link to="/forgot-password">
+                  <span className="relative">
+                    Forgot password?
+                    <span
+                      aria-hidden
+                      className="absolute -bottom-0.5 left-0 h-px w-full origin-center scale-x-0 rounded-full bg-current transition-transform duration-200 ease-out group-hover:scale-x-100"
+                    />
+                  </span>
+                </Link>
               </Button>
             </div>
 
@@ -282,10 +294,16 @@ export default function LoginPage() {
         >
           New to True Khmer?{" "}
           <Link
-            to="/register"
-            className="font-semibold text-[#1C5DD4] transition-colors hover:text-[#164CB0]"
+            to={withRedirectTo("/register", searchParams.get("redirectTo"))}
+            className="group font-semibold text-[#1C5DD4] no-underline transition-colors duration-200 hover:text-[#164CB0] hover:no-underline"
           >
-            Join the community
+            <span className="relative">
+              Join the community
+              <span
+                aria-hidden
+                className="absolute -bottom-0.5 left-0 h-px w-full origin-center scale-x-0 rounded-full bg-current transition-transform duration-200 ease-out group-hover:scale-x-100"
+              />
+            </span>
           </Link>
         </motion.p>
       </motion.div>

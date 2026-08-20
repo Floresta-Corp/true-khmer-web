@@ -46,7 +46,11 @@ import {
 } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
 import { sanitizePhoneNumber } from "~/lib/phone";
-import { getBackDestination, sanitizeRedirectPath } from "~/lib/redirects";
+import {
+  getBackDestination,
+  sanitizeRedirectPath,
+  withRedirectTo,
+} from "~/lib/redirects";
 
 export const loader = registerLoader;
 export const action = registerAction;
@@ -517,7 +521,7 @@ export default function RegisterPage() {
         <p className="text-center text-base leading-6 font-normal text-gray-700">
           Already have an account?{" "}
           <Link
-            to="/login"
+            to={withRedirectTo("/login", searchParams.get("redirectTo"))}
             className="font-bold text-[#1C5DD4] transition-colors hover:text-[#164CB0]"
           >
             Sign In
