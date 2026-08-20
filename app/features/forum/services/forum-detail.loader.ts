@@ -4,8 +4,8 @@ import {
   getAnswersByQuestionId,
   getPublicQuestionById,
   getPublicAnswersByQuestionId,
-  GetPublicReportType,
 } from "~/api/forum/forum.server";
+import { GetPublicReportType } from "~/api/reporting";
 import type {
   AnswerResponse,
   QuestionResponse,

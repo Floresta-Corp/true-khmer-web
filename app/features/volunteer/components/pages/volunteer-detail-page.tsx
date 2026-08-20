@@ -8,7 +8,13 @@ import CommunityImpactSection from "../sections/project-impact-section";
 import ApplicationSummary from "../sections/application-summary";
 import BackToButton from "~/components/back-to-button";
 import { Card, CardContent } from "~/components/ui/card";
-import { useLoaderData, useFetcher, useSearchParams } from "react-router";
+import {
+  useLoaderData,
+  useFetcher,
+  useSearchParams,
+  useLocation,
+  useNavigate,
+} from "react-router";
 import type { loader } from "../../route/volunteer.$id";
 import { Bookmark, EllipsisVertical, Flag } from "lucide-react";
 import { Button } from "~/components/ui/button";
@@ -28,14 +34,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import AvailableRolesSection from "../sections/available-role-section";
 import { Separator } from "~/components/ui/separator";
 import OrganizerCard from "../sections/organizer-card";
+import VolunteerReportDialog from "../dialog/volunteer-report-dialog";
 
 interface VolunteerDetailPageProps {}
 
 export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
-  const { userId, volunteer } = useLoaderData<typeof loader>();
+  const { userId, volunteer, reportReasons } = useLoaderData<typeof loader>();
   const prefersReducedMotion = useReducedMotion();
   const fetcher = useFetcher();
   const [isSaved, setIsSaved] = useState(volunteer?.viewerSave ?? false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const redirectTo = `${location.pathname}${location.search}`;
+  const reportReasonOptions =
+    reportReasons?.reportingTypes.map((v) => ({
+      id: v.id,
+      reason: v.type,
+    })) ?? [];
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<"details" | "open-roles">(
     searchParams.get("tab") === "open-roles" ? "open-roles" : "details",
@@ -95,7 +111,11 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
   };
 
   const handleReport = () => {
-    toast.success("Report submitted");
+    if (!userId) {
+      navigate(`/login?redirectTo=${encodeURIComponent(redirectTo)}`);
+      return;
+    }
+    setReportOpen(true);
   };
 
   const tabItemClassName =
@@ -146,21 +166,20 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
                   type="button"
                   variant="ghost"
                   size="icon"
+                  aria-label="More options"
                   className="size-8.75 cursor-pointer rounded-[16px] border-0 bg-[#f8fafb] text-[#9eacc0] hover:bg-[#eff3f8] hover:text-[#65758b]"
                 >
                   <EllipsisVertical className="size-4.5 md:size-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-40">
-                {/* <DropdownMenuItem
-                  onClick={handleCopyLink}
-                  className="cursor-pointer gap-2"
-                >
-                  <LinkIcon className="size-3.5" />
-                  Copy Link
-                </DropdownMenuItem> */}
                 <DropdownMenuItem
-                  onClick={handleReport}
+                  onSelect={(event) => {
+                    // Keep Radix from returning focus to the menu trigger while the
+                    // report dialog is mounting, which would steal focus from it.
+                    event.preventDefault();
+                    handleReport();
+                  }}
                   className="cursor-pointer gap-2"
                 >
                   <Flag className="size-4.5 md:size-4" />
@@ -168,6 +187,17 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            {userId && (
+              <VolunteerReportDialog
+                opportunityId={volunteer.id}
+                title={volunteer.title}
+                isAuthenticated={!!userId}
+                reportReasons={reportReasonOptions}
+                open={reportOpen}
+                onOpenChange={setReportOpen}
+              />
+            )}
           </div>
         </motion.div>
 
