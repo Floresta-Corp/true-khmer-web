@@ -14,6 +14,7 @@ import {
   type SubmitVolunteerReportInput,
 } from "~/features/volunteer/types";
 import type { Route as VolunteerDetailRoute } from "project-types/volunteer/route/+types/volunteer.$id";
+import { AuthSessionExpiredError } from "~/lib/server/api-client.server";
 import {
   transformActionResponse,
   errorActionResponse,
@@ -71,10 +72,14 @@ export async function VolunteerDetailAction({
 
     try {
       const result = await SubmitVolunteerReport(request, input);
-      return transformActionResponse(
-        result?.data ?? { ok: false, message: "Unexpected response format" },
-      );
+      return transformActionResponse(result.data);
     } catch (error) {
+      if (error instanceof Response) throw error;
+      if (error instanceof AuthSessionExpiredError) {
+        return errorActionResponse(
+          "Your session expired. Please log in again.",
+        );
+      }
       return transformActionResponse(error);
     }
   }

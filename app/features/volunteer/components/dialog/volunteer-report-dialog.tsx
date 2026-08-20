@@ -52,25 +52,24 @@ export default function VolunteerReportDialog({
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : uncontrolledOpen;
 
-  function setOpen(next: boolean) {
-    if (!isControlled) setUncontrolledOpen(next);
-    onOpenChange?.(next);
-  }
-
   function reset() {
     setSelectedReason(null);
     setDetails("");
   }
 
+  function setOpen(next: boolean) {
+    if (!next) reset();
+    if (!isControlled) setUncontrolledOpen(next);
+    onOpenChange?.(next);
+  }
+
   function handleCancel() {
     setOpen(false);
-    reset();
   }
 
   useFetcherOutcome(fetcher, {
     onSuccess: (message) => {
       setOpen(false);
-      reset();
       toast.success(message ?? "Report submitted successfully.");
     },
     onError: (message) => {
@@ -80,7 +79,7 @@ export default function VolunteerReportDialog({
 
   const redirectTo = `${location.pathname}${location.search}`;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
-  const isSubmitting = fetcher.state === "submitting";
+  const isSubmitting = fetcher.state !== "idle";
 
   if (!isAuthenticated) {
     if (trigger) {
