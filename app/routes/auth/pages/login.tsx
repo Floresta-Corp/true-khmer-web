@@ -138,10 +138,10 @@ export default function LoginPage() {
           }}
           className="space-y-2"
         >
-          <h1 className="text-3xl font-bold leading-9 text-[#111827]">
+          <h1 className="text-3xl leading-9 font-bold text-[#111827]">
             Welcome Back
           </h1>
-          <p className="text-base font-normal leading-6 text-[#4B5563]">
+          <p className="text-base leading-6 font-normal text-[#4B5563]">
             Please enter your details to sign in.
           </p>
         </motion.header>
@@ -200,7 +200,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <Label
                 htmlFor="email"
-                className="block text-sm font-semibold leading-5 text-[#111827]"
+                className="block text-sm leading-5 font-semibold text-[#111827]"
               >
                 Email Address
               </Label>
@@ -247,7 +247,7 @@ export default function LoginPage() {
             </div>
 
             <div className="flex items-center justify-between gap-4">
-              <Label className="flex items-center gap-2 text-sm font-semibold leading-5 text-[#1D283A]">
+              <Label className="flex items-center gap-2 text-sm leading-5 font-semibold text-[#1D283A]">
                 <Checkbox
                   checked={rememberMe}
                   onCheckedChange={(checked) => setRememberMe(checked === true)}
@@ -259,9 +259,17 @@ export default function LoginPage() {
               <Button
                 asChild
                 variant="link"
-                className="h-auto px-0 text-sm font-semibold leading-5 text-[#1C5DD4] hover:text-[#164CB0]"
+                className="group h-auto px-0 text-sm leading-5 font-semibold text-[#1C5DD4] no-underline transition-colors duration-200 hover:text-[#164CB0] hover:no-underline"
               >
-                <Link to="/forgot-password">Forgot password?</Link>
+                <Link to="/forgot-password">
+                  <span className="relative">
+                    Forgot password?
+                    <span
+                      aria-hidden
+                      className="absolute -bottom-0.5 left-0 h-px w-full origin-center scale-x-0 rounded-full bg-current transition-transform duration-200 ease-out group-hover:scale-x-100"
+                    />
+                  </span>
+                </Link>
               </Button>
             </div>
 
@@ -277,14 +285,20 @@ export default function LoginPage() {
 
         <motion.p
           variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
-          className="text-center text-sm font-normal leading-5 text-[#4B5563]"
+          className="text-center text-sm leading-5 font-normal text-[#4B5563]"
         >
           New to True Khmer?{" "}
           <Link
             to="/register"
-            className="font-semibold text-[#1C5DD4] transition-colors hover:text-[#164CB0]"
+            className="group font-semibold text-[#1C5DD4] no-underline transition-colors duration-200 hover:text-[#164CB0] hover:no-underline"
           >
-            Join the community
+            <span className="relative">
+              Join the community
+              <span
+                aria-hidden
+                className="absolute -bottom-0.5 left-0 h-px w-full origin-center scale-x-0 rounded-full bg-current transition-transform duration-200 ease-out group-hover:scale-x-100"
+              />
+            </span>
           </Link>
         </motion.p>
       </motion.div>
