@@ -51,7 +51,7 @@ export function AuthPageShell({
             replace
             onClick={handleBack}
             className={cn(
-              "absolute top-5 left-5 z-10 inline-flex items-center gap-2 text-[11px] font-semibold tracking-[1.1px] text-[#99A1AF] uppercase transition-colors hover:text-[#637081] lg:top-7 lg:left-7",
+              "group absolute top-5 left-5 z-10 inline-flex items-center gap-2 text-[11px] font-semibold tracking-[1.1px] text-[#99A1AF] uppercase transition-colors hover:text-[#637081] lg:top-7 lg:left-7",
               backLinkClassName,
             )}
           >

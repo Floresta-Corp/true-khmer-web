@@ -264,7 +264,7 @@ export default function LoginPage() {
               <Button
                 asChild
                 variant="link"
-                className="h-auto px-0 text-sm leading-5 font-semibold text-[#1C5DD4] hover:text-[#164CB0]"
+                className="group h-auto px-0 text-sm leading-5 font-semibold text-[#1C5DD4] no-underline transition-colors duration-200 hover:text-[#164CB0] hover:no-underline"
               >
                 <Link to="/forgot-password">
                   <span className="relative">
