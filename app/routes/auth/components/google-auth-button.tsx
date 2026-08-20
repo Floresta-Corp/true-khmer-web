@@ -49,6 +49,12 @@ const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as
   | string
   | undefined;
 
+const GSI_WIDTH = 400;
+const GSI_HEIGHT = 40;
+
+const clientId = googleClientId?.trim();
+const isConfigured = Boolean(clientId);
+
 let googleScriptPromise: Promise<void> | null = null;
 
 function loadGoogleIdentityScript() {
@@ -97,6 +103,8 @@ export function GoogleAuthButton({
   const [isReady, setIsReady] = useState(false);
   const isSubmitting = navigation.state === "submitting";
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
   const onErrorRef = useRef(onError);
   const callbackRef = useRef<
     ((response: GoogleCredentialResponse) => void) | null
@@ -105,6 +113,19 @@ export function GoogleAuthButton({
   useEffect(() => {
     onErrorRef.current = onError;
   }, [onError]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setSize({ width, height });
+    });
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
 
   callbackRef.current = (response) => {
     const idToken = response.credential?.trim();
@@ -152,7 +173,7 @@ export function GoogleAuthButton({
             size: "large",
             text: "continue_with",
             theme: "outline",
-            width: 420,
+            width: GSI_WIDTH,
           });
         }
 
@@ -173,25 +194,49 @@ export function GoogleAuthButton({
       cancelled = true;
     };
   }, []);
+  const isInteractive = !(
+    disabled ||
+    isSubmitting ||
+    (isConfigured && !isReady)
+  );
 
   return (
-    <div className="relative w-full">
+    <div ref={containerRef} className="relative w-full">
       <GoogleButton
         className={className}
-        disabled={disabled || isSubmitting || !isReady}
-        tabIndex={-1}
-        aria-hidden="true"
+        disabled={!isInteractive}
+        tabIndex={isConfigured ? -1 : undefined}
+        aria-hidden={isConfigured ? "true" : undefined}
+        onClick={
+          isConfigured
+            ? undefined
+            : () =>
+                onErrorRef.current?.(
+                  "Google sign-in is unavailable right now. Please use email instead.",
+                )
+        }
       >
         {isSubmitting ? "Continuing..." : children}
       </GoogleButton>
-      <div
-        ref={googleButtonRef}
-        aria-label="Continue with Google"
-        className="absolute inset-0 overflow-hidden opacity-0"
-        style={{
-          pointerEvents: disabled || isSubmitting || !isReady ? "none" : "auto",
-        }}
-      />
+      {isConfigured && (
+        <div
+          className="absolute inset-0 overflow-hidden opacity-0"
+          style={{ pointerEvents: isInteractive ? "auto" : "none" }}
+        >
+          <div
+            ref={googleButtonRef}
+            aria-label="Continue with Google"
+            style={{
+              width: GSI_WIDTH,
+              height: GSI_HEIGHT,
+              transformOrigin: "top left",
+              transform: `scale(${(size.width || GSI_WIDTH) / GSI_WIDTH}, ${
+                (size.height || GSI_HEIGHT) / GSI_HEIGHT
+              })`,
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
