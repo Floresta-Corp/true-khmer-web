@@ -136,7 +136,7 @@ export default function NotificationBellPopOver() {
         >
           <Bell className="h-3.5 w-3.5" />
           {localUnreadCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 size-1.5 animate-ping rounded-full bg-[#fb2c36]" />
+            <span className="absolute top-1.5 right-1.5 size-1.5 rounded-full bg-[#fb2c36]" />
           )}
         </Button>
       </PopoverTrigger>
