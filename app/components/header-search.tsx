@@ -117,7 +117,7 @@ export default function HeaderSearch({
           <Button
             size="lg"
             className={cn(
-              "h-14 w-full min-w-0 cursor-pointer gap-1.5 rounded-[18px] bg-[#2f6fe4] px-6 text-sm font-medium text-[#f8fafc] shadow-[0_8px_24px_rgba(15,23,42,0.04)] hover:bg-[#245fca] md:w-auto md:min-w-47.75",
+              "h-14 w-full min-w-0 cursor-pointer gap-1.5 rounded-xl bg-[#2f6fe4] px-6 text-sm font-medium text-[#f8fafc] shadow-[0_8px_24px_rgba(15,23,42,0.04)] hover:bg-[#245fca] md:w-auto md:min-w-47.75",
               buttonWidth ? `w-[${buttonWidth}]` : "",
             )}
           >

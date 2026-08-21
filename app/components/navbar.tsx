@@ -157,16 +157,39 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                   key={link.to}
                   to={link.to}
                   className={cn(
-                    "relative flex items-center gap-1.5 text-sm text-[#344256] transition-all",
+                    "group relative flex items-center gap-1.5 text-sm text-[#344256] transition-colors duration-200",
                     link === navLinks[0] &&
                       "mr-1 border-r border-[#c8d6e5] pr-6",
-                    isActive
-                      ? "font-semibold text-blue-600"
-                      : "hover:font-semibold hover:text-blue-600",
+                    isActive ? "text-blue-600" : "hover:text-blue-600",
                   )}
                 >
                   <link.icon className="h-4 w-4" />
-                  <span>{link.label}</span>
+
+                  <span className="relative grid">
+                    <span
+                      aria-hidden
+                      className="invisible col-start-1 row-start-1 font-semibold"
+                    >
+                      {link.label}
+                    </span>
+                    <span
+                      className={cn(
+                        "col-start-1 row-start-1",
+                        isActive && "font-semibold",
+                      )}
+                    >
+                      {link.label}
+                    </span>
+                    <span
+                      aria-hidden
+                      className={cn(
+                        "absolute -bottom-1 left-0 h-0.5 w-full origin-center rounded-full bg-blue-600 transition-transform duration-200 ease-out",
+                        isActive
+                          ? "scale-x-100"
+                          : "scale-x-0 group-hover:scale-x-100",
+                      )}
+                    />
+                  </span>
                 </Link>
               );
             })}

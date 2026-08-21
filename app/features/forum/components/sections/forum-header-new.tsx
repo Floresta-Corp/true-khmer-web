@@ -140,7 +140,7 @@ export default function ForumHeaderNew() {
                 opacity: isSearching ? 0.95 : 1,
               }}
               transition={{ type: "spring", stiffness: 500, damping: 32 }}
-              className="rounded-xl bg-blue-500 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-500/20 transition-[background-color,box-shadow,opacity,transform] duration-300 hover:bg-blue-600 hover:shadow-blue-500/30 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none disabled:hover:bg-slate-300"
+              className="cursor-pointer rounded-lg bg-blue-500 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-500/20 transition-[background-color,box-shadow,opacity,transform] duration-300 hover:bg-blue-600 hover:shadow-blue-500/30 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none disabled:hover:bg-slate-300"
             >
               <motion.span
                 animate={{ y: isSearching ? -1 : 0 }}
@@ -158,7 +158,7 @@ export default function ForumHeaderNew() {
             trigger={
               <button
                 type="button"
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#0050d4] px-6 text-base font-semibold text-[#f1f2ff] transition-colors hover:bg-[#0044b4] md:h-11 md:rounded-xl"
+                className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#0050d4] px-6 text-base font-semibold text-[#f1f2ff] transition-colors hover:bg-[#0044b4] md:h-11 md:rounded-lg"
               >
                 <span className="text-[18px] leading-none">+</span>
                 Ask a Question

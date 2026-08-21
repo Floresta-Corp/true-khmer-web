@@ -26,20 +26,20 @@ export default function OnboardingCompletedPage() {
 
       <section className="relative z-10 flex w-full max-w-263 flex-col items-center gap-8 text-center">
         <div className="tk-fade-up flex w-full flex-col items-center justify-center px-2">
-          <h1 className="w-full text-[0px] font-medium leading-0 text-[#174FB4]">
-            <span className="block text-[48px] font-normal leading-17.5 text-[#174FB4]">
+          <h1 className="w-full text-[0px] leading-0 font-medium text-[#174FB4]">
+            <span className="block text-[48px] leading-17.5 font-normal text-[#174FB4]">
               You&apos;re in.
             </span>
-            <span className="text-[68px] font-medium leading-17.5 text-[#174FB4]">
+            <span className="text-[68px] leading-17.5 font-medium text-[#174FB4]">
               Explore at your{" "}
             </span>
-            <span className="text-[68px] font-bold leading-17.5 text-[#32A8FF]">
+            <span className="text-[68px] leading-17.5 font-bold text-[#32A8FF]">
               Pace.
             </span>
           </h1>
         </div>
 
-        <p className="tk-fade-up-1 max-w-153.5 text-[20px] font-medium leading-7.5 text-[#65758B]">
+        <p className="tk-fade-up-1 max-w-153.5 text-[20px] leading-7.5 font-medium text-[#65758B]">
           Your profile is live and you&apos;ve already earned{" "}
           <span className="font-bold text-[#2F6FE4]">10 points</span> for
           setting up. Your journey as a <span className="font-bold">Neary</span>{" "}
@@ -54,19 +54,19 @@ export default function OnboardingCompletedPage() {
 
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3">
               <div className="w-54 text-left">
-                <p className="text-sm font-semibold leading-5 text-black">
+                <p className="text-sm leading-5 font-semibold text-black">
                   10 points earned
                 </p>
-                <p className="text-xs font-medium leading-5 text-[#65758B]">
+                <p className="text-xs leading-5 font-medium text-[#65758B]">
                   Profile complete
                 </p>
               </div>
 
               <div className="text-right">
-                <p className="text-xs font-normal leading-5 text-[#48566A]">
+                <p className="text-xs leading-5 font-normal text-[#48566A]">
                   Current tier
                 </p>
-                <p className="text-base font-semibold leading-5 text-[#2F6FE4]">
+                <p className="text-base leading-5 font-semibold text-[#2F6FE4]">
                   Neary
                 </p>
               </div>
@@ -74,13 +74,13 @@ export default function OnboardingCompletedPage() {
           </div>
         </div>
 
-        <p className="tk-fade-up-2 max-w-114.75 text-sm font-normal leading-5.25 text-[#65758B]">
+        <p className="tk-fade-up-2 max-w-114.75 text-sm leading-5.25 font-normal text-[#65758B]">
           Your suggested first actions are waiting whenever you&apos;re ready.
         </p>
 
         <Link
           to="/"
-          className="tk-fade-up-3 inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white"
+          className="tk-fade-up-3 inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white transition-colors hover:bg-[#1F62DF] focus-visible:ring-2 focus-visible:ring-[#2F6FE4]/40 focus-visible:ring-offset-2 focus-visible:outline-none"
         >
           Go to home
           <ArrowRight size={24} />

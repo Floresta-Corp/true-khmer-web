@@ -92,7 +92,7 @@ export function HomeHeroSection({ isAuthenticated }: HomeHeroSectionProps) {
         </p>
         <div className="mt-12 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
           <Button
-            asChild
+            // asChild
             className="h-11 w-full rounded-lg border border-[#1c5dd4] bg-[#1c5dd4] px-5 text-sm font-medium text-white hover:bg-[#174fb4] sm:w-auto"
           >
             <Link to="/register">Join as a Member</Link>

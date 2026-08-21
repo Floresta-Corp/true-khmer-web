@@ -259,9 +259,17 @@ export default function LoginPage() {
               <Button
                 asChild
                 variant="link"
-                className="h-auto px-0 text-sm leading-5 font-semibold text-[#1C5DD4] hover:text-[#164CB0]"
+                className="group h-auto px-0 text-sm leading-5 font-semibold text-[#1C5DD4] no-underline transition-colors duration-200 hover:text-[#164CB0] hover:no-underline"
               >
-                <Link to="/forgot-password">Forgot password?</Link>
+                <Link to="/forgot-password">
+                  <span className="relative">
+                    Forgot password?
+                    <span
+                      aria-hidden
+                      className="absolute -bottom-0.5 left-0 h-px w-full origin-center scale-x-0 rounded-full bg-current transition-transform duration-200 ease-out group-hover:scale-x-100"
+                    />
+                  </span>
+                </Link>
               </Button>
             </div>
 
@@ -282,9 +290,15 @@ export default function LoginPage() {
           New to True Khmer?{" "}
           <Link
             to="/register"
-            className="font-semibold text-[#1C5DD4] transition-colors hover:text-[#164CB0]"
+            className="group font-semibold text-[#1C5DD4] no-underline transition-colors duration-200 hover:text-[#164CB0] hover:no-underline"
           >
-            Join the community
+            <span className="relative">
+              Join the community
+              <span
+                aria-hidden
+                className="absolute -bottom-0.5 left-0 h-px w-full origin-center scale-x-0 rounded-full bg-current transition-transform duration-200 ease-out group-hover:scale-x-100"
+              />
+            </span>
           </Link>
         </motion.p>
       </motion.div>
