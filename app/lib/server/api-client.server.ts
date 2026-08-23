@@ -61,6 +61,7 @@ export class InvalidApiResponseError extends Error {
 type RequestOptions<K extends object = JsonObject> = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: K | undefined;
+  headers?: Record<string, string>;
 };
 
 export type ApiResult<T> = {
@@ -115,6 +116,7 @@ async function fetchWithBearer<K extends object = JsonObject>(
     headers: {
       Authorization: `Bearer ${accessToken}`,
       ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...options.headers,
     },
     ...(options.body ? { body: JSON.stringify(options.body) } : {}),
   });
@@ -194,6 +196,7 @@ export async function apiRequestPublic<T, K extends object = JsonObject>(
     credentials: "include",
     headers: {
       ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...options.headers,
     },
     ...(options.body ? { body: JSON.stringify(options.body) } : {}),
   });

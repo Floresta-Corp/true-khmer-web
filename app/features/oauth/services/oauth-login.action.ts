@@ -6,8 +6,11 @@ import {
   isTwoFactorRequiredResponse,
   loginUser,
 } from "~/services/auth/api.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
+import { toOAuthSessionUser } from "../lib/oauth-user";
 import type { OAuthLoginActionData, OAuthLoginFieldErrors } from "../types";
 import { isAllowedOauthOrigin } from "./oauth-origin.server";
+import { commitOAuthSession } from "./oauth-session.server";
 
 export type { OAuthLoginActionData, OAuthLoginFieldErrors } from "../types";
 
@@ -48,6 +51,7 @@ function oauthLoginError(error: unknown): OAuthLoginActionData {
 
 export async function oauthLoginAction({ request }: Route.ActionArgs) {
   const url = new URL(request.url);
+  const clientId = url.searchParams.get("client_id");
   if (!isAllowedOauthOrigin(url.searchParams.get("origin"))) {
     return {
       errors: {
@@ -88,17 +92,25 @@ export async function oauthLoginAction({ request }: Route.ActionArgs) {
       } satisfies OAuthLoginActionData;
     }
 
-    const displayName =
-      auth.user.name ||
-      [auth.user.firstName, auth.user.lastName].filter(Boolean).join(" ") ||
-      auth.user.email;
-
-    return {
+    const success = {
       success: {
         accessToken: auth.accessToken,
-        user: { id: auth.user.id, name: displayName, email: auth.user.email },
+        user: toOAuthSessionUser(auth.user),
       },
     } satisfies OAuthLoginActionData;
+
+    // Keep the issued token in the popup's own cookie so reopening the window
+    // skips the login form. It is deliberately separate from the normal user
+    // and admin sessions.
+    const setCookie = clientId
+      ? await commitOAuthSession(request, {
+          accessToken: auth.accessToken,
+          userId: auth.user.id,
+          clientId,
+        })
+      : undefined;
+
+    return withAuthData({ setCookie }, success);
   } catch (error) {
     return oauthLoginError(error);
   }
