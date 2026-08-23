@@ -204,6 +204,7 @@ export default [
   ),
   route("tk-admin/logout", "features/admin/auth/route/admin-logout.tsx"),
 
+  route("oauth/login", "features/oauth/route/oauth-login.tsx"),
   route("login", "routes/auth/pages/login.tsx"),
   route("login/2fa", "routes/auth/pages/login-2fa.tsx"),
   route("register", "routes/auth/pages/register.tsx"),
