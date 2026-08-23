@@ -168,6 +168,10 @@ export default [
       "features/admin/admin-audit-log/route/admin-audit-log.tsx",
     ),
     route(
+      "developer-clients",
+      "features/admin/developer-clients/route/developer-clients.tsx",
+    ),
+    route(
       "manage-forum",
       "features/admin/manage-content/route/manage-forum.tsx",
     ),

@@ -37,6 +37,8 @@ function getActiveMenu(pathname: string) {
   if (pathname.startsWith("/tk-admin/blog")) return "blog";
   if (pathname.startsWith("/tk-admin/manage-moderator/team")) return "myteam";
   if (pathname.startsWith("/tk-admin/admin-audit-log")) return "audit-log";
+  if (pathname.startsWith("/tk-admin/developer-clients"))
+    return "developer-clients";
   if (pathname.startsWith("/tk-admin/manage-forum")) return "manage-forum";
   if (pathname.startsWith("/tk-admin/manage-launchpad"))
     return "manage-launchpad";
