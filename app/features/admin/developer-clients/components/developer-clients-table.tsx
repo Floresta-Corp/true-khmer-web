@@ -7,7 +7,7 @@ import {
   RefreshCw,
   Trash2,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   AdminHeaderCell,
@@ -55,6 +55,15 @@ function StatusBadge({ status }: { status: DeveloperClient["status"] }) {
 
 function ClientIdCell({ clientId }: { clientId: string }) {
   const [copied, setCopied] = useState(false);
+  const resetTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (resetTimeoutRef.current !== null) {
+        window.clearTimeout(resetTimeoutRef.current);
+      }
+    };
+  }, []);
 
   async function handleCopy() {
     const ok = await copyToClipboard(clientId, {
@@ -63,7 +72,10 @@ function ClientIdCell({ clientId }: { clientId: string }) {
     });
     if (!ok) return;
     setCopied(true);
-    window.setTimeout(() => setCopied(false), 1500);
+    if (resetTimeoutRef.current !== null) {
+      window.clearTimeout(resetTimeoutRef.current);
+    }
+    resetTimeoutRef.current = window.setTimeout(() => setCopied(false), 1500);
   }
 
   return (

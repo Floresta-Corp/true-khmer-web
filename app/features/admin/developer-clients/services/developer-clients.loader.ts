@@ -1,9 +1,8 @@
-import { data, redirect } from "react-router";
+import { data } from "react-router";
 import type { Route } from "project-types/admin/developer-clients/route/+types/developer-clients";
 
 import { getDeveloperClients } from "~/api/admin/developer-clients/developer-clients.server";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
-import { getAdminAccessToken } from "~/lib/server/session.server";
 import type {
   DeveloperClientSortField,
   DeveloperClientSortOrder,
@@ -33,12 +32,10 @@ function oneOf<T extends string>(
 }
 
 export async function developerClientsLoader({ request }: Route.LoaderArgs) {
-  await requireSuperAdmin(request, RESTRICTED_MESSAGE);
-
-  const { accessToken, setCookie } = await getAdminAccessToken(request);
-  if (!accessToken) {
-    throw redirect("/tk-admin/login");
-  }
+  const { accessToken, setCookie } = await requireSuperAdmin(
+    request,
+    RESTRICTED_MESSAGE,
+  );
 
   const url = new URL(request.url);
   const page = positiveInteger(url.searchParams.get("page"), 1);
