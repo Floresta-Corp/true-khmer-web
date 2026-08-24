@@ -1,5 +1,6 @@
 import { redirect } from "react-router";
 
+import { adminUploadPresign } from "~/api/admin/auth/admin-upload-presign.server";
 import {
   apiRequestWithAccessToken,
   ProtectedApiError,
@@ -11,6 +12,7 @@ import type {
   DeveloperClientSortField,
   DeveloperClientSortOrder,
   DeveloperClientStatusInput,
+  IssuedClientSecretResponse,
   ListDeveloperClientsResponse,
   UpdateDeveloperClientRequest,
 } from "~/features/admin/developer-clients/types";
@@ -66,7 +68,6 @@ export interface ListDeveloperClientsQuery {
   sortOrder?: DeveloperClientSortOrder;
 }
 
-// GET /v1/admin/developer-client — paginated, soft-deleted rows excluded.
 export async function getDeveloperClients(
   request: Request,
   query: ListDeveloperClientsQuery,
@@ -94,7 +95,6 @@ export async function getDeveloperClients(
   );
 }
 
-// GET /v1/admin/developer-client/{id}
 export async function getDeveloperClient(
   request: Request,
   clientRowId: string,
@@ -113,7 +113,6 @@ export async function getDeveloperClient(
   );
 }
 
-// POST /v1/admin/developer-client — the API generates the client ID.
 export async function createDeveloperClient(
   request: Request,
   payload: CreateDeveloperClientRequest,
@@ -123,14 +122,13 @@ export async function createDeveloperClient(
     request,
     (accessToken) =>
       apiRequestWithAccessToken<
-        DeveloperClientDetailResponse,
+        IssuedClientSecretResponse,
         CreateDeveloperClientRequest
       >(request, accessToken, BASE_PATH, { method: "POST", body: payload }),
     existingAccessToken,
   );
 }
 
-// PATCH /v1/admin/developer-client/{id}
 export async function updateDeveloperClient(
   request: Request,
   clientRowId: string,
@@ -153,7 +151,6 @@ export async function updateDeveloperClient(
   );
 }
 
-// POST /v1/admin/developer-client/{id}/regenerate-client-id
 export async function regenerateDeveloperClientId(
   request: Request,
   clientRowId: string,
@@ -172,7 +169,24 @@ export async function regenerateDeveloperClientId(
   );
 }
 
-// DELETE /v1/admin/developer-client/{id} — soft delete on the API side.
+export async function regenerateDeveloperClientSecret(
+  request: Request,
+  clientRowId: string,
+  existingAccessToken?: string,
+) {
+  return retryAdminRequestAfterRefresh(
+    request,
+    (accessToken) =>
+      apiRequestWithAccessToken<IssuedClientSecretResponse>(
+        request,
+        accessToken,
+        `${BASE_PATH}/${encodeURIComponent(clientRowId)}/regenerate-secret`,
+        { method: "POST" },
+      ),
+    existingAccessToken,
+  );
+}
+
 export async function deleteDeveloperClient(
   request: Request,
   clientRowId: string,
@@ -189,4 +203,41 @@ export async function deleteDeveloperClient(
       ),
     existingAccessToken,
   );
+}
+
+/**
+ * Uploads a logo and returns the stored key.
+ *
+ * The API has no developer-client-specific presign endpoint yet, so this
+ * borrows the generic admin image presign. Swap the presign call here once a
+ * dedicated endpoint exists — nothing else needs to change.
+ */
+export async function uploadDeveloperClientLogo(
+  request: Request,
+  file: File,
+  accessToken: string,
+) {
+  const presign = await adminUploadPresign(request, accessToken, {
+    contentType: file.type,
+    fileSize: file.size,
+  });
+
+  if (!presign.ok) {
+    throw new Error("Failed to prepare the logo upload.");
+  }
+
+  const { uploadUrl, method, requiredHeaders, avatarKey } = presign.upload;
+
+  const uploaded = await fetch(uploadUrl, {
+    method,
+    body: file,
+    headers: requiredHeaders,
+    signal: AbortSignal.timeout(30_000),
+  });
+
+  if (!uploaded.ok) {
+    throw new Error("Failed to upload the logo.");
+  }
+
+  return avatarKey;
 }

@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import {
   Await,
   useFetcher,
@@ -9,11 +9,12 @@ import {
 import { toast } from "sonner";
 
 import { ConfirmationModal } from "~/features/admin/components/confirmation-modal";
-import { ClientIdModal } from "../client-id-modal";
+import { CredentialRevealModal } from "../credential-reveal-modal";
 import {
   DeveloperClientModal,
   type DeveloperClientFormValues,
 } from "../developer-client-modal";
+import { DeveloperClientsHeader } from "../developer-clients-header";
 import {
   DeveloperClientsEmptyState,
   DeveloperClientsTable,
@@ -35,6 +36,7 @@ const FAILURE_LABEL: Record<DeveloperClientIntent, string> = {
   create: "create the developer client",
   update: "update the developer client",
   regenerate: "regenerate the client ID",
+  "regenerate-secret": "regenerate the client secret",
   delete: "delete the developer client",
 };
 
@@ -49,6 +51,9 @@ export default function DeveloperClientsPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [regenerateTarget, setRegenerateTarget] =
     useState<DeveloperClient | null>(null);
+  const [secretTarget, setSecretTarget] = useState<DeveloperClient | null>(
+    null,
+  );
   const [deleteTarget, setDeleteTarget] = useState<DeveloperClient | null>(
     null,
   );
@@ -56,28 +61,48 @@ export default function DeveloperClientsPage() {
     DeveloperClientActionData["revealed"] | null
   >(null);
 
-  const lastIntent = useRef<DeveloperClientIntent | null>(null);
+  const [lastIntent, setLastIntent] = useState<DeveloperClientIntent | null>(
+    null,
+  );
 
   const isLoadingClients =
     navigation.state === "loading" &&
     navigation.location?.pathname === location.pathname;
   const isSubmitting = fetcher.state !== "idle";
 
+  function openCreateForm() {
+    setFormTarget(null);
+    setFormError(null);
+    setIsFormOpen(true);
+  }
+
   function submit(
     intent: DeveloperClientIntent,
-    fields: Record<string, string>,
+    fields: Record<string, string | File>,
   ) {
-    lastIntent.current = intent;
+    setLastIntent(intent);
     const formData = new FormData();
     formData.append("intent", intent);
+    let hasFile = false;
     for (const [key, value] of Object.entries(fields)) {
+      if (value instanceof File) hasFile = true;
       formData.append(key, value);
     }
-    fetcher.submit(formData, { method: "post" });
+    // A urlencoded submit would stringify the File, so switch encodings.
+    fetcher.submit(formData, {
+      method: "post",
+      ...(hasFile ? { encType: "multipart/form-data" as const } : {}),
+    });
   }
 
   function handleFormSubmit(values: DeveloperClientFormValues) {
     setFormError(null);
+
+    const allowedOrigins = JSON.stringify(values.allowedOrigins);
+    const logo: Record<string, string | File> = values.logoFile
+      ? { logoFile: values.logoFile }
+      : { logoKey: values.logoKey };
+
     if (formTarget) {
       submit("update", {
         id: formTarget.id,
@@ -85,6 +110,8 @@ export default function DeveloperClientsPage() {
         description: values.description,
         contactEmail: values.contactEmail,
         status: values.status,
+        allowedOrigins,
+        ...logo,
       });
       return;
     }
@@ -92,14 +119,16 @@ export default function DeveloperClientsPage() {
       name: values.name,
       description: values.description,
       contactEmail: values.contactEmail,
+      allowedOrigins,
+      ...logo,
     });
   }
 
   useEffect(() => {
-    if (fetcher.state !== "idle" || lastIntent.current === null) return;
+    if (fetcher.state !== "idle" || lastIntent === null) return;
 
-    const intent = lastIntent.current;
-    lastIntent.current = null;
+    const intent = lastIntent;
+    setLastIntent(null);
 
     if (fetcher.data?.ok) {
       setFormError(null);
@@ -108,6 +137,7 @@ export default function DeveloperClientsPage() {
         setFormTarget(null);
       }
       if (intent === "regenerate") setRegenerateTarget(null);
+      if (intent === "regenerate-secret") setSecretTarget(null);
       if (intent === "delete") setDeleteTarget(null);
 
       if (fetcher.data.revealed) {
@@ -124,41 +154,26 @@ export default function DeveloperClientsPage() {
       fetcher.data?.message ??
       `Failed to ${FAILURE_LABEL[intent]}. Please try again.`;
 
-    // Form errors belong inside the form; the rest are transient toasts.
     if (intent === "create" || intent === "update") {
       setFormError(message);
     } else {
       toast.error(message);
       if (intent === "regenerate") setRegenerateTarget(null);
+      if (intent === "regenerate-secret") setSecretTarget(null);
       if (intent === "delete") setDeleteTarget(null);
     }
-  }, [fetcher.data, fetcher.state]);
+  }, [fetcher.data, fetcher.state, lastIntent]);
 
   return (
     <main className="min-h-full bg-[#f8fafc] px-4 py-6 sm:px-6 lg:px-10 lg:py-8 dark:bg-slate-950">
-      <div className="max-w-full space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-            Developer Clients
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400">
-            Partner platforms authorised to look up True Khmer user profiles.
-            Each client gets a client ID; the API key is shared and configured
-            on the server.
-          </p>
-        </div>
+      <div className="max-w-full">
+        <DeveloperClientsHeader onCreate={openCreateForm} />
 
         <section
           className="flex h-[clamp(32rem,calc(100dvh-14rem),48rem)] flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
           aria-busy={isLoadingClients}
         >
-          <DeveloperClientsToolbar
-            onCreate={() => {
-              setFormTarget(null);
-              setFormError(null);
-              setIsFormOpen(true);
-            }}
-          />
+          <DeveloperClientsToolbar />
 
           {isLoadingClients ? (
             <>
@@ -177,28 +192,30 @@ export default function DeveloperClientsPage() {
               <Await
                 resolve={clients}
                 errorElement={
-                  <div className="p-6 text-center text-sm text-rose-600 dark:text-rose-400">
+                  <div className="flex min-h-80 flex-1 items-center justify-center p-6 text-center text-sm text-rose-600 dark:text-rose-400">
                     Error loading developer clients
                   </div>
                 }
               >
                 {(resolved) =>
                   resolved.clients.length === 0 ? (
-                    <DeveloperClientsEmptyState query={query} />
+                    <DeveloperClientsEmptyState
+                      query={query}
+                      onCreate={openCreateForm}
+                    />
                   ) : (
                     <>
-                      <div className="min-h-0 flex-1 overflow-auto">
-                        <DeveloperClientsTable
-                          clients={resolved.clients}
-                          onEdit={(client) => {
-                            setFormTarget(client);
-                            setFormError(null);
-                            setIsFormOpen(true);
-                          }}
-                          onRegenerate={setRegenerateTarget}
-                          onDelete={setDeleteTarget}
-                        />
-                      </div>
+                      <DeveloperClientsTable
+                        clients={resolved.clients}
+                        onEdit={(client) => {
+                          setFormTarget(client);
+                          setFormError(null);
+                          setIsFormOpen(true);
+                        }}
+                        onRegenerate={setRegenerateTarget}
+                        onRegenerateSecret={setSecretTarget}
+                        onDelete={setDeleteTarget}
+                      />
                       <DeveloperClientsPagination meta={resolved.meta} />
                     </>
                   )
@@ -213,8 +230,7 @@ export default function DeveloperClientsPage() {
         isOpen={isFormOpen}
         client={formTarget}
         isLoading={
-          isSubmitting &&
-          (lastIntent.current === "create" || lastIntent.current === "update")
+          isSubmitting && (lastIntent === "create" || lastIntent === "update")
         }
         serverError={formError}
         onClose={() => {
@@ -236,7 +252,7 @@ export default function DeveloperClientsPage() {
         message={`"${regenerateTarget?.name ?? ""}" will get a brand new client ID. The current one stops working immediately, so the partner's integration breaks until you send them the new value.`}
         confirmText="Regenerate"
         variant="warning"
-        loading={isSubmitting && lastIntent.current === "regenerate"}
+        loading={isSubmitting && lastIntent === "regenerate"}
       />
 
       <ConfirmationModal
@@ -249,14 +265,29 @@ export default function DeveloperClientsPage() {
         message={`"${deleteTarget?.name ?? ""}" will lose access immediately and its client ID is retired permanently. To pause access temporarily instead, edit the client and set it to Disabled.`}
         confirmText="Delete"
         variant="error"
-        loading={isSubmitting && lastIntent.current === "delete"}
+        loading={isSubmitting && lastIntent === "delete"}
       />
 
-      <ClientIdModal
+      <ConfirmationModal
+        isOpen={secretTarget !== null}
+        onClose={() => setSecretTarget(null)}
+        onConfirm={() => {
+          if (secretTarget)
+            submit("regenerate-secret", { id: secretTarget.id });
+        }}
+        title="Regenerate client secret"
+        message={`"${secretTarget?.name ?? ""}" will get a brand new client secret. The current one stops working immediately, so their backend cannot read users until you send them the new value. The new secret is shown only once.`}
+        confirmText="Regenerate"
+        variant="warning"
+        loading={isSubmitting && lastIntent === "regenerate-secret"}
+      />
+
+      <CredentialRevealModal
         isOpen={revealed !== null}
         onClose={() => setRevealed(null)}
+        kind={revealed?.kind ?? "clientSecret"}
         name={revealed?.name ?? ""}
-        clientId={revealed?.clientId ?? ""}
+        value={revealed?.value ?? ""}
         isNew={revealed?.isNew ?? true}
       />
     </main>
