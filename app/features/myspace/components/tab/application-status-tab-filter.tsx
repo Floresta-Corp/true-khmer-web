@@ -58,7 +58,7 @@ export default function ApplicationStatusTabFilter() {
         onValueChange={(value) => handleStatusChange(value as StatusTab)}
         className="w-full md:w-auto"
       >
-        <TabsList className="grid w-full grid-cols-4 items-center rounded-2xl bg-[#F1F3F4] p-[3.5px] text-[#1A73E7] group-data-horizontal/tabs:h-12 md:w-auto">
+        <TabsList className="flex w-full items-center rounded-2xl bg-[#F1F3F4] p-[3.5px] text-[#1A73E7] group-data-horizontal/tabs:h-12 md:w-auto">
           {statusItems.map((status) => (
             <TabsTrigger
               key={status}
