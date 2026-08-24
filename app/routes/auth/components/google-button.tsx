@@ -14,7 +14,7 @@ export function GoogleButton({
       type="button"
       variant="outline"
       className={cn(
-        "h-12 w-full rounded-[14px] border-[#F3F4F6] bg-transparent text-[13px] font-semibold text-[#4A5565] hover:bg-[#F8FAFC]",
+        "h-12 w-full rounded-[14px] border-[#F3F4F6] bg-transparent text-[13px] font-semibold text-[#4A5565] hover:bg-[#F1F5F9] hover:text-[#364153]",
         className,
       )}
       {...buttonProps}
