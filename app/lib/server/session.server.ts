@@ -23,8 +23,7 @@ if (!process.env.SESSION_SECRET) {
   );
 }
 
-// Shared by every cookie store in the app, including the OAuth popup's own
-// store in app/features/oauth/services/oauth-session.server.ts.
+// Shared by every cookie store in the app.
 export const baseCookie = {
   httpOnly: true,
   path: "/",

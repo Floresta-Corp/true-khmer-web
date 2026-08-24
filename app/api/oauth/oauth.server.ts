@@ -1,57 +1,139 @@
 import {
   apiRequestPublic,
+  apiRequestWithAccessToken,
   ProtectedApiError,
 } from "~/lib/server/api-client.server";
+import {
+  commitSession,
+  getSession,
+  isAutoRefreshEnabled,
+} from "~/lib/server/session.server";
+import { refreshAccessToken } from "~/services/auth/api.server";
 
-export type SsoUser = {
+export type OAuthMeUser = {
   id: string;
   email: string;
-  emailVerified: boolean;
   firstName: string | null;
   lastName: string | null;
-  username: string | null;
-  gender: string | null;
-  occupation: string | null;
-  avatarUrl: string | null;
-  createdAt: string;
+  displayName: string | null;
 };
 
-type GetSsoUserResponse = {
+type GetMeResponse = {
   ok: boolean;
-  user: SsoUser;
+  profile: { user: OAuthMeUser };
 };
 
-type GetOAuthUserParams = {
-  userId: string;
-  clientId: string;
+export type OAuthSessionResolution = {
+  user: OAuthMeUser | null;
+  accessToken: string | null;
+  setCookie?: string;
 };
 
-// The popup never trusts the user copy cached in the cookie session — it asks
-// the SSO API for the account behind the id. The endpoint is authenticated by
-// the calling client, so no bearer token is sent.
-export async function getOAuthUser(
-  request: Request,
-  { userId, clientId }: GetOAuthUserParams,
-): Promise<SsoUser | null> {
+const UNAUTHORIZED = Symbol("unauthorized");
+
+// /sso/users/{id} is a server-to-server endpoint gated by client credentials
+// (x-client-id + x-client-secret), which the popup does not hold — it resolves
+// the signed-in account from the site session's own access token instead.
+async function fetchMe(request: Request, accessToken: string) {
   try {
-    const { data } = await apiRequestPublic<GetSsoUserResponse>(
+    const data = await apiRequestWithAccessToken<GetMeResponse>(
       request,
-      `/sso/users/${encodeURIComponent(userId)}`,
-      {
-        method: "GET",
-        headers: { "x-client-id": clientId },
-      },
+      accessToken,
+      "/me",
+      { method: "GET" },
     );
 
-    if (!data?.ok || !data.user?.id || !data.user.email) return null;
+    const user = data?.profile?.user;
+    if (!data?.ok || !user?.id || !user.email) return null;
 
-    return data.user;
+    return user;
   } catch (error) {
-    // An unknown client or unknown user just means the popup has to ask for a
-    // login.
     if (
       error instanceof ProtectedApiError &&
-      (error.status === 401 || error.status === 403 || error.status === 404)
+      (error.status === 401 || error.status === 403)
+    ) {
+      return UNAUTHORIZED;
+    }
+    throw error;
+  }
+}
+
+// Resolves the account behind the browser's normal site session, refreshing the
+// access token when it has expired so the token handed to /sso/handoff is one
+// the API still accepts.
+export async function getOAuthSessionUser(
+  request: Request,
+): Promise<OAuthSessionResolution> {
+  const session = await getSession(request);
+  const accessToken = session.get("accessToken") as string | undefined;
+  const refreshToken = session.get("refreshToken") as string | undefined;
+
+  if (!accessToken) return { user: null, accessToken: null };
+
+  const result = await fetchMe(request, accessToken);
+  if (result !== UNAUTHORIZED) {
+    return { user: result, accessToken: result ? accessToken : null };
+  }
+
+  if (!refreshToken || !isAutoRefreshEnabled(session)) {
+    return { user: null, accessToken: null };
+  }
+
+  let refreshedToken: string;
+  let setCookie: string;
+  try {
+    const refreshed = await refreshAccessToken(refreshToken, request);
+    refreshedToken = refreshed.accessToken;
+    session.set("accessToken", refreshed.accessToken);
+    session.set("refreshToken", refreshed.refreshToken);
+    setCookie = await commitSession(session);
+  } catch {
+    // A dead refresh token just means the popup has to ask for a login.
+    return { user: null, accessToken: null };
+  }
+
+  const retried = await fetchMe(request, refreshedToken);
+  if (retried === UNAUTHORIZED || !retried) {
+    return { user: null, accessToken: null, setCookie };
+  }
+
+  return { user: retried, accessToken: refreshedToken, setCookie };
+}
+
+export type OAuthClient = {
+  clientId: string;
+  name: string;
+  description: string | null;
+  logoUrl: string | null;
+};
+
+type VerifyClientResponse = {
+  ok: boolean;
+  client: OAuthClient;
+};
+
+// The public client lookup doubles as the origin check: the API only answers
+// when `origin` is one the client registered, so a 404 means this page has no
+// business posting a handoff token back to whoever opened it.
+export async function verifyOAuthClient(
+  request: Request,
+  clientId: string,
+  origin: string,
+): Promise<OAuthClient | null> {
+  try {
+    const { data } = await apiRequestPublic<VerifyClientResponse>(
+      request,
+      `/sso/clients/${encodeURIComponent(clientId)}?origin=${encodeURIComponent(origin)}`,
+      { method: "GET" },
+    );
+
+    if (!data?.ok || !data.client?.clientId) return null;
+
+    return data.client;
+  } catch (error) {
+    if (
+      error instanceof ProtectedApiError &&
+      (error.status === 400 || error.status === 404)
     ) {
       return null;
     }

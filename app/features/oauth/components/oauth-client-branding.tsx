@@ -1,11 +1,17 @@
 interface OAuthClientBrandingProps {
   clientName: string;
+  clientLogo: string | null;
 }
 
-export function OAuthClientBranding({ clientName }: OAuthClientBrandingProps) {
+export function OAuthClientBranding({
+  clientName,
+  clientLogo,
+}: OAuthClientBrandingProps) {
   return (
     <>
-      <img src="/plumpiLogo.png" alt="Plumpi Logo" className="h-8" />
+      {clientLogo ? (
+        <img src={clientLogo} alt={`${clientName} logo`} className="h-8" />
+      ) : null}
       <div className="space-y-2">
         <h1 className="text-2xl font-bold tracking-tight text-slate-900">
           Sign in to {clientName}

@@ -1,4 +1,3 @@
-import { z } from "zod";
 import type { Route } from "project-types/oauth/route/+types/oauth-login";
 import {
   AuthApiError,
@@ -7,22 +6,14 @@ import {
   loginUser,
 } from "~/services/auth/api.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
+import { commitAuthToSession } from "~/lib/server/session.server";
 import { toOAuthSessionUser } from "../lib/oauth-user";
+import { oauthLoginSchema } from "../lib/oauth-login-schema";
 import type { OAuthLoginActionData, OAuthLoginFieldErrors } from "../types";
-import { isAllowedOauthOrigin } from "./oauth-origin.server";
-import { commitOAuthSession } from "./oauth-session.server";
 
 export type { OAuthLoginActionData, OAuthLoginFieldErrors } from "../types";
 
-const oauthLoginSchema = z.object({
-  email: z
-    .email("Please enter a valid email address")
-    .trim()
-    .min(1, "Email is required"),
-  password: z.string().trim().min(1, "Password is required"),
-});
-
-function oauthLoginError(error: unknown): OAuthLoginActionData {
+function OauthLoginError(error: unknown): OAuthLoginActionData {
   if (error instanceof AuthApiError) {
     if (error.status === 401) {
       return { errors: { form: "Invalid email or password" } };
@@ -49,17 +40,7 @@ function oauthLoginError(error: unknown): OAuthLoginActionData {
   };
 }
 
-export async function oauthLoginAction({ request }: Route.ActionArgs) {
-  const url = new URL(request.url);
-  const clientId = url.searchParams.get("client_id");
-  if (!isAllowedOauthOrigin(url.searchParams.get("origin"))) {
-    return {
-      errors: {
-        form: "This sign-in window was not opened from a trusted application.",
-      },
-    } satisfies OAuthLoginActionData;
-  }
-
+export async function OauthLoginAction({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const parseResult = oauthLoginSchema.safeParse({
     email: formData.get("email"),
@@ -79,9 +60,6 @@ export async function oauthLoginAction({ request }: Route.ActionArgs) {
   const { email, password } = parseResult.data;
 
   try {
-    // This popup only ever hands the token back to the opener via
-    // postMessage — it never establishes a site session, so we call the
-    // login API directly instead of createUserSession/commitAuthToSession.
     const auth = await loginUser(email, password, request);
 
     if (isTwoFactorRequiredResponse(auth)) {
@@ -99,19 +77,13 @@ export async function oauthLoginAction({ request }: Route.ActionArgs) {
       },
     } satisfies OAuthLoginActionData;
 
-    // Keep the issued token in the popup's own cookie so reopening the window
-    // skips the login form. It is deliberately separate from the normal user
-    // and admin sessions.
-    const setCookie = clientId
-      ? await commitOAuthSession(request, {
-          accessToken: auth.accessToken,
-          userId: auth.user.id,
-          clientId,
-        })
-      : undefined;
+    // Save the login into the normal site session, same as any other login —
+    // the popup just renders the result inline instead of redirecting.
+    const sessionHeaders = await commitAuthToSession(request, auth);
+    const setCookie = sessionHeaders.get("Set-Cookie") ?? undefined;
 
     return withAuthData({ setCookie }, success);
   } catch (error) {
-    return oauthLoginError(error);
+    return OauthLoginError(error);
   }
 }

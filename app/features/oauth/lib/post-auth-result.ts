@@ -1,17 +1,15 @@
-import type { OAuthAuthResult } from "../types";
+import type { OAuthHandoffResult, OAuthSessionUser } from "../types";
 
-export function postAuthResult(origin: string, result: OAuthAuthResult) {
+export function postAuthResult(origin: string, result: OAuthHandoffResult) {
   if (window.opener && !window.opener.closed) {
     window.opener.postMessage(
       {
         type: "AUTH_SUCCESS",
         payload: {
-          token: result.accessToken,
-          user: {
-            userId: result.user.id,
-            username: result.user.name,
-            email: result.user.email,
-          },
+          ok: result.ok,
+          handoffToken: result.handoffToken,
+          expiresIn: result.expiresIn,
+          expiresAt: result.expiresAt,
         },
       },
       origin,

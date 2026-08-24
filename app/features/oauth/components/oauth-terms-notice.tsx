@@ -1,12 +1,12 @@
 interface OAuthTermsNoticeProps {
-  clientName: string;
+  clientName: string | null;
 }
 
 export function OAuthTermsNotice({ clientName }: OAuthTermsNoticeProps) {
   return (
     <div className="space-y-2 text-[12px] leading-relaxed text-slate-600">
       <p>
-        Review {clientName}'s{" "}
+        Review {clientName ? `${clientName}'s` : "the app's"}{" "}
         <a href="#" className="font-bold text-blue-600 hover:underline">
           Privacy Policy
         </a>{" "}

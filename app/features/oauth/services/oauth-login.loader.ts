@@ -1,67 +1,63 @@
 import type { Route } from "project-types/oauth/route/+types/oauth-login";
-import { getOAuthUser } from "~/api/oauth/oauth.server";
-import { withAuthData } from "~/lib/server/auth-response.server";
-import { getAccessToken, getUserId } from "~/lib/server/session.server";
-import { toOAuthSessionUser } from "../lib/oauth-user";
-import { isAllowedOauthOrigin } from "./oauth-origin.server";
 import {
-  destroyOAuthSession,
-  getOAuthSessionData,
-} from "./oauth-session.server";
+  getOAuthSessionUser,
+  verifyOAuthClient,
+} from "~/api/oauth/oauth.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
+import { toOAuthSessionUser } from "../lib/oauth-user";
 
-export async function oauthLoginLoader({ request }: Route.LoaderArgs) {
+// Clients have shipped both spellings of these params, so accept either.
+function readParam(url: URL, ...names: string[]) {
+  for (const name of names) {
+    const value = url.searchParams.get(name);
+    if (value) return value;
+  }
+  return null;
+}
+
+export async function OauthLoginLoader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
-  const clientName = url.searchParams.get("client_name") ?? "Plumpi";
-  const clientId = url.searchParams.get("client_id");
-  const rawOrigin = url.searchParams.get("origin");
+  const clientId = readParam(url, "clientId", "client_id");
+  const origin = url.searchParams.get("origin");
 
-  if (!isAllowedOauthOrigin(rawOrigin)) {
+  // Branding in the query string is only a fallback — the API is what decides
+  // whether this origin may talk to this client at all.
+  const client =
+    clientId && origin
+      ? await verifyOAuthClient(request, clientId, origin)
+      : null;
+
+  if (!client || !origin) {
     return withAuthData(
       {},
       {
         originAllowed: false,
         hasSession: false,
         origin: null,
-        clientName,
+        clientId,
+        clientName: readParam(url, "clientName", "client_name"),
+        clientLogo: readParam(url, "logoUrl", "logo_url", "clientLogo"),
         user: null,
         accessToken: null,
       },
     );
   }
 
-  const origin = rawOrigin;
-
-  // Prefer the popup's own cookie, written by a previous popup login and only
-  // reused for the client it was issued to. Otherwise fall back to the site
-  // session this browser may already have.
-  const storedSession = await getOAuthSessionData(request);
-  const popupSession =
-    storedSession && storedSession.clientId === clientId ? storedSession : null;
-
-  const accessToken =
-    popupSession?.accessToken ?? (await getAccessToken(request)) ?? null;
-  const userId = popupSession?.userId ?? (await getUserId(request));
-
-  // The token is only ever handed to the opener; the user data behind it comes
-  // from /sso/users/{userId}.
-  const ssoUser =
-    accessToken && userId && clientId
-      ? await getOAuthUser(request, { userId, clientId })
-      : null;
-
-  // A popup cookie that no longer resolves to a user is dead weight.
-  const setCookie =
-    popupSession && !ssoUser ? await destroyOAuthSession(request) : undefined;
+  // Use whatever the browser is already logged in with — there is no
+  // separate popup session anymore.
+  const { user, accessToken, setCookie } = await getOAuthSessionUser(request);
 
   return withAuthData(
     { setCookie },
     {
       originAllowed: true,
-      hasSession: Boolean(ssoUser),
+      hasSession: Boolean(user && accessToken),
       origin,
-      clientName,
-      user: ssoUser ? toOAuthSessionUser(ssoUser) : null,
-      accessToken: ssoUser ? accessToken : null,
+      clientId: client.clientId,
+      clientName: client.name,
+      clientLogo: client.logoUrl ?? readParam(url, "logoUrl", "logo_url"),
+      user: user ? toOAuthSessionUser(user) : null,
+      accessToken: user ? accessToken : null,
     },
   );
 }

@@ -19,3 +19,11 @@ export type OAuthLoginActionData = {
   errors?: OAuthLoginFieldErrors;
   success?: OAuthAuthResult;
 };
+
+export type OAuthHandoffResult = {
+  ok: boolean;
+  handoffToken: string;
+  expiresIn: number;
+  expiresAt: string;
+  origin?: string;
+};

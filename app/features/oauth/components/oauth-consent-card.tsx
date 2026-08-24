@@ -1,14 +1,18 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useFetcher } from "react-router";
 import { OAuthHeader } from "./oauth-header";
 import { OAuthClientBranding } from "./oauth-client-branding";
 import { OAuthScopeList } from "./oauth-scope-list";
 import { OAuthTermsNotice } from "./oauth-terms-notice";
 import { OAuthActionButtons } from "./oauth-action-buttons";
 import { postAuthClose, postAuthResult } from "../lib/post-auth-result";
+import type { OauthHandoffAction } from "../services/oauth-handoff.action";
 import type { OAuthSessionUser } from "../types";
 
 interface OAuthConsentCardProps {
-  clientName: string;
+  clientName: string | null;
+  clientLogo: string | null;
+  clientId: string | null;
   origin: string;
   accessToken: string;
   user: OAuthSessionUser;
@@ -17,19 +21,40 @@ interface OAuthConsentCardProps {
 
 export function OAuthConsentCard({
   clientName,
+  clientLogo,
+  clientId,
   origin,
   accessToken,
   user,
   onUseDifferentAccount,
 }: OAuthConsentCardProps) {
-  const [loading, setLoading] = useState(false);
+  const fetcher = useFetcher<typeof OauthHandoffAction>();
+  const [error, setError] = useState<string | null>(null);
+  const loading = fetcher.state !== "idle";
+
   const handleContinue = useCallback(() => {
-    setLoading(true);
-    setTimeout(() => {
-      postAuthResult(origin, { accessToken, user });
-      setLoading(false);
-    }, 1000);
-  }, [accessToken, origin, user]);
+    setError(null);
+    fetcher.submit(
+      { origin, clientId, accessToken },
+      {
+        method: "post",
+        action: "/oauth/handoff",
+        encType: "application/json",
+      },
+    );
+  }, [fetcher, origin, clientId, accessToken]);
+
+  // The popup never hands the raw accessToken to the opener — it exchanges it
+  // for a single-use handoff token first, then forwards that whole result.
+  useEffect(() => {
+    if (fetcher.state !== "idle" || !fetcher.data) return;
+
+    if (fetcher.data.ok) {
+      postAuthResult(fetcher.data.origin ?? origin, fetcher.data);
+    } else {
+      setError("Unable to complete sign-in. Please try again.");
+    }
+  }, [fetcher.state, fetcher.data, origin]);
 
   const handleCancel = useCallback(() => {
     postAuthClose(origin);
@@ -41,10 +66,16 @@ export function OAuthConsentCard({
         <OAuthHeader />
 
         <main className="space-y-5 p-6">
-          <OAuthClientBranding clientName={clientName} />
+          {clientName && (
+            <OAuthClientBranding
+              clientName={clientName}
+              clientLogo={clientLogo}
+            />
+          )}
           <OAuthScopeList user={user} />
           <div className="border-t border-slate-100 pt-2" />
           <OAuthTermsNotice clientName={clientName} />
+          {error ? <p className="text-xs text-red-500">{error}</p> : null}
           <OAuthActionButtons
             loading={loading}
             onCancel={handleCancel}
