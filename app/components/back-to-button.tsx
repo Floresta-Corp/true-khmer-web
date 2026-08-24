@@ -15,13 +15,8 @@ export default function BackToButton({
   className,
 }: BackToButtonProps) {
   const navigate = useNavigate();
-
   const goBack = () => {
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      navigate(to);
-    }
+    navigate(to);
   };
 
   return (
@@ -29,7 +24,7 @@ export default function BackToButton({
       variant="link"
       onClick={goBack}
       className={cn(
-        "cursor-pointer inline-flex items-center gap-1.5 p-0 text-[13px] font-semibold transition-colors hover:text-[#2f6fe4] text-blue-600",
+        "inline-flex cursor-pointer items-center gap-1.5 p-0 text-[13px] font-semibold text-blue-600 transition-colors hover:text-[#2f6fe4]",
         className,
       )}
     >

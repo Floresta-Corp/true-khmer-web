@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useNavigation, useSubmit } from "react-router";
+import { cn } from "~/lib/utils";
 import { GoogleButton } from "./google-button";
 
 type GoogleCredentialResponse = {
@@ -201,9 +202,14 @@ export function GoogleAuthButton({
   );
 
   return (
-    <div ref={containerRef} className="relative w-full">
+    <div ref={containerRef} className="group/google relative w-full">
       <GoogleButton
-        className={className}
+        className={cn(
+          !disabled &&
+            !isSubmitting &&
+            "group-hover/google:bg-[#F1F5F9] group-hover/google:text-[#364153]",
+          className,
+        )}
         disabled={!isInteractive}
         tabIndex={isConfigured ? -1 : undefined}
         aria-hidden={isConfigured ? "true" : undefined}

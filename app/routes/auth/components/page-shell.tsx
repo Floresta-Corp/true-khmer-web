@@ -48,6 +48,7 @@ export function AuthPageShell({
         >
           <Link
             to={backTo ?? ".."}
+            replace
             onClick={handleBack}
             className={cn(
               "group absolute top-5 left-5 z-10 inline-flex items-center gap-2 text-[11px] font-semibold tracking-[1.1px] text-[#99A1AF] uppercase transition-colors hover:text-[#637081] lg:top-7 lg:left-7",
@@ -107,7 +108,7 @@ export function AuthBrandPanel() {
         alt="login-cover"
         className="absolute inset-0 h-full w-auto object-cover object-center"
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-[#1C5DD4]/80 via-[#1C5DD4]/40 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-br from-[#1C5DD4]/80 via-[#1C5DD4]/40 to-transparent" />
 
       <div className="relative flex h-full flex-col items-start justify-between p-16">
         <header className="w-full space-y-4">
@@ -121,7 +122,7 @@ export function AuthBrandPanel() {
           </h2>
         </header>
 
-        <div className="relative w-full max-w-lg self-center overflow-hidden rounded-xl border border-white/20 bg-white/10 p-8 text-white shadow-2xl backdrop-blur-[12px]">
+        <div className="relative w-full max-w-lg overflow-hidden rounded-xl border border-white/20 bg-white/10 p-8 text-white shadow-2xl backdrop-blur-md">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex size-10 items-center justify-center rounded-full bg-[#1C5DD4]">

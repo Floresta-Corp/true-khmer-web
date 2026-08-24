@@ -14,13 +14,6 @@ jobs:
       - name: Checkout V3
         uses: actions/checkout@v3
 
-      - name: Log in to Docker Private Registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
-        with:
-          registry: docker-registry-local.bongit.net
-          username: ${{ secrets.LOCAL_REGISTRY_USERNAME }}
-          password: ${{ secrets.LOCAL_REGISTRY_PASSWORD }}
-
       - name: Build and Push
         run: curl -s -L https://dokploy-build-loffy-api.bongit.net/0jdwMy_oOCIUhYjEEr3Pz | bash
       - name: Deploy to Dokploy

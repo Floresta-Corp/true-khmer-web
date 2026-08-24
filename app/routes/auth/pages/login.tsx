@@ -26,7 +26,11 @@ import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { sanitizeRedirectPath } from "~/lib/redirects";
+import {
+  getBackDestination,
+  sanitizeRedirectPath,
+  withRedirectTo,
+} from "~/lib/redirects";
 
 const LOGIN_NOTICE_MESSAGES = {
   reset_password_success: "Password reset completed successfully.",
@@ -80,6 +84,7 @@ export default function LoginPage() {
   const navigation = useNavigation();
   const [searchParams] = useSearchParams();
   const redirectTo = sanitizeRedirectPath(searchParams.get("redirectTo"));
+  const back = getBackDestination(searchParams.get("redirectTo"));
   const notice = searchParams.get("notice");
   const successMessage = notice
     ? (LOGIN_NOTICE_MESSAGES[notice as keyof typeof LOGIN_NOTICE_MESSAGES] ??
@@ -106,8 +111,8 @@ export default function LoginPage() {
 
   return (
     <AuthPageShell
-      backTo="/"
-      backLabel="Back to Home"
+      backTo={back.to}
+      backLabel={back.label}
       leftSectionClassName="items-start justify-center px-6 py-10 sm:px-10 lg:px-8 lg:py-0 xl:px-12"
       contentClassName="max-w-md pb-10 pt-20 lg:pt-36 xl:pt-40"
       backLinkClassName="left-6 top-8 text-sm font-semibold normal-case tracking-normal text-[#1C5DD4] hover:text-[#164CB0] sm:left-10 lg:left-1/2 lg:top-16 lg:-translate-x-56 xl:top-24"
@@ -289,8 +294,8 @@ export default function LoginPage() {
         >
           New to True Khmer?{" "}
           <Link
-            to="/register"
-            className="group font-semibold text-[#1C5DD4] no-underline transition-colors duration-200 hover:text-[#164CB0] hover:no-underline"
+            to={withRedirectTo("/register", searchParams.get("redirectTo"))}
+            className="group group font-semibold text-[#1C5DD4] no-underline transition-colors duration-200 hover:text-[#164CB0] hover:no-underline"
           >
             <span className="relative">
               Join the community

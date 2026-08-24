@@ -6,10 +6,10 @@ import {
   getPublicCategories,
   getPublicTrendingTags,
   getMyAnswers,
-  GetPublicReportType,
   myForumQuestion,
   myForumAnswer,
 } from "~/api/forum/forum.server";
+import { GetPublicReportType } from "~/api/reporting";
 import { questionSortBySchema } from "~/features/forum/types";
 import type {
   AnswerResponse,
