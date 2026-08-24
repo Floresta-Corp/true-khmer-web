@@ -6,7 +6,7 @@ import { useLaunchpadSelectedRoles } from "../../../../stores/selected-launchpad
 import { Star, Trash2, Send, Info } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { AnimatePresence, motion } from "motion/react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 interface LaunchpadJoinProjectCardProps {
   project: LaunchpadDetail;
@@ -26,6 +26,7 @@ export default function LaunchpadJoinProjectCard({
   userId,
 }: LaunchpadJoinProjectCardProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { selectedRoleIds, topPickRoleId, removeRole, setTopPick } =
     useLaunchpadSelectedRoles();
 
@@ -203,7 +204,7 @@ export default function LaunchpadJoinProjectCard({
             ) : (
               <Button
                 onClick={() => {
-                  const redirectTo = window.location.pathname;
+                  const redirectTo = `${location.pathname}${location.search}`;
                   navigate(
                     `/login?redirectTo=${encodeURIComponent(redirectTo)}`,
                   );
