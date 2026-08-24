@@ -108,21 +108,21 @@ export function AuthBrandPanel() {
         alt="login-cover"
         className="absolute inset-0 h-full w-auto object-cover object-center"
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-[#1C5DD4]/80 via-[#1C5DD4]/40 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-br from-[#1C5DD4]/80 via-[#1C5DD4]/40 to-transparent" />
 
       <div className="relative flex h-full flex-col items-start justify-between p-16">
         <header className="w-full space-y-4">
           <div className="inline-flex rounded-full border border-white/30 bg-white/20 px-3 py-1 text-xs leading-4 font-bold tracking-widest text-white uppercase shadow-sm backdrop-blur-md">
             Global Business Excellence
           </div>
-          <h2 className="text-5xl leading-[60px] font-bold text-white">
+          <h2 className="text-5xl leading-15 font-bold text-white">
             Empowering
             <br />
             Cambodia&apos;s Future
           </h2>
         </header>
 
-        <div className="relative w-full max-w-lg self-center overflow-hidden rounded-xl border border-white/20 bg-white/10 p-8 text-white shadow-2xl backdrop-blur-[12px]">
+        <div className="relative w-full max-w-lg overflow-hidden rounded-xl border border-white/20 bg-white/10 p-8 text-white shadow-2xl backdrop-blur-md">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex size-10 items-center justify-center rounded-full bg-[#1C5DD4]">
@@ -192,7 +192,7 @@ export function RegisterBrandPanel() {
           </header>
 
           <section className="space-y-8">
-            <h3 className="text-4xl leading-[45px] font-bold text-white">
+            <h3 className="text-4xl leading-11.25 font-bold text-white">
               Building the foundations of a smarter tomorrow.
             </h3>
 
