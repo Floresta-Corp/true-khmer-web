@@ -8,6 +8,7 @@ import {
 } from "~/lib/blog-content-sanitize";
 import { formatDate } from "~/lib/time";
 import type { blogDetailLoader } from "../services/blog-detail.loader";
+import BackToButton from "~/components/back-to-button";
 
 export function PublicBlogDetailPage() {
   const { post, relatedPosts } = useLoaderData<typeof blogDetailLoader>();
@@ -47,19 +48,9 @@ export function PublicBlogDetailPage() {
 
   return (
     <main className="bg-white pt-6 pb-14 font-sans sm:pt-7 lg:pt-8 lg:pb-16 dark:bg-slate-950">
-      <div className="mx-auto max-w-[768px] px-5">
+      <div className="site-container px-5">
         <div className="mb-3 hidden sm:block">
-          <button
-            type="button"
-            onClick={handleGoBack}
-            disabled={isGoingBack}
-            className="group inline-flex items-center gap-1.5 py-0.5 text-[14px] font-medium text-slate-500 transition-colors hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:text-white"
-          >
-            <span className="rounded-full p-1 transition-colors group-hover:bg-slate-100 dark:group-hover:bg-white/10">
-              <ChevronLeft className="h-[18px] w-[18px]" />
-            </span>
-            <span>Back</span>
-          </button>
+          <BackToButton to="/blog" />
         </div>
 
         {post.coverImageUrl ? (
@@ -102,14 +93,14 @@ export function PublicBlogDetailPage() {
         {post.isFeatured || post.tags.length > 0 ? (
           <div className="mt-10 flex flex-wrap gap-3">
             {post.isFeatured ? (
-              <span className="rounded-full bg-[#1c97d4] px-4 py-1.5 text-[10px] font-semibold tracking-[0.5px] text-white uppercase">
+              <span className="rounded-full bg-blue-500 px-4 py-1.5 text-[10px] font-semibold tracking-[0.5px] text-white uppercase">
                 Featured
               </span>
             ) : null}
             {post.tags.map((tag) => (
               <span
                 key={tag}
-                className="rounded-full bg-[#1c97d4]/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.5px] text-[#1c97d4] uppercase"
+                className="rounded-full bg-blue-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.5px] text-[#0082e1] uppercase"
               >
                 {tag}
               </span>
@@ -135,7 +126,7 @@ export function PublicBlogDetailPage() {
           <button
             type="button"
             onClick={handleShare}
-            className="inline-flex h-10 min-w-10 items-center justify-center rounded-full border border-slate-200 px-4 text-[12px] font-medium text-slate-500 transition hover:border-[#1c97d4] hover:text-[#1c97d4] dark:border-white/15"
+            className="inline-flex h-10 min-w-10 cursor-pointer items-center justify-center rounded-full border border-slate-200 px-4 text-[12px] font-medium text-slate-500 transition hover:border-blue-500 hover:text-blue-500 dark:border-white/15"
           >
             {shareLabel}
           </button>
@@ -163,13 +154,13 @@ export function PublicBlogDetailPage() {
               </div>
               <Link
                 to="/blog"
-                className="text-[12px] font-semibold text-[#1c97d4] hover:underline"
+                className="text-[12px] font-semibold text-[#0082e1] hover:underline"
               >
                 View all stories +
               </Link>
             </div>
 
-            <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-2">
+            <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
               {relatedPosts.map((relatedPost) => (
                 <Link
                   key={relatedPost.id}
@@ -185,7 +176,7 @@ export function PublicBlogDetailPage() {
                     className="h-[206px] w-full object-cover"
                   />
                   <div className="px-8 pt-6 pb-8">
-                    <h3 className="text-xl leading-tight font-semibold tracking-tight text-[#243d95] transition-colors group-hover:text-[#1c97d4] dark:text-slate-100">
+                    <h3 className="text-xl leading-tight font-semibold tracking-tight text-[#243d95] transition-colors group-hover:text-blue-500 dark:text-slate-100">
                       {relatedPost.title}
                     </h3>
                     <p className="mt-4 line-clamp-3 text-[14px] leading-5 text-slate-600 dark:text-slate-400">
