@@ -224,6 +224,7 @@ export default [
   route("onboarding/completed", "routes/onboarding/pages/completed.tsx"),
   route("verify-otp", "routes/auth/pages/verify-otp.tsx"),
   route("logout", "routes/logout.tsx"),
+  route("api/public/stats", "routes/api/api.public.stats.ts"),
   route("api/onboarding/cities", "routes/api/api.onboarding.cities.tsx"),
   route(
     "api/uploads/avatar/presign",

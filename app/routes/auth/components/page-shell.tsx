@@ -2,6 +2,7 @@ import type { MouseEvent, ReactNode } from "react";
 import { ArrowLeft, TrendingUp } from "lucide-react";
 import { useNavigate, Link } from "react-router";
 import { cn } from "~/lib/utils";
+import { toSparklinePath, usePublicStats } from "./use-public-stats";
 
 type AuthPageShellProps = {
   children: ReactNode;
@@ -100,7 +101,16 @@ export function AuthPageShell({
   );
 }
 
+const SPARKLINE_WIDTH = 96;
+const SPARKLINE_HEIGHT = 48;
+
 export function AuthBrandPanel() {
+  const stats = usePublicStats();
+  const growth = stats?.userGrowthPercent ?? null;
+  const sparkline = stats
+    ? toSparklinePath(stats.memberTrend, SPARKLINE_WIDTH, SPARKLINE_HEIGHT)
+    : null;
+
   return (
     <div className="relative h-full w-full overflow-hidden bg-[#DAE2FF]">
       <img
@@ -122,57 +132,69 @@ export function AuthBrandPanel() {
           </h2>
         </header>
 
-        <div className="relative w-full max-w-lg overflow-hidden rounded-xl border border-white/20 bg-white/10 p-8 text-white shadow-2xl backdrop-blur-md">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-full bg-[#1C5DD4]">
-                <TrendingUp className="size-5" strokeWidth={2.25} />
+        {stats && (
+          <div className="relative w-full max-w-lg overflow-hidden rounded-xl border border-white/20 bg-white/10 p-8 text-white shadow-2xl backdrop-blur-md">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-full bg-[#1C5DD4]">
+                  <TrendingUp className="size-5" strokeWidth={2.25} />
+                </div>
+                <div>
+                  <p className="text-sm leading-5 font-semibold text-white/80">
+                    Community Growth
+                  </p>
+                  <p className="text-xl leading-7 font-bold">
+                    {growth === null ? "—" : `+${growth.toFixed(1)}%`}
+                  </p>
+                </div>
+              </div>
+
+              {sparkline && (
+                <svg
+                  viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
+                  aria-hidden="true"
+                  className="h-12 w-24"
+                  fill="none"
+                >
+                  <path
+                    d={sparkline}
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
+            </div>
+
+            <div className="mt-6 grid grid-cols-2 border-t border-white/10 pt-6 text-center">
+              <div className="border-r border-white/10">
+                <p className="text-xs leading-4 font-normal tracking-wide text-white/60 uppercase">
+                  Active Users
+                </p>
+                <p className="text-base leading-6 font-bold">
+                  {stats.activeUsers.toLocaleString("en-US")}
+                </p>
               </div>
               <div>
-                <p className="text-sm leading-5 font-semibold text-white/80">
-                  Market Growth
+                <p className="text-xs leading-4 font-normal tracking-wide text-white/60 uppercase">
+                  Projects
                 </p>
-                <p className="text-xl leading-7 font-bold">+24.8%</p>
+                <p className="text-base leading-6 font-bold">
+                  {stats.projects.toLocaleString("en-US")}
+                </p>
               </div>
             </div>
-
-            <svg
-              viewBox="0 0 96 48"
-              aria-hidden="true"
-              className="h-12 w-24"
-              fill="none"
-            >
-              <path
-                d="M5 30L16 26L25 31L35 20L45 24L56 13L66 17L77 6L91 12"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
           </div>
-
-          <div className="mt-6 grid grid-cols-2 border-t border-white/10 pt-6 text-center">
-            <div className="border-r border-white/10">
-              <p className="text-xs leading-4 font-normal tracking-wide text-white/60 uppercase">
-                Active Users
-              </p>
-              <p className="text-base leading-6 font-bold">1,842</p>
-            </div>
-            <div>
-              <p className="text-xs leading-4 font-normal tracking-wide text-white/60 uppercase">
-                Projects
-              </p>
-              <p className="text-base leading-6 font-bold">48</p>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
 }
 
 export function RegisterBrandPanel() {
+  const stats = usePublicStats();
+
   return (
     <div className="relative h-full w-full overflow-hidden bg-[#0046AC]">
       <img
@@ -221,7 +243,9 @@ export function RegisterBrandPanel() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-3xl leading-9 font-bold">250+</p>
+                  <p className="text-3xl leading-9 font-bold">
+                    {stats ? stats.projects.toLocaleString("en-US") : "—"}
+                  </p>
                   <p className="text-xs leading-4 font-semibold tracking-wide text-indigo-300 uppercase">
                     Active Projects
                   </p>

@@ -25,12 +25,6 @@ export type NewRegistrationsData =
 /** Chart range values accepted by the active-users / new-registrations endpoints. */
 export type ChartPeriod = ActiveUsersData["period"];
 
-/**
- * Narrowed view of `AdminDashboardOverviewResponse["dashboard"]`. The generated
- * schema types `totalPartners`, `partners.total` and `partners.sectors` as
- * `unknown` (the spec leaves them untyped), so this restates the shape the UI
- * actually relies on. Everything else here derives from the generated client.
- */
 export type DashboardOverview = {
   summary: {
     totalUsers: number;
