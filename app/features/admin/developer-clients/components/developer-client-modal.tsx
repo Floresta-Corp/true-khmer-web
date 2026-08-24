@@ -1,8 +1,15 @@
-import { useEffect, useState } from "react";
-import { motion } from "motion/react";
-import { KeyRound, Loader2, X } from "lucide-react";
+import { type FormEvent, useEffect, useState } from "react";
+import { AlertCircle, KeyRound, Loader2 } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import {
@@ -13,18 +20,27 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Textarea } from "~/components/ui/textarea";
+import { cn } from "~/lib/utils";
 import type { DeveloperClient, DeveloperClientStatusInput } from "../types";
+import { AllowedOriginsField } from "./allowed-origins-field";
+import { FieldHint, FieldLabel, fieldControlClass } from "./form-field";
+import { LogoUploadField } from "./logo-upload-field";
 
 export type DeveloperClientFormValues = {
   name: string;
   description: string;
   contactEmail: string;
   status: DeveloperClientStatusInput;
+  allowedOrigins: string[];
+  /** The key already stored on the client; cleared when the logo is removed. */
+  logoKey: string;
+  /** A newly picked logo, uploaded by the action on save. */
+  logoFile: File | null;
 };
 
 interface DeveloperClientModalProps {
   isOpen: boolean;
-  /** Null means "create a new client"; a client means "edit this one". */
+
   client: DeveloperClient | null;
   isLoading: boolean;
   serverError?: string | null;
@@ -37,10 +53,10 @@ const EMPTY: DeveloperClientFormValues = {
   description: "",
   contactEmail: "",
   status: "ACTIVE",
+  allowedOrigins: [],
+  logoKey: "",
+  logoFile: null,
 };
-
-const fieldClass =
-  "w-full rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm transition-all focus:border-slate-900 focus:outline-none dark:border-slate-800 dark:bg-slate-950 dark:text-white";
 
 export function DeveloperClientModal({
   isOpen,
@@ -54,8 +70,6 @@ export function DeveloperClientModal({
   const [values, setValues] = useState<DeveloperClientFormValues>(EMPTY);
   const [error, setError] = useState<string | null>(null);
 
-  // Re-seed from the selected client each time the modal opens, so a cancelled
-  // edit never leaks into the next one.
   useEffect(() => {
     if (!isOpen) return;
     setError(null);
@@ -66,6 +80,9 @@ export function DeveloperClientModal({
             description: client.description ?? "",
             contactEmail: client.contactEmail ?? "",
             status: client.status === "DISABLED" ? "DISABLED" : "ACTIVE",
+            allowedOrigins: client.allowedOrigins,
+            logoKey: client.logoKey ?? "",
+            logoFile: null,
           }
         : EMPTY,
     );
@@ -79,12 +96,8 @@ export function DeveloperClientModal({
     if (error) setError(null);
   }
 
-  function handleClose() {
-    if (isLoading) return;
-    onClose();
-  }
-
-  function handleSubmit() {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     if (isLoading) return;
 
     const name = values.name.trim();
@@ -100,153 +113,187 @@ export function DeveloperClientModal({
     }
 
     setError(null);
-    onSubmit({ ...values, name, contactEmail: email });
+    onSubmit({
+      ...values,
+      name,
+      contactEmail: email,
+      logoKey: values.logoKey.trim(),
+    });
   }
-
-  if (!isOpen) return null;
 
   const message = error ?? serverError;
 
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center overflow-y-auto p-6">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={handleClose}
-        className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
-      />
-
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0, y: 20 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        onClick={(event) => event.stopPropagation()}
-        className="relative w-full max-w-lg overflow-visible rounded-2xl border border-slate-100 bg-white p-8 shadow-2xl dark:border-slate-800 dark:bg-slate-900"
-      >
-        <div className="mb-6 flex items-center justify-between">
-          <div className="rounded-xl p-3 dark:bg-slate-900 dark:text-white">
-            <KeyRound size={22} />
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open && !isLoading) onClose();
+      }}
+    >
+      <DialogContent className="grid max-h-[calc(100dvh-2rem)] grid-rows-[auto_minmax(0,1fr)_auto] gap-0 overflow-hidden rounded-2xl p-0 sm:max-w-xl dark:bg-slate-900 dark:ring-slate-800">
+        <DialogHeader className="flex-row items-start gap-3 border-b border-slate-100 px-5 py-4 pr-12 sm:px-6 dark:border-slate-800">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
+            <KeyRound className="size-5" />
+          </span>
+          <div className="min-w-0">
+            <DialogTitle className="text-base font-semibold text-slate-900 sm:text-lg dark:text-white">
+              {isEdit ? "Edit developer client" : "New developer client"}
+            </DialogTitle>
+            <DialogDescription className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
+              {isEdit
+                ? "Update the partner's details, or disable the client to cut off its access immediately."
+                : "Register a partner platform. A client ID and secret are generated on save — the secret is shown only once."}
+            </DialogDescription>
           </div>
-          <Button
-            variant="ghost"
-            onClick={handleClose}
-            aria-label="Close"
-            className="p-2 text-slate-500 hover:text-slate-900"
-          >
-            <X size={20} />
-          </Button>
-        </div>
+        </DialogHeader>
 
-        <h3 className="mb-2 text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
-          {isEdit ? "Edit Developer Client" : "New Developer Client"}
-        </h3>
-        <p className="mb-8 text-sm leading-relaxed font-medium text-slate-500 dark:text-slate-400">
-          {isEdit
-            ? "Update the partner's details, or disable the client to cut off its access immediately."
-            : "Register a partner platform. A client ID is generated automatically once you save."}
-        </p>
+        <form
+          id="developer-client-form"
+          onSubmit={handleSubmit}
+          className="min-h-0 overflow-y-auto px-5 py-5 sm:px-6"
+        >
+          <div className="space-y-5">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <FieldLabel htmlFor="client-name" required>
+                  Name
+                </FieldLabel>
+                <Input
+                  id="client-name"
+                  value={values.name}
+                  maxLength={120}
+                  disabled={isLoading}
+                  onChange={(event) => update("name", event.target.value)}
+                  placeholder="Acme Portal"
+                  className={fieldControlClass}
+                />
+              </div>
 
-        <div className="space-y-5">
-          <div className="space-y-2">
-            <Label className="ml-1 text-[11px] font-bold tracking-widest text-slate-400 uppercase">
-              Name
-            </Label>
-            <Input
-              value={values.name}
-              maxLength={120}
-              onChange={(event) => update("name", event.target.value)}
-              placeholder="Acme Portal"
-              className={fieldClass}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label className="ml-1 text-[11px] font-bold tracking-widest text-slate-400 uppercase">
-              Contact Email
-            </Label>
-            <Input
-              type="email"
-              value={values.contactEmail}
-              maxLength={255}
-              onChange={(event) => update("contactEmail", event.target.value)}
-              placeholder="dev@partner.com"
-              className={fieldClass}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label className="ml-1 text-[11px] font-bold tracking-widest text-slate-400 uppercase">
-              Description
-            </Label>
-            <Textarea
-              value={values.description}
-              maxLength={1000}
-              rows={3}
-              onChange={(event) => update("description", event.target.value)}
-              placeholder="What this partner integration is for"
-              className={fieldClass}
-            />
-          </div>
-
-          {isEdit && (
-            <div className="space-y-2">
-              <Label className="ml-1 text-[11px] font-bold tracking-widest text-slate-400 uppercase">
-                Status
-              </Label>
-              <Select
-                value={values.status}
-                onValueChange={(value) =>
-                  update("status", value as DeveloperClientStatusInput)
-                }
-              >
-                <SelectTrigger className="h-auto w-full rounded-md border border-slate-100 bg-slate-50 px-4 py-3 text-sm focus:border-slate-900 focus:ring-0 focus:outline-none dark:border-slate-800 dark:bg-slate-950 dark:text-white">
-                  <SelectValue placeholder="Select a status" />
-                </SelectTrigger>
-                <SelectContent className="z-110">
-                  <SelectItem value="ACTIVE">Active</SelectItem>
-                  <SelectItem value="DISABLED">Disabled</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="ml-1 text-xs text-slate-500 dark:text-slate-400">
-                A disabled client is rejected on every partner request.
-              </p>
+              <div>
+                <FieldLabel htmlFor="client-email">Contact email</FieldLabel>
+                <Input
+                  id="client-email"
+                  type="email"
+                  value={values.contactEmail}
+                  maxLength={255}
+                  disabled={isLoading}
+                  onChange={(event) =>
+                    update("contactEmail", event.target.value)
+                  }
+                  placeholder="dev@partner.com"
+                  className={fieldControlClass}
+                />
+              </div>
             </div>
-          )}
 
-          {message && (
-            <p className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-xs font-semibold text-red-500 dark:border-red-800 dark:bg-red-900/20">
-              {message}
-            </p>
-          )}
+            <div>
+              <FieldLabel htmlFor="client-description">Description</FieldLabel>
+              <Textarea
+                id="client-description"
+                value={values.description}
+                maxLength={1000}
+                rows={3}
+                disabled={isLoading}
+                onChange={(event) => update("description", event.target.value)}
+                placeholder="Sign in to continue to Acme"
+                className={cn(fieldControlClass, "h-auto min-h-20 py-3")}
+              />
+              <FieldHint>
+                Shown to end users on the partner's own login page, not just
+                here.
+              </FieldHint>
+            </div>
 
-          <div className="flex gap-4 pt-2">
-            <Button
-              variant="ghost"
-              onClick={handleClose}
-              className="flex-1 rounded-xl border border-slate-100 py-5 text-[11px] font-semibold tracking-widest text-slate-500 uppercase hover:bg-slate-50 dark:border-slate-800 dark:text-slate-200"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSubmit}
+            <AllowedOriginsField
+              origins={values.allowedOrigins}
               disabled={isLoading}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 py-5 text-[11px] font-semibold tracking-widest text-white uppercase hover:bg-blue-800 active:scale-95 disabled:opacity-70"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : isEdit ? (
-                "Save Changes"
-              ) : (
-                "Create Client"
-              )}
-            </Button>
+              onChange={(allowedOrigins) =>
+                update("allowedOrigins", allowedOrigins)
+              }
+            />
+
+            <LogoUploadField
+              existingKey={values.logoKey}
+              file={values.logoFile}
+              disabled={isLoading}
+              onSelect={(logoFile) =>
+                setValues((current) => ({ ...current, logoFile }))
+              }
+              onRemove={() =>
+                setValues((current) => ({
+                  ...current,
+                  logoKey: "",
+                  logoFile: null,
+                }))
+              }
+            />
+
+            {isEdit && (
+              <div>
+                <FieldLabel htmlFor="client-status">Status</FieldLabel>
+                <Select
+                  value={values.status}
+                  disabled={isLoading}
+                  onValueChange={(value) =>
+                    update("status", value as DeveloperClientStatusInput)
+                  }
+                >
+                  <SelectTrigger
+                    id="client-status"
+                    className={cn(fieldControlClass, "w-full")}
+                  >
+                    <SelectValue placeholder="Select a status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ACTIVE">Active</SelectItem>
+                    <SelectItem value="DISABLED">Disabled</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FieldHint>
+                  A disabled client is rejected on every partner request.
+                </FieldHint>
+              </div>
+            )}
+
+            {message && (
+              <p
+                role="alert"
+                className="flex items-start gap-2 rounded-xl border border-rose-100 bg-rose-50 px-3 py-2.5 text-sm font-medium text-rose-600 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-400"
+              >
+                <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                {message}
+              </p>
+            )}
           </div>
-        </div>
-      </motion.div>
-    </div>
+        </form>
+
+        <DialogFooter className="mx-0 mb-0 gap-2 rounded-b-2xl border-t border-slate-100 bg-slate-50/80 px-5 py-4 sm:gap-3 sm:px-6 dark:border-slate-800 dark:bg-slate-950/40">
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            onClick={onClose}
+            disabled={isLoading}
+            className="h-10 rounded-lg font-medium dark:border-slate-700 dark:bg-slate-950/50 dark:text-white dark:hover:bg-slate-800/50"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="developer-client-form"
+            size="lg"
+            disabled={isLoading}
+            className="h-10 rounded-lg bg-blue-600 px-4 font-semibold text-white shadow-sm hover:bg-blue-700"
+          >
+            {isLoading && <Loader2 className="size-4 animate-spin" />}
+            {isLoading
+              ? "Saving..."
+              : isEdit
+                ? "Save changes"
+                : "Create client"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
