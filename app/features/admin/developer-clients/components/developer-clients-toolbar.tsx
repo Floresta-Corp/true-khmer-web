@@ -1,5 +1,5 @@
 import { type FormEvent, useEffect, useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useSearchParams } from "react-router";
 
 import { Button } from "~/components/ui/button";
@@ -40,11 +40,7 @@ const STATUS_OPTIONS = [
   { value: "DISABLED", label: "Disabled" },
 ] as const;
 
-export function DeveloperClientsToolbar({
-  onCreate,
-}: {
-  onCreate: () => void;
-}) {
+export function DeveloperClientsToolbar() {
   const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get("search") ?? "";
   const [searchInput, setSearchInput] = useState(search);
@@ -57,6 +53,7 @@ export function DeveloperClientsToolbar({
   const sortOrder = searchParams.get("sortOrder") ?? "desc";
   const currentSortValue = `${sortField}-${sortOrder}`;
   const currentStatus = searchParams.get("status") ?? "all";
+  const hasFilters = search !== "" || currentStatus !== "all";
 
   function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -96,6 +93,16 @@ export function DeveloperClientsToolbar({
     });
   }
 
+  function clearFilters() {
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      next.delete("search");
+      next.delete("status");
+      next.delete("page");
+      return next;
+    });
+  }
+
   return (
     <div className="flex shrink-0 flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:flex-wrap sm:items-center sm:p-5 dark:border-slate-800">
       <form
@@ -103,14 +110,14 @@ export function DeveloperClientsToolbar({
         role="search"
         onSubmit={submitSearch}
       >
-        <InputGroup className="h-10 flex-1 bg-slate-50 sm:w-72 dark:border-slate-800 dark:bg-slate-950/50">
+        <InputGroup className="h-10 flex-1 bg-slate-50 sm:w-80 dark:border-slate-800 dark:bg-slate-950/50">
           <InputGroupAddon className="pl-3">
             <Search className="size-4 text-slate-400" />
           </InputGroupAddon>
           <InputGroupInput
             type="search"
             aria-label="Search developer clients"
-            placeholder="Search by name, email, or client ID"
+            placeholder="Search name, email, or client ID..."
             value={searchInput}
             maxLength={100}
             onChange={(event) => setSearchInput(event.target.value)}
@@ -144,7 +151,7 @@ export function DeveloperClientsToolbar({
       <Select value={currentSortValue} onValueChange={handleSortChange}>
         <SelectTrigger
           aria-label="Sort developer clients"
-          className="h-10 w-full rounded-lg bg-white text-sm font-medium shadow-none sm:w-48 dark:border-slate-800 dark:bg-slate-950/50 dark:text-white"
+          className="h-10 w-full rounded-lg bg-white text-sm font-medium shadow-none sm:w-44 dark:border-slate-800 dark:bg-slate-950/50 dark:text-white"
         >
           <SelectValue placeholder="Sort by" />
         </SelectTrigger>
@@ -157,15 +164,17 @@ export function DeveloperClientsToolbar({
         </SelectContent>
       </Select>
 
-      <Button
-        type="button"
-        variant="outline"
-        onClick={onCreate}
-        className="h-10 rounded-lg font-medium shadow-none sm:ml-auto dark:border-slate-800 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800/50"
-      >
-        <Plus />
-        New Client
-      </Button>
+      {hasFilters && (
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={clearFilters}
+          className="h-10 rounded-lg text-sm font-medium text-slate-500 sm:ml-auto dark:text-slate-400"
+        >
+          <X className="size-4" />
+          Clear filters
+        </Button>
+      )}
     </div>
   );
 }
@@ -173,11 +182,10 @@ export function DeveloperClientsToolbar({
 export function DeveloperClientsToolbarSkeleton() {
   return (
     <div className="flex shrink-0 flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:flex-wrap sm:items-center sm:p-5 dark:border-slate-800">
-      <Skeleton className="h-10 w-full rounded-lg sm:w-72" />
+      <Skeleton className="h-10 w-full rounded-lg sm:w-80" />
       <Skeleton className="h-10 w-full rounded-lg sm:w-20" />
       <Skeleton className="h-10 w-full rounded-lg sm:w-40" />
-      <Skeleton className="h-10 w-full rounded-lg sm:w-48" />
-      <Skeleton className="h-10 w-full rounded-lg sm:ml-auto sm:w-32" />
+      <Skeleton className="h-10 w-full rounded-lg sm:w-44" />
     </div>
   );
 }
