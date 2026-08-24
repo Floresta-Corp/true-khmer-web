@@ -3,17 +3,16 @@ import {
   ProtectedApiError,
   apiRequestWithSession,
 } from "~/lib/server/api-client.server";
-
-type PresignPayload = {
-  fileName: string;
-  contentType: string;
-  fileSize: number;
-};
+import {
+  schemas,
+  type PresignAvatarUploadRequest,
+  type PresignAvatarUploadResponse,
+} from "~/types/api-client";
 
 export async function action({ request }: { request: Request }) {
-  let payload: PresignPayload;
+  let rawPayload: unknown;
   try {
-    payload = (await request.json()) as PresignPayload;
+    rawPayload = await request.json();
   } catch {
     return Response.json(
       { ok: false, message: "Invalid JSON payload" },
@@ -21,26 +20,29 @@ export async function action({ request }: { request: Request }) {
     );
   }
 
-  const { fileName, contentType, fileSize } = payload;
-  if (!fileName || !contentType || !Number.isFinite(fileSize)) {
+  const parsedPayload =
+    schemas.PresignAvatarUploadRequest.safeParse(rawPayload);
+  if (!parsedPayload.success) {
     return Response.json(
       {
         ok: false,
-        message: "fileName, contentType, and fileSize are required",
+        message: "contentType and fileSize are required",
+        details: parsedPayload.error.flatten(),
       },
       { status: 400 },
     );
   }
 
+  const payload: PresignAvatarUploadRequest = parsedPayload.data;
+
   try {
-    const result = await apiRequestWithSession<Record<string, unknown>>(
-      request,
-      "/uploads/avatar/presign",
-      {
-        method: "POST",
-        body: { contentType, fileSize },
-      },
-    );
+    const result = await apiRequestWithSession<
+      PresignAvatarUploadResponse,
+      PresignAvatarUploadRequest
+    >(request, "/uploads/avatar/presign", {
+      method: "POST",
+      body: payload,
+    });
     return Response.json(
       result.data,
       result.setCookie
