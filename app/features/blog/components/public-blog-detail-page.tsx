@@ -48,7 +48,7 @@ export function PublicBlogDetailPage() {
 
   return (
     <main className="bg-white pt-6 pb-14 font-sans sm:pt-7 lg:pt-8 lg:pb-16 dark:bg-slate-950">
-      <div className="site-container px-5">
+      <div className="site-container">
         <div className="mb-3 hidden sm:block">
           <BackToButton to="/blog" />
         </div>
@@ -93,14 +93,14 @@ export function PublicBlogDetailPage() {
         {post.isFeatured || post.tags.length > 0 ? (
           <div className="mt-10 flex flex-wrap gap-3">
             {post.isFeatured ? (
-              <span className="rounded-full bg-blue-500 px-4 py-1.5 text-[10px] font-semibold tracking-[0.5px] text-white uppercase">
+              <span className="rounded-full bg-[#d5e2fa] px-4 py-1.5 text-[10px] font-semibold tracking-[0.5px] text-[#1C5DD4] uppercase">
                 Featured
               </span>
             ) : null}
             {post.tags.map((tag) => (
               <span
                 key={tag}
-                className="rounded-full bg-blue-500/10 px-4 py-1.5 text-[10px] font-semibold tracking-[0.5px] text-[#0082e1] uppercase"
+                className="rounded-full bg-[#d5e2fa] px-4 py-1.5 text-[10px] font-semibold tracking-[0.5px] text-[#1C5DD4] uppercase"
               >
                 {tag}
               </span>

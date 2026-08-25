@@ -30,7 +30,7 @@ export function PublicBlogCard({
               </span>
             ) : null}
             {post.categoryName ? (
-              <span className="inline-flex items-center rounded-full bg-white px-4 py-1 text-[10px] font-semibold tracking-[0.12em] text-blue-500 uppercase shadow-sm">
+              <span className="inline-flex items-center rounded-full bg-white/75 px-4 py-1 text-[10px] font-semibold tracking-[0.12em] text-blue-500 uppercase shadow-sm ring-white/15 backdrop-blur-[6px]">
                 {post.categoryName}
               </span>
             ) : null}
