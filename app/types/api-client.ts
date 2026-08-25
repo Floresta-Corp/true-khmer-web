@@ -131,7 +131,11 @@ const UpdateContentModeratorReportReviewRequest = z.object({ reportUuid: z.strin
 
 const UpdateContentModeratorReportReviewResponse = z.object({ ok: z.boolean(), report: ContentModeratorReport });
 
-const AdminDashboardOverviewResponse = z.object({ ok: z.literal(true), dashboard: z.object({ summary: z.object({ totalUsers: z.number().int().gte(0), totalPartners: z.unknown().nullable(), openReports: z.number().int().gte(0) }), demographics: z.object({ genderBreakdown: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })), ageGroups: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })) }), partners: z.object({ total: z.unknown().nullable(), sectors: z.unknown().nullable() }) }) });
+const AdminDashboardOverviewResponse = z.object({ ok: z.literal(true), dashboard: z.object({ summary: z.object({ totalUsers: z.number().int().gte(0), totalPartners: z.number().int().gte(0), openReports: z.number().int().gte(0) }), demographics: z.object({ genderBreakdown: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })), ageGroups: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })) }), partners: z.object({ total: z.number().int().gte(0), sectors: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })) }) }) });
+
+const PublicStatsResponse = z.object({ ok: z.literal(true), stats: z.object({ activeUsers: z.number().int().gte(0), projects: z.number().int().gte(0), userGrowthPercent: z.number().gte(0).nullable(), memberTrend: z.array(z.number().int().gte(0)), windowDays: z.number().int().gt(0) }) });
+
+const PublicStatsErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
 const AdminDashboardErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
@@ -185,6 +189,22 @@ const AdminAuditLogPagination = z.object({ limit: z.number().int().gt(0), hasMor
 const AdminAuditLogListResponse = z.object({ ok: z.literal(true), entries: z.array(AdminAuditLogEntry), pagination: AdminAuditLogPagination });
 
 const patchV1adminnotificationsread_Body = z.object({ notificationIds: z.array(z.string().uuid()).min(1) });
+
+const DeveloperClientResponse = z.object({ id: z.string().uuid(), clientId: z.string(), name: z.string(), description: z.string().nullable(), contactEmail: z.string().nullable(), allowedOrigins: z.array(z.string()), logoKey: z.string().nullable(), logoUrl: z.string().nullable(), clientSecretLast4: z.string().nullable(), clientSecretSetAt: z.string().nullable(), status: z.enum(["ACTIVE", "DISABLED", "DELETED"]), createdAt: z.string(), updatedAt: z.string(), deletedAt: z.string().nullable() });
+
+const ListDeveloperClientsResponse = z.object({ ok: z.literal(true), clients: z.array(DeveloperClientResponse), meta: z.object({ page: z.number(), pageSize: z.number(), total: z.number(), totalPages: z.number() }) });
+
+const DeveloperClientErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
+
+const CreateDeveloperClientRequest = z.object({ name: z.string().min(2).max(120), description: z.union([z.string(), z.unknown()]).optional(), contactEmail: z.union([z.string(), z.unknown()]).optional(), allowedOrigins: z.array(z.string().max(512)).max(20).optional(), logoKey: z.union([z.string(), z.unknown()]).optional() });
+
+const IssuedClientSecretResponse = z.object({ ok: z.literal(true), client: DeveloperClientResponse, clientSecret: z.string() });
+
+const DeveloperClientDetailResponse = z.object({ ok: z.literal(true), client: DeveloperClientResponse });
+
+const UpdateDeveloperClientRequest = z.object({ name: z.string().min(2).max(120), description: z.union([z.string(), z.unknown()]), contactEmail: z.union([z.string(), z.unknown()]), status: z.enum(["ACTIVE", "DISABLED"]), allowedOrigins: z.array(z.string().max(512)).max(20), logoKey: z.union([z.string(), z.unknown()]) }).partial();
+
+const DeleteDeveloperClientResponse = z.object({ ok: z.literal(true) });
 
 const Partner = z.object({ id: z.string().uuid(), name: z.string().nullable(), nameKh: z.string().nullable(), registrationNumber: z.string().nullable(), email: z.string(), logo: z.string().nullable(), description: z.string().nullable(), descriptionKm: z.string().nullable(), bio: z.string().nullable(), bioKm: z.string().nullable(), address: z.record(z.string(), z.unknown().nullable()).nullable(), addressKm: z.record(z.string(), z.unknown().nullable()).nullable(), phoneNumber: z.string(), telegram: z.string().nullable(), sectorActivity: z.string().nullable(), sectorActivityKm: z.string().nullable(), website: z.string().nullable(), facebook: z.string().nullable(), linkedin: z.string().nullable(), status: z.enum(["PENDING", "ACTIVE", "INACTIVE"]), package: z.string().nullable(), packageKm: z.string().nullable(), isPublished: z.boolean(), createdAt: z.union([z.string(), z.string()]), updatedAt: z.union([z.string(), z.string(), z.unknown()]) });
 
@@ -633,11 +653,11 @@ const UpdateBlogCategoryResponse = z.object({ ok: z.boolean(), category: BlogCat
 
 const PaginationMeta = z.object({ page: z.number().int().gt(0), pageSize: z.number().int().gt(0), total: z.number().int().gte(0), totalPages: z.number().int().gte(0) });
 
-const ListModeratorBlogPostsResponse = z.object({ ok: z.boolean(), data: z.array(z.object({ id: z.string().uuid(), title: z.string(), slug: z.string(), excerpt: z.string(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), coverImageAlt: z.string().nullable(), coverImageCaption: z.string().nullable(), authorName: z.string(), authorRole: z.string().nullable(), tags: z.array(z.string()), categoryId: z.string().uuid().nullable(), categoryName: z.string().nullish(), isFeatured: z.boolean(), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]), placement: z.enum(["HOME", "CONTACT", "NONE"]), publishedAt: z.string().nullable(), createdBy: z.string().uuid(), updatedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string() })), meta: PaginationMeta });
+const ListModeratorBlogPostsResponse = z.object({ ok: z.boolean(), data: z.array(z.object({ id: z.string().uuid(), title: z.string(), slug: z.string(), excerpt: z.string(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), coverImageAlt: z.string().nullable(), coverImageCaption: z.string().nullable(), authorName: z.string(), authorRole: z.string().nullable(), tags: z.array(z.string()), categoryId: z.string().uuid().nullable(), categoryName: z.string().nullish(), isFeatured: z.boolean(), commentCount: z.number().int().gte(0), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]), placement: z.enum(["HOME", "CONTACT", "NONE"]), publishedAt: z.string().nullable(), createdBy: z.string().uuid(), updatedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string() })), meta: PaginationMeta });
 
 const CreateBlogPostRequest = z.object({ title: z.string().min(1).max(255), slug: z.string().max(255).optional(), excerpt: z.string().min(1), coverImageKey: z.string().max(600).nullish(), coverImageAlt: z.string().max(255).nullish(), coverImageCaption: z.string().nullish(), authorName: z.string().min(1).max(120), authorRole: z.string().max(120).nullish(), content: z.string().optional().default(""), tags: z.array(z.string().min(1).max(40)).max(5).optional(), categoryId: z.string().uuid().nullish(), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional().default("DRAFT"), placement: z.enum(["HOME", "CONTACT", "NONE"]).optional().default("HOME") });
 
-const BlogPostResponse = z.object({ id: z.string().uuid(), title: z.string(), slug: z.string(), excerpt: z.string(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), coverImageAlt: z.string().nullable(), coverImageCaption: z.string().nullable(), authorName: z.string(), authorRole: z.string().nullable(), content: z.string(), tags: z.array(z.string()), categoryId: z.string().uuid().nullable(), categoryName: z.string().nullish(), isFeatured: z.boolean(), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]), placement: z.enum(["HOME", "CONTACT", "NONE"]), publishedAt: z.string().nullable(), createdBy: z.string().uuid(), updatedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string() });
+const BlogPostResponse = z.object({ id: z.string().uuid(), title: z.string(), slug: z.string(), excerpt: z.string(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), coverImageAlt: z.string().nullable(), coverImageCaption: z.string().nullable(), authorName: z.string(), authorRole: z.string().nullable(), content: z.string(), tags: z.array(z.string()), categoryId: z.string().uuid().nullable(), categoryName: z.string().nullish(), isFeatured: z.boolean(), commentCount: z.number().int().gte(0), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]), placement: z.enum(["HOME", "CONTACT", "NONE"]), publishedAt: z.string().nullable(), createdBy: z.string().uuid(), updatedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string() });
 
 const CreateBlogPostResponse = z.object({ ok: z.boolean(), post: BlogPostResponse });
 
@@ -655,11 +675,28 @@ const DeleteBlogPostResponse = z.object({ ok: z.boolean() });
 
 const SetBlogPostFeaturedRequest = z.object({ isFeatured: z.boolean() });
 
-const BlogPostListingItemResponse = z.object({ id: z.string().uuid(), title: z.string(), slug: z.string(), excerpt: z.string(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), coverImageAlt: z.string().nullable(), coverImageCaption: z.string().nullable(), authorName: z.string(), authorRole: z.string().nullable(), tags: z.array(z.string()), categoryId: z.string().uuid().nullable(), categoryName: z.string().nullish(), isFeatured: z.boolean(), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]), placement: z.enum(["HOME", "CONTACT", "NONE"]), publishedAt: z.string().nullable(), createdBy: z.string().uuid(), updatedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string(), previewText: z.string() });
+const BlogPostListingItemResponse = z.object({ id: z.string().uuid(), title: z.string(), slug: z.string(), excerpt: z.string(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), coverImageAlt: z.string().nullable(), coverImageCaption: z.string().nullable(), authorName: z.string(), authorRole: z.string().nullable(), tags: z.array(z.string()), categoryId: z.string().uuid().nullable(), categoryName: z.string().nullish(), isFeatured: z.boolean(), commentCount: z.number().int().gte(0), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]), placement: z.enum(["HOME", "CONTACT", "NONE"]), publishedAt: z.string().nullable(), createdBy: z.string().uuid(), updatedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string(), previewText: z.string() });
 
 const ListPublicBlogPostsResponse = z.object({ ok: z.boolean(), data: z.array(BlogPostListingItemResponse), meta: PaginationMeta, featuredPost: BlogPostListingItemResponse.nullable() });
 
 const GetPublicBlogPostResponse = z.object({ ok: z.boolean(), post: BlogPostResponse, relatedPosts: z.array(BlogPostListingItemResponse) });
+
+const RepliedBlogCommentResponse = z.object({ id: z.string(), body: z.string(), author: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable() }), replyCount: z.number(), createdAt: z.string(), updatedAt: z.string(), postId: z.string(), status: z.enum(["PUBLISHED", "SUSPENDED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), replyTo: z.string().nullable() });
+const BlogCommentResponse = RepliedBlogCommentResponse.and(z.object({ repliedComments: z.array(RepliedBlogCommentResponse).nullable() }));
+
+const GetBlogCommentsResponse = z.object({ ok: z.boolean(), comments: z.array(BlogCommentResponse), total: z.number().int().gte(0) });
+
+const BlogCommentErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
+
+const CreateBlogCommentRequest = z.object({ postId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), replyToComment: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).nullish(), body: z.string().min(1).max(10000) });
+
+const CreateBlogCommentResponse = z.object({ ok: z.boolean(), comment: BlogCommentResponse });
+
+const UpdateBlogCommentRequest = z.object({ body: z.string().min(1).max(10000) });
+
+const EditBlogCommentResponse = z.object({ ok: z.boolean(), comment: BlogCommentResponse });
+
+const DeleteBlogCommentResponse = z.object({ ok: z.boolean() });
 
 const CourseCategoryResponse = z.object({ id: z.string().uuid(), name: z.string(), slug: z.string().nullable(), iconKey: z.string().nullable(), mobileIconType: z.string().nullable(), mobileIconName: z.string().nullable(), createdAt: z.string(), updatedAt: z.string() });
 
@@ -694,6 +731,20 @@ const AdminListCoursesResponse = z.object({ ok: z.literal(true), courses: z.arra
 const AdminUpdateCourseRequest = z.object({ title: z.string().min(1).max(255), description: z.string().min(1).max(20000), categoryId: z.string().uuid(), coverImageKey: z.string().min(1).max(600).nullable(), price: z.number().gte(0).lte(9999999999.99) }).partial();
 
 const RejectCourseRequest = z.object({ note: z.string().min(1).max(2000) }).partial();
+
+const SsoVerifyClientResponse = z.object({ ok: z.literal(true), client: z.object({ clientId: z.string(), name: z.string(), description: z.string().nullable(), logoUrl: z.string().nullable() }) });
+
+const SsoErrorResponse = z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() });
+
+const SsoExchangeHandoffRequest = z.object({ clientId: z.string().min(8).max(64).regex(/^[A-Za-z0-9_]+$/), accessToken: z.string().min(1).max(4096) });
+
+const SsoHandoffTokenResponse = z.object({ ok: z.literal(true), handoffToken: z.string(), expiresIn: z.number(), expiresAt: z.string() });
+
+const SsoRedeemHandoffRequest = z.object({ handoffToken: z.string().min(16).max(128) });
+
+const SsoUser = z.object({ id: z.string().uuid(), email: z.string(), emailVerified: z.boolean(), firstName: z.string(), lastName: z.string(), username: z.string().nullable(), gender: z.enum(["male", "female", "other"]), occupation: z.string().nullable(), avatarUrl: z.string().nullable(), createdAt: z.string() });
+
+const SsoUserResponse = z.object({ ok: z.literal(true), user: SsoUser });
 
 export const schemas = {
 	AuthRegisterRequest,
@@ -765,6 +816,8 @@ export const schemas = {
 	UpdateContentModeratorReportReviewResponse,
 	AdminDashboardOverviewResponse,
 	AdminDashboardErrorResponse,
+	PublicStatsResponse,
+	PublicStatsErrorResponse,
 	AdminDashboardActiveUsersResponse,
 	AdminDashboardNewRegistrationsResponse,
 	AcceptModeratorInviteRequest,
@@ -791,6 +844,14 @@ export const schemas = {
 	AdminAuditLogPagination,
 	AdminAuditLogListResponse,
 	patchV1adminnotificationsread_Body,
+	DeveloperClientResponse,
+	ListDeveloperClientsResponse,
+	DeveloperClientErrorResponse,
+	CreateDeveloperClientRequest,
+	IssuedClientSecretResponse,
+	DeveloperClientDetailResponse,
+	UpdateDeveloperClientRequest,
+	DeleteDeveloperClientResponse,
 	Partner,
 	ListPendingPartnersResponse,
 	ContactPerson,
@@ -1031,6 +1092,15 @@ export const schemas = {
 	BlogPostListingItemResponse,
 	ListPublicBlogPostsResponse,
 	GetPublicBlogPostResponse,
+	RepliedBlogCommentResponse,
+	BlogCommentResponse,
+	GetBlogCommentsResponse,
+	BlogCommentErrorResponse,
+	CreateBlogCommentRequest,
+	CreateBlogCommentResponse,
+	UpdateBlogCommentRequest,
+	EditBlogCommentResponse,
+	DeleteBlogCommentResponse,
 	CourseCategoryResponse,
 	ListCourseCategoriesResponse,
 	CreateCourseCategoryRequest,
@@ -1048,6 +1118,13 @@ export const schemas = {
 	AdminListCoursesResponse,
 	AdminUpdateCourseRequest,
 	RejectCourseRequest,
+	SsoVerifyClientResponse,
+	SsoErrorResponse,
+	SsoExchangeHandoffRequest,
+	SsoHandoffTokenResponse,
+	SsoRedeemHandoffRequest,
+	SsoUser,
+	SsoUserResponse,
 };
 
 const endpoints = makeApi([
@@ -1580,6 +1657,324 @@ const endpoints = makeApi([
 				status: 500,
 				description: `Internal server error`,
 				schema: AdminDashboardErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/developer-client",
+		alias: "getV1admindeveloperClient",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gt(0).optional().default(1)
+			},
+			{
+				name: "pageSize",
+				type: "Query",
+				schema: z.number().int().gt(0).lte(100).optional().default(20)
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().max(200).optional()
+			},
+			{
+				name: "status",
+				type: "Query",
+				schema: z.enum(["ACTIVE", "DISABLED"]).optional()
+			},
+			{
+				name: "sortField",
+				type: "Query",
+				schema: z.enum(["name", "createdAt"]).optional().default("createdAt")
+			},
+			{
+				name: "sortOrder",
+				type: "Query",
+				schema: z.enum(["asc", "desc"]).optional().default("desc")
+			},
+		],
+		response: ListDeveloperClientsResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Super admin role required`,
+				schema: z.void()
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: DeveloperClientErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/developer-client",
+		alias: "postV1admindeveloperClient",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: CreateDeveloperClientRequest
+			},
+		],
+		response: IssuedClientSecretResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Super admin role required`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `Client ID collision`,
+				schema: DeveloperClientErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: DeveloperClientErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/admin/developer-client/:id",
+		alias: "getV1admindeveloperClientId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: DeveloperClientDetailResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid developer client ID`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Super admin role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Developer client not found`,
+				schema: DeveloperClientErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: DeveloperClientErrorResponse
+			},
+		]
+	},
+	{
+		method: "patch",
+		path: "/v1/admin/developer-client/:id",
+		alias: "patchV1admindeveloperClientId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: UpdateDeveloperClientRequest
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: DeveloperClientDetailResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Super admin role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Developer client not found`,
+				schema: DeveloperClientErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: DeveloperClientErrorResponse
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/admin/developer-client/:id",
+		alias: "deleteV1admindeveloperClientId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: DeleteDeveloperClientResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid developer client ID`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Super admin role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Developer client not found`,
+				schema: DeveloperClientErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: DeveloperClientErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/developer-client/:id/regenerate-client-id",
+		alias: "postV1admindeveloperClientIdregenerateClientId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: DeveloperClientDetailResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid developer client ID`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Super admin role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Developer client not found`,
+				schema: DeveloperClientErrorResponse
+			},
+			{
+				status: 409,
+				description: `Client ID collision`,
+				schema: DeveloperClientErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: DeveloperClientErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/developer-client/:id/regenerate-secret",
+		alias: "postV1admindeveloperClientIdregenerateSecret",
+		description: `Issue a fresh client secret. The previous secret stops working immediately, and the new one is returned only in this response.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: IssuedClientSecretResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid developer client ID`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Super admin role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Developer client not found`,
+				schema: DeveloperClientErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: DeveloperClientErrorResponse
 			},
 		]
 	},
@@ -4362,6 +4757,115 @@ const endpoints = makeApi([
 	},
 	{
 		method: "get",
+		path: "/v1/blog/comment",
+		alias: "getV1blogcomment",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "postId",
+				type: "Query",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+			{
+				name: "sortBy",
+				type: "Query",
+				schema: z.enum(["newest", "oldest"]).optional().default("newest")
+			},
+		],
+		response: GetBlogCommentsResponse,
+		errors: [
+			{
+				status: 404,
+				description: `Blog post not found`,
+				schema: BlogCommentErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/blog/comment",
+		alias: "postV1blogcomment",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: CreateBlogCommentRequest
+			},
+		],
+		response: CreateBlogCommentResponse,
+		errors: [
+			{
+				status: 404,
+				description: `Blog post or reply target not found`,
+				schema: BlogCommentErrorResponse
+			},
+			{
+				status: 409,
+				description: `Comment cannot be posted to this target`,
+				schema: BlogCommentErrorResponse
+			},
+		]
+	},
+	{
+		method: "patch",
+		path: "/v1/blog/comment/:commentId",
+		alias: "patchV1blogcommentCommentId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: z.object({ body: z.string().min(1).max(10000) })
+			},
+			{
+				name: "commentId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: EditBlogCommentResponse,
+		errors: [
+			{
+				status: 403,
+				description: `Not authorized`,
+				schema: BlogCommentErrorResponse
+			},
+			{
+				status: 404,
+				description: `Comment not found`,
+				schema: BlogCommentErrorResponse
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/blog/comment/:commentId",
+		alias: "deleteV1blogcommentCommentId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "commentId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: z.object({ ok: z.boolean() }),
+		errors: [
+			{
+				status: 403,
+				description: `Not authorized`,
+				schema: BlogCommentErrorResponse
+			},
+			{
+				status: 404,
+				description: `Comment not found`,
+				schema: BlogCommentErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
 		path: "/v1/blog/public/category",
 		alias: "getV1blogpubliccategory",
 		requestFormat: "json",
@@ -7128,6 +7632,189 @@ const endpoints = makeApi([
 		]
 	},
 	{
+		method: "get",
+		path: "/v1/sso/clients/:clientId",
+		alias: "getV1ssoclientsClientId",
+		description: `Fetch a partner&#x27;s public name, description and logo so its own login page can render &#x27;Sign in to &lt;name&gt;&#x27;. Requires no credential. The origin must exactly match one the client has registered.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "clientId",
+				type: "Path",
+				schema: z.string().min(8).max(64).regex(/^[A-Za-z0-9_]+$/)
+			},
+			{
+				name: "origin",
+				type: "Query",
+				schema: z.string().min(1).max(512)
+			},
+		],
+		response: SsoVerifyClientResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: SsoErrorResponse
+			},
+			{
+				status: 404,
+				description: `Unknown, disabled or deleted client, or the origin is not registered — one response for all four, so client existence is never confirmed`,
+				schema: SsoErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: SsoErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/sso/handoff",
+		alias: "postV1ssohandoff",
+		description: `Exchange a user&#x27;s access token for a single-use handoff token. Called by the partner&#x27;s frontend after it has logged the user in via POST /v1/auth/login. The access token goes in the body, never the query string.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: SsoExchangeHandoffRequest
+			},
+		],
+		response: SsoHandoffTokenResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: SsoErrorResponse
+			},
+			{
+				status: 401,
+				description: `Invalid or expired access token`,
+				schema: SsoErrorResponse
+			},
+			{
+				status: 403,
+				description: `Account suspended, or signup is not complete`,
+				schema: SsoErrorResponse
+			},
+			{
+				status: 404,
+				description: `Client not found or not authorized for this origin`,
+				schema: SsoErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: SsoErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/sso/handoff/redeem",
+		alias: "postV1ssohandoffredeem",
+		description: `Redeem a handoff token for the user&#x27;s identity. Called by the partner&#x27;s BACKEND — it requires the client secret, which must never reach a browser. A token can be redeemed once and only by the client that requested it.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: z.object({ handoffToken: z.string().min(16).max(128) })
+			},
+			{
+				name: "x-client-id",
+				type: "Header",
+				schema: z.string().min(8).max(64).regex(/^[A-Za-z0-9_]+$/)
+			},
+			{
+				name: "x-client-secret",
+				type: "Header",
+				schema: z.string().min(16).max(128)
+			},
+		],
+		response: SsoUserResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: SsoErrorResponse
+			},
+			{
+				status: 401,
+				description: `Invalid client credentials`,
+				schema: SsoErrorResponse
+			},
+			{
+				status: 403,
+				description: `User account is suspended`,
+				schema: SsoErrorResponse
+			},
+			{
+				status: 404,
+				description: `Token unknown, already redeemed, expired, or issued to another client — one response for all four`,
+				schema: SsoErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: SsoErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/sso/users/:userId",
+		alias: "getV1ssousersUserId",
+		description: `Resolve a True Khmer user ID directly. Kept for partners integrated before the handoff flow; prefer POST /handoff/redeem, which ties the lookup to an actual login.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "userId",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+			{
+				name: "x-client-id",
+				type: "Header",
+				schema: z.string().min(8).max(64).regex(/^[A-Za-z0-9_]+$/)
+			},
+			{
+				name: "x-client-secret",
+				type: "Header",
+				schema: z.string().min(16).max(128)
+			},
+		],
+		response: SsoUserResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: SsoErrorResponse
+			},
+			{
+				status: 401,
+				description: `Invalid client credentials`,
+				schema: SsoErrorResponse
+			},
+			{
+				status: 403,
+				description: `User account is suspended`,
+				schema: SsoErrorResponse
+			},
+			{
+				status: 404,
+				description: `User not found`,
+				schema: SsoErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: SsoErrorResponse
+			},
+		]
+	},
+	{
 		method: "post",
 		path: "/v1/uploads/avatar/presign",
 		alias: "postV1uploadsavatarpresign",
@@ -8408,6 +9095,8 @@ export type ListContentModeratorReportsResponse = z.infer<typeof schemas.ListCon
 export type UpdateContentModeratorReportReviewRequest = z.infer<typeof schemas.UpdateContentModeratorReportReviewRequest>;
 export type UpdateContentModeratorReportReviewResponse = z.infer<typeof schemas.UpdateContentModeratorReportReviewResponse>;
 export type AdminDashboardOverviewResponse = z.infer<typeof schemas.AdminDashboardOverviewResponse>;
+export type PublicStatsResponse = z.infer<typeof schemas.PublicStatsResponse>;
+export type PublicStatsErrorResponse = z.infer<typeof schemas.PublicStatsErrorResponse>;
 export type AdminDashboardErrorResponse = z.infer<typeof schemas.AdminDashboardErrorResponse>;
 export type AdminDashboardActiveUsersResponse = z.infer<typeof schemas.AdminDashboardActiveUsersResponse>;
 export type AdminDashboardNewRegistrationsResponse = z.infer<typeof schemas.AdminDashboardNewRegistrationsResponse>;
@@ -8435,6 +9124,14 @@ export type AdminAuditLogEntry = z.infer<typeof schemas.AdminAuditLogEntry>;
 export type AdminAuditLogPagination = z.infer<typeof schemas.AdminAuditLogPagination>;
 export type AdminAuditLogListResponse = z.infer<typeof schemas.AdminAuditLogListResponse>;
 export type patchV1adminnotificationsread_Body = z.infer<typeof schemas.patchV1adminnotificationsread_Body>;
+export type DeveloperClientResponse = z.infer<typeof schemas.DeveloperClientResponse>;
+export type ListDeveloperClientsResponse = z.infer<typeof schemas.ListDeveloperClientsResponse>;
+export type DeveloperClientErrorResponse = z.infer<typeof schemas.DeveloperClientErrorResponse>;
+export type CreateDeveloperClientRequest = z.infer<typeof schemas.CreateDeveloperClientRequest>;
+export type IssuedClientSecretResponse = z.infer<typeof schemas.IssuedClientSecretResponse>;
+export type DeveloperClientDetailResponse = z.infer<typeof schemas.DeveloperClientDetailResponse>;
+export type UpdateDeveloperClientRequest = z.infer<typeof schemas.UpdateDeveloperClientRequest>;
+export type DeleteDeveloperClientResponse = z.infer<typeof schemas.DeleteDeveloperClientResponse>;
 export type Partner = z.infer<typeof schemas.Partner>;
 export type ListPendingPartnersResponse = z.infer<typeof schemas.ListPendingPartnersResponse>;
 export type ContactPerson = z.infer<typeof schemas.ContactPerson>;
@@ -8675,6 +9372,15 @@ export type SetBlogPostFeaturedRequest = z.infer<typeof schemas.SetBlogPostFeatu
 export type BlogPostListingItemResponse = z.infer<typeof schemas.BlogPostListingItemResponse>;
 export type ListPublicBlogPostsResponse = z.infer<typeof schemas.ListPublicBlogPostsResponse>;
 export type GetPublicBlogPostResponse = z.infer<typeof schemas.GetPublicBlogPostResponse>;
+export type RepliedBlogCommentResponse = z.infer<typeof schemas.RepliedBlogCommentResponse>;
+export type BlogCommentResponse = z.infer<typeof schemas.BlogCommentResponse>;
+export type GetBlogCommentsResponse = z.infer<typeof schemas.GetBlogCommentsResponse>;
+export type BlogCommentErrorResponse = z.infer<typeof schemas.BlogCommentErrorResponse>;
+export type CreateBlogCommentRequest = z.infer<typeof schemas.CreateBlogCommentRequest>;
+export type CreateBlogCommentResponse = z.infer<typeof schemas.CreateBlogCommentResponse>;
+export type UpdateBlogCommentRequest = z.infer<typeof schemas.UpdateBlogCommentRequest>;
+export type EditBlogCommentResponse = z.infer<typeof schemas.EditBlogCommentResponse>;
+export type DeleteBlogCommentResponse = z.infer<typeof schemas.DeleteBlogCommentResponse>;
 export type CourseCategoryResponse = z.infer<typeof schemas.CourseCategoryResponse>;
 export type ListCourseCategoriesResponse = z.infer<typeof schemas.ListCourseCategoriesResponse>;
 export type CreateCourseCategoryRequest = z.infer<typeof schemas.CreateCourseCategoryRequest>;
@@ -8692,6 +9398,13 @@ export type DeleteCourseResponse = z.infer<typeof schemas.DeleteCourseResponse>;
 export type AdminListCoursesResponse = z.infer<typeof schemas.AdminListCoursesResponse>;
 export type AdminUpdateCourseRequest = z.infer<typeof schemas.AdminUpdateCourseRequest>;
 export type RejectCourseRequest = z.infer<typeof schemas.RejectCourseRequest>;
+export type SsoVerifyClientResponse = z.infer<typeof schemas.SsoVerifyClientResponse>;
+export type SsoErrorResponse = z.infer<typeof schemas.SsoErrorResponse>;
+export type SsoExchangeHandoffRequest = z.infer<typeof schemas.SsoExchangeHandoffRequest>;
+export type SsoHandoffTokenResponse = z.infer<typeof schemas.SsoHandoffTokenResponse>;
+export type SsoRedeemHandoffRequest = z.infer<typeof schemas.SsoRedeemHandoffRequest>;
+export type SsoUser = z.infer<typeof schemas.SsoUser>;
+export type SsoUserResponse = z.infer<typeof schemas.SsoUserResponse>;
 // End generated API schema types
 
 export const api = new Zodios(endpoints);
