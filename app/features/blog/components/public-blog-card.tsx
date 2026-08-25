@@ -22,13 +22,8 @@ export function PublicBlogCard({
           decoding="async"
           className="h-64 w-full object-cover transition-transform duration-300 group-hover:scale-[1.02] motion-reduce:transform-none motion-reduce:transition-none"
         />
-        {post.isFeatured || post.categoryName ? (
+        {post.categoryName ? (
           <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-            {post.isFeatured ? (
-              <span className="inline-flex items-center rounded-full bg-blue-500 px-4 py-1 text-[10px] font-semibold tracking-[0.12em] text-white uppercase shadow-sm">
-                Featured
-              </span>
-            ) : null}
             {post.categoryName ? (
               <span className="inline-flex items-center rounded-full bg-white/75 px-4 py-1 text-[10px] font-semibold tracking-[0.12em] text-blue-500 uppercase shadow-sm ring-white/15 backdrop-blur-[6px]">
                 {post.categoryName}
