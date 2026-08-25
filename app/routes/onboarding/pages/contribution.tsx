@@ -102,7 +102,7 @@ export default function OnboardingContributionPage() {
 
       <Form
         method="post"
-        className="relative z-10 flex w-full max-w-191 flex-col items-start gap-8 pb-6 sm:pb-8 min-[900px]:flex-1 min-[900px]:justify-between min-[900px]:gap-8 min-[900px]:pb-0"
+        className="relative z-10 flex w-full max-w-191 flex-col items-start gap-8 pb-6 min-[900px]:flex-1 min-[900px]:justify-between min-[900px]:gap-8 min-[900px]:pb-0 sm:pb-8"
       >
         {selected.map((key) => (
           <input key={key} type="hidden" name="selected" value={key} />
@@ -116,7 +116,7 @@ export default function OnboardingContributionPage() {
           />
         ))}
 
-        <div className="flex w-full flex-col items-start gap-6 sm:gap-8 min-[900px]:gap-10">
+        <div className="flex w-full flex-col items-start gap-6 min-[900px]:gap-10 sm:gap-8">
           <OnboardingStepIntro
             centered
             currentStep={3}
@@ -174,7 +174,7 @@ export default function OnboardingContributionPage() {
             ))}
           </div>
 
-          <p className="tk-fade-up-2 text-sm font-normal italic leading-5.25 text-[#99A1AF]">
+          <p className="tk-fade-up-2 text-sm leading-5.25 font-normal text-[#99A1AF] italic">
             Pick at least 1 to continue
           </p>
 

@@ -1,7 +1,4 @@
-import {
-  Outlet,
-  type ShouldRevalidateFunctionArgs,
-} from "react-router";
+import { Outlet, type ShouldRevalidateFunctionArgs } from "react-router";
 import type { Route } from "./+types/layout";
 import {
   destinationFromOnboardingState,

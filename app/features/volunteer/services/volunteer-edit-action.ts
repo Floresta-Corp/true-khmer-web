@@ -2,7 +2,10 @@ import { type ActionFunctionArgs } from "react-router";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
-import { transformActionResponse, mapZodError } from "~/lib/server/action-response.server";
+import {
+  transformActionResponse,
+  mapZodError,
+} from "~/lib/server/action-response.server";
 import {
   updateVolunteerOpportunity,
   uploadOpportunityCoverImage,
@@ -50,11 +53,17 @@ export async function volunteerEditAction({
           const parsed = JSON.parse(dataStr);
           parsed.coverImageKey = upload.coverImageKey;
           const validated = VolunteerOpportunityInputSchema.parse(parsed);
-          const result = await updateVolunteerOpportunity(request, id, validated);
+          const result = await updateVolunteerOpportunity(
+            request,
+            id,
+            validated,
+          );
           if (result?.data?.opportunity?.id) {
             return withAuthData(auth, {
               ok: true,
-              data: { redirectTo: `/volunteer/detail/${result.data.opportunity.id}` },
+              data: {
+                redirectTo: `/volunteer/detail/${result.data.opportunity.id}`,
+              },
             });
           }
           return withAuthData(auth, {
@@ -75,7 +84,9 @@ export async function volunteerEditAction({
       if (result?.data?.opportunity?.id) {
         return withAuthData(auth, {
           ok: true,
-          data: { redirectTo: `/volunteer/detail/${result.data.opportunity.id}` },
+          data: {
+            redirectTo: `/volunteer/detail/${result.data.opportunity.id}`,
+          },
         });
       }
 

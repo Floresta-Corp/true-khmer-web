@@ -44,10 +44,10 @@ export function SelectableContributionCard({
     >
       <div className="flex h-full w-full flex-col items-start gap-2">
         <Icon size={32} className="text-blue-500" />
-        <h3 className="text-[16px] font-bold leading-7 text-slate-700">
+        <h3 className="text-[16px] leading-7 font-bold text-slate-700">
           {title}
         </h3>
-        <p className="text-sm font-normal leading-5 text-slate-500">
+        <p className="text-sm leading-5 font-normal text-slate-500">
           {description}
         </p>
       </div>

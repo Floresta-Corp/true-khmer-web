@@ -80,22 +80,25 @@ const defaultStories: Story[] = [
 function StoryCard({ story, onCardClick, onLike, onShare, delay }: any) {
   return (
     <div
-      className="flex flex-col gap-[21px] cursor-pointer animate-slide-up"
+      className="animate-slide-up flex cursor-pointer flex-col gap-[21px]"
       onClick={() => onCardClick?.(story)}
       style={{ animationDelay: `${delay}s` }}
       data-node-id="story-card"
     >
       {/* Image Container */}
-      <div className="relative h-[289px] rounded-[14px] overflow-hidden bg-gray-100 shadow-sm flex-shrink-0 hover:shadow-lg transition-all duration-300 hover:scale-105">
+      <div className="relative h-[289px] flex-shrink-0 overflow-hidden rounded-[14px] bg-gray-100 shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-lg">
         <img
           alt={story.title}
-          className="w-full h-full object-cover"
+          className="h-full w-full object-cover"
           src={story.image}
         />
         {/* Duration Badge */}
         {story.duration && (
-          <div className="absolute bottom-[20px] right-[14px] bg-black/60 rounded-lg px-2 py-1 animate-slide-up" style={{ animationDelay: `${delay + 0.15}s` }}>
-            <p className="text-white font-bold text-[11px] leading-tight">
+          <div
+            className="animate-slide-up absolute right-[14px] bottom-[20px] rounded-lg bg-black/60 px-2 py-1"
+            style={{ animationDelay: `${delay + 0.15}s` }}
+          >
+            <p className="text-[11px] leading-tight font-bold text-white">
               {story.duration}
             </p>
           </div>
@@ -105,55 +108,62 @@ function StoryCard({ story, onCardClick, onLike, onShare, delay }: any) {
       {/* Content Container */}
       <div className="flex flex-col gap-4">
         {/* Title */}
-        <div className="animate-slide-up" style={{ animationDelay: `${delay + 0.1}s` }}>
-          <h3 className="font-bold text-[17px] text-gray-900 leading-tight tracking-tight line-clamp-1 hover:text-blue-600 transition-colors duration-300">
+        <div
+          className="animate-slide-up"
+          style={{ animationDelay: `${delay + 0.1}s` }}
+        >
+          <h3 className="line-clamp-1 text-[17px] leading-tight font-bold tracking-tight text-gray-900 transition-colors duration-300 hover:text-blue-600">
             {story.title}
           </h3>
         </div>
 
         {/* Description */}
-        <p className="text-gray-600 font-medium text-[14px] leading-[22.75px] tracking-tight line-clamp-2 animate-slide-up" style={{ animationDelay: `${delay + 0.15}s` }}>
+        <p
+          className="animate-slide-up line-clamp-2 text-[14px] leading-[22.75px] font-medium tracking-tight text-gray-600"
+          style={{ animationDelay: `${delay + 0.15}s` }}
+        >
           {story.description}
         </p>
 
         {/* Engagement Metrics */}
-        <div className="flex gap-[21px] items-center text-gray-500 animate-slide-up" style={{ animationDelay: `${delay + 0.2}s` }}>
+        <div
+          className="animate-slide-up flex items-center gap-[21px] text-gray-500"
+          style={{ animationDelay: `${delay + 0.2}s` }}
+        >
           {/* Views */}
-          <div className="flex items-center gap-[5px] hover:text-gray-900 transition-colors duration-300">
-            <img alt="views" className="w-[14px] h-[14px]" src={imgEye} />
-            <span className="text-[11px] font-bold leading-tight">
-              {story.views > 1000 ? `${(story.views / 1000).toFixed(1)}k` : story.views}
+          <div className="flex items-center gap-[5px] transition-colors duration-300 hover:text-gray-900">
+            <img alt="views" className="h-[14px] w-[14px]" src={imgEye} />
+            <span className="text-[11px] leading-tight font-bold">
+              {story.views > 1000
+                ? `${(story.views / 1000).toFixed(1)}k`
+                : story.views}
             </span>
           </div>
 
           {/* Likes */}
-          <div className="flex items-center gap-[5px] cursor-pointer hover:text-red-500 transition-all duration-300 hover:scale-110"
+          <div
+            className="flex cursor-pointer items-center gap-[5px] transition-all duration-300 hover:scale-110 hover:text-red-500"
             onClick={(e) => {
               e.stopPropagation();
               onLike?.(story.id);
-            }}>
-            <img
-              alt="likes"
-              className="w-[14px] h-[14px]"
-              src={imgHeart}
-            />
-            <span className="text-[11px] font-bold leading-tight">
+            }}
+          >
+            <img alt="likes" className="h-[14px] w-[14px]" src={imgHeart} />
+            <span className="text-[11px] leading-tight font-bold">
               {story.likes}
             </span>
           </div>
 
           {/* Shares */}
-          <div className="flex items-center gap-[5px] cursor-pointer hover:text-blue-600 transition-all duration-300 hover:scale-110"
+          <div
+            className="flex cursor-pointer items-center gap-[5px] transition-all duration-300 hover:scale-110 hover:text-blue-600"
             onClick={(e) => {
               e.stopPropagation();
               onShare?.(story.id);
-            }}>
-            <img
-              alt="shares"
-              className="w-[14px] h-[14px]"
-              src={imgShare2}
-            />
-            <span className="text-[11px] font-bold leading-tight">Share</span>
+            }}
+          >
+            <img alt="shares" className="h-[14px] w-[14px]" src={imgShare2} />
+            <span className="text-[11px] leading-tight font-bold">Share</span>
           </div>
         </div>
       </div>
@@ -171,37 +181,46 @@ export function RecommendedStoriesSection({
 
   return (
     <div
-      className="w-full bg-white px-[250px] py-[80px] animate-fade-in"
+      className="animate-fade-in w-full bg-white px-[250px] py-[80px]"
       data-name="Features Block"
       data-node-id="14300:4043"
     >
-      <div className="flex flex-col gap-8 w-full">
+      <div className="flex w-full flex-col gap-8">
         {/* Header Section */}
-        <div className="flex items-end justify-between w-full animate-slide-in-left">
+        <div className="animate-slide-in-left flex w-full items-end justify-between">
           {/* Left Section - Title */}
           <div className="flex flex-col gap-3">
             {/* Discovery Label */}
-            <div className="flex items-center gap-[10.5px] animate-slide-up" style={{ animationDelay: "0.2s" }}>
-              <div className="w-[28px] h-[3.5px] bg-blue-600 rounded-full" />
-              <p className="text-blue-600 font-bold text-[12px] uppercase tracking-widest">
+            <div
+              className="animate-slide-up flex items-center gap-[10.5px]"
+              style={{ animationDelay: "0.2s" }}
+            >
+              <div className="h-[3.5px] w-[28px] rounded-full bg-blue-600" />
+              <p className="text-[12px] font-bold tracking-widest text-blue-600 uppercase">
                 Discovery
               </p>
             </div>
             {/* Main Title */}
-            <h2 className="font-bold text-[32px] leading-[48px] text-gray-900 tracking-tight animate-slide-up" style={{ animationDelay: "0.3s" }}>
+            <h2
+              className="animate-slide-up text-[32px] leading-[48px] font-bold tracking-tight text-gray-900"
+              style={{ animationDelay: "0.3s" }}
+            >
               Recommended Stories
             </h2>
           </div>
 
           {/* Right Section - Tabs */}
-          <div className="flex gap-[14px] items-start animate-slide-in-right" style={{ animationDelay: "0.2s" }}>
+          <div
+            className="animate-slide-in-right flex items-start gap-[14px]"
+            style={{ animationDelay: "0.2s" }}
+          >
             {/* Trending Tab */}
             <button
               onClick={() => setActiveTab("trending")}
-              className={`pb-2 font-bold text-[13px] tracking-tight transition-all duration-300 hover:scale-105 ${
+              className={`pb-2 text-[13px] font-bold tracking-tight transition-all duration-300 hover:scale-105 ${
                 activeTab === "trending"
-                  ? "text-gray-400 border-b-0"
-                  : "text-gray-400 border-b-0 hover:text-gray-600"
+                  ? "border-b-0 text-gray-400"
+                  : "border-b-0 text-gray-400 hover:text-gray-600"
               }`}
             >
               Trending
@@ -210,10 +229,10 @@ export function RecommendedStoriesSection({
             {/* Recent Tab */}
             <button
               onClick={() => setActiveTab("recent")}
-              className={`pb-2 font-bold text-[13px] tracking-tight transition-all duration-300 border-b-2 hover:scale-105 ${
+              className={`border-b-2 pb-2 text-[13px] font-bold tracking-tight transition-all duration-300 hover:scale-105 ${
                 activeTab === "recent"
-                  ? "text-gray-900 border-blue-600"
-                  : "text-gray-400 border-transparent"
+                  ? "border-blue-600 text-gray-900"
+                  : "border-transparent text-gray-400"
               }`}
             >
               Recent
@@ -222,7 +241,7 @@ export function RecommendedStoriesSection({
         </div>
 
         {/* Stories Grid */}
-        <div className="grid grid-cols-2 gap-5 w-full">
+        <div className="grid w-full grid-cols-2 gap-5">
           {stories.map((story, idx) => (
             <StoryCard
               key={story.id}

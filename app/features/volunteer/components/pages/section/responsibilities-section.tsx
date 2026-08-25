@@ -9,7 +9,7 @@ interface SectionLabelProps {
 
 function SectionLabel({ children }: SectionLabelProps) {
   return (
-    <p className="text-[14px] font-semibold leading-[19.5px] text-[#344256]">
+    <p className="text-[14px] leading-[19.5px] font-semibold text-[#344256]">
       {children}
     </p>
   );
@@ -28,7 +28,8 @@ export default function ResponsibilitiesSection({
   onUpdate,
   onRemovePoint,
 }: ResponsibilitiesSectionProps) {
-  const lastIsEmpty = responsibilities[responsibilities.length - 1]?.trim() === "";
+  const lastIsEmpty =
+    responsibilities[responsibilities.length - 1]?.trim() === "";
 
   const handleAddPoint = () => {
     onUpdate([...responsibilities, ""]);
@@ -60,7 +61,7 @@ export default function ResponsibilitiesSection({
                 newResponsibilities[index] = e.target.value;
                 onUpdate(newResponsibilities);
               }}
-              className="h-11 flex-1 rounded-lg border border-transparent bg-[#f8fafc] px-4 text-sm font-medium text-[#364153] placeholder:text-[#c8d6e5] focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:border-transparent"
+              className="h-11 flex-1 rounded-lg border border-transparent bg-[#f8fafc] px-4 text-sm font-medium text-[#364153] placeholder:text-[#c8d6e5] focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-blue-500/45"
             />
             {responsibilities.length > 1 && (
               <IconButton

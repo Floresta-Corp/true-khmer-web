@@ -5,7 +5,11 @@ import {
   useNavigation,
 } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
-import type { QuestionResponse, GetQuestionsResponse, TrendingTagResponse } from "~/types/api-client";
+import type {
+  QuestionResponse,
+  GetQuestionsResponse,
+  TrendingTagResponse,
+} from "~/types/api-client";
 import type { CategoriesPicker, QuestionSortBy } from "~/features/forum/types";
 import { questionSortBySchema } from "~/features/forum/types";
 import { useState, useEffect, useCallback, useMemo } from "react";

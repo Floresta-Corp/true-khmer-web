@@ -66,7 +66,7 @@ export function ShareLaunchpadDialog({
               variant="outline"
               size="icon-sm"
               onClick={handleCopy}
-              className="border-[#dbe3ee] shrink-0"
+              className="shrink-0 border-[#dbe3ee]"
             >
               {isCopied ? (
                 <Check className="size-4 text-[#19a95e]" />

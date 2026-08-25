@@ -16,7 +16,7 @@ export default function LaunchpadProjectCardSkeleton({
         <Skeleton className="size-[31.5px] rounded-full" />
       </div>
       <Card
-        className={`flex h-95 flex-col p-5 rounded-2xl bg-white ${className ?? ""}`}
+        className={`flex h-95 flex-col rounded-2xl bg-white p-5 ${className ?? ""}`}
       >
         <div className="flex items-center justify-between pb-3">
           <Skeleton className="h-4 w-20 rounded" />
@@ -34,7 +34,7 @@ export default function LaunchpadProjectCardSkeleton({
           <Skeleton className="h-10 w-full rounded-xl" />
         </div>
         <Separator className="my-6" />
-        <div className="w-full flex items-center justify-between">
+        <div className="flex w-full items-center justify-between">
           <div className="flex items-center gap-1.75">
             <Skeleton className="size-3.5 rounded" />
             <Skeleton className="h-3 w-16 rounded" />

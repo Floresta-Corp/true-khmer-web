@@ -10,22 +10,22 @@ export function EventCategoryFilter({ categories }: EventCategoryFilterProps) {
     <section className="w-full">
       <div>
         <div className="mb-6 md:mb-8">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900">
+          <h2 className="text-xl font-bold text-gray-900 md:text-2xl">
             Browse by categories
           </h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="mt-1 text-sm text-gray-500">
             Explore events based on your interests and career goals.
           </p>
         </div>
         <div
-          className="flex overflow-x-auto p-1 -m-1 items-center justify-between"
+          className="-m-1 flex items-center justify-between overflow-x-auto p-1"
           style={{ scrollbarWidth: "none" }}
         >
           {categories.map((category) => (
             <Link
               key={category.id}
               to={`/events/all?categoryId=${category.id}`}
-              className="group flex items-center gap-3 border border-gray-200 bg-white px-4 md:px-5 py-1.5 md:py-2 transition-all hover:shadow-md hover:border-blue-200 hover:-translate-y-0.5 shrink-0 shadow-sm"
+              className="group flex shrink-0 items-center gap-3 border border-gray-200 bg-white px-4 py-1.5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md md:px-5 md:py-2"
               style={{ borderRadius: "24px" }}
             >
               <span
@@ -35,10 +35,10 @@ export function EventCategoryFilter({ categories }: EventCategoryFilterProps) {
                 {category.icon}
               </span>
               <div>
-                <div className="font-semibold text-sm text-gray-900 leading-snug group-hover:text-blue-600 transition-colors">
+                <div className="text-sm leading-snug font-semibold text-gray-900 transition-colors group-hover:text-blue-600">
                   {category.name}
                 </div>
-                <div className="text-xs text-gray-400 mt-0.5">
+                <div className="mt-0.5 text-xs text-gray-400">
                   {category.eventCount}{" "}
                   {category.eventCount === 1 ? "event" : "events"}
                 </div>

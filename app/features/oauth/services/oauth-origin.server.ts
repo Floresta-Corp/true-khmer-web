@@ -7,6 +7,5 @@ export function getAllowedOauthOrigin() {
 export function isAllowedOauthOrigin(origin: string | null): origin is string {
   const allowed = getAllowedOauthOrigin();
 
-  console.log(allowed, origin);
   return Boolean(origin && allowed && origin === allowed);
 }

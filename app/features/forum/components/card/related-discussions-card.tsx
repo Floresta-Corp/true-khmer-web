@@ -15,7 +15,7 @@ export default function RelatedDiscussionsCard({
   return (
     <div className="flex flex-col gap-3.5 rounded-xl border border-[#e1e7ef] bg-white p-5.5">
       {/* Heading */}
-      <h3 className="text-sm font-bold leading-5.25 text-[#2c2f31] tracking-tight">
+      <h3 className="text-sm leading-5.25 font-bold tracking-tight text-[#2c2f31]">
         Related Discussions
       </h3>
 
@@ -25,14 +25,14 @@ export default function RelatedDiscussionsCard({
           <Link
             key={discussion.id}
             to={`/forum/${discussion.id}`}
-            className="group flex flex-col gap-2 hover:opacity-80 transition-opacity"
+            className="group flex flex-col gap-2 transition-opacity hover:opacity-80"
           >
             {/* Title */}
-            <p className="text-[12.25px] font-bold leading-4.375 text-[#2c2f31] line-clamp-2">
+            <p className="leading-4.375 line-clamp-2 text-[12.25px] font-bold text-[#2c2f31]">
               {discussion.title}
             </p>
             {/* Answer count */}
-            <p className="text-[10.5px] font-bold leading-3.5 text-[#99a1af] tracking-wider">
+            <p className="text-[10.5px] leading-3.5 font-bold tracking-wider text-[#99a1af]">
               {discussion.answerCount}{" "}
               {discussion.answerCount === 1 ? "answer" : "answers"}
             </p>

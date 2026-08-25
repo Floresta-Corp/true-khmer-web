@@ -65,7 +65,7 @@ export default function ReplyBox({
 
   return (
     <div className={cn("rounded-xl bg-[#EEF1F3] p-3", className)}>
-      <div className="relative rounded-xl bg-white border border-[#f1f5f9] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05),0px_0px_0px_1px_rgba(171,173,175,0.1)] overflow-hidden">
+      <div className="relative overflow-hidden rounded-xl border border-[#f1f5f9] bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05),0px_0px_0px_1px_rgba(171,173,175,0.1)]">
         <fetcher.Form
           method="post"
           className="relative w-full"
@@ -83,16 +83,16 @@ export default function ReplyBox({
               disabled={disabled || isSubmitting}
               value={body}
               onChange={(event) => setBody(event.target.value)}
-              className="min-h-24 w-full rounded-md border border-[#e6eef8] bg-white px-3 py-2 text-sm leading-5 text-[#111827] placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#2f6fe4]/20"
+              className="min-h-24 w-full rounded-md border border-[#e6eef8] bg-white px-3 py-2 text-sm leading-5 text-[#111827] placeholder:text-muted-foreground focus:ring-2 focus:ring-[#2f6fe4]/20 focus:outline-none"
               maxLength={maxLength}
             />
           </div>
 
-          <div className="p-4 bg-[#EEF1F34D] w-full text-right">
+          <div className="w-full bg-[#EEF1F34D] p-4 text-right">
             <Button
               type="submit"
               disabled={disabled || isSubmitting || isBodyEmpty}
-              className="h-10 md:w-30 rounded-lg bg-[#2f6fe4] text-sm font-medium text-white hover:bg-[#245fca] disabled:opacity-60"
+              className="h-10 rounded-lg bg-[#2f6fe4] text-sm font-medium text-white hover:bg-[#245fca] disabled:opacity-60 md:w-30"
             >
               {isSubmitting ? (
                 <span className="inline-flex items-center gap-2">

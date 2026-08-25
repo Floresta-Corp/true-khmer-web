@@ -14,7 +14,7 @@ export default function OpportunityCardSkeleton({
     >
       <div className="relative h-39.25 w-full overflow-hidden p-3.5">
         <Skeleton className="absolute inset-0 size-full" />
-        <Skeleton className="relative ml-auto mt-20 h-5.5 w-20 rounded-xl" />
+        <Skeleton className="relative mt-20 ml-auto h-5.5 w-20 rounded-xl" />
       </div>
 
       <div className="flex flex-1 flex-col gap-6 p-5">

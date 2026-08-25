@@ -77,10 +77,10 @@ export default function LoginTwoFactorPage() {
             <ShieldCheck className="size-6 text-[#2F6FE4]" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold leading-9 text-[#111827]">
+            <h1 className="text-3xl leading-9 font-bold text-[#111827]">
               Verify your sign in
             </h1>
-            <p className="text-base font-normal leading-6 text-[#4B5563]">
+            <p className="text-base leading-6 font-normal text-[#4B5563]">
               Enter a 6-digit code to finish signing in. This challenge expires
               at {expiresAtLabel}.
             </p>
@@ -140,7 +140,7 @@ export default function LoginTwoFactorPage() {
           <input type="hidden" name="code" value={code} />
 
           <div className="space-y-3">
-            <Label className="block text-sm font-semibold leading-5 text-[#111827]">
+            <Label className="block text-sm leading-5 font-semibold text-[#111827]">
               Verification code
             </Label>
             <InputOTP
@@ -162,13 +162,11 @@ export default function LoginTwoFactorPage() {
               </InputOTPGroup>
             </InputOTP>
             {actionData?.errors?.code ? (
-              <p className="text-xs text-red-500">
-                {actionData.errors.code}
-              </p>
+              <p className="text-xs text-red-500">{actionData.errors.code}</p>
             ) : null}
           </div>
 
-          <Label className="flex items-center gap-2 text-sm font-semibold leading-5 text-[#1D283A]">
+          <Label className="flex items-center gap-2 text-sm leading-5 font-semibold text-[#1D283A]">
             <Checkbox
               checked={trustDevice}
               onCheckedChange={(checked) => setTrustDevice(checked === true)}
@@ -196,7 +194,7 @@ export default function LoginTwoFactorPage() {
               value="send-email"
               variant="link"
               disabled={isSubmitting}
-              className="h-auto w-full px-0 text-sm font-semibold leading-5 text-[#1C5DD4] hover:text-[#164CB0]"
+              className="h-auto w-full px-0 text-sm leading-5 font-semibold text-[#1C5DD4] hover:text-[#164CB0]"
             >
               {isSubmitting && activeIntent === "send-email"
                 ? "Sending..."
@@ -205,7 +203,7 @@ export default function LoginTwoFactorPage() {
           ) : null}
         </Form>
 
-        <p className="text-center text-sm font-normal leading-5 text-[#4B5563]">
+        <p className="text-center text-sm leading-5 font-normal text-[#4B5563]">
           Need another account?{" "}
           <Link
             to="/login"

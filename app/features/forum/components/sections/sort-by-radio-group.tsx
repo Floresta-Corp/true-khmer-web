@@ -29,12 +29,9 @@ export default function SortByRadioGroup({
         {sortByOptions.map((option) => (
           <label
             key={option.value}
-            className="flex items-center gap-2.5 text-[12.25px] leading-[17.5px] text-[#595c5e] cursor-pointer"
+            className="flex cursor-pointer items-center gap-2.5 text-[12.25px] leading-[17.5px] text-[#595c5e]"
           >
-            <RadioGroupItem
-              value={option.value}
-              className="border-[#e8e8e8]"
-            />
+            <RadioGroupItem value={option.value} className="border-[#e8e8e8]" />
             <span>{option.label}</span>
           </label>
         ))}

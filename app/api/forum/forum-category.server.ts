@@ -1,4 +1,7 @@
-import { apiRequestWithOptionalSession, apiRequestWithSession } from "~/lib/server/api-client.server";
+import {
+  apiRequestWithOptionalSession,
+  apiRequestWithSession,
+} from "~/lib/server/api-client.server";
 import type { GetCategoriesResponse } from "~/types/api-client";
 
 export async function getCategories(request: Request) {

@@ -25,7 +25,7 @@ export function OnboardingTierPathCard() {
   return (
     <div className="w-full rounded-2xl border border-[#ACDCFF] bg-white px-4 py-3.5 sm:px-5 sm:py-4">
       <div className="flex flex-col gap-3 sm:gap-4">
-        <p className="text-xs font-semibold leading-5 text-[#65758B]">
+        <p className="text-xs leading-5 font-semibold text-[#65758B]">
           Tiers Path Ahead
         </p>
 
@@ -37,11 +37,11 @@ export function OnboardingTierPathCard() {
                 <div className="flex w-14 shrink-0 flex-col items-center gap-1 text-center sm:w-14.25">
                   <Icon size={20} className={tier.colorClassName} />
                   <p
-                    className={`text-sm font-semibold leading-5 ${tier.colorClassName}`}
+                    className={`text-sm leading-5 font-semibold ${tier.colorClassName}`}
                   >
                     {tier.name}
                   </p>
-                  <p className="whitespace-nowrap text-xs font-normal leading-5 text-[#48566A]">
+                  <p className="text-xs leading-5 font-normal whitespace-nowrap text-[#48566A]">
                     {tier.range}
                   </p>
                 </div>

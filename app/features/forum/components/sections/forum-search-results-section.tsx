@@ -48,7 +48,7 @@ export default function ForumSearchResultsSection({
   }));
 
   return (
-    <section className="bg-[#f8fafc] px-4 pb-14 pt-7 md:px-10 lg:px-0">
+    <section className="bg-[#f8fafc] px-4 pt-7 pb-14 md:px-10 lg:px-0">
       <div className="mx-auto flex w-full max-w-300 flex-col gap-7 lg:flex-row lg:items-start">
         <SearchFiltersSidebar
           search={search}
@@ -67,22 +67,22 @@ export default function ForumSearchResultsSection({
                 key={index}
                 className="w-full rounded-2xl border border-[#f1f5f9] bg-white p-4 sm:p-6"
               >
-                <div className="flex items-center gap-3 mb-5">
+                <div className="mb-5 flex items-center gap-3">
                   <Skeleton className="h-10 w-10 rounded-full" />
                   <div className="flex flex-col gap-2">
                     <Skeleton className="h-4 w-32 rounded" />
                     <Skeleton className="h-3 w-24 rounded" />
                   </div>
                 </div>
-                <Skeleton className="h-6 w-3/4 rounded mb-3" />
-                <Skeleton className="h-4 w-full rounded mb-2" />
-                <Skeleton className="h-4 w-5/6 rounded mb-4" />
-                <div className="flex gap-2 mb-4">
+                <Skeleton className="mb-3 h-6 w-3/4 rounded" />
+                <Skeleton className="mb-2 h-4 w-full rounded" />
+                <Skeleton className="mb-4 h-4 w-5/6 rounded" />
+                <div className="mb-4 flex gap-2">
                   <Skeleton className="h-5 w-16 rounded-md" />
                   <Skeleton className="h-5 w-20 rounded-md" />
                   <Skeleton className="h-5 w-14 rounded-md" />
                 </div>
-                <div className="border-t border-[#f9fafb] my-3" />
+                <div className="my-3 border-t border-[#f9fafb]" />
                 <div className="flex gap-4">
                   <Skeleton className="h-8 w-20 rounded-xl" />
                   <Skeleton className="h-8 w-20 rounded-xl" />

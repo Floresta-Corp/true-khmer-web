@@ -37,7 +37,7 @@ export function CommunityStandingCard({
     : "You have reached the highest tier.";
 
   return (
-    <Card className="w-full rounded-3xl border shadow-none bg-white p-6 ">
+    <Card className="w-full rounded-3xl border bg-white p-6 shadow-none">
       <CardHeader className="p-0 pb-5">
         <div className="flex items-center justify-between gap-3">
           <CardTitle className="flex items-center gap-2 text-base font-semibold tracking-tight text-[#0f172a]">
@@ -112,11 +112,11 @@ function StandingStat({
 }) {
   return (
     <div className="flex min-h-17.5 flex-col items-center justify-center gap-2 rounded-3xl border border-[#e2e8f0] bg-[#f8fafc] px-3 py-3 text-center">
-      <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">
+      <span className="flex items-center gap-1 text-[10px] font-bold tracking-wider text-[#94a3b8] uppercase">
         {label}
         {children}
       </span>
-      <span className={`text-lg font-semibold leading-6 ${valueClassName}`}>
+      <span className={`text-lg leading-6 font-semibold ${valueClassName}`}>
         {value}
       </span>
     </div>

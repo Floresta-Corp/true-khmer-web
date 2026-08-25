@@ -41,29 +41,29 @@ export function EventCard({ event }: EventCardProps) {
 
   return (
     <Link to={`/events/detail/${event.id}`} className="group block">
-      <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 h-full flex flex-col">
+      <div className="flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow duration-300 hover:shadow-lg">
         {/* Image */}
-        <div className="relative w-full aspect-4/3 bg-gray-100 overflow-hidden">
+        <div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100">
           {event.thumbnail ? (
             <img
               src={event.thumbnail}
               alt={event.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100">
-              <Calendar className="w-12 h-12 text-blue-300" />
+            <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100">
+              <Calendar className="h-12 w-12 text-blue-300" />
             </div>
           )}
           {/* Category badge — top left */}
           <div className="absolute top-3 left-3 flex items-center gap-1.5">
             <Badge
-              className={`${categoryColor} border-0 text-[11px] font-semibold rounded-md px-2.5 py-1 shadow-sm`}
+              className={`${categoryColor} rounded-md border-0 px-2.5 py-1 text-[11px] font-semibold shadow-sm`}
             >
               {formatEventType(event.eventType)}
             </Badge>
             {isSoldOut && (
-              <Badge className="bg-red-500 text-white border-0 text-[11px] font-semibold rounded-md px-2.5 py-1 shadow-sm">
+              <Badge className="rounded-md border-0 bg-red-500 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
                 Sold Out
               </Badge>
             )}
@@ -76,12 +76,12 @@ export function EventCard({ event }: EventCardProps) {
             }}
             variant="ghost"
             size="icon"
-            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors shadow-sm"
+            className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
           >
             <Heart
-              className={`w-4 h-4 transition-colors ${
+              className={`h-4 w-4 transition-colors ${
                 event.isFavorite
-                  ? "text-red-500 fill-red-500"
+                  ? "fill-red-500 text-red-500"
                   : "text-gray-500 hover:text-red-500"
               }`}
             />
@@ -89,23 +89,23 @@ export function EventCard({ event }: EventCardProps) {
         </div>
 
         {/* Content */}
-        <div className="p-4 flex flex-col flex-1">
+        <div className="flex flex-1 flex-col p-4">
           {/* Date */}
-          <div className="flex items-center gap-1.5 mb-2">
-            <Calendar className="w-3.5 h-3.5 text-blue-600" />
+          <div className="mb-2 flex items-center gap-1.5">
+            <Calendar className="h-3.5 w-3.5 text-blue-600" />
             <span className="text-xs font-medium text-blue-600">
               {formatEventDateTime(event.startAt)}
             </span>
           </div>
 
           {/* Title */}
-          <h3 className="font-bold text-base text-gray-900 mb-1.5 line-clamp-1 hover:text-blue-600 transition-colors">
+          <h3 className="mb-1.5 line-clamp-1 text-base font-bold text-gray-900 transition-colors hover:text-blue-600">
             {event.title}
           </h3>
 
           {/* Excerpt */}
           {event.excerpt && (
-            <p className="text-sm text-gray-500 line-clamp-2 mb-4 leading-relaxed">
+            <p className="mb-4 line-clamp-2 text-sm leading-relaxed text-gray-500">
               {event.excerpt}
             </p>
           )}
@@ -113,9 +113,9 @@ export function EventCard({ event }: EventCardProps) {
           {/* Bottom row: venue + price */}
           <div className="mt-auto flex items-center justify-between pt-2">
             {event.venueName ? (
-              <div className="flex items-center gap-1.5 text-gray-400 min-w-0">
-                <MapPin className="w-3.5 h-3.5 shrink-0" />
-                <span className="text-xs truncate">{event.venueName}</span>
+              <div className="flex min-w-0 items-center gap-1.5 text-gray-400">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate text-xs">{event.venueName}</span>
               </div>
             ) : event.isOnline ? (
               <div className="flex items-center gap-1.5 text-blue-500">
@@ -125,7 +125,7 @@ export function EventCard({ event }: EventCardProps) {
               <div />
             )}
             <span
-              className={`text-sm font-bold shrink-0 ${
+              className={`shrink-0 text-sm font-bold ${
                 isFree ? "text-emerald-500" : "text-blue-600"
               }`}
             >

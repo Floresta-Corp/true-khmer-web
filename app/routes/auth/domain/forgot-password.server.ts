@@ -67,8 +67,9 @@ export async function action({ request }: ActionFunctionArgs) {
       errors: {
         form:
           error instanceof Error
-            ? formatAuthMessage(`Could not send reset email: ${error.message}`) ??
-              "Could not send reset email. Please try again."
+            ? (formatAuthMessage(
+                `Could not send reset email: ${error.message}`,
+              ) ?? "Could not send reset email. Please try again.")
             : "Could not send reset email. Please try again.",
       },
     };

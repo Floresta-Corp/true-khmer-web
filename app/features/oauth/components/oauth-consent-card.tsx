@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import { OAuthHeader } from "./oauth-header";
 import { OAuthClientBranding } from "./oauth-client-branding";
@@ -31,6 +31,7 @@ export function OAuthConsentCard({
   const fetcher = useFetcher<typeof OauthHandoffAction>();
   const [error, setError] = useState<string | null>(null);
   const loading = fetcher.state !== "idle";
+  const wasPending = useRef(false);
 
   const handleContinue = useCallback(() => {
     setError(null);
@@ -47,9 +48,13 @@ export function OAuthConsentCard({
   // The popup never hands the raw accessToken to the opener — it exchanges it
   // for a single-use handoff token first, then forwards that whole result.
   useEffect(() => {
-    if (fetcher.state !== "idle" || !fetcher.data) return;
+    const settled = wasPending.current && fetcher.state === "idle";
+    wasPending.current = fetcher.state !== "idle";
+    if (!settled) return;
 
-    if (fetcher.data.ok) {
+    // A thrown Response or a network failure resolves the fetcher back to idle
+    // with no data at all, so the missing-data case has to fail loudly too.
+    if (fetcher.data?.ok) {
       postAuthResult(fetcher.data.origin ?? origin, fetcher.data);
     } else {
       setError("Unable to complete sign-in. Please try again.");

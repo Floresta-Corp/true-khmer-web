@@ -62,11 +62,11 @@ export default function OpportunityDetailsGrid({
         const Icon = field.icon;
         return (
           <div className="space-y-1" key={field.key}>
-            <p className="flex items-center gap-1.5 text-[10px] text-xs font-bold text-gray-400 uppercase tracking-widest leading-tight mb-1">
+            <p className="mb-1 flex items-center gap-1.5 text-xs text-[10px] leading-tight font-bold tracking-widest text-gray-400 uppercase">
               {!hideIcon && <Icon className="size-[10.5px]" />}
               {field.label}
             </p>
-            <p className="font-bold text-gray-900 dark:text-white whitespace-nowrap">
+            <p className="font-bold whitespace-nowrap text-gray-900 dark:text-white">
               {field.value}
             </p>
           </div>

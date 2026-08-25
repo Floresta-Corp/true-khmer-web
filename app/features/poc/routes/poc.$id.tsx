@@ -40,7 +40,7 @@ export default function PeopleOfCambodiaDetailPage() {
   };
 
   return (
-    <div className="w-full flex flex-col px-28 py-8 ">
+    <div className="flex w-full flex-col px-28 py-8">
       <PocNavigationSection
         onWatchVideo={handleWatchVideo}
         onReadFullStory={handleReadFullStory}

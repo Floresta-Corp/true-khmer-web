@@ -4,7 +4,7 @@ interface SectionLabelProps {
 
 export default function SectionLabel({ children }: SectionLabelProps) {
   return (
-    <p className="text-[14px] font-semibold leading-[19.5px] text-[#344256]">
+    <p className="text-[14px] leading-[19.5px] font-semibold text-[#344256]">
       {children}
     </p>
   );

@@ -15,21 +15,21 @@ export function EventDetailSidebar({
   organizer,
 }: EventDetailSidebarProps) {
   return (
-    <div className="w-full lg:w-80 shrink-0">
-      <div className="lg:sticky lg:top-24 space-y-5">
+    <div className="w-full shrink-0 lg:w-80">
+      <div className="space-y-5 lg:sticky lg:top-24">
         {/* Overview Card */}
-        <Card className="bg-white rounded-2xl p-6 shadow-none">
-          <h3 className="text-base font-bold text-gray-900 mb-3">Overview</h3>
+        <Card className="rounded-2xl bg-white p-6 shadow-none">
+          <h3 className="mb-3 text-base font-bold text-gray-900">Overview</h3>
           {event.excerpt && (
-            <p className="text-sm text-gray-500 leading-relaxed mb-5">
+            <p className="mb-5 text-sm leading-relaxed text-gray-500">
               {event.excerpt}
             </p>
           )}
 
           {/* Date & Time */}
-          <div className="flex items-start gap-3 mb-4">
-            <div className="w-9 h-9 rounded-full bg-[#DBEAFE] flex items-center justify-center shrink-0 mt-0.5">
-              <Calendar className="w-4 h-4 text-[#2F6FE4]" />
+          <div className="mb-4 flex items-start gap-3">
+            <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#DBEAFE]">
+              <Calendar className="h-4 w-4 text-[#2F6FE4]" />
             </div>
             <div>
               <p className="text-sm font-semibold text-gray-900">
@@ -44,22 +44,22 @@ export function EventDetailSidebar({
           {/* Location */}
           {event.venueName ? (
             <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-full bg-[#D0FAE5] flex items-center justify-center shrink-0 mt-0.5">
-                <MapPin className="w-4 h-4 text-[#00BC7D]" />
+              <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#D0FAE5]">
+                <MapPin className="h-4 w-4 text-[#00BC7D]" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-gray-900">
                   {event.venueName}
                 </p>
-                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                <p className="text-xs tracking-wide text-gray-400 uppercase">
                   {event.isOnline ? "Online Event" : "In-Person"}
                 </p>
               </div>
             </div>
           ) : event.isOnline ? (
             <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center shrink-0 mt-0.5">
-                <Globe className="w-4 h-4 text-blue-500" />
+              <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50">
+                <Globe className="h-4 w-4 text-blue-500" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-gray-900">
@@ -73,19 +73,19 @@ export function EventDetailSidebar({
 
         {/* About the Organizer */}
         {organizer && (
-          <Card className="bg-white rounded-2xl shadow-none p-6">
-            <h3 className="text-base font-bold text-gray-900 mb-4">
+          <Card className="rounded-2xl bg-white p-6 shadow-none">
+            <h3 className="mb-4 text-base font-bold text-gray-900">
               About the Organizer
             </h3>
-            <div className="flex items-center gap-3 mb-3">
+            <div className="mb-3 flex items-center gap-3">
               {organizer.image ? (
                 <img
                   src={organizer.image}
                   alt={`${organizer.firstName} ${organizer.lastName}`}
-                  className="w-10 h-10 rounded-full object-cover"
+                  className="h-10 w-10 rounded-full object-cover"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold text-sm">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-blue-400 to-indigo-500 text-sm font-bold text-white">
                   {organizer.firstName.charAt(0).toUpperCase()}
                 </div>
               )}
@@ -93,7 +93,7 @@ export function EventDetailSidebar({
                 <p className="text-sm font-semibold text-gray-900">
                   {organizer.firstName} {organizer.lastName}
                 </p>
-                <p className="text-xs text-blue-600 font-medium">
+                <p className="text-xs font-medium text-blue-600">
                   {parseInt(organizer.totalEvent) > 1
                     ? `${organizer.totalEvent} events`
                     : `${organizer.totalEvent} event`}
@@ -104,9 +104,9 @@ export function EventDetailSidebar({
             {/* Report */}
             <Button
               variant="ghost"
-              className="h-auto mt-5 px-0 py-0 flex items-center gap-1.5 text-xs text-red-400 hover:text-red-500 transition-colors"
+              className="mt-5 flex h-auto items-center gap-1.5 px-0 py-0 text-xs text-red-400 transition-colors hover:text-red-500"
             >
-              <Flag className="w-3.5 h-3.5" />
+              <Flag className="h-3.5 w-3.5" />
               Report
             </Button>
           </Card>

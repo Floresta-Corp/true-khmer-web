@@ -38,7 +38,7 @@ export default function LaunchpadRolesList({
           <Button
             type="button"
             variant="ghost"
-            className="h-8 px-3 text-xs text-blue-500 cursor-pointer"
+            className="h-8 cursor-pointer px-3 text-xs text-blue-500"
             onClick={onResetRoles}
           >
             Reset roles
@@ -46,7 +46,7 @@ export default function LaunchpadRolesList({
         ) : null}
       </div>
       {count === 0 ? (
-        <div className="w-full p-6 bg-[#F8FAFC] rounded-xl">
+        <div className="w-full rounded-xl bg-[#F8FAFC] p-6">
           No roles added yet. Add at least one so collaborators know how to
           contribute.
         </div>

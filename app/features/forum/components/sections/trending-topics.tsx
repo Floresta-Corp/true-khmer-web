@@ -24,10 +24,10 @@ export default function TrendingTopics({
   }
 
   return (
-    <Card className="bg-white border-none shadow-none rounded-2xl p-5 w-full">
-      <div className="flex items-center gap-2 mb-4">
-        <TrendingUp className="w-5 h-5 text-blue-600" />
-        <h3 className="font-medium text-sm leading-6.75 text-[#344256]">
+    <Card className="w-full rounded-2xl border-none bg-white p-5 shadow-none">
+      <div className="mb-4 flex items-center gap-2">
+        <TrendingUp className="h-5 w-5 text-blue-600" />
+        <h3 className="text-sm leading-6.75 font-medium text-[#344256]">
           Trending Topics
         </h3>
       </div>
@@ -38,10 +38,10 @@ export default function TrendingTopics({
             key={tag.id}
             onClick={() => onTagSelect?.(tag)}
             aria-pressed={selectedTagId === tag.id}
-            className="flex items-center justify-between w-full text-left group"
+            className="group flex w-full items-center justify-between text-left"
           >
             <span
-              className={`inline-flex items-center rounded-lg px-3 py-1 text-xs cursor-pointer font-medium transition-colors ${
+              className={`inline-flex cursor-pointer items-center rounded-lg px-3 py-1 text-xs font-medium transition-colors ${
                 selectedTagId === tag.id
                   ? "bg-[#eaf2ff] text-[#0050d4]"
                   : "bg-[#f1f5f9] text-[#344256] group-hover:bg-[#eaf2ff] group-hover:text-[#0050d4]"

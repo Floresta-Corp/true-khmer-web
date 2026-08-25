@@ -26,7 +26,7 @@ export default function IconButton({
       disabled={disabled}
       aria-label={ariaLabel}
       className={cn(
-        "cursor-pointer size-8.75 rounded-[16px] border-0 bg-[#f8fafb] text-[#9eacc0] hover:bg-[#eff3f8] hover:text-[#65758b]",
+        "size-8.75 cursor-pointer rounded-[16px] border-0 bg-[#f8fafb] text-[#9eacc0] hover:bg-[#eff3f8] hover:text-[#65758b]",
         className,
       )}
     >

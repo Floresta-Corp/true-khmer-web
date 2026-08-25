@@ -96,7 +96,9 @@ export default function LaunchpadPostPage2({
         i === editingIndex
           ? {
               name: draftRole.name.trim(),
-              capacity: Number.isFinite(draftRole.capacity) ? draftRole.capacity : 1,
+              capacity: Number.isFinite(draftRole.capacity)
+                ? draftRole.capacity
+                : 1,
               description: draftRole.description,
             }
           : role,
@@ -108,7 +110,9 @@ export default function LaunchpadPostPage2({
         ...roles,
         {
           name: draftRole.name.trim(),
-          capacity: Number.isFinite(draftRole.capacity) ? draftRole.capacity : 1,
+          capacity: Number.isFinite(draftRole.capacity)
+            ? draftRole.capacity
+            : 1,
           description: draftRole.description,
         },
       ]);
@@ -201,15 +205,20 @@ export default function LaunchpadPostPage2({
       <div className="flex items-center justify-between">
         <Button
           variant="outline"
-          className="h-10 px-6 cursor-pointer"
+          className="h-10 cursor-pointer px-6"
           onClick={onBackToDetailClicked}
         >
           Cancel
         </Button>
         <Button
-          disabled={isSubmitting || roles.length === 0 || email.trim() === "" || phoneNumber.trim() === ""}
+          disabled={
+            isSubmitting ||
+            roles.length === 0 ||
+            email.trim() === "" ||
+            phoneNumber.trim() === ""
+          }
           onClick={onPublishedClicked}
-          className="bg-blue-500 cursor-pointer hover:bg-blue-600 text-white h-10 px-6"
+          className="h-10 cursor-pointer bg-blue-500 px-6 text-white hover:bg-blue-600"
         >
           {isSubmitting ? "Publishing..." : "Publish Project"}
         </Button>

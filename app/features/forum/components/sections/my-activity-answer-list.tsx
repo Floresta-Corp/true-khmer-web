@@ -66,7 +66,7 @@ export default function MyActivityAnswerList({
           icon={<Reply className="size-2.5" />}
           title="My answers"
         />
-        <div className="text-center py-12 text-[#9eacc0]">No answers found</div>
+        <div className="py-12 text-center text-[#9eacc0]">No answers found</div>
       </div>
     );
   }
@@ -80,7 +80,7 @@ export default function MyActivityAnswerList({
             key={answer.id}
             className="w-full max-w-134 rounded-3xl border-[#f3f4f6] p-4 shadow-none sm:p-6"
           >
-            <CardContent className="p-0 space-y-4">
+            <CardContent className="space-y-4 p-0">
               {/* Header with Answer label and timestamp */}
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <p className="text-xs font-bold text-[#2f6fe4]">Answer</p>
@@ -93,7 +93,7 @@ export default function MyActivityAnswerList({
               </div>
 
               {/* Answer body */}
-              <p className="text-xs text-[#65758b] line-clamp-3 leading-relaxed">
+              <p className="line-clamp-3 text-xs leading-relaxed text-[#65758b]">
                 {answer.body}
               </p>
 
@@ -113,7 +113,7 @@ export default function MyActivityAnswerList({
                   {/* View discussion thread link */}
                   <Link
                     to={`/forum/${answer.questionId}`}
-                    className="text-xs font-semibold text-[#2f6fe4] hover:underline wrap-break-word"
+                    className="text-xs font-semibold wrap-break-word text-[#2f6fe4] hover:underline"
                   >
                     View discussion thread
                   </Link>

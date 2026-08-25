@@ -49,7 +49,7 @@ export default function LaunchpadContactDetailCard({
             placeholder="you@example.com"
             aria-invalid={Boolean(emailError)}
             aria-describedby={emailError ? emailErrorId : undefined}
-            className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC] focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:border-transparent"
+            className="h-12.5 rounded-xl border-none bg-[#F8FAFC] px-4 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-blue-500/45"
           />
           {emailError ? (
             <p id={emailErrorId} className="text-xs text-red-500">
@@ -66,7 +66,7 @@ export default function LaunchpadContactDetailCard({
             placeholder="+855 xx xxx xxx"
             aria-invalid={Boolean(phoneNumberError)}
             aria-describedby={phoneNumberError ? phoneErrorId : undefined}
-            className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC] focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:border-transparent"
+            className="h-12.5 rounded-xl border-none bg-[#F8FAFC] px-4 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-blue-500/45"
           />
           {phoneNumberError ? (
             <p id={phoneErrorId} className="text-xs text-red-500">
@@ -84,7 +84,7 @@ export default function LaunchpadContactDetailCard({
           placeholder="@username"
           aria-invalid={Boolean(telegramUsernameError)}
           aria-describedby={telegramUsernameError ? telegramErrorId : undefined}
-          className="h-12.5 rounded-xl border-none px-4 bg-[#F8FAFC] focus-visible:ring-2 focus-visible:ring-blue-500/45 focus-visible:border-transparent"
+          className="h-12.5 rounded-xl border-none bg-[#F8FAFC] px-4 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-blue-500/45"
         />
         {telegramUsernameError ? (
           <p id={telegramErrorId} className="text-xs text-red-500">

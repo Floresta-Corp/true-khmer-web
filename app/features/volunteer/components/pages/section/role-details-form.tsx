@@ -8,7 +8,7 @@ interface SectionLabelProps {
 
 function SectionLabel({ children }: SectionLabelProps) {
   return (
-    <p className="text-[14px] font-semibold leading-[19.5px] text-[#344256]">
+    <p className="text-[14px] leading-[19.5px] font-semibold text-[#344256]">
       {children}
     </p>
   );
@@ -45,8 +45,8 @@ function PaleInput({
       aria-invalid={ariaInvalid}
       className={`h-11 rounded-lg border bg-[#f8fafc] px-4 text-sm text-[#364153] placeholder:text-[#c8d6e5] focus-visible:ring-2 ${
         ariaInvalid
-          ? "border-red-500 ring-2 ring-red-200 focus-visible:ring-red-500 focus-visible:border-red-500"
-          : "border-transparent focus-visible:ring-blue-500/45 focus-visible:border-blue-500/45"
+          ? "border-red-500 ring-2 ring-red-200 focus-visible:border-red-500 focus-visible:ring-red-500"
+          : "border-transparent focus-visible:border-blue-500/45 focus-visible:ring-blue-500/45"
       } ${className}`}
     />
   );

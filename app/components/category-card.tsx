@@ -58,7 +58,7 @@ export function CategoryCard({
       type="button"
       variant="ghost"
       className={cn(
-        "border border-gray-100 cursor-pointer h-17 w-52.5 justify-start gap-3.5 rounded-[28px] bg-white px-3.75 py-0 text-left shadow-none hover:bg-white md:w-full md:min-w-0",
+        "h-17 w-52.5 cursor-pointer justify-start gap-3.5 rounded-[28px] border border-gray-100 bg-white px-3.75 py-0 text-left shadow-none hover:bg-white md:w-full md:min-w-0",
         active ? "border-blue-300 bg-blue-50" : "",
         className,
       )}
@@ -67,8 +67,8 @@ export function CategoryCard({
         <BuildCategoryIcon icon={iconKey} className="size-4" />
       </div>
       <div className="flex flex-col items-start gap-[3.5px]">
-        <h3 className="text-sm font-bold leading-3.5 text-[#030213]">{name}</h3>
-        <p className="text-xs font-medium leading-4.5 text-[#99a1af]">
+        <h3 className="text-sm leading-3.5 font-bold text-[#030213]">{name}</h3>
+        <p className="text-xs leading-4.5 font-medium text-[#99a1af]">
           {displayOrder} {displayName ? displayName : "roles"}
         </p>
       </div>
