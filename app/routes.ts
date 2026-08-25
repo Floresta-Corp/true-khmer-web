@@ -40,6 +40,20 @@ export default [
       ),
       route("poc", "features/poc/routes/poc.tsx"),
       route("poc/detail/:id", "features/poc/routes/poc.$id.tsx"),
+      route("education", "features/education/route/education.tsx"),
+      route("education/:id", "features/education/route/education.$id.tsx"),
+      route(
+        "education/:id/learn",
+        "features/education/route/education.learn.$id.tsx",
+      ),
+      route(
+        "education/:id/quiz",
+        "features/education/route/education.quiz.$id.tsx",
+      ),
+      route(
+        "education/:id/certificate",
+        "features/education/route/education.certificate.$id.tsx",
+      ),
       route("blog", "features/blog/route/blog.tsx"),
       route("blog/:slug", "features/blog/route/blog.$slug.tsx"),
       route("launchpad", "features/launchpad/route/launchpad.tsx"),

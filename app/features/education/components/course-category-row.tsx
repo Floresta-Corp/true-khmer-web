@@ -1,0 +1,85 @@
+import {
+  BookOpen,
+  Briefcase,
+  CircleDollarSign,
+  ChevronsLeftRight,
+  Globe,
+  Heart,
+  LineChart,
+  Megaphone,
+  Palette,
+  Shapes,
+  Sprout,
+  type LucideIcon,
+} from "lucide-react";
+import { cn } from "~/lib/utils";
+import type { CourseCategory } from "~/features/education/types";
+
+const ICONS: Record<string, LucideIcon> = {
+  BookOpen,
+  Briefcase,
+  ChevronsLeftRight,
+  CircleDollarSign,
+  Globe,
+  Heart,
+  LineChart,
+  Megaphone,
+  Palette,
+  Sprout,
+};
+
+function iconFor(category: CourseCategory): LucideIcon {
+  return (
+    ICONS[category.iconKey ?? ""] ??
+    ICONS[category.slug ?? ""] ??
+    ICONS[category.id] ??
+    Shapes
+  );
+}
+
+interface CourseCategoryRowProps {
+  categories: CourseCategory[];
+  activeCategoryId: string | null;
+  onSelect: (categoryId: string | null) => void;
+}
+
+/** "Classes by category" — icon above label, spread evenly across the row. */
+export function CourseCategoryRow({
+  categories,
+  activeCategoryId,
+  onSelect,
+}: CourseCategoryRowProps) {
+  return (
+    <section className="mb-12">
+      <h2 className="mb-6 text-xl font-bold text-[#1A1A2E]">
+        Classes by category
+      </h2>
+
+      <div className="flex items-start gap-2 overflow-x-auto pb-1 [scrollbar-width:none] sm:justify-between [&::-webkit-scrollbar]:hidden">
+        {categories.map((category) => {
+          const Icon = iconFor(category);
+          const isActive = activeCategoryId === category.id;
+          return (
+            <button
+              key={category.id}
+              type="button"
+              aria-pressed={isActive}
+              onClick={() => onSelect(isActive ? null : category.id)}
+              className={cn(
+                "flex shrink-0 cursor-pointer flex-col items-center gap-2.5 rounded-lg px-3 py-2 transition-colors",
+                isActive
+                  ? "text-[#1C5DD4]"
+                  : "text-[#6B7280] hover:text-[#1A1A2E]",
+              )}
+            >
+              <Icon className="size-5.5" strokeWidth={1.6} aria-hidden />
+              <span className="text-[13px] whitespace-nowrap">
+                {category.name}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
