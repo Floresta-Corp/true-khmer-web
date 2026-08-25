@@ -124,7 +124,7 @@ export default function LaunchpadProjectCard({
             onOpenOpportunity(item);
           }
         }}
-        className="flex min-h-112.5 cursor-pointer flex-col overflow-hidden rounded-2xl border border-transparent bg-white p-0 shadow-none transition-[border-color,box-shadow] duration-300 group-hover:border-[#dbe4f7] group-hover:shadow-[0px_6px_20px_-12px_rgba(47,111,228,0.12)]"
+        className="flex min-h-112.5 cursor-pointer flex-col overflow-hidden rounded-2xl border border-[#f3f4f6] bg-white p-0 shadow-none transition-[border-color,box-shadow] duration-300 group-hover:border-[#dbe4f7] group-hover:shadow-[0px_6px_20px_-12px_rgba(47,111,228,0.12)]"
       >
         <div className="relative overflow-hidden">
           <img
@@ -156,15 +156,15 @@ export default function LaunchpadProjectCard({
                 {item.totalRoles} {item.totalRoles > 1 ? "ROLES" : "ROLE"}
               </Badge>
             </div>
-            <div className="mt-4 flex w-full items-center justify-between text-xs text-[#9EACC0]">
-              <div className="flex items-center gap-1.75">
+            <div className="mt-4 flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-[#9EACC0]">
+              <div className="flex min-w-0 items-center gap-1.75 whitespace-nowrap">
                 <div>Application close:</div>
                 <div className="font-semibold text-[#65758b]">
                   {formatDate(item.deadline)}
                 </div>
               </div>
-              <div className="flex items-center gap-1.75">
-                <Eye size={14} />
+              <div className="flex shrink-0 items-center gap-1.75 whitespace-nowrap">
+                <Eye size={14} className="shrink-0" />
                 <div className="font-semibold">
                   {`${item.totalView.toLocaleString()} ${item.totalView > 1 ? "Views" : "View"}`}
                 </div>
