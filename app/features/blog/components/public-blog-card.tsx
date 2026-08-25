@@ -22,15 +22,10 @@ export function PublicBlogCard({
           decoding="async"
           className="h-64 w-full object-cover transition-transform duration-300 group-hover:scale-[1.02] motion-reduce:transform-none motion-reduce:transition-none"
         />
-        {post.isFeatured || post.categoryName ? (
+        {post.categoryName ? (
           <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-            {post.isFeatured ? (
-              <span className="inline-flex items-center rounded-full bg-[#1c97d4] px-4 py-1 text-[10px] font-semibold tracking-[0.12em] text-white uppercase shadow-sm">
-                Featured
-              </span>
-            ) : null}
             {post.categoryName ? (
-              <span className="inline-flex items-center rounded-full bg-white px-4 py-1 text-[10px] font-semibold tracking-[0.12em] text-[#1c97d4] uppercase shadow-sm">
+              <span className="inline-flex items-center rounded-full bg-white/75 px-4 py-1 text-[10px] font-semibold tracking-[0.12em] text-blue-500 uppercase shadow-sm ring-white/15 backdrop-blur-[6px]">
                 {post.categoryName}
               </span>
             ) : null}
@@ -39,12 +34,12 @@ export function PublicBlogCard({
       </div>
 
       <div className="flex flex-1 flex-col px-8 pt-8 pb-8">
-        <div className="flex items-center gap-2 text-[14px] font-medium text-[#1c97d4]">
+        <div className="flex items-center gap-2 text-[14px] font-medium text-blue-500">
           <span>{post.authorName}</span>
-          <span className="h-1 w-1 rounded-full bg-[#1c97d4]/70" />
+          <span className="h-1 w-1 rounded-full bg-blue-500/70" />
           <span>{formatDate(post.publishedAt || post.createdAt)}</span>
         </div>
-        <h2 className="mt-4 line-clamp-2 min-h-12.5 text-xl leading-tight font-semibold tracking-tight text-[#243d95] transition-colors group-hover:text-[#1c97d4] dark:text-slate-100">
+        <h2 className="mt-4 line-clamp-2 min-h-12.5 text-xl leading-tight font-semibold tracking-tight text-[#243d95] transition-colors group-hover:text-blue-500 dark:text-slate-100">
           {post.title}
         </h2>
         <p className="mt-4 line-clamp-3 min-h-15 text-[14px] leading-5 text-slate-600 dark:text-slate-400">
