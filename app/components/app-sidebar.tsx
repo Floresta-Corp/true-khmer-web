@@ -132,24 +132,24 @@ export default function AppSidebar({
 export const mySpaceSidebarConfig: AppSidebarProps = {
   roleLabel: "Member",
   items: [
-    { id: "myprofile", label: "My profile", to: "/myspace", icon: UserRound },
+    { id: "myprofile", label: "My Profile", to: "/myspace", icon: UserRound },
     {
       id: "myapplications",
-      label: "My applications",
+      label: "My Applications",
       to: "/my-applications",
       icon: FileUser,
     },
     // { id: "myticket", label: "My ticket", to: "/my-ticket", icon: Ticket },
     {
       id: "saveditems",
-      label: "Saved items",
+      label: "Saved Items",
       to: "/saved-items",
       icon: BookmarkCheck,
     },
   ],
   footer: {
     to: "/manage-post",
-    label: "Switch to workspace",
+    label: "Switch to Workspace",
     className: "bg-[#32A8FF] [a]:hover:bg-[#1E90FF]",
   },
 };
@@ -173,7 +173,7 @@ export const workSpaceSidebarConfig: AppSidebarProps = {
   ],
   footer: {
     to: "/myspace",
-    label: "Switch to my space",
+    label: "Switch to My space",
     className: "bg-[#0b57d0] [a]:hover:bg-[#0b57d0]/90",
   },
 };
