@@ -124,15 +124,15 @@ export default function Events() {
       </motion.div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration, delay: prefersReducedMotion ? 0 : 0.08 }}
         >
           {error && (
-            <div className="flex items-center justify-center gap-2 text-red-500 bg-red-50 p-3 md:p-4 rounded-lg mt-4 md:mt-8 mx-4 sm:mx-8 md:mx-16 lg:mx-28.25">
-              <AlertCircle className="w-5 h-5 shrink-0" />
+            <div className="mx-4 mt-4 flex items-center justify-center gap-2 rounded-lg bg-red-50 p-3 text-red-500 sm:mx-8 md:mx-16 md:mt-8 md:p-4 lg:mx-28.25">
+              <AlertCircle className="h-5 w-5 shrink-0" />
               <p className="text-sm md:text-base">{error}</p>
             </div>
           )}
@@ -154,17 +154,17 @@ export default function Events() {
             transition={{ duration, delay: prefersReducedMotion ? 0 : 0.16 }}
           >
             <div className="flex items-center justify-between pb-8 md:mb-6">
-              <h2 className="text-2xl md:text-4xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold text-gray-900 md:text-4xl">
                 Events
               </h2>
               <Link
                 to="/events/all"
-                className="text-xs md:text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors flex items-center gap-1 border border-gray-200 rounded-lg px-3 md:px-4 py-1 md:py-1.5"
+                className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1 text-xs font-medium text-gray-500 transition-colors hover:text-blue-600 md:px-4 md:py-1.5 md:text-sm"
               >
                 View all
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-4">
               {filteredEvents.slice(0, 6).map((event: EventData) => (
                 <EventCard key={event.id} event={event} />
               ))}
@@ -175,15 +175,15 @@ export default function Events() {
         {/* Empty state */}
         {!error && hasNoResults && (
           <motion.div
-            className="text-center py-12 md:py-20 px-4"
+            className="px-4 py-12 text-center md:py-20"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration, delay: prefersReducedMotion ? 0 : 0.16 }}
           >
-            <p className="text-gray-400 text-base md:text-lg">
+            <p className="text-base text-gray-400 md:text-lg">
               No events found.
             </p>
-            <p className="text-gray-400 text-xs md:text-sm mt-1">
+            <p className="mt-1 text-xs text-gray-400 md:text-sm">
               Try adjusting your search or filters.
             </p>
           </motion.div>

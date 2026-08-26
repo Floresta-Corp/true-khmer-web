@@ -25,17 +25,17 @@ export function EventTicketList({
 
   return (
     <div className="mt-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-1">
+      <h2 className="mb-1 text-xl font-bold text-gray-900">
         Select your ticket
       </h2>
-      <p className="text-sm text-gray-400 mb-6">
+      <p className="mb-6 text-sm text-gray-400">
         Click any ticket to begin the checkout
       </p>
 
       {ticketStatus === "SOLD_OUT" ? (
-        <Card className="shadow-none rounded-2xl">
+        <Card className="rounded-2xl shadow-none">
           <CardContent className="pt-6 text-center">
-            <p className="text-red-500 font-semibold text-lg mb-1">Sold Out</p>
+            <p className="mb-1 text-lg font-semibold text-red-500">Sold Out</p>
             <p className="text-sm text-muted-foreground">
               This event is no longer accepting registrations.
             </p>
@@ -54,49 +54,49 @@ export function EventTicketList({
               <Card
                 key={tier.id}
                 className={cn(
-                  "shadow-none rounded-2xl transition-colors",
+                  "rounded-2xl shadow-none transition-colors",
                   isSoldOut ? "opacity-60" : "hover:border-blue-200",
                 )}
               >
                 <CardContent className="p-5">
                   <div className="flex items-center gap-4">
                     {/* Tier Thumbnail */}
-                    <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted shrink-0">
+                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
                       {tier.cover || heroImage ? (
                         <img
                           src={tier.cover || heroImage!}
                           alt={tier.name}
-                          className="w-full h-full object-cover"
+                          className="h-full w-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-blue-50">
-                          <Calendar className="w-6 h-6 text-blue-300" />
+                        <div className="flex h-full w-full items-center justify-center bg-blue-50">
+                          <Calendar className="h-6 w-6 text-blue-300" />
                         </div>
                       )}
                     </div>
 
                     {/* Tier Info */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 text-base">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-base font-semibold text-gray-900">
                         {tier.name}
                       </h3>
                       {tier.description && (
-                        <p className="text-sm text-gray-500 mt-0.5 line-clamp-2">
+                        <p className="mt-0.5 line-clamp-2 text-sm text-gray-500">
                           {tier.description}
                         </p>
                       )}
-                      <div className="flex items-center gap-1.5 mt-2">
+                      <div className="mt-2 flex items-center gap-1.5">
                         {isSoldOut ? (
                           <>
-                            <span className="w-2 h-2 rounded-full bg-red-500" />
-                            <span className="text-xs text-red-600 font-medium uppercase">
+                            <span className="h-2 w-2 rounded-full bg-red-500" />
+                            <span className="text-xs font-medium text-red-600 uppercase">
                               Sold out
                             </span>
                           </>
                         ) : (
                           <>
-                            <span className="w-2 h-2 rounded-full bg-green-500" />
-                            <span className="text-xs text-green-600 font-medium uppercase">
+                            <span className="h-2 w-2 rounded-full bg-green-500" />
+                            <span className="text-xs font-medium text-green-600 uppercase">
                               Available
                               {tier.saleStartAt && tier.saleEndAt
                                 ? ` ${formatShortDate(tier.saleStartAt)} - ${formatShortDate(tier.saleEndAt)}`
@@ -110,8 +110,8 @@ export function EventTicketList({
                     </div>
 
                     {/* Price + Select */}
-                    <div className="text-right shrink-0">
-                      <p className="text-xs text-gray-400 uppercase tracking-wide mb-0.5">
+                    <div className="shrink-0 text-right">
+                      <p className="mb-0.5 text-xs tracking-wide text-gray-400 uppercase">
                         Price
                       </p>
                       <p className="text-2xl font-bold text-gray-900">
@@ -145,9 +145,9 @@ export function EventTicketList({
           })}
         </div>
       ) : (
-        <Card className="shadow-none rounded-2xl">
+        <Card className="rounded-2xl shadow-none">
           <CardContent className="pt-6 text-center">
-            <p className="text-gray-500 font-semibold text-lg mb-1">
+            <p className="mb-1 text-lg font-semibold text-gray-500">
               No Tickets Available
             </p>
             <p className="text-sm text-muted-foreground">

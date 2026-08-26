@@ -17,14 +17,14 @@ export function PocNavigationSection({
 }: PocNavigationSectionProps) {
   return (
     <motion.div
-      className="flex items-center justify-between w-full pb-4"
+      className="flex w-full items-center justify-between pb-4"
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
       <BackToButton to="/poc" />
       <motion.div
-        className="flex items-center gap-1 bg-white border border-gray-100 rounded-full px-1 py-1 shadow-sm"
+        className="flex items-center gap-1 rounded-full border border-gray-100 bg-white px-1 py-1 shadow-sm"
         data-node-id="14300:4269"
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -33,11 +33,11 @@ export function PocNavigationSection({
         {/* Watch Video Button */}
         <button
           onClick={onWatchVideo}
-          className="flex-1 flex items-center gap-2 bg-blue-600 text-white rounded-full px-5 py-2 hover:bg-blue-700 transition-all duration-300 hover:shadow-lg hover:scale-105"
+          className="flex flex-1 items-center gap-2 rounded-full bg-blue-600 px-5 py-2 text-white transition-all duration-300 hover:scale-105 hover:bg-blue-700 hover:shadow-lg"
           data-node-id="14300:4270"
         >
-          <img alt="play" className="w-3.5 h-3.5" src={imgVideo} />
-          <span className="font-bold text-[13px] leading-[19.5px]">
+          <img alt="play" className="h-3.5 w-3.5" src={imgVideo} />
+          <span className="text-[13px] leading-[19.5px] font-bold">
             Watch Video
           </span>
         </button>
@@ -45,11 +45,11 @@ export function PocNavigationSection({
         {/* Read Full Story Button */}
         <button
           onClick={onReadFullStory}
-          className="flex items-center gap-2 text-gray-600 px-2 py-1.75 rounded-full hover:bg-gray-50 transition-all duration-300 hover:text-gray-900"
+          className="flex items-center gap-2 rounded-full px-2 py-1.75 text-gray-600 transition-all duration-300 hover:bg-gray-50 hover:text-gray-900"
           data-node-id="14300:4275"
         >
-          <img alt="read" className="w-3.5 h-3.5" src={imgBookOpen} />
-          <span className="font-bold text-[13px] leading-[19.5px]">
+          <img alt="read" className="h-3.5 w-3.5" src={imgBookOpen} />
+          <span className="text-[13px] leading-[19.5px] font-bold">
             Read Full Story
           </span>
         </button>

@@ -4,7 +4,10 @@ import { forumSearchLoader } from "../services/forum-search.loader";
 import ForumSearchHeader from "../components/sections/forum-search-header";
 import ForumSearchResultsSection from "../components/sections/forum-search-results-section";
 import { useFetcher, useLoaderData, useSearchParams } from "react-router";
-import type { QuestionResponse, GetQuestionsResponse } from "~/types/api-client";
+import type {
+  QuestionResponse,
+  GetQuestionsResponse,
+} from "~/types/api-client";
 import { forumSearchAction } from "../services/forum-search.action";
 
 export const loader = forumSearchLoader;

@@ -23,7 +23,8 @@ if (!process.env.SESSION_SECRET) {
   );
 }
 
-const baseCookie = {
+// Shared by every cookie store in the app.
+export const baseCookie = {
   httpOnly: true,
   path: "/",
   sameSite: "lax" as const,
@@ -125,7 +126,9 @@ export async function getUserId(request: Request): Promise<string | null> {
   return userId ?? null;
 }
 
-function slimUser(user: AuthTokensResponse["user"] | AuthTokenResponse["user"]) {
+function slimUser(
+  user: AuthTokensResponse["user"] | AuthTokenResponse["user"],
+) {
   return {
     id: user.id,
     email: user.email,
@@ -309,7 +312,9 @@ export async function createPendingTwoFactorLogin(
 ) {
   const expiresInSeconds = Math.max(
     1,
-    Math.floor((new Date(pendingLogin.expiresAt).getTime() - Date.now()) / 1000),
+    Math.floor(
+      (new Date(pendingLogin.expiresAt).getTime() - Date.now()) / 1000,
+    ),
   );
   const session = await twoFactorPendingLoginStorage.getSession(
     request.headers.get("Cookie"),
@@ -353,7 +358,9 @@ export async function getPendingTwoFactorLogin(
 
   return {
     twoFactorToken,
-    methods: methods.filter((method): method is string => typeof method === "string"),
+    methods: methods.filter(
+      (method): method is string => typeof method === "string",
+    ),
     expiresAt,
     rememberMe,
   };
@@ -426,7 +433,10 @@ export async function getAdminAccessToken(
   }
 
   try {
-    const refreshed = await refreshAdminTokenSingleFlight(request, refreshToken);
+    const refreshed = await refreshAdminTokenSingleFlight(
+      request,
+      refreshToken,
+    );
 
     session.set("adminAccessToken", refreshed.accessToken);
     session.set("adminRefreshToken", refreshed.refreshToken);
@@ -483,9 +493,11 @@ async function refreshAdminTokenSingleFlight(
   const existingRefresh = adminRefreshPromises.get(refreshToken);
   if (existingRefresh) return existingRefresh;
 
-  const refreshPromise = refreshAdminToken(request, refreshToken).finally(() => {
-    adminRefreshPromises.delete(refreshToken);
-  });
+  const refreshPromise = refreshAdminToken(request, refreshToken).finally(
+    () => {
+      adminRefreshPromises.delete(refreshToken);
+    },
+  );
   adminRefreshPromises.set(refreshToken, refreshPromise);
 
   return refreshPromise;

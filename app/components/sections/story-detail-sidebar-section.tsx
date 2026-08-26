@@ -81,35 +81,41 @@ export function StoryDetailSidebarSection({
 
   return (
     <div
-      className="w-full bg-blue-gray-50 animate-fade-in"
+      className="bg-blue-gray-50 animate-fade-in w-full"
       data-name="Features Block"
       data-node-id="14300:4320"
     >
-      <div className="px-[112px] py-10 flex gap-10">
+      <div className="flex gap-10 px-[112px] py-10">
         {/* Main Content */}
         <div
-          className="flex-1 bg-white border border-gray-100 rounded-lg p-7 animate-slide-in-left"
+          className="animate-slide-in-left flex-1 rounded-lg border border-gray-100 bg-white p-7"
           data-node-id="14300:4323"
         >
           {/* Header with Title and Actions */}
-          <div className="flex items-start justify-between mb-6">
-            <h1 className="text-[32px] font-semibold text-gray-900 leading-[40px] tracking-tight max-w-md animate-slide-up" style={{ animationDelay: "0.2s" }}>
+          <div className="mb-6 flex items-start justify-between">
+            <h1
+              className="animate-slide-up max-w-md text-[32px] leading-[40px] font-semibold tracking-tight text-gray-900"
+              style={{ animationDelay: "0.2s" }}
+            >
               {title}
             </h1>
 
             {/* Like and Share Actions */}
-            <div className="flex items-center gap-5 animate-slide-in-right" style={{ animationDelay: "0.2s" }}>
+            <div
+              className="animate-slide-in-right flex items-center gap-5"
+              style={{ animationDelay: "0.2s" }}
+            >
               {/* Likes */}
               <button
                 onClick={handleLike}
-                className="flex items-center gap-2 hover:opacity-80 transition-all duration-300 hover:scale-110"
+                className="flex items-center gap-2 transition-all duration-300 hover:scale-110 hover:opacity-80"
               >
                 <img
                   alt="like"
-                  className="w-[17.5px] h-[17.5px]"
+                  className="h-[17.5px] w-[17.5px]"
                   src={imgHeart}
                 />
-                <span className="font-semibold text-[16px] text-gray-700">
+                <span className="text-[16px] font-semibold text-gray-700">
                   {likes}
                 </span>
               </button>
@@ -117,11 +123,11 @@ export function StoryDetailSidebarSection({
               {/* Share Icon */}
               <button
                 onClick={onShare}
-                className="w-[21px] h-[21px] flex items-center justify-center hover:opacity-80 transition-all duration-300 hover:scale-110"
+                className="flex h-[21px] w-[21px] items-center justify-center transition-all duration-300 hover:scale-110 hover:opacity-80"
               >
                 <svg
                   viewBox="0 0 21 21"
-                  className="w-full h-full"
+                  className="h-full w-full"
                   fill="none"
                   stroke="currentColor"
                 >
@@ -135,23 +141,29 @@ export function StoryDetailSidebarSection({
           </div>
 
           {/* Meta Information */}
-          <div className="flex items-center gap-3 text-gray-600 text-[14px] mb-6 pb-6 border-b border-gray-100 animate-slide-up" style={{ animationDelay: "0.3s" }}>
+          <div
+            className="animate-slide-up mb-6 flex items-center gap-3 border-b border-gray-100 pb-6 text-[14px] text-gray-600"
+            style={{ animationDelay: "0.3s" }}
+          >
             <span className="font-medium">{duration}</span>
-            <span className="w-[3.5px] h-[3.5px] bg-gray-300 rounded-full" />
+            <span className="h-[3.5px] w-[3.5px] rounded-full bg-gray-300" />
             <span className="font-medium">{views.toLocaleString()} views</span>
-            <span className="w-[3.5px] h-[3.5px] bg-gray-300 rounded-full" />
+            <span className="h-[3.5px] w-[3.5px] rounded-full bg-gray-300" />
             <span className="font-medium">{publishedDate}</span>
           </div>
 
           {/* About This Story Section */}
-          <div className="mb-6 animate-slide-up" style={{ animationDelay: "0.4s" }}>
-            <h2 className="text-[16px] font-semibold text-gray-900 mb-4 leading-[20.8px]">
+          <div
+            className="animate-slide-up mb-6"
+            style={{ animationDelay: "0.4s" }}
+          >
+            <h2 className="mb-4 text-[16px] leading-[20.8px] font-semibold text-gray-900">
               About this story
             </h2>
-            <p className="text-[15px] font-medium text-gray-700 leading-[24px] line-clamp-3">
+            <p className="line-clamp-3 text-[15px] leading-[24px] font-medium text-gray-700">
               {description}
             </p>
-            <button className="text-gray-400 text-[13px] font-semibold mt-3 hover:text-gray-600 transition-colors duration-300">
+            <button className="mt-3 text-[13px] font-semibold text-gray-400 transition-colors duration-300 hover:text-gray-600">
               ...more
             </button>
           </div>
@@ -159,26 +171,25 @@ export function StoryDetailSidebarSection({
           {/* Read Full Article Button */}
           <button
             onClick={onReadFullArticle}
-            className="w-full pt-6 border-t border-gray-100 flex items-center gap-2 text-blue-600 font-bold text-[14px] hover:text-blue-700 transition-all duration-300 hover:gap-3 animate-slide-up"
+            className="animate-slide-up flex w-full items-center gap-2 border-t border-gray-100 pt-6 text-[14px] font-bold text-blue-600 transition-all duration-300 hover:gap-3 hover:text-blue-700"
             style={{ animationDelay: "0.5s" }}
           >
-            <img
-              alt="read"
-              className="w-[14px] h-[14px]"
-              src={imgBookOpen}
-            />
+            <img alt="read" className="h-[14px] w-[14px]" src={imgBookOpen} />
             <span>Read the full documentary article</span>
           </button>
         </div>
 
         {/* Sidebar - More Stories */}
-        <div className="w-80 animate-slide-in-right" style={{ animationDelay: "0.3s" }}>
+        <div
+          className="animate-slide-in-right w-80"
+          style={{ animationDelay: "0.3s" }}
+        >
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-[18px] font-semibold text-gray-900 leading-[25.2px]">
+          <div className="mb-6 flex items-center justify-between">
+            <h3 className="text-[18px] leading-[25.2px] font-semibold text-gray-900">
               More stories
             </h3>
-            <button className="text-gray-400 font-bold text-[13px] hover:text-gray-600 transition-colors duration-300">
+            <button className="text-[13px] font-bold text-gray-400 transition-colors duration-300 hover:text-gray-600">
               View more
             </button>
           </div>
@@ -189,20 +200,20 @@ export function StoryDetailSidebarSection({
               <button
                 key={story.id}
                 onClick={() => onRelatedStoryClick?.(story)}
-                className="flex gap-4 hover:opacity-80 transition-all duration-300 text-left animate-slide-up hover:gap-5"
+                className="animate-slide-up flex gap-4 text-left transition-all duration-300 hover:gap-5 hover:opacity-80"
                 style={{ animationDelay: `${0.4 + idx * 0.1}s` }}
                 data-node-id="14300:4372"
               >
                 {/* Story Image */}
-                <div className="w-28 h-16 flex-shrink-0 rounded-2xl overflow-hidden bg-gray-100 relative hover:shadow-lg transition-shadow duration-300">
+                <div className="relative h-16 w-28 flex-shrink-0 overflow-hidden rounded-2xl bg-gray-100 transition-shadow duration-300 hover:shadow-lg">
                   <img
                     alt={story.title}
-                    className="w-full h-full object-cover"
+                    className="h-full w-full object-cover"
                     src={story.image}
                   />
                   {story.duration && (
-                    <div className="absolute bottom-2 right-2 bg-black/60 rounded px-1.5 py-0.5">
-                      <p className="text-white font-bold text-[9px] leading-[13.5px]">
+                    <div className="absolute right-2 bottom-2 rounded bg-black/60 px-1.5 py-0.5">
+                      <p className="text-[9px] leading-[13.5px] font-bold text-white">
                         {story.duration}
                       </p>
                     </div>
@@ -211,15 +222,15 @@ export function StoryDetailSidebarSection({
 
                 {/* Story Info */}
                 <div className="flex flex-col gap-1">
-                  <h4 className="font-bold text-[14px] text-gray-900 leading-[17.5px] tracking-tight line-clamp-2 hover:text-blue-600 transition-colors duration-300">
+                  <h4 className="line-clamp-2 text-[14px] leading-[17.5px] font-bold tracking-tight text-gray-900 transition-colors duration-300 hover:text-blue-600">
                     {story.title}
                   </h4>
                   <div className="flex items-center gap-2.5 text-gray-500">
-                    <span className="text-[11px] font-bold leading-[16.5px]">
+                    <span className="text-[11px] leading-[16.5px] font-bold">
                       {story.views.toLocaleString()} views
                     </span>
                     <span className="text-[11px] font-bold">•</span>
-                    <span className="text-[11px] font-bold leading-[16.5px]">
+                    <span className="text-[11px] leading-[16.5px] font-bold">
                       {story.author}
                     </span>
                   </div>

@@ -39,14 +39,14 @@ export default function ForgotPasswordPage() {
         <div className="space-y-2">
           <Label
             htmlFor="email"
-            className="block text-[13px] font-semibold leading-[19.5px] text-[#364153]"
+            className="block text-[13px] leading-[19.5px] font-semibold text-[#364153]"
           >
             Email address
           </Label>
           <div className="relative">
             <Mail
               size={16}
-              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#899CC9]"
+              className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-[#899CC9]"
             />
             <Input
               id="email"
@@ -56,7 +56,7 @@ export default function ForgotPasswordPage() {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="name@example.com"
-              className="h-12 rounded-xl border-[#DCEBFE] bg-white py-3 pl-11 pr-4 text-sm text-[#2E3139] placeholder:text-[#899CC9] focus-visible:border-[#2F6FE4] focus-visible:ring-2 focus-visible:ring-[#2F6FE4]/15 focus-visible:ring-offset-0"
+              className="h-12 rounded-xl border-[#DCEBFE] bg-white py-3 pr-4 pl-11 text-sm text-[#2E3139] placeholder:text-[#899CC9] focus-visible:border-[#2F6FE4] focus-visible:ring-2 focus-visible:ring-[#2F6FE4]/15 focus-visible:ring-offset-0"
             />
           </div>
           {actionData?.errors?.email ? (

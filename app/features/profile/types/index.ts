@@ -9,7 +9,9 @@ export const ProfileUserSchema = z.object({
   displayName: z.string().nullable(),
   occupation: z.string().nullable(),
   email: z.string().nullable(),
-  phoneNumber: z.string().nullable(),
+  phone: z
+    .object({ country: z.string(), nationalNumber: z.string() })
+    .nullable(),
   telegramUsername: z.string().nullable(),
 });
 export type ProfileUser = z.infer<typeof ProfileUserSchema>;
@@ -30,8 +32,8 @@ export type ProfileCity = z.infer<typeof ProfileCitySchema>;
 export const ProfileDetailSchema = z.object({
   avatarKey: z.string().nullable(),
   bio: z.string().nullable(),
-  country: ProfileCountrySchema,
-  city: ProfileCitySchema,
+  country: ProfileCountrySchema.nullable(),
+  city: ProfileCitySchema.nullable(),
 });
 export type ProfileDetail = z.infer<typeof ProfileDetailSchema>;
 
@@ -70,8 +72,8 @@ export const ProfileByIdSchema = z.object({
   profile: ProfileDetailSchema,
   skills: z.array(ProfileSkillSchema),
   socialLinks: ProfileSocialLinksSchema,
-  tier: ProfileTierSchema,
-  postedCounts: ProfilePostedCountsSchema,
+  tier: ProfileTierSchema.nullable(),
+  postedCounts: ProfilePostedCountsSchema.nullable(),
 });
 export const GetProfileByIdResponseSchema = z.object({
   ok: z.literal(true),
@@ -161,11 +163,14 @@ export const ProjectPostedContentSchema = z.object({
   nextCursor: z.string().nullable(),
 });
 
-export const GetPostedContentResponseSchema = z.discriminatedUnion("sourceType", [
-  ForumPostedContentSchema,
-  VolunteerPostedContentSchema,
-  ProjectPostedContentSchema,
-]);
+export const GetPostedContentResponseSchema = z.discriminatedUnion(
+  "sourceType",
+  [
+    ForumPostedContentSchema,
+    VolunteerPostedContentSchema,
+    ProjectPostedContentSchema,
+  ],
+);
 export type GetPostedContentResponse = z.infer<
   typeof GetPostedContentResponseSchema
 >;

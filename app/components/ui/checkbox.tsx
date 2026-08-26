@@ -28,7 +28,7 @@ function Checkbox({
         checkboxInteractionClasses,
         checkboxValidationClasses,
         checkboxStateClasses,
-        className
+        className,
       )}
       {...props}
     >

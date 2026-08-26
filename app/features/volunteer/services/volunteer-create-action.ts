@@ -2,7 +2,10 @@ import { type ActionFunctionArgs } from "react-router";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
-import { transformActionResponse, mapZodError } from "~/lib/server/action-response.server";
+import {
+  transformActionResponse,
+  mapZodError,
+} from "~/lib/server/action-response.server";
 import {
   createVolunteerOpportunity,
   uploadOpportunityCoverImage,
@@ -49,7 +52,9 @@ export async function volunteerCreateAction({ request }: ActionFunctionArgs) {
           if (result?.data?.opportunity?.id) {
             return withAuthData(auth, {
               ok: true,
-              data: { redirectTo: `/volunteer/detail/${result.data.opportunity.id}` },
+              data: {
+                redirectTo: `/volunteer/detail/${result.data.opportunity.id}`,
+              },
             });
           }
           return withAuthData(auth, {
@@ -70,7 +75,9 @@ export async function volunteerCreateAction({ request }: ActionFunctionArgs) {
       if (result?.data?.opportunity?.id) {
         return withAuthData(auth, {
           ok: true,
-          data: { redirectTo: `/volunteer/detail/${result.data.opportunity.id}` },
+          data: {
+            redirectTo: `/volunteer/detail/${result.data.opportunity.id}`,
+          },
         });
       }
 

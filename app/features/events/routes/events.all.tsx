@@ -66,10 +66,10 @@ export default function AllEvents() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-12 lg:px-8">
         {/* Header row */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">
             All events
           </h1>
         </div>
@@ -84,14 +84,14 @@ export default function AllEvents() {
 
         {/* Error state */}
         {error && (
-          <div className="text-center py-12">
+          <div className="py-12 text-center">
             <p className="text-red-500">{error}</p>
           </div>
         )}
 
         {/* Event grid - 4 columns on desktop like the screenshot */}
         {!error && visibleEvents.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {visibleEvents.map((event: EventData) => (
               <EventCard key={event.id} event={event} />
             ))}
@@ -100,9 +100,9 @@ export default function AllEvents() {
 
         {/* Empty state */}
         {!error && events.length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-gray-400 text-lg">No events found.</p>
-            <p className="text-gray-400 text-sm mt-1">
+          <div className="py-20 text-center">
+            <p className="text-lg text-gray-400">No events found.</p>
+            <p className="mt-1 text-sm text-gray-400">
               Try selecting a different event type.
             </p>
           </div>
@@ -115,7 +115,7 @@ export default function AllEvents() {
               type="button"
               onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
               variant="ghost"
-              className="h-auto w-full px-0 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
+              className="h-auto w-full cursor-pointer rounded-xl border border-gray-200 bg-white px-0 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
             >
               Load more
             </Button>
@@ -131,11 +131,11 @@ function FilterPill({ icon, label }: { icon: React.ReactNode; label: string }) {
     <Button
       type="button"
       variant="ghost"
-      className="h-auto flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-full hover:border-gray-300 transition-colors cursor-pointer"
+      className="flex h-auto cursor-pointer items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-gray-300"
     >
       {icon}
       <span>{label}</span>
-      <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+      <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
     </Button>
   );
 }

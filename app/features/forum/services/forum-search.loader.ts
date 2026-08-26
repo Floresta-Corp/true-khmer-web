@@ -1,6 +1,9 @@
 import { getUserId } from "~/lib/server/session.server";
 import { questionSortBySchema } from "~/features/forum/types";
-import type { CategoryResponse, GetQuestionsResponse } from "~/types/api-client";
+import type {
+  CategoryResponse,
+  GetQuestionsResponse,
+} from "~/types/api-client";
 import {
   getCategories,
   getPublicCategories,

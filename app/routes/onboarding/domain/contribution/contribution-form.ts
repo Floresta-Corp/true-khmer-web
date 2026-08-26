@@ -17,7 +17,9 @@ const ALLOWED_CONTRIBUTION_KEYS = new Set<string>(
 );
 
 function normalizeContributionKeys(values: string[]) {
-  return [...new Set(values.map((value) => value.trim()).filter(Boolean))].sort();
+  return [
+    ...new Set(values.map((value) => value.trim()).filter(Boolean)),
+  ].sort();
 }
 
 function parseLegacyCommaValue(value: string) {
@@ -76,7 +78,8 @@ export function validateContributionInput(
 export function isContributionInputUnchanged(
   input: ParsedContributionFormInput,
 ) {
-  if (input.selectedKeys.length !== input.initialSelectedKeys.length) return false;
+  if (input.selectedKeys.length !== input.initialSelectedKeys.length)
+    return false;
   return input.selectedKeys.every((value, index) => {
     return value === input.initialSelectedKeys[index];
   });

@@ -29,7 +29,7 @@ export default function ApplicationSubmitSuccessDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="sm:max-w-lg overflow-hidden rounded-2xl border-none bg-white p-0 shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)] [&>button]:hidden"
+        className="overflow-hidden rounded-2xl border-none bg-white p-0 shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)] sm:max-w-lg [&>button]:hidden"
       >
         <div className="flex max-h-[90vh] flex-col items-center gap-6 overflow-y-auto px-6 py-10 sm:px-10 sm:py-12">
           <button
@@ -50,11 +50,11 @@ export default function ApplicationSubmitSuccessDialog({
             </div>
           </div>
 
-          <DialogTitle className="text-center font-['Inter'] text-[28px] font-bold leading-tight tracking-[-0.9px] text-[#0F172A] sm:text-[36px] sm:leading-11.25">
+          <DialogTitle className="text-center font-['Inter'] text-[28px] leading-tight font-bold tracking-[-0.9px] text-[#0F172A] sm:text-[36px] sm:leading-11.25">
             Application Submitted!
           </DialogTitle>
 
-          <DialogDescription className="w-full max-w-sm text-center font-['Inter'] text-[16px] font-medium leading-6.75 text-[#344256] sm:text-[18px]">
+          <DialogDescription className="w-full max-w-sm text-center font-['Inter'] text-[16px] leading-6.75 font-medium text-[#344256] sm:text-[18px]">
             We’ve received your request for{" "}
             <span className="font-bold">{title}</span>. You can track your
             application status in your dashboard.

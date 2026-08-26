@@ -54,11 +54,7 @@ const DECORATIONS = [
   },
 ] as const;
 
-interface HomeHeroSectionProps {
-  isAuthenticated: boolean;
-}
-
-export function HomeHeroSection({ isAuthenticated }: HomeHeroSectionProps) {
+export function HomeHeroSection() {
   return (
     <section className="relative overflow-hidden bg-white">
       <div className="pointer-events-none absolute inset-0" aria-hidden>

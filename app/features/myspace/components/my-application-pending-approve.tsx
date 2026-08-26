@@ -38,7 +38,7 @@ export default function MyApplicationPendingApprove() {
                   <Clock3 size={20} />
                 </div>
                 <div>
-                  <div className="flex items-center gap-3 mb-0.5">
+                  <div className="mb-0.5 flex items-center gap-3">
                     <h2 className="text-[17px] font-bold tracking-tight text-amber-950 dark:text-amber-100">
                       Confirmation Required
                     </h2>
@@ -51,7 +51,7 @@ export default function MyApplicationPendingApprove() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-4 w-full sm:w-auto">
+              <div className="flex w-full items-center gap-4 sm:w-auto">
                 <Button
                   disabled={filter === "approved"}
                   onClick={handleReviewClicked}

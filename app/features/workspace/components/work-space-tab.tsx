@@ -32,7 +32,7 @@ export default function WorkspaceTabs({ questionCount, answerCount }: Props) {
   };
 
   return (
-    <div className="flex w-full bg-gray-100 dark:bg-slate-900/50 p-1 rounded-xl shadow-inner sm:w-max relative">
+    <div className="relative flex w-full rounded-xl bg-gray-100 p-1 shadow-inner sm:w-max dark:bg-slate-900/50">
       {(["questions", "answers"] as TabType[]).map((tab) => {
         const isActive = activeTab === tab;
         const count = tab === "questions" ? questionCount : answerCount;
@@ -44,11 +44,11 @@ export default function WorkspaceTabs({ questionCount, answerCount }: Props) {
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={cn(
-              "relative flex-1 sm:flex-none flex items-center justify-center gap-2 sm:gap-3 cursor-pointer",
-              "px-4 sm:px-8 py-2 sm:py-2.5 rounded-lg text-sm font-semibold transition-colors duration-300",
+              "relative flex flex-1 cursor-pointer items-center justify-center gap-2 sm:flex-none sm:gap-3",
+              "rounded-lg px-4 py-2 text-sm font-semibold transition-colors duration-300 sm:px-8 sm:py-2.5",
               isActive
                 ? "text-gray-900 dark:text-white"
-                : "text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200",
+                : "text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200",
             )}
           >
             <span className="relative z-20 hidden sm:inline">{label}</span>
@@ -57,10 +57,10 @@ export default function WorkspaceTabs({ questionCount, answerCount }: Props) {
             {/* The Count Badge - Needs z-20 to stay above the slider */}
             <span
               className={cn(
-                "relative z-20 flex items-center justify-center min-w-5 h-5 px-1.5 rounded-md text-[10px] sm:text-xs font-bold transition-colors duration-300",
+                "relative z-20 flex h-5 min-w-5 items-center justify-center rounded-md px-1.5 text-[10px] font-bold transition-colors duration-300 sm:text-xs",
                 isActive
                   ? "bg-blue-600 text-white"
-                  : "bg-gray-200 dark:bg-slate-800 text-slate-500",
+                  : "bg-gray-200 text-slate-500 dark:bg-slate-800",
               )}
             >
               {count}
@@ -70,7 +70,7 @@ export default function WorkspaceTabs({ questionCount, answerCount }: Props) {
             {isActive && (
               <motion.div
                 layoutId="activeTabWorkspace"
-                className="absolute inset-0 bg-white dark:bg-slate-800 rounded-lg shadow-sm"
+                className="absolute inset-0 rounded-lg bg-white shadow-sm dark:bg-slate-800"
                 transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
                 style={{ zIndex: 10 }}
               />

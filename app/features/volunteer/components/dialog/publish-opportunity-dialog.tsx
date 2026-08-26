@@ -21,21 +21,21 @@ export default function PublishOpportunitySuccessDialog({
 }: PublishOpportunitySuccessDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-[14px] border-[0.8px] border-[#d0fae5] p-10 shadow-none w-[600px]">
+      <DialogContent className="w-[600px] rounded-[14px] border-[0.8px] border-[#d0fae5] p-10 shadow-none">
         <div className="flex flex-col justify-center gap-5">
           <div className="mx-auto">
-            <div className="border border-[#d0fae5] p-4 rounded-full bg-[#F0FDF4] shadow-[0_0_40px_0_rgba(34,197,94,0.40)]">
-              <div className="flex items-center justify-center rounded-full bg-[#22C55E] size-20">
+            <div className="rounded-full border border-[#d0fae5] bg-[#F0FDF4] p-4 shadow-[0_0_40px_0_rgba(34,197,94,0.40)]">
+              <div className="flex size-20 items-center justify-center rounded-full bg-[#22C55E]">
                 <Check size={35} className="text-white" />
               </div>
             </div>
           </div>
 
-          <div className="max-w-100 mb-3">
-            <DialogTitle className="mb-6 text-[#0F172A] text-center font-['Inter'] text-[36px] font-bold leading-[45px] tracking-[-0.9px]">
+          <div className="mb-3 max-w-100">
+            <DialogTitle className="mb-6 text-center font-['Inter'] text-[36px] leading-[45px] font-bold tracking-[-0.9px] text-[#0F172A]">
               Your Opportunity is Now Live!
             </DialogTitle>
-            <DialogDescription className="text-slate-600 text-center font-['Inter'] text-[18px] font-medium leading-[27px]">
+            <DialogDescription className="text-center font-['Inter'] text-[18px] leading-[27px] font-medium text-slate-600">
               Your post is public. You can manage applicants and edit your post
               details directly from your dashboard.
             </DialogDescription>
@@ -55,7 +55,7 @@ export default function PublishOpportunitySuccessDialog({
               <Button
                 type="button"
                 variant="link"
-                className="h-12 w-full  text-sm font-semibold  text-blue-600 "
+                className="h-12 w-full text-sm font-semibold text-blue-600"
                 onClick={() => {
                   onOpenChange(false);
                 }}

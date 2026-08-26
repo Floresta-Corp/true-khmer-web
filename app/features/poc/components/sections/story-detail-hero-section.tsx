@@ -41,7 +41,7 @@ export function StoryDetailHeroSection({
 
   return (
     <motion.div
-      className="w-full flex flex-col gap-4"
+      className="flex w-full flex-col gap-4"
       data-name="Features Block"
       data-node-id="14300:4262"
       initial={{ opacity: 0 }}
@@ -50,7 +50,7 @@ export function StoryDetailHeroSection({
     >
       {/* Video/Image Container */}
       <motion.div
-        className="relative w-full h-149 rounded-xl overflow-hidden shadow-2xl bg-black"
+        className="relative h-149 w-full overflow-hidden rounded-xl bg-black shadow-2xl"
         data-node-id="14300:4280"
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -59,7 +59,7 @@ export function StoryDetailHeroSection({
         {/* Background Image */}
         <img
           alt="story"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover"
           src={imageSrc}
         />
 
@@ -68,19 +68,19 @@ export function StoryDetailHeroSection({
 
         {/* Badge - True Khmer Staff Pick */}
         <motion.div
-          className="absolute top-5 left-5 border-2 border-white rounded-full w-[84px] h-[84px] flex flex-col items-center justify-center text-white text-center p-2"
+          className="absolute top-5 left-5 flex h-[84px] w-[84px] flex-col items-center justify-center rounded-full border-2 border-white p-2 text-center text-white"
           data-node-id="14300:4283"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ ...easeOut, delay: 0.2 }}
         >
-          <p className="font-black text-[10px] leading-2.5 uppercase tracking-[-0.5px]">
+          <p className="text-[10px] leading-2.5 font-black tracking-[-0.5px] uppercase">
             True Khmer
           </p>
-          <p className="font-black text-[12px] leading-[12px] uppercase tracking-[1.2px] mt-1">
+          <p className="mt-1 text-[12px] leading-[12px] font-black tracking-[1.2px] uppercase">
             Staff
           </p>
-          <p className="font-black text-[12px] leading-[12px] uppercase tracking-[1.2px]">
+          <p className="text-[12px] leading-[12px] font-black tracking-[1.2px] uppercase">
             Pick
           </p>
         </motion.div>
@@ -90,15 +90,15 @@ export function StoryDetailHeroSection({
           {awards.map((award, idx) => (
             <motion.div
               key={idx}
-              className="bg-black/20 border border-white/30 rounded-full px-3 py-2 flex flex-col items-center justify-center min-w-[56px]"
+              className="flex min-w-[56px] flex-col items-center justify-center rounded-full border border-white/30 bg-black/20 px-3 py-2"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ ...easeOut, delay: 0.3 + idx * 0.1 }}
             >
-              <p className="text-white font-bold text-[6px] uppercase leading-[9px]">
+              <p className="text-[6px] leading-[9px] font-bold text-white uppercase">
                 {award.title}
               </p>
-              <p className="text-white font-black text-[10px] uppercase leading-[15px] mt-0.5">
+              <p className="mt-0.5 text-[10px] leading-[15px] font-black text-white uppercase">
                 {award.year}
               </p>
             </motion.div>
@@ -110,7 +110,7 @@ export function StoryDetailHeroSection({
           {/* Like Button */}
           <motion.button
             onClick={handleLike}
-            className={`w-[17.5px] h-[17.5px] flex items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-125 ${
+            className={`flex h-[17.5px] w-[17.5px] items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-125 ${
               liked ? "bg-red-500" : "bg-white"
             }`}
             data-node-id="14300:4306"
@@ -120,13 +120,13 @@ export function StoryDetailHeroSection({
           >
             <Heart
               size={12}
-              className={liked ? "text-white fill-white" : "text-gray-600"}
+              className={liked ? "fill-white text-white" : "text-gray-600"}
             />
           </motion.button>
 
           {/* Clock/Time Button */}
           <motion.button
-            className="w-[17.5px] h-[17.5px] bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-all duration-300 hover:scale-125"
+            className="flex h-[17.5px] w-[17.5px] items-center justify-center rounded-full bg-white shadow-lg transition-all duration-300 hover:scale-125 hover:bg-gray-100"
             data-node-id="14300:4309"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -138,7 +138,7 @@ export function StoryDetailHeroSection({
           {/* Share Button */}
           <motion.button
             onClick={onShare}
-            className="w-[17.5px] h-[17.5px] bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-all duration-300 hover:scale-125"
+            className="flex h-[17.5px] w-[17.5px] items-center justify-center rounded-full bg-white shadow-lg transition-all duration-300 hover:scale-125 hover:bg-gray-100"
             data-node-id="14300:4313"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}

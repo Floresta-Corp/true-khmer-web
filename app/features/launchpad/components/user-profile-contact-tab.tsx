@@ -13,7 +13,7 @@ function ContactField({
     <div className="flex w-full flex-col gap-1.75">
       <div className="flex h-[19.5px] items-center gap-1.75 pl-[3.5px]">
         <span className="text-[#364153]">{icon}</span>
-        <p className="text-[13px] font-semibold leading-[19.5px] text-[#364153]">
+        <p className="text-[13px] leading-[19.5px] font-semibold text-[#364153]">
           {label}
         </p>
       </div>
@@ -56,7 +56,7 @@ export default function UserProfileContactTab() {
 
       <div className="flex min-h-9.25 items-center rounded-2xl border border-[#d5edff] bg-[#f4f8ff] px-[10.5px] py-[10.3px]">
         <Info className="mr-1.75 size-[12.25px] text-[#2f6fe4]" />
-        <p className="text-[12px] font-semibold leading-4.5 text-[#2f6fe4]">
+        <p className="text-[12px] leading-4.5 font-semibold text-[#2f6fe4]">
           Using verified contact details from your True Khmer profile.
         </p>
       </div>

@@ -30,7 +30,7 @@ export default function TabGroup<T extends string>({
 
   return (
     <div className={className}>
-      <div className="hidden sm:flex flex-wrap items-center gap-2">
+      <div className="hidden flex-wrap items-center gap-2 sm:flex">
         {items.map((tab) => {
           const isActive = activeTab === tab.value;
           return (

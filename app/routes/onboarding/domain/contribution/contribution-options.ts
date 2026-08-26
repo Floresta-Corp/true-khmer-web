@@ -51,8 +51,8 @@ export const onboardingContributionOptions: OnboardingContributionOption[] = [
   },
 ];
 
-export const onboardingContributionOptionKeys = onboardingContributionOptions.map(
-  (option) => option.key,
-);
+export const onboardingContributionOptionKeys =
+  onboardingContributionOptions.map((option) => option.key);
 
-export const maxContributionSelections = onboardingContributionOptionKeys.length;
+export const maxContributionSelections =
+  onboardingContributionOptionKeys.length;

@@ -18,12 +18,12 @@ export function LaunchpadBrowseCategoriesSection() {
             Find roles that match your passion and skills.
           </p>
         </header>
-        <div className="flex w-full snap-x snap-mandatory gap-3.5 overflow-x-auto px-1 pb-1 md:grid md:grid-cols-3 md:gap-3.5 md:overflow-visible md:px-0 lg:grid-cols-4 xl:grid-cols-6">
+        <div className="flex w-full snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-1 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:px-0 lg:grid-cols-4 xl:grid-cols-5">
           {categories.map((category: Category) => {
             return (
               <div
                 key={category.id}
-                className="shrink-0 cursor-pointer snap-start md:w-full md:min-w-0 md:shrink"
+                className="w-[200px] shrink-0 cursor-pointer snap-start md:w-auto md:shrink"
                 onClick={() =>
                   navigate(`/launchpad/all?categoryId=${category.id}`)
                 }

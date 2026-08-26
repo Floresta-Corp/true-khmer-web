@@ -52,15 +52,15 @@ export function ImageLightbox({
         onClick={onClose}
         variant="ghost"
         size="icon"
-        className="absolute top-4 right-4 z-10 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 transition-colors"
+        className="absolute top-4 right-4 z-10 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
         aria-label="Close"
       >
-        <X className="w-6 h-6" />
+        <X className="h-6 w-6" />
       </Button>
 
       {/* Counter */}
       {images.length > 1 && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white/80 text-sm font-medium bg-black/40 px-3 py-1 rounded-full">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 rounded-full bg-black/40 px-3 py-1 text-sm font-medium text-white/80">
           {currentIndex + 1} / {images.length}
         </div>
       )}
@@ -75,9 +75,9 @@ export function ImageLightbox({
           }}
           variant="ghost"
           size="icon"
-          className="absolute left-4 z-10 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 transition-colors"
+          className="absolute left-4 z-10 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
         >
-          <ChevronLeft className="w-6 h-6" />
+          <ChevronLeft className="h-6 w-6" />
         </Button>
       )}
 
@@ -85,7 +85,7 @@ export function ImageLightbox({
       <img
         src={images[currentIndex]}
         alt={`${alt} ${currentIndex + 1}`}
-        className="max-h-[85vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
+        className="max-h-[85vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       />
 
@@ -99,9 +99,9 @@ export function ImageLightbox({
           }}
           variant="ghost"
           size="icon"
-          className="absolute right-4 z-10 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 transition-colors"
+          className="absolute right-4 z-10 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
         >
-          <ChevronRight className="w-6 h-6" />
+          <ChevronRight className="h-6 w-6" />
         </Button>
       )}
     </div>
@@ -138,12 +138,12 @@ export function ImageGallery({
             type="button"
             onClick={() => setLightboxIndex(index)}
             variant="ghost"
-            className="h-auto w-full aspect-square rounded-lg overflow-hidden bg-muted cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="aspect-square h-auto w-full cursor-pointer overflow-hidden rounded-lg bg-muted focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
           >
             <img
               src={image}
               alt={`${alt} ${index + 1}`}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
             />
           </Button>
         ))}

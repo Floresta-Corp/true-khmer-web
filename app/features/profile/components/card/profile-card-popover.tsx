@@ -36,7 +36,7 @@ export default function ProfileCardPopover({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="h-11 px-3.5 rounded-full font-bold cursor-pointer"
+          className="h-11 cursor-pointer rounded-full px-3.5 font-bold"
         >
           <EllipsisVertical />
         </Button>

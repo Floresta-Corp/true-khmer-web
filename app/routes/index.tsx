@@ -21,10 +21,10 @@ export default function IndexHome() {
   return (
     <div className="min-h-screen bg-background">
       <main className="flex flex-col items-center justify-center px-4 py-24 sm:py-32">
-        <h1 className="text-5xl font-bold tracking-tight text-foreground mb-4">
+        <h1 className="mb-4 text-5xl font-bold tracking-tight text-foreground">
           True Khmer
         </h1>
-        <p className="text-lg text-muted-foreground mb-10 text-center max-w-md">
+        <p className="mb-10 max-w-md text-center text-lg text-muted-foreground">
           A full-stack app built with React Router v7, cookie sessions &amp;
           shadcn/ui.
         </p>

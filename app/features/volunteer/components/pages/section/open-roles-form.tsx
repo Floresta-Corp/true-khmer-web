@@ -44,7 +44,7 @@ export default function OpenRolesForm({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Users className="size-6 text-[#2f6fe4]" />
-          <h3 className="text-[22px] font-bold leading-8.25 text-[#344256]">
+          <h3 className="text-[22px] leading-8.25 font-bold text-[#344256]">
             {editingIndex !== null ? "Edit Role" : "Add a Role"}
             {!hasSavedRoles && (
               <span className="inline-block text-[#fb3748]">*</span>
@@ -58,7 +58,7 @@ export default function OpenRolesForm({
             className="h-8 px-2 text-[#99a1af] hover:text-[#344256]"
             onClick={onCancelEdit}
           >
-            <X className="size-4 mr-1" />
+            <X className="mr-1 size-4" />
             Cancel
           </Button>
         )}

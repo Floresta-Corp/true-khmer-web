@@ -50,22 +50,22 @@ export default function EventDetailPage() {
 
   if (error || !event) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <div className="flex-1 flex justify-center items-center p-6">
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-8 max-w-md w-full text-center">
-            <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-4" />
-            <h3 className="font-bold text-red-900 text-lg mb-2">
+      <div className="flex min-h-screen flex-col bg-gray-50">
+        <div className="flex flex-1 items-center justify-center p-6">
+          <div className="w-full max-w-md rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
+            <AlertCircle className="mx-auto mb-4 h-10 w-10 text-red-500" />
+            <h3 className="mb-2 text-lg font-bold text-red-900">
               Event Not Found
             </h3>
-            <p className="text-red-600 text-sm mb-6">
+            <p className="mb-6 text-sm text-red-600">
               {error || "The event you are looking for does not exist."}
             </p>
             <Button
               onClick={goBack}
               variant="ghost"
-              className="h-auto px-0 py-0 inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors cursor-pointer"
+              className="inline-flex h-auto cursor-pointer items-center gap-2 px-0 py-0 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="h-4 w-4" />
               Back to events
             </Button>
           </div>
@@ -87,7 +87,7 @@ export default function EventDetailPage() {
     >
       {/* Back link */}
       <motion.div
-        className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6"
+        className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:px-8"
         initial={fadeUp.initial}
         animate={fadeUp.animate}
         transition={{ duration: prefersReducedMotion ? 0 : 0.22, delay: 0.03 }}
@@ -106,29 +106,29 @@ export default function EventDetailPage() {
 
       {/* Content */}
       <motion.div
-        className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pb-16"
+        className="mx-auto mt-8 max-w-6xl px-4 pb-16 sm:px-6 lg:px-8"
         initial={fadeUp.initial}
         animate={fadeUp.animate}
         transition={{ duration: prefersReducedMotion ? 0 : 0.3, delay: 0.1 }}
       >
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col gap-8 lg:flex-row">
           {/* Left Column */}
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             {/* Title + Badge */}
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mb-3">
+            <h1 className="mb-3 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
               {event.title}
             </h1>
             <Badge
-              className={`${badgeColor} border-0 text-xs font-semibold rounded-md px-3 py-1 uppercase tracking-wider`}
+              className={`${badgeColor} rounded-md border-0 px-3 py-1 text-xs font-semibold tracking-wider uppercase`}
             >
               {formatEventType(event.eventType)}
             </Badge>
 
             {/* Tabs */}
-            <div className="flex items-center gap-6 mt-8">
+            <div className="mt-8 flex items-center gap-6">
               <button
                 onClick={() => setActiveTab("tickets")}
-                className={`relative pb-1.5 text-sm font-semibold transition-colors cursor-pointer bg-transparent ${
+                className={`relative cursor-pointer bg-transparent pb-1.5 text-sm font-semibold transition-colors ${
                   activeTab === "tickets"
                     ? "text-[#2f6fe4]"
                     : "text-[#9eacc0] hover:text-[#344256]"
@@ -136,12 +136,12 @@ export default function EventDetailPage() {
               >
                 Get Tickets
                 {activeTab === "tickets" && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2f6fe4] rounded-full" />
+                  <span className="absolute right-0 bottom-0 left-0 h-0.5 rounded-full bg-[#2f6fe4]" />
                 )}
               </button>
               <button
                 onClick={() => setActiveTab("info")}
-                className={`relative pb-1.5 text-sm font-semibold transition-colors cursor-pointer bg-transparent ${
+                className={`relative cursor-pointer bg-transparent pb-1.5 text-sm font-semibold transition-colors ${
                   activeTab === "info"
                     ? "text-[#2f6fe4]"
                     : "text-[#9eacc0] hover:text-[#344256]"
@@ -149,7 +149,7 @@ export default function EventDetailPage() {
               >
                 More Info
                 {activeTab === "info" && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2f6fe4] rounded-full" />
+                  <span className="absolute right-0 bottom-0 left-0 h-0.5 rounded-full bg-[#2f6fe4]" />
                 )}
               </button>
             </div>
@@ -166,7 +166,7 @@ export default function EventDetailPage() {
                   transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
                 >
                   {/* About this event */}
-                  <Card className="shadow-none rounded-2xl">
+                  <Card className="rounded-2xl shadow-none">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-lg">
                         About this event
@@ -178,7 +178,7 @@ export default function EventDetailPage() {
                       event.description.replace(/<[^>]*>/g, "").trim() ? (
                         <SanitizedHtml
                           html={event.description}
-                          className="prose prose-sm prose-gray max-w-none text-sm text-muted-foreground leading-relaxed [&>p]:mb-2 [&>h1]:text-lg [&>h1]:font-bold [&>h1]:mb-2 [&>h2]:text-base [&>h2]:font-semibold [&>h2]:mb-1.5 [&>h2]:mt-4 [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4"
+                          className="prose prose-sm prose-gray max-w-none text-sm leading-relaxed text-muted-foreground [&>h1]:mb-2 [&>h1]:text-lg [&>h1]:font-bold [&>h2]:mt-4 [&>h2]:mb-1.5 [&>h2]:text-base [&>h2]:font-semibold [&>ol]:list-decimal [&>ol]:pl-4 [&>p]:mb-2 [&>ul]:list-disc [&>ul]:pl-4"
                         />
                       ) : (
                         <p className="text-sm text-muted-foreground italic">

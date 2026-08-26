@@ -32,7 +32,7 @@ export default function AnswerSortByComponent({
         <Button
           variant={"default"}
           type="button"
-          className="inline-flex bg-transparent items-center text-base font-semibold leading-6 text-[#0050d4]"
+          className="inline-flex items-center bg-transparent text-base leading-6 font-semibold text-[#0050d4]"
         >
           {selectedValue}
           <ChevronDown size={13.5} className="text-[#0050d4]" />
@@ -40,19 +40,19 @@ export default function AnswerSortByComponent({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
         <DropdownMenuItem
-          className="text-sm font-medium cursor-pointer"
+          className="cursor-pointer text-sm font-medium"
           onClick={() => handleSelect("Popular")}
         >
           Popular
         </DropdownMenuItem>
         <DropdownMenuItem
-          className="text-sm font-medium cursor-pointer"
+          className="cursor-pointer text-sm font-medium"
           onClick={() => handleSelect("Newest")}
         >
           Newest
         </DropdownMenuItem>
         <DropdownMenuItem
-          className="text-sm font-medium cursor-pointer"
+          className="cursor-pointer text-sm font-medium"
           onClick={() => handleSelect("Oldest")}
         >
           Oldest

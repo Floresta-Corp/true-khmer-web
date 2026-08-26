@@ -58,10 +58,10 @@ export function MyAchievementsCard({ badges }: AchievementsCardProps) {
 
   return (
     <Dialog>
-      <Card className="relative overflow-hidden rounded-3xl border shadow-none bg-white p-6 ">
-        <div className="flex items-center justify-between gap-3 border-b pb-1 mb-5">
-          <CardTitle className="text-base flex items-center gap-2 font-semibold tracking-tight text-[#0f172a]">
-            <Award className="text-indigo-400 size-4.5" />
+      <Card className="relative overflow-hidden rounded-3xl border bg-white p-6 shadow-none">
+        <div className="mb-5 flex items-center justify-between gap-3 border-b pb-1">
+          <CardTitle className="flex items-center gap-2 text-base font-semibold tracking-tight text-[#0f172a]">
+            <Award className="size-4.5 text-indigo-400" />
             My Achievements
           </CardTitle>
 
@@ -69,7 +69,7 @@ export function MyAchievementsCard({ badges }: AchievementsCardProps) {
             <DialogTrigger asChild>
               <button
                 type="button"
-                className="shrink-0 text-sm font-bold text-blue-500 transition-colors hover:text-blue-600 cursor-pointer"
+                className="shrink-0 cursor-pointer text-sm font-bold text-blue-500 transition-colors hover:text-blue-600"
               >
                 View all
               </button>
@@ -94,7 +94,7 @@ export function MyAchievementsCard({ badges }: AchievementsCardProps) {
         )}
       </Card>
 
-      <DialogContent className="max-h-[86vh] overflow-hidden rounded-3xl border-none p-0  sm:max-w-180 [&>button]:right-5 [&>button]:top-5 [&>button]:rounded-full [&>button]:border [&>button]:border-[#e6ebf2] [&>button]:bg-white [&>button]:text-[#94a3b8]">
+      <DialogContent className="max-h-[86vh] overflow-hidden rounded-3xl border-none p-0 sm:max-w-180 [&>button]:top-5 [&>button]:right-5 [&>button]:rounded-full [&>button]:border [&>button]:border-[#e6ebf2] [&>button]:bg-white [&>button]:text-[#94a3b8]">
         <div className="overflow-y-auto p-5 sm:p-8">
           <DialogHeader className="mb-6 border-b border-[#edf1f6] pb-5">
             <div className="flex items-start gap-4 pr-10">
@@ -102,7 +102,7 @@ export function MyAchievementsCard({ badges }: AchievementsCardProps) {
                 <Award className="h-6 w-6 text-indigo-400" />
               </div>
               <div className="min-w-0">
-                <DialogTitle className="text-2xl font-semibold leading-8 text-[#020617]">
+                <DialogTitle className="text-2xl leading-8 font-semibold text-[#020617]">
                   My Badge & Achievements Portfolio
                 </DialogTitle>
                 <DialogDescription className="mt-1 text-sm font-semibold text-[#8a99b5]">
@@ -128,13 +128,13 @@ function BadgePreviewTile({ badge }: { badge: MyspaceBadge }) {
 
   return (
     <div className="flex min-h-27.5 flex-col items-center justify-center rounded-3xl border border-[#eef2f7] bg-[#f8fafc] px-3 py-4 text-center">
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#eef2f7] bg-white ">
+      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#eef2f7] bg-white">
         <Icon className={cn("h-5 w-5", colorClassName)} />
       </div>
-      <h3 className="max-w-full text-sm font-extrabold leading-5 text-[#0f172a]">
+      <h3 className="max-w-full text-sm leading-5 font-extrabold text-[#0f172a]">
         {badge.name}
       </h3>
-      <p className="mt-1 line-clamp-2 text-xs font-bold leading-4 text-[#8a99b5]">
+      <p className="mt-1 line-clamp-2 text-xs leading-4 font-bold text-[#8a99b5]">
         {getBadgeSubtitle(badge)}
       </p>
     </div>
@@ -152,21 +152,21 @@ function BadgePortfolioTile({ badge }: { badge: MyspaceBadge }) {
 
       <div className="min-w-0">
         <div className="mb-1 flex flex-wrap items-center gap-2">
-          <h3 className="text-base font-semibold leading-5 text-[#0f172a]">
+          <h3 className="text-base leading-5 font-semibold text-[#0f172a]">
             {badge.name}
           </h3>
-          <StatusBadge className="border-[#dfe5ff] bg-[#eef0ff] px-2 py-0 text-[9px] font-extrabold uppercase leading-4 text-[#4f46ff] hover:bg-[#eef0ff]">
+          <StatusBadge className="border-[#dfe5ff] bg-[#eef0ff] px-2 py-0 text-[9px] leading-4 font-extrabold text-[#4f46ff] uppercase hover:bg-[#eef0ff]">
             Unlocked
           </StatusBadge>
         </div>
 
-        <p className="text-sm font-semibold leading-5 text-[#0757ff]">
+        <p className="text-sm leading-5 font-semibold text-[#0757ff]">
           {getBadgeSubtitle(badge)}
         </p>
-        <p className="mt-1 text-[14px] font-semibold leading-6 text-[#475569]">
+        <p className="mt-1 text-[14px] leading-6 font-semibold text-[#475569]">
           {badge.description}
         </p>
-        <p className="mt-3 text-[11px] font-semibold leading-4 tracking-[0.12em] text-[#8a99b5]">
+        <p className="mt-3 text-[11px] leading-4 font-semibold tracking-[0.12em] text-[#8a99b5]">
           Earned {formatShortDate(badge.awardedAt)}
         </p>
       </div>

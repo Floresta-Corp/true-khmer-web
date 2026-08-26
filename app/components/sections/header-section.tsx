@@ -16,18 +16,18 @@ export function HeaderSection({
 }: HeaderSectionProps) {
   return (
     <div
-      className="relative flex items-center justify-center overflow-hidden bg-black w-full animate-fade-in"
+      className="animate-fade-in relative flex w-full items-center justify-center overflow-hidden bg-black"
       data-name="motion.div"
       data-node-id="14300:4026"
     >
       {/* Background image with gradient overlay */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 pointer-events-none overflow-hidden"
+        className="pointer-events-none absolute inset-0 overflow-hidden"
       >
         <img
           alt=""
-          className="absolute w-full h-full object-cover"
+          className="absolute h-full w-full object-cover"
           src={imgMotionDiv}
         />
         {/* Gradient overlay */}
@@ -36,31 +36,31 @@ export function HeaderSection({
 
       {/* Content Container */}
       <div
-        className="relative flex items-center justify-center w-full px-[250px] py-[56px] shrink-0"
+        className="relative flex w-full shrink-0 items-center justify-center px-[250px] py-[56px]"
         style={{ height: "567px" }}
         data-name="div"
         data-node-id="14300:4027"
       >
         {/* Content Box */}
         <div
-          className="relative w-full max-w-[672px] flex flex-col items-center justify-center gap-[23px] animate-scale-in"
+          className="animate-scale-in relative flex w-full max-w-[672px] flex-col items-center justify-center gap-[23px]"
           data-name="motion.div"
           data-node-id="14300:4028"
         >
           {/* Badge */}
           <div
-            className="flex items-center justify-center w-full animate-slide-up"
+            className="animate-slide-up flex w-full items-center justify-center"
             style={{ animationDelay: "0.2s" }}
             data-name="div"
             data-node-id="14300:4029"
           >
             <div
-              className="bg-blue-600 rounded-full px-2 py-0.75"
+              className="rounded-full bg-blue-600 px-2 py-0.75"
               data-name="span"
               data-node-id="14300:4030"
             >
               <p
-                className="text-white font-bold text-[11px] uppercase tracking-wider whitespace-nowrap"
+                className="text-[11px] font-bold tracking-wider whitespace-nowrap text-white uppercase"
                 data-node-id="14300:4031"
               >
                 People of cambodia
@@ -70,13 +70,13 @@ export function HeaderSection({
 
           {/* Main Heading */}
           <div
-            className="flex items-center justify-center w-full animate-slide-up"
+            className="animate-slide-up flex w-full items-center justify-center"
             style={{ animationDelay: "0.3s" }}
             data-name="h1"
             data-node-id="14300:4032"
           >
             <h1
-              className="text-white font-semibold text-center leading-tight tracking-tight whitespace-nowrap"
+              className="text-center leading-tight font-semibold tracking-tight whitespace-nowrap text-white"
               style={{
                 fontSize: "52.5px",
                 lineHeight: "65.625px",
@@ -90,13 +90,13 @@ export function HeaderSection({
 
           {/* Subtitle */}
           <div
-            className="flex items-center justify-center w-full animate-slide-up"
+            className="animate-slide-up flex w-full items-center justify-center"
             style={{ animationDelay: "0.4s" }}
             data-name="p"
             data-node-id="14300:4034"
           >
             <p
-              className="text-white/80 font-medium text-center leading-[26px] tracking-tight whitespace-nowrap"
+              className="text-center leading-[26px] font-medium tracking-tight whitespace-nowrap text-white/80"
               style={{
                 fontSize: "20px",
                 letterSpacing: "-0.3125px",
@@ -109,7 +109,7 @@ export function HeaderSection({
 
           {/* Action Buttons */}
           <div
-            className="flex gap-[14px] items-center justify-center w-full animate-slide-up"
+            className="animate-slide-up flex w-full items-center justify-center gap-[14px]"
             style={{ height: "42px", animationDelay: "0.5s" }}
             data-name="div"
             data-node-id="14300:4036"
@@ -117,17 +117,17 @@ export function HeaderSection({
             {/* Watch Video Button */}
             <button
               onClick={onWatchVideo}
-              className="bg-white rounded-full px-[18px] py-2 flex items-center gap-[7px] hover:bg-gray-100 transition-all duration-300 hover:shadow-lg hover:scale-105"
+              className="flex items-center gap-[7px] rounded-full bg-white px-[18px] py-2 transition-all duration-300 hover:scale-105 hover:bg-gray-100 hover:shadow-lg"
               data-name="Link"
               data-node-id="14300:4037"
             >
               <img
                 alt="play icon"
-                className="w-[14px] h-[14px]"
+                className="h-[14px] w-[14px]"
                 src={imgPlay}
               />
               <span
-                className="font-bold text-blue-600 text-[14px] leading-[21px] tracking-tight whitespace-nowrap"
+                className="text-[14px] leading-[21px] font-bold tracking-tight whitespace-nowrap text-blue-600"
                 data-node-id="14300:4040"
               >
                 Watch Video
@@ -137,12 +137,12 @@ export function HeaderSection({
             {/* View Details Button */}
             <button
               onClick={onViewDetails}
-              className="bg-white/10 border border-white/20 rounded-full px-[29px] py-1 h-[40px] flex items-center justify-center hover:bg-white/20 transition-all duration-300 hover:scale-105"
+              className="flex h-[40px] items-center justify-center rounded-full border border-white/20 bg-white/10 px-[29px] py-1 transition-all duration-300 hover:scale-105 hover:bg-white/20"
               data-name="Link"
               data-node-id="14300:4041"
             >
               <span
-                className="text-white font-bold text-[14px] leading-[21px] tracking-tight whitespace-nowrap"
+                className="text-[14px] leading-[21px] font-bold tracking-tight whitespace-nowrap text-white"
                 data-node-id="14300:4042"
               >
                 View details

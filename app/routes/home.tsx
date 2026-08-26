@@ -48,7 +48,7 @@ export default function Home() {
       ) : (
         // ── Guest: marketing hero + pillars, then the community feeds ──
         <>
-          <HomeHeroSection isAuthenticated={false} />
+          <HomeHeroSection />
           <HomeTrustedBySection />
           <HomePillarsSection />
           <LaunchpadFeed items={launchpads} />

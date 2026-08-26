@@ -25,11 +25,9 @@ export type LoginTwoFactorActionData = {
   message?: string;
 };
 
-function supportsMethod(
-  methods: string[],
-  method: "totp" | "email",
-) {
-  if (method === "email") return methods.includes("email") || methods.includes("otp");
+function supportsMethod(methods: string[], method: "totp" | "email") {
+  if (method === "email")
+    return methods.includes("email") || methods.includes("otp");
   return methods.includes("totp");
 }
 

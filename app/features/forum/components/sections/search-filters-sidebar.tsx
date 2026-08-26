@@ -121,7 +121,7 @@ export default function SearchFiltersSidebar({
           {allCategories.map((option) => (
             <label
               key={option.id}
-              className="flex items-center gap-2.5 text-[12.25px] leading-[17.5px] text-[#595c5e] cursor-pointer"
+              className="flex cursor-pointer items-center gap-2.5 text-[12.25px] leading-[17.5px] text-[#595c5e]"
             >
               <RadioGroupItem value={option.id} className="border-[#e8e8e8]" />
               <span>{option.name}</span>

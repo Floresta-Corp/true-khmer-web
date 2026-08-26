@@ -168,6 +168,10 @@ export default [
       "features/admin/admin-audit-log/route/admin-audit-log.tsx",
     ),
     route(
+      "developer-clients",
+      "features/admin/developer-clients/route/developer-clients.tsx",
+    ),
+    route(
       "manage-forum",
       "features/admin/manage-content/route/manage-forum.tsx",
     ),
@@ -204,6 +208,8 @@ export default [
   ),
   route("tk-admin/logout", "features/admin/auth/route/admin-logout.tsx"),
 
+  route("oauth/login", "features/oauth/route/oauth-login.tsx"),
+  route("oauth/handoff", "features/oauth/route/oauth-handoff.tsx"),
   route("login", "routes/auth/pages/login.tsx"),
   route("login/2fa", "routes/auth/pages/login-2fa.tsx"),
   route("register", "routes/auth/pages/register.tsx"),
@@ -220,6 +226,7 @@ export default [
   route("onboarding/completed", "routes/onboarding/pages/completed.tsx"),
   route("verify-otp", "routes/auth/pages/verify-otp.tsx"),
   route("logout", "routes/logout.tsx"),
+  route("api/public/stats", "routes/api/api.public.stats.ts"),
   route("api/onboarding/cities", "routes/api/api.onboarding.cities.tsx"),
   route(
     "api/uploads/avatar/presign",

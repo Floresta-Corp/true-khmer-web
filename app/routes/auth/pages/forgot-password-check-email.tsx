@@ -20,7 +20,7 @@ export default function ForgotPasswordCheckEmailPage() {
       descriptionClassName="max-w-[346px] sm:max-w-[420px]"
     >
       <div className="text-center">
-        <p className="text-sm font-medium leading-5 text-[#8E8E8E]">
+        <p className="text-sm leading-5 font-medium text-[#8E8E8E]">
           Did you receive the email?
           <br />
           If not, check your spam folder.
