@@ -45,13 +45,6 @@ export default function ProfileCardPopover({
         <Button
           variant="ghost"
           className="h-10 w-full justify-start gap-2 px-3 font-bold"
-        >
-          <Plus className="h-4 w-4" />
-          Follow
-        </Button>
-        <Button
-          variant="ghost"
-          className="h-10 w-full justify-start gap-2 px-3 font-bold"
           onClick={handleShare}
         >
           <Link2 className="h-4 w-4" />

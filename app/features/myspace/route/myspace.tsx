@@ -146,29 +146,32 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
                 }
               }}
             >
-              <div className="mb-8 w-full border-b">
-                <TabsList className="bg-transparent" variant={"line"}>
+              <div className="mb-8 w-full overflow-x-auto overflow-y-hidden border-b [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <TabsList
+                  className="flex w-max min-w-full justify-start bg-transparent sm:justify-center"
+                  variant={"line"}
+                >
                   <TabsTrigger
-                    className="cursor-pointer px-10 py-3 text-xs font-black sm:text-sm data-active:text-[#1A73E8] data-active:after:bg-[#1A73E8] dark:data-active:text-blue-400"
+                    className="cursor-pointer px-3 py-3 text-xs font-black sm:px-6 sm:text-sm md:px-10 data-active:text-[#1A73E8] data-active:after:bg-[#1A73E8] dark:data-active:text-blue-400"
                     value="about"
                   >
                     About
                   </TabsTrigger>
                   <TabsTrigger
-                    className="cursor-pointer px-10 py-3 text-xs font-black sm:text-sm data-active:text-[#1A73E8] data-active:after:bg-[#1A73E8] dark:data-active:text-blue-400"
+                    className="cursor-pointer px-3 py-3 text-xs font-black sm:px-6 sm:text-sm md:px-10 data-active:text-[#1A73E8] data-active:after:bg-[#1A73E8] dark:data-active:text-blue-400"
                     value="forum"
                   >
                     Forum{postedCounts ? ` (${postedCounts.forum})` : ""}
                   </TabsTrigger>
                   <TabsTrigger
-                    className="cursor-pointer px-10 py-3 text-xs font-black sm:text-sm data-active:text-[#1A73E8] data-active:after:bg-[#1A73E8] dark:data-active:text-blue-400"
+                    className="cursor-pointer px-3 py-3 text-xs font-black sm:px-6 sm:text-sm md:px-10 data-active:text-[#1A73E8] data-active:after:bg-[#1A73E8] dark:data-active:text-blue-400"
                     value="volunteer"
                   >
                     Volunteer
                     {postedCounts ? ` (${postedCounts.volunteer})` : ""}
                   </TabsTrigger>
                   <TabsTrigger
-                    className="cursor-pointer px-10 py-3 text-xs font-black sm:text-sm data-active:text-[#1A73E8] data-active:after:bg-[#1A73E8] dark:data-active:text-blue-400"
+                    className="cursor-pointer px-3 py-3 text-xs font-black sm:px-6 sm:text-sm md:px-10 data-active:text-[#1A73E8] data-active:after:bg-[#1A73E8] dark:data-active:text-blue-400"
                     value="project"
                   >
                     Launchpad{postedCounts ? ` (${postedCounts.project})` : ""}
