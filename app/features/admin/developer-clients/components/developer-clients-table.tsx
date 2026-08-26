@@ -1,7 +1,9 @@
 import {
+  Apple,
   Check,
   Copy,
   Globe,
+  Smartphone,
   KeyRound,
   MoreHorizontal,
   Pencil,
@@ -34,7 +36,7 @@ import {
 import { Skeleton } from "~/components/ui/skeleton";
 import { copyToClipboard } from "~/lib/clipboard";
 import { resolveImageURL } from "~/lib/utils";
-import type { DeveloperClient } from "../types";
+import type { DeveloperClientResponse as DeveloperClient } from "~/types/api-client";
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString(undefined, {
@@ -181,6 +183,51 @@ function OriginsCell({ origins }: { origins: string[] }) {
   );
 }
 
+function PlatformBadge({ type }: { type: DeveloperClient["clientType"] }) {
+  const label = type === "WEB" ? "Web" : type === "IOS" ? "iOS" : "Android";
+  const Icon = type === "WEB" ? Globe : type === "IOS" ? Apple : Smartphone;
+  return (
+    <Badge
+      variant="outline"
+      className="gap-1.5 rounded-lg border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+    >
+      <Icon className="size-3" /> {label}
+    </Badge>
+  );
+}
+
+function AppIdentityCell({ client }: { client: DeveloperClient }) {
+  if (client.clientType === "WEB") {
+    return <OriginsCell origins={client.allowedOrigins} />;
+  }
+
+  const primary =
+    client.clientType === "IOS"
+      ? client.iosBundleIdentifier
+      : client.androidPackageName;
+  const secondary =
+    client.clientType === "ANDROID"
+      ? `${client.androidSha1Fingerprints.length} signing certificate${client.androidSha1Fingerprints.length === 1 ? "" : "s"}`
+      : client.redirectScheme;
+
+  return (
+    <div className="min-w-0">
+      <p
+        title={primary ?? undefined}
+        className="truncate font-mono text-xs text-slate-600 dark:text-slate-300"
+      >
+        {primary ?? "Not configured"}
+      </p>
+      <p
+        title={secondary ?? undefined}
+        className="mt-1 truncate text-[11px] text-slate-400 dark:text-slate-500"
+      >
+        {secondary}
+      </p>
+    </div>
+  );
+}
+
 function SecretCell({ last4 }: { last4: string | null }) {
   if (!last4) {
     return (
@@ -275,13 +322,14 @@ function NameCell({ client }: { client: DeveloperClient }) {
  * of scrolling sideways. Long values truncate and keep a title tooltip.
  */
 const COLUMNS = [
-  { key: "client", label: "Client", className: "w-[28%] px-4" },
-  { key: "credentials", label: "Credentials", className: "w-[28%] px-4" },
-  { key: "origins", label: "Origins", className: "w-[20%] px-4" },
+  { key: "client", label: "Client", className: "w-[23%] px-4" },
+  { key: "credentials", label: "Credentials", className: "w-[24%] px-4" },
+  { key: "platform", label: "Platform", className: "w-[12%] px-3" },
+  { key: "identity", label: "App identity", className: "w-[21%] px-4" },
   {
     key: "status",
     label: "Status",
-    className: "w-[16%] px-4",
+    className: "w-[13%] px-3",
     align: "center" as const,
   },
   // No visible label: "Actions" is wider than the column the icon button needs,
@@ -290,7 +338,7 @@ const COLUMNS = [
     key: "actions",
     label: "",
     srLabel: "Actions",
-    className: "w-[8%] px-2",
+    className: "w-[7%] px-2",
     align: "center" as const,
   },
 ];
@@ -344,7 +392,10 @@ export function DeveloperClientsTable({
                   </div>
                 </AdminTableCell>
                 <AdminTableCell className={CELL_CLASS}>
-                  <OriginsCell origins={client.allowedOrigins} />
+                  <PlatformBadge type={client.clientType} />
+                </AdminTableCell>
+                <AdminTableCell className={CELL_CLASS}>
+                  <AppIdentityCell client={client} />
                 </AdminTableCell>
                 <AdminTableCell align="center" className={CELL_CLASS}>
                   <StatusBadge status={client.status} />
@@ -404,10 +455,17 @@ export function DeveloperClientsTable({
 
               <div className="flex items-center justify-between gap-3">
                 <span className="shrink-0 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
-                  Origins
+                  Platform
                 </span>
-                <div className="min-w-0">
-                  <OriginsCell origins={client.allowedOrigins} />
+                <PlatformBadge type={client.clientType} />
+              </div>
+
+              <div className="flex items-center justify-between gap-3">
+                <span className="shrink-0 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+                  App identity
+                </span>
+                <div className="min-w-0 text-right">
+                  <AppIdentityCell client={client} />
                 </div>
               </div>
 
@@ -449,6 +507,9 @@ export function DeveloperClientsTableSkeleton({ rows = 6 }: { rows?: number }) {
                 <AdminTableCell className={CELL_CLASS}>
                   <Skeleton className="h-7 w-full rounded-md" />
                   <Skeleton className="mt-1.5 h-3 w-16 rounded" />
+                </AdminTableCell>
+                <AdminTableCell className={CELL_CLASS}>
+                  <Skeleton className="h-7 w-20 rounded-lg" />
                 </AdminTableCell>
                 <AdminTableCell className={CELL_CLASS}>
                   <Skeleton className="h-4 w-full max-w-32 rounded" />

@@ -9,6 +9,7 @@ import {
 import { toast } from "sonner";
 
 import { ConfirmationModal } from "~/features/admin/components/confirmation-modal";
+import type { DeveloperClientResponse as DeveloperClient } from "~/types/api-client";
 import { CredentialRevealModal } from "../credential-reveal-modal";
 import {
   DeveloperClientModal,
@@ -27,7 +28,6 @@ import {
 import { DeveloperClientsToolbar } from "../developer-clients-toolbar";
 import type { developerClientsLoader } from "../../services/developer-clients.loader";
 import type {
-  DeveloperClient,
   DeveloperClientActionData,
   DeveloperClientIntent,
 } from "../../types";
@@ -99,6 +99,9 @@ export default function DeveloperClientsPage() {
     setFormError(null);
 
     const allowedOrigins = JSON.stringify(values.allowedOrigins);
+    const androidSha1Fingerprints = JSON.stringify(
+      values.androidSha1Fingerprints,
+    );
     const logo: Record<string, string | File> = values.logoFile
       ? { logoFile: values.logoFile }
       : { logoKey: values.logoKey };
@@ -110,7 +113,11 @@ export default function DeveloperClientsPage() {
         description: values.description,
         contactEmail: values.contactEmail,
         status: values.status,
+        clientType: values.clientType,
         allowedOrigins,
+        iosBundleIdentifier: values.iosBundleIdentifier,
+        androidPackageName: values.androidPackageName,
+        androidSha1Fingerprints,
         ...logo,
       });
       return;
@@ -119,7 +126,11 @@ export default function DeveloperClientsPage() {
       name: values.name,
       description: values.description,
       contactEmail: values.contactEmail,
+      clientType: values.clientType,
       allowedOrigins,
+      iosBundleIdentifier: values.iosBundleIdentifier,
+      androidPackageName: values.androidPackageName,
+      androidSha1Fingerprints,
       ...logo,
     });
   }

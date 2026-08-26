@@ -21,17 +21,25 @@ import {
 } from "~/components/ui/select";
 import { Textarea } from "~/components/ui/textarea";
 import { cn } from "~/lib/utils";
-import type { DeveloperClient, DeveloperClientStatusInput } from "../types";
+import type {
+  DeveloperClientResponse as DeveloperClient,
+  UpdateDeveloperClientRequest,
+} from "~/types/api-client";
 import { AllowedOriginsField } from "./allowed-origins-field";
+import { AndroidFingerprintsField } from "./android-fingerprints-field";
 import { FieldHint, FieldLabel, fieldControlClass } from "./form-field";
 import { LogoUploadField } from "./logo-upload-field";
 
 export type DeveloperClientFormValues = {
   name: string;
+  clientType: DeveloperClient["clientType"];
   description: string;
   contactEmail: string;
-  status: DeveloperClientStatusInput;
+  status: NonNullable<UpdateDeveloperClientRequest["status"]>;
   allowedOrigins: string[];
+  iosBundleIdentifier: string;
+  androidPackageName: string;
+  androidSha1Fingerprints: string[];
   /** The key already stored on the client; cleared when the logo is removed. */
   logoKey: string;
   /** A newly picked logo, uploaded by the action on save. */
@@ -50,10 +58,14 @@ interface DeveloperClientModalProps {
 
 const EMPTY: DeveloperClientFormValues = {
   name: "",
+  clientType: "WEB",
   description: "",
   contactEmail: "",
   status: "ACTIVE",
   allowedOrigins: [],
+  iosBundleIdentifier: "",
+  androidPackageName: "",
+  androidSha1Fingerprints: [],
   logoKey: "",
   logoFile: null,
 };
@@ -77,10 +89,14 @@ export function DeveloperClientModal({
       client
         ? {
             name: client.name,
+            clientType: client.clientType,
             description: client.description ?? "",
             contactEmail: client.contactEmail ?? "",
             status: client.status === "DISABLED" ? "DISABLED" : "ACTIVE",
             allowedOrigins: client.allowedOrigins,
+            iosBundleIdentifier: client.iosBundleIdentifier ?? "",
+            androidPackageName: client.androidPackageName ?? "",
+            androidSha1Fingerprints: client.androidSha1Fingerprints,
             logoKey: client.logoKey ?? "",
             logoFile: null,
           }
@@ -112,11 +128,28 @@ export function DeveloperClientModal({
       return;
     }
 
+    if (values.clientType === "IOS" && !values.iosBundleIdentifier.trim()) {
+      setError("Bundle identifier is required for an iOS client.");
+      return;
+    }
+    if (values.clientType === "ANDROID") {
+      if (!values.androidPackageName.trim()) {
+        setError("Android package name is required.");
+        return;
+      }
+      if (values.androidSha1Fingerprints.length === 0) {
+        setError("Add at least one Android signing-certificate SHA-1.");
+        return;
+      }
+    }
+
     setError(null);
     onSubmit({
       ...values,
       name,
       contactEmail: email,
+      iosBundleIdentifier: values.iosBundleIdentifier.trim(),
+      androidPackageName: values.androidPackageName.trim(),
       logoKey: values.logoKey.trim(),
     });
   }
@@ -187,6 +220,42 @@ export function DeveloperClientModal({
             </div>
 
             <div>
+              <FieldLabel htmlFor="client-type" required>
+                Application type
+              </FieldLabel>
+              <Select
+                value={values.clientType}
+                disabled={isLoading || isEdit}
+                onValueChange={(clientType) =>
+                  setValues((current) => ({
+                    ...current,
+                    clientType: clientType as DeveloperClient["clientType"],
+                    allowedOrigins: [],
+                    iosBundleIdentifier: "",
+                    androidPackageName: "",
+                    androidSha1Fingerprints: [],
+                  }))
+                }
+              >
+                <SelectTrigger
+                  id="client-type"
+                  className={cn(fieldControlClass, "w-full")}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="WEB">Web client</SelectItem>
+                  <SelectItem value="IOS">iOS client</SelectItem>
+                  <SelectItem value="ANDROID">Android client</SelectItem>
+                </SelectContent>
+              </Select>
+              <FieldHint>
+                Application type is permanent because each platform verifies a
+                different application identity.
+              </FieldHint>
+            </div>
+
+            <div>
               <FieldLabel htmlFor="client-description">Description</FieldLabel>
               <Textarea
                 id="client-description"
@@ -204,13 +273,106 @@ export function DeveloperClientModal({
               </FieldHint>
             </div>
 
-            <AllowedOriginsField
-              origins={values.allowedOrigins}
-              disabled={isLoading}
-              onChange={(allowedOrigins) =>
-                update("allowedOrigins", allowedOrigins)
-              }
-            />
+            {values.clientType === "WEB" ? (
+              <AllowedOriginsField
+                origins={values.allowedOrigins}
+                disabled={isLoading}
+                onChange={(allowedOrigins) =>
+                  update("allowedOrigins", allowedOrigins)
+                }
+              />
+            ) : null}
+
+            {values.clientType === "IOS" ? (
+              <div className="space-y-4">
+                <div>
+                  <FieldLabel htmlFor="ios-bundle-identifier" required>
+                    Bundle identifier
+                  </FieldLabel>
+                  <Input
+                    id="ios-bundle-identifier"
+                    value={values.iosBundleIdentifier}
+                    maxLength={255}
+                    disabled={isLoading}
+                    onChange={(event) =>
+                      update("iosBundleIdentifier", event.target.value)
+                    }
+                    placeholder="com.example.app"
+                    className={cn(fieldControlClass, "font-mono")}
+                  />
+                  <FieldHint>
+                    Must exactly match CFBundleIdentifier in the signed iOS
+                    application.
+                  </FieldHint>
+                </div>
+                {client?.redirectScheme ? (
+                  <div>
+                    <FieldLabel htmlFor="ios-url-scheme">
+                      iOS URL scheme
+                    </FieldLabel>
+                    <Input
+                      id="ios-url-scheme"
+                      value={client.redirectScheme}
+                      readOnly
+                      className={cn(fieldControlClass, "font-mono text-xs")}
+                    />
+                    <FieldHint>
+                      Generated from the client ID. Add it to CFBundleURLSchemes
+                      in Info.plist, or let the SDK build plugin do it.
+                    </FieldHint>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+
+            {values.clientType === "ANDROID" ? (
+              <div className="space-y-4">
+                <div>
+                  <FieldLabel htmlFor="android-package-name" required>
+                    Package name
+                  </FieldLabel>
+                  <Input
+                    id="android-package-name"
+                    value={values.androidPackageName}
+                    maxLength={255}
+                    disabled={isLoading}
+                    onChange={(event) =>
+                      update("androidPackageName", event.target.value)
+                    }
+                    placeholder="com.example.app"
+                    className={cn(fieldControlClass, "font-mono")}
+                  />
+                  <FieldHint>
+                    Must exactly match the Android applicationId.
+                  </FieldHint>
+                </div>
+                <AndroidFingerprintsField
+                  fingerprints={values.androidSha1Fingerprints}
+                  disabled={isLoading}
+                  onChange={(fingerprints) =>
+                    update("androidSha1Fingerprints", fingerprints)
+                  }
+                />
+                {client?.redirectScheme ? (
+                  <div>
+                    <FieldLabel htmlFor="android-url-scheme">
+                      Android URL scheme
+                    </FieldLabel>
+                    <Input
+                      id="android-url-scheme"
+                      value={client.redirectScheme}
+                      readOnly
+                      className={cn(fieldControlClass, "font-mono text-xs")}
+                    />
+                    <FieldHint>
+                      Generated from the client ID. Use it as android:scheme on
+                      the MainActivity intent filter, with host "oauth" and path
+                      "/callback".
+                    </FieldHint>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
 
             <LogoUploadField
               existingKey={values.logoKey}
@@ -235,7 +397,12 @@ export function DeveloperClientModal({
                   value={values.status}
                   disabled={isLoading}
                   onValueChange={(value) =>
-                    update("status", value as DeveloperClientStatusInput)
+                    update(
+                      "status",
+                      value as NonNullable<
+                        UpdateDeveloperClientRequest["status"]
+                      >,
+                    )
                   }
                 >
                   <SelectTrigger

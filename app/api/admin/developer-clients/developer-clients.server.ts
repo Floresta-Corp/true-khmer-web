@@ -9,12 +9,13 @@ import { getAdminAccessToken } from "~/lib/server/session.server";
 import type {
   CreateDeveloperClientRequest,
   DeveloperClientDetailResponse,
-  DeveloperClientSortField,
-  DeveloperClientSortOrder,
-  DeveloperClientStatusInput,
   IssuedClientSecretResponse,
   ListDeveloperClientsResponse,
   UpdateDeveloperClientRequest,
+} from "~/types/api-client";
+import type {
+  DeveloperClientSortField,
+  DeveloperClientSortOrder,
 } from "~/features/admin/developer-clients/types";
 
 const BASE_PATH = "/admin/developer-client";
@@ -63,7 +64,7 @@ async function retryAdminRequestAfterRefresh<T>(
 export interface ListDeveloperClientsQuery {
   page?: number;
   search?: string;
-  status?: DeveloperClientStatusInput;
+  status?: NonNullable<UpdateDeveloperClientRequest["status"]>;
   sortField?: DeveloperClientSortField;
   sortOrder?: DeveloperClientSortOrder;
 }

@@ -17,6 +17,7 @@ export default function OAuthLoginPage() {
     origin,
     platform,
     redirectUri,
+    state,
     user,
     accessToken,
   } = useLoaderData<typeof OauthLoginLoader>();
@@ -33,7 +34,7 @@ export default function OAuthLoginPage() {
     if (consentData) setSession(consentData);
   }, [consentData, setSession]);
 
-  if (!originAllowed || !origin) {
+  if (!originAllowed || (platform === "web" && !origin)) {
     return <OAuthOriginError />;
   }
 
@@ -46,6 +47,7 @@ export default function OAuthLoginPage() {
         origin={origin}
         platform={platform}
         redirectUri={redirectUri}
+        state={state}
         accessToken={consentData.accessToken}
         user={consentData.user}
         onUseDifferentAccount={() => setUseDifferentAccount(true)}

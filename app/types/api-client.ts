@@ -133,10 +133,6 @@ const UpdateContentModeratorReportReviewResponse = z.object({ ok: z.boolean(), r
 
 const AdminDashboardOverviewResponse = z.object({ ok: z.literal(true), dashboard: z.object({ summary: z.object({ totalUsers: z.number().int().gte(0), totalPartners: z.number().int().gte(0), openReports: z.number().int().gte(0) }), demographics: z.object({ genderBreakdown: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })), ageGroups: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })) }), partners: z.object({ total: z.number().int().gte(0), sectors: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })) }) }) });
 
-const PublicStatsResponse = z.object({ ok: z.literal(true), stats: z.object({ activeUsers: z.number().int().gte(0), projects: z.number().int().gte(0), userGrowthPercent: z.number().gte(0).nullable(), memberTrend: z.array(z.number().int().gte(0)), windowDays: z.number().int().gt(0) }) });
-
-const PublicStatsErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
-
 const AdminDashboardErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
 const AdminDashboardActiveUsersResponse = z.object({ ok: z.literal(true), activeUsers: z.object({ count: z.number().int().gte(0), changePercent: z.number().nullable(), countLast24Hours: z.number().int().gte(0), windowHours: z.literal(24), liveNow: z.boolean(), period: z.enum(["7d", "30d", "12w", "6m", "12m"]), trend: z.array(z.object({ label: z.string(), count: z.number().int().gte(0), date: z.string() })) }) });
@@ -190,19 +186,19 @@ const AdminAuditLogListResponse = z.object({ ok: z.literal(true), entries: z.arr
 
 const patchV1adminnotificationsread_Body = z.object({ notificationIds: z.array(z.string().uuid()).min(1) });
 
-const DeveloperClientResponse = z.object({ id: z.string().uuid(), clientId: z.string(), name: z.string(), description: z.string().nullable(), contactEmail: z.string().nullable(), allowedOrigins: z.array(z.string()), logoKey: z.string().nullable(), logoUrl: z.string().nullable(), clientSecretLast4: z.string().nullable(), clientSecretSetAt: z.string().nullable(), status: z.enum(["ACTIVE", "DISABLED", "DELETED"]), createdAt: z.string(), updatedAt: z.string(), deletedAt: z.string().nullable() });
+const DeveloperClientResponse = z.object({ id: z.string().uuid(), clientId: z.string(), clientType: z.enum(["WEB", "IOS", "ANDROID"]), name: z.string(), description: z.string().nullable(), contactEmail: z.string().nullable(), allowedOrigins: z.array(z.string()), redirectScheme: z.string().nullable(), redirectUri: z.string().nullable(), iosBundleIdentifier: z.string().nullable(), androidPackageName: z.string().nullable(), androidSha1Fingerprints: z.array(z.string()), logoKey: z.string().nullable(), logoUrl: z.string().nullable(), clientSecretLast4: z.string().nullable(), clientSecretSetAt: z.string().nullable(), status: z.enum(["ACTIVE", "DISABLED", "DELETED"]), createdAt: z.string(), updatedAt: z.string(), deletedAt: z.string().nullable() });
 
 const ListDeveloperClientsResponse = z.object({ ok: z.literal(true), clients: z.array(DeveloperClientResponse), meta: z.object({ page: z.number(), pageSize: z.number(), total: z.number(), totalPages: z.number() }) });
 
 const DeveloperClientErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
-const CreateDeveloperClientRequest = z.object({ name: z.string().min(2).max(120), description: z.union([z.string(), z.unknown()]).optional(), contactEmail: z.union([z.string(), z.unknown()]).optional(), allowedOrigins: z.array(z.string().max(512)).max(20).optional(), logoKey: z.union([z.string(), z.unknown()]).optional() });
+const CreateDeveloperClientRequest = z.object({ clientType: z.enum(["WEB", "IOS", "ANDROID"]).optional().default("WEB"), name: z.string().min(2).max(120), description: z.union([z.string(), z.unknown()]).optional(), contactEmail: z.union([z.string(), z.unknown()]).optional(), allowedOrigins: z.array(z.string().max(512)).max(20).optional(), iosBundleIdentifier: z.union([z.string(), z.unknown()]).optional(), androidPackageName: z.union([z.string(), z.unknown()]).optional(), androidSha1Fingerprints: z.array(z.string().max(96)).max(20).optional(), logoKey: z.union([z.string(), z.unknown()]).optional() });
 
 const IssuedClientSecretResponse = z.object({ ok: z.literal(true), client: DeveloperClientResponse, clientSecret: z.string() });
 
 const DeveloperClientDetailResponse = z.object({ ok: z.literal(true), client: DeveloperClientResponse });
 
-const UpdateDeveloperClientRequest = z.object({ name: z.string().min(2).max(120), description: z.union([z.string(), z.unknown()]), contactEmail: z.union([z.string(), z.unknown()]), status: z.enum(["ACTIVE", "DISABLED"]), allowedOrigins: z.array(z.string().max(512)).max(20), logoKey: z.union([z.string(), z.unknown()]) }).partial();
+const UpdateDeveloperClientRequest = z.object({ clientType: z.enum(["WEB", "IOS", "ANDROID"]), name: z.string().min(2).max(120), description: z.union([z.string(), z.unknown()]), contactEmail: z.union([z.string(), z.unknown()]), status: z.enum(["ACTIVE", "DISABLED"]), allowedOrigins: z.array(z.string().max(512)).max(20), iosBundleIdentifier: z.union([z.string(), z.unknown()]), androidPackageName: z.union([z.string(), z.unknown()]), androidSha1Fingerprints: z.array(z.string().max(96)).max(20), logoKey: z.union([z.string(), z.unknown()]) }).partial();
 
 const DeleteDeveloperClientResponse = z.object({ ok: z.literal(true) });
 
@@ -453,6 +449,10 @@ const GetPublicVolunteerOpportunityResponse = z.object({ ok: z.literal(true), op
 const ReportingTypeResponse = z.object({ id: z.string(), type: z.string() });
 
 const GetReportingTypesResponse = z.object({ ok: z.boolean(), reportingTypes: z.array(ReportingTypeResponse) });
+
+const PublicStatsResponse = z.object({ ok: z.literal(true), stats: z.object({ activeUsers: z.number().int().gte(0), projects: z.number().int().gte(0), userGrowthPercent: z.number().gte(0).nullable(), memberTrend: z.array(z.number().int().gte(0)), windowDays: z.number().int().gt(0) }) });
+
+const PublicStatsErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
 const CreateReportingRequest = z.object({ questionId: z.string(), answerId: z.string(), typeId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), description: z.string().max(10000).optional() });
 
@@ -732,7 +732,7 @@ const AdminUpdateCourseRequest = z.object({ title: z.string().min(1).max(255), d
 
 const RejectCourseRequest = z.object({ note: z.string().min(1).max(2000) }).partial();
 
-const SsoVerifyClientResponse = z.object({ ok: z.literal(true), client: z.object({ clientId: z.string(), name: z.string(), description: z.string().nullable(), logoUrl: z.string().nullable() }) });
+const SsoVerifyClientResponse = z.object({ ok: z.literal(true), client: z.object({ clientId: z.string(), clientType: z.enum(["WEB", "IOS", "ANDROID"]), name: z.string(), description: z.string().nullable(), logoUrl: z.string().nullable(), redirectUri: z.string().nullable() }) });
 
 const SsoErrorResponse = z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() });
 
@@ -816,8 +816,6 @@ export const schemas = {
 	UpdateContentModeratorReportReviewResponse,
 	AdminDashboardOverviewResponse,
 	AdminDashboardErrorResponse,
-	PublicStatsResponse,
-	PublicStatsErrorResponse,
 	AdminDashboardActiveUsersResponse,
 	AdminDashboardNewRegistrationsResponse,
 	AcceptModeratorInviteRequest,
@@ -978,6 +976,8 @@ export const schemas = {
 	GetPublicVolunteerOpportunityResponse,
 	ReportingTypeResponse,
 	GetReportingTypesResponse,
+	PublicStatsResponse,
+	PublicStatsErrorResponse,
 	CreateReportingRequest,
 	CreateReportingResponse,
 	CreateVolunteerReportingRequest,
@@ -4054,7 +4054,7 @@ const endpoints = makeApi([
 			{
 				name: "tier",
 				type: "Query",
-				schema: z.enum(["all", "neary", "yothea", "reach", "preah", "indra"]).optional()
+				schema: z.enum(["all", "dam", "doh", "loas_sleuk", "phka_reek", "preksa"]).optional()
 			},
 			{
 				name: "search",
@@ -7633,6 +7633,20 @@ const endpoints = makeApi([
 	},
 	{
 		method: "get",
+		path: "/v1/public/stats",
+		alias: "getV1publicstats",
+		requestFormat: "json",
+		response: PublicStatsResponse,
+		errors: [
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: PublicStatsErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
 		path: "/v1/sso/clients/:clientId",
 		alias: "getV1ssoclientsClientId",
 		description: `Fetch a partner&#x27;s public name, description and logo so its own login page can render &#x27;Sign in to &lt;name&gt;&#x27;. Requires no credential. The origin must exactly match one the client has registered.`,
@@ -7659,6 +7673,90 @@ const endpoints = makeApi([
 			{
 				status: 404,
 				description: `Unknown, disabled or deleted client, or the origin is not registered — one response for all four, so client existence is never confirmed`,
+				schema: SsoErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: SsoErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/sso/clients/:clientId/android",
+		alias: "getV1ssoclientsClientIdandroid",
+		description: `Verify an Android client using its application ID and signing-certificate SHA-1 fingerprint. This endpoint is separate from web origin verification.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "clientId",
+				type: "Path",
+				schema: z.string().min(8).max(64).regex(/^[A-Za-z0-9_]+$/)
+			},
+			{
+				name: "packageName",
+				type: "Query",
+				schema: z.string().min(3).max(255)
+			},
+			{
+				name: "sha1CertificateFingerprint",
+				type: "Query",
+				schema: z.string().min(40).max(96)
+			},
+		],
+		response: SsoVerifyClientResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: SsoErrorResponse
+			},
+			{
+				status: 404,
+				description: `Unknown, disabled, mismatched, or non-Android client`,
+				schema: SsoErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: SsoErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/sso/clients/:clientId/ios",
+		alias: "getV1ssoclientsClientIdios",
+		description: `Verify an iOS client using its registered bundle identifier and True Khmer callback scheme. This endpoint is separate from web origin verification.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "clientId",
+				type: "Path",
+				schema: z.string().min(8).max(64).regex(/^[A-Za-z0-9_]+$/)
+			},
+			{
+				name: "bundleIdentifier",
+				type: "Query",
+				schema: z.string().min(3).max(255)
+			},
+			{
+				name: "urlScheme",
+				type: "Query",
+				schema: z.string().min(3).max(128)
+			},
+		],
+		response: SsoVerifyClientResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: SsoErrorResponse
+			},
+			{
+				status: 404,
+				description: `Unknown, disabled, mismatched, or non-iOS client`,
 				schema: SsoErrorResponse
 			},
 			{
@@ -9095,8 +9193,6 @@ export type ListContentModeratorReportsResponse = z.infer<typeof schemas.ListCon
 export type UpdateContentModeratorReportReviewRequest = z.infer<typeof schemas.UpdateContentModeratorReportReviewRequest>;
 export type UpdateContentModeratorReportReviewResponse = z.infer<typeof schemas.UpdateContentModeratorReportReviewResponse>;
 export type AdminDashboardOverviewResponse = z.infer<typeof schemas.AdminDashboardOverviewResponse>;
-export type PublicStatsResponse = z.infer<typeof schemas.PublicStatsResponse>;
-export type PublicStatsErrorResponse = z.infer<typeof schemas.PublicStatsErrorResponse>;
 export type AdminDashboardErrorResponse = z.infer<typeof schemas.AdminDashboardErrorResponse>;
 export type AdminDashboardActiveUsersResponse = z.infer<typeof schemas.AdminDashboardActiveUsersResponse>;
 export type AdminDashboardNewRegistrationsResponse = z.infer<typeof schemas.AdminDashboardNewRegistrationsResponse>;
@@ -9258,6 +9354,8 @@ export type PublicVolunteerOpportunityResponse = z.infer<typeof schemas.PublicVo
 export type GetPublicVolunteerOpportunityResponse = z.infer<typeof schemas.GetPublicVolunteerOpportunityResponse>;
 export type ReportingTypeResponse = z.infer<typeof schemas.ReportingTypeResponse>;
 export type GetReportingTypesResponse = z.infer<typeof schemas.GetReportingTypesResponse>;
+export type PublicStatsResponse = z.infer<typeof schemas.PublicStatsResponse>;
+export type PublicStatsErrorResponse = z.infer<typeof schemas.PublicStatsErrorResponse>;
 export type CreateReportingRequest = z.infer<typeof schemas.CreateReportingRequest>;
 export type CreateReportingResponse = z.infer<typeof schemas.CreateReportingResponse>;
 export type CreateVolunteerReportingRequest = z.infer<typeof schemas.CreateVolunteerReportingRequest>;

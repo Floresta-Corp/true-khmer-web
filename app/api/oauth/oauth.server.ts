@@ -9,19 +9,12 @@ import {
   isAutoRefreshEnabled,
 } from "~/lib/server/session.server";
 import { refreshAccessToken } from "~/services/auth/api.server";
+import type {
+  ProfileResponse,
+  SsoVerifyClientResponse,
+} from "~/types/api-client";
 
-export type OAuthMeUser = {
-  id: string;
-  email: string;
-  firstName: string | null;
-  lastName: string | null;
-  displayName: string | null;
-};
-
-type GetMeResponse = {
-  ok: boolean;
-  profile: { user: OAuthMeUser };
-};
+type OAuthMeUser = ProfileResponse["profile"]["user"];
 
 export type OAuthSessionResolution = {
   user: OAuthMeUser | null;
@@ -36,7 +29,7 @@ const UNAUTHORIZED = Symbol("unauthorized");
 // the signed-in account from the site session's own access token instead.
 async function fetchMe(request: Request, accessToken: string) {
   try {
-    const data = await apiRequestWithAccessToken<GetMeResponse>(
+    const data = await apiRequestWithAccessToken<ProfileResponse>(
       request,
       accessToken,
       "/me",
@@ -100,18 +93,6 @@ export async function getOAuthSessionUser(
   return { user: retried, accessToken: refreshedToken, setCookie };
 }
 
-export type OAuthClient = {
-  clientId: string;
-  name: string;
-  description: string | null;
-  logoUrl: string | null;
-};
-
-type VerifyClientResponse = {
-  ok: boolean;
-  client: OAuthClient;
-};
-
 // The public client lookup doubles as the origin check: the API only answers
 // when `origin` is one the client registered, so a 404 means this page has no
 // business posting a handoff token back to whoever opened it.
@@ -119,9 +100,9 @@ export async function verifyOAuthClient(
   request: Request,
   clientId: string,
   origin: string,
-): Promise<OAuthClient | null> {
+): Promise<SsoVerifyClientResponse["client"] | null> {
   try {
-    const { data } = await apiRequestPublic<VerifyClientResponse>(
+    const { data } = await apiRequestPublic<SsoVerifyClientResponse>(
       request,
       `/sso/clients/${encodeURIComponent(clientId)}?origin=${encodeURIComponent(origin)}`,
       { method: "GET" },
@@ -139,4 +120,61 @@ export async function verifyOAuthClient(
     }
     throw error;
   }
+}
+
+async function verifyNativeOAuthClient(
+  request: Request,
+  clientId: string,
+  platform: "ios" | "android",
+  query: URLSearchParams,
+): Promise<SsoVerifyClientResponse["client"] | null> {
+  try {
+    const { data } = await apiRequestPublic<SsoVerifyClientResponse>(
+      request,
+      `/sso/clients/${encodeURIComponent(clientId)}/${platform}?${query.toString()}`,
+      { method: "GET" },
+    );
+
+    if (!data?.ok || !data.client?.clientId || !data.client.redirectUri) {
+      return null;
+    }
+
+    return data.client;
+  } catch (error) {
+    if (
+      error instanceof ProtectedApiError &&
+      (error.status === 400 || error.status === 404)
+    ) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+export function verifyIosOAuthClient(
+  request: Request,
+  clientId: string,
+  bundleIdentifier: string,
+  urlScheme: string,
+) {
+  return verifyNativeOAuthClient(
+    request,
+    clientId,
+    "ios",
+    new URLSearchParams({ bundleIdentifier, urlScheme }),
+  );
+}
+
+export function verifyAndroidOAuthClient(
+  request: Request,
+  clientId: string,
+  packageName: string,
+  sha1CertificateFingerprint: string,
+) {
+  return verifyNativeOAuthClient(
+    request,
+    clientId,
+    "android",
+    new URLSearchParams({ packageName, sha1CertificateFingerprint }),
+  );
 }

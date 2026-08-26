@@ -3,10 +3,10 @@ import type { Route } from "project-types/admin/developer-clients/route/+types/d
 
 import { getDeveloperClients } from "~/api/admin/developer-clients/developer-clients.server";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
+import type { UpdateDeveloperClientRequest } from "~/types/api-client";
 import type {
   DeveloperClientSortField,
   DeveloperClientSortOrder,
-  DeveloperClientStatusInput,
 } from "../types";
 
 export const RESTRICTED_MESSAGE =
@@ -14,7 +14,10 @@ export const RESTRICTED_MESSAGE =
 
 const SORT_FIELDS: DeveloperClientSortField[] = ["name", "createdAt"];
 const SORT_ORDERS: DeveloperClientSortOrder[] = ["asc", "desc"];
-const STATUSES: DeveloperClientStatusInput[] = ["ACTIVE", "DISABLED"];
+const STATUSES: NonNullable<UpdateDeveloperClientRequest["status"]>[] = [
+  "ACTIVE",
+  "DISABLED",
+];
 
 function positiveInteger(value: string | null, fallback: number) {
   const parsed = Number(value);

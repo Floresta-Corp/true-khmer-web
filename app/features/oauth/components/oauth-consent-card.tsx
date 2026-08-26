@@ -13,9 +13,10 @@ interface OAuthConsentCardProps {
   clientName: string | null;
   clientLogo: string | null;
   clientId: string | null;
-  origin: string;
-  platform: "web" | "native";
+  origin: string | null;
+  platform: "web" | "ios" | "android";
   redirectUri: string | null;
+  state: string | null;
   accessToken: string;
   user: OAuthSessionUser;
   onUseDifferentAccount: () => void;
@@ -28,6 +29,7 @@ export function OAuthConsentCard({
   origin,
   platform,
   redirectUri,
+  state,
   accessToken,
   user,
   onUseDifferentAccount,
@@ -40,7 +42,7 @@ export function OAuthConsentCard({
   const handleContinue = useCallback(() => {
     setError(null);
     fetcher.submit(
-      { origin, clientId, accessToken },
+      { ...(origin ? { origin } : {}), clientId, accessToken },
       {
         method: "post",
         action: "/oauth/handoff",
@@ -64,17 +66,18 @@ export function OAuthConsentCard({
           origin: fetcher.data.origin ?? origin,
           platform,
           redirectUri,
+          state,
         },
         fetcher.data,
       );
     } else {
       setError("Unable to complete sign-in. Please try again.");
     }
-  }, [fetcher.state, fetcher.data, origin, platform, redirectUri]);
+  }, [fetcher.state, fetcher.data, origin, platform, redirectUri, state]);
 
   const handleCancel = useCallback(() => {
-    postAuthClose({ origin, platform, redirectUri });
-  }, [origin, platform, redirectUri]);
+    postAuthClose({ origin, platform, redirectUri, state });
+  }, [origin, platform, redirectUri, state]);
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-slate-100/70 p-4 font-sans text-slate-900">

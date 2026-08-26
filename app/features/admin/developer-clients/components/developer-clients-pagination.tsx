@@ -3,12 +3,12 @@ import { useSearchParams } from "react-router";
 
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
-import type { DeveloperClientListMeta } from "../types";
+import type { ListDeveloperClientsResponse } from "~/types/api-client";
 
 export function DeveloperClientsPagination({
   meta,
 }: {
-  meta: DeveloperClientListMeta;
+  meta: ListDeveloperClientsResponse["meta"];
 }) {
   const [, setSearchParams] = useSearchParams();
   const { page, pageSize, total, totalPages } = meta;

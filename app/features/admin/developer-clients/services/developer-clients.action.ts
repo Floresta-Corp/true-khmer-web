@@ -12,9 +12,17 @@ import {
 } from "~/api/admin/developer-clients/developer-clients.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
+import type {
+  CreateDeveloperClientRequest,
+  DeveloperClientResponse,
+  UpdateDeveloperClientRequest,
+} from "~/types/api-client";
 import { validateLogoFile } from "../lib/logo";
 import { MAX_ALLOWED_ORIGINS, parseOriginsField } from "../lib/origins";
-import type { UpdateDeveloperClientRequest } from "../types";
+import {
+  MAX_ANDROID_FINGERPRINTS,
+  parseFingerprintsField,
+} from "../lib/android-fingerprints";
 import { RESTRICTED_MESSAGE } from "./developer-clients.loader";
 
 const ALLOWED_INTENTS = new Set([
@@ -63,23 +71,111 @@ const allowedOriginsSchema = z
   .array(z.string())
   .max(MAX_ALLOWED_ORIGINS, `At most ${MAX_ALLOWED_ORIGINS} origins`);
 
-const createSchema = z.object({
-  name: nameSchema,
-  description: nullableText(1000),
-  contactEmail: contactEmailSchema,
-  allowedOrigins: allowedOriginsSchema,
-  logoKey: nullableText(512),
-});
+const androidFingerprintsSchema = z
+  .array(z.string())
+  .max(
+    MAX_ANDROID_FINGERPRINTS,
+    `At most ${MAX_ANDROID_FINGERPRINTS} Android fingerprints`,
+  );
 
-const updateSchema = z.object({
-  id: z.string().uuid("Invalid developer client ID"),
-  name: nameSchema,
-  description: nullableText(1000),
-  contactEmail: contactEmailSchema,
-  status: z.enum(["ACTIVE", "DISABLED"]),
-  allowedOrigins: allowedOriginsSchema,
-  logoKey: nullableText(512),
-});
+const platformFields = {
+  clientType: z.enum(["WEB", "IOS", "ANDROID"]),
+  iosBundleIdentifier: z.string().trim().max(255).optional(),
+  androidPackageName: z.string().trim().max(255).optional(),
+  androidSha1Fingerprints: androidFingerprintsSchema,
+};
+
+function validatePlatformFields(
+  data: {
+    clientType: DeveloperClientResponse["clientType"];
+    allowedOrigins: string[];
+    iosBundleIdentifier?: string;
+    androidPackageName?: string;
+    androidSha1Fingerprints: string[];
+  },
+  ctx: z.RefinementCtx,
+) {
+  if (data.clientType === "WEB") return;
+  if (data.allowedOrigins.length > 0) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["allowedOrigins"],
+      message: "Native clients do not use allowed origins",
+    });
+  }
+  if (data.clientType === "IOS" && !data.iosBundleIdentifier) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["iosBundleIdentifier"],
+      message: "Bundle identifier is required for an iOS client",
+    });
+  }
+  if (data.clientType === "ANDROID") {
+    if (!data.androidPackageName) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["androidPackageName"],
+        message: "Package name is required for an Android client",
+      });
+    }
+    if (data.androidSha1Fingerprints.length === 0) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["androidSha1Fingerprints"],
+        message: "Add at least one Android signing SHA-1",
+      });
+    }
+  }
+}
+
+const createSchema = z
+  .object({
+    ...platformFields,
+    name: nameSchema,
+    description: nullableText(1000),
+    contactEmail: contactEmailSchema,
+    allowedOrigins: allowedOriginsSchema,
+    logoKey: nullableText(512),
+  })
+  .superRefine(validatePlatformFields);
+
+const updateSchema = z
+  .object({
+    ...platformFields,
+    id: z.string().uuid("Invalid developer client ID"),
+    name: nameSchema,
+    description: nullableText(1000),
+    contactEmail: contactEmailSchema,
+    status: z.enum(["ACTIVE", "DISABLED"]),
+    allowedOrigins: allowedOriginsSchema,
+    logoKey: nullableText(512),
+  })
+  .superRefine(validatePlatformFields);
+
+function platformPayload(data: {
+  clientType: DeveloperClientResponse["clientType"];
+  allowedOrigins: string[];
+  iosBundleIdentifier?: string;
+  androidPackageName?: string;
+  androidSha1Fingerprints: string[];
+}) {
+  if (data.clientType === "WEB") {
+    return { clientType: data.clientType, allowedOrigins: data.allowedOrigins };
+  }
+  if (data.clientType === "IOS") {
+    return {
+      clientType: data.clientType,
+      allowedOrigins: [],
+      iosBundleIdentifier: data.iosBundleIdentifier,
+    };
+  }
+  return {
+    clientType: data.clientType,
+    allowedOrigins: [],
+    androidPackageName: data.androidPackageName,
+    androidSha1Fingerprints: data.androidSha1Fingerprints,
+  };
+}
 
 const idOnlySchema = z.object({
   id: z.string().uuid("Invalid developer client ID"),
@@ -185,10 +281,16 @@ export async function developerClientsAction({ request }: Route.ActionArgs) {
     }
 
     const parsed = createSchema.safeParse({
+      clientType: formData.get("clientType") ?? "",
       name: formData.get("name") ?? "",
       description: formData.get("description") ?? "",
       contactEmail: formData.get("contactEmail") ?? "",
       allowedOrigins: parseOriginsField(formData.get("allowedOrigins")),
+      iosBundleIdentifier: formData.get("iosBundleIdentifier") ?? "",
+      androidPackageName: formData.get("androidPackageName") ?? "",
+      androidSha1Fingerprints: parseFingerprintsField(
+        formData.get("androidSha1Fingerprints"),
+      ),
       logoKey: logo.logoKey,
     });
     if (!parsed.success) {
@@ -199,9 +301,16 @@ export async function developerClientsAction({ request }: Route.ActionArgs) {
     }
 
     try {
+      const payload: CreateDeveloperClientRequest = {
+        name: parsed.data.name,
+        description: parsed.data.description,
+        contactEmail: parsed.data.contactEmail,
+        logoKey: parsed.data.logoKey,
+        ...platformPayload(parsed.data),
+      };
       const { data: result } = await createDeveloperClient(
         request,
-        parsed.data,
+        payload,
         accessToken,
       );
       return data(
@@ -230,12 +339,18 @@ export async function developerClientsAction({ request }: Route.ActionArgs) {
     }
 
     const parsed = updateSchema.safeParse({
+      clientType: formData.get("clientType") ?? "",
       id: formData.get("id") ?? "",
       name: formData.get("name") ?? "",
       description: formData.get("description") ?? "",
       contactEmail: formData.get("contactEmail") ?? "",
       status: formData.get("status") ?? "",
       allowedOrigins: parseOriginsField(formData.get("allowedOrigins")),
+      iosBundleIdentifier: formData.get("iosBundleIdentifier") ?? "",
+      androidPackageName: formData.get("androidPackageName") ?? "",
+      androidSha1Fingerprints: parseFingerprintsField(
+        formData.get("androidSha1Fingerprints"),
+      ),
       logoKey: logo.logoKey,
     });
     if (!parsed.success) {
@@ -245,14 +360,17 @@ export async function developerClientsAction({ request }: Route.ActionArgs) {
       );
     }
 
-    const { id, ...payload } = parsed.data;
+    const { id } = parsed.data;
+    const payload: UpdateDeveloperClientRequest = {
+      name: parsed.data.name,
+      description: parsed.data.description,
+      contactEmail: parsed.data.contactEmail,
+      status: parsed.data.status,
+      logoKey: parsed.data.logoKey,
+      ...platformPayload(parsed.data),
+    };
     try {
-      await updateDeveloperClient(
-        request,
-        id,
-        payload satisfies UpdateDeveloperClientRequest,
-        accessToken,
-      );
+      await updateDeveloperClient(request, id, payload, accessToken);
       return data({ ok: true, message: null }, cookieHeader);
     } catch (err) {
       return apiFailure(err, "Failed to update developer client.");

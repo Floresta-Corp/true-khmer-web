@@ -1,12 +1,12 @@
 import type { Route } from "project-types/oauth/route/+types/oauth-login";
 import {
   getOAuthSessionUser,
+  verifyAndroidOAuthClient,
+  verifyIosOAuthClient,
   verifyOAuthClient,
 } from "~/api/oauth/oauth.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { toOAuthSessionUser } from "../lib/oauth-user";
-
-const UNSAFE_REDIRECT_PROTOCOLS = new Set(["data:", "file:", "javascript:"]);
 
 // Clients have shipped both spellings of these params, so accept either.
 function readParam(url: URL, ...names: string[]) {
@@ -17,45 +17,61 @@ function readParam(url: URL, ...names: string[]) {
   return null;
 }
 
-// The native app owns and supplies its callback URI. The web app only rejects
-// malformed or executable destinations before passing the URI to the browser.
-function readNativeRedirectUri(url: URL): string | null {
-  const value = readParam(url, "redirectUri", "redirect_uri");
-  if (!value) return null;
+type OAuthPlatform = "web" | "ios" | "android";
 
-  try {
-    const redirectUri = new URL(value.trim());
-    if (
-      !redirectUri.protocol ||
-      UNSAFE_REDIRECT_PROTOCOLS.has(redirectUri.protocol) ||
-      redirectUri.username ||
-      redirectUri.password
-    ) {
-      return null;
-    }
+function readPlatform(url: URL): OAuthPlatform {
+  const platform = url.searchParams.get("platform")?.toLowerCase();
+  return platform === "ios" || platform === "android" ? platform : "web";
+}
 
-    return redirectUri.toString();
-  } catch {
-    return null;
-  }
+function readState(url: URL): string | null {
+  const state = url.searchParams.get("state")?.trim();
+  return state && state.length >= 16 && state.length <= 256 ? state : null;
 }
 
 export async function OauthLoginLoader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const clientId = readParam(url, "clientId", "client_id");
   const origin = url.searchParams.get("origin");
-  const platform: "native" | "web" =
-    url.searchParams.get("platform") === "native" ? "native" : "web";
-  const redirectUri = platform === "native" ? readNativeRedirectUri(url) : null;
+  const platform = readPlatform(url);
+  const state = platform === "web" ? null : readState(url);
 
-  // Branding in the query string is only a fallback — the API is what decides
-  // whether this origin may talk to this client at all.
-  const client =
-    clientId && origin
-      ? await verifyOAuthClient(request, clientId, origin)
-      : null;
+  let client = null;
+  if (clientId && platform === "web" && origin) {
+    client = await verifyOAuthClient(request, clientId, origin);
+  } else if (clientId && platform === "ios" && state) {
+    const bundleIdentifier = url.searchParams.get("bundleIdentifier");
+    const urlScheme = url.searchParams.get("urlScheme");
+    if (bundleIdentifier && urlScheme) {
+      client = await verifyIosOAuthClient(
+        request,
+        clientId,
+        bundleIdentifier,
+        urlScheme,
+      );
+    }
+  } else if (clientId && platform === "android" && state) {
+    const packageName = url.searchParams.get("packageName");
+    const sha1CertificateFingerprint = url.searchParams.get(
+      "sha1CertificateFingerprint",
+    );
+    if (packageName && sha1CertificateFingerprint) {
+      client = await verifyAndroidOAuthClient(
+        request,
+        clientId,
+        packageName,
+        sha1CertificateFingerprint,
+      );
+    }
+  }
 
-  if (!client || !origin || (platform === "native" && !redirectUri)) {
+  const redirectUri = platform === "web" ? null : (client?.redirectUri ?? null);
+
+  if (
+    !client ||
+    (platform === "web" && !origin) ||
+    (platform !== "web" && (!redirectUri || !state))
+  ) {
     return withAuthData(
       {},
       {
@@ -64,6 +80,7 @@ export async function OauthLoginLoader({ request }: Route.LoaderArgs) {
         origin: null,
         platform,
         redirectUri: null,
+        state: null,
         clientId,
         clientName: readParam(url, "clientName", "client_name"),
         clientLogo: readParam(url, "logoUrl", "logo_url", "clientLogo"),
@@ -85,6 +102,7 @@ export async function OauthLoginLoader({ request }: Route.LoaderArgs) {
       origin,
       platform,
       redirectUri,
+      state,
       clientId: client.clientId,
       clientName: client.name,
       clientLogo: client.logoUrl ?? readParam(url, "logoUrl", "logo_url"),
