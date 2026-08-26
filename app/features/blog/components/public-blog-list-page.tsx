@@ -56,9 +56,6 @@ export function PublicBlogListPage() {
     Number(new URLSearchParams(navigation.location.search).get("page") || "1") >
       page;
 
-  // The per-card `delay` drives the ramp rather than the grid's staggerChildren:
-  // stagger only applies to children present when the parent transitions, so
-  // cards appended by "Load more" would otherwise pop in with no ramp at all.
   const cardVariants = useMemo(
     () => ({
       hidden: {
@@ -73,7 +70,6 @@ export function PublicBlogListPage() {
         transition: {
           duration: prefersReducedMotion ? 0 : 0.35,
           ease: "easeOut" as const,
-          // Restart the ramp per appended page so page 3 doesn't wait ~1s.
           delay: prefersReducedMotion ? 0 : (index % BLOGS_PAGE_SIZE) * 0.05,
         },
       }),
@@ -86,8 +82,6 @@ export function PublicBlogListPage() {
     [prefersReducedMotion],
   );
 
-  // Re-key the grid on filter/sort so those swaps re-run the stagger, while
-  // "Load more" (same key) only animates the newly appended cards.
   const gridKey = `${activeCategory?.slug ?? "all"}-${sort}`;
 
   function handleLoadMore() {
@@ -136,7 +130,7 @@ export function PublicBlogListPage() {
                   }}
                 >
                   <div className="flex flex-wrap gap-3">
-                    <span className="inline-flex items-center rounded-full bg-[#1c97d4] px-5 py-2 text-xs font-semibold tracking-[0.05em] text-white uppercase">
+                    <span className="inline-flex items-center rounded-full bg-blue-500 px-5 py-2 text-xs font-semibold tracking-[0.05em] text-white uppercase">
                       Featured
                     </span>
                     {featuredCategoryName ? (
@@ -192,7 +186,7 @@ export function PublicBlogListPage() {
               className={`inline-flex items-center rounded-full px-6 py-2.5 text-sm leading-5 font-semibold transition ${
                 activeCategory
                   ? "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300"
-                  : "bg-[#1c97d4] text-white shadow-[0_10px_15px_-3px_rgba(28,151,212,0.22),0_4px_6px_-4px_rgba(28,151,212,0.22)]"
+                  : "bg-blue-500 text-white shadow-lg shadow-blue-500/25"
               }`}
             >
               All blogs
@@ -203,7 +197,7 @@ export function PublicBlogListPage() {
                 to={buildBlogUrl({ category: category.slug, sort })}
                 className={`inline-flex items-center rounded-full px-6 py-2.5 text-sm leading-5 font-semibold transition ${
                   activeCategory?.id === category.id
-                    ? "bg-[#1c97d4] text-white shadow-[0_10px_15px_-3px_rgba(28,151,212,0.22),0_4px_6px_-4px_rgba(28,151,212,0.22)]"
+                    ? "bg-blue-500 text-white shadow-lg shadow-blue-500/25"
                     : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300"
                 }`}
               >
@@ -228,13 +222,17 @@ export function PublicBlogListPage() {
             >
               <SelectTrigger
                 aria-label="Sort blog posts"
-                className="h-auto w-auto min-w-28 gap-1 border-0 bg-transparent px-0 py-1 text-sm font-semibold tracking-normal text-[#1c97d4] normal-case shadow-none focus-visible:ring-0 dark:bg-transparent"
+                className="ring-0.5 h-auto w-auto min-w-28 cursor-pointer gap-2 border border-transparent px-3 py-1 text-sm font-semibold text-blue-500 shadow-none ring-blue-500/20 hover:ring-blue-500/40 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:outline-none dark:bg-slate-800"
               >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="newest">Newest First</SelectItem>
-                <SelectItem value="oldest">Oldest First</SelectItem>
+                <SelectItem value="newest" className="cursor-pointer">
+                  Newest First
+                </SelectItem>
+                <SelectItem value="oldest" className="cursor-pointer">
+                  Oldest First
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
