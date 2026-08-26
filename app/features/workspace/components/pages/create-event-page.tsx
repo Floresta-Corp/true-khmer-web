@@ -11,6 +11,9 @@ import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import CreateEventAccessForm from "../create-event/create-event-access-form";
 import CreateEventAside from "../create-event/create-event-aside";
+import CreateEventAutosaveStatus, {
+  type CreateEventAutosaveStatusValue,
+} from "../create-event/create-event-autosave-status";
 import CreateEventBasicsForm from "../create-event/create-event-basics-form";
 import CreateEventConnecting from "../create-event/create-event-connecting";
 import CreateEventDraftSuccessDialog from "../create-event/create-event-draft-success-dialog";
@@ -45,7 +48,6 @@ const MY_EVENTS_PATH = "/my-events";
 const AUTOSAVE_DELAY_MS = 800;
 
 type Step = "basics" | "review";
-type AutosaveStatus = "loading" | "ready" | "saving" | "saved" | "error";
 
 export default function CreateEventPage() {
   const { categories, organizers, userId } = useLoaderData<typeof loader>();
@@ -65,7 +67,7 @@ export default function CreateEventPage() {
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [createdEventId, setCreatedEventId] = useState("");
   const [autosaveStatus, setAutosaveStatus] =
-    useState<AutosaveStatus>("loading");
+    useState<CreateEventAutosaveStatusValue>("loading");
   const [autosaveLabel, setAutosaveLabel] = useState("Restoring draft...");
   const objectUrlRef = useRef<string | null>(null);
   const plumpiWindowRef = useRef<Window | null>(null);
@@ -478,6 +480,11 @@ export default function CreateEventPage() {
         autosaveStatus={autosaveStatus}
         autosaveLabel={autosaveLabel}
       />
+      <CreateEventAutosaveStatus
+        status={autosaveStatus}
+        label={autosaveLabel}
+        className="shrink-0 justify-end border-b border-[#E1E7EF] bg-slate-50/70 px-5 py-2 sm:hidden"
+      />
 
       <AnimatePresence mode="wait" initial={false}>
         {step === "basics" ? (
@@ -534,18 +541,6 @@ export default function CreateEventPage() {
                 </div>
 
                 <div className="mt-7 flex flex-wrap justify-end gap-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={isSubmitting}
-                    onClick={handleSaveDraft}
-                    className="h-11 rounded-lg border-[#E1E7EF] px-5.5 text-sm font-bold text-[#344256]"
-                  >
-                    {isCreatingDraft && (
-                      <LoaderCircle className="size-4 animate-spin" />
-                    )}
-                    {isCreatingDraft ? "Creating draft..." : "Save as draft"}
-                  </Button>
                   <Button
                     type="button"
                     disabled={!isComplete || isSubmitting}

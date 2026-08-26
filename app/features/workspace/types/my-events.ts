@@ -75,7 +75,9 @@ export type MyEventsLoaderData = {
 // --- Create event ---
 
 /** Only the two formats the basics step offers; hybrid is set up in Plumpi. */
-export const CreateEventFormatSchema = z.enum(["IN_PERSON", "ONLINE"]);
+export const CreateEventFormatSchema = z.enum(["IN_PERSON", "ONLINE"], {
+  error: "Choose an event format",
+});
 export type CreateEventFormat = z.infer<typeof CreateEventFormatSchema>;
 
 export const CREATE_EVENT_NAME_LIMIT =

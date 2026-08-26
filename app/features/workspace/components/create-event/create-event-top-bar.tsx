@@ -1,10 +1,13 @@
 import { Link } from "react-router";
-import { Cloud, CloudCheck, CloudOff, LoaderCircle, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import CreateEventAutosaveStatus, {
+  type CreateEventAutosaveStatusValue,
+} from "./create-event-autosave-status";
 
 type Props = {
   closeTo: string;
-  autosaveStatus: "loading" | "ready" | "saving" | "saved" | "error";
+  autosaveStatus: CreateEventAutosaveStatusValue;
   autosaveLabel: string;
 };
 
@@ -16,15 +19,6 @@ export default function CreateEventTopBar({
   autosaveStatus,
   autosaveLabel,
 }: Props) {
-  const AutosaveIcon =
-    autosaveStatus === "loading" || autosaveStatus === "saving"
-      ? LoaderCircle
-      : autosaveStatus === "saved"
-        ? CloudCheck
-        : autosaveStatus === "error"
-          ? CloudOff
-          : Cloud;
-
   return (
     <header className="flex shrink-0 items-center justify-between gap-4 border-b border-[#E1E7EF] bg-white px-5 py-4 md:px-8 md:py-5">
       <Button
@@ -38,27 +32,16 @@ export default function CreateEventTopBar({
         </Link>
       </Button>
 
-      <div className="flex min-w-0 items-center gap-3 text-[13px] font-semibold text-slate-500">
-        <div
-          role="status"
-          aria-live="polite"
-          className="flex min-w-0 items-center gap-1.5"
-        >
-          <AutosaveIcon
-            className={`size-4 shrink-0 ${
-              autosaveStatus === "loading" || autosaveStatus === "saving"
-                ? "animate-spin"
-                : ""
-            }`}
-          />
-          <span className="max-w-35 truncate sm:max-w-none">
-            {autosaveLabel}
-          </span>
-        </div>
+      <div className="flex min-w-0 items-center gap-3 text-[13px] font-normal text-slate-500">
+        <CreateEventAutosaveStatus
+          status={autosaveStatus}
+          label={autosaveLabel}
+          className="hidden sm:flex"
+        />
 
         <span className="hidden h-5 w-px bg-[#E1E7EF] sm:block" />
 
-        <div className="hidden items-center gap-2 sm:flex">
+        <div className="flex items-center gap-2">
           <span>Powered by</span>
           <img
             src="/images/Plumpi.svg"
