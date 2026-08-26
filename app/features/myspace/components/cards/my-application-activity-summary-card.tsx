@@ -50,7 +50,7 @@ export default function MyApplicationActivitySummaryCard() {
   ];
   return (
     <Card className="rounded-[32px] border border-[#E0E3E7] bg-white shadow-[0_8px_30px_rgba(60,64,67,0.035)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
-      <CardHeader className="px-6 pb-0 pt-6 text-[18px] font-bold text-[#202124] dark:text-white sm:px-8 sm:pt-8">
+      <CardHeader className="px-6 pt-6 pb-0 text-[18px] font-bold text-[#202124] sm:px-8 sm:pt-8 dark:text-white">
         Activity Summary
       </CardHeader>
       <CardContent className="grid gap-4 p-6 sm:grid-cols-2 sm:p-8 lg:grid-cols-1">
@@ -62,10 +62,10 @@ export default function MyApplicationActivitySummaryCard() {
             >
               {StatusIcon(v.label)}
               <div className="flex flex-col justify-between">
-                <p className="text-[10px] font-black uppercase tracking-[0.1em] text-[#80868B]">
+                <p className="text-[10px] font-black tracking-[0.1em] text-[#80868B] uppercase">
                   {v.label}
                 </p>
-                <span className="text-[20px] font-bold leading-tight text-[#202124] dark:text-white">
+                <span className="text-[20px] leading-tight font-bold text-[#202124] dark:text-white">
                   {v.value >= 10 ? v.value : `0${v.value}`}
                 </span>
               </div>

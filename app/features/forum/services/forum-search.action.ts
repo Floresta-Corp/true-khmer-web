@@ -10,9 +10,7 @@ import {
 import { updateForumQuestion } from "~/api/forum/forum.server";
 import { validateCreateForumPostForm } from "./forum.validation";
 
-export async function forumSearchAction({
-  request,
-}: ForumRoute.ActionArgs) {
+export async function forumSearchAction({ request }: ForumRoute.ActionArgs) {
   const auth = await requireUser(request);
   const respond = <T>(payload: T, init?: ResponseInit) =>
     withAuthData(auth, payload, init);
@@ -65,7 +63,9 @@ export async function forumSearchAction({
       });
     }
 
-    return respond(await updateForumQuestion(request, questionId, validation.data));
+    return respond(
+      await updateForumQuestion(request, questionId, validation.data),
+    );
   }
 
   return respond({

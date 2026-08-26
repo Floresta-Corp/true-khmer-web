@@ -17,25 +17,25 @@ export function EventHero({
   locationOptions,
 }: EventHeroProps) {
   return (
-    <section className="relative h-125 bg-linear-to-b from-[#e8ecf8] to-[#f0f2fa] pt-12 md:pt-20 pb-10 md:pb-14 px-4 md:px-6">
+    <section className="relative h-125 bg-linear-to-b from-[#e8ecf8] to-[#f0f2fa] px-4 pt-12 pb-10 md:px-6 md:pt-20 md:pb-14">
       {/* Decorative circles — clipped wrapper */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute left-0 top-0 w-48 md:w-80 h-48 md:h-80 rounded-full bg-[#d6daf0] opacity-50 -translate-x-1/3 -translate-y-1/4" />
-        <div className="absolute right-0 bottom-0 w-56 md:w-96 h-56 md:h-96 rounded-full bg-[#c8cee8] opacity-40 translate-x-1/3 translate-y-1/4" />
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 left-0 h-48 w-48 -translate-x-1/3 -translate-y-1/4 rounded-full bg-[#d6daf0] opacity-50 md:h-80 md:w-80" />
+        <div className="absolute right-0 bottom-0 h-56 w-56 translate-x-1/3 translate-y-1/4 rounded-full bg-[#c8cee8] opacity-40 md:h-96 md:w-96" />
       </div>
 
-      <div className="max-w-3xl text-center h-full w-full flex item,s-center justify-center flex-col mx-auto relative">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-[#174FB4] mb-2 md:mb-3 tracking-tight">
+      <div className="item,s-center relative mx-auto flex h-full w-full max-w-3xl flex-col justify-center text-center">
+        <h1 className="mb-2 text-3xl font-semibold tracking-tight text-[#174FB4] sm:text-4xl md:mb-3 md:text-5xl">
           Explore. <span className="text-[#32A8FF]">Connect.</span> Organize.
         </h1>
-        <p className="text-sm md:text-base text-gray-500 max-w-146.25 mx-auto mb-6 md:mb-8 leading-relaxed">
+        <p className="mx-auto mb-6 max-w-146.25 text-sm leading-relaxed text-gray-500 md:mb-8 md:text-base">
           Find events worth your time, or create one worth remembering.
         </p>
 
         {/* Search bar */}
 
         <div className="flex w-full max-w-196 flex-col gap-5">
-          <div className="flex w-full flex-col items-stretch gap-4 md:flex-row md:items-center md:gap-5.25 mb-5.25">
+          <div className="mb-5.25 flex w-full flex-col items-stretch gap-4 md:flex-row md:items-center md:gap-5.25">
             <HeaderSearch
               postUrl="#"
               postButton="Organize an Event"
@@ -72,13 +72,13 @@ export function EventHero({
         </div>
 
         {/* Supported by */}
-        <p className="text-xs text-gray-400 flex items-center justify-center gap-1.5">
+        <p className="flex items-center justify-center gap-1.5 text-xs text-gray-400">
           Supported by{" "}
           <Link
             to={import.meta.env.VITE_PLUMPI_WEB}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 font-semibold underline underline-offset-2"
+            className="font-semibold text-blue-600 underline underline-offset-2"
           >
             Plumpi Event Management
           </Link>

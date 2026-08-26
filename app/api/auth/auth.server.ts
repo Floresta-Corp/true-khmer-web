@@ -8,12 +8,11 @@ export function changePassword(
   request: Request,
   body: AuthChangePasswordRequest,
 ) {
-  return apiRequestWithSession<ChangePasswordResponse, AuthChangePasswordRequest>(
-    request,
-    "/auth/change-password",
-    {
-      method: "POST",
-      body,
-    },
-  );
+  return apiRequestWithSession<
+    ChangePasswordResponse,
+    AuthChangePasswordRequest
+  >(request, "/auth/change-password", {
+    method: "POST",
+    body,
+  });
 }

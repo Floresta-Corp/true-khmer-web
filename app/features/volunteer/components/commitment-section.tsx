@@ -53,7 +53,7 @@ export default function CommitmentSection({
   return (
     <section className="rounded-2xl border border-[#E1E7EF] bg-white p-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="flex items-center gap-3 text-[22px] font-bold leading-8.25 text-[#344256]">
+        <h3 className="flex items-center gap-3 text-[22px] leading-8.25 font-bold text-[#344256]">
           Commitment
         </h3>
       </div>

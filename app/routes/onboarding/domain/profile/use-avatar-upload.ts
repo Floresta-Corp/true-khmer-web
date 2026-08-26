@@ -12,9 +12,7 @@ type UseAvatarUploadOptions = {
   initialAvatarKey: string;
 };
 
-export function useAvatarUpload({
-  initialAvatarKey,
-}: UseAvatarUploadOptions) {
+export function useAvatarUpload({ initialAvatarKey }: UseAvatarUploadOptions) {
   const uploadTokenRef = useRef(0);
   const objectUrlRef = useRef<string | null>(null);
 
@@ -89,13 +87,13 @@ export function useAvatarUpload({
         const presign = (await presignResponse
           .json()
           .catch(() => ({}))) as PresignResponse & {
-            details?: { message?: string };
-          };
+          details?: { message?: string };
+        };
         if (!presignResponse.ok || !presign.upload) {
           throw new Error(
             presign.message ||
-            presign.details?.message ||
-            "Upload unavailable, try again.",
+              presign.details?.message ||
+              "Upload unavailable, try again.",
           );
         }
 

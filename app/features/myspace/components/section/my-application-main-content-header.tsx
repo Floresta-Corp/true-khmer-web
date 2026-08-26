@@ -40,7 +40,7 @@ export default function MyApplicationMainContentHeader() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -12 }}
       transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-      className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+      className="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-center md:justify-between"
     >
       <ApplicationStatusTabFilter />
 

@@ -14,9 +14,9 @@ const chartBars = [
 
 export function PointsChartCard() {
   return (
-    <Card className="relative overflow-clip rounded-3xl bg-white p-8  ">
+    <Card className="relative overflow-clip rounded-3xl bg-white p-8">
       <div className="flex w-full items-center justify-between pb-8">
-        <CardTitle className="text-[20px] font-bold leading-7 text-[#2c2f31]">
+        <CardTitle className="text-[20px] leading-7 font-bold text-[#2c2f31]">
           Points Earned Over Time
         </CardTitle>
         <div className="flex items-start">
@@ -49,7 +49,7 @@ export function PointsChartCard() {
 
           <Link
             to="#"
-            className="inline-flex items-center justify-center rounded-full bg-[#eff6ff] px-6 py-2 text-[14px] font-semibold leading-5 text-[#2563eb]"
+            className="inline-flex items-center justify-center rounded-full bg-[#eff6ff] px-6 py-2 text-[14px] leading-5 font-semibold text-[#2563eb]"
           >
             Participate in events
           </Link>

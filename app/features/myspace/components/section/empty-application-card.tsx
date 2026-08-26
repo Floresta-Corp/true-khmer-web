@@ -11,12 +11,12 @@ export default function EmptyApplicationCard() {
       exit={{ opacity: 0, y: 16 }}
       transition={{ duration: 0.15, ease: "easeInOut" }}
     >
-      <Card className="w-full bg-white rounded-2xl overflow-hidden shadow-none">
-        <CardContent className="p-12 flex flex-col items-center justify-center text-center">
-          <div className="text-gray-400 mb-4">
-            <Calendar className="w-12 h-12 mx-auto" />
+      <Card className="w-full overflow-hidden rounded-2xl bg-white shadow-none">
+        <CardContent className="flex flex-col items-center justify-center p-12 text-center">
+          <div className="mb-4 text-gray-400">
+            <Calendar className="mx-auto h-12 w-12" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-600 mb-2">
+          <h3 className="mb-2 text-lg font-semibold text-gray-600">
             No Applications Yet
           </h3>
           <p className="text-sm text-gray-500">

@@ -269,36 +269,36 @@ const authMessageRules: Array<{
   pattern: RegExp;
   replacement: string | ((match: RegExpMatchArray) => string);
 }> = [
-    {
-      pattern: /^authentication request failed\.?$/i,
-      replacement: "We couldn't complete your request. Please try again.",
-    },
-    {
-      pattern: /^validation failed\.?$/i,
-      replacement: "Please check your information and try again.",
-    },
-    {
-      pattern: /^password must contain at least one lowercase letter\.?$/i,
-      replacement: "Password must include at least one lowercase letter.",
-    },
-    {
-      pattern: /^password must contain at least one uppercase letter\.?$/i,
-      replacement: "Password must include at least one uppercase letter.",
-    },
-    {
-      pattern: /^password must contain at least one special character\.?$/i,
-      replacement: "Password must include at least one special character.",
-    },
-    {
-      pattern: /^password must not contain whitespace\.?$/i,
-      replacement: "Password must not contain spaces.",
-    },
-    {
-      pattern: /^password must be at least (\d+) characters?(?: long)?\.?$/i,
-      replacement: (match) =>
-        `Password must be at least ${match[1]} characters long.`,
-    },
-  ];
+  {
+    pattern: /^authentication request failed\.?$/i,
+    replacement: "We couldn't complete your request. Please try again.",
+  },
+  {
+    pattern: /^validation failed\.?$/i,
+    replacement: "Please check your information and try again.",
+  },
+  {
+    pattern: /^password must contain at least one lowercase letter\.?$/i,
+    replacement: "Password must include at least one lowercase letter.",
+  },
+  {
+    pattern: /^password must contain at least one uppercase letter\.?$/i,
+    replacement: "Password must include at least one uppercase letter.",
+  },
+  {
+    pattern: /^password must contain at least one special character\.?$/i,
+    replacement: "Password must include at least one special character.",
+  },
+  {
+    pattern: /^password must not contain whitespace\.?$/i,
+    replacement: "Password must not contain spaces.",
+  },
+  {
+    pattern: /^password must be at least (\d+) characters?(?: long)?\.?$/i,
+    replacement: (match) =>
+      `Password must be at least ${match[1]} characters long.`,
+  },
+];
 
 export function formatAuthMessage(message?: string) {
   if (!message) return undefined;

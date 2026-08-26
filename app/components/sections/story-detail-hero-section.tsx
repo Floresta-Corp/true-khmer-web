@@ -50,45 +50,37 @@ export function StoryDetailHeroSection({
 
   return (
     <div
-      className="w-full flex flex-col gap-4 px-[112px] pt-8 animate-fade-in"
+      className="animate-fade-in flex w-full flex-col gap-4 px-[112px] pt-8"
       data-name="Features Block"
       data-node-id="14300:4262"
     >
       {/* Header with Back and Action Buttons */}
-      <div className="flex items-center justify-between w-full animate-slide-in-left">
+      <div className="animate-slide-in-left flex w-full items-center justify-between">
         {/* Back Button */}
         <button
           onClick={onBack}
-          className="flex items-center gap-[7px] text-gray-400 hover:text-gray-600 transition-all duration-300 hover:gap-3"
+          className="flex items-center gap-[7px] text-gray-400 transition-all duration-300 hover:gap-3 hover:text-gray-600"
           data-node-id="14300:4264"
         >
-          <img
-            alt="back"
-            className="w-[14px] h-[14px]"
-            src={imgChevronLeft}
-          />
-          <span className="font-semibold text-[13px] leading-[19.5px]">
+          <img alt="back" className="h-[14px] w-[14px]" src={imgChevronLeft} />
+          <span className="text-[13px] leading-[19.5px] font-semibold">
             Back to stories
           </span>
         </button>
 
         {/* Action Buttons */}
         <div
-          className="flex items-center gap-1 bg-white border border-gray-100 rounded-full px-1 py-1 shadow-sm animate-slide-in-right"
+          className="animate-slide-in-right flex items-center gap-1 rounded-full border border-gray-100 bg-white px-1 py-1 shadow-sm"
           data-node-id="14300:4269"
         >
           {/* Watch Video Button */}
           <button
             onClick={onWatchVideo}
-            className="flex-1 flex items-center gap-2 bg-blue-600 text-white rounded-full px-5 py-2 hover:bg-blue-700 transition-all duration-300 hover:shadow-lg hover:scale-105"
+            className="flex flex-1 items-center gap-2 rounded-full bg-blue-600 px-5 py-2 text-white transition-all duration-300 hover:scale-105 hover:bg-blue-700 hover:shadow-lg"
             data-node-id="14300:4270"
           >
-            <img
-              alt="play"
-              className="w-[14px] h-[14px]"
-              src={imgVideo}
-            />
-            <span className="font-bold text-[13px] leading-[19.5px]">
+            <img alt="play" className="h-[14px] w-[14px]" src={imgVideo} />
+            <span className="text-[13px] leading-[19.5px] font-bold">
               Watch Video
             </span>
           </button>
@@ -96,15 +88,11 @@ export function StoryDetailHeroSection({
           {/* Read Full Story Button */}
           <button
             onClick={onReadFullStory}
-            className="flex items-center gap-2 text-gray-600 px-2 py-[7px] rounded-full hover:bg-gray-50 transition-all duration-300 hover:text-gray-900"
+            className="flex items-center gap-2 rounded-full px-2 py-[7px] text-gray-600 transition-all duration-300 hover:bg-gray-50 hover:text-gray-900"
             data-node-id="14300:4275"
           >
-            <img
-              alt="read"
-              className="w-[14px] h-[14px]"
-              src={imgBookOpen}
-            />
-            <span className="font-bold text-[13px] leading-[19.5px]">
+            <img alt="read" className="h-[14px] w-[14px]" src={imgBookOpen} />
+            <span className="text-[13px] leading-[19.5px] font-bold">
               Read Full Story
             </span>
           </button>
@@ -113,13 +101,13 @@ export function StoryDetailHeroSection({
 
       {/* Video/Image Container */}
       <div
-        className="relative w-full h-[596px] rounded-xl overflow-hidden shadow-2xl bg-black animate-scale-in"
+        className="animate-scale-in relative h-[596px] w-full overflow-hidden rounded-xl bg-black shadow-2xl"
         data-node-id="14300:4280"
       >
         {/* Background Image */}
         <img
           alt="story"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover"
           src={imageSrc}
         />
 
@@ -128,17 +116,17 @@ export function StoryDetailHeroSection({
 
         {/* Badge - True Khmer Staff Pick */}
         <div
-          className="absolute top-5 left-5 border-2 border-white rounded-full w-[84px] h-[84px] flex flex-col items-center justify-center text-white text-center p-2 animate-slide-in-left"
+          className="animate-slide-in-left absolute top-5 left-5 flex h-[84px] w-[84px] flex-col items-center justify-center rounded-full border-2 border-white p-2 text-center text-white"
           style={{ animationDelay: "0.2s" }}
           data-node-id="14300:4283"
         >
-          <p className="font-black text-[10px] leading-[10px] uppercase tracking-[-0.5px]">
+          <p className="text-[10px] leading-[10px] font-black tracking-[-0.5px] uppercase">
             True Khmer
           </p>
-          <p className="font-black text-[12px] leading-[12px] uppercase tracking-[1.2px] mt-1">
+          <p className="mt-1 text-[12px] leading-[12px] font-black tracking-[1.2px] uppercase">
             Staff
           </p>
-          <p className="font-black text-[12px] leading-[12px] uppercase tracking-[1.2px]">
+          <p className="text-[12px] leading-[12px] font-black tracking-[1.2px] uppercase">
             Pick
           </p>
         </div>
@@ -148,13 +136,13 @@ export function StoryDetailHeroSection({
           {awards.map((award, idx) => (
             <div
               key={idx}
-              className="bg-black/20 border border-white/30 rounded-full px-3 py-2 flex flex-col items-center justify-center min-w-[56px] animate-slide-up"
+              className="animate-slide-up flex min-w-[56px] flex-col items-center justify-center rounded-full border border-white/30 bg-black/20 px-3 py-2"
               style={{ animationDelay: `${0.3 + idx * 0.1}s` }}
             >
-              <p className="text-white font-bold text-[6px] uppercase leading-[9px]">
+              <p className="text-[6px] leading-[9px] font-bold text-white uppercase">
                 {award.title}
               </p>
-              <p className="text-white font-black text-[10px] uppercase leading-[15px] mt-0.5">
+              <p className="mt-0.5 text-[10px] leading-[15px] font-black text-white uppercase">
                 {award.year}
               </p>
             </div>
@@ -166,7 +154,7 @@ export function StoryDetailHeroSection({
           {/* Like Button */}
           <button
             onClick={handleLike}
-            className={`w-[17.5px] h-[17.5px] flex items-center justify-center rounded-full shadow-lg transition-all duration-300 animate-slide-in-right hover:scale-125 ${
+            className={`animate-slide-in-right flex h-[17.5px] w-[17.5px] items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-125 ${
               liked ? "bg-red-500" : "bg-white"
             }`}
             style={{ animationDelay: "0.4s" }}
@@ -174,13 +162,13 @@ export function StoryDetailHeroSection({
           >
             <Heart
               size={12}
-              className={liked ? "text-white fill-white" : "text-gray-600"}
+              className={liked ? "fill-white text-white" : "text-gray-600"}
             />
           </button>
 
           {/* Clock/Time Button */}
           <button
-            className="w-[17.5px] h-[17.5px] bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-all duration-300 animate-slide-in-right hover:scale-125"
+            className="animate-slide-in-right flex h-[17.5px] w-[17.5px] items-center justify-center rounded-full bg-white shadow-lg transition-all duration-300 hover:scale-125 hover:bg-gray-100"
             style={{ animationDelay: "0.5s" }}
             data-node-id="14300:4309"
           >
@@ -190,7 +178,7 @@ export function StoryDetailHeroSection({
           {/* Share Button */}
           <button
             onClick={onShare}
-            className="w-[17.5px] h-[17.5px] bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-all duration-300 animate-slide-in-right hover:scale-125"
+            className="animate-slide-in-right flex h-[17.5px] w-[17.5px] items-center justify-center rounded-full bg-white shadow-lg transition-all duration-300 hover:scale-125 hover:bg-gray-100"
             style={{ animationDelay: "0.6s" }}
             data-node-id="14300:4313"
           >

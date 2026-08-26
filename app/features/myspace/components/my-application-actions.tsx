@@ -45,7 +45,7 @@ function ActionMenuItem({
     <DropdownMenuItem
       onClick={onClick}
       disabled={disabled}
-      className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-[13px] font-bold text-slate-600 focus:bg-[#F8F9FA] data-disabled:cursor-not-allowed data-disabled:opacity-45 dark:text-slate-300 dark:focus:bg-slate-800"
+      className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-[13px] font-bold text-slate-600 focus:bg-[#F8F9FA] dark:text-slate-300 dark:focus:bg-slate-800 data-disabled:cursor-not-allowed data-disabled:opacity-45"
     >
       {icon}
       {children ?? text}

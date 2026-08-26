@@ -46,7 +46,9 @@ export default function ExpandableText({
     setShouldClamp(true);
 
     const updateCanExpand = () => {
-      const lineHeight = parseFloat(window.getComputedStyle(element).lineHeight);
+      const lineHeight = parseFloat(
+        window.getComputedStyle(element).lineHeight,
+      );
       const nextCollapsedHeight = lineHeight * collapsedLines;
       const nextExpandedHeight = element.scrollHeight;
 
@@ -114,7 +116,7 @@ export default function ExpandableText({
       <p
         ref={textRef}
         className={cn(
-          "overflow-hidden whitespace-pre-line text-lg leading-relaxed text-gray-600 transition-[max-height] duration-300 ease-in-out dark:text-slate-400",
+          "overflow-hidden text-lg leading-relaxed whitespace-pre-line text-gray-600 transition-[max-height] duration-300 ease-in-out dark:text-slate-400",
           className,
         )}
         style={{
@@ -130,7 +132,7 @@ export default function ExpandableText({
           type="button"
           aria-expanded={expanded}
           onClick={handleToggle}
-          className="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-md text-sm font-semibold text-blue-600 transition-colors hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          className="mt-3 inline-flex cursor-pointer items-center gap-1 rounded-md text-sm font-semibold text-blue-600 transition-colors hover:text-blue-700 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none"
         >
           {expanded ? "Show less" : "Show more"}
           {expanded ? (

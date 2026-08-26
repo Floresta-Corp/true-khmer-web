@@ -95,7 +95,6 @@ export default function RoleItem({
           </div>
         )}
       </div>
-
     </div>
   );
 }

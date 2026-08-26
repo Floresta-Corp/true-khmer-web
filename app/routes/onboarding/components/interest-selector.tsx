@@ -47,7 +47,7 @@ export function InterestSelector({
                 type="button"
                 onClick={() => onToggle(interest.id)}
                 variant="outline"
-                className={`h-8 shrink-0 cursor-pointer gap-1.5 whitespace-nowrap rounded-[999px] px-3 text-sm font-medium leading-5 ${
+                className={`h-8 shrink-0 cursor-pointer gap-1.5 rounded-[999px] px-3 text-sm leading-5 font-medium whitespace-nowrap ${
                   isActive
                     ? "border-[#D0E2FF] bg-[#EAF2FF] text-[#1D4DB4]"
                     : "border-[#F1F5F9] bg-white text-[#0F172B] hover:bg-white"

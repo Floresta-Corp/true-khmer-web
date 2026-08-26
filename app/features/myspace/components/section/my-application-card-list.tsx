@@ -116,18 +116,18 @@ function ApprovedActionPanel({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 12, scale: 0.985 }}
       transition={{ duration: 0.22, ease: "easeOut" }}
-      className="rounded-2xl border border-blue-100 bg-[#F4F8FF] p-5 dark:border-blue-900/20 dark:bg-blue-900/10"
+      className="rounded-2xl border border-blue-100 bg-[#F4F8FF] p-4 sm:p-5 dark:border-blue-900/20 dark:bg-blue-900/10"
     >
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div className="space-y-1">
-          <p className="text-sm font-bold text-[#1A73E8] dark:text-blue-400">
+      <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+        <div className="min-w-0 space-y-1">
+          <p className="text-[13px] font-bold text-[#1A73E8] lg:text-sm dark:text-blue-400">
             Congratulations! You&apos;ve been approved.
           </p>
-          <p className="text-[13px] font-medium text-[#5F6368] dark:text-slate-400">
+          <p className="text-xs font-medium text-[#5F6368] lg:text-[13px] dark:text-slate-400">
             Please confirm your participation to finalize the application.
           </p>
         </div>
-        <div className="flex items-center justify-end gap-3">
+        <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3">
           <ApplicationStatusConfirmDialog
             action="decline"
             isSubmitting={submitting}
@@ -137,7 +137,7 @@ function ApprovedActionPanel({
                 type="button"
                 variant="outline"
                 disabled={submitting}
-                className="h-10 rounded-xl border-[#DADCE0] bg-white px-6 text-[13px] font-bold text-[#5F6368] shadow-none hover:bg-gray-50"
+                className="h-10 rounded-xl border-[#DADCE0] bg-white px-4 text-xs font-bold text-[#5F6368] shadow-none hover:bg-gray-50 sm:px-6 lg:text-[13px]"
               >
                 Decline
               </Button>
@@ -151,7 +151,7 @@ function ApprovedActionPanel({
               <Button
                 type="button"
                 disabled={submitting}
-                className="h-10 rounded-xl bg-[#1A73E8] px-6 text-[13px] font-bold text-white shadow-lg shadow-blue-200 transition-all hover:bg-[#1557B0] dark:shadow-none"
+                className="h-10 rounded-xl bg-[#1A73E8] px-4 text-xs font-bold text-white shadow-lg shadow-blue-200 transition-all hover:bg-[#1557B0] sm:px-6 lg:text-[13px] dark:shadow-none"
               >
                 Accept
               </Button>
@@ -216,18 +216,18 @@ function ApplicationGroupCard({ application }: { application: Application }) {
 
   return (
     <div>
-      <Card className="relative overflow-hidden rounded-2xl border-none bg-white p-0 shadow-none ring-1 ring-foreground/10 transition-all hover:bg-slate-50/70 active:scale-[0.995] sm:h-46 dark:bg-slate-900 dark:hover:bg-slate-800/50">
-        <CardContent className="h-full p-6">
+      <Card className="relative overflow-hidden rounded-2xl border-none bg-white p-0 shadow-none ring-1 ring-foreground/10 transition-all hover:bg-slate-50/70 active:scale-[0.995] sm:min-h-46 dark:bg-slate-900 dark:hover:bg-slate-800/50">
+        <CardContent className="h-full p-4 sm:p-6">
           <ApplicationCardActions application={application} />
 
           <Link
             to={targetHref}
-            className="group flex h-full w-full flex-col items-start gap-6 rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none sm:flex-row sm:items-center sm:gap-8"
+            className="group flex h-full w-full flex-col items-start gap-4 rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none sm:flex-row sm:items-center sm:gap-5 lg:flex-col lg:items-start lg:gap-4 xl:flex-row xl:items-center xl:gap-8"
             aria-label={`View application detail for ${
               application.opportunityTitle || "application"
             }`}
           >
-            <div className="relative h-33.75 w-full shrink-0 overflow-hidden rounded-[20px] border border-gray-100/80 bg-slate-50 sm:w-60 dark:border-slate-800 dark:bg-slate-950">
+            <div className="relative h-33.75 w-full shrink-0 overflow-hidden rounded-[20px] border border-gray-100/80 bg-slate-50 sm:h-28 sm:w-40 lg:h-36 lg:w-full xl:h-33.75 xl:w-60 dark:border-slate-800 dark:bg-slate-950">
               <img
                 src={image}
                 alt={application.opportunityTitle}
@@ -243,20 +243,20 @@ function ApplicationGroupCard({ application }: { application: Application }) {
               </span>
             </div>
 
-            <div className="flex h-full min-w-0 flex-1 flex-col justify-center pr-10 sm:pr-12">
+            <div className="flex h-full w-full min-w-0 flex-1 flex-col justify-center pr-10">
               <div className="flex flex-col gap-1">
-                <h2 className="line-clamp-2 text-2xl leading-tight font-bold tracking-tight text-[#111827] transition-colors group-hover:text-[#1A73E8] dark:text-white">
+                <h2 className="line-clamp-2 text-sm leading-snug font-bold tracking-tight text-[#111827] transition-colors group-hover:text-[#1A73E8] sm:text-base lg:text-lg xl:text-xl dark:text-white">
                   {application.opportunityTitle || "Application"}
                 </h2>
               </div>
 
-              <div className="mt-4 flex flex-col items-start gap-2 text-sm font-medium text-gray-500 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-2 dark:text-slate-500">
-                <div className="flex items-center gap-2">
-                  <Calendar className="size-4 text-[#BDC1C6]" />
+              <div className="mt-3 flex flex-col items-start gap-1.5 text-xs font-medium text-gray-500 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-1.5 lg:mt-4 lg:gap-x-6 xl:text-sm dark:text-slate-500">
+                <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+                  <Calendar className="size-3.5 shrink-0 text-[#BDC1C6] lg:size-4" />
                   <span>{formatDate(application.deadline)}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="size-4 text-[#BDC1C6]" />
+                <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+                  <Clock className="size-3.5 shrink-0 text-[#BDC1C6] lg:size-4" />
                   <span>
                     {formatDateRange(
                       application.startDate,
@@ -264,21 +264,23 @@ function ApplicationGroupCard({ application }: { application: Application }) {
                     )}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="size-4 text-[#BDC1C6]" />
-                  <span>{application.location?.name || "-"}</span>
+                <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+                  <MapPin className="size-3.5 shrink-0 text-[#BDC1C6] lg:size-4" />
+                  <span className="truncate">
+                    {application.location?.name || "-"}
+                  </span>
                 </div>
               </div>
 
-              <div className="mt-5 flex flex-wrap items-center gap-2.5">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F1F3F4] px-3 py-1 text-[11px] font-bold text-[#5F6368] dark:bg-slate-800 dark:text-slate-300">
-                  <BadgeCheck className="size-3.5 text-blue-500" />
+              <div className="mt-3 flex flex-wrap items-center gap-2 lg:mt-5 lg:gap-2.5">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F1F3F4] px-2.5 py-1 text-[10px] font-bold whitespace-nowrap text-[#5F6368] lg:px-3 lg:text-[11px] dark:bg-slate-800 dark:text-slate-300">
+                  <BadgeCheck className="size-3.5 shrink-0 text-blue-500" />
                   {application.totalRoleApplied} applied{" "}
                   {application.totalRoleApplied === 1 ? "role" : "roles"}
                 </span>
                 {application.needAttention ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/60 bg-emerald-50 px-3 py-1 text-[11px] font-black text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-400">
-                    <Sparkles className="size-3 text-emerald-500" />
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/60 bg-emerald-50 px-2.5 py-1 text-[10px] font-black whitespace-nowrap text-emerald-700 lg:px-3 lg:text-[11px] dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-400">
+                    <Sparkles className="size-3 shrink-0 text-emerald-500" />
                     Offer Received
                   </span>
                 ) : null}
@@ -306,17 +308,17 @@ function ApplicationApprovedCard({
   return (
     <div>
       <Card className="relative overflow-hidden rounded-[28px] border border-[#E0E3E7] bg-white p-0 shadow-none transition-all hover:bg-[#F8F9FA] dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/50">
-        <CardContent className="space-y-5 p-5 sm:p-6">
+        <CardContent className="space-y-5 p-4 sm:p-6">
           <ApplicationCardActions application={application} />
 
           <Link
             to={targetHref}
-            className="group flex w-full flex-col items-start gap-6 rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none sm:flex-row sm:items-center sm:gap-8"
+            className="group flex w-full flex-col items-start gap-4 rounded-2xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none sm:flex-row sm:items-center sm:gap-5 lg:flex-col lg:items-start lg:gap-4 xl:flex-row xl:items-center xl:gap-8"
             aria-label={`View application detail for ${
               application.opportunityTitle || "application"
             }`}
           >
-            <div className="relative h-33.75 w-full shrink-0 overflow-hidden rounded-[20px] border border-gray-100/80 bg-slate-50 sm:w-60 dark:border-slate-800 dark:bg-slate-950">
+            <div className="relative h-33.75 w-full shrink-0 overflow-hidden rounded-[20px] border border-gray-100/80 bg-slate-50 sm:h-28 sm:w-40 lg:h-36 lg:w-full xl:h-33.75 xl:w-60 dark:border-slate-800 dark:bg-slate-950">
               <img
                 src={image}
                 alt={application.opportunityTitle}
@@ -332,37 +334,37 @@ function ApplicationApprovedCard({
               </span>
             </div>
 
-            <div className="min-w-0 flex-1 pr-10 sm:pr-12">
+            <div className="w-full min-w-0 flex-1 pr-10">
               <div className="flex flex-col gap-1">
                 <div className="flex flex-wrap items-start gap-x-3 gap-y-2">
-                  <h2 className="text-2xl leading-tight font-bold tracking-tight text-[#111827] transition-colors group-hover:text-[#1A73E8] dark:text-white">
+                  <h2 className="text-sm leading-snug font-bold tracking-tight text-[#111827] transition-colors group-hover:text-[#1A73E8] sm:text-base lg:text-lg xl:text-xl dark:text-white">
                     {application.opportunityTitle || "Application"}
                   </h2>
                   {pendingRole ? (
-                    <span className="mt-1 inline-flex rounded-md bg-[#E6F4EA] px-3 py-1 text-[10px] font-black tracking-widest text-[#1E8E3E] uppercase">
+                    <span className="mt-0.5 inline-flex rounded-md bg-[#E6F4EA] px-2.5 py-1 text-[9px] font-black tracking-widest text-[#1E8E3E] uppercase lg:mt-1 lg:px-3 lg:text-[10px]">
                       Approved
                     </span>
                   ) : null}
                 </div>
                 {pendingRole ? (
                   <div className="space-y-0.5">
-                    <p className="text-[13px] font-bold text-[#1A73E8] dark:text-blue-400">
+                    <p className="text-xs font-bold text-[#1A73E8] lg:text-[13px] dark:text-blue-400">
                       Approved Role: {pendingRole.title}
                     </p>
-                    <p className="text-xs font-medium text-[#5F6368] dark:text-slate-500">
+                    <p className="text-[11px] font-medium text-[#5F6368] lg:text-xs dark:text-slate-500">
                       Applied {formatDate(pendingRole.appliedAt)}
                     </p>
                   </div>
                 ) : null}
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-medium text-gray-500 dark:text-slate-500">
-                <div className="flex items-center gap-2">
-                  <Calendar className="size-4 text-[#BDC1C6]" />
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-medium text-gray-500 lg:mt-4 lg:gap-x-6 xl:text-sm dark:text-slate-500">
+                <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+                  <Calendar className="size-3.5 shrink-0 text-[#BDC1C6] lg:size-4" />
                   <span>{formatDate(application.deadline)}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="size-4 text-[#BDC1C6]" />
+                <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+                  <Clock className="size-3.5 shrink-0 text-[#BDC1C6] lg:size-4" />
                   <span>
                     {formatDateRange(
                       application.startDate,
@@ -370,20 +372,22 @@ function ApplicationApprovedCard({
                     )}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="size-4 text-[#BDC1C6]" />
-                  <span>{application.location?.name || "-"}</span>
+                <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+                  <MapPin className="size-3.5 shrink-0 text-[#BDC1C6] lg:size-4" />
+                  <span className="truncate">
+                    {application.location?.name || "-"}
+                  </span>
                 </div>
               </div>
 
-              <div className="mt-5 flex flex-wrap items-center gap-2.5">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F1F3F4] px-3 py-1 text-[11px] font-bold text-[#5F6368] dark:bg-slate-800 dark:text-slate-300">
-                  <BadgeCheck className="size-3.5 text-blue-500" />
+              <div className="mt-3 flex flex-wrap items-center gap-2 lg:mt-5 lg:gap-2.5">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F1F3F4] px-2.5 py-1 text-[10px] font-bold whitespace-nowrap text-[#5F6368] lg:px-3 lg:text-[11px] dark:bg-slate-800 dark:text-slate-300">
+                  <BadgeCheck className="size-3.5 shrink-0 text-blue-500" />
                   {application.totalRoleApplied} applied{" "}
                   {application.totalRoleApplied === 1 ? "role" : "roles"}
                 </span>
                 {application.needAttention ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/60 bg-emerald-50 px-3 py-1 text-[11px] font-black text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-400">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/60 bg-emerald-50 px-2.5 py-1 text-[10px] font-black whitespace-nowrap text-emerald-700 lg:px-3 lg:text-[11px] dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-400">
                     <Sparkles className="size-3 text-emerald-500" />
                     Offer Received
                   </span>
@@ -412,11 +416,11 @@ function ApplicationGroupCardSkeleton() {
   return (
     <div>
       <Card className="relative overflow-hidden rounded-[28px] border border-[#E0E3E7] bg-white p-0 shadow-none dark:border-slate-800 dark:bg-slate-900">
-        <CardContent className="p-5 sm:p-6">
-          <div className="flex w-full flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-8">
-            <Skeleton className="h-33.75 w-full shrink-0 rounded-[20px] sm:w-60" />
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex w-full flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-5 lg:flex-col lg:items-start lg:gap-4 xl:flex-row xl:items-center xl:gap-8">
+            <Skeleton className="h-33.75 w-full shrink-0 rounded-[20px] sm:h-28 sm:w-40 lg:h-36 lg:w-full xl:h-33.75 xl:w-60" />
 
-            <div className="w-full min-w-0 flex-1 space-y-4 pr-10 sm:pr-12">
+            <div className="w-full min-w-0 flex-1 space-y-4 pr-10">
               <div className="space-y-2">
                 <Skeleton className="h-7 w-4/5 max-w-130 rounded-xl" />
                 <Skeleton className="h-4 w-44 rounded-lg" />

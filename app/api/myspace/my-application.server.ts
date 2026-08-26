@@ -118,13 +118,14 @@ export async function postMyApplicationArchiveAction(
     parsedArchiveAction,
   )}`;
 
-  const result = await apiRequestWithSession<MyApplicationArchiveActionResponse>(
-    request,
-    url,
-    {
-      method: "POST",
-    },
-  );
+  const result =
+    await apiRequestWithSession<MyApplicationArchiveActionResponse>(
+      request,
+      url,
+      {
+        method: "POST",
+      },
+    );
   return {
     ...result,
     data: MyApplicationArchiveActionResponseSchema.parse(result.data),

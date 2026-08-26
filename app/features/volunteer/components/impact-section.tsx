@@ -16,7 +16,7 @@ export default function ImpactSection({
 }) {
   return (
     <section className="rounded-2xl border border-[#E1E7EF] bg-white p-6">
-      <h3 className="flex items-center gap-3 text-[22px] font-bold leading-8.25 text-[#344256]">
+      <h3 className="flex items-center gap-3 text-[22px] leading-8.25 font-bold text-[#344256]">
         Impact
       </h3>
       <div className="mt-3">

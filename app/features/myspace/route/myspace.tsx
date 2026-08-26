@@ -23,7 +23,7 @@ import type { QuestionResponse } from "~/types/api-client";
 export const loader = myspaceLoader;
 
 export function meta() {
-  return [{ title: "MySpace | True Khmer" }];
+  return [{ title: "My Space | True Khmer" }];
 }
 
 export default function MySpacePage({ loaderData }: Route.ComponentProps) {

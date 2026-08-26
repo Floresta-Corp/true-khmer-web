@@ -34,7 +34,9 @@ function isObject(value: unknown): value is Record<string, unknown> {
 
 function parseAuthSessionResponse(payload: unknown): AuthSession {
   if (!isObject(payload)) {
-    throw new Error("Invalid /auth/session response: response must be an object");
+    throw new Error(
+      "Invalid /auth/session response: response must be an object",
+    );
   }
 
   if (!isObject(payload.user)) {

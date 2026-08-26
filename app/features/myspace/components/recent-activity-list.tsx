@@ -19,9 +19,9 @@ export function RecentActivityList({
 
   if (!activities || activities.length === 0) {
     return (
-      <Card className="overflow-clip rounded-3xl bg-white p-8 ">
+      <Card className="overflow-clip rounded-3xl bg-white p-8">
         <div className="pb-8">
-          <CardTitle className="text-[20px] font-semibold leading-7 text-[#111c2d]">
+          <CardTitle className="text-[20px] leading-7 font-semibold text-[#111c2d]">
             Recent Activity
           </CardTitle>
         </div>
@@ -44,7 +44,7 @@ export function RecentActivityList({
 
             <Link
               to="/forum"
-              className="mt-6 inline-flex items-center gap-2 text-[14px] font-semibold leading-5 text-[#2563eb]"
+              className="mt-6 inline-flex items-center gap-2 text-[14px] leading-5 font-semibold text-[#2563eb]"
             >
               Visit community forum
               <ChevronRight className="h-2 w-2 shrink-0" />
@@ -58,7 +58,7 @@ export function RecentActivityList({
   return (
     <Card className="overflow-clip rounded-3xl bg-white p-8">
       <div className="pb-8">
-        <CardTitle className="text-[20px] font-semibold leading-7 text-[#111c2d]">
+        <CardTitle className="text-[20px] leading-7 font-semibold text-[#111c2d]">
           Recent Activity
         </CardTitle>
       </div>

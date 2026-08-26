@@ -9,10 +9,7 @@ import {
   formatAuthMessage,
   getAuthFieldError,
 } from "~/services/auth/api.server";
-import {
-  getAccessToken,
-  updateUserSession,
-} from "~/lib/server/session.server";
+import { getAccessToken, updateUserSession } from "~/lib/server/session.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireSignupCompletion } from "~/lib/server/route-guards.server";
 import { destinationFromAuthFlow } from "./auth-flow.server";

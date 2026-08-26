@@ -11,11 +11,11 @@ export function BackToStories({ className = "" }: BackToStoriesProps) {
   return (
     <Link
       to="/poc"
-      className={`flex items-center gap-1.75 text-gray-400 hover:text-gray-600 transition-colors duration-300 ${className}`}
+      className={`flex items-center gap-1.75 text-gray-400 transition-colors duration-300 hover:text-gray-600 ${className}`}
       data-node-id="14300:4264"
     >
-      <img alt="back" className="w-3.5 h-3.5" src={imgChevronLeft} />
-      <span className="font-semibold text-[13px] leading-[19.5px]">
+      <img alt="back" className="h-3.5 w-3.5" src={imgChevronLeft} />
+      <span className="text-[13px] leading-[19.5px] font-semibold">
         Back to stories
       </span>
     </Link>

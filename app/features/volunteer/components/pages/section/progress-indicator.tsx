@@ -17,9 +17,9 @@ export default function ProgressIndicator({
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <motion.div className="relative flex gap-3.5 transition-all items-center p-1 rounded-full">
+    <motion.div className="relative flex items-center gap-3.5 rounded-full p-1 transition-all">
       <motion.div
-        className="h-3 w-20 bg-blue-500 rounded-full absolute top-1 left-1"
+        className="absolute top-1 left-1 h-3 w-20 rounded-full bg-blue-500"
         initial={{ x: 0, y: 0 }}
         animate={{
           x: currentState === ProgressState.DETAIL ? 0 : 80 + 13,
@@ -29,11 +29,11 @@ export default function ProgressIndicator({
         }}
       />
       <div
-        className="cursor-pointer h-3 w-20 bg-gray-200 rounded-full"
+        className="h-3 w-20 cursor-pointer rounded-full bg-gray-200"
         onClick={() => onStateChange(ProgressState.DETAIL)}
       />
       <div
-        className="cursor-pointer h-3 w-20 bg-gray-200 rounded-full"
+        className="h-3 w-20 cursor-pointer rounded-full bg-gray-200"
         onClick={() => onStateChange(ProgressState.ROLE)}
       />
     </motion.div>

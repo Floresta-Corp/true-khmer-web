@@ -66,7 +66,7 @@ export function DetailAndContactCard({
   return (
     <Card className="rounded-3xl border-slate-200 bg-white shadow-none dark:border-slate-800 dark:bg-slate-900">
       <CardContent className="space-y-6 p-6">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+        <h3 className="text-sm font-bold tracking-wider text-slate-900 uppercase dark:text-white">
           Details & Contact
         </h3>
 
@@ -74,10 +74,10 @@ export function DetailAndContactCard({
           <div className="flex items-start gap-3">
             <Calendar className="mt-0.5 size-4 shrink-0 text-[#1A73E8]" />
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+              <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">
                 Date
               </p>
-              <p className="mt-0.5 text-[13px] font-bold leading-snug text-slate-800 dark:text-slate-200">
+              <p className="mt-0.5 text-[13px] leading-snug font-bold text-slate-800 dark:text-slate-200">
                 {date}
               </p>
             </div>
@@ -85,10 +85,10 @@ export function DetailAndContactCard({
           <div className="flex items-start gap-3">
             <MapPin className="mt-0.5 size-4 shrink-0 text-[#1A73E8]" />
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+              <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">
                 Location
               </p>
-              <p className="mt-0.5 text-[13px] font-bold leading-snug text-slate-800 dark:text-slate-200">
+              <p className="mt-0.5 text-[13px] leading-snug font-bold text-slate-800 dark:text-slate-200">
                 {location}
               </p>
             </div>
@@ -96,10 +96,10 @@ export function DetailAndContactCard({
           <div className="flex items-start gap-3">
             <Star className="mt-0.5 size-4 shrink-0 fill-current text-amber-500" />
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+              <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">
                 Impact Points
               </p>
-              <p className="mt-0.5 text-[13px] font-bold leading-snug text-slate-800 dark:text-slate-200">
+              <p className="mt-0.5 text-[13px] leading-snug font-bold text-slate-800 dark:text-slate-200">
                 {rewardPoints > 0 ? `${rewardPoints} PTS` : "Not specified"}
               </p>
             </div>
@@ -109,7 +109,7 @@ export function DetailAndContactCard({
         <Separator className="bg-[#EEF2F7]" />
 
         <div className="space-y-4">
-          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
+          <p className="text-[11px] font-black tracking-[0.18em] text-slate-400 uppercase">
             Contact Organizer
           </p>
 

@@ -287,7 +287,7 @@ export function TwoFAView({
                   Set up
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-lg rounded-2xl">
+              <DialogContent className="rounded-2xl sm:max-w-lg">
                 <DialogHeader>
                   <DialogTitle className="text-[#1A2233]">
                     Set up authenticator app
@@ -353,12 +353,12 @@ export function TwoFAView({
                         <KeyRound className="size-4 text-[#2F6FE4]" />
                         Manual setup URI
                       </div>
-                      <p className="break-all text-xs leading-5 text-[#5C6B82]">
+                      <p className="text-xs leading-5 break-all text-[#5C6B82]">
                         {totpSetup.totpURI}
                       </p>
                     </div>
                     <div className="rounded-xl bg-[#F8FAFC] p-3">
-                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6B7A99]">
+                      <p className="mb-2 text-xs font-semibold tracking-wide text-[#6B7A99] uppercase">
                         Backup codes
                       </p>
                       <div className="grid grid-cols-2 gap-2">
@@ -466,7 +466,7 @@ export function TwoFAView({
                   Set up
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md rounded-2xl">
+              <DialogContent className="rounded-2xl sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle className="text-[#1A2233]">
                     Set up email OTP
@@ -558,7 +558,7 @@ export function TwoFAView({
           if (!open) setDisableMethod(null);
         }}
       >
-        <DialogContent className="sm:max-w-md rounded-2xl">
+        <DialogContent className="rounded-2xl sm:max-w-md">
           <DialogHeader>
             <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-[#FFF4ED]">
               <CheckCircle2 className="size-5 text-[#F79009]" />

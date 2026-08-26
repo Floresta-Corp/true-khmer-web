@@ -19,7 +19,7 @@ export default function ProfileLinkWrapper({
     <Link
       to={link}
       className={cn(
-        "hover:text-blue-600 hover:underline transition-all",
+        "transition-all hover:text-blue-600 hover:underline",
         className,
       )}
     >

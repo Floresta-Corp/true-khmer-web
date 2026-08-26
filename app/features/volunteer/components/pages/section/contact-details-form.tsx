@@ -36,8 +36,8 @@ function PaleInput({
       aria-invalid={ariaInvalid}
       className={`h-11 rounded-lg border bg-[#f8fafc] px-4 text-sm text-[#364153] placeholder:text-[#c8d6e5] focus-visible:ring-2 ${
         ariaInvalid
-          ? "border-red-500 ring-2 ring-red-200 focus-visible:ring-red-500 focus-visible:border-red-500"
-          : "border-transparent focus-visible:ring-blue-500/45 focus-visible:border-blue-500/45"
+          ? "border-red-500 ring-2 ring-red-200 focus-visible:border-red-500 focus-visible:ring-red-500"
+          : "border-transparent focus-visible:border-blue-500/45 focus-visible:ring-blue-500/45"
       } ${className}`}
     />
   );
@@ -63,7 +63,7 @@ export default function ContactDetailsForm({
     <section className="rounded-2xl border border-[#E1E7EF] bg-white p-6">
       <div className="flex items-center gap-3">
         <Mail className="size-6 text-[#2f6fe4]" />
-        <h3 className="text-[22px] font-bold leading-8.25 text-[#344256]">
+        <h3 className="text-[22px] leading-8.25 font-bold text-[#344256]">
           Contact Details
         </h3>
       </div>
@@ -80,8 +80,8 @@ export default function ContactDetailsForm({
             Phone number
             <span className="text-[#e12f3f]">*</span>
           </label>
-          <InputGroup className="h-11 rounded-lg has-[[data-slot=input-group-control]:focus-visible]:ring-blue-500/45 has-[[data-slot=input-group-control]:focus-visible]:border-blue-500/45">
-            <InputGroupAddon className="bg-[#f8fafc] border-r border-[#e1e7ef] pr-3">
+          <InputGroup className="h-11 rounded-lg has-[[data-slot=input-group-control]:focus-visible]:border-blue-500/45 has-[[data-slot=input-group-control]:focus-visible]:ring-blue-500/45">
+            <InputGroupAddon className="border-r border-[#e1e7ef] bg-[#f8fafc] pr-3">
               <span className="text-[14px] font-medium text-[#434654]">
                 +855
               </span>

@@ -9,14 +9,14 @@ export function SidebarItem({
 }) {
   return (
     <div
-      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg relative transition-colors ${
+      className={`relative flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
         active
-          ? "bg-[#EEF3FD] text-[#2F6FE4] font-semibold cursor-default"
-          : "text-[#6B7A99] cursor-default"
+          ? "cursor-default bg-[#EEF3FD] font-semibold text-[#2F6FE4]"
+          : "cursor-default text-[#6B7A99]"
       }`}
     >
       {active && (
-        <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-l-full bg-[#2F6FE4]" />
+        <span className="absolute top-1/2 right-0 h-6 w-1 -translate-y-1/2 rounded-l-full bg-[#2F6FE4]" />
       )}
       {icon}
       <span className="text-sm">{label}</span>

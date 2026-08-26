@@ -29,38 +29,38 @@ export default function LaunchpadProjectSummaryCard({
   const { selectedRoleIds, topPickRoleId } = useLaunchpadSelectedRoles();
 
   return (
-    <Card className="bg-white p-6 h-fit xl:sticky xl:top-24">
+    <Card className="h-fit bg-white p-6 xl:sticky xl:top-24">
       <div>Project Summary</div>
       <Separator className="mt-3 mb-5.5" />
       <div>
-        <div className="w-full flex gap-4 flex-1 flex-col justify-between">
-          <div className="flex justify-between items-center">
+        <div className="flex w-full flex-1 flex-col justify-between gap-4">
+          <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-[#99A1AF]">Location</p>
             <p className="text-sm text-[#4A5565]">
               {data?.projectSummary.location}
             </p>
           </div>
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-[#99A1AF]">Applicants</p>
             <p className="text-sm text-[#4A5565]">
               {data?.projectSummary.applicants.status}
             </p>
           </div>
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-[#99A1AF]">Deadline</p>
             <p className="text-sm text-[#4A5565]">
               {data?.projectSummary.deadline}
             </p>
           </div>
         </div>
-        <div className="flex flex-col gap-4 mt-7">
+        <div className="mt-7 flex flex-col gap-4">
           {launchpadId ? (
             <LaunchpadSubmitApplicationDialog
               trigger={
                 <Button
                   variant="default"
                   disabled={selectedRoleIds.length === 0}
-                  className="w-full rounded-lg py-5 bg-[#2F6FE4]"
+                  className="w-full rounded-lg bg-[#2F6FE4] py-5"
                 >
                   Apply Now
                 </Button>
@@ -74,12 +74,12 @@ export default function LaunchpadProjectSummaryCard({
             <Button
               disabled
               variant="default"
-              className="w-full rounded-lg py-5 bg-[#2F6FE4] opacity-50"
+              className="w-full rounded-lg bg-[#2F6FE4] py-5 opacity-50"
             >
               Apply Now
             </Button>
           )}
-          <Button className="bg-white rounded-lg py-5" variant="outline">
+          <Button className="rounded-lg bg-white py-5" variant="outline">
             Save for Later
           </Button>
         </div>

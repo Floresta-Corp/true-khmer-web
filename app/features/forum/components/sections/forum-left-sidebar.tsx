@@ -21,7 +21,7 @@ export default function ForumLeftSidebar({
   onTagSelect,
 }: ForumLeftSidebarProps) {
   return (
-    <div className="flex flex-col gap-5 max-w-sm">
+    <div className="flex max-w-sm flex-col gap-5">
       <ForumTopCategoriesCard
         categories={categories}
         selectedCategory={selectedCategory}

@@ -11,7 +11,9 @@ const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function normalizeInterestIds(values: string[]) {
-  return [...new Set(values.map((value) => value.trim()).filter(Boolean))].sort();
+  return [
+    ...new Set(values.map((value) => value.trim()).filter(Boolean)),
+  ].sort();
 }
 
 function parseLegacyCommaValue(value: string) {
@@ -43,7 +45,9 @@ export function parseInterestForm(formData: FormData): ParsedInterestFormInput {
   };
 }
 
-export function validateInterestInput(selectedIds: string[]): InterestFormErrors {
+export function validateInterestInput(
+  selectedIds: string[],
+): InterestFormErrors {
   if (selectedIds.length < 2) {
     return { form: "Please select at least 2 interests." };
   }
@@ -58,7 +62,8 @@ export function validateInterestInput(selectedIds: string[]): InterestFormErrors
 }
 
 export function isInterestInputUnchanged(input: ParsedInterestFormInput) {
-  if (input.selectedIds.length !== input.initialSelectedIds.length) return false;
+  if (input.selectedIds.length !== input.initialSelectedIds.length)
+    return false;
   return input.selectedIds.every((value, index) => {
     return value === input.initialSelectedIds[index];
   });
