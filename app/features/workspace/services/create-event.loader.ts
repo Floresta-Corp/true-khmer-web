@@ -30,11 +30,7 @@ export async function createEventLoader({ request }: Route.LoaderArgs) {
   );
 
   const setCookie = [
-    ...(Array.isArray(auth.setCookie)
-      ? auth.setCookie
-      : auth.setCookie
-        ? [auth.setCookie]
-        : []),
+    ...(auth.setCookie ? [auth.setCookie] : []),
     ...(categoryResult.setCookie ? [categoryResult.setCookie] : []),
     ...(organizationResult.setCookie ? [organizationResult.setCookie] : []),
   ];

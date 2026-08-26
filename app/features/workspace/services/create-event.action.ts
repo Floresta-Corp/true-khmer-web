@@ -216,13 +216,7 @@ export async function createEventAction({ request }: Route.ActionArgs) {
   const auth = await requireUser(request);
   const formData = await request.formData();
   const intent = formData.get("intent");
-  const cookies = [
-    ...(Array.isArray(auth.setCookie)
-      ? auth.setCookie
-      : auth.setCookie
-        ? [auth.setCookie]
-        : []),
-  ];
+  const cookies = auth.setCookie ? [auth.setCookie] : [];
   let apiRequest = requestWithSetCookie(request, auth.setCookie);
 
   if (intent === "continue-to-plumpi") {
