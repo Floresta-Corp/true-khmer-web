@@ -63,7 +63,7 @@ export default function ApplicationStatusTabFilter() {
             <TabsTrigger
               key={status}
               value={status}
-              className="h-full cursor-pointer rounded-xl px-2.5 py-1.5 text-xs font-bold transition-colors data-[state=active]:bg-white data-[state=active]:text-[#0F59E2] data-[state=inactive]:text-[#5E6D82] md:min-w-18"
+              className="h-full flex-1 cursor-pointer rounded-xl px-4 py-1.5 text-xs font-bold transition-colors data-[state=active]:bg-white data-[state=active]:text-[#0F59E2] data-[state=inactive]:text-[#5E6D82]"
             >
               {statusLabels[status]}
             </TabsTrigger>
