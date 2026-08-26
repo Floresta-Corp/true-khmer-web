@@ -58,7 +58,7 @@ function redirectWithCookie(to: string, setCookie?: string) {
   );
 }
 
-function requestWithSetCookie(request: Request, setCookie?: string) {
+export function requestWithSetCookie(request: Request, setCookie?: string) {
   if (!setCookie) return request;
 
   const cookiePair = setCookie.split(";", 1)[0];
