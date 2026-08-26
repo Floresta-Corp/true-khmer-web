@@ -101,7 +101,12 @@ function errorMessage(error: unknown) {
 
 function firstFieldError(
   error: z.ZodError,
-  field: "oldPassword" | "password" | "newPassword" | "confirmPassword" | "code",
+  field:
+    | "oldPassword"
+    | "password"
+    | "newPassword"
+    | "confirmPassword"
+    | "code",
 ) {
   return error.issues.find((issue) => issue.path[0] === field)?.message;
 }
@@ -138,7 +143,8 @@ export async function settingsAction({ request }: Route.ActionArgs) {
           ok: true,
           intent,
           setup: result.data,
-          message: "Scan the QR code URI or enter it in your authenticator app.",
+          message:
+            "Scan the QR code URI or enter it in your authenticator app.",
         },
         { headers },
       );
@@ -185,7 +191,11 @@ export async function settingsAction({ request }: Route.ActionArgs) {
       const result = await sendEmailOtpSetup(request);
       appendCookie(headers, result.setCookie);
       return data<SettingsActionData>(
-        { ok: true, intent, message: "A verification code was sent to your email." },
+        {
+          ok: true,
+          intent,
+          message: "A verification code was sent to your email.",
+        },
         { headers },
       );
     }
@@ -223,7 +233,10 @@ export async function settingsAction({ request }: Route.ActionArgs) {
       const parsed = TotpDisableSchema.safeParse(formValues);
       if (!parsed.success) {
         return data<SettingsActionData>(
-          { errors: { form: "Invalid authenticator disable request." }, intent },
+          {
+            errors: { form: "Invalid authenticator disable request." },
+            intent,
+          },
           { status: 400, headers },
         );
       }
@@ -323,7 +336,10 @@ export async function settingsAction({ request }: Route.ActionArgs) {
 
     return data<SettingsActionData>(
       { intent, errors: { form: errorMessage(error) } },
-      { status: error instanceof ProtectedApiError ? error.status : 500, headers },
+      {
+        status: error instanceof ProtectedApiError ? error.status : 500,
+        headers,
+      },
     );
   }
 }

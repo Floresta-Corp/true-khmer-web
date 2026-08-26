@@ -27,8 +27,9 @@ export async function workSpaceLoader({ request }: Route.LoaderArgs) {
   // Only accept sort values the answers API understands. A question-tab sort
   // (e.g. "mostVoted") lingering in the URL must not reach the answers fetch,
   // or the API rejects it with "API request failed".
-  const ANSWER_SORT_VALUES: ReadonlyArray<NonNullable<MyAnswerParams["sortBy"]>> =
-    ["lastActivity", "mostReplies"];
+  const ANSWER_SORT_VALUES: ReadonlyArray<
+    NonNullable<MyAnswerParams["sortBy"]>
+  > = ["lastActivity", "mostReplies"];
   const rawSortBy = url.searchParams.get("sortBy");
   const sortBy = ANSWER_SORT_VALUES.includes(
     rawSortBy as NonNullable<MyAnswerParams["sortBy"]>,

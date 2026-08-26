@@ -36,13 +36,19 @@ export async function myApplicationAction({ request }: Route.ActionArgs) {
         const statusAction = String(formData.get("statusAction") ?? "");
 
         if (!applicationId) {
-          return withAuthData(auth, errorActionResponse("Missing application id."));
+          return withAuthData(
+            auth,
+            errorActionResponse("Missing application id."),
+          );
         }
 
         const parsedStatusAction =
           MyApplicationStatusActionSchema.safeParse(statusAction);
         if (!parsedStatusAction.success) {
-          return withAuthData(auth, errorActionResponse("Invalid status action."));
+          return withAuthData(
+            auth,
+            errorActionResponse("Invalid status action."),
+          );
         }
 
         const result = await postMyApplicationChangeStatus(
@@ -60,13 +66,19 @@ export async function myApplicationAction({ request }: Route.ActionArgs) {
         const archiveAction = String(formData.get("archiveAction") ?? "");
 
         if (!opportunityId) {
-          return withAuthData(auth, errorActionResponse("Missing opportunity id."));
+          return withAuthData(
+            auth,
+            errorActionResponse("Missing opportunity id."),
+          );
         }
 
         const parsedArchiveAction =
           MyApplicationArchiveActionSchema.safeParse(archiveAction);
         if (!parsedArchiveAction.success) {
-          return withAuthData(auth, errorActionResponse("Invalid archive action."));
+          return withAuthData(
+            auth,
+            errorActionResponse("Invalid archive action."),
+          );
         }
 
         const result = await postMyApplicationArchiveAction(

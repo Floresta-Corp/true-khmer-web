@@ -13,7 +13,7 @@ export default function LaunchpadMaterialComponent({
   onRemove,
 }: LaunchpadMaterialComponentProps) {
   return (
-    <div className="flex items-center border border-[#F3F4F6] rounded-lg px-4 py-2">
+    <div className="flex items-center rounded-lg border border-[#F3F4F6] px-4 py-2">
       <div className="flex-1">{data.name}</div>
       <Button
         variant={"outline"}

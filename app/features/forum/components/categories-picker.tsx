@@ -54,7 +54,7 @@ export default function CategoriesPicker({
           <Button
             type="button"
             variant="ghost"
-            className="flex h-11 w-full items-center justify-between rounded-lg border border-transparent bg-[#f8fafc] px-3 text-left text-sm font-medium text-[#344256] outline-none transition-colors focus:border-[#2f6fe4]"
+            className="flex h-11 w-full items-center justify-between rounded-lg border border-transparent bg-[#f8fafc] px-3 text-left text-sm font-medium text-[#344256] transition-colors outline-none focus:border-[#2f6fe4]"
           >
             <span>{selectedCategory?.name || "Select Category"}</span>
             <ChevronDown className="h-3.5 w-3.5 text-[#99a1af]" />

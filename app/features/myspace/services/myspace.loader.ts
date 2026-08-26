@@ -2,10 +2,7 @@ import type { Route } from "project-types/myspace/route/+types/myspace";
 import type { Profile, RecentActivity } from "~/features/myspace/types";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
-import {
-  GetMyspaceMe,
-  GetRecentActivity,
-} from "~/api/myspace/myspace.server";
+import { GetMyspaceMe, GetRecentActivity } from "~/api/myspace/myspace.server";
 
 interface MyspaceLoaderData {
   me: Profile | null;

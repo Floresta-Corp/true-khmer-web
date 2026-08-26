@@ -36,7 +36,10 @@ export async function runServiceAction(
   try {
     const res = await fn();
     if (res?.data?.ok) {
-      return { result: actionSuccess(messages.success), setCookie: res.setCookie };
+      return {
+        result: actionSuccess(messages.success),
+        setCookie: res.setCookie,
+      };
     }
     return { result: actionError(messages.error), setCookie: res?.setCookie };
   } catch (error) {

@@ -27,7 +27,7 @@ const CommentWrapper = ({
       {isReply && <div className={getLineClassName()} />}
       {/* The Curved Arrow (Branch) */}
       {isReply && (
-        <div className="absolute -left-2 top-15 h-5 w-8 rounded-bl-xl border-b-2 border-l-2 border-slate-200" />
+        <div className="absolute top-15 -left-2 h-5 w-8 rounded-bl-xl border-b-2 border-l-2 border-slate-200" />
       )}
       <div className={timelineClassName}>{children}</div>
     </div>

@@ -5,9 +5,7 @@ import type { FormDataVolunteerInput } from "~/features/volunteer/types";
 
 const safeTrim = (value?: string | null) => (value ?? "").trim();
 
-const isBlankRole = (
-  role: FormDataVolunteerInput["roles"][number],
-) =>
+const isBlankRole = (role: FormDataVolunteerInput["roles"][number]) =>
   !safeTrim(role.title) &&
   role.capacity === 1 &&
   role.responsibilities.length === 1 &&
@@ -36,13 +34,14 @@ export default function RolesList({
     <section className="space-y-3.5">
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-semibold text-[#65758b]">
-          Roles added ({roles.some((role) => !isBlankRole(role)) ? roles.length : 0})
+          Roles added (
+          {roles.some((role) => !isBlankRole(role)) ? roles.length : 0})
         </h4>
         {originalRoles && onResetRoles ? (
           <Button
             type="button"
             variant="ghost"
-            className="h-8 px-3 text-xs text-blue-500 cursor-pointer"
+            className="h-8 cursor-pointer px-3 text-xs text-blue-500"
             onClick={onResetRoles}
           >
             Reset roles

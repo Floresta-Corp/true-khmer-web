@@ -95,10 +95,7 @@ export default function VolunteerEditPage() {
     () => mapOpportunityToFormData(volunteer),
     [volunteer],
   );
-  const originalRoles = useMemo(
-    () => initialFormData.roles,
-    [initialFormData],
-  );
+  const originalRoles = useMemo(() => initialFormData.roles, [initialFormData]);
   const [formData, setFormData] =
     useState<FormDataVolunteerInput>(initialFormData);
   const coverImageFileRef = useRef<File | null>(null);

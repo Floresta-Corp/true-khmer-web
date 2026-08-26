@@ -54,21 +54,21 @@ export function EventCategoryCarousel({
         onClick={() => scroll("left")}
         variant="ghost"
         size="icon"
-        className={`shrink-0 w-8 h-8 rounded-full border border-gray-200 bg-white flex items-center justify-center transition-opacity ${
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white transition-opacity ${
           canScrollLeft
-            ? "opacity-100 hover:bg-gray-50 cursor-pointer"
-            : "opacity-30 cursor-default"
+            ? "cursor-pointer opacity-100 hover:bg-gray-50"
+            : "cursor-default opacity-30"
         }`}
         disabled={!canScrollLeft}
         aria-label="Scroll left"
       >
-        <ChevronLeft className="w-4 h-4 text-gray-600" />
+        <ChevronLeft className="h-4 w-4 text-gray-600" />
       </Button>
 
       {/* Scrollable items */}
       <div
         ref={scrollRef}
-        className="flex-1 flex justify-between gap-4 overflow-x-auto scrollbar-hide px-1 py-2 -my-2"
+        className="scrollbar-hide -my-2 flex flex-1 justify-between gap-4 overflow-x-auto px-1 py-2"
         style={{ scrollbarWidth: "none" }}
       >
         {categories.map((category) => {
@@ -81,10 +81,10 @@ export function EventCategoryCarousel({
             <Link
               key={category.id}
               to={href}
-              className="flex flex-col items-center gap-1.5 shrink-0 group"
+              className="group flex shrink-0 flex-col items-center gap-1.5"
             >
               <span
-                className={`w-14 h-14 rounded-full flex items-center justify-center text-2xl transition-all ${
+                className={`flex h-14 w-14 items-center justify-center rounded-full text-2xl transition-all ${
                   isActive
                     ? "bg-blue-100 ring-2 ring-blue-600"
                     : "bg-gray-100 group-hover:bg-gray-200"
@@ -93,9 +93,9 @@ export function EventCategoryCarousel({
                 {category.icon}
               </span>
               <span
-                className={`text-xs font-medium text-center whitespace-nowrap transition-colors ${
+                className={`text-center text-xs font-medium whitespace-nowrap transition-colors ${
                   isActive
-                    ? "text-blue-600 font-bold"
+                    ? "font-bold text-blue-600"
                     : "text-gray-600 group-hover:text-gray-900"
                 }`}
               >
@@ -112,15 +112,15 @@ export function EventCategoryCarousel({
         onClick={() => scroll("right")}
         variant="ghost"
         size="icon"
-        className={`shrink-0 w-8 h-8 rounded-full border border-gray-200 bg-white flex items-center justify-center transition-opacity ${
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white transition-opacity ${
           canScrollRight
-            ? "opacity-100 hover:bg-gray-50 cursor-pointer"
-            : "opacity-30 cursor-default"
+            ? "cursor-pointer opacity-100 hover:bg-gray-50"
+            : "cursor-default opacity-30"
         }`}
         disabled={!canScrollRight}
         aria-label="Scroll right"
       >
-        <ChevronRight className="w-4 h-4 text-gray-600" />
+        <ChevronRight className="h-4 w-4 text-gray-600" />
       </Button>
     </div>
   );

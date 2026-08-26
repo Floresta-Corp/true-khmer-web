@@ -4,7 +4,10 @@ import {
   withAuthData,
   withAuthRedirect,
 } from "~/lib/server/auth-response.server";
-import { GetLaunchpadDetail, getPublicLaunchpadCategories } from "~/api/launchpad/launchpad.server";
+import {
+  GetLaunchpadDetail,
+  getPublicLaunchpadCategories,
+} from "~/api/launchpad/launchpad.server";
 import { getVolunteerLocations } from "~/api/volunteer/volunteer.location.server";
 
 export default async function launchpadEditLoader({

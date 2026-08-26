@@ -74,7 +74,7 @@ export default function ForumRightSidebar({
   hideGuidelines = false,
 }: ForumRightSidebarProps) {
   return (
-    <div className="flex flex-col gap-5 max-w-sm">
+    <div className="flex max-w-sm flex-col gap-5">
       {/* Top Contributors */}
       {/* <Card className="bg-white border shadow-none rounded-2xl p-5 w-full">
         <h3 className="font-bold text-lg leading-6.75 text-[#344256] mb-4 flex items-center gap-2">
@@ -121,8 +121,8 @@ export default function ForumRightSidebar({
 
       {/* Community Guidelines */}
       {!hideGuidelines && (
-        <Card className="bg-white border shadow-none rounded-2xl p-5 w-full">
-          <h3 className="font-bold text-lg leading-6.75 text-[#344256] mb-4">
+        <Card className="w-full rounded-2xl border bg-white p-5 shadow-none">
+          <h3 className="mb-4 text-lg leading-6.75 font-bold text-[#344256]">
             Community Guidelines
           </h3>
 
@@ -130,9 +130,9 @@ export default function ForumRightSidebar({
             {guidelines.map((guideline, index) => (
               <li
                 key={index}
-                className="flex gap-3 text-sm text-[#65758b] leading-6"
+                className="flex gap-3 text-sm leading-6 text-[#65758b]"
               >
-                <span className="font-semibold text-[#344256] shrink-0">
+                <span className="shrink-0 font-semibold text-[#344256]">
                   {index + 1}.
                 </span>
                 <span>{guideline}</span>

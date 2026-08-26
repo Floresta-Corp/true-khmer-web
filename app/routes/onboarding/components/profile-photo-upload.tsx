@@ -35,7 +35,7 @@ export function ProfilePhotoUpload({
               className="h-24 w-24 rounded-full object-cover"
             />
           ) : (
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[#2F58DA] text-2xl font-normal leading-8 tracking-tight text-white">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[#2F58DA] text-2xl leading-8 font-normal tracking-tight text-white">
               {placeholderInitials}
             </div>
           )}
@@ -55,7 +55,7 @@ export function ProfilePhotoUpload({
             onClick={() => fileInputRef.current?.click()}
             variant="outline"
             size="icon"
-            className="absolute bottom-0 right-0 h-8 w-8 rounded-full border-2 border-[#E5E7EB] bg-white text-[#4A5565] hover:bg-slate-50"
+            className="absolute right-0 bottom-0 h-8 w-8 rounded-full border-2 border-[#E5E7EB] bg-white text-[#4A5565] hover:bg-slate-50"
             aria-label="Upload profile photo"
           >
             <Camera size={16} />
@@ -63,10 +63,10 @@ export function ProfilePhotoUpload({
         </div>
 
         <div className="flex-1 space-y-1">
-          <h2 className="text-base font-medium leading-6 text-[#101828]">
+          <h2 className="text-base leading-6 font-medium text-[#101828]">
             Add a profile photo
           </h2>
-          <p className="text-sm font-normal leading-5.25 text-[#1414145C]">
+          <p className="text-sm leading-5.25 font-normal text-[#1414145C]">
             Members with photos get 3× more engagement. <br />
             <span className="font-bold text-[#2F6FE4]">+10 points</span> for
             completing your profile.

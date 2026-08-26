@@ -72,7 +72,7 @@ export default function DeleteQuestionDialog({
             <Button
               type="submit"
               disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-red-600 text-white hover:bg-red-700"
             >
               {isDeleting ? "Deleting..." : "Delete"}
             </Button>

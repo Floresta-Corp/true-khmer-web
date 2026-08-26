@@ -14,9 +14,7 @@ import type {
   QuestionSortBy,
   ForumQuestionImagePresignInput,
 } from "~/features/forum/types";
-import {
-  ForumQuestionImagePresignInputSchema,
-} from "~/features/forum/types";
+import { ForumQuestionImagePresignInputSchema } from "~/features/forum/types";
 import type { VoteIntent } from "~/services/types";
 
 export interface QuestionPaginationParams {
@@ -117,14 +115,13 @@ export async function getPublicQuestionPagination(
   if (params.isUnanswered) queryParams.set("isUnanswered", "true");
   if (params.search) queryParams.set("search", params.search);
 
-  const result =
-    await apiRequestWithOptionalSession<GetQuestionsResponse>(
-      request,
-      `/forum/public/questions?${queryParams.toString()}`,
-      {
-        method: "GET",
-      },
-    );
+  const result = await apiRequestWithOptionalSession<GetQuestionsResponse>(
+    request,
+    `/forum/public/questions?${queryParams.toString()}`,
+    {
+      method: "GET",
+    },
+  );
 
   return result;
 }

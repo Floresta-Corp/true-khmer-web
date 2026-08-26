@@ -17,14 +17,14 @@ export function TwoFAMethodCard({
   setupLabel?: string;
 }) {
   return (
-    <Card className="border border-[#E5EAF2] shadow-sm rounded-2xl">
-      <CardContent className="p-6 space-y-4">
+    <Card className="rounded-2xl border border-[#E5EAF2] shadow-sm">
+      <CardContent className="space-y-4 p-6">
         <div>
           <h3 className="text-base font-semibold text-[#1A2233]">{title}</h3>
-          <p className="text-sm text-[#6B7A99] mt-0.5">{description}</p>
+          <p className="mt-0.5 text-sm text-[#6B7A99]">{description}</p>
         </div>
         {enabled || !setupLabel ? (
-          <div className="flex items-center justify-between bg-[#F8FAFC] rounded-xl px-4 py-3">
+          <div className="flex items-center justify-between rounded-xl bg-[#F8FAFC] px-4 py-3">
             <div className="flex items-center gap-2.5">
               {icon}
               <span className="text-sm font-semibold text-[#1A2233]">
@@ -35,7 +35,7 @@ export function TwoFAMethodCard({
               variant="outline"
               size="sm"
               onClick={onToggle}
-              className={`rounded-lg text-sm font-semibold h-8 px-4 ${
+              className={`h-8 rounded-lg px-4 text-sm font-semibold ${
                 enabled
                   ? "border-[#D1D9E6] text-[#344256] hover:bg-[#F0F4FA]"
                   : "border-[#2F6FE4] text-[#2F6FE4] hover:bg-[#EEF3FD]"
@@ -48,7 +48,7 @@ export function TwoFAMethodCard({
           <Button
             variant="outline"
             onClick={onToggle}
-            className="w-full rounded-xl border-[#E5EAF2] text-sm font-semibold text-[#1A2233] h-12 hover:bg-[#F0F4FA]"
+            className="h-12 w-full rounded-xl border-[#E5EAF2] text-sm font-semibold text-[#1A2233] hover:bg-[#F0F4FA]"
           >
             {setupLabel}
           </Button>

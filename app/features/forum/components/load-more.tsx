@@ -29,12 +29,12 @@ export default function LoadMore({ onLoadMore, isLoading }: LoadMoreProps) {
   }, [onLoadMore, isLoading]);
 
   return (
-    <div ref={observerTarget} className="w-full mt-8">
+    <div ref={observerTarget} className="mt-8 w-full">
       <Button
         variant="outline"
         onClick={onLoadMore}
         disabled={isLoading}
-        className="w-full h-11 border-[#c8d6e5] text-[#1d283a] text-sm font-medium rounded-lg hover:bg-slate-300 hover:text-[#1d283a] transition-colors disabled:opacity-50 flex items-center justify-center bg-transparent shadow-none"
+        className="flex h-11 w-full items-center justify-center rounded-lg border-[#c8d6e5] bg-transparent text-sm font-medium text-[#1d283a] shadow-none transition-colors hover:bg-slate-300 hover:text-[#1d283a] disabled:opacity-50"
       >
         {isLoading ? "Loading..." : "Load more discussions"}
       </Button>

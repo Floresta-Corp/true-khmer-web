@@ -23,7 +23,7 @@ export function FormDivider({
       />
       <span
         className={cn(
-          "text-[10px] font-semibold uppercase tracking-[1px] text-[#99A1AF]",
+          "text-[10px] font-semibold tracking-[1px] text-[#99A1AF] uppercase",
           labelClassName,
         )}
       >

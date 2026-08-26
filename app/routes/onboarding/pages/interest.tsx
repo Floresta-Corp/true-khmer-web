@@ -177,7 +177,7 @@ export default function OnboardingInterestPage() {
           <p className="tk-fade-up-1 text-sm text-red-500">{interestsError}</p>
         ) : null}
 
-        <p className="tk-fade-up-2 self-stretch text-sm font-normal italic leading-5.25 text-[#99A1AF]">
+        <p className="tk-fade-up-2 self-stretch text-sm leading-5.25 font-normal text-[#99A1AF] italic">
           Pick at least 2. You can update these anytime later.
         </p>
 

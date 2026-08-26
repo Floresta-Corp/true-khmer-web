@@ -81,7 +81,12 @@ export async function workSpaceAction({ request }: Route.ActionArgs) {
     });
     if (!parsed.success) return respond(actionError("Invalid vote data."));
     const { result, setCookie } = await runServiceAction(
-      () => voteForumQuestion(request, parsed.data.questionId, parsed.data.voteType),
+      () =>
+        voteForumQuestion(
+          request,
+          parsed.data.questionId,
+          parsed.data.voteType,
+        ),
       { success: "Vote submitted.", error: "Failed to submit vote." },
     );
     return respond(result, setCookie);
@@ -94,7 +99,8 @@ export async function workSpaceAction({ request }: Route.ActionArgs) {
     });
     if (!parsed.success) return respond(actionError("Invalid vote data."));
     const { result, setCookie } = await runServiceAction(
-      () => voteForumAnswer(request, parsed.data.answerId, parsed.data.voteType),
+      () =>
+        voteForumAnswer(request, parsed.data.answerId, parsed.data.voteType),
       { success: "Vote submitted.", error: "Failed to submit vote." },
     );
     return respond(result, setCookie);

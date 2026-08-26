@@ -12,11 +12,7 @@ import {
   getCountryCallingCode,
   type CountryCode,
 } from "libphonenumber-js";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "~/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
@@ -84,7 +80,7 @@ function FieldLabel({
   return (
     <Label
       htmlFor={htmlFor}
-      className="text-xs font-bold uppercase tracking-[0.08em] text-[#334155]"
+      className="text-xs font-bold tracking-[0.08em] text-[#334155] uppercase"
     >
       {children} {required ? <RequiredMark /> : null}
     </Label>
@@ -155,7 +151,7 @@ export default function CompleteSignUpPage() {
     <main className="flex min-h-screen items-center bg-white px-6 py-5 text-[#0F172A] sm:px-8">
       <div className="mx-auto w-full max-w-md">
         <header className="space-y-2">
-          <h1 className="text-[32px] font-extrabold leading-10 tracking-[-0.02em] text-[#0F172A]">
+          <h1 className="text-[32px] leading-10 font-extrabold tracking-[-0.02em] text-[#0F172A]">
             Complete Your Registration
           </h1>
           <p className="text-[15px] leading-6 text-[#64748B]">
@@ -172,7 +168,7 @@ export default function CompleteSignUpPage() {
                   {initials}
                 </AvatarFallback>
               </Avatar>
-              <span className="absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full border border-white bg-white shadow-sm">
+              <span className="absolute -right-1 -bottom-1 flex size-5 items-center justify-center rounded-full border border-white bg-white shadow-sm">
                 <img
                   src="/logos/google_logo.svg"
                   width={14}
@@ -184,7 +180,7 @@ export default function CompleteSignUpPage() {
 
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="truncate text-sm font-bold leading-5 text-[#111827]">
+                <p className="truncate text-sm leading-5 font-bold text-[#111827]">
                   {displayName}
                 </p>
                 <span className="inline-flex items-center gap-1 rounded-full bg-[#D6F5E1] px-2 py-0.5 text-[11px] font-bold text-[#008A3D]">
@@ -280,7 +276,7 @@ export default function CompleteSignUpPage() {
               >
                 <SelectTrigger
                   aria-label="Country calling code"
-                  className="h-full w-34 rounded-l-lg rounded-r-none border-[#C3C6D6] border-r-0 bg-slate-50 px-3 text-sm font-medium leading-5 text-[#434654] shadow-none focus:ring-[#2F6FE4]/20 focus:ring-offset-0"
+                  className="h-full w-34 rounded-l-lg rounded-r-none border-r-0 border-[#C3C6D6] bg-slate-50 px-3 text-sm leading-5 font-medium text-[#434654] shadow-none focus:ring-[#2F6FE4]/20 focus:ring-offset-0"
                 >
                   <span className="truncate">
                     {selectedPhoneCountry.dialCode}
@@ -344,7 +340,7 @@ export default function CompleteSignUpPage() {
               {["male", "female"].map((value) => (
                 <Label
                   key={value}
-                  className="flex items-center gap-2 text-sm font-bold capitalize leading-5 text-[#334155]"
+                  className="flex items-center gap-2 text-sm leading-5 font-bold text-[#334155] capitalize"
                 >
                   <RadioGroupItem value={value} className="border-[#94A3B8]" />
                   {value}

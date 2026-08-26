@@ -5,10 +5,7 @@ import {
   markAllNotificationsRead,
 } from "~/api/notifications/notifications.server";
 
-function readPositiveInteger(
-  value: string | null,
-  fallback: number,
-): number {
+function readPositiveInteger(value: string | null, fallback: number): number {
   const parsed = Number(value);
   if (!Number.isFinite(parsed) || parsed < 1) {
     return fallback;

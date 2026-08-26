@@ -82,21 +82,21 @@ function StoryCard({ story, onCardClick, onLike, onShare }: any) {
   return (
     <Link to={`/poc/detail/${story.id}`}>
       <div
-        className="flex flex-col gap-5.25 cursor-pointer"
+        className="flex cursor-pointer flex-col gap-5.25"
         onClick={() => onCardClick?.(story)}
         data-node-id="story-card"
       >
         {/* Image Container */}
-        <div className="relative h-72.25 rounded-[14px] overflow-hidden bg-gray-100 shadow-sm shrink-0">
+        <div className="relative h-72.25 shrink-0 overflow-hidden rounded-[14px] bg-gray-100 shadow-sm">
           <img
             alt={story.title}
-            className="w-full h-full object-cover"
+            className="h-full w-full object-cover"
             src={story.image}
           />
           {/* Duration Badge */}
           {story.duration && (
-            <div className="absolute bottom-5 right-3.5 bg-black/60 rounded-lg px-2 py-1">
-              <p className="text-white font-bold text-[11px] leading-tight">
+            <div className="absolute right-3.5 bottom-5 rounded-lg bg-black/60 px-2 py-1">
+              <p className="text-[11px] leading-tight font-bold text-white">
                 {story.duration}
               </p>
             </div>
@@ -107,22 +107,22 @@ function StoryCard({ story, onCardClick, onLike, onShare }: any) {
         <div className="flex flex-col gap-4">
           {/* Title */}
           <div>
-            <h3 className="font-bold text-[17px] text-gray-900 leading-tight tracking-tight line-clamp-1">
+            <h3 className="line-clamp-1 text-[17px] leading-tight font-bold tracking-tight text-gray-900">
               {story.title}
             </h3>
           </div>
 
           {/* Description */}
-          <p className="text-gray-600 font-medium text-[14px] leading-[22.75px] tracking-tight line-clamp-2">
+          <p className="line-clamp-2 text-[14px] leading-[22.75px] font-medium tracking-tight text-gray-600">
             {story.description}
           </p>
 
           {/* Engagement Metrics */}
-          <div className="flex gap-5.25 items-center text-gray-500">
+          <div className="flex items-center gap-5.25 text-gray-500">
             {/* Views */}
             <div className="flex items-center gap-1.25">
-              <img alt="views" className="w-3.5 h-3.5" src={imgEye} />
-              <span className="text-[11px] font-bold leading-tight">
+              <img alt="views" className="h-3.5 w-3.5" src={imgEye} />
+              <span className="text-[11px] leading-tight font-bold">
                 {story.views > 1000
                   ? `${(story.views / 1000).toFixed(1)}k`
                   : story.views}
@@ -133,14 +133,14 @@ function StoryCard({ story, onCardClick, onLike, onShare }: any) {
             <div className="flex items-center gap-1.25">
               <img
                 alt="likes"
-                className="w-3.5 h-3.5 cursor-pointer hover:opacity-80"
+                className="h-3.5 w-3.5 cursor-pointer hover:opacity-80"
                 src={imgHeart}
                 onClick={(e) => {
                   e.stopPropagation();
                   onLike?.(story.id);
                 }}
               />
-              <span className="text-[11px] font-bold leading-tight">
+              <span className="text-[11px] leading-tight font-bold">
                 {story.likes}
               </span>
             </div>
@@ -149,14 +149,14 @@ function StoryCard({ story, onCardClick, onLike, onShare }: any) {
             <div className="flex items-center gap-1.25">
               <img
                 alt="shares"
-                className="w-3.5 h-3.5 cursor-pointer hover:opacity-80"
+                className="h-3.5 w-3.5 cursor-pointer hover:opacity-80"
                 src={imgShare2}
                 onClick={(e) => {
                   e.stopPropagation();
                   onShare?.(story.id);
                 }}
               />
-              <span className="text-[11px] font-bold leading-tight">Share</span>
+              <span className="text-[11px] leading-tight font-bold">Share</span>
             </div>
           </div>
         </div>
@@ -179,33 +179,33 @@ export function RecommendedStoriesSection({
       data-name="Features Block"
       data-node-id="14300:4043"
     >
-      <div className="flex flex-col gap-8 w-full">
+      <div className="flex w-full flex-col gap-8">
         {/* Header Section */}
-        <div className="flex items-end justify-between w-full">
+        <div className="flex w-full items-end justify-between">
           {/* Left Section - Title */}
           <div className="flex flex-col gap-3">
             {/* Discovery Label */}
             <div className="flex items-center gap-[10.5px]">
-              <div className="w-7 h-[3.5px] bg-blue-600 rounded-full" />
-              <p className="text-blue-600 font-bold text-[12px] uppercase tracking-widest">
+              <div className="h-[3.5px] w-7 rounded-full bg-blue-600" />
+              <p className="text-[12px] font-bold tracking-widest text-blue-600 uppercase">
                 Discovery
               </p>
             </div>
             {/* Main Title */}
-            <h2 className="font-bold text-[32px] leading-12 text-gray-900 tracking-tight">
+            <h2 className="text-[32px] leading-12 font-bold tracking-tight text-gray-900">
               Recommended Stories
             </h2>
           </div>
 
           {/* Right Section - Tabs */}
-          <div className="flex gap-3.5 items-start">
+          <div className="flex items-start gap-3.5">
             {/* Trending Tab */}
             <button
               onClick={() => setActiveTab("trending")}
-              className={`pb-2 font-bold text-[13px] tracking-tight transition-colors ${
+              className={`pb-2 text-[13px] font-bold tracking-tight transition-colors ${
                 activeTab === "trending"
-                  ? "text-gray-400 border-b-0"
-                  : "text-gray-400 border-b-0 hover:text-gray-600"
+                  ? "border-b-0 text-gray-400"
+                  : "border-b-0 text-gray-400 hover:text-gray-600"
               }`}
             >
               Trending
@@ -214,10 +214,10 @@ export function RecommendedStoriesSection({
             {/* Recent Tab */}
             <button
               onClick={() => setActiveTab("recent")}
-              className={`pb-2 font-bold text-[13px] tracking-tight transition-colors border-b-2 ${
+              className={`border-b-2 pb-2 text-[13px] font-bold tracking-tight transition-colors ${
                 activeTab === "recent"
-                  ? "text-gray-900 border-blue-600"
-                  : "text-gray-400 border-transparent"
+                  ? "border-blue-600 text-gray-900"
+                  : "border-transparent text-gray-400"
               }`}
             >
               Recent
@@ -226,7 +226,7 @@ export function RecommendedStoriesSection({
         </div>
 
         {/* Stories Grid */}
-        <div className="grid grid-cols-2 gap-5 w-full">
+        <div className="grid w-full grid-cols-2 gap-5">
           {stories.map((story) => (
             <StoryCard
               key={story.id}

@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { Lock } from "lucide-react";
-import { Form, useActionData, useNavigation, useSearchParams } from "react-router";
+import {
+  Form,
+  useActionData,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
 import { Button } from "~/components/ui/button";
 import { FormError } from "~/routes/auth/components/form-error";
 import { PasswordField } from "~/routes/auth/components/password-field";
 import { ResetFlowShell } from "~/routes/auth/components/reset-flow-shell";
-import {
-  action as resetPasswordAction,
-} from "~/routes/auth/domain/reset-password.server";
+import { action as resetPasswordAction } from "~/routes/auth/domain/reset-password.server";
 import type { ResetPasswordActionData } from "~/routes/auth/domain/auth.types";
 
 export const action = resetPasswordAction;

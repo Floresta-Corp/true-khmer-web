@@ -45,7 +45,7 @@ export function PasswordField({
       <Label
         htmlFor={id}
         className={cn(
-          "block text-[13px] font-semibold leading-[19.5px] text-[#364153]",
+          "block text-[13px] leading-[19.5px] font-semibold text-[#364153]",
           labelClassName,
         )}
       >
@@ -57,7 +57,7 @@ export function PasswordField({
           <Icon
             size={14}
             className={cn(
-              "pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#D1D5DC]",
+              "pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[#D1D5DC]",
               iconClassName,
             )}
           />
@@ -67,7 +67,7 @@ export function PasswordField({
           id={id}
           type={showPassword ? "text" : "password"}
           className={cn(
-            "h-11 rounded-lg border-transparent bg-[#F8FAFC] py-2 pl-9 pr-10 text-[12.25px] font-medium text-[#1E293B] placeholder:text-[#C8D6E5] focus-visible:ring-[#2F6FE4]/30",
+            "h-11 rounded-lg border-transparent bg-[#F8FAFC] py-2 pr-10 pl-9 text-[12.25px] font-medium text-[#1E293B] placeholder:text-[#C8D6E5] focus-visible:ring-[#2F6FE4]/30",
             inputClassName,
           )}
           {...inputProps}
@@ -80,7 +80,7 @@ export function PasswordField({
             size="icon"
             onClick={() => setShowPassword((prev) => !prev)}
             className={cn(
-              "absolute right-1.5 top-1/2 h-7 w-7 -translate-y-1/2 text-[#D1D5DC] hover:bg-transparent hover:text-[#94A3B8]",
+              "absolute top-1/2 right-1.5 h-7 w-7 -translate-y-1/2 text-[#D1D5DC] hover:bg-transparent hover:text-[#94A3B8]",
               toggleClassName,
             )}
             aria-label={showPassword ? "Hide password" : "Show password"}

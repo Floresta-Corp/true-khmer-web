@@ -76,8 +76,8 @@ export default function ApplicationStatusConfirmDialog({
               ? isWithdraw
                 ? "Withdrawing..."
                 : isDecline
-                ? "Declining..."
-                : "Confirming..."
+                  ? "Declining..."
+                  : "Confirming..."
               : isWithdraw
                 ? "Withdraw"
                 : "Confirm"}

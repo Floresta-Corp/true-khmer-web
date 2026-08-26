@@ -70,7 +70,9 @@ export async function forumListAction({ request }: ForumRoute.ActionArgs) {
       });
     }
 
-    return respond(await submitAnswerVoteAction(request, parsedAnswerVoteAction));
+    return respond(
+      await submitAnswerVoteAction(request, parsedAnswerVoteAction),
+    );
   }
 
   if (actionType === "update-answer") {
@@ -124,7 +126,9 @@ export async function forumListAction({ request }: ForumRoute.ActionArgs) {
       });
     }
 
-    return respond(await createAnswerByQuestionId(request, { questionId, body }));
+    return respond(
+      await createAnswerByQuestionId(request, { questionId, body }),
+    );
   }
 
   if (method === "DELETE") {
@@ -132,7 +136,8 @@ export async function forumListAction({ request }: ForumRoute.ActionArgs) {
   }
 
   const file = formData.get("image") as File | null;
-  const removeImage = String(formData.get("removeImage") ?? "").trim() === "true";
+  const removeImage =
+    String(formData.get("removeImage") ?? "").trim() === "true";
 
   // handle image removal
   if (removeImage && method === "PATCH") {
@@ -197,7 +202,9 @@ export async function forumListAction({ request }: ForumRoute.ActionArgs) {
       });
     }
 
-    return respond(await updateForumQuestion(request, questionId, validation.data));
+    return respond(
+      await updateForumQuestion(request, questionId, validation.data),
+    );
   }
 
   return respond(await createForumQuestion(request, validation.data));

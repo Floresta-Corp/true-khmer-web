@@ -96,11 +96,10 @@ function Avatar({
   active?: boolean;
 }) {
   return (
-    <div className="relative h-10 w-10 shrink-0 rounded-full overflow-hidden bg-[#EEF2F7]">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
+    <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#EEF2F7]">
       <img src={src} alt={alt} className="h-full w-full object-cover" />
       {active && (
-        <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
+        <span className="absolute right-0 bottom-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
       )}
     </div>
   );
@@ -122,7 +121,7 @@ function ConversationItem({ conversation }: { conversation: Conversation }) {
           active={conversation.active}
         />
         {conversation.unread ? (
-          <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FF3B30] px-1 text-[10px] font-semibold text-white">
+          <span className="absolute -top-1 -right-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FF3B30] px-1 text-[10px] font-semibold text-white">
             {conversation.unread}
           </span>
         ) : null}
@@ -142,7 +141,7 @@ function ConversationItem({ conversation }: { conversation: Conversation }) {
             {conversation.time}
           </span>
         </div>
-        <div className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9AA7B8]">
+        <div className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold tracking-[0.12em] text-[#9AA7B8] uppercase">
           <span className="h-1.5 w-1.5 rounded-full bg-[#C7D2E2]" />
           {conversation.app}
         </div>
@@ -178,7 +177,7 @@ function Bubble({
           "max-w-[70%] rounded-2xl px-4 py-3 shadow-sm",
           isRight
             ? "bg-[#2F6FE4] text-white"
-            : "bg-white text-[#182031] border border-[#E7ECF3]",
+            : "border border-[#E7ECF3] bg-white text-[#182031]",
         )}
       >
         <p className="text-sm leading-6">{text}</p>
@@ -234,12 +233,12 @@ export default function MessagesPage() {
 
           <div className="px-4 pb-4">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#C7D0DE]" />
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#C7D0DE]" />
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search conversations..."
-                className="h-12 rounded-full border-0 bg-[#FAFBFD] pl-10 pr-4 text-sm shadow-none placeholder:text-[#C7D0DE] focus-visible:ring-1 focus-visible:ring-[#2F6FE4]/20"
+                className="h-12 rounded-full border-0 bg-[#FAFBFD] pr-4 pl-10 text-sm shadow-none placeholder:text-[#C7D0DE] focus-visible:ring-1 focus-visible:ring-[#2F6FE4]/20"
               />
             </div>
           </div>
@@ -280,10 +279,10 @@ export default function MessagesPage() {
             </div>
 
             <div className="hidden items-center gap-3 text-[#98A2B3] sm:flex">
-              <Badge className="rounded-full bg-[#F8FAFC] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#94A3B8] hover:bg-[#F8FAFC]">
+              <Badge className="rounded-full bg-[#F8FAFC] px-3 py-1 text-[11px] font-semibold tracking-[0.12em] text-[#94A3B8] uppercase hover:bg-[#F8FAFC]">
                 Launchpad
               </Badge>
-              <span className="text-xs font-medium uppercase tracking-[0.14em] text-[#94A3B8]">
+              <span className="text-xs font-medium tracking-[0.14em] text-[#94A3B8] uppercase">
                 Khmer Edu App
               </span>
               <Button

@@ -327,7 +327,7 @@ export default function OnboardingProfilePage() {
               <div className="space-y-3">
                 <Label
                   htmlFor="onboarding-country-trigger"
-                  className="text-sm font-bold leading-5.25 text-[#364153]"
+                  className="text-sm leading-5.25 font-bold text-[#364153]"
                 >
                   Country
                 </Label>
@@ -354,7 +354,7 @@ export default function OnboardingProfilePage() {
               <div className="space-y-3">
                 <Label
                   htmlFor="onboarding-city-trigger"
-                  className="text-sm font-bold leading-5.25 text-[#364153]"
+                  className="text-sm leading-5.25 font-bold text-[#364153]"
                 >
                   City/State
                 </Label>
@@ -417,7 +417,7 @@ export default function OnboardingProfilePage() {
                   }))
                 }
                 rows={3}
-                className="h-20 w-full resize-none rounded-md border-transparent bg-[#F1F5F980] px-3 py-2 text-sm font-normal leading-5 text-[#62748E] placeholder:text-[#94A3B8] focus-visible:border-[#2F6FE4]/40 focus-visible:ring-[#2F6FE4]/20"
+                className="h-20 w-full resize-none rounded-md border-transparent bg-[#F1F5F980] px-3 py-2 text-sm leading-5 font-normal text-[#62748E] placeholder:text-[#94A3B8] focus-visible:border-[#2F6FE4]/40 focus-visible:ring-[#2F6FE4]/20"
                 placeholder="Tell the community a little about yourself - what you do, what you care about, what you're building..."
               />
             </div>

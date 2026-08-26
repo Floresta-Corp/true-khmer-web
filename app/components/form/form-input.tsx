@@ -1,3 +1,3 @@
 export default function FormInput() {
-    return <div></div>
+  return <div></div>;
 }

@@ -1,6 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
-
 interface FormContainerProps {
   currentState: string;
   stateKey: string;
