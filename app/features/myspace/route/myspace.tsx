@@ -275,7 +275,7 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
 
   return (
     <ForumPageLayout>
-      <div className="grid grid-cols-1 gap-6 rounded-2xl bg-white p-4 sm:p-6 lg:grid-cols-12 lg:p-8">
+      <div className="grid grid-cols-1 gap-6 rounded-2xl bg-white p-4 pb-24 sm:p-6 sm:pb-6 lg:grid-cols-12 lg:p-8">
         <div className="space-y-6 lg:col-span-12">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -311,7 +311,6 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
             />
           </motion.div>
         </div>
-
         <div className="flex flex-col gap-3 lg:col-span-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -343,7 +342,6 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
           />
         </motion.div> */}
         </div>
-
         <aside className="lg:col-span-4">
           <div className="grid gap-4">
             <motion.div
