@@ -72,18 +72,21 @@ export default function ProfileHeaderCard({
             {occupation}
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button className="h-11 rounded-full bg-blue-600 px-5 font-bold">
+
+        <div className="flex w-full items-center gap-2 sm:w-auto sm:gap-3">
+          <Button className="h-10 flex-1 rounded-full bg-blue-600 px-3 text-xs font-bold sm:h-11 sm:flex-none sm:px-5 sm:text-sm">
             Message
           </Button>
           <Button
             variant="outline"
-            className="h-11 rounded-full px-5 font-bold"
+            className="h-10 flex-1 gap-1 rounded-full px-3 text-xs font-bold sm:h-11 sm:flex-none sm:px-5 sm:text-sm"
           >
-            <Plus />
+            <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             Follow
           </Button>
-          <ProfileCardPopover profileId={profileId} />
+          <div className="shrink-0">
+            <ProfileCardPopover profileId={profileId} />
+          </div>
         </div>
       </div>
       <div className="relative flex flex-wrap gap-x-5 gap-y-2.5 border-t border-slate-200/60 bg-white/40 px-6 py-4 text-xs text-slate-600 sm:px-8 sm:text-sm dark:border-slate-800/60 dark:bg-slate-950/20 dark:text-slate-400">
