@@ -1,5 +1,6 @@
 import {
   BookmarkCheck,
+  CalendarDays,
   ClipboardList,
   FileUser,
   MessagesSquare,
@@ -169,7 +170,12 @@ export const workSpaceSidebarConfig: AppSidebarProps = {
       to: "/workspace",
       icon: MessagesSquare,
     },
-    // { id: "myevents", label: "My Events", to: "/my-events", icon: Calendar },
+    {
+      id: "myevents",
+      label: "My Events",
+      to: "/my-events",
+      icon: CalendarDays,
+    },
   ],
   footer: {
     to: "/myspace",
