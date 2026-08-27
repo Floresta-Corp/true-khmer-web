@@ -130,7 +130,7 @@ export default function ForumReportDialog({
         {/* Header */}
         <div className="flex items-center gap-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#fef2f2]">
-            <AlertTriangle className="h-[17.5px] w-[17.5px] text-[#e7000b]" />
+            <Flag className="h-[17.5px] w-[17.5px] text-[#e7000b]" />
           </div>
           <div className="flex flex-col gap-1.5">
             <DialogTitle className="text-lg leading-7 font-semibold text-[#030213]">
