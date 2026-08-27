@@ -133,10 +133,6 @@ const UpdateContentModeratorReportReviewResponse = z.object({ ok: z.boolean(), r
 
 const AdminDashboardOverviewResponse = z.object({ ok: z.literal(true), dashboard: z.object({ summary: z.object({ totalUsers: z.number().int().gte(0), totalPartners: z.number().int().gte(0), openReports: z.number().int().gte(0) }), demographics: z.object({ genderBreakdown: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })), ageGroups: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })) }), partners: z.object({ total: z.number().int().gte(0), sectors: z.array(z.object({ label: z.string(), count: z.number().int().gte(0) })) }) }) });
 
-const PublicStatsResponse = z.object({ ok: z.literal(true), stats: z.object({ activeUsers: z.number().int().gte(0), projects: z.number().int().gte(0), userGrowthPercent: z.number().gte(0).nullable(), memberTrend: z.array(z.number().int().gte(0)), windowDays: z.number().int().gt(0) }) });
-
-const PublicStatsErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
-
 const AdminDashboardErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
 const AdminDashboardActiveUsersResponse = z.object({ ok: z.literal(true), activeUsers: z.object({ count: z.number().int().gte(0), changePercent: z.number().nullable(), countLast24Hours: z.number().int().gte(0), windowHours: z.literal(24), liveNow: z.boolean(), period: z.enum(["7d", "30d", "12w", "6m", "12m"]), trend: z.array(z.object({ label: z.string(), count: z.number().int().gte(0), date: z.string() })) }) });
@@ -454,6 +450,10 @@ const ReportingTypeResponse = z.object({ id: z.string(), type: z.string() });
 
 const GetReportingTypesResponse = z.object({ ok: z.boolean(), reportingTypes: z.array(ReportingTypeResponse) });
 
+const PublicStatsResponse = z.object({ ok: z.literal(true), stats: z.object({ activeUsers: z.number().int().gte(0), projects: z.number().int().gte(0), userGrowthPercent: z.number().gte(0).nullable(), memberTrend: z.array(z.number().int().gte(0)), windowDays: z.number().int().gt(0) }) });
+
+const PublicStatsErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
+
 const CreateReportingRequest = z.object({ questionId: z.string(), answerId: z.string(), typeId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), description: z.string().max(10000).optional() });
 
 const CreateReportingResponse = z.object({ ok: z.boolean(), reportingId: z.string().uuid() });
@@ -746,6 +746,8 @@ const SsoUser = z.object({ id: z.string().uuid(), email: z.string(), emailVerifi
 
 const SsoUserResponse = z.object({ ok: z.literal(true), user: SsoUser });
 
+const postV1plumpievents_Body = z.object({ organizationId: z.string().uuid(), title: z.string().min(1).max(100), excerpt: z.string().min(1).max(200), eventCategories: z.array(z.string().uuid()), isOnline: z.boolean(), eventDates: z.array(z.object({ startAt: z.string(), endAt: z.string() })), visibility: z.enum(["LISTED", "UNLISTED"]).optional().default("LISTED"), registrationMode: z.enum(["ANYONE", "REQUIRED_APPROVAL", "INVITED_GUESTS_ONLY"]).optional().default("ANYONE"), entryMode: z.enum(["TICKETED", "RSVP", "OPEN_ACCESS"]).optional().default("TICKETED") });
+
 export const schemas = {
 	AuthRegisterRequest,
 	AuthUserProfile,
@@ -816,8 +818,6 @@ export const schemas = {
 	UpdateContentModeratorReportReviewResponse,
 	AdminDashboardOverviewResponse,
 	AdminDashboardErrorResponse,
-	PublicStatsResponse,
-	PublicStatsErrorResponse,
 	AdminDashboardActiveUsersResponse,
 	AdminDashboardNewRegistrationsResponse,
 	AcceptModeratorInviteRequest,
@@ -978,6 +978,8 @@ export const schemas = {
 	GetPublicVolunteerOpportunityResponse,
 	ReportingTypeResponse,
 	GetReportingTypesResponse,
+	PublicStatsResponse,
+	PublicStatsErrorResponse,
 	CreateReportingRequest,
 	CreateReportingResponse,
 	CreateVolunteerReportingRequest,
@@ -1125,6 +1127,7 @@ export const schemas = {
 	SsoRedeemHandoffRequest,
 	SsoUser,
 	SsoUserResponse,
+	postV1plumpievents_Body,
 };
 
 const endpoints = makeApi([
@@ -4054,7 +4057,7 @@ const endpoints = makeApi([
 			{
 				name: "tier",
 				type: "Query",
-				schema: z.enum(["all", "neary", "yothea", "reach", "preah", "indra"]).optional()
+				schema: z.enum(["all", "dam", "doh", "loas_sleuk", "phka_reek", "preksa"]).optional()
 			},
 			{
 				name: "search",
@@ -7541,6 +7544,264 @@ const endpoints = makeApi([
 		]
 	},
 	{
+		method: "post",
+		path: "/v1/plumpi/auth/handoff",
+		alias: "postV1plumpiauthhandoff",
+		requestFormat: "json",
+		response: z.object({ ok: z.literal(true), token: z.string().min(1), expiresIn: z.number().int().gt(0), expiresAt: z.string() }),
+		errors: [
+			{
+				status: 400,
+				description: `Plumpi rejected the handoff request`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 401,
+				description: `True Khmer authentication required`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 403,
+				description: `Plumpi account cannot be handed off`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 409,
+				description: `Plumpi account is already linked to another TK user`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 502,
+				description: `Unsuccessful Plumpi response`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 503,
+				description: `Plumpi integration is unavailable`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/plumpi/event-categories",
+		alias: "getV1plumpieventCategories",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gte(1).optional().default(1)
+			},
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(100).optional().default(10)
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().min(1).optional()
+			},
+		],
+		response: z.object({ ok: z.literal(true), categories: z.array(z.record(z.string(), z.unknown().nullable())), meta: z.object({ page: z.number().int(), limit: z.number().int(), total: z.number().int(), totalPages: z.number().int() }) }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid query`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 401,
+				description: `True Khmer authentication required`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 502,
+				description: `Unsuccessful Plumpi response`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 503,
+				description: `Plumpi integration is unavailable`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/plumpi/events",
+		alias: "postV1plumpievents",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: postV1plumpievents_Body
+			},
+		],
+		response: z.object({ ok: z.literal(true), event: z.record(z.string(), z.unknown().nullable()) }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid event data`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.literal("VALIDATION_ERROR"), formErrors: z.array(z.string()), fieldErrors: z.record(z.string(), z.array(z.string())) })
+			},
+			{
+				status: 401,
+				description: `True Khmer authentication required`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 403,
+				description: `Account or Plumpi operation is not allowed`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 502,
+				description: `Invalid or unsuccessful Plumpi response`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 503,
+				description: `Plumpi integration is unavailable`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+		]
+	},
+	{
+		method: "patch",
+		path: "/v1/plumpi/events/:eventId/cover",
+		alias: "patchV1plumpieventsEventIdcover",
+		requestFormat: "form-data",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: z.object({ cover: z.instanceof(File) })
+			},
+			{
+				name: "eventId",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: z.object({ ok: z.literal(true), event: z.record(z.string(), z.unknown().nullable()) }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid cover image`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 401,
+				description: `True Khmer authentication required`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 403,
+				description: `Account or Plumpi operation is not allowed`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 404,
+				description: `Plumpi event not found`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 413,
+				description: `Cover image exceeds the 2 MB limit`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 502,
+				description: `Invalid or unsuccessful Plumpi response`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 503,
+				description: `Plumpi integration is unavailable`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/plumpi/organizations",
+		alias: "getV1plumpiorganizations",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gte(1).optional().default(1)
+			},
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(100).optional().default(10)
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().min(1).optional()
+			},
+		],
+		response: z.object({ ok: z.literal(true), organizations: z.array(z.record(z.string(), z.unknown().nullable())), meta: z.object({ page: z.number().int(), limit: z.number().int(), total: z.number().int(), totalPages: z.number().int() }) }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid query`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 401,
+				description: `True Khmer authentication required`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 403,
+				description: `Plumpi operation is not allowed`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 502,
+				description: `Unsuccessful Plumpi response`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 503,
+				description: `Plumpi integration is unavailable`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+		]
+	},
+	{
 		method: "get",
 		path: "/v1/profile/:userId",
 		alias: "getV1profileUserId",
@@ -7628,6 +7889,20 @@ const endpoints = makeApi([
 				status: 500,
 				description: `Internal server error`,
 				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/public/stats",
+		alias: "getV1publicstats",
+		requestFormat: "json",
+		response: PublicStatsResponse,
+		errors: [
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: PublicStatsErrorResponse
 			},
 		]
 	},
@@ -9095,8 +9370,6 @@ export type ListContentModeratorReportsResponse = z.infer<typeof schemas.ListCon
 export type UpdateContentModeratorReportReviewRequest = z.infer<typeof schemas.UpdateContentModeratorReportReviewRequest>;
 export type UpdateContentModeratorReportReviewResponse = z.infer<typeof schemas.UpdateContentModeratorReportReviewResponse>;
 export type AdminDashboardOverviewResponse = z.infer<typeof schemas.AdminDashboardOverviewResponse>;
-export type PublicStatsResponse = z.infer<typeof schemas.PublicStatsResponse>;
-export type PublicStatsErrorResponse = z.infer<typeof schemas.PublicStatsErrorResponse>;
 export type AdminDashboardErrorResponse = z.infer<typeof schemas.AdminDashboardErrorResponse>;
 export type AdminDashboardActiveUsersResponse = z.infer<typeof schemas.AdminDashboardActiveUsersResponse>;
 export type AdminDashboardNewRegistrationsResponse = z.infer<typeof schemas.AdminDashboardNewRegistrationsResponse>;
@@ -9258,6 +9531,8 @@ export type PublicVolunteerOpportunityResponse = z.infer<typeof schemas.PublicVo
 export type GetPublicVolunteerOpportunityResponse = z.infer<typeof schemas.GetPublicVolunteerOpportunityResponse>;
 export type ReportingTypeResponse = z.infer<typeof schemas.ReportingTypeResponse>;
 export type GetReportingTypesResponse = z.infer<typeof schemas.GetReportingTypesResponse>;
+export type PublicStatsResponse = z.infer<typeof schemas.PublicStatsResponse>;
+export type PublicStatsErrorResponse = z.infer<typeof schemas.PublicStatsErrorResponse>;
 export type CreateReportingRequest = z.infer<typeof schemas.CreateReportingRequest>;
 export type CreateReportingResponse = z.infer<typeof schemas.CreateReportingResponse>;
 export type CreateVolunteerReportingRequest = z.infer<typeof schemas.CreateVolunteerReportingRequest>;
@@ -9405,6 +9680,7 @@ export type SsoHandoffTokenResponse = z.infer<typeof schemas.SsoHandoffTokenResp
 export type SsoRedeemHandoffRequest = z.infer<typeof schemas.SsoRedeemHandoffRequest>;
 export type SsoUser = z.infer<typeof schemas.SsoUser>;
 export type SsoUserResponse = z.infer<typeof schemas.SsoUserResponse>;
+export type postV1plumpievents_Body = z.infer<typeof schemas.postV1plumpievents_Body>;
 // End generated API schema types
 
 export const api = new Zodios(endpoints);
