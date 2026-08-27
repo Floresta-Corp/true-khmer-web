@@ -39,7 +39,10 @@ export function CourseEnrollCard({
 
       <div className="mb-3 flex items-center justify-between gap-3">
         <span className="text-sm text-[#9A9AB0]">Price</span>
-        <CoursePriceBadge price={course.price} className="rounded-lg text-xs" />
+        <CoursePriceBadge
+          price={course.price}
+          className="rounded-lg px-3 py-[5px] text-xs font-bold"
+        />
       </div>
 
       <div className="mb-4.5 flex items-center justify-between gap-3 border-b border-gray-200 pb-4.5">

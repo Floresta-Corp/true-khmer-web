@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { BackLink } from "~/components/back-link";
 import {
   Bookmark,
   ChevronLeft,
@@ -40,13 +40,13 @@ export function CourseActionBar({
     <div
       className={cn("mb-5 flex items-center justify-between gap-4", className)}
     >
-      <Link
+      <BackLink
         to={backTo}
         className="flex items-center gap-1.5 text-sm font-semibold text-[#1C5DD4] hover:underline"
       >
         <ChevronLeft className="size-4" aria-hidden />
         {backLabel}
-      </Link>
+      </BackLink>
 
       <div className="flex items-center gap-1.5">
         <button
@@ -88,7 +88,7 @@ export function CourseActionBar({
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="min-w-[170px] font-tk-edu"
+            className="min-w-[170px] rounded-[10px] p-1.5 font-tk-edu shadow-[0_8px_28px_rgba(26,26,46,0.14)]"
           >
             <DropdownMenuItem
               onSelect={onReport}

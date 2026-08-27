@@ -14,7 +14,7 @@ export function CoursePriceBadge({ price, className }: CoursePriceBadgeProps) {
       className={cn(
         "rounded-full px-3.5 py-1 text-sm font-extrabold",
         isFree
-          ? "bg-[#1FC16B]/15 text-[#1FC16B]"
+          ? "bg-[#1FC16B]/14 text-[#1FC16B]"
           : "bg-[#1C5DD4]/10 text-[#1C5DD4]",
         className,
       )}

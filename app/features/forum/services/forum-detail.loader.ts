@@ -5,7 +5,7 @@ import {
   getPublicQuestionById,
   getPublicAnswersByQuestionId,
 } from "~/api/forum/forum.server";
-import { GetPublicReportType } from "~/api/reporting";
+import { getReportReasons } from "~/api/reporting";
 import type {
   AnswerResponse,
   QuestionResponse,
@@ -20,16 +20,6 @@ type ForumDetailLoaderData = {
   userId: string | null;
   reportReasons: GetReportingTypesResponse | null;
 };
-
-async function getReportReasons(request: Request) {
-  try {
-    const result = await GetPublicReportType(request);
-    return (result?.data as GetReportingTypesResponse | null) ?? null;
-  } catch (error) {
-    console.error("Failed to load forum report reasons", error);
-    return null;
-  }
-}
 
 export async function forumDetailLoader({
   request,

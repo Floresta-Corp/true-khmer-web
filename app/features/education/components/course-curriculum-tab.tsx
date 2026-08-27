@@ -75,7 +75,7 @@ export function CourseCurriculumTab({ course }: CourseCurriculumTabProps) {
                           )
                         }
                         className={cn(
-                          "flex w-full items-center gap-3 border-t border-gray-200 px-5 py-3.5 text-left transition-colors",
+                          "flex w-full items-center gap-3 border-b border-gray-200 px-5 py-3.5 text-left transition-colors",
                           canOpen
                             ? "cursor-pointer hover:bg-gray-50"
                             : "cursor-not-allowed",
@@ -83,7 +83,7 @@ export function CourseCurriculumTab({ course }: CourseCurriculumTabProps) {
                       >
                         <LessonTypeIcon
                           type={lesson.type}
-                          className="shrink-0 text-[#9A9AB0]"
+                          className="size-4.5 shrink-0 text-[#9A9AB0]"
                         />
                         <span
                           className={cn(

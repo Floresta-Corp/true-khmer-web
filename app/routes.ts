@@ -41,6 +41,7 @@ export default [
       route("poc", "features/poc/routes/poc.tsx"),
       route("poc/detail/:id", "features/poc/routes/poc.$id.tsx"),
       route("education", "features/education/route/education.tsx"),
+      route("education/all", "features/education/route/education.all.tsx"),
       route("education/:id", "features/education/route/education.$id.tsx"),
       route(
         "education/:id/learn",
@@ -91,12 +92,27 @@ export default [
       route("my-events", "features/workspace/route/my-events.tsx"),
       route("manage-post", "features/manage-post/route/manage-post.tsx"),
       route(
+        "course-listing",
+        "features/course-listing/route/course-listing.tsx",
+      ),
+      route(
+        "course-listing/:id",
+        "features/course-manage/route/course-manage.$id.tsx",
+      ),
+      route(
         "manage-post/:sourceType/:id",
         "features/manage-post/route/manage-post.$sourceType.$id.tsx",
       ),
     ]),
     route("notifications", "features/notifications/route/notifications.tsx"),
   ]),
+  // Standalone: the design gives the builder its own 100vh rail, so it sits
+  // outside the app shell rather than under the site header.
+  route("education/create", "features/course-builder/route/course-builder.tsx"),
+  route(
+    "education/:id/edit",
+    "features/course-builder/route/course-builder.$id.tsx",
+  ),
   route("onboarding", "routes/onboarding/pages/layout.tsx", [
     index("routes/onboarding/pages/index.tsx"),
     route("profile", "routes/onboarding/pages/onboarding-profile.tsx"),

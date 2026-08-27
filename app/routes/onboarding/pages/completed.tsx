@@ -5,6 +5,7 @@ import { OnboardingPageShell } from "~/routes/onboarding/components/onboarding-p
 import { OnboardingRomdoulCorners } from "~/routes/onboarding/components/onboarding-romdoul-corners";
 import type { Route } from "./+types/completed";
 import { requireUser } from "~/lib/server/route-guards.server";
+import { STARTING_MEMBER_TIER } from "~/lib/tiers";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const auth = await requireUser(request, { forceFresh: true });
@@ -42,8 +43,9 @@ export default function OnboardingCompletedPage() {
         <p className="tk-fade-up-1 max-w-153.5 text-[20px] leading-7.5 font-medium text-[#65758B]">
           Your profile is live and you&apos;ve already earned{" "}
           <span className="font-bold text-[#2F6FE4]">10 points</span> for
-          setting up. Your journey as a <span className="font-bold">Neary</span>{" "}
-          begins now.
+          setting up. Your journey as a{" "}
+          <span className="font-bold">{STARTING_MEMBER_TIER.name}</span> begins
+          now.
         </p>
 
         <div className="tk-fade-up-2 w-full max-w-121.5 rounded-2xl border border-[#2F6FE4] bg-[#82CAFF1A] px-5 py-4">
@@ -67,7 +69,7 @@ export default function OnboardingCompletedPage() {
                   Current tier
                 </p>
                 <p className="text-base leading-5 font-semibold text-[#2F6FE4]">
-                  Neary
+                  {STARTING_MEMBER_TIER.name}
                 </p>
               </div>
             </div>

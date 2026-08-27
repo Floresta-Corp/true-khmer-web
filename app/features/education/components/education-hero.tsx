@@ -60,7 +60,7 @@ export function EducationHero({
             event.preventDefault();
             onSearchSubmit();
           }}
-          className="mb-3.5 flex max-w-[480px] items-center gap-2 rounded-full border border-[#E5E7EB] bg-white py-1.5 pr-1.5 pl-5"
+          className="mb-3.5 flex max-w-120 items-center gap-2 rounded-full border border-[#E5E7EB] bg-white py-1.5 pr-1.5 pl-5"
         >
           <input
             type="search"
@@ -92,9 +92,19 @@ export function EducationHero({
       </div>
 
       <div className="relative min-w-0">
-        {/* The design's learner photo is not among the project's assets, so the
-            panel is a brand-tinted surface for the floating cards to sit on. */}
-        <div className="h-[280px] overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#EEF3FD_0%,#F7F9FC_45%,#E4EDFB_100%)] sm:h-[345px]" />
+        {/* The photo is cropped to exactly this panel (1212x690 for a 606x345
+            box at 2x), so object-cover fills it without shifting the framing.
+            The gradient stays behind it as a backdrop. The cards below overlap
+            the panel edges, as in the design. */}
+        <div className="h-70 overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#EEF3FD_0%,#F7F9FC_45%,#E4EDFB_100%)] sm:h-86.25">
+          <img
+            src="/images/education/hero-learner.webp"
+            alt=""
+            width={1212}
+            height={690}
+            className="size-full object-cover object-center"
+          />
+        </div>
 
         {/* Day streak — top left */}
         <div className={`absolute top-6 -left-2 px-4 py-3 sm:left-2 ${CARD}`}>
@@ -121,7 +131,7 @@ export function EducationHero({
 
         {/* Continue learning — middle left */}
         <div
-          className={`absolute bottom-16 -left-4 w-[210px] px-4 py-3 sm:left-0 ${CARD}`}
+          className={`absolute bottom-16 -left-4 w-52.5 px-4 py-3 sm:left-0 ${CARD}`}
         >
           <p className="mb-2 text-xs text-[#6B7280]">Continue learning</p>
           <div className="mb-2 flex items-center gap-2.5">

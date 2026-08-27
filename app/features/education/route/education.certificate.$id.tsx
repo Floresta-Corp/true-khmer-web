@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, useLoaderData } from "react-router";
+import { useLoaderData } from "react-router";
+import { BackLink } from "~/components/back-link";
 import { motion, useReducedMotion } from "motion/react";
 import { ChevronLeft } from "lucide-react";
 import { EducationPage } from "../components/education-page";
@@ -26,13 +27,13 @@ export default function CourseCertificatePage() {
 
   return (
     <EducationPage surface="muted">
-      <Link
+      <BackLink
         to={`/education/${course.id}/learn`}
         className="mb-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[#1C5DD4] hover:underline print:hidden"
       >
         <ChevronLeft className="size-4" aria-hidden />
         Back to course
-      </Link>
+      </BackLink>
 
       <motion.div
         initial={{ opacity: 0, y: 16 }}

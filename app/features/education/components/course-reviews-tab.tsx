@@ -49,7 +49,7 @@ export function CourseReviewsTab({ course }: { course: CourseDetail }) {
                   </span>
                   <StarRating value={review.rating} starClassName="size-3" />
                 </div>
-                <p className="text-sm leading-relaxed text-[#9A9AB0]">
+                <p className="text-sm leading-[1.6] text-[#9A9AB0]">
                   {review.comment}
                 </p>
               </li>

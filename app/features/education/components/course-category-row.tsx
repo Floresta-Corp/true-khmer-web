@@ -55,7 +55,15 @@ export function CourseCategoryRow({
         Classes by category
       </h2>
 
-      <div className="flex items-start gap-2 overflow-x-auto pb-1 [scrollbar-width:none] sm:justify-between [&::-webkit-scrollbar]:hidden">
+      {/* Equal-width columns, so the pitch stays uniform whatever the label
+          length — the design spaces these on a fixed grid, not by content.
+          Below `sm` the row scrolls horizontally and items size to content. */}
+      <div
+        className="flex items-start gap-2 overflow-x-auto pb-1 [scrollbar-width:none] sm:grid sm:gap-6 [&::-webkit-scrollbar]:hidden"
+        style={{
+          gridTemplateColumns: `repeat(${categories.length}, minmax(0, 1fr))`,
+        }}
+      >
         {categories.map((category) => {
           const Icon = iconFor(category);
           const isActive = activeCategoryId === category.id;
@@ -66,10 +74,10 @@ export function CourseCategoryRow({
               aria-pressed={isActive}
               onClick={() => onSelect(isActive ? null : category.id)}
               className={cn(
-                "flex shrink-0 cursor-pointer flex-col items-center gap-2.5 rounded-lg px-3 py-2 transition-colors",
+                "flex shrink-0 cursor-pointer flex-col items-center gap-4 rounded-xl px-3 py-4 transition-colors sm:w-full",
                 isActive
-                  ? "text-[#1C5DD4]"
-                  : "text-[#6B7280] hover:text-[#1A1A2E]",
+                  ? "bg-[#D8E2F8] text-[#1C5DD4]"
+                  : "text-[#8C8CA1] hover:bg-[#D8E2F8] hover:text-[#1C5DD4]",
               )}
             >
               <Icon className="size-5.5" strokeWidth={1.6} aria-hidden />

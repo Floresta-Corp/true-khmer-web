@@ -1,11 +1,12 @@
-import { FileText, Music, PlayCircle } from "lucide-react";
+import { File, SquarePlay, Volume2 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import type { LessonType } from "~/features/education/types";
 
+/** The design uses a play-in-square, a plain page and a speaker. */
 const ICONS = {
-  video: PlayCircle,
-  pdf: FileText,
-  audio: Music,
+  video: SquarePlay,
+  pdf: File,
+  audio: Volume2,
 } as const;
 
 export function LessonTypeIcon({

@@ -378,33 +378,190 @@ const REVIEWS: CourseReview[] = [
   },
 ];
 
-const SECTION_TITLES = [
-  "Getting started",
-  "Core concepts",
-  "Putting it into practice",
+interface SectionPlan {
+  title: string;
+  lessons: Array<{ title: string; type: LessonType; duration: string }>;
+}
+
+/**
+ * The curriculum the design draws for its reference course, "Digital Marketing
+ * for Small Shops" — chapter and lesson titles written for that course rather
+ * than the generic pools below.
+ *
+ * Chapter 1 and the first two lessons of chapter 2 are read off the design;
+ * chapter 3 and the rest of chapter 2 are written to match its voice, because
+ * the design's screenshot cuts off there.
+ */
+const REFERENCE_COURSE_ID = "11111111-1111-4111-8111-111111111111";
+
+const REFERENCE_PLANS: SectionPlan[] = [
+  {
+    title: "Understand your customer",
+    lessons: [
+      {
+        title: "Who your customer already is",
+        type: "video",
+        duration: "9:12",
+      },
+      {
+        title: "Setting a goal you can measure",
+        type: "video",
+        duration: "11:40",
+      },
+      {
+        title: "Facebook Page setup that converts",
+        type: "video",
+        duration: "14:05",
+      },
+      {
+        title: "Writing posts in Khmer and English",
+        type: "pdf",
+        duration: "12 pages",
+      },
+      {
+        title: "Photographing products with a phone",
+        type: "video",
+        duration: "16:22",
+      },
+    ],
+  },
+  {
+    title: "Reach and sell",
+    lessons: [
+      { title: "Your first $20 ad test", type: "audio", duration: "18:50" },
+      {
+        title: "Reading your numbers weekly",
+        type: "video",
+        duration: "13:15",
+      },
+      {
+        title: "Messenger replies that close the sale",
+        type: "video",
+        duration: "10:48",
+      },
+      {
+        title: "Pricing, delivery and payment",
+        type: "pdf",
+        duration: "9 pages",
+      },
+      {
+        title: "Working with a small budget",
+        type: "video",
+        duration: "12:30",
+      },
+    ],
+  },
+  {
+    title: "Keep them coming back",
+    lessons: [
+      {
+        title: "Turning one sale into three",
+        type: "video",
+        duration: "15:04",
+      },
+      {
+        title: "Asking for reviews without nagging",
+        type: "video",
+        duration: "8:36",
+      },
+      {
+        title: "A month of posts in one afternoon",
+        type: "video",
+        duration: "17:11",
+      },
+      { title: "When to spend more on ads", type: "audio", duration: "14:27" },
+      { title: "Your next 90 days", type: "pdf", duration: "5 pages" },
+    ],
+  },
 ];
 
-const LESSON_TEMPLATES: Array<{
-  title: string;
-  type: LessonType;
-  duration: string;
-}> = [
-  { title: "Welcome and course overview", type: "video", duration: "04:12" },
-  { title: "How this course is structured", type: "video", duration: "06:38" },
-  { title: "Course workbook", type: "pdf", duration: "10 pages" },
-  { title: "The vocabulary you'll need", type: "video", duration: "12:05" },
-  { title: "Walking through a real example", type: "video", duration: "15:47" },
+/**
+ * Each chapter has its own pool of lessons, themed to that chapter. A single
+ * shared pool wrapped once a course had more lessons than titles, so chapter 3
+ * replayed chapter 1's opening lessons verbatim. Eight a chapter covers the
+ * longest placeholder course (23 lessons, so at most 8 a chapter) without
+ * repeating a title.
+ */
+const SECTION_PLANS: SectionPlan[] = [
   {
-    title: "Interview: lessons from the field",
-    type: "audio",
-    duration: "22:19",
+    title: "Getting started",
+    lessons: [
+      {
+        title: "Welcome and course overview",
+        type: "video",
+        duration: "04:12",
+      },
+      {
+        title: "How this course is structured",
+        type: "video",
+        duration: "06:38",
+      },
+      { title: "Course workbook", type: "pdf", duration: "10 pages" },
+      {
+        title: "The vocabulary you'll need",
+        type: "video",
+        duration: "12:05",
+      },
+      { title: "Setting up your tools", type: "video", duration: "08:24" },
+      {
+        title: "Interview: why this matters",
+        type: "audio",
+        duration: "14:03",
+      },
+      { title: "A quick self-assessment", type: "pdf", duration: "4 pages" },
+      { title: "What success looks like", type: "video", duration: "05:51" },
+    ],
   },
-  { title: "Building your first plan", type: "video", duration: "18:30" },
-  { title: "Common mistakes to avoid", type: "video", duration: "09:54" },
-  { title: "Templates and further reading", type: "pdf", duration: "6 pages" },
-  { title: "Measuring what you built", type: "video", duration: "11:22" },
-  { title: "Q&A with the instructor", type: "audio", duration: "16:40" },
-  { title: "Where to go next", type: "video", duration: "07:15" },
+  {
+    title: "Core concepts",
+    lessons: [
+      {
+        title: "Walking through a real example",
+        type: "video",
+        duration: "15:47",
+      },
+      { title: "Building your first plan", type: "video", duration: "18:30" },
+      { title: "Common mistakes to avoid", type: "video", duration: "09:54" },
+      {
+        title: "Templates and further reading",
+        type: "pdf",
+        duration: "6 pages",
+      },
+      { title: "Measuring what you built", type: "video", duration: "11:22" },
+      {
+        title: "Interview: lessons from the field",
+        type: "audio",
+        duration: "22:19",
+      },
+      { title: "Working within a budget", type: "video", duration: "13:08" },
+      { title: "Reading the numbers", type: "video", duration: "10:36" },
+    ],
+  },
+  {
+    title: "Putting it into practice",
+    lessons: [
+      {
+        title: "Your first week, day by day",
+        type: "pdf",
+        duration: "8 pages",
+      },
+      { title: "Running a small pilot", type: "video", duration: "16:12" },
+      {
+        title: "Handling the awkward questions",
+        type: "video",
+        duration: "12:47",
+      },
+      { title: "Q&A with the instructor", type: "audio", duration: "16:40" },
+      {
+        title: "Reviewing what went wrong",
+        type: "video",
+        duration: "09:19",
+      },
+      { title: "Scaling what worked", type: "video", duration: "14:55" },
+      { title: "Your finished checklist", type: "pdf", duration: "3 pages" },
+      { title: "Where to go next", type: "video", duration: "07:15" },
+    ],
+  },
 ];
 
 /** The first two lessons are pre-completed so progress states are visible. */
@@ -412,26 +569,29 @@ const PRE_COMPLETED_LESSONS = 2;
 
 /**
  * Spreads `lessonCount` lessons across three sections so the curriculum length
- * agrees with the lesson count shown on the course card.
+ * agrees with the lesson count shown on the course card. Lessons are drawn from
+ * their own chapter's pool, so no title appears twice.
  */
 function buildCurriculum(
   courseId: string,
   lessonCount: number,
 ): CourseSection[] {
+  const plans =
+    courseId === REFERENCE_COURSE_ID ? REFERENCE_PLANS : SECTION_PLANS;
   const total = Math.max(1, lessonCount);
-  const perSection = Math.ceil(total / SECTION_TITLES.length);
+  const perSection = Math.ceil(total / plans.length);
 
   let created = 0;
   const sections: CourseSection[] = [];
 
-  for (const [index, title] of SECTION_TITLES.entries()) {
+  for (const [index, plan] of plans.entries()) {
     const remaining = total - created;
     if (remaining <= 0) break;
 
     const size = Math.min(perSection, remaining);
     const lessons = Array.from({ length: size }, (_, offset) => {
       const position = created + offset;
-      const template = LESSON_TEMPLATES[position % LESSON_TEMPLATES.length];
+      const template = plan.lessons[offset % plan.lessons.length];
       return {
         id: `${courseId}-l${position + 1}`,
         title: template.title,
@@ -443,7 +603,11 @@ function buildCurriculum(
     });
 
     created += size;
-    sections.push({ id: `${courseId}-s${index + 1}`, title, lessons });
+    sections.push({
+      id: `${courseId}-s${index + 1}`,
+      title: plan.title,
+      lessons,
+    });
   }
 
   return sections;

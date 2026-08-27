@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, useSubmit, useNavigation } from "react-router";
+import { useSubmit, useNavigation } from "react-router";
+import { BackLink } from "~/components/back-link";
 import { ChevronLeft } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { CARD } from "~/features/education/lib/education-styles";
@@ -40,13 +41,13 @@ export function QuizRunner({ courseId, quiz }: QuizRunnerProps) {
 
   return (
     <div className="mx-auto max-w-[720px]">
-      <Link
+      <BackLink
         to={`/education/${courseId}/learn`}
         className="mb-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[#1C5DD4] hover:underline"
       >
         <ChevronLeft className="size-4" aria-hidden />
         Back to course
-      </Link>
+      </BackLink>
 
       <div className={`${CARD} px-6 pt-8.5 pb-10 sm:px-9`}>
         <div className="mb-3 flex items-center justify-between gap-4">

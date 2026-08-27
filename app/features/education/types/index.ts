@@ -47,6 +47,8 @@ export interface CourseSummary {
   studentCount: number;
   /** Renders the green "New" badge on the cover. */
   isNew: boolean;
+  /** Knowledge Sharing entries sit alongside courses in the catalogue. */
+  type?: "course" | "ks";
   /** Price in USD. `0` renders as the green "Free" pill. */
   price: number;
   isSaved: boolean;

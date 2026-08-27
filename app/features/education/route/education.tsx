@@ -161,14 +161,14 @@ export default function EducationHubPage() {
             <CourseSection
               title="Trending Classes"
               courses={trending}
-              viewAllTo="/education/all?sort=trending"
+              viewAllTo="/education/all?sort=popular"
               savedCourseIds={savedCourseIds}
               onToggleSave={toggleSave}
             />
             <CourseSection
               title="Recently Added"
               courses={recent}
-              viewAllTo="/education/all?sort=recent"
+              viewAllTo="/education/all"
               savedCourseIds={savedCourseIds}
               onToggleSave={toggleSave}
             />

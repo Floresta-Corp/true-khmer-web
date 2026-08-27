@@ -21,6 +21,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
+import { STARTING_MEMBER_TIER } from "~/lib/tiers";
 import { useState } from "react";
 import type { Route } from "./+types/onboarding-profile";
 
@@ -138,7 +139,7 @@ export default function onBoardingProfilePage() {
                 {fullName}
               </h1>
               <Badge className="border-0 bg-blue-600 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-white uppercase">
-                Neary Tier
+                {STARTING_MEMBER_TIER.name} Tier
               </Badge>
             </div>
             <p className="mt-1 text-xs text-gray-500 sm:text-sm">
