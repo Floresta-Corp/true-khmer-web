@@ -109,24 +109,16 @@ async function fetchWithBearer<K extends object = JsonObject>(
 ) {
   const base = resolveApiBase(request);
   const url = `${base}${path}`;
-  const isMultipart = options.body instanceof FormData;
-  const requestBody: BodyInit | undefined = options.body
-    ? isMultipart
-      ? (options.body as FormData)
-      : JSON.stringify(options.body)
-    : undefined;
 
   return fetch(url, {
     method: options.method ?? "GET",
     credentials: "include",
     headers: {
       Authorization: `Bearer ${accessToken}`,
-      ...(options.body && !isMultipart
-        ? { "Content-Type": "application/json" }
-        : {}),
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
       ...options.headers,
     },
-    ...(requestBody ? { body: requestBody } : {}),
+    ...(options.body ? { body: JSON.stringify(options.body) } : {}),
   });
 }
 
