@@ -5,17 +5,7 @@ import {
   getPublicOpportunityById,
 } from "~/api/volunteer/volunteer.opportunities.server";
 import type { GetReportingTypesResponse } from "~/types/api-client";
-import { GetPublicReportType } from "~/api/reporting";
-
-async function getReportReasons(request: Request) {
-  try {
-    const result = await GetPublicReportType(request);
-    return (result?.data as GetReportingTypesResponse | null) ?? null;
-  } catch (error) {
-    console.error("Failed to load volunteer report reasons", error);
-    return null;
-  }
-}
+import { getReportReasons } from "~/api/reporting";
 
 export async function VolunteerDetailLoader({
   request,

@@ -3,6 +3,7 @@ import {
   CalendarDays,
   ClipboardList,
   FileUser,
+  GraduationCap,
   MessagesSquare,
   UserRound,
 } from "lucide-react";
@@ -169,6 +170,12 @@ export const workSpaceSidebarConfig: AppSidebarProps = {
       label: "My Discussions",
       to: "/workspace",
       icon: MessagesSquare,
+    },
+    {
+      id: "courselisting",
+      label: "Course Listing",
+      to: "/course-listing",
+      icon: GraduationCap,
     },
     {
       id: "myevents",

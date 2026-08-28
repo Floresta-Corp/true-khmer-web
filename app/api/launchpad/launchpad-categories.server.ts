@@ -1,5 +1,6 @@
 import {
   apiRequestWithOptionalSession,
+  isResourceUnavailable,
   ProtectedApiError,
 } from "~/lib/server/api-client.server";
 import type { GetLaunchpadCategoriesResponse } from "~/types/api-client";
@@ -16,7 +17,7 @@ export async function getPublicLaunchpadCategories(request: Request) {
       );
     return result;
   } catch (error) {
-    if (error instanceof ProtectedApiError && error.status === 404) {
+    if (isResourceUnavailable(error, "launchpad categories")) {
       return null;
     }
     throw error;

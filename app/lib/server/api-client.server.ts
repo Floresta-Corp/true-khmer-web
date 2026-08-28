@@ -223,6 +223,52 @@ export async function apiRequestPublic<T, K extends object = JsonObject>(
   return { data: payload as T };
 }
 
+/**
+ * True when a read failed in a way the page can survive: the resource is
+ * missing (404) or the service behind it is failing (5xx).
+ *
+ * Reads that only enrich a page — category lists, tag lists, locations,
+ * paginated listings — should degrade rather than take the whole route down
+ * with them, and every caller already handles the `null` that 404 produced.
+ * A 5xx is logged so the outage is visible rather than silent.
+ *
+ * Auth and validation failures deliberately return false: those are bugs the
+ * caller needs to see, not conditions to paper over. Detail fetches and
+ * mutations should not use this at all.
+ */
+export function isResourceUnavailable(error: unknown, label: string) {
+  if (!(error instanceof ProtectedApiError)) return false;
+  if (error.status !== 404 && error.status < 500) return false;
+
+  if (error.status >= 500) {
+    console.warn(
+      `[api] ${label} failed with ${error.status}; rendering without it`,
+    );
+  }
+
+  return true;
+}
+
+/**
+ * Runs a read the page can render without, returning `null` when the resource
+ * is missing or its service is failing.
+ *
+ * Prefer this to a bare `try/catch` that logs the error object: a handled
+ * degradation should leave one line in the log, not a stack trace and a page of
+ * response headers. Anything that is not a 404 or 5xx still throws.
+ */
+export async function readOptional<T>(
+  label: string,
+  read: () => Promise<T>,
+): Promise<T | null> {
+  try {
+    return await read();
+  } catch (error) {
+    if (isResourceUnavailable(error, label)) return null;
+    throw error;
+  }
+}
+
 function isLoginRedirectResponse(error: unknown): error is Response {
   if (!(error instanceof Response)) return false;
   const location = error.headers.get("Location") ?? "";

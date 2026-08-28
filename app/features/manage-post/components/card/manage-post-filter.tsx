@@ -46,7 +46,7 @@ export default function ManagePostFilters({
 }: Props) {
   return (
     <div className="mt-5 flex w-full flex-wrap items-center justify-between gap-4">
-      <div className="scrollbar-none flex w-full max-w-full overflow-x-auto rounded-xl bg-gray-100 p-1 shadow-inner sm:w-max dark:bg-slate-900">
+      <div className="scrollbar-hide flex w-full max-w-full overflow-x-auto rounded-xl bg-gray-100 p-1 shadow-inner sm:w-max dark:bg-slate-900">
         {STATUS_TABS.map((tab) => (
           <button
             key={tab.value}
