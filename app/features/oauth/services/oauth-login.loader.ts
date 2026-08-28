@@ -1,11 +1,10 @@
 import type { Route } from "project-types/oauth/route/+types/oauth-login";
 import {
   getOAuthSessionUser,
-  verifyAndroidOAuthClient,
-  verifyIosOAuthClient,
   verifyOAuthClient,
 } from "~/api/oauth/oauth.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
+import { readNativeCallbackUri } from "../lib/native-callback";
 import { toOAuthSessionUser } from "../lib/oauth-user";
 
 // Clients have shipped both spellings of these params, so accept either.
@@ -17,11 +16,11 @@ function readParam(url: URL, ...names: string[]) {
   return null;
 }
 
-type OAuthPlatform = "web" | "ios" | "android";
+type OAuthPlatform = "web" | "native";
 
 function readPlatform(url: URL): OAuthPlatform {
   const platform = url.searchParams.get("platform")?.toLowerCase();
-  return platform === "ios" || platform === "android" ? platform : "web";
+  return platform === "native" ? "native" : "web";
 }
 
 function readState(url: URL): string | null {
@@ -34,43 +33,27 @@ export async function OauthLoginLoader({ request }: Route.LoaderArgs) {
   const clientId = readParam(url, "clientId", "client_id");
   const origin = url.searchParams.get("origin");
   const platform = readPlatform(url);
-  const state = platform === "web" ? null : readState(url);
+  const state = platform === "native" ? readState(url) : null;
+  const callbackUri =
+    platform === "native"
+      ? readNativeCallbackUri(
+          readParam(url, "callbackUri", "callback_uri", "redirectUri"),
+          process.env.NODE_ENV === "development",
+        )
+      : null;
 
-  let client = null;
-  if (clientId && platform === "web" && origin) {
-    client = await verifyOAuthClient(request, clientId, origin);
-  } else if (clientId && platform === "ios" && state) {
-    const bundleIdentifier = url.searchParams.get("bundleIdentifier");
-    const urlScheme = url.searchParams.get("urlScheme");
-    if (bundleIdentifier && urlScheme) {
-      client = await verifyIosOAuthClient(
-        request,
-        clientId,
-        bundleIdentifier,
-        urlScheme,
-      );
-    }
-  } else if (clientId && platform === "android" && state) {
-    const packageName = url.searchParams.get("packageName");
-    const sha1CertificateFingerprint = url.searchParams.get(
-      "sha1CertificateFingerprint",
-    );
-    if (packageName && sha1CertificateFingerprint) {
-      client = await verifyAndroidOAuthClient(
-        request,
-        clientId,
-        packageName,
-        sha1CertificateFingerprint,
-      );
-    }
-  }
-
-  const redirectUri = platform === "web" ? null : (client?.redirectUri ?? null);
+  // Native applications intentionally reuse the web registration. Their SDK
+  // supplies the registered HTTP(S) origin even though the app itself has no
+  // browser origin.
+  const client =
+    clientId && origin
+      ? await verifyOAuthClient(request, clientId, origin)
+      : null;
 
   if (
     !client ||
-    (platform === "web" && !origin) ||
-    (platform !== "web" && (!redirectUri || !state))
+    !origin ||
+    (platform === "native" && (!callbackUri || !state))
   ) {
     return withAuthData(
       {},
@@ -79,7 +62,7 @@ export async function OauthLoginLoader({ request }: Route.LoaderArgs) {
         hasSession: false,
         origin: null,
         platform,
-        redirectUri: null,
+        callbackUri: null,
         state: null,
         clientId,
         clientName: readParam(url, "clientName", "client_name"),
@@ -101,7 +84,7 @@ export async function OauthLoginLoader({ request }: Route.LoaderArgs) {
       hasSession: Boolean(user && accessToken),
       origin,
       platform,
-      redirectUri,
+      callbackUri,
       state,
       clientId: client.clientId,
       clientName: client.name,

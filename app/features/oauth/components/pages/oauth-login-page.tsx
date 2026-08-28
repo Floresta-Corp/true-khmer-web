@@ -16,7 +16,7 @@ export default function OAuthLoginPage() {
     clientId,
     origin,
     platform,
-    redirectUri,
+    callbackUri,
     state,
     user,
     accessToken,
@@ -46,7 +46,7 @@ export default function OAuthLoginPage() {
         clientId={clientId}
         origin={origin}
         platform={platform}
-        redirectUri={redirectUri}
+        callbackUri={callbackUri}
         state={state}
         accessToken={consentData.accessToken}
         user={consentData.user}

@@ -14,8 +14,8 @@ interface OAuthConsentCardProps {
   clientLogo: string | null;
   clientId: string | null;
   origin: string | null;
-  platform: "web" | "ios" | "android";
-  redirectUri: string | null;
+  platform: "web" | "native";
+  callbackUri: string | null;
   state: string | null;
   accessToken: string;
   user: OAuthSessionUser;
@@ -28,7 +28,7 @@ export function OAuthConsentCard({
   clientId,
   origin,
   platform,
-  redirectUri,
+  callbackUri,
   state,
   accessToken,
   user,
@@ -65,7 +65,7 @@ export function OAuthConsentCard({
         {
           origin: fetcher.data.origin ?? origin,
           platform,
-          redirectUri,
+          callbackUri,
           state,
         },
         fetcher.data,
@@ -73,11 +73,11 @@ export function OAuthConsentCard({
     } else {
       setError("Unable to complete sign-in. Please try again.");
     }
-  }, [fetcher.state, fetcher.data, origin, platform, redirectUri, state]);
+  }, [fetcher.state, fetcher.data, origin, platform, callbackUri, state]);
 
   const handleCancel = useCallback(() => {
-    postAuthClose({ origin, platform, redirectUri, state });
-  }, [origin, platform, redirectUri, state]);
+    postAuthClose({ origin, platform, callbackUri, state });
+  }, [origin, platform, callbackUri, state]);
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-slate-100/70 p-4 font-sans text-slate-900">
