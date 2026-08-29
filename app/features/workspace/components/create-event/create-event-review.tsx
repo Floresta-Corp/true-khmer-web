@@ -2,6 +2,7 @@ import {
   CalendarDays,
   Clock,
   DoorOpen,
+  ExternalLink,
   Eye,
   Image as ImageIcon,
   MapPin,
@@ -18,12 +19,14 @@ import {
 import type {
   CreateEventFormState,
   EventOrganizer,
+  EventVenue,
 } from "~/features/workspace/types/my-events";
 
 type Props = {
   form: CreateEventFormState;
   category: string;
   organizer: EventOrganizer | null;
+  venue: EventVenue | null;
 };
 
 /**
@@ -39,6 +42,7 @@ export default function CreateEventReview({
   form,
   category,
   organizer,
+  venue,
 }: Props) {
   const formatLabel = form.format
     ? MY_EVENT_FORMAT_LABELS[form.format]
@@ -116,7 +120,7 @@ export default function CreateEventReview({
               </span>
             )}
 
-            <h2 className="mt-3.5 text-2xl leading-tight font-extrabold text-[#1D283A] md:text-[28px]">
+            <h2 className="mt-3.5 text-2xl font-extrabold leading-tight text-[#1D283A] md:text-[28px]">
               {form.name || "Untitled event"}
             </h2>
 
@@ -129,21 +133,47 @@ export default function CreateEventReview({
               </p>
             )}
 
-            <div className="mt-4.5 flex flex-col gap-2.5 text-sm font-semibold text-[#344256]">
-              <span className="flex items-center gap-2.5">
-                <CalendarDays className="size-4 shrink-0 text-slate-400" />
-                {form.startDate
-                  ? formatDateInputValue(form.startDate)
-                  : "Date to be announced"}
-              </span>
-              <span className="flex items-center gap-2.5">
-                <Clock className="size-4 shrink-0 text-slate-400" />
-                {formatCreateEventTimeRange(form.startTime, form.endTime)}
-              </span>
+            <div className="mt-4.5 flex flex-col gap-3 text-sm font-semibold text-[#344256]">
+              {form.eventDates.map((eventDate, index) => (
+                <div
+                  key={index}
+                  className="grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-1"
+                >
+                  <CalendarDays className="mt-0.5 size-4 shrink-0 text-slate-400" />
+                  <span>
+                    {eventDate.date
+                      ? formatDateInputValue(eventDate.date)
+                      : `Day ${index + 1} to be announced`}
+                  </span>
+                  <Clock className="mt-0.5 size-4 shrink-0 text-slate-400" />
+                  <span>
+                    {formatCreateEventTimeRange(
+                      eventDate.startTime,
+                      eventDate.endTime,
+                    )}
+                  </span>
+                </div>
+              ))}
               <span className="flex items-center gap-2.5">
                 <MapPin className="size-4 shrink-0 text-slate-400" />
-                {formatLabel}
+                {venue?.name ?? formatLabel}
               </span>
+              {form.address && (
+                <span className="pl-6.5 text-xs font-normal text-slate-500">
+                  {form.address}
+                </span>
+              )}
+              {form.googleMapLink && (
+                <a
+                  href={form.googleMapLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="pl-6.5 flex items-center gap-1.5 text-xs text-blue-600 hover:underline"
+                >
+                  View on Google Maps
+                  <ExternalLink className="size-3" />
+                </a>
+              )}
             </div>
 
             <div className="mt-4 h-px bg-[#E1E7EF]" />
@@ -160,7 +190,7 @@ export default function CreateEventReview({
 
             return (
               <div key={item.key} className="min-w-0">
-                <div className="flex items-center gap-1.5 text-xs font-bold tracking-wide text-slate-400 uppercase">
+                <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">
                   <Icon className="size-3.5" />
                   {item.label}
                 </div>

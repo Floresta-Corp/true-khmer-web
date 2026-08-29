@@ -23,6 +23,12 @@ export function getPlumpiOrganizations(request: Request) {
   >(request, "/plumpi/organizations?page=1&limit=100");
 }
 
+export function getPlumpiVenues(request: Request) {
+  return apiRequestWithSession<
+    Awaited<ReturnType<PlumpiApi["getV1plumpivenues"]>>
+  >(request, "/plumpi/venues?page=1&limit=100");
+}
+
 export function createPlumpiEvent(
   request: Request,
   input: postV1plumpievents_Body,
