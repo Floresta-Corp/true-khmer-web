@@ -12,6 +12,8 @@ export type DeveloperClient = {
   contactEmail: string | null;
 
   allowedOrigins: string[];
+  /** When true every origin is accepted and allowedOrigins is ignored. */
+  allowAllOrigins: boolean;
   logoKey: string | null;
   logoUrl: string | null;
 
@@ -46,6 +48,7 @@ export type CreateDeveloperClientRequest = {
   description?: string | null;
   contactEmail?: string | null;
   allowedOrigins?: string[];
+  allowAllOrigins?: boolean;
   logoKey?: string | null;
 };
 
@@ -56,6 +59,7 @@ export type UpdateDeveloperClientRequest = {
   status?: DeveloperClientStatusInput;
 
   allowedOrigins?: string[];
+  allowAllOrigins?: boolean;
   logoKey?: string | null;
 };
 

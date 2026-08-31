@@ -99,6 +99,7 @@ export default function DeveloperClientsPage() {
     setFormError(null);
 
     const allowedOrigins = JSON.stringify(values.allowedOrigins);
+    const allowAllOrigins = values.allowAllOrigins ? "true" : "false";
     const logo: Record<string, string | File> = values.logoFile
       ? { logoFile: values.logoFile }
       : { logoKey: values.logoKey };
@@ -111,6 +112,7 @@ export default function DeveloperClientsPage() {
         contactEmail: values.contactEmail,
         status: values.status,
         allowedOrigins,
+        allowAllOrigins,
         ...logo,
       });
       return;
@@ -120,6 +122,7 @@ export default function DeveloperClientsPage() {
       description: values.description,
       contactEmail: values.contactEmail,
       allowedOrigins,
+      allowAllOrigins,
       ...logo,
     });
   }

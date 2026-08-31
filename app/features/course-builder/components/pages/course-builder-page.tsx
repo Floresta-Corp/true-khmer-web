@@ -8,19 +8,23 @@ import { CurriculumStep } from "../steps/curriculum-step";
 import { PreviewStep } from "../steps/preview-step";
 import { QuizStep } from "../steps/quiz-step";
 import { QuizQuestionModal } from "../quiz-question-modal";
+import { AddLessonModal } from "../add-lesson-modal";
 import { useQuizDraft } from "../../lib/use-quiz-draft";
 import {
   STEP_DEFINITIONS,
   nextStep,
   previousStep,
+  visibleSteps,
 } from "../../lib/builder-steps";
 import {
   emptyDraft,
   type BuilderStep,
   type CategoryOption,
   type CourseDraft,
+  emptyLessonDraft,
   type CertificateKind,
   type CourseFormat,
+  type LessonDraft,
 } from "../../types";
 import type { CourseSection } from "~/features/education/types";
 
@@ -74,6 +78,15 @@ export default function CourseBuilderPage({
   /** Counter for locally-added ids; a ref so rapid adds cannot collide. */
   const added = useRef(0);
 
+  /** The single-lesson course's own content. */
+  const [lesson, setLesson] = useState<LessonDraft>(emptyLessonDraft);
+  const patchLesson = (changes: Partial<LessonDraft>) =>
+    setLesson((current) => ({ ...current, ...changes }));
+
+  /** Which section the "Add lesson" dialog is adding to, and its draft. */
+  const [lessonTarget, setLessonTarget] = useState<string | null>(null);
+  const [lessonDraft, setLessonDraft] = useState<LessonDraft>(emptyLessonDraft);
+
   const quiz = useQuizDraft();
   const [certificate, setCertificate] = useState<CertificateKind>("completion");
 
@@ -95,19 +108,30 @@ export default function CourseBuilderPage({
     setOpenSections((current) => new Set(current).add(id));
   };
 
-  const addLesson = (sectionId: string) => {
+  const openAddLesson = (sectionId: string) => {
+    setLessonDraft(emptyLessonDraft());
+    setLessonTarget(sectionId);
+  };
+
+  /** The design collects a lesson in a dialog, then appends it. */
+  const confirmAddLesson = () => {
+    if (!lessonTarget) return;
     added.current += 1;
+
     setSections((current) =>
       current.map((section) =>
-        section.id === sectionId
+        section.id === lessonTarget
           ? {
               ...section,
               lessons: [
                 ...section.lessons,
                 {
-                  id: `${sectionId}-new-${added.current}`,
-                  title: `Lesson ${section.lessons.length + 1}`,
-                  type: "video" as const,
+                  id: `${lessonTarget}-new-${added.current}`,
+                  title: lessonDraft.title.trim(),
+                  type:
+                    lessonDraft.source === "youtube"
+                      ? ("video" as const)
+                      : lessonDraft.source,
                   duration: "",
                   isPreview: false,
                   isComplete: false,
@@ -117,11 +141,22 @@ export default function CourseBuilderPage({
           : section,
       ),
     );
+
+    setLessonTarget(null);
   };
 
-  const definition = STEP_DEFINITIONS[step];
-  const back = previousStep(step);
-  const forward = nextStep(step);
+  // Which steps exist depends on the course: a single-lesson course has no
+  // Certificate step, and Quiz only appears for a certificate of completion.
+  const steps = visibleSteps(format, certificate);
+
+  // Changing either can remove the step being viewed — switching the
+  // certificate to participation while on Quiz, say — so fall back to the last
+  // step that still exists rather than rendering nothing.
+  const current = steps.includes(step) ? step : steps[steps.length - 1];
+
+  const definition = STEP_DEFINITIONS[current];
+  const back = previousStep(current, steps);
+  const forward = nextStep(current, steps);
   const busy = fetcher.state !== "idle";
 
   const result = fetcher.data;
@@ -159,11 +194,16 @@ export default function CourseBuilderPage({
 
   return (
     <div className="flex min-h-screen bg-white">
-      <BuilderRail current={step} onStepSelect={setStep} />
+      <BuilderRail
+        steps={steps}
+        current={current}
+        title={initialCourseId ? "Edit Course" : "Create New Course"}
+        onStepSelect={setStep}
+      />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex-1 overflow-y-auto px-6 pt-9 pb-10">
-          <div className="mx-auto max-w-[1100px]">
+          <div className="mx-auto max-w-275">
             <h2 className="mb-1.5 text-[26px] font-extrabold text-[#1A1A2E]">
               {definition.heading}
             </h2>
@@ -177,26 +217,28 @@ export default function CourseBuilderPage({
               </p>
             )}
 
-            {step === "basic" ? (
+            {current === "basic" ? (
               <BasicStep
                 draft={draft}
                 categories={categories}
                 fieldErrors={fieldErrors}
                 onChange={patch}
               />
-            ) : step === "curriculum" ? (
+            ) : current === "curriculum" ? (
               <CurriculumStep
                 format={format}
+                lesson={lesson}
+                onLessonChange={patchLesson}
                 sections={sections}
                 openSections={openSections}
                 onFormatChange={setFormat}
                 onToggleSection={toggleSection}
                 onAddSection={addSection}
-                onAddLesson={addLesson}
+                onAddLesson={openAddLesson}
               />
-            ) : step === "quiz" ? (
+            ) : current === "quiz" ? (
               <QuizStep quiz={quiz} />
-            ) : step === "certificate" ? (
+            ) : current === "certificate" ? (
               <CertificateStep value={certificate} onChange={setCertificate} />
             ) : (
               <PreviewStep
@@ -205,6 +247,8 @@ export default function CourseBuilderPage({
                 sections={sections}
                 questionCount={quiz.questions.length}
                 passMark={quiz.passMark}
+                format={format}
+                hasQuizStep={steps.includes("quiz")}
                 onEditStep={setStep}
               />
             )}
@@ -212,11 +256,9 @@ export default function CourseBuilderPage({
         </div>
 
         <BuilderFooter
-          backLabel={back ? `Back to ${STEP_DEFINITIONS[back].label}` : null}
-          continueLabel={
-            forward ? `Continue to ${STEP_DEFINITIONS[forward].label}` : null
-          }
-          showSubmit={step === "preview"}
+          backLabel={back ? "Back" : null}
+          continueLabel={forward ? "Continue" : null}
+          showSubmit={current === "preview"}
           busy={busy}
           onBack={() => back && setStep(back)}
           onContinue={() => forward && setStep(forward)}
@@ -229,6 +271,17 @@ export default function CourseBuilderPage({
       </div>
 
       <QuizQuestionModal quiz={quiz} />
+
+      {lessonTarget && (
+        <AddLessonModal
+          draft={lessonDraft}
+          onChange={(changes) =>
+            setLessonDraft((current) => ({ ...current, ...changes }))
+          }
+          onConfirm={confirmAddLesson}
+          onClose={() => setLessonTarget(null)}
+        />
+      )}
     </div>
   );
 }

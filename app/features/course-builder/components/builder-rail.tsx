@@ -1,11 +1,14 @@
 import { BackLink } from "~/components/back-link";
 import { Check, ChevronLeft } from "lucide-react";
 import { cn } from "~/lib/utils";
-import { STEP_DEFINITIONS, STEP_ORDER, stepIndex } from "../lib/builder-steps";
+import { STEP_DEFINITIONS } from "../lib/builder-steps";
 import type { BuilderStep } from "../types";
 
 interface BuilderRailProps {
+  /** Only the steps this course has — the list is conditional. */
+  steps: BuilderStep[];
   current: BuilderStep;
+  title: string;
   onStepSelect: (step: BuilderStep) => void;
 }
 
@@ -13,11 +16,16 @@ interface BuilderRailProps {
  * The design's 300px left rail: a back link, the title, then one row per step
  * with a status circle and a connector line down to the next.
  */
-export function BuilderRail({ current, onStepSelect }: BuilderRailProps) {
-  const currentIndex = stepIndex(current);
+export function BuilderRail({
+  steps,
+  current,
+  title,
+  onStepSelect,
+}: BuilderRailProps) {
+  const currentIndex = steps.indexOf(current);
 
   return (
-    <div className="sticky top-0 hidden h-screen w-[300px] shrink-0 flex-col self-start overflow-y-auto border-r border-[#E5E7EB] bg-[#F9FAFC] px-7 py-8 lg:flex">
+    <div className="sticky top-0 hidden h-screen w-75 shrink-0 flex-col self-start overflow-y-auto border-r border-[#E5E7EB] bg-[#F9FAFC] px-7 py-8 lg:flex">
       <BackLink
         to="/course-listing"
         className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1C5DD4] hover:underline"
@@ -26,20 +34,20 @@ export function BuilderRail({ current, onStepSelect }: BuilderRailProps) {
         My courses
       </BackLink>
 
-      <h1 className="mt-[22px] mb-[26px] text-[26px] leading-[1.2] font-extrabold text-[#1A1A2E]">
-        Course builder
+      <h1 className="mt-5.5 mb-6.5 text-[26px] leading-[1.2] font-extrabold text-[#1A1A2E]">
+        {title}
       </h1>
 
       <div className="flex flex-col">
-        {STEP_ORDER.map((step, index) => {
+        {steps.map((step, index) => {
           const definition = STEP_DEFINITIONS[step];
           const Icon = definition.icon;
           const isCurrent = step === current;
           const isDone = index < currentIndex;
-          const isLast = index === STEP_ORDER.length - 1;
+          const isLast = index === steps.length - 1;
 
           return (
-            <div key={step} className="flex min-h-[76px] gap-3.5">
+            <div key={step} className="flex min-h-19 gap-3.5">
               <div className="flex shrink-0 flex-col items-center">
                 <span
                   className={cn(
@@ -58,7 +66,7 @@ export function BuilderRail({ current, onStepSelect }: BuilderRailProps) {
                   )}
                 </span>
                 {!isLast && (
-                  <span className="min-h-[22px] w-0.5 flex-1 bg-[#E5E7EB]" />
+                  <span className="min-h-5.5 w-0.5 flex-1 bg-[#E5E7EB]" />
                 )}
               </div>
 
