@@ -21,7 +21,7 @@ import CreateEventOrganizerSelect from "../create-event/create-event-organizer-s
 import CreateEventReview from "../create-event/create-event-review";
 import CreateEventTopBar from "../create-event/create-event-top-bar";
 import {
-  getCreateEventDateRange,
+  getCreateEventDateRanges,
   isCreateEventFormComplete,
   isOpenEntryDisabled,
 } from "~/features/workspace/lib/my-events-format";
@@ -50,7 +50,8 @@ const AUTOSAVE_DELAY_MS = 800;
 type Step = "basics" | "review";
 
 export default function CreateEventPage() {
-  const { categories, organizers, userId } = useLoaderData<typeof loader>();
+  const { categories, organizers, venues, venueLoadError, userId } =
+    useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const fetcher = useFetcher<CreateEventActionData>();
@@ -130,6 +131,11 @@ export default function CreateEventPage() {
         )
           ? draft.form.category
           : "";
+        const restoredVenueId = venues.some(
+          (venue) => venue.id === draft.form.venueId,
+        )
+          ? draft.form.venueId
+          : "";
         const coverPreviewUrl = restoredCover
           ? URL.createObjectURL(restoredCover)
           : "";
@@ -137,6 +143,8 @@ export default function CreateEventPage() {
           ...draft.form,
           organizerId: restoredOrganizerId,
           category: restoredCategory,
+          format: "IN_PERSON",
+          venueId: restoredVenueId,
           coverImageName: restoredCover?.name ?? "",
           coverPreviewUrl,
         };
@@ -178,7 +186,7 @@ export default function CreateEventPage() {
     return () => {
       cancelled = true;
     };
-  }, [categories, organizers, userId]);
+  }, [categories, organizers, userId, venues]);
 
   useEffect(() => {
     if (!autosaveReadyRef.current || !userId || createdEventId) return;
@@ -367,23 +375,9 @@ export default function CreateEventPage() {
   };
 
   const validate = (): boolean => {
-    const parsed = CreateEventInputSchema.safeParse({
-      name: form.name,
-      category: form.category,
-      description: form.description,
-      format: form.format,
-      startDate: form.startDate,
-      startTime: form.startTime,
-      endTime: form.endTime,
-      organizerId: form.organizerId,
-      coverImageName: form.coverImageName,
-      visibility: form.visibility,
-      registrationMode: form.registrationMode,
-      entryMode: form.entryMode,
-    });
-
-    const dateRange = getCreateEventDateRange(form);
-    if (parsed.success && dateRange) {
+    const parsed = CreateEventInputSchema.safeParse(form);
+    const dateRanges = getCreateEventDateRanges(form);
+    if (parsed.success && dateRanges) {
       setErrors({});
       return true;
     }
@@ -392,20 +386,26 @@ export default function CreateEventPage() {
     if (!parsed.success) {
       for (const issue of parsed.error.issues) {
         const field = issue.path[0] as keyof CreateEventInput | undefined;
-        if (field && !nextErrors[field]) nextErrors[field] = issue.message;
+        if (!field || nextErrors[field]) continue;
+
+        nextErrors[field] =
+          field === "eventDates" && typeof issue.path[1] === "number"
+            ? `Day ${issue.path[1] + 1}: ${issue.message}`
+            : issue.message;
       }
     }
 
-    if (!dateRange) {
-      nextErrors.endTime = "End time must be after the start time";
+    if (!dateRanges && !nextErrors.eventDates) {
+      nextErrors.eventDates =
+        "Check that every end time is after its start time";
     }
     setErrors(nextErrors);
     return false;
   };
 
   const submitDraft = () => {
-    const dateRange = getCreateEventDateRange(form);
-    if (!coverFile || !dateRange) return;
+    const dateRanges = getCreateEventDateRanges(form);
+    if (!coverFile || !dateRanges) return;
 
     setIsHandoff(false);
     const submission = new FormData();
@@ -415,11 +415,11 @@ export default function CreateEventPage() {
     submission.set("category", form.category);
     submission.set("description", form.description);
     submission.set("format", form.format);
-    submission.set("startDate", form.startDate);
-    submission.set("startTime", form.startTime);
-    submission.set("endTime", form.endTime);
-    submission.set("startAt", dateRange.startAt);
-    submission.set("endAt", dateRange.endAt);
+    submission.set("eventDates", JSON.stringify(form.eventDates));
+    submission.set("eventDateRanges", JSON.stringify(dateRanges));
+    submission.set("venueId", form.venueId);
+    submission.set("address", form.address);
+    submission.set("googleMapLink", form.googleMapLink);
     submission.set("visibility", form.visibility);
     submission.set("registrationMode", form.registrationMode);
     submission.set("entryMode", form.entryMode);
@@ -527,6 +527,8 @@ export default function CreateEventPage() {
                   <CreateEventBasicsForm
                     form={form}
                     categories={categories}
+                    venues={venues}
+                    venueLoadError={venueLoadError}
                     errors={errors}
                     onFieldChange={handleFieldChange}
                     onCoverChange={handleCoverChange}
@@ -573,6 +575,9 @@ export default function CreateEventPage() {
                   organizers.find(
                     (organizer) => organizer.id === form.organizerId,
                   ) ?? null
+                }
+                venue={
+                  venues.find((venue) => venue.id === form.venueId) ?? null
                 }
               />
 
