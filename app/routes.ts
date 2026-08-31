@@ -23,7 +23,7 @@ export default [
       route("forum/detail/:questionId", "features/forum/route/forum.$id.tsx"),
       route("events", "features/events/routes/events.tsx"),
       route("events/all", "features/events/routes/events.all.tsx"),
-      route("events/detail/:id", "features/events/routes/events.$id.tsx"),
+      route("events/detail/:slug", "features/events/routes/events.$slug.tsx"),
       route("volunteer", "features/volunteer/route/volunteer.tsx"),
       route("volunteer/all", "features/volunteer/route/volunteer.all.tsx"),
       route(
