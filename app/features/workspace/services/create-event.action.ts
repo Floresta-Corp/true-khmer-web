@@ -18,12 +18,32 @@ import {
   type CreateEventFieldErrors,
   type CreateEventInput,
 } from "~/features/workspace/types/my-events";
-import type { postV1plumpievents_Body } from "~/types/api-client";
+import { schemas, type postV1plumpievents_Body } from "~/types/api-client";
+
+const submissionEventDateSchema =
+  schemas.postV1plumpievents_Body.shape.eventDates.element.superRefine(
+    (value, context) => {
+      const start = new Date(value.startAt);
+      const end = new Date(value.endAt);
+
+      if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+        context.addIssue({
+          code: "custom",
+          message: "Enter a valid event date and time",
+        });
+      } else if (end <= start) {
+        context.addIssue({
+          code: "custom",
+          path: ["endAt"],
+          message: "End time must be after the start time",
+        });
+      }
+    },
+  );
 
 const submissionMetaSchema = z.object({
   intent: z.literal("create-draft"),
-  startAt: z.string().datetime({ offset: true }),
-  endAt: z.string().datetime({ offset: true }),
+  eventDates: z.array(submissionEventDateSchema).min(1),
 });
 
 const handoffParamsSchema = z.object({
@@ -54,6 +74,9 @@ const apiFieldToFormField = {
   excerpt: "description",
   eventCategories: "category",
   isOnline: "format",
+  venueId: "venueId",
+  address: "address",
+  googleMapLink: "googleMapLink",
   visibility: "visibility",
   registrationMode: "registrationMode",
   entryMode: "entryMode",
@@ -66,8 +89,10 @@ const genericApiFieldMessages: Partial<Record<keyof CreateEventInput, string>> =
     category: "Choose a valid event category.",
     description: "Enter a description between 1 and 200 characters.",
     format: "Choose an event format.",
-    startTime: "Enter a valid event start date and time.",
-    endTime: "Enter a valid event end time.",
+    eventDates: "Enter valid event dates and times.",
+    venueId: "Choose a valid venue.",
+    address: "Enter the venue address.",
+    googleMapLink: "Enter a valid Google Maps URL.",
     visibility: "Choose who can discover this event.",
     registrationMode: "Choose who can register for this event.",
     entryMode: "Choose how guests will enter this event.",
@@ -78,7 +103,12 @@ function mapFieldErrors(issues: z.ZodIssue[]): CreateEventFieldErrors {
 
   for (const issue of issues) {
     const field = issue.path[0] as keyof CreateEventInput | undefined;
-    if (field && !errors[field]) errors[field] = issue.message;
+    if (!field || errors[field]) continue;
+
+    errors[field] =
+      field === "eventDates" && typeof issue.path[1] === "number"
+        ? `Day ${issue.path[1] + 1}: ${issue.message}`
+        : issue.message;
   }
 
   return errors;
@@ -88,10 +118,20 @@ function mapApiField(path: string): keyof CreateEventInput | undefined {
   const parts = path.replaceAll(/\[(\d+)\]/g, ".$1").split(".");
 
   if (parts[0] === "eventDates") {
-    return parts.includes("endAt") ? "endTime" : "startTime";
+    return "eventDates";
   }
 
   return apiFieldToFormField[parts[0] as keyof typeof apiFieldToFormField];
+}
+
+function parseJsonFormValue(value: FormDataEntryValue | null): unknown {
+  if (typeof value !== "string") return value;
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
 }
 
 function friendlyApiFieldMessage(
@@ -128,6 +168,7 @@ function mapApiValidationError(error: ProtectedApiError) {
 
   for (const [path, fieldMessages] of Object.entries(parsed.data.fieldErrors)) {
     const field = mapApiField(path);
+    const pathParts = path.replaceAll(/\[(\d+)\]/g, ".$1").split(".");
     const message = fieldMessages.find((value) => value.trim());
     if (!message) continue;
 
@@ -135,7 +176,12 @@ function mapApiValidationError(error: ProtectedApiError) {
       ? friendlyApiFieldMessage(field, message)
       : message;
     messages.push(friendlyMessage);
-    if (field && !errors[field]) errors[field] = friendlyMessage;
+    if (field && !errors[field]) {
+      const dateIndex = field === "eventDates" ? Number(pathParts[1]) : NaN;
+      errors[field] = Number.isInteger(dateIndex)
+        ? `Day ${dateIndex + 1}: ${friendlyMessage}`
+        : friendlyMessage;
+    }
   }
 
   return {
@@ -279,9 +325,10 @@ export async function createEventAction({ request }: Route.ActionArgs) {
     category: formData.get("category"),
     description: formData.get("description"),
     format: formData.get("format"),
-    startDate: formData.get("startDate"),
-    startTime: formData.get("startTime"),
-    endTime: formData.get("endTime"),
+    eventDates: parseJsonFormValue(formData.get("eventDates")),
+    venueId: formData.get("venueId"),
+    address: formData.get("address"),
+    googleMapLink: formData.get("googleMapLink"),
     coverImageName: cover instanceof File ? cover.name : "",
     visibility: formData.get("visibility"),
     registrationMode: formData.get("registrationMode"),
@@ -289,8 +336,7 @@ export async function createEventAction({ request }: Route.ActionArgs) {
   });
   const submissionMeta = submissionMetaSchema.safeParse({
     intent,
-    startAt: formData.get("startAt"),
-    endAt: formData.get("endAt"),
+    eventDates: parseJsonFormValue(formData.get("eventDateRanges")),
   });
 
   const errors = parsed.success ? {} : mapFieldErrors(parsed.error.issues);
@@ -302,16 +348,21 @@ export async function createEventAction({ request }: Route.ActionArgs) {
   }
 
   if (!submissionMeta.success) {
-    const invalidDateTime = submissionMeta.error.issues.some((issue) =>
-      ["startAt", "endAt"].includes(String(issue.path[0])),
-    );
-    if (invalidDateTime) {
-      errors.startTime = "Enter a valid event date and time";
-    }
+    const issue = submissionMeta.error.issues[0];
+    const dateIndex =
+      issue?.path[0] === "eventDates" && typeof issue.path[1] === "number"
+        ? issue.path[1]
+        : null;
+    errors.eventDates =
+      dateIndex === null
+        ? "Enter at least one valid event date and time"
+        : `Day ${dateIndex + 1}: ${issue?.message ?? "Enter a valid date and time"}`;
   } else if (
-    new Date(submissionMeta.data.endAt) <= new Date(submissionMeta.data.startAt)
+    parsed.success &&
+    submissionMeta.data.eventDates.length !== parsed.data.eventDates.length
   ) {
-    errors.endTime = "End time must be after the start time";
+    errors.eventDates =
+      "Some event dates could not be validated. Please try again.";
   }
 
   if (
@@ -333,13 +384,13 @@ export async function createEventAction({ request }: Route.ActionArgs) {
       title: parsed.data.name,
       excerpt: parsed.data.description,
       eventCategories: [parsed.data.category],
-      isOnline: parsed.data.format === "ONLINE",
-      eventDates: [
-        {
-          startAt: submissionMeta.data.startAt,
-          endAt: submissionMeta.data.endAt,
-        },
-      ],
+      isOnline: false,
+      venueId: parsed.data.venueId,
+      address: parsed.data.address,
+      ...(parsed.data.googleMapLink
+        ? { googleMapLink: parsed.data.googleMapLink }
+        : {}),
+      eventDates: submissionMeta.data.eventDates,
       visibility: parsed.data.visibility,
       registrationMode: parsed.data.registrationMode,
       entryMode: parsed.data.entryMode,

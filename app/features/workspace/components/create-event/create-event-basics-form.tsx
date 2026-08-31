@@ -13,7 +13,9 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Textarea } from "~/components/ui/textarea";
+import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
 import { cn } from "~/lib/utils";
+import CreateEventDateFields from "./create-event-date-fields";
 import {
   CREATE_EVENT_COVER_ACCEPT,
   validateCreateEventCover,
@@ -25,6 +27,7 @@ import {
   type CreateEventFormat,
   type CreateEventFormState,
   type EventCategory,
+  type EventVenue,
 } from "~/features/workspace/types/my-events";
 
 const FORMAT_OPTIONS: Array<{
@@ -32,6 +35,7 @@ const FORMAT_OPTIONS: Array<{
   label: string;
   hint: string;
   icon: typeof MapPin;
+  disabled?: boolean;
 }> = [
   {
     value: "IN_PERSON",
@@ -42,8 +46,9 @@ const FORMAT_OPTIONS: Array<{
   {
     value: "ONLINE",
     label: "Online",
-    hint: "Join from anywhere",
+    hint: "Coming soon",
     icon: Video,
+    disabled: true,
   },
 ];
 
@@ -53,6 +58,8 @@ const inputClassName =
 type Props = {
   form: CreateEventFormState;
   categories: EventCategory[];
+  venues: EventVenue[];
+  venueLoadError: string | null;
   errors: CreateEventFieldErrors;
   onFieldChange: <K extends keyof CreateEventFormState>(
     field: K,
@@ -69,6 +76,8 @@ function FieldError({ message }: { message?: string }) {
 export default function CreateEventBasicsForm({
   form,
   categories,
+  venues,
+  venueLoadError,
   errors,
   onFieldChange,
   onCoverChange,
@@ -174,7 +183,11 @@ export default function CreateEventBasicsForm({
           <FieldError message={errors.description} />
         </div>
 
-        <div className="h-px bg-[#E1E7EF]" />
+        <CreateEventDateFields
+          dates={form.eventDates}
+          error={errors.eventDates}
+          onChange={(dates) => onFieldChange("eventDates", dates)}
+        />
 
         <div>
           <FieldLabel required className="text-[13px] font-bold text-[#344256]">
@@ -190,12 +203,16 @@ export default function CreateEventBasicsForm({
                   key={option.value}
                   type="button"
                   aria-pressed={isActive}
+                  aria-disabled={option.disabled}
+                  disabled={option.disabled}
                   onClick={() => onFieldChange("format", option.value)}
                   className={cn(
                     "flex cursor-pointer items-center gap-2.5 rounded-[10px] border p-4 text-left transition-all",
                     isActive
                       ? "border-blue-600 bg-blue-50/60 ring-2 ring-blue-500/20"
                       : "border-[#E1E7EF] bg-white hover:border-blue-200 hover:bg-slate-50",
+                    option.disabled &&
+                      "cursor-not-allowed border-[#E1E7EF] bg-slate-50 opacity-55 hover:border-[#E1E7EF] hover:bg-slate-50",
                   )}
                 >
                   <Icon
@@ -219,63 +236,98 @@ export default function CreateEventBasicsForm({
           <FieldError message={errors.format} />
         </div>
 
-        <div className="h-px bg-[#E1E7EF]" />
+        {form.format === "IN_PERSON" && (
+          <>
+            <div className="h-px bg-[#E1E7EF]" />
 
-        <div>
-          <FieldLabel required className="text-[13px] font-bold text-[#344256]">
-            Event Date
-          </FieldLabel>
-          <div className="mt-2.5 grid gap-3 sm:grid-cols-3">
-            <div>
-              <p className="mb-1.5 text-xs font-semibold text-slate-500">
-                Start Date
-              </p>
-              <Input
-                type="date"
-                name="startDate"
-                value={form.startDate}
-                onChange={(event) =>
-                  onFieldChange("startDate", event.target.value)
-                }
-                aria-invalid={Boolean(errors.startDate)}
-                className={cn("h-11", inputClassName)}
-              />
+            <div className="space-y-4">
+              <div>
+                <FieldLabel
+                  required
+                  className="text-[13px] font-bold text-[#344256]"
+                >
+                  Venue
+                </FieldLabel>
+                <SingleSelectDropdown
+                  id="createEventVenue"
+                  value={form.venueId}
+                  onValueChange={(venueId) => {
+                    const venue = venues.find((item) => item.id === venueId);
+                    onFieldChange("venueId", venueId);
+                    if (venue?.address) {
+                      onFieldChange("address", venue.address);
+                    }
+                    if (venue?.googleMapLink) {
+                      onFieldChange("googleMapLink", venue.googleMapLink);
+                    }
+                  }}
+                  options={venues.map((venue) => ({
+                    value: venue.id,
+                    label: venue.name,
+                  }))}
+                  placeholder="Search for a venue"
+                  searchPlaceholder="Search venues..."
+                  emptyText={
+                    venueLoadError
+                      ? "Venues are temporarily unavailable"
+                      : "No venues found"
+                  }
+                  searchable
+                  disabled={Boolean(venueLoadError)}
+                  ariaInvalid={Boolean(errors.venueId)}
+                  triggerClassName={cn("mt-2 h-11.5", inputClassName)}
+                  contentClassName="rounded-lg border-[#E1E7EF]"
+                />
+                {venueLoadError && (
+                  <p className="mt-2 text-xs text-amber-700">
+                    {venueLoadError}
+                  </p>
+                )}
+                <FieldError message={errors.venueId} />
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <FieldLabel
+                    required
+                    className="text-[13px] font-bold text-[#344256]"
+                  >
+                    Address
+                  </FieldLabel>
+                  <Input
+                    name="address"
+                    value={form.address}
+                    onChange={(event) =>
+                      onFieldChange("address", event.target.value)
+                    }
+                    placeholder="Street, building, district"
+                    aria-invalid={Boolean(errors.address)}
+                    className={cn("mt-2", inputClassName)}
+                  />
+                  <FieldError message={errors.address} />
+                </div>
+
+                <div>
+                  <FieldLabel className="text-[13px] font-bold text-[#344256]">
+                    Google Map Link
+                  </FieldLabel>
+                  <Input
+                    type="url"
+                    name="googleMapLink"
+                    value={form.googleMapLink}
+                    onChange={(event) =>
+                      onFieldChange("googleMapLink", event.target.value)
+                    }
+                    placeholder="https://maps.google.com/..."
+                    aria-invalid={Boolean(errors.googleMapLink)}
+                    className={cn("mt-2", inputClassName)}
+                  />
+                  <FieldError message={errors.googleMapLink} />
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="mb-1.5 text-xs font-semibold text-slate-500">
-                Start Time
-              </p>
-              <Input
-                type="time"
-                name="startTime"
-                value={form.startTime}
-                onChange={(event) =>
-                  onFieldChange("startTime", event.target.value)
-                }
-                aria-invalid={Boolean(errors.startTime)}
-                className={cn("h-11", inputClassName)}
-              />
-            </div>
-            <div>
-              <p className="mb-1.5 text-xs font-semibold text-slate-500">
-                End Time
-              </p>
-              <Input
-                type="time"
-                name="endTime"
-                value={form.endTime}
-                onChange={(event) =>
-                  onFieldChange("endTime", event.target.value)
-                }
-                aria-invalid={Boolean(errors.endTime)}
-                className={cn("h-11", inputClassName)}
-              />
-            </div>
-          </div>
-          <FieldError
-            message={errors.startDate ?? errors.startTime ?? errors.endTime}
-          />
-        </div>
+          </>
+        )}
 
         <div className="h-px bg-[#E1E7EF]" />
 

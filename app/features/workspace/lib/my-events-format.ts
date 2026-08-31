@@ -1,4 +1,5 @@
 import type {
+  CreateEventDateInput,
   CreateEventFormState,
   EventEntryMode,
   EventRegistrationMode,
@@ -90,18 +91,21 @@ export function isCreateEventFormComplete(form: CreateEventFormState): boolean {
     form.organizerId &&
     form.category &&
     form.description.trim() &&
-    form.format &&
-    form.startDate &&
-    form.startTime &&
-    form.endTime &&
+    form.format === "IN_PERSON" &&
+    form.eventDates.length > 0 &&
+    form.eventDates.every(
+      (eventDate) => eventDate.date && eventDate.startTime && eventDate.endTime,
+    ) &&
+    form.venueId &&
+    form.address.trim() &&
     form.coverImageName,
   );
 }
 
 /** Convert the browser-local date/time inputs to the API's UTC timestamps. */
-export function getCreateEventDateRange(form: CreateEventFormState) {
-  const start = new Date(`${form.startDate}T${form.startTime}:00`);
-  const end = new Date(`${form.startDate}T${form.endTime}:00`);
+export function getCreateEventDateRange(eventDate: CreateEventDateInput) {
+  const start = new Date(`${eventDate.date}T${eventDate.startTime}:00`);
+  const end = new Date(`${eventDate.date}T${eventDate.endTime}:00`);
 
   if (
     Number.isNaN(start.getTime()) ||
@@ -112,6 +116,12 @@ export function getCreateEventDateRange(form: CreateEventFormState) {
   }
 
   return { startAt: start.toISOString(), endAt: end.toISOString() };
+}
+
+/** Convert every entered day, rejecting the whole set when any row is invalid. */
+export function getCreateEventDateRanges(form: CreateEventFormState) {
+  const ranges = form.eventDates.map(getCreateEventDateRange);
+  return ranges.every((range) => range !== null) ? ranges : null;
 }
 
 /** "8:00 AM – 11:00 AM" for the review step. */
