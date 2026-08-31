@@ -186,19 +186,19 @@ const AdminAuditLogListResponse = z.object({ ok: z.literal(true), entries: z.arr
 
 const patchV1adminnotificationsread_Body = z.object({ notificationIds: z.array(z.string().uuid()).min(1) });
 
-const DeveloperClientResponse = z.object({ id: z.string().uuid(), clientId: z.string(), name: z.string(), description: z.string().nullable(), contactEmail: z.string().nullable(), allowedOrigins: z.array(z.string()), logoKey: z.string().nullable(), logoUrl: z.string().nullable(), clientSecretLast4: z.string().nullable(), clientSecretSetAt: z.string().nullable(), status: z.enum(["ACTIVE", "DISABLED", "DELETED"]), createdAt: z.string(), updatedAt: z.string(), deletedAt: z.string().nullable() });
+const DeveloperClientResponse = z.object({ id: z.string().uuid(), clientId: z.string(), name: z.string(), description: z.string().nullable(), contactEmail: z.string().nullable(), allowedOrigins: z.array(z.string()), allowAllOrigins: z.boolean(), logoKey: z.string().nullable(), logoUrl: z.string().nullable(), clientSecretLast4: z.string().nullable(), clientSecretSetAt: z.string().nullable(), status: z.enum(["ACTIVE", "DISABLED", "DELETED"]), createdAt: z.string(), updatedAt: z.string(), deletedAt: z.string().nullable() });
 
 const ListDeveloperClientsResponse = z.object({ ok: z.literal(true), clients: z.array(DeveloperClientResponse), meta: z.object({ page: z.number(), pageSize: z.number(), total: z.number(), totalPages: z.number() }) });
 
 const DeveloperClientErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
-const CreateDeveloperClientRequest = z.object({ name: z.string().min(2).max(120), description: z.union([z.string(), z.unknown()]).optional(), contactEmail: z.union([z.string(), z.unknown()]).optional(), allowedOrigins: z.array(z.string().max(512)).max(20).optional(), logoKey: z.union([z.string(), z.unknown()]).optional() });
+const CreateDeveloperClientRequest = z.object({ name: z.string().min(2).max(120), description: z.union([z.string(), z.unknown()]).optional(), contactEmail: z.union([z.string(), z.unknown()]).optional(), allowedOrigins: z.array(z.string().max(512)).max(20).optional(), allowAllOrigins: z.boolean().optional(), logoKey: z.union([z.string(), z.unknown()]).optional() });
 
 const IssuedClientSecretResponse = z.object({ ok: z.literal(true), client: DeveloperClientResponse, clientSecret: z.string() });
 
 const DeveloperClientDetailResponse = z.object({ ok: z.literal(true), client: DeveloperClientResponse });
 
-const UpdateDeveloperClientRequest = z.object({ name: z.string().min(2).max(120), description: z.union([z.string(), z.unknown()]), contactEmail: z.union([z.string(), z.unknown()]), status: z.enum(["ACTIVE", "DISABLED"]), allowedOrigins: z.array(z.string().max(512)).max(20), logoKey: z.union([z.string(), z.unknown()]) }).partial();
+const UpdateDeveloperClientRequest = z.object({ name: z.string().min(2).max(120), description: z.union([z.string(), z.unknown()]), contactEmail: z.union([z.string(), z.unknown()]), status: z.enum(["ACTIVE", "DISABLED"]), allowedOrigins: z.array(z.string().max(512)).max(20), allowAllOrigins: z.boolean(), logoKey: z.union([z.string(), z.unknown()]) }).partial();
 
 const DeleteDeveloperClientResponse = z.object({ ok: z.literal(true) });
 
@@ -746,7 +746,7 @@ const SsoUser = z.object({ id: z.string().uuid(), email: z.string(), emailVerifi
 
 const SsoUserResponse = z.object({ ok: z.literal(true), user: SsoUser });
 
-const postV1plumpievents_Body = z.object({ organizationId: z.string().uuid(), title: z.string().min(1).max(100), excerpt: z.string().min(1).max(200), eventCategories: z.array(z.string().uuid()), isOnline: z.boolean(), eventDates: z.array(z.object({ startAt: z.string(), endAt: z.string() })), visibility: z.enum(["LISTED", "UNLISTED"]).optional().default("LISTED"), registrationMode: z.enum(["ANYONE", "REQUIRED_APPROVAL", "INVITED_GUESTS_ONLY"]).optional().default("ANYONE"), entryMode: z.enum(["TICKETED", "RSVP", "OPEN_ACCESS"]).optional().default("TICKETED") });
+const postV1plumpievents_Body = z.object({ organizationId: z.string().uuid(), title: z.string().min(1).max(100), excerpt: z.string().min(1).max(200), eventCategories: z.array(z.string().uuid()), isOnline: z.boolean(), venueId: z.string().uuid().optional(), address: z.string().min(1).optional(), googleMapLink: z.string().max(500).url().optional(), eventDates: z.array(z.object({ startAt: z.string(), endAt: z.string() })), visibility: z.enum(["LISTED", "UNLISTED"]).optional().default("LISTED"), registrationMode: z.enum(["ANYONE", "REQUIRED_APPROVAL", "INVITED_GUESTS_ONLY"]).optional().default("ANYONE"), entryMode: z.enum(["TICKETED", "RSVP", "OPEN_ACCESS"]).optional().default("TICKETED") });
 
 export const schemas = {
 	AuthRegisterRequest,
@@ -7803,6 +7803,92 @@ const endpoints = makeApi([
 	},
 	{
 		method: "get",
+		path: "/v1/plumpi/venues",
+		alias: "getV1plumpivenues",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gte(1).optional().default(1)
+			},
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(100).optional().default(10)
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().min(1).optional()
+			},
+			{
+				name: "city",
+				type: "Query",
+				schema: z.string().min(1).optional()
+			},
+			{
+				name: "countryCode",
+				type: "Query",
+				schema: z.string().min(2).max(2).optional()
+			},
+			{
+				name: "isVerified",
+				type: "Query",
+				schema: z.boolean().optional()
+			},
+			{
+				name: "isActive",
+				type: "Query",
+				schema: z.boolean().optional()
+			},
+			{
+				name: "minCapacity",
+				type: "Query",
+				schema: z.number().int().gte(1).optional()
+			},
+			{
+				name: "maxCapacity",
+				type: "Query",
+				schema: z.number().int().gte(1).optional()
+			},
+			{
+				name: "pricingModel",
+				type: "Query",
+				schema: z.string().min(1).optional()
+			},
+		],
+		response: z.object({ ok: z.literal(true), venues: z.array(z.record(z.string(), z.unknown().nullable())), meta: z.object({ page: z.number().int(), limit: z.number().int(), total: z.number().int(), totalPages: z.number().int() }) }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid query`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 401,
+				description: `True Khmer authentication required`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 502,
+				description: `Unsuccessful Plumpi response`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 503,
+				description: `Plumpi integration is unavailable`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+		]
+	},
+	{
+		method: "get",
 		path: "/v1/profile/:userId",
 		alias: "getV1profileUserId",
 		requestFormat: "json",
@@ -7910,7 +7996,7 @@ const endpoints = makeApi([
 		method: "get",
 		path: "/v1/sso/clients/:clientId",
 		alias: "getV1ssoclientsClientId",
-		description: `Fetch a partner&#x27;s public name, description and logo so its own login page can render &#x27;Sign in to &lt;name&gt;&#x27;. Requires no credential. The origin must exactly match one the client has registered.`,
+		description: `Fetch a partner&#x27;s public name, description and logo so its own login page can render &#x27;Sign in to &lt;name&gt;&#x27;. Requires no credential. The origin must exactly match one the client has registered, unless the client has allowAllOrigins enabled.`,
 		requestFormat: "json",
 		parameters: [
 			{
