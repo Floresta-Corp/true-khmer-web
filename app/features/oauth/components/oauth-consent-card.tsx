@@ -14,6 +14,9 @@ interface OAuthConsentCardProps {
   clientLogo: string | null;
   clientId: string | null;
   origin: string;
+  platform: "web" | "native";
+  redirectUri: string | null;
+  state: string | null;
   accessToken: string;
   user: OAuthSessionUser;
   onUseDifferentAccount: () => void;
@@ -24,6 +27,9 @@ export function OAuthConsentCard({
   clientLogo,
   clientId,
   origin,
+  platform,
+  redirectUri,
+  state,
   accessToken,
   user,
   onUseDifferentAccount,
@@ -55,15 +61,23 @@ export function OAuthConsentCard({
     // A thrown Response or a network failure resolves the fetcher back to idle
     // with no data at all, so the missing-data case has to fail loudly too.
     if (fetcher.data?.ok) {
-      postAuthResult(fetcher.data.origin ?? origin, fetcher.data);
+      postAuthResult(
+        {
+          origin: fetcher.data.origin ?? origin,
+          platform,
+          redirectUri,
+          state,
+        },
+        fetcher.data,
+      );
     } else {
       setError("Unable to complete sign-in. Please try again.");
     }
-  }, [fetcher.state, fetcher.data, origin]);
+  }, [fetcher.state, fetcher.data, origin, platform, redirectUri, state]);
 
   const handleCancel = useCallback(() => {
-    postAuthClose(origin);
-  }, [origin]);
+    postAuthClose({ origin, platform, redirectUri, state });
+  }, [origin, platform, redirectUri, state]);
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-slate-100/70 p-4 font-sans text-slate-900">
