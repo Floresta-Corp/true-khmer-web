@@ -116,7 +116,7 @@ async function fetchWithBearer<K extends object = JsonObject>(
       : JSON.stringify(options.body)
     : undefined;
 
-  return fetch(url, {
+  return fetchApi(url, {
     method: options.method ?? "GET",
     credentials: "include",
     headers: {
@@ -199,7 +199,7 @@ export async function apiRequestPublic<T, K extends object = JsonObject>(
   const base = resolveApiBase(request);
   const url = `${base}${path}`;
 
-  const response = await fetch(url, {
+  const response = await fetchApi(url, {
     method: options.method ?? "GET",
     credentials: "include",
     headers: {
@@ -223,19 +223,18 @@ export async function apiRequestPublic<T, K extends object = JsonObject>(
   return { data: payload as T };
 }
 
-/**
- * True when a read failed in a way the page can survive: the resource is
- * missing (404) or the service behind it is failing (5xx).
- *
- * Reads that only enrich a page — category lists, tag lists, locations,
- * paginated listings — should degrade rather than take the whole route down
- * with them, and every caller already handles the `null` that 404 produced.
- * A 5xx is logged so the outage is visible rather than silent.
- *
- * Auth and validation failures deliberately return false: those are bugs the
- * caller needs to see, not conditions to paper over. Detail fetches and
- * mutations should not use this at all.
- */
+async function fetchApi(url: string, init: RequestInit) {
+  try {
+    return await fetch(url, init);
+  } catch (error) {
+    const cause = error instanceof Error ? error.message : String(error);
+    throw new ProtectedApiError(
+      `Could not reach the API at ${url}: ${cause}`,
+      503,
+    );
+  }
+}
+
 export function isResourceUnavailable(error: unknown, label: string) {
   if (!(error instanceof ProtectedApiError)) return false;
   if (error.status !== 404 && error.status < 500) return false;
