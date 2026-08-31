@@ -1,5 +1,6 @@
 import * as z from "zod";
 import {
+  CreateEventDateInputSchema,
   CreateEventFormatSchema,
   EventEntryModeSchema,
   EventRegistrationModeSchema,
@@ -11,7 +12,7 @@ import {
 const DATABASE_NAME = "true-khmer-local-drafts";
 const DATABASE_VERSION = 1;
 const STORE_NAME = "create-event";
-const DRAFT_VERSION = 1;
+const DRAFT_VERSION = 2;
 const DATABASE_OPEN_TIMEOUT_MS = 5_000;
 
 const PersistedCreateEventFormSchema = z.object({
@@ -20,9 +21,10 @@ const PersistedCreateEventFormSchema = z.object({
   category: z.string(),
   description: z.string(),
   format: z.union([CreateEventFormatSchema, z.literal("")]),
-  startDate: z.string(),
-  startTime: z.string(),
-  endTime: z.string(),
+  eventDates: z.array(CreateEventDateInputSchema),
+  venueId: z.string(),
+  address: z.string(),
+  googleMapLink: z.string(),
   coverImageName: z.string(),
   visibility: EventVisibilitySchema,
   registrationMode: EventRegistrationModeSchema,
@@ -48,6 +50,18 @@ export type RestoredCreateEventDraft = {
   coverFile: File | null;
   updatedAt: number;
 };
+
+const LegacyPersistedCreateEventFormSchema =
+  PersistedCreateEventFormSchema.omit({
+    eventDates: true,
+    venueId: true,
+    address: true,
+    googleMapLink: true,
+  }).extend({
+    startDate: z.string(),
+    startTime: z.string(),
+    endTime: z.string(),
+  });
 
 function openDraftDatabase() {
   return new Promise<IDBDatabase>((resolve, reject) => {
@@ -115,10 +129,12 @@ export function hasMeaningfulCreateEventDraft(
     form.name.trim() ||
     form.category ||
     form.description.trim() ||
-    form.format ||
-    form.startDate ||
-    form.startTime ||
-    form.endTime ||
+    form.eventDates.some(
+      (eventDate) => eventDate.date || eventDate.startTime || eventDate.endTime,
+    ) ||
+    form.venueId ||
+    form.address.trim() ||
+    form.googleMapLink.trim() ||
     form.visibility !== initialCreateEventFormState.visibility ||
     form.registrationMode !== initialCreateEventFormState.registrationMode ||
     form.entryMode !== initialCreateEventFormState.entryMode,
@@ -142,10 +158,32 @@ export async function loadCreateEventDraft(
       },
     );
 
-    if (!stored || stored.version !== DRAFT_VERSION) return null;
+    if (!stored) return null;
 
-    const parsedForm = PersistedCreateEventFormSchema.safeParse(stored.form);
-    if (!parsedForm.success) return null;
+    let restoredForm: PersistedCreateEventForm;
+    if (stored.version === DRAFT_VERSION) {
+      const parsedForm = PersistedCreateEventFormSchema.safeParse(stored.form);
+      if (!parsedForm.success) return null;
+      restoredForm = parsedForm.data;
+    } else if (stored.version === 1) {
+      const legacyForm = LegacyPersistedCreateEventFormSchema.safeParse(
+        stored.form,
+      );
+      if (!legacyForm.success) return null;
+
+      const { startDate, startTime, endTime, ...unchangedFields } =
+        legacyForm.data;
+      restoredForm = {
+        ...unchangedFields,
+        format: "IN_PERSON",
+        eventDates: [{ date: startDate, startTime, endTime }],
+        venueId: "",
+        address: "",
+        googleMapLink: "",
+      };
+    } else {
+      return null;
+    }
 
     const coverFile =
       stored.coverBlob instanceof Blob && stored.coverFileName
@@ -156,7 +194,7 @@ export async function loadCreateEventDraft(
         : null;
 
     return {
-      form: parsedForm.data,
+      form: restoredForm,
       coverFile,
       updatedAt: Number.isFinite(stored.updatedAt)
         ? stored.updatedAt
