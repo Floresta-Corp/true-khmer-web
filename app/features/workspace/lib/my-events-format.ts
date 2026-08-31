@@ -1,44 +1,93 @@
 import type {
   CreateEventDateInput,
+  CreateEventFormat,
   CreateEventFormState,
   EventEntryMode,
   EventRegistrationMode,
   EventVisibility,
-  MyEventFormat,
   MyEventStatus,
 } from "~/features/workspace/types/my-events";
+
+export const MY_EVENT_FORMAT_LABELS: Record<CreateEventFormat, string> = {
+  IN_PERSON: "In-person",
+  ONLINE: "Online",
+};
 
 export const MY_EVENT_STATUS_LABELS: Record<MyEventStatus, string> = {
   DRAFT: "Draft",
   PUBLISHED: "Published",
-  LIVE: "Live",
-  ENDED: "Ended",
+  ACTIVE: "Live",
+  COMPLETED: "Ended",
   CANCELLED: "Cancelled",
+  POSTPONED: "Postponed",
+  ARCHIVED: "Archived",
 };
 
-export const MY_EVENT_FORMAT_LABELS: Record<MyEventFormat, string> = {
-  IN_PERSON: "In-person",
-  ONLINE: "Online",
-  HYBRID: "Hybrid",
-};
+/**
+ * "Mon, Sep 21" for a single day, "Sep 12 – 14" across days in one month and
+ * "Sep 30 – Oct 2" across months.
+ */
+export function formatMyEventDateRange(
+  startAt: string | null,
+  endAt: string | null,
+): string {
+  const start = toDate(startAt);
+  if (!start) return "Date to be announced";
 
-/** "Thu, Mar 12 • 8:00 AM" — the meta line on the listing card. */
-export function formatMyEventDateTime(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Date to be announced";
+  const end = toDate(endAt);
+  if (!end || isSameDay(start, end)) {
+    return start.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
+  }
 
-  const day = date.toLocaleDateString("en-US", {
-    weekday: "short",
+  const startLabel = start.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
   });
-  const time = date.toLocaleTimeString("en-US", {
+  const endLabel = end.toLocaleDateString(
+    "en-US",
+    start.getMonth() === end.getMonth() &&
+      start.getFullYear() === end.getFullYear()
+      ? { day: "numeric" }
+      : { month: "short", day: "numeric" },
+  );
+
+  return `${startLabel} \u2013 ${endLabel}`;
+}
+
+/** "8:00 AM – 5:00 PM" for the second meta line on the card. */
+export function formatMyEventTimeRange(
+  startAt: string | null,
+  endAt: string | null,
+): string {
+  const start = toDate(startAt);
+  if (!start) return "Time to be announced";
+
+  const end = toDate(endAt);
+  const startLabel = formatClockTime(start);
+
+  return end ? `${startLabel} \u2013 ${formatClockTime(end)}` : startLabel;
+}
+
+function toDate(value: string | null | undefined): Date | null {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function isSameDay(a: Date, b: Date): boolean {
+  return a.toDateString() === b.toDateString();
+}
+
+function formatClockTime(date: Date): string {
+  return date.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
   });
-
-  return `${day} • ${time}`;
 }
 
 /** "8:00 AM" from an `<input type="time">` value. */
@@ -54,10 +103,10 @@ export function formatTimeInputValue(value: string): string {
 }
 
 export function formatMyEventRevenue(
-  revenue: number,
+  revenue: number | null,
   currencyCode: string,
 ): string {
-  if (revenue <= 0) return "—";
+  if (!revenue || revenue <= 0) return "$0";
 
   try {
     return new Intl.NumberFormat("en-US", {
@@ -71,17 +120,11 @@ export function formatMyEventRevenue(
 }
 
 export function formatMyEventTickets(
-  ticketsSold: number,
+  ticketsSold: number | null,
   ticketCapacity: number | null,
 ): string {
-  if (ticketCapacity === null) return ticketsSold > 0 ? `${ticketsSold}` : "—";
-  return `${ticketsSold}/${ticketCapacity}`;
-}
-
-export function formatMyEventAttendance(
-  attendanceCount: number | null,
-): string {
-  return attendanceCount === null ? "—" : `${attendanceCount}`;
+  const sold = ticketsSold ?? 0;
+  return ticketCapacity === null ? `${sold}` : `${sold}/${ticketCapacity}`;
 }
 
 /** Every required field of the basics step is filled in. */

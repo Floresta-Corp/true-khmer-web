@@ -1,118 +1,115 @@
 import { Search } from "lucide-react";
 import { motion } from "motion/react";
 import { Input } from "~/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
 import { cn } from "~/lib/utils";
-import type {
-  MyEventFilter,
-  MyEventFormatFilter,
-} from "~/features/workspace/types/my-events";
+import type { MyEventFilter } from "~/features/workspace/types/my-events";
 
+/** Segmented tabs; Archived sits outside the group as its own toggle. */
 const STATUS_TABS = [
   { label: "All", value: "all" },
-  { label: "Draft", value: "draft" },
   { label: "Published", value: "published" },
-  { label: "Live", value: "live" },
   { label: "Ended", value: "ended" },
   { label: "Cancelled", value: "cancelled" },
+  { label: "Draft", value: "draft" },
 ] as const satisfies ReadonlyArray<{ label: string; value: MyEventFilter }>;
-
-const FORMAT_OPTIONS = [
-  { label: "All Formats", value: "all" },
-  { label: "In-person", value: "in_person" },
-  { label: "Online", value: "online" },
-  { label: "Hybrid", value: "hybrid" },
-] as const satisfies ReadonlyArray<{
-  label: string;
-  value: MyEventFormatFilter;
-}>;
 
 type Props = {
   filter: MyEventFilter;
-  format: MyEventFormatFilter;
   searchInput: string;
+  /** Live is only offered while at least one event is actually running. */
+  hasLiveEvents: boolean;
   onFilterChange: (value: MyEventFilter) => void;
-  onFormatChange: (value: MyEventFormatFilter) => void;
   onSearchChange: (value: string) => void;
 };
 
 export default function MyEventsFilters({
   filter,
-  format,
   searchInput,
+  hasLiveEvents,
   onFilterChange,
-  onFormatChange,
   onSearchChange,
 }: Props) {
-  return (
-    <div className="mt-5 flex w-full flex-wrap items-center justify-between gap-4">
-      <div className="scrollbar-none flex w-full max-w-full overflow-x-auto rounded-xl bg-gray-100 p-1 shadow-inner sm:w-max dark:bg-slate-900">
-        {STATUS_TABS.map((tab) => (
-          <button
-            key={tab.value}
-            onClick={() => onFilterChange(tab.value)}
-            aria-pressed={filter === tab.value}
-            className="relative z-10 shrink-0 cursor-pointer px-5 py-2 text-[14px] font-bold whitespace-nowrap transition-colors duration-300 sm:px-5 sm:text-[14px]"
-          >
-            <span
-              className={cn(
-                "relative z-20",
-                filter === tab.value
-                  ? "text-blue-600 dark:text-white"
-                  : "text-gray-500",
-              )}
-            >
-              {tab.label}
-            </span>
+  const isArchived = filter === "archived";
+  const isLive = filter === "live";
 
-            {filter === tab.value && (
-              <motion.div
-                layoutId="myEventsActiveTab"
-                className="absolute inset-0 z-10 rounded-lg bg-white shadow-sm dark:bg-slate-800"
-                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-              />
+  return (
+    <div className="flex w-full flex-wrap items-center justify-between gap-4">
+      <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+        {hasLiveEvents && (
+          <button
+            onClick={() => onFilterChange(isLive ? "all" : "live")}
+            aria-pressed={isLive}
+            className={cn(
+              "flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border px-4 py-[9px] text-[14px] whitespace-nowrap transition-colors",
+              isLive
+                ? "border-[#FB3748] bg-[#FB3748] font-bold text-white"
+                : "border-current font-semibold text-[#FB3748] hover:bg-[#FB3748]/10",
             )}
+          >
+            <span className="size-1.5 rounded-full bg-current" />
+            Live
           </button>
-        ))}
+        )}
+
+        <div className="scrollbar-none flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-xl bg-[#F7F7F7] p-[5px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.06)]">
+          {STATUS_TABS.map((tab) => {
+            const isActive = filter === tab.value;
+
+            return (
+              <button
+                key={tab.value}
+                onClick={() => onFilterChange(tab.value)}
+                aria-pressed={isActive}
+                className="relative z-10 shrink-0 cursor-pointer rounded-lg px-[18px] py-[9px] text-[14px] whitespace-nowrap"
+              >
+                <span
+                  className={cn(
+                    "relative z-20",
+                    isActive
+                      ? "font-bold text-[#1C5DD4]"
+                      : "font-semibold text-[#8E8E8E]",
+                  )}
+                >
+                  {tab.label}
+                </span>
+
+                {isActive && (
+                  <motion.span
+                    layoutId="myEventsActiveTab"
+                    className="absolute inset-0 z-10 rounded-lg bg-white shadow-[0_1px_2px_rgba(26,26,46,0.08)]"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        <button
+          onClick={() => onFilterChange(isArchived ? "all" : "archived")}
+          aria-pressed={isArchived}
+          className={cn(
+            "shrink-0 cursor-pointer rounded-lg px-4 py-[9px] text-[14px] whitespace-nowrap transition-colors",
+            isArchived
+              ? "bg-[#1C5DD4] font-bold text-white"
+              : "font-semibold text-[#9A9AB0] hover:bg-[#F7F7F7]",
+          )}
+        >
+          Archived
+        </button>
       </div>
 
-      <div className="flex w-full min-w-0 items-center gap-3 sm:w-auto">
-        <Select
-          value={format}
-          onValueChange={(value) =>
-            onFormatChange(value as MyEventFormatFilter)
-          }
-        >
-          <SelectTrigger className="h-10 w-34 shrink-0 rounded-xl border-none bg-white text-[14px] focus:ring-blue-500/20 md:w-40">
-            <SelectValue placeholder="All Formats" />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl border-slate-200">
-            {FORMAT_OPTIONS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <div className="relative min-w-0 flex-1 sm:w-63 sm:flex-none md:w-72">
-          <Search
-            size={16}
-            className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400"
-          />
-          <Input
-            className="h-10 rounded-xl border-slate-200 bg-white pr-4 pl-11 text-[14px] transition-all placeholder:font-medium placeholder:text-slate-400 focus-visible:ring-blue-500/20"
-            placeholder="Search events..."
-            value={searchInput}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
-        </div>
+      <div className="relative w-full min-w-37.5 sm:w-57.5">
+        <Search
+          size={15}
+          className="absolute top-1/2 left-3.5 -translate-y-1/2 text-[#9A9AB0]"
+        />
+        <Input
+          className="h-auto rounded-lg border-[#E5E7EB] bg-white py-[11px] pr-3.5 pl-9 text-[14px] text-[#333] shadow-none transition-all placeholder:text-[#9A9AB0] focus-visible:ring-[#1C5DD4]/20"
+          placeholder="Search events"
+          value={searchInput}
+          onChange={(e) => onSearchChange(e.target.value)}
+        />
       </div>
     </div>
   );

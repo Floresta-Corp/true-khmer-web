@@ -4,63 +4,117 @@ import {
   type postV1plumpievents_Body as CreatePlumpiEventBody,
 } from "~/types/api-client";
 
-/** Lifecycle of an event the signed-in creator owns. */
+/**
+ * Lifecycle of an event, as returned by `GET /v1/plumpi/myevents`.
+ * Mirrors the `status` query enum in `~/types/api-client`.
+ */
 export const MyEventStatusSchema = z.enum([
   "DRAFT",
   "PUBLISHED",
-  "LIVE",
-  "ENDED",
+  "ACTIVE",
+  "COMPLETED",
   "CANCELLED",
+  "POSTPONED",
+  "ARCHIVED",
 ]);
 export type MyEventStatus = z.infer<typeof MyEventStatusSchema>;
 
-export const MyEventFormatSchema = z.enum(["IN_PERSON", "ONLINE", "HYBRID"]);
-export type MyEventFormat = z.infer<typeof MyEventFormatSchema>;
-
-/** Status segmented control on the listing page. */
+/** Status segmented control on the listing page, plus the Archived toggle. */
 export const MyEventFilterSchema = z.enum([
   "all",
-  "draft",
-  "published",
   "live",
+  "published",
   "ended",
   "cancelled",
+  "draft",
+  "archived",
 ]);
 export type MyEventFilter = z.infer<typeof MyEventFilterSchema>;
 
-/** Format dropdown on the listing page. */
-export const MyEventFormatFilterSchema = z.enum([
-  "all",
-  "in_person",
-  "online",
-  "hybrid",
-]);
-export type MyEventFormatFilter = z.infer<typeof MyEventFormatFilterSchema>;
+/** The `status` query value each listing filter maps to. */
+export const MY_EVENT_STATUS_BY_FILTER = {
+  live: "ACTIVE",
+  published: "PUBLISHED",
+  ended: "COMPLETED",
+  cancelled: "CANCELLED",
+  draft: "DRAFT",
+  archived: "ARCHIVED",
+} as const satisfies Record<Exclude<MyEventFilter, "all">, MyEventStatus>;
 
-export const MyEventSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  description: z.union([z.null(), z.string()]),
-  category: z.string(),
-  coverImageKey: z.union([z.null(), z.string()]),
-  status: MyEventStatusSchema,
-  format: MyEventFormatSchema,
+/**
+ * A count or amount that Plumpi may send as a number or a decimal string
+ * ("4820.00"), and that is `null` when the event has no figures yet.
+ */
+const NumericSchema = z
+  .union([z.null(), z.number(), z.string()])
+  .optional()
+  .transform((value) => {
+    if (value === null || value === undefined || value === "") return null;
+    const parsed = typeof value === "number" ? value : Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  });
+
+/** One day of an event; Plumpi returns a list even for single-day events. */
+const MyEventDateSchema = z.object({
   startAt: z.string(),
-  endAt: z.union([z.null(), z.string()]),
-  venue: z.string(),
-  currencyCode: z.string(),
-  revenue: z.number(),
-  ticketsSold: z.number(),
-  ticketCapacity: z.union([z.null(), z.number()]),
-  attendanceCount: z.union([z.null(), z.number()]),
+  endAt: z.union([z.null(), z.string()]).optional(),
 });
+
+/**
+ * `GET /v1/plumpi/myevents` types its rows as open records, so the fields the
+ * card needs are picked out leniently: anything missing degrades to a
+ * placeholder on the card rather than failing the whole page.
+ */
+export const MyEventSchema = z
+  .object({
+    id: z.string(),
+    organizationId: z.union([z.null(), z.string()]).optional(),
+    title: z.union([z.null(), z.string()]).optional(),
+    status: z.unknown(),
+    cover: z.union([z.null(), z.string()]).optional(),
+    eventDates: z.array(MyEventDateSchema).optional(),
+    startAt: z.union([z.null(), z.string()]).optional(),
+    endAt: z.union([z.null(), z.string()]).optional(),
+    isOnline: z.union([z.null(), z.boolean()]).optional(),
+    address: z.union([z.null(), z.string()]).optional(),
+    venue: z
+      .union([z.null(), z.object({ name: z.string().optional() })])
+      .optional(),
+    currencyCode: z.union([z.null(), z.string()]).optional(),
+    // Plumpi reports money and ticket totals as decimal strings.
+    totalRevenue: NumericSchema,
+    ticketsAttributed: NumericSchema,
+    totalQuantity: NumericSchema,
+    maxAttendees: NumericSchema,
+  })
+  .transform((event) => {
+    const dates = event.eventDates ?? [];
+    const startAt = dates[0]?.startAt ?? event.startAt ?? null;
+    const endAt = dates.at(-1)?.endAt ?? event.endAt ?? null;
+
+    return {
+      id: event.id,
+      organizationId: event.organizationId ?? null,
+      title: event.title?.trim() || "Untitled event",
+      status: MyEventStatusSchema.catch("DRAFT").parse(event.status),
+      cover: event.cover ?? null,
+      startAt,
+      endAt,
+      location:
+        event.venue?.name?.trim() ||
+        event.address?.trim() ||
+        (event.isOnline ? "Online event" : "Location to be announced"),
+      currencyCode: event.currencyCode ?? "USD",
+      revenue: event.totalRevenue,
+      ticketsSold: event.ticketsAttributed,
+      ticketCapacity: event.totalQuantity ?? event.maxAttendees,
+    };
+  });
 export type MyEvent = z.infer<typeof MyEventSchema>;
 
 export const MyEventsPaginationSchema = z.object({
-  hasNextPage: z.boolean(),
-  hasPreviousPage: z.boolean(),
-  limit: z.number(),
   page: z.number(),
+  limit: z.number(),
   total: z.number(),
   totalPages: z.number(),
 });
@@ -69,7 +123,17 @@ export type MyEventsPagination = z.infer<typeof MyEventsPaginationSchema>;
 export type MyEventsLoaderData = {
   events: MyEvent[];
   pagination: MyEventsPagination | null;
+  /** Whether any event is running right now, which reveals the Live tab. */
+  hasLiveEvents: boolean;
+  loadError: string | null;
   userId: string | null;
+};
+
+/** Result of handing a listed event over to the Plumpi organizer console. */
+export type MyEventsActionData = {
+  ok: boolean;
+  redirectTo?: string;
+  error?: string;
 };
 
 // --- Create event ---

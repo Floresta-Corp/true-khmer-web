@@ -1,48 +1,41 @@
 import type { Route } from "project-types/workspace/route/+types/my-events";
 import z from "zod";
-import { requireUser } from "~/lib/server/route-guards.server";
+import { getPlumpiMyEvents } from "~/api/events/events.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
-import { MY_EVENTS } from "~/features/workspace/lib/my-events.mock";
 import {
+  requestWithSetCookie,
+  requireUser,
+} from "~/lib/server/route-guards.server";
+import {
+  MY_EVENT_STATUS_BY_FILTER,
   MyEventFilterSchema,
-  MyEventFormatFilterSchema,
+  MyEventSchema,
+  MyEventsPaginationSchema,
   type MyEvent,
   type MyEventsLoaderData,
 } from "~/features/workspace/types/my-events";
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 8;
 
-const STATUS_BY_FILTER = {
-  draft: "DRAFT",
-  published: "PUBLISHED",
-  live: "LIVE",
-  ended: "ENDED",
-  cancelled: "CANCELLED",
-} as const;
+const LOAD_ERROR = "Unable to load your events. Please try again.";
 
-const FORMAT_BY_FILTER = {
-  in_person: "IN_PERSON",
-  online: "ONLINE",
-  hybrid: "HYBRID",
-} as const;
-
-function matchesSearch(event: MyEvent, search: string) {
-  const haystack = [event.title, event.description, event.category, event.venue]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-
-  return haystack.includes(search);
+/** At least one of these events is running right now. */
+function isLiveEvent(events: MyEvent[]): boolean {
+  return events.some(
+    (event) => event.status === MY_EVENT_STATUS_BY_FILTER.live,
+  );
 }
 
 export async function myEventsLoader({ request }: Route.LoaderArgs) {
   const auth = await requireUser(request);
-  const userId = auth.user.id;
+  const userId = auth.user.id || null;
 
   if (!userId) {
     return withAuthData(auth, {
       events: [],
       pagination: null,
+      hasLiveEvents: false,
+      loadError: null,
       userId: null,
     } satisfies MyEventsLoaderData);
   }
@@ -54,51 +47,91 @@ export async function myEventsLoader({ request }: Route.LoaderArgs) {
   );
   const filter = filterResult.success ? filterResult.data : "all";
 
-  const formatResult = MyEventFormatFilterSchema.safeParse(
-    url.searchParams.get("format"),
-  );
-  const format = formatResult.success ? formatResult.data : "all";
-
-  const search = (url.searchParams.get("search") ?? "").trim().toLowerCase();
+  const search = (url.searchParams.get("search") ?? "").trim();
 
   const pageResult = z.coerce
     .number()
     .int()
     .positive()
     .safeParse(url.searchParams.get("page"));
-  const requestedPage = pageResult.success ? pageResult.data : 1;
+  const page = pageResult.success ? pageResult.data : 1;
 
-  // TODO: replace the in-memory filtering below with a call to the events
-  // service once `GET /events/mine` is available. The query shape (filter,
-  // format, search, page) is what the page already puts in the URL.
-  const matches = MY_EVENTS.filter((event) => {
-    const matchesStatus =
-      filter === "all" || event.status === STATUS_BY_FILTER[filter];
-    const matchesFormat =
-      format === "all" || event.format === FORMAT_BY_FILTER[format];
+  const apiRequest = requestWithSetCookie(request, auth.setCookie);
+  const cookies = auth.setCookie ? [auth.setCookie] : [];
 
-    return (
-      matchesStatus &&
-      matchesFormat &&
-      (!search || matchesSearch(event, search))
-    );
-  });
-
-  const total = matches.length;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const page = Math.min(requestedPage, totalPages);
-  const start = (page - 1) * PAGE_SIZE;
-
-  return withAuthData(auth, {
-    events: matches.slice(start, start + PAGE_SIZE),
-    pagination: {
-      hasNextPage: page < totalPages,
-      hasPreviousPage: page > 1,
-      limit: PAGE_SIZE,
+  try {
+    const result = await getPlumpiMyEvents(apiRequest, {
       page,
-      total,
-      totalPages,
-    },
-    userId,
-  } satisfies MyEventsLoaderData);
+      limit: PAGE_SIZE,
+      ...(search ? { search } : {}),
+      ...(filter === "all"
+        ? {}
+        : { status: MY_EVENT_STATUS_BY_FILTER[filter] }),
+    });
+    if (result.setCookie) cookies.push(result.setCookie);
+
+    // A single malformed row should not blank the page, so rows are parsed
+    // individually and the ones Plumpi returns in an unexpected shape are
+    // skipped.
+    const events = result.data.events.flatMap((event) => {
+      const parsed = MyEventSchema.safeParse(event);
+      if (!parsed.success) {
+        console.error("Skipped a malformed Plumpi event row:", parsed.error);
+        return [];
+      }
+      return [parsed.data];
+    });
+
+    const pagination = MyEventsPaginationSchema.parse(result.data.meta);
+
+    // The Live tab has to appear from any other tab, so it cannot be inferred
+    // from the filtered page above; a live row is asked for separately, except
+    // when the current page already is the live one.
+    let hasLiveEvents = isLiveEvent(events);
+    if (filter !== "live") {
+      try {
+        const liveRequest = requestWithSetCookie(
+          apiRequest,
+          result.setCookie ?? auth.setCookie,
+        );
+        const liveResult = await getPlumpiMyEvents(liveRequest, {
+          page: 1,
+          limit: 1,
+          status: MY_EVENT_STATUS_BY_FILTER.live,
+        });
+        if (liveResult.setCookie) cookies.push(liveResult.setCookie);
+
+        // The returned row is checked rather than the total, so the tab stays
+        // hidden even if Plumpi ever ignores the status filter.
+        hasLiveEvents = isLiveEvent(
+          liveResult.data.events.flatMap((event) => {
+            const parsed = MyEventSchema.safeParse(event);
+            return parsed.success ? [parsed.data] : [];
+          }),
+        );
+      } catch (error) {
+        // A missing live count is not worth failing the listing over.
+        console.error("Could not check for live Plumpi events:", error);
+        hasLiveEvents = false;
+      }
+    }
+
+    return withAuthData({ setCookie: cookies }, {
+      events,
+      pagination,
+      hasLiveEvents,
+      loadError: null,
+      userId,
+    } satisfies MyEventsLoaderData);
+  } catch (error) {
+    console.error("Could not load Plumpi my-events:", error);
+
+    return withAuthData({ setCookie: cookies }, {
+      events: [],
+      pagination: null,
+      hasLiveEvents: false,
+      loadError: LOAD_ERROR,
+      userId,
+    } satisfies MyEventsLoaderData);
+  }
 }
