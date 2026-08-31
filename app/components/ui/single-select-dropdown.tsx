@@ -70,6 +70,7 @@ export function SingleSelectDropdown({
   const [query, setQuery] = useState("");
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined);
+  const hasInteractedRef = useRef(false);
 
   useEffect(() => {
     if (!open) {
@@ -83,7 +84,7 @@ export function SingleSelectDropdown({
   const firstEnable = options.find((o) => !o.disabled);
 
   useEffect(() => {
-    if (!value && firstEnable) {
+    if (!hasInteractedRef.current && !value && firstEnable) {
       onValueChange(firstEnable.value);
     }
   }, [value, firstEnable, onValueChange]);
@@ -100,6 +101,7 @@ export function SingleSelectDropdown({
   function handleSelect(nextValue: string) {
     if (nextValue !== value) onValueChange(nextValue);
     setOpen(false);
+    hasInteractedRef.current = true;
   }
 
   return (
