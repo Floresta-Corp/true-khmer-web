@@ -80,6 +80,14 @@ export function SingleSelectDropdown({
   }, [open]);
 
   const selected = options.find((option) => option.value === value);
+  const firstEnable = options.find((o) => !o.disabled);
+
+  useEffect(() => {
+    if (!value && firstEnable) {
+      onValueChange(firstEnable.value);
+    }
+  }, [value, firstEnable, onValueChange]);
+
   const filteredOptions = useMemo(() => {
     if (!searchable) return options;
     const normalized = query.trim().toLowerCase();
