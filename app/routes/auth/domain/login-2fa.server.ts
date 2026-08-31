@@ -15,7 +15,7 @@ import {
   getPendingTwoFactorLogin,
 } from "~/lib/server/session.server";
 import { sanitizeRedirectPath } from "~/lib/redirects";
-import { destinationFromAuthFlow } from "./auth-flow.server";
+import { destinationAfterAuth } from "./auth-flow.server";
 
 export type LoginTwoFactorActionData = {
   errors?: {
@@ -97,9 +97,7 @@ export async function action({ request }: ActionFunctionArgs) {
             code,
             trustDevice,
           });
-    const destination = result.data.authFlow
-      ? destinationFromAuthFlow(result.data.authFlow, redirectTo)
-      : redirectTo;
+    const destination = destinationAfterAuth(result.data.authFlow, redirectTo);
     const clearPendingCookie = await destroyPendingTwoFactorLogin(request);
 
     return createUserSession(request, result.data, destination, {

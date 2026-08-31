@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
-import { OAuthHeader } from "./oauth-header";
+import { OAuthCardShell } from "./oauth-card-shell";
 import { OAuthClientBranding } from "./oauth-client-branding";
 import { OAuthScopeList } from "./oauth-scope-list";
 import { OAuthTermsNotice } from "./oauth-terms-notice";
 import { OAuthActionButtons } from "./oauth-action-buttons";
+import { OAuthSwitchAccountDialog } from "./oauth-switch-account-dialog";
 import { postAuthClose, postAuthResult } from "../lib/post-auth-result";
-import type { OauthHandoffAction } from "../services/oauth-handoff.action";
+import type {
+  OauthHandoffAction,
+  OAuthHandoffTokens,
+} from "../services/oauth-handoff.action";
 import type { OAuthSessionUser } from "../types";
 
 interface OAuthConsentCardProps {
@@ -16,7 +20,13 @@ interface OAuthConsentCardProps {
   origin: string;
   accessToken: string;
   user: OAuthSessionUser;
-  onUseDifferentAccount: () => void;
+  // The user confirmed switching accounts and the sign-out has already gone
+  // through; the session this card was offering no longer exists.
+  onSignedOut: () => void;
+  // The handoff had to refresh the pair before the SSO service would accept it.
+  onTokensRefreshed: (tokens: OAuthHandoffTokens) => void;
+  // Neither token was any good and the session has been cleared server-side.
+  onSessionExpired: () => void;
 }
 
 export function OAuthConsentCard({
@@ -26,7 +36,9 @@ export function OAuthConsentCard({
   origin,
   accessToken,
   user,
-  onUseDifferentAccount,
+  onSignedOut,
+  onTokensRefreshed,
+  onSessionExpired,
 }: OAuthConsentCardProps) {
   const fetcher = useFetcher<typeof OauthHandoffAction>();
   const [error, setError] = useState<string | null>(null);
@@ -55,46 +67,50 @@ export function OAuthConsentCard({
     // A thrown Response or a network failure resolves the fetcher back to idle
     // with no data at all, so the missing-data case has to fail loudly too.
     if (fetcher.data?.ok) {
+      if (fetcher.data.tokens) onTokensRefreshed(fetcher.data.tokens);
       postAuthResult(fetcher.data.origin ?? origin, fetcher.data);
-    } else {
-      setError("Unable to complete sign-in. Please try again.");
+      return;
     }
-  }, [fetcher.state, fetcher.data, origin]);
+
+    // The SSO service rejected both tokens and the server has already cleared
+    // the session, so forget this account and drop back to the login form
+    // instead of showing an error the user cannot act on.
+    if (fetcher.data?.sessionExpired) {
+      onSessionExpired();
+      return;
+    }
+
+    setError("Unable to complete sign-in. Please try again.");
+  }, [
+    fetcher.state,
+    fetcher.data,
+    origin,
+    onTokensRefreshed,
+    onSessionExpired,
+  ]);
 
   const handleCancel = useCallback(() => {
     postAuthClose(origin);
   }, [origin]);
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-slate-100/70 p-4 font-sans text-slate-900">
-      <div className="w-full max-w-105 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-md">
-        <OAuthHeader />
-
-        <main className="space-y-5 p-6">
-          {clientName && (
-            <OAuthClientBranding
-              clientName={clientName}
-              clientLogo={clientLogo}
-            />
-          )}
-          <OAuthScopeList user={user} />
-          <div className="border-t border-slate-100 pt-2" />
-          <OAuthTermsNotice clientName={clientName} />
-          {error ? <p className="text-xs text-red-500">{error}</p> : null}
-          <OAuthActionButtons
-            loading={loading}
-            onCancel={handleCancel}
-            onContinue={handleContinue}
-          />
-          <button
-            type="button"
-            onClick={onUseDifferentAccount}
-            className="w-full text-center text-xs font-semibold text-blue-600 hover:underline"
-          >
-            Not {user.name}? Sign in with a different account
-          </button>
-        </main>
-      </div>
-    </div>
+    <OAuthCardShell>
+      {clientName && (
+        <OAuthClientBranding clientName={clientName} clientLogo={clientLogo} />
+      )}
+      <OAuthScopeList user={user} />
+      <div className="border-t border-slate-100 pt-2 short:pt-0" />
+      <OAuthTermsNotice clientName={clientName} />
+      {error ? <p className="text-xs text-red-500">{error}</p> : null}
+      <OAuthActionButtons
+        loading={loading}
+        onCancel={handleCancel}
+        onContinue={handleContinue}
+      />
+      <OAuthSwitchAccountDialog
+        userName={user.name}
+        onSignedOut={onSignedOut}
+      />
+    </OAuthCardShell>
   );
 }

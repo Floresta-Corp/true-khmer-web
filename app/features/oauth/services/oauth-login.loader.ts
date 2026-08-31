@@ -39,16 +39,19 @@ export async function OauthLoginLoader({ request }: Route.LoaderArgs) {
         clientLogo: readParam(url, "logoUrl", "logo_url", "clientLogo"),
         user: null,
         accessToken: null,
+        refreshToken: null,
       },
     );
   }
 
-  // Use whatever the browser is already logged in with — there is no
-  // separate popup session anymore.
-  const { user, accessToken, setCookie } = await getOAuthSessionUser(request);
+  // Use whatever the browser is already logged in with — there is no separate
+  // popup session anymore. The pair is passed through untouched; /sso/handoff
+  // is the only thing that can tell whether it is still good.
+  const { user, accessToken, refreshToken } =
+    await getOAuthSessionUser(request);
 
   return withAuthData(
-    { setCookie },
+    {},
     {
       originAllowed: true,
       hasSession: Boolean(user && accessToken),
@@ -58,6 +61,7 @@ export async function OauthLoginLoader({ request }: Route.LoaderArgs) {
       clientLogo: client.logoUrl ?? readParam(url, "logoUrl", "logo_url"),
       user: user ? toOAuthSessionUser(user) : null,
       accessToken: user ? accessToken : null,
+      refreshToken: user ? refreshToken : null,
     },
   );
 }

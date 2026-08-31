@@ -97,9 +97,9 @@ export default function VerifyOtpPage() {
   const canVerify = otp.length === 6 && !isVerifying;
 
   return (
-    <div className="min-h-screen bg-white">
-      <main className="flex min-h-screen w-full flex-col items-center px-4 py-8 font-['Inter'] sm:px-12 sm:py-12 lg:p-24">
-        <div className="w-full pb-12">
+    <div className="min-h-dvh bg-white">
+      <main className="flex min-h-dvh w-full flex-col items-center px-4 py-8 font-['Inter'] sm:px-12 sm:py-12 lg:p-24 short:py-5">
+        <div className="w-full pb-12 short:pb-6">
           <Link
             to={backTo}
             className="inline-flex items-center gap-2 text-sm leading-5 font-semibold text-[#1C5DD4] transition-colors hover:text-[#1F62DF]"
@@ -109,18 +109,18 @@ export default function VerifyOtpPage() {
           </Link>
         </div>
 
-        <section className="flex w-full max-w-134 flex-col items-center gap-12">
+        <section className="flex w-full max-w-134 flex-col items-center gap-12 short:gap-7">
           <LogoSvg
             width={123}
             height={48}
-            className="h-12 w-auto object-contain"
+            className="h-12 w-auto object-contain short:h-10"
             aria-label="True Khmer"
           />
 
-          <div className="flex w-full flex-col items-center gap-9">
-            <div className="flex w-full flex-col items-center gap-6">
-              <div className="flex size-20 items-center justify-center rounded-full bg-[#F1F6FF]">
-                <div className="relative size-10">
+          <div className="flex w-full flex-col items-center gap-9 short:gap-6">
+            <div className="flex w-full flex-col items-center gap-6 short:gap-4">
+              <div className="flex size-20 items-center justify-center rounded-full bg-[#F1F6FF] short:size-16">
+                <div className="relative size-10 short:size-8">
                   <img
                     src={ENVELOPE_BODY_ICON}
                     alt=""
@@ -134,11 +134,11 @@ export default function VerifyOtpPage() {
                 </div>
               </div>
 
-              <h1 className="text-center text-[2rem] leading-10 font-medium text-[#18191C]">
+              <h1 className="text-center text-[2rem] leading-10 font-medium text-[#18191C] short:text-2xl short:leading-8">
                 Verify Your Email Address
               </h1>
 
-              <div className="w-full space-y-6 text-center text-base leading-6 font-normal text-[#767F8C]">
+              <div className="w-full space-y-6 text-center text-base leading-6 font-normal text-[#767F8C] short:space-y-3 short:text-sm short:leading-5">
                 <p>
                   A verification code has been sent to{" "}
                   <span className="font-semibold break-words text-[#18191C]">
@@ -203,7 +203,7 @@ export default function VerifyOtpPage() {
                         <InputOTPSlot
                           key={`otp-${index}`}
                           index={index}
-                          className="size-12 rounded-full border border-[#DCEBFE] text-sm font-normal text-[#2E3139] first:rounded-full first:border last:rounded-full data-[active=true]:border-[#2E88F6] data-[active=true]:text-[#2E88F6] data-[active=true]:shadow-none data-[active=true]:ring-0 data-[active=true]:aria-invalid:ring-0 [&_[class*='animate-caret-blink']]:bg-[#2E88F6]"
+                          className="size-12 rounded-full border border-[#DCEBFE] text-sm font-normal text-[#2E3139] first:rounded-full first:border last:rounded-full data-[active=true]:border-[#2E88F6] data-[active=true]:text-[#2E88F6] data-[active=true]:shadow-none data-[active=true]:ring-0 data-[active=true]:aria-invalid:ring-0 max-[380px]:size-10 [&_[class*='animate-caret-blink']]:bg-[#2E88F6]"
                         />
                       ))}
                     </InputOTPGroup>
@@ -248,7 +248,7 @@ export default function VerifyOtpPage() {
               <Button
                 type="submit"
                 disabled={!canVerify}
-                className="mt-9 h-10 w-full rounded-lg bg-[#F1F5F9] px-6 text-sm leading-5 font-medium text-[#1D283A] transition-colors enabled:cursor-pointer enabled:bg-[#2F6FE4] enabled:text-white enabled:hover:bg-[#1F62DF] disabled:opacity-50"
+                className="mt-9 h-10 w-full rounded-lg bg-[#F1F5F9] px-6 text-sm leading-5 font-medium text-[#1D283A] transition-colors enabled:cursor-pointer enabled:bg-[#2F6FE4] enabled:text-white enabled:hover:bg-[#1F62DF] disabled:opacity-50 short:mt-6"
               >
                 {isVerifying ? "Verifying..." : "Verify"}
               </Button>
@@ -266,13 +266,13 @@ export default function VerifyOtpPage() {
               <input type="hidden" name="intent" value="resend" />
               <input type="hidden" name="email" value={email} />
 
-              <p className="text-base leading-6 font-normal text-[#5E6670]">
+              <p className="text-base leading-6 font-normal text-[#5E6670] short:text-sm">
                 Didn&apos;t receive any code?{" "}
                 <Button
                   type="submit"
                   disabled={!email || isResending || resendCooldownSeconds > 0}
                   variant="link"
-                  className="h-auto px-0 text-base leading-6 font-medium text-[#2F6FE4] transition-colors hover:text-[#1F62DF] hover:no-underline disabled:text-slate-400"
+                  className="h-auto px-0 text-base leading-6 font-medium text-[#2F6FE4] transition-colors hover:text-[#1F62DF] hover:no-underline disabled:text-slate-400 short:text-sm"
                 >
                   {isResending
                     ? "Sending..."
