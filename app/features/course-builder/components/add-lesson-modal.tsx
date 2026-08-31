@@ -14,6 +14,9 @@ interface AddLessonModalProps {
   onChange: (changes: Partial<LessonDraft>) => void;
   onConfirm: () => void;
   onClose: () => void;
+  /** True while a lesson file is still uploading. */
+  uploading?: boolean;
+  onUploadingChange?: (uploading: boolean) => void;
 }
 
 /** The design's "Add lesson" dialog: title, content type, then the source. */
@@ -22,12 +25,16 @@ export function AddLessonModal({
   onChange,
   onConfirm,
   onClose,
+  uploading = false,
+  onUploadingChange,
 }: AddLessonModalProps) {
+  // An uploaded lesson is only ready once storage has returned its key.
   const ready =
+    !uploading &&
     draft.title.trim().length > 0 &&
     (draft.source === "youtube"
       ? draft.url.trim().length > 0
-      : !!draft.fileName);
+      : !!draft.assetKey);
 
   return (
     <div
@@ -120,7 +127,11 @@ export function AddLessonModal({
                 urlPlaceholder="https://youtube.com/watch?v=..."
                 label={LESSON_FIELD_LABELS[draft.source]}
                 onUrlChange={(url) => onChange({ url })}
-                onFileChange={(fileName) => onChange({ fileName })}
+                onUploaded={(assetKey, fileName) =>
+                  onChange({ assetKey, fileName })
+                }
+                onClearFile={() => onChange({ assetKey: null, fileName: null })}
+                onUploadingChange={onUploadingChange}
               />
             </div>
           </div>

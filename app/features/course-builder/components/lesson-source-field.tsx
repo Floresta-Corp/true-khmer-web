@@ -1,14 +1,26 @@
-import { useRef } from "react";
-import { Upload } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Loader2, Upload } from "lucide-react";
+import { useFetcher } from "react-router";
 import { cn } from "~/lib/utils";
 import {
   LESSON_UPLOAD_HINTS,
   type LessonSource,
 } from "~/features/course-builder/types";
+import {
+  putLessonAsset,
+  validateLessonFile,
+  type LessonAssetUpload,
+} from "../lib/upload-lesson-asset";
 
 const ACCEPT: Record<Exclude<LessonSource, "youtube">, string> = {
   pdf: "application/pdf",
   audio: "audio/*",
+};
+
+type PresignResult = {
+  ok: true;
+  intent: "presign-lesson";
+  upload: LessonAssetUpload;
 };
 
 interface LessonSourceFieldProps {
@@ -17,7 +29,11 @@ interface LessonSourceFieldProps {
   fileName: string | null;
   urlPlaceholder: string;
   onUrlChange: (url: string) => void;
-  onFileChange: (fileName: string | null) => void;
+  /** Called once the file has landed in storage. */
+  onUploaded: (assetKey: string, fileName: string) => void;
+  onClearFile: () => void;
+  /** Reports whether an upload is in flight, so the dialog can wait for it. */
+  onUploadingChange?: (uploading: boolean) => void;
   /** Labels the file input for screen readers. */
   label: string;
 }
@@ -26,9 +42,8 @@ interface LessonSourceFieldProps {
  * The source half of a lesson: a URL box for a YouTube link, or a drop zone for
  * a PDF or audio file.
  *
- * Files are recorded by name only. There is no lesson-upload endpoint on the
- * API — `presignCourseCover` covers images and nothing else — so the chosen
- * file is not sent anywhere yet.
+ * Picking a file presigns through our action, then PUTs straight to storage;
+ * only the returned key is saved on the lesson.
  */
 export function LessonSourceField({
   source,
@@ -36,10 +51,57 @@ export function LessonSourceField({
   fileName,
   urlPlaceholder,
   onUrlChange,
-  onFileChange,
+  onUploaded,
+  onClearFile,
+  onUploadingChange,
   label,
 }: LessonSourceFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const fetcher = useFetcher<PresignResult>();
+  const pendingFile = useRef<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const busy = uploading || fetcher.state !== "idle";
+
+  useEffect(() => {
+    onUploadingChange?.(busy);
+  }, [busy, onUploadingChange]);
+
+  const accept = (file: File | undefined) => {
+    if (!file || source === "youtube") return;
+
+    const problem = validateLessonFile(file, source);
+    if (problem) {
+      setError(problem);
+      return;
+    }
+
+    setError(null);
+    pendingFile.current = file;
+    fetcher.submit(
+      {
+        intent: "presign-lesson",
+        contentType: file.type,
+        fileSize: String(file.size),
+      },
+      { method: "post" },
+    );
+  };
+
+  // The presigned URL comes back through the action; the PUT happens here.
+  useEffect(() => {
+    const file = pendingFile.current;
+    if (fetcher.state !== "idle" || !fetcher.data?.upload || !file) return;
+    pendingFile.current = null;
+
+    const upload = fetcher.data.upload;
+    setUploading(true);
+    putLessonAsset(upload, file)
+      .then((assetKey) => onUploaded(assetKey, file.name))
+      .catch(() => setError("That upload did not go through. Try again."))
+      .finally(() => setUploading(false));
+  }, [fetcher.state, fetcher.data, onUploaded]);
 
   if (source === "youtube") {
     return (
@@ -61,17 +123,16 @@ export function LessonSourceField({
         accept={ACCEPT[source]}
         aria-label={label}
         className="sr-only"
-        onChange={(event) =>
-          onFileChange(event.target.files?.[0]?.name ?? null)
-        }
+        onChange={(event) => accept(event.target.files?.[0])}
       />
       <button
         type="button"
+        disabled={busy}
         onClick={() => inputRef.current?.click()}
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => {
           event.preventDefault();
-          onFileChange(event.dataTransfer.files?.[0]?.name ?? null);
+          accept(event.dataTransfer.files?.[0]);
         }}
         className={cn(
           "w-full cursor-pointer rounded-lg border-[1.5px] border-dashed p-7 text-center text-sm transition-colors",
@@ -80,22 +141,37 @@ export function LessonSourceField({
             : "border-[#E5E7EB] text-[#9A9AB0] hover:border-[#C9D6F2]",
         )}
       >
-        <Upload
-          size={28}
-          strokeWidth={1.8}
-          aria-hidden
-          className={cn(
-            "mx-auto mb-2.5 block",
-            fileName ? "text-[#1C5DD4]" : "text-[#9CA3AF]",
-          )}
-        />
-        {fileName ?? LESSON_UPLOAD_HINTS[source]}
+        {busy ? (
+          <Loader2
+            size={28}
+            aria-hidden
+            className="mx-auto mb-2.5 block animate-spin text-[#1C5DD4]"
+          />
+        ) : (
+          <Upload
+            size={28}
+            strokeWidth={1.8}
+            aria-hidden
+            className={cn(
+              "mx-auto mb-2.5 block",
+              fileName ? "text-[#1C5DD4]" : "text-[#9CA3AF]",
+            )}
+          />
+        )}
+        {busy ? "Uploading…" : (fileName ?? LESSON_UPLOAD_HINTS[source])}
       </button>
 
-      {fileName && (
+      {error && (
+        <p className="mt-2 text-[13px] font-semibold text-[#FB3748]">{error}</p>
+      )}
+
+      {fileName && !busy && (
         <button
           type="button"
-          onClick={() => onFileChange(null)}
+          onClick={() => {
+            setError(null);
+            onClearFile();
+          }}
           className="mt-2 cursor-pointer text-[13px] font-semibold text-[#9A9AB0] hover:text-[#DC2626]"
         >
           Remove file

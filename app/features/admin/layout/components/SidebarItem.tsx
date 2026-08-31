@@ -6,6 +6,7 @@ import {
   Building2,
   ClipboardCheck,
   ClipboardList,
+  GraduationCap,
   Heart,
   History,
   Hotel,
@@ -119,6 +120,13 @@ export const navItems: NavItem[] = [
     label: "Forum",
     icon: MessageSquare,
     href: "/tk-admin/manage-forum",
+    section: "content_management",
+  },
+  {
+    id: "manage-education",
+    label: "Education",
+    icon: GraduationCap,
+    href: "/tk-admin/manage-education",
     section: "content_management",
   },
   {

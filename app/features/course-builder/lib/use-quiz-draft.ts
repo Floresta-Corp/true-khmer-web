@@ -10,12 +10,17 @@ import {
  *
  * A course has one quiz, sat at the end, so questions are a single flat list.
  *
- * Nothing here is persisted: the API has no quiz resource, so this lives for
- * the length of the session.
+ * Seeded from the saved quiz when editing: a save replaces the quiz wholesale,
+ * so starting empty here would wipe it.
  */
-export function useQuizDraft() {
-  const [passMark, setPassMark] = useState("70");
-  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+export function useQuizDraft(initial?: {
+  passMark?: string;
+  questions?: QuizQuestion[];
+}) {
+  const [passMark, setPassMark] = useState(initial?.passMark ?? "70");
+  const [questions, setQuestions] = useState<QuizQuestion[]>(
+    () => initial?.questions ?? [],
+  );
 
   /** The question the editor modal is open on. */
   const [activeId, setActiveId] = useState<string | null>(null);

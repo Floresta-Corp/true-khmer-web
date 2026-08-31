@@ -24,9 +24,16 @@ import {
   emptyLessonDraft,
   type CertificateKind,
   type CourseFormat,
+  type QuizQuestion,
   type LessonDraft,
 } from "../../types";
 import type { CourseSection } from "~/features/education/types";
+import {
+  CERTIFICATE_API_VALUE,
+  DIFFICULTY_API_VALUE,
+  lessonApiType,
+  type BuilderSection,
+} from "~/features/course-builder/types";
 
 type SaveResult =
   | {
@@ -43,6 +50,10 @@ interface CourseBuilderPageProps {
   initialDraft?: CourseDraft;
   /** The course's existing chapters, shown on the Curriculum step. */
   initialSections?: CourseSection[];
+  initialCertificate?: CertificateKind;
+  initialFormat?: CourseFormat;
+  initialPassMark?: string;
+  initialQuestions?: QuizQuestion[];
   /** Set when editing, so saves patch the course instead of creating one. */
   initialCourseId?: string | null;
   /** Step to open on, so the teach screen can deep-link into the builder. */
@@ -53,6 +64,10 @@ export default function CourseBuilderPage({
   categories,
   initialDraft,
   initialSections,
+  initialCertificate,
+  initialFormat,
+  initialPassMark,
+  initialQuestions,
   initialCourseId = null,
   initialStep = "basic",
 }: CourseBuilderPageProps) {
@@ -68,10 +83,18 @@ export default function CourseBuilderPage({
 
   // Curriculum state. The API has no curriculum resource, so this is local to
   // the session — it prefills from the course but is not saved back.
-  const [sections, setSections] = useState<CourseSection[]>(
-    () => initialSections ?? [],
+  const [sections, setSections] = useState<BuilderSection[]>(() =>
+    (initialSections ?? []).map((section) => ({
+      ...section,
+      lessons: section.lessons.map((lesson) => ({
+        ...lesson,
+        url: null,
+        assetKey: null,
+      })),
+    })),
   );
-  const [format, setFormat] = useState<CourseFormat>("multi");
+  const [lessonUploading, setLessonUploading] = useState(false);
+  const [format, setFormat] = useState<CourseFormat>(initialFormat ?? "multi");
   const [openSections, setOpenSections] = useState<Set<string>>(
     () => new Set((initialSections ?? []).map((section) => section.id)),
   );
@@ -87,8 +110,13 @@ export default function CourseBuilderPage({
   const [lessonTarget, setLessonTarget] = useState<string | null>(null);
   const [lessonDraft, setLessonDraft] = useState<LessonDraft>(emptyLessonDraft);
 
-  const quiz = useQuizDraft();
-  const [certificate, setCertificate] = useState<CertificateKind>("completion");
+  const quiz = useQuizDraft({
+    passMark: initialPassMark,
+    questions: initialQuestions,
+  });
+  const [certificate, setCertificate] = useState<CertificateKind>(
+    initialCertificate ?? "completion",
+  );
 
   const toggleSection = (id: string) =>
     setOpenSections((current) => {
@@ -110,6 +138,7 @@ export default function CourseBuilderPage({
 
   const openAddLesson = (sectionId: string) => {
     setLessonDraft(emptyLessonDraft());
+    setLessonUploading(false);
     setLessonTarget(sectionId);
   };
 
@@ -135,6 +164,16 @@ export default function CourseBuilderPage({
                   duration: "",
                   isPreview: false,
                   isComplete: false,
+                  // Kept so the lesson can actually be saved — the read model
+                  // these rows share has nowhere to put a source.
+                  url:
+                    lessonDraft.source === "youtube"
+                      ? lessonDraft.url.trim()
+                      : null,
+                  assetKey:
+                    lessonDraft.source === "youtube"
+                      ? null
+                      : lessonDraft.assetKey,
                 },
               ],
             }
@@ -169,6 +208,42 @@ export default function CourseBuilderPage({
   }, []);
 
   const save = (intent: "save-draft" | "submit") => {
+    // A lesson with no source was never uploaded, and the API rejects it, so
+    // it is dropped rather than failing the whole save.
+    const chapters = sections.map((section) => ({
+      title: section.title.trim() || "Untitled section",
+      lessons: section.lessons
+        .filter((lesson) => lesson.url || lesson.assetKey)
+        .map((lesson) => ({
+          title: lesson.title.trim(),
+          type: lessonApiType(lesson),
+          url: lesson.url,
+          assetKey: lesson.assetKey,
+          isPreview: lesson.isPreview,
+        })),
+    }));
+
+    // Only fully-written questions can be saved; a blank row the creator has
+    // not filled in yet would fail validation.
+    const questions = quiz.questions
+      .filter(
+        (question) =>
+          question.text.trim().length > 0 &&
+          question.answers.filter((answer) => answer.text.trim()).length >= 2 &&
+          question.answers.some(
+            (answer) => answer.correct && answer.text.trim(),
+          ),
+      )
+      .map((question) => ({
+        question: question.text.trim(),
+        options: question.answers
+          .filter((answer) => answer.text.trim())
+          .map((answer) => ({
+            label: answer.text.trim(),
+            isCorrect: answer.correct,
+          })),
+      }));
+
     fetcher.submit(
       {
         intent,
@@ -177,6 +252,24 @@ export default function CourseBuilderPage({
         categoryId: draft.categoryId,
         ...(draft.coverImageKey ? { coverImageKey: draft.coverImageKey } : {}),
         ...(courseId ? { courseId } : {}),
+        curriculum: JSON.stringify({
+          format: format === "single" ? "SINGLE" : "MULTI",
+          chapters,
+        }),
+        quiz: JSON.stringify({
+          passMark: Number(quiz.passMark) || 70,
+          questions,
+        }),
+        meta: JSON.stringify({
+          difficulty: draft.difficulty
+            ? DIFFICULTY_API_VALUE[draft.difficulty]
+            : null,
+          skills: draft.skills,
+          tags: draft.tags,
+          certificateKind: steps.includes("certificate")
+            ? CERTIFICATE_API_VALUE[certificate]
+            : null,
+        }),
       },
       { method: "post" },
     );
@@ -280,6 +373,8 @@ export default function CourseBuilderPage({
           }
           onConfirm={confirmAddLesson}
           onClose={() => setLessonTarget(null)}
+          uploading={lessonUploading}
+          onUploadingChange={setLessonUploading}
         />
       )}
     </div>

@@ -44,6 +44,8 @@ function getActiveMenu(pathname: string) {
     return "manage-launchpad";
   if (pathname.startsWith("/tk-admin/manage-volunteer"))
     return "manage-volunteer";
+  if (pathname.startsWith("/tk-admin/manage-education"))
+    return "manage-education";
   if (pathname.startsWith("/tk-admin/account-settings"))
     return "account-settings";
   return null;

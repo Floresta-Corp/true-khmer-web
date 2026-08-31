@@ -112,10 +112,9 @@ export async function unpublishCourse(request: Request, courseId: string) {
 }
 
 /**
- * Create a course. The API's course model is title/description/categoryId/
- * coverImageKey/price only — the builder's difficulty, skills, tags,
- * curriculum, quizzes and certificate have no endpoint yet, so they stay in
- * the wizard's client state.
+ * Create a course. This covers the Basic step's core fields; the builder's
+ * difficulty, skills, tags, curriculum, quiz and certificate are saved
+ * afterwards through the curriculum endpoints below.
  */
 export async function createCourse(
   request: Request,
@@ -128,7 +127,12 @@ export async function createCourse(
   );
 }
 
-/** Patch an existing draft. Every field is optional. */
+/**
+ * Update an existing draft. Every field is optional.
+ *
+ * PUT, not PATCH: the API registers only GET/PUT/DELETE on this path, so a
+ * PATCH is unrouted and comes back 404.
+ */
 export async function updateCourse(
   request: Request,
   courseId: string,
@@ -137,7 +141,7 @@ export async function updateCourse(
   return apiRequestWithSession<GetCourseResponse, UpdateCourseRequest>(
     request,
     `/education-center/courses/${encodeURIComponent(courseId)}`,
-    { method: "PATCH", body },
+    { method: "PUT", body },
   );
 }
 
@@ -163,4 +167,174 @@ export async function presignCourseCover(
     method: "POST",
     body: params,
   });
+}
+
+/* ------------------------ Curriculum, quiz and meta ----------------------- */
+
+export type LessonAssetType = "YOUTUBE" | "PDF" | "AUDIO";
+
+export interface LessonInput {
+  title: string;
+  type: LessonAssetType;
+  url?: string | null;
+  assetKey?: string | null;
+  durationSeconds?: number | null;
+  isPreview?: boolean;
+}
+
+export interface ReplaceCurriculumBody {
+  format: "MULTI" | "SINGLE";
+  chapters: { title: string; lessons: LessonInput[] }[];
+}
+
+export interface ReplaceQuizBody {
+  passMark: number;
+  questions: {
+    question: string;
+    options: { label: string; isCorrect: boolean }[];
+  }[];
+}
+
+export interface UpdateCourseMetaBody {
+  difficulty?: "BEGINNER" | "INTERMEDIATE" | "ADVANCE" | "ALL_LEVELS" | null;
+  skills?: string[];
+  tags?: string[];
+  certificateKind?: "PARTICIPATION" | "COMPLETION" | null;
+}
+
+/** Replaces the whole curriculum — the builder holds all of it in state. */
+export async function replaceCourseCurriculum(
+  request: Request,
+  courseId: string,
+  body: ReplaceCurriculumBody,
+) {
+  return apiRequestWithSession<{ ok: true }, ReplaceCurriculumBody>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/curriculum`,
+    { method: "PUT", body },
+  );
+}
+
+export async function replaceCourseQuiz(
+  request: Request,
+  courseId: string,
+  body: ReplaceQuizBody,
+) {
+  return apiRequestWithSession<{ ok: true }, ReplaceQuizBody>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/quiz`,
+    { method: "PUT", body },
+  );
+}
+
+/** Difficulty, skills, tags and certificate kind. */
+export async function updateCourseMeta(
+  request: Request,
+  courseId: string,
+  body: UpdateCourseMetaBody,
+) {
+  return apiRequestWithSession<GetCourseResponse, UpdateCourseMetaBody>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/meta`,
+    { method: "PATCH", body },
+  );
+}
+
+export interface PresignLessonAssetParams {
+  contentType: string;
+  /** Bytes. The API rejects anything over 100 MiB. */
+  fileSize: number;
+}
+
+export interface PresignLessonAssetResponse {
+  ok: true;
+  upload: {
+    uploadUrl: string;
+    method: "PUT";
+    requiredHeaders: Record<string, string>;
+    assetKey: string;
+    publicUrl: string | null;
+    expiresInSeconds: number;
+  };
+}
+
+/** Direct-upload URL for a lesson's PDF or audio file. */
+export async function presignLessonAsset(
+  request: Request,
+  params: PresignLessonAssetParams,
+) {
+  return apiRequestWithSession<
+    PresignLessonAssetResponse,
+    PresignLessonAssetParams
+  >(request, `/education-center/courses/lesson/presign`, {
+    method: "POST",
+    body: params,
+  });
+}
+
+export interface CourseCurriculumResponse {
+  ok: true;
+  curriculum: {
+    format: "MULTI" | "SINGLE";
+    chapters: {
+      id: string;
+      title: string;
+      lessons: {
+        id: string;
+        title: string;
+        type: LessonAssetType;
+        url: string | null;
+        assetKey: string | null;
+        assetUrl: string | null;
+        durationSeconds: number | null;
+        isPreview: boolean;
+      }[];
+    }[];
+    lessonCount: number;
+  };
+}
+
+export interface CourseQuizResponse {
+  ok: true;
+  quiz: {
+    passMark: number;
+    questions: {
+      id: string;
+      question: string;
+      options: { id: string; label: string; isCorrect: boolean }[];
+    }[];
+  };
+}
+
+/**
+ * The saved curriculum. Returns null when the API has no curriculum resource,
+ * so the builder can still open against an older deployment.
+ */
+export async function getCourseCurriculum(request: Request, courseId: string) {
+  try {
+    return await apiRequestWithOptionalSession<CourseCurriculumResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/curriculum`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (error instanceof ProtectedApiError && error.status === 404) return null;
+    if (isResourceUnavailable(error, "course curriculum")) return null;
+    throw error;
+  }
+}
+
+/** The saved quiz, answer key included. Owner-only on the API. */
+export async function getCourseQuiz(request: Request, courseId: string) {
+  try {
+    return await apiRequestWithSession<CourseQuizResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/quiz`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (error instanceof ProtectedApiError && error.status === 404) return null;
+    if (isResourceUnavailable(error, "course quiz")) return null;
+    throw error;
+  }
 }

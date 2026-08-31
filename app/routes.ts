@@ -225,6 +225,14 @@ export default [
       "manage-volunteer/:opportunityId",
       "features/admin/manage-content/route/manage-volunteer.$opportunityId.tsx",
     ),
+    route(
+      "manage-education",
+      "features/admin/manage-education/route/manage-education.tsx",
+    ),
+    route(
+      "manage-education/:courseId",
+      "features/admin/manage-education/route/manage-education.$courseId.tsx",
+    ),
   ]),
   route(
     "tk-admin/admin-audit-log/export",

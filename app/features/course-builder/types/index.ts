@@ -1,5 +1,9 @@
 import { z } from "zod";
-import type { CourseLevel } from "~/features/education/types";
+import type {
+  CourseLesson,
+  CourseLevel,
+  CourseSection,
+} from "~/features/education/types";
 
 /**
  * The builder's wizard state.
@@ -156,11 +160,60 @@ export interface LessonDraft {
   url: string;
   /** The chosen file's name, when the source is an upload. */
   fileName: string | null;
+  /** Storage key returned once an uploaded file has landed. */
+  assetKey: string | null;
 }
 
 export function emptyLessonDraft(): LessonDraft {
-  return { title: "", source: "youtube", url: "", fileName: null };
+  return {
+    title: "",
+    source: "youtube",
+    url: "",
+    fileName: null,
+    assetKey: null,
+  };
 }
+
+/**
+ * A lesson in the builder's state. `CourseLesson` is the read model the course
+ * screens render; the builder additionally has to remember where the content
+ * came from so it can be saved.
+ */
+export interface BuilderLesson extends CourseLesson {
+  url: string | null;
+  assetKey: string | null;
+}
+
+export interface BuilderSection extends CourseSection {
+  lessons: BuilderLesson[];
+}
+
+/** How the API names a lesson's source. */
+export type LessonApiType = "YOUTUBE" | "PDF" | "AUDIO";
+
+export function lessonApiType(lesson: BuilderLesson): LessonApiType {
+  if (lesson.type === "pdf") return "PDF";
+  if (lesson.type === "audio") return "AUDIO";
+  return "YOUTUBE";
+}
+
+export const DIFFICULTY_API_VALUE: Record<
+  CourseDifficulty,
+  "BEGINNER" | "INTERMEDIATE" | "ADVANCE" | "ALL_LEVELS"
+> = {
+  Beginner: "BEGINNER",
+  Intermediate: "INTERMEDIATE",
+  Advance: "ADVANCE",
+  "All levels": "ALL_LEVELS",
+};
+
+export const CERTIFICATE_API_VALUE: Record<
+  CertificateKind,
+  "PARTICIPATION" | "COMPLETION"
+> = {
+  participation: "PARTICIPATION",
+  completion: "COMPLETION",
+};
 
 /* -------------------------------- Quiz ----------------------------------- */
 

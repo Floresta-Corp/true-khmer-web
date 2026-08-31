@@ -228,7 +228,12 @@ export function CurriculumStep({
                 urlPlaceholder="Paste YouTube URL here"
                 label={LESSON_SOURCE_CARDS[lesson.source].label}
                 onUrlChange={(url) => onLessonChange({ url })}
-                onFileChange={(fileName) => onLessonChange({ fileName })}
+                onUploaded={(assetKey, fileName) =>
+                  onLessonChange({ assetKey, fileName })
+                }
+                onClearFile={() =>
+                  onLessonChange({ assetKey: null, fileName: null })
+                }
               />
 
               {lesson.source === "youtube" && (
