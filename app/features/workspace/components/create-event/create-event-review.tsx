@@ -120,7 +120,7 @@ export default function CreateEventReview({
               </span>
             )}
 
-            <h2 className="mt-3.5 text-2xl font-extrabold leading-tight text-[#1D283A] md:text-[28px]">
+            <h2 className="mt-3.5 text-2xl leading-tight font-extrabold text-[#1D283A] md:text-[28px]">
               {form.name || "Untitled event"}
             </h2>
 
@@ -168,7 +168,7 @@ export default function CreateEventReview({
                   href={form.googleMapLink}
                   target="_blank"
                   rel="noreferrer"
-                  className="pl-6.5 flex items-center gap-1.5 text-xs text-blue-600 hover:underline"
+                  className="flex items-center gap-1.5 pl-6.5 text-xs text-blue-600 hover:underline"
                 >
                   View on Google Maps
                   <ExternalLink className="size-3" />
@@ -190,7 +190,7 @@ export default function CreateEventReview({
 
             return (
               <div key={item.key} className="min-w-0">
-                <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-400">
+                <div className="flex items-center gap-1.5 text-xs font-bold tracking-wide text-slate-400 uppercase">
                   <Icon className="size-3.5" />
                   {item.label}
                 </div>

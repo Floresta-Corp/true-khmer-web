@@ -498,8 +498,8 @@ export default function CreateEventPage() {
           >
             <CreateEventAside />
 
-            <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-20 pt-9 [scrollbar-gutter:stable] md:px-6">
-              <div className="max-w-170 mx-auto w-full">
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 pt-9 pb-20 [scrollbar-gutter:stable] md:px-6">
+              <div className="mx-auto w-full max-w-170">
                 <div className="flex items-baseline justify-between gap-4">
                   <h1 className="text-2xl font-extrabold text-[#1D283A]">
                     Tell us about your event
@@ -509,7 +509,7 @@ export default function CreateEventPage() {
                     Draft
                   </span>
                 </div>
-                <p className="mb-6 mt-2 text-sm leading-relaxed text-slate-500">
+                <p className="mt-2 mb-6 text-sm leading-relaxed text-slate-500">
                   Fill in just the basics here. For tickets, program scheduling
                   and other full setup, you&apos;ll continue in Plumpi.
                 </p>
@@ -547,7 +547,7 @@ export default function CreateEventPage() {
                     type="button"
                     disabled={!isComplete || isSubmitting}
                     onClick={handleReview}
-                    className="px-6.5 h-11 rounded-lg bg-blue-600 text-sm font-bold text-white hover:bg-blue-700"
+                    className="h-11 rounded-lg bg-blue-600 px-6.5 text-sm font-bold text-white hover:bg-blue-700"
                   >
                     Review
                   </Button>
@@ -562,9 +562,9 @@ export default function CreateEventPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={transition}
-            className="min-h-0 flex-1 overflow-y-auto bg-white px-5 pb-20 pt-11 [scrollbar-gutter:stable] md:px-6"
+            className="min-h-0 flex-1 overflow-y-auto bg-white px-5 pt-11 pb-20 [scrollbar-gutter:stable] md:px-6"
           >
-            <div className="max-w-220 mx-auto">
+            <div className="mx-auto max-w-220">
               <CreateEventReview
                 form={form}
                 category={
@@ -587,7 +587,7 @@ export default function CreateEventPage() {
                   variant="outline"
                   disabled={isSubmitting}
                   onClick={() => goToStep("basics")}
-                  className="px-5.5 h-11 gap-1.5 rounded-lg border-[#E1E7EF] text-sm font-bold text-[#344256]"
+                  className="h-11 gap-1.5 rounded-lg border-[#E1E7EF] px-5.5 text-sm font-bold text-[#344256]"
                 >
                   <ArrowLeft className="size-4" strokeWidth={2.4} />
                   Back to edit
@@ -599,7 +599,7 @@ export default function CreateEventPage() {
                       type="button"
                       disabled={isSubmitting}
                       onClick={handleSaveDraft}
-                      className="px-6.5 h-11 gap-2 rounded-lg bg-blue-600 text-sm font-bold text-white hover:bg-blue-700"
+                      className="h-11 gap-2 rounded-lg bg-blue-600 px-6.5 text-sm font-bold text-white hover:bg-blue-700"
                     >
                       {isCreatingDraft && (
                         <LoaderCircle className="size-4 animate-spin" />
