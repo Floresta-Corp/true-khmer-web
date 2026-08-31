@@ -153,7 +153,25 @@ function ClientIdCell({ clientId }: { clientId: string }) {
   );
 }
 
-function OriginsCell({ origins }: { origins: string[] }) {
+function OriginsCell({
+  origins,
+  allowAllOrigins,
+}: {
+  origins: string[];
+  allowAllOrigins: boolean;
+}) {
+  if (allowAllOrigins) {
+    return (
+      <span
+        title="Any origin is accepted — the list is ignored."
+        className="inline-flex items-center gap-1.5 rounded-lg border border-amber-100 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-600 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-400"
+      >
+        <ShieldAlert className="size-3" />
+        All origins
+      </span>
+    );
+  }
+
   if (origins.length === 0) {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-lg border border-amber-100 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-600 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-400">
@@ -344,7 +362,10 @@ export function DeveloperClientsTable({
                   </div>
                 </AdminTableCell>
                 <AdminTableCell className={CELL_CLASS}>
-                  <OriginsCell origins={client.allowedOrigins} />
+                  <OriginsCell
+                    origins={client.allowedOrigins}
+                    allowAllOrigins={client.allowAllOrigins}
+                  />
                 </AdminTableCell>
                 <AdminTableCell align="center" className={CELL_CLASS}>
                   <StatusBadge status={client.status} />
@@ -407,7 +428,10 @@ export function DeveloperClientsTable({
                   Origins
                 </span>
                 <div className="min-w-0">
-                  <OriginsCell origins={client.allowedOrigins} />
+                  <OriginsCell
+                    origins={client.allowedOrigins}
+                    allowAllOrigins={client.allowAllOrigins}
+                  />
                 </div>
               </div>
 

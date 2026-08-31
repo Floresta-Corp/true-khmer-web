@@ -18,6 +18,9 @@ interface OAuthConsentCardProps {
   clientLogo: string | null;
   clientId: string | null;
   origin: string;
+  platform: "web" | "native";
+  redirectUri: string | null;
+  state: string | null;
   accessToken: string;
   user: OAuthSessionUser;
   // The user confirmed switching accounts and the sign-out has already gone
@@ -34,6 +37,9 @@ export function OAuthConsentCard({
   clientLogo,
   clientId,
   origin,
+  platform,
+  redirectUri,
+  state,
   accessToken,
   user,
   onSignedOut,
@@ -68,7 +74,15 @@ export function OAuthConsentCard({
     // with no data at all, so the missing-data case has to fail loudly too.
     if (fetcher.data?.ok) {
       if (fetcher.data.tokens) onTokensRefreshed(fetcher.data.tokens);
-      postAuthResult(fetcher.data.origin ?? origin, fetcher.data);
+      postAuthResult(
+        {
+          origin: fetcher.data.origin ?? origin,
+          platform,
+          redirectUri,
+          state,
+        },
+        fetcher.data,
+      );
       return;
     }
 
@@ -85,13 +99,16 @@ export function OAuthConsentCard({
     fetcher.state,
     fetcher.data,
     origin,
+    platform,
+    redirectUri,
+    state,
     onTokensRefreshed,
     onSessionExpired,
   ]);
 
   const handleCancel = useCallback(() => {
-    postAuthClose(origin);
-  }, [origin]);
+    postAuthClose({ origin, platform, redirectUri, state });
+  }, [origin, platform, redirectUri, state]);
 
   return (
     <OAuthCardShell>

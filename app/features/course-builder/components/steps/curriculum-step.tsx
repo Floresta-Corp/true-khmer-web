@@ -1,10 +1,30 @@
-import { ChevronDown, FileText, GripVertical, Layers } from "lucide-react";
+import {
+  ChevronDown,
+  FileText,
+  GripVertical,
+  Info,
+  Layers,
+  Music,
+  Play,
+} from "lucide-react";
 import { cn } from "~/lib/utils";
+import { LessonSourceField } from "../lesson-source-field";
 import type { CourseSection, LessonType } from "~/features/education/types";
-import type {
-  CourseFormat,
-  CourseFormatOption,
+import {
+  LESSON_SOURCES,
+  LESSON_SOURCE_CARDS,
+  LESSON_SOURCE_SUBTITLES,
+  type CourseFormat,
+  type CourseFormatOption,
+  type LessonDraft,
+  type LessonSource,
 } from "~/features/course-builder/types";
+
+const SOURCE_ICONS: Record<LessonSource, typeof Play> = {
+  youtube: Play,
+  pdf: FileText,
+  audio: Music,
+};
 
 /**
  * Copy inferred: the design computes these two cards in a script past the
@@ -39,6 +59,9 @@ const TYPE_LABELS: Record<LessonType, string> = {
 
 interface CurriculumStepProps {
   format: CourseFormat;
+  /** The single-lesson course's own content, when the format is "single". */
+  lesson: LessonDraft;
+  onLessonChange: (changes: Partial<LessonDraft>) => void;
   sections: CourseSection[];
   openSections: Set<string>;
   onFormatChange: (format: CourseFormat) => void;
@@ -49,6 +72,8 @@ interface CurriculumStepProps {
 
 export function CurriculumStep({
   format,
+  lesson,
+  onLessonChange,
   sections,
   openSections,
   onFormatChange,
@@ -134,10 +159,92 @@ export function CurriculumStep({
           <p className="mb-5 text-sm text-[#9A9AB0]">
             Add the main learning material for this course.
           </p>
-          <div className="rounded-lg border border-dashed border-[#E5E7EB] px-6 py-12 text-center">
-            <p className="text-[13px] text-[#9A9AB0]">
-              Uploading lesson content needs an API that does not exist yet.
-            </p>
+
+          <div className="flex flex-col gap-5">
+            <div>
+              <span className="mb-2.25 block text-sm font-bold text-[#1A1A2E]">
+                Content format
+              </span>
+              <div className="flex flex-wrap gap-3">
+                {LESSON_SOURCES.map((source) => {
+                  const active = source === lesson.source;
+                  const Icon = SOURCE_ICONS[source];
+
+                  return (
+                    <button
+                      key={source}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => onLessonChange({ source })}
+                      className={cn(
+                        "flex flex-1 cursor-pointer items-center gap-3 rounded-lg border p-3.5 text-left transition-colors sm:min-w-[210px] sm:flex-none",
+                        active
+                          ? "border-[#1C5DD4] bg-[#EFF4FE]"
+                          : "border-[#E5E7EB] hover:border-[#C9D6F2]",
+                      )}
+                    >
+                      <span
+                        aria-hidden
+                        className={cn(
+                          "flex size-[18px] shrink-0 items-center justify-center rounded-full border-2",
+                          active ? "border-[#1C5DD4]" : "border-[#C9CBD4]",
+                        )}
+                      >
+                        {active && (
+                          <span className="size-2.25 rounded-full bg-[#1C5DD4]" />
+                        )}
+                      </span>
+
+                      <span
+                        aria-hidden
+                        className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#EFF4FE] text-[#1C5DD4]"
+                      >
+                        <Icon size={16} />
+                      </span>
+
+                      <span className="min-w-0">
+                        <span className="mb-0.5 block text-sm font-bold text-[#1A1A2E]">
+                          {LESSON_SOURCE_CARDS[source].label}
+                        </span>
+                        <span className="block text-xs text-[#9A9AB0]">
+                          {LESSON_SOURCE_CARDS[source].desc}
+                        </span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <p className="mb-2.5 text-[13px] text-[#9A9AB0]">
+                {LESSON_SOURCE_SUBTITLES[lesson.source]}
+              </p>
+
+              <LessonSourceField
+                source={lesson.source}
+                url={lesson.url}
+                fileName={lesson.fileName}
+                urlPlaceholder="Paste YouTube URL here"
+                label={LESSON_SOURCE_CARDS[lesson.source].label}
+                onUrlChange={(url) => onLessonChange({ url })}
+                onFileChange={(fileName) => onLessonChange({ fileName })}
+              />
+
+              {lesson.source === "youtube" && (
+                <div className="mt-3 flex items-start gap-2.5 rounded-lg bg-[#EFF4FE] px-3.5 py-3">
+                  <Info
+                    size={17}
+                    aria-hidden
+                    className="mt-px shrink-0 text-[#1C5DD4]"
+                  />
+                  <span className="text-[13px] leading-[1.5] text-[#1C5DD4]">
+                    Make sure the video is public so your learners can access
+                    it.
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       ) : (

@@ -33,11 +33,11 @@ export function CourseLearnerStats({
   return (
     <div className={cn("shrink-0 items-start gap-9", className)}>
       <div className="pr-9">
-        <p className="text-[14px] text-[#86869E]">Total learners</p>
-        <p className="text-[26px] leading-tight font-bold text-[#10101E]">
+        <p className="text-[12px] text-[#86869E]">Total learners</p>
+        <p className="text-[18px] leading-tight font-bold text-[#10101E]">
           {stats.totalLearners.toLocaleString()}
         </p>
-        <p className="text-[13px] text-[#83839B]">Learners</p>
+        <p className="text-[11px] text-[#83839B]">Learners</p>
       </div>
 
       {columns.map((column, index) => (
@@ -45,13 +45,13 @@ export function CourseLearnerStats({
           key={column.label}
           className={cn(index === 0 && "border-l border-[#E5E7EB] pl-9")}
         >
-          <p className="text-[14px] whitespace-nowrap text-[#86869E]">
+          <p className="text-[12px] whitespace-nowrap text-[#86869E]">
             {column.label}
           </p>
-          <p className="text-[26px] leading-tight font-bold text-[#10101E]">
+          <p className="text-[18px] leading-tight text-[#10101E]">
             {column.value}
           </p>
-          <p className="text-[13px] whitespace-nowrap text-[#83839B]">
+          <p className="text-[11px] whitespace-nowrap text-[#83839B]">
             {column.caption}
           </p>
         </div>

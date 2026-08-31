@@ -11,6 +11,7 @@ import type {
   BuilderStep,
   CategoryOption,
   CourseDraft,
+  CourseFormat,
 } from "~/features/course-builder/types";
 import type { CourseSection } from "~/features/education/types";
 
@@ -24,6 +25,10 @@ interface PreviewStepProps {
   sections: CourseSection[];
   questionCount: number;
   passMark: string;
+  /** A single-lesson course phrases its content item differently. */
+  format: CourseFormat;
+  /** The quiz item only applies when the course has a Quiz step. */
+  hasQuizStep: boolean;
   onEditStep: (step: BuilderStep) => void;
 }
 
@@ -33,6 +38,8 @@ export function PreviewStep({
   sections,
   questionCount,
   passMark,
+  format,
+  hasQuizStep,
   onEditStep,
 }: PreviewStepProps) {
   const lessonCount = sections.reduce(
@@ -46,25 +53,40 @@ export function PreviewStep({
     DIFFICULTY_OPTIONS.find((option) => option.value === draft.difficulty)
       ?.label ?? "Not set";
 
+  // The design's own checklist: details, cover, content, and a quiz item only
+  // when the course has a quiz to complete.
   const checklist: Array<{ label: string; done: boolean; step: BuilderStep }> =
     [
       {
-        label: "Course title and description",
+        label: "Course details",
         done:
-          draft.title.trim().length > 0 && draft.description.trim().length > 0,
+          draft.title.trim().length > 0 &&
+          draft.description.trim().length > 0 &&
+          Boolean(draft.categoryId),
         step: "basic",
       },
       {
-        label: "Category chosen",
-        done: Boolean(draft.categoryId),
+        label: "Cover image",
+        done: Boolean(draft.coverPreviewUrl),
         step: "basic",
       },
       {
-        label: "At least one lesson",
+        label:
+          format === "single"
+            ? "Lesson content added"
+            : "At least one chapter with lesson",
         done: lessonCount > 0,
         step: "curriculum",
       },
-      { label: "Quiz questions added", done: questionCount > 0, step: "quiz" },
+      ...(hasQuizStep
+        ? [
+            {
+              label: "Completed quiz creation",
+              done: questionCount > 0,
+              step: "quiz" as BuilderStep,
+            },
+          ]
+        : []),
     ];
 
   const done = checklist.filter((item) => item.done).length;
@@ -74,10 +96,10 @@ export function PreviewStep({
       <div className="order-2 flex min-w-0 flex-col gap-5 xl:order-1">
         <ReviewCard
           title="Course details"
-          done={checklist[0].done && checklist[1].done}
+          done={checklist[0].done}
           onEdit={() => onEditStep("basic")}
         >
-          <div className="mb-[18px] grid gap-[18px_28px] sm:grid-cols-2">
+          <div className="mb-4.5 grid gap-[18px_28px] sm:grid-cols-2">
             <div className="sm:col-span-2">
               <div className={FIELD_LABEL}>TITLE</div>
               <div className="text-[15px] font-bold text-[#1A1A2E]">
@@ -179,13 +201,13 @@ export function PreviewStep({
       </div>
 
       <div className="order-1 min-w-0 rounded-xl border border-[#E5E7EB] bg-white p-4 xl:order-2">
-        <h3 className="mb-[3px] text-sm font-bold text-[#1A1A2E]">
+        <h3 className="mb-0.75 text-sm font-bold text-[#1A1A2E]">
           Ready to submit?
         </h3>
         <div className="mb-1.5 text-[11px] font-semibold text-[#9A9AB0]">
           {done} of {checklist.length} complete
         </div>
-        <div className="mb-3.5 h-[5px] overflow-hidden rounded-full bg-[#E8E8E8]">
+        <div className="mb-3.5 h-1.25 overflow-hidden rounded-full bg-[#E8E8E8]">
           <div
             className="h-full rounded-full bg-[#1C5DD4] transition-[width]"
             style={{ width: `${(done / checklist.length) * 100}%` }}
@@ -272,7 +294,7 @@ function ReviewCard({
         <button
           type="button"
           onClick={onEdit}
-          className="shrink-0 cursor-pointer rounded-lg border border-[#1C5DD4] px-4 py-[7px] text-[13px] font-bold text-[#1C5DD4]"
+          className="shrink-0 cursor-pointer rounded-lg border border-[#1C5DD4] px-4 py-1.75 text-[13px] font-bold text-[#1C5DD4]"
         >
           Edit
         </button>

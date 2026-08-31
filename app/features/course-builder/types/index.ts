@@ -60,11 +60,15 @@ export const DIFFICULTY_OPTIONS: DifficultyOption[] = [
   },
 ];
 
+/**
+ * Every step the builder can show, in the design's order. Which of them are
+ * actually visible depends on the course — see `visibleSteps`.
+ */
 export const BUILDER_STEPS = [
   "basic",
   "curriculum",
-  "quiz",
   "certificate",
+  "quiz",
   "preview",
 ] as const;
 
@@ -99,6 +103,63 @@ export interface CourseFormatOption {
   label: string;
   desc: string;
   badge: string | null;
+}
+
+/* ------------------------------- Lessons --------------------------------- */
+
+/** How a lesson's content is supplied. */
+export const LESSON_SOURCES = ["youtube", "pdf", "audio"] as const;
+
+export type LessonSource = (typeof LESSON_SOURCES)[number];
+
+export const LESSON_SOURCE_LABELS: Record<LessonSource, string> = {
+  youtube: "YouTube link",
+  pdf: "PDF",
+  audio: "Audio",
+};
+
+/** The richer labels the single-lesson "Content format" cards use. */
+export const LESSON_SOURCE_CARDS: Record<
+  LessonSource,
+  { label: string; desc: string }
+> = {
+  youtube: { label: "YouTube video", desc: "Link a video from YouTube" },
+  pdf: { label: "PDF", desc: "Upload a PDF file" },
+  audio: { label: "Audio", desc: "Upload an audio file" },
+};
+
+export const LESSON_SOURCE_SUBTITLES: Record<LessonSource, string> = {
+  youtube: "Paste the link to the video learners will watch.",
+  pdf: "Upload the PDF learners will read.",
+  audio: "Upload the audio learners will listen to.",
+};
+
+export const LESSON_FIELD_LABELS: Record<LessonSource, string> = {
+  youtube: "YouTube URL",
+  pdf: "PDF file",
+  audio: "Audio file",
+};
+
+export const LESSON_UPLOAD_HINTS: Record<
+  Exclude<LessonSource, "youtube">,
+  string
+> = {
+  pdf: "Drop a PDF here or click to browse",
+  audio: "Drop an audio file here or click to browse",
+};
+
+/** What the "Add lesson" dialog collects. */
+export interface LessonDraft {
+  title: string;
+  source: LessonSource;
+  /** The YouTube URL, when the source is a link. */
+  url: string;
+  /** The chosen file's name, when the source is an upload. */
+  fileName: string | null;
+}
+
+export function emptyLessonDraft(): LessonDraft {
+  return { title: "", source: "youtube", url: "", fileName: null };
 }
 
 /* -------------------------------- Quiz ----------------------------------- */

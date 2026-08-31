@@ -20,6 +20,9 @@ export default function OAuthLoginPage() {
     clientLogo,
     clientId,
     origin,
+    platform,
+    redirectUri,
+    state,
     user,
     accessToken,
     refreshToken,
@@ -100,6 +103,9 @@ export default function OAuthLoginPage() {
         clientLogo={clientLogo}
         clientId={clientId}
         origin={origin}
+        platform={platform}
+        redirectUri={redirectUri}
+        state={state}
         accessToken={consentData.accessToken}
         user={consentData.user}
         onSignedOut={handleSignedOut}
