@@ -3,64 +3,26 @@ import type { Route as EducationDetailRoute } from "project-types/education/rout
 import {
   getCourseById,
   getCourseCategories,
+  getCourseCurriculum,
 } from "~/api/education/education.server";
-import {
-  CATALOG_COURSES,
-  enrichCourseDetail,
-} from "~/features/education/lib/education-fixtures";
-import { MY_COURSES_FIXTURES } from "~/features/course-listing/lib/my-courses-fixtures";
+import { toCourseSections } from "~/features/education/lib/map-curriculum";
 import type { CourseDetail, CourseSummary } from "~/features/education/types";
 
 /**
- * Resolves a course into the full detail shape.
+ * Resolves a course into the full detail shape, entirely from the API.
  *
- * `GET /education-center/courses/:id` supplies title, description, cover and
- * price. Instructor, rating, curriculum, reviews and enrolment come from the
- * fixtures until those resources exist. Fixture-only ids — the hub catalog and
- * the Course Listing placeholders — short-circuit the API call, so "View
- * course" works on a placeholder row.
+ * Anything the API has no resource for — ratings, reviews, enrolment, course
+ * duration — is reported as absent rather than filled with sample content, so
+ * the page never shows a learner a number nobody recorded.
  */
 export async function loadCourseDetail(
   request: Request,
   courseId: string,
 ): Promise<CourseDetail | null> {
-  const fixture = CATALOG_COURSES.find((course) => course.id === courseId);
-  if (fixture) return enrichCourseDetail(fixture);
-
-  const placeholder = MY_COURSES_FIXTURES.find(
-    (course) => course.id === courseId,
-  );
-  if (placeholder) {
-    return {
-      ...enrichCourseDetail({
-        id: placeholder.id,
-        title: placeholder.title,
-        description: placeholder.description,
-        categoryId: placeholder.categoryId,
-        categoryName: "Business",
-        coverImageUrl: placeholder.coverImageUrl,
-        instructor: {
-          id: placeholder.createdBy,
-          name: "Kosal Em",
-          avatarUrl: "/images/education/instructors/kosal-em.jpg",
-          coursesPublished: 3,
-        },
-        rating: 4.7,
-        ratingCount: placeholder.stats?.totalLearners ?? 0,
-        level: "Beginner",
-        lessonCount: 0,
-        studentCount: placeholder.stats?.totalLearners ?? 0,
-        isNew: false,
-        price: placeholder.price,
-        isSaved: false,
-      }),
-      status: placeholder.status,
-    };
-  }
-
-  const [courseRes, categoriesRes] = await Promise.all([
+  const [courseRes, categoriesRes, curriculumRes] = await Promise.all([
     getCourseById(request, courseId),
     getCourseCategories(request),
+    getCourseCurriculum(request, courseId),
   ]);
 
   const course = courseRes?.data?.course;
@@ -70,31 +32,76 @@ export async function loadCourseDetail(
     categoriesRes?.data?.categories?.find((c) => c.id === course.categoryId)
       ?.name ?? "Course";
 
-  const base: CourseSummary = {
+  const sections = curriculumRes?.data?.curriculum
+    ? toCourseSections(curriculumRes.data.curriculum)
+    : [];
+
+  const lessonCount = curriculumRes?.data?.curriculum.lessonCount ?? 0;
+  const creator = (course as { creator?: { id: string; name: string } | null })
+    .creator;
+
+  const skills = Array.isArray((course as { skills?: string[] }).skills)
+    ? ((course as { skills?: string[] }).skills as string[])
+    : [];
+
+  const difficulty = (course as { difficulty?: string | null }).difficulty;
+  const level: CourseSummary["level"] =
+    difficulty === "INTERMEDIATE"
+      ? "Intermediate"
+      : difficulty === "ADVANCE"
+        ? "Advance"
+        : "Beginner";
+
+  const summary: CourseSummary = {
     id: course.id,
     title: course.title,
     description: course.description,
     categoryId: course.categoryId,
     categoryName,
     coverImageUrl: course.coverImageUrl,
-    // Not yet returned by the API — see education-fixtures.
     instructor: {
-      id: course.createdBy,
-      name: "True Khmer Instructor",
-      avatarUrl: "/images/avatar_placeholder.webp",
-      coursesPublished: 1,
+      id: creator?.id ?? course.createdBy,
+      name: creator?.name ?? "Unknown instructor",
+      avatarUrl: null,
+      coursesPublished: 0,
     },
-    rating: 4.7,
+    // Ratings, enrolment and reviews have no API resource, so they stay at
+    // zero rather than being invented.
+    rating: 0,
     ratingCount: 0,
-    level: "Beginner",
-    lessonCount: 0,
+    level,
+    lessonCount,
     studentCount: 0,
     isNew: false,
     price: course.price,
     isSaved: false,
   };
 
-  return { ...enrichCourseDetail(base), status: course.status };
+  return {
+    ...summary,
+    // Only facts the API actually knows. Duration and rating are omitted
+    // entirely rather than shown as placeholders.
+    meta: [
+      {
+        label: "LESSONS",
+        value: `${lessonCount} lesson${lessonCount === 1 ? "" : "s"}`,
+      },
+      { label: "LEVEL", value: level },
+      {
+        label: "PRICE",
+        value: course.price > 0 ? `$${course.price.toFixed(2)}` : "Free",
+      },
+    ],
+    // "What you'll learn" is the creator's own skills list from the builder.
+    outcomes: skills,
+    curriculum: sections,
+    reviews: [],
+    reviewCount: 0,
+    enrolledCount: 0,
+    isEnrolled: false,
+    progressPercent: 0,
+    status: course.status,
+  };
 }
 
 export async function educationDetailLoader({

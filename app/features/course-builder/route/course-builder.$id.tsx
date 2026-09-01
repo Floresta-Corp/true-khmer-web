@@ -21,6 +21,9 @@ export default function CourseBuilderEditRoute() {
     categories,
     draft,
     sections,
+    courseStatus,
+    curriculumLoaded,
+    quizLoaded,
     certificate,
     format,
     passMark,
@@ -34,6 +37,9 @@ export default function CourseBuilderEditRoute() {
       categories={categories}
       initialDraft={draft}
       initialSections={sections}
+      courseStatus={courseStatus}
+      curriculumLoaded={curriculumLoaded}
+      quizLoaded={quizLoaded}
       initialCertificate={certificate}
       initialFormat={format}
       initialPassMark={passMark}

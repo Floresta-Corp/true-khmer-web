@@ -123,6 +123,12 @@ export async function courseBuilderEditLoader({
     })),
   }));
 
+  // Whether the saved content actually came back, as opposed to being absent.
+  // A save replaces wholesale, so the builder must not send a curriculum it
+  // never managed to load — that would delete the real one.
+  const curriculumLoaded = Boolean(curriculumResult?.data?.curriculum);
+  const quizLoaded = Boolean(quizResult?.data?.quiz);
+
   const quiz = quizResult?.data?.quiz ?? null;
   const questions: QuizQuestion[] = (quiz?.questions ?? []).map((question) => ({
     id: question.id,
@@ -138,6 +144,9 @@ export async function courseBuilderEditLoader({
     categories,
     draft,
     sections,
+    courseStatus: course.status,
+    curriculumLoaded,
+    quizLoaded,
     certificate,
     format,
     passMark: String(quiz?.passMark ?? 70),

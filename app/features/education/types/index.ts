@@ -81,6 +81,11 @@ export interface CourseLesson {
   /** Playable before enrolling. */
   isPreview: boolean;
   isComplete: boolean;
+  /**
+   * Where the content lives — a YouTube link, or the file's URL. Optional
+   * because the fixture curriculum has no real media behind it.
+   */
+  sourceUrl?: string | null;
 }
 
 export interface CourseSection {

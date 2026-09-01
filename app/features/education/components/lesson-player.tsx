@@ -2,20 +2,61 @@ import { useMemo, useRef, useState } from "react";
 import { Maximize2, Minimize2, Pause, Play } from "lucide-react";
 import type { ActiveLesson } from "~/features/education/types";
 
+/** youtu.be/ID, /watch?v=ID, /embed/ID and /shorts/ID all reduce to an id. */
+export function youtubeEmbedUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, "");
+
+    const id =
+      host === "youtu.be"
+        ? parsed.pathname.slice(1)
+        : host.endsWith("youtube.com")
+          ? (parsed.searchParams.get("v") ??
+            parsed.pathname.match(/^\/(?:embed|shorts|v)\/([^/?]+)/)?.[1] ??
+            null)
+          : null;
+
+    return id ? `https://www.youtube.com/embed/${id}` : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Renders the lesson body for the three media kinds in the design.
  *
- * There is no media URL on the API yet, so playback is a presentational
- * simulation: the transport reflects local play state rather than a real
- * `<video>`/`<audio>` element.
+ * A lesson with a real source plays it — a YouTube embed, an audio element, or
+ * the PDF itself. Without one (the fixture curriculum has no media behind it)
+ * the design's presentational transport is shown instead.
  */
 export function LessonPlayer({ lesson }: { lesson: ActiveLesson }) {
-  if (lesson.type === "pdf") return <PdfLesson />;
+  if (lesson.type === "pdf") return <PdfLesson lesson={lesson} />;
   if (lesson.type === "audio") return <AudioLesson lesson={lesson} />;
   return <VideoLesson lesson={lesson} />;
 }
 
 function VideoLesson({ lesson }: { lesson: ActiveLesson }) {
+  const embedUrl = lesson.sourceUrl ? youtubeEmbedUrl(lesson.sourceUrl) : null;
+
+  if (embedUrl) {
+    return (
+      <div className="relative h-[260px] overflow-hidden rounded-xl bg-black sm:h-[460px]">
+        <iframe
+          src={embedUrl}
+          title={lesson.title}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className="size-full border-0"
+        />
+      </div>
+    );
+  }
+
+  return <SimulatedVideoLesson lesson={lesson} />;
+}
+
+function SimulatedVideoLesson({ lesson }: { lesson: ActiveLesson }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -89,7 +130,23 @@ function VideoLesson({ lesson }: { lesson: ActiveLesson }) {
   );
 }
 
-function PdfLesson() {
+function PdfLesson({ lesson }: { lesson: ActiveLesson }) {
+  if (lesson.sourceUrl) {
+    return (
+      <div className="h-[460px] overflow-hidden rounded-xl border border-gray-200 bg-[#E8E8E8]">
+        <iframe
+          src={lesson.sourceUrl}
+          title={lesson.title}
+          className="size-full border-0"
+        />
+      </div>
+    );
+  }
+
+  return <SimulatedPdfLesson />;
+}
+
+function SimulatedPdfLesson() {
   const lines = useMemo(
     () =>
       Array.from({ length: 9 }, (_, index) => ({
@@ -118,6 +175,26 @@ function PdfLesson() {
 }
 
 function AudioLesson({ lesson }: { lesson: ActiveLesson }) {
+  if (lesson.sourceUrl) {
+    return (
+      <div className="rounded-xl border border-gray-200 bg-white p-8">
+        <p className="mb-4 text-sm font-bold text-[#1A1A2E]">{lesson.title}</p>
+        <audio
+          controls
+          preload="metadata"
+          src={lesson.sourceUrl}
+          className="w-full"
+        >
+          Your browser cannot play this audio.
+        </audio>
+      </div>
+    );
+  }
+
+  return <SimulatedAudioLesson lesson={lesson} />;
+}
+
+function SimulatedAudioLesson({ lesson }: { lesson: ActiveLesson }) {
   const [isPlaying, setIsPlaying] = useState(false);
 
   // Deterministic bar heights so the waveform is stable across renders.

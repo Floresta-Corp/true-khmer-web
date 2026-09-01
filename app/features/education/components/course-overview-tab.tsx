@@ -28,23 +28,28 @@ export function CourseOverviewTab({ course }: { course: CourseDetail }) {
         {course.description}
       </p>
 
-      <h2 className="mb-3.5 text-xl font-bold text-[#1A1A2E]">
-        What you&apos;ll learn
-      </h2>
-      <ul className="flex flex-col gap-2.5">
-        {course.outcomes.map((outcome) => (
-          <li
-            key={outcome}
-            className="flex items-start gap-2.5 text-sm text-[#333333]"
-          >
-            <Check
-              className="mt-0.5 size-4 shrink-0 text-[#1FC16B]"
-              aria-hidden
-            />
-            <span>{outcome}</span>
-          </li>
-        ))}
-      </ul>
+      {/* Only shown when the creator actually listed skills in the builder. */}
+      {course.outcomes.length > 0 && (
+        <>
+          <h2 className="mb-3.5 text-xl font-bold text-[#1A1A2E]">
+            What you&apos;ll learn
+          </h2>
+          <ul className="flex flex-col gap-2.5">
+            {course.outcomes.map((outcome) => (
+              <li
+                key={outcome}
+                className="flex items-start gap-2.5 text-sm text-[#333333]"
+              >
+                <Check
+                  className="mt-0.5 size-4 shrink-0 text-[#1FC16B]"
+                  aria-hidden
+                />
+                <span>{outcome}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 }

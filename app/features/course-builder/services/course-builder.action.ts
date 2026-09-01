@@ -10,6 +10,7 @@ import {
   updateCourse,
   updateCourseMeta,
 } from "~/api/education/education.server";
+import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
 
@@ -21,6 +22,8 @@ const MAX_COVER_BYTES = 5 * 1024 * 1024;
  * flat form fields, since a `FormData` body cannot carry nested arrays.
  */
 const LessonSchema = z.object({
+  /** Sent back for an existing lesson so the API updates it in place. */
+  id: z.string().uuid().nullish(),
   title: z.string().trim().min(1).max(255),
   type: z.enum(["YOUTUBE", "PDF", "AUDIO"]),
   url: z.string().trim().url().max(2000).nullish(),
@@ -33,6 +36,7 @@ const CurriculumSchema = z.object({
   format: z.enum(["MULTI", "SINGLE"]),
   chapters: z.array(
     z.object({
+      id: z.string().uuid().nullish(),
       title: z.string().trim().min(1).max(255),
       lessons: z.array(LessonSchema),
     }),
@@ -65,15 +69,44 @@ const MetaSchema = z.object({
   certificateKind: z.enum(["PARTICIPATION", "COMPLETION"]).nullish(),
 });
 
-/** Parses one of the JSON side-channel fields, ignoring anything malformed. */
-function readJsonField<T>(raw: unknown, schema: z.ZodType<T>): T | null {
-  if (typeof raw !== "string" || raw.trim() === "") return null;
+type JsonFieldResult<T> =
+  | { status: "absent" }
+  | { status: "ok"; value: T }
+  | { status: "invalid"; message: string };
+
+/**
+ * Parses one of the JSON side-channel fields.
+ *
+ * An absent field and a malformed one are reported differently on purpose: the
+ * first means "leave this alone", the second is a bug the creator has to see.
+ * Treating them alike would silently drop a curriculum the creator just wrote.
+ */
+function readJsonField<T>(
+  raw: unknown,
+  schema: z.ZodType<T>,
+  label: string,
+): JsonFieldResult<T> {
+  if (typeof raw !== "string" || raw.trim() === "") return { status: "absent" };
+
+  let decoded: unknown;
   try {
-    const parsed = schema.safeParse(JSON.parse(raw));
-    return parsed.success ? parsed.data : null;
+    decoded = JSON.parse(raw);
   } catch {
-    return null;
+    return { status: "invalid", message: `Could not read the ${label}.` };
   }
+
+  const parsed = schema.safeParse(decoded);
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    return {
+      status: "invalid",
+      message: issue
+        ? `${label}: ${issue.path.join(".") || "value"} — ${issue.message}`
+        : `The ${label} is not valid.`,
+    };
+  }
+
+  return { status: "ok", value: parsed.data };
 }
 
 const CourseFieldsSchema = z.object({
@@ -171,31 +204,72 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
     ...fields
   } = parsed.data;
 
-  const saved = courseId
-    ? await updateCourse(request, courseId, {
-        ...fields,
-        coverImageKey: fields.coverImageKey ?? null,
-      })
-    : await createCourse(request, fields);
+  // The API refuses edits to a course under review or already live. Surfacing
+  // its message beats an error boundary that just says something went wrong.
+  let saved;
+  try {
+    saved = courseId
+      ? await updateCourse(request, courseId, {
+          ...fields,
+          coverImageKey: fields.coverImageKey ?? null,
+        })
+      : await createCourse(request, fields);
+  } catch (error) {
+    if (error instanceof ProtectedApiError && error.status < 500) {
+      return withAuthData(
+        auth,
+        { ok: false as const, fieldErrors: {}, error: error.message },
+        { status: error.status },
+      );
+    }
+    throw error;
+  }
 
   let course = saved.data.course;
 
   // The course row has to exist before its curriculum can hang off it, so the
   // rest of the wizard is saved here rather than in the same request.
-  const meta = readJsonField(rawMeta, MetaSchema);
-  if (meta) {
-    const updated = await updateCourseMeta(request, course.id, meta);
-    course = updated.data.course;
+  const meta = readJsonField(rawMeta, MetaSchema, "course details");
+  const curriculum = readJsonField(
+    rawCurriculum,
+    CurriculumSchema,
+    "curriculum",
+  );
+  const quiz = readJsonField(rawQuiz, QuizSchema, "quiz");
+
+  const invalid = [meta, curriculum, quiz].find(
+    (field) => field.status === "invalid",
+  );
+  if (invalid && invalid.status === "invalid") {
+    return withAuthData(
+      auth,
+      { ok: false as const, fieldErrors: {}, error: invalid.message },
+      { status: 400 },
+    );
   }
 
-  const curriculum = readJsonField(rawCurriculum, CurriculumSchema);
-  if (curriculum) {
-    await replaceCourseCurriculum(request, course.id, curriculum);
-  }
+  try {
+    if (meta.status === "ok") {
+      const updated = await updateCourseMeta(request, course.id, meta.value);
+      course = updated.data.course;
+    }
 
-  const quiz = readJsonField(rawQuiz, QuizSchema);
-  if (quiz) {
-    await replaceCourseQuiz(request, course.id, quiz);
+    if (curriculum.status === "ok") {
+      await replaceCourseCurriculum(request, course.id, curriculum.value);
+    }
+
+    if (quiz.status === "ok") {
+      await replaceCourseQuiz(request, course.id, quiz.value);
+    }
+  } catch (error) {
+    if (error instanceof ProtectedApiError && error.status < 500) {
+      return withAuthData(
+        auth,
+        { ok: false as const, fieldErrors: {}, error: error.message },
+        { status: error.status },
+      );
+    }
+    throw error;
   }
 
   if (intent === "submit") {

@@ -338,3 +338,70 @@ export async function getCourseQuiz(request: Request, courseId: string) {
     throw error;
   }
 }
+
+export interface PublicCourseListItem {
+  id: string;
+  title: string;
+  creator: { id: string; name: string; email: string } | null;
+  description: string;
+  categoryId: string;
+  categoryName: string | null;
+  coverImageUrl: string | null;
+  price: number;
+  difficulty: "BEGINNER" | "INTERMEDIATE" | "ADVANCE" | "ALL_LEVELS" | null;
+  skills: string[];
+  tags: string[];
+  lessonCount: number;
+  publishedAt: string | null;
+  createdAt: string;
+}
+
+export interface ListPublicCoursesResponse {
+  ok: true;
+  courses: PublicCourseListItem[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface ListPublicCoursesParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  categoryId?: string;
+  pricing?: "free" | "paid";
+  sortBy?: "newest" | "oldest" | "az" | "price";
+}
+
+/**
+ * The public catalogue of published courses. Returns null on an API that has
+ * no catalogue endpoint, so the hub can fall back to its fixtures.
+ */
+export async function listPublicCourses(
+  request: Request,
+  params: ListPublicCoursesParams,
+) {
+  const query = new URLSearchParams();
+  if (params.page) query.set("page", String(params.page));
+  if (params.limit) query.set("limit", String(params.limit));
+  if (params.search) query.set("search", params.search);
+  if (params.categoryId) query.set("categoryId", params.categoryId);
+  if (params.pricing) query.set("pricing", params.pricing);
+  if (params.sortBy) query.set("sortBy", params.sortBy);
+
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+
+  try {
+    return await apiRequestWithOptionalSession<ListPublicCoursesResponse>(
+      request,
+      `/education-center/courses${suffix}`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (isResourceUnavailable(error, "course catalogue")) return null;
+    throw error;
+  }
+}
