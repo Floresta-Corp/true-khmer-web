@@ -93,19 +93,7 @@ export function EventDetailOverview({ event }: { event: EventDetail }) {
               {event.venueName ?? "Location to be announced"}
             </p>
             {event.venueAddress && (
-              <p className="mb-1 text-[13px] text-[#9A9AB0]">
-                {event.venueAddress}
-              </p>
-            )}
-            {event.mapUrl && (
-              <a
-                href={event.mapUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[12.5px] font-bold tracking-[0.04em] text-[#1C5DD4] hover:underline"
-              >
-                VIEW ON MAP
-              </a>
+              <p className="text-[13px] text-[#9A9AB0]">{event.venueAddress}</p>
             )}
           </Row>
         )}

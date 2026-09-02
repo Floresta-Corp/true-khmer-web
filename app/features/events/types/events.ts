@@ -122,21 +122,9 @@ const VenueSchema = z
     z.object({
       name: NullableString,
       address: NullableString,
-      locationUrl: NullableString,
-      googleMapLink: NullableString,
     }),
   ])
   .optional();
-
-function buildMapUrl(
-  venue: { locationUrl?: string | null; googleMapLink?: string | null } | null,
-  query: string,
-) {
-  const link = venue?.googleMapLink ?? venue?.locationUrl;
-  if (link) return link;
-  if (!query) return null;
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-}
 
 export const EventDetailSchema = z
   .object({
@@ -195,10 +183,6 @@ export const EventDetailSchema = z
       dates: dates.length > 0 ? dates : null,
       venueName,
       venueAddress,
-      mapUrl: buildMapUrl(
-        venue,
-        [venueName, venueAddress].filter(Boolean).join(", "),
-      ),
       isOnline: event.isOnline ?? false,
       entryMode: EventEntryModeSchema.catch("TICKETED").parse(event.entryMode),
       isFavorite: event.isFavorite ?? false,
