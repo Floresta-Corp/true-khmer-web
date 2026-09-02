@@ -23,6 +23,31 @@ export function getPlumpiOrganizations(request: Request) {
   >(request, "/plumpi/organizations?page=1&limit=100");
 }
 
+export type PlumpiMyEventsQuery = {
+  page: number;
+  limit: number;
+  search?: string;
+  status?: string;
+};
+
+export function getPlumpiMyEvents(
+  request: Request,
+  query: PlumpiMyEventsQuery,
+) {
+  const searchParams = new URLSearchParams({
+    page: String(query.page),
+    limit: String(query.limit),
+    sortBy: "startAt",
+    sortOrder: "desc",
+  });
+  if (query.search) searchParams.set("search", query.search);
+  if (query.status) searchParams.set("status", query.status);
+
+  return apiRequestWithSession<
+    Awaited<ReturnType<PlumpiApi["getV1plumpimyevents"]>>
+  >(request, `/plumpi/myevents?${searchParams.toString()}`);
+}
+
 export function getPlumpiVenues(request: Request) {
   return apiRequestWithSession<
     Awaited<ReturnType<PlumpiApi["getV1plumpivenues"]>>
@@ -44,21 +69,42 @@ export function createPlumpiEvent(
   });
 }
 
-export function uploadPlumpiEventCover(
+export function uploadPlumpiEventThumbnail(
   request: Request,
   eventId: string,
-  cover: File,
+  thumbnail: File,
 ) {
   const body = new FormData();
-  body.set("cover", cover, cover.name);
+  body.set("thumbnail", thumbnail, thumbnail.name);
 
   return apiRequestWithSession<
-    Awaited<ReturnType<PlumpiApi["patchV1plumpieventsEventIdcover"]>>,
+    Awaited<ReturnType<PlumpiApi["patchV1plumpieventsEventIdthumbnail"]>>,
     FormData
-  >(request, `/plumpi/events/${encodeURIComponent(eventId)}/cover`, {
+  >(request, `/plumpi/events/${encodeURIComponent(eventId)}/thumbnail`, {
     method: "PATCH",
     body,
   });
+}
+
+/**
+ * Deep link that drops the organizer straight into an event in the Plumpi
+ * console, authenticated by a fresh handoff token.
+ */
+export function buildPlumpiEventHandoffUrl(
+  organizationId: string,
+  eventId: string,
+  handoffToken: string,
+) {
+  const baseUrl = process.env.VITE_PLUMPI_WEB?.trim();
+  if (!baseUrl) {
+    throw new Error("Plumpi web URL is not configured.");
+  }
+
+  const nextPath = `/console/${encodeURIComponent(organizationId)}/events/${encodeURIComponent(eventId)}`;
+  const url = new URL("/auth/handoff", baseUrl);
+  url.searchParams.set("token", handoffToken);
+  url.searchParams.set("nextPath", nextPath);
+  return url.toString();
 }
 
 export async function createPlumpiHandoff(request: Request) {

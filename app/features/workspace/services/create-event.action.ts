@@ -2,9 +2,15 @@ import { z } from "zod";
 import type { Route } from "project-types/workspace/route/+types/my-events.create";
 import {
   createPlumpiEvent,
-  createPlumpiHandoff,
-  uploadPlumpiEventCover,
+  uploadPlumpiEventThumbnail,
 } from "~/api/events/events.server";
+import { PLUMPI_HANDOFF_INTENT } from "~/features/workspace/lib/plumpi-handoff";
+import {
+  PLUMPI_HANDOFF_RESPONSE_INIT,
+  plumpiHandoffErrorMessage,
+  plumpiHandoffParamsSchema,
+  resolvePlumpiHandoffUrl,
+} from "~/features/workspace/services/plumpi-handoff.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import {
@@ -46,23 +52,6 @@ const submissionMetaSchema = z.object({
   eventDates: z.array(submissionEventDateSchema).min(1),
 });
 
-const handoffParamsSchema = z.object({
-  intent: z.literal("continue-to-plumpi"),
-  eventId: z.string().uuid(),
-  organizationId: z.string().uuid(),
-});
-
-const HANDOFF_RESPONSE_INIT = {
-  headers: { "Cache-Control": "private, no-store" },
-} satisfies ResponseInit;
-
-class ExpiredPlumpiHandoffError extends Error {
-  constructor() {
-    super("The Plumpi handoff token expired before redirect.");
-    this.name = "ExpiredPlumpiHandoffError";
-  }
-}
-
 const apiValidationErrorSchema = z.object({
   formErrors: z.array(z.string()),
   fieldErrors: z.record(z.string(), z.array(z.string())),
@@ -75,6 +64,7 @@ const apiFieldToFormField = {
   eventCategories: "category",
   isOnline: "format",
   venueId: "venueId",
+  venueName: "venueName",
   address: "address",
   googleMapLink: "googleMapLink",
   visibility: "visibility",
@@ -91,7 +81,8 @@ const genericApiFieldMessages: Partial<Record<keyof CreateEventInput, string>> =
     format: "Choose an event format.",
     eventDates: "Enter valid event dates and times.",
     venueId: "Choose a valid venue.",
-    address: "Enter the venue address.",
+    venueName: "Select or enter a venue.",
+    address: "Enter a valid venue address.",
     googleMapLink: "Enter a valid Google Maps URL.",
     visibility: "Choose who can discover this event.",
     registrationMode: "Choose who can register for this event.",
@@ -192,70 +183,28 @@ function mapApiValidationError(error: ProtectedApiError) {
   };
 }
 
-function handoffErrorMessage(error: unknown) {
-  if (error instanceof ExpiredPlumpiHandoffError) {
-    return "The secure Plumpi link expired before it could be opened. Please try again.";
-  }
-
+function thumbnailUploadErrorMessage(error: unknown) {
   if (!(error instanceof ProtectedApiError)) {
-    return "The event was created, but Plumpi could not be opened automatically.";
+    return "The event was created, but its thumbnail could not be uploaded. Try adding it again in Plumpi.";
   }
 
-  if (error.status === 409) {
-    return "This Plumpi account is already connected to another True Khmer account.";
+  if (error.code === "EMPTY_THUMBNAIL_IMAGE") {
+    return "The event was created, but the selected thumbnail is empty. Choose another image in Plumpi.";
+  }
+  if (error.code === "THUMBNAIL_IMAGE_TOO_LARGE" || error.status === 413) {
+    return "The event was created, but its thumbnail is larger than 2 MB. Upload a smaller image in Plumpi.";
   }
   if (error.status === 403) {
-    return "Your Plumpi account cannot be connected. Check your account access and try again.";
-  }
-  if (error.status === 503) {
-    return "Plumpi is temporarily unavailable. Your draft is safe in My Events, so you can try again later.";
-  }
-  if (error.status >= 500) {
-    return "Your draft was created, but Plumpi could not be opened right now. Try again from My Events.";
-  }
-
-  return error.message;
-}
-
-function coverUploadErrorMessage(error: unknown) {
-  if (!(error instanceof ProtectedApiError)) {
-    return "The event was created, but its cover could not be uploaded. Try adding it again in Plumpi.";
-  }
-
-  if (error.code === "EMPTY_COVER_IMAGE") {
-    return "The event was created, but the selected cover image is empty. Choose another image in Plumpi.";
-  }
-  if (error.code === "COVER_IMAGE_TOO_LARGE" || error.status === 413) {
-    return "The event was created, but its cover is larger than 2 MB. Upload a smaller image in Plumpi.";
-  }
-  if (error.status === 403) {
-    return "The event was created, but you do not have permission to update its cover in Plumpi.";
+    return "The event was created, but you do not have permission to update its thumbnail in Plumpi.";
   }
   if (error.status === 404) {
-    return "The event was created, but Plumpi could not find it while uploading the cover. Add the cover in Plumpi.";
+    return "The event was created, but Plumpi could not find it while uploading the thumbnail. Add it in Plumpi.";
   }
   if (error.status >= 500) {
-    return "The event was created, but Plumpi could not upload its cover right now. Add it in Plumpi when the service is available.";
+    return "The event was created, but Plumpi could not upload its thumbnail right now. Add it in Plumpi when the service is available.";
   }
 
-  return `The event was created, but its cover could not be uploaded. ${error.message}`;
-}
-
-function plumpiHandoffUrl(
-  organizationId: string,
-  eventId: string,
-  handoffToken: string,
-) {
-  const baseUrl = process.env.VITE_PLUMPI_WEB?.trim();
-  if (!baseUrl) {
-    throw new Error("Plumpi web URL is not configured.");
-  }
-
-  const nextPath = `/console/${encodeURIComponent(organizationId)}/events/${encodeURIComponent(eventId)}`;
-  const url = new URL("/auth/handoff", baseUrl);
-  url.searchParams.set("token", handoffToken);
-  url.searchParams.set("nextPath", nextPath);
-  return url.toString();
+  return `The event was created, but its thumbnail could not be uploaded. ${error.message}`;
 }
 
 export async function createEventAction({ request }: Route.ActionArgs) {
@@ -265,8 +214,8 @@ export async function createEventAction({ request }: Route.ActionArgs) {
   const cookies = auth.setCookie ? [auth.setCookie] : [];
   let apiRequest = requestWithSetCookie(request, auth.setCookie);
 
-  if (intent === "continue-to-plumpi") {
-    const handoffParams = handoffParamsSchema.safeParse({
+  if (intent === PLUMPI_HANDOFF_INTENT) {
+    const handoffParams = plumpiHandoffParamsSchema.safeParse({
       intent,
       eventId: formData.get("eventId"),
       organizationId: formData.get("organizationId"),
@@ -279,29 +228,21 @@ export async function createEventAction({ request }: Route.ActionArgs) {
           ok: false,
           error: "The created event could not be opened in Plumpi.",
         } satisfies CreateEventActionData,
-        HANDOFF_RESPONSE_INIT,
+        PLUMPI_HANDOFF_RESPONSE_INIT,
       );
     }
 
     try {
-      const handoff = await createPlumpiHandoff(apiRequest);
-      if (handoff.setCookie) cookies.push(handoff.setCookie);
-
-      if (Date.now() >= new Date(handoff.data.expiresAt).getTime()) {
-        throw new ExpiredPlumpiHandoffError();
-      }
+      const redirectTo = await resolvePlumpiHandoffUrl(
+        apiRequest,
+        handoffParams.data,
+        cookies,
+      );
 
       return withAuthData(
         { setCookie: cookies },
-        {
-          ok: true,
-          redirectTo: plumpiHandoffUrl(
-            handoffParams.data.organizationId,
-            handoffParams.data.eventId,
-            handoff.data.token,
-          ),
-        } satisfies CreateEventActionData,
-        HANDOFF_RESPONSE_INIT,
+        { ok: true, redirectTo } satisfies CreateEventActionData,
+        PLUMPI_HANDOFF_RESPONSE_INIT,
       );
     } catch (error) {
       console.error("Create event handoff step failed:", error);
@@ -310,9 +251,9 @@ export async function createEventAction({ request }: Route.ActionArgs) {
         { setCookie: cookies },
         {
           ok: false,
-          error: handoffErrorMessage(error),
+          error: plumpiHandoffErrorMessage(error),
         } satisfies CreateEventActionData,
-        HANDOFF_RESPONSE_INIT,
+        PLUMPI_HANDOFF_RESPONSE_INIT,
       );
     }
   }
@@ -327,6 +268,7 @@ export async function createEventAction({ request }: Route.ActionArgs) {
     format: formData.get("format"),
     eventDates: parseJsonFormValue(formData.get("eventDates")),
     venueId: formData.get("venueId"),
+    venueName: formData.get("venueName"),
     address: formData.get("address"),
     googleMapLink: formData.get("googleMapLink"),
     coverImageName: cover instanceof File ? cover.name : "",
@@ -341,7 +283,7 @@ export async function createEventAction({ request }: Route.ActionArgs) {
 
   const errors = parsed.success ? {} : mapFieldErrors(parsed.error.issues);
   if (!(cover instanceof File)) {
-    errors.coverImageName = "An event cover is required";
+    errors.coverImageName = "Event thumbnail is required";
   } else {
     const coverError = validateCreateEventCover(cover);
     if (coverError) errors.coverImageName = coverError;
@@ -385,7 +327,10 @@ export async function createEventAction({ request }: Route.ActionArgs) {
       excerpt: parsed.data.description,
       eventCategories: [parsed.data.category],
       isOnline: false,
-      venueId: parsed.data.venueId,
+      listingChannel: "TRUE_KHMER",
+      ...(parsed.data.venueId
+        ? { venueId: parsed.data.venueId }
+        : { venueName: parsed.data.venueName }),
       address: parsed.data.address,
       ...(parsed.data.googleMapLink
         ? { googleMapLink: parsed.data.googleMapLink }
@@ -406,13 +351,17 @@ export async function createEventAction({ request }: Route.ActionArgs) {
     let warning: string | undefined;
 
     try {
-      const uploaded = await uploadPlumpiEventCover(apiRequest, eventId, cover);
+      const uploaded = await uploadPlumpiEventThumbnail(
+        apiRequest,
+        eventId,
+        cover,
+      );
       if (uploaded.setCookie) {
         cookies.push(uploaded.setCookie);
       }
     } catch (error) {
-      warning = coverUploadErrorMessage(error);
-      console.error("Create event cover step failed:", error);
+      warning = thumbnailUploadErrorMessage(error);
+      console.error("Create event thumbnail step failed:", error);
     }
 
     return withAuthData({ setCookie: cookies }, {

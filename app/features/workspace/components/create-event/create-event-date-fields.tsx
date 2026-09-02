@@ -22,6 +22,13 @@ export default function CreateEventDateFields({
   error,
   onChange,
 }: Props) {
+  /**
+   * An event needs at least one date, so a lone row has nothing to remove and
+   * drops the button entirely — its column goes with it, letting the three
+   * fields fill the row.
+   */
+  const canRemoveDates = dates.length > 1;
+
   const updateDate = <K extends keyof CreateEventDateInput>(
     index: number,
     field: K,
@@ -47,7 +54,7 @@ export default function CreateEventDateFields({
   };
 
   const removeDate = (index: number) => {
-    if (dates.length === 1) return;
+    if (!canRemoveDates) return;
     onChange(dates.filter((_, currentIndex) => currentIndex !== index));
   };
 
@@ -61,7 +68,12 @@ export default function CreateEventDateFields({
         {dates.map((eventDate, index) => (
           <div
             key={index}
-            className="grid gap-3 rounded-xl bg-slate-50 p-4 sm:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-end"
+            className={cn(
+              "grid gap-3 rounded-xl bg-slate-50 p-4 sm:items-end",
+              canRemoveDates
+                ? "sm:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]"
+                : "sm:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)]",
+            )}
           >
             <div>
               <p className="mb-1.5 text-xs font-semibold text-slate-500">
@@ -111,25 +123,19 @@ export default function CreateEventDateFields({
               />
             </div>
 
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              disabled={dates.length === 1}
-              onClick={() => removeDate(index)}
-              aria-label={`Remove day ${index + 1}`}
-              title={
-                dates.length === 1
-                  ? "An event needs at least one date"
-                  : `Remove day ${index + 1}`
-              }
-              className={cn(
-                "size-11 rounded-lg border-[#E1E7EF] text-red-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600",
-                dates.length === 1 && "text-red-300",
-              )}
-            >
-              <Trash2 className="size-4" />
-            </Button>
+            {canRemoveDates && (
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => removeDate(index)}
+                aria-label={`Remove day ${index + 1}`}
+                title={`Remove day ${index + 1}`}
+                className="size-11 rounded-lg border-[#E1E7EF] text-red-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            )}
           </div>
         ))}
       </div>

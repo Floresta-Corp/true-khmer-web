@@ -14,7 +14,7 @@ export function validateCreateEventCover(file: File): string | null {
   }
 
   if (file.size > CREATE_EVENT_COVER_MAX_BYTES) {
-    return "Event cover must be 2 MB or smaller.";
+    return "Event thumbnail must be 2 MB or smaller.";
   }
 
   return null;
