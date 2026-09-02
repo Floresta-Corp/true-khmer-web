@@ -129,8 +129,8 @@ function TicketRow({
 /**
  * "Select your ticket" — the tier list on the Get Tickets tab.
  *
- * Checkout itself lives on Plumpi, so each row hands the visitor to the
- * event's Plumpi page with the chosen tier preselected.
+ * Checkout itself lives on Plumpi, so every row hands the visitor to the
+ * event's Plumpi page and the tier is chosen there.
  */
 export function EventTicketList({ event }: { event: EventDetail }) {
   const plumpiWeb = import.meta.env.VITE_PLUMPI_WEB;
@@ -151,15 +151,7 @@ export function EventTicketList({ event }: { event: EventDetail }) {
 
       <div className="flex flex-col gap-4">
         {event.tickets.map((ticket) => (
-          <TicketRow
-            key={ticket.id}
-            ticket={ticket}
-            checkoutUrl={
-              eventUrl
-                ? `${eventUrl}?ticket=${encodeURIComponent(ticket.id)}`
-                : null
-            }
-          />
+          <TicketRow key={ticket.id} ticket={ticket} checkoutUrl={eventUrl} />
         ))}
       </div>
     </div>
