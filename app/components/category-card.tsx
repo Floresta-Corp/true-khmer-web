@@ -1,11 +1,11 @@
 import {
-  BookOpen,
-  Shapes,
-  Globe,
   Heart,
   Users,
-  Zap,
   type LucideProps,
+  LayoutGrid,
+  GraduationCap,
+  Monitor,
+  Leaf,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "~/lib/utils";
@@ -30,17 +30,17 @@ function BuildCategoryIcon({
   }
   switch (icon) {
     case "BookOpen":
-      return <BookOpen />;
+      return <GraduationCap {...props} />;
     case "Globe":
-      return <Globe {...props} />;
+      return <Leaf {...props} />;
     case "Heart":
       return <Heart {...props} />;
     case "Users":
       return <Users {...props} />;
     case "Zap":
-      return <Zap {...props} />;
+      return <Monitor {...props} />;
     default:
-      return <Shapes {...props} />;
+      return <LayoutGrid {...props} />;
   }
 }
 
@@ -58,19 +58,26 @@ export function CategoryCard({
       type="button"
       variant="ghost"
       className={cn(
-        "h-17 w-52.5 cursor-pointer justify-start gap-3.5 rounded-[28px] border border-gray-100 bg-white px-3.75 py-0 text-left shadow-none hover:bg-white md:w-full md:min-w-0",
-        active ? "border-blue-300 bg-blue-50" : "",
+        "inline-flex w-full shrink-0 cursor-pointer justify-start gap-2 rounded-[28px] border border-gray-100 bg-white text-left shadow-none md:w-full md:min-w-0",
+        active
+          ? "bg-[#2463eb] text-white hover:bg-[#1d56d2] hover:text-gray-50"
+          : "hover:bg-gray-50",
         className,
       )}
     >
-      <div className="flex size-[38.5px] shrink-0 items-center justify-center rounded-full bg-[#eff6ff] text-[#2563eb]">
-        <BuildCategoryIcon icon={iconKey} className="size-4" />
+      <div
+        className={cn(
+          "flex shrink-0 items-center justify-center",
+          active ? "text-white" : "text-[#2563eb]",
+        )}
+      >
+        <BuildCategoryIcon icon={iconKey} className="size-5 shrink-0" />
       </div>
       <div className="flex flex-col items-start gap-[3.5px]">
-        <h3 className="text-sm leading-3.5 font-bold text-[#030213]">{name}</h3>
-        <p className="text-xs leading-4.5 font-medium text-[#99a1af]">
+        <h3 className="text-sm leading-3.5 font-bold">{name}</h3>
+        {/* <p className="text-xs leading-4.5 font-medium text-[#99a1af]">
           {displayOrder} {displayName ? displayName : "roles"}
-        </p>
+        </p> */}
       </div>
     </Button>
   );
