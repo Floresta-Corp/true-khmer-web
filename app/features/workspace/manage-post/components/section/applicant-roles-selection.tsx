@@ -7,7 +7,7 @@ import {
 } from "~/components/ui/accordion";
 import { formatDateMonthYear } from "~/features/events/lib/event-formatters";
 import { cn, resolveImageURL } from "~/lib/utils";
-import type { Applicant, PostingType } from "~/features/manage-post/types";
+import type { Applicant, PostingType } from "~/features/workspace/manage-post/types";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useFetcher } from "react-router";
 

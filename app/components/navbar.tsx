@@ -42,7 +42,7 @@ const MYSPACE_SECTION_PATHS = [
   "/my-ticket",
   "/saved-items",
 ];
-const WORKSPACE_SECTION_PATHS = ["/manage-post", "/workspace", "/my-events"];
+const WORKSPACE_SECTION_PATHS = ["/workspace", "/my-events"];
 
 function isInSection(pathname: string, sectionPaths: string[]) {
   return sectionPaths.some(
@@ -96,7 +96,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
           forceActive: isInMySpace,
         }
       : {
-          to: "/manage-post",
+          to: "/workspace/manage-post",
           label: "Workspace",
           icon: LayoutDashboard,
           forceActive: isInWorkspace,

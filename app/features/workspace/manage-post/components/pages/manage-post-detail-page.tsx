@@ -16,7 +16,7 @@ import type {
   ManagePostStatus,
   PostingType,
   SourceType,
-} from "~/features/manage-post/types";
+} from "~/features/workspace/manage-post/types";
 import { cn } from "~/lib/utils";
 import BackToButton from "~/components/back-to-button";
 import SuspensionNoticeDialog from "~/components/suspension-notice-dialog";
@@ -76,7 +76,7 @@ export default function ManagePostingDetailPage() {
     >
       <div className="p-4 pb-24 sm:p-8 md:p-10">
         <motion.div className="mb-6" {...fadeUp(0.05)}>
-          <BackToButton to="/manage-post" />
+          <BackToButton to="/workspace/manage-post" />
         </motion.div>
 
         {isSuspended && (

@@ -13,7 +13,7 @@ import type {
   PostSourceType,
   PrivateNoteInput,
   UpdateManagePostResponse,
-} from "~/features/manage-post/types";
+} from "~/features/workspace/manage-post/types";
 
 export interface ManagePostParams {
   search?: string;

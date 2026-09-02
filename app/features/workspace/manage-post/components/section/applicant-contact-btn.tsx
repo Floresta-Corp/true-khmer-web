@@ -1,6 +1,6 @@
 import { Mail, Phone, Send } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import type { Candidate } from "~/features/manage-post/types";
+import type { Candidate } from "~/features/workspace/manage-post/types";
 
 interface CandidateProps {
   candidate: Candidate;

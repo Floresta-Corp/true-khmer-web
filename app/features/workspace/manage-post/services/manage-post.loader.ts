@@ -1,4 +1,4 @@
-import type { Route } from "project-types/manage-post/route/+types/manage-post";
+import type { Route } from "project-types/workspace/manage-post/route/+types/manage-post";
 import z from "zod";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
@@ -8,7 +8,7 @@ import {
   PostingTypeSchema,
   type ManagePost,
   type ManagePostPagination,
-} from "~/features/manage-post/types";
+} from "~/features/workspace/manage-post/types";
 
 type ManagePostLoaderData = {
   postings: ManagePost[];

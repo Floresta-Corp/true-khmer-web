@@ -1,4 +1,4 @@
-import type { Route } from "project-types/manage-post/route/+types/manage-post.$sourceType.$id";
+import type { Route } from "project-types/workspace/manage-post/route/+types/manage-post.$sourceType.$id";
 import z from "zod";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
@@ -14,7 +14,7 @@ import {
   type DetailCandidateResponse,
   type PostDetailPagination,
   type PostingDetail,
-} from "~/features/manage-post/types";
+} from "~/features/workspace/manage-post/types";
 
 type ManagePostDetailLoaderData = {
   postDetail: PostingDetail | null;

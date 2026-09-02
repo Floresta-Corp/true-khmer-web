@@ -10,7 +10,7 @@ import {
 import type {
   Applicant,
   ApplicantStatusAction,
-} from "~/features/manage-post/types";
+} from "~/features/workspace/manage-post/types";
 import { useFetcher } from "react-router";
 
 type Props = {
