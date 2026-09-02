@@ -265,7 +265,9 @@ export default function LoginPage() {
               disabled={isSubmitting || !isFormValid}
               className="h-10 w-full rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white transition-colors hover:bg-[#1F62DF] disabled:bg-[#2F6FE4] disabled:opacity-50"
             >
-              {isSubmitting && !isGoogleSubmitting ? "Signing in..." : "Sign In"}
+              {isSubmitting && !isGoogleSubmitting
+                ? "Signing in..."
+                : "Sign In"}
             </Button>
           </Form>
         </motion.div>
