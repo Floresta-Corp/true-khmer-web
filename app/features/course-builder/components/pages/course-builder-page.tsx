@@ -9,6 +9,11 @@ import { PreviewStep } from "../steps/preview-step";
 import { QuizStep } from "../steps/quiz-step";
 import { QuizQuestionModal } from "../quiz-question-modal";
 import { AddLessonModal } from "../add-lesson-modal";
+import {
+  AddSectionModal,
+  ConfirmRemoveSectionModal,
+  EditSectionModal,
+} from "../section-modals";
 import { useQuizDraft } from "../../lib/use-quiz-draft";
 import {
   STEP_DEFINITIONS,
@@ -167,14 +172,138 @@ export default function CourseBuilderPage({
       return next;
     });
 
-  const addSection = () => {
+  // The design names a section in a dialog before creating it, and renames or
+  // deletes one through a second dialog opened from the section title.
+  const [addingSection, setAddingSection] = useState(false);
+  const [newSectionTitle, setNewSectionTitle] = useState("");
+  const [discardingSection, setDiscardingSection] = useState(false);
+  const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
+  const [editSectionTitle, setEditSectionTitle] = useState("");
+  const [removingSectionId, setRemovingSectionId] = useState<string | null>(
+    null,
+  );
+
+  const openAddSection = () => {
+    setNewSectionTitle("");
+    setDiscardingSection(false);
+    setAddingSection(true);
+  };
+
+  const closeAddSection = () => {
+    setAddingSection(false);
+    setDiscardingSection(false);
+  };
+
+  const confirmAddSection = () => {
+    const title = newSectionTitle.trim();
+    if (!title) return;
     added.current += 1;
     const id = `new-section-${added.current}`;
-    setSections((current) => [
-      ...current,
-      { id, title: `Section ${current.length + 1}`, lessons: [] },
-    ]);
+    setSections((current) => [...current, { id, title, lessons: [] }]);
     setOpenSections((current) => new Set(current).add(id));
+    closeAddSection();
+  };
+
+  const openEditSection = (sectionId: string) => {
+    const section = sections.find((item) => item.id === sectionId);
+    if (!section) return;
+    setEditSectionTitle(section.title);
+    setEditingSectionId(sectionId);
+  };
+
+  const saveSectionTitle = () => {
+    const title = editSectionTitle.trim();
+    if (title && editingSectionId) {
+      setSections((current) =>
+        current.map((section) =>
+          section.id === editingSectionId ? { ...section, title } : section,
+        ),
+      );
+    }
+    setEditingSectionId(null);
+  };
+
+  const removeSection = () => {
+    if (removingSectionId) {
+      setSections((current) =>
+        current.filter((section) => section.id !== removingSectionId),
+      );
+    }
+    setRemovingSectionId(null);
+  };
+
+  const removingSection = sections.find(
+    (section) => section.id === removingSectionId,
+  );
+
+  /** Moves the dragged section into the slot the target currently occupies. */
+  const moveSection = (draggedId: string, targetId: string) => {
+    if (draggedId === targetId) return;
+    setSections((current) => {
+      const from = current.findIndex((section) => section.id === draggedId);
+      const to = current.findIndex((section) => section.id === targetId);
+      if (from < 0 || to < 0) return current;
+      const next = [...current];
+      next.splice(to, 0, next.splice(from, 1)[0]);
+      return next;
+    });
+  };
+
+  /**
+   * Reorders a lesson within its section, or moves it into another one. A
+   * `null` target appends to the destination.
+   */
+  const moveLesson = (
+    fromSectionId: string,
+    lessonId: string,
+    toSectionId: string,
+    targetLessonId: string | null,
+  ) => {
+    if (fromSectionId === toSectionId && lessonId === targetLessonId) return;
+
+    setSections((current) => {
+      const lesson = current
+        .find((section) => section.id === fromSectionId)
+        ?.lessons.find((item) => item.id === lessonId);
+      if (!lesson) return current;
+
+      if (fromSectionId === toSectionId) {
+        return current.map((section) => {
+          if (section.id !== fromSectionId) return section;
+          const lessons = [...section.lessons];
+          const from = lessons.findIndex((item) => item.id === lessonId);
+          const to = targetLessonId
+            ? lessons.findIndex((item) => item.id === targetLessonId)
+            : lessons.length - 1;
+          if (from < 0 || to < 0 || from === to) return section;
+          lessons.splice(to, 0, lessons.splice(from, 1)[0]);
+          return { ...section, lessons };
+        });
+      }
+
+      return current.map((section) => {
+        if (section.id === fromSectionId) {
+          return {
+            ...section,
+            lessons: section.lessons.filter((item) => item.id !== lessonId),
+          };
+        }
+        if (section.id === toSectionId) {
+          const lessons = [...section.lessons];
+          const at = targetLessonId
+            ? lessons.findIndex((item) => item.id === targetLessonId)
+            : -1;
+          lessons.splice(at < 0 ? lessons.length : at, 0, lesson);
+          return { ...section, lessons };
+        }
+        return section;
+      });
+    });
+
+    // Dropping into a collapsed section would otherwise hide the result.
+    if (fromSectionId !== toSectionId) {
+      setOpenSections((current) => new Set(current).add(toSectionId));
+    }
   };
 
   const openAddLesson = (sectionId: string) => {
@@ -379,6 +508,11 @@ export default function CourseBuilderPage({
             ? DIFFICULTY_API_VALUE[draft.difficulty]
             : null,
           skills: draft.skills,
+          // The field keeps at least one row on screen, so blank rows are
+          // dropped here rather than saved as empty outcomes.
+          outcomes: draft.outcomes
+            .map((outcome) => outcome.trim())
+            .filter(Boolean),
           tags: draft.tags,
           certificateKind: steps.includes("certificate")
             ? CERTIFICATE_API_VALUE[certificate]
@@ -458,7 +592,10 @@ export default function CourseBuilderPage({
                 openSections={openSections}
                 onFormatChange={setFormat}
                 onToggleSection={toggleSection}
-                onAddSection={addSection}
+                onAddSection={openAddSection}
+                onEditSection={openEditSection}
+                onMoveSection={moveSection}
+                onMoveLesson={moveLesson}
                 onAddLesson={openAddLesson}
               />
             ) : current === "quiz" ? (
@@ -497,6 +634,43 @@ export default function CourseBuilderPage({
       </div>
 
       <QuizQuestionModal quiz={quiz} />
+
+      {addingSection && (
+        <AddSectionModal
+          title={newSectionTitle}
+          onTitleChange={setNewSectionTitle}
+          onConfirm={confirmAddSection}
+          onClose={closeAddSection}
+          discarding={discardingSection}
+          onRequestDiscard={() =>
+            newSectionTitle.trim()
+              ? setDiscardingSection(true)
+              : closeAddSection()
+          }
+          onCancelDiscard={() => setDiscardingSection(false)}
+        />
+      )}
+
+      {editingSectionId && (
+        <EditSectionModal
+          title={editSectionTitle}
+          onTitleChange={setEditSectionTitle}
+          onSave={saveSectionTitle}
+          onDelete={() => {
+            setRemovingSectionId(editingSectionId);
+            setEditingSectionId(null);
+          }}
+          onClose={() => setEditingSectionId(null)}
+        />
+      )}
+
+      {removingSection && (
+        <ConfirmRemoveSectionModal
+          lessonCount={removingSection.lessons.length}
+          onConfirm={removeSection}
+          onClose={() => setRemovingSectionId(null)}
+        />
+      )}
 
       {lessonTarget && (
         <AddLessonModal

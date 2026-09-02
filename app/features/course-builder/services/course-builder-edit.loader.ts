@@ -6,7 +6,6 @@ import {
   getCourseCurriculum,
   getCourseQuiz,
 } from "~/api/education/education.server";
-import { MY_COURSES_FIXTURES } from "~/features/course-listing/lib/my-courses-fixtures";
 import {
   BuilderStepSchema,
   DIFFICULTY_API_VALUE,
@@ -51,12 +50,7 @@ export async function courseBuilderEditLoader({
       getCourseQuiz(request, params.id),
     ]);
 
-  // The Course Listing placeholders resolve here too, so the screen can be
-  // reviewed against the design before the API has courses in it.
-  const course =
-    courseResult?.data?.course ??
-    MY_COURSES_FIXTURES.find((entry) => entry.id === params.id) ??
-    null;
+  const course = courseResult?.data?.course ?? null;
 
   if (!course) {
     throw data({ message: "Course not found" }, { status: 404 });
@@ -72,6 +66,7 @@ export async function courseBuilderEditLoader({
   const saved = course as Partial<{
     difficulty: keyof typeof DIFFICULTY_FROM_API;
     skills: string[];
+    outcomes: string[];
     tags: string[];
     certificateKind: "PARTICIPATION" | "COMPLETION";
     format: CourseFormat | "MULTI" | "SINGLE";
@@ -86,6 +81,12 @@ export async function courseBuilderEditLoader({
     coverPreviewUrl: course.coverImageUrl ?? null,
     difficulty: saved.difficulty ? DIFFICULTY_FROM_API[saved.difficulty] : null,
     skills: Array.isArray(saved.skills) ? saved.skills : [],
+    // The field always shows at least one row, so an empty saved list becomes
+    // a single blank input rather than no field at all.
+    outcomes:
+      Array.isArray(saved.outcomes) && saved.outcomes.length > 0
+        ? saved.outcomes
+        : [""],
     tags: Array.isArray(saved.tags) ? saved.tags : [],
   };
 

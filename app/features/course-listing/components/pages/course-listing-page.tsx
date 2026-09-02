@@ -20,8 +20,7 @@ import type {
 } from "~/features/course-listing/types";
 
 export default function CourseListingPage() {
-  const { courses, pagination, tab, search, usingPlaceholders } =
-    useLoaderData<typeof loader>();
+  const { courses, pagination, tab, search } = useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigation = useNavigation();
   const fetcher = useFetcher<typeof loader>();
@@ -131,12 +130,7 @@ export default function CourseListingPage() {
               <CourseListingSkeleton key={index} />
             ))
           : visible.map((course, index) => (
-              <CourseListingRow
-                key={course.id}
-                course={course}
-                index={index}
-                placeholder={usingPlaceholders}
-              />
+              <CourseListingRow key={course.id} course={course} index={index} />
             ))}
       </div>
 

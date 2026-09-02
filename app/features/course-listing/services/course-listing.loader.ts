@@ -2,8 +2,6 @@ import type { Route } from "project-types/course-listing/route/+types/course-lis
 import { listMyCourses } from "~/api/education/education.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
-import { buildLearnerStats } from "~/features/course-listing/lib/course-stats-fixtures";
-import { filterFixtures } from "~/features/course-listing/lib/my-courses-fixtures";
 import {
   CourseTabSchema,
   displayStatusOf,
@@ -43,34 +41,23 @@ export async function courseListingLoader({ request }: Route.LoaderArgs) {
         ? raw.filter((course) => displayStatusOf(course) === "REJECTED")
         : raw;
 
+  // The design shows Total learners / Completed / In progress / Not started
+  // per published course. The API has no enrolment or progress resource —
+  // `courses/mine` returns `CourseResponse`, which carries no learner counts —
+  // so the block is left out rather than filled with invented figures. Wire
+  // this up when an enrolment endpoint exists.
   const courses: CourseWithStats[] = filtered.map((course) => ({
     ...course,
-    // Only a published course has learners to report on.
-    stats: course.status === "PUBLISHED" ? buildLearnerStats(course) : null,
+    stats: null,
   }));
 
   const pagination: MyCoursesPagination | null =
     result?.data?.pagination ?? null;
-
-  // Nothing on the API yet: fall back to placeholders so the screen can be
-  // reviewed against the design. Real courses always win, and this only
-  // triggers on the first page so "load more" cannot mix the two.
-  if (raw.length === 0 && !cursor) {
-    const placeholders = filterFixtures(tab, search);
-    return withAuthData(auth, {
-      courses: placeholders,
-      pagination: null,
-      tab,
-      search,
-      usingPlaceholders: true as const,
-    });
-  }
 
   return withAuthData(auth, {
     courses,
     pagination,
     tab,
     search,
-    usingPlaceholders: false as const,
   });
 }

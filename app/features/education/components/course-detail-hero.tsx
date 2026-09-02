@@ -1,5 +1,6 @@
-import { Play, Star } from "lucide-react";
+import { Play } from "lucide-react";
 import type { ReactNode } from "react";
+import { StarRating } from "./star-rating";
 
 interface CourseDetailHeroProps {
   title: string;
@@ -32,7 +33,7 @@ export function CourseDetailHero({
   onAction,
 }: CourseDetailHeroProps) {
   return (
-    <div className="relative mb-8 aspect-video max-h-[480px] w-full overflow-hidden rounded-2xl bg-[#E8E8E8]">
+    <div className="relative mb-8 aspect-video max-h-120 w-full overflow-hidden rounded-2xl bg-[#E8E8E8]">
       <img
         src={coverImageUrl ?? "/placeholder/images.svg"}
         alt=""
@@ -54,15 +55,14 @@ export function CourseDetailHero({
           <div className="mb-3.5 flex flex-wrap items-center gap-2">
             {reviewCount > 0 && (
               <>
-                <Star
-                  className="size-3.5 fill-amber-400 text-amber-400"
-                  aria-hidden
-                />
+                {/* The design shows the full five-star row here, at 16px. */}
+                <StarRating value={rating} starClassName="size-4" />
                 <span className="text-[13px] font-bold text-white">
                   {rating.toFixed(1)}
                 </span>
                 <span className="text-[13px] text-white/75">
-                  ({reviewCount})
+                  ({reviewCount.toLocaleString()} review
+                  {reviewCount === 1 ? "" : "s"})
                 </span>
               </>
             )}
@@ -78,8 +78,8 @@ export function CourseDetailHero({
         <button
           type="button"
           onClick={onAction}
-          /* --tk-brand-primary is primary-700 (#174FB4); hover steps to primary-800. */
-          className="flex cursor-pointer items-center justify-center gap-2 rounded-full bg-[#174FB4] px-8 py-[11px] text-sm font-bold text-white transition-colors hover:bg-[#134195]"
+          /* --tk-brand-primary is #1C5DD4; hover steps to the darker #174FB4. */
+          className="flex cursor-pointer items-center justify-center gap-2 rounded-full bg-[#1C5DD4] px-8 py-2.75 text-sm font-bold text-white transition-colors hover:bg-[#174FB4]"
         >
           {showPlayIcon && (
             <Play className="size-3.25 fill-white" aria-hidden />

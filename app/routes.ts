@@ -44,10 +44,6 @@ export default [
       route("education/all", "features/education/route/education.all.tsx"),
       route("education/:id", "features/education/route/education.$id.tsx"),
       route(
-        "education/:id/learn",
-        "features/education/route/education.learn.$id.tsx",
-      ),
-      route(
         "education/:id/quiz",
         "features/education/route/education.quiz.$id.tsx",
       ),
@@ -73,6 +69,12 @@ export default [
       ),
       route("profile/:id", "features/profile/route/profile.$id.tsx"),
     ]),
+    // The course learning screen has no footer, so it sits outside
+    // `footer-layout` rather than inheriting the site-wide one.
+    route(
+      "education/:id/learn",
+      "features/education/route/education.learn.$id.tsx",
+    ),
     route("edit-profile", "features/myspace/route/edit-profile.tsx"),
     route(
       "my-applications/detail/:sourceType/:postingId",

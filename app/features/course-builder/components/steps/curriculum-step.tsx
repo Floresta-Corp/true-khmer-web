@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import {
   ChevronDown,
   FileText,
@@ -67,6 +68,20 @@ interface CurriculumStepProps {
   onFormatChange: (format: CourseFormat) => void;
   onToggleSection: (id: string) => void;
   onAddSection: () => void;
+  onEditSection: (sectionId: string) => void;
+  /** Drag-reorder: move `draggedId` to where `targetId` currently sits. */
+  onMoveSection: (draggedId: string, targetId: string) => void;
+  /**
+   * Drag-reorder a lesson. A `null` target drops it at the end of
+   * `toSectionId` — what the design does when a lesson lands on a section
+   * header rather than on another lesson.
+   */
+  onMoveLesson: (
+    fromSectionId: string,
+    lessonId: string,
+    toSectionId: string,
+    targetLessonId: string | null,
+  ) => void;
   onAddLesson: (sectionId: string) => void;
 }
 
@@ -79,8 +94,51 @@ export function CurriculumStep({
   onFormatChange,
   onToggleSection,
   onAddSection,
+  onEditSection,
+  onMoveSection,
+  onMoveLesson,
   onAddLesson,
 }: CurriculumStepProps) {
+  type Drag =
+    | { kind: "section"; sectionId: string }
+    | { kind: "lesson"; sectionId: string; lessonId: string };
+
+  /**
+   * What is being dragged. The payload lives in a ref because `drop` must read
+   * it in the same handler pass — reading it from state would depend on a
+   * re-render having landed between `dragstart` and `drop`. The state copy
+   * exists only to dim the dragged row.
+   */
+  const dragRef = useRef<Drag | null>(null);
+  const [dragging, setDragging] = useState<Drag | null>(null);
+
+  const startDrag = (drag: Drag) => {
+    dragRef.current = drag;
+    setDragging(drag);
+  };
+
+  const endDrag = () => {
+    dragRef.current = null;
+    setDragging(null);
+  };
+
+  /** Every drop target has to claim the drag or the browser rejects it. */
+  const allowDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = "move";
+  };
+
+  /**
+   * Firefox refuses to start a drag unless `dataTransfer` carries something,
+   * so every `dragstart` seeds it even though the reorder reads local state.
+   */
+  const beginDrag = (event: React.DragEvent, id: string) => {
+    event.stopPropagation();
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", id);
+  };
+
   return (
     <div>
       <div className="mb-7">
@@ -280,7 +338,37 @@ export function CurriculumStep({
               return (
                 <div
                   key={section.id}
-                  className="overflow-hidden rounded-lg border border-[#E5E7EB]"
+                  draggable
+                  onDragStart={(event) => {
+                    beginDrag(event, section.id);
+                    startDrag({ kind: "section", sectionId: section.id });
+                  }}
+                  onDragOver={allowDrop}
+                  onDrop={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const drag = dragRef.current;
+                    if (!drag) return;
+                    if (drag.kind === "section") {
+                      onMoveSection(drag.sectionId, section.id);
+                    } else if (drag.sectionId !== section.id) {
+                      // A lesson dropped on a section header joins the end.
+                      onMoveLesson(
+                        drag.sectionId,
+                        drag.lessonId,
+                        section.id,
+                        null,
+                      );
+                    }
+                    endDrag();
+                  }}
+                  onDragEnd={endDrag}
+                  className={cn(
+                    "overflow-hidden rounded-lg border border-[#E5E7EB]",
+                    dragging?.kind === "section" &&
+                      dragging.sectionId === section.id &&
+                      "opacity-40",
+                  )}
                 >
                   <div className="flex flex-wrap items-center gap-3 bg-[#F3F6FD] px-4 py-3.5">
                     <GripVertical
@@ -288,9 +376,15 @@ export function CurriculumStep({
                       aria-hidden
                       className="shrink-0 cursor-grab text-[#9A9AB0]"
                     />
-                    <span className="min-w-0 flex-1 truncate text-[15px] font-bold text-[#1A1A2E]">
+                    {/* The design renames a section by clicking its title. */}
+                    <button
+                      type="button"
+                      onClick={() => onEditSection(section.id)}
+                      title="Rename or delete this section"
+                      className="min-w-0 flex-1 cursor-pointer truncate text-left text-[15px] font-bold text-[#1A1A2E]"
+                    >
                       {section.title}
-                    </span>
+                    </button>
                     <span className="shrink-0 text-[13px] text-[#9A9AB0]">
                       {count} {count === 1 ? "lesson" : "lessons"}
                     </span>
@@ -318,7 +412,36 @@ export function CurriculumStep({
                       {section.lessons.map((lesson) => (
                         <div
                           key={lesson.id}
-                          className="flex cursor-pointer items-center gap-3 border-t border-[#E5E7EB] px-4 py-3.5 transition-colors hover:bg-[#F5F5F5]"
+                          draggable
+                          onDragStart={(event) => {
+                            beginDrag(event, lesson.id);
+                            startDrag({
+                              kind: "lesson",
+                              sectionId: section.id,
+                              lessonId: lesson.id,
+                            });
+                          }}
+                          onDragOver={allowDrop}
+                          onDrop={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            const drag = dragRef.current;
+                            if (drag?.kind !== "lesson") return;
+                            onMoveLesson(
+                              drag.sectionId,
+                              drag.lessonId,
+                              section.id,
+                              lesson.id,
+                            );
+                            endDrag();
+                          }}
+                          onDragEnd={endDrag}
+                          className={cn(
+                            "flex cursor-pointer items-center gap-3 border-t border-[#E5E7EB] px-4 py-3.5 transition-colors hover:bg-[#F5F5F5]",
+                            dragging?.kind === "lesson" &&
+                              dragging.lessonId === lesson.id &&
+                              "opacity-40",
+                          )}
                         >
                           <GripVertical
                             size={15}

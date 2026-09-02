@@ -7,7 +7,6 @@ import {
   CATALOG_PAGE_SIZE,
   CatalogSortSchema,
   CatalogTypeSchema,
-  mergeCategories,
 } from "~/features/education/lib/course-catalog";
 import { toCourseSummary } from "~/features/education/lib/map-catalog";
 import { getOptionalUser } from "~/lib/server/route-guards.server";
@@ -51,7 +50,7 @@ export async function educationCatalogLoader({ request }: Route.LoaderArgs) {
     iconKey: category.iconKey,
   }));
 
-  const categories = mergeCategories(apiCategories);
+  const categories = apiCategories;
   const selectedCategoryName =
     categories.find((category) => category.id === categoryId)?.name ?? null;
 

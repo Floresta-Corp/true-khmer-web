@@ -3,14 +3,20 @@ import {
   getCourseCategories,
   listPublicCourses,
 } from "~/api/education/education.server";
-import {
-  buildLearnerSnapshot,
-  HERO_TOPICS,
-} from "~/features/education/lib/education-fixtures";
-import { mergeCategories } from "~/features/education/lib/course-catalog";
 import { toCourseSummary } from "~/features/education/lib/map-catalog";
 import { getOptionalUser } from "~/lib/server/route-guards.server";
 import type { CourseCategory } from "~/features/education/types";
+
+/**
+ * The hero's search suggestions. Static copy, exactly as the design has them —
+ * it hardcodes the same three with a no-op handler, and there is no API that
+ * suggests topics.
+ */
+const HERO_TOPICS = [
+  "Time management tips",
+  "Tips for finding a mentor",
+  "Career Development",
+];
 
 export async function educationLoader({ request }: EducationRoute.LoaderArgs) {
   const url = new URL(request.url);
@@ -38,7 +44,7 @@ export async function educationLoader({ request }: EducationRoute.LoaderArgs) {
     iconKey: category.iconKey,
   }));
 
-  const categories = mergeCategories(apiCategories);
+  const categories = apiCategories;
 
   const displayName = user?.profile?.displayName || user?.name || "there";
 
@@ -52,7 +58,7 @@ export async function educationLoader({ request }: EducationRoute.LoaderArgs) {
   // — there is no enrolment data — so it shows the same newest-first set
   // rather than pretending to a popularity order.
   return {
-    learner: buildLearnerSnapshot(displayName),
+    displayName,
     topics: HERO_TOPICS,
     categories,
     isFiltering,

@@ -18,6 +18,8 @@ export interface CourseDraft {
   categoryId: string;
   difficulty: CourseDifficulty | null;
   skills: string[];
+  /** The design's "What you'll learn" points; starts as one empty row. */
+  outcomes: string[];
   tags: string[];
   coverImageKey: string | null;
   coverPreviewUrl: string | null;
@@ -87,6 +89,7 @@ export function emptyDraft(): CourseDraft {
     categoryId: "",
     difficulty: null,
     skills: [],
+    outcomes: [""],
     tags: [],
     coverImageKey: null,
     coverPreviewUrl: null,

@@ -39,7 +39,7 @@ export default function ManageEducationRow({
       transition={{ duration: 0.24, delay: Math.min(index, 6) * 0.03 }}
       className="relative flex items-center gap-5 rounded-2xl bg-white p-4 transition-shadow duration-200 hover:shadow-[0_6px_20px_rgba(26,26,46,0.14),0_2px_6px_rgba(26,26,46,0.06)] dark:bg-slate-900 dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.5)]"
     >
-      <span className="size-16 w-24 shrink-0 overflow-hidden rounded-lg bg-[#E8E8E8] dark:bg-slate-800">
+      <span className="h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-[#E8E8E8] dark:bg-slate-800">
         {course.coverImageUrl ? (
           <img
             src={course.coverImageUrl}
@@ -54,9 +54,9 @@ export default function ManageEducationRow({
         )}
       </span>
 
-      {/* Fixed width so titles truncate at the same point on every row, as the
-          workspace design does. */}
-      <div className="w-64 min-w-0 shrink-0">
+      {/* The title takes the row's slack. A fixed width here (as the workspace
+          row uses) truncated the title while an empty spacer sat beside it. */}
+      <div className="min-w-0 flex-1">
         <CourseStatusBadge status={status} className="mb-2 inline-block" />
         <h3 className="truncate text-[18px] font-bold text-[#10101E] dark:text-white">
           <Link
@@ -68,43 +68,45 @@ export default function ManageEducationRow({
         </h3>
       </div>
 
-      <div className="min-w-0 flex-1" />
-
-      <div className="hidden shrink-0 items-start gap-9 lg:flex">
-        <div className="pr-9">
+      {/* Reviewer detail. Every column is fixed-width, so it only appears once
+          the row is wide enough to hold it and the actions together — at `lg`
+          it pushed the buttons past the card edge. */}
+      <div className="hidden shrink-0 items-start gap-5 xl:flex">
+        {/* Fixed column widths, not max-widths: sized to content, a long
+            email widened this column and shifted the whole block, so the
+            three columns never lined up from one row to the next. */}
+        <div className="w-36">
           <p className="text-[12px] text-[#86869E]">Created by</p>
-          <p className="max-w-48 truncate text-[18px] leading-tight font-bold text-[#10101E] dark:text-slate-100">
+          <p className="truncate text-[18px] leading-tight font-bold text-[#10101E] dark:text-slate-100">
             {creator?.name ?? "Unknown creator"}
           </p>
-          <p className="max-w-48 truncate text-[11px] text-[#83839B]">
+          <p className="truncate text-[11px] text-[#83839B]">
             {creator?.email ?? "Could not be looked up"}
           </p>
         </div>
 
-        <div className="border-l border-[#E5E7EB] pl-9 dark:border-slate-700">
+        <div className="w-36 border-l border-[#E5E7EB] pl-5 dark:border-slate-700">
           <p className="text-[12px] text-[#86869E]">Category</p>
-          <p className="max-w-40 truncate text-[18px] leading-tight text-[#10101E] dark:text-slate-100">
+          <p className="truncate text-[18px] leading-tight text-[#10101E] dark:text-slate-100">
             {categoryName ?? "Uncategorised"}
           </p>
-          <p className="text-[11px] whitespace-nowrap text-[#83839B]">
+          <p className="truncate text-[11px] text-[#83839B]">
             Created {formatDate(course.createdAt)}
           </p>
         </div>
 
-        <div>
+        <div className="w-36">
           <p className="text-[12px] whitespace-nowrap text-[#86869E]">
             Last updated
           </p>
-          <p className="text-[18px] leading-tight whitespace-nowrap text-[#10101E] dark:text-slate-100">
+          <p className="truncate text-[18px] leading-tight text-[#10101E] dark:text-slate-100">
             {formatDate(course.updatedAt)}
           </p>
-          <p className="text-[11px] whitespace-nowrap text-[#83839B]">
+          <p className="truncate text-[11px] text-[#83839B]">
             {formatRelativeTime(course.updatedAt)}
           </p>
         </div>
       </div>
-
-      <div className="min-w-0 flex-1" />
 
       {actions && (
         <div className="relative z-10 flex shrink-0 items-center gap-2">

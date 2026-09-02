@@ -41,6 +41,9 @@ export function toCourseSummary(course: PublicCourseListItem): CourseSummary {
       name: course.creator?.name ?? "Unknown instructor",
       avatarUrl: null,
       coursesPublished: 0,
+      // The list response carries no phone; the detail loader fetches it.
+      phone: null,
+      email: course.creator?.email ?? null,
     },
     rating: 0,
     ratingCount: 0,

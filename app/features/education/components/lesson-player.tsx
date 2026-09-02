@@ -1,5 +1,7 @@
 import { useMemo, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { Maximize2, Minimize2, Pause, Play } from "lucide-react";
+import { cn } from "~/lib/utils";
 import type { ActiveLesson } from "~/features/education/types";
 
 /** youtu.be/ID, /watch?v=ID, /embed/ID and /shorts/ID all reduce to an id. */
@@ -27,21 +29,42 @@ export function youtubeEmbedUrl(url: string): string | null {
  * Renders the lesson body for the three media kinds in the design.
  *
  * A lesson with a real source plays it — a YouTube embed, an audio element, or
- * the PDF itself. Without one (the fixture curriculum has no media behind it)
+ * the PDF itself. A lesson saved before its media was uploaded has none, and
  * the design's presentational transport is shown instead.
  */
-export function LessonPlayer({ lesson }: { lesson: ActiveLesson }) {
-  if (lesson.type === "pdf") return <PdfLesson lesson={lesson} />;
-  if (lesson.type === "audio") return <AudioLesson lesson={lesson} />;
-  return <VideoLesson lesson={lesson} />;
+interface LessonPlayerProps {
+  lesson: ActiveLesson;
+  /**
+   * The design's floating controls over the media — lesson title plus the save,
+   * panel and overflow buttons. Laid over the video; a bar above pdf and audio.
+   */
+  overlay?: ReactNode;
+  /** Flush against the shell, as the full-bleed learning screen requires. */
+  flush?: boolean;
 }
 
-function VideoLesson({ lesson }: { lesson: ActiveLesson }) {
+export function LessonPlayer({ lesson, overlay, flush }: LessonPlayerProps) {
+  if (lesson.type === "pdf")
+    return <PdfLesson lesson={lesson} overlay={overlay} flush={flush} />;
+  if (lesson.type === "audio")
+    return <AudioLesson lesson={lesson} overlay={overlay} flush={flush} />;
+  return <VideoLesson lesson={lesson} overlay={overlay} flush={flush} />;
+}
+
+/** Rounded on the standalone screens, square when flush in the learn shell. */
+const frame = (flush?: boolean) => (flush ? "" : "rounded-xl");
+
+function VideoLesson({ lesson, overlay, flush }: LessonPlayerProps) {
   const embedUrl = lesson.sourceUrl ? youtubeEmbedUrl(lesson.sourceUrl) : null;
 
   if (embedUrl) {
     return (
-      <div className="relative h-[260px] overflow-hidden rounded-xl bg-black sm:h-[460px]">
+      <div
+        className={cn(
+          "relative h-65 overflow-hidden bg-black sm:h-115",
+          frame(flush),
+        )}
+      >
         <iframe
           src={embedUrl}
           title={lesson.title}
@@ -53,10 +76,12 @@ function VideoLesson({ lesson }: { lesson: ActiveLesson }) {
     );
   }
 
-  return <SimulatedVideoLesson lesson={lesson} />;
+  return (
+    <SimulatedVideoLesson lesson={lesson} overlay={overlay} flush={flush} />
+  );
 }
 
-function SimulatedVideoLesson({ lesson }: { lesson: ActiveLesson }) {
+function SimulatedVideoLesson({ lesson, overlay, flush }: LessonPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -77,18 +102,27 @@ function SimulatedVideoLesson({ lesson }: { lesson: ActiveLesson }) {
   return (
     <div
       ref={containerRef}
-      className="relative h-[260px] overflow-hidden rounded-xl bg-[#4A4A4A] sm:h-[460px]"
+      className={cn(
+        "relative h-65 overflow-hidden bg-[#4A4A4A] sm:h-115",
+        frame(flush),
+      )}
     >
       {lesson.posterUrl && (
         <img src={lesson.posterUrl} alt="" className="size-full object-cover" />
       )}
       <div className="absolute inset-0 bg-[rgba(10,20,40,0.42)]" />
 
+      {overlay && (
+        <div className="absolute inset-x-0 top-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.7)_0%,rgba(0,0,0,0.35)_60%,transparent_100%)] px-5 pt-4 pb-8">
+          {overlay}
+        </div>
+      )}
+
       <button
         type="button"
         aria-label={isPlaying ? "Pause lesson" : "Play lesson"}
         onClick={() => setIsPlaying((value) => !value)}
-        className="absolute top-1/2 left-1/2 flex size-[74px] -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/95 transition-transform hover:scale-105"
+        className="absolute top-1/2 left-1/2 flex size-18.5 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/95 transition-transform hover:scale-105"
       >
         {isPlaying ? (
           <Pause
@@ -130,23 +164,41 @@ function SimulatedVideoLesson({ lesson }: { lesson: ActiveLesson }) {
   );
 }
 
-function PdfLesson({ lesson }: { lesson: ActiveLesson }) {
+function PdfLesson({ lesson, overlay, flush }: LessonPlayerProps) {
   if (lesson.sourceUrl) {
     return (
-      <div className="h-[460px] overflow-hidden rounded-xl border border-gray-200 bg-[#E8E8E8]">
-        <iframe
-          src={lesson.sourceUrl}
-          title={lesson.title}
-          className="size-full border-0"
-        />
+      <div>
+        {overlay && <MediaBar>{overlay}</MediaBar>}
+        <div
+          className={cn(
+            "h-115 overflow-hidden border border-gray-200 bg-[#E8E8E8]",
+            frame(flush),
+          )}
+        >
+          <iframe
+            src={lesson.sourceUrl}
+            title={lesson.title}
+            className="size-full border-0"
+          />
+        </div>
       </div>
     );
   }
 
-  return <SimulatedPdfLesson />;
+  return (
+    <div>
+      {overlay && <MediaBar>{overlay}</MediaBar>}
+      <SimulatedPdfLesson flush={flush} />
+    </div>
+  );
 }
 
-function SimulatedPdfLesson() {
+/** The dark strip the design puts above pdf and audio lessons. */
+function MediaBar({ children }: { children: ReactNode }) {
+  return <div className="bg-[#2B2B3C] px-5 py-4">{children}</div>;
+}
+
+function SimulatedPdfLesson({ flush }: { flush?: boolean }) {
   const lines = useMemo(
     () =>
       Array.from({ length: 9 }, (_, index) => ({
@@ -157,9 +209,14 @@ function SimulatedPdfLesson() {
   );
 
   return (
-    <div className="h-[460px] overflow-y-auto rounded-xl border border-gray-200 bg-[#E8E8E8] [scrollbar-color:#BBBBBB_transparent] [scrollbar-width:thin]">
+    <div
+      className={cn(
+        "h-97.5 overflow-y-auto border border-gray-200 bg-[#E8E8E8] [scrollbar-color:#BBBBBB_transparent] [scrollbar-width:thin]",
+        frame(flush),
+      )}
+    >
       <div className="flex justify-center p-8">
-        <div className="flex [aspect-ratio:1/1.294] w-full max-w-[520px] shrink-0 flex-col gap-3.5 border border-gray-200 bg-white px-10 py-11 shadow-[0_4px_16px_rgba(26,26,46,0.08)]">
+        <div className="flex aspect-[1/1.294] w-full max-w-130 shrink-0 flex-col gap-3.5 border border-gray-200 bg-white px-10 py-11 shadow-[0_4px_16px_rgba(26,26,46,0.08)]">
           <div className="h-px bg-gray-200" />
           {lines.map((line) => (
             <div
@@ -174,27 +231,45 @@ function SimulatedPdfLesson() {
   );
 }
 
-function AudioLesson({ lesson }: { lesson: ActiveLesson }) {
+function AudioLesson({ lesson, overlay, flush }: LessonPlayerProps) {
   if (lesson.sourceUrl) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white p-8">
-        <p className="mb-4 text-sm font-bold text-[#1A1A2E]">{lesson.title}</p>
-        <audio
-          controls
-          preload="metadata"
-          src={lesson.sourceUrl}
-          className="w-full"
+      <div>
+        {overlay && <MediaBar>{overlay}</MediaBar>}
+        <div
+          className={cn("border border-gray-200 bg-white p-8", frame(flush))}
         >
-          Your browser cannot play this audio.
-        </audio>
+          <p className="mb-4 text-sm font-bold text-[#1A1A2E]">
+            {lesson.title}
+          </p>
+          <audio
+            controls
+            preload="metadata"
+            src={lesson.sourceUrl}
+            className="w-full"
+          >
+            Your browser cannot play this audio.
+          </audio>
+        </div>
       </div>
     );
   }
 
-  return <SimulatedAudioLesson lesson={lesson} />;
+  return (
+    <div>
+      {overlay && <MediaBar>{overlay}</MediaBar>}
+      <SimulatedAudioLesson lesson={lesson} flush={flush} />
+    </div>
+  );
 }
 
-function SimulatedAudioLesson({ lesson }: { lesson: ActiveLesson }) {
+function SimulatedAudioLesson({
+  lesson,
+  flush,
+}: {
+  lesson: ActiveLesson;
+  flush?: boolean;
+}) {
   const [isPlaying, setIsPlaying] = useState(false);
 
   // Deterministic bar heights so the waveform is stable across renders.
@@ -208,7 +283,12 @@ function SimulatedAudioLesson({ lesson }: { lesson: ActiveLesson }) {
   );
 
   return (
-    <div className="flex items-center rounded-xl border border-gray-200 bg-white p-8">
+    <div
+      className={cn(
+        "flex items-center border border-gray-200 bg-white p-8",
+        frame(flush),
+      )}
+    >
       <div className="flex w-full items-center gap-6">
         <button
           type="button"
@@ -224,7 +304,7 @@ function SimulatedAudioLesson({ lesson }: { lesson: ActiveLesson }) {
         </button>
 
         <div className="min-w-0 flex-1">
-          <div className="mb-3 flex h-11 items-end gap-[3px]" aria-hidden>
+          <div className="mb-3 flex h-11 items-end gap-0.75" aria-hidden>
             {bars.map((bar) => (
               <div
                 key={bar.id}

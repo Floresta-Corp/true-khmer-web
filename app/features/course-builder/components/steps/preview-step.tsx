@@ -62,7 +62,8 @@ export function PreviewStep({
         done:
           draft.title.trim().length > 0 &&
           draft.description.trim().length > 0 &&
-          Boolean(draft.categoryId),
+          Boolean(draft.categoryId) &&
+          draft.outcomes.some((outcome) => outcome.trim().length > 0),
         step: "basic",
       },
       {

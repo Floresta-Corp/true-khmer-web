@@ -17,9 +17,9 @@ import type { CourseStatus } from "~/features/course-listing/types";
 /**
  * Education Center endpoints that exist on the API today.
  *
- * The learner-facing catalog listing, curriculum, enrolment, quiz and
- * certificate resources are not exposed yet; those parts of the UI read from
- * `~/features/education/lib/education-fixtures` until the backend ships them.
+ * Enrolment, progress, ratings, reviews and certificates have no resource
+ * here yet. The screens that would show them omit those blocks — nothing in
+ * this feature substitutes placeholder data for a missing endpoint.
  */
 
 export async function getCourseCategories(request: Request) {
@@ -198,6 +198,7 @@ export interface ReplaceQuizBody {
 export interface UpdateCourseMetaBody {
   difficulty?: "BEGINNER" | "INTERMEDIATE" | "ADVANCE" | "ALL_LEVELS" | null;
   skills?: string[];
+  outcomes?: string[];
   tags?: string[];
   certificateKind?: "PARTICIPATION" | "COMPLETION" | null;
 }
@@ -227,7 +228,7 @@ export async function replaceCourseQuiz(
   );
 }
 
-/** Difficulty, skills, tags and certificate kind. */
+/** Difficulty, skills, outcomes, tags and certificate kind. */
 export async function updateCourseMeta(
   request: Request,
   courseId: string,
@@ -238,6 +239,74 @@ export async function updateCourseMeta(
     `/education-center/courses/${encodeURIComponent(courseId)}/meta`,
     { method: "PATCH", body },
   );
+}
+
+export interface CourseProgressResponse {
+  ok: true;
+  completedLessonIds: string[];
+}
+
+/**
+ * The signed-in learner's completed lessons. Returns null when nobody is
+ * signed in or the deployment predates the progress resource, so the learning
+ * screen falls back to an empty set rather than failing to load.
+ */
+export async function getCourseProgress(request: Request, courseId: string) {
+  try {
+    return await apiRequestWithSession<CourseProgressResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/progress`,
+      { method: "GET" },
+    );
+  } catch {
+    return null;
+  }
+}
+
+/** Records a lesson as watched. Idempotent on the API. */
+export async function markLessonWatched(
+  request: Request,
+  courseId: string,
+  lessonId: string,
+) {
+  return apiRequestWithSession<CourseProgressResponse, { lessonId: string }>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/progress`,
+    { method: "PUT", body: { lessonId } },
+  );
+}
+
+export interface CourseStatsResponse {
+  ok: true;
+  stats: {
+    lessonCount: number;
+    students: {
+      userId: string;
+      name: string;
+      avatar: string | null;
+      startedAt: string;
+      lessonsCompleted: number;
+      completedAt: string | null;
+    }[];
+    enrollmentTrend: { date: string; learners: number }[];
+  };
+}
+
+/**
+ * The creator's own learner figures, derived from recorded lesson progress.
+ * Owner-only; returns null for anyone else or on a deployment without the
+ * endpoint, so the manage screen renders empty rather than failing.
+ */
+export async function getCourseStats(request: Request, courseId: string) {
+  try {
+    return await apiRequestWithSession<CourseStatsResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/stats`,
+      { method: "GET" },
+    );
+  } catch {
+    return null;
+  }
 }
 
 export interface PresignLessonAssetParams {
@@ -301,7 +370,13 @@ export interface CourseQuizResponse {
     questions: {
       id: string;
       question: string;
-      options: { id: string; label: string; isCorrect: boolean }[];
+      position: number;
+      options: {
+        id: string;
+        label: string;
+        isCorrect: boolean;
+        position: number;
+      }[];
     }[];
   };
 }
@@ -350,6 +425,7 @@ export interface PublicCourseListItem {
   price: number;
   difficulty: "BEGINNER" | "INTERMEDIATE" | "ADVANCE" | "ALL_LEVELS" | null;
   skills: string[];
+  outcomes: string[];
   tags: string[];
   lessonCount: number;
   publishedAt: string | null;
@@ -378,7 +454,7 @@ export interface ListPublicCoursesParams {
 
 /**
  * The public catalogue of published courses. Returns null on an API that has
- * no catalogue endpoint, so the hub can fall back to its fixtures.
+ * no catalogue endpoint, leaving the hub with an empty catalogue.
  */
 export async function listPublicCourses(
   request: Request,

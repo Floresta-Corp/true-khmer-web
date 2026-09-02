@@ -2,9 +2,10 @@
  * Domain types for the Education Center.
  *
  * The shapes here follow the "True Khmer V2" design (Education hub, Course
- * detail, Course learning, Quiz, Quiz result, Certificate). Only a subset is
- * backed by the API today — see `~/features/education/lib/education-fixtures`
- * for the parts that are still placeholder data.
+ * detail, Course learning, Quiz, Quiz result, Certificate). Every field is
+ * filled from the API; where the API has no resource — enrolment, progress,
+ * ratings, reviews — the value is reported as absent and the screen omits the
+ * block rather than showing a figure nobody recorded.
  */
 
 export type CourseStatus = "DRAFT" | "PENDING" | "PUBLISHED" | "UNPUBLISHED";
@@ -24,6 +25,10 @@ export interface CourseInstructor {
   avatarUrl: string | null;
   /** e.g. "6 courses published" */
   coursesPublished: number;
+  /** Drives the detail screen's call button; `null` hides it. */
+  phone: string | null;
+  /** Drives the detail screen's email button; `null` hides it. */
+  email: string | null;
 }
 
 export type CourseLevel = "Beginner" | "Intermediate" | "Advance";
@@ -54,18 +59,6 @@ export interface CourseSummary {
   isSaved: boolean;
 }
 
-/** The learner's own progress, shown on the hero's floating cards. */
-export interface LearnerSnapshot {
-  displayName: string;
-  dayStreak: number;
-  goalTitle: string;
-  goalPercent: number;
-  continueCourseTitle: string;
-  continuePercent: number;
-  platformRating: number;
-  platformReviewCount: number;
-}
-
 export interface CourseMetaItem {
   label: string;
   value: string;
@@ -83,7 +76,7 @@ export interface CourseLesson {
   isComplete: boolean;
   /**
    * Where the content lives — a YouTube link, or the file's URL. Optional
-   * because the fixture curriculum has no real media behind it.
+   * because a lesson can be saved before its media is uploaded.
    */
   sourceUrl?: string | null;
 }
@@ -105,6 +98,17 @@ export interface CourseReview {
 /** A course as rendered on the detail and learning screens. */
 export interface CourseDetail extends CourseSummary {
   meta: CourseMetaItem[];
+  /** Drives the design's quiz line in "What's included". */
+  hasQuiz: boolean;
+  /** The creator's choice, straight from the API. `null` means none is issued. */
+  certificateKind: "PARTICIPATION" | "COMPLETION" | null;
+  /** The creator's skills list, shown as the design's "Skills" chips. */
+  skills: string[];
+  /**
+   * The design's "What you'll learn" list, filled in by the creator in the
+   * builder. Kept separate from `skills`: the design draws the two as
+   * different sections with different content.
+   */
   outcomes: string[];
   curriculum: CourseSection[];
   reviews: CourseReview[];

@@ -3,23 +3,25 @@ import type { Route } from "project-types/course-manage/route/+types/course-mana
 import {
   getCourseById,
   getCourseCurriculum,
+  getCourseStats,
 } from "~/api/education/education.server";
-import { MY_COURSES_FIXTURES } from "~/features/course-listing/lib/my-courses-fixtures";
 import {
   buildAnalytics,
   buildManageOverview,
-  buildRatingBreakdown,
-  buildReviewStages,
   buildStudents,
-} from "~/features/course-manage/lib/course-manage-fixtures";
+} from "~/features/course-manage/lib/manage-overview";
+import { buildReviewStages } from "~/features/course-manage/lib/review-stages";
 import { toCourseSections } from "~/features/education/lib/map-curriculum";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
 
 /**
- * Only the creator manages a course, so this sits behind a session. The course
- * itself is real when the API knows it; the Course Listing placeholders resolve
- * here too, so the screen can be reviewed against the design.
+ * Only the creator manages a course, so this sits behind a session.
+ *
+ * Real: the course, its curriculum, the review timeline, and every learner
+ * figure derived from recorded lesson progress (learners, how far each has
+ * got, completion, and the enrolment trend). Quiz attempts and ratings have
+ * no resource, so those blocks report nothing recorded rather than estimates.
  */
 export async function courseManageLoader({
   request,
@@ -27,24 +29,19 @@ export async function courseManageLoader({
 }: Route.LoaderArgs) {
   const auth = await requireUser(request);
 
-  const [result, curriculumResult] = await Promise.all([
+  const [result, curriculumResult, statsResult] = await Promise.all([
     getCourseById(request, params.id),
     getCourseCurriculum(request, params.id),
+    getCourseStats(request, params.id),
   ]);
-  const course =
-    result?.data?.course ??
-    MY_COURSES_FIXTURES.find((entry) => entry.id === params.id) ??
-    null;
+  const course = result?.data?.course ?? null;
 
   if (!course) {
     throw data({ message: "Course not found" }, { status: 404 });
   }
 
-  const overview = {
-    ...buildManageOverview(course),
-    // The one figure that is real.
-    lessonCount: curriculumResult?.data?.curriculum.lessonCount ?? 0,
-  };
+  const stats = statsResult?.data?.stats ?? null;
+  const overview = buildManageOverview(stats);
 
   return withAuthData(auth, {
     course,
@@ -52,15 +49,11 @@ export async function courseManageLoader({
     curriculum: curriculumResult?.data?.curriculum
       ? toCourseSections(curriculumResult.data.curriculum)
       : [],
-    // Reviews have no API resource; an empty list beats invented ones.
+    // Ratings and reviews have no resource, so these stay empty.
     reviews: [],
-    students: buildStudents(course, overview),
-    ratingBreakdown: buildRatingBreakdown(
-      course,
-      overview.rating,
-      overview.reviewCount,
-    ),
+    ratingBreakdown: [],
+    students: buildStudents(stats),
     reviewStages: buildReviewStages(course),
-    analytics: buildAnalytics(course, overview),
+    analytics: buildAnalytics(stats),
   });
 }

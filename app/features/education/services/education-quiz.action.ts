@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "react-router";
-import { buildCourseQuiz } from "~/features/education/lib/education-fixtures";
+import { loadCourseQuiz } from "~/features/education/lib/map-quiz";
 import type { QuizAttemptResult } from "~/features/education/types";
 
 export type QuizActionResult =
@@ -7,9 +7,9 @@ export type QuizActionResult =
   | { ok: false; message: string };
 
 /**
- * Grades a final-quiz attempt.
+ * Grades a final-quiz attempt against the course's saved quiz.
  *
- * Attempts are not persisted — the API has no quiz resource yet — but grading
+ * Attempts are not persisted — the API has no attempt resource — but grading
  * happens here so the correct answers never reach the browser.
  */
 export async function educationQuizAction({
@@ -22,7 +22,11 @@ export async function educationQuizAction({
   }
 
   const formData = await request.formData();
-  const quiz = buildCourseQuiz(courseId);
+  const quiz = await loadCourseQuiz(request, courseId);
+
+  if (!quiz) {
+    return { ok: false, message: "This course has no quiz available." };
+  }
 
   let correctCount = 0;
   for (const question of quiz.questions) {

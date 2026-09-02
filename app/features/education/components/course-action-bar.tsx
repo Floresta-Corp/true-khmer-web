@@ -2,6 +2,7 @@ import { BackLink } from "~/components/back-link";
 import {
   Bookmark,
   ChevronLeft,
+  Download,
   Flag,
   MoreVertical,
   Share2,
@@ -22,6 +23,8 @@ interface CourseActionBarProps {
   isSaved: boolean;
   onToggleSave: () => void;
   onShare: () => void;
+  /** The design's download control. Omitted when nothing is downloadable. */
+  onDownload?: () => void;
   onReport: () => void;
 }
 
@@ -34,6 +37,7 @@ export function CourseActionBar({
   isSaved,
   onToggleSave,
   onShare,
+  onDownload,
   onReport,
 }: CourseActionBarProps) {
   return (
@@ -75,6 +79,18 @@ export function CourseActionBar({
         >
           <Share2 className="size-4.5 text-[#9A9AB0]" aria-hidden />
         </button>
+
+        {onDownload && (
+          <button
+            type="button"
+            aria-label="Download course materials"
+            title="Download"
+            onClick={onDownload}
+            className="flex size-9 cursor-pointer items-center justify-center rounded-lg transition-colors hover:bg-gray-100"
+          >
+            <Download className="size-4.5 text-[#9A9AB0]" aria-hidden />
+          </button>
+        )}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

@@ -17,15 +17,9 @@ import {
 interface CourseListingRowProps {
   course: CourseWithStats;
   index: number;
-  /** Placeholder rows have no course on the API, so status changes are hidden. */
-  placeholder?: boolean;
 }
 
-export function CourseListingRow({
-  course,
-  index,
-  placeholder = false,
-}: CourseListingRowProps) {
+export function CourseListingRow({ course, index }: CourseListingRowProps) {
   const fetcher = useFetcher();
   const status = displayStatusOf(course);
   const cover = course.coverImageUrl ?? "/placeholder/images.svg";
@@ -101,22 +95,21 @@ export function CourseListingRow({
             </Link>
           </DropdownMenuItem>
 
-          {!placeholder &&
-            (course.status === "DRAFT" || course.status === "UNPUBLISHED") && (
-              <DropdownMenuItem onSelect={() => submitIntent("submit")}>
-                <SendHorizonal size={16} aria-hidden />
-                Submit for review
-              </DropdownMenuItem>
-            )}
+          {(course.status === "DRAFT" || course.status === "UNPUBLISHED") && (
+            <DropdownMenuItem onSelect={() => submitIntent("submit")}>
+              <SendHorizonal size={16} aria-hidden />
+              Submit for review
+            </DropdownMenuItem>
+          )}
 
-          {!placeholder && course.status === "PENDING" && (
+          {course.status === "PENDING" && (
             <DropdownMenuItem onSelect={() => submitIntent("withdraw")}>
               <Undo2 size={16} aria-hidden />
               Withdraw submission
             </DropdownMenuItem>
           )}
 
-          {!placeholder && course.status === "PUBLISHED" && (
+          {course.status === "PUBLISHED" && (
             <DropdownMenuItem onSelect={() => submitIntent("unpublish")}>
               <Undo2 size={16} aria-hidden />
               Unpublish

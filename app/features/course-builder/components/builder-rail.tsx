@@ -1,5 +1,5 @@
 import { BackLink } from "~/components/back-link";
-import { Check, ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { STEP_DEFINITIONS } from "../lib/builder-steps";
 import type { BuilderStep } from "../types";
@@ -22,8 +22,6 @@ export function BuilderRail({
   title,
   onStepSelect,
 }: BuilderRailProps) {
-  const currentIndex = steps.indexOf(current);
-
   return (
     <div className="sticky top-0 hidden h-screen w-75 shrink-0 flex-col self-start overflow-y-auto border-r border-[#E5E7EB] bg-[#F9FAFC] px-7 py-8 lg:flex">
       <BackLink
@@ -43,27 +41,21 @@ export function BuilderRail({
           const definition = STEP_DEFINITIONS[step];
           const Icon = definition.icon;
           const isCurrent = step === current;
-          const isDone = index < currentIndex;
           const isLast = index === steps.length - 1;
 
           return (
             <div key={step} className="flex min-h-19 gap-3.5">
               <div className="flex shrink-0 flex-col items-center">
+                {/* 36px circle with 9px of padding, so the glyph fills 18px. */}
                 <span
                   className={cn(
-                    "flex size-9 shrink-0 items-center justify-center rounded-full border",
-                    isDone && "border-[#1C5DD4] bg-[#1C5DD4] text-white",
-                    isCurrent && "border-[#1C5DD4] bg-[#D5E2FA] text-[#1C5DD4]",
-                    !isDone &&
-                      !isCurrent &&
-                      "border-[#E5E7EB] bg-white text-[#9A9AB0]",
+                    "flex size-9 shrink-0 items-center justify-center rounded-full border p-2.25",
+                    isCurrent
+                      ? "border-[#1C5DD4] bg-[#1C5DD4] text-white"
+                      : "border-[#E5E7EB] bg-white text-[#9A9AB0]",
                   )}
                 >
-                  {isDone ? (
-                    <Check size={16} strokeWidth={2.6} aria-hidden />
-                  ) : (
-                    <Icon size={16} strokeWidth={2} aria-hidden />
-                  )}
+                  <Icon className="size-full" strokeWidth={1.9} aria-hidden />
                 </span>
                 {!isLast && (
                   <span className="min-h-5.5 w-0.5 flex-1 bg-[#E5E7EB]" />
@@ -74,17 +66,20 @@ export function BuilderRail({
                 type="button"
                 onClick={() => onStepSelect(step)}
                 aria-current={isCurrent ? "step" : undefined}
-                className="min-w-0 cursor-pointer pt-1.5 text-left"
+                className={cn(
+                  "min-h-19 min-w-0 flex-1 cursor-pointer rounded-[10px] px-2.5 pt-2 pb-3.5 text-left",
+                  isCurrent && "bg-[#EFF4FE]",
+                )}
               >
                 <span
                   className={cn(
                     "block text-sm font-bold",
-                    isCurrent || isDone ? "text-[#1A1A2E]" : "text-[#9A9AB0]",
+                    isCurrent ? "text-[#1C5DD4]" : "text-[#1A1A2E]",
                   )}
                 >
                   {definition.label}
                 </span>
-                <span className="mt-0.5 block text-xs text-[#9A9AB0]">
+                <span className="mt-0.5 block text-[12.5px] leading-[1.4] text-[#9A9AB0]">
                   {definition.desc}
                 </span>
               </button>

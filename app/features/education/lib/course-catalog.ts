@@ -1,55 +1,10 @@
 import { z } from "zod";
-import { FALLBACK_CATEGORIES } from "~/features/education/lib/education-fixtures";
 import type { CourseCategory, CourseSummary } from "~/features/education/types";
 
 /**
  * Catalogue filtering and sorting, shared by the Education hub and the
  * "View all" page so the two cannot drift apart.
  */
-
-/**
- * The API and the design label some categories differently ("Technology" vs
- * "Tech"). Normalize so they merge into one entry in the row.
- */
-const CATEGORY_ALIASES: Record<string, string> = {
-  technology: "tech",
-  it: "tech",
-  "personal development": "academics",
-  education: "academics",
-  language: "languages",
-  trade: "trades",
-};
-
-function normalizeCategory(name: string) {
-  const key = name.trim().toLowerCase();
-  return CATEGORY_ALIASES[key] ?? key;
-}
-
-/**
- * The design's category row is fixed. Keep that order and adopt the API's id
- * wherever it publishes a matching category, so filtering can move server-side
- * later; append anything extra the API returns.
- */
-export function mergeCategories(
-  apiCategories: CourseCategory[],
-): CourseCategory[] {
-  const byName = new Map(
-    apiCategories.map((category) => [
-      normalizeCategory(category.name),
-      category,
-    ]),
-  );
-
-  const categories = FALLBACK_CATEGORIES.map((fallback) => {
-    const key = normalizeCategory(fallback.name);
-    const match = byName.get(key);
-    byName.delete(key);
-    return match ? { ...fallback, id: match.id, slug: match.slug } : fallback;
-  });
-
-  categories.push(...byName.values());
-  return categories;
-}
 
 /**
  * The catalogue matches on title alone — the design's All Courses screen
@@ -73,7 +28,7 @@ export function matchesSearch(course: CourseSummary, search: string) {
   );
 }
 
-/** Categories are matched by id, falling back to name while ids are fixtures. */
+/** Categories match on id, falling back to name for a differently-labelled one. */
 export function matchesCategory(
   course: CourseSummary,
   categoryId: string | null,

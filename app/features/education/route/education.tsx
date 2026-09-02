@@ -24,7 +24,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function EducationHubPage() {
   const {
-    learner,
+    displayName,
     topics,
     categories,
     isFiltering,
@@ -113,7 +113,7 @@ export default function EducationHubPage() {
         transition={{ duration }}
       >
         <EducationHero
-          learner={learner}
+          displayName={displayName}
           topics={topics}
           search={searchInput}
           onSearchChange={setSearchInput}

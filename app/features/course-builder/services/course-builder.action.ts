@@ -65,6 +65,7 @@ const MetaSchema = z.object({
     .enum(["BEGINNER", "INTERMEDIATE", "ADVANCE", "ALL_LEVELS"])
     .nullish(),
   skills: z.array(z.string().trim().min(1).max(80)).optional(),
+  outcomes: z.array(z.string().trim().min(1).max(300)).optional(),
   tags: z.array(z.string().trim().min(1).max(80)).optional(),
   certificateKind: z.enum(["PARTICIPATION", "COMPLETION"]).nullish(),
 });
