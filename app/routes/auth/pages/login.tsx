@@ -98,6 +98,8 @@ export default function LoginPage() {
   const [clientErrors, setClientErrors] = useState<LoginFieldErrors>({});
   const [googleError, setGoogleError] = useState("");
   const isSubmitting = navigation.state === "submitting";
+  const isGoogleSubmitting =
+    isSubmitting && navigation.formData?.get("intent") === "google";
   const isFormValid = loginFormSchema.safeParse({ email, password }).success;
 
   function validateCurrentValues(nextValues?: {
@@ -263,7 +265,7 @@ export default function LoginPage() {
               disabled={isSubmitting || !isFormValid}
               className="h-10 w-full rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white transition-colors hover:bg-[#1F62DF] disabled:bg-[#2F6FE4] disabled:opacity-50"
             >
-              {isSubmitting ? "Signing in..." : "Sign In"}
+              {isSubmitting && !isGoogleSubmitting ? "Signing in..." : "Sign In"}
             </Button>
           </Form>
         </motion.div>
