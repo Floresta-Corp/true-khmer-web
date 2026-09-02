@@ -1,4 +1,5 @@
 import { ArrowUpRight, Ticket } from "lucide-react";
+import { EventTicketList } from "~/features/events/components/event-ticket-list";
 import type { EventDetail } from "~/features/events/types/events";
 
 const ENTRY_COPY = {
@@ -24,12 +25,16 @@ const ENTRY_COPY = {
 /**
  * "Get Tickets" tab.
  *
- * `GET /v1/plumpi/events/slug/{slug}` returns how a visitor gets in
- * (`entryMode`) but not the ticket tiers or their prices, so this hands the
- * visitor off to the event's Plumpi page rather than listing tiers it cannot
- * read. Swap in a tier list here once the API exposes one.
+ * Shows the tier list when `GET /v1/plumpi/events/slug/{slug}` sends one. That
+ * endpoint types its event as an open record and does not always carry tiers,
+ * so when none come back this falls back to how the visitor gets in
+ * (`entryMode`) and hands them off to the event's Plumpi page.
  */
 export function EventAttendPanel({ event }: { event: EventDetail }) {
+  if (event.tickets.length > 0) {
+    return <EventTicketList event={event} />;
+  }
+
   const copy = ENTRY_COPY[event.entryMode];
   const plumpiWeb = import.meta.env.VITE_PLUMPI_WEB;
   const eventUrl =

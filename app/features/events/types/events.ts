@@ -126,6 +126,126 @@ const VenueSchema = z
   ])
   .optional();
 
+// --- Ticket tiers ---
+
+/** One purchasable ticket tier, as the detail page renders it. */
+export type EventTicket = {
+  id: string;
+  name: string;
+  description: string;
+  /** Cheapest sellable price, or `null` when the tier is free. */
+  price: number | null;
+  currencyCode: string | null;
+  image: string | null;
+  saleStartAt: string | null;
+  saleEndAt: string | null;
+  isSoldOut: boolean;
+};
+
+function pickString(
+  row: Record<string, unknown>,
+  ...keys: string[]
+): string | null {
+  for (const key of keys) {
+    const value = row[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return null;
+}
+
+function pickNumber(
+  row: Record<string, unknown>,
+  ...keys: string[]
+): number | null {
+  for (const key of keys) {
+    const value = row[key];
+    if (value === null || value === undefined || value === "") continue;
+    const parsed = typeof value === "number" ? value : Number(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return null;
+}
+
+/** Tiers that report a total and a sold count rather than a remainder. */
+function remainingFromTotals(ticket: Record<string, unknown>): number | null {
+  const total = pickNumber(
+    ticket,
+    "quantity",
+    "quantityTotal",
+    "totalQuantity",
+  );
+  const sold = pickNumber(ticket, "quantitySold", "soldQuantity", "sold");
+  if (total === null || sold === null) return null;
+  return total - sold;
+}
+
+/**
+ * Ticket tiers out of `GET /v1/plumpi/tickets/tiers`.
+ *
+ * That endpoint types its rows as open records, so each field is read
+ * leniently across the key spellings Plumpi uses, and a row without a name is
+ * dropped rather than rendered blank.
+ */
+export function parseEventTickets(rows: unknown): EventTicket[] {
+  if (!Array.isArray(rows)) return [];
+
+  return rows.flatMap<EventTicket>((row, index) => {
+    if (typeof row !== "object" || row === null) return [];
+    const ticket = row as Record<string, unknown>;
+
+    const name = pickString(ticket, "name", "title", "tierName", "label");
+    if (!name) return [];
+
+    const salePrice = pickNumber(ticket, "salePrice");
+    const basePrice = pickNumber(
+      ticket,
+      "price",
+      "basePrice",
+      "unitPrice",
+      "amount",
+    );
+    const status = pickString(ticket, "status", "ticketStatus");
+    const remaining =
+      pickNumber(
+        ticket,
+        "quantityAvailable",
+        "availableQuantity",
+        "remainingQuantity",
+        "remaining",
+      ) ?? remainingFromTotals(ticket);
+
+    return [
+      {
+        id: pickString(ticket, "id", "uuid", "slug") ?? `ticket-${index}`,
+        name,
+        description: pickString(ticket, "description", "excerpt") ?? "",
+        price: salePrice ?? basePrice,
+        currencyCode: pickString(ticket, "currencyCode", "currency"),
+        image: pickString(ticket, "image", "thumbnail", "cover"),
+        saleStartAt: pickString(
+          ticket,
+          "saleStartAt",
+          "salesStartAt",
+          "availableFrom",
+          "startAt",
+        ),
+        saleEndAt: pickString(
+          ticket,
+          "saleEndAt",
+          "salesEndAt",
+          "availableUntil",
+          "endAt",
+        ),
+        isSoldOut:
+          ticket.isSoldOut === true ||
+          ticket.soldOut === true ||
+          status === "SOLD_OUT" ||
+          (remaining !== null && remaining <= 0),
+      },
+    ];
+  });
+}
+
 export const EventDetailSchema = z
   .object({
     id: z.string(),
@@ -190,7 +310,13 @@ export const EventDetailSchema = z
       features,
     };
   });
-export type EventDetail = z.infer<typeof EventDetailSchema>;
+/**
+ * The event as the detail page renders it. `tickets` is not part of the event
+ * payload — the loader attaches it from `GET /v1/plumpi/tickets/tiers`.
+ */
+export type EventDetail = z.infer<typeof EventDetailSchema> & {
+  tickets: EventTicket[];
+};
 
 export type EventDetailLoaderData = {
   event: EventDetail | null;

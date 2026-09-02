@@ -97,6 +97,21 @@ export function getPlumpiEventBySlug(request: Request, slug: string) {
   >(request, `/plumpi/events/slug/${encodeURIComponent(slug)}`);
 }
 
+/**
+ * Reads an event's ticket tiers — `GET /v1/plumpi/tickets/tiers?eventId={id}`.
+ *
+ * Keyed on the event id, not the slug, so the detail page resolves the event
+ * first. Public like the event read, with the session attached when there is
+ * one.
+ */
+export function getPlumpiEventTicketTiers(request: Request, eventId: string) {
+  const searchParams = new URLSearchParams({ eventId });
+
+  return apiRequestWithOptionalSession<
+    Awaited<ReturnType<PlumpiApi["getV1plumpiticketstiers"]>>
+  >(request, `/plumpi/tickets/tiers?${searchParams.toString()}`);
+}
+
 export type PlumpiMyEventsQuery = {
   page: number;
   limit: number;
