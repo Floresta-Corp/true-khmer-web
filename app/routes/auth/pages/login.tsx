@@ -22,6 +22,7 @@ import {
   loader as loginLoader,
 } from "~/routes/auth/domain/login.server";
 import type { LoginActionData } from "~/routes/auth/domain/auth.types";
+import LogoSvg from "~/components/icons/logoSvg";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
@@ -134,15 +135,18 @@ export default function LoginPage() {
             },
           },
         }}
-        className="space-y-8"
+        className="space-y-6"
       >
         <motion.header
           variants={{
             hidden: { opacity: 0, y: 10 },
             visible: { opacity: 1, y: 0 },
           }}
-          className="space-y-2"
+          className="space-y-2 text-center"
         >
+          <Link to="/" className="mx-auto block w-fit" aria-label="True Khmer">
+            <LogoSvg width={150} height={60} />
+          </Link>
           <h1 className="text-3xl leading-9 font-bold text-[#111827]">
             Welcome Back
           </h1>
@@ -150,30 +154,6 @@ export default function LoginPage() {
             Please enter your details to sign in.
           </p>
         </motion.header>
-
-        <motion.div
-          variants={{
-            hidden: { opacity: 0, y: 10 },
-            visible: { opacity: 1, y: 0 },
-          }}
-        >
-          <GoogleAuthButton
-            className="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3 text-base font-semibold text-[#111827] shadow-sm hover:bg-[#F9FAFB]"
-            redirectTo={redirectTo}
-            onError={setGoogleError}
-          />
-        </motion.div>
-
-        <motion.div
-          variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
-        >
-          <FormDivider
-            label="or"
-            className="py-4"
-            lineClassName="bg-[#E5E7EB]"
-            labelClassName="text-sm font-normal normal-case tracking-normal text-[#4B5563]"
-          />
-        </motion.div>
 
         <InlineMessage tone="success" message={successMessage} />
         <FormError message={googleError} />
@@ -288,24 +268,51 @@ export default function LoginPage() {
           </Form>
         </motion.div>
 
-        <motion.p
-          variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
-          className="text-center text-sm leading-5 font-normal text-[#4B5563]"
-        >
-          New to True Khmer?{" "}
-          <Link
-            to={withRedirectTo("/register", searchParams.get("redirectTo"))}
-            className="group font-semibold text-[#1C5DD4] no-underline transition-colors duration-200 hover:text-[#164CB0] hover:no-underline"
+        <div className="space-y-6">
+          <motion.div
+            variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
           >
-            <span className="relative">
-              Join the community
-              <span
-                aria-hidden
-                className="absolute -bottom-0.5 left-0 h-px w-full origin-center scale-x-0 rounded-full bg-current transition-transform duration-200 ease-out group-hover:scale-x-100"
-              />
-            </span>
-          </Link>
-        </motion.p>
+            <FormDivider
+              label="or"
+              lineClassName="bg-[#E5E7EB]"
+              labelClassName="text-sm font-normal normal-case tracking-normal text-[#4B5563]"
+            />
+          </motion.div>
+
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 10 },
+              visible: { opacity: 1, y: 0 },
+            }}
+          >
+            <GoogleAuthButton
+              className="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3 text-base font-semibold text-[#111827] shadow-sm hover:bg-[#F9FAFB]"
+              redirectTo={redirectTo}
+              onError={setGoogleError}
+            >
+              Log in with Google
+            </GoogleAuthButton>
+          </motion.div>
+
+          <motion.p
+            variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
+            className="text-center text-sm leading-5 font-normal text-[#4B5563]"
+          >
+            New to True Khmer?{" "}
+            <Link
+              to={withRedirectTo("/register", searchParams.get("redirectTo"))}
+              className="group font-semibold text-[#1C5DD4] no-underline transition-colors duration-200 hover:text-[#164CB0] hover:no-underline"
+            >
+              <span className="relative">
+                Join the community
+                <span
+                  aria-hidden
+                  className="absolute -bottom-0.5 left-0 h-px w-full origin-center scale-x-0 rounded-full bg-current transition-transform duration-200 ease-out group-hover:scale-x-100"
+                />
+              </span>
+            </Link>
+          </motion.p>
+        </div>
       </motion.div>
     </AuthPageShell>
   );
