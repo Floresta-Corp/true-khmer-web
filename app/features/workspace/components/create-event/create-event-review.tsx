@@ -102,13 +102,13 @@ export default function CreateEventReview({
             {form.coverPreviewUrl ? (
               <img
                 src={form.coverPreviewUrl}
-                alt={form.name || "Event cover"}
+                alt={form.name || "Event thumbnail"}
                 className="size-full object-cover"
               />
             ) : (
               <div className="flex size-full flex-col items-center justify-center gap-2 text-slate-400">
                 <ImageIcon className="size-8" />
-                <span className="text-xs">No cover selected</span>
+                <span className="text-xs">No thumbnail selected</span>
               </div>
             )}
           </div>
@@ -156,7 +156,7 @@ export default function CreateEventReview({
               ))}
               <span className="flex items-center gap-2.5">
                 <MapPin className="size-4 shrink-0 text-slate-400" />
-                {venue?.name ?? formatLabel}
+                {venue?.name || form.venueName || formatLabel}
               </span>
               {form.address && (
                 <span className="pl-6.5 text-xs font-normal text-slate-500">
