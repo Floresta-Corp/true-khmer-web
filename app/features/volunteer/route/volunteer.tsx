@@ -54,7 +54,7 @@ export default function VolunteerPage() {
             categories={categories || []}
             showAllCategory
             onClickCategory={(v) => {
-              navigate(v ? `/volunteer/all?categoryId=${v}` : "/volunteer/all");
+              navigate(`/volunteer/all?categoryId=${v}`);
             }}
           />
         </motion.div>

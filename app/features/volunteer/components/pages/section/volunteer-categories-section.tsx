@@ -2,8 +2,6 @@ import { CategoryCard } from "~/components/category-card";
 import { cn } from "~/lib/utils";
 import type { VolunteerCategory } from "~/features/volunteer/types/category";
 
-const ALL_CATEGORY_ID = "all-categories";
-
 interface VolunteerCategoriesSectionProps {
   fullscreen?: boolean;
   className?: string;
@@ -23,12 +21,10 @@ export function VolunteerCategoriesSection({
   activeCategoryId,
   showAllCategory,
 }: VolunteerCategoriesSectionProps) {
-  const allCategory: VolunteerCategory = {
-    id: ALL_CATEGORY_ID,
-    name: "All",
-    iconKey: "LayoutGrid",
-  };
-  const items = showAllCategory ? [allCategory, ...categories] : categories;
+  const cardClassNames = cn(
+    "h-10 w-auto gap-2 rounded-full px-4 sm:h-11 sm:gap-2.5 sm:px-5 md:w-auto",
+    cardClassName,
+  );
 
   return (
     <section
@@ -48,23 +44,22 @@ export function VolunteerCategoriesSection({
           </p>
         </header> */}
         <div className="-mx-4 no-scrollbar flex w-auto snap-x snap-mandatory scroll-pl-4 gap-2 overflow-x-auto px-4 pb-1 sm:gap-3 md:mx-0 md:w-full md:flex-wrap md:gap-y-3 md:overflow-visible md:px-0">
-          {items.map((category) => (
+          {showAllCategory ? (
+            <div className="shrink-0 snap-start">
+              <CategoryCard
+                onClick={() => onClickCategory?.(undefined)}
+                className={cardClassNames}
+                active={!activeCategoryId}
+                category={{ id: "", name: "All", iconKey: "LayoutGrid" }}
+              />
+            </div>
+          ) : null}
+          {categories.map((category) => (
             <div key={category.id} className="shrink-0 snap-start">
               <CategoryCard
-                onClick={() =>
-                  onClickCategory?.(
-                    category.id === ALL_CATEGORY_ID ? undefined : category.id,
-                  )
-                }
-                className={cn(
-                  "h-10 w-auto gap-2 rounded-full px-4 sm:h-11 sm:gap-2.5 sm:px-5 md:w-auto",
-                  cardClassName,
-                )}
-                active={
-                  category.id === ALL_CATEGORY_ID
-                    ? !activeCategoryId
-                    : category.id === activeCategoryId
-                }
+                onClick={() => onClickCategory?.(category.id)}
+                className={cardClassNames}
+                active={category.id === activeCategoryId}
                 category={{
                   ...category,
                   updatedBy: category.updatedBy ?? undefined,

@@ -18,8 +18,6 @@ export const PaginationSchema = z.object({
   limit: z.number(),
   hasMore: z.boolean(),
   nextCursor: z.string().nullable(),
-  /** Total matching records for the active filters. Not sent by every paginated endpoint. */
-  total: z.number().optional(),
 });
 export type Pagination = z.infer<typeof PaginationSchema>;
 

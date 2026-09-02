@@ -104,7 +104,7 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
         >
           <span className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.18em] text-[#2463eb] uppercase sm:text-xs">
             <img
-              src="home-explore-volunteer.png"
+              src="/home-explore-volunteer.png"
               className="size-10 object-contain sm:size-12 lg:size-14"
               alt=""
             />
