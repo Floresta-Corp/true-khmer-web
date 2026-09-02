@@ -12,7 +12,7 @@ import {
 const DATABASE_NAME = "true-khmer-local-drafts";
 const DATABASE_VERSION = 1;
 const STORE_NAME = "create-event";
-const DRAFT_VERSION = 2;
+const DRAFT_VERSION = 3;
 const DATABASE_OPEN_TIMEOUT_MS = 5_000;
 
 const PersistedCreateEventFormSchema = z.object({
@@ -22,6 +22,7 @@ const PersistedCreateEventFormSchema = z.object({
   description: z.string(),
   format: z.union([CreateEventFormatSchema, z.literal("")]),
   eventDates: z.array(CreateEventDateInputSchema),
+  venueName: z.string(),
   venueId: z.string(),
   address: z.string(),
   googleMapLink: z.string(),
@@ -51,8 +52,11 @@ export type RestoredCreateEventDraft = {
   updatedAt: number;
 };
 
+const VersionTwoPersistedCreateEventFormSchema =
+  PersistedCreateEventFormSchema.omit({ venueName: true });
+
 const LegacyPersistedCreateEventFormSchema =
-  PersistedCreateEventFormSchema.omit({
+  VersionTwoPersistedCreateEventFormSchema.omit({
     eventDates: true,
     venueId: true,
     address: true,
@@ -133,6 +137,7 @@ export function hasMeaningfulCreateEventDraft(
       (eventDate) => eventDate.date || eventDate.startTime || eventDate.endTime,
     ) ||
     form.venueId ||
+    form.venueName.trim() ||
     form.address.trim() ||
     form.googleMapLink.trim() ||
     form.visibility !== initialCreateEventFormState.visibility ||
@@ -165,6 +170,12 @@ export async function loadCreateEventDraft(
       const parsedForm = PersistedCreateEventFormSchema.safeParse(stored.form);
       if (!parsedForm.success) return null;
       restoredForm = parsedForm.data;
+    } else if (stored.version === 2) {
+      const versionTwoForm = VersionTwoPersistedCreateEventFormSchema.safeParse(
+        stored.form,
+      );
+      if (!versionTwoForm.success) return null;
+      restoredForm = { ...versionTwoForm.data, venueName: "" };
     } else if (stored.version === 1) {
       const legacyForm = LegacyPersistedCreateEventFormSchema.safeParse(
         stored.form,
@@ -177,6 +188,7 @@ export async function loadCreateEventDraft(
         ...unchangedFields,
         format: "IN_PERSON",
         eventDates: [{ date: startDate, startTime, endTime }],
+        venueName: "",
         venueId: "",
         address: "",
         googleMapLink: "",

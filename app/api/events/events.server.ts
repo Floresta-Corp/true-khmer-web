@@ -69,18 +69,18 @@ export function createPlumpiEvent(
   });
 }
 
-export function uploadPlumpiEventCover(
+export function uploadPlumpiEventThumbnail(
   request: Request,
   eventId: string,
-  cover: File,
+  thumbnail: File,
 ) {
   const body = new FormData();
-  body.set("cover", cover, cover.name);
+  body.set("thumbnail", thumbnail, thumbnail.name);
 
   return apiRequestWithSession<
-    Awaited<ReturnType<PlumpiApi["patchV1plumpieventsEventIdcover"]>>,
+    Awaited<ReturnType<PlumpiApi["patchV1plumpieventsEventIdthumbnail"]>>,
     FormData
-  >(request, `/plumpi/events/${encodeURIComponent(eventId)}/cover`, {
+  >(request, `/plumpi/events/${encodeURIComponent(eventId)}/thumbnail`, {
     method: "PATCH",
     body,
   });

@@ -71,7 +71,7 @@ export const MyEventSchema = z
     organizationId: z.union([z.null(), z.string()]).optional(),
     title: z.union([z.null(), z.string()]).optional(),
     status: z.unknown(),
-    cover: z.union([z.null(), z.string()]).optional(),
+    thumbnail: z.union([z.null(), z.string()]).optional(),
     eventDates: z.array(MyEventDateSchema).optional(),
     startAt: z.union([z.null(), z.string()]).optional(),
     endAt: z.union([z.null(), z.string()]).optional(),
@@ -97,7 +97,7 @@ export const MyEventSchema = z
       organizationId: event.organizationId ?? null,
       title: event.title?.trim() || "Untitled event",
       status: MyEventStatusSchema.catch("DRAFT").parse(event.status),
-      cover: event.cover ?? null,
+      thumbnail: event.thumbnail ?? null,
       startAt,
       endAt,
       location:
@@ -256,6 +256,15 @@ export const CreateEventInputSchema = z
     eventDates: z
       .array(CreateEventDateInputSchema)
       .min(1, "Add at least one event date"),
+    venueName: z.preprocess(
+      (value) =>
+        typeof value === "string"
+          ? value.trim() === ""
+            ? undefined
+            : value.trim()
+          : value,
+      schemas.postV1plumpievents_Body.shape.venueName,
+    ),
     venueId: z.preprocess(
       (value) => (value === "" ? undefined : value),
       schemas.postV1plumpievents_Body.shape.venueId,
@@ -316,18 +325,18 @@ export const CreateEventInputSchema = z
 
     if (value.format !== "IN_PERSON") return;
 
-    if (!value.venueId) {
+    if (!value.venueId && !value.venueName) {
       context.addIssue({
         code: "custom",
-        path: ["venueId"],
-        message: "Select a venue for your in-person event",
+        path: ["venueName"],
+        message: "Select or enter a venue for your in-person event",
       });
     }
-    if (!value.address) {
+    if (!value.googleMapLink) {
       context.addIssue({
         code: "custom",
-        path: ["address"],
-        message: "Venue address is required",
+        path: ["googleMapLink"],
+        message: "Google Map link is required",
       });
     }
   });
@@ -365,6 +374,7 @@ export type CreateEventFormState = Pick<
   description: string;
   format: CreateEventFormat | "";
   eventDates: CreateEventDateInput[];
+  venueName: string;
   venueId: string;
   address: string;
   googleMapLink: string;
@@ -381,6 +391,7 @@ export const initialCreateEventFormState: CreateEventFormState = {
   description: "",
   format: "IN_PERSON",
   eventDates: [{ ...emptyCreateEventDate }],
+  venueName: "",
   venueId: "",
   address: "",
   googleMapLink: "",

@@ -139,8 +139,8 @@ export function isCreateEventFormComplete(form: CreateEventFormState): boolean {
     form.eventDates.every(
       (eventDate) => eventDate.date && eventDate.startTime && eventDate.endTime,
     ) &&
-    form.venueId &&
-    form.address.trim() &&
+    (form.venueId || form.venueName.trim()) &&
+    form.googleMapLink.trim() &&
     form.coverImageName,
   );
 }

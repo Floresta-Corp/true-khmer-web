@@ -132,11 +132,9 @@ export default function CreateEventPage() {
         )
           ? draft.form.category
           : "";
-        const restoredVenueId = venues.some(
+        const restoredVenue = venues.find(
           (venue) => venue.id === draft.form.venueId,
-        )
-          ? draft.form.venueId
-          : "";
+        );
         const coverPreviewUrl = restoredCover
           ? URL.createObjectURL(restoredCover)
           : "";
@@ -145,7 +143,10 @@ export default function CreateEventPage() {
           organizerId: restoredOrganizerId,
           category: restoredCategory,
           format: "IN_PERSON",
-          venueId: restoredVenueId,
+          // Keep a linked venue id even if it is not in the current suggestion
+          // response. It should not silently become a newly created venue.
+          venueId: draft.form.venueId,
+          venueName: draft.form.venueName || restoredVenue?.name || "",
           coverImageName: restoredCover?.name ?? "",
           coverPreviewUrl,
         };
@@ -419,6 +420,7 @@ export default function CreateEventPage() {
     submission.set("eventDates", JSON.stringify(form.eventDates));
     submission.set("eventDateRanges", JSON.stringify(dateRanges));
     submission.set("venueId", form.venueId);
+    submission.set("venueName", form.venueName);
     submission.set("address", form.address);
     submission.set("googleMapLink", form.googleMapLink);
     submission.set("visibility", form.visibility);
@@ -594,14 +596,18 @@ export default function CreateEventPage() {
                       type="button"
                       disabled={isSubmitting}
                       onClick={handleSaveDraft}
-                      className="h-11 gap-2 rounded-lg bg-blue-600 px-6.5 text-sm font-bold text-white hover:bg-blue-700"
+                      className="relative h-11 rounded-lg bg-blue-600 px-6.5 text-sm font-bold text-white hover:bg-blue-700"
                     >
+                      <span
+                        className={isCreatingDraft ? "invisible" : undefined}
+                      >
+                        Create as Draft
+                      </span>
                       {isCreatingDraft && (
-                        <LoaderCircle className="size-4 animate-spin" />
+                        <span className="absolute inset-0 flex items-center justify-center">
+                          <LoaderCircle className="size-4 animate-spin" />
+                        </span>
                       )}
-                      {isCreatingDraft
-                        ? "Creating draft..."
-                        : "Create as Draft"}
                     </Button>
                   </div>
                 </div>

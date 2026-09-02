@@ -156,7 +156,7 @@ export default function CreateEventReview({
               ))}
               <span className="flex items-center gap-2.5">
                 <MapPin className="size-4 shrink-0 text-slate-400" />
-                {venue?.name ?? formatLabel}
+                {venue?.name || form.venueName || formatLabel}
               </span>
               {form.address && (
                 <span className="pl-6.5 text-xs font-normal text-slate-500">

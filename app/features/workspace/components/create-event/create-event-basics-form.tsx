@@ -13,9 +13,9 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Textarea } from "~/components/ui/textarea";
-import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
 import { cn } from "~/lib/utils";
 import CreateEventDateFields from "./create-event-date-fields";
+import CreateEventVenueInput from "./create-event-venue-input";
 import {
   CREATE_EVENT_COVER_ACCEPT,
   validateCreateEventCover,
@@ -241,89 +241,56 @@ export default function CreateEventBasicsForm({
             <div className="h-px bg-[#E1E7EF]" />
 
             <div className="space-y-4">
+              <CreateEventVenueInput
+                venueId={form.venueId}
+                venueName={form.venueName}
+                venues={venues}
+                venueLoadError={venueLoadError}
+                error={errors.venueName ?? errors.venueId}
+                inputClassName={inputClassName}
+                onVenueIdChange={(venueId) => onFieldChange("venueId", venueId)}
+                onVenueNameChange={(venueName) =>
+                  onFieldChange("venueName", venueName)
+                }
+                onAddressChange={(address) => onFieldChange("address", address)}
+              />
+
               <div>
                 <FieldLabel
                   required
                   className="text-[13px] font-bold text-[#344256]"
                 >
-                  Venue
+                  Google Map Link
                 </FieldLabel>
-                <SingleSelectDropdown
-                  id="createEventVenue"
-                  value={form.venueId}
-                  onValueChange={(venueId) => {
-                    const venue = venues.find((item) => item.id === venueId);
-                    onFieldChange("venueId", venueId);
-                    if (venue?.address) {
-                      onFieldChange("address", venue.address);
-                    }
-                    if (venue?.googleMapLink) {
-                      onFieldChange("googleMapLink", venue.googleMapLink);
-                    }
-                  }}
-                  options={venues.map((venue) => ({
-                    value: venue.id,
-                    label: venue.name,
-                  }))}
-                  placeholder="Search for a venue"
-                  searchPlaceholder="Search venues..."
-                  emptyText={
-                    venueLoadError
-                      ? "Venues are temporarily unavailable"
-                      : "No venues found"
+                <Input
+                  type="url"
+                  name="googleMapLink"
+                  value={form.googleMapLink}
+                  onChange={(event) =>
+                    onFieldChange("googleMapLink", event.target.value)
                   }
-                  searchable
-                  disabled={Boolean(venueLoadError)}
-                  ariaInvalid={Boolean(errors.venueId)}
-                  triggerClassName={cn("mt-2 h-11.5", inputClassName)}
-                  contentClassName="rounded-lg border-[#E1E7EF]"
+                  placeholder="https://maps.google.com/..."
+                  aria-invalid={Boolean(errors.googleMapLink)}
+                  className={cn("mt-2", inputClassName)}
                 />
-                {venueLoadError && (
-                  <p className="mt-2 text-xs text-amber-700">
-                    {venueLoadError}
-                  </p>
-                )}
-                <FieldError message={errors.venueId} />
+                <FieldError message={errors.googleMapLink} />
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <FieldLabel
-                    required
-                    className="text-[13px] font-bold text-[#344256]"
-                  >
-                    Address
-                  </FieldLabel>
-                  <Input
-                    name="address"
-                    value={form.address}
-                    onChange={(event) =>
-                      onFieldChange("address", event.target.value)
-                    }
-                    placeholder="Street, building, district"
-                    aria-invalid={Boolean(errors.address)}
-                    className={cn("mt-2", inputClassName)}
-                  />
-                  <FieldError message={errors.address} />
-                </div>
-
-                <div>
-                  <FieldLabel className="text-[13px] font-bold text-[#344256]">
-                    Google Map Link
-                  </FieldLabel>
-                  <Input
-                    type="url"
-                    name="googleMapLink"
-                    value={form.googleMapLink}
-                    onChange={(event) =>
-                      onFieldChange("googleMapLink", event.target.value)
-                    }
-                    placeholder="https://maps.google.com/..."
-                    aria-invalid={Boolean(errors.googleMapLink)}
-                    className={cn("mt-2", inputClassName)}
-                  />
-                  <FieldError message={errors.googleMapLink} />
-                </div>
+              <div>
+                <FieldLabel className="text-[13px] font-bold text-[#344256]">
+                  Address
+                </FieldLabel>
+                <Input
+                  name="address"
+                  value={form.address}
+                  onChange={(event) =>
+                    onFieldChange("address", event.target.value)
+                  }
+                  placeholder="Street, building, district"
+                  aria-invalid={Boolean(errors.address)}
+                  className={cn("mt-2", inputClassName)}
+                />
+                <FieldError message={errors.address} />
               </div>
             </div>
           </>

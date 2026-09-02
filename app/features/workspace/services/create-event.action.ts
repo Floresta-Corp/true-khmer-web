@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { Route } from "project-types/workspace/route/+types/my-events.create";
 import {
   createPlumpiEvent,
-  uploadPlumpiEventCover,
+  uploadPlumpiEventThumbnail,
 } from "~/api/events/events.server";
 import { PLUMPI_HANDOFF_INTENT } from "~/features/workspace/lib/plumpi-handoff";
 import {
@@ -64,6 +64,7 @@ const apiFieldToFormField = {
   eventCategories: "category",
   isOnline: "format",
   venueId: "venueId",
+  venueName: "venueName",
   address: "address",
   googleMapLink: "googleMapLink",
   visibility: "visibility",
@@ -80,7 +81,8 @@ const genericApiFieldMessages: Partial<Record<keyof CreateEventInput, string>> =
     format: "Choose an event format.",
     eventDates: "Enter valid event dates and times.",
     venueId: "Choose a valid venue.",
-    address: "Enter the venue address.",
+    venueName: "Select or enter a venue.",
+    address: "Enter a valid venue address.",
     googleMapLink: "Enter a valid Google Maps URL.",
     visibility: "Choose who can discover this event.",
     registrationMode: "Choose who can register for this event.",
@@ -181,15 +183,15 @@ function mapApiValidationError(error: ProtectedApiError) {
   };
 }
 
-function coverUploadErrorMessage(error: unknown) {
+function thumbnailUploadErrorMessage(error: unknown) {
   if (!(error instanceof ProtectedApiError)) {
     return "The event was created, but its thumbnail could not be uploaded. Try adding it again in Plumpi.";
   }
 
-  if (error.code === "EMPTY_COVER_IMAGE") {
+  if (error.code === "EMPTY_THUMBNAIL_IMAGE") {
     return "The event was created, but the selected thumbnail is empty. Choose another image in Plumpi.";
   }
-  if (error.code === "COVER_IMAGE_TOO_LARGE" || error.status === 413) {
+  if (error.code === "THUMBNAIL_IMAGE_TOO_LARGE" || error.status === 413) {
     return "The event was created, but its thumbnail is larger than 2 MB. Upload a smaller image in Plumpi.";
   }
   if (error.status === 403) {
@@ -266,6 +268,7 @@ export async function createEventAction({ request }: Route.ActionArgs) {
     format: formData.get("format"),
     eventDates: parseJsonFormValue(formData.get("eventDates")),
     venueId: formData.get("venueId"),
+    venueName: formData.get("venueName"),
     address: formData.get("address"),
     googleMapLink: formData.get("googleMapLink"),
     coverImageName: cover instanceof File ? cover.name : "",
@@ -325,7 +328,9 @@ export async function createEventAction({ request }: Route.ActionArgs) {
       eventCategories: [parsed.data.category],
       isOnline: false,
       listingChannel: "TRUE_KHMER",
-      venueId: parsed.data.venueId,
+      ...(parsed.data.venueId
+        ? { venueId: parsed.data.venueId }
+        : { venueName: parsed.data.venueName }),
       address: parsed.data.address,
       ...(parsed.data.googleMapLink
         ? { googleMapLink: parsed.data.googleMapLink }
@@ -346,13 +351,17 @@ export async function createEventAction({ request }: Route.ActionArgs) {
     let warning: string | undefined;
 
     try {
-      const uploaded = await uploadPlumpiEventCover(apiRequest, eventId, cover);
+      const uploaded = await uploadPlumpiEventThumbnail(
+        apiRequest,
+        eventId,
+        cover,
+      );
       if (uploaded.setCookie) {
         cookies.push(uploaded.setCookie);
       }
     } catch (error) {
-      warning = coverUploadErrorMessage(error);
-      console.error("Create event cover step failed:", error);
+      warning = thumbnailUploadErrorMessage(error);
+      console.error("Create event thumbnail step failed:", error);
     }
 
     return withAuthData({ setCookie: cookies }, {
