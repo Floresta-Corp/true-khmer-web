@@ -746,7 +746,7 @@ const SsoUser = z.object({ id: z.string().uuid(), email: z.string(), emailVerifi
 
 const SsoUserResponse = z.object({ ok: z.literal(true), user: SsoUser });
 
-const postV1plumpievents_Body = z.object({ organizationId: z.string().uuid(), title: z.string().min(1).max(100), excerpt: z.string().min(1).max(200), eventCategories: z.array(z.string().uuid()), isOnline: z.boolean(), venueId: z.string().uuid().optional(), address: z.string().min(1).optional(), googleMapLink: z.string().max(500).url().optional(), eventDates: z.array(z.object({ startAt: z.string(), endAt: z.string() })), visibility: z.enum(["LISTED", "UNLISTED"]).optional().default("LISTED"), registrationMode: z.enum(["ANYONE", "REQUIRED_APPROVAL", "INVITED_GUESTS_ONLY"]).optional().default("ANYONE"), entryMode: z.enum(["TICKETED", "RSVP", "OPEN_ACCESS"]).optional().default("TICKETED") });
+const postV1plumpievents_Body = z.object({ organizationId: z.string().uuid(), title: z.string().min(1).max(100), excerpt: z.string().min(1).max(200), eventCategories: z.array(z.string().uuid()), isOnline: z.boolean(), venueId: z.string().uuid().optional(), venueName: z.string().min(1).optional(), address: z.string().min(1).optional(), googleMapLink: z.string().max(500).url().optional(), eventDates: z.array(z.object({ startAt: z.string(), endAt: z.string() })).min(1), listingChannel: z.literal("TRUE_KHMER").optional().default("TRUE_KHMER"), visibility: z.enum(["LISTED", "UNLISTED"]).optional().default("LISTED"), registrationMode: z.enum(["ANYONE", "REQUIRED_APPROVAL", "INVITED_GUESTS_ONLY"]).optional().default("ANYONE"), entryMode: z.enum(["TICKETED", "RSVP", "OPEN_ACCESS"]).optional().default("TICKETED") });
 
 export const schemas = {
 	AuthRegisterRequest,
@@ -7639,6 +7639,117 @@ const endpoints = makeApi([
 		]
 	},
 	{
+		method: "get",
+		path: "/v1/plumpi/events",
+		alias: "getV1plumpievents",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gte(1).optional().default(1)
+			},
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(100).optional().default(10)
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().min(1).optional()
+			},
+			{
+				name: "status",
+				type: "Query",
+				schema: z.enum(["DRAFT", "PUBLISHED", "COMPLETED", "CANCELLED", "POSTPONED", "ACTIVE", "LIVE", "ARCHIVED"]).optional()
+			},
+			{
+				name: "eventType",
+				type: "Query",
+				schema: z.enum(["CONFERENCE", "WORKSHOP", "SEMINAR", "CONCERT", "FESTIVAL", "EXHIBITION", "NETWORKING", "TRAINING", "WEBINAR", "OTHER"]).optional()
+			},
+			{
+				name: "isFeatured",
+				type: "Query",
+				schema: z.boolean().optional()
+			},
+			{
+				name: "isOnline",
+				type: "Query",
+				schema: z.boolean().optional()
+			},
+			{
+				name: "isPaid",
+				type: "Query",
+				schema: z.boolean().optional()
+			},
+			{
+				name: "venueId",
+				type: "Query",
+				schema: z.string().uuid().optional()
+			},
+			{
+				name: "visibility",
+				type: "Query",
+				schema: z.enum(["LISTED", "UNLISTED"]).optional()
+			},
+			{
+				name: "registrationMode",
+				type: "Query",
+				schema: z.enum(["ANYONE", "REQUIRED_APPROVAL", "INVITED_GUESTS_ONLY"]).optional()
+			},
+			{
+				name: "entryMode",
+				type: "Query",
+				schema: z.enum(["TICKETED", "RSVP", "OPEN_ACCESS"]).optional()
+			},
+			{
+				name: "startDate",
+				type: "Query",
+				schema: z.string().min(1).optional()
+			},
+			{
+				name: "endDate",
+				type: "Query",
+				schema: z.string().min(1).optional()
+			},
+			{
+				name: "sortBy",
+				type: "Query",
+				schema: z.enum(["createdAt", "startAt", "endAt", "title", "status", "updatedAt"]).optional().default("createdAt")
+			},
+			{
+				name: "sortOrder",
+				type: "Query",
+				schema: z.enum(["asc", "desc"]).optional().default("desc")
+			},
+		],
+		response: z.object({ ok: z.literal(true), events: z.array(z.record(z.string(), z.unknown().nullable())), meta: z.object({ page: z.number().int(), limit: z.number().int(), total: z.number().int(), totalPages: z.number().int() }) }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid event-list query`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 502,
+				description: `Unsuccessful Plumpi response`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 503,
+				description: `Plumpi integration is unavailable`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+		]
+	},
+	{
 		method: "post",
 		path: "/v1/plumpi/events",
 		alias: "postV1plumpievents",
@@ -7736,6 +7847,224 @@ const endpoints = makeApi([
 			{
 				status: 502,
 				description: `Invalid or unsuccessful Plumpi response`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 503,
+				description: `Plumpi integration is unavailable`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+		]
+	},
+	{
+		method: "patch",
+		path: "/v1/plumpi/events/:eventId/thumbnail",
+		alias: "patchV1plumpieventsEventIdthumbnail",
+		requestFormat: "form-data",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: z.object({ thumbnail: z.instanceof(File) })
+			},
+			{
+				name: "eventId",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: z.object({ ok: z.literal(true), event: z.record(z.string(), z.unknown().nullable()) }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid thumbnail image`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 401,
+				description: `True Khmer authentication required`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 403,
+				description: `Account or Plumpi operation is not allowed`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 404,
+				description: `Plumpi event not found`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 413,
+				description: `Thumbnail image exceeds the 2 MB limit`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 502,
+				description: `Invalid or unsuccessful Plumpi response`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 503,
+				description: `Plumpi integration is unavailable`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/plumpi/events/slug/:slug",
+		alias: "getV1plumpieventsslugSlug",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "slug",
+				type: "Path",
+				schema: z.string().min(1).max(255)
+			},
+		],
+		response: z.object({ ok: z.literal(true), event: z.record(z.string(), z.unknown().nullable()) }),
+		errors: [
+			{
+				status: 404,
+				description: `Event not found`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 502,
+				description: `Unsuccessful Plumpi response`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 503,
+				description: `Plumpi integration is unavailable`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/plumpi/myevents",
+		alias: "getV1plumpimyevents",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gte(1).optional().default(1)
+			},
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(100).optional().default(10)
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().min(1).optional()
+			},
+			{
+				name: "status",
+				type: "Query",
+				schema: z.enum(["DRAFT", "PUBLISHED", "COMPLETED", "CANCELLED", "POSTPONED", "ACTIVE", "LIVE", "ARCHIVED"]).optional()
+			},
+			{
+				name: "eventType",
+				type: "Query",
+				schema: z.enum(["CONFERENCE", "WORKSHOP", "SEMINAR", "CONCERT", "FESTIVAL", "EXHIBITION", "NETWORKING", "TRAINING", "WEBINAR", "OTHER"]).optional()
+			},
+			{
+				name: "isFeatured",
+				type: "Query",
+				schema: z.boolean().optional()
+			},
+			{
+				name: "isOnline",
+				type: "Query",
+				schema: z.boolean().optional()
+			},
+			{
+				name: "isPaid",
+				type: "Query",
+				schema: z.boolean().optional()
+			},
+			{
+				name: "venueId",
+				type: "Query",
+				schema: z.string().uuid().optional()
+			},
+			{
+				name: "visibility",
+				type: "Query",
+				schema: z.enum(["LISTED", "UNLISTED"]).optional()
+			},
+			{
+				name: "registrationMode",
+				type: "Query",
+				schema: z.enum(["ANYONE", "REQUIRED_APPROVAL", "INVITED_GUESTS_ONLY"]).optional()
+			},
+			{
+				name: "entryMode",
+				type: "Query",
+				schema: z.enum(["TICKETED", "RSVP", "OPEN_ACCESS"]).optional()
+			},
+			{
+				name: "startDate",
+				type: "Query",
+				schema: z.string().min(1).optional()
+			},
+			{
+				name: "endDate",
+				type: "Query",
+				schema: z.string().min(1).optional()
+			},
+			{
+				name: "sortBy",
+				type: "Query",
+				schema: z.enum(["createdAt", "startAt", "endAt", "title", "status", "updatedAt"]).optional().default("createdAt")
+			},
+			{
+				name: "sortOrder",
+				type: "Query",
+				schema: z.enum(["asc", "desc"]).optional().default("desc")
+			},
+		],
+		response: z.object({ ok: z.literal(true), events: z.array(z.object({ id: z.string().uuid(), organizationId: z.string().uuid().nullable(), createdBy: z.string().uuid(), updatedBy: z.string().uuid().nullable(), title: z.string(), slug: z.string(), subTitle: z.string().nullable(), description: z.string().nullable(), excerpt: z.string(), thumbnail: z.string().nullable(), cover: z.string().nullable(), photos: z.array(z.object({ id: z.string(), key: z.string(), url: z.string() })), startAt: z.string(), endAt: z.string(), registrationStartAt: z.string().nullable(), registrationEndAt: z.string().nullable(), agenda: z.unknown().nullish(), organizerInfo: z.unknown().nullish(), speakers: z.unknown().nullish(), sponsors: z.unknown().nullish(), eventType: z.enum(["CONFERENCE", "WORKSHOP", "SEMINAR", "CONCERT", "FESTIVAL", "EXHIBITION", "NETWORKING", "TRAINING", "WEBINAR", "OTHER"]), venueId: z.string().uuid().nullable(), venue: z.record(z.string(), z.unknown().nullable()).nullable(), venueName: z.string().nullable(), onlineUrl: z.string().nullable(), meetingId: z.string().nullable(), meetingPassword: z.string().nullable(), maxAttendees: z.number().int().nullable(), minAttendees: z.number().int().nullable(), currentAttendees: z.number().int(), basePrice: z.string().nullable(), salePrice: z.string().nullable(), currencyCode: z.string().nullable(), qr: z.string().nullable(), trackingCode: z.string().nullable(), status: z.enum(["DRAFT", "PUBLISHED", "COMPLETED", "CANCELLED", "POSTPONED", "ACTIVE", "LIVE", "ARCHIVED"]), moderationState: z.enum(["NONE", "SUSPENDED"]), suspendedReason: z.string().nullable(), suspendedAt: z.string().nullable(), ticketStatus: z.enum(["AVAILABLE", "ALMOST_FULL", "SOLD_OUT", "WAITING_LIST"]), isOnline: z.boolean(), isHybrid: z.boolean(), isFeatured: z.boolean(), isRecurring: z.boolean(), isPaid: z.boolean(), isPrivate: z.boolean(), requiresApproval: z.boolean(), hasConfirmedDates: z.boolean(), visibility: z.enum(["LISTED", "UNLISTED"]), registrationMode: z.enum(["ANYONE", "REQUIRED_APPROVAL", "INVITED_GUESTS_ONLY"]), entryMode: z.enum(["TICKETED", "RSVP", "OPEN_ACCESS"]), listingChannel: z.string(), publishedAt: z.string().nullable(), archivedAt: z.string().nullable(), viewCount: z.number().int().nullable(), advanceFeaatures: z.record(z.string(), z.boolean()).nullable(), featureVisibility: z.record(z.enum(["EVERYONE", "REGISTERED_ATTENDEES", "HIDDEN"])).nullable(), rsvpSettings: z.object({ builtInFields: z.record(z.object({ enabled: z.boolean(), required: z.boolean().optional() })), guestLimitMode: z.string(), guestLimitCount: z.number().int().nullable() }).nullable(), pendingChanges: z.unknown().nullish(), metaTitle: z.string().nullable(), metaDescription: z.string().nullable(), socialImage: z.string().nullable(), createdAt: z.string(), updatedAt: z.string(), totalRevenue: z.string(), ticketsAttributed: z.number().int(), totalQuantity: z.string(), creator: z.object({ id: z.string().uuid(), name: z.string(), image: z.string().nullable() }).nullable(), organization: z.object({ id: z.string().uuid(), name: z.string(), slug: z.string() }).nullable() })), meta: z.object({ page: z.number().int(), limit: z.number().int(), total: z.number().int(), totalPages: z.number().int() }) }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid event-list query`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 401,
+				description: `True Khmer authentication required`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 403,
+				description: `Plumpi operation is not allowed`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
+			},
+			{
+				status: 502,
+				description: `Unsuccessful Plumpi response`,
 				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional(), details: z.unknown().nullish() })
 			},
 			{
