@@ -183,26 +183,26 @@ function mapApiValidationError(error: ProtectedApiError) {
 
 function coverUploadErrorMessage(error: unknown) {
   if (!(error instanceof ProtectedApiError)) {
-    return "The event was created, but its cover could not be uploaded. Try adding it again in Plumpi.";
+    return "The event was created, but its thumbnail could not be uploaded. Try adding it again in Plumpi.";
   }
 
   if (error.code === "EMPTY_COVER_IMAGE") {
-    return "The event was created, but the selected cover image is empty. Choose another image in Plumpi.";
+    return "The event was created, but the selected thumbnail is empty. Choose another image in Plumpi.";
   }
   if (error.code === "COVER_IMAGE_TOO_LARGE" || error.status === 413) {
-    return "The event was created, but its cover is larger than 2 MB. Upload a smaller image in Plumpi.";
+    return "The event was created, but its thumbnail is larger than 2 MB. Upload a smaller image in Plumpi.";
   }
   if (error.status === 403) {
-    return "The event was created, but you do not have permission to update its cover in Plumpi.";
+    return "The event was created, but you do not have permission to update its thumbnail in Plumpi.";
   }
   if (error.status === 404) {
-    return "The event was created, but Plumpi could not find it while uploading the cover. Add the cover in Plumpi.";
+    return "The event was created, but Plumpi could not find it while uploading the thumbnail. Add it in Plumpi.";
   }
   if (error.status >= 500) {
-    return "The event was created, but Plumpi could not upload its cover right now. Add it in Plumpi when the service is available.";
+    return "The event was created, but Plumpi could not upload its thumbnail right now. Add it in Plumpi when the service is available.";
   }
 
-  return `The event was created, but its cover could not be uploaded. ${error.message}`;
+  return `The event was created, but its thumbnail could not be uploaded. ${error.message}`;
 }
 
 export async function createEventAction({ request }: Route.ActionArgs) {
@@ -280,7 +280,7 @@ export async function createEventAction({ request }: Route.ActionArgs) {
 
   const errors = parsed.success ? {} : mapFieldErrors(parsed.error.issues);
   if (!(cover instanceof File)) {
-    errors.coverImageName = "An event cover is required";
+    errors.coverImageName = "Event thumbnail is required";
   } else {
     const coverError = validateCreateEventCover(cover);
     if (coverError) errors.coverImageName = coverError;

@@ -120,12 +120,21 @@ export const MyEventsPaginationSchema = z.object({
 });
 export type MyEventsPagination = z.infer<typeof MyEventsPaginationSchema>;
 
-export type MyEventsLoaderData = {
+/** The part of the listing that has to wait on Plumpi. */
+export type MyEventsContent = {
   events: MyEvent[];
   pagination: MyEventsPagination | null;
-  /** Whether any event is running right now, which reveals the Live tab. */
-  hasLiveEvents: boolean;
   loadError: string | null;
+};
+
+/**
+ * The listing streams: the page shell, filters and create button render from
+ * `userId` right away, while the grid and the Live tab wait on their promise.
+ */
+export type MyEventsLoaderData = {
+  content: Promise<MyEventsContent>;
+  /** Whether any event is running right now, which reveals the Live tab. */
+  hasLiveEvents: Promise<boolean>;
   userId: string | null;
 };
 
@@ -273,7 +282,7 @@ export const CreateEventInputSchema = z
      * Name of the picked cover file. The File itself is held separately so it
      * can be sent as multipart data after the event exists.
      */
-    coverImageName: z.string().trim().min(1, "An event cover is required"),
+    coverImageName: z.string().trim().min(1, "Event thumbnail is required"),
     visibility: schemas.postV1plumpievents_Body.shape.visibility,
     registrationMode: schemas.postV1plumpievents_Body.shape.registrationMode,
     entryMode: schemas.postV1plumpievents_Body.shape.entryMode,

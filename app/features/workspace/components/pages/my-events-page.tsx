@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import {
+  Await,
   Link,
   useFetcher,
   useLoaderData,
@@ -12,10 +13,11 @@ import { Button } from "~/components/ui/button";
 import SpacePagination from "~/components/space-pagination";
 import WorkSpacePageLayout from "~/layout/workspace-page-layout";
 import MyEventCard from "../card/my-event-card";
-import MyEventCardSkeleton from "../card/my-event-card-skeleton";
+import MyEventsGridSkeleton from "../card/my-events-grid-skeleton";
 import MyEventsFilters from "../card/my-events-filter";
 import type { loader } from "../../route/my-events";
 import { PLUMPI_HANDOFF_INTENT } from "~/features/workspace/lib/plumpi-handoff";
+import { openPlumpiHandoffWindow } from "~/features/workspace/lib/plumpi-handoff.client";
 import {
   MyEventFilterSchema,
   type MyEvent,
@@ -32,8 +34,7 @@ function readFilter(value: string | null): MyEventFilter {
 }
 
 export default function MyEventsPage() {
-  const { events, pagination, hasLiveEvents, loadError } =
-    useLoaderData<typeof loader>();
+  const { content, hasLiveEvents } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
   const [searchParams, setSearchParams] = useSearchParams();
   const fetcher = useFetcher<MyEventsActionData>();
@@ -59,9 +60,19 @@ export default function MyEventsPage() {
     setSearchInput(searchParams.get("search") ?? "");
   }, [searchParams]);
 
+  // The listing is streamed, so a load failure is only known once its promise
+  // settles; a later page of events supersedes the toast of the previous one.
   useEffect(() => {
-    if (loadError) toast.error(loadError);
-  }, [loadError]);
+    let isCurrent = true;
+    content
+      .then(({ loadError }) => {
+        if (isCurrent && loadError) toast.error(loadError);
+      })
+      .catch(() => {});
+    return () => {
+      isCurrent = false;
+    };
+  }, [content]);
 
   useEffect(() => {
     const result = fetcher.data;
@@ -121,17 +132,11 @@ export default function MyEventsPage() {
       return;
     }
 
-    const plumpiWindow = window.open("about:blank", "_blank");
+    const plumpiWindow = openPlumpiHandoffWindow();
     if (!plumpiWindow) {
       toast.error("Allow pop-ups to open this event in Plumpi.");
       return;
     }
-
-    plumpiWindow.opener = null;
-    plumpiWindow.document.title = "Opening Plumpi";
-    plumpiWindow.document.body.style.cssText =
-      "margin:0;min-height:100vh;display:grid;place-items:center;font-family:system-ui,sans-serif;color:#475569;background:#f8fafc";
-    plumpiWindow.document.body.textContent = "Opening Plumpi…";
     plumpiWindowRef.current = plumpiWindow;
 
     setOpeningEventId(event.id);
@@ -170,47 +175,73 @@ export default function MyEventsPage() {
       </div>
 
       <div className="flex flex-1 flex-col">
+        {/* The grid is the only part that needs Plumpi, so it is the only part
+            that falls back to a skeleton: on the first paint through
+            `<Suspense>`, and on filter/search/page changes through the
+            navigation state. */}
         {isLoading ? (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <MyEventCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : events.length === 0 ? (
-          <div className="flex min-h-105 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[#E5E7EB] bg-white p-10 text-center">
-            <CalendarDays size={42} className="mb-1.5 text-[#E5E7EB]" />
-            <div className="text-[16px] font-bold text-[#1A1A2E]">
-              No events yet.
-            </div>
-            <p className="m-0 text-[14px] text-[#9A9AB0]">
-              Events you create will appear here.
-            </p>
-          </div>
+          <MyEventsGridSkeleton />
         ) : (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {events.map((event: MyEvent, index: number) => (
-              <MyEventCard
-                key={event.id}
-                event={event}
-                index={index}
-                isOpening={openingEventId === event.id}
-                onOpen={handleOpenEvent}
-              />
-            ))}
-          </div>
-        )}
+          <Suspense fallback={<MyEventsGridSkeleton />}>
+            <Await
+              resolve={content}
+              errorElement={
+                <div className="flex min-h-105 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[#E5E7EB] bg-white p-10 text-center">
+                  <CalendarDays size={42} className="mb-1.5 text-[#E5E7EB]" />
+                  <div className="text-[16px] font-bold text-[#1A1A2E]">
+                    Unable to load your events.
+                  </div>
+                  <p className="m-0 text-[14px] text-[#9A9AB0]">
+                    Please refresh the page to try again.
+                  </p>
+                </div>
+              }
+            >
+              {({ events, pagination }) => (
+                <>
+                  {events.length === 0 ? (
+                    <div className="flex min-h-105 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[#E5E7EB] bg-white p-10 text-center">
+                      <CalendarDays
+                        size={42}
+                        className="mb-1.5 text-[#E5E7EB]"
+                      />
+                      <div className="text-[16px] font-bold text-[#1A1A2E]">
+                        No events yet.
+                      </div>
+                      <p className="m-0 text-[14px] text-[#9A9AB0]">
+                        Events you create will appear here.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                      {events.map((event: MyEvent, index: number) => (
+                        <MyEventCard
+                          key={event.id}
+                          event={event}
+                          index={index}
+                          isOpening={openingEventId === event.id}
+                          onOpen={handleOpenEvent}
+                        />
+                      ))}
+                    </div>
+                  )}
 
-        {/* Pushed to the bottom of the page so it keeps a fixed spot instead
-            of riding up under a short grid. */}
-        {events.length > 0 && (
-          <div className="mt-auto pt-10">
-            <SpacePagination
-              total={pagination?.total ?? events.length}
-              totalPages={pagination?.totalPages}
-              pageSize={pagination?.limit ?? 8}
-              itemLabel="events"
-            />
-          </div>
+                  {/* Pushed to the bottom of the page so it keeps a fixed spot
+                      instead of riding up under a short grid. */}
+                  {events.length > 0 && (
+                    <div className="mt-auto pt-10">
+                      <SpacePagination
+                        total={pagination?.total ?? events.length}
+                        totalPages={pagination?.totalPages}
+                        pageSize={pagination?.limit ?? 8}
+                        itemLabel="events"
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+            </Await>
+          </Suspense>
         )}
       </div>
     </WorkSpacePageLayout>

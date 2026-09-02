@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { Await } from "react-router";
 import { Search } from "lucide-react";
 import { motion } from "motion/react";
 import { Input } from "~/components/ui/input";
@@ -16,8 +18,11 @@ const STATUS_TABS = [
 type Props = {
   filter: MyEventFilter;
   searchInput: string;
-  /** Live is only offered while at least one event is actually running. */
-  hasLiveEvents: boolean;
+  /**
+   * Live is only offered while at least one event is actually running, which
+   * only Plumpi knows; the rest of the bar renders without waiting for it.
+   */
+  hasLiveEvents: Promise<boolean>;
   onFilterChange: (value: MyEventFilter) => void;
   onSearchChange: (value: string) => void;
 };
@@ -35,21 +40,30 @@ export default function MyEventsFilters({
   return (
     <div className="flex w-full flex-wrap items-center justify-between gap-4">
       <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-        {hasLiveEvents && (
-          <button
-            onClick={() => onFilterChange(isLive ? "all" : "live")}
-            aria-pressed={isLive}
-            className={cn(
-              "flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border px-4 py-[9px] text-[14px] whitespace-nowrap transition-colors",
-              isLive
-                ? "border-[#FB3748] bg-[#FB3748] font-bold text-white"
-                : "border-current font-semibold text-[#FB3748] hover:bg-[#FB3748]/10",
-            )}
-          >
-            <span className="size-1.5 rounded-full bg-current" />
-            Live
-          </button>
-        )}
+        {/* No placeholder while this resolves: the tab is hidden for most
+            accounts, so reserving room for it would shift the bar more often
+            than showing it late does. */}
+        <Suspense fallback={null}>
+          <Await resolve={hasLiveEvents} errorElement={null}>
+            {(showLive) =>
+              showLive ? (
+                <button
+                  onClick={() => onFilterChange(isLive ? "all" : "live")}
+                  aria-pressed={isLive}
+                  className={cn(
+                    "flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border px-4 py-[9px] text-[14px] whitespace-nowrap transition-colors",
+                    isLive
+                      ? "border-[#FB3748] bg-[#FB3748] font-bold text-white"
+                      : "border-current font-semibold text-[#FB3748] hover:bg-[#FB3748]/10",
+                  )}
+                >
+                  <span className="size-1.5 rounded-full bg-current" />
+                  Live
+                </button>
+              ) : null
+            }
+          </Await>
+        </Suspense>
 
         <div className="scrollbar-none flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-xl bg-[#F7F7F7] p-[5px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.06)]">
           {STATUS_TABS.map((tab) => {

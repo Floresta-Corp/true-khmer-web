@@ -333,7 +333,7 @@ export default function CreateEventBasicsForm({
 
         <div>
           <FieldLabel required className="text-[13px] font-bold text-[#344256]">
-            Event Cover
+            Event Thumbnail
           </FieldLabel>
           <label
             id="createEventCover"
@@ -375,9 +375,11 @@ export default function CreateEventBasicsForm({
               selectCover(file);
             }}
             aria-invalid={Boolean(errors.coverImageName)}
-            aria-label="Upload an event cover by choosing, dropping, or pasting an image"
+            aria-label="Upload an event thumbnail by choosing, dropping, or pasting an image"
             className={cn(
-              "relative mt-2.5 flex aspect-video cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl bg-white px-4 py-3 text-center transition-colors",
+              // Sized as a thumbnail rather than a full-width banner: 340px
+              // keeps the 16:9 frame at roughly the size the image is used at.
+              "relative mt-2.5 flex aspect-video w-full max-w-85 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl bg-white px-4 py-3 text-center transition-colors",
               errors.coverImageName
                 ? "border border-red-500 ring-4 ring-red-200"
                 : isDraggingCover
@@ -393,7 +395,7 @@ export default function CreateEventBasicsForm({
               >
                 <img
                   src={form.coverPreviewUrl}
-                  alt="Selected event cover"
+                  alt="Selected event thumbnail"
                   className="size-full rounded-[11px] object-cover"
                 />
                 <motion.span
@@ -409,7 +411,7 @@ export default function CreateEventBasicsForm({
                 >
                   <IconButton
                     icon={<Trash2 className="size-4" />}
-                    ariaLabel="Clear event cover"
+                    ariaLabel="Clear event thumbnail"
                     onClick={(event) => {
                       event.preventDefault();
                       event.stopPropagation();

@@ -33,6 +33,7 @@ import {
   saveCreateEventDraft,
 } from "~/features/workspace/lib/create-event-draft.client";
 import { validateCreateEventCover } from "~/features/workspace/lib/create-event-cover";
+import { openPlumpiHandoffWindow } from "~/features/workspace/lib/plumpi-handoff.client";
 import {
   CreateEventInputSchema,
   initialCreateEventFormState,
@@ -450,17 +451,11 @@ export default function CreateEventPage() {
   const continueToPlumpi = () => {
     if (!createdEventId || isSubmitting) return;
 
-    const plumpiWindow = window.open("about:blank", "_blank");
+    const plumpiWindow = openPlumpiHandoffWindow();
     if (!plumpiWindow) {
       toast.error("Allow pop-ups to continue editing in Plumpi.");
       return;
     }
-
-    plumpiWindow.opener = null;
-    plumpiWindow.document.title = "Opening Plumpi";
-    plumpiWindow.document.body.style.cssText =
-      "margin:0;min-height:100vh;display:grid;place-items:center;font-family:system-ui,sans-serif;color:#475569;background:#f8fafc";
-    plumpiWindow.document.body.textContent = "Opening Plumpi…";
     plumpiWindowRef.current = plumpiWindow;
 
     setIsHandoff(true);
