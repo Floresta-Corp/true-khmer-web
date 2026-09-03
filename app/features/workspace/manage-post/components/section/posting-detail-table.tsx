@@ -17,7 +17,7 @@ import type {
   Applicant,
   ApplicantStatusAction,
   PostingType,
-} from "~/features/manage-post/types";
+} from "~/features/workspace/manage-post/types";
 import ApplicantTabRange from "./applicant-tab-filter";
 import { formatDateMonthYear } from "~/features/events/lib/event-formatters";
 import ApplicantSideBar from "./applicant-side-bar";

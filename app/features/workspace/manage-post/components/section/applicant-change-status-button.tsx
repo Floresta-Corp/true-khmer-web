@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import type {
   Applicant,
   ApplicantStatusAction,
-} from "~/features/manage-post/types";
+} from "~/features/workspace/manage-post/types";
 import { Button } from "~/components/ui/button";
 import ApplicantContactPopover from "./applicant-contact-popover";
 import { cn } from "~/lib/utils";

@@ -13,7 +13,7 @@ import type {
   ManagePost,
   ManagePostStatus,
   SourceType,
-} from "~/features/manage-post/types";
+} from "~/features/workspace/manage-post/types";
 import ManagePostOption from "../dropdown/manage-post-option";
 
 const STATUS_STYLES: Record<ManagePostStatus, string> = {
@@ -61,7 +61,7 @@ type Props = {
 
 export default function ManagePostCard({ posting, index = 0 }: Props) {
   const navigate = useNavigate();
-  const cardHref = `/manage-post/${normalizePostingSource(posting.sourceType)}/${posting.id}`;
+  const cardHref = `/workspace/manage-post/${normalizePostingSource(posting.sourceType)}/${posting.id}`;
   const imageUrl = resolveImageURL(posting.imageKey ?? undefined);
   const isCompleted = posting.status === "COMPLETED";
 

@@ -90,7 +90,10 @@ export default [
     layout("layout/workspace-layout.tsx", [
       route("workspace", "features/workspace/route/workspace.tsx"),
       route("my-events", "features/workspace/route/my-events.tsx"),
-      route("manage-post", "features/manage-post/route/manage-post.tsx"),
+      route(
+        "workspace/manage-post",
+        "features/workspace/manage-post/route/manage-post.tsx",
+      ),
       route(
         "course-listing",
         "features/course-listing/route/course-listing.tsx",
@@ -100,8 +103,8 @@ export default [
         "features/course-manage/route/course-manage.$id.tsx",
       ),
       route(
-        "manage-post/:sourceType/:id",
-        "features/manage-post/route/manage-post.$sourceType.$id.tsx",
+        "workspace/manage-post/:sourceType/:id",
+        "features/workspace/manage-post/route/manage-post.$sourceType.$id.tsx",
       ),
     ]),
     route("notifications", "features/notifications/route/notifications.tsx"),
@@ -338,6 +341,6 @@ export default [
   ),
   route(
     "api/candidate-note",
-    "features/manage-post/route/manage-post.candidate-note.ts",
+    "features/workspace/manage-post/route/manage-post.candidate-note.ts",
   ),
 ] satisfies RouteConfig;

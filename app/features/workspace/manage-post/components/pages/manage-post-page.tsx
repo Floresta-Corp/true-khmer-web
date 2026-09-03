@@ -62,7 +62,7 @@ export default function ManagePostingPage() {
 
   const isLoading =
     navigation.state === "loading" &&
-    navigation.location?.pathname === "/manage-post";
+    navigation.location?.pathname === "/workspace/manage-post";
 
   const isLastPage = pagination ? !pagination.hasNextPage : true;
 

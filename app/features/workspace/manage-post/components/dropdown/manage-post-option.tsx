@@ -36,7 +36,7 @@ import type {
   PostingType,
   SourceType,
   UpdateManagePostResponse,
-} from "~/features/manage-post/types";
+} from "~/features/workspace/manage-post/types";
 import { Separator } from "~/components/ui/separator";
 import { formatDateMonthYear } from "~/features/events/lib/event-formatters";
 import { addDays, isValid } from "date-fns";
@@ -99,7 +99,7 @@ export default function ManagePostOption({
       { postingAction },
       {
         method: "POST",
-        action: `/manage-post/${managePostSourceType}/${postingId}`,
+        action: `/workspace/manage-post/${managePostSourceType}/${postingId}`,
       },
     );
   };
@@ -139,7 +139,7 @@ export default function ManagePostOption({
       },
       {
         method: "POST",
-        action: `/manage-post/${managePostSourceType}/${postingId}`,
+        action: `/workspace/manage-post/${managePostSourceType}/${postingId}`,
       },
     );
   };
