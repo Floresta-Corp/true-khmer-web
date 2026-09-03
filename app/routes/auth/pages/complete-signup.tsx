@@ -148,10 +148,10 @@ export default function CompleteSignUpPage() {
     .toUpperCase();
 
   return (
-    <main className="flex min-h-screen items-center bg-white px-6 py-5 text-[#0F172A] sm:px-8">
+    <main className="flex min-h-dvh items-center bg-white px-6 py-5 text-[#0F172A] sm:px-8">
       <div className="mx-auto w-full max-w-md">
         <header className="space-y-2">
-          <h1 className="text-[32px] leading-10 font-extrabold tracking-[-0.02em] text-[#0F172A]">
+          <h1 className="text-[32px] leading-10 font-extrabold tracking-[-0.02em] text-[#0F172A] short:text-2xl short:leading-8">
             Complete Your Registration
           </h1>
           <p className="text-[15px] leading-6 text-[#64748B]">
@@ -159,7 +159,7 @@ export default function CompleteSignUpPage() {
           </p>
         </header>
 
-        <section className="mt-7 overflow-hidden rounded-2xl border border-[#CFE0F7] bg-[#EFF6FF] shadow-[0_1px_3px_rgba(15,23,42,0.12)]">
+        <section className="mt-7 overflow-hidden rounded-2xl border border-[#CFE0F7] bg-[#EFF6FF] shadow-[0_1px_3px_rgba(15,23,42,0.12)] short:mt-5">
           <div className="flex items-center gap-4 px-5 py-5">
             <div className="relative">
               <Avatar className="size-13 border-2 border-white shadow-sm">
@@ -210,7 +210,10 @@ export default function CompleteSignUpPage() {
           </div>
         </section>
 
-        <Form method="post" className="mt-6 space-y-5">
+        <Form
+          method="post"
+          className="mt-6 space-y-5 short:mt-5 short:space-y-4"
+        >
           <input type="hidden" name="phone.country" value={phoneCountry} />
           <input
             type="hidden"
@@ -225,7 +228,7 @@ export default function CompleteSignUpPage() {
 
           <FormError message={actionData?.errors?.form} />
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 xs:grid-cols-2">
             <div className="space-y-2">
               <FieldLabel htmlFor="firstName" required>
                 First name
@@ -276,7 +279,7 @@ export default function CompleteSignUpPage() {
               >
                 <SelectTrigger
                   aria-label="Country calling code"
-                  className="h-full w-34 rounded-l-lg rounded-r-none border-r-0 border-[#C3C6D6] bg-slate-50 px-3 text-sm leading-5 font-medium text-[#434654] shadow-none focus:ring-[#2F6FE4]/20 focus:ring-offset-0"
+                  className="h-full w-28 rounded-l-lg rounded-r-none border-r-0 border-[#C3C6D6] bg-slate-50 px-3 text-sm leading-5 font-medium text-[#434654] shadow-none focus:ring-[#2F6FE4]/20 focus:ring-offset-0 xs:w-34"
                 >
                   <span className="truncate">
                     {selectedPhoneCountry.dialCode}
@@ -335,7 +338,7 @@ export default function CompleteSignUpPage() {
               name="gender"
               value={gender}
               onValueChange={setGender}
-              className="flex flex-wrap gap-6"
+              className="flex flex-wrap gap-x-6 gap-y-2"
             >
               {["male", "female"].map((value) => (
                 <Label
@@ -379,7 +382,7 @@ export default function CompleteSignUpPage() {
           </Button>
         </Form>
 
-        <footer className="mt-8 border-t border-[#EEF2F7] pt-5 text-center text-sm text-[#64748B]">
+        <footer className="mt-8 border-t border-[#EEF2F7] pt-5 text-center text-sm text-[#64748B] short:mt-6">
           Already have an account?{" "}
           <Link
             to="/login"

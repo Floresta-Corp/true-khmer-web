@@ -1,4 +1,4 @@
-import { OAuthHeader } from "./oauth-header";
+import { OAuthCardShell } from "./oauth-card-shell";
 import { OAuthLoginForm } from "./oauth-login-form";
 
 interface OAuthUnauthorizedProps {
@@ -11,37 +11,33 @@ export function OAuthUnauthorized({
   clientLogo,
 }: OAuthUnauthorizedProps) {
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-slate-100/70 p-4 font-sans text-slate-900">
-      <div className="w-full max-w-105 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-md">
-        <OAuthHeader />
+    <OAuthCardShell>
+      {/* {clientLogo && (
+        <img
+          src={clientLogo}
+          alt={`${clientName} logo`}
+          className="h-8 short:h-7"
+        />
+      )} */}
 
-        <main className="space-y-5 p-6">
-          {clientLogo && (
-            <img src={clientLogo} alt={`${clientName} logo`} className="h-8" />
+      <div className="space-y-1.5">
+        <h1 className="text-xl font-bold tracking-tight text-slate-900 short:text-lg">
+          Sign in to continue
+        </h1>
+        <p className="text-sm leading-relaxed text-slate-500">
+          {clientName ? (
+            <>
+              Sign in to your TrueKhmer account to connect with{" "}
+              <span className="font-semibold text-slate-700">{clientName}</span>
+              .
+            </>
+          ) : (
+            "Sign in to your TrueKhmer account to continue."
           )}
-
-          <div className="space-y-1">
-            <h1 className="text-lg font-bold text-slate-900">
-              Sign in to continue
-            </h1>
-            <p className="text-[13px] leading-relaxed text-slate-500">
-              {clientName ? (
-                <>
-                  Sign in to your TrueKhmer account to connect with{" "}
-                  <span className="font-semibold text-slate-700">
-                    {clientName}
-                  </span>
-                  .
-                </>
-              ) : (
-                "Sign in to your TrueKhmer account to continue."
-              )}
-            </p>
-          </div>
-
-          <OAuthLoginForm />
-        </main>
+        </p>
       </div>
-    </div>
+
+      <OAuthLoginForm />
+    </OAuthCardShell>
   );
 }

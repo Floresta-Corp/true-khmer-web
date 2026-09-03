@@ -9,7 +9,7 @@ interface OAuthScopeListProps {
 
 export function OAuthScopeList({ user }: OAuthScopeListProps) {
   return (
-    <div className="space-y-3.5 pt-1">
+    <div className="space-y-3.5 pt-1 short:space-y-3 short:pt-0">
       <div className="flex items-start gap-3">
         <User className="mt-0.5 h-5 w-5 shrink-0 text-slate-600" />
         <div>

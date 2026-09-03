@@ -13,7 +13,7 @@ import {
 import { createUserSession } from "~/lib/server/session.server";
 import { redirectIfAuthenticated } from "~/lib/server/route-guards.server";
 import { sanitizeRedirectPath } from "~/lib/redirects";
-import { destinationFromAuthFlow } from "./auth-flow.server";
+import { destinationAfterAuth } from "./auth-flow.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const authRedirect = await redirectIfAuthenticated(request);
@@ -87,9 +87,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     const auth = await verifyRegisterOtp(email, otp, request);
-    const destination = destinationFromAuthFlow(auth.authFlow, redirectTo);
-
-    return createUserSession(request, auth, destination);
+    return createUserSession(
+      request,
+      auth,
+      destinationAfterAuth(auth.authFlow, redirectTo),
+    );
   } catch (error) {
     if (error instanceof AuthApiError) {
       if (error.status === 400) {

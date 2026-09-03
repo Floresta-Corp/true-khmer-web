@@ -116,9 +116,9 @@ export default function LoginPage() {
     <AuthPageShell
       backTo={back.to}
       backLabel={back.label}
-      leftSectionClassName="items-start justify-center px-6 py-10 sm:px-10 lg:px-8 lg:py-0 xl:px-12"
-      contentClassName="max-w-md pb-10 pt-20 lg:pt-36 xl:pt-40"
-      backLinkClassName="left-6 top-8 text-sm font-semibold normal-case tracking-normal text-[#1C5DD4] hover:text-[#164CB0] sm:left-10 lg:left-1/2 lg:top-16 lg:-translate-x-56 xl:top-24"
+      leftSectionClassName="items-start justify-center px-6 py-10 short:py-6 sm:px-10 lg:px-8 lg:py-0 xl:px-12"
+      contentClassName="max-w-md pb-10 pt-20 short:pt-14 short:pb-6 lg:pt-36 xl:pt-40"
+      backLinkClassName="left-6 top-8 text-sm font-semibold normal-case tracking-normal text-[#1C5DD4] hover:text-[#164CB0] short:top-6 sm:left-10 lg:left-1/2 lg:top-16 lg:-translate-x-56 xl:top-24"
       backIconClassName="h-auto w-auto rounded-none border-0"
       rightPanelContent={<AuthBrandPanel />}
       rightPanelContentClassName="items-stretch justify-stretch text-left"
@@ -137,7 +137,7 @@ export default function LoginPage() {
             },
           },
         }}
-        className="space-y-6"
+        className="space-y-6 short:space-y-4"
       >
         <motion.header
           variants={{
@@ -149,7 +149,7 @@ export default function LoginPage() {
           <Link to="/" className="mx-auto block w-fit" aria-label="True Khmer">
             <LogoSvg width={150} height={60} />
           </Link>
-          <h1 className="text-3xl leading-9 font-bold text-[#111827]">
+          <h1 className="text-3xl leading-9 font-bold text-[#111827] short:text-2xl">
             Welcome Back
           </h1>
           <p className="text-base leading-6 font-normal text-[#4B5563]">
@@ -169,7 +169,7 @@ export default function LoginPage() {
         >
           <Form
             method="post"
-            className="space-y-6"
+            className="space-y-6 short:space-y-5"
             onSubmit={(event) => {
               const errors = validateCurrentValues();
               if (errors.email || errors.password) {
@@ -204,7 +204,7 @@ export default function LoginPage() {
                   validateCurrentValues({ email: nextEmail, password });
                 }}
                 placeholder="name@example.com"
-                className="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-[#6B7280] focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20"
+                className="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-[#6B7280] focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20 short:h-11"
               />
               {clientErrors.email || actionData?.errors?.email ? (
                 <p className="text-xs text-red-500">
@@ -229,11 +229,11 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 error={clientErrors.password ?? actionData?.errors?.password}
                 labelClassName="text-sm font-semibold leading-5 text-[#111827]"
-                inputClassName="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-[#6B7280] focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20"
+                inputClassName="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-[#6B7280] focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20 short:h-11"
               />
             </div>
 
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
               <Label className="flex items-center gap-2 text-sm leading-5 font-semibold text-[#1D283A]">
                 <Checkbox
                   checked={rememberMe}

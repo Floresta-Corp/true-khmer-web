@@ -19,7 +19,7 @@ import { sanitizeRedirectPath } from "~/lib/redirects";
 import { sanitizePhoneNumber } from "~/lib/phone";
 import { getPasswordValidationError } from "./password-validation";
 import { createUserSession } from "~/lib/server/session.server";
-import { destinationFromAuthFlow } from "./auth-flow.server";
+import { destinationAfterAuth } from "./auth-flow.server";
 
 const USER_ALREADY_EXISTS_CODE = "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL";
 
@@ -99,10 +99,12 @@ export async function action({ request }: ActionFunctionArgs) {
         request,
         waitlistId || undefined,
       );
-      const destination = auth.authFlow
-        ? destinationFromAuthFlow(auth.authFlow, redirectTo)
-        : redirectTo;
-      return createUserSession(request, auth, destination, { rememberMe });
+      return createUserSession(
+        request,
+        auth,
+        destinationAfterAuth(auth.authFlow, redirectTo),
+        { rememberMe },
+      );
     } catch (error) {
       if (error instanceof AuthApiError) {
         return { errors: { form: formatAuthMessage(error.message) } };

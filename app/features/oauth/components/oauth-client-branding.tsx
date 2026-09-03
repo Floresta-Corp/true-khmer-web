@@ -9,16 +9,20 @@ export function OAuthClientBranding({
 }: OAuthClientBrandingProps) {
   return (
     <>
-      {clientLogo ? (
-        <img src={clientLogo} alt={`${clientName} logo`} className="h-8" />
-      ) : null}
+      {/* {clientLogo ? (
+        <img
+          src={clientLogo}
+          alt={`${clientName} logo`}
+          className="h-8 short:h-7"
+        />
+      ) : null} */}
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 short:text-xl">
           Sign in to {clientName}
         </h1>
       </div>
-      <div className="border-t border-slate-100 pt-3">
-        <p className="text-[14px] leading-snug font-bold text-slate-900">
+      <div className="border-t border-slate-100 pt-4 short:pt-3">
+        <p className="text-sm leading-snug font-bold text-slate-900">
           TrueKhmer will allow {clientName} to access this info about you
         </p>
       </div>

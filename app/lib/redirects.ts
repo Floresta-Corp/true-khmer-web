@@ -19,6 +19,23 @@ export function withRedirectTo(path: string, value: string | null | undefined) {
   return `${path}?redirectTo=${encodeURIComponent(redirectTo)}`;
 }
 
+// A signup started from the OAuth authorization page carries this flag inside
+// its redirectTo. When present, register/OTP skip onboarding and send the user
+// straight back to the authorization, where the session they just created is
+// read from the `__session` cookie and the consent card takes over.
+export const OAUTH_RESUME_PARAM = "oauthResume";
+
+export function isOAuthResumeRedirect(value: string | null | undefined) {
+  const redirectTo = sanitizeRedirectPath(value);
+  if (redirectTo === "/") return false;
+
+  const [pathname, query = ""] = redirectTo.split("?");
+  return (
+    pathname.startsWith("/oauth/") &&
+    new URLSearchParams(query).get(OAUTH_RESUME_PARAM) === "1"
+  );
+}
+
 const BACK_LABELS: Record<string, string> = {
   forum: "Back to Forum",
   launchpad: "Back to Launchpad",
@@ -27,6 +44,7 @@ const BACK_LABELS: Record<string, string> = {
   blog: "Back to Blog",
   community: "Back to Community",
   poc: "Back to POC",
+  oauth: "Back to Sign In",
   about: "Back to About",
   profile: "Back to Profile",
 };
