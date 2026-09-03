@@ -12,7 +12,7 @@ export function meta({ data }: { data?: { post: { title: string } } }) {
     {
       title: data
         ? `${data.post.title} | True Khmer Blog`
-        : "Blog | True Khmer",
+        : "Khmer Voice | True Khmer",
     },
   ];
 }

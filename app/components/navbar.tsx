@@ -112,7 +112,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
     { to: "/volunteer", label: "Volunteer", icon: HeartHandshake },
     { to: "/launchpad", label: "Launchpad", icon: BriefcaseBusiness },
     { to: "/education", label: "Education", icon: GraduationCap },
-    { to: "/blog", label: "Blog", icon: ClipboardPen },
+    { to: "/blog", label: "khmer Voice", icon: ClipboardPen },
     { to: "/about", label: "About", icon: CircleUser, hide: !!user },
     { to: "/poc", label: "POC", icon: TvMinimalPlay, hide: true },
   ];

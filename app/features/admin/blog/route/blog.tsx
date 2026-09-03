@@ -9,7 +9,7 @@ export const loader = blogLoader;
 export const action = blogAction;
 
 export function meta() {
-  return [{ title: "Blog | True Khmer" }];
+  return [{ title: "Khmer Voice | True Khmer" }];
 }
 
 export function HydrateFallback() {
