@@ -102,7 +102,7 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
           transition={{ duration: 0.7 * dur, ease: easings.enter }}
           className="flex flex-col items-start gap-4 py-2 text-left sm:gap-5 lg:col-span-5"
         >
-          <span className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.18em] text-[#2463eb] uppercase sm:text-xs">
+          <span className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.18em] text-[#32A8FF] uppercase sm:text-xs">
             <img
               src="/home-explore-volunteer.png"
               className="size-10 object-contain sm:size-12 lg:size-14"
@@ -112,7 +112,7 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
           </span>
 
           <h1 className="text-[28px] leading-[1.12] font-bold tracking-[-0.03em] text-slate-900 sm:text-[34px] sm:leading-[1.08] lg:text-[38px]">
-            <span className="text-[#2463eb]">Get involved</span> in your
+            <span className="text-[#32A8FF]">Get involved</span> in your
             community.
           </h1>
 

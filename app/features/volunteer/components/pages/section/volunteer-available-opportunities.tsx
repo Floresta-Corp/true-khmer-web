@@ -175,7 +175,7 @@ export function VolunteerAvailableOpportunities({
       <div className={cn("flex flex-col gap-8", containerClassName)}>
         {showHeader && (
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-xl leading-snug font-bold text-[#020618] md:text-[32px] md:leading-12">
+            <h2 className="text-xl leading-snug font-bold text-[#020618] md:text-[22px] md:leading-12">
               Available Opportunities
             </h2>
 
