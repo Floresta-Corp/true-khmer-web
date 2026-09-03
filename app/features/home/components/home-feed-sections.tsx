@@ -1,8 +1,8 @@
 import { Link, useNavigate } from "react-router";
 import { ArrowRight } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, MotionConfig } from "motion/react";
 import { HomeCarouselSection } from "./home-carousel-section";
-import { slideUpVariants } from "./home-motion";
+import { slideUpVariants, staggerContainerVariants } from "./home-motion";
 import LaunchpadProjectCard from "~/features/launchpad/components/card/launchpad-project-card";
 import { OpportunityCard } from "~/components/opportunity-card";
 import {
@@ -103,16 +103,40 @@ export function DiscussionFeed({ items }: { items: QuestionResponse[] }) {
   if (items.length === 0) return null;
 
   return (
-    <HomeCarouselSection
-      title="Popular Discussions"
-      trailing={<SeeMoreTile to="/forum" width={THREE_UP} />}
-    >
-      {items.map((question) => (
-        <Slide key={question.id} width={THREE_UP}>
-          <HomeDiscussionCard question={question} />
-        </Slide>
-      ))}
-    </HomeCarouselSection>
+    <MotionConfig reducedMotion="user">
+      <motion.section
+        className="py-6 lg:py-8"
+        variants={staggerContainerVariants}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.15 }}
+      >
+        <div className="site-container">
+          <motion.div
+            variants={slideUpVariants}
+            className="mb-3 flex items-center justify-between gap-4"
+          >
+            <h2 className="text-2xl font-bold tracking-[-0.04em] text-[#333333] sm:text-[28px] sm:leading-11">
+              Trending discussions
+            </h2>
+            <Link
+              to="/forum"
+              className="flex shrink-0 items-center gap-1 text-sm font-semibold text-[#1c5dd4] transition-colors hover:text-[#2f6fe4]"
+            >
+              See more
+            </Link>
+          </motion.div>
+
+          <div className="flex flex-col gap-3">
+            {items.slice(0, 2).map((question) => (
+              <motion.div key={question.id} variants={slideUpVariants}>
+                <HomeDiscussionCard question={question} />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+    </MotionConfig>
   );
 }
 

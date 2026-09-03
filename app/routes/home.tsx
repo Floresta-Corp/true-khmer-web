@@ -5,6 +5,7 @@ import { homeAction } from "~/features/home/services/home.action";
 import { HomeHeroSection } from "~/features/home/components/home-hero-section";
 import { HomeWelcomeHeroSection } from "~/features/home/components/home-welcome-hero-section";
 import { HomeExploreSection } from "~/features/home/components/home-explore-section";
+import { HomeEventsSection } from "~/features/home/components/home-events-section";
 import { HomeTrustedBySection } from "~/features/home/components/home-trusted-by-section";
 import { HomePillarsSection } from "~/features/home/components/home-pillars-section";
 import {
@@ -40,10 +41,10 @@ export default function Home() {
           <HomeWelcomeHeroSection name={user.name} />
           <HomeExploreSection />
           <DiscussionFeed items={discussions} />
+          {/* <HomeEventsSection /> */}
           <LaunchpadFeed items={launchpads} />
           <VolunteerFeed items={volunteers} />
           <BlogFeed items={blogPosts} />
-          {/* <EventsFeed items={upcomingEvents} /> */}
         </>
       ) : (
         // ── Guest: marketing hero + pillars, then the community feeds ──
