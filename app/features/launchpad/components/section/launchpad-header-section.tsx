@@ -1,40 +1,65 @@
-import { useLoaderData } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 import HeaderSearch from "~/components/header-search";
 import type { loader } from "~/features/launchpad/route/launchpad";
+import { ArrowRight } from "lucide-react";
 
 const easings = {
   enter: "easeInOut" as const,
   smooth: "easeInOut" as const,
 };
 
-const floatAnimation = {
-  y: [0, -12, 0],
-  scale: [1, 1.03, 1],
-  rotate: [0, 1, 0],
-  transition: {
-    duration: 6,
-    ease: "easeInOut" as const,
-    repeat: Infinity,
-  },
-};
+const launchpadHeroImage = "/images/launchpad-hero.png";
 
-const launchpadHeroBackgroundImage = "/images/volunteer-header-background.webp";
-
-function LaunchpadHeroBackdrop() {
+function LaunchpadHeroImage({ dur }: { dur: number }) {
   return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 overflow-hidden"
+    <motion.div
+      initial={{ opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.7 * dur, ease: easings.enter }}
+      className="relative mx-auto flex h-full w-[95%] items-center"
     >
-      <motion.img
-        alt=""
-        src={launchpadHeroBackgroundImage}
-        animate={floatAnimation}
-        className="absolute inset-[0%] h-[110%] w-[110%] object-cover object-center"
-      />
-      <div className="absolute inset-0 bg-[linear-gradient(170deg,rgba(255,255,255,0.25)_0%,rgba(255,255,255,0.75)_30%,rgba(255,255,255,1)_100%)]" />
-    </div>
+      <div className="relative max-h-95 w-full overflow-hidden">
+        <img
+          alt="Launchpad hero image"
+          src={launchpadHeroImage}
+          className="max-h-95 w-full object-contain object-center"
+        />
+      </div>
+    </motion.div>
+  );
+}
+
+function LaunchpadPostLink({ to, dur }: { to: string; dur: number }) {
+  return (
+    <motion.p
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{
+        opacity: 0,
+        y: -12,
+        transition: { duration: 0.2 * dur, ease: "easeInOut" as const },
+      }}
+      transition={{
+        duration: 0.5 * dur,
+        delay: 0.35 * dur,
+        ease: easings.enter,
+      }}
+      className="text-sm text-slate-500"
+    >
+      Looking for people to join your projects?{" "}
+      <Link
+        to={to}
+        className="group relative inline-flex items-center gap-1 font-semibold text-[#2463eb] transition-colors hover:text-[#1d56d2]"
+      >
+        <span className="relative">
+          Post project here
+          <span className="absolute -bottom-0.5 left-0 h-0.5 w-full origin-center scale-x-0 bg-[#2463eb] transition-transform duration-300 ease-out group-hover:scale-x-100 group-hover:bg-[#1d56d2]" />
+        </span>
+
+        <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
+      </Link>
+    </motion.p>
   );
 }
 
@@ -52,11 +77,9 @@ export default function LaunchpadHeaderSection() {
         transition: { duration: 0.2 * dur, ease: "easeInOut" as const },
       }}
       transition={{ duration: 0.4 * dur, ease: "easeInOut" as const }}
-      className="relative flex h-125 w-full justify-center overflow-hidden px-4 py-16 sm:px-6 sm:py-20 lg:py-24"
+      className="relative w-full overflow-hidden bg-white"
     >
-      <LaunchpadHeroBackdrop />
-
-      <div className="relative flex w-full max-w-4xl flex-col items-center gap-8 text-center sm:gap-10">
+      <div className="site-container grid grid-cols-1 items-stretch gap-8 pt-10 pb-2 sm:pt-12 sm:pb-3 lg:grid-cols-12 lg:gap-5 lg:py-5">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -69,71 +92,55 @@ export default function LaunchpadHeaderSection() {
             duration: 0.7 * dur,
             ease: easings.enter,
           }}
-          className="flex flex-col items-center gap-4 sm:gap-5"
+          className="flex flex-col items-start gap-4 py-2 text-left sm:gap-5 lg:col-span-5"
         >
-          <h1 className="max-w-3xl text-[clamp(2.25rem,6vw,4.5rem)] leading-[0.98] font-semibold tracking-[-0.05em] text-slate-900 sm:tracking-[-0.06em]">
-            Where Ideas Take{" "}
-            <motion.span
-              animate={
-                dur
-                  ? {
-                      color: ["#2463eb"],
-                      scale: [1, 1.03, 1, 1],
-                    }
-                  : undefined
-              }
-              transition={{
-                duration: 6,
-                ease: "easeInOut" as const,
-                repeat: Infinity,
-              }}
-              className="inline-block text-[#2463eb]"
-            >
-              Off.
-            </motion.span>
+          <span className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.18em] text-[#32A8FF] uppercase sm:text-xs">
+            <img
+              src="/home-explore-launchpad.png"
+              className="size-8 object-contain sm:size-12 lg:size-14"
+              alt=""
+            />
+            Project
+          </span>
+
+          <h1 className="text-[28px] leading-[1.12] font-bold tracking-[-0.03em] text-slate-900 sm:text-[34px] sm:leading-[1.08] lg:text-[44px]">
+            Launch your project{" "}
+            <span className="text-[#32A8FF]">with confidence.</span>
           </h1>
+
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{
               opacity: 0,
               y: -16,
-              transition: { duration: 0.2 * dur, ease: "easeInOut" as const },
+              transition: { duration: 0.2, ease: "easeInOut" as const },
             }}
             transition={{
               duration: 0.6 * dur,
               delay: 0.15 * dur,
               ease: easings.enter,
             }}
-            className="max-w-2xl text-base leading-7 font-medium text-slate-500 sm:text-lg sm:leading-8"
+            className="max-w-lg text-[14px] leading-6 text-slate-500 sm:text-base sm:leading-7"
           >
-            Connect with founders, explore the next generation of Khmer impact,
-            and find co-operation opportunities.
+            Discover startups and projects looking for people like you. Join a
+            team and be part of something from the start.
           </motion.p>
-        </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{
-            opacity: 0,
-            y: -12,
-            transition: { duration: 0.2 * dur, ease: "easeInOut" as const },
-          }}
-          transition={{
-            duration: 0.55 * dur,
-            delay: 0.3 * dur,
-            ease: easings.enter,
-          }}
-          className="flex w-full flex-col items-center gap-5 sm:gap-6"
-        >
           <HeaderSearch
             postButton="Post project"
             postUrl="/launchpad/create"
-            inputPlaceholder="Search project by name..."
+            inputPlaceholder="Search projects..."
             locations={locations}
+            dur={dur}
           />
+
+          <LaunchpadPostLink to="/launchpad/create" dur={dur} />
         </motion.div>
+
+        <div className="hidden w-full items-stretch lg:col-span-7 lg:flex">
+          <LaunchpadHeroImage dur={dur} />
+        </div>
       </div>
     </motion.section>
   );
