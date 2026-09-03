@@ -24,7 +24,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function EducationHubPage() {
   const {
-    learner,
+    displayName,
     topics,
     categories,
     isFiltering,
@@ -42,7 +42,6 @@ export default function EducationHubPage() {
 
   const [searchInput, setSearchInput] = useState(search);
 
-  // Course bookmarks have no API resource yet, so the state lives in the page.
   const [savedCourseIds, setSavedCourseIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -113,7 +112,7 @@ export default function EducationHubPage() {
         transition={{ duration }}
       >
         <EducationHero
-          learner={learner}
+          displayName={displayName}
           topics={topics}
           search={searchInput}
           onSearchChange={setSearchInput}

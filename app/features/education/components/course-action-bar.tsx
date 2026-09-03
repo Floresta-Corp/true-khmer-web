@@ -2,6 +2,7 @@ import { BackLink } from "~/components/back-link";
 import {
   Bookmark,
   ChevronLeft,
+  Download,
   Flag,
   MoreVertical,
   Share2,
@@ -17,16 +18,14 @@ import { cn } from "~/lib/utils";
 interface CourseActionBarProps {
   backTo: string;
   backLabel?: string;
-  /** Design uses 20px under this row on course detail, 18px on the learning screen. */
   className?: string;
   isSaved: boolean;
   onToggleSave: () => void;
   onShare: () => void;
+  onDownload?: () => void;
   onReport: () => void;
 }
 
-/** Back link plus the save / share / report controls shared by the course
- * detail and course learning screens. */
 export function CourseActionBar({
   backTo,
   backLabel = "Back",
@@ -34,6 +33,7 @@ export function CourseActionBar({
   isSaved,
   onToggleSave,
   onShare,
+  onDownload,
   onReport,
 }: CourseActionBarProps) {
   return (
@@ -75,6 +75,18 @@ export function CourseActionBar({
         >
           <Share2 className="size-4.5 text-[#9A9AB0]" aria-hidden />
         </button>
+
+        {onDownload && (
+          <button
+            type="button"
+            aria-label="Download course materials"
+            title="Download"
+            onClick={onDownload}
+            className="flex size-9 cursor-pointer items-center justify-center rounded-lg transition-colors hover:bg-gray-100"
+          >
+            <Download className="size-4.5 text-[#9A9AB0]" aria-hidden />
+          </button>
+        )}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

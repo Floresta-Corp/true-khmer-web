@@ -1,11 +1,11 @@
 import { Link } from "react-router";
-import { ArrowRight, Search, Sparkles, Star } from "lucide-react";
-import type { LearnerSnapshot } from "~/features/education/types";
+import { ArrowRight, Search, Sparkles } from "lucide-react";
 
-const CARD = "rounded-xl bg-white shadow-[0_4px_20px_rgba(26,26,46,0.12)]";
+const CARD =
+  "absolute hidden rounded-xl bg-white shadow-[0_8px_24px_rgba(26,26,46,0.14)] sm:block";
 
 interface EducationHeroProps {
-  learner: LearnerSnapshot;
+  displayName: string;
   topics: string[];
   search: string;
   onSearchChange: (value: string) => void;
@@ -14,7 +14,7 @@ interface EducationHeroProps {
 }
 
 export function EducationHero({
-  learner,
+  displayName,
   topics,
   search,
   onSearchChange,
@@ -36,7 +36,7 @@ export function EducationHero({
         </div>
 
         <h1 className="mb-6 text-[32px] leading-[1.3] font-normal text-[#1A1A2E] sm:text-[36px]">
-          Hello {learner.displayName},
+          Hello {displayName},
           <br />
           Ready to grow your{" "}
           <span className="font-bold text-[#1C5DD4]">skills?</span>
@@ -92,10 +92,6 @@ export function EducationHero({
       </div>
 
       <div className="relative min-w-0">
-        {/* The photo is cropped to exactly this panel (1212x690 for a 606x345
-            box at 2x), so object-cover fills it without shifting the framing.
-            The gradient stays behind it as a backdrop. The cards below overlap
-            the panel edges, as in the design. */}
         <div className="h-70 overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#EEF3FD_0%,#F7F9FC_45%,#E4EDFB_100%)] sm:h-86.25">
           <img
             src="/images/education/hero-learner.webp"
@@ -106,67 +102,56 @@ export function EducationHero({
           />
         </div>
 
-        {/* Day streak — top left */}
-        <div className={`absolute top-6 -left-2 px-4 py-3 sm:left-2 ${CARD}`}>
-          <p className="mb-1 text-xs font-medium text-[#6B7280]">
+        <div className={`${CARD} top-4 -left-4 px-4 py-3`}>
+          <div className="mb-1.5 text-[11px] text-[#9A9AB0]">
             Keep learning!
-          </p>
-          <p className="flex items-center gap-1.5 text-xl font-bold text-[#1A1A2E]">
-            <span aria-hidden>🔥</span>
-            {learner.dayStreak}
-          </p>
-          <p className="text-xs text-[#6B7280]">Day streak</p>
+          </div>
+          <div className="flex items-center gap-1.5 text-[22px] font-extrabold text-[#1A1A2E]">
+            <span aria-hidden>🔥</span> 7
+          </div>
+          <div className="text-[10px] text-[#9A9AB0]">Day streak</div>
         </div>
 
-        {/* Goal — top right */}
-        <div
-          className={`absolute top-14 -right-2 px-4 py-3 sm:right-2 ${CARD}`}
-        >
-          <p className="mb-1 text-xs text-[#6B7280]">Your goal</p>
-          <p className="text-sm font-bold text-[#1A1A2E]">
-            {learner.goalTitle}
-          </p>
-          <p className="text-xs text-[#6B7280]">{learner.goalPercent}%</p>
-        </div>
-
-        {/* Continue learning — middle left */}
-        <div
-          className={`absolute bottom-16 -left-4 w-52.5 px-4 py-3 sm:left-0 ${CARD}`}
-        >
-          <p className="mb-2 text-xs text-[#6B7280]">Continue learning</p>
+        <div className={`${CARD} bottom-14 -left-4 w-47.5 px-4.5 py-3.5`}>
+          <div className="mb-2 text-[11px] text-[#9A9AB0]">
+            Continue learning
+          </div>
           <div className="mb-2 flex items-center gap-2.5">
-            <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[#1C5DD4]">
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-[#1C5DD4]">
               <Sparkles className="size-4 text-white" aria-hidden />
             </span>
-            <span className="text-sm leading-tight font-bold text-[#1A1A2E]">
-              {learner.continueCourseTitle}
+            <span className="text-[13px] font-bold text-[#1A1A2E]">
+              Intro to AI Lessons
             </span>
           </div>
-          <div className="mb-1.5 h-1.5 overflow-hidden rounded-full bg-[#E5E7EB]">
-            <div
-              className="h-full rounded-full bg-[#1C5DD4]"
-              style={{ width: `${learner.continuePercent}%` }}
-            />
+          <div className="h-1.25 overflow-hidden rounded-full bg-[#E8E8E8]">
+            <div className="h-full w-3/4 bg-[#1C5DD4]" />
           </div>
-          <p className="text-xs text-[#6B7280]">
-            {learner.continuePercent}% complete
-          </p>
+          <div className="mt-1.25 text-[10px] text-[#9A9AB0]">75% complete</div>
         </div>
 
-        {/* Platform rating — bottom right */}
         <div
-          className={`absolute -right-2 -bottom-3 px-4 py-3 sm:right-2 ${CARD}`}
+          className={`${CARD} top-13 -right-4 min-w-45 px-4 py-3 whitespace-nowrap`}
         >
-          <p className="mb-1 text-xs text-[#6B7280]">
+          <div className="mb-1 text-[11px] text-[#9A9AB0]">Your goal</div>
+          <div className="mb-1 text-[13px] font-bold text-[#1A1A2E]">
+            Web Developer
+          </div>
+          <div className="text-[10px] text-[#9A9AB0]">80%</div>
+        </div>
+
+        <div
+          className={`${CARD} -right-4 bottom-5 min-w-47.5 px-4 py-3 whitespace-nowrap`}
+        >
+          <div className="mb-1.5 text-[11px] text-[#9A9AB0]">
             Students love True Khmer
-          </p>
-          <p className="flex items-center gap-1.5 text-sm font-bold text-[#1A1A2E]">
-            <Star
-              className="size-4 fill-amber-400 text-amber-400"
-              aria-hidden
-            />
-            {learner.platformRating} ({learner.platformReviewCount} reviews)
-          </p>
+          </div>
+          <div className="text-[12px] font-bold text-[#1A1A2E]">
+            <span className="text-[#F5A623]" aria-hidden>
+              ★
+            </span>{" "}
+            4.8 (120 reviews)
+          </div>
         </div>
       </div>
     </section>
