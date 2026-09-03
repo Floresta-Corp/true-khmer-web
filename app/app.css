@@ -566,11 +566,6 @@ body {
   }
 }
 
-/* The True Khmer V2 design system specifies Inter for the Education Center.
-   The rest of the app stays on Geist, so the family is scoped to this feature
-   rather than overriding --font-sans globally. Applied to the education page
-   shell and to its portaled surfaces (dialogs, dropdowns), which render
-   outside that shell. */
 @utility font-tk-edu {
   font-family:
     "Inter Variable",
@@ -582,4 +577,46 @@ body {
     "Helvetica Neue",
     Arial,
     sans-serif;
+}
+
+@media print {
+  body:has([data-print-region])
+    *:not(
+      [data-print-region],
+      [data-print-region] *,
+      :has([data-print-region])
+    ) {
+    display: none !important;
+  }
+
+  body:has([data-print-region]) :has([data-print-region]) {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  [data-print-region] {
+    margin: 0 !important;
+    padding: 14mm !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    page: tk-print-region;
+  }
+
+  @page tk-print-region {
+    margin: 0;
+  }
+
+  [data-print-region="landscape"] {
+    page: tk-print-landscape;
+  }
+
+  @page tk-print-landscape {
+    size: landscape;
+    margin: 0;
+  }
 }
