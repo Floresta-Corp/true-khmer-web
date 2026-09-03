@@ -20,15 +20,13 @@ import type {
 } from "~/features/course-listing/types";
 
 export default function CourseListingPage() {
-  const { courses, pagination, tab, search, usingPlaceholders } =
-    useLoaderData<typeof loader>();
+  const { courses, pagination, tab, search } = useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigation = useNavigation();
   const fetcher = useFetcher<typeof loader>();
 
   const [searchInput, setSearchInput] = useState(search);
 
-  // Pages after the first arrive through the fetcher and stack onto the list.
   const [extraCourses, setExtraCourses] = useState<CourseWithStats[]>([]);
   const [cursor, setCursor] = useState(pagination?.nextCursor ?? null);
   const [hasMore, setHasMore] = useState(pagination?.hasMore ?? false);
@@ -38,9 +36,6 @@ export default function CourseListingPage() {
     navigation.state === "loading" &&
     navigation.location?.pathname === "/course-listing";
 
-  // A new loader result means the filters changed, so start the stack over.
-  // The search box is deliberately left alone: it is debounced ahead of the
-  // loader, and re-syncing it would overwrite what is being typed.
   useEffect(() => {
     setExtraCourses([]);
     setCursor(pagination?.nextCursor ?? null);
@@ -131,12 +126,7 @@ export default function CourseListingPage() {
               <CourseListingSkeleton key={index} />
             ))
           : visible.map((course, index) => (
-              <CourseListingRow
-                key={course.id}
-                course={course}
-                index={index}
-                placeholder={usingPlaceholders}
-              />
+              <CourseListingRow key={course.id} course={course} index={index} />
             ))}
       </div>
 

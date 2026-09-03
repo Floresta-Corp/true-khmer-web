@@ -1,6 +1,10 @@
 import { z } from "zod";
-import { apiRequestWithSession } from "~/lib/server/api-client.server";
+import {
+  apiRequestWithOptionalSession,
+  apiRequestWithSession,
+} from "~/lib/server/api-client.server";
 import { api, schemas, type postV1plumpievents_Body } from "~/types/api-client";
+import type { EventType } from "~/features/events/lib/event-types";
 
 type PlumpiApi = typeof api;
 
@@ -21,6 +25,91 @@ export function getPlumpiOrganizations(request: Request) {
   return apiRequestWithSession<
     Awaited<ReturnType<PlumpiApi["getV1plumpiorganizations"]>>
   >(request, "/plumpi/organizations?page=1&limit=100");
+}
+
+/**
+ * Query for `GET /v1/plumpi/events`, the public event listing Plumpi backs.
+ * Only the parameters the True Khmer pages actually use are exposed; the
+ * endpoint accepts more (see `getV1plumpievents` in `~/types/api-client`).
+ */
+export type PlumpiEventsQuery = {
+  page?: number;
+  limit?: number;
+  search?: string;
+  eventType?: EventType;
+  status?: PlumpiEventStatus;
+  visibility?: "LISTED" | "UNLISTED";
+  /** ISO date or datetime; keeps only events starting on or after it. */
+  startDate?: string;
+  sortBy?: "createdAt" | "startAt" | "endAt" | "title" | "status" | "updatedAt";
+  sortOrder?: "asc" | "desc";
+};
+
+type PlumpiEventStatus =
+  | "DRAFT"
+  | "PUBLISHED"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "POSTPONED"
+  | "ACTIVE"
+  | "LIVE"
+  | "ARCHIVED";
+
+/**
+ * Reads the public event listing.
+ *
+ * The endpoint needs no authentication, but the session is sent when the
+ * visitor has one so `isFavorite` comes back for the right account. An expired
+ * session degrades to the anonymous read instead of bouncing a public page to
+ * the login screen.
+ */
+export function getPlumpiEvents(
+  request: Request,
+  query: PlumpiEventsQuery = {},
+) {
+  const searchParams = new URLSearchParams({
+    page: String(query.page ?? 1),
+    limit: String(query.limit ?? 12),
+    sortBy: query.sortBy ?? "startAt",
+    sortOrder: query.sortOrder ?? "asc",
+  });
+  if (query.search) searchParams.set("search", query.search);
+  if (query.eventType) searchParams.set("eventType", query.eventType);
+  if (query.status) searchParams.set("status", query.status);
+  if (query.visibility) searchParams.set("visibility", query.visibility);
+  if (query.startDate) searchParams.set("startDate", query.startDate);
+
+  return apiRequestWithOptionalSession<
+    Awaited<ReturnType<PlumpiApi["getV1plumpievents"]>>
+  >(request, `/plumpi/events?${searchParams.toString()}`);
+}
+
+/**
+ * Reads one public event by its slug — `GET /v1/plumpi/events/slug/{slug}`.
+ *
+ * Slug, not id: this is the only endpoint that resolves a single public event,
+ * and it is keyed on the slug Plumpi puts in its own URLs. Sent with the
+ * session when there is one so `isFavorite` is right for the visitor.
+ */
+export function getPlumpiEventBySlug(request: Request, slug: string) {
+  return apiRequestWithOptionalSession<
+    Awaited<ReturnType<PlumpiApi["getV1plumpieventsslugSlug"]>>
+  >(request, `/plumpi/events/slug/${encodeURIComponent(slug)}`);
+}
+
+/**
+ * Reads an event's ticket tiers — `GET /v1/plumpi/tickets/tiers?eventId={id}`.
+ *
+ * Keyed on the event id, not the slug, so the detail page resolves the event
+ * first. Public like the event read, with the session attached when there is
+ * one.
+ */
+export function getPlumpiEventTicketTiers(request: Request, eventId: string) {
+  const searchParams = new URLSearchParams({ eventId });
+
+  return apiRequestWithOptionalSession<
+    Awaited<ReturnType<PlumpiApi["getV1plumpiticketstiers"]>>
+  >(request, `/plumpi/tickets/tiers?${searchParams.toString()}`);
 }
 
 export type PlumpiMyEventsQuery = {

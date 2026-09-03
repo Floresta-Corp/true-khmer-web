@@ -108,7 +108,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
     // { to: "/dashboard", label: "My Journey", icon: Compass },
     { to: "/forum", label: "Forum", icon: MessagesSquare },
     // { to: "/forumv2", label: "Forum V2", icon: MessageSquare },
-    // { to: "/events", label: "Events", icon: Calendar },
+    { to: "/events", label: "Events", icon: Calendar },
     { to: "/volunteer", label: "Volunteer", icon: HeartHandshake },
     { to: "/launchpad", label: "Launchpad", icon: BriefcaseBusiness },
     { to: "/education", label: "Education", icon: GraduationCap },

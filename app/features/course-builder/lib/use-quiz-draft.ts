@@ -5,25 +5,24 @@ import {
   type QuizQuestion,
 } from "~/features/course-builder/types";
 
-/**
- * Quiz state for the builder's Quiz step.
- *
- * A course has one quiz, sat at the end, so questions are a single flat list.
- *
- * Nothing here is persisted: the API has no quiz resource, so this lives for
- * the length of the session.
- */
-export function useQuizDraft() {
-  const [passMark, setPassMark] = useState("70");
-  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+export function useQuizDraft(initial?: {
+  passMark?: string;
+  questions?: QuizQuestion[];
+}) {
+  const [passMark, setPassMark] = useState(initial?.passMark ?? "70");
+  const [questions, setQuestions] = useState<QuizQuestion[]>(
+    () => initial?.questions ?? [],
+  );
 
-  /** The question the editor modal is open on. */
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  // Ids only have to be unique within the session, and a counter avoids the
-  // hydration mismatch a timestamp or random id would risk. It lives in a ref
-  // so two adds in one render cannot be handed the same number.
   const seq = useRef(0);
+
+  const answerSeq = useRef(0);
+  const nextAnswerId = useCallback((questionId: string) => {
+    answerSeq.current += 1;
+    return `${questionId}-a${answerSeq.current}`;
+  }, []);
 
   const addQuestion = useCallback(() => {
     seq.current += 1;
@@ -35,22 +34,20 @@ export function useQuizDraft() {
         id,
         text: "",
         answers: Array.from({ length: DEFAULT_ANSWER_COUNT }, (_, index) => ({
-          id: `${id}-a${index + 1}`,
+          id: nextAnswerId(id),
           text: "",
-          // A question needs one right answer, so the first starts marked.
           correct: index === 0,
         })),
       },
     ]);
     setActiveId(id);
-  }, []);
+  }, [nextAnswerId]);
 
   const removeQuestion = useCallback((id: string) => {
     setQuestions((current) => current.filter((question) => question.id !== id));
     setActiveId(null);
   }, []);
 
-  /** Applies `change` to the question with `id`, leaving the rest untouched. */
   const patchQuestion = useCallback(
     (id: string, change: (question: QuizQuestion) => QuizQuestion) => {
       setQuestions((current) =>
@@ -81,7 +78,6 @@ export function useQuizDraft() {
     [patchQuestion],
   );
 
-  /** Exactly one answer is correct, so marking one clears the rest. */
   const markCorrect = useCallback(
     (id: string, answerId: string) => {
       patchQuestion(id, (question) => ({
@@ -104,16 +100,12 @@ export function useQuizDraft() {
               ...question,
               answers: [
                 ...question.answers,
-                {
-                  id: `${id}-a${question.answers.length + 1}`,
-                  text: "",
-                  correct: false,
-                },
+                { id: nextAnswerId(id), text: "", correct: false },
               ],
             },
       );
     },
-    [patchQuestion],
+    [patchQuestion, nextAnswerId],
   );
 
   const removeAnswer = useCallback(
@@ -123,7 +115,6 @@ export function useQuizDraft() {
           (answer) => answer.id !== answerId,
         );
 
-        // Removing the correct answer would leave the question without one.
         return {
           ...question,
           answers: answers.some((answer) => answer.correct)
@@ -137,6 +128,8 @@ export function useQuizDraft() {
     },
     [patchQuestion],
   );
+
+  const closeQuestion = useCallback(() => setActiveId(null), []);
 
   const activeQuestion = useMemo(() => {
     if (!activeId) return null;
@@ -159,7 +152,7 @@ export function useQuizDraft() {
     removeAnswer,
     activeQuestion,
     openQuestion: setActiveId,
-    closeQuestion: () => setActiveId(null),
+    closeQuestion,
   };
 }
 
