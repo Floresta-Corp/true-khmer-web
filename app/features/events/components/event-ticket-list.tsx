@@ -1,161 +1,159 @@
-import { Calendar } from "lucide-react";
-import { Link } from "react-router";
-import { Button } from "~/components/ui/button";
-import { Card, CardContent } from "~/components/ui/card";
-import { formatShortDate } from "~/features/events/lib/event-formatters";
-import type { TicketTier } from "~/features/events/lib/event-types";
+import { Ticket } from "lucide-react";
 import { cn } from "~/lib/utils";
+import type { EventDetail, EventTicket } from "~/features/events/types/events";
 
-interface EventTicketListProps {
-  ticketTiers: TicketTier[];
-  ticketStatus?: string;
-  price?: string;
-  heroImage: string | null;
-  eventName: string | null;
+/** "$10.00", or the tier's own currency when it is not USD. */
+function formatTicketPrice(ticket: EventTicket): string {
+  if (ticket.price === null || ticket.price === 0) return "Free";
+
+  const currency = ticket.currencyCode?.toUpperCase();
+  if (!currency || currency === "USD") return `$${ticket.price.toFixed(2)}`;
+
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+    }).format(ticket.price);
+  } catch {
+    return `${ticket.price.toFixed(2)} ${currency}`;
+  }
 }
 
-export function EventTicketList({
-  ticketTiers,
-  ticketStatus,
-  price,
-  heroImage,
-  eventName,
-}: EventTicketListProps) {
-  const isFree = !price || price === "Free" || parseFloat(price) === 0;
+type Availability = { label: string; isOnSale: boolean };
+
+/** The line under the tier name: whether the tier is sold out. */
+function describeAvailability(ticket: EventTicket): Availability {
+  if (ticket.isSoldOut) return { label: "Sold out", isOnSale: false };
+  return { label: "Available now", isOnSale: true };
+}
+
+function TicketArt({ ticket }: { ticket: EventTicket }) {
+  return (
+    <span className="flex size-19 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-[#D5E2FA]">
+      {ticket.image ? (
+        <img
+          src={ticket.image}
+          alt=""
+          className="size-full object-cover"
+          loading="lazy"
+        />
+      ) : (
+        <Ticket className="size-7 text-[#1C5DD4]" aria-hidden />
+      )}
+    </span>
+  );
+}
+
+function TicketRow({
+  ticket,
+  checkoutUrl,
+}: {
+  ticket: EventTicket;
+  /** `null` when the tier cannot be bought, which drops the card's link. */
+  checkoutUrl: string | null;
+}) {
+  const availability = describeAvailability(ticket);
+  const price = formatTicketPrice(ticket);
+  const isSelectable = Boolean(checkoutUrl) && !ticket.isSoldOut;
+
+  const body = (
+    <>
+      <TicketArt ticket={ticket} />
+
+      <div className="min-w-0 flex-1">
+        <p className="mb-1 text-lg font-extrabold text-[#1A1A2E]">
+          {ticket.name}
+        </p>
+        {ticket.description && (
+          <p className="mb-1.5 text-sm text-[#9A9AB0]">{ticket.description}</p>
+        )}
+        <p
+          className={cn(
+            "flex items-center gap-1.5 text-[13px] font-bold",
+            availability.isOnSale ? "text-[#1FC16B]" : "text-[#9A9AB0]",
+          )}
+        >
+          <span
+            aria-hidden
+            className={cn(
+              "size-1.5 shrink-0 rounded-full",
+              availability.isOnSale ? "bg-[#1FC16B]" : "bg-[#9A9AB0]",
+            )}
+          />
+          {availability.label}
+        </p>
+      </div>
+
+      <div className="flex shrink-0 flex-col items-start gap-2.5 sm:items-end">
+        <span className="text-[22px] leading-none font-extrabold text-[#1A1A2E]">
+          {price}
+        </span>
+        {isSelectable ? (
+          <span className="rounded-lg bg-[#1C5DD4] px-5.5 py-2.5 text-sm font-bold text-white transition-colors group-hover:bg-[#174FB4]">
+            Select
+          </span>
+        ) : (
+          ticket.isSoldOut && (
+            <span className="rounded-lg bg-[#F3F4F6] px-5.5 py-2.5 text-sm font-bold text-[#9A9AB0]">
+              Sold out
+            </span>
+          )
+        )}
+      </div>
+    </>
+  );
+
+  const shell =
+    "group flex flex-col items-start gap-5 rounded-[14px] border border-[#E5E7EB] p-5 sm:flex-row sm:items-center";
+
+  if (!isSelectable) {
+    return <div className={shell}>{body}</div>;
+  }
 
   return (
-    <div className="mt-6">
-      <h2 className="mb-1 text-xl font-bold text-gray-900">
+    <a
+      href={checkoutUrl!}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Select ${ticket.name} — ${price}`}
+      className={cn(
+        shell,
+        "transition-colors hover:border-[#1C5DD4] hover:bg-[#F8FAFF]",
+      )}
+    >
+      {body}
+    </a>
+  );
+}
+
+/**
+ * "Select your ticket" — the tier list on the Get Tickets tab.
+ *
+ * Checkout itself lives on Plumpi, so every row hands the visitor to the
+ * event's Plumpi page and the tier is chosen there.
+ */
+export function EventTicketList({ event }: { event: EventDetail }) {
+  const plumpiWeb = import.meta.env.VITE_PLUMPI_WEB;
+  const eventUrl = plumpiWeb
+    ? `${plumpiWeb}/events/${encodeURIComponent(event.slug)}`
+    : null;
+
+  return (
+    <div>
+      <h2 className="mb-1.5 text-[26px] font-extrabold text-[#1A1A2E]">
         Select your ticket
       </h2>
-      <p className="mb-6 text-sm text-gray-400">
-        Click any ticket to begin the checkout
+      <p className="mb-6 text-[15px] text-[#9A9AB0]">
+        {eventUrl
+          ? "Click any ticket to begin the checkout"
+          : "Ticketing for this event is handled by the organizer"}
       </p>
 
-      {ticketStatus === "SOLD_OUT" ? (
-        <Card className="rounded-2xl shadow-none">
-          <CardContent className="pt-6 text-center">
-            <p className="mb-1 text-lg font-semibold text-red-500">Sold Out</p>
-            <p className="text-sm text-muted-foreground">
-              This event is no longer accepting registrations.
-            </p>
-          </CardContent>
-        </Card>
-      ) : ticketTiers.length > 0 ? (
-        <div className="space-y-4">
-          {ticketTiers.map((tier: TicketTier) => {
-            const tierPrice = tier.salePrice || tier.basePrice;
-            const tierIsFree =
-              tier.type === "FREE" || !tierPrice || parseFloat(tierPrice) === 0;
-            const isSoldOut =
-              tier.availableCount === 0 && tier.totalQuantity > 0;
-
-            return (
-              <Card
-                key={tier.id}
-                className={cn(
-                  "rounded-2xl shadow-none transition-colors",
-                  isSoldOut ? "opacity-60" : "hover:border-blue-200",
-                )}
-              >
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-4">
-                    {/* Tier Thumbnail */}
-                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
-                      {tier.cover || heroImage ? (
-                        <img
-                          src={tier.cover || heroImage!}
-                          alt={tier.name}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-blue-50">
-                          <Calendar className="h-6 w-6 text-blue-300" />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Tier Info */}
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-base font-semibold text-gray-900">
-                        {tier.name}
-                      </h3>
-                      {tier.description && (
-                        <p className="mt-0.5 line-clamp-2 text-sm text-gray-500">
-                          {tier.description}
-                        </p>
-                      )}
-                      <div className="mt-2 flex items-center gap-1.5">
-                        {isSoldOut ? (
-                          <>
-                            <span className="h-2 w-2 rounded-full bg-red-500" />
-                            <span className="text-xs font-medium text-red-600 uppercase">
-                              Sold out
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <span className="h-2 w-2 rounded-full bg-green-500" />
-                            <span className="text-xs font-medium text-green-600 uppercase">
-                              Available
-                              {tier.saleStartAt && tier.saleEndAt
-                                ? ` ${formatShortDate(tier.saleStartAt)} - ${formatShortDate(tier.saleEndAt)}`
-                                : tier.saleStartAt
-                                  ? ` from ${formatShortDate(tier.saleStartAt)}`
-                                  : ""}
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Price + Select */}
-                    <div className="shrink-0 text-right">
-                      <p className="mb-0.5 text-xs tracking-wide text-gray-400 uppercase">
-                        Price
-                      </p>
-                      <p className="text-2xl font-bold text-gray-900">
-                        {tierIsFree
-                          ? "Free"
-                          : `$${parseFloat(tierPrice!).toFixed(2)}`}
-                      </p>
-                      {!isSoldOut && (
-                        <Link
-                          to={`${import.meta.env.VITE_PLUMPI_WEB}/events/${eventName}`}
-                          target="_blank"
-                        >
-                          <Button
-                            size="sm"
-                            className={cn(
-                              "mt-2 rounded-full px-5 text-xs",
-                              isSoldOut
-                                ? "cursor-not-allowed opacity-50"
-                                : "cursor-pointer",
-                            )}
-                          >
-                            SELECT
-                          </Button>
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      ) : (
-        <Card className="rounded-2xl shadow-none">
-          <CardContent className="pt-6 text-center">
-            <p className="mb-1 text-lg font-semibold text-gray-500">
-              No Tickets Available
-            </p>
-            <p className="text-sm text-muted-foreground">
-              There are currently no tickets available for this event.
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      <div className="flex flex-col gap-4">
+        {event.tickets.map((ticket) => (
+          <TicketRow key={ticket.id} ticket={ticket} checkoutUrl={eventUrl} />
+        ))}
+      </div>
     </div>
   );
 }

@@ -6,7 +6,6 @@ import {
   MailOpen,
   ShieldCheck,
   Ticket,
-  UserRound,
   type LucideIcon,
 } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio";
@@ -58,13 +57,6 @@ const REGISTRATION_OPTIONS: AccessOption<EventRegistrationMode>[] = [
     icon: Lock,
     restrictive: true,
   },
-  {
-    id: "INVITED_GUESTS_ONLY",
-    title: "Invited Guests Only",
-    description: "Only invited guests can register",
-    icon: UserRound,
-    restrictive: true,
-  },
 ];
 
 const ENTRY_OPTIONS: AccessOption<EventEntryMode>[] = [
@@ -93,10 +85,6 @@ const ENTRY_OPTIONS: AccessOption<EventEntryMode>[] = [
  * what is coming, but cannot be picked.
  */
 const UNAVAILABLE_VISIBILITIES: EventVisibility[] = ["UNLISTED"];
-const UNAVAILABLE_REGISTRATION_MODES: EventRegistrationMode[] = [
-  "REQUIRED_APPROVAL",
-  "INVITED_GUESTS_ONLY",
-];
 const UNAVAILABLE_ENTRY_MODES: EventEntryMode[] = ["RSVP"];
 
 function AccessOptionGroup<T extends string>({
@@ -231,7 +219,6 @@ export default function CreateEventAccessForm({
           options={REGISTRATION_OPTIONS}
           value={registrationMode}
           onChange={(next) => onChange({ registrationMode: next })}
-          isOptionDisabled={(id) => UNAVAILABLE_REGISTRATION_MODES.includes(id)}
         />
 
         <div className="h-px bg-[#E1E7EF]" />
