@@ -58,23 +58,23 @@ export function CategoryCard({
       type="button"
       variant="ghost"
       className={cn(
-        "inline-flex w-full shrink-0 cursor-pointer justify-start gap-2 rounded-[28px] border border-gray-100 bg-white text-left shadow-none md:w-full md:min-w-0",
+        "inline-flex w-full shrink-0 cursor-pointer justify-start gap-2 rounded-[28px] border border-gray-100 bg-white text-left text-[#2463eb] shadow-none md:w-full md:min-w-0",
         active
           ? "bg-[#2463eb] text-white hover:bg-[#1d56d2] hover:text-gray-50"
-          : "hover:bg-gray-50",
+          : "hover:bg-gray-50 hover:text-[#1d56d2]",
         className,
       )}
     >
       <div
         className={cn(
           "flex shrink-0 items-center justify-center",
-          active ? "text-white" : "text-[#2563eb]",
+          active ? "text-white" : "text-[#0891b2]",
         )}
       >
         <BuildCategoryIcon icon={iconKey} className="size-5 shrink-0" />
       </div>
       <div className="flex flex-col items-start gap-[3.5px]">
-        <h3 className="text-sm leading-3.5 font-bold">{name}</h3>
+        <h3 className="text-sm leading-3.5 font-medium">{name}</h3>
         {/* <p className="text-xs leading-4.5 font-medium text-[#99a1af]">
           {displayOrder} {displayName ? displayName : "roles"}
         </p> */}

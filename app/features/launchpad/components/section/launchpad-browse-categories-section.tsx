@@ -1,44 +1,64 @@
 import { CategoryCard } from "~/components/category-card";
-import { useLoaderData, useNavigate } from "react-router";
-import type { loader } from "~/features/launchpad/route/launchpad";
 import type { Category } from "~/features/launchpad/types";
+import { cn } from "~/lib/utils";
 
-export function LaunchpadBrowseCategoriesSection() {
-  const { categories } = useLoaderData<typeof loader>();
-  const navigate = useNavigate();
+interface LaunchpadCategoriesSectionProps {
+  fullscreen?: boolean;
+  className?: string;
+  categories: Category[];
+  onClickCategory?: (categoryId: string | undefined) => void;
+  cardClassName?: string;
+  activeCategoryId?: string;
+  showAllCategory?: boolean;
+}
+
+export function LaunchpadBrowseCategoriesSection({
+  categories,
+  onClickCategory,
+  className,
+  cardClassName,
+  fullscreen,
+  activeCategoryId,
+  showAllCategory,
+}: LaunchpadCategoriesSectionProps) {
+  const cardClassNames = cn(
+    "h-10 w-auto gap-2 rounded-full px-4 sm:h-11 sm:gap-2.5 sm:px-5 md:w-auto",
+    cardClassName,
+  );
 
   return (
-    <section className="w-full py-8 lg:py-21">
-      <div className="site-container">
-        <header className="mb-9">
-          <h2 className="mb-1.75 text-[21px] leading-7 font-semibold tracking-[-0.88px] text-[#030213]">
-            Browse by categories
-          </h2>
-          <p className="text-sm leading-5.25 font-medium text-[#99a1af]">
-            Find roles that match your passion and skills.
-          </p>
-        </header>
-        <div className="flex w-full snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-1 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:px-0 lg:grid-cols-4 xl:grid-cols-5">
-          {categories.map((category: Category) => {
-            return (
-              <div
-                key={category.id}
-                className="w-[200px] shrink-0 cursor-pointer snap-start md:w-auto md:shrink"
-                onClick={() =>
-                  navigate(`/launchpad/all?categoryId=${category.id}`)
-                }
-              >
-                <CategoryCard
-                  category={{
-                    ...category,
-                    displayOrder: category.totalLaunchpad,
-                    updatedBy: category.updatedBy ?? undefined,
-                  }}
-                  displayName="projects"
-                />
-              </div>
-            );
-          })}
+    <section
+      className={cn(
+        "w-full bg-white",
+        fullscreen ? "" : "py-6 md:py-8",
+        className,
+      )}
+    >
+      <div className={cn(fullscreen ? "w-full" : "site-container")}>
+        <div className="-mx-4 no-scrollbar flex w-auto snap-x snap-mandatory scroll-pl-4 gap-2 overflow-x-auto px-4 pb-1 sm:gap-3 md:mx-0 md:w-full md:flex-wrap md:gap-y-3 md:overflow-visible md:px-0">
+          {showAllCategory ? (
+            <div className="shrink-0 snap-start">
+              <CategoryCard
+                onClick={() => onClickCategory?.(undefined)}
+                className={cardClassNames}
+                active={!activeCategoryId}
+                category={{ id: "", name: "All", iconKey: "LayoutGrid" }}
+              />
+            </div>
+          ) : null}
+          {categories.map((category: Category) => (
+            <div key={category.id} className="shrink-0 snap-start">
+              <CategoryCard
+                onClick={() => onClickCategory?.(category.id)}
+                className={cardClassNames}
+                active={category.id === activeCategoryId}
+                category={{
+                  ...category,
+                  updatedBy: category.updatedBy ?? undefined,
+                }}
+              />
+            </div>
+          ))}
         </div>
       </div>
     </section>
