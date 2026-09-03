@@ -6,20 +6,16 @@ const CARD =
 
 interface EducationHeroProps {
   displayName: string;
-  topics: string[];
   search: string;
   onSearchChange: (value: string) => void;
   onSearchSubmit: () => void;
-  onTopicSelect: (topic: string) => void;
 }
 
 export function EducationHero({
   displayName,
-  topics,
   search,
   onSearchChange,
   onSearchSubmit,
-  onTopicSelect,
 }: EducationHeroProps) {
   return (
     <section className="mb-12 grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
@@ -41,19 +37,6 @@ export function EducationHero({
           Ready to grow your{" "}
           <span className="font-bold text-[#1C5DD4]">skills?</span>
         </h1>
-
-        <div className="mb-6 flex flex-wrap gap-2.5">
-          {topics.map((topic) => (
-            <button
-              key={topic}
-              type="button"
-              onClick={() => onTopicSelect(topic)}
-              className="cursor-pointer rounded-full bg-[#F3F4F6] px-3.5 py-2 text-[13px] whitespace-nowrap text-[#374151] transition-colors hover:bg-[#E5E7EB]"
-            >
-              {topic}
-            </button>
-          ))}
-        </div>
 
         <form
           onSubmit={(event) => {

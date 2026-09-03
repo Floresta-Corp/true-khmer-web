@@ -25,7 +25,6 @@ export function meta({}: Route.MetaArgs) {
 export default function EducationHubPage() {
   const {
     displayName,
-    topics,
     categories,
     isFiltering,
     results,
@@ -113,17 +112,11 @@ export default function EducationHubPage() {
       >
         <EducationHero
           displayName={displayName}
-          topics={topics}
           search={searchInput}
           onSearchChange={setSearchInput}
           onSearchSubmit={() => {
             debouncedSearch.cancel();
             updateParams({ search: searchInput || null });
-          }}
-          onTopicSelect={(topic) => {
-            setSearchInput(topic);
-            debouncedSearch.cancel();
-            updateParams({ search: topic });
           }}
         />
       </motion.div>

@@ -1,70 +1,85 @@
-import { Trash2 } from "lucide-react";
+import { useState } from "react";
+import { X } from "lucide-react";
 
 interface OutcomeListProps {
   values: string[];
   onChange: (values: string[]) => void;
 }
 
+/**
+ * "What you will learn". Outcomes are committed one at a time from a single
+ * draft box — Enter or the Add button — then read back as the same bullet list
+ * learners see on the course page. Duplicates are ignored.
+ */
 export function OutcomeList({ values, onChange }: OutcomeListProps) {
-  const rows = values.length > 0 ? values : [""];
+  const [draft, setDraft] = useState("");
 
-  const add = () => onChange([...rows, ""]);
-
-  const update = (index: number, value: string) =>
-    onChange(rows.map((row, i) => (i === index ? value : row)));
-
-  const remove = (index: number) => {
-    const next = rows.filter((_, i) => i !== index);
-    onChange(next.length > 0 ? next : [""]);
+  const commit = () => {
+    const value = draft.trim();
+    if (!value) return;
+    if (!values.includes(value)) onChange([...values, value]);
+    setDraft("");
   };
+
+  const remove = (index: number) =>
+    onChange(values.filter((_, i) => i !== index));
 
   return (
     <div>
-      <div className="mb-[7px] flex items-center justify-between gap-3">
-        <span className="text-sm font-bold text-[#1A1A2E]">
-          What you&apos;ll learn
-        </span>
+      <span className="mb-2 block text-sm font-bold text-[#1A1A2E]">
+        What you will learn
+      </span>
+
+      <div className="flex items-center gap-2.5">
+        <input
+          value={draft}
+          aria-label="Add a learning outcome"
+          placeholder="e.g. How to plan a 30-day content calendar — press Enter"
+          onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key !== "Enter") return;
+            event.preventDefault();
+            commit();
+          }}
+          className="min-w-0 flex-1 rounded-lg border border-[#E5E7EB] px-3.5 py-[13px] text-sm text-[#333333] outline-none placeholder:text-[#9A9AB0] focus:border-[#1C5DD4]"
+        />
         <button
           type="button"
-          onClick={add}
-          className="cursor-pointer text-[13px] font-bold text-[#1C5DD4]"
+          onClick={commit}
+          disabled={draft.trim().length === 0}
+          className="shrink-0 cursor-pointer rounded-lg bg-[#1C5DD4] px-5 py-[13px] text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-45"
         >
-          + Add outcome
+          Add
         </button>
       </div>
 
-      <div className="flex flex-col gap-2.5">
-        {rows.map((row, index) => (
-          <div key={index} className="flex items-center gap-2.5">
-            <input
-              value={row}
-              onChange={(event) => update(index, event.target.value)}
-              aria-label={`Learning outcome ${index + 1}`}
-              placeholder="e.g. Create a measurable digital marketing goal"
-              className="min-w-0 flex-1 rounded-lg border border-[#E5E7EB] px-3.25 py-[11px] text-sm text-[#333333] outline-none focus:border-[#1C5DD4]"
-            />
-            {rows.length > 1 && (
+      {values.length > 0 && (
+        <ul className="mt-2.5 flex flex-col gap-2.5">
+          {values.map((value, index) => (
+            <li
+              key={`${index}-${value}`}
+              className="flex items-center gap-3 rounded-lg border border-[#E5E7EB] px-3.5 py-[11px]"
+            >
+              <span
+                aria-hidden
+                className="size-1.5 shrink-0 rounded-full bg-[#1C5DD4]"
+              />
+              <span className="min-w-0 flex-1 text-sm break-words text-[#1A1A2E]">
+                {value}
+              </span>
               <button
                 type="button"
                 onClick={() => remove(index)}
                 title="Remove point"
-                aria-label={`Remove learning outcome ${index + 1}`}
-                className="flex size-5.5 shrink-0 cursor-pointer items-center justify-center p-1 text-[#DC2626]"
+                aria-label={`Remove "${value}"`}
+                className="flex size-5 shrink-0 cursor-pointer items-center justify-center text-[#9A9AB0] hover:text-[#DC2626]"
               >
-                <Trash2 className="size-full" aria-hidden />
+                <X size={14} strokeWidth={2.2} aria-hidden />
               </button>
-            )}
-          </div>
-        ))}
-      </div>
-
-      <button
-        type="button"
-        onClick={add}
-        className="mt-2.5 w-full cursor-pointer rounded-lg border-[1.5px] border-dashed border-[#E5E7EB] p-3 text-[13px] font-bold text-[#1C5DD4]"
-      >
-        + Add outcome
-      </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

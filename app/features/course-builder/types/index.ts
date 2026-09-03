@@ -72,7 +72,7 @@ export function emptyDraft(): CourseDraft {
     categoryId: "",
     difficulty: null,
     skills: [],
-    outcomes: [""],
+    outcomes: [],
     tags: [],
     coverImageKey: null,
     coverPreviewUrl: null,

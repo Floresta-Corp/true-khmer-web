@@ -73,10 +73,7 @@ export async function courseBuilderEditLoader({
     coverPreviewUrl: course.coverImageUrl ?? null,
     difficulty: saved.difficulty ? DIFFICULTY_FROM_API[saved.difficulty] : null,
     skills: Array.isArray(saved.skills) ? saved.skills : [],
-    outcomes:
-      Array.isArray(saved.outcomes) && saved.outcomes.length > 0
-        ? saved.outcomes
-        : [""],
+    outcomes: Array.isArray(saved.outcomes) ? saved.outcomes : [],
     tags: Array.isArray(saved.tags) ? saved.tags : [],
   };
 
