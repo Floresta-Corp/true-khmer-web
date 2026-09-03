@@ -64,6 +64,16 @@ export default function AppSidebar({
 
   const closeMobile = () => isMobile && setOpenMobile(false);
 
+  const activeId = items.reduce<string | null>((match, item) => {
+    const matches =
+      location.pathname === item.to ||
+      location.pathname.startsWith(`${item.to}/`);
+    if (!matches) return match;
+
+    const bestTo = items.find((candidate) => candidate.id === match)?.to ?? "";
+    return item.to.length > bestTo.length ? item.id : match;
+  }, null);
+
   return (
     <Sidebar
       collapsible={isMobile ? "offcanvas" : "none"}
@@ -101,10 +111,7 @@ export default function AppSidebar({
               <SidebarMenuItem key={item.id}>
                 <SidebarMenuButton
                   asChild
-                  isActive={
-                    location.pathname === item.to ||
-                    location.pathname.startsWith(`${item.to}/`)
-                  }
+                  isActive={item.id === activeId}
                   className="rounded-xl p-5 text-[12px] font-normal transition-all data-[active=true]:bg-blue-50 data-[active=true]:text-blue-600"
                 >
                   <Link to={item.to} onClick={closeMobile}>
@@ -150,7 +157,7 @@ export const mySpaceSidebarConfig: AppSidebarProps = {
     },
   ],
   footer: {
-    to: "/manage-post",
+    to: "/workspace/manage-post",
     label: "Switch to Workspace",
     className: "bg-[#32A8FF] [a]:hover:bg-[#1E90FF]",
   },
@@ -162,7 +169,7 @@ export const workSpaceSidebarConfig: AppSidebarProps = {
     {
       id: "managepost",
       label: "Manage Posting",
-      to: "/manage-post",
+      to: "/workspace/manage-post",
       icon: ClipboardList,
     },
     {
