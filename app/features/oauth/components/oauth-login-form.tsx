@@ -58,12 +58,12 @@ export function OAuthLoginForm() {
 
       <Form
         method="post"
-        className="space-y-4 short:space-y-3"
+        className="space-y-5 short:space-y-4"
         ref={formRef}
         noValidate
         onSubmit={handleSubmit(onValid)}
       >
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           <Label
             htmlFor="email"
             className="text-sm font-semibold text-slate-800"
@@ -107,7 +107,7 @@ export function OAuthLoginForm() {
         </Button>
       </Form>
 
-      <p className="mt-4 text-center text-[13px] leading-relaxed text-slate-500 short:mt-3">
+      <p className="mt-5 text-center text-[13px] leading-relaxed text-slate-500 short:mt-4">
         Don&apos;t have an account?{" "}
         <Link
           to={signupHref}

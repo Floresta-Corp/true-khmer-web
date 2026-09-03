@@ -12,19 +12,19 @@ export function OAuthUnauthorized({
 }: OAuthUnauthorizedProps) {
   return (
     <OAuthCardShell>
-      {clientLogo && (
+      {/* {clientLogo && (
         <img
           src={clientLogo}
           alt={`${clientName} logo`}
           className="h-8 short:h-7"
         />
-      )}
+      )} */}
 
-      <div className="space-y-1">
-        <h1 className="text-lg font-bold text-slate-900">
+      <div className="space-y-1.5">
+        <h1 className="text-xl font-bold tracking-tight text-slate-900 short:text-lg">
           Sign in to continue
         </h1>
-        <p className="text-[13px] leading-relaxed text-slate-500">
+        <p className="text-sm leading-relaxed text-slate-500">
           {clientName ? (
             <>
               Sign in to your TrueKhmer account to connect with{" "}

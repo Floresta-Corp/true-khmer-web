@@ -1,10 +1,17 @@
-import { useCallback, useEffect, useState } from "react";
-import { useActionData, useLoaderData } from "react-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useActionData,
+  useFetcher,
+  useLoaderData,
+  useSearchParams,
+} from "react-router";
 import { toast } from "sonner";
+import { OAUTH_RESUME_PARAM } from "~/lib/redirects";
 import type { OauthLoginLoader } from "../../services/oauth-login.loader";
 import type { OAuthHandoffTokens } from "../../services/oauth-handoff.action";
-import type { OAuthLoginActionData } from "../../types";
+import { OAUTH_LOGOUT_INTENT, type OAuthLoginActionData } from "../../types";
 import { useOAuthSessionStore } from "../../store/oauth-session.store";
+import { postAuthClose } from "../../lib/post-auth-result";
 import { OAuthConsentCard } from "../oauth-consent-card";
 import { OAuthUnauthorized } from "../oauth-unauthorized";
 import { OAuthOriginError } from "../oauth-origin-error";
@@ -28,6 +35,7 @@ export default function OAuthLoginPage() {
     refreshToken,
   } = useLoaderData<typeof OauthLoginLoader>();
   const actionData = useActionData<OAuthLoginActionData>();
+  const [searchParams] = useSearchParams();
   // The access token this page has stopped trusting: either the handoff came
   // back rejecting it, or the user signed out of it to switch accounts. Both
   // end with the server destroying `__session`, and both need this because
@@ -59,6 +67,15 @@ export default function OAuthLoginPage() {
     storedSession && storedSession.accessToken !== discardedAccessToken
       ? storedSession
       : null;
+
+  // Whether the credentials the consent card is offering only exist because of
+  // this OAuth request: a login through the form on this page, or the signup
+  // the form sent the user off to, which comes back carrying the resume flag.
+  // Anything else is the ordinary site session the browser already held when
+  // the popup opened, and this popup has no business ending it.
+  const isFirstLogin =
+    Boolean(actionData?.success) ||
+    searchParams.get(OAUTH_RESUME_PARAM) === "1";
 
   useEffect(() => {
     if (consentData) setSession(consentData);
@@ -92,6 +109,41 @@ export default function OAuthLoginPage() {
     setDiscardedAccessToken(storedSession?.accessToken ?? null);
   }, [clearSession, storedSession?.accessToken]);
 
+  const cancelFetcher = useFetcher<OAuthLoginActionData>();
+  const canceling = cancelFetcher.state !== "idle";
+  const signingOutToCancel = useRef(false);
+
+  const closeWithoutConsent = useCallback(() => {
+    if (!origin) return;
+    postAuthClose({ origin, platform, redirectUri, state });
+  }, [origin, platform, redirectUri, state]);
+
+  // Cancel on the consent card. A session this popup created itself was only
+  // ever created to answer this OAuth request, so declining it takes the
+  // credentials down too: the copy in the store here and `__session` on the
+  // server. With a session the browser already had, cancel is only a refusal
+  // to share it — the popup closes and the user stays signed in.
+  const handleCancel = useCallback(() => {
+    if (!isFirstLogin) {
+      closeWithoutConsent();
+      return;
+    }
+
+    clearSession();
+    signingOutToCancel.current = true;
+    cancelFetcher.submit({ intent: OAUTH_LOGOUT_INTENT }, { method: "post" });
+  }, [isFirstLogin, closeWithoutConsent, clearSession, cancelFetcher]);
+
+  // The window has to stay open until the sign-out settles — closing it first
+  // would cancel the request in flight and leave `__session` behind. Closing
+  // on any settled outcome, including a failed sign-out, since the user has
+  // already declined and the card is not something to hand back to them.
+  useEffect(() => {
+    if (!signingOutToCancel.current || cancelFetcher.state !== "idle") return;
+    signingOutToCancel.current = false;
+    closeWithoutConsent();
+  }, [cancelFetcher.state, closeWithoutConsent]);
+
   if (!originAllowed || !origin) {
     return <OAuthOriginError />;
   }
@@ -108,6 +160,8 @@ export default function OAuthLoginPage() {
         state={state}
         accessToken={consentData.accessToken}
         user={consentData.user}
+        canceling={canceling}
+        onCancel={handleCancel}
         onSignedOut={handleSignedOut}
         onTokensRefreshed={handleTokensRefreshed}
         onSessionExpired={handleSessionExpired}

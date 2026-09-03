@@ -17,12 +17,12 @@ export function OAuthCardShell({
 }: OAuthCardShellProps) {
   return (
     <div className="flex min-h-dvh w-full items-center justify-center bg-slate-100/70 p-4 font-sans text-slate-900 short:p-2">
-      <div className="w-full max-w-105 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-md">
+      <div className="w-full max-w-115 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-md">
         <OAuthHeader />
 
         <main
           className={cn(
-            "space-y-5 p-6 short:space-y-4 short:p-5",
+            "space-y-6 px-7 py-7 short:space-y-5 short:px-8 short:py-5",
             mainClassName,
           )}
         >

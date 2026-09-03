@@ -73,13 +73,16 @@ export function OAuthSwitchAccountDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter>
+        {/* The footer stacks by default; the two buttons here are short enough
+            to sit side by side at every width, and they share the rectangular
+            shape used by the rest of the consent flow. */}
+        <DialogFooter className="flex-row gap-3 bg-white sm:flex-row">
           <DialogClose asChild>
             <Button
               type="button"
               variant="outline"
               disabled={signingOut}
-              className="w-full sm:w-auto"
+              className="h-11 flex-1 rounded-full border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
             >
               Cancel
             </Button>
@@ -89,7 +92,7 @@ export function OAuthSwitchAccountDialog({
             type="button"
             onClick={signOut}
             loading={signingOut}
-            className="w-full sm:w-auto"
+            className="h-11 flex-1 rounded-full bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500/50"
           >
             Sign out
           </Button>

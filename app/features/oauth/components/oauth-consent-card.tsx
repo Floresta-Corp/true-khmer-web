@@ -6,7 +6,7 @@ import { OAuthScopeList } from "./oauth-scope-list";
 import { OAuthTermsNotice } from "./oauth-terms-notice";
 import { OAuthActionButtons } from "./oauth-action-buttons";
 import { OAuthSwitchAccountDialog } from "./oauth-switch-account-dialog";
-import { postAuthClose, postAuthResult } from "../lib/post-auth-result";
+import { postAuthResult } from "../lib/post-auth-result";
 import type {
   OauthHandoffAction,
   OAuthHandoffTokens,
@@ -23,6 +23,12 @@ interface OAuthConsentCardProps {
   state: string | null;
   accessToken: string;
   user: OAuthSessionUser;
+  // The sign-out a cancel has to wait for is still in flight, so the buttons
+  // stay disabled until the popup actually goes away.
+  canceling?: boolean;
+  // The user declined. Whether that also tears the session down is the page's
+  // call — it knows whether this popup is the reason the session exists.
+  onCancel: () => void;
   // The user confirmed switching accounts and the sign-out has already gone
   // through; the session this card was offering no longer exists.
   onSignedOut: () => void;
@@ -42,6 +48,8 @@ export function OAuthConsentCard({
   state,
   accessToken,
   user,
+  canceling,
+  onCancel,
   onSignedOut,
   onTokensRefreshed,
   onSessionExpired,
@@ -106,10 +114,6 @@ export function OAuthConsentCard({
     onSessionExpired,
   ]);
 
-  const handleCancel = useCallback(() => {
-    postAuthClose({ origin, platform, redirectUri, state });
-  }, [origin, platform, redirectUri, state]);
-
   return (
     <OAuthCardShell>
       {clientName && (
@@ -121,7 +125,8 @@ export function OAuthConsentCard({
       {error ? <p className="text-xs text-red-500">{error}</p> : null}
       <OAuthActionButtons
         loading={loading}
-        onCancel={handleCancel}
+        canceling={canceling}
+        onCancel={onCancel}
         onContinue={handleContinue}
       />
       <OAuthSwitchAccountDialog
