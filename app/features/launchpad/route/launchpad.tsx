@@ -44,7 +44,11 @@ export default function LaunchpadPage() {
           categories={categories || []}
           showAllCategory
           onClickCategory={(v) => {
-            navigate(`/launchpad/all?categoryId=${v}`);
+            navigate(
+              v
+                ? `/launchpad/all?categoryId=${encodeURIComponent(v)}`
+                : "/launchpad/all",
+            );
           }}
         />
       </motion.div>
