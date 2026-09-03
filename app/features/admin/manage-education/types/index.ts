@@ -133,16 +133,24 @@ export const CERTIFICATE_LABELS: Record<
   COMPLETION: "Certificate of completion",
 };
 
-/** Pulls the review content off a course, tolerating an older API. */
+/**
+ * Pulls the review content off a course, tolerating an older API.
+ *
+ * The nested shapes are checked, not just their presence: the review panels
+ * read `curriculum.chapters.length` and `quiz.questions.length` directly, so a
+ * course carrying either field without its array took the whole detail page
+ * down with a TypeError.
+ */
 export function readCourseReviewContent(course: unknown): CourseReviewContent {
   const source = (course ?? {}) as Partial<CourseReviewContent>;
+  const { curriculum, quiz } = source;
 
   return {
     difficulty: source.difficulty ?? null,
     skills: Array.isArray(source.skills) ? source.skills : [],
     tags: Array.isArray(source.tags) ? source.tags : [],
     certificateKind: source.certificateKind ?? null,
-    curriculum: source.curriculum ?? null,
-    quiz: source.quiz ?? null,
+    curriculum: Array.isArray(curriculum?.chapters) ? curriculum : null,
+    quiz: Array.isArray(quiz?.questions) ? quiz : null,
   };
 }

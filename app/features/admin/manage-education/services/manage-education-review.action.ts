@@ -38,7 +38,7 @@ export async function handleCourseReviewIntent(
   if (!courseId) {
     return data(
       { ok: false, message: "Course ID is required" },
-      { status: 400 },
+      { status: 400, ...cookieHeader },
     );
   }
 

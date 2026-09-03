@@ -62,11 +62,26 @@ export function LessonSourceField({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  /**
+   * Which selection an upload belongs to.
+   *
+   * Switching source abandons whatever is in flight: a file that lands after
+   * the creator has moved from PDF to Audio would otherwise be reported as the
+   * audio lesson's file.
+   */
+  const selection = useRef(0);
+
   const busy = uploading || fetcher.state !== "idle";
 
   useEffect(() => {
     onUploadingChange?.(busy);
   }, [busy, onUploadingChange]);
+
+  useEffect(() => {
+    selection.current += 1;
+    pendingFile.current = null;
+    setError(null);
+  }, [source]);
 
   const accept = (file: File | undefined) => {
     if (!file || source === "youtube") return;
@@ -96,10 +111,17 @@ export function LessonSourceField({
     pendingFile.current = null;
 
     const upload = fetcher.data.upload;
+    const startedFor = selection.current;
     setUploading(true);
     putLessonAsset(upload, file)
-      .then((assetKey) => onUploaded(assetKey, file.name))
-      .catch(() => setError("That upload did not go through. Try again."))
+      .then((assetKey) => {
+        if (startedFor !== selection.current) return;
+        onUploaded(assetKey, file.name);
+      })
+      .catch(() => {
+        if (startedFor !== selection.current) return;
+        setError("That upload did not go through. Try again.");
+      })
       .finally(() => setUploading(false));
   }, [fetcher.state, fetcher.data, onUploaded]);
 

@@ -46,7 +46,13 @@ type SaveResult =
       intent: "save-draft" | "submit";
       course: { id: string };
     }
-  | { ok: false; error: string; fieldErrors: Record<string, string[]> }
+  | {
+      ok: false;
+      error: string;
+      fieldErrors: Record<string, string[]>;
+      /** Set once the row exists, so a retry patches it instead of duplicating. */
+      courseId?: string;
+    }
   | { ok: true; intent: "presign-cover" };
 
 interface CourseBuilderPageProps {
@@ -57,9 +63,12 @@ interface CourseBuilderPageProps {
   initialSections?: BuilderSection[];
   /** The saved course's status; a course under review or live cannot be edited. */
   courseStatus?: "DRAFT" | "PENDING" | "PUBLISHED" | "UNPUBLISHED";
-  /** False when the saved curriculum could not be read back. */
-  curriculumLoaded?: boolean;
-  quizLoaded?: boolean;
+  /**
+   * False only when the saved curriculum could not be read back. A course that
+   * has none saved yet stays true, so its first curriculum can still be sent.
+   */
+  canReplaceCurriculum?: boolean;
+  canReplaceQuiz?: boolean;
   initialCertificate?: CertificateKind;
   initialFormat?: CourseFormat;
   initialPassMark?: string;
@@ -83,8 +92,8 @@ export default function CourseBuilderPage({
   initialDraft,
   initialSections,
   courseStatus,
-  curriculumLoaded = true,
-  quizLoaded = true,
+  canReplaceCurriculum = true,
+  canReplaceQuiz = true,
   initialCertificate,
   initialFormat,
   initialPassMark,
@@ -474,10 +483,11 @@ export default function CourseBuilderPage({
     // A save replaces the curriculum and quiz wholesale. On an existing course
     // whose saved content failed to load, the builder is showing an empty
     // structure it never read — sending that would erase the real one, so the
-    // field is omitted and the API leaves it untouched.
+    // field is omitted and the API leaves it untouched. A course that simply
+    // has none saved yet is not that case, and must still be able to gain one.
     const nothingToOverwrite = !courseId;
-    const sendCurriculum = nothingToOverwrite || curriculumLoaded;
-    const sendQuiz = nothingToOverwrite || quizLoaded;
+    const sendCurriculum = nothingToOverwrite || canReplaceCurriculum;
+    const sendQuiz = nothingToOverwrite || canReplaceQuiz;
 
     fetcher.submit(
       {
@@ -523,14 +533,18 @@ export default function CourseBuilderPage({
     );
   };
 
-  // Remember the created course so a second save patches rather than duplicates.
-  if (
-    result?.ok &&
-    "course" in result &&
-    result.course.id &&
-    result.course.id !== courseId
-  ) {
-    setCourseId(result.course.id);
+  // Remember the created course so a second save patches rather than
+  // duplicates. A failure that happened after the row was written reports the
+  // id too — without it the next Save would create a second course.
+  const savedCourseId =
+    result?.ok === false
+      ? result.courseId
+      : result?.ok && "course" in result
+        ? result.course.id
+        : undefined;
+
+  if (savedCourseId && savedCourseId !== courseId) {
+    setCourseId(savedCourseId);
   }
 
   return (
@@ -564,12 +578,12 @@ export default function CourseBuilderPage({
               </p>
             )}
 
-            {courseId && (!curriculumLoaded || !quizLoaded) && (
+            {courseId && (!canReplaceCurriculum || !canReplaceQuiz) && (
               <p className="mb-5 rounded-lg border border-[#F59E0B]/30 bg-[#F59E0B]/5 px-4 py-3 text-[13px] font-semibold text-[#B45309]">
                 {`This course's saved ${
-                  !curriculumLoaded && !quizLoaded
+                  !canReplaceCurriculum && !canReplaceQuiz
                     ? "curriculum and quiz"
-                    : !curriculumLoaded
+                    : !canReplaceCurriculum
                       ? "curriculum"
                       : "quiz"
                 } could not be loaded, so what you see here is empty. Saving will leave the saved version untouched — reload before editing it.`}

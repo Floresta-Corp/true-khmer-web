@@ -3,8 +3,8 @@ import type { Route } from "project-types/course-builder/route/+types/course-bui
 import {
   getCourseById,
   getCourseCategories,
-  getCourseCurriculum,
-  getCourseQuiz,
+  readCourseCurriculum,
+  readCourseQuiz,
 } from "~/api/education/education.server";
 import {
   BuilderStepSchema,
@@ -46,8 +46,8 @@ export async function courseBuilderEditLoader({
     await Promise.all([
       getCourseCategories(request),
       getCourseById(request, params.id),
-      getCourseCurriculum(request, params.id),
-      getCourseQuiz(request, params.id),
+      readCourseCurriculum(request, params.id),
+      readCourseQuiz(request, params.id),
     ]);
 
   const course = courseResult?.data?.course ?? null;
@@ -102,35 +102,42 @@ export async function courseBuilderEditLoader({
   // The saved curriculum, mapped into the builder's shape. No fixture
   // fallback: a full-replace save would write those fixtures over the real
   // curriculum the next time the creator pressed Save.
-  const sections: BuilderSection[] = (
-    curriculumResult?.data?.curriculum.chapters ?? []
-  ).map((chapter) => ({
-    id: chapter.id,
-    title: chapter.title,
-    lessons: chapter.lessons.map((lesson) => ({
-      id: lesson.id,
-      title: lesson.title,
-      type:
-        lesson.type === "PDF"
-          ? ("pdf" as const)
-          : lesson.type === "AUDIO"
-            ? ("audio" as const)
-            : ("video" as const),
-      duration: "",
-      isPreview: lesson.isPreview,
-      isComplete: false,
-      url: lesson.url,
-      assetKey: lesson.assetKey,
-    })),
-  }));
+  const savedCurriculum =
+    curriculumResult.status === "loaded"
+      ? curriculumResult.result.data.curriculum
+      : null;
 
-  // Whether the saved content actually came back, as opposed to being absent.
-  // A save replaces wholesale, so the builder must not send a curriculum it
-  // never managed to load — that would delete the real one.
-  const curriculumLoaded = Boolean(curriculumResult?.data?.curriculum);
-  const quizLoaded = Boolean(quizResult?.data?.quiz);
+  const sections: BuilderSection[] = (savedCurriculum?.chapters ?? []).map(
+    (chapter) => ({
+      id: chapter.id,
+      title: chapter.title,
+      lessons: chapter.lessons.map((lesson) => ({
+        id: lesson.id,
+        title: lesson.title,
+        type:
+          lesson.type === "PDF"
+            ? ("pdf" as const)
+            : lesson.type === "AUDIO"
+              ? ("audio" as const)
+              : ("video" as const),
+        duration: "",
+        isPreview: lesson.isPreview,
+        isComplete: false,
+        url: lesson.url,
+        assetKey: lesson.assetKey,
+      })),
+    }),
+  );
 
-  const quiz = quizResult?.data?.quiz ?? null;
+  // A save replaces the curriculum and quiz wholesale, so the builder must not
+  // send one it failed to read — that would delete the real one. A course that
+  // simply has none yet is a different matter: the builder has to be allowed to
+  // send its first curriculum, so only a failed read blocks the replacement.
+  const canReplaceCurriculum = curriculumResult.status !== "unreadable";
+  const canReplaceQuiz = quizResult.status !== "unreadable";
+
+  const quiz =
+    quizResult.status === "loaded" ? quizResult.result.data.quiz : null;
   const questions: QuizQuestion[] = (quiz?.questions ?? []).map((question) => ({
     id: question.id,
     text: question.question,
@@ -146,8 +153,8 @@ export async function courseBuilderEditLoader({
     draft,
     sections,
     courseStatus: course.status,
-    curriculumLoaded,
-    quizLoaded,
+    canReplaceCurriculum,
+    canReplaceQuiz,
     certificate,
     format,
     passMark: String(quiz?.passMark ?? 70),

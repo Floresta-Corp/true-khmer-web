@@ -1,6 +1,8 @@
 import {
+  type ApiResult,
   apiRequestWithOptionalSession,
   apiRequestWithSession,
+  AuthSessionExpiredError,
   isResourceUnavailable,
   ProtectedApiError,
 } from "~/lib/server/api-client.server";
@@ -174,6 +176,12 @@ export async function presignCourseCover(
 export type LessonAssetType = "YOUTUBE" | "PDF" | "AUDIO";
 
 export interface LessonInput {
+  /**
+   * Sent back for a lesson that already exists, so the API updates it in place
+   * instead of recreating it. Recorded learner progress is keyed on the lesson
+   * id, so dropping this from a save would reset every learner's completions.
+   */
+  id?: string | null;
   title: string;
   type: LessonAssetType;
   url?: string | null;
@@ -182,9 +190,16 @@ export interface LessonInput {
   isPreview?: boolean;
 }
 
+export interface ChapterInput {
+  /** As with a lesson: present for a section the course already has. */
+  id?: string | null;
+  title: string;
+  lessons: LessonInput[];
+}
+
 export interface ReplaceCurriculumBody {
   format: "MULTI" | "SINGLE";
-  chapters: { title: string; lessons: LessonInput[] }[];
+  chapters: ChapterInput[];
 }
 
 export interface ReplaceQuizBody {
@@ -248,8 +263,12 @@ export interface CourseProgressResponse {
 
 /**
  * The signed-in learner's completed lessons. Returns null when nobody is
- * signed in or the deployment predates the progress resource, so the learning
- * screen falls back to an empty set rather than failing to load.
+ * signed in or the deployment has no progress resource, so the learning screen
+ * falls back to an empty set rather than failing to load.
+ *
+ * Only those two cases are absorbed: a bare catch here also swallowed the
+ * login redirect a failed token refresh throws, and turned a broken API into
+ * "nothing watched yet" — which reads as lost progress.
  */
 export async function getCourseProgress(request: Request, courseId: string) {
   try {
@@ -258,8 +277,10 @@ export async function getCourseProgress(request: Request, courseId: string) {
       `/education-center/courses/${encodeURIComponent(courseId)}/progress`,
       { method: "GET" },
     );
-  } catch {
-    return null;
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) return null;
+    if (isResourceUnavailable(error, "course progress")) return null;
+    throw error;
   }
 }
 
@@ -296,6 +317,9 @@ export interface CourseStatsResponse {
  * The creator's own learner figures, derived from recorded lesson progress.
  * Owner-only; returns null for anyone else or on a deployment without the
  * endpoint, so the manage screen renders empty rather than failing.
+ *
+ * A 403 counts as "not yours to see". Anything else still throws, so a failing
+ * stats service is not reported to the creator as zero learners.
  */
 export async function getCourseStats(request: Request, courseId: string) {
   try {
@@ -304,8 +328,11 @@ export async function getCourseStats(request: Request, courseId: string) {
       `/education-center/courses/${encodeURIComponent(courseId)}/stats`,
       { method: "GET" },
     );
-  } catch {
-    return null;
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) return null;
+    if (error instanceof ProtectedApiError && error.status === 403) return null;
+    if (isResourceUnavailable(error, "course stats")) return null;
+    throw error;
   }
 }
 
@@ -382,36 +409,159 @@ export interface CourseQuizResponse {
 }
 
 /**
- * The saved curriculum. Returns null when the API has no curriculum resource,
- * so the builder can still open against an older deployment.
+ * Why a curriculum or quiz read came back with nothing.
+ *
+ * The two empty cases are not interchangeable. `absent` is a course that has
+ * none saved yet; `unreadable` is a read that failed. A save replaces the
+ * curriculum wholesale, so the builder may send one for the first case and
+ * must not for the second — collapsing both to `null` left a draft with no
+ * curriculum unable to ever gain one.
  */
-export async function getCourseCurriculum(request: Request, courseId: string) {
+export type CourseContentRead<T> =
+  | { status: "loaded"; result: ApiResult<T> }
+  | { status: "absent" }
+  | { status: "unreadable" };
+
+/** The saved curriculum, with the reason behind an empty answer. */
+export async function readCourseCurriculum(
+  request: Request,
+  courseId: string,
+): Promise<CourseContentRead<CourseCurriculumResponse>> {
   try {
-    return await apiRequestWithOptionalSession<CourseCurriculumResponse>(
-      request,
-      `/education-center/courses/${encodeURIComponent(courseId)}/curriculum`,
-      { method: "GET" },
-    );
+    return {
+      status: "loaded",
+      result: await apiRequestWithOptionalSession<CourseCurriculumResponse>(
+        request,
+        `/education-center/courses/${encodeURIComponent(courseId)}/curriculum`,
+        { method: "GET" },
+      ),
+    };
   } catch (error) {
-    if (error instanceof ProtectedApiError && error.status === 404) return null;
-    if (isResourceUnavailable(error, "course curriculum")) return null;
+    if (error instanceof ProtectedApiError && error.status === 404) {
+      return { status: "absent" };
+    }
+    if (isResourceUnavailable(error, "course curriculum")) {
+      return { status: "unreadable" };
+    }
     throw error;
   }
 }
 
+/** The saved quiz, answer key included, with the reason behind an empty answer. */
+export async function readCourseQuiz(
+  request: Request,
+  courseId: string,
+): Promise<CourseContentRead<CourseQuizResponse>> {
+  try {
+    return {
+      status: "loaded",
+      result: await apiRequestWithSession<CourseQuizResponse>(
+        request,
+        `/education-center/courses/${encodeURIComponent(courseId)}/quiz`,
+        { method: "GET" },
+      ),
+    };
+  } catch (error) {
+    if (error instanceof ProtectedApiError && error.status === 404) {
+      return { status: "absent" };
+    }
+    if (isResourceUnavailable(error, "course quiz")) {
+      return { status: "unreadable" };
+    }
+    throw error;
+  }
+}
+
+/**
+ * The saved curriculum. Returns null when the API has no curriculum resource,
+ * so the builder can still open against an older deployment.
+ */
+export async function getCourseCurriculum(request: Request, courseId: string) {
+  const read = await readCourseCurriculum(request, courseId);
+  return read.status === "loaded" ? read.result : null;
+}
+
 /** The saved quiz, answer key included. Owner-only on the API. */
 export async function getCourseQuiz(request: Request, courseId: string) {
+  const read = await readCourseQuiz(request, courseId);
+  return read.status === "loaded" ? read.result : null;
+}
+
+export interface LearnerCourseQuizResponse {
+  ok: true;
+  quiz: {
+    passMark: number;
+    questions: {
+      id: string;
+      question: string;
+      position: number;
+      options: { id: string; label: string; position: number }[];
+    }[];
+  };
+}
+
+/**
+ * The quiz as a learner sits it: the questions, with no `isCorrect` on any
+ * option.
+ *
+ * `getCourseQuiz` above carries the answer key and so answers for the creator
+ * alone — it is no use to a learner. This one has the same visibility as the
+ * curriculum: any published course, plus the creator's own drafts. Returns
+ * null when the course has no quiz, or on a deployment without the resource.
+ */
+export async function getLearnerCourseQuiz(request: Request, courseId: string) {
   try {
-    return await apiRequestWithSession<CourseQuizResponse>(
+    return await apiRequestWithOptionalSession<LearnerCourseQuizResponse>(
       request,
-      `/education-center/courses/${encodeURIComponent(courseId)}/quiz`,
+      `/education-center/courses/${encodeURIComponent(
+        courseId,
+      )}/quiz/questions`,
       { method: "GET" },
     );
   } catch (error) {
     if (error instanceof ProtectedApiError && error.status === 404) return null;
-    if (isResourceUnavailable(error, "course quiz")) return null;
+    if (isResourceUnavailable(error, "learner course quiz")) return null;
     throw error;
   }
+}
+
+export interface QuizAttemptAnswer {
+  questionId: string;
+  optionId: string;
+}
+
+export interface GradeQuizAttemptResponse {
+  ok: true;
+  result: {
+    correctCount: number;
+    /** The questions that could be marked — what the score is out of. */
+    totalCount: number;
+    percent: number;
+    passMark: number;
+    passed: boolean;
+  };
+}
+
+/**
+ * Marks one attempt at the final quiz.
+ *
+ * Grading is the API's job because the answer key never leaves it. Attempts
+ * are not stored — there is no attempt resource — so this returns the result
+ * and nothing else remembers it.
+ */
+export async function gradeCourseQuizAttempt(
+  request: Request,
+  courseId: string,
+  answers: QuizAttemptAnswer[],
+) {
+  return apiRequestWithSession<
+    GradeQuizAttemptResponse,
+    { answers: QuizAttemptAnswer[] }
+  >(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/quiz/attempt`,
+    { method: "POST", body: { answers } },
+  );
 }
 
 export interface PublicCourseListItem {

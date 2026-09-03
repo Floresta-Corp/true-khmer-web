@@ -26,7 +26,21 @@ const LessonSchema = z.object({
   id: z.string().uuid().nullish(),
   title: z.string().trim().min(1).max(255),
   type: z.enum(["YOUTUBE", "PDF", "AUDIO"]),
-  url: z.string().trim().url().max(2000).nullish(),
+  /**
+   * A web address, and only that. `z.string().url()` also accepts
+   * `javascript:` and `data:`, and this value is rendered as a link on the
+   * admin review screen and framed on the learner screen — so a creator could
+   * otherwise store a script URL that runs in a moderator's session.
+   */
+  url: z
+    .string()
+    .trim()
+    .url()
+    .max(2000)
+    .refine((value) => /^https?:\/\//i.test(value), {
+      message: "must be an http or https link",
+    })
+    .nullish(),
   assetKey: z.string().trim().min(1).max(600).nullish(),
   durationSeconds: z.number().int().nonnegative().nullish(),
   isPreview: z.boolean().optional(),
@@ -205,31 +219,9 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
     ...fields
   } = parsed.data;
 
-  // The API refuses edits to a course under review or already live. Surfacing
-  // its message beats an error boundary that just says something went wrong.
-  let saved;
-  try {
-    saved = courseId
-      ? await updateCourse(request, courseId, {
-          ...fields,
-          coverImageKey: fields.coverImageKey ?? null,
-        })
-      : await createCourse(request, fields);
-  } catch (error) {
-    if (error instanceof ProtectedApiError && error.status < 500) {
-      return withAuthData(
-        auth,
-        { ok: false as const, fieldErrors: {}, error: error.message },
-        { status: error.status },
-      );
-    }
-    throw error;
-  }
-
-  let course = saved.data.course;
-
-  // The course row has to exist before its curriculum can hang off it, so the
-  // rest of the wizard is saved here rather than in the same request.
+  // Parsed before the course row is written, not after: a malformed curriculum
+  // used to be reported only once `createCourse` had already left a row behind,
+  // and every retry added another orphan.
   const meta = readJsonField(rawMeta, MetaSchema, "course details");
   const curriculum = readJsonField(
     rawCurriculum,
@@ -244,11 +236,65 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
   if (invalid && invalid.status === "invalid") {
     return withAuthData(
       auth,
-      { ok: false as const, fieldErrors: {}, error: invalid.message },
+      {
+        ok: false as const,
+        fieldErrors: {},
+        error: invalid.message,
+        courseId,
+      },
       { status: 400 },
     );
   }
 
+  // The API refuses edits to a course under review or already live. Surfacing
+  // its message beats an error boundary that just says something went wrong.
+  let saved;
+  try {
+    saved = courseId
+      ? await updateCourse(request, courseId, {
+          ...fields,
+          coverImageKey: fields.coverImageKey ?? null,
+        })
+      : await createCourse(request, fields);
+  } catch (error) {
+    if (error instanceof ProtectedApiError && error.status < 500) {
+      return withAuthData(
+        auth,
+        {
+          ok: false as const,
+          fieldErrors: {},
+          error: error.message,
+          courseId,
+        },
+        { status: error.status },
+      );
+    }
+    throw error;
+  }
+
+  let course = saved.data.course;
+
+  /**
+   * Every failure past this point carries the course id back.
+   *
+   * The row exists by now, so a client that did not learn its id would post
+   * the next Save without one and create a second course — one more orphan per
+   * retry.
+   */
+  const failed = (error: ProtectedApiError) =>
+    withAuthData(
+      auth,
+      {
+        ok: false as const,
+        fieldErrors: {},
+        error: error.message,
+        courseId: course.id,
+      },
+      { status: error.status },
+    );
+
+  // The course row has to exist before its curriculum can hang off it, so the
+  // rest of the wizard is saved here rather than in the same request.
   try {
     if (meta.status === "ok") {
       const updated = await updateCourseMeta(request, course.id, meta.value);
@@ -262,24 +308,20 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
     if (quiz.status === "ok") {
       await replaceCourseQuiz(request, course.id, quiz.value);
     }
+
+    if (intent === "submit") {
+      const submitted = await submitCourseForReview(request, course.id);
+      return withAuthData(auth, {
+        ok: true as const,
+        intent,
+        course: submitted.data.course,
+      });
+    }
   } catch (error) {
     if (error instanceof ProtectedApiError && error.status < 500) {
-      return withAuthData(
-        auth,
-        { ok: false as const, fieldErrors: {}, error: error.message },
-        { status: error.status },
-      );
+      return failed(error);
     }
     throw error;
-  }
-
-  if (intent === "submit") {
-    const submitted = await submitCourseForReview(request, course.id);
-    return withAuthData(auth, {
-      ok: true as const,
-      intent,
-      course: submitted.data.course,
-    });
   }
 
   return withAuthData(auth, { ok: true as const, intent, course });

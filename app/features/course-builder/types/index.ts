@@ -167,6 +167,17 @@ export interface LessonDraft {
   assetKey: string | null;
 }
 
+/**
+ * The draft changes with its source, so the previous source's content goes.
+ *
+ * Carrying it over meant a PDF's upload key stayed on a lesson the creator
+ * then switched to Audio: the readiness check still passed and the PDF was
+ * saved as the audio lesson's file.
+ */
+export function lessonSourceChange(source: LessonSource): Partial<LessonDraft> {
+  return { source, url: "", fileName: null, assetKey: null };
+}
+
 export function emptyLessonDraft(): LessonDraft {
   return {
     title: "",

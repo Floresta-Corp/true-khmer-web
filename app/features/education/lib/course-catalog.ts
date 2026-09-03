@@ -56,6 +56,29 @@ export const CATALOG_SORT_LABELS: Record<CatalogSort, string> = {
   az: "A\u2013Z",
 };
 
+/**
+ * The `sortBy` each option asks the API for, or `null` when the API cannot
+ * order by it.
+ *
+ * The catalogue is paged server-side, so the order has to come from the API.
+ * Popularity and rating have no data behind them — enrolment and reviews have
+ * no resource — and quietly sending `newest` for them answered a different
+ * question than the learner asked. They are offered as disabled instead.
+ */
+export const CATALOG_SORT_QUERY: Record<
+  CatalogSort,
+  "newest" | "oldest" | "az" | "price" | null
+> = {
+  newest: "newest",
+  popular: null,
+  rating: null,
+  az: "az",
+};
+
+export function isSortServable(sort: CatalogSort) {
+  return CATALOG_SORT_QUERY[sort] !== null;
+}
+
 /** "Newest" is the catalogue's own order — the design applies no comparator. */
 export function sortCourses(
   courses: CourseSummary[],
@@ -87,6 +110,20 @@ export const CATALOG_TYPE_LABELS: Record<CatalogType, string> = {
   all: "All",
   courses: "Courses",
   ks: "Knowledge Sharing",
+};
+
+/**
+ * Which type filters the catalogue can actually answer.
+ *
+ * Every published row the API serves is a course; there is no knowledge-sharing
+ * resource and no parameter to filter on one. "Knowledge Sharing" is therefore
+ * offered as disabled rather than returning the full course list under a label
+ * that promises something else.
+ */
+export const CATALOG_TYPE_SERVABLE: Record<CatalogType, boolean> = {
+  all: true,
+  courses: true,
+  ks: false,
 };
 
 export function matchesType(course: CourseSummary, type: CatalogType) {

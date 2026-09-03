@@ -139,26 +139,23 @@ export interface QuizAnswerOption {
   label: string;
 }
 
-export interface QuizQuestion {
+/**
+ * A question as the learner sits it.
+ *
+ * There is no answer-key counterpart on purpose: the API marks the attempt, so
+ * the correct option is never part of any shape this app holds.
+ */
+export interface PublicQuizQuestion {
   id: string;
   question: string;
   options: QuizAnswerOption[];
-  correctOptionId: string;
 }
 
-/** A question as sent to the browser — the correct answer is withheld. */
-export type PublicQuizQuestion = Omit<QuizQuestion, "correctOptionId">;
-
-export interface CourseQuiz {
+export interface PublicCourseQuiz {
   id: string;
   courseId: string;
   /** Percentage needed to pass, e.g. 70. */
   passMark: number;
-  questions: QuizQuestion[];
-}
-
-/** The quiz as sent to the browser. */
-export interface PublicCourseQuiz extends Omit<CourseQuiz, "questions"> {
   questions: PublicQuizQuestion[];
 }
 

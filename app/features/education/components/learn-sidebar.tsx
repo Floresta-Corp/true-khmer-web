@@ -178,17 +178,10 @@ export function LearnSidebar({
         })}
       </div>
 
-      {isFullyDone ? (
-        <div className="shrink-0 border-t border-[#E5E7EB] px-5 py-3.5">
-          <Link
-            to={`/education/${course.id}/certificate`}
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-[#1C5DD4] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#174FB4]"
-          >
-            <Award className="size-4" aria-hidden />
-            View my certificate
-          </Link>
-        </div>
-      ) : hasQuiz ? (
+      {/* The quiz comes first, and it is what finishing every chapter unlocks.
+          Both used to hang off one ternary, which made a completed course jump
+          straight to the certificate and left its quiz unreachable. */}
+      {hasQuiz && (
         <Link
           to={quizUnlocked ? `/education/${course.id}/quiz` : "#"}
           aria-disabled={!quizUnlocked}
@@ -224,7 +217,19 @@ export function LearnSidebar({
             </span>
           </span>
         </Link>
-      ) : null}
+      )}
+
+      {isFullyDone && (
+        <div className="shrink-0 border-t border-[#E5E7EB] px-5 py-3.5">
+          <Link
+            to={`/education/${course.id}/certificate`}
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-[#1C5DD4] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#174FB4]"
+          >
+            <Award className="size-4" aria-hidden />
+            View my certificate
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

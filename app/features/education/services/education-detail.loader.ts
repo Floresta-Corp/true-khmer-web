@@ -4,11 +4,10 @@ import {
   getCourseById,
   getCourseCategories,
   getCourseCurriculum,
-  getCourseQuiz,
+  getLearnerCourseQuiz,
   listPublicCourses,
 } from "~/api/education/education.server";
 import { GetProfileById } from "~/api/profile/profile.server";
-import { getOptionalUser } from "~/lib/server/route-guards.server";
 import { resolveImageURL } from "~/lib/utils";
 import { toTelHref } from "~/features/education/lib/phone";
 import { toCourseSummary } from "~/features/education/lib/map-catalog";
@@ -142,9 +141,8 @@ export async function loadCourseDetail(
         value: course.price > 0 ? `$${course.price.toFixed(2)}` : "Free",
       },
     ],
-    // No public field says whether a course has a quiz — the only quiz endpoint
-    // is owner-only — so it is reported as absent here and raised by the detail
-    // loader when the API actually confirms one.
+    // Raised by whichever loader asked `loadCourseHasQuiz`; this shape is
+    // shared with screens that do not need the extra round trip.
     hasQuiz: false,
     // The creator picks this in the builder; it is the real source for the
     // certificate line rather than anything inferred from the quiz.
@@ -171,23 +169,17 @@ export async function loadCourseDetail(
 /**
  * Whether the course actually has a quiz.
  *
- * `GET /courses/:id/quiz` is owner-only and needs a session, so it is only
- * attempted for a signed-in viewer and any failure means "cannot tell". A
- * learner who does not own the course therefore sees no quiz rather than an
- * invented one — there is no public field that reports this.
+ * Read from the learner's copy of the quiz, which answers for any course the
+ * viewer can see. The owner-only answer-key endpoint used to stand in for this
+ * and made every course look quizless to everyone but its creator — so the
+ * "Final quiz" row and the What's-included line never appeared for a learner.
  */
 export async function loadCourseHasQuiz(
   request: Request,
   courseId: string,
 ): Promise<boolean> {
-  if (!(await getOptionalUser(request))) return false;
-
-  try {
-    const quizRes = await getCourseQuiz(request, courseId);
-    return (quizRes?.data?.quiz?.questions?.length ?? 0) > 0;
-  } catch {
-    return false;
-  }
+  const response = await getLearnerCourseQuiz(request, courseId);
+  return (response?.data?.quiz?.questions?.length ?? 0) > 0;
 }
 
 export async function educationDetailLoader({

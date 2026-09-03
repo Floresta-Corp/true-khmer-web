@@ -5,6 +5,7 @@ import {
   LESSON_FIELD_LABELS,
   LESSON_SOURCES,
   LESSON_SOURCE_LABELS,
+  lessonSourceChange,
   type LessonDraft,
   type LessonSource,
 } from "~/features/course-builder/types";
@@ -90,7 +91,7 @@ export function AddLessonModal({
                       key={source}
                       type="button"
                       aria-pressed={active}
-                      onClick={() => onChange({ source })}
+                      onClick={() => onChange(lessonSourceChange(source))}
                       className={cn(
                         "flex cursor-pointer items-center gap-2.5 rounded-lg border px-3.5 py-2.5 text-sm font-semibold transition-colors",
                         active

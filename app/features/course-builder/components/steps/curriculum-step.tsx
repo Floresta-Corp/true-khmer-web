@@ -15,6 +15,7 @@ import {
   LESSON_SOURCES,
   LESSON_SOURCE_CARDS,
   LESSON_SOURCE_SUBTITLES,
+  lessonSourceChange,
   type CourseFormat,
   type CourseFormatOption,
   type LessonDraft,
@@ -233,7 +234,7 @@ export function CurriculumStep({
                       key={source}
                       type="button"
                       aria-pressed={active}
-                      onClick={() => onLessonChange({ source })}
+                      onClick={() => onLessonChange(lessonSourceChange(source))}
                       className={cn(
                         "flex flex-1 cursor-pointer items-center gap-3 rounded-lg border p-3.5 text-left transition-colors sm:min-w-[210px] sm:flex-none",
                         active

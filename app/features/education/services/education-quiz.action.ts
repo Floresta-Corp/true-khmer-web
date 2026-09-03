@@ -1,16 +1,22 @@
 import type { ActionFunctionArgs } from "react-router";
-import { loadCourseQuiz } from "~/features/education/lib/map-quiz";
+import { gradeCourseQuizAttempt } from "~/api/education/education.server";
+import { readQuizAnswers } from "~/features/education/lib/quiz-answers";
 import type { QuizAttemptResult } from "~/features/education/types";
+import {
+  AuthSessionExpiredError,
+  ProtectedApiError,
+} from "~/lib/server/api-client.server";
 
 export type QuizActionResult =
   | { ok: true; result: QuizAttemptResult }
   | { ok: false; message: string };
 
 /**
- * Grades a final-quiz attempt against the course's saved quiz.
+ * Sends a final-quiz attempt to be marked.
  *
- * Attempts are not persisted — the API has no attempt resource — but grading
- * happens here so the correct answers never reach the browser.
+ * The API grades it: the answer key lives there and nowhere else, so neither
+ * the browser nor this server ever holds it. Attempts are not persisted —
+ * there is no attempt resource yet — so the result is shown and not stored.
  */
 export async function educationQuizAction({
   params,
@@ -22,31 +28,26 @@ export async function educationQuizAction({
   }
 
   const formData = await request.formData();
-  const quiz = await loadCourseQuiz(request, courseId);
 
-  if (!quiz) {
-    return { ok: false, message: "This course has no quiz available." };
-  }
+  try {
+    const response = await gradeCourseQuizAttempt(
+      request,
+      courseId,
+      readQuizAnswers(formData),
+    );
 
-  let correctCount = 0;
-  for (const question of quiz.questions) {
-    const answer = formData.get(`answer:${question.id}`);
-    if (typeof answer === "string" && answer === question.correctOptionId) {
-      correctCount += 1;
+    const { correctCount, totalCount, percent, passed } = response.data.result;
+    return { ok: true, result: { correctCount, totalCount, percent, passed } };
+  } catch (error) {
+    // Marking is signed-in only, so that it stays attributable once attempts
+    // are worth recording. The quiz itself is readable without a session, so
+    // this is a reachable state rather than an impossible one.
+    if (error instanceof AuthSessionExpiredError) {
+      return { ok: false, message: "Sign in to submit your answers." };
     }
+    if (error instanceof ProtectedApiError) {
+      return { ok: false, message: error.message };
+    }
+    throw error;
   }
-
-  const totalCount = quiz.questions.length;
-  const percent =
-    totalCount === 0 ? 0 : Math.round((correctCount / totalCount) * 100);
-
-  return {
-    ok: true,
-    result: {
-      correctCount,
-      totalCount,
-      percent,
-      passed: percent >= quiz.passMark,
-    },
-  };
 }

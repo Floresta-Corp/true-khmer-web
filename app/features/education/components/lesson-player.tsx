@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { Maximize2, Minimize2, Pause, Play } from "lucide-react";
-import { cn } from "~/lib/utils";
+import { cn, getSafeExternalUrl } from "~/lib/utils";
 import type { ActiveLesson } from "~/features/education/types";
 
 /** youtu.be/ID, /watch?v=ID, /embed/ID and /shorts/ID all reduce to an id. */
@@ -72,6 +72,15 @@ function VideoLesson({ lesson, overlay, flush }: LessonPlayerProps) {
           allowFullScreen
           className="size-full border-0"
         />
+
+        {/* The same top layer the simulated player draws. Dropping it here
+            took the lesson title, Share, Report and the button that reopens
+            the content panel off every real YouTube lesson. */}
+        {overlay && (
+          <div className="pointer-events-none absolute inset-x-0 top-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.7)_0%,rgba(0,0,0,0.35)_60%,transparent_100%)] px-5 pt-4 pb-8">
+            <div className="pointer-events-auto">{overlay}</div>
+          </div>
+        )}
       </div>
     );
   }
@@ -165,7 +174,12 @@ function SimulatedVideoLesson({ lesson, overlay, flush }: LessonPlayerProps) {
 }
 
 function PdfLesson({ lesson, overlay, flush }: LessonPlayerProps) {
-  if (lesson.sourceUrl) {
+  // The creator supplies this url, so it is framed only if it is a web
+  // address, and sandboxed either way: a document served from storage needs no
+  // more than its own scripts, and must not navigate the learner away.
+  const src = getSafeExternalUrl(lesson.sourceUrl);
+
+  if (src) {
     return (
       <div>
         {overlay && <MediaBar>{overlay}</MediaBar>}
@@ -176,8 +190,9 @@ function PdfLesson({ lesson, overlay, flush }: LessonPlayerProps) {
           )}
         >
           <iframe
-            src={lesson.sourceUrl}
+            src={src}
             title={lesson.title}
+            sandbox="allow-scripts allow-same-origin"
             className="size-full border-0"
           />
         </div>
@@ -232,7 +247,9 @@ function SimulatedPdfLesson({ flush }: { flush?: boolean }) {
 }
 
 function AudioLesson({ lesson, overlay, flush }: LessonPlayerProps) {
-  if (lesson.sourceUrl) {
+  const src = getSafeExternalUrl(lesson.sourceUrl);
+
+  if (src) {
     return (
       <div>
         {overlay && <MediaBar>{overlay}</MediaBar>}
@@ -242,12 +259,7 @@ function AudioLesson({ lesson, overlay, flush }: LessonPlayerProps) {
           <p className="mb-4 text-sm font-bold text-[#1A1A2E]">
             {lesson.title}
           </p>
-          <audio
-            controls
-            preload="metadata"
-            src={lesson.sourceUrl}
-            className="w-full"
-          >
+          <audio controls preload="metadata" src={src} className="w-full">
             Your browser cannot play this audio.
           </audio>
         </div>

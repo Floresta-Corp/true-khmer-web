@@ -30,6 +30,19 @@ export function useQuizDraft(initial?: {
   // so two adds in one render cannot be handed the same number.
   const seq = useRef(0);
 
+  /**
+   * Answer ids come off their own counter rather than the row's position.
+   *
+   * Numbering by `answers.length` reissued an id after a removal — deleting
+   * answer 2 of 3 and adding one produced a second `-a3`, and typing in either
+   * row then edited both.
+   */
+  const answerSeq = useRef(0);
+  const nextAnswerId = useCallback((questionId: string) => {
+    answerSeq.current += 1;
+    return `${questionId}-a${answerSeq.current}`;
+  }, []);
+
   const addQuestion = useCallback(() => {
     seq.current += 1;
     const id = `q-${seq.current}`;
@@ -40,7 +53,7 @@ export function useQuizDraft(initial?: {
         id,
         text: "",
         answers: Array.from({ length: DEFAULT_ANSWER_COUNT }, (_, index) => ({
-          id: `${id}-a${index + 1}`,
+          id: nextAnswerId(id),
           text: "",
           // A question needs one right answer, so the first starts marked.
           correct: index === 0,
@@ -48,7 +61,7 @@ export function useQuizDraft(initial?: {
       },
     ]);
     setActiveId(id);
-  }, []);
+  }, [nextAnswerId]);
 
   const removeQuestion = useCallback((id: string) => {
     setQuestions((current) => current.filter((question) => question.id !== id));
@@ -109,16 +122,12 @@ export function useQuizDraft(initial?: {
               ...question,
               answers: [
                 ...question.answers,
-                {
-                  id: `${id}-a${question.answers.length + 1}`,
-                  text: "",
-                  correct: false,
-                },
+                { id: nextAnswerId(id), text: "", correct: false },
               ],
             },
       );
     },
-    [patchQuestion],
+    [patchQuestion, nextAnswerId],
   );
 
   const removeAnswer = useCallback(
@@ -143,6 +152,8 @@ export function useQuizDraft(initial?: {
     [patchQuestion],
   );
 
+  const closeQuestion = useCallback(() => setActiveId(null), []);
+
   const activeQuestion = useMemo(() => {
     if (!activeId) return null;
     const index = questions.findIndex((question) => question.id === activeId);
@@ -164,7 +175,7 @@ export function useQuizDraft(initial?: {
     removeAnswer,
     activeQuestion,
     openQuestion: setActiveId,
-    closeQuestion: () => setActiveId(null),
+    closeQuestion,
   };
 }
 

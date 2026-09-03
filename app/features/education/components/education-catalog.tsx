@@ -11,6 +11,8 @@ import {
   CATALOG_SORT_LABELS,
   CATALOG_TYPES,
   CATALOG_TYPE_LABELS,
+  CATALOG_TYPE_SERVABLE,
+  isSortServable,
 } from "~/features/education/lib/course-catalog";
 import type { educationCatalogLoader } from "~/features/education/services/education-catalog.loader";
 
@@ -24,18 +26,28 @@ function FilterRadio({
   label,
   checked,
   onSelect,
+  /** Set for a choice the API cannot answer; it stays visible but inert. */
+  unavailable = false,
 }: {
   name: string;
   label: string;
   checked: boolean;
   onSelect: () => void;
+  unavailable?: boolean;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2.5">
+    <label
+      title={unavailable ? "Not available yet" : undefined}
+      className={cn(
+        "flex items-center gap-2.5",
+        unavailable ? "cursor-not-allowed opacity-45" : "cursor-pointer",
+      )}
+    >
       <input
         type="radio"
         name={name}
         checked={checked}
+        disabled={unavailable}
         onChange={onSelect}
         className="peer sr-only"
       />
@@ -256,6 +268,7 @@ export function EducationCatalog() {
                   name="sort"
                   label={CATALOG_SORT_LABELS[value]}
                   checked={sort === value}
+                  unavailable={!isSortServable(value)}
                   onSelect={() =>
                     setFilter({ sort: value === "newest" ? null : value })
                   }
@@ -292,6 +305,7 @@ export function EducationCatalog() {
                   name="type"
                   label={CATALOG_TYPE_LABELS[value]}
                   checked={type === value}
+                  unavailable={!CATALOG_TYPE_SERVABLE[value]}
                   onSelect={() =>
                     setFilter({ type: value === "all" ? null : value })
                   }

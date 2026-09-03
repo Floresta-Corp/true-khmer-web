@@ -5,6 +5,8 @@ import {
 } from "~/api/education/education.server";
 import {
   CATALOG_PAGE_SIZE,
+  CATALOG_SORT_QUERY,
+  CATALOG_TYPE_SERVABLE,
   CatalogSortSchema,
   CatalogTypeSchema,
 } from "~/features/education/lib/course-catalog";
@@ -23,9 +25,17 @@ export async function educationCatalogLoader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const search = url.searchParams.get("search")?.trim() ?? "";
   const categoryId = url.searchParams.get("categoryId") || null;
-  const sort = CatalogSortSchema.parse(url.searchParams.get("sort"));
-  const type = CatalogTypeSchema.parse(url.searchParams.get("type"));
+  const requestedSort = CatalogSortSchema.parse(url.searchParams.get("sort"));
+  const requestedType = CatalogTypeSchema.parse(url.searchParams.get("type"));
   const requestedPage = Number(url.searchParams.get("page")) || 1;
+
+  // A sort or type the API cannot serve falls back to the default *and* is
+  // reported back as the default, so the panel shows the order the rows are
+  // actually in. Returning the requested value would leave the learner looking
+  // at newest-first under a "Most popular" heading.
+  const sortBy = CATALOG_SORT_QUERY[requestedSort];
+  const sort = sortBy ? requestedSort : "newest";
+  const type = CATALOG_TYPE_SERVABLE[requestedType] ? requestedType : "all";
 
   const [, categoriesRes, catalogueRes] = await Promise.all([
     getOptionalUser(request),
@@ -35,9 +45,7 @@ export async function educationCatalogLoader({ request }: Route.LoaderArgs) {
       limit: CATALOG_PAGE_SIZE,
       search: search || undefined,
       categoryId: categoryId ?? undefined,
-      // "newest" and "az" map straight across; the catalogue's popularity and
-      // rating sorts have no data behind them, so they fall back to newest.
-      sortBy: sort === "az" ? "az" : "newest",
+      sortBy: sortBy ?? "newest",
     }),
   ]);
 
