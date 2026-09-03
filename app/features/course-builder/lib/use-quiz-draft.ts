@@ -5,14 +5,6 @@ import {
   type QuizQuestion,
 } from "~/features/course-builder/types";
 
-/**
- * Quiz state for the builder's Quiz step.
- *
- * A course has one quiz, sat at the end, so questions are a single flat list.
- *
- * Seeded from the saved quiz when editing: a save replaces the quiz wholesale,
- * so starting empty here would wipe it.
- */
 export function useQuizDraft(initial?: {
   passMark?: string;
   questions?: QuizQuestion[];
@@ -22,21 +14,10 @@ export function useQuizDraft(initial?: {
     () => initial?.questions ?? [],
   );
 
-  /** The question the editor modal is open on. */
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  // Ids only have to be unique within the session, and a counter avoids the
-  // hydration mismatch a timestamp or random id would risk. It lives in a ref
-  // so two adds in one render cannot be handed the same number.
   const seq = useRef(0);
 
-  /**
-   * Answer ids come off their own counter rather than the row's position.
-   *
-   * Numbering by `answers.length` reissued an id after a removal — deleting
-   * answer 2 of 3 and adding one produced a second `-a3`, and typing in either
-   * row then edited both.
-   */
   const answerSeq = useRef(0);
   const nextAnswerId = useCallback((questionId: string) => {
     answerSeq.current += 1;
@@ -55,7 +36,6 @@ export function useQuizDraft(initial?: {
         answers: Array.from({ length: DEFAULT_ANSWER_COUNT }, (_, index) => ({
           id: nextAnswerId(id),
           text: "",
-          // A question needs one right answer, so the first starts marked.
           correct: index === 0,
         })),
       },
@@ -68,7 +48,6 @@ export function useQuizDraft(initial?: {
     setActiveId(null);
   }, []);
 
-  /** Applies `change` to the question with `id`, leaving the rest untouched. */
   const patchQuestion = useCallback(
     (id: string, change: (question: QuizQuestion) => QuizQuestion) => {
       setQuestions((current) =>
@@ -99,7 +78,6 @@ export function useQuizDraft(initial?: {
     [patchQuestion],
   );
 
-  /** Exactly one answer is correct, so marking one clears the rest. */
   const markCorrect = useCallback(
     (id: string, answerId: string) => {
       patchQuestion(id, (question) => ({
@@ -137,7 +115,6 @@ export function useQuizDraft(initial?: {
           (answer) => answer.id !== answerId,
         );
 
-        // Removing the correct answer would leave the question without one.
         return {
           ...question,
           answers: answers.some((answer) => answer.correct)

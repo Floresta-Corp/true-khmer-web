@@ -5,17 +5,12 @@ import { STEP_DEFINITIONS } from "../lib/builder-steps";
 import type { BuilderStep } from "../types";
 
 interface BuilderRailProps {
-  /** Only the steps this course has — the list is conditional. */
   steps: BuilderStep[];
   current: BuilderStep;
   title: string;
   onStepSelect: (step: BuilderStep) => void;
 }
 
-/**
- * The design's 300px left rail: a back link, the title, then one row per step
- * with a status circle and a connector line down to the next.
- */
 export function BuilderRail({
   steps,
   current,
@@ -46,7 +41,6 @@ export function BuilderRail({
           return (
             <div key={step} className="flex min-h-19 gap-3.5">
               <div className="flex shrink-0 flex-col items-center">
-                {/* 36px circle with 9px of padding, so the glyph fills 18px. */}
                 <span
                   className={cn(
                     "flex size-9 shrink-0 items-center justify-center rounded-full border p-2.25",

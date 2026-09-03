@@ -7,11 +7,6 @@ import { toCourseSummary } from "~/features/education/lib/map-catalog";
 import { getOptionalUser } from "~/lib/server/route-guards.server";
 import type { CourseCategory } from "~/features/education/types";
 
-/**
- * The hero's search suggestions. Static copy, exactly as the design has them —
- * it hardcodes the same three with a no-op handler, and there is no API that
- * suggests topics.
- */
 const HERO_TOPICS = [
   "Time management tips",
   "Tips for finding a mentor",
@@ -54,9 +49,6 @@ export async function educationLoader({ request }: EducationRoute.LoaderArgs) {
 
   const published = (catalogueRes?.data?.courses ?? []).map(toCourseSummary);
 
-  // Every row is a real published course. "Trending" has no ranking behind it
-  // — there is no enrolment data — so it shows the same newest-first set
-  // rather than pretending to a popularity order.
   return {
     displayName,
     topics: HERO_TOPICS,

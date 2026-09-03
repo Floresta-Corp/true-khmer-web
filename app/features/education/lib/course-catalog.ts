@@ -1,22 +1,11 @@
 import { z } from "zod";
 import type { CourseCategory, CourseSummary } from "~/features/education/types";
 
-/**
- * Catalogue filtering and sorting, shared by the Education hub and the
- * "View all" page so the two cannot drift apart.
- */
-
-/**
- * The catalogue matches on title alone — the design's All Courses screen
- * filters with `c.title.toLowerCase().includes(query)`. The hub's own search is
- * broader, so it keeps its own matcher below.
- */
 export function matchesTitle(course: CourseSummary, search: string) {
   if (!search) return true;
   return course.title.toLowerCase().includes(search.toLowerCase());
 }
 
-/** The hub searches across title, blurb, category and instructor. */
 export function matchesSearch(course: CourseSummary, search: string) {
   if (!search) return true;
   const needle = search.toLowerCase();
@@ -28,7 +17,6 @@ export function matchesSearch(course: CourseSummary, search: string) {
   );
 }
 
-/** Categories match on id, falling back to name for a differently-labelled one. */
 export function matchesCategory(
   course: CourseSummary,
   categoryId: string | null,
@@ -40,8 +28,6 @@ export function matchesCategory(
     course.categoryName.toLowerCase() === categoryName?.toLowerCase()
   );
 }
-
-/* -------------------------------- Sorting -------------------------------- */
 
 export const CATALOG_SORTS = ["newest", "popular", "rating", "az"] as const;
 
@@ -56,15 +42,6 @@ export const CATALOG_SORT_LABELS: Record<CatalogSort, string> = {
   az: "A\u2013Z",
 };
 
-/**
- * The `sortBy` each option asks the API for, or `null` when the API cannot
- * order by it.
- *
- * The catalogue is paged server-side, so the order has to come from the API.
- * Popularity and rating have no data behind them — enrolment and reviews have
- * no resource — and quietly sending `newest` for them answered a different
- * question than the learner asked. They are offered as disabled instead.
- */
 export const CATALOG_SORT_QUERY: Record<
   CatalogSort,
   "newest" | "oldest" | "az" | "price" | null
@@ -79,7 +56,6 @@ export function isSortServable(sort: CatalogSort) {
   return CATALOG_SORT_QUERY[sort] !== null;
 }
 
-/** "Newest" is the catalogue's own order — the design applies no comparator. */
 export function sortCourses(
   courses: CourseSummary[],
   sort: CatalogSort,
@@ -98,8 +74,6 @@ export function sortCourses(
   }
 }
 
-/* --------------------------------- Type ---------------------------------- */
-
 export const CATALOG_TYPES = ["all", "courses", "ks"] as const;
 
 export type CatalogType = (typeof CATALOG_TYPES)[number];
@@ -112,14 +86,6 @@ export const CATALOG_TYPE_LABELS: Record<CatalogType, string> = {
   ks: "Knowledge Sharing",
 };
 
-/**
- * Which type filters the catalogue can actually answer.
- *
- * Every published row the API serves is a course; there is no knowledge-sharing
- * resource and no parameter to filter on one. "Knowledge Sharing" is therefore
- * offered as disabled rather than returning the full course list under a label
- * that promises something else.
- */
 export const CATALOG_TYPE_SERVABLE: Record<CatalogType, boolean> = {
   all: true,
   courses: true,
@@ -132,9 +98,6 @@ export function matchesType(course: CourseSummary, type: CatalogType) {
   return type === "ks" ? isKnowledgeSharing : !isKnowledgeSharing;
 }
 
-/* ------------------------------ Pagination ------------------------------- */
-
-/** The design pages the grid at eight cards. */
 export const CATALOG_PAGE_SIZE = 8;
 
 export function pageOf(total: number, requested: number) {

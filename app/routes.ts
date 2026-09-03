@@ -69,8 +69,6 @@ export default [
       ),
       route("profile/:id", "features/profile/route/profile.$id.tsx"),
     ]),
-    // The course learning screen has no footer, so it sits outside
-    // `footer-layout` rather than inheriting the site-wide one.
     route(
       "education/:id/learn",
       "features/education/route/education.learn.$id.tsx",
@@ -108,8 +106,6 @@ export default [
     ]),
     route("notifications", "features/notifications/route/notifications.tsx"),
   ]),
-  // Standalone: the design gives the builder its own 100vh rail, so it sits
-  // outside the app shell rather than under the site header.
   route("education/create", "features/course-builder/route/course-builder.tsx"),
   route(
     "education/:id/edit",

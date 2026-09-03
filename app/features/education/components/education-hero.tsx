@@ -1,19 +1,10 @@
 import { Link } from "react-router";
 import { ArrowRight, Search, Sparkles } from "lucide-react";
 
-/**
- * The design's floating hero cards.
- *
- * Every value below is hardcoded in the design too — the mockup has literal
- * text, not bindings — and the API has no streak, goal, progress or platform
- * rating resource. They are presentational only: nothing here is read from,
- * or written to, a loader, so no invented figure reaches the data layer.
- */
 const CARD =
   "absolute hidden rounded-xl bg-white shadow-[0_8px_24px_rgba(26,26,46,0.14)] sm:block";
 
 interface EducationHeroProps {
-  /** The signed-in learner's name, or "there" for a visitor. */
   displayName: string;
   topics: string[];
   search: string;
@@ -101,10 +92,6 @@ export function EducationHero({
       </div>
 
       <div className="relative min-w-0">
-        {/* The photo is cropped to exactly this panel (1212x690 for a 606x345
-            box at 2x), so object-cover fills it without shifting the framing.
-            The gradient stays behind it as a backdrop. The cards below overlap
-            the panel edges, as in the design. */}
         <div className="h-70 overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#EEF3FD_0%,#F7F9FC_45%,#E4EDFB_100%)] sm:h-86.25">
           <img
             src="/images/education/hero-learner.webp"
@@ -115,7 +102,6 @@ export function EducationHero({
           />
         </div>
 
-        {/* Day streak */}
         <div className={`${CARD} top-4 -left-4 px-4 py-3`}>
           <div className="mb-1.5 text-[11px] text-[#9A9AB0]">
             Keep learning!
@@ -126,7 +112,6 @@ export function EducationHero({
           <div className="text-[10px] text-[#9A9AB0]">Day streak</div>
         </div>
 
-        {/* Continue learning */}
         <div className={`${CARD} bottom-14 -left-4 w-47.5 px-4.5 py-3.5`}>
           <div className="mb-2 text-[11px] text-[#9A9AB0]">
             Continue learning
@@ -145,7 +130,6 @@ export function EducationHero({
           <div className="mt-1.25 text-[10px] text-[#9A9AB0]">75% complete</div>
         </div>
 
-        {/* Your goal */}
         <div
           className={`${CARD} top-13 -right-4 min-w-45 px-4 py-3 whitespace-nowrap`}
         >
@@ -156,7 +140,6 @@ export function EducationHero({
           <div className="text-[10px] text-[#9A9AB0]">80%</div>
         </div>
 
-        {/* Platform rating */}
         <div
           className={`${CARD} -right-4 bottom-5 min-w-47.5 px-4 py-3 whitespace-nowrap`}
         >

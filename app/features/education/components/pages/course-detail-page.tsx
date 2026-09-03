@@ -15,10 +15,8 @@ import { CourseReviewsDialog } from "../course-reviews-dialog";
 import { StarRating } from "../star-rating";
 import type { educationDetailLoader } from "~/features/education/services/education-detail.loader";
 
-/** 19px/700 section heading, used for every block in the left column. */
 const HEADING = "mb-3.5 text-[19px] font-bold text-[#1A1A2E]";
 
-/** Reviews shown inline before the design's "Show all reviews" takes over. */
 const VISIBLE_REVIEWS = 3;
 
 export default function CourseDetailPage() {
@@ -27,7 +25,6 @@ export default function CourseDetailPage() {
   const prefersReducedMotion = useReducedMotion();
   const duration = prefersReducedMotion ? 0 : 0.35;
 
-  // Bookmarks and enrolment have no API resource yet.
   const [isSaved, setIsSaved] = useState(course.isSaved);
   const [savedRecommendations, setSavedRecommendations] = useState<Set<string>>(
     () => new Set(recommended.filter((c) => c.isSaved).map((c) => c.id)),
@@ -48,13 +45,9 @@ export default function CourseDetailPage() {
       try {
         await navigator.share({ title: course.title, url });
         return;
-      } catch {
-        // The user dismissed the share sheet — fall through to copying.
-      }
+      } catch {}
     }
 
-    // Clipboard access is refused outright in some browsers and contexts, and
-    // an unhandled rejection here left the learner with no feedback at all.
     try {
       await navigator.clipboard.writeText(url);
       toast.success("Link copied to clipboard");
@@ -63,19 +56,12 @@ export default function CourseDetailPage() {
     }
   };
 
-  // The design draws a download control in the action row but wires nothing to
-  // it, and the API has no course-materials endpoint. The PDF lessons are the
-  // only downloadable thing a course actually has, so the button opens those —
-  // and stays hidden when a course has none rather than doing nothing.
   const downloadable = course.curriculum
     .flatMap((section) => section.lessons)
     .filter((lesson) => lesson.type === "pdf")
     .map((lesson) => getSafeExternalUrl(lesson.sourceUrl))
     .filter((url): url is string => Boolean(url));
 
-  // One window per document: a browser blocks every popup after the first in
-  // the same gesture, so several documents open as one tab and a note saying
-  // where the rest are.
   const handleDownload = () => {
     window.open(downloadable[0], "_blank", "noopener,noreferrer");
     if (downloadable.length > 1) {
@@ -87,15 +73,12 @@ export default function CourseDetailPage() {
   const metaLine = `${course.level} · ${course.categoryName}`;
   const hasStarted = course.progressPercent > 0;
 
-  // The design's "What's included": the lesson count, the quiz when the course
-  // is graded, and the certificate it earns.
   const included = [
     {
       icon: Folder,
       label: `${course.lessonCount} lesson${course.lessonCount === 1 ? "" : "s"}`,
     },
     ...(course.hasQuiz ? [{ icon: Pencil, label: "Final quiz" }] : []),
-    // Only shown when the creator actually chose to issue a certificate.
     ...(course.certificateKind
       ? [
           {
@@ -152,8 +135,6 @@ export default function CourseDetailPage() {
           }}
         />
 
-        {/* The design puts the content and the curriculum side by side rather
-            than behind tabs. */}
         <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-16">
           <div className="min-w-0">
             <div className="mb-3.5 text-[11px] font-bold tracking-[0.08em] text-[#9A9AB0]">
@@ -243,8 +224,6 @@ export default function CourseDetailPage() {
               />
             </div>
 
-            {/* Reviews have no API resource, so the block only appears once a
-                course actually has some. */}
             {course.reviews.length > 0 && (
               <div>
                 <h3 className="mb-5 text-[19px] font-bold text-[#1A1A2E]">
@@ -267,8 +246,6 @@ export default function CourseDetailPage() {
                   ))}
                 </div>
 
-                {/* The design shows this whenever the review block is drawn,
-                    not only once the list overflows. */}
                 <button
                   type="button"
                   onClick={() => setIsReviewsOpen(true)}

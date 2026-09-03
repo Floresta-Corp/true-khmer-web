@@ -16,14 +16,6 @@ import type {
 } from "~/types/api-client";
 import type { CourseStatus } from "~/features/course-listing/types";
 
-/**
- * Education Center endpoints that exist on the API today.
- *
- * Enrolment, progress, ratings, reviews and certificates have no resource
- * here yet. The screens that would show them omit those blocks — nothing in
- * this feature substitutes placeholder data for a missing endpoint.
- */
-
 export async function getCourseCategories(request: Request) {
   try {
     return await apiRequestWithOptionalSession<ListCourseCategoriesResponse>(
@@ -62,7 +54,6 @@ export interface ListMyCoursesParams {
   sortBy?: "newest" | "oldest";
 }
 
-/** Courses the signed-in user teaches, for the workspace Course Listing. */
 export async function listMyCourses(
   request: Request,
   params: ListMyCoursesParams,
@@ -83,7 +74,6 @@ export async function listMyCourses(
   );
 }
 
-/** Send a draft to the review queue (DRAFT/UNPUBLISHED → PENDING). */
 export async function submitCourseForReview(
   request: Request,
   courseId: string,
@@ -95,7 +85,6 @@ export async function submitCourseForReview(
   );
 }
 
-/** Pull a course back out of the review queue (PENDING → DRAFT). */
 export async function withdrawCourse(request: Request, courseId: string) {
   return apiRequestWithSession<GetCourseResponse>(
     request,
@@ -104,7 +93,6 @@ export async function withdrawCourse(request: Request, courseId: string) {
   );
 }
 
-/** Take a published course off the catalogue (PUBLISHED → UNPUBLISHED). */
 export async function unpublishCourse(request: Request, courseId: string) {
   return apiRequestWithSession<GetCourseResponse>(
     request,
@@ -113,11 +101,6 @@ export async function unpublishCourse(request: Request, courseId: string) {
   );
 }
 
-/**
- * Create a course. This covers the Basic step's core fields; the builder's
- * difficulty, skills, tags, curriculum, quiz and certificate are saved
- * afterwards through the curriculum endpoints below.
- */
 export async function createCourse(
   request: Request,
   body: CreateCourseRequest,
@@ -129,12 +112,6 @@ export async function createCourse(
   );
 }
 
-/**
- * Update an existing draft. Every field is optional.
- *
- * PUT, not PATCH: the API registers only GET/PUT/DELETE on this path, so a
- * PATCH is unrouted and comes back 404.
- */
 export async function updateCourse(
   request: Request,
   courseId: string,
@@ -149,15 +126,9 @@ export async function updateCourse(
 
 export interface PresignCourseCoverParams {
   contentType: string;
-  /** Bytes. The API rejects anything over 5 MiB. */
   fileSize: number;
 }
 
-/**
- * Ask for a direct-upload URL for a cover image. The browser then PUTs the
- * file to `upload.uploadUrl` with `upload.requiredHeaders`, and the returned
- * `coverImageKey` is what gets saved on the course.
- */
 export async function presignCourseCover(
   request: Request,
   params: PresignCourseCoverParams,
@@ -171,16 +142,9 @@ export async function presignCourseCover(
   });
 }
 
-/* ------------------------ Curriculum, quiz and meta ----------------------- */
-
 export type LessonAssetType = "YOUTUBE" | "PDF" | "AUDIO";
 
 export interface LessonInput {
-  /**
-   * Sent back for a lesson that already exists, so the API updates it in place
-   * instead of recreating it. Recorded learner progress is keyed on the lesson
-   * id, so dropping this from a save would reset every learner's completions.
-   */
   id?: string | null;
   title: string;
   type: LessonAssetType;
@@ -191,7 +155,6 @@ export interface LessonInput {
 }
 
 export interface ChapterInput {
-  /** As with a lesson: present for a section the course already has. */
   id?: string | null;
   title: string;
   lessons: LessonInput[];
@@ -218,7 +181,6 @@ export interface UpdateCourseMetaBody {
   certificateKind?: "PARTICIPATION" | "COMPLETION" | null;
 }
 
-/** Replaces the whole curriculum — the builder holds all of it in state. */
 export async function replaceCourseCurriculum(
   request: Request,
   courseId: string,
@@ -243,7 +205,6 @@ export async function replaceCourseQuiz(
   );
 }
 
-/** Difficulty, skills, outcomes, tags and certificate kind. */
 export async function updateCourseMeta(
   request: Request,
   courseId: string,
@@ -261,15 +222,6 @@ export interface CourseProgressResponse {
   completedLessonIds: string[];
 }
 
-/**
- * The signed-in learner's completed lessons. Returns null when nobody is
- * signed in or the deployment has no progress resource, so the learning screen
- * falls back to an empty set rather than failing to load.
- *
- * Only those two cases are absorbed: a bare catch here also swallowed the
- * login redirect a failed token refresh throws, and turned a broken API into
- * "nothing watched yet" — which reads as lost progress.
- */
 export async function getCourseProgress(request: Request, courseId: string) {
   try {
     return await apiRequestWithSession<CourseProgressResponse>(
@@ -284,7 +236,6 @@ export async function getCourseProgress(request: Request, courseId: string) {
   }
 }
 
-/** Records a lesson as watched. Idempotent on the API. */
 export async function markLessonWatched(
   request: Request,
   courseId: string,
@@ -313,14 +264,6 @@ export interface CourseStatsResponse {
   };
 }
 
-/**
- * The creator's own learner figures, derived from recorded lesson progress.
- * Owner-only; returns null for anyone else or on a deployment without the
- * endpoint, so the manage screen renders empty rather than failing.
- *
- * A 403 counts as "not yours to see". Anything else still throws, so a failing
- * stats service is not reported to the creator as zero learners.
- */
 export async function getCourseStats(request: Request, courseId: string) {
   try {
     return await apiRequestWithSession<CourseStatsResponse>(
@@ -338,7 +281,6 @@ export async function getCourseStats(request: Request, courseId: string) {
 
 export interface PresignLessonAssetParams {
   contentType: string;
-  /** Bytes. The API rejects anything over 100 MiB. */
   fileSize: number;
 }
 
@@ -354,7 +296,6 @@ export interface PresignLessonAssetResponse {
   };
 }
 
-/** Direct-upload URL for a lesson's PDF or audio file. */
 export async function presignLessonAsset(
   request: Request,
   params: PresignLessonAssetParams,
@@ -408,21 +349,11 @@ export interface CourseQuizResponse {
   };
 }
 
-/**
- * Why a curriculum or quiz read came back with nothing.
- *
- * The two empty cases are not interchangeable. `absent` is a course that has
- * none saved yet; `unreadable` is a read that failed. A save replaces the
- * curriculum wholesale, so the builder may send one for the first case and
- * must not for the second — collapsing both to `null` left a draft with no
- * curriculum unable to ever gain one.
- */
 export type CourseContentRead<T> =
   | { status: "loaded"; result: ApiResult<T> }
   | { status: "absent" }
   | { status: "unreadable" };
 
-/** The saved curriculum, with the reason behind an empty answer. */
 export async function readCourseCurriculum(
   request: Request,
   courseId: string,
@@ -447,7 +378,6 @@ export async function readCourseCurriculum(
   }
 }
 
-/** The saved quiz, answer key included, with the reason behind an empty answer. */
 export async function readCourseQuiz(
   request: Request,
   courseId: string,
@@ -472,16 +402,11 @@ export async function readCourseQuiz(
   }
 }
 
-/**
- * The saved curriculum. Returns null when the API has no curriculum resource,
- * so the builder can still open against an older deployment.
- */
 export async function getCourseCurriculum(request: Request, courseId: string) {
   const read = await readCourseCurriculum(request, courseId);
   return read.status === "loaded" ? read.result : null;
 }
 
-/** The saved quiz, answer key included. Owner-only on the API. */
 export async function getCourseQuiz(request: Request, courseId: string) {
   const read = await readCourseQuiz(request, courseId);
   return read.status === "loaded" ? read.result : null;
@@ -500,15 +425,6 @@ export interface LearnerCourseQuizResponse {
   };
 }
 
-/**
- * The quiz as a learner sits it: the questions, with no `isCorrect` on any
- * option.
- *
- * `getCourseQuiz` above carries the answer key and so answers for the creator
- * alone — it is no use to a learner. This one has the same visibility as the
- * curriculum: any published course, plus the creator's own drafts. Returns
- * null when the course has no quiz, or on a deployment without the resource.
- */
 export async function getLearnerCourseQuiz(request: Request, courseId: string) {
   try {
     return await apiRequestWithOptionalSession<LearnerCourseQuizResponse>(
@@ -534,7 +450,6 @@ export interface GradeQuizAttemptResponse {
   ok: true;
   result: {
     correctCount: number;
-    /** The questions that could be marked — what the score is out of. */
     totalCount: number;
     percent: number;
     passMark: number;
@@ -542,13 +457,6 @@ export interface GradeQuizAttemptResponse {
   };
 }
 
-/**
- * Marks one attempt at the final quiz.
- *
- * Grading is the API's job because the answer key never leaves it. Attempts
- * are not stored — there is no attempt resource — so this returns the result
- * and nothing else remembers it.
- */
 export async function gradeCourseQuizAttempt(
   request: Request,
   courseId: string,
@@ -602,10 +510,6 @@ export interface ListPublicCoursesParams {
   sortBy?: "newest" | "oldest" | "az" | "price";
 }
 
-/**
- * The public catalogue of published courses. Returns null on an API that has
- * no catalogue endpoint, leaving the hub with an empty catalogue.
- */
 export async function listPublicCourses(
   request: Request,
   params: ListPublicCoursesParams,

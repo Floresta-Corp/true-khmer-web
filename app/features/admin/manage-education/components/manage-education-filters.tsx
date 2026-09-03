@@ -9,7 +9,6 @@ import {
 } from "~/features/admin/manage-education/types";
 import { cn } from "~/lib/utils";
 
-/** All / In review / Published / Unpublished, in URL-param form. */
 export const STATUS_TABS = [
   { value: ALL_STATUSES, label: "All" },
   ...COURSE_STATUS_OPTIONS.map((option) => ({
@@ -25,11 +24,6 @@ interface ManageEducationFiltersProps {
   onSearchChange: (value: string) => void;
 }
 
-/**
- * The segmented tab rail and search box from the workspace Course Listing,
- * carried over so both course surfaces read the same. Colours gain dark
- * variants here, which the workspace design does not need.
- */
 export function ManageEducationFilters({
   status,
   searchInput,

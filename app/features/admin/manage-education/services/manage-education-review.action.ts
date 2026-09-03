@@ -22,10 +22,6 @@ const SUCCESS_MESSAGE: Record<CourseReviewIntent, string> = {
   unpublishCourse: "Course unpublished.",
 };
 
-/**
- * Shared by the queue and the detail route so both surfaces answer the same
- * intents with the same messages.
- */
 export async function handleCourseReviewIntent(
   request: Request,
   accessToken: string,
@@ -55,8 +51,6 @@ export async function handleCourseReviewIntent(
       );
     }
 
-    // The API takes the note as optional but rejects an empty string, so an
-    // unwritten reason is sent as no note at all.
     const result = await rejectCourse(
       request,
       accessToken,

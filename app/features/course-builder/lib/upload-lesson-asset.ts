@@ -9,7 +9,6 @@ export type LessonAssetUpload = {
   expiresInSeconds: number;
 };
 
-/** 100 MiB — the cap the presign endpoint enforces. */
 export const MAX_LESSON_ASSET_BYTES = 100 * 1024 * 1024;
 
 const ACCEPTED: Record<Exclude<LessonSource, "youtube">, string[]> = {
@@ -27,10 +26,6 @@ const ACCEPTED: Record<Exclude<LessonSource, "youtube">, string[]> = {
   ],
 };
 
-/**
- * Sends the file straight to storage using the presigned URL. This does not go
- * through our API, so it stays out of `services/`.
- */
 export async function putLessonAsset(upload: LessonAssetUpload, file: File) {
   const response = await fetch(upload.uploadUrl, {
     method: upload.method,
@@ -45,7 +40,6 @@ export async function putLessonAsset(upload: LessonAssetUpload, file: File) {
   return upload.assetKey;
 }
 
-/** Returns a problem to show the user, or null when the file is usable. */
 export function validateLessonFile(
   file: File,
   source: Exclude<LessonSource, "youtube">,

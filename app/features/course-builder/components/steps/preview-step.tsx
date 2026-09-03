@@ -25,9 +25,7 @@ interface PreviewStepProps {
   sections: CourseSection[];
   questionCount: number;
   passMark: string;
-  /** A single-lesson course phrases its content item differently. */
   format: CourseFormat;
-  /** The quiz item only applies when the course has a Quiz step. */
   hasQuizStep: boolean;
   onEditStep: (step: BuilderStep) => void;
 }
@@ -53,8 +51,6 @@ export function PreviewStep({
     DIFFICULTY_OPTIONS.find((option) => option.value === draft.difficulty)
       ?.label ?? "Not set";
 
-  // The design's own checklist: details, cover, content, and a quiz item only
-  // when the course has a quiz to complete.
   const checklist: Array<{ label: string; done: boolean; step: BuilderStep }> =
     [
       {

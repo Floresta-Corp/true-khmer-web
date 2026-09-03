@@ -9,12 +9,6 @@ interface CourseRecommendedListProps {
   onToggleSave: (courseId: string) => void;
 }
 
-/**
- * The "Recommended for you" rail under the detail screen's curriculum panel.
- *
- * Rows are separated by a rule rather than boxed — the design's own treatment —
- * with an 84x56 cover and a save toggle at the end of each row.
- */
 export function CourseRecommendedList({
   courses,
   savedIds,
@@ -56,9 +50,6 @@ export function CourseRecommendedList({
                 <div className="mb-1 line-clamp-2 text-sm leading-[1.3] font-bold text-[#1A1A2E]">
                   {course.title}
                 </div>
-                {/* The design shows a learner count; enrolment has no API
-                    resource yet, so the lesson count stands in until it does
-                    rather than every row reading "0 learners". */}
                 <div className="text-xs text-[#9A9AB0]">
                   {course.studentCount > 0
                     ? `${course.studentCount.toLocaleString()} learners`

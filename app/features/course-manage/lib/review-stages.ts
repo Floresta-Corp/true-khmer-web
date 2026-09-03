@@ -1,13 +1,6 @@
 import type { MyCourse } from "~/features/course-listing/types";
 import type { ReviewStage } from "~/features/course-manage/types";
 
-/**
- * The Review tab's submission timeline.
- *
- * Entirely real: every stage and date comes from the course's own `status`,
- * `createdAt`, `publishedAt` and `rejectedAt`.
- */
-
 const MONTHS = [
   "Jan",
   "Feb",
@@ -27,12 +20,10 @@ function shortDate(date: Date) {
   return `${MONTHS[date.getMonth()]} ${String(date.getDate()).padStart(2, "0")}`;
 }
 
-/** "Mar" — the design's Enrollment trend is labelled by month. */
 function monthLabel(date: Date) {
   return MONTHS[date.getMonth()];
 }
 
-/** "02 Mar 2026" — padded, and read in UTC for the same reason as the table. */
 function longDate(date: Date) {
   const day = String(date.getUTCDate()).padStart(2, "0");
   return `${day} ${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
@@ -40,12 +31,10 @@ function longDate(date: Date) {
 
 export function buildReviewStages(course: MyCourse): ReviewStage[] {
   const rejected = Boolean(course.rejectedAt);
-  // Unpublishing does not undo the approval, so both count as approved.
   const approved =
     course.status === "PUBLISHED" || course.status === "UNPUBLISHED";
   const pending = course.status === "PENDING";
   const live = course.status === "PUBLISHED";
-  // A draft that has never been sent has not entered the pipeline at all.
   const submitted = pending || approved || rejected;
 
   const decided = course.rejectedAt

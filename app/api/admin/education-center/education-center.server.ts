@@ -8,15 +8,6 @@ import type {
 } from "~/types/api-client";
 import type { AdminCourseStatusFilter } from "~/features/admin/manage-education/types";
 
-/**
- * Admin Education Center endpoints.
- *
- * Approval is a course-level decision on the API — there is no lesson or
- * chapter resource to approve individually. A creator submits the whole
- * course (`POST /education-center/courses/:id/submit`), which moves it to
- * PENDING, and a moderator approves or rejects that submission here.
- */
-
 export interface AdminCourseListParams {
   limit?: number;
   cursor?: string;
@@ -26,7 +17,6 @@ export interface AdminCourseListParams {
   createdBy?: string;
 }
 
-// GET /v1/admin/education-center/courses — the moderation queue.
 export async function getAdminCourses(
   request: Request,
   accessToken: string,
@@ -50,7 +40,6 @@ export async function getAdminCourses(
   );
 }
 
-// GET /v1/admin/education-center/courses/:id
 export async function getAdminCourseById(
   request: Request,
   accessToken: string,
@@ -64,7 +53,6 @@ export async function getAdminCourseById(
   );
 }
 
-/** PENDING → PUBLISHED. The API rejects any other starting status with 400. */
 export async function approveCourse(
   request: Request,
   accessToken: string,
@@ -78,10 +66,6 @@ export async function approveCourse(
   );
 }
 
-/**
- * PENDING → DRAFT, carrying `rejectionNote`/`rejectedAt` back to the creator.
- * The note is optional on the API, but it must be non-empty when sent.
- */
 export async function rejectCourse(
   request: Request,
   accessToken: string,
@@ -96,7 +80,6 @@ export async function rejectCourse(
   );
 }
 
-/** Toggle an already-approved course between PUBLISHED and UNPUBLISHED. */
 export async function setCoursePublication(
   request: Request,
   accessToken: string,
@@ -113,7 +96,6 @@ export async function setCoursePublication(
   );
 }
 
-// DELETE /v1/admin/education-center/courses/:id
 export async function deleteAdminCourse(
   request: Request,
   accessToken: string,
@@ -129,23 +111,11 @@ export async function deleteAdminCourse(
 
 export type CourseCreator = { name: string; email: string | null };
 
-/** A course row that may already carry its author, on a new enough API. */
 type CourseWithMaybeCreator = {
   createdBy: string;
   creator?: { id: string; name: string; email: string } | null;
 };
 
-/**
- * Names for the authors of a page of courses.
- *
- * The admin course endpoints embed `creator`, so normally this costs nothing.
- * Against an API that predates that field it falls back to user-management,
- * one call per *distinct* creator still missing — so a page of twelve courses
- * by three authors costs three requests, not twelve.
- *
- * A creator that cannot be read (deleted, suspended, a permission gap) is left
- * out rather than failing the whole listing.
- */
 export async function resolveCourseCreators(
   request: Request,
   accessToken: string,

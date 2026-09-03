@@ -17,12 +17,6 @@ interface ManageEducationRowProps {
   actions?: ReactNode;
 }
 
-/**
- * The workspace Course Listing row, rebuilt for review: the creator's learner
- * stats column has nothing behind it on the admin API, so that slot carries
- * what a reviewer actually needs — who wrote the course, its category, and
- * when it was last touched.
- */
 export default function ManageEducationRow({
   course,
   categoryName,
@@ -54,8 +48,6 @@ export default function ManageEducationRow({
         )}
       </span>
 
-      {/* The title takes the row's slack. A fixed width here (as the workspace
-          row uses) truncated the title while an empty spacer sat beside it. */}
       <div className="min-w-0 flex-1">
         <CourseStatusBadge status={status} className="mb-2 inline-block" />
         <h3 className="truncate text-[18px] font-bold text-[#10101E] dark:text-white">
@@ -68,13 +60,7 @@ export default function ManageEducationRow({
         </h3>
       </div>
 
-      {/* Reviewer detail. Every column is fixed-width, so it only appears once
-          the row is wide enough to hold it and the actions together — at `lg`
-          it pushed the buttons past the card edge. */}
       <div className="hidden shrink-0 items-start gap-5 xl:flex">
-        {/* Fixed column widths, not max-widths: sized to content, a long
-            email widened this column and shifted the whole block, so the
-            three columns never lined up from one row to the next. */}
         <div className="w-36">
           <p className="text-[12px] text-[#86869E]">Created by</p>
           <p className="truncate text-[18px] leading-tight font-bold text-[#10101E] dark:text-slate-100">

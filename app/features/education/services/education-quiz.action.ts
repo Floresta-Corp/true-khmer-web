@@ -11,13 +11,6 @@ export type QuizActionResult =
   | { ok: true; result: QuizAttemptResult }
   | { ok: false; message: string };
 
-/**
- * Sends a final-quiz attempt to be marked.
- *
- * The API grades it: the answer key lives there and nowhere else, so neither
- * the browser nor this server ever holds it. Attempts are not persisted —
- * there is no attempt resource yet — so the result is shown and not stored.
- */
 export async function educationQuizAction({
   params,
   request,
@@ -39,9 +32,6 @@ export async function educationQuizAction({
     const { correctCount, totalCount, percent, passed } = response.data.result;
     return { ok: true, result: { correctCount, totalCount, percent, passed } };
   } catch (error) {
-    // Marking is signed-in only, so that it stays attributable once attempts
-    // are worth recording. The quiz itself is readable without a session, so
-    // this is a reachable state rather than an impossible one.
     if (error instanceof AuthSessionExpiredError) {
       return { ok: false, message: "Sign in to submit your answers." };
     }

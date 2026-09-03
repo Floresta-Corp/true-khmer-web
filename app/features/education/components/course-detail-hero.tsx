@@ -5,9 +5,7 @@ import { StarRating } from "./star-rating";
 interface CourseDetailHeroProps {
   title: string;
   coverImageUrl: string | null;
-  /** e.g. "12 lessons · Beginner" — the line under the title. */
   metaLine: string;
-  /** Omitted entirely when no one has rated the course. */
   rating: number;
   reviewCount: number;
   enrolledLabel: string | null;
@@ -17,10 +15,6 @@ interface CourseDetailHeroProps {
   children?: ReactNode;
 }
 
-/**
- * The design's full-bleed 16/9 cover with the title, meta and primary action
- * sitting over a bottom gradient.
- */
 export function CourseDetailHero({
   title,
   coverImageUrl,
@@ -50,12 +44,10 @@ export function CourseDetailHero({
           <div className="mb-2 text-[13px] text-white/80">{metaLine}</div>
         )}
 
-        {/* Ratings and enrolment only appear once there is something to show. */}
         {(reviewCount > 0 || enrolledLabel) && (
           <div className="mb-3.5 flex flex-wrap items-center gap-2">
             {reviewCount > 0 && (
               <>
-                {/* The design shows the full five-star row here, at 16px. */}
                 <StarRating value={rating} starClassName="size-4" />
                 <span className="text-[13px] font-bold text-white">
                   {rating.toFixed(1)}
@@ -78,7 +70,6 @@ export function CourseDetailHero({
         <button
           type="button"
           onClick={onAction}
-          /* --tk-brand-primary is #1C5DD4; hover steps to the darker #174FB4. */
           className="flex cursor-pointer items-center justify-center gap-2 rounded-full bg-[#1C5DD4] px-8 py-2.75 text-sm font-bold text-white transition-colors hover:bg-[#174FB4]"
         >
           {showPlayIcon && (

@@ -102,8 +102,6 @@ export default function ManageEducationCourses({
       ...extraPages.filter((course) => !seen.has(course.id)),
     ];
 
-    // A course reviewed in this session keeps its new status until the loader
-    // brings the list back, so the row never contradicts the toast.
     if (decidedStatuses.size === 0) return merged;
     return merged.map((course) => {
       const decided = decidedStatuses.get(course.id);
@@ -128,8 +126,6 @@ export default function ManageEducationCourses({
     fetcher.load(buildQuery(cursor));
   }, [cursor, isLoadingMore, fetcher.load, buildQuery]);
 
-  // A rejected course sits at DRAFT with its creator and has no admin action,
-  // so it gets no action bar at all rather than an empty one.
   const actionsFor = (course: CourseResponse) => {
     if (course.status === "PENDING") {
       return (

@@ -16,12 +16,6 @@ interface CourseReviewsDialogProps {
   reviews: CourseReview[];
 }
 
-/**
- * Every review for a course, behind the detail screen's "Show all reviews".
- *
- * The design's own measurements: a 640px panel capped at 80vh, the score and
- * stars in a bordered header, and the list scrolling under it.
- */
 export function CourseReviewsDialog({
   open,
   onOpenChange,

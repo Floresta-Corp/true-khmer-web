@@ -1,13 +1,6 @@
 import type { ReactNode } from "react";
 import { X } from "lucide-react";
 
-/**
- * The section dialogs from the design's curriculum step: naming a new section,
- * renaming or deleting an existing one, and confirming the delete.
- *
- * All three share the design's overlay — a 45%-black scrim over a 12px-radius
- * white panel with `28px 32px 32px` of padding.
- */
 function Overlay({
   label,
   onClose,
@@ -49,7 +42,6 @@ interface AddSectionModalProps {
   title: string;
   onTitleChange: (title: string) => void;
   onConfirm: () => void;
-  /** Backdrop / X — the X asks before dropping a title in progress. */
   onClose: () => void;
   discarding: boolean;
   onRequestDiscard: () => void;

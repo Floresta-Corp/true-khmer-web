@@ -5,16 +5,8 @@ import { cn } from "~/lib/utils";
 import type { CourseDetail } from "~/features/education/types";
 import { LessonTypeIcon } from "./lesson-type-icon";
 
-/** The design opens the first three sections (`openSections: [0, 1, 2]`). */
 const DEFAULT_OPEN_SECTIONS = 3;
 
-/**
- * The detail screen's curriculum panel: a bordered, scrolling accordion that
- * sits beside the course content rather than behind a tab.
- *
- * Measurements are the design's own — 8px radius, a 520px scroll cap, and
- * 14px/20px rows for both the section header and its lessons.
- */
 export function CourseDetailCurriculum({ course }: { course: CourseDetail }) {
   const navigate = useNavigate();
   const [openIds, setOpenIds] = useState<Set<string>>(

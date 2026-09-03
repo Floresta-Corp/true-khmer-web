@@ -14,13 +14,6 @@ import { toCourseSummary } from "~/features/education/lib/map-catalog";
 import { getOptionalUser } from "~/lib/server/route-guards.server";
 import type { CourseCategory } from "~/features/education/types";
 
-/**
- * The full catalogue behind every "View all" link on the Education hub.
- *
- * Public, like the hub: browsing does not need a session. Every row is a real
- * published course — an empty catalogue renders the empty state rather than
- * sample content.
- */
 export async function educationCatalogLoader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const search = url.searchParams.get("search")?.trim() ?? "";
@@ -29,10 +22,6 @@ export async function educationCatalogLoader({ request }: Route.LoaderArgs) {
   const requestedType = CatalogTypeSchema.parse(url.searchParams.get("type"));
   const requestedPage = Number(url.searchParams.get("page")) || 1;
 
-  // A sort or type the API cannot serve falls back to the default *and* is
-  // reported back as the default, so the panel shows the order the rows are
-  // actually in. Returning the requested value would leave the learner looking
-  // at newest-first under a "Most popular" heading.
   const sortBy = CATALOG_SORT_QUERY[requestedSort];
   const sort = sortBy ? requestedSort : "newest";
   const type = CATALOG_TYPE_SERVABLE[requestedType] ? requestedType : "all";
@@ -68,8 +57,6 @@ export async function educationCatalogLoader({ request }: Route.LoaderArgs) {
   return {
     categories,
     courses: (catalogue?.courses ?? []).map(toCourseSummary),
-    // The heading becomes the category name once one is chosen, and the count
-    // names it too — both straight from the design.
     heading: selectedCategoryName ?? "All Courses",
     foundLabel: `Found ${total} course${total === 1 ? "" : "s"}${
       selectedCategoryName ? ` in ${selectedCategoryName}` : ""

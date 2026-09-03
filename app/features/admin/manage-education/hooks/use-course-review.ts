@@ -19,11 +19,6 @@ const FAILED_VERB: Record<CourseReviewIntent, string> = {
   unpublishCourse: "unpublish",
 };
 
-/**
- * Drives every course review decision through the route action and reports the
- * outcome. Decided statuses are kept locally so a card updates the moment the
- * API answers, before revalidation brings the list back.
- */
 export function useCourseReview({ onDecided }: UseCourseReviewOptions = {}) {
   const fetcher = useFetcher();
   const [decidedStatuses, setDecidedStatuses] = useState<

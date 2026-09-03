@@ -14,24 +14,12 @@ import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
 
-/** 5 MiB — the cap the presign endpoint enforces. */
 const MAX_COVER_BYTES = 5 * 1024 * 1024;
 
-/**
- * The wizard posts its curriculum, quiz and meta as JSON strings alongside the
- * flat form fields, since a `FormData` body cannot carry nested arrays.
- */
 const LessonSchema = z.object({
-  /** Sent back for an existing lesson so the API updates it in place. */
   id: z.string().uuid().nullish(),
   title: z.string().trim().min(1).max(255),
   type: z.enum(["YOUTUBE", "PDF", "AUDIO"]),
-  /**
-   * A web address, and only that. `z.string().url()` also accepts
-   * `javascript:` and `data:`, and this value is rendered as a link on the
-   * admin review screen and framed on the learner screen — so a creator could
-   * otherwise store a script URL that runs in a moderator's session.
-   */
   url: z
     .string()
     .trim()
@@ -89,13 +77,6 @@ type JsonFieldResult<T> =
   | { status: "ok"; value: T }
   | { status: "invalid"; message: string };
 
-/**
- * Parses one of the JSON side-channel fields.
- *
- * An absent field and a malformed one are reported differently on purpose: the
- * first means "leave this alone", the second is a bug the creator has to see.
- * Treating them alike would silently drop a curriculum the creator just wrote.
- */
 function readJsonField<T>(
   raw: unknown,
   schema: z.ZodType<T>,
@@ -131,7 +112,6 @@ const CourseFieldsSchema = z.object({
   coverImageKey: z.string().min(1).max(600).nullish(),
 });
 
-/** JSON side-channel carried by both save and submit. */
 const ContentFieldsSchema = z.object({
   curriculum: z.string().optional(),
   quiz: z.string().optional(),
@@ -140,7 +120,6 @@ const ContentFieldsSchema = z.object({
 
 const SaveDraftSchema = CourseFieldsSchema.merge(ContentFieldsSchema).extend({
   intent: z.literal("save-draft"),
-  /** Present once a draft exists, so the save patches instead of creating. */
   courseId: z.string().uuid().optional(),
 });
 
@@ -155,7 +134,6 @@ const PresignCoverSchema = z.object({
   fileSize: z.coerce.number().int().positive().max(MAX_COVER_BYTES),
 });
 
-/** 100 MiB — the cap the lesson presign endpoint enforces. */
 const MAX_LESSON_ASSET_BYTES = 100 * 1024 * 1024;
 
 const PresignLessonSchema = z.object({
@@ -190,24 +168,59 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
     );
   }
 
+  const refusedUpload = (error: unknown, noun: string) => {
+    if (error instanceof ProtectedApiError && error.status < 500) {
+      return withAuthData(
+        auth,
+        { ok: false as const, fieldErrors: {}, error: error.message },
+        { status: error.status },
+      );
+    }
+
+    console.error(`Failed to presign a ${noun} upload`, error);
+    return withAuthData(
+      auth,
+      {
+        ok: false as const,
+        fieldErrors: {},
+        error: `That ${noun} could not be prepared for upload. Try again.`,
+      },
+      { status: 502 },
+    );
+  };
+
   if (parsed.data.intent === "presign-lesson") {
     const { contentType, fileSize } = parsed.data;
-    const result = await presignLessonAsset(request, { contentType, fileSize });
-    return withAuthData(auth, {
-      ok: true as const,
-      intent: "presign-lesson" as const,
-      upload: result.data.upload,
-    });
+    try {
+      const result = await presignLessonAsset(request, {
+        contentType,
+        fileSize,
+      });
+      return withAuthData(auth, {
+        ok: true as const,
+        intent: "presign-lesson" as const,
+        upload: result.data.upload,
+      });
+    } catch (error) {
+      return refusedUpload(error, "file");
+    }
   }
 
   if (parsed.data.intent === "presign-cover") {
     const { contentType, fileSize } = parsed.data;
-    const result = await presignCourseCover(request, { contentType, fileSize });
-    return withAuthData(auth, {
-      ok: true as const,
-      intent: "presign-cover" as const,
-      upload: result.data.upload,
-    });
+    try {
+      const result = await presignCourseCover(request, {
+        contentType,
+        fileSize,
+      });
+      return withAuthData(auth, {
+        ok: true as const,
+        intent: "presign-cover" as const,
+        upload: result.data.upload,
+      });
+    } catch (error) {
+      return refusedUpload(error, "image");
+    }
   }
 
   const {
@@ -219,9 +232,6 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
     ...fields
   } = parsed.data;
 
-  // Parsed before the course row is written, not after: a malformed curriculum
-  // used to be reported only once `createCourse` had already left a row behind,
-  // and every retry added another orphan.
   const meta = readJsonField(rawMeta, MetaSchema, "course details");
   const curriculum = readJsonField(
     rawCurriculum,
@@ -246,8 +256,6 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
     );
   }
 
-  // The API refuses edits to a course under review or already live. Surfacing
-  // its message beats an error boundary that just says something went wrong.
   let saved;
   try {
     saved = courseId
@@ -274,13 +282,6 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
 
   let course = saved.data.course;
 
-  /**
-   * Every failure past this point carries the course id back.
-   *
-   * The row exists by now, so a client that did not learn its id would post
-   * the next Save without one and create a second course — one more orphan per
-   * retry.
-   */
   const failed = (error: ProtectedApiError) =>
     withAuthData(
       auth,
@@ -293,8 +294,6 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
       { status: error.status },
     );
 
-  // The course row has to exist before its curriculum can hang off it, so the
-  // rest of the wizard is saved here rather than in the same request.
   try {
     if (meta.status === "ok") {
       const updated = await updateCourseMeta(request, course.id, meta.value);

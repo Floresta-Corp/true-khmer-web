@@ -28,7 +28,6 @@ export function CourseOverviewTab({ course }: { course: CourseDetail }) {
         {course.description}
       </p>
 
-      {/* Only shown when the creator actually listed skills in the builder. */}
       {course.outcomes.length > 0 && (
         <>
           <h2 className="mb-3.5 text-xl font-bold text-[#1A1A2E]">

@@ -31,9 +31,6 @@ export async function courseListingLoader({ request }: Route.LoaderArgs) {
 
   const raw = result?.data?.courses ?? [];
 
-  // Draft and Rejected both ask the API for DRAFT, so split them here. Note
-  // this filters a page the API has already sliced, which can leave a page
-  // short; it resolves itself once the API can filter on rejection directly.
   const filtered =
     tab === "draft"
       ? raw.filter((course) => displayStatusOf(course) !== "REJECTED")
@@ -41,11 +38,6 @@ export async function courseListingLoader({ request }: Route.LoaderArgs) {
         ? raw.filter((course) => displayStatusOf(course) === "REJECTED")
         : raw;
 
-  // The design shows Total learners / Completed / In progress / Not started
-  // per published course. The API has no enrolment or progress resource —
-  // `courses/mine` returns `CourseResponse`, which carries no learner counts —
-  // so the block is left out rather than filled with invented figures. Wire
-  // this up when an enrolment endpoint exists.
   const courses: CourseWithStats[] = filtered.map((course) => ({
     ...course,
     stats: null,

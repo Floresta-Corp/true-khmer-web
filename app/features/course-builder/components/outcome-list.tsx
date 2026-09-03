@@ -5,15 +5,6 @@ interface OutcomeListProps {
   onChange: (values: string[]) => void;
 }
 
-/**
- * The builder's "What you'll learn" field: one input per outcome, each
- * removable once there is more than one, plus the design's two "+ Add outcome"
- * affordances — a text button beside the label and a full-width dashed button
- * under the list.
- *
- * The list always holds at least one row so the field is never visually empty;
- * blank rows are dropped on save.
- */
 export function OutcomeList({ values, onChange }: OutcomeListProps) {
   const rows = values.length > 0 ? values : [""];
 

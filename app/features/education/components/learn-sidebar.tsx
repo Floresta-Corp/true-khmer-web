@@ -12,21 +12,12 @@ interface LearnSidebarProps {
   openSectionIds: Set<string>;
   onToggleSection: (sectionId: string) => void;
   onClose: () => void;
-  /** Position of a lesson across the whole course, 1-based. */
   lessonIndex: (lesson: CourseLesson) => number;
   totalLessons: number;
-  /** The final-quiz row is hidden entirely when the course has no quiz. */
   hasQuiz: boolean;
   quizUnlocked: boolean;
 }
 
-/**
- * The learning screen's 380px content panel.
- *
- * The design puts it on the left, flush against the player, with its own scroll
- * region: a completion bar pinned at the top, the chapter accordion filling the
- * middle, and either the final quiz row or the certificate button at the foot.
- */
 export function LearnSidebar({
   course,
   title,
@@ -48,8 +39,6 @@ export function LearnSidebar({
   return (
     <div className="flex h-full w-[380px] shrink-0 flex-col border-r border-[#E5E7EB] bg-white">
       <div className="flex items-center justify-between border-b border-[#E5E7EB] px-5 py-4.5">
-        {/* Doubles as the way back to the course — the full-bleed shell has no
-            other route out. */}
         <Link
           to={`/education/${course.id}`}
           className="flex min-w-0 items-center gap-2.5 text-lg font-bold text-[#1A1A2E] transition-colors hover:text-[#1C5DD4]"
@@ -178,9 +167,6 @@ export function LearnSidebar({
         })}
       </div>
 
-      {/* The quiz comes first, and it is what finishing every chapter unlocks.
-          Both used to hang off one ternary, which made a completed course jump
-          straight to the certificate and left its quiz unreachable. */}
       {hasQuiz && (
         <Link
           to={quizUnlocked ? `/education/${course.id}/quiz` : "#"}

@@ -122,7 +122,6 @@ export default function AdminLayout() {
         </header>
 
         <div className="flex min-h-0 flex-1">
-          {/* Mobile sidebar backdrop */}
           <AnimatePresence>
             {isMobileMenuOpen && (
               <motion.div
@@ -135,7 +134,6 @@ export default function AdminLayout() {
             )}
           </AnimatePresence>
 
-          {/* Sidebar */}
           <aside
             className={`fixed top-16 left-0 z-80 flex h-[calc(100vh-4rem)] flex-col border-r border-slate-100 bg-white py-4 md:sticky md:top-20 md:z-auto md:h-[calc(100vh-5rem)] md:translate-x-0 dark:border-slate-800/60 dark:bg-slate-950 [@media(max-height:820px)]:py-2 ${
               mounted
@@ -217,7 +215,6 @@ export default function AdminLayout() {
             </div>
           </aside>
 
-          {/* Main content */}
           <main className="flex min-w-0 flex-1 flex-col bg-slate-50 dark:bg-[#020617]">
             <Outlet
               context={{ admin, isSuperAdmin: admin.role === "SUPER_ADMIN" }}

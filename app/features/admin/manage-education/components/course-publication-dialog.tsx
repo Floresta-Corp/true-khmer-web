@@ -16,7 +16,6 @@ import { cn } from "~/lib/utils";
 interface CoursePublicationDialogProps {
   courseId: string;
   courseTitle: string;
-  /** True when the course is live, so the dialog offers to take it down. */
   published: boolean;
   onPublish: (courseId: string) => void;
   onUnpublish: (courseId: string) => void;

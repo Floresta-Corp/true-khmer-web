@@ -22,7 +22,6 @@ const LIMIT = 12;
 
 export type CourseCategoryOption = { id: string; name: string };
 
-/** A page of courses with its creators' names resolved alongside it. */
 export type AdminCoursePage = AdminListCoursesResponse & {
   creators: Record<string, CourseCreator>;
 };
@@ -67,12 +66,8 @@ export async function manageEducationLoader({ request }: Route.LoaderArgs) {
     ),
   }));
 
-  // Deferred, so an awaited rejection here would crash the route before the
-  // Await boundary gets a chance to render its error element.
   courses.catch(() => {});
 
-  // A course only carries `categoryId`, so the names come from the public
-  // category list and are joined client-side.
   const categories = await getCourseCategories(request);
 
   return withAuthData(auth, {

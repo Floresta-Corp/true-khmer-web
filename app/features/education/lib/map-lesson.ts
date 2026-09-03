@@ -1,14 +1,5 @@
 import type { ActiveLesson, CourseDetail } from "~/features/education/types";
 
-/**
- * Resolves the lesson the learning screen should open, from the real
- * curriculum.
- *
- * Everything here comes from `GET /courses/:id/curriculum`. The API has no
- * per-lesson description or outcomes — the builder cannot author them — so
- * those stay empty and the learning screen omits both blocks rather than
- * showing invented prose.
- */
 export function toActiveLesson(
   course: CourseDetail,
   lessonId: string | null,
@@ -30,9 +21,6 @@ export function toActiveLesson(
     sectionTitle: section.title,
     index: position + 1,
     heading: lesson.title,
-    // The API carries no per-lesson description or outcomes — not in the
-    // curriculum response, and the builder cannot author them — so these stay
-    // empty and the learning screen omits both blocks.
     description: "",
     outcomes: [],
     posterUrl: course.coverImageUrl,

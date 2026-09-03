@@ -15,14 +15,6 @@ import { toCourseSections } from "~/features/education/lib/map-curriculum";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
 
-/**
- * Only the creator manages a course, so this sits behind a session.
- *
- * Real: the course, its curriculum, the review timeline, and every learner
- * figure derived from recorded lesson progress (learners, how far each has
- * got, completion, and the enrolment trend). Quiz attempts and ratings have
- * no resource, so those blocks report nothing recorded rather than estimates.
- */
 export async function courseManageLoader({
   request,
   params,
@@ -49,7 +41,6 @@ export async function courseManageLoader({
     curriculum: curriculumResult?.data?.curriculum
       ? toCourseSections(curriculumResult.data.curriculum)
       : [],
-    // Ratings and reviews have no resource, so these stay empty.
     reviews: [],
     ratingBreakdown: [],
     students: buildStudents(stats),

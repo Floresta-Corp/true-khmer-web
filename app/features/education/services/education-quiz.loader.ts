@@ -13,8 +13,6 @@ export async function educationQuizLoader({
     throw data({ message: "Course not found" }, { status: 404 });
   }
 
-  // Already answer-key free: the API serves the learner's copy of the quiz and
-  // `education-quiz.action` posts the attempt back for marking.
   const quiz = await loadCourseQuiz(request, course.id);
 
   if (!quiz) {

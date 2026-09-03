@@ -34,12 +34,9 @@ export default function ManageEducationDetailPage() {
   const { decidedStatuses, approve, reject, publish, unpublish, isReviewing } =
     useCourseReview();
 
-  // The decision made in this session wins until the loader revalidates.
   const status = decidedStatuses.get(course.id) ?? course.status;
   const displayStatus = displayStatusOf({ ...course, status });
 
-  // The public course page serves a course only to its owner until it is
-  // published, so previewing anything else would 404 for a moderator.
   const canPreview = status === "PUBLISHED";
 
   return (

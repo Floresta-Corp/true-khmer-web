@@ -1,13 +1,6 @@
 import type { CourseReview } from "~/features/education/types";
 import { StarRating } from "./star-rating";
 
-/**
- * A single learner review, boxed as the design draws it — a 1px rule, 10px
- * radius and 16px of padding around the avatar/name/stars line and the comment.
- *
- * Shared by the detail screen's review block and the "all reviews" dialog,
- * which the design draws identically.
- */
 export function CourseReviewRow({ review }: { review: CourseReview }) {
   return (
     <div className="rounded-[10px] border border-[#E5E7EB] p-4">

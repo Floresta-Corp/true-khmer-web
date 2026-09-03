@@ -6,17 +6,6 @@ export type LearnActionResult =
   | { ok: true; completedLessonIds: string[] }
   | { ok: false; message: string };
 
-/**
- * Records that the learner opened a lesson.
- *
- * Fired in the background as they move through the course, so a failure never
- * blocks playback. It is still reported: the sidebar has already ticked the
- * lesson off locally, and a learner told nothing would come back to a course
- * that had forgotten everything they watched.
- *
- * Only API failures are answered this way. A thrown redirect — what a failed
- * token refresh raises — is left alone so the session still ends properly.
- */
 export async function educationLearnAction({
   request,
   params,

@@ -50,39 +50,28 @@ type SaveResult =
       ok: false;
       error: string;
       fieldErrors: Record<string, string[]>;
-      /** Set once the row exists, so a retry patches it instead of duplicating. */
       courseId?: string;
     }
   | { ok: true; intent: "presign-cover" };
 
 interface CourseBuilderPageProps {
   categories: CategoryOption[];
-  /** Prefilled when editing an existing course, empty when creating one. */
   initialDraft?: CourseDraft;
-  /** The course's existing chapters, shown on the Curriculum step. */
   initialSections?: BuilderSection[];
-  /** The saved course's status; a course under review or live cannot be edited. */
   courseStatus?: "DRAFT" | "PENDING" | "PUBLISHED" | "UNPUBLISHED";
-  /**
-   * False only when the saved curriculum could not be read back. A course that
-   * has none saved yet stays true, so its first curriculum can still be sent.
-   */
   canReplaceCurriculum?: boolean;
   canReplaceQuiz?: boolean;
   initialCertificate?: CertificateKind;
   initialFormat?: CourseFormat;
   initialPassMark?: string;
   initialQuestions?: QuizQuestion[];
-  /** Set when editing, so saves patch the course instead of creating one. */
   initialCourseId?: string | null;
-  /** Step to open on, so the teach screen can deep-link into the builder. */
   initialStep?: BuilderStep;
 }
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** True for an id the API issued, false for one this session invented. */
 function isSavedId(id: string) {
   return UUID_PATTERN.test(id);
 }
@@ -108,12 +97,8 @@ export default function CourseBuilderPage({
   const [draft, setDraft] = useState<CourseDraft>(
     () => initialDraft ?? emptyDraft(),
   );
-  /** Set once a draft has been created, so later saves patch it. */
   const [courseId, setCourseId] = useState<string | null>(initialCourseId);
 
-  // Curriculum state, prefilled from the saved course. Each lesson keeps its
-  // url/assetKey: dropping them would make the next save treat every loaded
-  // lesson as sourceless and discard it.
   const [sections, setSections] = useState<BuilderSection[]>(
     () => initialSections ?? [],
   );
@@ -122,14 +107,8 @@ export default function CourseBuilderPage({
   const [openSections, setOpenSections] = useState<Set<string>>(
     () => new Set((initialSections ?? []).map((section) => section.id)),
   );
-  /** Counter for locally-added ids; a ref so rapid adds cannot collide. */
   const added = useRef(0);
 
-  /**
-   * The single-lesson course's own content, held apart from `sections` because
-   * that format has no sections in the design. Seeded from the saved lesson so
-   * editing one does not start blank.
-   */
   const savedSingle =
     initialFormat === "single" ? (initialSections?.[0] ?? null) : null;
   const savedSingleLesson = savedSingle?.lessons[0] ?? null;
@@ -153,7 +132,6 @@ export default function CourseBuilderPage({
       : emptyLessonDraft(),
   );
 
-  /** Ids of the saved single lesson, so a re-save updates rather than replaces. */
   const singleIds = useRef({
     sectionId: savedSingle?.id,
     lessonId: savedSingleLesson?.id,
@@ -161,7 +139,6 @@ export default function CourseBuilderPage({
   const patchLesson = (changes: Partial<LessonDraft>) =>
     setLesson((current) => ({ ...current, ...changes }));
 
-  /** Which section the "Add lesson" dialog is adding to, and its draft. */
   const [lessonTarget, setLessonTarget] = useState<string | null>(null);
   const [lessonDraft, setLessonDraft] = useState<LessonDraft>(emptyLessonDraft);
 
@@ -181,8 +158,6 @@ export default function CourseBuilderPage({
       return next;
     });
 
-  // The design names a section in a dialog before creating it, and renames or
-  // deletes one through a second dialog opened from the section title.
   const [addingSection, setAddingSection] = useState(false);
   const [newSectionTitle, setNewSectionTitle] = useState("");
   const [discardingSection, setDiscardingSection] = useState(false);
@@ -245,7 +220,6 @@ export default function CourseBuilderPage({
     (section) => section.id === removingSectionId,
   );
 
-  /** Moves the dragged section into the slot the target currently occupies. */
   const moveSection = (draggedId: string, targetId: string) => {
     if (draggedId === targetId) return;
     setSections((current) => {
@@ -258,10 +232,6 @@ export default function CourseBuilderPage({
     });
   };
 
-  /**
-   * Reorders a lesson within its section, or moves it into another one. A
-   * `null` target appends to the destination.
-   */
   const moveLesson = (
     fromSectionId: string,
     lessonId: string,
@@ -309,7 +279,6 @@ export default function CourseBuilderPage({
       });
     });
 
-    // Dropping into a collapsed section would otherwise hide the result.
     if (fromSectionId !== toSectionId) {
       setOpenSections((current) => new Set(current).add(toSectionId));
     }
@@ -321,7 +290,6 @@ export default function CourseBuilderPage({
     setLessonTarget(sectionId);
   };
 
-  /** The design collects a lesson in a dialog, then appends it. */
   const confirmAddLesson = () => {
     if (!lessonTarget) return;
     added.current += 1;
@@ -343,8 +311,6 @@ export default function CourseBuilderPage({
                   duration: "",
                   isPreview: false,
                   isComplete: false,
-                  // Kept so the lesson can actually be saved — the read model
-                  // these rows share has nowhere to put a source.
                   url:
                     lessonDraft.source === "youtube"
                       ? lessonDraft.url.trim()
@@ -363,18 +329,9 @@ export default function CourseBuilderPage({
     setLessonTarget(null);
   };
 
-  /**
-   * What the course's curriculum actually is, whichever format is in use. A
-   * single-lesson course keeps its content in `lesson`, so it is folded into
-   * one section here — otherwise Preview would count nothing and a save would
-   * send an empty curriculum.
-   */
   const effectiveSections = useMemo<BuilderSection[]>(() => {
     if (format !== "single") return sections;
 
-    // Only a source is required. The single-lesson step collects a format and a
-    // URL or file but no lesson title — the course itself is the lesson — so
-    // the title falls back to the course's own.
     const hasSource = Boolean(lesson.url.trim() || lesson.assetKey);
     if (!hasSource) return [];
 
@@ -401,13 +358,8 @@ export default function CourseBuilderPage({
     ];
   }, [format, sections, lesson, draft.title]);
 
-  // Which steps exist depends on the course: a single-lesson course has no
-  // Certificate step, and Quiz only appears for a certificate of completion.
   const steps = visibleSteps(format, certificate);
 
-  // Changing either can remove the step being viewed — switching the
-  // certificate to participation while on Quiz, say — so fall back to the last
-  // step that still exists rather than rendering nothing.
   const current = steps.includes(step) ? step : steps[steps.length - 1];
 
   const definition = STEP_DEFINITIONS[current];
@@ -415,11 +367,6 @@ export default function CourseBuilderPage({
   const forward = nextStep(current, steps);
   const busy = fetcher.state !== "idle";
 
-  /**
-   * The API refuses every write while a course is under review or live, so the
-   * builder says so up front rather than letting the creator fill in a form
-   * whose save can only fail.
-   */
   const lockedReason =
     courseStatus === "PENDING"
       ? "This course is under review, so it cannot be edited. Withdraw the submission from Course Listing to make changes."
@@ -440,11 +387,7 @@ export default function CourseBuilderPage({
   const save = (intent: "save-draft" | "submit") => {
     if (isLocked) return;
 
-    // A lesson with no source was never uploaded, and the API rejects it, so
-    // it is dropped rather than failing the whole save.
     const chapters = effectiveSections.map((section) => ({
-      // Rows added in this session carry a synthetic id like `new-section-2`,
-      // which the API must treat as an insert — only real ids are sent back.
       ...(isSavedId(section.id) ? { id: section.id } : {}),
       title: section.title.trim() || "Untitled section",
       lessons: section.lessons
@@ -459,8 +402,6 @@ export default function CourseBuilderPage({
         })),
     }));
 
-    // Only fully-written questions can be saved; a blank row the creator has
-    // not filled in yet would fail validation.
     const questions = quiz.questions
       .filter(
         (question) =>
@@ -480,11 +421,6 @@ export default function CourseBuilderPage({
           })),
       }));
 
-    // A save replaces the curriculum and quiz wholesale. On an existing course
-    // whose saved content failed to load, the builder is showing an empty
-    // structure it never read — sending that would erase the real one, so the
-    // field is omitted and the API leaves it untouched. A course that simply
-    // has none saved yet is not that case, and must still be able to gain one.
     const nothingToOverwrite = !courseId;
     const sendCurriculum = nothingToOverwrite || canReplaceCurriculum;
     const sendQuiz = nothingToOverwrite || canReplaceQuiz;
@@ -518,8 +454,6 @@ export default function CourseBuilderPage({
             ? DIFFICULTY_API_VALUE[draft.difficulty]
             : null,
           skills: draft.skills,
-          // The field keeps at least one row on screen, so blank rows are
-          // dropped here rather than saved as empty outcomes.
           outcomes: draft.outcomes
             .map((outcome) => outcome.trim())
             .filter(Boolean),
@@ -533,9 +467,6 @@ export default function CourseBuilderPage({
     );
   };
 
-  // Remember the created course so a second save patches rather than
-  // duplicates. A failure that happened after the row was written reports the
-  // id too — without it the next Save would create a second course.
   const savedCourseId =
     result?.ok === false
       ? result.courseId

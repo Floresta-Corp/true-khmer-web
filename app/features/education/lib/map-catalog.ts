@@ -8,12 +8,9 @@ const LEVEL: Record<
   BEGINNER: "Beginner",
   INTERMEDIATE: "Intermediate",
   ADVANCE: "Advance",
-  // The card shows one level and "All levels" is not one of them; Beginner is
-  // the least misleading of the three for a course open to anyone.
   ALL_LEVELS: "Beginner",
 };
 
-/** Published within the last 30 days earns the green "New" badge. */
 const NEW_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 
 function isRecentlyPublished(publishedAt: string | null) {
@@ -22,12 +19,6 @@ function isRecentlyPublished(publishedAt: string | null) {
   return Number.isFinite(published) && Date.now() - published < NEW_WINDOW_MS;
 }
 
-/**
- * A catalogue row in the shape the course cards render.
- *
- * Ratings and enrolment have no API resource, so they stay at zero rather than
- * being invented; the instructor is the course's real creator.
- */
 export function toCourseSummary(course: PublicCourseListItem): CourseSummary {
   return {
     id: course.id,
@@ -41,7 +32,6 @@ export function toCourseSummary(course: PublicCourseListItem): CourseSummary {
       name: course.creator?.name ?? "Unknown instructor",
       avatarUrl: null,
       coursesPublished: 0,
-      // The list response carries no phone; the detail loader fetches it.
       phone: null,
       email: course.creator?.email ?? null,
     },

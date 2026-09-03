@@ -15,12 +15,10 @@ interface AddLessonModalProps {
   onChange: (changes: Partial<LessonDraft>) => void;
   onConfirm: () => void;
   onClose: () => void;
-  /** True while a lesson file is still uploading. */
   uploading?: boolean;
   onUploadingChange?: (uploading: boolean) => void;
 }
 
-/** The design's "Add lesson" dialog: title, content type, then the source. */
 export function AddLessonModal({
   draft,
   onChange,
@@ -29,7 +27,6 @@ export function AddLessonModal({
   uploading = false,
   onUploadingChange,
 }: AddLessonModalProps) {
-  // An uploaded lesson is only ready once storage has returned its key.
   const ready =
     !uploading &&
     draft.title.trim().length > 0 &&

@@ -28,11 +28,6 @@ const SOURCE_ICONS: Record<LessonSource, typeof Play> = {
   audio: Music,
 };
 
-/**
- * Copy inferred: the design computes these two cards in a script past the
- * 256 KiB fetch cap, so only their shape (radio, icon, label + badge, blurb) is
- * known for certain.
- */
 const FORMAT_OPTIONS: CourseFormatOption[] = [
   {
     value: "multi",
@@ -61,7 +56,6 @@ const TYPE_LABELS: Record<LessonType, string> = {
 
 interface CurriculumStepProps {
   format: CourseFormat;
-  /** The single-lesson course's own content, when the format is "single". */
   lesson: LessonDraft;
   onLessonChange: (changes: Partial<LessonDraft>) => void;
   sections: CourseSection[];
@@ -70,13 +64,7 @@ interface CurriculumStepProps {
   onToggleSection: (id: string) => void;
   onAddSection: () => void;
   onEditSection: (sectionId: string) => void;
-  /** Drag-reorder: move `draggedId` to where `targetId` currently sits. */
   onMoveSection: (draggedId: string, targetId: string) => void;
-  /**
-   * Drag-reorder a lesson. A `null` target drops it at the end of
-   * `toSectionId` — what the design does when a lesson lands on a section
-   * header rather than on another lesson.
-   */
   onMoveLesson: (
     fromSectionId: string,
     lessonId: string,
@@ -104,12 +92,6 @@ export function CurriculumStep({
     | { kind: "section"; sectionId: string }
     | { kind: "lesson"; sectionId: string; lessonId: string };
 
-  /**
-   * What is being dragged. The payload lives in a ref because `drop` must read
-   * it in the same handler pass — reading it from state would depend on a
-   * re-render having landed between `dragstart` and `drop`. The state copy
-   * exists only to dim the dragged row.
-   */
   const dragRef = useRef<Drag | null>(null);
   const [dragging, setDragging] = useState<Drag | null>(null);
 
@@ -123,17 +105,12 @@ export function CurriculumStep({
     setDragging(null);
   };
 
-  /** Every drop target has to claim the drag or the browser rejects it. */
   const allowDrop = (event: React.DragEvent) => {
     event.preventDefault();
     event.stopPropagation();
     event.dataTransfer.dropEffect = "move";
   };
 
-  /**
-   * Firefox refuses to start a drag unless `dataTransfer` carries something,
-   * so every `dragstart` seeds it even though the reorder reads local state.
-   */
   const beginDrag = (event: React.DragEvent, id: string) => {
     event.stopPropagation();
     event.dataTransfer.effectAllowed = "move";
@@ -353,7 +330,6 @@ export function CurriculumStep({
                     if (drag.kind === "section") {
                       onMoveSection(drag.sectionId, section.id);
                     } else if (drag.sectionId !== section.id) {
-                      // A lesson dropped on a section header joins the end.
                       onMoveLesson(
                         drag.sectionId,
                         drag.lessonId,
@@ -377,7 +353,6 @@ export function CurriculumStep({
                       aria-hidden
                       className="shrink-0 cursor-grab text-[#9A9AB0]"
                     />
-                    {/* The design renames a section by clicking its title. */}
                     <button
                       type="button"
                       onClick={() => onEditSection(section.id)}

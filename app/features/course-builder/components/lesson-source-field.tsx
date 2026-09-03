@@ -17,11 +17,9 @@ const ACCEPT: Record<Exclude<LessonSource, "youtube">, string> = {
   audio: "audio/*",
 };
 
-type PresignResult = {
-  ok: true;
-  intent: "presign-lesson";
-  upload: LessonAssetUpload;
-};
+type PresignResult =
+  | { ok: true; intent: "presign-lesson"; upload: LessonAssetUpload }
+  | { ok: false; error?: string };
 
 interface LessonSourceFieldProps {
   source: LessonSource;
@@ -29,22 +27,12 @@ interface LessonSourceFieldProps {
   fileName: string | null;
   urlPlaceholder: string;
   onUrlChange: (url: string) => void;
-  /** Called once the file has landed in storage. */
   onUploaded: (assetKey: string, fileName: string) => void;
   onClearFile: () => void;
-  /** Reports whether an upload is in flight, so the dialog can wait for it. */
   onUploadingChange?: (uploading: boolean) => void;
-  /** Labels the file input for screen readers. */
   label: string;
 }
 
-/**
- * The source half of a lesson: a URL box for a YouTube link, or a drop zone for
- * a PDF or audio file.
- *
- * Picking a file presigns through our action, then PUTs straight to storage;
- * only the returned key is saved on the lesson.
- */
 export function LessonSourceField({
   source,
   url,
@@ -62,13 +50,6 @@ export function LessonSourceField({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Which selection an upload belongs to.
-   *
-   * Switching source abandons whatever is in flight: a file that lands after
-   * the creator has moved from PDF to Audio would otherwise be reported as the
-   * audio lesson's file.
-   */
   const selection = useRef(0);
 
   const busy = uploading || fetcher.state !== "idle";
@@ -104,10 +85,16 @@ export function LessonSourceField({
     );
   };
 
-  // The presigned URL comes back through the action; the PUT happens here.
   useEffect(() => {
     const file = pendingFile.current;
-    if (fetcher.state !== "idle" || !fetcher.data?.upload || !file) return;
+    if (fetcher.state !== "idle" || !fetcher.data || !file) return;
+
+    if (!fetcher.data.ok) {
+      pendingFile.current = null;
+      setError(fetcher.data.error ?? "That file could not be uploaded.");
+      return;
+    }
+
     pendingFile.current = null;
 
     const upload = fetcher.data.upload;

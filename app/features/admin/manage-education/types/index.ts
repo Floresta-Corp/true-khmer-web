@@ -1,10 +1,5 @@
 import { z } from "zod";
 
-/**
- * Statuses the admin course list can filter on. DRAFT is deliberately absent —
- * the API only accepts these three, since an unsubmitted draft is not the
- * moderation team's business.
- */
 export const adminCourseStatusFilterSchema = z.enum([
   "PENDING",
   "PUBLISHED",
@@ -34,7 +29,6 @@ export const COURSE_SORT_OPTIONS: { value: CourseSortBy; label: string }[] = [
   { value: "oldest", label: "Oldest" },
 ];
 
-/** URL params carry lowercase statuses; the API wants them uppercase. */
 export function toStatusParam(status: AdminCourseStatusFilter) {
   return status.toLowerCase();
 }
@@ -60,13 +54,6 @@ export function isCourseReviewIntent(
 
 export const REJECTION_NOTE_MAX_LENGTH = 2000;
 
-/* --------------------- Submitted content, for review ---------------------- */
-
-/**
- * Shapes the admin course endpoint returns alongside the course once the API
- * carries a curriculum. Declared here rather than imported from the generated
- * client so the screen still builds against an API that predates them.
- */
 export type ReviewLesson = {
   id: string;
   title: string;
@@ -133,14 +120,6 @@ export const CERTIFICATE_LABELS: Record<
   COMPLETION: "Certificate of completion",
 };
 
-/**
- * Pulls the review content off a course, tolerating an older API.
- *
- * The nested shapes are checked, not just their presence: the review panels
- * read `curriculum.chapters.length` and `quiz.questions.length` directly, so a
- * course carrying either field without its array took the whole detail page
- * down with a TypeError.
- */
 export function readCourseReviewContent(course: unknown): CourseReviewContent {
   const source = (course ?? {}) as Partial<CourseReviewContent>;
   const { curriculum, quiz } = source;

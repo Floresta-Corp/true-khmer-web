@@ -72,7 +72,6 @@ export default function ManageEducationPage() {
     navigation.state === "loading" &&
     navigation.location?.pathname === BASE_PATH;
 
-  // Only a filter change swaps the list out; a plain revalidation keeps it.
   const isFiltering =
     isRevalidating &&
     filterKeyOf(new URLSearchParams(navigation.location?.search)) !== searchKey;

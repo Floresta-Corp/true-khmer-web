@@ -11,20 +11,6 @@ import {
 
 type Stats = CourseStatsResponse["stats"];
 
-/**
- * The creator's course figures, derived from recorded lesson progress.
- *
- * What is real: learners, how far each has got, completion, and when learners
- * started. What is absent, because nothing records it: quiz attempts (so quiz
- * pass rate, average score and the score distribution) and ratings (so the
- * review distribution). Those stay at zero and their blocks render empty
- * rather than showing a figure nobody measured.
- *
- * One consequence of having no enrolment resource: a learner only exists here
- * once they open a lesson, so there is no "enrolled but not started" group and
- * `notStarted` is always zero.
- */
-
 const EMPTY_STATS: Stats = {
   lessonCount: 0,
   students: [],
@@ -50,11 +36,6 @@ const MONTHS = [
   "Dec",
 ];
 
-/**
- * "02 Sep 2026", matching the Students and Review tabs. Read in UTC for the
- * same reason they do — a local getter would roll the date back a day west of
- * Greenwich and disagree between the server and client renders.
- */
 function shortDate(iso: string) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "—";
@@ -110,12 +91,7 @@ export function buildManageOverview(stats: Stats | null): CourseManageOverview {
     totalLearners: total,
     completionRate: percent(completed, total),
     progress: progressSegments(source),
-    // The design's "Course performance" chart plots enrollments against
-    // active students per day. Nothing records activity, only completions,
-    // so it stays empty; the Analytics tab's enrolment trend is the part
-    // that is measurable.
     performance: [],
-    // No quiz attempts and no ratings are stored anywhere.
     quizPassRate: 0,
     avgQuizScore: 0,
     rating: 0,
@@ -123,7 +99,6 @@ export function buildManageOverview(stats: Stats | null): CourseManageOverview {
   };
 }
 
-/** The Students tab's table, one row per learner with recorded progress. */
 export function buildStudents(stats: Stats | null): ManageStudent[] {
   const source = stats ?? EMPTY_STATS;
 
@@ -139,7 +114,6 @@ export function buildStudents(stats: Stats | null): ManageStudent[] {
         enrolledAt: student.startedAt,
         progressPercent: percent(student.lessonsCompleted, source.lessonCount),
         status: done ? ("completed" as const) : ("in-progress" as const),
-        // No quiz attempt is recorded, so there is no score to show.
         quizScore: "—",
         completedLabel: student.completedAt
           ? shortDate(student.completedAt)
@@ -152,8 +126,6 @@ export function buildAnalytics(stats: Stats | null): CourseManageAnalytics {
   const source = stats ?? EMPTY_STATS;
   const { total, completed, inProgress } = split(source);
 
-  // "Enrolled" is deliberately absent: without an enrolment resource it would
-  // be identical to "Started", so the funnel begins where the data does.
   const funnel: FunnelStage[] =
     total === 0
       ? []
@@ -181,7 +153,6 @@ export function buildAnalytics(stats: Stats | null): CourseManageAnalytics {
       value: point.learners,
     })),
     funnel,
-    // Nothing records quiz attempts.
     quizBands: [],
     quizAttempts: 0,
   };

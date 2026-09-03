@@ -18,18 +18,14 @@ import { cn } from "~/lib/utils";
 interface CourseActionBarProps {
   backTo: string;
   backLabel?: string;
-  /** Design uses 20px under this row on course detail, 18px on the learning screen. */
   className?: string;
   isSaved: boolean;
   onToggleSave: () => void;
   onShare: () => void;
-  /** The design's download control. Omitted when nothing is downloadable. */
   onDownload?: () => void;
   onReport: () => void;
 }
 
-/** Back link plus the save / share / report controls shared by the course
- * detail and course learning screens. */
 export function CourseActionBar({
   backTo,
   backLabel = "Back",

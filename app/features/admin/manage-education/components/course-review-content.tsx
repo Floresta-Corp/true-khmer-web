@@ -32,8 +32,6 @@ function formatDuration(seconds: number | null) {
 function LessonRow({ lesson }: { lesson: ReviewLesson }) {
   const Icon = LESSON_ICON[lesson.type];
   const duration = formatDuration(lesson.durationSeconds);
-  // The creator writes this url, and a moderator clicks it inside their own
-  // admin session — so anything that is not a web address gets no link at all.
   const href = getSafeExternalUrl(lesson.url ?? lesson.assetUrl);
 
   return (

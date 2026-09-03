@@ -16,17 +16,11 @@ import {
 } from "~/features/education/lib/course-catalog";
 import type { educationCatalogLoader } from "~/features/education/services/education-catalog.loader";
 
-/**
- * A filter row. The design draws it as a button with a ring-style dot rather
- * than a native control, so the input is visually hidden but still the thing
- * that gets focused and announced.
- */
 function FilterRadio({
   name,
   label,
   checked,
   onSelect,
-  /** Set for a choice the API cannot answer; it stays visible but inert. */
   unavailable = false,
 }: {
   name: string;
@@ -72,7 +66,6 @@ function FilterRadio({
   );
 }
 
-/** A collapsible block in the filter panel. */
 function FilterSection({
   title,
   divided = true,
@@ -127,8 +120,6 @@ export function EducationCatalog() {
 
   const [searchInput, setSearchInput] = useState(search);
 
-  // Course bookmarks have no API resource yet, so the state lives in the page,
-  // exactly as it does on the hub.
   const [savedCourseIds, setSavedCourseIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -156,7 +147,6 @@ export function EducationCatalog() {
     [setSearchParams],
   );
 
-  /** Every filter change resets to page one, as the design does. */
   const setFilter = useCallback(
     (changes: Record<string, string | null>) =>
       updateParams({ ...changes, page: null }),

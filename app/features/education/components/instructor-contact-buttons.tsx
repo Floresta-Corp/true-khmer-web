@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 
 interface InstructorContactButtonsProps {
-  /** E.164 number for the `tel:` link, or `null` if the instructor has none. */
   phone: string | null;
   email: string | null;
 }
@@ -9,14 +8,6 @@ interface InstructorContactButtonsProps {
 const TILE =
   "flex size-10 items-center justify-center rounded-[10px] bg-[#EFF4FE] transition-colors";
 
-/**
- * One contact tile.
- *
- * The design draws both tiles unconditionally, so both are always here. With a
- * value it is a real `tel:`/`mailto:` link; without one it stays in place as an
- * inert tile rather than disappearing and leaving the row looking half-built.
- * The glyph dims so it does not read as clickable.
- */
 function ContactTile({
   href,
   label,
@@ -48,13 +39,6 @@ function ContactTile({
   );
 }
 
-/**
- * The detail screen's call and email controls.
- *
- * The two glyphs are the design's own paths rather than Lucide equivalents —
- * the phone carries the two signal arcs and the envelope has the squarer,
- * heavily-rounded body, neither of which Lucide's `Phone`/`Mail` match.
- */
 export function InstructorContactButtons({
   phone,
   email,

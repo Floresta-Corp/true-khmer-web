@@ -31,11 +31,6 @@ const DIFFICULTY_FROM_API: Record<
   ALL_LEVELS: "All levels",
 };
 
-/**
- * The builder opened on an existing course, which is where the teach screen's
- * Content tab sends you. Only the creator edits a course, so this sits behind a
- * session, and `?step=` lets that tab deep-link straight to the curriculum.
- */
 export async function courseBuilderEditLoader({
   request,
   params,
@@ -60,9 +55,6 @@ export async function courseBuilderEditLoader({
     categoryResult?.data?.categories ?? []
   ).map((category) => ({ value: category.id, label: category.name }));
 
-  // The course model carries the builder's extras, so they round-trip. Reading
-  // them back matters: saving replaces them wholesale, so anything not loaded
-  // here would be wiped by the next save.
   const saved = course as Partial<{
     difficulty: keyof typeof DIFFICULTY_FROM_API;
     skills: string[];
@@ -81,8 +73,6 @@ export async function courseBuilderEditLoader({
     coverPreviewUrl: course.coverImageUrl ?? null,
     difficulty: saved.difficulty ? DIFFICULTY_FROM_API[saved.difficulty] : null,
     skills: Array.isArray(saved.skills) ? saved.skills : [],
-    // The field always shows at least one row, so an empty saved list becomes
-    // a single blank input rather than no field at all.
     outcomes:
       Array.isArray(saved.outcomes) && saved.outcomes.length > 0
         ? saved.outcomes
@@ -99,9 +89,6 @@ export async function courseBuilderEditLoader({
     new URL(request.url).searchParams.get("step"),
   );
 
-  // The saved curriculum, mapped into the builder's shape. No fixture
-  // fallback: a full-replace save would write those fixtures over the real
-  // curriculum the next time the creator pressed Save.
   const savedCurriculum =
     curriculumResult.status === "loaded"
       ? curriculumResult.result.data.curriculum
@@ -129,10 +116,6 @@ export async function courseBuilderEditLoader({
     }),
   );
 
-  // A save replaces the curriculum and quiz wholesale, so the builder must not
-  // send one it failed to read — that would delete the real one. A course that
-  // simply has none yet is a different matter: the builder has to be allowed to
-  // send its first curriculum, so only a failed read blocks the replacement.
   const canReplaceCurriculum = curriculumResult.status !== "unreadable";
   const canReplaceQuiz = quizResult.status !== "unreadable";
 

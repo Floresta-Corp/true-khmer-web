@@ -4,7 +4,6 @@ import { Maximize2, Minimize2, Pause, Play } from "lucide-react";
 import { cn, getSafeExternalUrl } from "~/lib/utils";
 import type { ActiveLesson } from "~/features/education/types";
 
-/** youtu.be/ID, /watch?v=ID, /embed/ID and /shorts/ID all reduce to an id. */
 export function youtubeEmbedUrl(url: string): string | null {
   try {
     const parsed = new URL(url);
@@ -25,21 +24,9 @@ export function youtubeEmbedUrl(url: string): string | null {
   }
 }
 
-/**
- * Renders the lesson body for the three media kinds in the design.
- *
- * A lesson with a real source plays it — a YouTube embed, an audio element, or
- * the PDF itself. A lesson saved before its media was uploaded has none, and
- * the design's presentational transport is shown instead.
- */
 interface LessonPlayerProps {
   lesson: ActiveLesson;
-  /**
-   * The design's floating controls over the media — lesson title plus the save,
-   * panel and overflow buttons. Laid over the video; a bar above pdf and audio.
-   */
   overlay?: ReactNode;
-  /** Flush against the shell, as the full-bleed learning screen requires. */
   flush?: boolean;
 }
 
@@ -51,7 +38,6 @@ export function LessonPlayer({ lesson, overlay, flush }: LessonPlayerProps) {
   return <VideoLesson lesson={lesson} overlay={overlay} flush={flush} />;
 }
 
-/** Rounded on the standalone screens, square when flush in the learn shell. */
 const frame = (flush?: boolean) => (flush ? "" : "rounded-xl");
 
 function VideoLesson({ lesson, overlay, flush }: LessonPlayerProps) {
@@ -73,9 +59,6 @@ function VideoLesson({ lesson, overlay, flush }: LessonPlayerProps) {
           className="size-full border-0"
         />
 
-        {/* The same top layer the simulated player draws. Dropping it here
-            took the lesson title, Share, Report and the button that reopens
-            the content panel off every real YouTube lesson. */}
         {overlay && (
           <div className="pointer-events-none absolute inset-x-0 top-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.7)_0%,rgba(0,0,0,0.35)_60%,transparent_100%)] px-5 pt-4 pb-8">
             <div className="pointer-events-auto">{overlay}</div>
@@ -174,9 +157,6 @@ function SimulatedVideoLesson({ lesson, overlay, flush }: LessonPlayerProps) {
 }
 
 function PdfLesson({ lesson, overlay, flush }: LessonPlayerProps) {
-  // The creator supplies this url, so it is framed only if it is a web
-  // address, and sandboxed either way: a document served from storage needs no
-  // more than its own scripts, and must not navigate the learner away.
   const src = getSafeExternalUrl(lesson.sourceUrl);
 
   if (src) {
@@ -208,7 +188,6 @@ function PdfLesson({ lesson, overlay, flush }: LessonPlayerProps) {
   );
 }
 
-/** The dark strip the design puts above pdf and audio lessons. */
 function MediaBar({ children }: { children: ReactNode }) {
   return <div className="bg-[#2B2B3C] px-5 py-4">{children}</div>;
 }
@@ -284,7 +263,6 @@ function SimulatedAudioLesson({
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // Deterministic bar heights so the waveform is stable across renders.
   const bars = useMemo(
     () =>
       Array.from({ length: 48 }, (_, index) => ({

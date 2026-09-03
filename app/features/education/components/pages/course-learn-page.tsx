@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLoaderData, useFetcher, useSearchParams } from "react-router";
 import { Bookmark, Menu, MoreVertical } from "lucide-react";
 import { toast } from "sonner";
@@ -18,7 +18,6 @@ import type { educationLearnAction } from "~/features/education/services/educati
 import type { educationLearnLoader } from "~/features/education/services/education-learn.loader";
 import type { CourseLesson } from "~/features/education/types";
 
-/** 17px/700 blocks under the player; the design sets their margins apart. */
 const HEADING = "text-[17px] font-bold text-[#1A1A2E]";
 
 export default function CourseLearnPage() {
@@ -27,9 +26,6 @@ export default function CourseLearnPage() {
   const progress = useFetcher<typeof educationLearnAction>();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Resolved here rather than in the loader, so switching lesson is instant.
-  // Non-null: the loader 404s a course with no lessons, so one always
-  // resolves — an unknown `?lesson=` falls back to the first.
   const activeLesson = useMemo(
     () => toActiveLesson(course, searchParams.get("lesson"))!,
     [course, searchParams],
@@ -40,16 +36,10 @@ export default function CourseLearnPage() {
     [course.curriculum],
   );
 
-  /**
-   * Lessons this learner has watched, seeded from the API so returning to a
-   * course does not restart at zero. The optimistic local copy keeps the
-   * sidebar ticking immediately; the fetcher persists it.
-   */
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(
     () => new Set(watched),
   );
 
-  // A signed-in learner's saved progress arrives with the loader.
   useEffect(() => {
     setCompletedLessonIds((current) => {
       if (watched.every((id) => current.has(id))) return current;
@@ -62,8 +52,8 @@ export default function CourseLearnPage() {
     () => new Set([activeLesson.sectionId]),
   );
 
-  // The design has no "mark complete" control — a chapter counts as done once
-  // the learner has opened it, which is also what keeps the quiz reachable.
+  const savingLessonId = useRef<string | null>(null);
+
   useEffect(() => {
     setCompletedLessonIds((current) => {
       if (current.has(activeLesson.id)) return current;
@@ -72,20 +62,27 @@ export default function CourseLearnPage() {
       return next;
     });
 
-    // Persist it. A signed-out viewer's POST is refused by the API and the
-    // page carries on with the session-only copy above.
+    savingLessonId.current = activeLesson.id;
     progress.submit(
       { lessonId: activeLesson.id },
       { method: "post", action: `/education/${course.id}/learn` },
     );
-    // Deliberately keyed on the lesson alone — `progress` is a stable fetcher
-    // and including it would re-submit on every state change it causes.
   }, [activeLesson.id, course.id]);
 
-  // The tick beside a lesson is set locally the moment it opens, so a failed
-  // save would otherwise leave the learner believing progress was recorded.
   useEffect(() => {
-    if (progress.state !== "idle" || progress.data?.ok !== false) return;
+    if (progress.state !== "idle" || !progress.data) return;
+
+    const saved = savingLessonId.current;
+    savingLessonId.current = null;
+    if (progress.data.ok || !saved) return;
+
+    setCompletedLessonIds((current) => {
+      if (!current.has(saved)) return current;
+      const next = new Set(current);
+      next.delete(saved);
+      return next;
+    });
+
     toast.error("Could not save your progress for this lesson.");
   }, [progress.state, progress.data]);
 
@@ -102,8 +99,17 @@ export default function CourseLearnPage() {
   );
   const previousLesson = flatLessons[currentIndex - 1];
   const nextLesson = flatLessons[currentIndex + 1];
+
+  const completedInCourse = useMemo(() => {
+    const ids = new Set<string>();
+    for (const lesson of flatLessons) {
+      if (completedLessonIds.has(lesson.id)) ids.add(lesson.id);
+    }
+    return ids;
+  }, [flatLessons, completedLessonIds]);
+
   const allComplete =
-    flatLessons.length > 0 && completedLessonIds.size === flatLessons.length;
+    flatLessons.length > 0 && completedInCourse.size === flatLessons.length;
 
   const goToLesson = (lesson: CourseLesson | undefined) => {
     if (!lesson) return;
@@ -111,8 +117,6 @@ export default function CourseLearnPage() {
   };
 
   const handleShare = async () => {
-    // Clipboard access is refused outright in some browsers and contexts, and
-    // an unhandled rejection here left the learner with no feedback at all.
     try {
       await navigator.clipboard.writeText(window.location.href);
       toast.success("Link copied to clipboard");
@@ -178,7 +182,7 @@ export default function CourseLearnPage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="min-w-[170px] rounded-[10px] p-1.5 font-tk-edu shadow-[0_8px_28px_rgba(26,26,46,0.14)]"
+            className="min-w-42.5 rounded-[10px] p-1.5 font-tk-edu shadow-[0_8px_28px_rgba(26,26,46,0.14)]"
           >
             <DropdownMenuItem
               onSelect={handleShare}
@@ -208,7 +212,7 @@ export default function CourseLearnPage() {
             course={course}
             title={course.title}
             activeLessonId={activeLesson.id}
-            completedLessonIds={completedLessonIds}
+            completedLessonIds={completedInCourse}
             openSectionIds={openSectionIds}
             onToggleSection={(sectionId) =>
               setOpenSectionIds((current) => {
@@ -264,9 +268,6 @@ export default function CourseLearnPage() {
               </div>
             </div>
 
-            {/* The API has no per-lesson prose, so these two blocks show the
-                course's own description and skills — real authored content,
-                the same on every chapter. */}
             {course.description && (
               <>
                 <h3 className={`${HEADING} mb-3`}>About this course</h3>

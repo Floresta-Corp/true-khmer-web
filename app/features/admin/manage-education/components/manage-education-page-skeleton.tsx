@@ -9,7 +9,6 @@ function FiltersSkeleton() {
   );
 }
 
-/** Mirrors the workspace Course Listing row skeleton. */
 export function ManageEducationRowSkeleton() {
   return (
     <div className="flex items-center gap-5 rounded-2xl bg-white p-4 dark:bg-slate-900">
