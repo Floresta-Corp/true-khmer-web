@@ -1,35 +1,28 @@
 import { z } from "zod";
-import type { CourseLevel } from "~/features/education/types";
+import type {
+  CourseLesson,
+  CourseLevel,
+  CourseSection,
+} from "~/features/education/types";
 
-/**
- * The builder's wizard state.
- *
- * Only `title`, `description`, `categoryId` and `coverImageKey` have somewhere
- * to go on the API today (see `createCourse`). The rest is held here so the UI
- * matches the design and is ready to persist once the endpoints exist.
- */
 export interface CourseDraft {
   title: string;
   description: string;
   categoryId: string;
   difficulty: CourseDifficulty | null;
   skills: string[];
+  outcomes: string[];
   tags: string[];
   coverImageKey: string | null;
   coverPreviewUrl: string | null;
 }
 
-/**
- * The design offers four difficulty cards. `CourseLevel` — what a course card
- * renders — has three, so "All levels" maps to no single level.
- */
 export type CourseDifficulty = CourseLevel | "All levels";
 
 export interface DifficultyOption {
   value: CourseDifficulty;
   label: string;
   desc: string;
-  /** Filled bars in the level meter; "All levels" shows all three. */
   bars: number;
 }
 
@@ -60,10 +53,6 @@ export const DIFFICULTY_OPTIONS: DifficultyOption[] = [
   },
 ];
 
-/**
- * Every step the builder can show, in the design's order. Which of them are
- * actually visible depends on the course — see `visibleSteps`.
- */
 export const BUILDER_STEPS = [
   "basic",
   "curriculum",
@@ -83,17 +72,13 @@ export function emptyDraft(): CourseDraft {
     categoryId: "",
     difficulty: null,
     skills: [],
+    outcomes: [""],
     tags: [],
     coverImageKey: null,
     coverPreviewUrl: null,
   };
 }
 
-/**
- * How the course content is organized — the "Course structure" choice on the
- * Curriculum step. The design offers two, with the multi-section one
- * recommended.
- */
 export const COURSE_FORMATS = ["multi", "single"] as const;
 
 export type CourseFormat = (typeof COURSE_FORMATS)[number];
@@ -105,9 +90,6 @@ export interface CourseFormatOption {
   badge: string | null;
 }
 
-/* ------------------------------- Lessons --------------------------------- */
-
-/** How a lesson's content is supplied. */
 export const LESSON_SOURCES = ["youtube", "pdf", "audio"] as const;
 
 export type LessonSource = (typeof LESSON_SOURCES)[number];
@@ -118,7 +100,6 @@ export const LESSON_SOURCE_LABELS: Record<LessonSource, string> = {
   audio: "Audio",
 };
 
-/** The richer labels the single-lesson "Content format" cards use. */
 export const LESSON_SOURCE_CARDS: Record<
   LessonSource,
   { label: string; desc: string }
@@ -148,23 +129,63 @@ export const LESSON_UPLOAD_HINTS: Record<
   audio: "Drop an audio file here or click to browse",
 };
 
-/** What the "Add lesson" dialog collects. */
 export interface LessonDraft {
   title: string;
   source: LessonSource;
-  /** The YouTube URL, when the source is a link. */
   url: string;
-  /** The chosen file's name, when the source is an upload. */
   fileName: string | null;
+  assetKey: string | null;
+}
+
+export function lessonSourceChange(source: LessonSource): Partial<LessonDraft> {
+  return { source, url: "", fileName: null, assetKey: null };
 }
 
 export function emptyLessonDraft(): LessonDraft {
-  return { title: "", source: "youtube", url: "", fileName: null };
+  return {
+    title: "",
+    source: "youtube",
+    url: "",
+    fileName: null,
+    assetKey: null,
+  };
 }
 
-/* -------------------------------- Quiz ----------------------------------- */
+export interface BuilderLesson extends CourseLesson {
+  url: string | null;
+  assetKey: string | null;
+}
 
-/** A course has a single quiz, sat at the end. */
+export interface BuilderSection extends CourseSection {
+  lessons: BuilderLesson[];
+}
+
+export type LessonApiType = "YOUTUBE" | "PDF" | "AUDIO";
+
+export function lessonApiType(lesson: BuilderLesson): LessonApiType {
+  if (lesson.type === "pdf") return "PDF";
+  if (lesson.type === "audio") return "AUDIO";
+  return "YOUTUBE";
+}
+
+export const DIFFICULTY_API_VALUE: Record<
+  CourseDifficulty,
+  "BEGINNER" | "INTERMEDIATE" | "ADVANCE" | "ALL_LEVELS"
+> = {
+  Beginner: "BEGINNER",
+  Intermediate: "INTERMEDIATE",
+  Advance: "ADVANCE",
+  "All levels": "ALL_LEVELS",
+};
+
+export const CERTIFICATE_API_VALUE: Record<
+  CertificateKind,
+  "PARTICIPATION" | "COMPLETION"
+> = {
+  participation: "PARTICIPATION",
+  completion: "COMPLETION",
+};
+
 export interface QuizAnswer {
   id: string;
   text: string;
@@ -177,17 +198,13 @@ export interface QuizQuestion {
   answers: QuizAnswer[];
 }
 
-/** The design's answer list caps out; four choices is its placeholder count. */
 export const DEFAULT_ANSWER_COUNT = 4;
 export const MAX_ANSWER_COUNT = 6;
-
-/* ----------------------------- Certificate ------------------------------- */
 
 export const CERTIFICATE_KINDS = ["participation", "completion"] as const;
 
 export type CertificateKind = (typeof CERTIFICATE_KINDS)[number];
 
-/** A category as the builder's select needs it. */
 export interface CategoryOption {
   value: string;
   label: string;

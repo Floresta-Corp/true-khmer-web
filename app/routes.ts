@@ -23,7 +23,7 @@ export default [
       route("forum/detail/:questionId", "features/forum/route/forum.$id.tsx"),
       route("events", "features/events/routes/events.tsx"),
       route("events/all", "features/events/routes/events.all.tsx"),
-      route("events/detail/:id", "features/events/routes/events.$id.tsx"),
+      route("events/detail/:slug", "features/events/routes/events.$slug.tsx"),
       route("volunteer", "features/volunteer/route/volunteer.tsx"),
       route("volunteer/all", "features/volunteer/route/volunteer.all.tsx"),
       route(
@@ -43,10 +43,6 @@ export default [
       route("education", "features/education/route/education.tsx"),
       route("education/all", "features/education/route/education.all.tsx"),
       route("education/:id", "features/education/route/education.$id.tsx"),
-      route(
-        "education/:id/learn",
-        "features/education/route/education.learn.$id.tsx",
-      ),
       route(
         "education/:id/quiz",
         "features/education/route/education.quiz.$id.tsx",
@@ -73,6 +69,10 @@ export default [
       ),
       route("profile/:id", "features/profile/route/profile.$id.tsx"),
     ]),
+    route(
+      "education/:id/learn",
+      "features/education/route/education.learn.$id.tsx",
+    ),
     route("edit-profile", "features/myspace/route/edit-profile.tsx"),
     route(
       "my-applications/detail/:sourceType/:postingId",
@@ -106,8 +106,6 @@ export default [
     ]),
     route("notifications", "features/notifications/route/notifications.tsx"),
   ]),
-  // Standalone: the design gives the builder its own 100vh rail, so it sits
-  // outside the app shell rather than under the site header.
   route("education/create", "features/course-builder/route/course-builder.tsx"),
   route(
     "education/:id/edit",
@@ -224,6 +222,14 @@ export default [
     route(
       "manage-volunteer/:opportunityId",
       "features/admin/manage-content/route/manage-volunteer.$opportunityId.tsx",
+    ),
+    route(
+      "manage-education",
+      "features/admin/manage-education/route/manage-education.tsx",
+    ),
+    route(
+      "manage-education/:courseId",
+      "features/admin/manage-education/route/manage-education.$courseId.tsx",
     ),
   ]),
   route(

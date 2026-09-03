@@ -278,8 +278,8 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
 
   return (
     <ForumPageLayout>
-      <div className="grid grid-cols-1 gap-6 rounded-2xl bg-white p-4 pb-24 sm:p-6 sm:pb-6 lg:grid-cols-12 lg:p-8">
-        <div className="space-y-6 lg:col-span-12">
+      <div className="grid grid-cols-1 items-start gap-6 rounded-2xl bg-white p-4 pb-24 sm:p-6 sm:pb-6 lg:grid-cols-12 lg:p-8">
+        <div className="col-span-1 space-y-6 lg:col-span-12">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -314,7 +314,8 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
             />
           </motion.div>
         </div>
-        <div className="flex flex-col gap-3 lg:col-span-8">
+
+        <div className="col-span-1 lg:col-span-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -325,32 +326,15 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
               skills={me.skills.map((skill) => skill.name)}
             />
           </motion.div>
-
-          {/* <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
-        >
-          <PointsChartCard />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
-        >
-          <RecentActivityList
-            activities={recentActivities || []}
-            maxItems={5}
-          />
-        </motion.div> */}
         </div>
-        <aside className="lg:col-span-4">
-          <div className="grid gap-4">
+
+        <aside className="col-span-1 lg:col-span-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-1 lg:grid-cols-1">
             <motion.div
+              className="w-full min-w-0"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+              transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
             >
               <CommunityStandingCard
                 totalPoints={me.progress.totalPoints}
@@ -362,9 +346,10 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
             </motion.div>
 
             <motion.div
+              className="w-full min-w-0"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
+              transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
             >
               <MyAchievementsCard badges={me.badges} />
             </motion.div>

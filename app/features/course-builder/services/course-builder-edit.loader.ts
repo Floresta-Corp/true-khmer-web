@@ -3,41 +3,49 @@ import type { Route } from "project-types/course-builder/route/+types/course-bui
 import {
   getCourseById,
   getCourseCategories,
+  readCourseCurriculum,
+  readCourseQuiz,
 } from "~/api/education/education.server";
-import { MY_COURSES_FIXTURES } from "~/features/course-listing/lib/my-courses-fixtures";
-import { buildManageOverview } from "~/features/course-manage/lib/course-manage-fixtures";
-import { enrichCourseDetail } from "~/features/education/lib/education-fixtures";
 import {
   BuilderStepSchema,
+  DIFFICULTY_API_VALUE,
   emptyDraft,
+  type BuilderSection,
   type CategoryOption,
+  type CertificateKind,
+  type CourseDifficulty,
   type CourseDraft,
+  type CourseFormat,
+  type QuizQuestion,
 } from "~/features/course-builder/types";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
 
-/**
- * The builder opened on an existing course, which is where the teach screen's
- * Content tab sends you. Only the creator edits a course, so this sits behind a
- * session, and `?step=` lets that tab deep-link straight to the curriculum.
- */
+const DIFFICULTY_FROM_API: Record<
+  (typeof DIFFICULTY_API_VALUE)[CourseDifficulty],
+  CourseDifficulty
+> = {
+  BEGINNER: "Beginner",
+  INTERMEDIATE: "Intermediate",
+  ADVANCE: "Advance",
+  ALL_LEVELS: "All levels",
+};
+
 export async function courseBuilderEditLoader({
   request,
   params,
 }: Route.LoaderArgs) {
   const auth = await requireUser(request);
 
-  const [categoryResult, courseResult] = await Promise.all([
-    getCourseCategories(request),
-    getCourseById(request, params.id),
-  ]);
+  const [categoryResult, courseResult, curriculumResult, quizResult] =
+    await Promise.all([
+      getCourseCategories(request),
+      getCourseById(request, params.id),
+      readCourseCurriculum(request, params.id),
+      readCourseQuiz(request, params.id),
+    ]);
 
-  // The Course Listing placeholders resolve here too, so the screen can be
-  // reviewed against the design before the API has courses in it.
-  const course =
-    courseResult?.data?.course ??
-    MY_COURSES_FIXTURES.find((entry) => entry.id === params.id) ??
-    null;
+  const course = courseResult?.data?.course ?? null;
 
   if (!course) {
     throw data({ message: "Course not found" }, { status: 404 });
@@ -47,52 +55,93 @@ export async function courseBuilderEditLoader({
     categoryResult?.data?.categories ?? []
   ).map((category) => ({ value: category.id, label: category.name }));
 
-  // Difficulty, skills and tags have no field on the API's course model, so
-  // they start empty rather than pretending to round-trip.
+  const saved = course as Partial<{
+    difficulty: keyof typeof DIFFICULTY_FROM_API;
+    skills: string[];
+    outcomes: string[];
+    tags: string[];
+    certificateKind: "PARTICIPATION" | "COMPLETION";
+    format: CourseFormat | "MULTI" | "SINGLE";
+  }>;
+
   const draft: CourseDraft = {
     ...emptyDraft(),
     title: course.title,
     description: course.description ?? "",
     categoryId: course.categoryId ?? "",
+    coverImageKey: course.coverImageKey ?? null,
     coverPreviewUrl: course.coverImageUrl ?? null,
+    difficulty: saved.difficulty ? DIFFICULTY_FROM_API[saved.difficulty] : null,
+    skills: Array.isArray(saved.skills) ? saved.skills : [],
+    outcomes:
+      Array.isArray(saved.outcomes) && saved.outcomes.length > 0
+        ? saved.outcomes
+        : [""],
+    tags: Array.isArray(saved.tags) ? saved.tags : [],
   };
+
+  const certificate: CertificateKind =
+    saved.certificateKind === "PARTICIPATION" ? "participation" : "completion";
+
+  const format: CourseFormat = saved.format === "SINGLE" ? "single" : "multi";
 
   const step = BuilderStepSchema.safeParse(
     new URL(request.url).searchParams.get("step"),
   );
 
-  // Same builder the teach screen and the learner detail use, so the curriculum
-  // the Content tab shows is the curriculum the builder opens. There is no
-  // curriculum resource on the API, so edits to it are not persisted.
-  const { curriculum } = enrichCourseDetail({
-    id: course.id,
-    title: course.title,
-    description: course.description,
-    categoryId: course.categoryId,
-    categoryName: "Business",
-    coverImageUrl: course.coverImageUrl,
-    instructor: {
-      id: course.createdBy,
-      name: "Kosal Em",
-      avatarUrl: "/images/education/instructors/kosal-em.jpg",
-      coursesPublished: 3,
-    },
-    rating: 0,
-    ratingCount: 0,
-    level: "Beginner",
-    // The same lesson count the teach screen derives, so both surfaces show
-    // the same chapters instead of the fixture default.
-    lessonCount: buildManageOverview(course).lessonCount,
-    studentCount: 0,
-    isNew: false,
-    price: course.price,
-    isSaved: false,
-  });
+  const savedCurriculum =
+    curriculumResult.status === "loaded"
+      ? curriculumResult.result.data.curriculum
+      : null;
+
+  const sections: BuilderSection[] = (savedCurriculum?.chapters ?? []).map(
+    (chapter) => ({
+      id: chapter.id,
+      title: chapter.title,
+      lessons: chapter.lessons.map((lesson) => ({
+        id: lesson.id,
+        title: lesson.title,
+        type:
+          lesson.type === "PDF"
+            ? ("pdf" as const)
+            : lesson.type === "AUDIO"
+              ? ("audio" as const)
+              : ("video" as const),
+        duration: "",
+        isPreview: lesson.isPreview,
+        isComplete: false,
+        url: lesson.url,
+        assetKey: lesson.assetKey,
+      })),
+    }),
+  );
+
+  const canReplaceCurriculum = curriculumResult.status !== "unreadable";
+  const canReplaceQuiz = quizResult.status !== "unreadable";
+
+  const quiz =
+    quizResult.status === "loaded" ? quizResult.result.data.quiz : null;
+  const questions: QuizQuestion[] = (quiz?.questions ?? []).map((question) => ({
+    id: question.id,
+    text: question.question,
+    answers: question.options.map((option) => ({
+      id: option.id,
+      text: option.label,
+      correct: option.isCorrect,
+    })),
+  }));
 
   return withAuthData(auth, {
     categories,
     draft,
-    sections: curriculum,
+    sections,
+    courseStatus: course.status,
+    canReplaceCurriculum,
+    canReplaceQuiz,
+    certificate,
+    format,
+    passMark: String(quiz?.passMark ?? 70),
+    questions,
     courseId: course.id,
     step: step.success ? step.data : "basic",
   });

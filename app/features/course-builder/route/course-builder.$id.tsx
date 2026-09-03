@@ -17,14 +17,33 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export default function CourseBuilderEditRoute() {
-  const { categories, draft, sections, courseId, step } =
-    useLoaderData<typeof loader>();
+  const {
+    categories,
+    draft,
+    sections,
+    courseStatus,
+    canReplaceCurriculum,
+    canReplaceQuiz,
+    certificate,
+    format,
+    passMark,
+    questions,
+    courseId,
+    step,
+  } = useLoaderData<typeof loader>();
 
   return (
     <CourseBuilderPage
       categories={categories}
       initialDraft={draft}
       initialSections={sections}
+      courseStatus={courseStatus}
+      canReplaceCurriculum={canReplaceCurriculum}
+      canReplaceQuiz={canReplaceQuiz}
+      initialCertificate={certificate}
+      initialFormat={format}
+      initialPassMark={passMark}
+      initialQuestions={questions}
       initialCourseId={courseId}
       initialStep={step}
     />

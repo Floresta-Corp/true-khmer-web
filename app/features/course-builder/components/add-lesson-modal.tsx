@@ -5,6 +5,7 @@ import {
   LESSON_FIELD_LABELS,
   LESSON_SOURCES,
   LESSON_SOURCE_LABELS,
+  lessonSourceChange,
   type LessonDraft,
   type LessonSource,
 } from "~/features/course-builder/types";
@@ -14,20 +15,24 @@ interface AddLessonModalProps {
   onChange: (changes: Partial<LessonDraft>) => void;
   onConfirm: () => void;
   onClose: () => void;
+  uploading?: boolean;
+  onUploadingChange?: (uploading: boolean) => void;
 }
 
-/** The design's "Add lesson" dialog: title, content type, then the source. */
 export function AddLessonModal({
   draft,
   onChange,
   onConfirm,
   onClose,
+  uploading = false,
+  onUploadingChange,
 }: AddLessonModalProps) {
   const ready =
+    !uploading &&
     draft.title.trim().length > 0 &&
     (draft.source === "youtube"
       ? draft.url.trim().length > 0
-      : !!draft.fileName);
+      : !!draft.assetKey);
 
   return (
     <div
@@ -83,7 +88,7 @@ export function AddLessonModal({
                       key={source}
                       type="button"
                       aria-pressed={active}
-                      onClick={() => onChange({ source })}
+                      onClick={() => onChange(lessonSourceChange(source))}
                       className={cn(
                         "flex cursor-pointer items-center gap-2.5 rounded-lg border px-3.5 py-2.5 text-sm font-semibold transition-colors",
                         active
@@ -120,7 +125,11 @@ export function AddLessonModal({
                 urlPlaceholder="https://youtube.com/watch?v=..."
                 label={LESSON_FIELD_LABELS[draft.source]}
                 onUrlChange={(url) => onChange({ url })}
-                onFileChange={(fileName) => onChange({ fileName })}
+                onUploaded={(assetKey, fileName) =>
+                  onChange({ assetKey, fileName })
+                }
+                onClearFile={() => onChange({ assetKey: null, fileName: null })}
+                onUploadingChange={onUploadingChange}
               />
             </div>
           </div>
