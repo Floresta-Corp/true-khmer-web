@@ -28,7 +28,7 @@ export default function VolunteerPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration, ease: "easeOut" as const }}
-      className="min-h-screen bg-gray-50"
+      className="min-h-screen bg-white"
     >
       <motion.div
         initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
@@ -48,10 +48,11 @@ export default function VolunteerPage() {
             delay: sectionDelay,
             ease: "easeOut" as const,
           }}
-          className="will-change-transform lg:pt-17.5"
+          className="will-change-transform"
         >
           <VolunteerCategoriesSection
             categories={categories || []}
+            showAllCategory
             onClickCategory={(v) => {
               navigate(`/volunteer/all?categoryId=${v}`);
             }}
@@ -70,7 +71,7 @@ export default function VolunteerPage() {
         className="will-change-transform"
       >
         <VolunteerAvailableOpportunities
-          className="w-full bg-gray-50 py-10"
+          className="mb-10 w-full bg-white"
           containerClassName="site-container"
           opportunities={opportunities ?? []}
           pagination={pagination}

@@ -1,106 +1,42 @@
-import { Megaphone, Search } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useState } from "react";
-import { Link, useLoaderData, useNavigate } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
 import type { loader } from "../../../route/volunteer";
 import type { Location } from "~/features/volunteer/types/volunteer-types";
+import VolunteerSearchForm from "./volunteer-search-form";
 
 const easings = {
   enter: "easeInOut" as const,
   smooth: "easeInOut" as const,
 };
 
-const floatAnimation = {
-  y: [0, 6, 0],
-  scale: [1.25, 1.28, 1.25],
-  transition: {
-    duration: 8,
-    ease: "easeInOut" as const,
-    repeat: Infinity,
-  },
-};
+const volunteerHeroImage = "/images/volunteer-hero.png";
 
-const volunteerHeroBackgroundImage = "/images/volunteer-header-background.webp";
-
-function VolunteerHeroBackdrop() {
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 overflow-hidden"
-    >
-      <motion.img
-        alt=""
-        src={volunteerHeroBackgroundImage}
-        animate={floatAnimation}
-        className="absolute inset-0 h-[110%] w-[110%] rotate-180 object-cover object-top opacity-100"
-      />
-
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.8)_0%,rgba(255,255,255,0.82)_50%,rgba(255,255,255,0.98)_100%)]" />
-    </div>
-  );
-}
-function VolunteerSearchForm({
-  dur,
-  searchValue,
-  onSearchValueChange,
-  onSubmit,
-}: {
-  dur: number;
-  searchValue: string;
-  onSearchValueChange: (value: string) => void;
-  onSubmit: () => void;
-}) {
-  return (
-    <motion.form
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{
-        opacity: 0,
-        y: -12,
-        transition: { duration: 0.2 * dur, ease: "easeInOut" as const },
-      }}
-      transition={{
-        duration: 0.55 * dur,
-        delay: 0.2 * dur,
-        ease: easings.enter,
-      }}
-      onSubmit={(event) => {
-        event.preventDefault();
-        onSubmit();
-      }}
-      className="w-full max-w-107.5"
-    >
-      <div className="flex w-full items-stretch overflow-hidden rounded-[22px] border border-slate-200/80 bg-white p-2 shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur-sm transition-shadow duration-300 ease-out has-[button:focus-visible]:shadow-[0_18px_50px_rgba(36,99,235,0.12)] has-[button:hover]:shadow-[0_18px_50px_rgba(36,99,235,0.12)]">
-        <div className="relative min-w-0 flex-1">
-          <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-slate-400" />
-          <Input
-            type="search"
-            value={searchValue}
-            onChange={(event) => onSearchValueChange(event.currentTarget.value)}
-            placeholder="Search by cause or location..."
-            aria-label="Search volunteer opportunities"
-            className="h-12 border-0 bg-transparent pr-4 pl-11 text-sm font-medium text-slate-700 placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0"
-          />
-        </div>
-        <Button
-          type="submit"
-          size="lg"
-          className="h-12 cursor-pointer rounded-[16px] bg-[#2463eb] px-6 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(36,99,235,0.18)] transition-transform duration-200 hover:-translate-y-px hover:bg-[#1d56d2]"
-          style={{ transitionDuration: dur ? "200ms" : "0ms" }}
-        >
-          Explore
-        </Button>
-      </div>
-    </motion.form>
-  );
-}
-
-function VolunteerPostButton({ to, dur }: { to: string; dur: number }) {
+function VolunteerHeroImage({ dur }: { dur: number }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.7 * dur, ease: easings.enter }}
+      className="relative -my-8 -mr-10 h-[calc(100%+64px)] w-full"
+    >
+      <div className="relative z-0 h-full w-full overflow-hidden rounded-tl-[120px]">
+        <img
+          src={volunteerHeroImage}
+          alt="Volunteers planting a tree together"
+          loading="eager"
+          className="h-full w-full object-cover object-center"
+        />
+      </div>
+    </motion.div>
+  );
+}
+
+function VolunteerPostLink({ to, dur }: { to: string; dur: number }) {
+  return (
+    <motion.p
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{
         opacity: 0,
@@ -108,41 +44,25 @@ function VolunteerPostButton({ to, dur }: { to: string; dur: number }) {
         transition: { duration: 0.2 * dur, ease: "easeInOut" as const },
       }}
       transition={{
-        duration: 0.55 * dur,
+        duration: 0.5 * dur,
         delay: 0.35 * dur,
         ease: easings.enter,
       }}
-      className="w-full rounded-[18px] md:w-auto"
+      className="text-sm text-slate-500"
     >
-      <Button
-        asChild
-        variant="outline"
-        size="lg"
-        className="h-12 w-full rounded-[18px] border-[#d7e3ff] bg-white px-6 text-[15px] font-semibold text-[#2463eb] shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:scale-[1.02] hover:border-[#2463eb] hover:bg-blue-50 hover:shadow-[0_12px_32px_rgba(36,99,235,0.12)] md:w-auto md:min-w-54"
+      Have an opportunity to share?{" "}
+      <Link
+        to={to}
+        className="group relative inline-flex items-center gap-1 font-semibold text-[#2463eb] transition-colors hover:text-[#1d56d2]"
       >
-        <Link to={to}>
-          <motion.span
-            animate={
-              dur
-                ? {
-                    rotate: [0, -10, 10, -5, 0],
-                  }
-                : undefined
-            }
-            transition={{
-              duration: 1.2,
-              ease: "easeInOut" as const,
-              repeat: Infinity,
-              repeatDelay: 4,
-            }}
-            className="inline-flex"
-          >
-            <Megaphone className="size-4" />
-          </motion.span>
-          Post an Opportunity
-        </Link>
-      </Button>
-    </motion.div>
+        <span className="relative">
+          Post an opportunity
+          <span className="absolute -bottom-0.5 left-0 h-0.5 w-full origin-center scale-x-0 bg-[#2463eb] transition-transform duration-300 ease-out group-hover:scale-x-100 group-hover:bg-[#1d56d2]" />
+        </span>
+
+        <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
+      </Link>
+    </motion.p>
   );
 }
 
@@ -152,28 +72,12 @@ interface VolunteerHeaderProps {
 
 export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
   const { userId } = useLoaderData<typeof loader>();
-  const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
   const dur = prefersReducedMotion ? 0 : 1;
   const [searchValue, setSearchValue] = useState("");
   const linkTo = userId
     ? "/volunteer/create"
     : "/login?redirectTo=/volunteer/create";
-
-  const handleSearch = () => {
-    const trimmedSearch = searchValue.trim();
-    const params = new URLSearchParams();
-
-    if (trimmedSearch) {
-      params.set("search", trimmedSearch);
-    }
-
-    navigate(
-      params.size > 0
-        ? `/volunteer/all?${params.toString()}`
-        : "/volunteer/all",
-    );
-  };
 
   return (
     <motion.section
@@ -184,11 +88,9 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
         transition: { duration: 0.2, ease: "easeInOut" as const },
       }}
       transition={{ duration: 0.4 * dur, ease: "easeInOut" as const }}
-      className="relative flex w-full justify-center overflow-hidden px-4 py-10 sm:px-6 sm:py-12 lg:py-14"
+      className="relative w-full overflow-hidden bg-white"
     >
-      <VolunteerHeroBackdrop />
-
-      <div className="relative flex w-full max-w-4xl flex-col items-center gap-6 text-center sm:gap-7">
+      <div className="site-container grid grid-cols-1 items-stretch gap-8 pt-10 pb-2 sm:pt-12 sm:pb-3 lg:grid-cols-12 lg:gap-5 lg:py-5">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -197,33 +99,23 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
             y: -20,
             transition: { duration: 0.2, ease: "easeInOut" as const },
           }}
-          transition={{
-            duration: 0.7 * dur,
-            ease: easings.enter,
-          }}
-          className="flex flex-col items-center gap-3 sm:gap-4"
+          transition={{ duration: 0.7 * dur, ease: easings.enter }}
+          className="flex flex-col items-start gap-4 py-2 text-left sm:gap-5 lg:col-span-5"
         >
-          <h1 className="max-w-3xl text-[clamp(2rem,4.5vw,3.5rem)] leading-[1.05] font-semibold tracking-[-0.05em] text-slate-900 sm:tracking-[-0.06em]">
-            Make an impact that{" "}
-            <motion.span
-              animate={
-                dur
-                  ? {
-                      color: ["#2463eb"],
-                      scale: [1, 1.03, 1, 1],
-                    }
-                  : undefined
-              }
-              transition={{
-                duration: 6,
-                ease: "easeInOut" as const,
-                repeat: Infinity,
-              }}
-              className="inline-block text-[#2463eb]"
-            >
-              matters.
-            </motion.span>
+          <span className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.18em] text-[#2463eb] uppercase sm:text-xs">
+            <img
+              src="/home-explore-volunteer.png"
+              className="size-10 object-contain sm:size-12 lg:size-14"
+              alt=""
+            />
+            Volunteer
+          </span>
+
+          <h1 className="text-[28px] leading-[1.12] font-bold tracking-[-0.03em] text-slate-900 sm:text-[34px] sm:leading-[1.08] lg:text-[38px]">
+            <span className="text-[#2463eb]">Get involved</span> in your
+            community.
           </h1>
+
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -237,87 +129,24 @@ export default function VolunteerHeader({ locations }: VolunteerHeaderProps) {
               delay: 0.15 * dur,
               ease: easings.enter,
             }}
-            className="max-w-2xl text-base leading-7 font-medium text-slate-500 sm:text-lg sm:leading-8"
+            className="max-w-lg text-[14px] leading-6 text-slate-500 sm:text-base sm:leading-7"
           >
-            Find meaningful ways to give back. Explore opportunities that match
-            your skills and make a real difference.
+            Discover meaningful volunteer opportunities across Cambodia, from
+            weekend projects to flexible roles you can do remotely.
           </motion.p>
-        </motion.div>
 
-        <div className="flex w-full flex-col items-center gap-4">
           <VolunteerSearchForm
             dur={dur}
+            locations={locations}
             searchValue={searchValue}
             onSearchValueChange={setSearchValue}
-            onSubmit={handleSearch}
           />
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{
-              opacity: 0,
-              y: -12,
-              transition: { duration: 0.2, ease: "easeInOut" as const },
-            }}
-            transition={{
-              duration: 0.5 * dur,
-              delay: 0.3 * dur,
-              ease: easings.enter,
-            }}
-            className="flex w-full max-w-[18rem] items-center gap-4 px-2 text-[11px] font-semibold tracking-[0.24em] text-slate-400 uppercase sm:max-w-[20rem]"
-          >
-            <motion.span
-              initial={{ scaleX: 0 }}
-              animate={{
-                scaleX: 1,
-                backgroundColor: dur
-                  ? ["#e2e8f0", "#93c5fd", "#e2e8f0"]
-                  : undefined,
-              }}
-              transition={{
-                scaleX: { duration: 0.6 * dur, ease: easings.smooth },
-                backgroundColor: {
-                  duration: 4,
-                  ease: "easeInOut" as const,
-                  repeat: Infinity,
-                },
-              }}
-              className="h-px flex-1 origin-left bg-slate-200"
-            />
-            <motion.span
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{
-                duration: 0.4 * dur,
-                ease: easings.smooth,
-              }}
-              className="inline-block"
-            >
-              Or
-            </motion.span>
-            <motion.span
-              initial={{ scaleX: 0 }}
-              animate={{
-                scaleX: 1,
-                backgroundColor: dur
-                  ? ["#e2e8f0", "#93c5fd", "#e2e8f0"]
-                  : undefined,
-              }}
-              transition={{
-                scaleX: { duration: 0.6 * dur, ease: easings.smooth },
-                backgroundColor: {
-                  duration: 4,
-                  ease: "easeInOut" as const,
-                  repeat: Infinity,
-                  delay: 2,
-                },
-              }}
-              className="h-px flex-1 origin-right bg-slate-200"
-            />
-          </motion.div>
+          <VolunteerPostLink to={linkTo} dur={dur} />
+        </motion.div>
 
-          <VolunteerPostButton to={linkTo} dur={dur} />
+        <div className="hidden w-full items-stretch lg:col-span-7 lg:flex">
+          <VolunteerHeroImage dur={dur} />
         </div>
       </div>
     </motion.section>
