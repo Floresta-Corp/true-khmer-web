@@ -101,8 +101,6 @@ async function loadEvents(request: Request) {
       sortOrder: "asc",
     });
 
-    // One malformed row should not blank the section, so rows are parsed
-    // individually and the unexpected ones are dropped.
     return (result?.data?.events ?? []).flatMap((event) => {
       const parsed = EventListItemSchema.safeParse(event);
       if (!parsed.success) {
