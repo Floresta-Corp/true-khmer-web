@@ -213,6 +213,20 @@ export const EventVenueSchema = z
   }));
 export type EventVenue = z.infer<typeof EventVenueSchema>;
 
+/** Venues are paged in as the organizer scrolls the suggestion list. */
+export const VENUE_SEARCH_PAGE_SIZE = 10;
+
+/** Shape returned by the venue suggestion resource route. */
+export type VenueSearchResponse = {
+  ok: boolean;
+  /** Echoed back so the dropdown can drop responses to stale keystrokes. */
+  search: string;
+  page: number;
+  hasMore: boolean;
+  venues: EventVenue[];
+  message?: string;
+};
+
 export const EventVisibilitySchema =
   schemas.postV1plumpievents_Body.shape.visibility;
 export type EventVisibility = CreatePlumpiEventBody["visibility"];
@@ -358,8 +372,6 @@ export type CreateEventActionData = {
 export type CreateEventLoaderData = {
   categories: EventCategory[];
   organizers: EventOrganizer[];
-  venues: EventVenue[];
-  venueLoadError: string | null;
   userId: string | null;
 };
 
