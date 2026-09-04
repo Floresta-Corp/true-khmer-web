@@ -583,3 +583,75 @@ body {
     Arial,
     sans-serif;
 }
+
+/* ------------------------- Print / PDF export ----------------------------
+   A page that marks one element `print-sheet` prints only that element. The
+   navbar, footer, toasts, the buttons around it and every other sibling drop
+   out; the ancestors that have to stay — they are what holds the sheet in the
+   document — are flattened to transparent wrappers.
+
+   Used by "Download as PDF" on the course certificate, which is a plain
+   `window.print()`. Every rule is scoped to `body:has(.print-sheet)`, so a
+   page that marks nothing prints exactly as it did before. */
+@page certificate {
+  size: A4 landscape;
+  margin: 12mm;
+}
+
+@media print {
+  body:has(.print-sheet) {
+    /* A named page rather than a bare `@page`: landscape must not follow the
+       app onto every other printable screen. Where named pages are not
+       supported this falls back to the browser's own page, which the sheet
+       then fills in portrait instead. */
+    page: certificate;
+    background: #fff !important;
+  }
+
+  /* Everything that is not the sheet, inside it, or an ancestor of it. */
+  body:has(.print-sheet)
+    :not(.print-sheet):not(.print-sheet *):not(:has(.print-sheet)) {
+    display: none !important;
+  }
+
+  html:has(.print-sheet),
+  body:has(.print-sheet),
+  body:has(.print-sheet) :has(.print-sheet) {
+    height: 100% !important;
+  }
+
+  body:has(.print-sheet) :has(.print-sheet) {
+    display: block !important;
+    position: static !important;
+    width: auto !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    /* The entrance animation leaves an inline transform and opacity behind. */
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .print-sheet {
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    /* Fills the page it is given — the ancestors above carry height through
+       from the page box — so the frame reads as the certificate's edge rather
+       than a panel sitting at the top of a sheet. */
+    min-height: 100%;
+    width: 100% !important;
+    margin: 0 !important;
+    break-inside: avoid;
+    /* Keep the blue frame and the coloured text: browsers drop backgrounds and
+       trim colour when printing unless asked not to. */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
