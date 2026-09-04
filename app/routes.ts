@@ -102,6 +102,16 @@ export default [
         "course-listing/:id",
         "features/course-manage/route/course-manage.$id.tsx",
       ),
+      /* Resource route: the Students tab pages its roster through this, so a
+         page change does not refetch the whole course screen. */
+      route(
+        "course-listing/:id/students",
+        "features/course-manage/route/course-manage.$id.students.ts",
+      ),
+      route(
+        "course-listing/:id/students/:userId",
+        "features/course-manage/route/course-manage.$id.students.$userId.ts",
+      ),
       route(
         "workspace/manage-post/:sourceType/:id",
         "features/workspace/manage-post/route/manage-post.$sourceType.$id.tsx",

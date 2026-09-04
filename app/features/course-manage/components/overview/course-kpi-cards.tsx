@@ -1,4 +1,5 @@
 import { CheckCircle2, Clock, Star, Users } from "lucide-react";
+import { cn } from "~/lib/utils";
 import {
   MANAGE,
   type CourseManageOverview,
@@ -10,6 +11,9 @@ export const MANAGE_CARD =
 /**
  * The four Overview stat cards: a 38px tinted icon square beside a 13px label,
  * then a 26px figure and a 12.5px sub-label, per the design's `teachStatCards`.
+ *
+ * A metric nothing records shows an em dash in muted ink and says so in the
+ * sub-label, so an untracked figure never reads as a bad one.
  */
 export function CourseKpiCards({
   overview,
@@ -35,16 +39,24 @@ export function CourseKpiCards({
     },
     {
       label: "Quiz pass rate",
-      value: `${overview.quizPassRate}%`,
-      subLabel: `Avg score ${overview.avgQuizScore}%`,
+      value: overview.quizPassRate === null ? "—" : `${overview.quizPassRate}%`,
+      subLabel:
+        overview.avgQuizScore === null
+          ? "Attempts are not recorded yet"
+          : `Avg score ${overview.avgQuizScore}%`,
+      muted: overview.quizPassRate === null,
       icon: Clock,
       iconBg: "rgba(50,168,255,0.14)",
       iconColor: MANAGE.accent,
     },
     {
       label: "Rating",
-      value: overview.rating.toFixed(1),
-      subLabel: `${overview.reviewCount.toLocaleString()} reviews`,
+      value: overview.rating === null ? "—" : overview.rating.toFixed(1),
+      subLabel:
+        overview.rating === null
+          ? "No reviews yet"
+          : `${overview.reviewCount.toLocaleString()} reviews`,
+      muted: overview.rating === null,
       icon: Star,
       iconBg: "rgba(225,113,0,0.12)",
       iconColor: MANAGE.warning,
@@ -68,7 +80,12 @@ export function CourseKpiCards({
                 {card.label}
               </span>
             </div>
-            <div className="mb-1.5 text-[26px] leading-none font-extrabold text-[#1A1A2E]">
+            <div
+              className={cn(
+                "mb-1.5 text-[26px] leading-none font-extrabold",
+                card.muted ? "text-[#C6C6D4]" : "text-[#1A1A2E]",
+              )}
+            >
               {card.value}
             </div>
             <div className="text-[12.5px] text-[#9A9AB0]">{card.subLabel}</div>
