@@ -1,14 +1,13 @@
-import { Link, useNavigate } from "react-router";
-import { ArrowRight } from "lucide-react";
+import { useState } from "react";
+import { Link } from "react-router";
 import { motion, MotionConfig } from "motion/react";
-import { HomeCarouselSection } from "./home-carousel-section";
 import { slideUpVariants, staggerContainerVariants } from "./home-motion";
-import LaunchpadProjectCard from "~/features/launchpad/components/card/launchpad-project-card";
-import { OpportunityCard } from "~/components/opportunity-card";
-import {
-  EventCard,
-  type EventData,
-} from "~/features/events/components/event-card";
+import { LaunchpadCompactCard } from "~/features/home/components/launchpad-compact-card";
+import { VolunteerCompactCard } from "~/features/home/components/volunteer-compact-card";
+import { EventListCard } from "~/features/events/components/event-list-card";
+import type { EventListItem } from "~/features/events/types/events";
+import { CourseCard } from "~/features/education/components/course-card";
+import type { CourseSummary } from "~/features/education/types";
 import { HomeDiscussionCard } from "./home-discussion-card";
 import type { LaunchpadOpportunity } from "~/features/launchpad/types";
 import type { Opportunity } from "~/features/volunteer/types/volunteer-types";
@@ -18,84 +17,129 @@ import type {
 } from "~/types/api-client";
 import { PublicBlogCard } from "~/features/blog/components/public-blog-card";
 
-// Cards fill the row so an exact number show per view (rest revealed by
-// scrolling). Widths subtract the 20px (1.25rem) `gap-5` between slides:
-// N-up = (100% − (N−1)·1.25rem) / N. Mobile shows one card with a small peek.
-const THREE_UP =
-  "w-[85%] sm:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)]";
-const FOUR_UP =
-  "w-[80%] sm:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-3.75rem)/4)]";
+const OPPORTUNITY_PREVIEW_COUNT = 2;
 
-function Slide({
-  width,
+const SECTION_PADDING = "py-5 lg:py-6";
+const HEADING_GAP = "mb-4";
+const CARD_GAP = "gap-5";
+
+function SectionHeading({
+  title,
+  seeAllTo,
+}: {
+  title: string;
+  seeAllTo: string;
+}) {
+  return (
+    <div className={`${HEADING_GAP} flex items-center justify-between gap-4`}>
+      <h2 className="text-[22px] leading-tight font-bold tracking-[-0.04em] text-[#333333]">
+        {title}
+      </h2>
+      <Link
+        to={seeAllTo}
+        className="shrink-0 text-sm font-semibold text-[#1c5dd4] transition-colors hover:text-[#2f6fe4]"
+      >
+        See all
+      </Link>
+    </div>
+  );
+}
+
+function FeedShell({ children }: { children: React.ReactNode }) {
+  return (
+    <MotionConfig reducedMotion="user">
+      <motion.section
+        className={SECTION_PADDING}
+        variants={staggerContainerVariants}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.15 }}
+      >
+        {children}
+      </motion.section>
+    </MotionConfig>
+  );
+}
+
+function FeedSection({
+  title,
+  seeAllTo,
   children,
 }: {
-  width: string;
+  title: string;
+  seeAllTo: string;
   children: React.ReactNode;
 }) {
   return (
-    <motion.div
-      variants={slideUpVariants}
-      className={`${width} shrink-0 snap-start`}
-    >
-      {children}
+    <FeedShell>
+      <div className="site-container">
+        <motion.div variants={slideUpVariants}>
+          <SectionHeading title={title} seeAllTo={seeAllTo} />
+        </motion.div>
+
+        {children}
+      </div>
+    </FeedShell>
+  );
+}
+
+function OpportunityColumn({
+  title,
+  seeAllTo,
+  children,
+}: {
+  title: string;
+  seeAllTo: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <motion.div variants={slideUpVariants} className="flex flex-col">
+      <SectionHeading title={title} seeAllTo={seeAllTo} />
+      <div className="flex flex-col gap-3">{children}</div>
     </motion.div>
   );
 }
 
-function SeeMoreTile({ to, width }: { to: string; width: string }) {
-  return (
-    <Slide width={width}>
-      <Link
-        to={to}
-        className="flex h-full min-h-95 flex-col items-center justify-center gap-4 rounded-2xl border border-[#e1e7ef] bg-[#f8fafc] text-center transition-colors hover:border-[#2f6fe4] hover:bg-[#f1f5f9]"
-      >
-        <span className="flex size-13 items-center justify-center rounded-full bg-[#1c5dd4] text-white">
-          <ArrowRight className="size-5" />
-        </span>
-        <span className="text-sm font-semibold text-[#344256]">See more</span>
-      </Link>
-    </Slide>
-  );
-}
-
-export function LaunchpadFeed({ items }: { items: LaunchpadOpportunity[] }) {
-  const navigate = useNavigate();
-  if (items.length === 0) return null;
+export function OpportunitiesFeed({
+  volunteers,
+  launchpads,
+}: {
+  volunteers: Opportunity[];
+  launchpads: LaunchpadOpportunity[];
+}) {
+  if (volunteers.length === 0 && launchpads.length === 0) return null;
 
   return (
-    <HomeCarouselSection
-      title="Launchpad"
-      trailing={<SeeMoreTile to="/launchpad/all" width={THREE_UP} />}
-    >
-      {items.map((item) => (
-        <Slide key={item.id} width={THREE_UP}>
-          <LaunchpadProjectCard
-            item={item}
-            onOpenOpportunity={(opportunity) =>
-              navigate(`/launchpad/detail/${opportunity.id}`)
-            }
-          />
-        </Slide>
-      ))}
-    </HomeCarouselSection>
-  );
-}
+    <FeedShell>
+      <div className={`site-container grid ${CARD_GAP} lg:grid-cols-2`}>
+        {volunteers.length > 0 && (
+          <OpportunityColumn
+            title="Volunteer opportunities"
+            seeAllTo="/volunteer/all"
+          >
+            {volunteers
+              .slice(0, OPPORTUNITY_PREVIEW_COUNT)
+              .map((opportunity) => (
+                <VolunteerCompactCard
+                  key={opportunity.id}
+                  opportunity={opportunity}
+                />
+              ))}
+          </OpportunityColumn>
+        )}
 
-export function VolunteerFeed({ items }: { items: Opportunity[] }) {
-  if (items.length === 0) return null;
-
-  return (
-    <HomeCarouselSection
-      title="Volunteers"
-      trailing={<SeeMoreTile to="/volunteer/all" width={THREE_UP} />}
-    >
-      {items.map((opportunity) => (
-        <Slide key={opportunity.id} width={THREE_UP}>
-          <OpportunityCard opportunity={opportunity} />
-        </Slide>
-      ))}
-    </HomeCarouselSection>
+        {launchpads.length > 0 && (
+          <OpportunityColumn
+            title="Launchpad openings"
+            seeAllTo="/launchpad/all"
+          >
+            {launchpads.slice(0, OPPORTUNITY_PREVIEW_COUNT).map((item) => (
+              <LaunchpadCompactCard key={item.id} item={item} />
+            ))}
+          </OpportunityColumn>
+        )}
+      </div>
+    </FeedShell>
   );
 }
 
@@ -103,40 +147,15 @@ export function DiscussionFeed({ items }: { items: QuestionResponse[] }) {
   if (items.length === 0) return null;
 
   return (
-    <MotionConfig reducedMotion="user">
-      <motion.section
-        className="py-6 lg:py-8"
-        variants={staggerContainerVariants}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, amount: 0.15 }}
-      >
-        <div className="site-container">
-          <motion.div
-            variants={slideUpVariants}
-            className="mb-3 flex items-center justify-between gap-4"
-          >
-            <h2 className="text-2xl font-bold tracking-[-0.04em] text-[#333333] sm:text-[28px] sm:leading-11">
-              Trending discussions
-            </h2>
-            <Link
-              to="/forum"
-              className="flex shrink-0 items-center gap-1 text-sm font-semibold text-[#1c5dd4] transition-colors hover:text-[#2f6fe4]"
-            >
-              See more
-            </Link>
+    <FeedSection title="Trending discussions" seeAllTo="/forum">
+      <div className="flex flex-col gap-3">
+        {items.slice(0, 2).map((question) => (
+          <motion.div key={question.id} variants={slideUpVariants}>
+            <HomeDiscussionCard question={question} />
           </motion.div>
-
-          <div className="flex flex-col gap-3">
-            {items.slice(0, 2).map((question) => (
-              <motion.div key={question.id} variants={slideUpVariants}>
-                <HomeDiscussionCard question={question} />
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.section>
-    </MotionConfig>
+        ))}
+      </div>
+    </FeedSection>
   );
 }
 
@@ -144,32 +163,85 @@ export function BlogFeed({ items }: { items: BlogPostListingItemResponse[] }) {
   if (items.length === 0) return null;
 
   return (
-    <HomeCarouselSection
-      title="Blogs"
-      trailing={<SeeMoreTile to="/blog" width={THREE_UP} />}
-    >
-      {items.map((post) => (
-        <Slide key={post.id} width={THREE_UP}>
-          <PublicBlogCard post={post} />
-        </Slide>
-      ))}
-    </HomeCarouselSection>
+    <FeedSection title="Latest from the blog" seeAllTo="/blog">
+      <div
+        className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-3`}
+      >
+        {items.slice(0, 3).map((post) => (
+          <motion.div key={post.id} variants={slideUpVariants}>
+            <PublicBlogCard post={post} />
+          </motion.div>
+        ))}
+      </div>
+    </FeedSection>
   );
 }
 
-export function EventsFeed({ items }: { items: EventData[] }) {
+export function CoursesFeed({ items }: { items: CourseSummary[] }) {
+  const [savedIds, setSavedIds] = useState<Set<string>>(
+    () => new Set(items.filter((course) => course.isSaved).map((c) => c.id)),
+  );
+
   if (items.length === 0) return null;
 
+  const toggleSave = (courseId: string) => {
+    setSavedIds((current) => {
+      const next = new Set(current);
+      if (next.has(courseId)) next.delete(courseId);
+      else next.add(courseId);
+      return next;
+    });
+  };
+
   return (
-    <HomeCarouselSection
-      title="Upcoming Events"
-      trailing={<SeeMoreTile to="/events/all" width={FOUR_UP} />}
-    >
-      {items.map((event) => (
-        <Slide key={event.id} width={FOUR_UP}>
-          <EventCard event={event} />
-        </Slide>
-      ))}
-    </HomeCarouselSection>
+    <FeedSection title="Trending classes" seeAllTo="/education/all">
+      <div
+        className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-4`}
+      >
+        {items.map((course) => (
+          <motion.div key={course.id} variants={slideUpVariants}>
+            <CourseCard
+              course={course}
+              isSaved={savedIds.has(course.id)}
+              onToggleSave={toggleSave}
+            />
+          </motion.div>
+        ))}
+      </div>
+    </FeedSection>
+  );
+}
+
+export function EventsFeed({ items }: { items: EventListItem[] }) {
+  const [savedIds, setSavedIds] = useState<string[]>(() =>
+    items.filter((event) => event.isFavorite).map((event) => event.id),
+  );
+
+  if (items.length === 0) return null;
+
+  const toggleSave = (eventId: string) => {
+    setSavedIds((current) =>
+      current.includes(eventId)
+        ? current.filter((id) => id !== eventId)
+        : [...current, eventId],
+    );
+  };
+
+  return (
+    <FeedSection title="Upcoming events" seeAllTo="/events/all">
+      <div
+        className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-4`}
+      >
+        {items.map((event) => (
+          <motion.div key={event.id} variants={slideUpVariants}>
+            <EventListCard
+              event={event}
+              isSaved={savedIds.includes(event.id)}
+              onToggleSave={toggleSave}
+            />
+          </motion.div>
+        ))}
+      </div>
+    </FeedSection>
   );
 }

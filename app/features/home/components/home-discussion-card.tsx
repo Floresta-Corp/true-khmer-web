@@ -22,7 +22,7 @@ export function HomeDiscussionCard({ question }: HomeDiscussionCardProps) {
   const avatar = resolveImageURL(question.author.avatarKey);
 
   return (
-    <article className="group flex cursor-pointer items-center gap-3 rounded-xl border border-[#e1e7ef] bg-white px-4 py-3.5 transition-colors hover:border-[#2f6fe4] sm:gap-4 sm:px-5">
+    <article className="group relative flex items-center gap-3 rounded-xl border border-[#e1e7ef] bg-white px-4 py-3.5 transition-colors focus-within:border-[#2f6fe4] hover:border-[#2f6fe4] sm:gap-4 sm:px-5">
       <Avatar className="size-9 shrink-0 sm:size-10">
         <AvatarImage
           src={avatar}
@@ -35,23 +35,25 @@ export function HomeDiscussionCard({ question }: HomeDiscussionCardProps) {
       </Avatar>
 
       <div className="flex min-w-0 flex-col gap-1">
-        <Link to={detailPath} className="block">
-          <h3 className="truncate text-sm font-bold text-[#1e293b] transition-colors group-hover:text-[#1c5dd4] sm:text-base">
+        <Link
+          to={detailPath}
+          className="block cursor-pointer after:absolute after:inset-0 after:content-[''] focus:outline-none"
+        >
+          <h3 className="truncate text-[16px] font-bold text-[#1e293b] transition-colors group-hover:text-[#1c5dd4] sm:text-base">
             {question.title}
           </h3>
         </Link>
-
         <p className="flex min-w-0 items-center gap-1 truncate text-xs text-[#595c5e] sm:text-sm">
           <ProfileLinkWrapper
             authorId={question.author.id}
-            className="truncate font-medium text-[#2c2f31] hover:text-[#1c5dd4]"
+            className="relative z-10 truncate font-medium text-[#2c2f31] hover:text-[#1c5dd4]"
           >
             {question.author.name}
           </ProfileLinkWrapper>
           <span className="shrink-0">in</span>
           <Link
             to={`/forum?categoryId=${question.category.id}`}
-            className="truncate font-semibold text-[#1c5dd4]"
+            className="relative z-10 truncate font-semibold text-[#1c5dd4]"
           >
             {question.category.name}
           </Link>

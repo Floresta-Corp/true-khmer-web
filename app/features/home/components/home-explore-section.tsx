@@ -39,7 +39,7 @@ export function HomeExploreSection() {
   return (
     <MotionConfig reducedMotion="user">
       <motion.section
-        className="pt-15 pb-8 md:pt-0"
+        className="pt-8 pb-4"
         variants={staggerContainerVariants}
         initial="hidden"
         whileInView="show"
@@ -52,7 +52,7 @@ export function HomeExploreSection() {
           >
             What Would You Like To Explore?
           </motion.h2> */}
-          <div className="mt-8 flex gap-3 overflow-x-auto px-4 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-4 sm:px-0 lg:grid lg:grid-cols-6 lg:gap-4 lg:overflow-visible [&::-webkit-scrollbar]:hidden">
+          <div className="flex gap-3 overflow-x-auto px-4 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-4 sm:px-0 lg:grid lg:grid-cols-6 lg:gap-4 lg:overflow-visible [&::-webkit-scrollbar]:hidden">
             {EXPLORE_LINKS.map((link) => (
               <motion.div
                 key={link.title}

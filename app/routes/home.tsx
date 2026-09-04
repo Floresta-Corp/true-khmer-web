@@ -5,14 +5,14 @@ import { homeAction } from "~/features/home/services/home.action";
 import { HomeHeroSection } from "~/features/home/components/home-hero-section";
 import { HomeWelcomeHeroSection } from "~/features/home/components/home-welcome-hero-section";
 import { HomeExploreSection } from "~/features/home/components/home-explore-section";
-import { HomeEventsSection } from "~/features/home/components/home-events-section";
 import { HomeTrustedBySection } from "~/features/home/components/home-trusted-by-section";
 import { HomePillarsSection } from "~/features/home/components/home-pillars-section";
 import {
   BlogFeed,
+  CoursesFeed,
   DiscussionFeed,
-  LaunchpadFeed,
-  VolunteerFeed,
+  EventsFeed,
+  OpportunitiesFeed,
 } from "~/features/home/components/home-feed-sections";
 
 export function meta({}: Route.MetaArgs) {
@@ -30,8 +30,15 @@ export const loader = homeLoader;
 export const action = homeAction;
 
 export default function Home() {
-  const { user, launchpads, volunteers, discussions, blogPosts } =
-    useLoaderData<typeof loader>();
+  const {
+    user,
+    launchpads,
+    volunteers,
+    discussions,
+    blogPosts,
+    events,
+    courses,
+  } = useLoaderData<typeof loader>();
 
   return (
     <div className="bg-white">
@@ -41,9 +48,9 @@ export default function Home() {
           <HomeWelcomeHeroSection name={user.name} />
           <HomeExploreSection />
           <DiscussionFeed items={discussions} />
-          {/* <HomeEventsSection /> */}
-          <LaunchpadFeed items={launchpads} />
-          <VolunteerFeed items={volunteers} />
+          <EventsFeed items={events} />
+          <OpportunitiesFeed volunteers={volunteers} launchpads={launchpads} />
+          <CoursesFeed items={courses} />
           <BlogFeed items={blogPosts} />
         </>
       ) : (
@@ -52,8 +59,9 @@ export default function Home() {
           <HomeHeroSection />
           <HomeTrustedBySection />
           <HomePillarsSection />
-          <LaunchpadFeed items={launchpads} />
-          <VolunteerFeed items={volunteers} />
+          <EventsFeed items={events} />
+          <CoursesFeed items={courses} />
+          <OpportunitiesFeed volunteers={volunteers} launchpads={launchpads} />
           <BlogFeed items={blogPosts} />
         </>
       )}
