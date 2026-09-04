@@ -180,7 +180,7 @@ export const workSpaceSidebarConfig: AppSidebarProps = {
     },
     {
       id: "courselisting",
-      label: "Course Listing",
+      label: "My Classes",
       to: "/course-listing",
       icon: GraduationCap,
     },
