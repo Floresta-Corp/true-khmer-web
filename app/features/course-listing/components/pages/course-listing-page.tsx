@@ -10,14 +10,31 @@ import { BookOpen, Plus } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import WorkSpacePageLayout from "~/layout/workspace-page-layout";
 import { debounce } from "~/lib/utils";
+import { CourseListingCard } from "../course-listing-card";
 import { CourseListingRow } from "../course-listing-row";
 import { CourseListingFilters } from "../course-listing-filters";
-import { CourseListingSkeleton } from "../course-listing-skeleton";
+import {
+  CourseListingCardSkeleton,
+  CourseListingSkeleton,
+} from "../course-listing-skeleton";
 import type { loader } from "../../route/course-listing";
-import type {
-  CourseTab,
-  CourseWithStats,
+import {
+  CourseViewSchema,
+  type CourseTab,
+  type CourseView,
+  type CourseWithStats,
 } from "~/features/course-listing/types";
+
+/** Whether a pending navigation moves anything other than `?view=`. */
+function loaderParamsChanged(current: URLSearchParams, nextSearch: string) {
+  const strip = (params: URLSearchParams) => {
+    const copy = new URLSearchParams(params);
+    copy.delete("view");
+    copy.sort();
+    return copy.toString();
+  };
+  return strip(current) !== strip(new URLSearchParams(nextSearch));
+}
 
 export default function CourseListingPage() {
   const { courses, pagination, tab, search } = useLoaderData<typeof loader>();
@@ -27,14 +44,25 @@ export default function CourseListingPage() {
 
   const [searchInput, setSearchInput] = useState(search);
 
+  /* The layout lives in the URL alongside `tab` and `search`, so a shared link
+     opens in the same view. The route's `shouldRevalidate` skips the loader
+     when only `view` moves, so the toggle costs no refetch. */
+  const view: CourseView = CourseViewSchema.catch("list").parse(
+    searchParams.get("view") ?? "list",
+  );
+  const isGrid = view === "grid";
+
   const [extraCourses, setExtraCourses] = useState<CourseWithStats[]>([]);
   const [cursor, setCursor] = useState(pagination?.nextCursor ?? null);
   const [hasMore, setHasMore] = useState(pagination?.hasMore ?? false);
   const lastAppended = useRef<unknown>(null);
 
+  /* A view toggle navigates without revalidating, so it must not raise the
+     skeletons — only a change to a param the loader reads counts as loading. */
   const isLoading =
     navigation.state === "loading" &&
-    navigation.location?.pathname === "/course-listing";
+    navigation.location?.pathname === "/course-listing" &&
+    loaderParamsChanged(searchParams, navigation.location.search);
 
   useEffect(() => {
     setExtraCourses([]);
@@ -110,6 +138,7 @@ export default function CourseListingPage() {
         <CourseListingFilters
           tab={tab}
           searchInput={searchInput}
+          view={view}
           onTabChange={(next: CourseTab) =>
             updateParams({ tab: next === "all" ? null : next })
           }
@@ -117,17 +146,42 @@ export default function CourseListingPage() {
             setSearchInput(value);
             debouncedSearch(value);
           }}
+          onViewChange={(next: CourseView) =>
+            updateParams({ view: next === "list" ? null : next })
+          }
         />
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div
+        className={
+          isGrid
+            ? "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+            : "flex flex-col gap-4"
+        }
+      >
         {isLoading
-          ? Array.from({ length: 5 }).map((_, index) => (
-              <CourseListingSkeleton key={index} />
-            ))
-          : visible.map((course, index) => (
-              <CourseListingRow key={course.id} course={course} index={index} />
-            ))}
+          ? Array.from({ length: isGrid ? 8 : 5 }).map((_, index) =>
+              isGrid ? (
+                <CourseListingCardSkeleton key={index} />
+              ) : (
+                <CourseListingSkeleton key={index} />
+              ),
+            )
+          : visible.map((course, index) =>
+              isGrid ? (
+                <CourseListingCard
+                  key={course.id}
+                  course={course}
+                  index={index}
+                />
+              ) : (
+                <CourseListingRow
+                  key={course.id}
+                  course={course}
+                  index={index}
+                />
+              ),
+            )}
       </div>
 
       {!isLoading && visible.length === 0 && (

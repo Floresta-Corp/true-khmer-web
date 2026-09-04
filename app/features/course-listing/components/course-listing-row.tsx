@@ -1,12 +1,6 @@
-import { Link, useFetcher } from "react-router";
+import { Link } from "react-router";
 import { motion } from "motion/react";
-import { Eye, MoreVertical, SendHorizonal, Undo2 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
+import { CourseActionsMenu } from "./course-actions-menu";
 import { CourseStatusBadge } from "./course-status-badge";
 import { CourseLearnerStats } from "./course-learner-stats";
 import {
@@ -20,18 +14,9 @@ interface CourseListingRowProps {
 }
 
 export function CourseListingRow({ course, index }: CourseListingRowProps) {
-  const fetcher = useFetcher();
   const status = displayStatusOf(course);
   const cover = course.coverImageUrl ?? "/placeholder/images.svg";
   const manageTo = `/course-listing/${course.id}`;
-  const busy = fetcher.state !== "idle";
-
-  const submitIntent = (intent: string) => {
-    fetcher.submit(
-      { intent, courseId: course.id },
-      { method: "post", action: "/course-listing" },
-    );
-  };
 
   return (
     <motion.article
@@ -67,50 +52,22 @@ export function CourseListingRow({ course, index }: CourseListingRowProps) {
 
       <div className="min-w-0 flex-1" />
 
-      {course.stats && (
+      {course.stats ? (
         <CourseLearnerStats stats={course.stats} className="hidden lg:flex" />
+      ) : (
+        /* A course nobody has started has no figures to report, so the strip
+           collapses to the design's single em dash. */
+        <span
+          aria-label="No learner figures yet"
+          className="hidden shrink-0 text-[#9A9AB0] lg:block"
+        >
+          —
+        </span>
       )}
 
       <div className="min-w-0 flex-1" />
 
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          aria-label={`Actions for ${course.title}`}
-          disabled={busy}
-          className="relative z-10 flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600 disabled:opacity-50"
-        >
-          <MoreVertical size={18} aria-hidden />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-52 rounded-xl">
-          <DropdownMenuItem asChild>
-            <Link to={`/education/${course.id}`}>
-              <Eye size={16} aria-hidden />
-              View live course
-            </Link>
-          </DropdownMenuItem>
-
-          {(course.status === "DRAFT" || course.status === "UNPUBLISHED") && (
-            <DropdownMenuItem onSelect={() => submitIntent("submit")}>
-              <SendHorizonal size={16} aria-hidden />
-              Submit for review
-            </DropdownMenuItem>
-          )}
-
-          {course.status === "PENDING" && (
-            <DropdownMenuItem onSelect={() => submitIntent("withdraw")}>
-              <Undo2 size={16} aria-hidden />
-              Withdraw submission
-            </DropdownMenuItem>
-          )}
-
-          {course.status === "PUBLISHED" && (
-            <DropdownMenuItem onSelect={() => submitIntent("unpublish")}>
-              <Undo2 size={16} aria-hidden />
-              Unpublish
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <CourseActionsMenu course={course} />
     </motion.article>
   );
 }

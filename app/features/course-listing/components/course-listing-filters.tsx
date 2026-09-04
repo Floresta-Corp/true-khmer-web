@@ -2,20 +2,29 @@ import { Search } from "lucide-react";
 import { motion } from "motion/react";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
-import { TABS, type CourseTab } from "~/features/course-listing/types";
+import {
+  TABS,
+  type CourseTab,
+  type CourseView,
+} from "~/features/course-listing/types";
+import { CourseViewSwitch } from "./course-view-switch";
 
 interface CourseListingFiltersProps {
   tab: CourseTab;
   searchInput: string;
+  view: CourseView;
   onTabChange: (tab: CourseTab) => void;
   onSearchChange: (value: string) => void;
+  onViewChange: (view: CourseView) => void;
 }
 
 export function CourseListingFilters({
   tab,
   searchInput,
+  view,
   onTabChange,
   onSearchChange,
+  onViewChange,
 }: CourseListingFiltersProps) {
   return (
     <div className="mt-5 flex w-full flex-wrap items-center justify-between gap-4">
@@ -48,18 +57,22 @@ export function CourseListingFilters({
         ))}
       </div>
 
-      <div className="relative w-full min-w-0 sm:w-60 md:w-72">
-        <Search
-          size={16}
-          className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400"
-        />
-        <Input
-          className="h-11 rounded-xl border-slate-200 bg-white pr-4 pl-11 text-[14px] transition-all placeholder:font-medium placeholder:text-slate-400 focus-visible:ring-blue-500/20"
-          placeholder="Search courses..."
-          aria-label="Search courses"
-          value={searchInput}
-          onChange={(event) => onSearchChange(event.target.value)}
-        />
+      <div className="flex w-full min-w-0 items-center gap-3 sm:w-auto">
+        <div className="relative min-w-0 flex-1 sm:w-60 sm:flex-none md:w-72">
+          <Search
+            size={16}
+            className="absolute top-1/2 left-4 -translate-y-1/2 text-slate-400"
+          />
+          <Input
+            className="h-11 rounded-xl border-slate-200 bg-white pr-4 pl-11 text-[14px] transition-all placeholder:font-medium placeholder:text-slate-400 focus-visible:ring-blue-500/20"
+            placeholder="Search courses..."
+            aria-label="Search courses"
+            value={searchInput}
+            onChange={(event) => onSearchChange(event.target.value)}
+          />
+        </div>
+
+        <CourseViewSwitch view={view} onChange={onViewChange} />
       </div>
     </div>
   );

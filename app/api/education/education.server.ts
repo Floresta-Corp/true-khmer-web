@@ -248,19 +248,40 @@ export async function markLessonWatched(
   );
 }
 
+export interface CourseTrendPoint {
+  /** `YYYY-MM-DD`. */
+  date: string;
+  learners: number;
+}
+
 export interface CourseStatsResponse {
   ok: true;
   stats: {
     lessonCount: number;
-    students: {
-      userId: string;
-      name: string;
-      avatar: string | null;
-      startedAt: string;
-      lessonsCompleted: number;
-      completedAt: string | null;
-    }[];
-    enrollmentTrend: { date: string; learners: number }[];
+    /** The split only — the roster is `listCourseStudents`, which pages it. */
+    progress: {
+      total: number;
+      notStarted: number;
+      inProgress: number;
+      completed: number;
+    };
+    /** New learners per day. */
+    enrollmentTrend: CourseTrendPoint[];
+    /** Learners active per day, however many lessons each finished. */
+    activityTrend: CourseTrendPoint[];
+    /** Nulls, not zeros, when nothing has been sat. */
+    quiz: {
+      attempts: number;
+      passRate: number | null;
+      averageScore: number | null;
+      bands: { label: string; attempts: number }[];
+    };
+    /** `average` is null until someone rates the course. */
+    rating: {
+      average: number | null;
+      total: number;
+      breakdown: number[];
+    };
   };
 }
 
@@ -534,4 +555,300 @@ export async function listPublicCourses(
     if (isResourceUnavailable(error, "course catalogue")) return null;
     throw error;
   }
+}
+
+/* ------------------------------ Enrolment -------------------------------- */
+
+export interface EnrollInCourseResponse {
+  ok: true;
+  enrolled: true;
+  /** False when the learner was already enrolled — the call is idempotent. */
+  created: boolean;
+}
+
+export async function enrollInCourse(request: Request, courseId: string) {
+  return apiRequestWithSession<EnrollInCourseResponse>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/enroll`,
+    { method: "POST" },
+  );
+}
+
+export interface CourseEnrollmentResponse {
+  ok: true;
+  enrolled: boolean;
+}
+
+export async function getCourseEnrollment(request: Request, courseId: string) {
+  try {
+    return await apiRequestWithSession<CourseEnrollmentResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/enrollment`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) return null;
+    if (isResourceUnavailable(error, "course enrolment")) return null;
+    throw error;
+  }
+}
+
+/* ------------------------------- Reviews --------------------------------- */
+
+export interface CourseReviewResponse {
+  id: string;
+  userId: string;
+  name: string;
+  avatar: string | null;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+}
+
+export interface ListCourseReviewsResponse {
+  ok: true;
+  reviews: CourseReviewResponse[];
+  summary: {
+    average: number | null;
+    total: number;
+    /** Counts per star, one star first. */
+    breakdown: number[];
+  };
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export async function listCourseReviews(
+  request: Request,
+  courseId: string,
+  params: { page?: number; limit?: number } = {},
+) {
+  const query = new URLSearchParams();
+  if (params.page) query.set("page", String(params.page));
+  if (params.limit) query.set("limit", String(params.limit));
+  const suffix = query.size > 0 ? `?${query.toString()}` : "";
+
+  try {
+    return await apiRequestWithOptionalSession<ListCourseReviewsResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/reviews${suffix}`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) return null;
+    if (isResourceUnavailable(error, "course reviews")) return null;
+    throw error;
+  }
+}
+
+export interface OwnCourseReview {
+  id: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+}
+
+export interface SubmitCourseReviewResponse {
+  ok: true;
+  review: OwnCourseReview;
+}
+
+export interface SubmitCourseReviewBody {
+  rating: number;
+  comment?: string;
+}
+
+/** Creates the learner's review, or replaces the one they already left. */
+export async function submitCourseReview(
+  request: Request,
+  courseId: string,
+  body: SubmitCourseReviewBody,
+) {
+  return apiRequestWithSession<
+    SubmitCourseReviewResponse,
+    SubmitCourseReviewBody
+  >(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/reviews/mine`,
+    { method: "PUT", body },
+  );
+}
+
+export interface GetOwnCourseReviewResponse {
+  ok: true;
+  review: OwnCourseReview | null;
+}
+
+export async function getOwnCourseReview(request: Request, courseId: string) {
+  try {
+    return await apiRequestWithSession<GetOwnCourseReviewResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/reviews/mine`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) return null;
+    if (isResourceUnavailable(error, "own course review")) return null;
+    throw error;
+  }
+}
+
+export async function deleteCourseReview(request: Request, courseId: string) {
+  return apiRequestWithSession<{ ok: true }>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/reviews/mine`,
+    { method: "DELETE" },
+  );
+}
+
+/* ------------------------------- Students -------------------------------- */
+
+export type CourseStudentStatus = "completed" | "in-progress" | "not-started";
+
+export interface CourseStudentRow {
+  userId: string;
+  name: string;
+  avatar: string | null;
+  enrolledAt: string;
+  /** Null until they open their first lesson. */
+  startedAt: string | null;
+  lessonsCompleted: number;
+  completedAt: string | null;
+  /** Best percentage, or null if they have not sat the quiz. */
+  bestQuizPercent: number | null;
+  status: CourseStudentStatus;
+}
+
+export interface CourseStudentCounts {
+  all: number;
+  completed: number;
+  "in-progress": number;
+  "not-started": number;
+}
+
+export interface ListCourseStudentsResponse {
+  ok: true;
+  students: CourseStudentRow[];
+  /** Counts follow the search term, so a pill cannot over-promise. */
+  counts: CourseStudentCounts;
+  lessonCount: number;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface ListCourseStudentsParams {
+  status?: CourseStudentStatus;
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+export async function listCourseStudents(
+  request: Request,
+  courseId: string,
+  params: ListCourseStudentsParams = {},
+) {
+  const query = new URLSearchParams();
+  if (params.status) query.set("status", params.status);
+  if (params.search) query.set("search", params.search);
+  if (params.page) query.set("page", String(params.page));
+  if (params.limit) query.set("limit", String(params.limit));
+  const suffix = query.size > 0 ? `?${query.toString()}` : "";
+
+  try {
+    return await apiRequestWithSession<ListCourseStudentsResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/students${suffix}`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) return null;
+    if (error instanceof ProtectedApiError && error.status === 403) return null;
+    if (isResourceUnavailable(error, "course students")) return null;
+    throw error;
+  }
+}
+
+export interface CourseStudentDetailResponse {
+  ok: true;
+  student: {
+    userId: string;
+    name: string;
+    avatar: string | null;
+    email: string;
+    enrolledAt: string;
+    /** Every lesson on the course, finished or not. */
+    lessons: {
+      lessonId: string;
+      title: string;
+      chapterTitle: string;
+      completedAt: string | null;
+    }[];
+    /** Every sitting, newest first. */
+    attempts: {
+      correctCount: number;
+      totalCount: number;
+      percent: number;
+      passed: boolean;
+      attemptedAt: string;
+    }[];
+  };
+}
+
+export async function getCourseStudent(
+  request: Request,
+  courseId: string,
+  userId: string,
+) {
+  try {
+    return await apiRequestWithSession<CourseStudentDetailResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/students/${encodeURIComponent(userId)}`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) return null;
+    if (isResourceUnavailable(error, "course student")) return null;
+    throw error;
+  }
+}
+
+/** Unenrols a learner. Their progress and quiz attempts are kept. */
+export async function removeCourseStudent(
+  request: Request,
+  courseId: string,
+  userId: string,
+) {
+  return apiRequestWithSession<{ ok: true }>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/students/${encodeURIComponent(userId)}`,
+    { method: "DELETE" },
+  );
+}
+
+export interface MessageCourseStudentBody {
+  subject: string;
+  body: string;
+}
+
+/** One-way: lands in the learner's notifications and as a push. */
+export async function messageCourseStudent(
+  request: Request,
+  courseId: string,
+  userId: string,
+  body: MessageCourseStudentBody,
+) {
+  return apiRequestWithSession<{ ok: true }, MessageCourseStudentBody>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/students/${encodeURIComponent(userId)}/message`,
+    { method: "POST", body },
+  );
 }
