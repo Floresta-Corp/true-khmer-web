@@ -46,12 +46,6 @@ export function HomeExploreSection() {
         viewport={{ once: true, amount: 0.15 }}
       >
         <div className="site-container">
-          {/* <motion.h2
-            variants={slideUpVariants}
-            className="text-2xl font-semibold tracking-[-0.04em] text-[#333333] sm:text-[36px] sm:leading-11"
-          >
-            What Would You Like To Explore?
-          </motion.h2> */}
           <div className="flex gap-3 overflow-x-auto px-4 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-4 sm:px-0 lg:grid lg:grid-cols-6 lg:gap-4 lg:overflow-visible [&::-webkit-scrollbar]:hidden">
             {EXPLORE_LINKS.map((link) => (
               <motion.div

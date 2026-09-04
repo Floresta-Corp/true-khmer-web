@@ -6,7 +6,6 @@ import {
   getPublicVolunteerOpportunities,
   getVolunteerOpportunities,
 } from "~/api/volunteer/volunteer.server";
-import { getUpcomingEvents } from "~/features/events/lib/events.server";
 import { getPlumpiEvents } from "~/api/events/events.server";
 import { EventListItemSchema } from "~/features/events/types/events";
 import { getPublicQuestionPagination } from "~/api/forum/forum-question.server";
@@ -14,11 +13,11 @@ import { getPublicBlogPosts } from "~/api/blog/blog-public.server";
 import { listPublicCourses } from "~/api/education/education.server";
 import { toCourseSummary } from "~/features/education/lib/map-catalog";
 
-const LAUNCHPAD_LIMIT = 6;
-const VOLUNTEER_LIMIT = 6;
-const DISCUSSION_LIMIT = 6;
-const BLOG_POST_LIMIT = 6;
-const EVENTS_POST_LIMIT = 4;
+const LAUNCHPAD_LIMIT = 2;
+const VOLUNTEER_LIMIT = 2;
+const DISCUSSION_LIMIT = 2;
+const BLOG_POST_LIMIT = 3;
+const EVENT_LIMIT = 4;
 const COURSE_LIMIT = 4;
 
 export async function homeLoader({ request }: LoaderFunctionArgs) {
@@ -28,7 +27,6 @@ export async function homeLoader({ request }: LoaderFunctionArgs) {
     user,
     launchpads,
     volunteers,
-    upcomingEvents,
     discussions,
     blogPosts,
     events,
@@ -37,7 +35,6 @@ export async function homeLoader({ request }: LoaderFunctionArgs) {
     getUser(request),
     loadLaunchpads(request),
     loadVolunteers(request, userId),
-    safe(() => getUpcomingEvents(), []),
     loadDiscussions(request),
     loadBlogPosts(request),
     loadEvents(request),
@@ -48,7 +45,6 @@ export async function homeLoader({ request }: LoaderFunctionArgs) {
     user,
     launchpads,
     volunteers,
-    upcomingEvents,
     discussions,
     blogPosts,
     events,
@@ -97,7 +93,7 @@ async function loadBlogPosts(request: Request) {
 async function loadEvents(request: Request) {
   return safe(async () => {
     const result = await getPlumpiEvents(request, {
-      limit: EVENTS_POST_LIMIT,
+      limit: EVENT_LIMIT,
       status: "PUBLISHED",
       visibility: "LISTED",
       startDate: new Date().toISOString(),
@@ -105,7 +101,9 @@ async function loadEvents(request: Request) {
       sortOrder: "asc",
     });
 
-    return result.data.events.flatMap((event) => {
+    // One malformed row should not blank the section, so rows are parsed
+    // individually and the unexpected ones are dropped.
+    return (result?.data?.events ?? []).flatMap((event) => {
       const parsed = EventListItemSchema.safeParse(event);
       if (!parsed.success) {
         console.error("Skipped a malformed Plumpi event row:", parsed.error);
@@ -127,6 +125,12 @@ async function loadCourses(request: Request) {
   }, []);
 }
 
+/**
+ * The homepage is a set of independent sections, so a failing one shows its
+ * fallback rather than blanking the page. An unavailable service logs a single
+ * line; anything else — an auth or validation fault — still throws, because
+ * those are bugs rather than outages.
+ */
 async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
   try {
     return await fn();

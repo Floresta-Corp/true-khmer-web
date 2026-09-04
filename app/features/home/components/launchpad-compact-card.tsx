@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { format } from "date-fns";
+import dayjs from "dayjs";
 import { resolveImageURL } from "~/lib/utils";
 import type { LaunchpadOpportunity } from "~/features/launchpad/types";
 
@@ -14,6 +14,10 @@ export function LaunchpadCompactCard({ item }: LaunchpadCompactCardProps) {
     item.coverKey ?? item.logoKey,
     launchpadPlaceholderImage,
   );
+  const deadline = dayjs(item.deadline);
+  const deadlineLabel = deadline.isValid()
+    ? `Deadline: ${deadline.format("MMM D")}`
+    : null;
 
   return (
     <Link
@@ -34,9 +38,11 @@ export function LaunchpadCompactCard({ item }: LaunchpadCompactCardProps) {
         <h3 className="truncate text-[15px] font-semibold text-[#1e293b] transition-colors group-hover:text-[#1c5dd4]">
           {item.name}
         </h3>
-        <p className="text-[12px] font-medium text-[#1c5dd4]">
-          Deadline: {format(item.deadline, "MMM d")}
-        </p>
+        {deadlineLabel && (
+          <p className="text-[12px] font-medium text-[#1c5dd4]">
+            {deadlineLabel}
+          </p>
+        )}
       </div>
     </Link>
   );

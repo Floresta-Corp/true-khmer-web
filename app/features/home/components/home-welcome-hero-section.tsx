@@ -8,7 +8,7 @@ interface HomeWelcomeHeroSectionProps {
 }
 
 export function HomeWelcomeHeroSection({ name }: HomeWelcomeHeroSectionProps) {
-  const firstName = name?.trim().split(/\s+/)[0] || name?.trim();
+  const firstName = name?.trim().split(/\s+/)[0];
   const prefersReducedMotion = useReducedMotion();
   const dur = prefersReducedMotion ? 0 : 1;
 
@@ -34,7 +34,7 @@ export function HomeWelcomeHeroSection({ name }: HomeWelcomeHeroSectionProps) {
 
       <div className="relative z-10 flex max-w-xl flex-col justify-center space-y-4 sm:min-h-[340px] sm:space-y-6 lg:min-h-[308px]">
         <p className="text-sm font-semibold text-[#2563EB]">
-          Welcome back, {firstName ?? "Friend"}!
+          Welcome back, {firstName || "Friend"}!
         </p>
 
         <h1 className="text-3xl leading-tight font-extrabold tracking-tight text-slate-900 md:text-4xl lg:text-[2.5rem]">
@@ -53,7 +53,6 @@ export function HomeWelcomeHeroSection({ name }: HomeWelcomeHeroSectionProps) {
           people building Cambodia's future.
         </p>
 
-        {/* Search Input Bar */}
         <div className="pt-2">
           <div className="relative flex max-w-md items-center rounded-full bg-white p-1.5 shadow-lg ring-1 shadow-slate-200/70 ring-slate-200/80 focus-within:ring-2 focus-within:ring-blue-500">
             <Search className="ml-3.5 h-5 w-5 shrink-0 text-slate-400" />
