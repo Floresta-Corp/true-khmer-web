@@ -7,14 +7,16 @@ import TrendingTopics from "./trending-topics";
 
 import type { QuestionResponse, TrendingTagResponse } from "~/types/api-client";
 import type { CategoriesPicker, QuestionSortBy } from "~/features/forum/types";
-import ForumRightSidebar from "./forum-right-sidebar";
 import YourActivitiesCard from "../card/your-activities-card";
+import TopContributorsCard from "../card/top-contributors-card";
 import MobileQuestionFilter from "../mobile-question-filter";
 import QuestionSortByDropdown from "../question-sort-by-dropdown";
 import QuestionCard from "../card/question-card";
 import { useLoaderData } from "react-router";
 import type { loader } from "../../route/forum.new";
 import { ForumPageLayout } from "../forum-page-layout";
+import ForumCommunityHeroCard from "./forum-community-hero-card";
+import ForumSidebarSearch from "./forum-sidebar-search";
 
 interface ForumContentNewProps {
   questions?: QuestionResponse[];
@@ -80,9 +82,63 @@ export default function ForumContentNew({
     return () => observer.disconnect();
   }, [hasMore, isLoading, onLoadMore]);
 
+  const categoriesCard = (
+    <ForumTopCategoriesCard
+      categories={categories}
+      selectedCategory={selectedCategory}
+      onCategorySelect={onCategorySelect}
+    />
+  );
+
+  const trendingCard = (
+    <TrendingTopics
+      tags={tags}
+      selectedTagId={selectedTagId}
+      onTagSelect={onTagSelect}
+    />
+  );
+
   return (
-    <ForumPageLayout contentClassName="flex gap-10">
+    <ForumPageLayout contentClassName="flex gap-6">
+      {/* Left sidebar: search, categories, trending topics */}
+      <aside className="hidden w-70 shrink-0 space-y-5 lg:block">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 * d, ease: "easeOut" }}
+        >
+          <ForumSidebarSearch />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 * d, delay: 0.1 * d, ease: "easeOut" }}
+        >
+          {categoriesCard}
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 * d, delay: 0.2 * d, ease: "easeOut" }}
+        >
+          {trendingCard}
+        </motion.div>
+      </aside>
+
+      {/* Center column: composer hero, filters, discussions */}
       <div className="flex min-w-0 flex-1 flex-col gap-5">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 * d, ease: "easeOut" }}
+        >
+          <ForumCommunityHeroCard />
+        </motion.div>
+
+        <div className="lg:hidden">
+          <ForumSidebarSearch />
+        </div>
+
         <motion.div
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -98,10 +154,10 @@ export default function ForumContentNew({
                     key={`${tab.label}-${tab.value}`}
                     type="button"
                     onClick={() => setActiveTab(tab.value)}
-                    className={`cursor-pointer rounded-full px-6 py-2.5 text-sm font-medium transition-colors ${
+                    className={`cursor-pointer rounded-full border px-6 py-2 text-sm font-medium transition-colors ${
                       isActive
-                        ? "bg-[#0050d4] text-[#f1f2ff]"
-                        : "bg-[#eef1f3] text-[#595c5e] hover:bg-[#e2e8f0]"
+                        ? "border-[#2f6fe4] bg-[#eaf2ff] text-[#2f6fe4]"
+                        : "border-[#e2e8f0] bg-white text-[#48566a] hover:bg-[#f1f5f9]"
                     }`}
                   >
                     {tab.label}
@@ -189,9 +245,18 @@ export default function ForumContentNew({
             )}
           </motion.div>
         )}
+
+        {/* Sidebar cards fall below the list on small screens */}
+        <div className="space-y-5 lg:hidden">
+          {userId && <YourActivitiesCard />}
+          {categoriesCard}
+          {trendingCard}
+          <TopContributorsCard />
+        </div>
       </div>
 
-      <aside className="hidden w-70 shrink-0 space-y-5 lg:block">
+      {/* Right sidebar: my discussion, top contributors */}
+      <aside className="hidden w-75 shrink-0 space-y-5 lg:block">
         {userId && (
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -210,33 +275,9 @@ export default function ForumContentNew({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 * d, delay: 0.25 * d, ease: "easeOut" }}
         >
-          <ForumTopCategoriesCard
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onCategorySelect={onCategorySelect}
-          />
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35 * d, delay: 0.35 * d, ease: "easeOut" }}
-        >
-          <TrendingTopics
-            tags={tags}
-            selectedTagId={selectedTagId}
-            onTagSelect={onTagSelect}
-          />
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35 * d, delay: 0.45 * d, ease: "easeOut" }}
-        >
-          <ForumRightSidebar hideGuidelines />
+          <TopContributorsCard />
         </motion.div>
       </aside>
-      {/* </div>
-    </section> */}
     </ForumPageLayout>
   );
 }

@@ -14,7 +14,6 @@ import type { CategoriesPicker, QuestionSortBy } from "~/features/forum/types";
 import { questionSortBySchema } from "~/features/forum/types";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { forumListloader } from "../services/forum.loader";
-import ForumHeaderNew from "../components/sections/forum-header-new";
 import ForumContentNew, {
   type ForumQuestionTab,
 } from "../components/sections/forum-content-new";
@@ -306,17 +305,6 @@ export default function ForumNewPage() {
         exit={{ opacity: 0, y: 20 }}
         transition={{
           duration: prefersReducedMotion ? 0 : 0.3,
-        }}
-      >
-        <ForumHeaderNew />
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 20 }}
-        transition={{
-          duration: prefersReducedMotion ? 0 : 0.3,
-          delay: prefersReducedMotion ? 0 : 0.1,
         }}
       >
         <ForumContentNew

@@ -14,42 +14,37 @@ export default function ForumTopCategoriesCard({
   onCategorySelect,
 }: ForumTopCategoriesCardProps) {
   return (
-    <Card className="w-full rounded-2xl border-none bg-white p-5 shadow-none">
-      <div className="mb-4">
-        <h3 className="text-lg leading-6.75 font-bold text-[#344256]">
+    <Card className="w-full gap-0 rounded-2xl border border-[#e9eef5] bg-white p-5 shadow-none">
+      <div className="mb-3">
+        <h3 className="text-base leading-6 font-bold text-[#0f1729]">
           Categories
         </h3>
       </div>
 
-      <div className="flex flex-col gap-[3.5px]">
+      <div className="flex flex-col gap-0.5">
         {categories?.map((category) => {
           const count = category.count ?? 0;
+          const isSelected = selectedCategory.id === category.id;
 
           return (
             <Button
               key={category.name}
               onClick={() => onCategorySelect?.(category)}
               variant="ghost"
-              className={`flex h-9 items-center justify-between rounded-lg px-2.25 py-0 transition-colors ${
-                selectedCategory.id === category.id
-                  ? "bg-transparent"
-                  : "hover:bg-[#f8fafc]"
-              }`}
+              className="flex h-9 items-center justify-between rounded-lg px-2.25 py-0 transition-colors hover:bg-[#f8fafc]"
             >
               <span
-                className={`text-center text-sm font-semibold tracking-tight ${
-                  selectedCategory.id === category.id
-                    ? "text-[#2f6fe4]"
-                    : "text-[#4a5565]"
+                className={`truncate text-left text-sm font-medium tracking-tight ${
+                  isSelected ? "text-[#2f6fe4]" : "text-[#4a5565]"
                 }`}
               >
                 {category.name}
               </span>
               <span
-                className={`flex h-[18.5px] items-center justify-center rounded-lg px-1.5 text-center text-xs font-semibold ${
-                  selectedCategory.id === category.id
+                className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-center text-xs font-semibold ${
+                  isSelected
                     ? "bg-[#2f6fe4] text-white"
-                    : "bg-[#f3f4f6] text-[#99a1af]"
+                    : "bg-transparent text-[#9eacc0]"
                 }`}
               >
                 {count}

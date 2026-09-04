@@ -46,7 +46,7 @@ export default function QuestionCard({
 
   return (
     <motion.article
-      className="w-full rounded-2xl bg-white p-4 shadow-[0px_4px_24px_0px_rgba(0,0,0,0.04)] sm:p-6"
+      className="w-full rounded-2xl border border-[#eef1f6] bg-white p-4 shadow-[0px_2px_16px_0px_rgba(15,23,41,0.03)] sm:p-5"
       initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -57,47 +57,44 @@ export default function QuestionCard({
       onHoverEnd={() => setIsHovered(false)}
     >
       {/* Header with author info */}
-      <div className="mb-3 flex items-start justify-between gap-3 sm:mb-5">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <Avatar className="shrink-0 border border-[#f3f4f6]">
+      <div className="mb-3 flex items-start justify-between gap-3 sm:mb-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <Avatar className="size-10 shrink-0 border border-[#f3f4f6]">
             <AvatarImage
               src={profileImage}
               alt={question.author.name}
               className="object-cover"
             />
           </Avatar>
-          <div className="flex min-w-0 flex-col gap-0.5">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-              <ProfileLinkWrapper
-                authorId={question.author.id}
-                isAuthor={isCurrentAuthor}
-                className="truncate text-xs font-semibold text-[#344256] sm:text-sm"
-              >
-                {question.author.name}
-              </ProfileLinkWrapper>
 
-              {isCurrentAuthor && (
-                <Badge
-                  variant="secondary"
-                  className="pointer-events-none h-4 rounded-md bg-green-100 px-1.5 text-[10px] font-semibold text-green-600"
-                >
-                  Author
-                </Badge>
-              )}
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
+            <ProfileLinkWrapper
+              authorId={question.author.id}
+              isAuthor={isCurrentAuthor}
+              className="truncate text-sm font-semibold text-[#0f1729]"
+            >
+              {question.author.name}
+            </ProfileLinkWrapper>
 
-              <span className="text-xs text-[#9eacc0]">•</span>
-              <span className="hidden text-xs text-[#9eacc0] sm:inline">
-                in
-              </span>
-              <Link
-                to={`/forum?categoryId=${question.category.id}`}
-                className="inline-flex max-w-full truncate text-xs font-semibold text-blue-600 hover:text-blue-700 sm:text-sm"
-              >
-                {question.category.name}
-              </Link>
-            </div>
+            <span className="hidden text-xs text-[#9eacc0] sm:inline">in</span>
+            <Link
+              to={`/forum?categoryId=${question.category.id}`}
+              className="inline-flex max-w-full truncate text-sm font-semibold text-[#2f6fe4] hover:text-blue-700"
+            >
+              {question.category.name}
+            </Link>
 
+            <span className="text-xs text-[#9eacc0]">•</span>
             <span className="text-xs text-[#9eacc0]">{createdAgoLabel}</span>
+
+            {isCurrentAuthor && (
+              <Badge
+                variant="secondary"
+                className="pointer-events-none h-5 rounded-md bg-green-100 px-2 text-[10px] font-semibold text-green-600"
+              >
+                Author
+              </Badge>
+            )}
           </div>
         </div>
 
@@ -168,13 +165,13 @@ export default function QuestionCard({
       {/* Question Title */}
       <h2
         onClick={handleGoToDetail}
-        className="mb-1.5 cursor-pointer text-sm leading-snug font-semibold text-[#030213] transition-colors hover:text-[#2f6fe4] sm:mb-2 sm:text-2xl"
+        className="mb-2 cursor-pointer text-base leading-snug font-semibold text-[#0f1729] transition-colors hover:text-[#2f6fe4] sm:text-lg"
       >
         {question.title}
       </h2>
 
       {/* Question Body */}
-      <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-[#65758b] sm:mb-4 sm:text-sm">
+      <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-[#48566a] sm:mb-4 sm:text-sm">
         {question.body}
       </p>
 
@@ -220,14 +217,17 @@ export default function QuestionCard({
 
       {/* Footer with vote, answer count, and share */}
       <div className="flex shrink-0 items-center gap-4 sm:justify-start sm:gap-3.5">
-        <QuestionVoteComponent question={question} className="h-7.5" />
+        <QuestionVoteComponent
+          question={question}
+          className="h-8 rounded-full border border-[#e9eef5] bg-white"
+        />
 
         <button
           onClick={handleGoToDetail}
-          className="group inline-flex cursor-pointer items-center gap-2 rounded-lg text-xs font-medium text-[#48566A] transition-colors hover:text-blue-600 sm:text-[14px]"
+          className="group inline-flex cursor-pointer items-center gap-2 rounded-lg text-xs font-medium text-[#48566A] transition-colors hover:text-blue-600 sm:text-sm"
         >
           <MessageCircle
-            size={20}
+            size={18}
             className="text-[#48566A] transition-colors group-hover:text-blue-600"
           />
           <span>
