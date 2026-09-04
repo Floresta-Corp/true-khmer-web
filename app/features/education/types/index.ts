@@ -69,6 +69,14 @@ export interface CourseReview {
   comment: string;
 }
 
+/** The signed-in learner's own rating of a course, absent until they leave one. */
+export interface OwnCourseReview {
+  id: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+}
+
 export interface CourseDetail extends CourseSummary {
   meta: CourseMetaItem[];
   hasQuiz: boolean;

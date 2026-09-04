@@ -10,9 +10,10 @@ export function CertificateCard({ certificate }: CertificateCardProps) {
   return (
     <div className="mx-auto max-w-[820px]">
       <div className={`${CARD} mb-6 p-6 sm:p-10`}>
-        {/* `print:` rules keep just this panel on the page when the learner
-            uses "Download as PDF" (browser print-to-PDF). */}
-        <div className="rounded-lg border-2 border-[#1C5DD4] px-6 py-10 text-center sm:px-10 sm:py-12 print:border-2">
+        {/* `print-sheet` is what "Download as PDF" (browser print-to-PDF)
+            prints: the framed panel alone, with the page around it — navbar,
+            footer, card, button — dropped. See app.css. */}
+        <div className="print-sheet rounded-lg border-2 border-[#1C5DD4] px-6 py-10 text-center sm:px-10 sm:py-12">
           <img
             src="/logofullcolor.svg"
             alt="True Khmer"
