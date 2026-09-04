@@ -32,7 +32,8 @@ export default function MyApplicationPage() {
             <MyApplicationHeader />
           </motion.div>
           <MyApplicationPendingApprove />
-          <div className="flex w-full flex-col gap-10 lg:flex-row lg:items-start xl:gap-14">
+
+          <div className="flex w-full flex-col gap-10 xl:flex-row xl:items-start xl:gap-14">
             <div className="min-w-0 flex-1 space-y-8">
               <AnimatePresence mode="wait">
                 {initialTab === "approved" ? (
@@ -50,7 +51,7 @@ export default function MyApplicationPage() {
               </AnimatePresence>
               <MyApplicationCardList />
             </div>
-            <div className="w-full lg:w-85 lg:shrink-0">
+            <div className="w-full xl:w-85 xl:shrink-0">
               <MyApplicationRightSidebar />
             </div>
           </div>

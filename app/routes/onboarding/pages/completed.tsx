@@ -82,7 +82,7 @@ export default function OnboardingCompletedPage() {
 
         <Link
           to="/"
-          className="tk-fade-up-3 inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white"
+          className="tk-fade-up-3 inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#1c5dd4] px-6 text-sm font-medium text-white hover:bg-[#2F6FE4]"
         >
           Go to home
           <ArrowRight size={24} />

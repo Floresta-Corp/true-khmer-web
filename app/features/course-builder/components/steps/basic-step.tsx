@@ -2,6 +2,7 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { CoverImageField } from "../cover-image-field";
 import { DifficultyCards } from "../difficulty-cards";
+import { OutcomeList } from "../outcome-list";
 import { TokenInput } from "../token-input";
 import type {
   CategoryOption,
@@ -64,6 +65,18 @@ export function BasicStep({
         {error("description") && (
           <p className="mt-1.5 text-[13px] text-[#FB3748]">
             {error("description")}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <OutcomeList
+          values={draft.outcomes}
+          onChange={(outcomes) => onChange({ outcomes })}
+        />
+        {error("outcomes") && (
+          <p className="mt-1.5 text-[13px] text-[#FB3748]">
+            {error("outcomes")}
           </p>
         )}
       </div>

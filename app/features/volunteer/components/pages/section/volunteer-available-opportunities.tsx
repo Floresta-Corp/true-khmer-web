@@ -175,20 +175,18 @@ export function VolunteerAvailableOpportunities({
       <div className={cn("flex flex-col gap-8", containerClassName)}>
         {showHeader && (
           <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl leading-8 font-bold text-[#020618] md:text-[32px] md:leading-12">
-                Available Opportunities
-              </h2>
-            </div>
-            <Link to="/volunteer/all">
-              <Button
-                type="button"
-                variant="ghost"
-                className="h-9 px-4 text-sm text-blue-500 hover:bg-transparent hover:text-blue-700 hover:underline"
-              >
-                View all
-              </Button>
-            </Link>
+            <h2 className="text-xl leading-snug font-bold text-[#020618] md:text-[22px] md:leading-12">
+              Available Opportunities
+            </h2>
+
+            <Button
+              asChild
+              type="button"
+              variant="ghost"
+              className="h-9 shrink-0 px-4 text-sm text-blue-500 hover:bg-transparent hover:text-blue-700 hover:underline"
+            >
+              <Link to="/volunteer/all">View all</Link>
+            </Button>
           </div>
         )}
 

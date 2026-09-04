@@ -23,7 +23,7 @@ export default [
       route("forum/detail/:questionId", "features/forum/route/forum.$id.tsx"),
       route("events", "features/events/routes/events.tsx"),
       route("events/all", "features/events/routes/events.all.tsx"),
-      route("events/detail/:id", "features/events/routes/events.$id.tsx"),
+      route("events/detail/:slug", "features/events/routes/events.$slug.tsx"),
       route("volunteer", "features/volunteer/route/volunteer.tsx"),
       route("volunteer/all", "features/volunteer/route/volunteer.all.tsx"),
       route(
@@ -43,10 +43,6 @@ export default [
       route("education", "features/education/route/education.tsx"),
       route("education/all", "features/education/route/education.all.tsx"),
       route("education/:id", "features/education/route/education.$id.tsx"),
-      route(
-        "education/:id/learn",
-        "features/education/route/education.learn.$id.tsx",
-      ),
       route(
         "education/:id/quiz",
         "features/education/route/education.quiz.$id.tsx",
@@ -73,6 +69,10 @@ export default [
       ),
       route("profile/:id", "features/profile/route/profile.$id.tsx"),
     ]),
+    route(
+      "education/:id/learn",
+      "features/education/route/education.learn.$id.tsx",
+    ),
     route("edit-profile", "features/myspace/route/edit-profile.tsx"),
     route(
       "my-applications/detail/:sourceType/:postingId",
@@ -90,7 +90,10 @@ export default [
     layout("layout/workspace-layout.tsx", [
       route("workspace", "features/workspace/route/workspace.tsx"),
       route("my-events", "features/workspace/route/my-events.tsx"),
-      route("manage-post", "features/manage-post/route/manage-post.tsx"),
+      route(
+        "workspace/manage-post",
+        "features/workspace/manage-post/route/manage-post.tsx",
+      ),
       route(
         "course-listing",
         "features/course-listing/route/course-listing.tsx",
@@ -100,14 +103,12 @@ export default [
         "features/course-manage/route/course-manage.$id.tsx",
       ),
       route(
-        "manage-post/:sourceType/:id",
-        "features/manage-post/route/manage-post.$sourceType.$id.tsx",
+        "workspace/manage-post/:sourceType/:id",
+        "features/workspace/manage-post/route/manage-post.$sourceType.$id.tsx",
       ),
     ]),
     route("notifications", "features/notifications/route/notifications.tsx"),
   ]),
-  // Standalone: the design gives the builder its own 100vh rail, so it sits
-  // outside the app shell rather than under the site header.
   route("education/create", "features/course-builder/route/course-builder.tsx"),
   route(
     "education/:id/edit",
@@ -225,6 +226,14 @@ export default [
       "manage-volunteer/:opportunityId",
       "features/admin/manage-content/route/manage-volunteer.$opportunityId.tsx",
     ),
+    route(
+      "manage-education",
+      "features/admin/manage-education/route/manage-education.tsx",
+    ),
+    route(
+      "manage-education/:courseId",
+      "features/admin/manage-education/route/manage-education.$courseId.tsx",
+    ),
   ]),
   route(
     "tk-admin/admin-audit-log/export",
@@ -332,6 +341,6 @@ export default [
   ),
   route(
     "api/candidate-note",
-    "features/manage-post/route/manage-post.candidate-note.ts",
+    "features/workspace/manage-post/route/manage-post.candidate-note.ts",
   ),
 ] satisfies RouteConfig;

@@ -224,7 +224,7 @@ export function GoogleAuthButton({
                 )
         }
       >
-        {isGoogleSubmitting ? "Continuing..." : children}
+        {isGoogleSubmitting ? "Signing in..." : children}
       </GoogleButton>
       {isConfigured && (
         <div

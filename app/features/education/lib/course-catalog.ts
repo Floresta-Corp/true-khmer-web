@@ -1,67 +1,11 @@
 import { z } from "zod";
-import { FALLBACK_CATEGORIES } from "~/features/education/lib/education-fixtures";
 import type { CourseCategory, CourseSummary } from "~/features/education/types";
 
-/**
- * Catalogue filtering and sorting, shared by the Education hub and the
- * "View all" page so the two cannot drift apart.
- */
-
-/**
- * The API and the design label some categories differently ("Technology" vs
- * "Tech"). Normalize so they merge into one entry in the row.
- */
-const CATEGORY_ALIASES: Record<string, string> = {
-  technology: "tech",
-  it: "tech",
-  "personal development": "academics",
-  education: "academics",
-  language: "languages",
-  trade: "trades",
-};
-
-function normalizeCategory(name: string) {
-  const key = name.trim().toLowerCase();
-  return CATEGORY_ALIASES[key] ?? key;
-}
-
-/**
- * The design's category row is fixed. Keep that order and adopt the API's id
- * wherever it publishes a matching category, so filtering can move server-side
- * later; append anything extra the API returns.
- */
-export function mergeCategories(
-  apiCategories: CourseCategory[],
-): CourseCategory[] {
-  const byName = new Map(
-    apiCategories.map((category) => [
-      normalizeCategory(category.name),
-      category,
-    ]),
-  );
-
-  const categories = FALLBACK_CATEGORIES.map((fallback) => {
-    const key = normalizeCategory(fallback.name);
-    const match = byName.get(key);
-    byName.delete(key);
-    return match ? { ...fallback, id: match.id, slug: match.slug } : fallback;
-  });
-
-  categories.push(...byName.values());
-  return categories;
-}
-
-/**
- * The catalogue matches on title alone — the design's All Courses screen
- * filters with `c.title.toLowerCase().includes(query)`. The hub's own search is
- * broader, so it keeps its own matcher below.
- */
 export function matchesTitle(course: CourseSummary, search: string) {
   if (!search) return true;
   return course.title.toLowerCase().includes(search.toLowerCase());
 }
 
-/** The hub searches across title, blurb, category and instructor. */
 export function matchesSearch(course: CourseSummary, search: string) {
   if (!search) return true;
   const needle = search.toLowerCase();
@@ -73,7 +17,6 @@ export function matchesSearch(course: CourseSummary, search: string) {
   );
 }
 
-/** Categories are matched by id, falling back to name while ids are fixtures. */
 export function matchesCategory(
   course: CourseSummary,
   categoryId: string | null,
@@ -85,8 +28,6 @@ export function matchesCategory(
     course.categoryName.toLowerCase() === categoryName?.toLowerCase()
   );
 }
-
-/* -------------------------------- Sorting -------------------------------- */
 
 export const CATALOG_SORTS = ["newest", "popular", "rating", "az"] as const;
 
@@ -101,7 +42,20 @@ export const CATALOG_SORT_LABELS: Record<CatalogSort, string> = {
   az: "A\u2013Z",
 };
 
-/** "Newest" is the catalogue's own order — the design applies no comparator. */
+export const CATALOG_SORT_QUERY: Record<
+  CatalogSort,
+  "newest" | "oldest" | "az" | "price" | null
+> = {
+  newest: "newest",
+  popular: null,
+  rating: null,
+  az: "az",
+};
+
+export function isSortServable(sort: CatalogSort) {
+  return CATALOG_SORT_QUERY[sort] !== null;
+}
+
 export function sortCourses(
   courses: CourseSummary[],
   sort: CatalogSort,
@@ -120,8 +74,6 @@ export function sortCourses(
   }
 }
 
-/* --------------------------------- Type ---------------------------------- */
-
 export const CATALOG_TYPES = ["all", "courses", "ks"] as const;
 
 export type CatalogType = (typeof CATALOG_TYPES)[number];
@@ -134,15 +86,18 @@ export const CATALOG_TYPE_LABELS: Record<CatalogType, string> = {
   ks: "Knowledge Sharing",
 };
 
+export const CATALOG_TYPE_SERVABLE: Record<CatalogType, boolean> = {
+  all: true,
+  courses: true,
+  ks: false,
+};
+
 export function matchesType(course: CourseSummary, type: CatalogType) {
   if (type === "all") return true;
   const isKnowledgeSharing = course.type === "ks";
   return type === "ks" ? isKnowledgeSharing : !isKnowledgeSharing;
 }
 
-/* ------------------------------ Pagination ------------------------------- */
-
-/** The design pages the grid at eight cards. */
 export const CATALOG_PAGE_SIZE = 8;
 
 export function pageOf(total: number, requested: number) {

@@ -40,7 +40,7 @@ export function EventCard({ event }: EventCardProps) {
   const isSoldOut = event.ticketStatus === "SOLD_OUT";
 
   return (
-    <Link to={`/events/detail/${event.id}`} className="group block">
+    <Link to={`/events/detail/${event.slug}`} className="group block">
       <div className="flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow duration-300 hover:shadow-lg">
         {/* Image */}
         <div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100">

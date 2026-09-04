@@ -14,12 +14,10 @@ interface CoverImageFieldProps {
   onClear: () => void;
 }
 
-type PresignResult = { ok: true; intent: "presign-cover"; upload: CoverUpload };
+type PresignResult =
+  | { ok: true; intent: "presign-cover"; upload: CoverUpload }
+  | { ok: false; error?: string };
 
-/**
- * The design's 16/9 cover well. Picking a file presigns through our action,
- * then PUTs straight to storage; only the returned key is saved on the course.
- */
 export function CoverImageField({
   previewUrl,
   onUploaded,
@@ -51,10 +49,16 @@ export function CoverImageField({
     );
   };
 
-  // The presigned URL comes back through the action; the PUT happens here.
   useEffect(() => {
     const file = pendingFile.current;
-    if (fetcher.state !== "idle" || !fetcher.data?.upload || !file) return;
+    if (fetcher.state !== "idle" || !fetcher.data || !file) return;
+
+    if (!fetcher.data.ok) {
+      pendingFile.current = null;
+      setError(fetcher.data.error ?? "That image could not be uploaded.");
+      return;
+    }
+
     pendingFile.current = null;
 
     const upload = fetcher.data.upload;
@@ -70,7 +74,7 @@ export function CoverImageField({
   const busy = uploading || fetcher.state !== "idle";
 
   return (
-    <div className="max-w-[360px]">
+    <div className="max-w-90">
       <div
         onDragOver={(event) => {
           event.preventDefault();

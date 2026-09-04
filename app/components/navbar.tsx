@@ -42,7 +42,7 @@ const MYSPACE_SECTION_PATHS = [
   "/my-ticket",
   "/saved-items",
 ];
-const WORKSPACE_SECTION_PATHS = ["/manage-post", "/workspace", "/my-events"];
+const WORKSPACE_SECTION_PATHS = ["/workspace", "/my-events"];
 
 function isInSection(pathname: string, sectionPaths: string[]) {
   return sectionPaths.some(
@@ -96,7 +96,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
           forceActive: isInMySpace,
         }
       : {
-          to: "/manage-post",
+          to: "/workspace/manage-post",
           label: "Workspace",
           icon: LayoutDashboard,
           forceActive: isInWorkspace,
@@ -108,11 +108,11 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
     // { to: "/dashboard", label: "My Journey", icon: Compass },
     { to: "/forum", label: "Forum", icon: MessagesSquare },
     // { to: "/forumv2", label: "Forum V2", icon: MessageSquare },
-    // { to: "/events", label: "Events", icon: Calendar },
+    { to: "/events", label: "Events", icon: Calendar },
     { to: "/volunteer", label: "Volunteer", icon: HeartHandshake },
     { to: "/launchpad", label: "Launchpad", icon: BriefcaseBusiness },
     { to: "/education", label: "Education", icon: GraduationCap },
-    { to: "/blog", label: "Blog", icon: ClipboardPen },
+    { to: "/blog", label: "khmer Voice", icon: ClipboardPen },
     { to: "/about", label: "About", icon: CircleUser, hide: !!user },
     { to: "/poc", label: "POC", icon: TvMinimalPlay, hide: true },
   ];
