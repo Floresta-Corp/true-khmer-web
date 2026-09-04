@@ -43,7 +43,10 @@ export function AnalyticsTab({
 
   const quizArcs = buildRingArcs(quizBands.map((band) => band.learners));
 
-  if (funnel[0]?.learners === 0) {
+  /* `buildAnalytics` returns an empty funnel at zero learners, so this tests
+     the length — `funnel[0]?.learners === 0` was comparing undefined to 0 and
+     never firing. */
+  if (funnel.length === 0) {
     return (
       <div className="rounded-xl bg-white px-6 py-10 text-center">
         <p className="text-sm font-semibold text-[#1A1A2E]">

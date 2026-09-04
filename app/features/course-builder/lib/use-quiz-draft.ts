@@ -5,6 +5,21 @@ import {
   type QuizQuestion,
 } from "~/features/course-builder/types";
 
+/**
+ * A question only counts once it can actually be answered: it needs text, two
+ * or more filled-in answers, and one of those marked correct. Half-written
+ * questions are dropped on save, so they must not satisfy the quiz either.
+ */
+export function isCompleteQuestion(question: QuizQuestion): boolean {
+  const answered = question.answers.filter((answer) => answer.text.trim());
+
+  return (
+    question.text.trim().length > 0 &&
+    answered.length >= 2 &&
+    answered.some((answer) => answer.correct)
+  );
+}
+
 export function useQuizDraft(initial?: {
   passMark?: string;
   questions?: QuizQuestion[];
@@ -42,6 +57,21 @@ export function useQuizDraft(initial?: {
     ]);
     setActiveId(id);
   }, [nextAnswerId]);
+
+  /** Drops the dragged question into the target's place. */
+  const moveQuestion = useCallback((draggedId: string, targetId: string) => {
+    if (draggedId === targetId) return;
+
+    setQuestions((current) => {
+      const from = current.findIndex((question) => question.id === draggedId);
+      const to = current.findIndex((question) => question.id === targetId);
+      if (from < 0 || to < 0 || from === to) return current;
+
+      const next = [...current];
+      next.splice(to, 0, next.splice(from, 1)[0]);
+      return next;
+    });
+  }, []);
 
   const removeQuestion = useCallback((id: string) => {
     setQuestions((current) => current.filter((question) => question.id !== id));
@@ -144,6 +174,7 @@ export function useQuizDraft(initial?: {
     setPassMark,
     questions,
     addQuestion,
+    moveQuestion,
     removeQuestion,
     updateQuestion,
     setAnswerText,

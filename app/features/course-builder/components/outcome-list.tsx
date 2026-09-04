@@ -6,11 +6,6 @@ interface OutcomeListProps {
   onChange: (values: string[]) => void;
 }
 
-/**
- * "What you will learn". Outcomes are committed one at a time from a single
- * draft box — Enter or the Add button — then read back as the same bullet list
- * learners see on the course page. Duplicates are ignored.
- */
 export function OutcomeList({ values, onChange }: OutcomeListProps) {
   const [draft, setDraft] = useState("");
 
@@ -27,7 +22,7 @@ export function OutcomeList({ values, onChange }: OutcomeListProps) {
   return (
     <div>
       <span className="mb-2 block text-sm font-bold text-[#1A1A2E]">
-        What you will learn
+        What you&apos;ll learn
       </span>
 
       <div className="flex items-center gap-2.5">
@@ -41,13 +36,13 @@ export function OutcomeList({ values, onChange }: OutcomeListProps) {
             event.preventDefault();
             commit();
           }}
-          className="min-w-0 flex-1 rounded-lg border border-[#E5E7EB] px-3.5 py-[13px] text-sm text-[#333333] outline-none placeholder:text-[#9A9AB0] focus:border-[#1C5DD4]"
+          className="min-w-0 flex-1 rounded-lg border border-[#E5E7EB] px-3.5 py-3.25 text-sm text-[#333333] outline-none placeholder:text-[#9A9AB0] focus:border-[#1C5DD4]"
         />
         <button
           type="button"
           onClick={commit}
-          disabled={draft.trim().length === 0}
-          className="shrink-0 cursor-pointer rounded-lg bg-[#1C5DD4] px-5 py-[13px] text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-45"
+          disabled={!draft.trim()}
+          className="shrink-0 cursor-pointer rounded-lg bg-[#1C5DD4] px-6 py-3.25 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-45"
         >
           Add
         </button>
@@ -58,13 +53,13 @@ export function OutcomeList({ values, onChange }: OutcomeListProps) {
           {values.map((value, index) => (
             <li
               key={`${index}-${value}`}
-              className="flex items-center gap-3 rounded-lg border border-[#E5E7EB] px-3.5 py-[11px]"
+              className="flex items-center gap-3 rounded-lg border border-[#E5E7EB] px-3.5 py-2.75"
             >
               <span
                 aria-hidden
                 className="size-1.5 shrink-0 rounded-full bg-[#1C5DD4]"
               />
-              <span className="min-w-0 flex-1 text-sm break-words text-[#1A1A2E]">
+              <span className="min-w-0 flex-1 text-sm wrap-break-word text-[#1A1A2E]">
                 {value}
               </span>
               <button

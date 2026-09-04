@@ -60,6 +60,25 @@ export interface PerformancePoint {
   activeStudents: number;
 }
 
+/**
+ * The raw daily series the chart windows client-side. Held un-aggregated so
+ * changing the range costs no refetch.
+ */
+export interface CourseTrends {
+  enrollment: { date: string; learners: number }[];
+  activity: { date: string; learners: number }[];
+}
+
+/** Windows the Course performance chart offers. `0` days means all time. */
+export const PERFORMANCE_RANGES = [
+  { days: 7, label: "Last 7 days" },
+  { days: 30, label: "Last 30 days" },
+  { days: 90, label: "Last 90 days" },
+  { days: 0, label: "All time" },
+] as const;
+
+export type PerformanceRange = (typeof PERFORMANCE_RANGES)[number]["days"];
+
 export interface ProgressSegment {
   key: "notStarted" | "inProgress" | "completed";
   label: string;
@@ -69,22 +88,23 @@ export interface ProgressSegment {
 }
 
 /**
- * Everything the Overview tab shows. None of it has an API resource: the
- * education-center surface is course CRUD, categories, submit/withdraw/
- * unpublish, cover presign and courses/mine — there is no enrolment, progress,
- * quiz-result or review resource, and `CourseResponse` carries no counts.
+ * Everything the Overview tab shows.
+ *
+ * Enrolments, completion and the progress split come from `GET
+ * /courses/{id}/stats`. The four nullable fields do not: nothing records quiz
+ * attempts or ratings, and `null` says "not tracked" where `0` would read as a
+ * course whose learners all failed and nobody liked.
  */
 export interface CourseManageOverview {
   enrollments: number;
   completionRate: number;
   lessonCount: number;
-  quizPassRate: number;
-  avgQuizScore: number;
-  rating: number;
+  quizPassRate: number | null;
+  avgQuizScore: number | null;
+  rating: number | null;
   reviewCount: number;
   totalLearners: number;
   progress: ProgressSegment[];
-  performance: PerformancePoint[];
 }
 
 /* ----------------------------- Students ---------------------------------- */
@@ -104,6 +124,15 @@ export const STUDENT_FILTER_LABELS: Record<StudentFilter, string> = {
   "in-progress": "In progress",
   "not-started": "Not started",
 };
+
+/**
+ * Rows per page in the Students tab.
+ *
+ * Lives here rather than beside the loader that uses it: the tab and the page
+ * component both need it, and importing it from a `.server`-adjacent module
+ * dragged `education.server.ts` into the client bundle.
+ */
+export const STUDENT_PAGE_SIZE = 20;
 
 export interface ManageStudent {
   id: string;

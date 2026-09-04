@@ -1,11 +1,31 @@
+import { useRef, useState } from "react";
 import { GripVertical, Info, Lightbulb, Settings } from "lucide-react";
 import { cn } from "~/lib/utils";
 import type { QuizDraft } from "../../lib/use-quiz-draft";
+import { Required } from "../required-mark";
 
 const PANEL = "rounded-xl border border-[#E5E7EB] p-[22px]";
 const SUB_HEAD = "text-[13px] font-bold text-[#1A1A2E]";
 
-export function QuizStep({ quiz }: { quiz: QuizDraft }) {
+interface QuizStepProps {
+  quiz: QuizDraft;
+  /** Set when the step was left, or submitted, without a usable question. */
+  error?: string;
+}
+
+export function QuizStep({ quiz, error }: QuizStepProps) {
+  // dragRef carries the id through the drop handler, which fires on the target
+  // row; the state is only there to paint the drag.
+  const dragRef = useRef<string | null>(null);
+  const [dragging, setDragging] = useState<string | null>(null);
+  const [over, setOver] = useState<string | null>(null);
+
+  const endDrag = () => {
+    dragRef.current = null;
+    setDragging(null);
+    setOver(null);
+  };
+
   return (
     <div className="grid items-start gap-5 xl:grid-cols-[1fr_340px]">
       {/* Questions — first in the DOM, and the design puts it left. */}
@@ -14,6 +34,7 @@ export function QuizStep({ quiz }: { quiz: QuizDraft }) {
           <div>
             <h3 className="mb-0.75 text-base font-bold text-[#1A1A2E]">
               Questions
+              <Required />
             </h3>
             <p className="text-[13px] leading-[1.4] text-[#9A9AB0]">
               Build your quiz by adding and managing questions.
@@ -28,22 +49,58 @@ export function QuizStep({ quiz }: { quiz: QuizDraft }) {
           </button>
         </div>
 
+        {error && (
+          <p className="mb-3 text-[13px] font-semibold text-[#FB3748]">
+            {error}
+          </p>
+        )}
+
         <div className="flex flex-col gap-2.5">
           {quiz.questions.map((question, index) => (
             <div
               key={question.id}
-              className="min-w-0 overflow-hidden rounded-[10px] border border-[#E5E7EB] bg-white"
+              draggable
+              onDragStart={(event) => {
+                event.dataTransfer.effectAllowed = "move";
+                event.dataTransfer.setData("text/plain", question.id);
+                dragRef.current = question.id;
+                setDragging(question.id);
+              }}
+              onDragOver={(event) => {
+                event.preventDefault();
+                event.dataTransfer.dropEffect = "move";
+                const dragged = dragRef.current;
+                if (dragged && dragged !== question.id) setOver(question.id);
+              }}
+              onDragLeave={() =>
+                setOver((current) => (current === question.id ? null : current))
+              }
+              onDrop={(event) => {
+                event.preventDefault();
+                const dragged = dragRef.current;
+                if (dragged) quiz.moveQuestion(dragged, question.id);
+                endDrag();
+              }}
+              onDragEnd={endDrag}
+              className={cn(
+                "flex min-w-0 items-center overflow-hidden rounded-[10px] border border-[#E5E7EB] bg-white transition-colors hover:bg-[#F9FAFC]",
+                dragging === question.id && "opacity-40",
+                over === question.id &&
+                  "bg-[#F3F6FD] shadow-[inset_0_2px_0_0_#1C5DD4]",
+              )}
             >
+              <span
+                aria-hidden
+                className="flex shrink-0 cursor-grab items-center py-3.5 pl-4 text-[#9A9AB0] active:cursor-grabbing"
+              >
+                <GripVertical size={15} />
+              </span>
+
               <button
                 type="button"
                 onClick={() => quiz.openQuestion(question.id)}
-                className="flex w-full cursor-pointer items-center gap-3.5 px-4 py-3.5 text-left transition-colors hover:bg-[#F9FAFC]"
+                className="flex min-w-0 flex-1 cursor-pointer items-center gap-3.5 py-3.5 pr-4 pl-3.5 text-left"
               >
-                <GripVertical
-                  size={15}
-                  aria-hidden
-                  className="shrink-0 cursor-grab text-[#9A9AB0]"
-                />
                 <span className="shrink-0 rounded-md bg-[#D5E2FA] px-2.5 py-1.5 text-xs font-bold text-[#1C5DD4]">
                   Q{index + 1}
                 </span>

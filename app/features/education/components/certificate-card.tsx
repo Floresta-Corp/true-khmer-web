@@ -8,7 +8,7 @@ interface CertificateCardProps {
 
 export function CertificateCard({ certificate }: CertificateCardProps) {
   return (
-    <div className="mx-auto max-w-[820px]">
+    <div className="mx-auto max-w-205">
       {/* `data-print-region` makes this card the entire printed page when the
           learner uses "Download as PDF" (browser print-to-PDF), and the
           "landscape" value forces the sheet's orientation — see the
@@ -21,7 +21,7 @@ export function CertificateCard({ certificate }: CertificateCardProps) {
             over after the region's 14mm margin (4mm short of it, so rounding
             can never spill onto a second page) and centres the wording, with
             type sized in points rather than the on-screen pixel scale. */}
-        <div className="rounded-lg border-2 border-[#1C5DD4] px-6 py-10 text-center sm:px-10 sm:py-12 print:flex print:h-[calc(100vh_-_32mm)] print:flex-col print:items-center print:justify-center print:px-[16mm]! print:py-0!">
+        <div className="rounded-lg border-2 border-[#1C5DD4] px-6 py-10 text-center sm:px-10 sm:py-12 print:flex print:h-[calc(100vh-32mm)] print:flex-col print:items-center print:justify-center print:px-[16mm]! print:py-0!">
           <img
             src="/logofullcolor.svg"
             alt="True Khmer"

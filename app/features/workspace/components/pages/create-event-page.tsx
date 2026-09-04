@@ -25,6 +25,7 @@ import {
   isCreateEventFormComplete,
   isOpenEntryDisabled,
 } from "~/features/workspace/lib/my-events-format";
+import { hasInvalidCreateEventDates } from "~/features/workspace/lib/create-event-dates";
 import {
   createEventDraftFingerprint,
   deleteCreateEventDraft,
@@ -51,8 +52,7 @@ const AUTOSAVE_DELAY_MS = 800;
 type Step = "basics" | "review";
 
 export default function CreateEventPage() {
-  const { categories, organizers, venues, venueLoadError, userId } =
-    useLoaderData<typeof loader>();
+  const { categories, organizers, userId } = useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const fetcher = useFetcher<CreateEventActionData>();
@@ -132,9 +132,6 @@ export default function CreateEventPage() {
         )
           ? draft.form.category
           : "";
-        const restoredVenue = venues.find(
-          (venue) => venue.id === draft.form.venueId,
-        );
         const coverPreviewUrl = restoredCover
           ? URL.createObjectURL(restoredCover)
           : "";
@@ -146,7 +143,7 @@ export default function CreateEventPage() {
           // Keep a linked venue id even if it is not in the current suggestion
           // response. It should not silently become a newly created venue.
           venueId: draft.form.venueId,
-          venueName: draft.form.venueName || restoredVenue?.name || "",
+          venueName: draft.form.venueName,
           coverImageName: restoredCover?.name ?? "",
           coverPreviewUrl,
         };
@@ -188,7 +185,7 @@ export default function CreateEventPage() {
     return () => {
       cancelled = true;
     };
-  }, [categories, organizers, userId, venues]);
+  }, [categories, organizers, userId]);
 
   useEffect(() => {
     if (!autosaveReadyRef.current || !userId || createdEventId) return;
@@ -379,7 +376,11 @@ export default function CreateEventPage() {
   const validate = (): boolean => {
     const parsed = CreateEventInputSchema.safeParse(form);
     const dateRanges = getCreateEventDateRanges(form);
-    if (parsed.success && dateRanges) {
+    // The date fields block past and out-of-order slots as they are picked,
+    // but a value can go stale while the form is open, so the boundaries are
+    // re-checked on submit.
+    const hasBadDates = hasInvalidCreateEventDates(form.eventDates, new Date());
+    if (parsed.success && dateRanges && !hasBadDates) {
       setErrors({});
       return true;
     }
@@ -395,6 +396,11 @@ export default function CreateEventPage() {
             ? `Day ${issue.path[1] + 1}: ${issue.message}`
             : issue.message;
       }
+    }
+
+    if (hasBadDates && !nextErrors.eventDates) {
+      nextErrors.eventDates =
+        "Each day must be in the future and later than the day before it";
     }
 
     if (!dateRanges && !nextErrors.eventDates) {
@@ -524,8 +530,6 @@ export default function CreateEventPage() {
                   <CreateEventBasicsForm
                     form={form}
                     categories={categories}
-                    venues={venues}
-                    venueLoadError={venueLoadError}
                     errors={errors}
                     onFieldChange={handleFieldChange}
                     onCoverChange={handleCoverChange}
@@ -572,9 +576,6 @@ export default function CreateEventPage() {
                   organizers.find(
                     (organizer) => organizer.id === form.organizerId,
                   ) ?? null
-                }
-                venue={
-                  venues.find((venue) => venue.id === form.venueId) ?? null
                 }
               />
 
