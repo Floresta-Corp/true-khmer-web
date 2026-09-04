@@ -7,12 +7,6 @@ import { toCourseSummary } from "~/features/education/lib/map-catalog";
 import { getOptionalUser } from "~/lib/server/route-guards.server";
 import type { CourseCategory } from "~/features/education/types";
 
-const HERO_TOPICS = [
-  "Time management tips",
-  "Tips for finding a mentor",
-  "Career Development",
-];
-
 export async function educationLoader({ request }: EducationRoute.LoaderArgs) {
   const url = new URL(request.url);
   const search = url.searchParams.get("search")?.trim() ?? "";
@@ -51,7 +45,6 @@ export async function educationLoader({ request }: EducationRoute.LoaderArgs) {
 
   return {
     displayName,
-    topics: HERO_TOPICS,
     categories,
     isFiltering,
     results: published,

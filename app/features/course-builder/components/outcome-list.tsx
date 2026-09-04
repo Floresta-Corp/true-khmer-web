@@ -6,11 +6,6 @@ interface OutcomeListProps {
   onChange: (values: string[]) => void;
 }
 
-/**
- * Outcomes are written one at a time in a composer and then listed as
- * committed bullets, the way the design has it — Enter or the Add button
- * commits, duplicates are ignored.
- */
 export function OutcomeList({ values, onChange }: OutcomeListProps) {
   const [draft, setDraft] = useState("");
 
@@ -41,13 +36,13 @@ export function OutcomeList({ values, onChange }: OutcomeListProps) {
             event.preventDefault();
             commit();
           }}
-          className="min-w-0 flex-1 rounded-lg border border-[#E5E7EB] px-3.5 py-[13px] text-sm text-[#333333] outline-none placeholder:text-[#9A9AB0] focus:border-[#1C5DD4]"
+          className="min-w-0 flex-1 rounded-lg border border-[#E5E7EB] px-3.5 py-3.25 text-sm text-[#333333] outline-none placeholder:text-[#9A9AB0] focus:border-[#1C5DD4]"
         />
         <button
           type="button"
           onClick={commit}
           disabled={!draft.trim()}
-          className="shrink-0 cursor-pointer rounded-lg bg-[#1C5DD4] px-6 py-[13px] text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-45"
+          className="shrink-0 cursor-pointer rounded-lg bg-[#1C5DD4] px-6 py-3.25 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-45"
         >
           Add
         </button>
@@ -57,21 +52,21 @@ export function OutcomeList({ values, onChange }: OutcomeListProps) {
         <ul className="mt-2.5 flex flex-col gap-2.5">
           {values.map((value, index) => (
             <li
-              key={value}
-              className="flex items-center gap-3 rounded-lg border border-[#E5E7EB] px-3.5 py-[11px]"
+              key={`${index}-${value}`}
+              className="flex items-center gap-3 rounded-lg border border-[#E5E7EB] px-3.5 py-2.75"
             >
               <span
                 aria-hidden
                 className="size-1.5 shrink-0 rounded-full bg-[#1C5DD4]"
               />
-              <span className="min-w-0 flex-1 text-sm break-words text-[#333333]">
+              <span className="min-w-0 flex-1 text-sm wrap-break-word text-[#1A1A2E]">
                 {value}
               </span>
               <button
                 type="button"
                 onClick={() => remove(index)}
-                title="Remove outcome"
-                aria-label={`Remove outcome: ${value}`}
+                title="Remove point"
+                aria-label={`Remove "${value}"`}
                 className="flex size-5 shrink-0 cursor-pointer items-center justify-center text-[#9A9AB0] hover:text-[#DC2626]"
               >
                 <X size={14} strokeWidth={2.2} aria-hidden />
