@@ -15,3 +15,21 @@ export function CourseListingSkeleton() {
     </div>
   );
 }
+
+export function CourseListingCardSkeleton() {
+  return (
+    <div className="flex flex-col overflow-hidden rounded-2xl bg-white">
+      <Skeleton className="aspect-[2/1] w-full rounded-none" />
+      <div className="flex flex-col p-4">
+        <Skeleton className="mb-2 h-5 w-full" />
+        <Skeleton className="mb-2.5 h-5 w-2/3" />
+        <Skeleton className="mb-3.5 h-4 w-40" />
+        <div className="grid grid-cols-3 gap-3 border-t border-[#E5E7EB] pt-3.5">
+          <Skeleton className="h-10" />
+          <Skeleton className="h-10" />
+          <Skeleton className="h-10" />
+        </div>
+      </div>
+    </div>
+  );
+}
