@@ -327,7 +327,6 @@ export async function createEventAction({ request }: Route.ActionArgs) {
       excerpt: parsed.data.description,
       eventCategories: [parsed.data.category],
       isOnline: false,
-      listingChannel: "TRUE_KHMER",
       ...(parsed.data.venueId
         ? { venueId: parsed.data.venueId }
         : { venueName: parsed.data.venueName }),

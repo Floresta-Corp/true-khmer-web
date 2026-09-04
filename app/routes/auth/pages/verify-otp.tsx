@@ -247,6 +247,7 @@ export default function VerifyOtpPage() {
 
               <Button
                 type="submit"
+                data-otp-submit
                 disabled={!canVerify}
                 className="mt-9 h-10 w-full rounded-lg bg-[#F1F5F9] px-6 text-sm leading-5 font-medium text-[#1D283A] transition-colors enabled:cursor-pointer enabled:bg-[#2F6FE4] enabled:text-white enabled:hover:bg-[#1F62DF] disabled:opacity-50"
               >
