@@ -23,9 +23,9 @@ export function CourseListingRow({ course, index }: CourseListingRowProps) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.24, delay: Math.min(index, 6) * 0.03 }}
-      className="relative flex cursor-pointer items-center gap-5 rounded-2xl bg-white p-4 transition-shadow duration-200 hover:shadow-[0_6px_20px_rgba(26,26,46,0.14),0_2px_6px_rgba(26,26,46,0.06)]"
+      className="relative flex cursor-pointer items-center gap-6 rounded-2xl bg-white p-4 transition-shadow duration-200 hover:shadow-[0_6px_20px_rgba(26,26,46,0.14),0_2px_6px_rgba(26,26,46,0.06)]"
     >
-      <span className="size-16 w-24 shrink-0 overflow-hidden rounded-lg bg-[#E8E8E8]">
+      <span className="h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-[#E8E8E8]">
         <img
           src={cover}
           alt=""
@@ -38,7 +38,7 @@ export function CourseListingRow({ course, index }: CourseListingRowProps) {
         />
       </span>
 
-      <div className="w-64 min-w-0 shrink-0">
+      <div className="min-w-0 flex-1">
         <CourseStatusBadge status={status} className="mb-2 inline-block" />
         <h3 className="truncate text-[18px] font-bold text-[#10101E]">
           <Link
@@ -49,8 +49,6 @@ export function CourseListingRow({ course, index }: CourseListingRowProps) {
           </Link>
         </h3>
       </div>
-
-      <div className="min-w-0 flex-1" />
 
       {course.stats ? (
         <CourseLearnerStats stats={course.stats} className="hidden lg:flex" />
@@ -64,8 +62,6 @@ export function CourseListingRow({ course, index }: CourseListingRowProps) {
           —
         </span>
       )}
-
-      <div className="min-w-0 flex-1" />
 
       <CourseActionsMenu course={course} />
     </motion.article>

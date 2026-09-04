@@ -32,7 +32,7 @@ export function CourseLearnerStats({
 
   return (
     <div className={cn("shrink-0 items-start gap-9", className)}>
-      <div className="pr-9">
+      <div>
         <p className="text-[12px] text-[#86869E]">Total learners</p>
         <p className="text-[18px] leading-tight font-bold text-[#10101E]">
           {stats.totalLearners.toLocaleString()}

@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { Link, useFetcher } from "react-router";
+import { toast } from "sonner";
 import { Eye, MoreVertical, SendHorizonal, Undo2 } from "lucide-react";
 import {
   DropdownMenu,
@@ -9,6 +10,14 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { cn } from "~/lib/utils";
 import type { MyCourse } from "~/features/course-listing/types";
+
+type Intent = "submit" | "withdraw" | "unpublish";
+
+const DONE: Record<Intent, string> = {
+  submit: "Sent for review.",
+  withdraw: "Submission withdrawn.",
+  unpublish: "Course unpublished.",
+};
 
 /**
  * The status actions a course offers, shared by the list row and the grid card
@@ -24,15 +33,31 @@ export function CourseActionsMenu({
   triggerClassName?: string;
   triggerIcon?: ReactNode;
 }) {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<{ ok: boolean; error?: string }>();
   const busy = fetcher.state !== "idle";
+  const announced = useRef<unknown>(null);
+  const lastIntent = useRef<Intent | null>(null);
 
-  const submitIntent = (intent: string) => {
+  const submitIntent = (intent: Intent) => {
+    lastIntent.current = intent;
     fetcher.submit(
       { intent, courseId: course.id },
       { method: "post", action: "/course-listing" },
     );
   };
+
+  useEffect(() => {
+    if (fetcher.state !== "idle" || !fetcher.data) return;
+    if (announced.current === fetcher.data) return;
+    announced.current = fetcher.data;
+
+    if (fetcher.data.ok) {
+      toast.success(DONE[lastIntent.current ?? "submit"]);
+      return;
+    }
+
+    toast.error(fetcher.data.error ?? "That change could not be saved.");
+  }, [fetcher.state, fetcher.data]);
 
   return (
     <DropdownMenu>
@@ -48,12 +73,16 @@ export function CourseActionsMenu({
         {triggerIcon ?? <MoreVertical size={18} aria-hidden />}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52 rounded-xl">
-        <DropdownMenuItem asChild>
-          <Link to={`/education/${course.id}`}>
-            <Eye size={16} aria-hidden />
-            View live course
-          </Link>
-        </DropdownMenuItem>
+        {/* Only a published course has a public page; for anything else that
+            link is a 404 for every visitor but its owner. */}
+        {course.status === "PUBLISHED" && (
+          <DropdownMenuItem asChild>
+            <Link to={`/education/${course.id}`}>
+              <Eye size={16} aria-hidden />
+              View live course
+            </Link>
+          </DropdownMenuItem>
+        )}
 
         {(course.status === "DRAFT" || course.status === "UNPUBLISHED") && (
           <DropdownMenuItem onSelect={() => submitIntent("submit")}>

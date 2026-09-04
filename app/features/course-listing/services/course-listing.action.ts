@@ -5,6 +5,7 @@ import {
   unpublishCourse,
   withdrawCourse,
 } from "~/api/education/education.server";
+import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
 
@@ -37,7 +38,18 @@ export async function courseListingAction({ request }: Route.ActionArgs) {
     if (intent === "submit") await submitCourseForReview(request, courseId);
     if (intent === "withdraw") await withdrawCourse(request, courseId);
     if (intent === "unpublish") await unpublishCourse(request, courseId);
-  } catch {
+  } catch (error) {
+    // The API refuses transitions its state machine does not allow, and that
+    // reason is the useful part — do not bury it under a generic message.
+    if (error instanceof ProtectedApiError && error.status < 500) {
+      return withAuthData(
+        auth,
+        { ok: false as const, error: error.message },
+        { status: error.status },
+      );
+    }
+
+    console.error(`Failed to ${intent} a course`, error);
     return withAuthData(
       auth,
       { ok: false as const, error: "That change could not be saved." },

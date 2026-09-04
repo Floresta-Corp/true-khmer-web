@@ -11,6 +11,7 @@ import {
   validateLessonFile,
   type LessonAssetUpload,
 } from "../lib/upload-lesson-asset";
+import { validateYoutubeUrl } from "../lib/youtube-url";
 
 const ACCEPT: Record<Exclude<LessonSource, "youtube">, string> = {
   pdf: "application/pdf",
@@ -49,6 +50,8 @@ export function LessonSourceField({
   const pendingFile = useRef<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** A half-typed link is not wrong yet, so only complain once they leave. */
+  const [urlTouched, setUrlTouched] = useState(false);
 
   const selection = useRef(0);
 
@@ -113,14 +116,33 @@ export function LessonSourceField({
   }, [fetcher.state, fetcher.data, onUploaded]);
 
   if (source === "youtube") {
+    const problem = urlTouched ? validateYoutubeUrl(url) : null;
+
     return (
-      <input
-        value={url}
-        onChange={(event) => onUrlChange(event.target.value)}
-        placeholder={urlPlaceholder}
-        aria-label={label}
-        className="w-full rounded-lg border border-[#E5E7EB] px-3.5 py-3 text-sm text-[#333333] outline-none focus:border-[#1C5DD4]"
-      />
+      <div>
+        <input
+          value={url}
+          onChange={(event) => {
+            setUrlTouched(false);
+            onUrlChange(event.target.value);
+          }}
+          onBlur={() => setUrlTouched(true)}
+          placeholder={urlPlaceholder}
+          aria-label={label}
+          aria-invalid={Boolean(problem)}
+          className={cn(
+            "w-full rounded-lg border px-3.5 py-3 text-sm text-[#333333] outline-none",
+            problem
+              ? "border-[#FB3748]"
+              : "border-[#E5E7EB] focus:border-[#1C5DD4]",
+          )}
+        />
+        {problem && (
+          <p className="mt-2 text-[13px] font-semibold text-[#FB3748]">
+            {problem}
+          </p>
+        )}
+      </div>
     );
   }
 

@@ -1,9 +1,9 @@
 import { data } from "react-router";
 import type { Route } from "project-types/course-manage/route/+types/course-manage.$id";
 import {
-  getCourseById,
   getCourseCurriculum,
   getCourseStats,
+  getOwnedCourseById,
   listCourseReviews,
   listCourseStudents,
 } from "~/api/education/education.server";
@@ -28,7 +28,7 @@ export async function courseManageLoader({
 
   const [result, curriculumResult, statsResult, reviewsResult, studentsResult] =
     await Promise.all([
-      getCourseById(request, params.id),
+      getOwnedCourseById(request, params.id),
       getCourseCurriculum(request, params.id),
       getCourseStats(request, params.id),
       /* First pages only. Both the Review and Students tabs page further

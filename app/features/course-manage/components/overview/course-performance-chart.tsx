@@ -68,6 +68,11 @@ export function CoursePerformanceChart({ trends }: { trends: CourseTrends }) {
   /* A single day cannot draw a line, so the dots carry it. */
   const showPoints = data.length > 1 && data.length <= 45;
 
+  /* buildPerformance only comes back empty when the course has no trend data
+     at all — never because the chosen window missed it — so hiding the range
+     picker here cannot strand anyone in a window they can't leave. */
+  const hasData = data.length > 0;
+
   return (
     <div className={`${MANAGE_CARD} flex flex-col p-6`}>
       <div className="mb-1.5 flex flex-wrap items-center justify-between gap-3">
@@ -75,26 +80,31 @@ export function CoursePerformanceChart({ trends }: { trends: CourseTrends }) {
           Course performance
         </h3>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-[#E5E7EB] px-3 py-[7px] text-[12.5px] font-semibold text-[#333333] transition-colors hover:bg-[#F9FAFC]">
-            {activeRange.label}
-            <ChevronDown size={12} strokeWidth={2.2} aria-hidden />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="min-w-[150px] rounded-lg">
-            {PERFORMANCE_RANGES.map((option) => (
-              <DropdownMenuItem
-                key={option.days}
-                onSelect={() => setRange(option.days)}
-                className={cn(
-                  "text-[13px]",
-                  option.days === range && "font-bold text-[#1C5DD4]",
-                )}
-              >
-                {option.label}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {hasData && (
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-[#E5E7EB] px-3 py-[7px] text-[12.5px] font-semibold text-[#333333] transition-colors hover:bg-[#F9FAFC]">
+              {activeRange.label}
+              <ChevronDown size={12} strokeWidth={2.2} aria-hidden />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="min-w-[150px] rounded-lg"
+            >
+              {PERFORMANCE_RANGES.map((option) => (
+                <DropdownMenuItem
+                  key={option.days}
+                  onSelect={() => setRange(option.days)}
+                  className={cn(
+                    "text-[13px]",
+                    option.days === range && "font-bold text-[#1C5DD4]",
+                  )}
+                >
+                  {option.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
 
       <div className="mt-2 mb-3.5 flex items-center gap-5">

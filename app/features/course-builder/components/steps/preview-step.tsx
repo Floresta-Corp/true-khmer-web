@@ -125,7 +125,7 @@ export function PreviewStep({
 
           {draft.coverPreviewUrl && (
             <div className="border-t border-[#E5E7EB] pt-4">
-              <div className={FIELD_LABEL}>COVER</div>
+              <div className={FIELD_LABEL}>COVER IMAGE</div>
               <img
                 src={draft.coverPreviewUrl}
                 alt=""
@@ -223,7 +223,8 @@ export function PreviewStep({
                 <CircleCheck
                   size={16}
                   aria-hidden
-                  className="shrink-0 text-[#1FC16B]"
+                  fill="#1FC16B"
+                  className="shrink-0 text-white"
                 />
               ) : (
                 <CircleDashed
@@ -277,7 +278,8 @@ function ReviewCard({
             <CircleCheck
               size={22}
               aria-hidden
-              className="shrink-0 text-[#1FC16B]"
+              fill="#1FC16B"
+              className="shrink-0 text-white"
             />
           ) : (
             <CircleDashed
