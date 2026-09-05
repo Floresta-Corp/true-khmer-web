@@ -36,9 +36,6 @@ export function CoursePerformanceChart({ data }: { data: PerformancePoint[] }) {
     PERFORMANCE_BOX,
   );
 
-  /* A single day cannot draw a line, so the dots carry it. */
-  const showPoints = data.length > 1 && data.length <= 45;
-
   /* buildPerformance only comes back empty when the course has no trend data
      at all — never because the chosen window missed it — so hiding the range
      picker here cannot strand anyone in a window they can't leave. */

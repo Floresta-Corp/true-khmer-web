@@ -1,12 +1,5 @@
-import { Link, useFetcher } from "react-router";
+import { Link } from "react-router";
 import { motion } from "motion/react";
-import { Eye, MoreVertical, SendHorizonal, Undo2 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
 import { CourseStatusBadge } from "./course-status-badge";
 import { CourseLearnerStats } from "./course-learner-stats";
 import {
@@ -21,18 +14,9 @@ interface CourseListingRowProps {
 }
 
 export function CourseListingRow({ course, index }: CourseListingRowProps) {
-  const fetcher = useFetcher();
   const status = displayStatusOf(course);
   const cover = course.coverImageUrl ?? "/placeholder/images.svg";
   const manageTo = `/course-listing/${course.id}`;
-  const busy = fetcher.state !== "idle";
-
-  const submitIntent = (intent: string) => {
-    fetcher.submit(
-      { intent, courseId: course.id },
-      { method: "post", action: "/course-listing" },
-    );
-  };
 
   return (
     <motion.article
@@ -66,9 +50,22 @@ export function CourseListingRow({ course, index }: CourseListingRowProps) {
         </h3>
       </div>
 
+      <div className="min-w-0 flex-1" />
+
       {course.stats ? (
         <CourseLearnerStats stats={course.stats} className="hidden lg:flex" />
-      ) : null}
+      ) : (
+        /* A course nobody has started has no figures to report, so the strip
+           collapses to the design's single em dash. */
+        <span
+          aria-label="No learner figures yet"
+          className="hidden shrink-0 text-[#9A9AB0] lg:block"
+        >
+          —
+        </span>
+      )}
+
+      <div className="min-w-0 flex-1" />
 
       <CourseActionsMenu course={course} />
     </motion.article>

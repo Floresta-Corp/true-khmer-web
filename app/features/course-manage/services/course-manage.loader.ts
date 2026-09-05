@@ -4,8 +4,6 @@ import {
   getCourseCurriculum,
   getCourseStats,
   getOwnedCourseById,
-  listCourseReviews,
-  listCourseStudents,
 } from "~/api/education/education.server";
 import {
   buildAnalytics,
