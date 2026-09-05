@@ -8,6 +8,7 @@ import {
   listCourseReviews,
   listPublicCourses,
 } from "~/api/education/education.server";
+import { getCourseSaveState } from "~/api/education/my-classes.server";
 import { GetProfileById } from "~/api/profile/profile.server";
 import { resolveImageURL } from "~/lib/utils";
 import { toTelHref } from "~/features/education/lib/phone";
@@ -28,14 +29,20 @@ const REVIEW_LIMIT = 20;
 export async function loadCourseDetail(
   request: Request,
   courseId: string,
-  options: { withInstructorContact?: boolean } = {},
+  options: {
+    withInstructorContact?: boolean;
+    withSaveState?: boolean;
+  } = {},
 ): Promise<CourseDetail | null> {
-  const [courseRes, categoriesRes, curriculumRes, reviewsRes] =
+  const [courseRes, categoriesRes, curriculumRes, reviewsRes, saveStateRes] =
     await Promise.all([
       getCourseById(request, courseId),
       getCourseCategories(request),
       getCourseCurriculum(request, courseId),
       listCourseReviews(request, courseId, { limit: REVIEW_LIMIT }),
+      options.withSaveState
+        ? getCourseSaveState(request, courseId)
+        : Promise.resolve(null),
     ]);
 
   const course = courseRes?.data?.course;
@@ -126,7 +133,7 @@ export async function loadCourseDetail(
     studentCount: 0,
     isNew: false,
     price: course.price,
-    isSaved: false,
+    isSaved: saveStateRes?.data?.saved ?? false,
   };
 
   return {
@@ -171,7 +178,10 @@ export async function educationDetailLoader({
   params,
 }: EducationDetailRoute.LoaderArgs) {
   const [course, hasQuiz] = await Promise.all([
-    loadCourseDetail(request, params.id, { withInstructorContact: true }),
+    loadCourseDetail(request, params.id, {
+      withInstructorContact: true,
+      withSaveState: true,
+    }),
     loadCourseHasQuiz(request, params.id),
   ]);
 

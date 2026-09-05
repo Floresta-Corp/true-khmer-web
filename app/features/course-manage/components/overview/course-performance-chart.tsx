@@ -82,14 +82,11 @@ export function CoursePerformanceChart({ trends }: { trends: CourseTrends }) {
 
         {hasData && (
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-[#E5E7EB] px-3 py-[7px] text-[12.5px] font-semibold text-[#333333] transition-colors hover:bg-[#F9FAFC]">
+            <DropdownMenuTrigger className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-[#E5E7EB] px-3 py-1.75 text-[12.5px] font-semibold text-[#333333] transition-colors hover:bg-[#F9FAFC]">
               {activeRange.label}
               <ChevronDown size={12} strokeWidth={2.2} aria-hidden />
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="min-w-[150px] rounded-lg"
-            >
+            <DropdownMenuContent align="end" className="min-w-37.5 rounded-lg">
               {PERFORMANCE_RANGES.map((option) => (
                 <DropdownMenuItem
                   key={option.days}
