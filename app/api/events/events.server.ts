@@ -137,10 +137,27 @@ export function getPlumpiMyEvents(
   >(request, `/plumpi/myevents?${searchParams.toString()}`);
 }
 
-export function getPlumpiVenues(request: Request) {
+/**
+ * Query for `GET /v1/plumpi/venues`. Plumpi owns the matching, so `search` is
+ * forwarded rather than filtered here; see `getV1plumpivenues` in
+ * `~/types/api-client` for the parameters this endpoint also accepts.
+ */
+export type PlumpiVenuesQuery = {
+  page: number;
+  limit: number;
+  search?: string;
+};
+
+export function getPlumpiVenues(request: Request, query: PlumpiVenuesQuery) {
+  const searchParams = new URLSearchParams({
+    page: String(query.page),
+    limit: String(query.limit),
+  });
+  if (query.search) searchParams.set("search", query.search);
+
   return apiRequestWithSession<
     Awaited<ReturnType<PlumpiApi["getV1plumpivenues"]>>
-  >(request, "/plumpi/venues?page=1&limit=100");
+  >(request, `/plumpi/venues?${searchParams.toString()}`);
 }
 
 export function createPlumpiEvent(

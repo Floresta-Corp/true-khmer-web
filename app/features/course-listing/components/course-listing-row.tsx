@@ -1,12 +1,12 @@
 import { Link } from "react-router";
 import { motion } from "motion/react";
+import { CourseActionsMenu } from "./course-actions-menu";
 import { CourseStatusBadge } from "./course-status-badge";
 import { CourseLearnerStats } from "./course-learner-stats";
 import {
   displayStatusOf,
   type CourseWithStats,
 } from "~/features/course-listing/types";
-import { CourseActionsMenu } from "./course-actions-menu";
 
 interface CourseListingRowProps {
   course: CourseWithStats;

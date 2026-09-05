@@ -103,6 +103,16 @@ export default [
         "course-listing/:id",
         "features/course-manage/route/course-manage.$id.tsx",
       ),
+      /* Resource route: the Students tab pages its roster through this, so a
+         page change does not refetch the whole course screen. */
+      route(
+        "course-listing/:id/students",
+        "features/course-manage/route/course-manage.$id.students.ts",
+      ),
+      route(
+        "course-listing/:id/students/:userId",
+        "features/course-manage/route/course-manage.$id.students.$userId.ts",
+      ),
       route(
         "workspace/manage-post/:sourceType/:id",
         "features/workspace/manage-post/route/manage-post.$sourceType.$id.tsx",
@@ -295,6 +305,7 @@ export default [
     "api/myspace/skills/search",
     "features/myspace/route/myspace.skills-search.ts",
   ),
+  route("api/my-events/venues", "features/workspace/route/my-events.venues.ts"),
   route(
     "api/launchpad/batch-apply",
     "features/launchpad/route/launchpad.batch-apply.ts",
