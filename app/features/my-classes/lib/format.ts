@@ -26,7 +26,7 @@ export function formatRemaining(course: {
 
   if (course.remainingSeconds === 0) return null;
 
-  const minutes = Math.round(course.remainingSeconds / 60);
+  const minutes = Math.ceil(course.remainingSeconds / 60);
   const prefix = course.remainingSecondsEstimated ? "~" : "";
 
   if (minutes < 100) return `${prefix}${minutes} min left`;

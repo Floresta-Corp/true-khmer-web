@@ -35,7 +35,11 @@ export default function CourseDetailPage() {
   const attempted = useRef<boolean | null>(null);
   const announced = useRef<unknown>(null);
 
+  const isSavePending = saveFetcher.state !== "idle";
+
   const toggleSave = () => {
+    if (isSavePending) return;
+
     const next = !isSaved;
     attempted.current = next;
     setIsSaved(next);
@@ -122,6 +126,7 @@ export default function CourseDetailPage() {
       <CourseActionBar
         backTo="/education"
         isSaved={isSaved}
+        isSavePending={isSavePending}
         onToggleSave={toggleSave}
         onShare={handleShare}
         onDownload={downloadable.length > 0 ? handleDownload : undefined}
