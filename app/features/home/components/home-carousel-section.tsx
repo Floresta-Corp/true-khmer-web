@@ -71,7 +71,7 @@ export function HomeCarouselSection({
             variants={slideUpVariants}
             className="mb-9 flex items-center justify-between gap-4"
           >
-            <h2 className="text-2xl font-semibold tracking-[-0.04em] text-[#333333] sm:text-[36px] sm:leading-11">
+            <h2 className="text-2xl font-bold tracking-[-0.04em] text-[#333333] sm:text-[28px] sm:leading-11">
               {title}
             </h2>
             <div className="flex items-center gap-2">
