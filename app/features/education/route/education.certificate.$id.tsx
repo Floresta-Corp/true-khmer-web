@@ -18,12 +18,14 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export default function CourseCertificatePage() {
-  const { course, certificate } = useLoaderData<typeof loader>();
+  const { course, certificate, ownReview } = useLoaderData<typeof loader>();
   const prefersReducedMotion = useReducedMotion();
   const duration = prefersReducedMotion ? 0 : 0.35;
 
-  // The design opens the rating prompt as soon as the certificate is shown.
-  const [isRateOpen, setIsRateOpen] = useState(true);
+  /* The design opens the rating prompt as soon as the certificate is shown,
+     but not at a learner who has already rated this course — the certificate
+     is not the place to go back and revise a rating. */
+  const [isRateOpen, setIsRateOpen] = useState(ownReview === null);
 
   return (
     <EducationPage surface="muted">

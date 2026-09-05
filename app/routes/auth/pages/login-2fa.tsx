@@ -148,8 +148,6 @@ export default function LoginTwoFactorPage() {
               value={code}
               onChange={setCode}
               containerClassName="justify-between"
-              inputMode="numeric"
-              pattern="[0-9]*"
             >
               <InputOTPGroup className="gap-2 rounded-none">
                 {Array.from({ length: 6 }).map((_, index) => (
@@ -179,6 +177,7 @@ export default function LoginTwoFactorPage() {
             type="submit"
             name="intent"
             value="verify"
+            data-otp-submit
             disabled={isSubmitting || code.length !== 6}
             className="h-10 w-full rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white transition-colors hover:bg-[#1F62DF] disabled:bg-[#2F6FE4] disabled:opacity-50"
           >

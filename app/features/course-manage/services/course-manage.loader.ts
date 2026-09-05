@@ -1,9 +1,11 @@
 import { data } from "react-router";
 import type { Route } from "project-types/course-manage/route/+types/course-manage.$id";
 import {
-  getCourseById,
   getCourseCurriculum,
   getCourseStats,
+  getOwnedCourseById,
+  listCourseReviews,
+  listCourseStudents,
 } from "~/api/education/education.server";
 import {
   buildAnalytics,
@@ -22,7 +24,7 @@ export async function courseManageLoader({
   const auth = await requireUser(request);
 
   const [result, curriculumResult, statsResult] = await Promise.all([
-    getCourseById(request, params.id),
+    getOwnedCourseById(request, params.id),
     getCourseCurriculum(request, params.id),
     getCourseStats(request, params.id),
   ]);

@@ -157,8 +157,6 @@ export default function AdminLoginOtpPage() {
                 name="otp"
                 value={otp}
                 onChange={setOtp}
-                pattern="^[0-9]*$"
-                inputMode="numeric"
                 autoFocus
                 containerClassName="justify-center"
                 disabled={formDisabled}
@@ -182,6 +180,7 @@ export default function AdminLoginOtpPage() {
 
             <Button
               type="submit"
+              data-otp-submit
               disabled={formDisabled || otp.length !== 6}
               className="h-10 w-full rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white transition-colors hover:bg-[#1F62DF] disabled:bg-[#2F6FE4] disabled:opacity-50"
             >

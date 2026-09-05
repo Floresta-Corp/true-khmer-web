@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useLoaderData, useNavigate } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { useFetcher, useLoaderData, useNavigate } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 import { Check, Folder, Pencil, Trophy } from "lucide-react";
 import { toast } from "sonner";
@@ -30,6 +30,35 @@ export default function CourseDetailPage() {
     () => new Set(recommended.filter((c) => c.isSaved).map((c) => c.id)),
   );
   const [isReviewsOpen, setIsReviewsOpen] = useState(false);
+
+  const saveFetcher = useFetcher<{ ok: boolean; error?: string }>();
+  const attempted = useRef<boolean | null>(null);
+  const announced = useRef<unknown>(null);
+
+  const isSavePending = saveFetcher.state !== "idle";
+
+  const toggleSave = () => {
+    if (isSavePending) return;
+
+    const next = !isSaved;
+    attempted.current = next;
+    setIsSaved(next);
+    saveFetcher.submit(
+      { intent: next ? "save" : "unsave", courseId: course.id },
+      { method: "post", action: "/my-classes" },
+    );
+  };
+
+  useEffect(() => {
+    if (saveFetcher.state !== "idle" || !saveFetcher.data) return;
+    if (announced.current === saveFetcher.data) return;
+    announced.current = saveFetcher.data;
+
+    if (saveFetcher.data.ok) return;
+
+    if (attempted.current !== null) setIsSaved(!attempted.current);
+    toast.error(saveFetcher.data.error ?? "That course could not be saved.");
+  }, [saveFetcher.state, saveFetcher.data]);
 
   const toggleRecommendationSave = (courseId: string) =>
     setSavedRecommendations((current) => {
@@ -97,7 +126,8 @@ export default function CourseDetailPage() {
       <CourseActionBar
         backTo="/education"
         isSaved={isSaved}
-        onToggleSave={() => setIsSaved((value) => !value)}
+        isSavePending={isSavePending}
+        onToggleSave={toggleSave}
         onShare={handleShare}
         onDownload={downloadable.length > 0 ? handleDownload : undefined}
         onReport={() =>

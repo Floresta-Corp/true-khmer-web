@@ -72,7 +72,7 @@ export function emptyDraft(): CourseDraft {
     categoryId: "",
     difficulty: null,
     skills: [],
-    outcomes: [""],
+    outcomes: [],
     tags: [],
     coverImageKey: null,
     coverPreviewUrl: null,
@@ -158,6 +158,29 @@ export interface BuilderLesson extends CourseLesson {
 
 export interface BuilderSection extends CourseSection {
   lessons: BuilderLesson[];
+}
+
+/** A saved lesson, in the shape the add/edit lesson form works in. */
+export function lessonDraftOf(lesson: BuilderLesson): LessonDraft {
+  return {
+    title: lesson.title,
+    source:
+      lesson.type === "pdf"
+        ? "pdf"
+        : lesson.type === "audio"
+          ? "audio"
+          : "youtube",
+    url: lesson.url ?? "",
+    fileName: lesson.assetKey
+      ? (lesson.assetKey.split("/").pop() ?? null)
+      : null,
+    assetKey: lesson.assetKey ?? null,
+  };
+}
+
+/** The lesson type a draft's chosen source maps to. */
+export function lessonTypeOf(source: LessonSource): BuilderLesson["type"] {
+  return source === "youtube" ? "video" : source;
 }
 
 export type LessonApiType = "YOUTUBE" | "PDF" | "AUDIO";
