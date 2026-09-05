@@ -168,7 +168,7 @@ export function PublicBlogListPage() {
         )}
 
         <motion.div
-          className="mt-14 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between"
+          className="mt-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between"
           initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{
@@ -177,36 +177,42 @@ export function PublicBlogListPage() {
             ease: "easeOut",
           }}
         >
-          <nav
-            className="flex flex-wrap items-center gap-3"
-            aria-label="Blog categories"
-          >
-            <Link
-              to={buildBlogUrl({ sort })}
-              className={`inline-flex items-center rounded-full px-6 py-2.5 text-sm leading-5 font-semibold transition ${
-                activeCategory
-                  ? "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300"
-                  : "bg-blue-500 text-white shadow-lg shadow-blue-500/25"
-              }`}
+          <div className="relative min-w-0 flex-1">
+            <nav
+              className="flex items-center gap-3 overflow-x-auto py-1.5 whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              aria-label="Blog categories"
             >
-              All blogs
-            </Link>
-            {categories.map((category) => (
               <Link
-                key={category.id}
-                to={buildBlogUrl({ category: category.slug, sort })}
-                className={`inline-flex items-center rounded-full px-6 py-2.5 text-sm leading-5 font-semibold transition ${
-                  activeCategory?.id === category.id
-                    ? "bg-blue-500 text-white shadow-lg shadow-blue-500/25"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300"
+                to={buildBlogUrl({ sort })}
+                className={`inline-flex shrink-0 items-center rounded-full px-6 py-2.5 text-sm leading-5 font-semibold transition ${
+                  activeCategory
+                    ? "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300"
+                    : "bg-blue-500 text-white shadow-lg shadow-blue-500/25"
                 }`}
               >
-                {category.name}
+                All blogs
               </Link>
-            ))}
-          </nav>
+              {categories.map((category) => (
+                <Link
+                  key={category.id}
+                  to={buildBlogUrl({ category: category.slug, sort })}
+                  className={`inline-flex shrink-0 items-center rounded-full px-6 py-2.5 text-sm leading-5 font-semibold transition ${
+                    activeCategory?.id === category.id
+                      ? "bg-blue-500 text-white shadow-lg shadow-blue-500/25"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300"
+                  }`}
+                >
+                  {category.name}
+                </Link>
+              ))}
+            </nav>
 
-          <div className="flex items-center gap-2 text-sm font-semibold tracking-widest text-slate-500 uppercase">
+            {/* Right Edge Fade Hint */}
+            <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent dark:from-slate-900" />
+          </div>
+
+          {/* Sort Control */}
+          <div className="flex shrink-0 items-center gap-2 text-xs font-semibold tracking-widest text-slate-500 uppercase">
             <span>Sort by:</span>
             <Select
               value={sort}
@@ -222,15 +228,21 @@ export function PublicBlogListPage() {
             >
               <SelectTrigger
                 aria-label="Sort blog posts"
-                className="ring-0.5 h-auto w-auto min-w-28 cursor-pointer gap-2 border border-transparent px-3 py-1 text-sm font-semibold text-blue-500 shadow-none ring-blue-500/20 hover:ring-blue-500/40 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:outline-none dark:bg-slate-800"
+                className="ring-0.5 h-auto w-auto min-w-28 cursor-pointer gap-2 border border-transparent px-3 py-1 text-xs font-semibold text-blue-500 shadow-none ring-blue-500/20 hover:ring-blue-500/40 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:outline-none dark:bg-slate-800"
               >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="newest" className="cursor-pointer">
+                <SelectItem
+                  value="newest"
+                  className="data-[state=checked]:text-500 cursor-pointer data-[state=checked]:text-blue-500 [&_svg]:data-[state=checked]:text-blue-500"
+                >
                   Newest First
                 </SelectItem>
-                <SelectItem value="oldest" className="cursor-pointer">
+                <SelectItem
+                  value="oldest"
+                  className="data-[state=checked]:text-500 cursor-pointer data-[state=checked]:text-blue-500 [&_svg]:data-[state=checked]:text-blue-500"
+                >
                   Oldest First
                 </SelectItem>
               </SelectContent>
@@ -242,7 +254,7 @@ export function PublicBlogListPage() {
           {posts.length > 0 ? (
             <motion.div
               key={gridKey}
-              className="mt-14 grid grid-cols-1 gap-x-10 gap-y-12 md:grid-cols-2 xl:grid-cols-3"
+              className="mt-8 grid grid-cols-1 gap-x-10 gap-y-12 md:grid-cols-2 xl:grid-cols-3"
               initial="hidden"
               animate="show"
               exit="exit"
