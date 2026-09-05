@@ -1,9 +1,11 @@
 import { data } from "react-router";
 import type { Route } from "project-types/course-manage/route/+types/course-manage.$id";
 import {
-  getCourseById,
   getCourseCurriculum,
   getCourseStats,
+  getOwnedCourseById,
+  listCourseReviews,
+  listCourseStudents,
 } from "~/api/education/education.server";
 import {
   buildAnalytics,
@@ -21,11 +23,16 @@ export async function courseManageLoader({
 }: Route.LoaderArgs) {
   const auth = await requireUser(request);
 
-  const [result, curriculumResult, statsResult] = await Promise.all([
-    getCourseById(request, params.id),
-    getCourseCurriculum(request, params.id),
-    getCourseStats(request, params.id),
-  ]);
+  const [result, curriculumResult, statsResult, reviewsResult, studentsResult] =
+    await Promise.all([
+      getOwnedCourseById(request, params.id),
+      getCourseCurriculum(request, params.id),
+      getCourseStats(request, params.id),
+      /* First pages only. Both the Review and Students tabs page further
+         themselves, so neither pulls a whole list to render a screenful. */
+      listCourseReviews(request, params.id, { limit: 20 }),
+      listCourseStudents(request, params.id, { limit: STUDENT_PAGE_SIZE }),
+    ]);
   const course = result?.data?.course ?? null;
 
   if (!course) {

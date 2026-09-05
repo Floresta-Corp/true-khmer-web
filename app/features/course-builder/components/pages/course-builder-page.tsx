@@ -14,7 +14,8 @@ import {
   ConfirmRemoveSectionModal,
   EditSectionModal,
 } from "../section-modals";
-import { useQuizDraft } from "../../lib/use-quiz-draft";
+import { isCompleteQuestion, useQuizDraft } from "../../lib/use-quiz-draft";
+import { isYoutubeUrl } from "../../lib/youtube-url";
 import {
   STEP_DEFINITIONS,
   nextStep,
@@ -27,6 +28,8 @@ import {
   type CategoryOption,
   type CourseDraft,
   emptyLessonDraft,
+  lessonDraftOf,
+  lessonTypeOf,
   type CertificateKind,
   type CourseFormat,
   type QuizQuestion,
@@ -98,6 +101,7 @@ export default function CourseBuilderPage({
     () => initialDraft ?? emptyDraft(),
   );
   const [courseId, setCourseId] = useState<string | null>(initialCourseId);
+  const [localErrors, setLocalErrors] = useState<Record<string, string[]>>({});
 
   const [sections, setSections] = useState<BuilderSection[]>(
     () => initialSections ?? [],
@@ -114,32 +118,26 @@ export default function CourseBuilderPage({
   const savedSingleLesson = savedSingle?.lessons[0] ?? null;
 
   const [lesson, setLesson] = useState<LessonDraft>(() =>
-    savedSingleLesson
-      ? {
-          title: savedSingleLesson.title,
-          source:
-            savedSingleLesson.type === "pdf"
-              ? "pdf"
-              : savedSingleLesson.type === "audio"
-                ? "audio"
-                : "youtube",
-          url: savedSingleLesson.url ?? "",
-          fileName: savedSingleLesson.assetKey
-            ? (savedSingleLesson.assetKey.split("/").pop() ?? null)
-            : null,
-          assetKey: savedSingleLesson.assetKey ?? null,
-        }
-      : emptyLessonDraft(),
+    savedSingleLesson ? lessonDraftOf(savedSingleLesson) : emptyLessonDraft(),
   );
 
   const singleIds = useRef({
     sectionId: savedSingle?.id,
     lessonId: savedSingleLesson?.id,
   });
-  const patchLesson = (changes: Partial<LessonDraft>) =>
+  const clearCurriculumError = () =>
+    setLocalErrors(({ curriculum: _dropped, ...rest }) => rest);
+
+  const patchLesson = (changes: Partial<LessonDraft>) => {
     setLesson((current) => ({ ...current, ...changes }));
+    clearCurriculumError();
+  };
 
   const [lessonTarget, setLessonTarget] = useState<string | null>(null);
+  const [editingLesson, setEditingLesson] = useState<{
+    sectionId: string;
+    lessonId: string;
+  } | null>(null);
   const [lessonDraft, setLessonDraft] = useState<LessonDraft>(emptyLessonDraft);
 
   const quiz = useQuizDraft({
@@ -185,6 +183,7 @@ export default function CourseBuilderPage({
     const id = `new-section-${added.current}`;
     setSections((current) => [...current, { id, title, lessons: [] }]);
     setOpenSections((current) => new Set(current).add(id));
+    clearCurriculumError();
     closeAddSection();
   };
 
@@ -287,7 +286,78 @@ export default function CourseBuilderPage({
   const openAddLesson = (sectionId: string) => {
     setLessonDraft(emptyLessonDraft());
     setLessonUploading(false);
+    setEditingLesson(null);
     setLessonTarget(sectionId);
+  };
+
+  const openEditLesson = (sectionId: string, lessonId: string) => {
+    const saved = sections
+      .find((section) => section.id === sectionId)
+      ?.lessons.find((item) => item.id === lessonId);
+    if (!saved) return;
+
+    setLessonDraft(lessonDraftOf(saved));
+    setLessonUploading(false);
+    setLessonTarget(null);
+    setEditingLesson({ sectionId, lessonId });
+  };
+
+  const closeLessonModal = () => {
+    setLessonTarget(null);
+    setEditingLesson(null);
+  };
+
+  const saveEditedLesson = () => {
+    if (!editingLesson) return;
+
+    setSections((current) =>
+      current.map((section) =>
+        section.id === editingLesson.sectionId
+          ? {
+              ...section,
+              lessons: section.lessons.map((item) =>
+                item.id === editingLesson.lessonId
+                  ? {
+                      ...item,
+                      title: lessonDraft.title.trim(),
+                      type: lessonTypeOf(lessonDraft.source),
+                      url:
+                        lessonDraft.source === "youtube"
+                          ? lessonDraft.url.trim()
+                          : null,
+                      assetKey:
+                        lessonDraft.source === "youtube"
+                          ? null
+                          : lessonDraft.assetKey,
+                    }
+                  : item,
+              ),
+            }
+          : section,
+      ),
+    );
+
+    clearCurriculumError();
+    setEditingLesson(null);
+  };
+
+  const deleteEditedLesson = () => {
+    if (!editingLesson) return;
+
+    setSections((current) =>
+      current.map((section) =>
+        section.id === editingLesson.sectionId
+          ? {
+              ...section,
+              lessons: section.lessons.filter(
+                (item) => item.id !== editingLesson.lessonId,
+              ),
+            }
+          : section,
+      ),
+    );
+
+    setEditingLesson(null);
   };
 
   const confirmAddLesson = () => {
@@ -304,10 +374,7 @@ export default function CourseBuilderPage({
                 {
                   id: `${lessonTarget}-new-${added.current}`,
                   title: lessonDraft.title.trim(),
-                  type:
-                    lessonDraft.source === "youtube"
-                      ? ("video" as const)
-                      : lessonDraft.source,
+                  type: lessonTypeOf(lessonDraft.source),
                   duration: "",
                   isPreview: false,
                   isComplete: false,
@@ -326,6 +393,7 @@ export default function CourseBuilderPage({
       ),
     );
 
+    clearCurriculumError();
     setLessonTarget(null);
   };
 
@@ -376,16 +444,143 @@ export default function CourseBuilderPage({
   const isLocked = Boolean(lockedReason);
 
   const result = fetcher.data;
-  const fieldErrors =
-    result && result.ok === false ? result.fieldErrors : ({} as never);
+  const fieldErrors: Record<string, string[] | undefined> = {
+    ...(result && result.ok === false ? result.fieldErrors : {}),
+    ...localErrors,
+  };
   const formError = result && result.ok === false ? result.error : null;
 
   const patch = useCallback((changes: Partial<CourseDraft>) => {
     setDraft((current) => ({ ...current, ...changes }));
+    // Clear a required-field complaint as soon as that field is edited.
+    setLocalErrors((current) => {
+      const next = { ...current };
+      for (const key of Object.keys(changes)) delete next[key];
+      return next;
+    });
   }, []);
 
+  /**
+   * Every field on the Course Details step is required, and the builder submits
+   * through a fetcher rather than a native form, so the `required` attributes
+   * on the fields never fire. Check them here instead.
+   */
+  const basicErrors = () => {
+    const errors: Record<string, string[]> = {};
+    if (!draft.title.trim()) errors.title = ["Add a course title."];
+    if (!draft.description.trim()) {
+      errors.description = ["Add a course description."];
+    }
+    if (!draft.categoryId) errors.categoryId = ["Pick a category."];
+    if (!draft.difficulty) {
+      errors.difficulty = ["Pick a level of difficulty."];
+    }
+    if (!draft.coverImageKey) {
+      errors.coverImageKey = ["Add a cover image."];
+    }
+    return errors;
+  };
+
+  const emptySections = sections.filter(
+    (section) =>
+      !section.lessons.some((item) => Boolean(item.url ?? item.assetKey)),
+  );
+
+  /**
+   * A course needs something to teach: content for a single-lesson course, and
+   * for a multi-section one at least one section with at least one lesson in
+   * every section. Lessons without a source are dropped on save, so they do not
+   * count towards a section being filled.
+   */
+  const curriculumErrors = () => {
+    const errors: Record<string, string[]> = {};
+
+    if (format === "single") {
+      if (lesson.source === "youtube") {
+        if (!lesson.url.trim()) {
+          errors.curriculum = ["Add the content for this lesson."];
+        } else if (!isYoutubeUrl(lesson.url)) {
+          errors.curriculum = ["That is not a YouTube video link."];
+        }
+      } else if (!lesson.assetKey) {
+        errors.curriculum = ["Add the content for this lesson."];
+      }
+      return errors;
+    }
+
+    if (sections.length === 0) {
+      errors.curriculum = ["Add at least one section."];
+      return errors;
+    }
+
+    if (emptySections.length > 0) {
+      errors.curriculum = [
+        emptySections.length === 1
+          ? `Add at least one lesson to "${emptySections[0].title}".`
+          : "Every section needs at least one lesson.",
+      ];
+    }
+
+    return errors;
+  };
+
+  /**
+   * The quiz step exists only for a certificate of completion, and a
+   * certificate nobody can fail is not one — so that course needs at least one
+   * answerable question.
+   */
+  const quizErrors = () => {
+    const errors: Record<string, string[]> = {};
+    if (!steps.includes("quiz")) return errors;
+
+    if (!quiz.questions.some(isCompleteQuestion)) {
+      errors.quiz = [
+        quiz.questions.length === 0
+          ? "A certificate of completion needs at least one question."
+          : "Finish a question: it needs text, two answers and one marked correct.",
+      ];
+    }
+
+    return errors;
+  };
+
+  const stepIsValid = (target: BuilderStep) => {
+    const errors =
+      target === "basic"
+        ? basicErrors()
+        : target === "curriculum"
+          ? curriculumErrors()
+          : target === "quiz"
+            ? quizErrors()
+            : {};
+
+    setLocalErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const save = (intent: "save-draft" | "submit") => {
-    if (isLocked) return;
+    if (isLocked) return false;
+
+    // A draft is partial work by definition, so only a submit has to have a
+    // finished curriculum. The Course Details fields are checked either way —
+    // the API rejects a course without them.
+    const blocking: Array<[BuilderStep, Record<string, string[]>]> = [
+      ["basic", basicErrors()],
+      ...(intent === "submit"
+        ? ([
+            ["curriculum", curriculumErrors()],
+            ["quiz", quizErrors()],
+          ] as Array<[BuilderStep, Record<string, string[]>]>)
+        : []),
+    ];
+    const failed = blocking.find(([, errors]) => Object.keys(errors).length);
+    if (failed) {
+      setLocalErrors(failed[1]);
+      setStep(failed[0]);
+      return false;
+    }
+
+    setLocalErrors({});
 
     const chapters = effectiveSections.map((section) => ({
       ...(isSavedId(section.id) ? { id: section.id } : {}),
@@ -403,14 +598,7 @@ export default function CourseBuilderPage({
     }));
 
     const questions = quiz.questions
-      .filter(
-        (question) =>
-          question.text.trim().length > 0 &&
-          question.answers.filter((answer) => answer.text.trim()).length >= 2 &&
-          question.answers.some(
-            (answer) => answer.correct && answer.text.trim(),
-          ),
-      )
+      .filter(isCompleteQuestion)
       .map((question) => ({
         question: question.text.trim(),
         options: question.answers
@@ -465,6 +653,8 @@ export default function CourseBuilderPage({
       },
       { method: "post" },
     );
+
+    return true;
   };
 
   const savedCourseId =
@@ -530,21 +720,36 @@ export default function CourseBuilderPage({
               />
             ) : current === "curriculum" ? (
               <CurriculumStep
+                error={fieldErrors.curriculum?.[0]}
+                emptySectionIds={
+                  new Set(
+                    fieldErrors.curriculum
+                      ? emptySections.map((section) => section.id)
+                      : [],
+                  )
+                }
                 format={format}
                 lesson={lesson}
                 onLessonChange={patchLesson}
                 sections={sections}
                 openSections={openSections}
-                onFormatChange={setFormat}
+                onFormatChange={(next) => {
+                  setFormat(next);
+                  clearCurriculumError();
+                }}
                 onToggleSection={toggleSection}
                 onAddSection={openAddSection}
                 onEditSection={openEditSection}
                 onMoveSection={moveSection}
                 onMoveLesson={moveLesson}
                 onAddLesson={openAddLesson}
+                onEditLesson={isLocked ? undefined : openEditLesson}
               />
             ) : current === "quiz" ? (
-              <QuizStep quiz={quiz} />
+              <QuizStep
+                quiz={quiz}
+                error={fieldErrors.quiz ? quizErrors().quiz?.[0] : undefined}
+              />
             ) : current === "certificate" ? (
               <CertificateStep value={certificate} onChange={setCertificate} />
             ) : (
@@ -568,12 +773,13 @@ export default function CourseBuilderPage({
           showSubmit={current === "preview"}
           busy={busy || isLocked}
           onBack={() => back && setStep(back)}
-          onContinue={() => forward && setStep(forward)}
+          onContinue={() => {
+            if (!forward || !stepIsValid(current)) return;
+            setStep(forward);
+          }}
           onSaveDraft={() => save("save-draft")}
           onSubmit={() => {
-            if (isLocked) return;
-            save("submit");
-            navigate("/course-listing");
+            if (save("submit")) navigate("/course-listing");
           }}
         />
       </div>
@@ -617,14 +823,16 @@ export default function CourseBuilderPage({
         />
       )}
 
-      {lessonTarget && (
+      {(lessonTarget || editingLesson) && (
         <AddLessonModal
           draft={lessonDraft}
+          mode={editingLesson ? "edit" : "add"}
           onChange={(changes) =>
             setLessonDraft((current) => ({ ...current, ...changes }))
           }
-          onConfirm={confirmAddLesson}
-          onClose={() => setLessonTarget(null)}
+          onConfirm={editingLesson ? saveEditedLesson : confirmAddLesson}
+          onDelete={editingLesson ? deleteEditedLesson : undefined}
+          onClose={closeLessonModal}
           uploading={lessonUploading}
           onUploadingChange={setLessonUploading}
         />

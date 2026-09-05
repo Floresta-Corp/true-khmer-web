@@ -10,4 +10,7 @@ export {
   type QuizActionResult,
 } from "./education-quiz.action";
 export { educationCertificateLoader } from "./education-certificate.loader";
-export { educationCertificateAction } from "./education-certificate.action";
+export {
+  educationCertificateAction,
+  type RateCourseActionResult,
+} from "./education-certificate.action";

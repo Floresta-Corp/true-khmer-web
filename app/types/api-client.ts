@@ -710,7 +710,7 @@ const UpdateCourseCategoryRequest = z.object({ name: z.string().min(1).max(120),
 
 const DeleteCourseCategoryResponse = z.object({ ok: z.literal(true) });
 
-const CourseResponse = z.object({ id: z.string().uuid(), title: z.string(), description: z.string(), categoryId: z.string().uuid(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), price: z.number(), status: z.enum(["DRAFT", "PENDING", "PUBLISHED", "UNPUBLISHED"]), difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCE", "ALL_LEVELS"]).nullable(), format: z.enum(["MULTI", "SINGLE"]), skills: z.array(z.string()), tags: z.array(z.string()), certificateKind: z.enum(["PARTICIPATION", "COMPLETION"]).nullable(), quizPassMark: z.number().int(), createdBy: z.string().uuid(), creator: z.object({ id: z.string().uuid(), name: z.string(), email: z.string().email() }).nullish(), updatedBy: z.string().uuid().nullable(), publishedAt: z.string().nullable(), publishedBy: z.string().uuid().nullable(), unpublishedAt: z.string().nullable(), unpublishedBy: z.string().uuid().nullable(), rejectionNote: z.string().nullable(), rejectedAt: z.string().nullable(), rejectedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string() });
+const CourseResponse = z.object({ id: z.string().uuid(), title: z.string(), description: z.string(), categoryId: z.string().uuid(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), price: z.number(), status: z.enum(["DRAFT", "PENDING", "PUBLISHED", "UNPUBLISHED"]), difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCE", "ALL_LEVELS"]).nullable(), format: z.enum(["MULTI", "SINGLE"]), skills: z.array(z.string()), outcomes: z.array(z.string()), tags: z.array(z.string()), certificateKind: z.enum(["PARTICIPATION", "COMPLETION"]).nullable(), quizPassMark: z.number().int(), createdBy: z.string().uuid(), creator: z.object({ id: z.string().uuid(), name: z.string(), email: z.string().email() }).nullish(), updatedBy: z.string().uuid().nullable(), publishedAt: z.string().nullable(), publishedBy: z.string().uuid().nullable(), unpublishedAt: z.string().nullable(), unpublishedBy: z.string().uuid().nullable(), rejectionNote: z.string().nullable(), rejectedAt: z.string().nullable(), rejectedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string() });
 const PublicCourseListItem = CourseResponse.and(z.object({ categoryName: z.string().nullable(), lessonCount: z.number().int().gte(0) }));
 
 const ListPublicCoursesResponse = z.object({ ok: z.literal(true), courses: z.array(PublicCourseListItem), pagination: z.object({ page: z.number().int().gt(0), limit: z.number().int().gt(0), total: z.number().int().gte(0), totalPages: z.number().int().gte(0) }) });
@@ -728,6 +728,10 @@ const ListMyCoursesResponse = z.object({ ok: z.literal(true), courses: z.array(C
 const UpdateCourseRequest = z.object({ title: z.string().min(1).max(255), description: z.string().min(1).max(20000), categoryId: z.string().uuid(), coverImageKey: z.string().min(1).max(600).nullable(), price: z.number().gte(0).lte(9999999999.99) }).partial();
 
 const DeleteCourseResponse = z.object({ ok: z.literal(true) });
+
+const EnrollInCourseResponse = z.object({ ok: z.literal(true), enrolled: z.literal(true), created: z.boolean() });
+
+const CourseEnrollmentResponse = z.object({ ok: z.literal(true), enrolled: z.boolean() });
 
 const PresignCourseLessonAssetRequest = z.object({ contentType: z.enum(["application/pdf", "audio/mpeg", "audio/mp3", "audio/mp4", "audio/x-m4a", "audio/aac", "audio/ogg", "audio/wav", "audio/x-wav", "audio/webm"]), fileSize: z.number().int().gt(0).lte(104857600) });
 
@@ -751,7 +755,53 @@ const GetCourseQuizResponse = z.object({ ok: z.literal(true), quiz: CourseQuizRe
 
 const ReplaceCourseQuizRequest = z.object({ passMark: z.number().int().gte(0).lte(100).optional().default(70), questions: z.array(z.object({ question: z.string().min(1).max(2000), options: z.array(z.object({ label: z.string().min(1).max(500), isCorrect: z.boolean().optional().default(false) })).min(2).max(6) })).max(100) });
 
-const UpdateCourseMetaRequest = z.object({ difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCE", "ALL_LEVELS"]).nullable(), skills: z.array(z.string().min(1).max(80)).max(30), tags: z.array(z.string().min(1).max(80)).max(30), certificateKind: z.enum(["PARTICIPATION", "COMPLETION"]).nullable() }).partial();
+const LearnerCourseQuizQuestionResponse = z.object({ id: z.string().uuid(), question: z.string(), position: z.number().int(), options: z.array(z.object({ id: z.string().uuid(), label: z.string(), position: z.number().int() })) });
+
+const LearnerCourseQuizResponse = z.object({ passMark: z.number().int(), questions: z.array(LearnerCourseQuizQuestionResponse) });
+
+const GetLearnerCourseQuizResponse = z.object({ ok: z.literal(true), quiz: LearnerCourseQuizResponse });
+
+const GradeCourseQuizAttemptRequest = z.object({ answers: z.array(z.object({ questionId: z.string().uuid(), optionId: z.string().uuid() })).max(100) });
+
+const GradeCourseQuizAttemptResponse = z.object({ ok: z.literal(true), result: z.object({ correctCount: z.number().int().gte(0), totalCount: z.number().int().gte(0), percent: z.number().int().gte(0).lte(100), passMark: z.number().int(), passed: z.boolean() }) });
+
+const UpdateCourseMetaRequest = z.object({ difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCE", "ALL_LEVELS"]).nullable(), skills: z.array(z.string().min(1).max(80)).max(30), outcomes: z.array(z.string().min(1).max(300)).max(20), tags: z.array(z.string().min(1).max(80)).max(30), certificateKind: z.enum(["PARTICIPATION", "COMPLETION"]).nullable() }).partial();
+
+const CourseProgressResponse = z.object({ ok: z.literal(true), completedLessonIds: z.array(z.string().uuid()) });
+
+const MarkLessonProgressRequest = z.object({ lessonId: z.string().uuid() });
+
+const CourseStatsResponse = z.object({ ok: z.literal(true), stats: z.object({ lessonCount: z.number().int(), progress: z.object({ total: z.number().int().gte(0), notStarted: z.number().int().gte(0), inProgress: z.number().int().gte(0), completed: z.number().int().gte(0) }), enrollmentTrend: z.array(z.object({ date: z.string(), learners: z.number().int() })), activityTrend: z.array(z.object({ date: z.string(), learners: z.number().int() })), quiz: z.object({ attempts: z.number().int().gte(0), passRate: z.number().int().nullable(), averageScore: z.number().int().nullable(), bands: z.array(z.object({ label: z.string(), attempts: z.number().int().gte(0) })) }), rating: z.object({ average: z.number().nullable(), total: z.number().int().gte(0), breakdown: z.array(z.number().int().gte(0)) }) }) });
+
+const CourseReviewResponse = z.object({ id: z.string().uuid(), userId: z.string().uuid(), name: z.string(), avatar: z.string().nullable(), rating: z.number().int(), comment: z.string().nullable(), createdAt: z.string() });
+
+const CourseRatingSummary = z.object({ average: z.number().nullable(), total: z.number().int().gte(0), breakdown: z.array(z.number().int().gte(0)) });
+
+const ListCourseReviewsResponse = z.object({ ok: z.literal(true), reviews: z.array(CourseReviewResponse), summary: CourseRatingSummary, pagination: z.object({ page: z.number().int().gt(0), limit: z.number().int().gt(0), total: z.number().int().gte(0), totalPages: z.number().int().gte(0) }) });
+
+const OwnCourseReview = z.object({ id: z.string().uuid(), rating: z.number().int(), comment: z.string().nullable(), createdAt: z.string() });
+
+const GetOwnCourseReviewResponse = z.object({ ok: z.literal(true), review: OwnCourseReview.nullable() });
+
+const SubmitCourseReviewRequest = z.object({ rating: z.number().int().gte(1).lte(5), comment: z.string().max(2000).optional() });
+
+const SubmitCourseReviewResponse = z.object({ ok: z.literal(true), review: OwnCourseReview.nullable() });
+
+const DeleteCourseReviewResponse = z.object({ ok: z.literal(true) });
+
+const CourseStudent = z.object({ userId: z.string().uuid(), name: z.string(), avatar: z.string().nullable(), enrolledAt: z.string(), startedAt: z.string().nullable(), lessonsCompleted: z.number().int().gte(0), completedAt: z.string().nullable(), bestQuizPercent: z.number().int().nullable(), status: z.enum(["completed", "in-progress", "not-started"]) });
+
+const CourseStudentCounts = z.object({ all: z.number().int().gte(0), completed: z.number().int().gte(0), "in-progress": z.number().int().gte(0), "not-started": z.number().int().gte(0) });
+
+const ListCourseStudentsResponse = z.object({ ok: z.literal(true), students: z.array(CourseStudent), counts: CourseStudentCounts, lessonCount: z.number().int().gte(0), pagination: z.object({ page: z.number().int().gt(0), limit: z.number().int().gt(0), total: z.number().int().gte(0), totalPages: z.number().int().gte(0) }) });
+
+const CourseStudentDetailResponse = z.object({ ok: z.literal(true), student: z.object({ userId: z.string().uuid(), name: z.string(), avatar: z.string().nullable(), email: z.string(), enrolledAt: z.string(), lessons: z.array(z.object({ lessonId: z.string().uuid(), title: z.string(), chapterTitle: z.string(), completedAt: z.string().nullable() })), attempts: z.array(z.object({ correctCount: z.number().int().gte(0), totalCount: z.number().int().gte(0), percent: z.number().int(), passed: z.boolean(), attemptedAt: z.string() })) }) });
+
+const RemoveCourseStudentResponse = z.object({ ok: z.literal(true) });
+
+const MessageCourseStudentRequest = z.object({ subject: z.string().min(1).max(120), body: z.string().min(1).max(2000) });
+
+const MessageCourseStudentResponse = z.object({ ok: z.literal(true) });
 const AdminCourseResponse = CourseResponse.and(z.object({  }));
 
 const AdminListCoursesResponse = z.object({ ok: z.literal(true), courses: z.array(AdminCourseResponse), pagination: z.object({ limit: z.number().int().gt(0), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) });
@@ -777,7 +827,7 @@ const SsoUser = z.object({ id: z.string().uuid(), email: z.string(), emailVerifi
 
 const SsoUserResponse = z.object({ ok: z.literal(true), user: SsoUser });
 
-const postV1plumpievents_Body = z.object({ organizationId: z.string().uuid(), title: z.string().min(1).max(100), excerpt: z.string().min(1).max(200), eventCategories: z.array(z.string().uuid()), isOnline: z.boolean(), venueId: z.string().uuid().optional(), venueName: z.string().min(1).optional(), address: z.string().min(1).optional(), googleMapLink: z.string().max(500).url().optional(), eventDates: z.array(z.object({ startAt: z.string(), endAt: z.string() })).min(1), listingChannel: z.literal("TRUE_KHMER").optional().default("TRUE_KHMER"), visibility: z.enum(["LISTED", "UNLISTED"]).optional().default("LISTED"), registrationMode: z.enum(["ANYONE", "REQUIRED_APPROVAL", "INVITED_GUESTS_ONLY"]).optional().default("ANYONE"), entryMode: z.enum(["TICKETED", "RSVP", "OPEN_ACCESS"]).optional().default("TICKETED") });
+const postV1plumpievents_Body = z.object({ organizationId: z.string().uuid(), title: z.string().min(1).max(100), excerpt: z.string().min(1).max(200), eventCategories: z.array(z.string().uuid()), isOnline: z.boolean(), venueId: z.string().uuid().optional(), venueName: z.string().min(1).optional(), address: z.string().min(1).optional(), googleMapLink: z.string().max(500).url().optional(), eventDates: z.array(z.object({ startAt: z.string(), endAt: z.string() })).min(1), visibility: z.enum(["LISTED", "UNLISTED"]).optional().default("LISTED"), registrationMode: z.enum(["ANYONE", "REQUIRED_APPROVAL", "INVITED_GUESTS_ONLY"]).optional().default("ANYONE"), entryMode: z.enum(["TICKETED", "RSVP", "OPEN_ACCESS"]).optional().default("TICKETED") });
 
 export const schemas = {
 	AuthRegisterRequest,
@@ -1150,6 +1200,8 @@ export const schemas = {
 	ListMyCoursesResponse,
 	UpdateCourseRequest,
 	DeleteCourseResponse,
+	EnrollInCourseResponse,
+	CourseEnrollmentResponse,
 	PresignCourseLessonAssetRequest,
 	PresignCourseLessonAssetResponse,
 	CourseLessonResponse,
@@ -1161,7 +1213,30 @@ export const schemas = {
 	CourseQuizResponse,
 	GetCourseQuizResponse,
 	ReplaceCourseQuizRequest,
+	LearnerCourseQuizQuestionResponse,
+	LearnerCourseQuizResponse,
+	GetLearnerCourseQuizResponse,
+	GradeCourseQuizAttemptRequest,
+	GradeCourseQuizAttemptResponse,
 	UpdateCourseMetaRequest,
+	CourseProgressResponse,
+	MarkLessonProgressRequest,
+	CourseStatsResponse,
+	CourseReviewResponse,
+	CourseRatingSummary,
+	ListCourseReviewsResponse,
+	OwnCourseReview,
+	GetOwnCourseReviewResponse,
+	SubmitCourseReviewRequest,
+	SubmitCourseReviewResponse,
+	DeleteCourseReviewResponse,
+	CourseStudent,
+	CourseStudentCounts,
+	ListCourseStudentsResponse,
+	CourseStudentDetailResponse,
+	RemoveCourseStudentResponse,
+	MessageCourseStudentRequest,
+	MessageCourseStudentResponse,
 	AdminCourseResponse,
 	AdminListCoursesResponse,
 	AdminCourseDetailResponse,
@@ -5388,6 +5463,58 @@ const endpoints = makeApi([
 		]
 	},
 	{
+		method: "post",
+		path: "/v1/education-center/courses/:id/enroll",
+		alias: "postV1educationCentercoursesIdenroll",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: EnrollInCourseResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Course is not open for enrolment`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found or not visible`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/education-center/courses/:id/enrollment",
+		alias: "getV1educationCentercoursesIdenrollment",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: CourseEnrollmentResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: z.void()
+			},
+		]
+	},
+	{
 		method: "patch",
 		path: "/v1/education-center/courses/:id/meta",
 		alias: "patchV1educationCentercoursesIdmeta",
@@ -5424,6 +5551,63 @@ const endpoints = makeApi([
 			{
 				status: 404,
 				description: `Course not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/education-center/courses/:id/progress",
+		alias: "getV1educationCentercoursesIdprogress",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: CourseProgressResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "put",
+		path: "/v1/education-center/courses/:id/progress",
+		alias: "putV1educationCentercoursesIdprogress",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: z.object({ lessonId: z.string().uuid() })
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: CourseProgressResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Lesson not found on this course`,
 				schema: z.void()
 			},
 		]
@@ -5491,6 +5675,397 @@ const endpoints = makeApi([
 			{
 				status: 404,
 				description: `Course not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/education-center/courses/:id/quiz/attempt",
+		alias: "postV1educationCentercoursesIdquizattempt",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: GradeCourseQuizAttemptRequest
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GradeCourseQuizAttemptResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not visible, or it has no quiz`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/education-center/courses/:id/quiz/questions",
+		alias: "getV1educationCentercoursesIdquizquestions",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetLearnerCourseQuizResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Invalid course ID`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not visible, or it has no quiz`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/education-center/courses/:id/reviews",
+		alias: "getV1educationCentercoursesIdreviews",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gt(0).optional().default(1)
+			},
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gt(0).lte(50).optional().default(10)
+			},
+		],
+		response: ListCourseReviewsResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found or not visible`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/education-center/courses/:id/reviews/mine",
+		alias: "getV1educationCentercoursesIdreviewsmine",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetOwnCourseReviewResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "put",
+		path: "/v1/education-center/courses/:id/reviews/mine",
+		alias: "putV1educationCentercoursesIdreviewsmine",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: SubmitCourseReviewRequest
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: SubmitCourseReviewResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Not enrolled, or this is your own course`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found or not visible`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/education-center/courses/:id/reviews/mine",
+		alias: "deleteV1educationCentercoursesIdreviewsmine",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: DeleteCourseReviewResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Review not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/education-center/courses/:id/stats",
+		alias: "getV1educationCentercoursesIdstats",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: CourseStatsResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Not this course&#x27;s creator`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/education-center/courses/:id/students",
+		alias: "getV1educationCentercoursesIdstudents",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+			{
+				name: "status",
+				type: "Query",
+				schema: z.enum(["completed", "in-progress", "not-started"]).optional()
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().max(255).optional()
+			},
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gt(0).optional().default(1)
+			},
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gt(0).lte(100).optional().default(20)
+			},
+		],
+		response: ListCourseStudentsResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Not this course&#x27;s creator`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/education-center/courses/:id/students/:userId",
+		alias: "getV1educationCentercoursesIdstudentsUserId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+			{
+				name: "userId",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: CourseStudentDetailResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Not this course&#x27;s creator`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found, or learner not enrolled`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/education-center/courses/:id/students/:userId",
+		alias: "deleteV1educationCentercoursesIdstudentsUserId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+			{
+				name: "userId",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: RemoveCourseStudentResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Not this course&#x27;s creator`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found, or learner not enrolled`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/education-center/courses/:id/students/:userId/message",
+		alias: "postV1educationCentercoursesIdstudentsUserIdmessage",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: MessageCourseStudentRequest
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+			{
+				name: "userId",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: MessageCourseStudentResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Not this course&#x27;s creator`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found, or learner not enrolled`,
 				schema: z.void()
 			},
 		]
@@ -10423,6 +10998,8 @@ export type PresignCourseCoverUploadResponse = z.infer<typeof schemas.PresignCou
 export type ListMyCoursesResponse = z.infer<typeof schemas.ListMyCoursesResponse>;
 export type UpdateCourseRequest = z.infer<typeof schemas.UpdateCourseRequest>;
 export type DeleteCourseResponse = z.infer<typeof schemas.DeleteCourseResponse>;
+export type EnrollInCourseResponse = z.infer<typeof schemas.EnrollInCourseResponse>;
+export type CourseEnrollmentResponse = z.infer<typeof schemas.CourseEnrollmentResponse>;
 export type PresignCourseLessonAssetRequest = z.infer<typeof schemas.PresignCourseLessonAssetRequest>;
 export type PresignCourseLessonAssetResponse = z.infer<typeof schemas.PresignCourseLessonAssetResponse>;
 export type CourseLessonResponse = z.infer<typeof schemas.CourseLessonResponse>;
@@ -10434,7 +11011,30 @@ export type CourseQuizQuestionResponse = z.infer<typeof schemas.CourseQuizQuesti
 export type CourseQuizResponse = z.infer<typeof schemas.CourseQuizResponse>;
 export type GetCourseQuizResponse = z.infer<typeof schemas.GetCourseQuizResponse>;
 export type ReplaceCourseQuizRequest = z.infer<typeof schemas.ReplaceCourseQuizRequest>;
+export type LearnerCourseQuizQuestionResponse = z.infer<typeof schemas.LearnerCourseQuizQuestionResponse>;
+export type LearnerCourseQuizResponse = z.infer<typeof schemas.LearnerCourseQuizResponse>;
+export type GetLearnerCourseQuizResponse = z.infer<typeof schemas.GetLearnerCourseQuizResponse>;
+export type GradeCourseQuizAttemptRequest = z.infer<typeof schemas.GradeCourseQuizAttemptRequest>;
+export type GradeCourseQuizAttemptResponse = z.infer<typeof schemas.GradeCourseQuizAttemptResponse>;
 export type UpdateCourseMetaRequest = z.infer<typeof schemas.UpdateCourseMetaRequest>;
+export type CourseProgressResponse = z.infer<typeof schemas.CourseProgressResponse>;
+export type MarkLessonProgressRequest = z.infer<typeof schemas.MarkLessonProgressRequest>;
+export type CourseStatsResponse = z.infer<typeof schemas.CourseStatsResponse>;
+export type CourseReviewResponse = z.infer<typeof schemas.CourseReviewResponse>;
+export type CourseRatingSummary = z.infer<typeof schemas.CourseRatingSummary>;
+export type ListCourseReviewsResponse = z.infer<typeof schemas.ListCourseReviewsResponse>;
+export type OwnCourseReview = z.infer<typeof schemas.OwnCourseReview>;
+export type GetOwnCourseReviewResponse = z.infer<typeof schemas.GetOwnCourseReviewResponse>;
+export type SubmitCourseReviewRequest = z.infer<typeof schemas.SubmitCourseReviewRequest>;
+export type SubmitCourseReviewResponse = z.infer<typeof schemas.SubmitCourseReviewResponse>;
+export type DeleteCourseReviewResponse = z.infer<typeof schemas.DeleteCourseReviewResponse>;
+export type CourseStudent = z.infer<typeof schemas.CourseStudent>;
+export type CourseStudentCounts = z.infer<typeof schemas.CourseStudentCounts>;
+export type ListCourseStudentsResponse = z.infer<typeof schemas.ListCourseStudentsResponse>;
+export type CourseStudentDetailResponse = z.infer<typeof schemas.CourseStudentDetailResponse>;
+export type RemoveCourseStudentResponse = z.infer<typeof schemas.RemoveCourseStudentResponse>;
+export type MessageCourseStudentRequest = z.infer<typeof schemas.MessageCourseStudentRequest>;
+export type MessageCourseStudentResponse = z.infer<typeof schemas.MessageCourseStudentResponse>;
 export type AdminCourseResponse = z.infer<typeof schemas.AdminCourseResponse>;
 export type AdminListCoursesResponse = z.infer<typeof schemas.AdminListCoursesResponse>;
 export type AdminCourseDetailResponse = z.infer<typeof schemas.AdminCourseDetailResponse>;

@@ -3,6 +3,7 @@ import { cn } from "~/lib/utils";
 import { CoverImageField } from "../cover-image-field";
 import { DifficultyCards } from "../difficulty-cards";
 import { OutcomeList } from "../outcome-list";
+import { Required } from "../required-mark";
 import { TokenInput } from "../token-input";
 import type {
   CategoryOption,
@@ -33,9 +34,13 @@ export function BasicStep({
       <div>
         <label className={LABEL} htmlFor="course-title">
           Course title
+          <Required />
         </label>
         <input
           id="course-title"
+          required
+          aria-required="true"
+          aria-invalid={Boolean(error("title"))}
           value={draft.title}
           onChange={(event) => onChange({ title: event.target.value })}
           placeholder="e.g. Digital Marketing for Small Shops"
@@ -49,9 +54,13 @@ export function BasicStep({
       <div>
         <label className={LABEL} htmlFor="course-description">
           Course description
+          <Required />
         </label>
         <textarea
           id="course-description"
+          required
+          aria-required="true"
+          aria-invalid={Boolean(error("description"))}
           rows={4}
           value={draft.description}
           onChange={(event) => onChange({ description: event.target.value })}
@@ -70,24 +79,16 @@ export function BasicStep({
       </div>
 
       <div>
-        <OutcomeList
-          values={draft.outcomes}
-          onChange={(outcomes) => onChange({ outcomes })}
-        />
-        {error("outcomes") && (
-          <p className="mt-1.5 text-[13px] text-[#FB3748]">
-            {error("outcomes")}
-          </p>
-        )}
-      </div>
-
-      <div>
         <label className={LABEL} htmlFor="course-category">
           Category
+          <Required />
         </label>
         <div className="relative">
           <select
             id="course-category"
+            required
+            aria-required="true"
+            aria-invalid={Boolean(error("categoryId"))}
             value={draft.categoryId}
             onChange={(event) => onChange({ categoryId: event.target.value })}
             className={cn(
@@ -123,11 +124,38 @@ export function BasicStep({
       </div>
 
       <div>
-        <span className={cn(LABEL, "mb-2.5")}>Level of difficulty</span>
-        <DifficultyCards
-          value={draft.difficulty}
-          onChange={(difficulty) => onChange({ difficulty })}
+        <span id="course-difficulty-label" className={cn(LABEL, "mb-2.5")}>
+          Level of difficulty
+          <Required />
+        </span>
+        <div
+          role="group"
+          aria-labelledby="course-difficulty-label"
+          aria-required="true"
+          aria-invalid={Boolean(error("difficulty"))}
+        >
+          <DifficultyCards
+            value={draft.difficulty}
+            onChange={(difficulty) => onChange({ difficulty })}
+          />
+        </div>
+        {error("difficulty") && (
+          <p className="mt-1.5 text-[13px] text-[#FB3748]">
+            {error("difficulty")}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <OutcomeList
+          values={draft.outcomes}
+          onChange={(outcomes) => onChange({ outcomes })}
         />
+        {error("outcomes") && (
+          <p className="mt-1.5 text-[13px] text-[#FB3748]">
+            {error("outcomes")}
+          </p>
+        )}
       </div>
 
       <div>
@@ -153,16 +181,22 @@ export function BasicStep({
       </div>
 
       <div>
-        <span className={LABEL}>Cover image</span>
+        <span className={LABEL}>
+          Cover image
+          <Required />
+        </span>
         <CoverImageField
           previewUrl={draft.coverPreviewUrl}
+          invalid={Boolean(error("coverImageKey"))}
           onUploaded={(coverImageKey, coverPreviewUrl) =>
             onChange({ coverImageKey, coverPreviewUrl })
           }
-          onClear={() =>
-            onChange({ coverImageKey: null, coverPreviewUrl: null })
-          }
         />
+        {error("coverImageKey") && (
+          <p className="mt-1.5 text-[13px] text-[#FB3748]">
+            {error("coverImageKey")}
+          </p>
+        )}
       </div>
     </div>
   );

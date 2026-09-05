@@ -46,6 +46,31 @@ export async function getCourseById(request: Request, courseId: string) {
   }
 }
 
+/**
+ * The same course, fetched as the signed-in user and never anonymously.
+ *
+ * The API hides a course that is not PUBLISHED from everyone but its owner, so
+ * an owner-only screen must not use the optional-session variant: that one
+ * silently retries without the bearer token when the session needs attention,
+ * and the API then answers 404 for the owner's own draft or pending course.
+ * Here a session problem redirects to login, as it should, and 404 keeps its
+ * real meaning — no such course, or not yours.
+ */
+export async function getOwnedCourseById(request: Request, courseId: string) {
+  try {
+    return await apiRequestWithSession<GetCourseResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (error instanceof ProtectedApiError && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
+}
+
 export interface ListMyCoursesParams {
   search?: string;
   status?: CourseStatus;

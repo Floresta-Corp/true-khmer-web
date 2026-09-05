@@ -85,6 +85,7 @@ export default [
       route("my-applications", "features/myspace/route/my-applications.tsx"),
       route("my-ticket", "routes/my-ticket.tsx"),
       route("saved-items", "features/saved-items/route/saved-items.tsx"),
+      route("my-classes", "features/my-classes/route/my-classes.tsx"),
     ]),
 
     layout("layout/workspace-layout.tsx", [

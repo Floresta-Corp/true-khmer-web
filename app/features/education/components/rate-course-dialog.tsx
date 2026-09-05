@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
+import { toast } from "sonner";
 import { Star } from "lucide-react";
 import {
   Dialog,
@@ -8,7 +9,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
+import type { RateCourseActionResult } from "~/features/education/services/education-certificate.action";
 import { cn } from "~/lib/utils";
+
+const MAX_COMMENT_LENGTH = 2000;
 
 interface RateCourseDialogProps {
   open: boolean;
@@ -21,12 +25,30 @@ export function RateCourseDialog({
   onOpenChange,
   courseTitle,
 }: RateCourseDialogProps) {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<RateCourseActionResult>();
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
+  const settledRef = useRef<RateCourseActionResult | null>(null);
 
   const isSubmitting = fetcher.state !== "idle";
   const highlighted = hovered || rating;
+  const error =
+    fetcher.data && !fetcher.data.ok && !isSubmitting
+      ? fetcher.data.message
+      : null;
+
+  /* Closing is driven by the API's answer rather than the click, so a rejected
+     submission (not enrolled, expired session) stays on screen to be retried
+     with the learner's comment still in the box. */
+  useEffect(() => {
+    const result = fetcher.data;
+    if (fetcher.state !== "idle" || !result?.ok) return;
+    if (settledRef.current === result) return;
+
+    settledRef.current = result;
+    toast.success(result.message);
+    onOpenChange(false);
+  }, [fetcher.state, fetcher.data, onOpenChange]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -40,11 +62,7 @@ export function RateCourseDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <fetcher.Form
-          method="post"
-          onSubmit={() => onOpenChange(false)}
-          className="mt-2"
-        >
+        <fetcher.Form method="post" className="mt-2">
           <input type="hidden" name="rating" value={rating} />
 
           <div
@@ -77,11 +95,17 @@ export function RateCourseDialog({
           <textarea
             name="comment"
             placeholder="Add a comment (optional)"
-            maxLength={2000}
-            className="mb-4.5 min-h-[70px] w-full resize-y rounded-lg border border-gray-200 px-3 py-2.5 text-sm text-[#333333] outline-none placeholder:text-[#9A9AB0] focus:border-[#1C5DD4]"
+            maxLength={MAX_COMMENT_LENGTH}
+            className="min-h-[70px] w-full resize-y rounded-lg border border-gray-200 px-3 py-2.5 text-sm text-[#333333] outline-none placeholder:text-[#9A9AB0] focus:border-[#1C5DD4]"
           />
 
-          <div className="flex items-center gap-3">
+          {error ? (
+            <p role="alert" className="mt-2 text-sm font-medium text-red-600">
+              {error}
+            </p>
+          ) : null}
+
+          <div className="mt-4.5 flex items-center gap-3">
             <button
               type="submit"
               disabled={rating === 0 || isSubmitting}
