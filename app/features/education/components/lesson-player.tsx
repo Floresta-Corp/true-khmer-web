@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { Maximize2, Minimize2, Pause, Play } from "lucide-react";
 import { cn, getSafeExternalUrl } from "~/lib/utils";
@@ -188,8 +188,16 @@ function PdfLesson({ lesson, overlay, flush }: LessonPlayerProps) {
   );
 }
 
+/**
+ * The title strip above an audio or PDF lesson.
+ *
+ * Grey to match the design. The overlay's title stays white on it, which is
+ * about 1.9:1 — below the 4.5:1 WCAG AA needs for body text — so if the title
+ * is ever reported as hard to read, darkening the text rather than the bar is
+ * the fix that keeps this tone.
+ */
 function MediaBar({ children }: { children: ReactNode }) {
-  return <div className="bg-[#2B2B3C] px-5 py-4">{children}</div>;
+  return <div className="bg-[#C4C4CA] px-5 py-4">{children}</div>;
 }
 
 function SimulatedPdfLesson({ flush }: { flush?: boolean }) {
@@ -225,52 +233,132 @@ function SimulatedPdfLesson({ flush }: { flush?: boolean }) {
   );
 }
 
-function AudioLesson({ lesson, overlay, flush }: LessonPlayerProps) {
-  const src = getSafeExternalUrl(lesson.sourceUrl);
+/**
+ * Roughly the width one bar and its gap occupy, taken from the design.
+ *
+ * The count is derived from this rather than fixed, so the waveform keeps the
+ * same density whatever the player is sized to: a fixed 48 bars spread across
+ * a full-width player stretches each one into a blob, and cramps them on a
+ * phone.
+ */
+const WAVEFORM_BAR_PITCH = 18;
+const MIN_WAVEFORM_BARS = 24;
+const MAX_WAVEFORM_BARS = 160;
 
-  if (src) {
-    return (
-      <div>
-        {overlay && <MediaBar>{overlay}</MediaBar>}
-        <div
-          className={cn("border border-gray-200 bg-white p-8", frame(flush))}
-        >
-          <p className="mb-4 text-sm font-bold text-[#1A1A2E]">
-            {lesson.title}
-          </p>
-          <audio controls preload="metadata" src={src} className="w-full">
-            Your browser cannot play this audio.
-          </audio>
-        </div>
-      </div>
-    );
-  }
+/**
+ * A deterministic pseudo-random value in [0, 1) for a bar index.
+ *
+ * A plain sine repeats often enough to be visible as a pattern across a wide
+ * player; hashing the index gives the irregular look of a real waveform while
+ * staying stable between renders, so the bars do not dance on every tick.
+ */
+function barNoise(index: number): number {
+  const value = Math.sin(index * 12.9898 + 78.233) * 43758.5453;
+  return value - Math.floor(value);
+}
 
-  return (
-    <div>
-      {overlay && <MediaBar>{overlay}</MediaBar>}
-      <SimulatedAudioLesson lesson={lesson} flush={flush} />
-    </div>
+/**
+ * The bar heights behind the waveform, as a share of the track's height.
+ *
+ * Synthesized rather than read from the file's real amplitudes: sampling those
+ * would mean downloading and decoding the whole track before the learner
+ * pressed play, and the waveform here is an affordance for scrubbing, not an
+ * analysis.
+ */
+function useWaveformBars(ref: React.RefObject<HTMLElement | null>) {
+  const [count, setCount] = useState(48);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new ResizeObserver(([entry]) => {
+      const width = entry?.contentRect.width ?? 0;
+      if (width <= 0) return;
+
+      setCount(
+        Math.min(
+          MAX_WAVEFORM_BARS,
+          Math.max(MIN_WAVEFORM_BARS, Math.round(width / WAVEFORM_BAR_PITCH)),
+        ),
+      );
+    });
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [ref]);
+
+  return useMemo(
+    () =>
+      Array.from({ length: count }, (_, index) => ({
+        id: index,
+        /* 18% to 100% of the track: a far wider spread than the design's
+           predecessor, which sat between 55% and 100% and so read as a row of
+           near-identical pills rather than a waveform. */
+        heightPercent: 18 + barNoise(index) * 82,
+      })),
+    [count],
   );
 }
 
-function SimulatedAudioLesson({
-  lesson,
-  flush,
-}: {
-  lesson: ActiveLesson;
-  flush?: boolean;
-}) {
-  const [isPlaying, setIsPlaying] = useState(false);
+/** Seconds to `m:ss`, or `h:mm:ss` once the track runs past an hour. */
+function formatClock(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
 
-  const bars = useMemo(
-    () =>
-      Array.from({ length: 48 }, (_, index) => ({
-        id: index,
-        height: 24 + Math.round(Math.abs(Math.sin(index * 1.7)) * 20),
-      })),
-    [],
-  );
+  const whole = Math.floor(seconds);
+  const hours = Math.floor(whole / 3600);
+  const minutes = Math.floor((whole % 3600) / 60);
+  const secs = whole % 60;
+
+  return hours > 0
+    ? `${hours}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`
+    : `${minutes}:${String(secs).padStart(2, "0")}`;
+}
+
+interface AudioPlayerShellProps {
+  isPlaying: boolean;
+  onToggle: () => void;
+  /** How far through the track, 0 to 1. */
+  progress: number;
+  /** Absent on the placeholder, where there is nothing to seek through. */
+  onSeek?: (ratio: number) => void;
+  elapsed: string;
+  duration: string;
+  flush?: boolean;
+}
+
+/**
+ * The audio lesson's look: play button, waveform, and the two timestamps.
+ *
+ * Shared by the real player and the placeholder so a course with an uploaded
+ * file and one without look like the same lesson — the difference is only
+ * whether the controls do anything.
+ */
+function AudioPlayerShell({
+  isPlaying,
+  onToggle,
+  progress,
+  onSeek,
+  elapsed,
+  duration,
+  flush,
+}: AudioPlayerShellProps) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const bars = useWaveformBars(trackRef);
+
+  const seekFromPointer = (clientX: number) => {
+    const track = trackRef.current;
+    if (!track || !onSeek) return;
+
+    const { left, width } = track.getBoundingClientRect();
+    if (width <= 0) return;
+    onSeek(Math.min(1, Math.max(0, (clientX - left) / width)));
+  };
+
+  const nudge = (delta: number) => {
+    if (!onSeek) return;
+    onSeek(Math.min(1, Math.max(0, progress + delta)));
+  };
 
   return (
     <div
@@ -283,7 +371,7 @@ function SimulatedAudioLesson({
         <button
           type="button"
           aria-label={isPlaying ? "Pause lesson" : "Play lesson"}
-          onClick={() => setIsPlaying((value) => !value)}
+          onClick={onToggle}
           className="flex size-16 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#1C5DD4] text-white transition-colors hover:bg-[#174FB4]"
         >
           {isPlaying ? (
@@ -294,21 +382,200 @@ function SimulatedAudioLesson({
         </button>
 
         <div className="min-w-0 flex-1">
-          <div className="mb-3 flex h-11 items-end gap-0.75" aria-hidden>
-            {bars.map((bar) => (
+          <div
+            ref={trackRef}
+            role={onSeek ? "slider" : undefined}
+            tabIndex={onSeek ? 0 : undefined}
+            aria-label={onSeek ? "Seek" : undefined}
+            aria-valuemin={onSeek ? 0 : undefined}
+            aria-valuemax={onSeek ? 100 : undefined}
+            aria-valuenow={onSeek ? Math.round(progress * 100) : undefined}
+            aria-valuetext={onSeek ? `${elapsed} of ${duration}` : undefined}
+            onClick={
+              onSeek ? (event) => seekFromPointer(event.clientX) : undefined
+            }
+            onKeyDown={
+              onSeek
+                ? (event) => {
+                    if (event.key === "ArrowRight") {
+                      event.preventDefault();
+                      nudge(0.02);
+                    } else if (event.key === "ArrowLeft") {
+                      event.preventDefault();
+                      nudge(-0.02);
+                    }
+                  }
+                : undefined
+            }
+            className={cn(
+              "mb-3 flex h-11 items-end",
+              onSeek &&
+                "cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#1C5DD4]/40",
+            )}
+          >
+            {/* Each bar sits centred in an equal-width cell and takes a fixed
+                share of it, so bar and gap stay in step at any width. A fixed
+                pixel gap cannot: the gap this spacing needs would overflow a
+                phone-width player and collapse the bars to nothing. */}
+            {bars.map((bar, index) => (
               <div
                 key={bar.id}
-                className="flex-1 rounded-full bg-[#D5E2FA]"
-                style={{ height: `${bar.height}px` }}
-              />
+                className="flex flex-1 justify-center"
+                style={{ height: `${bar.heightPercent}%` }}
+              >
+                <div
+                  /* The played portion is filled in as the track advances, so
+                     the waveform doubles as the progress bar. */
+                  className={cn(
+                    /* A fixed 3px radius rather than `rounded-full`: on a bar
+                       this narrow a full radius rounds most of its length into
+                       a capsule, which reads as a row of pills instead of a
+                       waveform. Softened ends, square sides. */
+                    "w-3/5 rounded-[3px]",
+                    /* Neutral grey unplayed, not a tinted blue: the design
+                       keeps the blue for what has actually been listened to,
+                       so a tinted track reads as already part-played. */
+                    index / bars.length < progress
+                      ? "bg-[#1C5DD4]"
+                      : "bg-[#D4D4D8]",
+                  )}
+                />
+              </div>
             ))}
           </div>
           <div className="flex justify-between text-xs text-[#9A9AB0] tabular-nums">
-            <span>{lesson.elapsed}</span>
-            <span>{lesson.duration}</span>
+            <span>{elapsed}</span>
+            <span>{duration}</span>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function AudioLesson({ lesson, overlay, flush }: LessonPlayerProps) {
+  const src = getSafeExternalUrl(lesson.sourceUrl);
+
+  return (
+    <div>
+      {overlay && <MediaBar>{overlay}</MediaBar>}
+      {src ? (
+        <RealAudioLesson lesson={lesson} src={src} flush={flush} />
+      ) : (
+        <SimulatedAudioLesson lesson={lesson} flush={flush} />
+      )}
+    </div>
+  );
+}
+
+/**
+ * An uploaded audio lesson, played through the lesson's own controls.
+ *
+ * A bare `<audio controls>` would drop the browser's default grey bar into the
+ * middle of the course page; this drives a hidden element from the designed
+ * player instead, so an audio lesson looks like part of the course the way a
+ * video one does.
+ */
+function RealAudioLesson({
+  lesson,
+  src,
+  flush,
+}: {
+  lesson: ActiveLesson;
+  src: string;
+  flush?: boolean;
+}) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  /* Moving to another lesson swaps the source under the same element, so the
+     old track's position and play state have to be cleared by hand. */
+  useEffect(() => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
+  }, [src]);
+
+  const toggle = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (audio.paused) {
+      /* Autoplay policies can refuse the call; the promise rejecting is the
+         only signal, and without catching it the button would latch to
+         "playing" over a track that never started. */
+      void audio.play().catch(() => setIsPlaying(false));
+    } else {
+      audio.pause();
+    }
+  };
+
+  const seek = (ratio: number) => {
+    const audio = audioRef.current;
+    if (!audio || !Number.isFinite(duration) || duration <= 0) return;
+
+    audio.currentTime = ratio * duration;
+    setCurrentTime(audio.currentTime);
+  };
+
+  const progress = duration > 0 ? Math.min(1, currentTime / duration) : 0;
+
+  return (
+    <>
+      <audio
+        ref={audioRef}
+        src={src}
+        preload="metadata"
+        onLoadedMetadata={(event) => {
+          const value = event.currentTarget.duration;
+          setDuration(Number.isFinite(value) ? value : 0);
+        }}
+        onTimeUpdate={(event) =>
+          setCurrentTime(event.currentTarget.currentTime)
+        }
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onEnded={() => setIsPlaying(false)}
+        className="hidden"
+      >
+        Your browser cannot play this audio.
+      </audio>
+
+      <AudioPlayerShell
+        isPlaying={isPlaying}
+        onToggle={toggle}
+        progress={progress}
+        onSeek={seek}
+        elapsed={formatClock(currentTime)}
+        /* The curriculum's own figure stands in until the file reports its
+           length, so the lesson does not flash "0:00" while metadata loads. */
+        duration={duration > 0 ? formatClock(duration) : lesson.duration}
+        flush={flush}
+      />
+    </>
+  );
+}
+
+/** The same player for a lesson with no file attached yet. */
+function SimulatedAudioLesson({
+  lesson,
+  flush,
+}: {
+  lesson: ActiveLesson;
+  flush?: boolean;
+}) {
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  return (
+    <AudioPlayerShell
+      isPlaying={isPlaying}
+      onToggle={() => setIsPlaying((value) => !value)}
+      progress={0}
+      elapsed={lesson.elapsed}
+      duration={lesson.duration}
+      flush={flush}
+    />
   );
 }

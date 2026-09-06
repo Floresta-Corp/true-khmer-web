@@ -210,7 +210,6 @@ export default function CourseLearnPage() {
         {isPanelOpen && (
           <LearnSidebar
             course={course}
-            title={course.title}
             activeLessonId={activeLesson.id}
             completedLessonIds={completedInCourse}
             openSectionIds={openSectionIds}
@@ -292,6 +291,25 @@ export default function CourseLearnPage() {
                   ))}
                 </ul>
               </>
+            )}
+
+            {course.skills.length > 0 && (
+              <div className="mt-7">
+                <h3 className={`${HEADING} mb-3.5`}>Skills</h3>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  {course.skills.map((skill) => (
+                    <span
+                      key={skill}
+                      /* Squarer and heavier than the global pill badge, which
+                         belongs to the profile screens — this page carries its
+                         own type scale and palette. */
+                      className="rounded-lg bg-[#F1F3F7] px-3.5 py-2 text-sm font-semibold text-[#1A1A2E]"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
             )}
 
             <div className="mt-7 pt-6">

@@ -1,12 +1,11 @@
 import { Link } from "react-router";
-import { Award, Check, ChevronDown, ChevronLeft, X } from "lucide-react";
+import { Award, Check, ChevronDown, ChevronLeft, Menu, X } from "lucide-react";
 import { cn } from "~/lib/utils";
 import type { CourseDetail, CourseLesson } from "~/features/education/types";
 import { LessonTypeIcon } from "./lesson-type-icon";
 
 interface LearnSidebarProps {
   course: CourseDetail;
-  title: string;
   activeLessonId: string;
   completedLessonIds: Set<string>;
   openSectionIds: Set<string>;
@@ -20,7 +19,6 @@ interface LearnSidebarProps {
 
 export function LearnSidebar({
   course,
-  title,
   activeLessonId,
   completedLessonIds,
   openSectionIds,
@@ -38,14 +36,26 @@ export function LearnSidebar({
 
   return (
     <div className="flex h-full w-95 shrink-0 flex-col border-r border-[#E5E7EB] bg-white">
-      <div className="flex items-center justify-between border-b border-[#E5E7EB] px-5 py-4.5">
+      {/* Leaving the course and naming the panel are two different things, so
+          they get two rows: the header used to be a single link carrying the
+          course title, which read as a heading rather than a way back. */}
+      <div className="border-b border-[#E5E7EB] px-5 py-3.5">
         <Link
           to={`/education/${course.id}`}
-          className="flex min-w-0 items-center gap-2.5 text-lg font-bold text-[#1A1A2E] transition-colors hover:text-[#1C5DD4]"
+          className="inline-flex min-w-0 items-center gap-1.5 text-sm font-semibold text-[#1C5DD4] transition-colors hover:underline"
         >
-          <ChevronLeft className="size-4 shrink-0 text-[#9A9AB0]" aria-hidden />
-          <span className="truncate">{title}</span>
+          <ChevronLeft className="size-4 shrink-0" aria-hidden />
+          <span className="truncate">Back to course</span>
         </Link>
+      </div>
+
+      <div className="flex items-center justify-between border-b border-[#E5E7EB] px-5 py-4.5">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <Menu className="size-4.5 shrink-0 text-[#1A1A2E]" aria-hidden />
+          <span className="truncate text-lg font-bold text-[#1A1A2E]">
+            Content
+          </span>
+        </div>
         <button
           type="button"
           onClick={onClose}
