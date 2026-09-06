@@ -3,6 +3,7 @@ import type {
   GetPostedContentResponse,
   GetProfileByIdResponse,
 } from "~/features/profile/types";
+import type { ListCertificatesResponse } from "~/api/education/education.server";
 
 export async function GetProfileById(request: Request, id: string) {
   return await apiRequestWithOptionalSession<GetProfileByIdResponse>(
@@ -11,6 +12,29 @@ export async function GetProfileById(request: Request, id: string) {
     {
       method: "GET",
     },
+  );
+}
+
+/**
+ * The certificates this learner has put on their profile.
+ *
+ * Public, and already filtered to the shared ones by the API — a certificate
+ * kept private never reaches the client at all.
+ */
+export async function GetProfileCertificates(
+  request: Request,
+  userId: string,
+  params: { page?: number; limit?: number } = {},
+) {
+  const query = new URLSearchParams();
+  if (params.page) query.set("page", String(params.page));
+  if (params.limit) query.set("limit", String(params.limit));
+  const suffix = query.size > 0 ? `?${query.toString()}` : "";
+
+  return await apiRequestWithOptionalSession<ListCertificatesResponse>(
+    request,
+    `/profile/${encodeURIComponent(userId)}/certificates${suffix}`,
+    { method: "GET" },
   );
 }
 

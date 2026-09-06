@@ -11,6 +11,7 @@ import MyspaceBioCard from "../components/myspace-bio-card";
 import { CommunityStandingCard } from "../components/myspace-community-standing-cards";
 import ProfileHeaderCard from "~/features/profile/components/card/profile-header-card";
 import ProfileAboutCard from "~/features/profile/components/card/profile-about-card";
+import { ProfileCertificatesCard } from "~/features/profile/components/card/profile-certificates-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import QuestionCard from "~/features/forum/components/card/question-card";
 import QuestionCardSkeleton from "~/features/forum/components/card/question-card-skeleton";
@@ -27,7 +28,7 @@ export function meta() {
 }
 
 export default function MySpacePage({ loaderData }: Route.ComponentProps) {
-  const { me, userId } = loaderData;
+  const { me, userId, certificates } = loaderData;
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const postedFetcher = useFetcher<any>();
@@ -57,6 +58,9 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
   }
 
   const isPublicView = viewMode === "public";
+  const sharedCertificates = certificates.filter(
+    (certificate) => certificate.sharedToProfile,
+  );
 
   const handleToggleView = () => {
     const nextViewMode = isPublicView ? "myview" : "public";
@@ -180,21 +184,31 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
               </div>
 
               <TabsContent value="about">
-                {me.profile.bio || me.skills.length > 0 ? (
-                  <ProfileAboutCard
-                    about={me.profile.bio ?? ""}
-                    skills={me.skills}
-                  />
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-                    <p className="text-lg font-medium">
-                      No information available
-                    </p>
-                    <p className="mt-1 text-sm">
-                      You haven&apos;t added any details yet
-                    </p>
-                  </div>
-                )}
+                <div className="space-y-6">
+                  {me.profile.bio || me.skills.length > 0 ? (
+                    <ProfileAboutCard
+                      about={me.profile.bio ?? ""}
+                      skills={me.skills}
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                      <p className="text-lg font-medium">
+                        No information available
+                      </p>
+                      <p className="mt-1 text-sm">
+                        You haven&apos;t added any details yet
+                      </p>
+                    </div>
+                  )}
+
+                  {/* This is the profile as everyone else sees it, so the
+                      unshared certificates are left out here. */}
+                  {sharedCertificates.length > 0 ? (
+                    <ProfileCertificatesCard
+                      certificates={sharedCertificates}
+                    />
+                  ) : null}
+                </div>
               </TabsContent>
 
               <TabsContent value="forum">
@@ -352,6 +366,15 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
               transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
             >
               <MyAchievementsCard badges={me.badges} />
+            </motion.div>
+
+            <motion.div
+              className="w-full min-w-0"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
+            >
+              <ProfileCertificatesCard certificates={certificates} isOwner />
             </motion.div>
           </div>
         </aside>

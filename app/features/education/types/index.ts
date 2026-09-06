@@ -129,7 +129,23 @@ export interface QuizAttemptResult {
 }
 
 export interface CourseCertificate {
+  courseId: string;
+  /** The reference printed on the certificate, e.g. TK-3F9A2C10. */
+  certificateNo: string;
   recipientName: string;
   courseTitle: string;
+  /** Already formatted for display — the card only prints it. */
   completedOn: string;
+  /** Whether it currently appears on the learner's public profile. */
+  sharedToProfile: boolean;
+}
+
+/** A certificate as the profile and My Space listings show it. */
+export interface ProfileCertificate {
+  id: string;
+  courseId: string;
+  courseTitle: string;
+  certificateNo: string;
+  completedAt: string;
+  sharedToProfile: boolean;
 }

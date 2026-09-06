@@ -29,21 +29,26 @@ export default function CourseCertificatePage() {
 
   return (
     <EducationPage surface="muted">
-      <BackLink
-        to={`/education/${course.id}/learn`}
-        className="mb-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[#1C5DD4] hover:underline print:hidden"
-      >
-        <ChevronLeft className="size-4" aria-hidden />
-        Back to course
-      </BackLink>
+      {/* The back link shares the certificate's column rather than the page
+          container's, so it sits above the card's left edge instead of way out
+          at the edge of the viewport. */}
+      <div className="mx-auto max-w-205">
+        <BackLink
+          to={`/education/${course.id}/learn`}
+          className="mb-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[#1C5DD4] hover:underline print:hidden"
+        >
+          <ChevronLeft className="size-4" aria-hidden />
+          Back to course
+        </BackLink>
 
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration }}
-      >
-        <CertificateCard certificate={certificate} />
-      </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration }}
+        >
+          <CertificateCard certificate={certificate} />
+        </motion.div>
+      </div>
 
       <RateCourseDialog
         open={isRateOpen}

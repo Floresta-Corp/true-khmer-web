@@ -1,4 +1,8 @@
-import { submitCourseReview } from "~/api/education/education.server";
+import {
+  shareCourseCertificate,
+  submitCourseReview,
+  unshareCourseCertificate,
+} from "~/api/education/education.server";
 import type { Route as EducationCertificateRoute } from "project-types/education/route/+types/education.certificate.$id";
 import {
   AuthSessionExpiredError,
@@ -17,11 +21,17 @@ export type RateCourseActionResult =
   | { ok: true; review: OwnCourseReview; message: string }
   | { ok: false; message: string };
 
+export type ShareCertificateActionResult =
+  | { ok: true; sharedToProfile: boolean; message: string }
+  | { ok: false; message: string };
+
 /**
- * Stores the rating from the prompt shown once a certificate is issued.
+ * The certificate page's two mutations: rating the course, and putting the
+ * certificate on the learner's profile.
  *
- * The endpoint is an upsert, so re-submitting edits the learner's existing
- * review rather than adding a second one — the dialog is safe to reopen.
+ * They share a route because they share a screen. `intent` picks between them,
+ * and each form's result type is its own — a component reads only the shape it
+ * submitted.
  */
 export async function educationCertificateAction({
   request,
@@ -30,7 +40,113 @@ export async function educationCertificateAction({
   const auth = await requireUser(request);
   const cookies = auth.setCookie ? [auth.setCookie] : [];
   const formData = await request.formData();
+  const intent = String(formData.get("intent") ?? "rate");
 
+  if (intent === "share" || intent === "unshare") {
+    return handleShareIntent({
+      request,
+      auth,
+      cookies,
+      courseId: params.id,
+      shared: intent === "share",
+    });
+  }
+
+  return handleRateIntent({
+    request,
+    auth,
+    cookies,
+    courseId: params.id,
+    formData,
+  });
+}
+
+type AuthContext = Awaited<ReturnType<typeof requireUser>>;
+
+interface IntentContext {
+  request: Request;
+  auth: AuthContext;
+  cookies: string[];
+  courseId: string;
+}
+
+/**
+ * Adds the certificate to the learner's profile, or takes it back off.
+ *
+ * The API is the authority on whether the course is actually finished, so a
+ * learner who reaches this by other means gets its 403 rather than a check
+ * duplicated here that could drift from the one that issues certificates.
+ */
+async function handleShareIntent({
+  request,
+  auth,
+  cookies,
+  courseId,
+  shared,
+}: IntentContext & { shared: boolean }) {
+  try {
+    const response = shared
+      ? await shareCourseCertificate(
+          requestWithSetCookie(request, auth.setCookie),
+          courseId,
+        )
+      : await unshareCourseCertificate(
+          requestWithSetCookie(request, auth.setCookie),
+          courseId,
+        );
+
+    if (response.setCookie) cookies.push(response.setCookie);
+
+    return withAuthData({ setCookie: cookies }, {
+      ok: true,
+      sharedToProfile: response.data.certificate.sharedToProfile,
+      message: shared
+        ? "Certificate added to your profile."
+        : "Certificate removed from your profile.",
+    } satisfies ShareCertificateActionResult);
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) {
+      return withAuthData(
+        { setCookie: cookies },
+        {
+          ok: false,
+          message: "Sign in again to update your profile.",
+        } satisfies ShareCertificateActionResult,
+        { status: 401 },
+      );
+    }
+
+    if (error instanceof ProtectedApiError) {
+      return withAuthData(
+        { setCookie: cookies },
+        {
+          ok: false,
+          message: error.message,
+        } satisfies ShareCertificateActionResult,
+        {
+          status:
+            error.status >= 400 && error.status < 500 ? error.status : 400,
+        },
+      );
+    }
+
+    throw error;
+  }
+}
+
+/**
+ * Stores the rating from the prompt shown once a certificate is issued.
+ *
+ * The endpoint is an upsert, so re-submitting edits the learner's existing
+ * review rather than adding a second one — the dialog is safe to reopen.
+ */
+async function handleRateIntent({
+  request,
+  auth,
+  cookies,
+  courseId,
+  formData,
+}: IntentContext & { formData: FormData }) {
   const rating = Number(formData.get("rating"));
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
     return withAuthData(
@@ -58,7 +174,7 @@ export async function educationCertificateAction({
   try {
     const response = await submitCourseReview(
       requestWithSetCookie(request, auth.setCookie),
-      params.id,
+      courseId,
       /* Omitted rather than sent blank: the API stores an empty comment as
          null, and leaving it out says the same thing without relying on that. */
       { rating, ...(comment ? { comment } : {}) },

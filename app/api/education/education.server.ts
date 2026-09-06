@@ -730,6 +730,88 @@ export async function deleteCourseReview(request: Request, courseId: string) {
   );
 }
 
+/* ----------------------------- Certificates ------------------------------ */
+
+export interface CourseCertificateRecord {
+  id: string;
+  courseId: string;
+  courseTitle: string;
+  certificateNo: string;
+  recipientName: string;
+  completedAt: string;
+  issuedAt: string;
+  sharedToProfile: boolean;
+  coverImageUrl: string | null;
+}
+
+export interface GetCourseCertificateResponse {
+  ok: true;
+  /** Whether the learner has met every requirement for the certificate. */
+  earned: boolean;
+  certificate: CourseCertificateRecord | null;
+}
+
+export interface ShareCourseCertificateResponse {
+  ok: true;
+  certificate: CourseCertificateRecord;
+}
+
+/**
+ * The learner's certificate for a course.
+ *
+ * The API issues it on this read the first time it is earned, which is what
+ * fixes the certificate number and the completion date: the page used to
+ * render whatever today's date happened to be.
+ */
+export async function getCourseCertificate(request: Request, courseId: string) {
+  try {
+    return await apiRequestWithSession<GetCourseCertificateResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/certificate`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) return null;
+    if (isResourceUnavailable(error, "course certificate")) return null;
+    throw error;
+  }
+}
+
+/** Puts the certificate on the learner's public profile. */
+export async function shareCourseCertificate(
+  request: Request,
+  courseId: string,
+) {
+  return apiRequestWithSession<ShareCourseCertificateResponse>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/certificate/share`,
+    { method: "POST" },
+  );
+}
+
+/** Takes it back off the profile; the certificate itself stays issued. */
+export async function unshareCourseCertificate(
+  request: Request,
+  courseId: string,
+) {
+  return apiRequestWithSession<ShareCourseCertificateResponse>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/certificate/share`,
+    { method: "DELETE" },
+  );
+}
+
+export interface ListCertificatesResponse {
+  ok: true;
+  certificates: CourseCertificateRecord[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 /* ------------------------------- Students -------------------------------- */
 
 export type CourseStudentStatus = "completed" | "in-progress" | "not-started";
