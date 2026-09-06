@@ -9,9 +9,10 @@ import { HomeTrustedBySection } from "~/features/home/components/home-trusted-by
 import { HomePillarsSection } from "~/features/home/components/home-pillars-section";
 import {
   BlogFeed,
+  CoursesFeed,
   DiscussionFeed,
-  LaunchpadFeed,
-  VolunteerFeed,
+  EventsFeed,
+  OpportunitiesFeed,
 } from "~/features/home/components/home-feed-sections";
 
 export function meta({}: Route.MetaArgs) {
@@ -29,8 +30,15 @@ export const loader = homeLoader;
 export const action = homeAction;
 
 export default function Home() {
-  const { user, launchpads, volunteers, discussions, blogPosts } =
-    useLoaderData<typeof loader>();
+  const {
+    user,
+    launchpads,
+    volunteers,
+    discussions,
+    blogPosts,
+    events,
+    courses,
+  } = useLoaderData<typeof loader>();
 
   return (
     <div className="bg-white">
@@ -40,10 +48,10 @@ export default function Home() {
           <HomeWelcomeHeroSection name={user.name} />
           <HomeExploreSection />
           <DiscussionFeed items={discussions} />
-          <LaunchpadFeed items={launchpads} />
-          <VolunteerFeed items={volunteers} />
+          <EventsFeed items={events} />
+          <OpportunitiesFeed volunteers={volunteers} launchpads={launchpads} />
+          <CoursesFeed items={courses} />
           <BlogFeed items={blogPosts} />
-          {/* <EventsFeed items={upcomingEvents} /> */}
         </>
       ) : (
         // ── Guest: marketing hero + pillars, then the community feeds ──
@@ -51,8 +59,9 @@ export default function Home() {
           <HomeHeroSection />
           <HomeTrustedBySection />
           <HomePillarsSection />
-          <LaunchpadFeed items={launchpads} />
-          <VolunteerFeed items={volunteers} />
+          <EventsFeed items={events} />
+          <CoursesFeed items={courses} />
+          <OpportunitiesFeed volunteers={volunteers} launchpads={launchpads} />
           <BlogFeed items={blogPosts} />
         </>
       )}

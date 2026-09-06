@@ -50,6 +50,8 @@ export function CourseListingRow({ course, index }: CourseListingRowProps) {
         </h3>
       </div>
 
+      <div className="min-w-0 flex-1" />
+
       {course.stats ? (
         <CourseLearnerStats stats={course.stats} className="hidden lg:flex" />
       ) : (
@@ -62,6 +64,8 @@ export function CourseListingRow({ course, index }: CourseListingRowProps) {
           —
         </span>
       )}
+
+      <div className="min-w-0 flex-1" />
 
       <CourseActionsMenu course={course} />
     </motion.article>
