@@ -1,25 +1,34 @@
 import { useState } from "react";
-import { Globe, X } from "lucide-react";
+import { Globe, ShieldAlert, X } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
+import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
 import { MAX_ALLOWED_ORIGINS, normalizeOrigin } from "../lib/origins";
 import { FieldHint, FieldLabel } from "./form-field";
 
 interface AllowedOriginsFieldProps {
   origins: string[];
   onChange: (origins: string[]) => void;
+  allowAllOrigins: boolean;
+  onAllowAllOriginsChange: (allowAllOrigins: boolean) => void;
   disabled?: boolean;
 }
 
 export function AllowedOriginsField({
   origins,
   onChange,
+  allowAllOrigins,
+  onAllowAllOriginsChange,
   disabled = false,
 }: AllowedOriginsFieldProps) {
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
   const isFull = origins.length >= MAX_ALLOWED_ORIGINS;
+  // The list is kept but ignored while every origin is allowed, so turning the
+  // option back off restores it.
+  const isListDisabled = disabled || allowAllOrigins;
 
   function addOrigin() {
     const raw = draft.trim();
@@ -70,9 +79,11 @@ export function AllowedOriginsField({
         <FieldLabel htmlFor="client-origin-input" className="mb-0">
           Allowed origins
         </FieldLabel>
-        <span className="text-xs font-medium text-slate-400 tabular-nums dark:text-slate-500">
-          {origins.length}/{MAX_ALLOWED_ORIGINS}
-        </span>
+        {!allowAllOrigins && (
+          <span className="text-xs font-medium text-slate-400 tabular-nums dark:text-slate-500">
+            {origins.length}/{MAX_ALLOWED_ORIGINS}
+          </span>
+        )}
       </div>
 
       <div
@@ -80,7 +91,7 @@ export function AllowedOriginsField({
           error
             ? "border-rose-300 dark:border-rose-900"
             : "border-input dark:border-slate-700"
-        }`}
+        } ${allowAllOrigins ? "opacity-50" : ""}`}
       >
         {origins.map((origin) => (
           <span
@@ -93,7 +104,7 @@ export function AllowedOriginsField({
               type="button"
               variant="ghost"
               size="icon-xs"
-              disabled={disabled}
+              disabled={isListDisabled}
               aria-label={`Remove ${origin}`}
               onClick={() => removeOrigin(origin)}
               className="shrink-0 text-slate-400 hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-950/40"
@@ -106,7 +117,7 @@ export function AllowedOriginsField({
         <Input
           id="client-origin-input"
           value={draft}
-          disabled={disabled || isFull}
+          disabled={isListDisabled || isFull}
           onChange={(event) => {
             setDraft(event.target.value);
             if (error) setError(null);
@@ -114,11 +125,13 @@ export function AllowedOriginsField({
           onKeyDown={handleKeyDown}
           onBlur={addOrigin}
           placeholder={
-            isFull
-              ? "Origin limit reached"
-              : origins.length === 0
-                ? "https://partner.com"
-                : "Add another origin..."
+            allowAllOrigins
+              ? "Every origin is allowed"
+              : isFull
+                ? "Origin limit reached"
+                : origins.length === 0
+                  ? "https://partner.com"
+                  : "Add another origin..."
           }
           className="h-7 min-w-40 flex-1 border-0 bg-transparent px-1.5 text-sm shadow-none focus-visible:border-0 focus-visible:ring-0 dark:bg-transparent"
         />
@@ -132,13 +145,56 @@ export function AllowedOriginsField({
         <FieldHint>
           Press Enter to add each origin. Matched exactly — no wildcards or
           subdomains, so list staging and production separately.{" "}
-          {origins.length === 0 && (
+          {origins.length === 0 && !allowAllOrigins && (
             <span className="font-semibold text-amber-600 dark:text-amber-400">
               With none listed, the partner cannot start a sign-in.
             </span>
           )}
         </FieldHint>
       )}
+
+      <div
+        className={`mt-3 rounded-xl border px-3 py-2.5 transition-colors ${
+          allowAllOrigins
+            ? "border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/30"
+            : "border-slate-200 bg-slate-50/60 dark:border-slate-700 dark:bg-slate-950/40"
+        }`}
+      >
+        <div className="flex items-start gap-2.5">
+          <Checkbox
+            id="client-allow-all-origins"
+            checked={allowAllOrigins}
+            disabled={disabled}
+            onCheckedChange={(checked) => {
+              setError(null);
+              onAllowAllOriginsChange(checked === true);
+            }}
+            className="mt-0.5"
+          />
+          <div className="min-w-0">
+            <Label
+              htmlFor="client-allow-all-origins"
+              className="block text-sm font-semibold text-slate-700 dark:text-slate-200"
+            >
+              Allow all origins
+            </Label>
+            {allowAllOrigins ? (
+              <p className="mt-1 flex items-start gap-1.5 text-xs leading-5 font-semibold text-amber-600 dark:text-amber-400">
+                <ShieldAlert className="mt-0.5 size-3.5 shrink-0" />
+                <span>
+                  Any website can start a sign-in for this client, and the list
+                  above is ignored. Development clients only.
+                </span>
+              </p>
+            ) : (
+              <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                Skip the origin check entirely — for a client a developer is
+                still testing locally.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

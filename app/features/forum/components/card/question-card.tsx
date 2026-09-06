@@ -57,8 +57,8 @@ export default function QuestionCard({
       onHoverEnd={() => setIsHovered(false)}
     >
       {/* Header with author info */}
-      <div className="mb-3 flex items-start justify-between gap-2 sm:mb-5">
-        <div className="flex min-w-0 items-center gap-2 sm:gap-2.5">
+      <div className="mb-3 flex items-start justify-between gap-3 sm:mb-5">
+        <div className="flex min-w-0 items-center gap-2.5">
           <Avatar className="shrink-0 border border-[#f3f4f6]">
             <AvatarImage
               src={profileImage}
@@ -67,39 +67,37 @@ export default function QuestionCard({
             />
           </Avatar>
           <div className="flex min-w-0 flex-col gap-0.5">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
               <ProfileLinkWrapper
                 authorId={question.author.id}
                 isAuthor={isCurrentAuthor}
-                className="truncate text-xs font-semibold text-[#344256] no-underline underline-offset-4 sm:text-sm"
+                className="truncate text-xs font-semibold text-[#344256] sm:text-sm"
               >
                 {question.author.name}
               </ProfileLinkWrapper>
-              <span className="hidden text-[#595c5e] sm:inline">•</span>
-              <span className="hidden text-sm text-[#595c5e] sm:inline">
-                in
-              </span>
-              <Link
-                to={`/forum?categoryId=${question.category.id}`}
-                className="inline-flex h-auto max-w-full truncate p-0 text-sm font-semibold text-blue-600 underline decoration-transparent decoration-1 underline-offset-4 transition-[color,text-decoration-color] duration-200 hover:text-blue-700 hover:decoration-blue-500"
-              >
-                {question.category.name}
-              </Link>
-              <span className="hidden text-[#595c5e] sm:inline">•</span>
-              <span className="basis-full sm:hidden" aria-hidden="true" />
-              <span className="-mt-3 text-xs text-[#9eacc0] sm:mt-0">
-                {createdAgoLabel}
-              </span>
 
               {isCurrentAuthor && (
                 <Badge
                   variant="secondary"
-                  className="pointer-events-none bg-green-100 text-xs font-semibold text-green-500"
+                  className="pointer-events-none h-4 rounded-md bg-green-100 px-1.5 text-[10px] font-semibold text-green-600"
                 >
                   Author
                 </Badge>
               )}
+
+              <span className="text-xs text-[#9eacc0]">•</span>
+              <span className="hidden text-xs text-[#9eacc0] sm:inline">
+                in
+              </span>
+              <Link
+                to={`/forum?categoryId=${question.category.id}`}
+                className="inline-flex max-w-full truncate text-xs font-semibold text-blue-600 hover:text-blue-700 sm:text-sm"
+              >
+                {question.category.name}
+              </Link>
             </div>
+
+            <span className="text-xs text-[#9eacc0]">{createdAgoLabel}</span>
           </div>
         </div>
 
@@ -170,7 +168,7 @@ export default function QuestionCard({
       {/* Question Title */}
       <h2
         onClick={handleGoToDetail}
-        className="mb-2 cursor-pointer text-sm leading-snug font-semibold text-[#030213] transition-colors hover:text-[#2f6fe4] sm:text-2xl"
+        className="mb-1.5 cursor-pointer text-sm leading-snug font-semibold text-[#030213] transition-colors hover:text-[#2f6fe4] sm:mb-2 sm:text-2xl"
       >
         {question.title}
       </h2>
@@ -208,12 +206,9 @@ export default function QuestionCard({
 
       {/* Tags */}
       {question.tags.length > 0 && (
-        <div className="mb-3 flex flex-wrap gap-1.5 sm:mb-4 sm:gap-2">
+        <div className="mb-3 flex flex-wrap gap-x-2 gap-y-1 sm:mb-4">
           {question.tags.slice(0, 5).map((tag) => (
-            <span
-              key={tag.id}
-              className="rounded-md px-2 py-0.5 text-xs text-[#99a1af]"
-            >
+            <span key={tag.id} className="text-xs text-[#99a1af]">
               #{tag.name}
             </span>
           ))}
@@ -229,7 +224,7 @@ export default function QuestionCard({
 
         <button
           onClick={handleGoToDetail}
-          className="group inline-flex cursor-pointer items-center gap-2 rounded-lg text-xs text-[14px] font-medium text-[#48566A] transition-colors hover:text-blue-600"
+          className="group inline-flex cursor-pointer items-center gap-2 rounded-lg text-xs font-medium text-[#48566A] transition-colors hover:text-blue-600 sm:text-[14px]"
         >
           <MessageCircle
             size={20}

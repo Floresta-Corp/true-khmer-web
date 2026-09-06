@@ -17,17 +17,12 @@ import {
 } from "~/components/ui/select";
 import { Skeleton } from "~/components/ui/skeleton";
 import type { AdminUserManagementUser } from "~/types/api-client";
+import { MEMBER_TIERS, type MemberTierSlug } from "~/lib/tiers";
 
 const ALL_FILTERS = "all";
 
 type StatusFilter = typeof ALL_FILTERS | AdminUserManagementUser["status"];
-type TierFilter =
-  | typeof ALL_FILTERS
-  | "neary"
-  | "yothea"
-  | "reach"
-  | "preah"
-  | "indra";
+type TierFilter = typeof ALL_FILTERS | MemberTierSlug;
 
 const STATUS_OPTIONS = [
   { value: ALL_FILTERS, label: "All Status" },
@@ -39,11 +34,7 @@ const STATUS_OPTIONS = [
 
 const TIER_OPTIONS = [
   { value: ALL_FILTERS, label: "All Tiers" },
-  { value: "neary", label: "Neary" },
-  { value: "yothea", label: "Yothea" },
-  { value: "reach", label: "Reach" },
-  { value: "preah", label: "Preah" },
-  { value: "indra", label: "Indra" },
+  ...MEMBER_TIERS.map((tier) => ({ value: tier.slug, label: tier.name })),
 ] satisfies Array<{ value: TierFilter; label: string }>;
 
 export function UserManagementToolbar() {

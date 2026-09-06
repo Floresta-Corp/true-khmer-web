@@ -13,7 +13,11 @@ import {
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
 import { validateLogoFile } from "../lib/logo";
-import { MAX_ALLOWED_ORIGINS, parseOriginsField } from "../lib/origins";
+import {
+  MAX_ALLOWED_ORIGINS,
+  parseAllowAllOriginsField,
+  parseOriginsField,
+} from "../lib/origins";
 import type { UpdateDeveloperClientRequest } from "../types";
 import { RESTRICTED_MESSAGE } from "./developer-clients.loader";
 
@@ -68,6 +72,7 @@ const createSchema = z.object({
   description: nullableText(1000),
   contactEmail: contactEmailSchema,
   allowedOrigins: allowedOriginsSchema,
+  allowAllOrigins: z.boolean(),
   logoKey: nullableText(512),
 });
 
@@ -78,6 +83,7 @@ const updateSchema = z.object({
   contactEmail: contactEmailSchema,
   status: z.enum(["ACTIVE", "DISABLED"]),
   allowedOrigins: allowedOriginsSchema,
+  allowAllOrigins: z.boolean(),
   logoKey: nullableText(512),
 });
 
@@ -189,6 +195,9 @@ export async function developerClientsAction({ request }: Route.ActionArgs) {
       description: formData.get("description") ?? "",
       contactEmail: formData.get("contactEmail") ?? "",
       allowedOrigins: parseOriginsField(formData.get("allowedOrigins")),
+      allowAllOrigins: parseAllowAllOriginsField(
+        formData.get("allowAllOrigins"),
+      ),
       logoKey: logo.logoKey,
     });
     if (!parsed.success) {
@@ -236,6 +245,9 @@ export async function developerClientsAction({ request }: Route.ActionArgs) {
       contactEmail: formData.get("contactEmail") ?? "",
       status: formData.get("status") ?? "",
       allowedOrigins: parseOriginsField(formData.get("allowedOrigins")),
+      allowAllOrigins: parseAllowAllOriginsField(
+        formData.get("allowAllOrigins"),
+      ),
       logoKey: logo.logoKey,
     });
     if (!parsed.success) {

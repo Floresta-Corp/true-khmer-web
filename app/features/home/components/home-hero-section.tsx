@@ -89,9 +89,14 @@ export function HomeHeroSection() {
         <div className="mt-12 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
           <Button
             asChild
-            className="h-11 w-full rounded-lg border border-[#1c5dd4] bg-[#1c5dd4] px-5 text-sm font-medium text-white hover:bg-[#174fb4] sm:w-auto"
+            className="h-11 w-full rounded-lg border border-[#1c5dd4] bg-[#1c5dd4] px-5 text-sm font-medium text-white hover:bg-[#2F6FE4] sm:w-auto"
           >
-            <Link to="/register">Join as a Member</Link>
+            <Link
+              to="/register"
+              className="inline-flex items-center justify-center"
+            >
+              Join as a Member
+            </Link>
           </Button>
           <Button
             asChild

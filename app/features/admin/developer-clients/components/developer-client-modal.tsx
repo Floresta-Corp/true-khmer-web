@@ -32,6 +32,7 @@ export type DeveloperClientFormValues = {
   contactEmail: string;
   status: DeveloperClientStatusInput;
   allowedOrigins: string[];
+  allowAllOrigins: boolean;
   /** The key already stored on the client; cleared when the logo is removed. */
   logoKey: string;
   /** A newly picked logo, uploaded by the action on save. */
@@ -54,6 +55,7 @@ const EMPTY: DeveloperClientFormValues = {
   contactEmail: "",
   status: "ACTIVE",
   allowedOrigins: [],
+  allowAllOrigins: false,
   logoKey: "",
   logoFile: null,
 };
@@ -81,6 +83,7 @@ export function DeveloperClientModal({
             contactEmail: client.contactEmail ?? "",
             status: client.status === "DISABLED" ? "DISABLED" : "ACTIVE",
             allowedOrigins: client.allowedOrigins,
+            allowAllOrigins: client.allowAllOrigins,
             logoKey: client.logoKey ?? "",
             logoFile: null,
           }
@@ -206,9 +209,13 @@ export function DeveloperClientModal({
 
             <AllowedOriginsField
               origins={values.allowedOrigins}
+              allowAllOrigins={values.allowAllOrigins}
               disabled={isLoading}
               onChange={(allowedOrigins) =>
                 update("allowedOrigins", allowedOrigins)
+              }
+              onAllowAllOriginsChange={(allowAllOrigins) =>
+                update("allowAllOrigins", allowAllOrigins)
               }
             />
 

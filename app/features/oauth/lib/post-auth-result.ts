@@ -1,6 +1,34 @@
-import type { OAuthHandoffResult, OAuthSessionUser } from "../types";
+import type { OAuthHandoffResult } from "../types";
 
-export function postAuthResult(origin: string, result: OAuthHandoffResult) {
+type OAuthReturnTarget = {
+  origin: string;
+  platform: "web" | "native";
+  redirectUri: string | null;
+  state: string | null;
+};
+
+function redirectToNative(redirectUri: string, params: Record<string, string>) {
+  const redirect = new URL(redirectUri);
+  for (const [name, value] of Object.entries(params)) {
+    redirect.searchParams.set(name, value);
+  }
+  window.location.replace(redirect.toString());
+}
+
+export function postAuthResult(
+  target: OAuthReturnTarget,
+  result: OAuthHandoffResult,
+) {
+  if (target.platform === "native" && target.redirectUri && target.state) {
+    redirectToNative(target.redirectUri, {
+      handoffToken: result.handoffToken,
+      expiresIn: String(result.expiresIn),
+      expiresAt: result.expiresAt,
+      state: target.state,
+    });
+    return;
+  }
+
   if (window.opener && !window.opener.closed) {
     window.opener.postMessage(
       {
@@ -12,15 +40,23 @@ export function postAuthResult(origin: string, result: OAuthHandoffResult) {
           expiresAt: result.expiresAt,
         },
       },
-      origin,
+      target.origin,
     );
   }
   window.close();
 }
 
-export function postAuthClose(origin: string) {
+export function postAuthClose(target: OAuthReturnTarget) {
+  if (target.platform === "native" && target.redirectUri && target.state) {
+    redirectToNative(target.redirectUri, {
+      error: "access_denied",
+      state: target.state,
+    });
+    return;
+  }
+
   if (window.opener && !window.opener.closed) {
-    window.opener.postMessage({ type: "AUTH_CLOSE" }, origin);
+    window.opener.postMessage({ type: "AUTH_CLOSE" }, target.origin);
   }
   window.close();
 }

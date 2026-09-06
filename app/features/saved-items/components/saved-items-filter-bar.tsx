@@ -18,7 +18,7 @@ export default function SavedItemsFilterBar({
   onFilterChange,
 }: SavedItemsFilterBarProps) {
   return (
-    <div className="scrollbar-none flex max-w-full items-center gap-1 overflow-x-auto rounded-2xl bg-slate-100 p-1.5">
+    <div className="scrollbar-hide flex max-w-full items-center gap-1 overflow-x-auto rounded-2xl bg-slate-100 p-1.5">
       {FILTERS.map(({ id, label, icon: Icon }) => {
         const isActive = activeFilter === id;
         return (

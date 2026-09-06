@@ -31,6 +31,7 @@ import {
 } from "~/routes/auth/domain/register.server";
 import { getPasswordValidationError } from "~/routes/auth/domain/password-validation";
 import type { RegisterActionData } from "~/routes/auth/domain/auth.types";
+import LogoSvg from "~/components/icons/logoSvg";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import { Checkbox } from "~/components/ui/checkbox";
@@ -172,9 +173,6 @@ export default function RegisterPage() {
     appliedWaitlistId
   );
 
-  const [participation, setParticipation] = useState<"member" | "partner">(
-    "member",
-  );
   const [firstName, setFirstName] = useState(waitlistPrefill?.firstName ?? "");
   const [lastName, setLastName] = useState(waitlistPrefill?.lastName ?? "");
   const [email, setEmail] = useState(waitlistPrefill?.email ?? "");
@@ -253,65 +251,25 @@ export default function RegisterPage() {
       backTo={back.to}
       backLabel={back.label}
       leftSectionClassName="items-start justify-center px-6 py-10 sm:px-10 lg:px-8 lg:py-0 xl:px-12"
-      contentClassName="max-w-md pb-10 pt-20 lg:pt-40"
-      backLinkClassName="left-6 top-8 text-sm font-semibold normal-case tracking-normal text-[#1C5DD4] hover:text-[#164CB0] sm:left-10 lg:left-1/2 lg:top-24 lg:-translate-x-56"
+      contentClassName="max-w-md pb-10 pt-20 lg:pt-36 xl:pt-40"
+      backLinkClassName="left-6 top-8 text-sm font-semibold normal-case tracking-normal text-[#1C5DD4] hover:text-[#164CB0] sm:left-10 lg:left-1/2 lg:top-16 lg:-translate-x-56 xl:top-24"
       backIconClassName="h-auto w-auto rounded-none border-0"
       rightPanelContent={<RegisterBrandPanel />}
       rightPanelContentClassName="items-stretch justify-stretch text-left"
       showRightPanelOverlay={false}
     >
-      <div className="space-y-8">
-        <header className="space-y-2">
+      <div className="space-y-6">
+        <header className="space-y-2 text-center">
+          <Link to="/" className="mx-auto block w-fit" aria-label="True Khmer">
+            <LogoSvg width={150} height={60} />
+          </Link>
           <h1 className="text-3xl leading-9 font-bold text-[#111827]">
             Create Your Account
           </h1>
           <p className="text-base leading-6 font-normal text-[#4B5563]">
-            Please choose your participation type
+            Please enter your details to get started.
           </p>
         </header>
-
-        <div className="grid rounded-2xl bg-[#ECEDF8] p-1 sm:grid-cols-2">
-          <Button
-            type="button"
-            onClick={() => setParticipation("member")}
-            variant="ghost"
-            className={cn(
-              "h-10 rounded-xl px-4 py-2 text-sm leading-5 font-semibold transition-colors",
-              participation === "member"
-                ? "bg-white text-[#0046AC] shadow-sm"
-                : "text-[#434654]",
-            )}
-          >
-            Member
-          </Button>
-          <Button
-            type="button"
-            onClick={() => setParticipation("partner")}
-            variant="ghost"
-            className={cn(
-              "h-10 rounded-xl px-4 py-2 text-sm leading-5 font-semibold transition-colors",
-              participation === "partner"
-                ? "bg-white text-[#0046AC] shadow-sm"
-                : "text-[#434654]",
-            )}
-          >
-            Partner
-          </Button>
-        </div>
-
-        <GoogleAuthButton
-          className="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3 text-base font-semibold text-[#111827] shadow-sm hover:bg-[#F9FAFB]"
-          redirectTo={redirectTo}
-          waitlistId={hasWaitlistInvite ? appliedWaitlistId : undefined}
-          onError={setGoogleError}
-        />
-
-        <FormDivider
-          label="or"
-          className="py-4"
-          lineClassName="bg-[#E5E7EB]"
-          labelClassName="text-sm font-normal normal-case tracking-normal text-[#4B5563]"
-        />
 
         <FormError message={googleError} />
         <FormError message={formError} />
@@ -323,7 +281,6 @@ export default function RegisterPage() {
             name="agreeToDirectory"
             value={agreeToDirectory ? "1" : "0"}
           />
-          <input type="hidden" name="participation" value={participation} />
           <input type="hidden" name="phone.country" value={phoneCountry} />
           <input
             type="hidden"
@@ -514,19 +471,40 @@ export default function RegisterPage() {
             disabled={!isCreateEnabled}
             className="h-10 w-full rounded-lg bg-[#2F6FE4] px-6 text-sm font-medium text-white transition-colors hover:bg-[#1F62DF] disabled:bg-[#2F6FE4] disabled:opacity-50"
           >
-            Join as {participation}
+            Create Account
           </Button>
         </Form>
 
-        <p className="text-center text-base leading-6 font-normal text-gray-700">
-          Already have an account?{" "}
-          <Link
-            to={withRedirectTo("/login", searchParams.get("redirectTo"))}
-            className="font-bold text-[#1C5DD4] transition-colors hover:text-[#164CB0]"
-          >
-            Sign In
-          </Link>
-        </p>
+        <div className="space-y-6">
+          <FormDivider
+            label="or"
+            lineClassName="bg-[#E5E7EB]"
+            labelClassName="text-sm font-normal normal-case tracking-normal text-[#4B5563]"
+          />
+
+          <GoogleAuthButton
+            className="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3 text-base font-semibold text-[#111827] shadow-sm hover:bg-[#F9FAFB]"
+            redirectTo={redirectTo}
+            waitlistId={hasWaitlistInvite ? appliedWaitlistId : undefined}
+            onError={setGoogleError}
+          />
+
+          <p className="text-center text-sm leading-5 font-normal text-[#4B5563]">
+            Already have an account?{" "}
+            <Link
+              to={withRedirectTo("/login", searchParams.get("redirectTo"))}
+              className="group font-semibold text-[#1C5DD4] no-underline transition-colors duration-200 hover:text-[#164CB0] hover:no-underline"
+            >
+              <span className="relative">
+                Sign In
+                <span
+                  aria-hidden
+                  className="absolute -bottom-0.5 left-0 h-px w-full origin-center scale-x-0 rounded-full bg-current transition-transform duration-200 ease-out group-hover:scale-x-100"
+                />
+              </span>
+            </Link>
+          </p>
+        </div>
       </div>
     </AuthPageShell>
   );

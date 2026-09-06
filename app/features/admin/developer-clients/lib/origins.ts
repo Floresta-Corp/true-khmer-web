@@ -29,3 +29,9 @@ export function parseOriginsField(raw: FormDataEntryValue | null): string[] {
     return [];
   }
 }
+
+export function parseAllowAllOriginsField(
+  raw: FormDataEntryValue | null,
+): boolean {
+  return raw === "true";
+}

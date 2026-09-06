@@ -9,7 +9,7 @@ import {
   myForumQuestion,
   myForumAnswer,
 } from "~/api/forum/forum.server";
-import { GetPublicReportType } from "~/api/reporting";
+import { getReportReasons } from "~/api/reporting";
 import { questionSortBySchema } from "~/features/forum/types";
 import type {
   AnswerResponse,
@@ -22,16 +22,6 @@ import type { Route as ForumRoute } from "project-types/forum/route/+types/forum
 import { getUserId } from "../../../lib/server/session.server";
 
 const LIMIT = 10;
-
-async function getReportReasons(request: Request) {
-  try {
-    const result = await GetPublicReportType(request);
-    return (result?.data as GetReportingTypesResponse | null) ?? null;
-  } catch (error) {
-    console.error("Failed to load forum report reasons", error);
-    return null;
-  }
-}
 
 type ForumListLoaderData = {
   data: GetQuestionsResponse;

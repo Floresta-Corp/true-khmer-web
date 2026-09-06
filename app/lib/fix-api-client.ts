@@ -35,6 +35,10 @@ const replacements = [
   [/z\.record\(z\.string\(\)\)/g, "z.record(z.string(), z.string())"],
   [/z\.record\(z\.number\(\)\)/g, "z.record(z.string(), z.number())"],
   [/z\.record\(z\.boolean\(\)\)/g, "z.record(z.string(), z.boolean())"],
+  [
+    /z\.record\(z\.array\(z\.string\(\)\)\)/g,
+    "z.record(z.string(), z.array(z.string()))",
+  ],
   [/z\.record\(z\.unknown\(\)\)/g, "z.record(z.string(), z.unknown())"],
   [/z\.enum\(\[([^\]]*?),\s*\]\)/g, "z.enum([$1])"],
 ];

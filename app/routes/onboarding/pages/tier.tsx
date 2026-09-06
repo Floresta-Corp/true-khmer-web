@@ -14,6 +14,7 @@ import {
 } from "~/lib/server/auth-response.server";
 import { requireOnboarding } from "~/lib/server/route-guards.server";
 import { handleOnboardingActionError } from "~/routes/onboarding/domain/shared/onboarding-action-error.server";
+import { useOnboardingTierProgress } from "~/routes/onboarding/domain/tier/use-onboarding-tier-progress";
 
 export async function action({ request }: Route.ActionArgs) {
   const auth = await requireOnboarding(request);
@@ -47,6 +48,7 @@ export function meta() {
 
 export default function OnboardingTierPage() {
   const actionData = useActionData<typeof action>();
+  const { tierName, nextTierName, totalPoints } = useOnboardingTierProgress();
 
   return (
     <OnboardingPageShell
@@ -64,10 +66,10 @@ export default function OnboardingTierPage() {
           currentStep={4}
           totalSteps={4}
           stepLabel="Your Starting Rank"
-          stepBadgeClassName="rounded-full border border-black/10 px-3.75 py-2"
-          stepTextClassName="text-xs uppercase tracking-widest text-[#2F6FE4]"
-          titleClassName="text-[26.25px] font-semibold leading-[31.5px] tracking-[-0.6563px] text-[#1D283A]"
-          descriptionClassName="text-[14px] font-normal leading-5.25 text-[#99A1AF]"
+          stepBadgeClassName="rounded-full border border-black/10 px-3 py-1.5 sm:px-3.75 sm:py-2"
+          stepTextClassName="text-[10px] uppercase tracking-[0.12em] text-[#2F6FE4] sm:text-xs sm:tracking-widest"
+          titleClassName="text-[22px] font-semibold leading-7 tracking-[-0.55px] text-[#1D283A] sm:text-[26.25px] sm:leading-[31.5px] sm:tracking-[-0.6563px]"
+          descriptionClassName="text-[13px] font-normal leading-5 text-[#99A1AF] sm:text-[14px] sm:leading-5.25"
           title={
             <>
               Your <span className="text-[#2894FA]">journey begins</span> here
@@ -76,14 +78,18 @@ export default function OnboardingTierPage() {
           description={
             <>
               Every True Khmer member starts at{" "}
-              <span className="font-bold">Neary</span> but there are greater
-              ranks to earn. Your actions shape how fast you rise.
+              <span className="font-bold">{tierName}</span> but there are
+              greater ranks to earn. Your actions shape how fast you rise.
             </>
           }
         />
 
         <div className="tk-fade-up-1">
-          <OnboardingCurrentTierCard />
+          <OnboardingCurrentTierCard
+            tierName={tierName}
+            nextTierName={nextTierName}
+            totalPoints={totalPoints}
+          />
         </div>
         <div className="tk-fade-up-2">
           <OnboardingTierPathCard />

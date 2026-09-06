@@ -103,6 +103,8 @@ export function GoogleAuthButton({
   const navigation = useNavigation();
   const [isReady, setIsReady] = useState(false);
   const isSubmitting = navigation.state === "submitting";
+  const isGoogleSubmitting =
+    isSubmitting && navigation.formData?.get("intent") === "google";
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -222,7 +224,7 @@ export function GoogleAuthButton({
                 )
         }
       >
-        {isSubmitting ? "Continuing..." : children}
+        {isGoogleSubmitting ? "Signing in..." : children}
       </GoogleButton>
       {isConfigured && (
         <div

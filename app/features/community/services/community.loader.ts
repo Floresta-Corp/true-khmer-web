@@ -1,4 +1,5 @@
 import type { Route } from "project-types/community/route/+types/community";
+import { isResourceUnavailable } from "~/lib/server/api-client.server";
 import { data } from "react-router";
 import { getPublicPartners } from "~/api/partner/partner-directory.server";
 import type { PublicPartner } from "~/types/api-client";
@@ -31,8 +32,8 @@ export async function communityLoader({ request }: Route.LoaderArgs) {
   const partnersByTier = getPublicPartners(request)
     .then((result) => bucketPartnersByTier(result.data.data))
     .catch((error) => {
-      console.error("Failed to load partners:", error);
-      return null;
+      if (isResourceUnavailable(error, "community partners")) return null;
+      throw error;
     });
 
   return data({ partnersByTier });

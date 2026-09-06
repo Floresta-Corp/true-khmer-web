@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import {
   Form,
-  Link,
   useActionData,
   useLoaderData,
   useNavigation,
@@ -194,7 +193,7 @@ export default function CompleteSignUpPage() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#D7E7FA] px-5 py-3 text-xs font-bold">
+          {/* <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#D7E7FA] px-5 py-3 text-xs font-bold">
             <p className="inline-flex items-center gap-1.5 text-[#1D4ED8]">
               <Info className="size-4" />
               Email & account verified automatically
@@ -207,7 +206,7 @@ export default function CompleteSignUpPage() {
                 Not you? Switch
               </button>
             </Form>
-          </div>
+          </div> */}
         </section>
 
         <Form method="post" className="mt-6 space-y-5">
@@ -381,12 +380,14 @@ export default function CompleteSignUpPage() {
 
         <footer className="mt-8 border-t border-[#EEF2F7] pt-5 text-center text-sm text-[#64748B]">
           Already have an account?{" "}
-          <Link
-            to="/login"
-            className="font-bold text-[#1D4ED8] hover:text-[#164CB0]"
-          >
-            Sign In
-          </Link>
+          <Form method="post" action="/logout" className="inline">
+            <button
+              type="submit"
+              className="cursor-pointer font-bold text-[#1D4ED8] hover:text-[#164CB0]"
+            >
+              Sign In
+            </button>
+          </Form>
         </footer>
       </div>
     </main>

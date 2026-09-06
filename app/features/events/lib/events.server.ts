@@ -11,12 +11,6 @@ export {
   type Organizer,
 };
 
-interface EventPhoto {
-  id: string;
-  key: string;
-  url: string;
-}
-
 const PLUMPI_ENDPOINT = process.env.PLUMPI_ENDPOINT;
 if (!PLUMPI_ENDPOINT) {
   console.warn(
@@ -51,100 +45,6 @@ export async function getEventCategories(): Promise<EventCategory[]> {
       }));
   } catch (err) {
     console.error("Failed to fetch event categories:", err);
-    return [];
-  }
-}
-
-export async function getTicketTiers(eventId: string): Promise<TicketTier[]> {
-  try {
-    const response = await fetch(
-      `${PLUMPI_ENDPOINT}/tickets/tiers?eventId=${eventId}`,
-    );
-
-    if (!response.ok) {
-      return [];
-    }
-
-    const json = await response.json();
-    const tiers = Array.isArray(json.data) ? json.data : [];
-
-    return tiers
-      .filter((t: any) => t.isVisible)
-      .map((t: any) => ({
-        id: t.id,
-        name: t.name,
-        description: t.description || null,
-        type: t.type,
-        isActive: t.isActive,
-        isVisible: t.isVisible,
-        totalQuantity: t.totalQuantity,
-        soldCount: t.soldCount,
-        availableCount: t.availableCount,
-        minPurchase: t.minPurchase,
-        maxPurchase: t.maxPurchase,
-        basePrice: t.basePrice || null,
-        salePrice: t.salePrice || null,
-        currencyCode: t.currencyCode || "USD",
-        saleStartAt: t.saleStartAt || null,
-        saleEndAt: t.saleEndAt || null,
-        validFrom: t.validFrom || null,
-        validUntil: t.validUntil || null,
-        status: t.status,
-        benefits: t.benefits || null,
-        cover: t.cover || null,
-      }));
-  } catch (err) {
-    console.error("Failed to fetch ticket tiers:", err);
-    return [];
-  }
-}
-
-export async function getEventOrganizer(
-  eventId: string,
-): Promise<Organizer | null> {
-  try {
-    const response = await fetch(
-      `${PLUMPI_ENDPOINT}/events/${eventId}/organizer`,
-    );
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = await response.json();
-
-    return {
-      id: data.id,
-      firstName: data.firstName || "",
-      lastName: data.lastName || "",
-      email: data.email || "",
-      image: data.image || null,
-      totalEvent: data.totalEvent || "0",
-    };
-  } catch (err) {
-    console.error("Failed to fetch event organizer:", err);
-    return null;
-  }
-}
-
-export async function getEventPhotos(eventId: string): Promise<string[]> {
-  try {
-    const response = await fetch(`${PLUMPI_ENDPOINT}/events/${eventId}/photos`);
-
-    if (!response.ok) {
-      return [];
-    }
-
-    const json = await response.json();
-    const photos = Array.isArray(json.photos) ? json.photos : [];
-
-    return photos
-      .map((photo: EventPhoto) => photo.url)
-      .filter((photoUrl: string | undefined): photoUrl is string =>
-        Boolean(photoUrl),
-      );
-  } catch (err) {
-    console.error("Failed to fetch event photos:", err);
     return [];
   }
 }
@@ -322,59 +222,5 @@ export async function getEventList(): Promise<EventData[]> {
   } catch (err) {
     console.error("Failed to fetch event list:", err);
     return [];
-  }
-}
-
-export async function getEventById(request: Request, id: string) {
-  try {
-    const [response, ticketTiers, organizer, photos] = await Promise.all([
-      fetch(`${PLUMPI_ENDPOINT}/events/${id}`),
-      getTicketTiers(id),
-      getEventOrganizer(id),
-      getEventPhotos(id),
-    ]);
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        return {
-          event: null,
-          ticketTiers: [],
-          organizer: null,
-          error: "Event not found.",
-        };
-      }
-      throw new Error(`Plumpi API Error: ${response.status}`);
-    }
-
-    const apiEvent = await response.json();
-
-    const event: EventData = {
-      id: apiEvent.id,
-      title: apiEvent.title,
-      slug: apiEvent.slug,
-      excerpt: apiEvent.excerpt || "",
-      thumbnail: apiEvent.cover || apiEvent.thumbnail || null,
-      cover: apiEvent.cover || null,
-      startAt: apiEvent.startAt,
-      endAt: apiEvent.endAt,
-      venueName: apiEvent.venueName || null,
-      eventType: apiEvent.eventType,
-      price: apiEvent.salePrice || apiEvent.basePrice || "Free",
-      ticketStatus: apiEvent.ticketStatus || null,
-      isOnline: apiEvent.isOnline || false,
-      isFavorite: apiEvent.isFavorite || false,
-      description: apiEvent.description || "",
-      photos,
-    };
-
-    return { event, ticketTiers, organizer, error: null };
-  } catch (err) {
-    console.error("Failed to fetch event by ID:", err);
-    return {
-      event: null,
-      ticketTiers: [],
-      organizer: null,
-      error: "Unable to load event details.",
-    };
   }
 }

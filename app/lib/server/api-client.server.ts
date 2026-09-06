@@ -109,16 +109,24 @@ async function fetchWithBearer<K extends object = JsonObject>(
 ) {
   const base = resolveApiBase(request);
   const url = `${base}${path}`;
+  const isMultipart = options.body instanceof FormData;
+  const requestBody: BodyInit | undefined = options.body
+    ? isMultipart
+      ? (options.body as FormData)
+      : JSON.stringify(options.body)
+    : undefined;
 
-  return fetch(url, {
+  return fetchApi(url, {
     method: options.method ?? "GET",
     credentials: "include",
     headers: {
       Authorization: `Bearer ${accessToken}`,
-      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(options.body && !isMultipart
+        ? { "Content-Type": "application/json" }
+        : {}),
       ...options.headers,
     },
-    ...(options.body ? { body: JSON.stringify(options.body) } : {}),
+    ...(requestBody ? { body: requestBody } : {}),
   });
 }
 
@@ -191,7 +199,7 @@ export async function apiRequestPublic<T, K extends object = JsonObject>(
   const base = resolveApiBase(request);
   const url = `${base}${path}`;
 
-  const response = await fetch(url, {
+  const response = await fetchApi(url, {
     method: options.method ?? "GET",
     credentials: "include",
     headers: {
@@ -213,6 +221,51 @@ export async function apiRequestPublic<T, K extends object = JsonObject>(
   }
 
   return { data: payload as T };
+}
+
+async function fetchApi(url: string, init: RequestInit) {
+  try {
+    return await fetch(url, init);
+  } catch (error) {
+    const cause = error instanceof Error ? error.message : String(error);
+    throw new ProtectedApiError(
+      `Could not reach the API at ${url}: ${cause}`,
+      503,
+    );
+  }
+}
+
+export function isResourceUnavailable(error: unknown, label: string) {
+  if (!(error instanceof ProtectedApiError)) return false;
+  if (error.status !== 404 && error.status < 500) return false;
+
+  if (error.status >= 500) {
+    console.warn(
+      `[api] ${label} failed with ${error.status}; rendering without it`,
+    );
+  }
+
+  return true;
+}
+
+/**
+ * Runs a read the page can render without, returning `null` when the resource
+ * is missing or its service is failing.
+ *
+ * Prefer this to a bare `try/catch` that logs the error object: a handled
+ * degradation should leave one line in the log, not a stack trace and a page of
+ * response headers. Anything that is not a 404 or 5xx still throws.
+ */
+export async function readOptional<T>(
+  label: string,
+  read: () => Promise<T>,
+): Promise<T | null> {
+  try {
+    return await read();
+  } catch (error) {
+    if (isResourceUnavailable(error, label)) return null;
+    throw error;
+  }
 }
 
 function isLoginRedirectResponse(error: unknown): error is Response {

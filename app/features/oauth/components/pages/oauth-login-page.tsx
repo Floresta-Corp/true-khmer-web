@@ -15,6 +15,9 @@ export default function OAuthLoginPage() {
     clientLogo,
     clientId,
     origin,
+    platform,
+    redirectUri,
+    state,
     user,
     accessToken,
   } = useLoaderData<typeof OauthLoginLoader>();
@@ -42,6 +45,9 @@ export default function OAuthLoginPage() {
         clientLogo={clientLogo}
         clientId={clientId}
         origin={origin}
+        platform={platform}
+        redirectUri={redirectUri}
+        state={state}
         accessToken={consentData.accessToken}
         user={consentData.user}
         onUseDifferentAccount={() => setUseDifferentAccount(true)}

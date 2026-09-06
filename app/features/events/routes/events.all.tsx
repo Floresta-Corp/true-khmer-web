@@ -21,6 +21,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   try {
     const url = new URL(request.url);
     const categoryId = url.searchParams.get("categoryId");
+    const search = url.searchParams.get("search")?.trim() ?? "";
 
     // Fetch categories first so we can validate categoryId against them
     const categories = await getEventCategories();
@@ -35,10 +36,21 @@ export async function loader({ request }: Route.LoaderArgs) {
       ? await getEventsByCategory(validCategoryId)
       : await getEventList();
 
+    // The Events hub search submits here, so honour the `search` param.
+    const query = search.toLowerCase();
+    const matchingEvents = query
+      ? events.filter((event) =>
+          [event.title, event.venueName, event.excerpt].some((field) =>
+            field?.toLowerCase().includes(query),
+          ),
+        )
+      : events;
+
     return {
-      events,
+      events: matchingEvents,
       categories,
       activeCategoryId: validCategoryId,
+      search,
       error: null,
     };
   } catch (err) {
@@ -47,6 +59,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       events: [] as EventData[],
       categories: [] as EventCategory[],
       activeCategoryId: null as string | null,
+      search: "",
       error: "Failed to load events. Please check your connection.",
     };
   }

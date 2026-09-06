@@ -9,6 +9,7 @@ import {
   MessagesSquare,
   House,
   BriefcaseBusiness,
+  GraduationCap,
   TvMinimalPlay,
   UserRound,
   CircleUser,
@@ -41,7 +42,7 @@ const MYSPACE_SECTION_PATHS = [
   "/my-ticket",
   "/saved-items",
 ];
-const WORKSPACE_SECTION_PATHS = ["/manage-post", "/workspace", "/my-events"];
+const WORKSPACE_SECTION_PATHS = ["/workspace", "/my-events"];
 
 function isInSection(pathname: string, sectionPaths: string[]) {
   return sectionPaths.some(
@@ -95,7 +96,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
           forceActive: isInMySpace,
         }
       : {
-          to: "/manage-post",
+          to: "/workspace/manage-post",
           label: "Workspace",
           icon: LayoutDashboard,
           forceActive: isInWorkspace,
@@ -107,10 +108,11 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
     // { to: "/dashboard", label: "My Journey", icon: Compass },
     { to: "/forum", label: "Forum", icon: MessagesSquare },
     // { to: "/forumv2", label: "Forum V2", icon: MessageSquare },
-    // { to: "/events", label: "Events", icon: Calendar },
+    { to: "/events", label: "Events", icon: Calendar },
     { to: "/volunteer", label: "Volunteer", icon: HeartHandshake },
     { to: "/launchpad", label: "Launchpad", icon: BriefcaseBusiness },
-    { to: "/blog", label: "Blog", icon: ClipboardPen },
+    { to: "/education", label: "Education", icon: GraduationCap },
+    { to: "/blog", label: "khmer Voice", icon: ClipboardPen },
     { to: "/about", label: "About", icon: CircleUser, hide: !!user },
     { to: "/poc", label: "POC", icon: TvMinimalPlay, hide: true },
   ];
@@ -126,8 +128,8 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
       <header className="sticky top-0 z-50 w-full border-b border-[#f1f5f9] bg-white shadow-sm">
         <div
           className={cn(
-            "flex h-(--navbar-height) items-center justify-between",
-            isInSpaceSection ? "w-full px-10" : "site-container",
+            "flex h-(--navbar-height) items-center justify-between gap-2 md:gap-4",
+            isInSpaceSection ? "w-full px-4 md:px-10" : "site-container",
           )}
         >
           {/* Left: Logo */}
@@ -136,14 +138,14 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
               <LogoSvg
                 width={102}
                 height={40}
-                className="h-10 w-auto"
+                className="h-9 w-auto md:h-10"
                 aria-label="True Khmer"
               />
             </Link>
           </div>
 
           {/* Center: Navigation Links (desktop only) */}
-          <nav className="hidden items-center gap-5 md:flex">
+          <nav className="hidden items-center gap-2 md:flex lg:gap-5">
             {navLinks.map((link) => {
               const isActive =
                 link.forceActive ??
@@ -157,13 +159,13 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                   key={link.to}
                   to={link.to}
                   className={cn(
-                    "group relative flex items-center gap-1.5 text-sm text-[#344256] transition-colors duration-200",
+                    "group relative flex items-center gap-1 text-xs text-[#344256] transition-colors duration-200 lg:gap-1.5 lg:text-sm",
                     link === navLinks[0] &&
-                      "mr-1 border-r border-[#c8d6e5] pr-6",
+                      "mr-1 border-r border-[#c8d6e5] pr-3 lg:pr-6",
                     isActive ? "text-blue-600" : "hover:text-blue-600",
                   )}
                 >
-                  <link.icon className="h-4 w-4" />
+                  <link.icon className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
 
                   <span className="relative grid">
                     <span
@@ -196,28 +198,20 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
           </nav>
 
           {/* Right side */}
-          <div className="flex items-center gap-4">
+          <div className="flex shrink-0 items-center gap-2 lg:gap-4">
             {user ? (
               <>
-                {/* Notification icons */}
-                {/* <Button
-                  variant="ghost"
-                  size="icon"
-                  asChild
-                  className="size-9 rounded-full border border-[#f1f5f9] bg-white text-[#344256] hover:bg-[#f8fafc] hover:text-[#0f172a]"
-                  aria-label="Messages"
-                >
-                  <Link to="/messages">
-                    <Mail className="h-4 w-4" />
-                  </Link>
-                </Button> */}
                 <NotificationBellPopOver />
-                {/* User dropdown */}
                 <ProfileDropDown user={user} />
               </>
             ) : (
-              <div className="hidden items-center gap-2 md:flex">
-                <Button variant="ghost" size="sm" asChild>
+              <div className="hidden items-center gap-1.5 md:flex lg:gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="px-2 text-xs lg:px-3 lg:text-sm"
+                  asChild
+                >
                   <Link
                     to={`/login?redirectTo=${encodeURIComponent(loginRedirectTo || "/")}`}
                   >
@@ -225,9 +219,9 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                   </Link>
                 </Button>
                 <Button
-                  size="lg"
+                  size="sm"
                   asChild
-                  className="bg-linear-to-r from-[#0082e1] to-[#5ab9ff] text-white hover:from-[#0078d2] hover:to-[#4aaef8]"
+                  className="lg:size-lg bg-linear-to-r from-[#0082e1] to-[#5ab9ff] px-2.5 text-xs text-white hover:from-[#0078d2] hover:to-[#4aaef8] lg:px-4 lg:text-sm"
                 >
                   <Link to="/register">Join the community</Link>
                 </Button>

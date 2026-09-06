@@ -62,13 +62,7 @@ function OtpCodeField({
       <Label className="text-sm font-semibold text-[#1A2233]">
         Verification code
       </Label>
-      <InputOTP
-        maxLength={6}
-        value={value}
-        onChange={onChange}
-        inputMode="numeric"
-        pattern="[0-9]*"
-      >
+      <InputOTP maxLength={6} value={value} onChange={onChange}>
         <InputOTPGroup className="gap-2 rounded-none">
           {Array.from({ length: 6 }).map((_, index) => (
             <InputOTPSlot
@@ -430,6 +424,7 @@ export function TwoFAView({
                       </Button>
                       <Button
                         type="submit"
+                        data-otp-submit
                         disabled={isSubmitting || totpCode.length !== 6}
                         className="bg-[#2F6FE4] text-white hover:bg-[#1F62DF]"
                       >
@@ -536,6 +531,7 @@ export function TwoFAView({
                       </Button>
                       <Button
                         type="submit"
+                        data-otp-submit
                         disabled={isSubmitting || emailCode.length !== 6}
                         className="bg-[#2F6FE4] text-white hover:bg-[#1F62DF]"
                       >

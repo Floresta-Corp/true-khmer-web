@@ -2,7 +2,10 @@ import {
   apiRequestWithOptionalSession,
   apiRequestWithSession,
 } from "~/lib/server/api-client.server";
-import { ProtectedApiError } from "~/lib/server/api-client.server";
+import {
+  isResourceUnavailable,
+  ProtectedApiError,
+} from "~/lib/server/api-client.server";
 import type {
   DeleteAnswerResponse,
   GetAnswersResponse,
@@ -84,7 +87,7 @@ export async function getAnswersByQuestionId(
 
     return result;
   } catch (error) {
-    if (error instanceof ProtectedApiError && error.status === 404) {
+    if (isResourceUnavailable(error, "forum answers")) {
       return null;
     }
 
@@ -109,7 +112,7 @@ export async function getPublicAnswersByQuestionId(
     );
     return result;
   } catch (error) {
-    if (error instanceof ProtectedApiError && error.status === 404) {
+    if (isResourceUnavailable(error, "public forum answers")) {
       return null;
     }
     throw error;

@@ -97,3 +97,70 @@ export const CATEGORY_COLORS_LIGHT: Record<string, string> = {
   OTHER: "bg-gray-100 text-gray-700",
   CULTURAL: "bg-orange-100 text-orange-700",
 };
+
+/**
+ * "Thu, Sep 3" — the date line on the event listing card.
+ */
+export function formatEventDayLabel(dateString: string): string {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return "";
+  }
+  return date.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function formatClockTime(date: Date): string {
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
+/**
+ * "6:00 – 8:00 PM" when both ends share a meridiem, otherwise
+ * "9:00 AM – 5:00 PM". Matches the time label in the design.
+ */
+export function formatEventTimeRange(
+  startAt: string,
+  endAt?: string | null,
+): string {
+  const start = new Date(startAt);
+  if (isNaN(start.getTime())) {
+    return "";
+  }
+
+  const startLabel = formatClockTime(start);
+  const end = endAt ? new Date(endAt) : null;
+  if (!end || isNaN(end.getTime())) {
+    return startLabel;
+  }
+
+  const endLabel = formatClockTime(end);
+  const sharesMeridiem = startLabel.slice(-2) === endLabel.slice(-2);
+
+  return `${sharesMeridiem ? startLabel.slice(0, -3) : startLabel} – ${endLabel}`;
+}
+
+/**
+ * Cover placeholder colour per event type, drawn from the design system ramps
+ * the design uses for its event categories. It sits behind the cover photo, so
+ * it only shows while the image loads or when an event has no cover.
+ */
+export const EVENT_TYPE_COVER_COLORS: Record<string, string> = {
+  CONFERENCE: "#1C5DD4",
+  WORKSHOP: "#32A8FF",
+  SEMINAR: "#1C5DD4",
+  CONCERT: "#1FC16B",
+  FESTIVAL: "#E17100",
+  EXHIBITION: "#5AB9FF",
+  NETWORKING: "#174FB4",
+  TRAINING: "#5AB9FF",
+  WEBINAR: "#32A8FF",
+  CULTURAL: "#E17100",
+  OTHER: "#1C5DD4",
+};

@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Bookmark, EllipsisVertical, Info } from "lucide-react";
+import { Bookmark, EllipsisVertical, Flag } from "lucide-react";
 import { useFetcher, useLocation } from "react-router";
 import { toast } from "sonner";
 import { useFetcherOutcome } from "~/hooks/use-fetcher-outcome";
@@ -161,7 +161,7 @@ export default function ForumDetailQuestionHeader({
                 type="button"
                 className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm font-medium text-[#595c5e] transition-colors hover:bg-accent hover:text-accent-foreground"
               >
-                <Info className="h-4 w-4" />
+                <Flag className="h-4 w-4" />
                 Report
               </button>
             }
@@ -210,7 +210,7 @@ export default function ForumDetailQuestionHeader({
               type="button"
               className="group cursor-pointer bg-transparent text-[#595C5E] transition-colors hover:text-red-500"
             >
-              <Info className="transition-colors group-hover:text-red-500" />
+              <Flag className="transition-colors group-hover:text-red-500" />
               Report
             </Button>
           }

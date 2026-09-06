@@ -80,6 +80,7 @@ export function SingleSelectDropdown({
   }, [open]);
 
   const selected = options.find((option) => option.value === value);
+
   const filteredOptions = useMemo(() => {
     if (!searchable) return options;
     const normalized = query.trim().toLowerCase();

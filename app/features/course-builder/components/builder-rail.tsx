@@ -1,0 +1,86 @@
+import { BackLink } from "~/components/back-link";
+import { ChevronLeft } from "lucide-react";
+import { cn } from "~/lib/utils";
+import { STEP_DEFINITIONS } from "../lib/builder-steps";
+import type { BuilderStep } from "../types";
+
+interface BuilderRailProps {
+  steps: BuilderStep[];
+  current: BuilderStep;
+  title: string;
+  onStepSelect: (step: BuilderStep) => void;
+}
+
+export function BuilderRail({
+  steps,
+  current,
+  title,
+  onStepSelect,
+}: BuilderRailProps) {
+  return (
+    <div className="sticky top-0 hidden h-screen w-75 shrink-0 flex-col self-start overflow-y-auto border-r border-[#E5E7EB] bg-[#F9FAFC] px-7 py-8 lg:flex">
+      <BackLink
+        to="/course-listing"
+        className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1C5DD4] hover:underline"
+      >
+        <ChevronLeft size={15} strokeWidth={2.4} aria-hidden />
+        My courses
+      </BackLink>
+
+      <h1 className="mt-5.5 mb-6.5 text-[26px] leading-[1.2] font-extrabold text-[#1A1A2E]">
+        {title}
+      </h1>
+
+      <div className="flex flex-col">
+        {steps.map((step, index) => {
+          const definition = STEP_DEFINITIONS[step];
+          const Icon = definition.icon;
+          const isCurrent = step === current;
+          const isLast = index === steps.length - 1;
+
+          return (
+            <div key={step} className="flex min-h-19 gap-3.5">
+              <div className="flex shrink-0 flex-col items-center">
+                <span
+                  className={cn(
+                    "flex size-9 shrink-0 items-center justify-center rounded-full border p-2.25",
+                    isCurrent
+                      ? "border-[#1C5DD4] bg-[#1C5DD4] text-white"
+                      : "border-[#E5E7EB] bg-white text-[#9A9AB0]",
+                  )}
+                >
+                  <Icon className="size-full" strokeWidth={1.9} aria-hidden />
+                </span>
+                {!isLast && (
+                  <span className="min-h-5.5 w-0.5 flex-1 bg-[#E5E7EB]" />
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => onStepSelect(step)}
+                aria-current={isCurrent ? "step" : undefined}
+                className={cn(
+                  "min-h-19 min-w-0 flex-1 cursor-pointer rounded-[10px] px-2.5 pt-2 pb-3.5 text-left",
+                  isCurrent && "bg-[#EFF4FE]",
+                )}
+              >
+                <span
+                  className={cn(
+                    "block text-sm font-bold",
+                    isCurrent ? "text-[#1C5DD4]" : "text-[#1A1A2E]",
+                  )}
+                >
+                  {definition.label}
+                </span>
+                <span className="mt-0.5 block text-[12.5px] leading-[1.4] text-[#9A9AB0]">
+                  {definition.desc}
+                </span>
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

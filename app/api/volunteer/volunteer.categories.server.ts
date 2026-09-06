@@ -1,6 +1,7 @@
 import {
   apiRequestWithOptionalSession,
   apiRequestWithSession,
+  isResourceUnavailable,
   ProtectedApiError,
 } from "~/lib/server/api-client.server";
 import type {
@@ -41,7 +42,7 @@ export async function getVolunteerCategories(request: Request) {
     );
     return result;
   } catch (error) {
-    if (error instanceof ProtectedApiError && error.status === 404) {
+    if (isResourceUnavailable(error, "volunteer categories")) {
       return null;
     }
     throw error;
@@ -59,7 +60,7 @@ export async function getPublicVolunteerCategories(request: Request) {
       );
     return result;
   } catch (error) {
-    if (error instanceof ProtectedApiError && error.status === 404) {
+    if (isResourceUnavailable(error, "public volunteer categories")) {
       return null;
     }
     throw error;

@@ -1,4 +1,4 @@
-import { ChevronDown, Pencil, Trash2 } from "lucide-react";
+import { EllipsisVertical, Pencil, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -30,25 +30,35 @@ export default function MobileAuthorOptions({
           className="h-8 w-8 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
           aria-label="More actions"
         >
-          <ChevronDown className="size-4" />
+          <EllipsisVertical className="size-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem asChild>
-          <div className="w-full px-3 py-2">
+          <div className="w-full cursor-pointer px-3 py-2">
             <AskQuestionDialog
               categories={categories.filter((c) => c.id !== "all-categories")}
               isEditing
               data={question}
-              trigger={<span className="w-full">Edit</span>}
+              trigger={
+                <span className="flex w-full items-center gap-2 text-sm">
+                  <Pencil className="size-3.5" />
+                  Edit
+                </span>
+              }
             />
           </div>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <div className="w-full px-3 py-2">
+          <div className="w-full cursor-pointer px-3 py-2">
             <DeleteQuestionDialog
               questionId={question.id}
-              trigger={<span className="w-full">Delete</span>}
+              trigger={
+                <span className="flex w-full items-center gap-2 text-sm text-red-600">
+                  <Trash2 className="size-3.5" />
+                  Delete
+                </span>
+              }
             />
           </div>
         </DropdownMenuItem>

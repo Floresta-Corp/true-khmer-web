@@ -1,5 +1,6 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { getUser, getUserId } from "~/lib/server/session.server";
+import { isResourceUnavailable } from "~/lib/server/api-client.server";
 import { GetLaunchpadProjectsPaginated } from "~/api/launchpad/launchpad.server";
 import {
   getPublicVolunteerOpportunities,
@@ -75,11 +76,17 @@ async function loadBlogPosts(request: Request) {
   }, []);
 }
 
+/**
+ * The homepage is a set of independent sections, so a failing one shows its
+ * fallback rather than blanking the page. An unavailable service logs a single
+ * line; anything else — an auth or validation fault — still throws, because
+ * those are bugs rather than outages.
+ */
 async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
   try {
     return await fn();
   } catch (error) {
-    console.error("[home.loader] failed to load a homepage section:", error);
-    return fallback;
+    if (isResourceUnavailable(error, "a homepage section")) return fallback;
+    throw error;
   }
 }

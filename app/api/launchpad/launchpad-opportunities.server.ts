@@ -1,6 +1,7 @@
 import {
   apiRequestWithOptionalSession,
   apiRequestWithSession,
+  isResourceUnavailable,
   ProtectedApiError,
 } from "~/lib/server/api-client.server";
 import type {
@@ -89,7 +90,7 @@ export async function GetLaunchpadDetail(
       );
     return result.data.launchpad;
   } catch (error) {
-    if (error instanceof ProtectedApiError && error.status === 404) {
+    if (isResourceUnavailable(error, "launchpad projects")) {
       return null;
     }
     throw error;

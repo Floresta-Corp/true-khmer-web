@@ -16,9 +16,12 @@ export default function WorkSpacePageLayout({
 }: WorkSpacePageLayoutProps) {
   const prefersReducedMotion = useReducedMotion();
   return (
-    <div className="mx-auto w-full max-w-7xl">
+    // Fills the scroll area so a page can push a footer — the events
+    // pagination, say — to the bottom instead of letting it ride up under a
+    // short grid.
+    <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col">
       <motion.div
-        className="overflow-y-auto p-4 sm:p-8 md:p-10"
+        className="shrink-0 p-4 sm:p-8 md:p-10"
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: prefersReducedMotion ? 0 : 0.28 }}
@@ -40,7 +43,7 @@ export default function WorkSpacePageLayout({
       </motion.div>
 
       <motion.main
-        className="flex-1 px-4 pb-12 sm:px-6 md:px-6 lg:px-8"
+        className="flex flex-1 flex-col px-4 pb-12 sm:px-6 md:px-6 lg:px-8"
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{
