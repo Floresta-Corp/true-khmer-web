@@ -74,7 +74,7 @@ export function BlogCategoryNav({
   }
 
   return (
-    <div className="relative flex min-w-0 flex-1 items-center gap-2">
+    <div className="relative flex min-w-0 flex-1 items-center gap-4">
       {isScrollable ? (
         <Button
           type="button"
@@ -90,7 +90,7 @@ export function BlogCategoryNav({
       ) : null}
       <nav
         ref={scrollerRef}
-        className="-mx-2 -my-3 flex touch-pan-x items-center gap-3 overflow-x-auto overscroll-x-contain px-2 py-3 whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="-mx-1 -my-3 flex touch-pan-x items-center gap-3 overflow-x-auto overscroll-x-contain px-2 py-3 whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         aria-label="Blog categories"
       >
         <Link
@@ -129,7 +129,7 @@ export function BlogCategoryNav({
       ) : null}
 
       {canScrollRight ? (
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-linear-to-l from-white to-transparent sm:hidden dark:from-slate-950" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-linear-to-l sm:hidden dark:from-slate-950" />
       ) : null}
     </div>
   );
