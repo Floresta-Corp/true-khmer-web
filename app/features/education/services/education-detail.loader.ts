@@ -6,26 +6,19 @@ import {
   getCourseCurriculum,
   getLearnerCourseQuiz,
   listCourseReviews,
-  listPublicCourses,
 } from "~/api/education/education.server";
-import type { PublicCourseListItem } from "~/api/education/education.server";
 import { getCourseSaveState } from "~/api/education/my-classes.server";
 import { GetProfileById } from "~/api/profile/profile.server";
 import { resolveImageURL } from "~/lib/utils";
 import { toTelHref } from "~/features/education/lib/phone";
 import { toCourseSummary } from "~/features/education/lib/map-catalog";
-import {
-  loadSavedCourseIds,
-  withSaveState,
-} from "~/features/education/services/course-saves.loader";
+import { loadCourseRecommendations } from "~/features/education/services/course-recommendations.loader";
 import { toCourseSections } from "~/features/education/lib/map-curriculum";
 import type {
   CourseDetail,
   CourseReview,
   CourseSummary,
 } from "~/features/education/types";
-
-const RECOMMENDED_LIMIT = 4;
 
 /* The Reviews tab shows three and expands to the rest in place, so one page is
    enough for the screen; the summary counts every review regardless. */
@@ -198,39 +191,7 @@ export async function educationDetailLoader({
     throw data({ message: "Course not found" }, { status: 404 });
   }
 
-  /* Same-category first, then topped up from the most popular courses overall.
-     Category alone left the row empty for any course that is the only one in
-     its category, and an empty row renders nothing at all — so the section was
-     invisible rather than merely short. */
-  const [sameCategoryRes, popularRes, savedCourseIds] = await Promise.all([
-    listPublicCourses(request, {
-      limit: RECOMMENDED_LIMIT + 1,
-      categoryId: course.categoryId,
-      sortBy: "newest",
-    }),
-    listPublicCourses(request, {
-      limit: RECOMMENDED_LIMIT + 1,
-      sortBy: "popular",
-    }),
-    loadSavedCourseIds(request),
-  ]);
-
-  /* A Map keyed by id both de-duplicates the two queries and keeps the
-     same-category picks ahead of the popular top-ups. */
-  const picked = new Map<string, PublicCourseListItem>();
-  for (const item of [
-    ...(sameCategoryRes?.data?.courses ?? []),
-    ...(popularRes?.data?.courses ?? []),
-  ]) {
-    if (item.id === course.id) continue;
-    if (picked.size >= RECOMMENDED_LIMIT && !picked.has(item.id)) break;
-    picked.set(item.id, item);
-  }
-
-  const recommended = withSaveState(
-    [...picked.values()].slice(0, RECOMMENDED_LIMIT).map(toCourseSummary),
-    savedCourseIds,
-  );
+  const recommended = await loadCourseRecommendations(request, course);
 
   return { course: { ...course, hasQuiz }, recommended };
 }
