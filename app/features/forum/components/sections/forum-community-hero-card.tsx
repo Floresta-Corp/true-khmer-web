@@ -1,12 +1,14 @@
 import { Image as ImageIcon } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useRouteLoaderData } from "react-router";
 import type { loader } from "../../route/forum.new";
+import type { loader as appLayoutLoader } from "~/layout/app-layout";
 import AskQuestionDialog from "../dialog/ask-question-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { useUserDisplay } from "~/hooks/use-user-display";
 
 const heroBackgroundImage = "/images/forum-background.jpg";
-const avatarImage = "/images/forum-avatar.jpg";
 
 const ACTIVE_MEMBERS = [
   { initials: "SR", className: "bg-[#2f6fe4]" },
@@ -19,6 +21,11 @@ const ACTIVE_MEMBERS_COUNT = 1200;
 
 export default function ForumCommunityHeroCard() {
   const { categories, userId } = useLoaderData<typeof loader>();
+  const appLayoutData =
+    useRouteLoaderData<typeof appLayoutLoader>("layout/app-layout");
+  const { displayName, initials, profileImage } = useUserDisplay(
+    appLayoutData?.user,
+  );
   const isAuthenticated = Boolean(userId);
   const prefersReducedMotion = useReducedMotion();
   const [activeNowCount, setActiveNowCount] = useState(0);
@@ -62,10 +69,9 @@ export default function ForumCommunityHeroCard() {
         aria-hidden
         className="pointer-events-none absolute right-0 bottom-0 hidden h-full w-3/5 object-cover opacity-20 sm:block"
       />
-
       <div className="relative flex flex-col gap-4 sm:gap-5">
-        {/* Presence row (dummy data) */}
-        <div className="flex flex-wrap items-center gap-3">
+        {/*  members active */}
+        {/* <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center -space-x-2">
             {ACTIVE_MEMBERS.map((member) => (
               <span
@@ -82,13 +88,13 @@ export default function ForumCommunityHeroCard() {
 
           <div className="flex items-center gap-2">
             <span className="relative inline-flex size-2 rounded-full bg-[#1fc16b]">
-              <span className="absolute inset-0 animate-ping rounded-full bg-[#1fc16b]/60" />
+              <span className="absolute inset-0 rounded-full bg-[#1fc16b]/60" />
             </span>
             <p className="text-xs font-medium text-[#48566a] sm:text-sm">
               {activeNowLabel} members active now
             </p>
           </div>
-        </div>
+        </div> */}
 
         <motion.div
           initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
@@ -108,12 +114,16 @@ export default function ForumCommunityHeroCard() {
         {/* Composer — opens the existing ask-question dialog */}
         <div className="flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-[0px_4px_24px_0px_rgba(15,23,41,0.06)] sm:p-5">
           <div className="flex items-center gap-3">
-            <img
-              src={avatarImage}
-              alt=""
-              aria-hidden
-              className="size-9 shrink-0 rounded-full object-cover"
-            />
+            <Avatar className="size-9 shrink-0 border border-[#f9fafb]">
+              <AvatarImage
+                src={profileImage || undefined}
+                alt={displayName}
+                className="object-cover"
+              />
+              <AvatarFallback className="bg-[#EFF6FF] text-xs font-semibold text-[#2F6FE4]">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
             <AskQuestionDialog
               categories={categories}
               isAuthenticated={isAuthenticated}
@@ -132,6 +142,7 @@ export default function ForumCommunityHeroCard() {
             <AskQuestionDialog
               categories={categories}
               isAuthenticated={isAuthenticated}
+              autoOpenImagePicker
               trigger={
                 <button
                   type="button"

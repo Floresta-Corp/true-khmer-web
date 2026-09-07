@@ -47,6 +47,7 @@ interface AskQuestionDialogProps {
   isAuthenticated?: boolean;
   data?: QuestionResponse | null;
   trigger?: React.ReactNode;
+  autoOpenImagePicker?: boolean;
 }
 
 export default function AskQuestionDialog({
@@ -55,6 +56,7 @@ export default function AskQuestionDialog({
   isAuthenticated = false,
   data,
   trigger,
+  autoOpenImagePicker = false,
 }: AskQuestionDialogProps) {
   const location = useLocation();
   const revalidator = useRevalidator();
@@ -96,6 +98,7 @@ export default function AskQuestionDialog({
   const [existingImageKey, setExistingImageKey] = useState<string | null>(null);
   const [removeExistingImage, setRemoveExistingImage] = useState(false);
   const wasSubmitting = useRef(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   // const [searchParams, setSearchParams] = useSearchParams();
   const redirectTo = `${location.pathname}${location.search}`;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
@@ -227,6 +230,12 @@ export default function AskQuestionDialog({
       revokeBlobUrl(preview);
     };
   }, [preview]);
+  useEffect(() => {
+    if (!open || !autoOpenImagePicker) return;
+
+    const frame = requestAnimationFrame(() => fileInputRef.current?.click());
+    return () => cancelAnimationFrame(frame);
+  }, [open, autoOpenImagePicker]);
 
   const addTag = (rawValue: string) => {
     const nextTag = rawValue.trim();
@@ -380,7 +389,7 @@ export default function AskQuestionDialog({
                 {...register("body")}
                 placeholder="What are the best resources for learning Khmer business law?"
                 aria-invalid={Boolean(errors.body)}
-                className="h-30 max-w-full overflow-x-auto rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm text-wrap text-[#344256] outline-none placeholder:text-[#9eacc0] focus:border-[#2f6fe4] aria-invalid:border-red-500"
+                className="focus-visible:ring-0.5 h-30 max-w-full overflow-x-auto rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm text-wrap text-[#344256] placeholder:text-[#9eacc0] focus-visible:border-[#2f6fe4] focus-visible:ring-[#2f6fe4] focus-visible:ring-offset-0 focus-visible:outline-none aria-invalid:border-red-500 aria-invalid:focus-visible:ring-red-500"
                 rows={1}
               />
               {errors.body ? (
@@ -388,13 +397,13 @@ export default function AskQuestionDialog({
               ) : null}
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex w-full flex-col gap-2">
               <Label className="text-xs leading-4.5 font-medium text-[#364153]">
                 Add Media (Photo/Video)
               </Label>
               {preview ? (
-                <div className="mt-2 flex gap-2">
-                  <div className="group relative aspect-video w-full overflow-hidden rounded-lg border-2 border-dashed border-[#d1d5db] bg-transparent focus-within:border-[#2f6fe4] hover:border-[#2f6fe4] sm:w-56">
+                <div className="mt-2 flex w-full gap-2">
+                  <div className="group relative aspect-video w-full overflow-hidden rounded-lg border-2 border-dashed border-[#d1d5db] bg-transparent focus-within:border-[#2f6fe4] hover:border-[#2f6fe4]">
                     <img
                       src={preview}
                       alt={existingImageKey ? "existing image" : "preview"}
@@ -411,7 +420,7 @@ export default function AskQuestionDialog({
                         setSelectedFile(null);
                         setPreview(null);
                       }}
-                      className="absolute top-1 right-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/80 text-[#64748b] hover:bg-white"
+                      className="absolute top-1 right-1 inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white/80 text-[#64748b] hover:bg-white"
                       aria-label="Remove image"
                     >
                       <X className="h-3 w-3" />
@@ -421,7 +430,7 @@ export default function AskQuestionDialog({
               ) : (
                 <label
                   htmlFor="images-upload"
-                  className="group flex aspect-video w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-[#d1d5db] bg-transparent px-4 text-center focus-within:border-[#2f6fe4] hover:border-[#2f6fe4] sm:w-56"
+                  className="group flex aspect-video w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-[#d1d5db] bg-transparent px-4 text-center focus-within:border-[#2f6fe4] hover:border-[#2f6fe4]"
                 >
                   <div className="flex flex-col items-center gap-2">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#2f6fe4] shadow-sm">
@@ -433,6 +442,7 @@ export default function AskQuestionDialog({
                   </div>
                   <input
                     id="images-upload"
+                    ref={fileInputRef}
                     type="file"
                     name="images"
                     accept="image/*"

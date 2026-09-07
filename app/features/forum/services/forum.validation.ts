@@ -1,6 +1,7 @@
-import type {
-  CreateForumQuestionInput,
-  ForumQuestionStatus,
+import {
+  CreateForumQuestionInputSchema,
+  type CreateForumQuestionInput,
+  type ForumQuestionStatus,
 } from "~/features/forum/types";
 import { z } from "zod";
 
@@ -16,22 +17,7 @@ type ValidateForumPostFormResult =
       message: string;
     };
 
-export const createForumPostSchema = z.object({
-  categoryId: z.string().min(1, "Please select a category."),
-  title: z
-    .string()
-    .min(5, "Title must be at least 5 characters.")
-    .max(200, "Title must be at most 200 characters."),
-  body: z
-    .string()
-    .min(5, "Discussion details must be at least 5 characters.")
-    .max(5000, "Discussion details must be at most 5000 characters."),
-  tags: z
-    .array(z.string().trim().min(1))
-    .max(5, "You can add up to 5 tags only."),
-  imageKey: z.string().nullable(),
-  status: z.enum(["DRAFT", "PUBLISHED"]),
-});
+export const createForumPostSchema = CreateForumQuestionInputSchema;
 
 function parseTags(formData: FormData): string[] {
   const splitAndClean = (values: string[]): string[] =>

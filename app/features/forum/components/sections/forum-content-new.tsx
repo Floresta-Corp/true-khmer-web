@@ -100,7 +100,6 @@ export default function ForumContentNew({
 
   return (
     <ForumPageLayout contentClassName="flex gap-6">
-      {/* Left sidebar: search, categories, trending topics */}
       <aside className="hidden w-70 shrink-0 space-y-5 lg:block">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -125,7 +124,6 @@ export default function ForumContentNew({
         </motion.div>
       </aside>
 
-      {/* Center column: composer hero, filters, discussions */}
       <div className="flex min-w-0 flex-1 flex-col gap-5">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -246,16 +244,14 @@ export default function ForumContentNew({
           </motion.div>
         )}
 
-        {/* Sidebar cards fall below the list on small screens */}
         <div className="space-y-5 lg:hidden">
           {userId && <YourActivitiesCard />}
           {categoriesCard}
           {trendingCard}
-          <TopContributorsCard />
+          {/* <TopContributorsCard /> */}
         </div>
       </div>
 
-      {/* Right sidebar: my discussion, top contributors */}
       <aside className="hidden w-75 shrink-0 space-y-5 lg:block">
         {userId && (
           <motion.div
@@ -270,13 +266,13 @@ export default function ForumContentNew({
             <YourActivitiesCard />
           </motion.div>
         )}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 * d, delay: 0.25 * d, ease: "easeOut" }}
         >
           <TopContributorsCard />
-        </motion.div>
+        </motion.div> */}
       </aside>
     </ForumPageLayout>
   );
