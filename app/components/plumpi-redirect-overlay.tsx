@@ -1,14 +1,8 @@
-import {
-  PLUMPI_HANDOFF_MESSAGE,
-  PLUMPI_HANDOFF_TITLE,
-} from "~/features/workspace/lib/plumpi-handoff";
+export const PLUMPI_HANDOFF_TITLE = "Redirecting you to Plumpi…";
+export const PLUMPI_HANDOFF_MESSAGE =
+  "Hang tight while we take you to Plumpi to finish setup.";
 
-/**
- * Full-screen hold shown while the draft is handed over to Plumpi. Mirrors the
- * connecting state in the design system, and the interstitial written into the
- * new tab by `openPlumpiHandoffWindow`.
- */
-export default function CreateEventConnecting() {
+export default function PlumpiRedirectOverlay() {
   return (
     <div
       role="status"
