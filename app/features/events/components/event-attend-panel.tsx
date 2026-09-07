@@ -1,5 +1,6 @@
 import { ArrowUpRight, Ticket } from "lucide-react";
 import { EventTicketList } from "~/features/events/components/event-ticket-list";
+import { buildPlumpiEventUrl } from "~/features/events/lib/plumpi-links";
 import type { EventDetail } from "~/features/events/types/events";
 
 const ENTRY_COPY = {
@@ -36,11 +37,7 @@ export function EventAttendPanel({ event }: { event: EventDetail }) {
   }
 
   const copy = ENTRY_COPY[event.entryMode];
-  const plumpiWeb = import.meta.env.VITE_PLUMPI_WEB;
-  const eventUrl =
-    copy.cta && plumpiWeb
-      ? `${plumpiWeb}/events/${encodeURIComponent(event.slug)}`
-      : null;
+  const eventUrl = copy.cta ? buildPlumpiEventUrl(event.slug) : null;
 
   return (
     <div>
