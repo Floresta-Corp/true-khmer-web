@@ -1,5 +1,4 @@
-import { Globe, Mail, MapPin, Plus } from "lucide-react";
-import { Button } from "~/components/ui/button";
+import { Globe, Mail, MapPin } from "lucide-react";
 import { Card } from "~/components/ui/card";
 import { resolveImageURL } from "~/lib/utils";
 import ProfileCardPopover from "./profile-card-popover";
@@ -73,17 +72,7 @@ export default function ProfileHeaderCard({
           </p>
         </div>
 
-        <div className="flex w-full items-center gap-2 sm:w-auto sm:gap-3">
-          <Button className="h-10 flex-1 rounded-full bg-blue-600 px-3 text-xs font-bold sm:h-11 sm:flex-none sm:px-5 sm:text-sm">
-            Message
-          </Button>
-          <Button
-            variant="outline"
-            className="h-10 flex-1 gap-1 rounded-full px-3 text-xs font-bold sm:h-11 sm:flex-none sm:px-5 sm:text-sm"
-          >
-            <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            Follow
-          </Button>
+        <div className="flex w-full items-center justify-end sm:w-auto">
           <div className="shrink-0">
             <ProfileCardPopover profileId={profileId} />
           </div>
