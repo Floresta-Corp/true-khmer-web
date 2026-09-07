@@ -1,5 +1,10 @@
 import { Link } from "react-router";
 import { CalendarDays, Search } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
+
+const easings = {
+  enter: "easeInOut" as const,
+};
 
 interface EventHeroProps {
   search: string;
@@ -14,25 +19,55 @@ interface EventHeroProps {
  * copy column readable, exactly as in the design. The photo is a background
  * image rather than an `<img>` so the panel still reads as designed if the
  * asset is missing.
+ *
+ * Entrance motion mirrors the Volunteer/Launchpad heroes: the panel fades in,
+ * the photo eases in from the right, and the copy column lifts with its badge,
+ * headline, blurb, search bar and organizer link staggered behind it.
  */
 export function EventHero({
   search,
   onSearchChange,
   onSearchSubmit,
 }: EventHeroProps) {
+  const prefersReducedMotion = useReducedMotion();
+  const dur = prefersReducedMotion ? 0 : 1;
+  const shift = (value: number) => (prefersReducedMotion ? 0 : value);
+
   return (
-    <section className="relative mb-8 flex min-h-115 overflow-hidden rounded-[24px] bg-[#F7F8FC]">
-      <div
+    <motion.section
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 * dur, ease: easings.enter }}
+      className="relative mb-8 flex min-h-115 overflow-hidden rounded-[24px] bg-[#F7F8FC]"
+    >
+      <motion.div
         aria-hidden
-        className="absolute inset-0 bg-[url('/images/events/hero-connect.jpg')] bg-cover bg-center"
+        initial={{ opacity: 0, scale: prefersReducedMotion ? 1 : 1.06 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8 * dur, ease: easings.enter }}
+        className="absolute inset-0 bg-[url('/images/events/hero-connect.jpg')] bg-cover bg-center will-change-transform"
       />
       <div
         aria-hidden
         className="absolute inset-0 bg-[linear-gradient(90deg,#F7F8FC_0%,rgba(247,248,252,0.95)_40%,rgba(247,248,252,0.6)_58%,rgba(247,248,252,0.2)_78%,rgba(247,248,252,0)_92%)]"
       />
 
-      <div className="relative flex max-w-140 flex-col justify-center px-6 py-12 sm:px-10">
-        <div className="mb-3.5 flex items-center gap-2">
+      <motion.div
+        initial={{ opacity: 0, y: shift(40) }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 * dur, ease: easings.enter }}
+        className="relative flex max-w-140 flex-col justify-center px-6 py-12 will-change-transform sm:px-10"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: shift(16) }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.5 * dur,
+            delay: 0.05 * dur,
+            ease: easings.enter,
+          }}
+          className="mb-3.5 flex items-center gap-2"
+        >
           <img
             src="/home-explore-event.png"
             alt=""
@@ -41,24 +76,49 @@ export function EventHero({
           <span className="text-[13px] font-bold tracking-[0.05em] text-[#1C5DD4]">
             TRUE KHMER EVENTS
           </span>
-        </div>
+        </motion.div>
 
-        <h1 className="mb-4 text-[30px] leading-[1.18] font-extrabold text-[#1A1A2E] sm:text-[38px]">
+        <motion.h1
+          initial={{ opacity: 0, y: shift(24) }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.6 * dur,
+            delay: 0.1 * dur,
+            ease: easings.enter,
+          }}
+          className="mb-4 text-[30px] leading-[1.18] font-extrabold text-[#1A1A2E] sm:text-[38px]"
+        >
           Find experiences that bring Cambodia{" "}
           <span className="text-[#1C5DD4]">together.</span>
-        </h1>
+        </motion.h1>
 
-        <p className="mb-6.5 text-sm leading-[1.6] text-[#9A9AB0]">
+        <motion.p
+          initial={{ opacity: 0, y: shift(30) }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.6 * dur,
+            delay: 0.15 * dur,
+            ease: easings.enter,
+          }}
+          className="mb-6.5 text-sm leading-[1.6] text-[#9A9AB0]"
+        >
           Conferences, workshops and meetups from organizations across the
           country.
-        </p>
+        </motion.p>
 
-        <form
+        <motion.form
+          initial={{ opacity: 0, y: shift(20) }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.55 * dur,
+            delay: 0.2 * dur,
+            ease: easings.enter,
+          }}
           onSubmit={(event) => {
             event.preventDefault();
             onSearchSubmit();
           }}
-          className="flex max-w-130 items-center gap-2.5 rounded-full bg-white py-1.5 pr-1.5 pl-5.5 shadow-[0_4px_16px_rgba(26,26,46,0.10)]"
+          className="flex max-w-130 items-center gap-2.5 rounded-full bg-white py-1.5 pr-1.5 pl-5.5 shadow-[0_4px_16px_rgba(26,26,46,0.10)] transition-shadow duration-300 ease-out hover:shadow-[0_8px_24px_rgba(26,26,46,0.14)]"
         >
           <Search className="size-4 shrink-0 text-[#9A9AB0]" aria-hidden />
           <input
@@ -76,9 +136,18 @@ export function EventHero({
           >
             <Search className="size-4" aria-hidden />
           </button>
-        </form>
+        </motion.form>
 
-        <p className="mt-4.5 flex flex-wrap items-center gap-2 text-[13px] text-[#9A9AB0]">
+        <motion.p
+          initial={{ opacity: 0, y: shift(16) }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.5 * dur,
+            delay: 0.35 * dur,
+            ease: easings.enter,
+          }}
+          className="mt-4.5 flex flex-wrap items-center gap-2 text-[13px] text-[#9A9AB0]"
+        >
           <CalendarDays
             className="size-4 shrink-0 text-[#1C5DD4]"
             aria-hidden
@@ -88,12 +157,15 @@ export function EventHero({
             to={import.meta.env.VITE_PLUMPI_WEB}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-bold text-[#1C5DD4] hover:underline"
+            className="group inline-flex items-center gap-1 font-bold text-[#1C5DD4] hover:underline"
           >
-            Create your own event →
+            Create your own event
+            <span className="transition-transform duration-200 group-hover:translate-x-1">
+              →
+            </span>
           </Link>
-        </p>
-      </div>
-    </section>
+        </motion.p>
+      </motion.div>
+    </motion.section>
   );
 }
