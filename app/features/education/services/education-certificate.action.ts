@@ -22,17 +22,9 @@ export type RateCourseActionResult =
   | { ok: false; message: string };
 
 export type ShareCertificateActionResult =
-  | { ok: true; sharedToProfile: boolean; message: string }
-  | { ok: false; message: string };
+  | { ok: true; courseId: string; sharedToProfile: boolean; message: string }
+  | { ok: false; courseId: string; message: string };
 
-/**
- * The certificate page's two mutations: rating the course, and putting the
- * certificate on the learner's profile.
- *
- * They share a route because they share a screen. `intent` picks between them,
- * and each form's result type is its own — a component reads only the shape it
- * submitted.
- */
 export async function educationCertificateAction({
   request,
   params,
@@ -70,13 +62,6 @@ interface IntentContext {
   courseId: string;
 }
 
-/**
- * Adds the certificate to the learner's profile, or takes it back off.
- *
- * The API is the authority on whether the course is actually finished, so a
- * learner who reaches this by other means gets its 403 rather than a check
- * duplicated here that could drift from the one that issues certificates.
- */
 async function handleShareIntent({
   request,
   auth,
@@ -99,6 +84,7 @@ async function handleShareIntent({
 
     return withAuthData({ setCookie: cookies }, {
       ok: true,
+      courseId,
       sharedToProfile: response.data.certificate.sharedToProfile,
       message: shared
         ? "Certificate added to your profile."
@@ -110,6 +96,7 @@ async function handleShareIntent({
         { setCookie: cookies },
         {
           ok: false,
+          courseId,
           message: "Sign in again to update your profile.",
         } satisfies ShareCertificateActionResult,
         { status: 401 },
@@ -121,6 +108,7 @@ async function handleShareIntent({
         { setCookie: cookies },
         {
           ok: false,
+          courseId,
           message: error.message,
         } satisfies ShareCertificateActionResult,
         {
@@ -134,12 +122,6 @@ async function handleShareIntent({
   }
 }
 
-/**
- * Stores the rating from the prompt shown once a certificate is issued.
- *
- * The endpoint is an upsert, so re-submitting edits the learner's existing
- * review rather than adding a second one — the dialog is safe to reopen.
- */
 async function handleRateIntent({
   request,
   auth,
@@ -175,8 +157,6 @@ async function handleRateIntent({
     const response = await submitCourseReview(
       requestWithSetCookie(request, auth.setCookie),
       courseId,
-      /* Omitted rather than sent blank: the API stores an empty comment as
-         null, and leaving it out says the same thing without relying on that. */
       { rating, ...(comment ? { comment } : {}) },
     );
 
@@ -203,8 +183,6 @@ async function handleRateIntent({
       return withAuthData(
         { setCookie: cookies },
         { ok: false, message: error.message } satisfies RateCourseActionResult,
-        /* 403 "not enrolled" and 404 "no such course" are the API's own
-           answers; they reach the dialog as its error line either way. */
         {
           status:
             error.status >= 400 && error.status < 500 ? error.status : 400,

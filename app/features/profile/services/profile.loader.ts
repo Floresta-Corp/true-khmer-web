@@ -6,6 +6,10 @@ import {
 } from "~/api/profile/profile.server";
 import type { GetPostedContentResponse } from "~/features/profile/types";
 import type { ProfileCertificate } from "~/features/education/types";
+import {
+  collectCertificates,
+  toProfileCertificate,
+} from "~/api/education/education.server";
 import type { Route } from "project-types/profile/route/+types/profile.$id";
 
 const ProfileIdSchema = z.string().min(1);
@@ -80,28 +84,20 @@ function normalizePosted(
 
 export type NormalizedPosted = ReturnType<typeof normalizePosted>;
 
-/**
- * The certificates this member shows on their profile.
- *
- * Swallows its own failures: the API already filters to the shared ones, and
- * a certificates endpoint that is down should cost the profile its Certificates
- * card, not the whole page.
- */
 async function loadSharedCertificates(
   request: Request,
   userId: string,
 ): Promise<ProfileCertificate[]> {
   try {
-    const result = await GetProfileCertificates(request, userId, { limit: 20 });
-    return result.data.certificates.map((certificate) => ({
-      id: certificate.id,
-      courseId: certificate.courseId,
-      courseTitle: certificate.courseTitle,
-      certificateNo: certificate.certificateNo,
-      completedAt: certificate.completedAt,
-      sharedToProfile: certificate.sharedToProfile,
-    }));
-  } catch {
+    const records = await collectCertificates((params) =>
+      GetProfileCertificates(request, userId, params),
+    );
+    return records.map(toProfileCertificate);
+  } catch (error) {
+    console.warn(
+      `[profile] certificates for ${userId} unavailable; rendering without them`,
+      error,
+    );
     return [];
   }
 }
@@ -137,7 +133,6 @@ export async function profileLoader({ request, params }: Route.LoaderArgs) {
       };
     }
 
-    // SSR with a tab active: fetch profile + first page in parallel.
     if (sourceTypeResult.success) {
       const [profileResult, postedResult, certificates] = await Promise.all([
         GetProfileById(request, idResult.data),

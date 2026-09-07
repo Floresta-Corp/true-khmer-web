@@ -15,12 +15,6 @@ export async function GetProfileById(request: Request, id: string) {
   );
 }
 
-/**
- * The certificates this learner has put on their profile.
- *
- * Public, and already filtered to the shared ones by the API — a certificate
- * kept private never reaches the client at all.
- */
 export async function GetProfileCertificates(
   request: Request,
   userId: string,

@@ -15,6 +15,7 @@ import type {
   UpdateCourseRequest,
 } from "~/types/api-client";
 import type { CourseStatus } from "~/features/course-listing/types";
+import type { ProfileCertificate } from "~/features/education/types";
 
 export async function getCourseCategories(request: Request) {
   try {
@@ -46,16 +47,6 @@ export async function getCourseById(request: Request, courseId: string) {
   }
 }
 
-/**
- * The same course, fetched as the signed-in user and never anonymously.
- *
- * The API hides a course that is not PUBLISHED from everyone but its owner, so
- * an owner-only screen must not use the optional-session variant: that one
- * silently retries without the bearer token when the session needs attention,
- * and the API then answers 404 for the owner's own draft or pending course.
- * Here a session problem redirects to login, as it should, and 404 keeps its
- * real meaning — no such course, or not yours.
- */
 export async function getOwnedCourseById(request: Request, courseId: string) {
   try {
     return await apiRequestWithSession<GetCourseResponse>(
@@ -274,7 +265,6 @@ export async function markLessonWatched(
 }
 
 export interface CourseTrendPoint {
-  /** `YYYY-MM-DD`. */
   date: string;
   learners: number;
 }
@@ -283,25 +273,20 @@ export interface CourseStatsResponse {
   ok: true;
   stats: {
     lessonCount: number;
-    /** The split only — the roster is `listCourseStudents`, which pages it. */
     progress: {
       total: number;
       notStarted: number;
       inProgress: number;
       completed: number;
     };
-    /** New learners per day. */
     enrollmentTrend: CourseTrendPoint[];
-    /** Learners active per day, however many lessons each finished. */
     activityTrend: CourseTrendPoint[];
-    /** Nulls, not zeros, when nothing has been sat. */
     quiz: {
       attempts: number;
       passRate: number | null;
       averageScore: number | null;
       bands: { label: string; attempts: number }[];
     };
-    /** `average` is null until someone rates the course. */
     rating: {
       average: number | null;
       total: number;
@@ -582,12 +567,9 @@ export async function listPublicCourses(
   }
 }
 
-/* ------------------------------ Enrolment -------------------------------- */
-
 export interface EnrollInCourseResponse {
   ok: true;
   enrolled: true;
-  /** False when the learner was already enrolled — the call is idempotent. */
   created: boolean;
 }
 
@@ -618,8 +600,6 @@ export async function getCourseEnrollment(request: Request, courseId: string) {
   }
 }
 
-/* ------------------------------- Reviews --------------------------------- */
-
 export interface CourseReviewResponse {
   id: string;
   userId: string;
@@ -636,7 +616,6 @@ export interface ListCourseReviewsResponse {
   summary: {
     average: number | null;
     total: number;
-    /** Counts per star, one star first. */
     breakdown: number[];
   };
   pagination: {
@@ -687,7 +666,6 @@ export interface SubmitCourseReviewBody {
   comment?: string;
 }
 
-/** Creates the learner's review, or replaces the one they already left. */
 export async function submitCourseReview(
   request: Request,
   courseId: string,
@@ -730,8 +708,6 @@ export async function deleteCourseReview(request: Request, courseId: string) {
   );
 }
 
-/* ----------------------------- Certificates ------------------------------ */
-
 export interface CourseCertificateRecord {
   id: string;
   courseId: string;
@@ -746,7 +722,6 @@ export interface CourseCertificateRecord {
 
 export interface GetCourseCertificateResponse {
   ok: true;
-  /** Whether the learner has met every requirement for the certificate. */
   earned: boolean;
   certificate: CourseCertificateRecord | null;
 }
@@ -756,28 +731,14 @@ export interface ShareCourseCertificateResponse {
   certificate: CourseCertificateRecord;
 }
 
-/**
- * The learner's certificate for a course.
- *
- * The API issues it on this read the first time it is earned, which is what
- * fixes the certificate number and the completion date: the page used to
- * render whatever today's date happened to be.
- */
 export async function getCourseCertificate(request: Request, courseId: string) {
-  try {
-    return await apiRequestWithSession<GetCourseCertificateResponse>(
-      request,
-      `/education-center/courses/${encodeURIComponent(courseId)}/certificate`,
-      { method: "GET" },
-    );
-  } catch (error) {
-    if (error instanceof AuthSessionExpiredError) return null;
-    if (isResourceUnavailable(error, "course certificate")) return null;
-    throw error;
-  }
+  return apiRequestWithSession<GetCourseCertificateResponse>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/certificate`,
+    { method: "GET" },
+  );
 }
 
-/** Puts the certificate on the learner's public profile. */
 export async function shareCourseCertificate(
   request: Request,
   courseId: string,
@@ -789,7 +750,6 @@ export async function shareCourseCertificate(
   );
 }
 
-/** Takes it back off the profile; the certificate itself stays issued. */
 export async function unshareCourseCertificate(
   request: Request,
   courseId: string,
@@ -812,7 +772,43 @@ export interface ListCertificatesResponse {
   };
 }
 
-/* ------------------------------- Students -------------------------------- */
+export const CERTIFICATE_PAGE_LIMIT = 50;
+
+const MAX_CERTIFICATE_PAGES = 5;
+
+export async function collectCertificates(
+  fetchPage: (params: {
+    page: number;
+    limit: number;
+  }) => Promise<{ data: ListCertificatesResponse }>,
+): Promise<CourseCertificateRecord[]> {
+  const first = await fetchPage({ page: 1, limit: CERTIFICATE_PAGE_LIMIT });
+  const pageCount = Math.min(
+    first.data.pagination.totalPages,
+    MAX_CERTIFICATE_PAGES,
+  );
+
+  const rest = await Promise.all(
+    Array.from({ length: Math.max(pageCount - 1, 0) }, (_, index) =>
+      fetchPage({ page: index + 2, limit: CERTIFICATE_PAGE_LIMIT }),
+    ),
+  );
+
+  return [first, ...rest].flatMap((page) => page.data.certificates);
+}
+
+export function toProfileCertificate(
+  certificate: CourseCertificateRecord,
+): ProfileCertificate {
+  return {
+    id: certificate.id,
+    courseId: certificate.courseId,
+    courseTitle: certificate.courseTitle,
+    certificateNo: certificate.certificateNo,
+    completedAt: certificate.completedAt,
+    sharedToProfile: certificate.sharedToProfile,
+  };
+}
 
 export type CourseStudentStatus = "completed" | "in-progress" | "not-started";
 
@@ -821,11 +817,9 @@ export interface CourseStudentRow {
   name: string;
   avatar: string | null;
   enrolledAt: string;
-  /** Null until they open their first lesson. */
   startedAt: string | null;
   lessonsCompleted: number;
   completedAt: string | null;
-  /** Best percentage, or null if they have not sat the quiz. */
   bestQuizPercent: number | null;
   status: CourseStudentStatus;
 }
@@ -840,7 +834,6 @@ export interface CourseStudentCounts {
 export interface ListCourseStudentsResponse {
   ok: true;
   students: CourseStudentRow[];
-  /** Counts follow the search term, so a pill cannot over-promise. */
   counts: CourseStudentCounts;
   lessonCount: number;
   pagination: {
@@ -892,14 +885,12 @@ export interface CourseStudentDetailResponse {
     avatar: string | null;
     email: string;
     enrolledAt: string;
-    /** Every lesson on the course, finished or not. */
     lessons: {
       lessonId: string;
       title: string;
       chapterTitle: string;
       completedAt: string | null;
     }[];
-    /** Every sitting, newest first. */
     attempts: {
       correctCount: number;
       totalCount: number;
@@ -928,7 +919,6 @@ export async function getCourseStudent(
   }
 }
 
-/** Unenrols a learner. Their progress and quiz attempts are kept. */
 export async function removeCourseStudent(
   request: Request,
   courseId: string,
@@ -946,7 +936,6 @@ export interface MessageCourseStudentBody {
   body: string;
 }
 
-/** One-way: lands in the learner's notifications and as a push. */
 export async function messageCourseStudent(
   request: Request,
   courseId: string,

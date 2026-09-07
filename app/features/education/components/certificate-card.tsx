@@ -17,17 +17,16 @@ export function CertificateCard({ certificate }: CertificateCardProps) {
   const pendingIntent = fetcher.formData?.get("intent");
   const isSharing = fetcher.state !== "idle";
 
-  /* Optimistic while the submission is in flight, then the API's answer, then
-     the loader's — so the button flips on the click rather than waiting out a
-     revalidation, and still settles on what the server actually stored. */
+  const result =
+    fetcher.data?.courseId === certificate.courseId ? fetcher.data : null;
+
   const isShared = pendingIntent
     ? pendingIntent === "share"
-    : fetcher.data?.ok === true
-      ? fetcher.data.sharedToProfile
+    : result?.ok === true
+      ? result.sharedToProfile
       : certificate.sharedToProfile;
 
   useEffect(() => {
-    const result = fetcher.data;
     if (fetcher.state !== "idle" || !result) return;
     if (settledRef.current === result) return;
 
@@ -37,22 +36,13 @@ export function CertificateCard({ certificate }: CertificateCardProps) {
     } else {
       toast.error(result.message);
     }
-  }, [fetcher.state, fetcher.data]);
+  }, [fetcher.state, result]);
 
   return (
-    /* The column width comes from the route, which shares it with the back
-       link above. `data-print-region` makes this card the entire printed page
-       when the learner uses "Download as PDF" (browser print-to-PDF), and the
-       "landscape" value forces the sheet's orientation — see the @media print
-       block in app.css. */
     <div
       data-print-region="landscape"
       className={`${CARD} mb-6 p-6 sm:p-10 print:rounded-none print:shadow-none`}
     >
-      {/* On paper the frame becomes the sheet: it takes the page height left
-          over after the region's 14mm margin (4mm short of it, so rounding
-          can never spill onto a second page) and centres the wording, with
-          type sized in points rather than the on-screen pixel scale. */}
       <div className="rounded-lg border-2 border-[#1C5DD4] px-6 py-10 text-center sm:px-10 sm:py-12 print:flex print:h-[calc(100vh-32mm)] print:flex-col print:items-center print:justify-center print:px-[16mm]! print:py-0!">
         <img
           src="/logofullcolor.svg"
@@ -92,7 +82,6 @@ export function CertificateCard({ certificate }: CertificateCardProps) {
         </button>
 
         <fetcher.Form method="post" className="w-full sm:w-auto">
-          {/* Un-sharing keeps the certificate; it only leaves the profile. */}
           <input
             type="hidden"
             name="intent"
@@ -128,8 +117,6 @@ function shareLabel({
   isSharing: boolean;
   isShared: boolean;
 }) {
-  /* `isShared` is already the optimistic target while in flight, so it reads
-     as the state being moved *to*, not the one being left. */
   if (isSharing) return isShared ? "Sharing…" : "Removing…";
   return isShared ? "On my profile" : "Share to my profile";
 }

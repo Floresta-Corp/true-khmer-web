@@ -26,12 +26,6 @@ export async function GetRecentActivity(request: Request) {
   );
 }
 
-/**
- * Every certificate the signed-in learner holds.
- *
- * Unlike the public profile listing this includes the ones they have not
- * shared, so their own My Space can offer to put them up.
- */
 export async function GetMyCertificates(
   request: Request,
   params: { page?: number; limit?: number } = {},

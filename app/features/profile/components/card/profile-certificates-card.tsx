@@ -16,21 +16,9 @@ const PREVIEW_COUNT = 2;
 
 interface ProfileCertificatesCardProps {
   certificates: ProfileCertificate[];
-  /**
-   * Whether the viewer owns this profile. Owners get a link through to the
-   * certificate itself; for anyone else that page is the viewer's own
-   * certificate for the course, which is not what the row promises.
-   */
   isOwner?: boolean;
 }
 
-/**
- * The certificates a learner shows on their profile.
- *
- * Shared by My Space and the public profile so the two cannot drift; the only
- * difference between them is whether the rows link through, which `isOwner`
- * decides.
- */
 export function ProfileCertificatesCard({
   certificates,
   isOwner = false,
@@ -44,13 +32,10 @@ export function ProfileCertificatesCard({
           <div className="flex min-w-0 items-center gap-2">
             <Award className="size-4.5 shrink-0 text-indigo-400" />
             <span className="truncate text-base font-semibold tracking-tight text-[#0f172a]">
-              {isOwner ? "My Certificate" : "Certificates"}
+              {isOwner ? "My Certificates" : "Certificates"}
             </span>
           </div>
 
-          {/* Offered whenever there is anything to open, not only once the
-              list overflows the preview: the card is a summary, and "View all"
-              is how the full list is reached even when it happens to fit. */}
           {certificates.length > 0 && (
             <DialogTrigger asChild>
               <button
@@ -94,8 +79,6 @@ export function ProfileCertificatesCard({
             <DialogTitle className="pr-10 text-left text-xl font-bold text-[#0f172a]">
               All Certificates
             </DialogTitle>
-            {/* The list below says what these are; the description is here so
-                the dialog still announces itself to a screen reader. */}
             <DialogDescription className="sr-only">
               Courses completed on True Khmer
             </DialogDescription>
@@ -135,8 +118,6 @@ function CertificateRow({
         </span>
         <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-semibold text-[#8a99b5]">
           Completed {formatDate(certificate.completedAt)}
-          {/* Only an owner ever sees an unshared certificate, so this chip is
-              a prompt to share rather than a note about someone else. */}
           {isOwner && !certificate.sharedToProfile ? (
             <span className="rounded-full bg-[#eef2f7] px-2 py-0.5 text-[11px] font-bold text-[#64748b]">
               Not on profile

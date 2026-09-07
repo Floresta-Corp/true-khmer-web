@@ -4,6 +4,10 @@ import type { ProfileCertificate } from "~/features/education/types";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import {
+  collectCertificates,
+  toProfileCertificate,
+} from "~/api/education/education.server";
+import {
   GetMyCertificates,
   GetMyspaceMe,
   GetRecentActivity,
@@ -23,8 +27,15 @@ export async function myspaceLoader({ request }: Route.LoaderArgs) {
     await Promise.allSettled([
       GetMyspaceMe(request),
       GetRecentActivity(request),
-      GetMyCertificates(request, { limit: 20 }),
+      collectCertificates((params) => GetMyCertificates(request, params)),
     ]);
+
+  if (certificatesResult.status === "rejected") {
+    console.warn(
+      "[myspace] certificates unavailable; rendering without them",
+      certificatesResult.reason,
+    );
+  }
 
   return withAuthData(auth, {
     userId,
@@ -33,30 +44,9 @@ export async function myspaceLoader({ request }: Route.LoaderArgs) {
       activitiesResult.status === "fulfilled"
         ? activitiesResult.value.data.activities
         : [],
-    /* Every certificate they hold, shared or not — this is their own space,
-       and an unshared one is exactly what they need to see to act on it. The
-       public profile gets the shared subset, filtered by the API. */
     certificates:
       certificatesResult.status === "fulfilled"
-        ? certificatesResult.value.data.certificates.map(toProfileCertificate)
+        ? certificatesResult.value.map(toProfileCertificate)
         : [],
   } satisfies MyspaceLoaderData);
-}
-
-function toProfileCertificate(certificate: {
-  id: string;
-  courseId: string;
-  courseTitle: string;
-  certificateNo: string;
-  completedAt: string;
-  sharedToProfile: boolean;
-}): ProfileCertificate {
-  return {
-    id: certificate.id,
-    courseId: certificate.courseId,
-    courseTitle: certificate.courseTitle,
-    certificateNo: certificate.certificateNo,
-    completedAt: certificate.completedAt,
-    sharedToProfile: certificate.sharedToProfile,
-  };
 }

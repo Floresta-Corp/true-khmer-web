@@ -3,9 +3,15 @@ import type { Route as EducationCertificateRoute } from "project-types/education
 import {
   getCourseCertificate,
   getOwnCourseReview,
+  type GetCourseCertificateResponse,
 } from "~/api/education/education.server";
 import { formatDate } from "~/lib/time";
 import {
+  AuthSessionExpiredError,
+  ProtectedApiError,
+} from "~/lib/server/api-client.server";
+import {
+  clearAndRedirectToLogin,
   requestWithSetCookie,
   requireUser,
 } from "~/lib/server/route-guards.server";
@@ -16,6 +22,29 @@ import {
 import type { CourseCertificate } from "~/features/education/types";
 import { loadCourseDetail } from "./education-detail.loader";
 
+async function readCertificate(
+  request: Request,
+  apiRequest: Request,
+  courseId: string,
+): Promise<GetCourseCertificateResponse> {
+  try {
+    const result = await getCourseCertificate(apiRequest, courseId);
+    return result.data;
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) {
+      const url = new URL(request.url);
+      throw await clearAndRedirectToLogin(
+        request,
+        `${url.pathname}${url.search}`,
+      );
+    }
+    if (error instanceof ProtectedApiError && error.status === 404) {
+      throw data({ message: "Course not found" }, { status: 404 });
+    }
+    throw error;
+  }
+}
+
 export async function educationCertificateLoader({
   request,
   params,
@@ -23,11 +52,9 @@ export async function educationCertificateLoader({
   const auth = await requireUser(request);
   const apiRequest = requestWithSetCookie(request, auth.setCookie);
 
-  /* The learner's own rating comes along so the prompt can open pre-filled
-     rather than asking again for a rating they have already given. */
-  const [course, certificateResult, ownReviewResult] = await Promise.all([
+  const [course, certificateResponse, ownReviewResult] = await Promise.all([
     loadCourseDetail(apiRequest, params.id),
-    getCourseCertificate(apiRequest, params.id),
+    readCertificate(request, apiRequest, params.id),
     getOwnCourseReview(apiRequest, params.id),
   ]);
 
@@ -35,14 +62,8 @@ export async function educationCertificateLoader({
     throw data({ message: "Course not found" }, { status: 404 });
   }
 
-  const issued = certificateResult?.data?.certificate ?? null;
+  const issued = certificateResponse.certificate;
 
-  /* The certificate is the entitlement, so no record means no page: typing
-     the URL for a course you have not finished sends you to the course rather
-     than rendering a certificate with your name on it. Fails closed, so an
-     unreachable certificates endpoint also denies rather than issues. The API
-     mints the record on the read above, so a learner who has genuinely
-     finished always has one by the time we get here. */
   if (!issued) {
     throw withAuthRedirect(auth, `/education/${course.id}/learn`);
   }

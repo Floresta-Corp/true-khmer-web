@@ -60,7 +60,6 @@ export function RateCourseDialog({
         </DialogHeader>
 
         <fetcher.Form method="post" className="mt-2">
-          {/* The route's action also serves the certificate's share button. */}
           <input type="hidden" name="intent" value="rate" />
           <input type="hidden" name="rating" value={rating} />
 

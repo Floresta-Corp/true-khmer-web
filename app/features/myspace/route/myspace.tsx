@@ -201,8 +201,6 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
                     </div>
                   )}
 
-                  {/* This is the profile as everyone else sees it, so the
-                      unshared certificates are left out here. */}
                   {sharedCertificates.length > 0 ? (
                     <ProfileCertificatesCard
                       certificates={sharedCertificates}

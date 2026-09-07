@@ -17,21 +17,26 @@ export function meta({ data }: Route.MetaArgs) {
   return [{ title: `Certificate · ${data?.course.title ?? "Course"}` }];
 }
 
+type CertificatePageData = Route.ComponentProps["loaderData"];
+
 export default function CourseCertificatePage() {
-  const { course, certificate, ownReview } = useLoaderData<typeof loader>();
+  const data = useLoaderData<typeof loader>();
+
+  return <CertificateView key={data.course.id} {...data} />;
+}
+
+function CertificateView({
+  course,
+  certificate,
+  ownReview,
+}: CertificatePageData) {
   const prefersReducedMotion = useReducedMotion();
   const duration = prefersReducedMotion ? 0 : 0.35;
 
-  /* The design opens the rating prompt as soon as the certificate is shown,
-     but not at a learner who has already rated this course — the certificate
-     is not the place to go back and revise a rating. */
   const [isRateOpen, setIsRateOpen] = useState(ownReview === null);
 
   return (
     <EducationPage surface="muted">
-      {/* The back link shares the certificate's column rather than the page
-          container's, so it sits above the card's left edge instead of way out
-          at the edge of the viewport. */}
       <div className="mx-auto max-w-205">
         <BackLink
           to={`/education/${course.id}/learn`}

@@ -61,8 +61,7 @@ export default function ProfileDetailPage() {
       : "about";
 
   const profile = data.kind === "profile" ? data.profile : null;
-  const certificates =
-    data.kind === "profile" && "certificates" in data ? data.certificates : [];
+  const certificates = data.kind === "profile" ? data.certificates : [];
   const prefersReducedMotion = useReducedMotion();
 
   if (!profile) {
@@ -142,8 +141,6 @@ export default function ProfileDetailPage() {
                 </div>
               )}
 
-              {/* Hidden entirely when empty rather than shown as an empty
-                  state: on someone else's profile "no certificates" is noise. */}
               {certificates.length > 0 ? (
                 <ProfileCertificatesCard certificates={certificates} />
               ) : null}
