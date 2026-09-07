@@ -6,7 +6,15 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Popup-sized viewports. The OAuth sign-in popup the opener launches is only
+   about 500x650, and every auth screen can end up inside it, so `short` trades
+   generous vertical rhythm for content that fits without scrolling. */
+@custom-variant short (@media (max-height: 700px));
+
 @theme inline {
+  /* Between a phone and `sm`: wide enough for two columns of form fields. */
+  --breakpoint-xs: 30rem;
+
   --font-sans: "Geist Variable", sans-serif;
   --color-background: oklch(1 0 0);
   --color-foreground: oklch(0.145 0 0);

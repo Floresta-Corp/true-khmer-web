@@ -19,7 +19,7 @@ import {
 } from "~/lib/server/session.server";
 import { redirectIfAuthenticated } from "~/lib/server/route-guards.server";
 import { sanitizeRedirectPath } from "~/lib/redirects";
-import { destinationFromAuthFlow } from "./auth-flow.server";
+import { destinationAfterAuth } from "./auth-flow.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const authRedirect = await redirectIfAuthenticated(request);
@@ -49,9 +49,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     try {
       const auth = await loginWithGoogle(idToken, request);
-      const destination = auth.authFlow
-        ? destinationFromAuthFlow(auth.authFlow, redirectTo)
-        : redirectTo;
+      const destination = destinationAfterAuth(auth.authFlow, redirectTo);
       return createUserSession(request, auth, destination, { rememberMe });
     } catch (error) {
       if (error instanceof AuthApiError) {
@@ -88,7 +86,7 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
 
-    const postLoginPath = destinationFromAuthFlow(auth.authFlow, redirectTo);
+    const postLoginPath = destinationAfterAuth(auth.authFlow, redirectTo);
     return createUserSession(request, auth, postLoginPath, { rememberMe });
   } catch (error) {
     if (error instanceof AuthApiError) {
