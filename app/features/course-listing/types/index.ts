@@ -71,3 +71,7 @@ export interface MyCoursesPagination {
   nextCursor: string | null;
   total: number;
 }
+
+/** List rows or a card grid. Held in `?view=`, so a link keeps the choice. */
+export const CourseViewSchema = z.enum(["list", "grid"]);
+export type CourseView = z.infer<typeof CourseViewSchema>;

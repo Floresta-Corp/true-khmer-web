@@ -1,6 +1,8 @@
 import {
+  type ApiResult,
   apiRequestWithOptionalSession,
   apiRequestWithSession,
+  AuthSessionExpiredError,
   isResourceUnavailable,
   ProtectedApiError,
 } from "~/lib/server/api-client.server";
@@ -13,14 +15,7 @@ import type {
   UpdateCourseRequest,
 } from "~/types/api-client";
 import type { CourseStatus } from "~/features/course-listing/types";
-
-/**
- * Education Center endpoints that exist on the API today.
- *
- * The learner-facing catalog listing, curriculum, enrolment, quiz and
- * certificate resources are not exposed yet; those parts of the UI read from
- * `~/features/education/lib/education-fixtures` until the backend ships them.
- */
+import type { ProfileCertificate } from "~/features/education/types";
 
 export async function getCourseCategories(request: Request) {
   try {
@@ -52,6 +47,21 @@ export async function getCourseById(request: Request, courseId: string) {
   }
 }
 
+export async function getOwnedCourseById(request: Request, courseId: string) {
+  try {
+    return await apiRequestWithSession<GetCourseResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (error instanceof ProtectedApiError && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
+}
+
 export interface ListMyCoursesParams {
   search?: string;
   status?: CourseStatus;
@@ -60,7 +70,6 @@ export interface ListMyCoursesParams {
   sortBy?: "newest" | "oldest";
 }
 
-/** Courses the signed-in user teaches, for the workspace Course Listing. */
 export async function listMyCourses(
   request: Request,
   params: ListMyCoursesParams,
@@ -81,7 +90,6 @@ export async function listMyCourses(
   );
 }
 
-/** Send a draft to the review queue (DRAFT/UNPUBLISHED → PENDING). */
 export async function submitCourseForReview(
   request: Request,
   courseId: string,
@@ -93,7 +101,6 @@ export async function submitCourseForReview(
   );
 }
 
-/** Pull a course back out of the review queue (PENDING → DRAFT). */
 export async function withdrawCourse(request: Request, courseId: string) {
   return apiRequestWithSession<GetCourseResponse>(
     request,
@@ -102,7 +109,6 @@ export async function withdrawCourse(request: Request, courseId: string) {
   );
 }
 
-/** Take a published course off the catalogue (PUBLISHED → UNPUBLISHED). */
 export async function unpublishCourse(request: Request, courseId: string) {
   return apiRequestWithSession<GetCourseResponse>(
     request,
@@ -111,12 +117,6 @@ export async function unpublishCourse(request: Request, courseId: string) {
   );
 }
 
-/**
- * Create a course. The API's course model is title/description/categoryId/
- * coverImageKey/price only — the builder's difficulty, skills, tags,
- * curriculum, quizzes and certificate have no endpoint yet, so they stay in
- * the wizard's client state.
- */
 export async function createCourse(
   request: Request,
   body: CreateCourseRequest,
@@ -128,7 +128,6 @@ export async function createCourse(
   );
 }
 
-/** Patch an existing draft. Every field is optional. */
 export async function updateCourse(
   request: Request,
   courseId: string,
@@ -137,21 +136,15 @@ export async function updateCourse(
   return apiRequestWithSession<GetCourseResponse, UpdateCourseRequest>(
     request,
     `/education-center/courses/${encodeURIComponent(courseId)}`,
-    { method: "PATCH", body },
+    { method: "PUT", body },
   );
 }
 
 export interface PresignCourseCoverParams {
   contentType: string;
-  /** Bytes. The API rejects anything over 5 MiB. */
   fileSize: number;
 }
 
-/**
- * Ask for a direct-upload URL for a cover image. The browser then PUTs the
- * file to `upload.uploadUrl` with `upload.requiredHeaders`, and the returned
- * `coverImageKey` is what gets saved on the course.
- */
 export async function presignCourseCover(
   request: Request,
   params: PresignCourseCoverParams,
@@ -163,4 +156,795 @@ export async function presignCourseCover(
     method: "POST",
     body: params,
   });
+}
+
+export type LessonAssetType = "YOUTUBE" | "PDF" | "AUDIO";
+
+export interface LessonInput {
+  id?: string | null;
+  title: string;
+  type: LessonAssetType;
+  url?: string | null;
+  assetKey?: string | null;
+  durationSeconds?: number | null;
+  isPreview?: boolean;
+}
+
+export interface ChapterInput {
+  id?: string | null;
+  title: string;
+  lessons: LessonInput[];
+}
+
+export interface ReplaceCurriculumBody {
+  format: "MULTI" | "SINGLE";
+  chapters: ChapterInput[];
+}
+
+export interface ReplaceQuizBody {
+  passMark: number;
+  questions: {
+    question: string;
+    options: { label: string; isCorrect: boolean }[];
+  }[];
+}
+
+export interface UpdateCourseMetaBody {
+  difficulty?: "BEGINNER" | "INTERMEDIATE" | "ADVANCE" | "ALL_LEVELS" | null;
+  skills?: string[];
+  outcomes?: string[];
+  tags?: string[];
+  certificateKind?: "PARTICIPATION" | "COMPLETION" | null;
+}
+
+export async function replaceCourseCurriculum(
+  request: Request,
+  courseId: string,
+  body: ReplaceCurriculumBody,
+) {
+  return apiRequestWithSession<{ ok: true }, ReplaceCurriculumBody>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/curriculum`,
+    { method: "PUT", body },
+  );
+}
+
+export async function replaceCourseQuiz(
+  request: Request,
+  courseId: string,
+  body: ReplaceQuizBody,
+) {
+  return apiRequestWithSession<{ ok: true }, ReplaceQuizBody>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/quiz`,
+    { method: "PUT", body },
+  );
+}
+
+export async function updateCourseMeta(
+  request: Request,
+  courseId: string,
+  body: UpdateCourseMetaBody,
+) {
+  return apiRequestWithSession<GetCourseResponse, UpdateCourseMetaBody>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/meta`,
+    { method: "PATCH", body },
+  );
+}
+
+export interface CourseProgressResponse {
+  ok: true;
+  completedLessonIds: string[];
+}
+
+export async function getCourseProgress(request: Request, courseId: string) {
+  try {
+    return await apiRequestWithSession<CourseProgressResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/progress`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) return null;
+    if (isResourceUnavailable(error, "course progress")) return null;
+    throw error;
+  }
+}
+
+export async function markLessonWatched(
+  request: Request,
+  courseId: string,
+  lessonId: string,
+) {
+  return apiRequestWithSession<CourseProgressResponse, { lessonId: string }>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/progress`,
+    { method: "PUT", body: { lessonId } },
+  );
+}
+
+export interface CourseTrendPoint {
+  date: string;
+  learners: number;
+}
+
+export interface CourseStatsResponse {
+  ok: true;
+  stats: {
+    lessonCount: number;
+    progress: {
+      total: number;
+      notStarted: number;
+      inProgress: number;
+      completed: number;
+    };
+    enrollmentTrend: CourseTrendPoint[];
+    activityTrend: CourseTrendPoint[];
+    quiz: {
+      attempts: number;
+      passRate: number | null;
+      averageScore: number | null;
+      bands: { label: string; attempts: number }[];
+    };
+    rating: {
+      average: number | null;
+      total: number;
+      breakdown: number[];
+    };
+  };
+}
+
+export async function getCourseStats(request: Request, courseId: string) {
+  try {
+    return await apiRequestWithSession<CourseStatsResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/stats`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) return null;
+    if (error instanceof ProtectedApiError && error.status === 403) return null;
+    if (isResourceUnavailable(error, "course stats")) return null;
+    throw error;
+  }
+}
+
+export interface PresignLessonAssetParams {
+  contentType: string;
+  fileSize: number;
+}
+
+export interface PresignLessonAssetResponse {
+  ok: true;
+  upload: {
+    uploadUrl: string;
+    method: "PUT";
+    requiredHeaders: Record<string, string>;
+    assetKey: string;
+    publicUrl: string | null;
+    expiresInSeconds: number;
+  };
+}
+
+export async function presignLessonAsset(
+  request: Request,
+  params: PresignLessonAssetParams,
+) {
+  return apiRequestWithSession<
+    PresignLessonAssetResponse,
+    PresignLessonAssetParams
+  >(request, `/education-center/courses/lesson/presign`, {
+    method: "POST",
+    body: params,
+  });
+}
+
+export interface CourseCurriculumResponse {
+  ok: true;
+  curriculum: {
+    format: "MULTI" | "SINGLE";
+    chapters: {
+      id: string;
+      title: string;
+      lessons: {
+        id: string;
+        title: string;
+        type: LessonAssetType;
+        url: string | null;
+        assetKey: string | null;
+        assetUrl: string | null;
+        durationSeconds: number | null;
+        isPreview: boolean;
+      }[];
+    }[];
+    lessonCount: number;
+  };
+}
+
+export interface CourseQuizResponse {
+  ok: true;
+  quiz: {
+    passMark: number;
+    questions: {
+      id: string;
+      question: string;
+      position: number;
+      options: {
+        id: string;
+        label: string;
+        isCorrect: boolean;
+        position: number;
+      }[];
+    }[];
+  };
+}
+
+export type CourseContentRead<T> =
+  | { status: "loaded"; result: ApiResult<T> }
+  | { status: "absent" }
+  | { status: "unreadable" };
+
+export async function readCourseCurriculum(
+  request: Request,
+  courseId: string,
+): Promise<CourseContentRead<CourseCurriculumResponse>> {
+  try {
+    return {
+      status: "loaded",
+      result: await apiRequestWithOptionalSession<CourseCurriculumResponse>(
+        request,
+        `/education-center/courses/${encodeURIComponent(courseId)}/curriculum`,
+        { method: "GET" },
+      ),
+    };
+  } catch (error) {
+    if (error instanceof ProtectedApiError && error.status === 404) {
+      return { status: "absent" };
+    }
+    if (isResourceUnavailable(error, "course curriculum")) {
+      return { status: "unreadable" };
+    }
+    throw error;
+  }
+}
+
+export async function readCourseQuiz(
+  request: Request,
+  courseId: string,
+): Promise<CourseContentRead<CourseQuizResponse>> {
+  try {
+    return {
+      status: "loaded",
+      result: await apiRequestWithSession<CourseQuizResponse>(
+        request,
+        `/education-center/courses/${encodeURIComponent(courseId)}/quiz`,
+        { method: "GET" },
+      ),
+    };
+  } catch (error) {
+    if (error instanceof ProtectedApiError && error.status === 404) {
+      return { status: "absent" };
+    }
+    if (isResourceUnavailable(error, "course quiz")) {
+      return { status: "unreadable" };
+    }
+    throw error;
+  }
+}
+
+export async function getCourseCurriculum(request: Request, courseId: string) {
+  const read = await readCourseCurriculum(request, courseId);
+  return read.status === "loaded" ? read.result : null;
+}
+
+export async function getCourseQuiz(request: Request, courseId: string) {
+  const read = await readCourseQuiz(request, courseId);
+  return read.status === "loaded" ? read.result : null;
+}
+
+export interface LearnerCourseQuizResponse {
+  ok: true;
+  quiz: {
+    passMark: number;
+    questions: {
+      id: string;
+      question: string;
+      position: number;
+      options: { id: string; label: string; position: number }[];
+    }[];
+  };
+}
+
+export async function getLearnerCourseQuiz(request: Request, courseId: string) {
+  try {
+    return await apiRequestWithOptionalSession<LearnerCourseQuizResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(
+        courseId,
+      )}/quiz/questions`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (error instanceof ProtectedApiError && error.status === 404) return null;
+    if (isResourceUnavailable(error, "learner course quiz")) return null;
+    throw error;
+  }
+}
+
+export interface QuizAttemptAnswer {
+  questionId: string;
+  optionId: string;
+}
+
+export interface GradeQuizAttemptResponse {
+  ok: true;
+  result: {
+    correctCount: number;
+    totalCount: number;
+    percent: number;
+    passMark: number;
+    passed: boolean;
+  };
+}
+
+export async function gradeCourseQuizAttempt(
+  request: Request,
+  courseId: string,
+  answers: QuizAttemptAnswer[],
+) {
+  return apiRequestWithSession<
+    GradeQuizAttemptResponse,
+    { answers: QuizAttemptAnswer[] }
+  >(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/quiz/attempt`,
+    { method: "POST", body: { answers } },
+  );
+}
+
+export interface PublicCourseListItem {
+  id: string;
+  title: string;
+  creator: { id: string; name: string; email: string } | null;
+  description: string;
+  categoryId: string;
+  categoryName: string | null;
+  coverImageUrl: string | null;
+  price: number;
+  difficulty: "BEGINNER" | "INTERMEDIATE" | "ADVANCE" | "ALL_LEVELS" | null;
+  skills: string[];
+  outcomes: string[];
+  tags: string[];
+  lessonCount: number;
+  publishedAt: string | null;
+  createdAt: string;
+}
+
+export interface ListPublicCoursesResponse {
+  ok: true;
+  courses: PublicCourseListItem[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface ListPublicCoursesParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  categoryId?: string;
+  pricing?: "free" | "paid";
+  sortBy?: "newest" | "oldest" | "az" | "price";
+}
+
+export async function listPublicCourses(
+  request: Request,
+  params: ListPublicCoursesParams,
+) {
+  const query = new URLSearchParams();
+  if (params.page) query.set("page", String(params.page));
+  if (params.limit) query.set("limit", String(params.limit));
+  if (params.search) query.set("search", params.search);
+  if (params.categoryId) query.set("categoryId", params.categoryId);
+  if (params.pricing) query.set("pricing", params.pricing);
+  if (params.sortBy) query.set("sortBy", params.sortBy);
+
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+
+  try {
+    return await apiRequestWithOptionalSession<ListPublicCoursesResponse>(
+      request,
+      `/education-center/courses${suffix}`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (isResourceUnavailable(error, "course catalogue")) return null;
+    throw error;
+  }
+}
+
+export interface EnrollInCourseResponse {
+  ok: true;
+  enrolled: true;
+  created: boolean;
+}
+
+export async function enrollInCourse(request: Request, courseId: string) {
+  return apiRequestWithSession<EnrollInCourseResponse>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/enroll`,
+    { method: "POST" },
+  );
+}
+
+export interface CourseEnrollmentResponse {
+  ok: true;
+  enrolled: boolean;
+}
+
+export async function getCourseEnrollment(request: Request, courseId: string) {
+  try {
+    return await apiRequestWithSession<CourseEnrollmentResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/enrollment`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) return null;
+    if (isResourceUnavailable(error, "course enrolment")) return null;
+    throw error;
+  }
+}
+
+export interface CourseReviewResponse {
+  id: string;
+  userId: string;
+  name: string;
+  avatar: string | null;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+}
+
+export interface ListCourseReviewsResponse {
+  ok: true;
+  reviews: CourseReviewResponse[];
+  summary: {
+    average: number | null;
+    total: number;
+    breakdown: number[];
+  };
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export async function listCourseReviews(
+  request: Request,
+  courseId: string,
+  params: { page?: number; limit?: number } = {},
+) {
+  const query = new URLSearchParams();
+  if (params.page) query.set("page", String(params.page));
+  if (params.limit) query.set("limit", String(params.limit));
+  const suffix = query.size > 0 ? `?${query.toString()}` : "";
+
+  try {
+    return await apiRequestWithOptionalSession<ListCourseReviewsResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/reviews${suffix}`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) return null;
+    if (isResourceUnavailable(error, "course reviews")) return null;
+    throw error;
+  }
+}
+
+export interface OwnCourseReview {
+  id: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+}
+
+export interface SubmitCourseReviewResponse {
+  ok: true;
+  review: OwnCourseReview;
+}
+
+export interface SubmitCourseReviewBody {
+  rating: number;
+  comment?: string;
+}
+
+export async function submitCourseReview(
+  request: Request,
+  courseId: string,
+  body: SubmitCourseReviewBody,
+) {
+  return apiRequestWithSession<
+    SubmitCourseReviewResponse,
+    SubmitCourseReviewBody
+  >(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/reviews/mine`,
+    { method: "PUT", body },
+  );
+}
+
+export interface GetOwnCourseReviewResponse {
+  ok: true;
+  review: OwnCourseReview | null;
+}
+
+export async function getOwnCourseReview(request: Request, courseId: string) {
+  try {
+    return await apiRequestWithSession<GetOwnCourseReviewResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/reviews/mine`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) return null;
+    if (isResourceUnavailable(error, "own course review")) return null;
+    throw error;
+  }
+}
+
+export async function deleteCourseReview(request: Request, courseId: string) {
+  return apiRequestWithSession<{ ok: true }>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/reviews/mine`,
+    { method: "DELETE" },
+  );
+}
+
+export interface CourseCertificateRecord {
+  id: string;
+  courseId: string;
+  courseTitle: string;
+  certificateNo: string;
+  recipientName: string;
+  completedAt: string;
+  issuedAt: string;
+  sharedToProfile: boolean;
+  coverImageUrl: string | null;
+}
+
+export interface GetCourseCertificateResponse {
+  ok: true;
+  earned: boolean;
+  certificate: CourseCertificateRecord | null;
+}
+
+export interface ShareCourseCertificateResponse {
+  ok: true;
+  certificate: CourseCertificateRecord;
+}
+
+export async function getCourseCertificate(request: Request, courseId: string) {
+  return apiRequestWithSession<GetCourseCertificateResponse>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/certificate`,
+    { method: "GET" },
+  );
+}
+
+export async function shareCourseCertificate(
+  request: Request,
+  courseId: string,
+) {
+  return apiRequestWithSession<ShareCourseCertificateResponse>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/certificate/share`,
+    { method: "POST" },
+  );
+}
+
+export async function unshareCourseCertificate(
+  request: Request,
+  courseId: string,
+) {
+  return apiRequestWithSession<ShareCourseCertificateResponse>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/certificate/share`,
+    { method: "DELETE" },
+  );
+}
+
+export interface ListCertificatesResponse {
+  ok: true;
+  certificates: CourseCertificateRecord[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export const CERTIFICATE_PAGE_LIMIT = 50;
+
+const MAX_CERTIFICATE_PAGES = 5;
+
+export async function collectCertificates(
+  fetchPage: (params: {
+    page: number;
+    limit: number;
+  }) => Promise<{ data: ListCertificatesResponse }>,
+): Promise<CourseCertificateRecord[]> {
+  const first = await fetchPage({ page: 1, limit: CERTIFICATE_PAGE_LIMIT });
+  const pageCount = Math.min(
+    first.data.pagination.totalPages,
+    MAX_CERTIFICATE_PAGES,
+  );
+
+  const rest = await Promise.all(
+    Array.from({ length: Math.max(pageCount - 1, 0) }, (_, index) =>
+      fetchPage({ page: index + 2, limit: CERTIFICATE_PAGE_LIMIT }),
+    ),
+  );
+
+  return [first, ...rest].flatMap((page) => page.data.certificates);
+}
+
+export function toProfileCertificate(
+  certificate: CourseCertificateRecord,
+): ProfileCertificate {
+  return {
+    id: certificate.id,
+    courseId: certificate.courseId,
+    courseTitle: certificate.courseTitle,
+    certificateNo: certificate.certificateNo,
+    completedAt: certificate.completedAt,
+    sharedToProfile: certificate.sharedToProfile,
+  };
+}
+
+export type CourseStudentStatus = "completed" | "in-progress" | "not-started";
+
+export interface CourseStudentRow {
+  userId: string;
+  name: string;
+  avatar: string | null;
+  enrolledAt: string;
+  startedAt: string | null;
+  lessonsCompleted: number;
+  completedAt: string | null;
+  bestQuizPercent: number | null;
+  status: CourseStudentStatus;
+}
+
+export interface CourseStudentCounts {
+  all: number;
+  completed: number;
+  "in-progress": number;
+  "not-started": number;
+}
+
+export interface ListCourseStudentsResponse {
+  ok: true;
+  students: CourseStudentRow[];
+  counts: CourseStudentCounts;
+  lessonCount: number;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface ListCourseStudentsParams {
+  status?: CourseStudentStatus;
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+export async function listCourseStudents(
+  request: Request,
+  courseId: string,
+  params: ListCourseStudentsParams = {},
+) {
+  const query = new URLSearchParams();
+  if (params.status) query.set("status", params.status);
+  if (params.search) query.set("search", params.search);
+  if (params.page) query.set("page", String(params.page));
+  if (params.limit) query.set("limit", String(params.limit));
+  const suffix = query.size > 0 ? `?${query.toString()}` : "";
+
+  try {
+    return await apiRequestWithSession<ListCourseStudentsResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/students${suffix}`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) return null;
+    if (error instanceof ProtectedApiError && error.status === 403) return null;
+    if (isResourceUnavailable(error, "course students")) return null;
+    throw error;
+  }
+}
+
+export interface CourseStudentDetailResponse {
+  ok: true;
+  student: {
+    userId: string;
+    name: string;
+    avatar: string | null;
+    email: string;
+    enrolledAt: string;
+    lessons: {
+      lessonId: string;
+      title: string;
+      chapterTitle: string;
+      completedAt: string | null;
+    }[];
+    attempts: {
+      correctCount: number;
+      totalCount: number;
+      percent: number;
+      passed: boolean;
+      attemptedAt: string;
+    }[];
+  };
+}
+
+export async function getCourseStudent(
+  request: Request,
+  courseId: string,
+  userId: string,
+) {
+  try {
+    return await apiRequestWithSession<CourseStudentDetailResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/students/${encodeURIComponent(userId)}`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) return null;
+    if (isResourceUnavailable(error, "course student")) return null;
+    throw error;
+  }
+}
+
+export async function removeCourseStudent(
+  request: Request,
+  courseId: string,
+  userId: string,
+) {
+  return apiRequestWithSession<{ ok: true }>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/students/${encodeURIComponent(userId)}`,
+    { method: "DELETE" },
+  );
+}
+
+export interface MessageCourseStudentBody {
+  subject: string;
+  body: string;
+}
+
+export async function messageCourseStudent(
+  request: Request,
+  courseId: string,
+  userId: string,
+  body: MessageCourseStudentBody,
+) {
+  return apiRequestWithSession<{ ok: true }, MessageCourseStudentBody>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/students/${encodeURIComponent(userId)}/message`,
+    { method: "POST", body },
+  );
 }

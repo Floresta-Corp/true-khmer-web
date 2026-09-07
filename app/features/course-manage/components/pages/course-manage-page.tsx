@@ -12,6 +12,7 @@ import { ReviewTab } from "../tabs/review-tab";
 import { StudentsTab } from "../tabs/students-tab";
 import {
   ManageTabSchema,
+  STUDENT_PAGE_SIZE,
   type ManageTab,
 } from "~/features/course-manage/types";
 import type { loader } from "../../route/course-manage.$id";
@@ -20,9 +21,12 @@ export default function CourseManagePage() {
   const {
     course,
     overview,
+    trends,
     curriculum,
     students,
     reviews,
+    reviewPages,
+    reviewTotal,
     ratingBreakdown,
     reviewStages,
     analytics,
@@ -61,7 +65,7 @@ export default function CourseManagePage() {
           <CourseKpiCards overview={overview} />
           {/* 1.6fr : 1fr, as the design's grid specifies. */}
           <div className="grid grid-cols-1 items-stretch gap-5 lg:grid-cols-[1.6fr_1fr]">
-            <CoursePerformanceChart data={overview.performance} />
+            <CoursePerformanceChart trends={trends} />
             <StudentProgressCard
               total={overview.totalLearners}
               segments={overview.progress}
@@ -85,24 +89,33 @@ export default function CourseManagePage() {
       )}
 
       {tab === "students" && (
-        <StudentsTab students={students} courseTitle={course.title} />
+        <StudentsTab
+          courseId={course.id}
+          courseTitle={course.title}
+          initial={students}
+          pageSize={STUDENT_PAGE_SIZE}
+        />
       )}
 
       {tab === "analytics" && (
         <AnalyticsTab
           analytics={analytics}
+          trends={trends}
           ratingBreakdown={ratingBreakdown}
-          rating={overview.rating}
+          rating={overview.rating ?? 0}
           reviewCount={overview.reviewCount}
         />
       )}
 
       {tab === "review" && (
         <ReviewTab
+          courseId={course.id}
           status={course.status}
-          rating={overview.rating}
+          rating={overview.rating ?? 0}
           reviewCount={overview.reviewCount}
           reviews={reviews}
+          total={reviewTotal}
+          pages={reviewPages}
         />
       )}
     </motion.div>

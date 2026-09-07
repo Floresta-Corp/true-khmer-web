@@ -1,9 +1,14 @@
 import type { Route } from "project-types/course-listing/route/+types/course-listing";
-import { listMyCourses } from "~/api/education/education.server";
+import {
+  getCourseStats,
+  listMyCourses,
+} from "~/api/education/education.server";
+import {
+  reportsLearners,
+  toLearnerStats,
+} from "~/features/course-listing/lib/course-stats";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
-import { buildLearnerStats } from "~/features/course-listing/lib/course-stats-fixtures";
-import { filterFixtures } from "~/features/course-listing/lib/my-courses-fixtures";
 import {
   CourseTabSchema,
   displayStatusOf,
@@ -33,9 +38,6 @@ export async function courseListingLoader({ request }: Route.LoaderArgs) {
 
   const raw = result?.data?.courses ?? [];
 
-  // Draft and Rejected both ask the API for DRAFT, so split them here. Note
-  // this filters a page the API has already sliced, which can leave a page
-  // short; it resolves itself once the API can filter on rejection directly.
   const filtered =
     tab === "draft"
       ? raw.filter((course) => displayStatusOf(course) !== "REJECTED")
@@ -43,34 +45,27 @@ export async function courseListingLoader({ request }: Route.LoaderArgs) {
         ? raw.filter((course) => displayStatusOf(course) === "REJECTED")
         : raw;
 
-  const courses: CourseWithStats[] = filtered.map((course) => ({
-    ...course,
-    // Only a published course has learners to report on.
-    stats: course.status === "PUBLISHED" ? buildLearnerStats(course) : null,
-  }));
+  /* The listing endpoint carries no engagement figures, so the strip's numbers
+     come from each course's own stats call. Issued together rather than in
+     sequence: a page is at most PAGE_SIZE courses and only the ones that can
+     have learners are asked about, so this costs one round trip of latency
+     rather than twelve. A batched endpoint is the fix if the page grows. */
+  const courses: CourseWithStats[] = await Promise.all(
+    filtered.map(async (course) => {
+      if (!reportsLearners(course)) return { ...course, stats: null };
+
+      const stats = await getCourseStats(request, course.id);
+      return { ...course, stats: toLearnerStats(stats?.data?.stats) };
+    }),
+  );
 
   const pagination: MyCoursesPagination | null =
     result?.data?.pagination ?? null;
-
-  // Nothing on the API yet: fall back to placeholders so the screen can be
-  // reviewed against the design. Real courses always win, and this only
-  // triggers on the first page so "load more" cannot mix the two.
-  if (raw.length === 0 && !cursor) {
-    const placeholders = filterFixtures(tab, search);
-    return withAuthData(auth, {
-      courses: placeholders,
-      pagination: null,
-      tab,
-      search,
-      usingPlaceholders: true as const,
-    });
-  }
 
   return withAuthData(auth, {
     courses,
     pagination,
     tab,
     search,
-    usingPlaceholders: false as const,
   });
 }

@@ -6,24 +6,38 @@ import {
 } from "~/features/course-builder/types";
 
 /**
- * Quiz state for the builder's Quiz step.
- *
- * A course has one quiz, sat at the end, so questions are a single flat list.
- *
- * Nothing here is persisted: the API has no quiz resource, so this lives for
- * the length of the session.
+ * A question only counts once it can actually be answered: it needs text, two
+ * or more filled-in answers, and one of those marked correct. Half-written
+ * questions are dropped on save, so they must not satisfy the quiz either.
  */
-export function useQuizDraft() {
-  const [passMark, setPassMark] = useState("70");
-  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+export function isCompleteQuestion(question: QuizQuestion): boolean {
+  const answered = question.answers.filter((answer) => answer.text.trim());
 
-  /** The question the editor modal is open on. */
+  return (
+    question.text.trim().length > 0 &&
+    answered.length >= 2 &&
+    answered.some((answer) => answer.correct)
+  );
+}
+
+export function useQuizDraft(initial?: {
+  passMark?: string;
+  questions?: QuizQuestion[];
+}) {
+  const [passMark, setPassMark] = useState(initial?.passMark ?? "70");
+  const [questions, setQuestions] = useState<QuizQuestion[]>(
+    () => initial?.questions ?? [],
+  );
+
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  // Ids only have to be unique within the session, and a counter avoids the
-  // hydration mismatch a timestamp or random id would risk. It lives in a ref
-  // so two adds in one render cannot be handed the same number.
   const seq = useRef(0);
+
+  const answerSeq = useRef(0);
+  const nextAnswerId = useCallback((questionId: string) => {
+    answerSeq.current += 1;
+    return `${questionId}-a${answerSeq.current}`;
+  }, []);
 
   const addQuestion = useCallback(() => {
     seq.current += 1;
@@ -35,14 +49,28 @@ export function useQuizDraft() {
         id,
         text: "",
         answers: Array.from({ length: DEFAULT_ANSWER_COUNT }, (_, index) => ({
-          id: `${id}-a${index + 1}`,
+          id: nextAnswerId(id),
           text: "",
-          // A question needs one right answer, so the first starts marked.
           correct: index === 0,
         })),
       },
     ]);
     setActiveId(id);
+  }, [nextAnswerId]);
+
+  /** Drops the dragged question into the target's place. */
+  const moveQuestion = useCallback((draggedId: string, targetId: string) => {
+    if (draggedId === targetId) return;
+
+    setQuestions((current) => {
+      const from = current.findIndex((question) => question.id === draggedId);
+      const to = current.findIndex((question) => question.id === targetId);
+      if (from < 0 || to < 0 || from === to) return current;
+
+      const next = [...current];
+      next.splice(to, 0, next.splice(from, 1)[0]);
+      return next;
+    });
   }, []);
 
   const removeQuestion = useCallback((id: string) => {
@@ -50,7 +78,6 @@ export function useQuizDraft() {
     setActiveId(null);
   }, []);
 
-  /** Applies `change` to the question with `id`, leaving the rest untouched. */
   const patchQuestion = useCallback(
     (id: string, change: (question: QuizQuestion) => QuizQuestion) => {
       setQuestions((current) =>
@@ -81,7 +108,6 @@ export function useQuizDraft() {
     [patchQuestion],
   );
 
-  /** Exactly one answer is correct, so marking one clears the rest. */
   const markCorrect = useCallback(
     (id: string, answerId: string) => {
       patchQuestion(id, (question) => ({
@@ -104,16 +130,12 @@ export function useQuizDraft() {
               ...question,
               answers: [
                 ...question.answers,
-                {
-                  id: `${id}-a${question.answers.length + 1}`,
-                  text: "",
-                  correct: false,
-                },
+                { id: nextAnswerId(id), text: "", correct: false },
               ],
             },
       );
     },
-    [patchQuestion],
+    [patchQuestion, nextAnswerId],
   );
 
   const removeAnswer = useCallback(
@@ -123,7 +145,6 @@ export function useQuizDraft() {
           (answer) => answer.id !== answerId,
         );
 
-        // Removing the correct answer would leave the question without one.
         return {
           ...question,
           answers: answers.some((answer) => answer.correct)
@@ -138,6 +159,8 @@ export function useQuizDraft() {
     [patchQuestion],
   );
 
+  const closeQuestion = useCallback(() => setActiveId(null), []);
+
   const activeQuestion = useMemo(() => {
     if (!activeId) return null;
     const index = questions.findIndex((question) => question.id === activeId);
@@ -151,6 +174,7 @@ export function useQuizDraft() {
     setPassMark,
     questions,
     addQuestion,
+    moveQuestion,
     removeQuestion,
     updateQuestion,
     setAnswerText,
@@ -159,7 +183,7 @@ export function useQuizDraft() {
     removeAnswer,
     activeQuestion,
     openQuestion: setActiveId,
-    closeQuestion: () => setActiveId(null),
+    closeQuestion,
   };
 }
 

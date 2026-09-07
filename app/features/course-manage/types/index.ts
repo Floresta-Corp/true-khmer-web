@@ -60,6 +60,40 @@ export interface PerformancePoint {
   activeStudents: number;
 }
 
+/**
+ * The raw daily series the chart windows client-side. Held un-aggregated so
+ * changing the range costs no refetch.
+ */
+export interface CourseTrends {
+  enrollment: { date: string; learners: number }[];
+  activity: { date: string; learners: number }[];
+}
+
+/** Windows the Course performance chart offers. `0` days means all time. */
+export const PERFORMANCE_RANGES = [
+  { days: 7, label: "Last 7 days" },
+  { days: 30, label: "Last 30 days" },
+  { days: 90, label: "Last 90 days" },
+  { days: 0, label: "All time" },
+] as const;
+
+export type PerformanceRange = (typeof PERFORMANCE_RANGES)[number]["days"];
+
+/**
+ * Windows the Analytics enrolment trend offers, in months. `0` means all time.
+ *
+ * Months rather than the performance chart's days: that card plots a point per
+ * day, this one a bar per month, and six bars is what the design draws.
+ */
+export const ENROLLMENT_RANGES = [
+  { months: 3, label: "Last 3 months" },
+  { months: 6, label: "Last 6 months" },
+  { months: 12, label: "Last 12 months" },
+  { months: 0, label: "All time" },
+] as const;
+
+export type EnrollmentRange = (typeof ENROLLMENT_RANGES)[number]["months"];
+
 export interface ProgressSegment {
   key: "notStarted" | "inProgress" | "completed";
   label: string;
@@ -69,22 +103,24 @@ export interface ProgressSegment {
 }
 
 /**
- * Everything the Overview tab shows. None of it has an API resource: the
- * education-center surface is course CRUD, categories, submit/withdraw/
- * unpublish, cover presign and courses/mine — there is no enrolment, progress,
- * quiz-result or review resource, and `CourseResponse` carries no counts.
+ * Everything the Overview tab shows, all of it from `GET /courses/{id}/stats`.
+ *
+ * The nullable fields are nullable because the server sends null, not because
+ * they are untracked: it reports no pass rate, average or rating until someone
+ * has sat the quiz or left a review. That distinction is kept all the way to
+ * the card, where `0` would read as a course whose learners all failed and
+ * nobody liked.
  */
 export interface CourseManageOverview {
   enrollments: number;
   completionRate: number;
   lessonCount: number;
-  quizPassRate: number;
-  avgQuizScore: number;
-  rating: number;
+  quizPassRate: number | null;
+  avgQuizScore: number | null;
+  rating: number | null;
   reviewCount: number;
   totalLearners: number;
   progress: ProgressSegment[];
-  performance: PerformancePoint[];
 }
 
 /* ----------------------------- Students ---------------------------------- */
@@ -104,6 +140,15 @@ export const STUDENT_FILTER_LABELS: Record<StudentFilter, string> = {
   "in-progress": "In progress",
   "not-started": "Not started",
 };
+
+/**
+ * Rows per page in the Students tab.
+ *
+ * Lives here rather than beside the loader that uses it: the tab and the page
+ * component both need it, and importing it from a `.server`-adjacent module
+ * dragged `education.server.ts` into the client bundle.
+ */
+export const STUDENT_PAGE_SIZE = 20;
 
 export interface ManageStudent {
   id: string;
@@ -135,6 +180,20 @@ export interface ReviewStage {
   state: ReviewStageState;
 }
 
+/**
+ * Reviews per page in the Review tab. Twenty is inside the endpoint's cap of
+ * fifty and covers the first read, so the tab only pages a much-reviewed
+ * course.
+ */
+export const REVIEW_PAGE_SIZE = 20;
+
+/** What the Review tab's fetcher gets back from the reviews resource route. */
+export interface CourseReviewsPage {
+  reviews: CourseReview[];
+  total: number;
+  totalPages: number;
+}
+
 export interface RatingBar {
   stars: number;
   count: number;
@@ -164,7 +223,6 @@ export interface QuizBand {
 }
 
 export interface CourseManageAnalytics {
-  trend: TrendBar[];
   funnel: FunnelStage[];
   quizBands: QuizBand[];
   /** Attempt count shown in the donut's centre. */

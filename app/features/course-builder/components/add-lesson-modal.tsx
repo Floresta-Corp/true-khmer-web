@@ -1,39 +1,50 @@
-import { X } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { LessonSourceField } from "./lesson-source-field";
+import { isYoutubeUrl } from "../lib/youtube-url";
 import {
   LESSON_FIELD_LABELS,
   LESSON_SOURCES,
   LESSON_SOURCE_LABELS,
+  lessonSourceChange,
   type LessonDraft,
   type LessonSource,
 } from "~/features/course-builder/types";
 
 interface AddLessonModalProps {
   draft: LessonDraft;
+  /** "edit" reopens a saved lesson; the form is otherwise identical. */
+  mode?: "add" | "edit";
   onChange: (changes: Partial<LessonDraft>) => void;
   onConfirm: () => void;
   onClose: () => void;
+  /** Offered while editing, so a lesson can be taken out of its section. */
+  onDelete?: () => void;
+  uploading?: boolean;
+  onUploadingChange?: (uploading: boolean) => void;
 }
 
-/** The design's "Add lesson" dialog: title, content type, then the source. */
 export function AddLessonModal({
   draft,
+  mode = "add",
   onChange,
   onConfirm,
   onClose,
+  onDelete,
+  uploading = false,
+  onUploadingChange,
 }: AddLessonModalProps) {
+  const editing = mode === "edit";
   const ready =
+    !uploading &&
     draft.title.trim().length > 0 &&
-    (draft.source === "youtube"
-      ? draft.url.trim().length > 0
-      : !!draft.fileName);
+    (draft.source === "youtube" ? isYoutubeUrl(draft.url) : !!draft.assetKey);
 
   return (
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Add lesson"
+      aria-label={editing ? "Edit lesson" : "Add lesson"}
       onClick={onClose}
       className="fixed inset-0 z-80 flex items-center justify-center bg-[rgba(26,26,46,0.45)] p-5"
     >
@@ -50,7 +61,9 @@ export function AddLessonModal({
           >
             <X size={18} strokeWidth={2} aria-hidden />
           </button>
-          <h3 className="text-xl font-bold text-[#1A1A2E]">Add lesson</h3>
+          <h3 className="text-xl font-bold text-[#1A1A2E]">
+            {editing ? "Edit lesson" : "Add lesson"}
+          </h3>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-8">
@@ -83,7 +96,7 @@ export function AddLessonModal({
                       key={source}
                       type="button"
                       aria-pressed={active}
-                      onClick={() => onChange({ source })}
+                      onClick={() => onChange(lessonSourceChange(source))}
                       className={cn(
                         "flex cursor-pointer items-center gap-2.5 rounded-lg border px-3.5 py-2.5 text-sm font-semibold transition-colors",
                         active
@@ -120,7 +133,11 @@ export function AddLessonModal({
                 urlPlaceholder="https://youtube.com/watch?v=..."
                 label={LESSON_FIELD_LABELS[draft.source]}
                 onUrlChange={(url) => onChange({ url })}
-                onFileChange={(fileName) => onChange({ fileName })}
+                onUploaded={(assetKey, fileName) =>
+                  onChange({ assetKey, fileName })
+                }
+                onClearFile={() => onChange({ assetKey: null, fileName: null })}
+                onUploadingChange={onUploadingChange}
               />
             </div>
           </div>
@@ -133,8 +150,18 @@ export function AddLessonModal({
             onClick={onConfirm}
             className="flex-1 cursor-pointer rounded-lg bg-[#1C5DD4] px-6 py-3 text-sm font-bold text-white disabled:cursor-default disabled:opacity-50"
           >
-            Add lesson
+            {editing ? "Save lesson" : "Add lesson"}
           </button>
+          {editing && onDelete && (
+            <button
+              type="button"
+              onClick={onDelete}
+              className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg px-3 py-3 text-[13px] font-semibold text-[#9A9AB0] hover:text-[#FB3748]"
+            >
+              <Trash2 size={14} aria-hidden />
+              Delete
+            </button>
+          )}
           <button
             type="button"
             onClick={onClose}

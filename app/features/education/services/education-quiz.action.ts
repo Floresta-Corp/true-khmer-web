@@ -1,17 +1,16 @@
 import type { ActionFunctionArgs } from "react-router";
-import { buildCourseQuiz } from "~/features/education/lib/education-fixtures";
+import { gradeCourseQuizAttempt } from "~/api/education/education.server";
+import { readQuizAnswers } from "~/features/education/lib/quiz-answers";
 import type { QuizAttemptResult } from "~/features/education/types";
+import {
+  AuthSessionExpiredError,
+  ProtectedApiError,
+} from "~/lib/server/api-client.server";
 
 export type QuizActionResult =
   | { ok: true; result: QuizAttemptResult }
   | { ok: false; message: string };
 
-/**
- * Grades a final-quiz attempt.
- *
- * Attempts are not persisted — the API has no quiz resource yet — but grading
- * happens here so the correct answers never reach the browser.
- */
 export async function educationQuizAction({
   params,
   request,
@@ -22,27 +21,23 @@ export async function educationQuizAction({
   }
 
   const formData = await request.formData();
-  const quiz = buildCourseQuiz(courseId);
 
-  let correctCount = 0;
-  for (const question of quiz.questions) {
-    const answer = formData.get(`answer:${question.id}`);
-    if (typeof answer === "string" && answer === question.correctOptionId) {
-      correctCount += 1;
+  try {
+    const response = await gradeCourseQuizAttempt(
+      request,
+      courseId,
+      readQuizAnswers(formData),
+    );
+
+    const { correctCount, totalCount, percent, passed } = response.data.result;
+    return { ok: true, result: { correctCount, totalCount, percent, passed } };
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) {
+      return { ok: false, message: "Sign in to submit your answers." };
     }
+    if (error instanceof ProtectedApiError) {
+      return { ok: false, message: error.message };
+    }
+    throw error;
   }
-
-  const totalCount = quiz.questions.length;
-  const percent =
-    totalCount === 0 ? 0 : Math.round((correctCount / totalCount) * 100);
-
-  return {
-    ok: true,
-    result: {
-      correctCount,
-      totalCount,
-      percent,
-      passed: percent >= quiz.passMark,
-    },
-  };
 }

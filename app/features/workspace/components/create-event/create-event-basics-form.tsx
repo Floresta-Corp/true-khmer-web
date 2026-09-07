@@ -27,7 +27,6 @@ import {
   type CreateEventFormat,
   type CreateEventFormState,
   type EventCategory,
-  type EventVenue,
 } from "~/features/workspace/types/my-events";
 
 const FORMAT_OPTIONS: Array<{
@@ -58,8 +57,6 @@ const inputClassName =
 type Props = {
   form: CreateEventFormState;
   categories: EventCategory[];
-  venues: EventVenue[];
-  venueLoadError: string | null;
   errors: CreateEventFieldErrors;
   onFieldChange: <K extends keyof CreateEventFormState>(
     field: K,
@@ -76,8 +73,6 @@ function FieldError({ message }: { message?: string }) {
 export default function CreateEventBasicsForm({
   form,
   categories,
-  venues,
-  venueLoadError,
   errors,
   onFieldChange,
   onCoverChange,
@@ -244,8 +239,6 @@ export default function CreateEventBasicsForm({
               <CreateEventVenueInput
                 venueId={form.venueId}
                 venueName={form.venueName}
-                venues={venues}
-                venueLoadError={venueLoadError}
                 error={errors.venueName ?? errors.venueId}
                 inputClassName={inputClassName}
                 onVenueIdChange={(venueId) => onFieldChange("venueId", venueId)}

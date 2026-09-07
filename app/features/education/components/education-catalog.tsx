@@ -11,31 +11,37 @@ import {
   CATALOG_SORT_LABELS,
   CATALOG_TYPES,
   CATALOG_TYPE_LABELS,
+  CATALOG_TYPE_SERVABLE,
+  isSortServable,
 } from "~/features/education/lib/course-catalog";
 import type { educationCatalogLoader } from "~/features/education/services/education-catalog.loader";
 
-/**
- * A filter row. The design draws it as a button with a ring-style dot rather
- * than a native control, so the input is visually hidden but still the thing
- * that gets focused and announced.
- */
 function FilterRadio({
   name,
   label,
   checked,
   onSelect,
+  unavailable = false,
 }: {
   name: string;
   label: string;
   checked: boolean;
   onSelect: () => void;
+  unavailable?: boolean;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2.5">
+    <label
+      title={unavailable ? "Not available yet" : undefined}
+      className={cn(
+        "flex items-center gap-2.5",
+        unavailable ? "cursor-not-allowed opacity-45" : "cursor-pointer",
+      )}
+    >
       <input
         type="radio"
         name={name}
         checked={checked}
+        disabled={unavailable}
         onChange={onSelect}
         className="peer sr-only"
       />
@@ -60,7 +66,6 @@ function FilterRadio({
   );
 }
 
-/** A collapsible block in the filter panel. */
 function FilterSection({
   title,
   divided = true,
@@ -115,8 +120,6 @@ export function EducationCatalog() {
 
   const [searchInput, setSearchInput] = useState(search);
 
-  // Course bookmarks have no API resource yet, so the state lives in the page,
-  // exactly as it does on the hub.
   const [savedCourseIds, setSavedCourseIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -144,7 +147,6 @@ export function EducationCatalog() {
     [setSearchParams],
   );
 
-  /** Every filter change resets to page one, as the design does. */
   const setFilter = useCallback(
     (changes: Record<string, string | null>) =>
       updateParams({ ...changes, page: null }),
@@ -256,6 +258,7 @@ export function EducationCatalog() {
                   name="sort"
                   label={CATALOG_SORT_LABELS[value]}
                   checked={sort === value}
+                  unavailable={!isSortServable(value)}
                   onSelect={() =>
                     setFilter({ sort: value === "newest" ? null : value })
                   }
@@ -292,6 +295,7 @@ export function EducationCatalog() {
                   name="type"
                   label={CATALOG_TYPE_LABELS[value]}
                   checked={type === value}
+                  unavailable={!CATALOG_TYPE_SERVABLE[value]}
                   onSelect={() =>
                     setFilter({ type: value === "all" ? null : value })
                   }

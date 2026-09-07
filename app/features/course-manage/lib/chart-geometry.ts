@@ -17,13 +17,18 @@
  */
 const STEP_MANTISSAS = [1, 2, 2.5, 4, 5] as const;
 
+/**
+ * Every axis here counts people, so the step never drops below 1 — a peak of 1
+ * over seven ticks would otherwise land on 0.2, labelling the axis in fifths of
+ * a learner.
+ */
 function niceStep(peak: number, count: number) {
   const needed = Math.max(1, peak) / Math.max(1, count - 1);
-  const magnitude = Math.pow(10, Math.floor(Math.log10(needed)));
+  const magnitude = Math.max(1, Math.pow(10, Math.floor(Math.log10(needed))));
 
   for (const scale of [magnitude, magnitude * 10]) {
     for (const mantissa of STEP_MANTISSAS) {
-      const step = mantissa * scale;
+      const step = Math.max(1, mantissa * scale);
       if (step >= needed) return step;
     }
   }
@@ -40,8 +45,13 @@ export interface AxisTick {
   gridLine: string;
 }
 
+/**
+ * Repeated addition of a round step still lands on values like
+ * `1.2000000000000002`, which `${value}` would print in full. Everything is
+ * rounded before it reaches a label.
+ */
 export function compactNumber(value: number) {
-  if (value < 1000) return `${value}`;
+  if (value < 1000) return `${Math.round(value * 100) / 100}`;
   const thousands = value / 1000;
   return `${thousands.toFixed(thousands < 10 ? 2 : 1).replace(/\.?0+$/, "")}k`;
 }
@@ -55,18 +65,25 @@ interface PlotBox {
   viewHeight: number;
 }
 
-/** Ticks from 0 up to at least `max`, on a round step. */
+/**
+ * Ticks from 0 up to at least `max`, on a round step.
+ *
+ * `count` is a ceiling, not a promise. Since the step cannot go below 1, seven
+ * ticks would top a two-learner chart out at 6 and squash both lines into the
+ * bottom third, so a small peak gets proportionally fewer ticks instead.
+ */
 export function buildTicks(
   max: number,
   count: number,
   box: PlotBox,
 ): AxisTick[] {
-  const step = niceStep(max, count);
-  const top = step * (count - 1);
+  const ticks = Math.max(2, Math.min(count, Math.ceil(max) + 1));
+  const step = niceStep(max, ticks);
+  const top = step * (ticks - 1);
 
-  return Array.from({ length: count }, (_, index) => {
+  return Array.from({ length: ticks }, (_, index) => {
     const value = top - index * step;
-    const y = box.y0 + ((box.y1 - box.y0) * index) / (count - 1);
+    const y = box.y0 + ((box.y1 - box.y0) * index) / (ticks - 1);
     return {
       value,
       label: compactNumber(value),
@@ -185,8 +202,13 @@ export interface RingArc {
  */
 export function buildRingArcs(values: number[]): RingArc[] {
   const total = values.reduce((sum, value) => sum + value, 0);
+  // `0 0` disables dashing altogether, which paints a full circle — the gap has
+  // to be the whole circumference for the segment to render as nothing.
   if (total <= 0)
-    return values.map(() => ({ dasharray: "0 0", dashoffset: 0 }));
+    return values.map(() => ({
+      dasharray: `0 ${RING_CIRCUMFERENCE}`,
+      dashoffset: 0,
+    }));
 
   let consumed = 0;
   return values.map((value) => {

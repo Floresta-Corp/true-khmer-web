@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
+import { cn } from "~/lib/utils";
 import type { ProgressSegment } from "~/features/course-manage/types";
 import { RING_RADIUS, buildRingArcs } from "../../lib/chart-geometry";
 import { MANAGE_CARD } from "./course-kpi-cards";
@@ -34,6 +35,16 @@ export function StudentProgressCard({
             role="img"
             aria-label="Student progress breakdown"
           >
+            {/* Always drawn, so an empty course reads as a neutral track rather
+                than a full ring in whichever colour happened to come first. */}
+            <circle
+              cx={60}
+              cy={60}
+              r={RING_RADIUS}
+              fill="none"
+              stroke="#F1F1F4"
+              strokeWidth={18}
+            />
             {ordered.map((segment, index) => (
               <circle
                 key={segment.key}
@@ -50,7 +61,12 @@ export function StudentProgressCard({
             ))}
           </svg>
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-            <span className="text-[22px] leading-tight font-extrabold text-[#1A1A2E]">
+            <span
+              className={cn(
+                "text-[22px] leading-tight font-extrabold",
+                total === 0 ? "text-[#C6C6D4]" : "text-[#1A1A2E]",
+              )}
+            >
               {total.toLocaleString()}
             </span>
             <span className="text-[12.5px] text-[#9A9AB0]">Students</span>
@@ -79,13 +95,16 @@ export function StudentProgressCard({
         </dl>
       </div>
 
-      <Link
-        to={`/course-listing/${courseId}?tab=students`}
-        className="mt-[18px] flex items-center gap-1 text-[13.5px] font-bold text-[#1C5DD4] hover:underline"
-      >
-        View all students
-        <ArrowRight size={13} strokeWidth={2.2} aria-hidden />
-      </Link>
+      {/* Nothing to go and look at until somebody has enrolled. */}
+      {total > 0 && (
+        <Link
+          to={`/course-listing/${courseId}?tab=students`}
+          className="mt-[18px] flex items-center gap-1 text-[13.5px] font-bold text-[#1C5DD4] hover:underline"
+        >
+          View all students
+          <ArrowRight size={13} strokeWidth={2.2} aria-hidden />
+        </Link>
+      )}
     </div>
   );
 }

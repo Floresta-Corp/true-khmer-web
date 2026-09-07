@@ -4,6 +4,7 @@ import { BackLink } from "~/components/back-link";
 import { ChevronLeft } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { CARD } from "~/features/education/lib/education-styles";
+import { quizAnswerField } from "~/features/education/lib/quiz-answers";
 import type { PublicCourseQuiz } from "~/features/education/types";
 
 interface QuizRunnerProps {
@@ -30,7 +31,7 @@ export function QuizRunner({ courseId, quiz }: QuizRunnerProps) {
 
     const formData = new FormData();
     for (const [questionId, optionId] of Object.entries(answers)) {
-      formData.append(`answer:${questionId}`, optionId);
+      formData.append(quizAnswerField(questionId), optionId);
     }
     submit(formData, { method: "post" });
   };

@@ -34,7 +34,7 @@ const footerColumns = [
     links: [
       // { label: "Sponsors", to: "/" },
       // { label: "Success Stories", to: "/" },
-      { label: "Blog", to: "/blog" },
+      { label: "Khmer Voice", to: "/blog" },
       { label: "Partners", to: "/community" },
     ],
   },

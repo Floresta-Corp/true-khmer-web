@@ -6,6 +6,7 @@ import {
   Building2,
   ClipboardCheck,
   ClipboardList,
+  GraduationCap,
   Heart,
   History,
   Hotel,
@@ -122,6 +123,13 @@ export const navItems: NavItem[] = [
     section: "content_management",
   },
   {
+    id: "manage-education",
+    label: "Education",
+    icon: GraduationCap,
+    href: "/tk-admin/manage-education",
+    section: "content_management",
+  },
+  {
     id: "myteam",
     label: "Team Members",
     icon: UserCog,
@@ -222,7 +230,6 @@ export function SidebarItem({
         <span className="ml-3 flex-1 truncate text-sm">{label}</span>
       )}
 
-      {/* WIP pill (visual only — the item stays navigable) */}
       {!collapsed && wip && (
         <span className="ml-auto rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-slate-400 uppercase dark:bg-slate-800 dark:text-slate-500">
           WIP

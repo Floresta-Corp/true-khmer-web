@@ -55,26 +55,32 @@ export function CommunityStandingCard({
       </CardHeader>
 
       <CardContent className="p-0">
-        <div className="grid grid-cols-3 gap-3">
+        <div className="flex items-center justify-between gap-2 text-center @sm:gap-4">
           <StandingStat
             label="Points"
             value={totalPoints}
             valueClassName="text-[#2563eb]"
           />
+          <div className="h-8 w-px bg-[#e2e8f0]" />
           <StandingStat label="Rank" value={rank ? `#${rank}` : "-"} />
+          <div className="h-8 w-px bg-[#e2e8f0]" />
           <StandingStat
             label="Tier"
             value={tier.name.toUpperCase()}
-            valueClassName="text-xs text-[#ea580c]"
+            valueClassName="text-[#ea580c] text-[14px]"
           >
             <Sparkles className="size-3 text-[#ff9f0a]" />
           </StandingStat>
         </div>
 
         <div className="mt-5 space-y-3">
-          <div className="flex items-center justify-between gap-3 text-xs font-semibold">
-            <span className="text-[#64748b]">Next Tier Progress</span>
-            <span className="text-xs text-blue-500">{progressLabel}</span>
+          <div className="flex flex-col gap-1 xl:flex-row xl:items-center xl:justify-between">
+            <span className="text-xs font-semibold text-[#64748b]">
+              Next Tier Progress
+            </span>
+            <span className="text-xs font-bold text-blue-500">
+              {progressLabel}
+            </span>
           </div>
 
           <Progress
@@ -82,17 +88,9 @@ export function CommunityStandingCard({
             className="h-2 bg-[#e8f0ff] [&_[data-slot=progress-indicator]]:bg-blue-500"
           />
 
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-semibold text-[#8a99b5]">
-              {nextTierMessage}
-            </p>
-            {/* <Button
-              variant="ghost"
-              className="shrink-0 text-xs cursor-pointer font-bold text-blue-500 transition-colors hover:text-blue-600"
-            >
-              Details
-            </Button> */}
-          </div>
+          <p className="text-xs font-semibold text-[#8a99b5]">
+            {nextTierMessage}
+          </p>
         </div>
       </CardContent>
     </Card>
@@ -111,7 +109,7 @@ function StandingStat({
   children?: ReactNode;
 }) {
   return (
-    <div className="flex min-h-17.5 flex-col items-center justify-center gap-2 rounded-3xl border border-[#e2e8f0] bg-[#f8fafc] px-3 py-3 text-center">
+    <div className="flex flex-1 flex-col items-center gap-1">
       <span className="flex items-center gap-1 text-[10px] font-bold tracking-wider text-[#94a3b8] uppercase">
         {label}
         {children}

@@ -19,14 +19,12 @@ import {
 import type {
   CreateEventFormState,
   EventOrganizer,
-  EventVenue,
 } from "~/features/workspace/types/my-events";
 
 type Props = {
   form: CreateEventFormState;
   category: string;
   organizer: EventOrganizer | null;
-  venue: EventVenue | null;
 };
 
 /**
@@ -42,7 +40,6 @@ export default function CreateEventReview({
   form,
   category,
   organizer,
-  venue,
 }: Props) {
   const formatLabel = form.format
     ? MY_EVENT_FORMAT_LABELS[form.format]
@@ -156,7 +153,7 @@ export default function CreateEventReview({
               ))}
               <span className="flex items-center gap-2.5">
                 <MapPin className="size-4 shrink-0 text-slate-400" />
-                {venue?.name || form.venueName || formatLabel}
+                {form.venueName || formatLabel}
               </span>
               {form.address && (
                 <span className="pl-6.5 text-xs font-normal text-slate-500">

@@ -7,9 +7,9 @@ import type { CourseSection } from "~/features/education/types";
 import { MANAGE_CARD } from "../overview/course-kpi-cards";
 
 /**
- * The teacher's curriculum. One container with divided sections — not a card
- * per section — with `Chapter N: Title` headers and edit affordances that
- * appear on hover, matching `isTeachContentTab` in the design.
+ * The teacher's curriculum: one card of stacked chapters — no rule between
+ * them, as the design has it — with `Chapter N: Title` headers, a lesson count
+ * and a chevron on the right, and edit affordances that appear on hover.
  */
 export function ContentTab({
   courseId,
@@ -21,9 +21,10 @@ export function ContentTab({
   /** Editing content happens in the builder, on its curriculum step. */
   const editTo = `/education/${courseId}/edit?step=curriculum`;
 
-  // Every chapter starts expanded, as the design's `s.open` placeholder does.
-  const [open, setOpen] = useState<Set<string>>(
-    () => new Set(curriculum.map((section) => section.id)),
+  /* Only the first chapter starts open, as the design shows. Expanding every
+     chapter would push a long course's later chapters off the screen. */
+  const [open, setOpen] = useState<Set<string>>(() =>
+    curriculum.length > 0 ? new Set([curriculum[0].id]) : new Set(),
   );
 
   const toggle = (id: string) =>
@@ -46,39 +47,33 @@ export function ContentTab({
   }
 
   return (
-    <div className={`${MANAGE_CARD} overflow-hidden rounded-lg`}>
+    <div className={`${MANAGE_CARD} overflow-hidden`}>
       {curriculum.map((section, index) => {
         const isOpen = open.has(section.id);
         const lessons = section.lessons.length;
 
         return (
-          <div
-            key={section.id}
-            className={cn(
-              "group/section",
-              index > 0 && "border-t border-[#E5E7EB]",
-            )}
-          >
-            {/* The whole header toggles: the chevron button is stretched over the
-                row with `after:inset-0`, so there is one tab stop and a real
-                focus ring, and the pencil stays clickable above it. */}
-            <div className="relative flex cursor-pointer items-center justify-between gap-3 p-5 transition-colors hover:bg-[#F9FAFC]">
+          <div key={section.id} className="group/section">
+            {/* The whole header toggles: the chevron button is stretched over
+                the row with `after:inset-0`, so there is one tab stop and a
+                real focus ring, and the pencil stays clickable above it. */}
+            <div className="relative flex cursor-pointer items-center justify-between gap-4 px-[22px] py-5 transition-colors hover:bg-[#F9FAFC]">
               <div className="flex min-w-0 items-center gap-2">
-                <span className="truncate text-[18px] font-bold text-[#1A1A2E]">
+                <h3 className="truncate text-[20px] leading-snug font-bold text-[#10101E]">
                   Chapter {index + 1}: {section.title}
-                </span>
+                </h3>
                 <Link
                   to={editTo}
                   title="Edit chapter"
                   aria-label={`Edit chapter ${index + 1}`}
-                  className="relative z-10 cursor-pointer text-[#9A9AB0] opacity-0 transition-opacity group-hover/section:opacity-100 hover:text-[#1C5DD4] focus-visible:opacity-100"
+                  className="relative z-10 shrink-0 cursor-pointer text-[#9A9AB0] opacity-0 transition-opacity group-hover/section:opacity-100 hover:text-[#1C5DD4] focus-visible:opacity-100"
                 >
-                  <Pencil size={15} aria-hidden />
+                  <Pencil size={16} aria-hidden />
                 </Link>
               </div>
 
-              <div className="flex shrink-0 items-center gap-3.5">
-                <span className="text-[13px] text-[#9A9AB0]">
+              <div className="flex shrink-0 items-center gap-4">
+                <span className="text-[14px] text-[#9A9AB0]">
                   {lessons} {lessons === 1 ? "lesson" : "lessons"}
                 </span>
                 <button
@@ -89,7 +84,8 @@ export function ContentTab({
                   className="flex cursor-pointer text-[#9A9AB0] after:absolute after:inset-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1C5DD4]"
                 >
                   <ChevronDown
-                    size={16}
+                    size={18}
+                    strokeWidth={2}
                     aria-hidden
                     className={cn(
                       "transition-transform",
@@ -101,18 +97,18 @@ export function ContentTab({
             </div>
 
             {isOpen && (
-              <div className="flex flex-col">
+              <div className="flex flex-col pb-1.5">
                 {section.lessons.map((lesson) => (
                   <div
                     key={lesson.id}
-                    className="group/lesson relative flex cursor-pointer items-center gap-3 py-3.5 pr-5 pl-11 transition-colors hover:bg-[#F9FAFC]"
+                    className="group/lesson relative flex cursor-pointer items-center gap-3 py-3 pr-5 pl-12 transition-colors hover:bg-[#F9FAFC]"
                   >
                     <LessonTypeIcon
                       type={lesson.type}
-                      className="size-4 shrink-0 text-[#777777]"
+                      className="size-[17px] shrink-0 text-[#777777]"
                     />
                     <span className="flex min-w-0 flex-1 items-center gap-2">
-                      <span className="truncate text-sm text-[#333333]">
+                      <span className="truncate text-[16px] text-[#333333]">
                         {lesson.title}
                       </span>
                       {/* Stretched over the row, so clicking anywhere on the
@@ -127,9 +123,13 @@ export function ContentTab({
                         <Pencil size={14} aria-hidden />
                       </Link>
                     </span>
-                    <span className="shrink-0 text-[12.5px] text-[#9A9AB0]">
-                      {lesson.duration}
-                    </span>
+                    {/* Omitted rather than rendered empty: nothing captures a
+                        lesson's length yet, so most lessons have none. */}
+                    {lesson.duration && (
+                      <span className="shrink-0 text-[14px] text-[#9A9AB0]">
+                        {lesson.duration}
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>

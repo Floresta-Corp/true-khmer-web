@@ -11,6 +11,9 @@ type Props = {
 
 /**
  * Shared `?page=` pagination for the workspace/myspace listing pages.
+ *
+ * The page controls only appear once there is somewhere to go — a single page
+ * of results keeps the count line and nothing else.
  */
 export default function SpacePagination({
   total,
@@ -28,6 +31,7 @@ export default function SpacePagination({
     Number.isFinite(rawPage) && rawPage > 0 ? Math.min(rawPage, totalPages) : 1;
 
   const showing = Math.min(currentPage * pageSize, total);
+  const hasMultiplePages = totalPages > 1;
 
   const pageNumbers = getPageNumbers(currentPage, totalPages);
 
@@ -46,55 +50,57 @@ export default function SpacePagination({
         Showing {showing} of{" "}
         <span className="font-semibold text-gray-900">{total}</span> {itemLabel}
       </p>
-      <div className="flex items-center gap-1.5">
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => goToPage(currentPage - 1)}
-          disabled={currentPage === 1}
-          aria-label="Previous page"
-        >
-          ‹
-        </Button>
-        {pageNumbers.map((page, i) =>
-          page === "ellipsis" ? (
-            <span
-              key={`ellipsis-${i}`}
-              className="flex h-8 w-8 items-center justify-center text-gray-400"
-              aria-hidden="true"
-            >
-              …
-            </span>
-          ) : (
-            <Button
-              key={page}
-              size="icon"
-              variant={currentPage === page ? "default" : "outline"}
-              className={
-                currentPage === page
-                  ? "h-8 w-8 bg-blue-600 text-white hover:bg-blue-700"
-                  : "h-8 w-8"
-              }
-              onClick={() => goToPage(page)}
-              aria-label={`Page ${page}`}
-              aria-current={currentPage === page ? "page" : undefined}
-            >
-              {page}
-            </Button>
-          ),
-        )}
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => goToPage(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          aria-label="Next page"
-        >
-          ›
-        </Button>
-      </div>
+      {hasMultiplePages && (
+        <div className="flex items-center gap-1.5">
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            aria-label="Previous page"
+          >
+            ‹
+          </Button>
+          {pageNumbers.map((page, i) =>
+            page === "ellipsis" ? (
+              <span
+                key={`ellipsis-${i}`}
+                className="flex h-8 w-8 items-center justify-center text-gray-400"
+                aria-hidden="true"
+              >
+                …
+              </span>
+            ) : (
+              <Button
+                key={page}
+                size="icon"
+                variant={currentPage === page ? "default" : "outline"}
+                className={
+                  currentPage === page
+                    ? "h-8 w-8 bg-blue-600 text-white hover:bg-blue-700"
+                    : "h-8 w-8"
+                }
+                onClick={() => goToPage(page)}
+                aria-label={`Page ${page}`}
+                aria-current={currentPage === page ? "page" : undefined}
+              >
+                {page}
+              </Button>
+            ),
+          )}
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            aria-label="Next page"
+          >
+            ›
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

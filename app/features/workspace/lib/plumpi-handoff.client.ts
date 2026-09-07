@@ -1,4 +1,7 @@
-import { PLUMPI_HANDOFF_MESSAGE, PLUMPI_HANDOFF_TITLE } from "./plumpi-handoff";
+import {
+  PLUMPI_HANDOFF_MESSAGE,
+  PLUMPI_HANDOFF_TITLE,
+} from "~/components/plumpi-redirect-overlay";
 
 /**
  * The handoff URL can only be minted server-side, so the tab has to be opened

@@ -1,27 +1,156 @@
 import * as React from "react";
-import { OTPInput, OTPInputContext } from "input-otp";
+import { OTPInput, OTPInputContext, REGEXP_ONLY_DIGITS } from "input-otp";
 
 import { cn } from "~/lib/utils";
 import { MinusIcon } from "lucide-react";
 
+const OTP_SUBMIT_ATTRIBUTE = "data-otp-submit";
+
+function digitsOnly(value: string) {
+  return value.replace(/\D/g, "");
+}
+
+function findSubmitter(form: HTMLFormElement) {
+  return (
+    form.querySelector<HTMLButtonElement>(`button[${OTP_SUBMIT_ATTRIBUTE}]`) ??
+    form.querySelector<HTMLButtonElement>('button[type="submit"]') ??
+    form.querySelector<HTMLButtonElement>(
+      'button:not([type="button"]):not([type="reset"])',
+    )
+  );
+}
+
+type InputOTPProps = React.ComponentProps<typeof OTPInput> & {
+  containerClassName?: string;
+  /**
+   * Submit the closest form as soon as every slot is filled.
+   * Add `data-otp-submit` to a button when the form has several submit buttons.
+   */
+  autoSubmit?: boolean;
+};
+
 function InputOTP({
   className,
   containerClassName,
+  autoSubmit = true,
+  maxLength,
+  value,
+  onChange,
+  onComplete,
+  onPaste,
+  pattern = REGEXP_ONLY_DIGITS,
+  autoComplete = "one-time-code",
+  inputMode = "numeric",
+  disabled,
+  ref,
   ...props
-}: React.ComponentProps<typeof OTPInput> & {
-  containerClassName?: string;
-}) {
+}: InputOTPProps) {
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const submittedValueRef = React.useRef<string | null>(null);
+  const isControlled = typeof value === "string";
+
+  const submitClosestForm = React.useCallback(() => {
+    const form = inputRef.current?.form;
+
+    if (!form || disabled) return false;
+
+    const submitter = findSubmitter(form);
+
+    if (submitter?.disabled) return false;
+
+    if (submitter) {
+      form.requestSubmit(submitter);
+    } else {
+      form.requestSubmit();
+    }
+
+    return true;
+  }, [disabled]);
+
+  // Auto-submit once the code is complete. Runs after commit so hidden inputs
+  // mirroring the value and any `length !== maxLength` disabled states are up to date.
+  React.useEffect(() => {
+    if (!autoSubmit || !isControlled) return;
+
+    if (value.length !== maxLength) {
+      submittedValueRef.current = null;
+      return;
+    }
+
+    if (submittedValueRef.current === value) return;
+    if (submitClosestForm()) {
+      submittedValueRef.current = value;
+    }
+  }, [autoSubmit, isControlled, maxLength, submitClosestForm, value]);
+
+  // Pasting a full code should fill every slot rather than being inserted at the
+  // caret, so intercept the paste before `input-otp`'s own handler sees it.
+  const handlePasteCapture = (event: React.ClipboardEvent<HTMLDivElement>) => {
+    if (!isControlled || disabled) return;
+
+    const pasted = digitsOnly(event.clipboardData.getData("text")).slice(
+      0,
+      maxLength,
+    );
+
+    if (!pasted) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const input = inputRef.current;
+
+    if (input) {
+      input.value = pasted;
+      input.setSelectionRange(
+        Math.min(pasted.length, maxLength - 1),
+        pasted.length,
+      );
+    }
+
+    onChange?.(pasted);
+  };
+
   return (
-    <OTPInput
-      data-slot="input-otp"
-      containerClassName={cn(
-        "cn-input-otp flex items-center has-disabled:opacity-50",
-        containerClassName,
-      )}
-      spellCheck={false}
-      className={cn("disabled:cursor-not-allowed", className)}
-      {...props}
-    />
+    // `display: contents` keeps the consumer's container layout untouched.
+    <div style={{ display: "contents" }} onPasteCapture={handlePasteCapture}>
+      <OTPInput
+        ref={(node) => {
+          inputRef.current = node;
+
+          if (typeof ref === "function") {
+            ref(node);
+          } else if (ref) {
+            ref.current = node;
+          }
+        }}
+        data-slot="input-otp"
+        containerClassName={cn(
+          "cn-input-otp flex items-center has-disabled:opacity-50",
+          containerClassName,
+        )}
+        spellCheck={false}
+        className={cn("disabled:cursor-not-allowed", className)}
+        maxLength={maxLength}
+        value={value}
+        onChange={onChange}
+        onComplete={(...args) => {
+          onComplete?.(...args);
+
+          // Controlled inputs auto-submit from the effect above.
+          if (autoSubmit && !isControlled) {
+            submitClosestForm();
+          }
+        }}
+        onPaste={onPaste}
+        pattern={pattern}
+        autoComplete={autoComplete}
+        inputMode={inputMode}
+        disabled={disabled}
+        pasteTransformer={digitsOnly}
+        {...props}
+      />
+    </div>
   );
 }
 

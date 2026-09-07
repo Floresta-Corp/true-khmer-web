@@ -77,9 +77,7 @@ export const MyEventSchema = z
     endAt: z.union([z.null(), z.string()]).optional(),
     isOnline: z.union([z.null(), z.boolean()]).optional(),
     address: z.union([z.null(), z.string()]).optional(),
-    venue: z
-      .union([z.null(), z.object({ name: z.string().optional() })])
-      .optional(),
+    venueName: z.union([z.null(), z.string()]).optional(),
     currencyCode: z.union([z.null(), z.string()]).optional(),
     // Plumpi reports money and ticket totals as decimal strings.
     totalRevenue: NumericSchema,
@@ -101,7 +99,7 @@ export const MyEventSchema = z
       startAt,
       endAt,
       location:
-        event.venue?.name?.trim() ||
+        event.venueName?.trim() ||
         event.address?.trim() ||
         (event.isOnline ? "Online event" : "Location to be announced"),
       currencyCode: event.currencyCode ?? "USD",
@@ -212,6 +210,20 @@ export const EventVenueSchema = z
     googleMapLink: locationUrl,
   }));
 export type EventVenue = z.infer<typeof EventVenueSchema>;
+
+/** Venues are paged in as the organizer scrolls the suggestion list. */
+export const VENUE_SEARCH_PAGE_SIZE = 10;
+
+/** Shape returned by the venue suggestion resource route. */
+export type VenueSearchResponse = {
+  ok: boolean;
+  /** Echoed back so the dropdown can drop responses to stale keystrokes. */
+  search: string;
+  page: number;
+  hasMore: boolean;
+  venues: EventVenue[];
+  message?: string;
+};
 
 export const EventVisibilitySchema =
   schemas.postV1plumpievents_Body.shape.visibility;
@@ -358,8 +370,6 @@ export type CreateEventActionData = {
 export type CreateEventLoaderData = {
   categories: EventCategory[];
   organizers: EventOrganizer[];
-  venues: EventVenue[];
-  venueLoadError: string | null;
   userId: string | null;
 };
 

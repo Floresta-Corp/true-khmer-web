@@ -59,11 +59,13 @@ export function MyAchievementsCard({ badges }: AchievementsCardProps) {
   return (
     <Dialog>
       <Card className="relative overflow-hidden rounded-3xl border bg-white p-6 shadow-none">
-        <div className="mb-5 flex items-center justify-between gap-3 border-b pb-1">
-          <CardTitle className="flex items-center gap-2 text-base font-semibold tracking-tight text-[#0f172a]">
-            <Award className="size-4.5 text-indigo-400" />
-            My Achievements
-          </CardTitle>
+        <div className="mb-5 flex items-center justify-between gap-2 border-b pb-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <Award className="size-4.5 shrink-0 text-indigo-400" />
+            <span className="truncate text-base font-semibold tracking-tight text-[#0f172a]">
+              My Achievements
+            </span>
+          </div>
 
           {badges.length > 0 && (
             <DialogTrigger asChild>
@@ -78,7 +80,7 @@ export function MyAchievementsCard({ badges }: AchievementsCardProps) {
         </div>
 
         {badges.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
             {previewBadges.map((badge) => (
               <BadgePreviewTile key={badge.slug} badge={badge} />
             ))}

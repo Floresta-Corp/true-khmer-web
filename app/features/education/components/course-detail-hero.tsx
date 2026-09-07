@@ -1,24 +1,82 @@
+import { Play } from "lucide-react";
+import type { ReactNode } from "react";
+import { StarRating } from "./star-rating";
+
 interface CourseDetailHeroProps {
   title: string;
   coverImageUrl: string | null;
+  metaLine: string;
+  rating: number;
+  reviewCount: number;
+  enrolledLabel: string | null;
+  actionLabel: string;
+  showPlayIcon?: boolean;
+  onAction: () => void;
+  children?: ReactNode;
 }
 
 export function CourseDetailHero({
   title,
   coverImageUrl,
+  metaLine,
+  rating,
+  reviewCount,
+  enrolledLabel,
+  actionLabel,
+  showPlayIcon = true,
+  onAction,
 }: CourseDetailHeroProps) {
   return (
-    <div className="relative mb-6 h-[280px] overflow-hidden rounded-xl bg-[#E8E8E8] sm:h-[460px]">
+    <div className="relative mb-8 aspect-video max-h-120 w-full overflow-hidden rounded-2xl bg-[#E8E8E8]">
       <img
         src={coverImageUrl ?? "/placeholder/images.svg"}
         alt=""
         className="size-full object-cover"
       />
-      <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(18,20,28,0.82)_0%,rgba(18,20,28,0.45)_45%,rgba(18,20,28,0.22)_100%)]" />
-      <div className="absolute inset-x-0 bottom-0 px-6 pt-8 pb-7 sm:px-7.5 sm:pb-7.5">
-        <h1 className="line-clamp-2 text-2xl leading-[1.1] font-extrabold text-white sm:text-4xl">
+      <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.82)_0%,rgba(0,0,0,0.35)_45%,rgba(0,0,0,0)_75%)]" />
+
+      <div className="absolute inset-x-0 bottom-0 flex flex-col items-start px-6 pb-6 sm:px-10 sm:pb-8">
+        <h1 className="mb-2.5 line-clamp-2 text-xl leading-[1.15] font-extrabold text-white sm:text-[28px]">
           {title}
         </h1>
+
+        {metaLine && (
+          <div className="mb-2 text-[13px] text-white/80">{metaLine}</div>
+        )}
+
+        {(reviewCount > 0 || enrolledLabel) && (
+          <div className="mb-3.5 flex flex-wrap items-center gap-2">
+            {reviewCount > 0 && (
+              <>
+                <StarRating value={rating} starClassName="size-4" />
+                <span className="text-[13px] font-bold text-white">
+                  {rating.toFixed(1)}
+                </span>
+                <span className="text-[13px] text-white/75">
+                  ({reviewCount.toLocaleString()} review
+                  {reviewCount === 1 ? "" : "s"})
+                </span>
+              </>
+            )}
+            {reviewCount > 0 && enrolledLabel && (
+              <span className="text-[13px] text-white/60">·</span>
+            )}
+            {enrolledLabel && (
+              <span className="text-[13px] text-white/75">{enrolledLabel}</span>
+            )}
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={onAction}
+          className="flex cursor-pointer items-center justify-center gap-2 rounded-full bg-[#1C5DD4] px-8 py-2.75 text-sm font-bold text-white transition-colors hover:bg-[#174FB4]"
+        >
+          {showPlayIcon && (
+            <Play className="size-3.25 fill-white" aria-hidden />
+          )}
+          {actionLabel}
+        </button>
       </div>
     </div>
   );

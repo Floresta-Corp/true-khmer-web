@@ -1,18 +1,9 @@
 import type { Route as EducationRoute } from "project-types/education/route/+types/education";
-import { getCourseCategories } from "~/api/education/education.server";
 import {
-  ALL_COURSES,
-  buildLearnerSnapshot,
-  CATALOG_COURSES,
-  HERO_TOPICS,
-  RECENT_COURSES,
-  TRENDING_COURSES,
-} from "~/features/education/lib/education-fixtures";
-import {
-  matchesCategory,
-  matchesSearch,
-  mergeCategories,
-} from "~/features/education/lib/course-catalog";
+  getCourseCategories,
+  listPublicCourses,
+} from "~/api/education/education.server";
+import { toCourseSummary } from "~/features/education/lib/map-catalog";
 import { getOptionalUser } from "~/lib/server/route-guards.server";
 import type { CourseCategory } from "~/features/education/types";
 
@@ -21,9 +12,16 @@ export async function educationLoader({ request }: EducationRoute.LoaderArgs) {
   const search = url.searchParams.get("search")?.trim() ?? "";
   const categoryId = url.searchParams.get("categoryId") ?? null;
 
-  const [{ user }, categoriesRes] = await Promise.all([
+  const [{ user }, categoriesRes, catalogueRes] = await Promise.all([
     getOptionalUser(request),
     getCourseCategories(request),
+    listPublicCourses(request, {
+      page: 1,
+      limit: 24,
+      search: search || undefined,
+      categoryId: categoryId ?? undefined,
+      sortBy: "newest",
+    }),
   ]);
 
   const apiCategories: CourseCategory[] = (
@@ -35,31 +33,24 @@ export async function educationLoader({ request }: EducationRoute.LoaderArgs) {
     iconKey: category.iconKey,
   }));
 
-  const categories = mergeCategories(apiCategories);
+  const categories = apiCategories;
 
   const displayName = user?.profile?.displayName || user?.name || "there";
 
-  // No public catalog endpoint exists yet, so the rows come from fixtures.
-  // Swap these for the API call when it lands.
   const isFiltering = Boolean(search || categoryId);
   const selectedCategoryName =
     categories.find((category) => category.id === categoryId)?.name ?? null;
 
-  const results = CATALOG_COURSES.filter(
-    (course) =>
-      matchesCategory(course, categoryId, selectedCategoryName) &&
-      matchesSearch(course, search),
-  );
+  const published = (catalogueRes?.data?.courses ?? []).map(toCourseSummary);
 
   return {
-    learner: buildLearnerSnapshot(displayName),
-    topics: HERO_TOPICS,
+    displayName,
     categories,
     isFiltering,
-    results,
-    trending: TRENDING_COURSES,
-    recent: RECENT_COURSES,
-    allCourses: ALL_COURSES,
+    results: published,
+    trending: published.slice(0, 8),
+    recent: published.slice(0, 8),
+    allCourses: published,
     search,
     categoryId,
     selectedCategoryName,

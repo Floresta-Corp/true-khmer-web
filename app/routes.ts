@@ -44,10 +44,6 @@ export default [
       route("education/all", "features/education/route/education.all.tsx"),
       route("education/:id", "features/education/route/education.$id.tsx"),
       route(
-        "education/:id/learn",
-        "features/education/route/education.learn.$id.tsx",
-      ),
-      route(
         "education/:id/quiz",
         "features/education/route/education.quiz.$id.tsx",
       ),
@@ -73,6 +69,10 @@ export default [
       ),
       route("profile/:id", "features/profile/route/profile.$id.tsx"),
     ]),
+    route(
+      "education/:id/learn",
+      "features/education/route/education.learn.$id.tsx",
+    ),
     route("edit-profile", "features/myspace/route/edit-profile.tsx"),
     route(
       "my-applications/detail/:sourceType/:postingId",
@@ -85,12 +85,16 @@ export default [
       route("my-applications", "features/myspace/route/my-applications.tsx"),
       route("my-ticket", "routes/my-ticket.tsx"),
       route("saved-items", "features/saved-items/route/saved-items.tsx"),
+      route("my-classes", "features/my-classes/route/my-classes.tsx"),
     ]),
 
     layout("layout/workspace-layout.tsx", [
       route("workspace", "features/workspace/route/workspace.tsx"),
       route("my-events", "features/workspace/route/my-events.tsx"),
-      route("manage-post", "features/manage-post/route/manage-post.tsx"),
+      route(
+        "workspace/manage-post",
+        "features/workspace/manage-post/route/manage-post.tsx",
+      ),
       route(
         "course-listing",
         "features/course-listing/route/course-listing.tsx",
@@ -99,15 +103,29 @@ export default [
         "course-listing/:id",
         "features/course-manage/route/course-manage.$id.tsx",
       ),
+      /* Resource route: the Students tab pages its roster through this, so a
+         page change does not refetch the whole course screen. */
       route(
-        "manage-post/:sourceType/:id",
-        "features/manage-post/route/manage-post.$sourceType.$id.tsx",
+        "course-listing/:id/students",
+        "features/course-manage/route/course-manage.$id.students.ts",
+      ),
+      route(
+        "course-listing/:id/students/:userId",
+        "features/course-manage/route/course-manage.$id.students.$userId.ts",
+      ),
+      /* Resource route: the Review tab reads further into the reviews through
+         this, for the same reason. */
+      route(
+        "course-listing/:id/reviews",
+        "features/course-manage/route/course-manage.$id.reviews.ts",
+      ),
+      route(
+        "workspace/manage-post/:sourceType/:id",
+        "features/workspace/manage-post/route/manage-post.$sourceType.$id.tsx",
       ),
     ]),
     route("notifications", "features/notifications/route/notifications.tsx"),
   ]),
-  // Standalone: the design gives the builder its own 100vh rail, so it sits
-  // outside the app shell rather than under the site header.
   route("education/create", "features/course-builder/route/course-builder.tsx"),
   route(
     "education/:id/edit",
@@ -225,6 +243,14 @@ export default [
       "manage-volunteer/:opportunityId",
       "features/admin/manage-content/route/manage-volunteer.$opportunityId.tsx",
     ),
+    route(
+      "manage-education",
+      "features/admin/manage-education/route/manage-education.tsx",
+    ),
+    route(
+      "manage-education/:courseId",
+      "features/admin/manage-education/route/manage-education.$courseId.tsx",
+    ),
   ]),
   route(
     "tk-admin/admin-audit-log/export",
@@ -285,6 +311,7 @@ export default [
     "api/myspace/skills/search",
     "features/myspace/route/myspace.skills-search.ts",
   ),
+  route("api/my-events/venues", "features/workspace/route/my-events.venues.ts"),
   route(
     "api/launchpad/batch-apply",
     "features/launchpad/route/launchpad.batch-apply.ts",
@@ -332,6 +359,6 @@ export default [
   ),
   route(
     "api/candidate-note",
-    "features/manage-post/route/manage-post.candidate-note.ts",
+    "features/workspace/manage-post/route/manage-post.candidate-note.ts",
   ),
 ] satisfies RouteConfig;

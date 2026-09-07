@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import {
   ChevronDown,
   FileText,
@@ -9,11 +10,13 @@ import {
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { LessonSourceField } from "../lesson-source-field";
+import { Required } from "../required-mark";
 import type { CourseSection, LessonType } from "~/features/education/types";
 import {
   LESSON_SOURCES,
   LESSON_SOURCE_CARDS,
   LESSON_SOURCE_SUBTITLES,
+  lessonSourceChange,
   type CourseFormat,
   type CourseFormatOption,
   type LessonDraft,
@@ -26,11 +29,6 @@ const SOURCE_ICONS: Record<LessonSource, typeof Play> = {
   audio: Music,
 };
 
-/**
- * Copy inferred: the design computes these two cards in a script past the
- * 256 KiB fetch cap, so only their shape (radio, icon, label + badge, blurb) is
- * known for certain.
- */
 const FORMAT_OPTIONS: CourseFormatOption[] = [
   {
     value: "multi",
@@ -58,8 +56,11 @@ const TYPE_LABELS: Record<LessonType, string> = {
 };
 
 interface CurriculumStepProps {
+  /** Set when the step was left, or submitted, without enough content. */
+  error?: string;
+  /** Sections the error is pointing at, so each one can say so itself. */
+  emptySectionIds?: Set<string>;
   format: CourseFormat;
-  /** The single-lesson course's own content, when the format is "single". */
   lesson: LessonDraft;
   onLessonChange: (changes: Partial<LessonDraft>) => void;
   sections: CourseSection[];
@@ -67,10 +68,61 @@ interface CurriculumStepProps {
   onFormatChange: (format: CourseFormat) => void;
   onToggleSection: (id: string) => void;
   onAddSection: () => void;
+  onEditSection: (sectionId: string) => void;
+  onMoveSection: (draggedId: string, targetId: string) => void;
+  onMoveLesson: (
+    fromSectionId: string,
+    lessonId: string,
+    toSectionId: string,
+    targetLessonId: string | null,
+  ) => void;
   onAddLesson: (sectionId: string) => void;
+  /** Absent while the course is locked, which leaves the rows read-only. */
+  onEditLesson?: (sectionId: string, lessonId: string) => void;
+}
+
+/**
+ * The title and type of a lesson row. While the course is editable this is a
+ * button that opens the lesson; otherwise it is plain text, so a locked course
+ * does not offer a control that would refuse to do anything.
+ */
+function LessonBody({
+  title,
+  meta,
+  onEdit,
+}: {
+  title: string;
+  meta: string;
+  onEdit?: () => void;
+}) {
+  const content = (
+    <>
+      <span className="min-w-0 flex-1 truncate text-sm text-[#333333]">
+        {title}
+      </span>
+      <span className="shrink-0 text-[13px] text-[#9A9AB0]">{meta}</span>
+    </>
+  );
+
+  const shared = "flex min-w-0 flex-1 items-center gap-3 py-3.5 pr-4 pl-3";
+
+  return onEdit ? (
+    <button
+      type="button"
+      onClick={onEdit}
+      title="Edit this lesson"
+      className={cn(shared, "cursor-pointer text-left")}
+    >
+      {content}
+    </button>
+  ) : (
+    <span className={shared}>{content}</span>
+  );
 }
 
 export function CurriculumStep({
+  error,
+  emptySectionIds,
   format,
   lesson,
   onLessonChange,
@@ -79,8 +131,44 @@ export function CurriculumStep({
   onFormatChange,
   onToggleSection,
   onAddSection,
+  onEditSection,
+  onMoveSection,
+  onMoveLesson,
   onAddLesson,
+  onEditLesson,
 }: CurriculumStepProps) {
+  type Drag =
+    | { kind: "section"; sectionId: string }
+    | { kind: "lesson"; sectionId: string; lessonId: string };
+
+  const dragRef = useRef<Drag | null>(null);
+  const [dragging, setDragging] = useState<Drag | null>(null);
+  /** Row the pointer is over, drawn with a line marking the insert point. */
+  const [over, setOver] = useState<string | null>(null);
+
+  const startDrag = (drag: Drag) => {
+    dragRef.current = drag;
+    setDragging(drag);
+  };
+
+  const endDrag = () => {
+    dragRef.current = null;
+    setDragging(null);
+    setOver(null);
+  };
+
+  const allowDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = "move";
+  };
+
+  const beginDrag = (event: React.DragEvent, id: string) => {
+    event.stopPropagation();
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", id);
+  };
+
   return (
     <div>
       <div className="mb-7">
@@ -175,7 +263,7 @@ export function CurriculumStep({
                       key={source}
                       type="button"
                       aria-pressed={active}
-                      onClick={() => onLessonChange({ source })}
+                      onClick={() => onLessonChange(lessonSourceChange(source))}
                       className={cn(
                         "flex flex-1 cursor-pointer items-center gap-3 rounded-lg border p-3.5 text-left transition-colors sm:min-w-[210px] sm:flex-none",
                         active
@@ -228,8 +316,17 @@ export function CurriculumStep({
                 urlPlaceholder="Paste YouTube URL here"
                 label={LESSON_SOURCE_CARDS[lesson.source].label}
                 onUrlChange={(url) => onLessonChange({ url })}
-                onFileChange={(fileName) => onLessonChange({ fileName })}
+                onUploaded={(assetKey, fileName) =>
+                  onLessonChange({ assetKey, fileName })
+                }
+                onClearFile={() =>
+                  onLessonChange({ assetKey: null, fileName: null })
+                }
               />
+
+              {error && (
+                <p className="mt-1.5 text-[13px] text-[#FB3748]">{error}</p>
+              )}
 
               {lesson.source === "youtube" && (
                 <div className="mt-3 flex items-start gap-2.5 rounded-lg bg-[#EFF4FE] px-3.5 py-3">
@@ -253,6 +350,7 @@ export function CurriculumStep({
             <div>
               <h3 className="mb-1 text-[18px] font-bold whitespace-nowrap text-[#1A1A2E]">
                 Build your curriculum
+                <Required />
               </h3>
               <p className="text-sm text-[#9A9AB0]">
                 Organize your course into sections and lessons.
@@ -267,15 +365,50 @@ export function CurriculumStep({
             </button>
           </div>
 
+          {error && (
+            <p className="mb-3.5 text-[13px] text-[#FB3748]">{error}</p>
+          )}
+
           <div className="flex flex-col gap-3.5">
             {sections.map((section) => {
               const isOpen = openSections.has(section.id);
               const count = section.lessons.length;
+              const isEmpty = emptySectionIds?.has(section.id) ?? false;
 
               return (
                 <div
                   key={section.id}
-                  className="overflow-hidden rounded-lg border border-[#E5E7EB]"
+                  draggable
+                  onDragStart={(event) => {
+                    beginDrag(event, section.id);
+                    startDrag({ kind: "section", sectionId: section.id });
+                  }}
+                  onDragOver={allowDrop}
+                  onDrop={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const drag = dragRef.current;
+                    if (!drag) return;
+                    if (drag.kind === "section") {
+                      onMoveSection(drag.sectionId, section.id);
+                    } else if (drag.sectionId !== section.id) {
+                      onMoveLesson(
+                        drag.sectionId,
+                        drag.lessonId,
+                        section.id,
+                        null,
+                      );
+                    }
+                    endDrag();
+                  }}
+                  onDragEnd={endDrag}
+                  className={cn(
+                    "overflow-hidden rounded-lg border",
+                    isEmpty ? "border-[#FB3748]" : "border-[#E5E7EB]",
+                    dragging?.kind === "section" &&
+                      dragging.sectionId === section.id &&
+                      "opacity-40",
+                  )}
                 >
                   <div className="flex flex-wrap items-center gap-3 bg-[#F3F6FD] px-4 py-3.5">
                     <GripVertical
@@ -283,11 +416,25 @@ export function CurriculumStep({
                       aria-hidden
                       className="shrink-0 cursor-grab text-[#9A9AB0]"
                     />
-                    <span className="min-w-0 flex-1 truncate text-[15px] font-bold text-[#1A1A2E]">
+                    <button
+                      type="button"
+                      onClick={() => onEditSection(section.id)}
+                      title="Rename or delete this section"
+                      className="min-w-0 flex-1 cursor-pointer truncate text-left text-[15px] font-bold text-[#1A1A2E]"
+                    >
                       {section.title}
-                    </span>
-                    <span className="shrink-0 text-[13px] text-[#9A9AB0]">
-                      {count} {count === 1 ? "lesson" : "lessons"}
+                    </button>
+                    <span
+                      className={cn(
+                        "shrink-0 text-[13px]",
+                        isEmpty
+                          ? "font-semibold text-[#FB3748]"
+                          : "text-[#9A9AB0]",
+                      )}
+                    >
+                      {isEmpty
+                        ? "Add at least one lesson"
+                        : `${count} ${count === 1 ? "lesson" : "lessons"}`}
                     </span>
                     <button
                       type="button"
@@ -313,20 +460,66 @@ export function CurriculumStep({
                       {section.lessons.map((lesson) => (
                         <div
                           key={lesson.id}
-                          className="flex cursor-pointer items-center gap-3 border-t border-[#E5E7EB] px-4 py-3.5 transition-colors hover:bg-[#F5F5F5]"
+                          draggable
+                          onDragStart={(event) => {
+                            beginDrag(event, lesson.id);
+                            startDrag({
+                              kind: "lesson",
+                              sectionId: section.id,
+                              lessonId: lesson.id,
+                            });
+                          }}
+                          onDragOver={(event) => {
+                            allowDrop(event);
+                            const drag = dragRef.current;
+                            if (drag?.kind !== "lesson") return;
+                            if (drag.lessonId !== lesson.id) setOver(lesson.id);
+                          }}
+                          onDragLeave={() =>
+                            setOver((current) =>
+                              current === lesson.id ? null : current,
+                            )
+                          }
+                          onDrop={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            const drag = dragRef.current;
+                            if (drag?.kind !== "lesson") return;
+                            onMoveLesson(
+                              drag.sectionId,
+                              drag.lessonId,
+                              section.id,
+                              lesson.id,
+                            );
+                            endDrag();
+                          }}
+                          onDragEnd={endDrag}
+                          className={cn(
+                            "flex cursor-grab items-center border-t border-[#E5E7EB] transition-colors hover:bg-[#F5F5F5] active:cursor-grabbing",
+                            dragging?.kind === "lesson" &&
+                              dragging.lessonId === lesson.id &&
+                              "opacity-40",
+                            over === lesson.id &&
+                              "bg-[#F3F6FD] shadow-[inset_0_2px_0_0_#1C5DD4]",
+                          )}
                         >
-                          <GripVertical
-                            size={15}
+                          <span
                             aria-hidden
-                            className="shrink-0 cursor-grab text-[#9A9AB0]"
+                            className="flex shrink-0 items-center py-3.5 pl-4 text-[#9A9AB0]"
+                          >
+                            <GripVertical size={15} />
+                          </span>
+
+                          <LessonBody
+                            title={lesson.title}
+                            meta={`${TYPE_LABELS[lesson.type]}${
+                              lesson.duration ? ` · ${lesson.duration}` : ""
+                            }`}
+                            onEdit={
+                              onEditLesson &&
+                              (() => onEditLesson(section.id, lesson.id))
+                            }
                           />
-                          <span className="min-w-0 flex-1 truncate text-sm text-[#333333]">
-                            {lesson.title}
-                          </span>
-                          <span className="shrink-0 text-[13px] text-[#9A9AB0]">
-                            {TYPE_LABELS[lesson.type]}
-                            {lesson.duration ? ` · ${lesson.duration}` : ""}
-                          </span>
                         </div>
                       ))}
 

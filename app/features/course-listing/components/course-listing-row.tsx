@@ -1,12 +1,6 @@
-import { Link, useFetcher } from "react-router";
+import { Link } from "react-router";
 import { motion } from "motion/react";
-import { Eye, MoreVertical, SendHorizonal, Undo2 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
+import { CourseActionsMenu } from "./course-actions-menu";
 import { CourseStatusBadge } from "./course-status-badge";
 import { CourseLearnerStats } from "./course-learner-stats";
 import {
@@ -17,40 +11,21 @@ import {
 interface CourseListingRowProps {
   course: CourseWithStats;
   index: number;
-  /** Placeholder rows have no course on the API, so status changes are hidden. */
-  placeholder?: boolean;
 }
 
-export function CourseListingRow({
-  course,
-  index,
-  placeholder = false,
-}: CourseListingRowProps) {
-  const fetcher = useFetcher();
+export function CourseListingRow({ course, index }: CourseListingRowProps) {
   const status = displayStatusOf(course);
   const cover = course.coverImageUrl ?? "/placeholder/images.svg";
   const manageTo = `/course-listing/${course.id}`;
-  const busy = fetcher.state !== "idle";
-
-  const submitIntent = (intent: string) => {
-    fetcher.submit(
-      { intent, courseId: course.id },
-      { method: "post", action: "/course-listing" },
-    );
-  };
 
   return (
     <motion.article
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.24, delay: Math.min(index, 6) * 0.03 }}
-      /* Resting rows are flat — the design shows no shadow in the gaps
-         between them. Hover lifts only the row under the cursor: measured at
-         ~10px of spread above, ~20px to the sides and ~22px+ below, which is a
-         ~20px blur offset ~6px down. */
-      className="relative flex cursor-pointer items-center gap-5 rounded-2xl bg-white p-4 transition-shadow duration-200 hover:shadow-[0_6px_20px_rgba(26,26,46,0.14),0_2px_6px_rgba(26,26,46,0.06)]"
+      className="relative flex cursor-pointer items-center gap-6 rounded-2xl bg-white p-4 transition-shadow duration-200 hover:shadow-[0_6px_20px_rgba(26,26,46,0.14),0_2px_6px_rgba(26,26,46,0.06)]"
     >
-      <span className="size-16 w-24 shrink-0 overflow-hidden rounded-lg bg-[#E8E8E8]">
+      <span className="h-16 w-20 shrink-0 overflow-hidden rounded-lg bg-[#E8E8E8]">
         <img
           src={cover}
           alt=""
@@ -63,9 +38,7 @@ export function CourseListingRow({
         />
       </span>
 
-      {/* Fixed width so titles truncate at the same point on every row, with
-          or without the stats block, as the design does. */}
-      <div className="w-64 min-w-0 shrink-0">
+      <div className="min-w-0 flex-1">
         <CourseStatusBadge status={status} className="mb-2 inline-block" />
         <h3 className="truncate text-[18px] font-bold text-[#10101E]">
           <Link
@@ -77,53 +50,26 @@ export function CourseListingRow({
         </h3>
       </div>
 
-      <div className="min-w-0 flex-1" />
-
-      {course.stats && (
-        <CourseLearnerStats stats={course.stats} className="hidden lg:flex" />
+      {/* Pinned to the right against the overflow menu, as the design has it:
+          the title absorbs the slack, so a short title does not drag the
+          figures leftwards out of line with the rows around it. */}
+      {course.stats ? (
+        <CourseLearnerStats
+          stats={course.stats}
+          className="hidden lg:mr-5 lg:flex"
+        />
+      ) : (
+        /* Nobody enrolled, so there are no figures to report and the strip
+           collapses to the design's single em dash. */
+        <span
+          aria-label="No learner figures yet"
+          className="hidden shrink-0 text-[#9A9AB0] lg:mr-5 lg:block"
+        >
+          —
+        </span>
       )}
 
-      <div className="min-w-0 flex-1" />
-
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          aria-label={`Actions for ${course.title}`}
-          disabled={busy}
-          className="relative z-10 flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600 disabled:opacity-50"
-        >
-          <MoreVertical size={18} aria-hidden />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-52 rounded-xl">
-          <DropdownMenuItem asChild>
-            <Link to={`/education/${course.id}`}>
-              <Eye size={16} aria-hidden />
-              View live course
-            </Link>
-          </DropdownMenuItem>
-
-          {!placeholder &&
-            (course.status === "DRAFT" || course.status === "UNPUBLISHED") && (
-              <DropdownMenuItem onSelect={() => submitIntent("submit")}>
-                <SendHorizonal size={16} aria-hidden />
-                Submit for review
-              </DropdownMenuItem>
-            )}
-
-          {!placeholder && course.status === "PENDING" && (
-            <DropdownMenuItem onSelect={() => submitIntent("withdraw")}>
-              <Undo2 size={16} aria-hidden />
-              Withdraw submission
-            </DropdownMenuItem>
-          )}
-
-          {!placeholder && course.status === "PUBLISHED" && (
-            <DropdownMenuItem onSelect={() => submitIntent("unpublish")}>
-              <Undo2 size={16} aria-hidden />
-              Unpublish
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <CourseActionsMenu course={course} />
     </motion.article>
   );
 }

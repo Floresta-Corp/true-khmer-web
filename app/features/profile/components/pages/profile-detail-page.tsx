@@ -9,6 +9,7 @@ import { motion, useReducedMotion } from "motion/react";
 import BackToButton from "~/components/back-to-button";
 import ProfileAboutCard from "../card/profile-about-card";
 import ProfileHeaderCard from "../card/profile-header-card";
+import { ProfileCertificatesCard } from "../card/profile-certificates-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import QuestionCard from "~/features/forum/components/card/question-card";
 import QuestionCardSkeleton from "~/features/forum/components/card/question-card-skeleton";
@@ -60,6 +61,7 @@ export default function ProfileDetailPage() {
       : "about";
 
   const profile = data.kind === "profile" ? data.profile : null;
+  const certificates = data.kind === "profile" ? data.certificates : [];
   const prefersReducedMotion = useReducedMotion();
 
   if (!profile) {
@@ -122,19 +124,27 @@ export default function ProfileDetailPage() {
           </div>
 
           <TabsContent value="about">
-            {profile.profile.bio || profile.skills.length > 0 ? (
-              <ProfileAboutCard
-                about={profile.profile.bio ?? ""}
-                skills={profile.skills}
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-                <p className="text-lg font-medium">No information available</p>
-                <p className="mt-1 text-sm">
-                  This user has not added any details yet
-                </p>
-              </div>
-            )}
+            <div className="space-y-6">
+              {profile.profile.bio || profile.skills.length > 0 ? (
+                <ProfileAboutCard
+                  about={profile.profile.bio ?? ""}
+                  skills={profile.skills}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                  <p className="text-lg font-medium">
+                    No information available
+                  </p>
+                  <p className="mt-1 text-sm">
+                    This user has not added any details yet
+                  </p>
+                </div>
+              )}
+
+              {certificates.length > 0 ? (
+                <ProfileCertificatesCard certificates={certificates} />
+              ) : null}
+            </div>
           </TabsContent>
 
           <TabsContent value="forum">

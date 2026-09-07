@@ -55,7 +55,6 @@ const GATED_ROOTS = new Set([
   "complete-signup",
   "dashboard",
   "edit-profile",
-  "manage-post",
   "messages",
   "my-applications",
   "my-events",

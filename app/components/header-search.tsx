@@ -1,6 +1,6 @@
 import { Search, ChevronDown, Plus, MapPin } from "lucide-react";
 import { Link, useNavigate } from "react-router";
-import { Button } from "./ui/button";
+import { motion } from "motion/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,8 +9,8 @@ import {
 } from "./ui/dropdown-menu";
 import { Input } from "./ui/input";
 import { useState } from "react";
-import { cn } from "~/lib/utils";
 import type { Location } from "~/features/volunteer/types/location";
+import { Button } from "./ui/button";
 
 const ANYWHERE: Location = { id: "anywhere", name: "Anywhere" };
 
@@ -21,7 +21,12 @@ interface HeaderSearchProps {
   buttonWidth?: string;
   locations?: Location[];
   searchBaseUrl?: string;
+  dur: number;
 }
+
+const easings = {
+  enter: "easeInOut" as const,
+};
 
 export default function HeaderSearch({
   postButton,
@@ -30,6 +35,7 @@ export default function HeaderSearch({
   buttonWidth,
   locations = [],
   searchBaseUrl = "/launchpad/all",
+  dur,
 }: HeaderSearchProps) {
   const allLocations = [ANYWHERE, ...locations];
   const [location, setLocation] = useState<Location>(ANYWHERE);
@@ -60,57 +66,71 @@ export default function HeaderSearch({
   };
 
   return (
-    <>
-      <div className="flex w-full flex-col items-center gap-6 md:flex-row">
-        <div className="flex min-h-16.25 w-full flex-1 flex-col items-center rounded-xl border border-[#f3f4f6] bg-white px-2 py-2 sm:px-[11.5px] sm:py-px md:h-16.25 md:flex-row md:items-center md:gap-3.5">
-          <div className="flex h-10.5 w-full flex-1 items-center gap-[10.5px] px-3.5">
-            <Search className="size-[17.5px] shrink-0 text-[#99a1af]" />
-            <Input
-              type="search"
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={inputPlaceholder || "Search by name or mission...."}
-              className="h-10.5 border-0 bg-transparent px-0 py-0 text-sm font-semibold text-[#364153] placeholder:font-semibold placeholder:text-[#99a1af] focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
-          </div>
-
-          <div className="h-px w-full shrink-0 bg-[#f3f4f6] md:h-8.75 md:w-px" />
-
-          <div className="flex w-full justify-start md:w-auto md:px-0">
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex h-8.5 w-full items-center justify-start gap-1.5 rounded-xl px-3.5 text-[13px] leading-[19.5px] font-semibold text-[#99a1af] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none md:w-auto">
-                <MapPin className="size-[17.5px] shrink-0 text-[#99a1af]" />
-                {location.name}
-                <ChevronDown className="ml-auto size-3.5 text-[#364153]/65 md:ml-0" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="start"
-                className="max-h-64 min-w-40 overflow-y-auto"
-              >
-                {allLocations.map((loc) => (
-                  <DropdownMenuItem
-                    key={loc.id}
-                    onSelect={() => handleLocationSelect(loc)}
-                  >
-                    {loc.name}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleSearch}
-            aria-label="Search"
-            className="m-1.5 hidden h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-blue-50 text-white transition-colors hover:bg-blue-50/50 md:flex"
-          >
-            <Search className="size-4 text-[#2f6fe4]" />
-          </button>
+    <motion.form
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{
+        opacity: 0,
+        y: -12,
+        transition: { duration: 0.2 * dur, ease: "easeInOut" as const },
+      }}
+      transition={{
+        duration: 0.55 * dur,
+        delay: 0.2 * dur,
+        ease: easings.enter,
+      }}
+      onSubmit={(event) => {
+        event.preventDefault();
+        navigate(buildUrl(searchValue, location.id));
+      }}
+      className="w-full max-w-125"
+    >
+      <div className="flex w-full flex-col gap-2 rounded-[26px] border border-slate-200/80 bg-white p-2 shadow-[0_18px_50px_rgba(15,23,42,0.08)] transition-shadow duration-300 ease-out sm:flex-row sm:items-center sm:rounded-full">
+        <div className="relative min-w-0 flex-1">
+          <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-slate-400" />
+          <Input
+            type="search"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={inputPlaceholder || "Search projects..."}
+            className="h-11 border-0 bg-transparent pr-4 pl-11 text-sm font-medium text-slate-700 placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0"
+          />
         </div>
 
-        <Link
+        <div className="hidden h-6 w-px shrink-0 bg-slate-200 sm:block" />
+
+        <div className="flex w-full justify-start md:w-auto md:px-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex h-8.5 w-full cursor-pointer items-center justify-start gap-1.5 rounded-xl px-3.5 text-[13px] leading-[19.5px] font-semibold text-[#99a1af] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none md:w-auto">
+              <MapPin className="size-[17.5px] shrink-0 text-[#99a1af]" />
+              {location.name}
+              <ChevronDown className="ml-auto size-3.5 text-[#364153]/65 md:ml-0" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="start"
+              className="max-h-64 min-w-40 overflow-y-auto"
+            >
+              {allLocations.map((loc) => (
+                <DropdownMenuItem
+                  key={loc.id}
+                  onSelect={() => handleLocationSelect(loc)}
+                >
+                  {loc.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <Button
+          type="submit"
+          onClick={handleSearch}
+          aria-label="Search"
+          className="h-11 w-full shrink-0 cursor-pointer rounded-full bg-[#2463eb] text-white hover:bg-[#1d56d2] sm:w-11"
+        >
+          <Search className="size-4" />
+        </Button>
+        {/* <Link
           to={postUrl || "/volunteer/post"}
           className="w-full shrink-0 md:w-auto"
         >
@@ -124,8 +144,8 @@ export default function HeaderSearch({
             <Plus className="size-4" />
             {postButton ?? "Post opportunity"}
           </Button>
-        </Link>
+        </Link> */}
       </div>
-    </>
+    </motion.form>
   );
 }

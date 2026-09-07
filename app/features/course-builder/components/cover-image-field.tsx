@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
-import { ImagePlus, Loader2, Trash2 } from "lucide-react";
+import { Image as ImageIcon, Loader2 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import {
   putCoverImage,
@@ -10,20 +10,19 @@ import {
 
 interface CoverImageFieldProps {
   previewUrl: string | null;
+  /** Paints the dropzone red when the step is saved without a cover. */
+  invalid?: boolean;
   onUploaded: (coverImageKey: string, previewUrl: string) => void;
-  onClear: () => void;
 }
 
-type PresignResult = { ok: true; intent: "presign-cover"; upload: CoverUpload };
+type PresignResult =
+  | { ok: true; intent: "presign-cover"; upload: CoverUpload }
+  | { ok: false; error?: string };
 
-/**
- * The design's 16/9 cover well. Picking a file presigns through our action,
- * then PUTs straight to storage; only the returned key is saved on the course.
- */
 export function CoverImageField({
   previewUrl,
+  invalid = false,
   onUploaded,
-  onClear,
 }: CoverImageFieldProps) {
   const fetcher = useFetcher<PresignResult>();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -51,10 +50,16 @@ export function CoverImageField({
     );
   };
 
-  // The presigned URL comes back through the action; the PUT happens here.
   useEffect(() => {
     const file = pendingFile.current;
-    if (fetcher.state !== "idle" || !fetcher.data?.upload || !file) return;
+    if (fetcher.state !== "idle" || !fetcher.data || !file) return;
+
+    if (!fetcher.data.ok) {
+      pendingFile.current = null;
+      setError(fetcher.data.error ?? "That image could not be uploaded.");
+      return;
+    }
+
     pendingFile.current = null;
 
     const upload = fetcher.data.upload;
@@ -70,40 +75,62 @@ export function CoverImageField({
   const busy = uploading || fetcher.state !== "idle";
 
   return (
-    <div className="max-w-[360px]">
-      <div
-        onDragOver={(event) => {
-          event.preventDefault();
-          setDragging(true);
-        }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={(event) => {
-          event.preventDefault();
-          setDragging(false);
-          accept(event.dataTransfer.files[0]);
-        }}
-        className={cn(
-          "relative aspect-video overflow-hidden rounded-lg bg-[#E8E8E8]",
-          dragging && "ring-2 ring-[#1C5DD4] ring-offset-2",
-        )}
-      >
+    <div
+      className="max-w-140"
+      onDragOver={(event) => {
+        event.preventDefault();
+        setDragging(true);
+      }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={(event) => {
+        event.preventDefault();
+        setDragging(false);
+        accept(event.dataTransfer.files[0]);
+      }}
+    >
+      <div className="relative">
         {previewUrl ? (
-          <img src={previewUrl} alt="" className="size-full object-cover" />
+          <div className="aspect-video overflow-hidden rounded-xl border border-[#E5E7EB]">
+            <img src={previewUrl} alt="" className="size-full object-cover" />
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              disabled={busy}
+              className="absolute top-3 right-3 cursor-pointer rounded-lg bg-[#1A1A2E]/85 px-4 py-2 text-[13px] font-bold text-white backdrop-blur-sm transition-colors hover:bg-[#1A1A2E] disabled:opacity-50"
+            >
+              Replace
+            </button>
+          </div>
         ) : (
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="flex size-full cursor-pointer flex-col items-center justify-center gap-2 text-[#9A9AB0]"
+            className={cn(
+              "flex aspect-video w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-[1.5px] border-dashed bg-[#F4F4F5] transition-colors",
+              dragging
+                ? "border-[#1C5DD4] bg-[#F4F8FF]"
+                : invalid
+                  ? "border-[#FB3748]"
+                  : "border-[#D1D5DB] hover:border-[#ACC5F4]",
+            )}
           >
-            <ImagePlus size={22} aria-hidden />
-            <span className="text-[13px] font-medium">
+            <ImageIcon
+              size={34}
+              strokeWidth={1.5}
+              aria-hidden
+              className="text-[#9A9AB0]"
+            />
+            <span className="mt-1 text-[15px] text-[#6B7280]">
               Drag and drop an image here
+            </span>
+            <span className="text-[13px] text-[#6B7280]">
+              or <span className="underline">browse files</span>
             </span>
           </button>
         )}
 
         {busy && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/70">
+          <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/70">
             <Loader2 size={20} className="animate-spin text-[#1C5DD4]" />
           </div>
         )}
@@ -116,27 +143,6 @@ export function CoverImageField({
         className="hidden"
         onChange={(event) => accept(event.target.files?.[0])}
       />
-
-      <div className="mt-2 flex items-center gap-4">
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          disabled={busy}
-          className="cursor-pointer text-[13px] font-semibold text-[#1C5DD4] hover:underline disabled:opacity-50"
-        >
-          {previewUrl ? "Replace image" : "Choose an image"}
-        </button>
-        {previewUrl && (
-          <button
-            type="button"
-            onClick={onClear}
-            className="flex cursor-pointer items-center gap-1 text-[13px] font-semibold text-[#9A9AB0] hover:text-[#FB3748]"
-          >
-            <Trash2 size={13} aria-hidden />
-            Remove
-          </button>
-        )}
-      </div>
 
       {error && <p className="mt-1.5 text-[13px] text-[#FB3748]">{error}</p>}
     </div>

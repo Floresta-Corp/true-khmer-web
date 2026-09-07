@@ -25,9 +25,7 @@ interface PreviewStepProps {
   sections: CourseSection[];
   questionCount: number;
   passMark: string;
-  /** A single-lesson course phrases its content item differently. */
   format: CourseFormat;
-  /** The quiz item only applies when the course has a Quiz step. */
   hasQuizStep: boolean;
   onEditStep: (step: BuilderStep) => void;
 }
@@ -53,8 +51,6 @@ export function PreviewStep({
     DIFFICULTY_OPTIONS.find((option) => option.value === draft.difficulty)
       ?.label ?? "Not set";
 
-  // The design's own checklist: details, cover, content, and a quiz item only
-  // when the course has a quiz to complete.
   const checklist: Array<{ label: string; done: boolean; step: BuilderStep }> =
     [
       {
@@ -62,7 +58,8 @@ export function PreviewStep({
         done:
           draft.title.trim().length > 0 &&
           draft.description.trim().length > 0 &&
-          Boolean(draft.categoryId),
+          Boolean(draft.categoryId) &&
+          draft.outcomes.some((outcome) => outcome.trim().length > 0),
         step: "basic",
       },
       {
@@ -128,7 +125,7 @@ export function PreviewStep({
 
           {draft.coverPreviewUrl && (
             <div className="border-t border-[#E5E7EB] pt-4">
-              <div className={FIELD_LABEL}>COVER</div>
+              <div className={FIELD_LABEL}>COVER IMAGE</div>
               <img
                 src={draft.coverPreviewUrl}
                 alt=""
@@ -226,7 +223,8 @@ export function PreviewStep({
                 <CircleCheck
                   size={16}
                   aria-hidden
-                  className="shrink-0 text-[#1FC16B]"
+                  fill="#1FC16B"
+                  className="shrink-0 text-white"
                 />
               ) : (
                 <CircleDashed
@@ -280,7 +278,8 @@ function ReviewCard({
             <CircleCheck
               size={22}
               aria-hidden
-              className="shrink-0 text-[#1FC16B]"
+              fill="#1FC16B"
+              className="shrink-0 text-white"
             />
           ) : (
             <CircleDashed

@@ -21,10 +21,14 @@ export function LaunchpadAvailableProjectsSection() {
   const displayedProjects = projects.slice(0, PAGE_SIZE);
 
   return (
-    <section className="w-full bg-white">
-      <div className="site-container">
-        <header className="flex items-center justify-between py-10">
-          <div className="text-3xl font-bold">All Projects</div>
+    <section className="mb-10 w-full bg-white">
+      <div className="site-container flex flex-col gap-8">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-xl leading-8 font-bold text-[#020618] md:text-[22px] md:leading-8">
+              Open Opportunities
+            </h2>
+          </div>
           <Button
             className="h-9 px-4 text-sm text-blue-500 hover:bg-transparent hover:text-blue-700 hover:underline"
             variant={"ghost"}
@@ -32,9 +36,9 @@ export function LaunchpadAvailableProjectsSection() {
           >
             View All
           </Button>
-        </header>
+        </div>
 
-        <div className="grid grid-cols-1 gap-5 gap-x-5 gap-y-6 pb-10 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {displayedProjects.map((item) => (
             <LaunchpadProjectCard
               key={item.id}

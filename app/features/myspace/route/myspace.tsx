@@ -11,6 +11,7 @@ import MyspaceBioCard from "../components/myspace-bio-card";
 import { CommunityStandingCard } from "../components/myspace-community-standing-cards";
 import ProfileHeaderCard from "~/features/profile/components/card/profile-header-card";
 import ProfileAboutCard from "~/features/profile/components/card/profile-about-card";
+import { ProfileCertificatesCard } from "~/features/profile/components/card/profile-certificates-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import QuestionCard from "~/features/forum/components/card/question-card";
 import QuestionCardSkeleton from "~/features/forum/components/card/question-card-skeleton";
@@ -27,7 +28,7 @@ export function meta() {
 }
 
 export default function MySpacePage({ loaderData }: Route.ComponentProps) {
-  const { me, userId } = loaderData;
+  const { me, userId, certificates } = loaderData;
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const postedFetcher = useFetcher<any>();
@@ -57,6 +58,9 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
   }
 
   const isPublicView = viewMode === "public";
+  const sharedCertificates = certificates.filter(
+    (certificate) => certificate.sharedToProfile,
+  );
 
   const handleToggleView = () => {
     const nextViewMode = isPublicView ? "myview" : "public";
@@ -180,21 +184,29 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
               </div>
 
               <TabsContent value="about">
-                {me.profile.bio || me.skills.length > 0 ? (
-                  <ProfileAboutCard
-                    about={me.profile.bio ?? ""}
-                    skills={me.skills}
-                  />
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-                    <p className="text-lg font-medium">
-                      No information available
-                    </p>
-                    <p className="mt-1 text-sm">
-                      You haven&apos;t added any details yet
-                    </p>
-                  </div>
-                )}
+                <div className="space-y-6">
+                  {me.profile.bio || me.skills.length > 0 ? (
+                    <ProfileAboutCard
+                      about={me.profile.bio ?? ""}
+                      skills={me.skills}
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                      <p className="text-lg font-medium">
+                        No information available
+                      </p>
+                      <p className="mt-1 text-sm">
+                        You haven&apos;t added any details yet
+                      </p>
+                    </div>
+                  )}
+
+                  {sharedCertificates.length > 0 ? (
+                    <ProfileCertificatesCard
+                      certificates={sharedCertificates}
+                    />
+                  ) : null}
+                </div>
               </TabsContent>
 
               <TabsContent value="forum">
@@ -278,8 +290,8 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
 
   return (
     <ForumPageLayout>
-      <div className="grid grid-cols-1 gap-6 rounded-2xl bg-white p-4 pb-24 sm:p-6 sm:pb-6 lg:grid-cols-12 lg:p-8">
-        <div className="space-y-6 lg:col-span-12">
+      <div className="grid grid-cols-1 items-start gap-6 rounded-2xl bg-white p-4 pb-24 sm:p-6 sm:pb-6 lg:grid-cols-12 lg:p-8">
+        <div className="col-span-1 space-y-6 lg:col-span-12">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -314,7 +326,8 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
             />
           </motion.div>
         </div>
-        <div className="flex flex-col gap-3 lg:col-span-8">
+
+        <div className="col-span-1 lg:col-span-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -325,32 +338,15 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
               skills={me.skills.map((skill) => skill.name)}
             />
           </motion.div>
-
-          {/* <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
-        >
-          <PointsChartCard />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
-        >
-          <RecentActivityList
-            activities={recentActivities || []}
-            maxItems={5}
-          />
-        </motion.div> */}
         </div>
-        <aside className="lg:col-span-4">
-          <div className="grid gap-4">
+
+        <aside className="col-span-1 lg:col-span-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-1 lg:grid-cols-1">
             <motion.div
+              className="w-full min-w-0"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+              transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
             >
               <CommunityStandingCard
                 totalPoints={me.progress.totalPoints}
@@ -362,11 +358,21 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
             </motion.div>
 
             <motion.div
+              className="w-full min-w-0"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
+            >
+              <MyAchievementsCard badges={me.badges} />
+            </motion.div>
+
+            <motion.div
+              className="w-full min-w-0"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
             >
-              <MyAchievementsCard badges={me.badges} />
+              <ProfileCertificatesCard certificates={certificates} isOwner />
             </motion.div>
           </div>
         </aside>
