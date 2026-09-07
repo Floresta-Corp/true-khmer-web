@@ -103,7 +103,9 @@ export default function Events() {
                   show: {
                     transition: {
                       staggerChildren: prefersReducedMotion ? 0 : 0.04,
-                      delayChildren: prefersReducedMotion ? 0 : sectionDelay + 0.08,
+                      delayChildren: prefersReducedMotion
+                        ? 0
+                        : sectionDelay + 0.08,
                     },
                   },
                 }}
