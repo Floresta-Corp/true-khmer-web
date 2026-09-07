@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Maximize2, Minimize2, Pause, Play } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { youtubeEmbedUrl } from "~/features/education/lib/lesson-media";
@@ -42,16 +42,26 @@ function SimulatedVideoLesson({ lesson, overlay, flush }: LessonMediaProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  useEffect(() => {
+    const sync = () =>
+      setIsFullscreen(document.fullscreenElement === containerRef.current);
+
+    document.addEventListener("fullscreenchange", sync);
+    return () => document.removeEventListener("fullscreenchange", sync);
+  }, []);
+
   const toggleFullscreen = async () => {
     const element = containerRef.current;
     if (!element) return;
 
-    if (document.fullscreenElement) {
-      await document.exitFullscreen();
-      setIsFullscreen(false);
-    } else {
-      await element.requestFullscreen();
-      setIsFullscreen(true);
+    try {
+      if (document.fullscreenElement === element) {
+        await document.exitFullscreen();
+      } else {
+        await element.requestFullscreen();
+      }
+    } catch {
+      setIsFullscreen(document.fullscreenElement === element);
     }
   };
 

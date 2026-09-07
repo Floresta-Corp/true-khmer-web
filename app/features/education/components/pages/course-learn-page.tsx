@@ -138,6 +138,9 @@ export default function CourseLearnPage() {
       : "bg-white/20 text-white backdrop-blur-sm hover:bg-white/30",
   );
 
+  const overlayMutedText = isOnMediaBar ? "text-[#4A4A5A]" : "text-white/75";
+  const overlayStrongText = isOnMediaBar ? "text-[#1A1A2E]" : "text-white";
+
   const lessonFileUrl = isOnMediaBar
     ? getSafeExternalUrl(activeLesson.sourceUrl)
     : undefined;
@@ -145,11 +148,13 @@ export default function CourseLearnPage() {
   const playerOverlay = (
     <div className="flex items-start justify-between gap-3.5">
       <div className="min-w-0">
-        <div className="truncate text-[12.5px] text-white/75">
+        <div className={cn("truncate text-[12.5px]", overlayMutedText)}>
           {activeLesson.sectionTitle} · Chapter {activeLesson.index} of{" "}
           {flatLessons.length}
         </div>
-        <div className="truncate text-[15px] font-bold text-white">
+        <div
+          className={cn("truncate text-[15px] font-bold", overlayStrongText)}
+        >
           {activeLesson.heading}
         </div>
       </div>

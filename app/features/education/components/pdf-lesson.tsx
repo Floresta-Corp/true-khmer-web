@@ -78,6 +78,7 @@ function RealPdfLesson({
           key={src}
           src={pdfEmbedUrl(src)}
           title={lesson.title}
+          sandbox="allow-scripts allow-same-origin"
           referrerPolicy="no-referrer"
           onError={() => setPreview("blocked")}
           className="size-full border-0"

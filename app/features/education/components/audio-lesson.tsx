@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { getSafeExternalUrl } from "~/lib/utils";
 import type { ActiveLesson } from "~/features/education/types";
 import { formatClock } from "~/features/education/lib/lesson-media";
@@ -83,6 +84,10 @@ function RealAudioLesson({
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onEnded={() => setIsPlaying(false)}
+        onError={() => {
+          setIsPlaying(false);
+          toast.error("This audio lesson could not be played.");
+        }}
         className="hidden"
       >
         Your browser cannot play this audio.

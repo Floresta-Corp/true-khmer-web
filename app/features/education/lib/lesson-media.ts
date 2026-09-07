@@ -1,18 +1,23 @@
+const YOUTUBE_ID = /^[\w-]+$/;
+
 export function youtubeEmbedUrl(url: string): string | null {
   try {
     const parsed = new URL(url);
     const host = parsed.hostname.replace(/^www\./, "");
+    const isYouTube = host === "youtube.com" || host.endsWith(".youtube.com");
 
     const id =
       host === "youtu.be"
         ? parsed.pathname.slice(1)
-        : host.endsWith("youtube.com")
+        : isYouTube
           ? (parsed.searchParams.get("v") ??
             parsed.pathname.match(/^\/(?:embed|shorts|v)\/([^/?]+)/)?.[1] ??
             null)
           : null;
 
-    return id ? `https://www.youtube.com/embed/${id}` : null;
+    return id && YOUTUBE_ID.test(id)
+      ? `https://www.youtube.com/embed/${id}`
+      : null;
   } catch {
     return null;
   }
