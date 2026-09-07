@@ -47,7 +47,7 @@ interface AskQuestionDialogProps {
   isAuthenticated?: boolean;
   data?: QuestionResponse | null;
   trigger?: React.ReactNode;
-  autoOpenImagePicker?: boolean;
+  initialImageFile?: File | null;
 }
 
 export default function AskQuestionDialog({
@@ -56,7 +56,7 @@ export default function AskQuestionDialog({
   isAuthenticated = false,
   data,
   trigger,
-  autoOpenImagePicker = false,
+  initialImageFile = null,
 }: AskQuestionDialogProps) {
   const location = useLocation();
   const revalidator = useRevalidator();
@@ -99,6 +99,7 @@ export default function AskQuestionDialog({
   const [removeExistingImage, setRemoveExistingImage] = useState(false);
   const wasSubmitting = useRef(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const appliedInitialImage = useRef<File | null>(null);
   // const [searchParams, setSearchParams] = useSearchParams();
   const redirectTo = `${location.pathname}${location.search}`;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
@@ -230,12 +231,16 @@ export default function AskQuestionDialog({
       revokeBlobUrl(preview);
     };
   }, [preview]);
-  useEffect(() => {
-    if (!open || !autoOpenImagePicker) return;
 
-    const frame = requestAnimationFrame(() => fileInputRef.current?.click());
-    return () => cancelAnimationFrame(frame);
-  }, [open, autoOpenImagePicker]);
+  useEffect(() => {
+    if (!open || !initialImageFile) return;
+    if (appliedInitialImage.current === initialImageFile) return;
+
+    appliedInitialImage.current = initialImageFile;
+    setSelectedFile(initialImageFile);
+    setPreview(URL.createObjectURL(initialImageFile));
+    setRemoveExistingImage(false);
+  }, [open, initialImageFile]);
 
   const addTag = (rawValue: string) => {
     const nextTag = rawValue.trim();

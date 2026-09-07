@@ -30,6 +30,7 @@ export default function ForumTopCategoriesCard({
             <Button
               key={category.name}
               onClick={() => onCategorySelect?.(category)}
+              aria-pressed={isSelected}
               variant="ghost"
               className="flex h-9 items-center justify-between rounded-lg px-2.25 py-0 transition-colors hover:bg-[#f8fafc]"
             >

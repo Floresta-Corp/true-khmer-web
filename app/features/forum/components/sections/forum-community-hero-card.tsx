@@ -1,6 +1,6 @@
 import { Image as ImageIcon } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLoaderData, useRouteLoaderData } from "react-router";
 import type { loader } from "../../route/forum.new";
 import type { loader as appLayoutLoader } from "~/layout/app-layout";
@@ -29,6 +29,18 @@ export default function ForumCommunityHeroCard() {
   const isAuthenticated = Boolean(userId);
   const prefersReducedMotion = useReducedMotion();
   const [activeNowCount, setActiveNowCount] = useState(0);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const [pendingImage, setPendingImage] = useState<File | null>(null);
+
+  const handleImageClick = () => {
+    if (!isAuthenticated) return;
+
+    setPendingImage(null);
+    const input = imageInputRef.current;
+    if (!input) return;
+    input.value = "";
+    input.click();
+  };
 
   useEffect(() => {
     if (prefersReducedMotion) {
@@ -142,16 +154,28 @@ export default function ForumCommunityHeroCard() {
             <AskQuestionDialog
               categories={categories}
               isAuthenticated={isAuthenticated}
-              autoOpenImagePicker
+              initialImageFile={pendingImage}
               trigger={
                 <button
                   type="button"
+                  onClick={handleImageClick}
                   className="inline-flex cursor-pointer items-center gap-2 rounded-lg text-sm font-medium text-[#48566a] transition-colors hover:text-[#0050d4]"
                 >
                   <ImageIcon className="size-4.5" />
                   Image
                 </button>
               }
+            />
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/*"
+              tabIndex={-1}
+              aria-hidden="true"
+              onChange={(event) =>
+                setPendingImage(event.target.files?.[0] ?? null)
+              }
+              className="sr-only"
             />
 
             <AskQuestionDialog

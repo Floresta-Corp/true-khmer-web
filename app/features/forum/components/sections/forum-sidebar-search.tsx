@@ -1,6 +1,7 @@
 import { Search } from "lucide-react";
-import { useState } from "react";
+import { type FormEvent, useState } from "react";
 import { useNavigate } from "react-router";
+import { Button } from "~/components/ui/button";
 
 export default function ForumSidebarSearch() {
   const navigate = useNavigate();
@@ -9,7 +10,8 @@ export default function ForumSidebarSearch() {
   const trimmedSearchValue = searchValue.trim();
   const canSearch = trimmedSearchValue.length > 0;
 
-  const handleSearch = () => {
+  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (isSearching || !canSearch) return;
 
     setIsSearching(true);
@@ -17,22 +19,30 @@ export default function ForumSidebarSearch() {
   };
 
   return (
-    <div className="flex h-11 w-full items-center gap-2.5 rounded-xl border border-[#e2e8f0] bg-white px-3.5">
-      <Search className="size-4 shrink-0 text-[#9eacc0]" />
+    <form
+      role="search"
+      onSubmit={handleSearch}
+      className="focus-within:ring-0.5 flex h-11 w-full items-center gap-1 rounded-xl border border-[#e2e8f0] bg-white pr-3.5 pl-1.5 transition-colors focus-within:border-[#2f6fe4] focus-within:ring-[#2f6fe4]/20"
+    >
+      <Button
+        type="submit"
+        variant="ghost"
+        size="icon"
+        disabled={!canSearch || isSearching}
+        aria-label="Search discussions"
+        className="text-[#9eacc0] hover:text-[#2f6fe4]"
+      >
+        <Search className="size-4" />
+      </Button>
       <input
         type="search"
         value={searchValue}
         disabled={isSearching}
         onChange={(event) => setSearchValue(event.currentTarget.value)}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" && canSearch) {
-            handleSearch();
-          }
-        }}
         placeholder="Search discussions"
         aria-label="Search discussions"
         className="w-full border-0 bg-transparent text-sm text-[#344256] placeholder:text-[#9eacc0] focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
       />
-    </div>
+    </form>
   );
 }
