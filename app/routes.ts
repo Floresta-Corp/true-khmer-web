@@ -83,7 +83,7 @@ export default [
     layout("layout/myspace-layout.tsx", [
       route("myspace", "features/myspace/route/myspace.tsx"),
       route("my-applications", "features/myspace/route/my-applications.tsx"),
-      route("my-ticket", "routes/my-ticket.tsx"),
+      route("my-ticket", "features/my-tickets/route/my-tickets.tsx"),
       route("saved-items", "features/saved-items/route/saved-items.tsx"),
       route("my-classes", "features/my-classes/route/my-classes.tsx"),
     ]),
@@ -305,6 +305,10 @@ export default [
   route(
     "api/admin/partners/:partnerId/photo-presign",
     "routes/api/api.admin.partners.$partnerId.photo-presign.tsx",
+  ),
+  route(
+    "api/my-tickets/event/:eventId",
+    "features/my-tickets/route/my-tickets.event.ts",
   ),
   route("api/me", "routes/api/api.me.tsx"),
   route(
