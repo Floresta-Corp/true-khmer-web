@@ -21,11 +21,6 @@ export function EducationPage({
           className,
         )}
       >
-        {/* "full" is about the height — the screen fills the viewport below the
-            navbar and scrolls its own panes rather than the page. The width
-            still belongs to the site container, as on every other screen:
-            without it the sidebar and lesson content run to the edges of a wide
-            monitor while the navbar above them stays centred. */}
         <div className="site-container flex h-full min-h-0 flex-col">
           {children}
         </div>

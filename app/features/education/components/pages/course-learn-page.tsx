@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLoaderData, useFetcher, useSearchParams } from "react-router";
-import { Bookmark, Menu, MoreVertical } from "lucide-react";
+import { Bookmark, Download, Menu, MoreVertical } from "lucide-react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { cn } from "~/lib/utils";
+import { cn, getSafeExternalUrl } from "~/lib/utils";
 import { EducationPage } from "../education-page";
 import { LearnSidebar } from "../learn-sidebar";
 import { InstructorContactButtons } from "../instructor-contact-buttons";
@@ -128,8 +128,19 @@ export default function CourseLearnPage() {
   const navButton =
     "cursor-pointer rounded-full border border-[#E5E7EB] bg-white px-5 py-2.5 text-sm font-semibold text-[#1A1A2E] transition-colors hover:border-[#1C5DD4] hover:text-[#1C5DD4] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:border-[#E5E7EB] disabled:hover:text-[#1A1A2E]";
 
-  const overlayButton =
-    "flex size-8.5 shrink-0 cursor-pointer items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition-colors hover:bg-white/30";
+  const isOnMediaBar =
+    activeLesson.type === "pdf" || activeLesson.type === "audio";
+
+  const overlayButton = cn(
+    "flex size-8.5 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors",
+    isOnMediaBar
+      ? "bg-white text-[#4A4A5A] hover:bg-white/80"
+      : "bg-white/20 text-white backdrop-blur-sm hover:bg-white/30",
+  );
+
+  const lessonFileUrl = isOnMediaBar
+    ? getSafeExternalUrl(activeLesson.sourceUrl)
+    : undefined;
 
   const playerOverlay = (
     <div className="flex items-start justify-between gap-3.5">
@@ -153,10 +164,23 @@ export default function CourseLearnPage() {
         >
           <Bookmark
             aria-hidden
-            className={cn("size-4", isSaved ? "fill-white" : "fill-none")}
-            color="#fff"
+            className={cn("size-4", isSaved ? "fill-current" : "fill-none")}
           />
         </button>
+
+        {lessonFileUrl && (
+          <a
+            href={lessonFileUrl}
+            download
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Download this lesson"
+            aria-label="Download this lesson"
+            className={overlayButton}
+          >
+            <Download className="size-4" aria-hidden />
+          </a>
+        )}
 
         {!isPanelOpen && (
           <button
@@ -166,7 +190,7 @@ export default function CourseLearnPage() {
             onClick={() => setIsPanelOpen(true)}
             className={overlayButton}
           >
-            <Menu className="size-4 text-white" aria-hidden />
+            <Menu className="size-4" aria-hidden />
           </button>
         )}
 
@@ -177,7 +201,7 @@ export default function CourseLearnPage() {
               aria-label="More options"
               className={overlayButton}
             >
-              <MoreVertical className="size-4 text-white" aria-hidden />
+              <MoreVertical className="size-4" aria-hidden />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -300,9 +324,6 @@ export default function CourseLearnPage() {
                   {course.skills.map((skill) => (
                     <span
                       key={skill}
-                      /* Squarer and heavier than the global pill badge, which
-                         belongs to the profile screens — this page carries its
-                         own type scale and palette. */
                       className="rounded-lg bg-[#F1F3F7] px-3.5 py-2 text-sm font-semibold text-[#1A1A2E]"
                     >
                       {skill}

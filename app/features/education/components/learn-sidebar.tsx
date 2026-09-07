@@ -36,9 +36,6 @@ export function LearnSidebar({
 
   return (
     <div className="flex h-full w-95 shrink-0 flex-col border-r border-[#E5E7EB] bg-white">
-      {/* Leaving the course and naming the panel are two different things, so
-          they get two rows: the header used to be a single link carrying the
-          course title, which read as a heading rather than a way back. */}
       <div className="border-b border-[#E5E7EB] px-5 py-3.5">
         <Link
           to={`/education/${course.id}`}
