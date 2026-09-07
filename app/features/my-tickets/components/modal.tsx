@@ -21,7 +21,7 @@ export function Modal({
     >
       <DialogContent
         showCloseButton={false}
-        className="flex h-dvh max-h-dvh w-full max-w-full flex-col gap-0 overflow-hidden rounded-none border-0 bg-white p-0 sm:h-auto sm:max-h-[90vh] sm:max-w-4xl sm:rounded-3xl sm:border sm:border-[#e2e8f0] md:flex-row"
+        className="flex h-auto max-h-[85dvh] w-full flex-col gap-0 overflow-hidden rounded-3xl border border-[#e2e8f0] bg-white p-0 sm:max-w-4xl md:flex-row"
       >
         <DialogTitle className="sr-only">Your event tickets</DialogTitle>
         <DialogDescription className="sr-only">

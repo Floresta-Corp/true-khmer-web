@@ -169,7 +169,7 @@ export default function TicketSummary(props: Props) {
             type="button"
             onClick={onDownloadReciept}
             disabled={recieptDownloadState !== "idle"}
-            className={`group flex h-13 w-full cursor-pointer items-center justify-center gap-3 rounded-xl text-[15px] font-bold transition-all ${
+            className={`group flex h-13 w-full cursor-pointer items-center justify-center gap-3 rounded-xl text-[15px] font-bold transition-colors ${
               recieptDownloadState === "success"
                 ? "bg-emerald-500 text-white"
                 : "bg-[#2443ff] text-white hover:bg-[#001ed2]"

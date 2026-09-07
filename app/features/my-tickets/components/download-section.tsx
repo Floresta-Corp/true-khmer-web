@@ -95,7 +95,7 @@ export default function DownloadSection({
                   type="button"
                   onClick={() => toggleTicket(ticket.id)}
                   aria-pressed={selected}
-                  className={`flex cursor-pointer items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left text-sm transition-all sm:px-4 sm:py-3 ${
+                  className={`flex cursor-pointer items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left text-sm transition-colors sm:px-4 sm:py-3 ${
                     selected
                       ? "border-[#2443ff] bg-[#2443ff]/5"
                       : "border-[#e2e8f0] hover:border-[#2443ff]/40"
@@ -127,7 +127,7 @@ export default function DownloadSection({
             <button
               type="button"
               onClick={() => setShowSelection(false)}
-              className="h-12 flex-1 cursor-pointer rounded-xl border border-[#e2e8f0] text-sm font-bold text-[#1f2a37] transition-all hover:bg-[#f9fafb]"
+              className="h-12 flex-1 cursor-pointer rounded-xl border border-[#e2e8f0] text-sm font-bold text-[#1f2a37] transition-colors hover:bg-[#f9fafb]"
             >
               {"Cancel"}
             </button>
@@ -135,7 +135,7 @@ export default function DownloadSection({
               type="button"
               onClick={() => handleDownload(selectedIds)}
               disabled={selectedIds.length === 0 || downloadState !== "idle"}
-              className="flex h-12 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#2443ff] text-sm font-bold text-white transition-all hover:bg-[#001ed2] disabled:pointer-events-none disabled:bg-[#d0d5dd]"
+              className="flex h-12 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#2443ff] text-sm font-bold text-white transition-colors hover:bg-[#001ed2] disabled:pointer-events-none disabled:bg-[#d0d5dd]"
             >
               {downloadState === "preparing" ? (
                 <>
@@ -161,7 +161,7 @@ export default function DownloadSection({
           type="button"
           onClick={handleDownloadClick}
           disabled={!isMultiTicket && downloadState !== "idle"}
-          className="flex h-13 w-full cursor-pointer items-center justify-center gap-2.5 rounded-xl bg-[#2443ff] text-[15px] font-bold text-white shadow-sm transition-all hover:bg-[#001ed2] disabled:pointer-events-none disabled:bg-[#d0d5dd]"
+          className="flex h-13 w-full cursor-pointer items-center justify-center gap-2.5 rounded-xl bg-[#2443ff] text-[15px] font-bold text-white shadow-sm transition-colors hover:bg-[#001ed2] disabled:pointer-events-none disabled:bg-[#d0d5dd]"
         >
           {!isMultiTicket && downloadState === "preparing" ? (
             <>
@@ -185,7 +185,7 @@ export default function DownloadSection({
       <button
         type="button"
         onClick={onShowSummary}
-        className="flex h-13 w-full cursor-pointer items-center justify-center gap-2.5 rounded-xl border border-[#2443ff] bg-white text-[15px] font-bold text-[#111928] transition-all hover:bg-[#2443ff]/5"
+        className="flex h-13 w-full cursor-pointer items-center justify-center gap-2.5 rounded-xl border border-[#2443ff] bg-white text-[15px] font-bold text-[#111928] transition-colors hover:bg-[#2443ff]/5"
       >
         <Receipt size={18} className="text-[#2443ff]" />
         {"View Payment Summary"}

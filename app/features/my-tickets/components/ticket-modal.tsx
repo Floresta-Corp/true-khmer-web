@@ -20,7 +20,6 @@ interface Props {
 export default function TicketModal({ data, onClose }: Props) {
   const { event, tickets } = data;
   const [currentTicketIndex, setCurrentTicketIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [showSummary, setShowSummary] = useState(false);
   const [mobilePane, setMobilePane] = useState<MobilePane>("ticket");
@@ -34,12 +33,7 @@ export default function TicketModal({ data, onClose }: Props) {
   if (!currentTicket) return null;
 
   const switchTicket = (index: number) => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setCurrentTicketIndex(index);
-      setIsTransitioning(false);
-    }, 150);
+    setCurrentTicketIndex(index);
   };
 
   const handleShowSummary = () => {
@@ -84,7 +78,7 @@ export default function TicketModal({ data, onClose }: Props) {
       )}
 
       {/* Mobile layout */}
-      <div className="flex flex-col overflow-y-auto md:hidden">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden md:hidden">
         <div className="px-4 pt-14 pb-4">
           <div className="grid grid-cols-2 rounded-full border border-[#e2e8f0] bg-[#f9fafb] p-1">
             {(
@@ -97,7 +91,7 @@ export default function TicketModal({ data, onClose }: Props) {
                 key={pane}
                 type="button"
                 onClick={() => setMobilePane(pane)}
-                className={`rounded-full px-3 py-2 text-[10px] font-black tracking-[0.16em] uppercase transition-all ${
+                className={`rounded-full px-3 py-2 text-[10px] font-black tracking-[0.16em] uppercase transition-colors ${
                   mobilePane === pane
                     ? "bg-[#2443ff] text-white shadow-sm"
                     : "text-[#667085]"
@@ -109,52 +103,65 @@ export default function TicketModal({ data, onClose }: Props) {
           </div>
         </div>
 
-        <div className="px-4 pb-4">
-          {mobilePane === "ticket" ? (
-            <div className="overflow-hidden rounded-3xl">
-              <TicketViewer
-                thumbnail={event.thumbnail}
-                tickets={tickets}
-                currentTicketIndex={currentTicketIndex}
-                currentTicket={currentTicket}
-                totalTickets={totalTickets}
-                isTransitioning={isTransitioning}
-                showSummary={showSummary}
-                onSwitchTicket={switchTicket}
-              />
-            </div>
-          ) : (
-            <div className="max-h-[calc(100dvh-11rem)] overflow-y-auto rounded-3xl border border-[#e2e8f0] bg-white p-4">
-              {hasPendingTickets ? (
-                pendingNotice
-              ) : !showSummary ? (
-                <div className="flex flex-col">
-                  <TicketDetails event={event} />
-                  <div className="pt-2">
-                    <DownloadSection
-                      onShowSummary={handleShowSummary}
-                      ticketData={data}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col">
-                  <button
-                    type="button"
-                    onClick={() => setShowSummary(false)}
-                    className="mb-4 flex cursor-pointer items-center gap-2 text-sm font-bold text-[#667085] transition-colors hover:text-[#2443ff]"
-                  >
-                    <ArrowLeft size={16} /> {"Back to Details"}
-                  </button>
-                  <TicketSummary
-                    tickets={tickets}
-                    recieptDownloadState={receiptDownloadState}
-                    onDownloadReciept={handleDownloadReceipt}
+        {/* Both panes share one grid cell so the card is always as tall as the
+            taller pane; the inactive one keeps its space but is not rendered
+            to sighted users or screen readers. */}
+        <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-1 px-4 pb-4">
+          <div
+            aria-hidden={mobilePane !== "ticket"}
+            className={`col-start-1 row-start-1 flex min-h-0 overflow-hidden rounded-3xl ${
+              mobilePane === "ticket"
+                ? ""
+                : "pointer-events-none invisible opacity-0"
+            }`}
+          >
+            <TicketViewer
+              thumbnail={event.thumbnail}
+              tickets={tickets}
+              currentTicketIndex={currentTicketIndex}
+              currentTicket={currentTicket}
+              totalTickets={totalTickets}
+              onSwitchTicket={switchTicket}
+            />
+          </div>
+
+          <div
+            aria-hidden={mobilePane !== "details"}
+            className={`col-start-1 row-start-1 min-h-0 overflow-y-auto rounded-3xl border border-[#e2e8f0] bg-white p-4 ${
+              mobilePane === "details"
+                ? ""
+                : "pointer-events-none invisible opacity-0"
+            }`}
+          >
+            {hasPendingTickets ? (
+              pendingNotice
+            ) : !showSummary ? (
+              <div className="flex flex-col">
+                <TicketDetails event={event} />
+                <div className="pt-2">
+                  <DownloadSection
+                    onShowSummary={handleShowSummary}
+                    ticketData={data}
                   />
                 </div>
-              )}
-            </div>
-          )}
+              </div>
+            ) : (
+              <div className="flex flex-col">
+                <button
+                  type="button"
+                  onClick={() => setShowSummary(false)}
+                  className="mb-4 flex cursor-pointer items-center gap-2 text-sm font-bold text-[#667085] transition-colors hover:text-[#2443ff]"
+                >
+                  <ArrowLeft size={16} /> {"Back to Details"}
+                </button>
+                <TicketSummary
+                  tickets={tickets}
+                  recieptDownloadState={receiptDownloadState}
+                  onDownloadReciept={handleDownloadReceipt}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -166,42 +173,52 @@ export default function TicketModal({ data, onClose }: Props) {
           currentTicketIndex={currentTicketIndex}
           currentTicket={currentTicket}
           totalTickets={totalTickets}
-          isTransitioning={isTransitioning}
-          showSummary={showSummary}
           onSwitchTicket={switchTicket}
         />
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto bg-white p-5 sm:p-8 md:p-10">
           {hasPendingTickets ? (
-            <div className="flex flex-1 animate-in items-center justify-center duration-300 fade-in slide-in-from-right-4">
+            <div className="flex flex-1 items-center justify-center">
               {pendingNotice}
             </div>
-          ) : !showSummary ? (
-            <>
-              <div className="flex-1 animate-in duration-300 fade-in slide-in-from-right-4">
+          ) : (
+            /* Details and summary share one grid cell, so the pane is as tall
+               as the taller of the two and never resizes when switching. */
+            <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-1">
+              <div
+                aria-hidden={showSummary}
+                className={`col-start-1 row-start-1 flex min-w-0 flex-col ${
+                  showSummary ? "pointer-events-none invisible opacity-0" : ""
+                }`}
+              >
                 <TicketDetails event={event} />
+                <div className="mt-auto pt-6">
+                  <DownloadSection
+                    onShowSummary={handleShowSummary}
+                    ticketData={data}
+                  />
+                </div>
               </div>
-              <div className="mt-auto pt-6">
-                <DownloadSection
-                  onShowSummary={handleShowSummary}
-                  ticketData={data}
+
+              <div
+                aria-hidden={!showSummary}
+                className={`col-start-1 row-start-1 flex min-w-0 flex-col ${
+                  showSummary ? "" : "pointer-events-none invisible opacity-0"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => setShowSummary(false)}
+                  className="mb-8 flex cursor-pointer items-center gap-2 self-start text-sm font-bold text-[#667085] transition-colors hover:text-[#2443ff]"
+                >
+                  <ArrowLeft size={16} /> {"Back to Details"}
+                </button>
+                <TicketSummary
+                  tickets={tickets}
+                  recieptDownloadState={receiptDownloadState}
+                  onDownloadReciept={handleDownloadReceipt}
                 />
               </div>
-            </>
-          ) : (
-            <div className="flex-1 animate-in duration-300 fade-in slide-in-from-left-4">
-              <button
-                type="button"
-                onClick={() => setShowSummary(false)}
-                className="mb-8 flex cursor-pointer items-center gap-2 text-sm font-bold text-[#667085] transition-colors hover:text-[#2443ff]"
-              >
-                <ArrowLeft size={16} /> {"Back to Details"}
-              </button>
-              <TicketSummary
-                tickets={tickets}
-                recieptDownloadState={receiptDownloadState}
-                onDownloadReciept={handleDownloadReceipt}
-              />
             </div>
           )}
         </div>
