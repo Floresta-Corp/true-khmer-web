@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useFetcher } from "react-router";
 import { StarRating } from "~/features/education/components/star-rating";
 import type { CourseReview } from "~/features/education/types";
+import type { CourseReviewsPage } from "~/features/course-manage/types";
 import { MANAGE_CARD } from "../overview/course-kpi-cards";
 
 const COLLAPSED = 3;
@@ -14,20 +16,60 @@ function initials(name: string) {
 }
 
 interface ReviewTabProps {
+  courseId: string;
   status: string;
   rating: number;
   reviewCount: number;
+  /** The loader's first page. */
   reviews: CourseReview[];
+  /** Totals from the reviews endpoint, so paging knows where it ends. */
+  total: number;
+  pages: number;
 }
 
 export function ReviewTab({
+  courseId,
   status,
   rating,
   reviewCount,
   reviews,
+  total,
+  pages,
 }: ReviewTabProps) {
+  const fetcher = useFetcher<CourseReviewsPage>();
   const [expanded, setExpanded] = useState(false);
-  const visible = expanded ? reviews : reviews.slice(0, COLLAPSED);
+
+  /* Page one comes from the loader; later pages are appended here. Keyed off
+     the fetcher's payload identity so a re-render never appends twice. */
+  const [extra, setExtra] = useState<CourseReview[]>([]);
+  const [page, setPage] = useState(1);
+  const lastAppended = useRef<unknown>(null);
+
+  /* A different course, or reviews reloaded under us, resets the tail. */
+  useEffect(() => {
+    setExtra([]);
+    setPage(1);
+    lastAppended.current = null;
+  }, [reviews]);
+
+  useEffect(() => {
+    if (fetcher.state !== "idle" || !fetcher.data) return;
+    if (lastAppended.current === fetcher.data) return;
+    lastAppended.current = fetcher.data;
+
+    setExtra((current) => [...current, ...fetcher.data!.reviews]);
+  }, [fetcher.state, fetcher.data]);
+
+  const loaded = [...reviews, ...extra];
+  const visible = expanded ? loaded : loaded.slice(0, COLLAPSED);
+  const hasMore = page < pages;
+  const busy = fetcher.state !== "idle";
+
+  const loadMore = () => {
+    const next = page + 1;
+    setPage(next);
+    fetcher.load(`/course-listing/${courseId}/reviews?page=${next}`);
+  };
 
   const published = status === "PUBLISHED";
 
@@ -88,17 +130,31 @@ export function ReviewTab({
             ))}
           </ul>
 
-          {reviews.length > COLLAPSED && (
-            <button
-              type="button"
-              onClick={() => setExpanded((value) => !value)}
-              className="mt-5 cursor-pointer rounded-full border border-[#E5E7EB] bg-white px-5 py-2.5 text-sm font-semibold text-[#1C5DD4] transition-colors hover:border-[#1C5DD4]"
-            >
-              {expanded
-                ? "Show fewer reviews"
-                : `Show all ${reviews.length} reviews`}
-            </button>
-          )}
+          {/* `total` is the count on the course, not the count in hand: the
+              loader brings one page, so the button has to promise what paging
+              will actually reach rather than what is already rendered. */}
+          <div className="mt-5 flex flex-wrap gap-3">
+            {loaded.length > COLLAPSED && (
+              <button
+                type="button"
+                onClick={() => setExpanded((value) => !value)}
+                className="cursor-pointer rounded-full border border-[#E5E7EB] bg-white px-5 py-2.5 text-sm font-semibold text-[#1C5DD4] transition-colors hover:border-[#1C5DD4]"
+              >
+                {expanded ? "Show fewer reviews" : `Show all ${total} reviews`}
+              </button>
+            )}
+
+            {expanded && hasMore && (
+              <button
+                type="button"
+                onClick={loadMore}
+                disabled={busy}
+                className="cursor-pointer rounded-full border border-[#E5E7EB] bg-white px-5 py-2.5 text-sm font-semibold text-[#1C5DD4] transition-colors hover:border-[#1C5DD4] disabled:opacity-50"
+              >
+                {busy ? "Loading…" : "Load more reviews"}
+              </button>
+            )}
+          </div>
         </div>
       ) : (
         <div className={`${MANAGE_CARD} px-6 py-12 text-center`}>

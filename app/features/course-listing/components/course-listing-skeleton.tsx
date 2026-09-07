@@ -2,15 +2,15 @@ import { Skeleton } from "~/components/ui/skeleton";
 
 export function CourseListingSkeleton() {
   return (
-    <div className="flex items-center gap-5 rounded-2xl bg-white p-4">
-      <Skeleton className="size-16 w-24 shrink-0 rounded-lg" />
-      <div className="w-64 min-w-0 shrink-0 space-y-2">
-        <Skeleton className="h-6 w-24 rounded-full" />
-        <Skeleton className="h-6 w-full" />
+    <div className="flex items-center gap-6 rounded-2xl bg-white p-4">
+      <Skeleton className="h-16 w-20 shrink-0 rounded-lg" />
+      <div className="min-w-0 flex-1 space-y-2">
+        <Skeleton className="h-5 w-24 rounded-full" />
+        <Skeleton className="h-6 w-2/5" />
       </div>
-      <div className="min-w-0 flex-1" />
-      <Skeleton className="hidden h-14 w-96 lg:block" />
-      <div className="min-w-0 flex-1" />
+      {/* One block the width of the metric strip, in its place, so the row
+          does not reflow sideways when the figures arrive. */}
+      <Skeleton className="hidden h-12 w-80 shrink-0 lg:mr-5 lg:block" />
       <Skeleton className="size-9 shrink-0 rounded-lg" />
     </div>
   );

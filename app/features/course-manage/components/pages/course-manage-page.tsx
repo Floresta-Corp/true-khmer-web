@@ -25,6 +25,8 @@ export default function CourseManagePage() {
     curriculum,
     students,
     reviews,
+    reviewPages,
+    reviewTotal,
     ratingBreakdown,
     reviewStages,
     analytics,
@@ -98,6 +100,7 @@ export default function CourseManagePage() {
       {tab === "analytics" && (
         <AnalyticsTab
           analytics={analytics}
+          trends={trends}
           ratingBreakdown={ratingBreakdown}
           rating={overview.rating ?? 0}
           reviewCount={overview.reviewCount}
@@ -106,10 +109,13 @@ export default function CourseManagePage() {
 
       {tab === "review" && (
         <ReviewTab
+          courseId={course.id}
           status={course.status}
           rating={overview.rating ?? 0}
           reviewCount={overview.reviewCount}
           reviews={reviews}
+          total={reviewTotal}
+          pages={reviewPages}
         />
       )}
     </motion.div>
