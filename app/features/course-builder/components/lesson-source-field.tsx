@@ -109,11 +109,12 @@ export function LessonSourceField({
 
     const upload = fetcher.data.upload;
     const startedFor = selection.current;
-    const metaPromise = readLessonAssetMeta(file, source);
     setUploading(true);
-    putLessonAsset(upload, file)
-      .then(async (assetKey) => {
-        const meta = await metaPromise;
+    Promise.all([
+      putLessonAsset(upload, file),
+      readLessonAssetMeta(file, source),
+    ])
+      .then(([assetKey, meta]) => {
         if (startedFor !== selection.current) return;
         onUploaded(assetKey, file.name, meta);
       })

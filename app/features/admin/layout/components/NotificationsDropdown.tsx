@@ -159,7 +159,7 @@ export function NotificationsDropdown() {
                 {localUnreadCount > 0 && (
                   <button
                     onClick={handleMarkAllRead}
-                    className="xs:inline hidden text-[10px] font-black tracking-widest text-slate-400 uppercase transition-colors hover:text-slate-900 dark:hover:text-white"
+                    className="hidden text-[10px] font-black tracking-widest text-slate-400 uppercase transition-colors hover:text-slate-900 xs:inline dark:hover:text-white"
                   >
                     Mark all as read
                   </button>
