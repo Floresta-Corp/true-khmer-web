@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { cn } from "~/lib/utils";
 import type { CourseDetail } from "~/features/education/types";
 import { LessonTypeIcon } from "./lesson-type-icon";
+import { lessonDetail } from "~/features/education/lib/lesson-media";
 
 const DEFAULT_OPEN_SECTIONS = 3;
 
@@ -89,9 +90,9 @@ export function CourseDetailCurriculum({ course }: { course: CourseDetail }) {
                     <span className="line-clamp-2 min-w-0 flex-1 text-sm leading-[1.4] text-[#9A9AB0]">
                       {lesson.title}
                     </span>
-                    {lesson.duration && (
+                    {lessonDetail(lesson) && (
                       <span className="shrink-0 text-xs text-[#9A9AB0]">
-                        {lesson.duration}
+                        {lessonDetail(lesson)}
                       </span>
                     )}
                   </button>

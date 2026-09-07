@@ -133,10 +133,17 @@ export function AddLessonModal({
                 urlPlaceholder="https://youtube.com/watch?v=..."
                 label={LESSON_FIELD_LABELS[draft.source]}
                 onUrlChange={(url) => onChange({ url })}
-                onUploaded={(assetKey, fileName) =>
-                  onChange({ assetKey, fileName })
+                onUploaded={(assetKey, fileName, meta) =>
+                  onChange({ assetKey, fileName, ...meta })
                 }
-                onClearFile={() => onChange({ assetKey: null, fileName: null })}
+                onClearFile={() =>
+                  onChange({
+                    assetKey: null,
+                    fileName: null,
+                    pageCount: null,
+                    durationSeconds: null,
+                  })
+                }
                 onUploadingChange={onUploadingChange}
               />
             </div>

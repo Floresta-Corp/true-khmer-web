@@ -329,6 +329,14 @@ export default function CourseBuilderPage({
                         lessonDraft.source === "youtube"
                           ? null
                           : lessonDraft.assetKey,
+                      pageCount:
+                        lessonDraft.source === "pdf"
+                          ? lessonDraft.pageCount
+                          : null,
+                      durationSeconds:
+                        lessonDraft.source === "audio"
+                          ? lessonDraft.durationSeconds
+                          : null,
                     }
                   : item,
               ),
@@ -386,6 +394,12 @@ export default function CourseBuilderPage({
                     lessonDraft.source === "youtube"
                       ? null
                       : lessonDraft.assetKey,
+                  pageCount:
+                    lessonDraft.source === "pdf" ? lessonDraft.pageCount : null,
+                  durationSeconds:
+                    lessonDraft.source === "audio"
+                      ? lessonDraft.durationSeconds
+                      : null,
                 },
               ],
             }
@@ -420,6 +434,9 @@ export default function CourseBuilderPage({
             isComplete: false,
             url: lesson.source === "youtube" ? lesson.url.trim() : null,
             assetKey: lesson.source === "youtube" ? null : lesson.assetKey,
+            pageCount: lesson.source === "pdf" ? lesson.pageCount : null,
+            durationSeconds:
+              lesson.source === "audio" ? lesson.durationSeconds : null,
           },
         ],
       },
@@ -593,6 +610,8 @@ export default function CourseBuilderPage({
           type: lessonApiType(lesson),
           url: lesson.url,
           assetKey: lesson.assetKey,
+          pageCount: lesson.pageCount,
+          durationSeconds: lesson.durationSeconds,
           isPreview: lesson.isPreview,
         })),
     }));

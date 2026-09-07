@@ -167,6 +167,7 @@ export interface LessonInput {
   url?: string | null;
   assetKey?: string | null;
   durationSeconds?: number | null;
+  pageCount?: number | null;
   isPreview?: boolean;
 }
 
@@ -355,6 +356,7 @@ export interface CourseCurriculumResponse {
         assetKey: string | null;
         assetUrl: string | null;
         durationSeconds: number | null;
+        pageCount: number | null;
         isPreview: boolean;
       }[];
     }[];

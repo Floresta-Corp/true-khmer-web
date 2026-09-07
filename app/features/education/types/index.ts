@@ -53,6 +53,7 @@ export interface CourseLesson {
   isPreview: boolean;
   isComplete: boolean;
   sourceUrl?: string | null;
+  pageCount?: number | null;
 }
 
 export interface CourseSection {

@@ -31,6 +31,7 @@ const LessonSchema = z.object({
     .nullish(),
   assetKey: z.string().trim().min(1).max(600).nullish(),
   durationSeconds: z.number().int().nonnegative().nullish(),
+  pageCount: z.number().int().positive().nullish(),
   isPreview: z.boolean().optional(),
 });
 

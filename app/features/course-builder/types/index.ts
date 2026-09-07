@@ -135,10 +135,19 @@ export interface LessonDraft {
   url: string;
   fileName: string | null;
   assetKey: string | null;
+  pageCount: number | null;
+  durationSeconds: number | null;
 }
 
 export function lessonSourceChange(source: LessonSource): Partial<LessonDraft> {
-  return { source, url: "", fileName: null, assetKey: null };
+  return {
+    source,
+    url: "",
+    fileName: null,
+    assetKey: null,
+    pageCount: null,
+    durationSeconds: null,
+  };
 }
 
 export function emptyLessonDraft(): LessonDraft {
@@ -148,12 +157,15 @@ export function emptyLessonDraft(): LessonDraft {
     url: "",
     fileName: null,
     assetKey: null,
+    pageCount: null,
+    durationSeconds: null,
   };
 }
 
 export interface BuilderLesson extends CourseLesson {
   url: string | null;
   assetKey: string | null;
+  durationSeconds: number | null;
 }
 
 export interface BuilderSection extends CourseSection {
@@ -175,6 +187,8 @@ export function lessonDraftOf(lesson: BuilderLesson): LessonDraft {
       ? (lesson.assetKey.split("/").pop() ?? null)
       : null,
     assetKey: lesson.assetKey ?? null,
+    pageCount: lesson.pageCount ?? null,
+    durationSeconds: lesson.durationSeconds,
   };
 }
 

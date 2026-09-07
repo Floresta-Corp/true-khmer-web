@@ -1,3 +1,5 @@
+import type { CourseLesson } from "~/features/education/types";
+
 const YOUTUBE_ID = /^[\w-]+$/;
 
 export function youtubeEmbedUrl(url: string): string | null {
@@ -44,4 +46,17 @@ export function formatClock(seconds: number): string {
   return hours > 0
     ? `${hours}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`
     : `${minutes}:${String(secs).padStart(2, "0")}`;
+}
+
+export function formatPageCount(
+  count: number | null | undefined,
+): string | null {
+  if (!count || !Number.isInteger(count) || count < 1) return null;
+  return `${count} page${count === 1 ? "" : "s"}`;
+}
+
+export function lessonDetail(lesson: CourseLesson): string | null {
+  return lesson.type === "pdf"
+    ? formatPageCount(lesson.pageCount)
+    : lesson.duration || null;
 }

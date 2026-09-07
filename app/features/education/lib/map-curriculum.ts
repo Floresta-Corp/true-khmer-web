@@ -18,7 +18,7 @@ const LESSON_TYPE: Record<ApiLesson["type"], LessonType> = {
  * minutes always ("09:12") and had no hours case, so a 62-minute lesson read
  * as "62:05".
  */
-function formatDuration(seconds: number | null) {
+export function formatDuration(seconds: number | null) {
   if (!seconds || seconds < 0) return "";
 
   const hours = Math.floor(seconds / 3600);
@@ -43,6 +43,7 @@ export function toCourseSections(curriculum: ApiCurriculum): CourseSection[] {
       isPreview: lesson.isPreview,
       isComplete: false,
       sourceUrl: lesson.url ?? lesson.assetUrl,
+      pageCount: lesson.pageCount,
     })),
   }));
 }
