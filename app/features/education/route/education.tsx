@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLoaderData, useSearchParams } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 import { debounce } from "~/lib/utils";
+import { useCourseSaves } from "../hooks/use-course-saves";
 import { CourseCategoryRow } from "../components/course-category-row";
 import { CourseSection } from "../components/course-section";
 import { EducationHero } from "../components/education-hero";
@@ -41,22 +42,11 @@ export default function EducationHubPage() {
 
   const [searchInput, setSearchInput] = useState(search);
 
-  const [savedCourseIds, setSavedCourseIds] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    setSavedCourseIds((current) => {
-      const next = new Set(current);
-      for (const course of [
-        ...trending,
-        ...recent,
-        ...allCourses,
-        ...results,
-      ]) {
-        if (course.isSaved) next.add(course.id);
-      }
-      return next;
-    });
-  }, [trending, recent, allCourses, results]);
+  const listed = useMemo(
+    () => [...trending, ...recent, ...allCourses, ...results],
+    [trending, recent, allCourses, results],
+  );
+  const { savedCourseIds, toggleSave } = useCourseSaves(listed);
 
   const updateParams = useCallback(
     (changes: Record<string, string | null>) => {
@@ -90,21 +80,12 @@ export default function EducationHubPage() {
 
   useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
 
-  const toggleSave = (courseId: string) => {
-    setSavedCourseIds((current) => {
-      const next = new Set(current);
-      if (next.has(courseId)) next.delete(courseId);
-      else next.add(courseId);
-      return next;
-    });
-  };
-
   const resultsHeading = search
     ? `${results.length} ${results.length === 1 ? "result" : "results"} for “${search}”`
     : (selectedCategoryName ?? "Results");
 
   return (
-    <EducationPage>
+    <EducationPage surface="muted">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -160,7 +141,7 @@ export default function EducationHubPage() {
             <CourseSection
               title="Recently Added"
               courses={recent}
-              viewAllTo="/education/all"
+              viewAllTo="/education/all?sort=newest"
               savedCourseIds={savedCourseIds}
               onToggleSave={toggleSave}
             />
