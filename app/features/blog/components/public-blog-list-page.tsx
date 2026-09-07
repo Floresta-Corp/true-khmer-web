@@ -12,6 +12,7 @@ import {
 import { formatDate } from "~/lib/time";
 import { cn } from "~/lib/utils";
 import type { blogLoader } from "../services/blog.loader";
+import { BlogCategoryNav } from "./blog-category-nav";
 import { PublicBlogCard } from "./public-blog-card";
 
 const FALLBACK_BLOG_IMAGE = "/images/hero-background-image.webp";
@@ -177,41 +178,12 @@ export function PublicBlogListPage() {
             ease: "easeOut",
           }}
         >
-          <div className="relative min-w-0 flex-1">
-            <nav
-              className="flex items-center gap-3 overflow-x-auto py-1.5 whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              aria-label="Blog categories"
-            >
-              <Link
-                to={buildBlogUrl({ sort })}
-                className={`inline-flex shrink-0 items-center rounded-full px-6 py-2.5 text-sm leading-5 font-semibold transition ${
-                  activeCategory
-                    ? "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300"
-                    : "bg-blue-500 text-white shadow-lg shadow-blue-500/25"
-                }`}
-              >
-                All blogs
-              </Link>
-              {categories.map((category) => (
-                <Link
-                  key={category.id}
-                  to={buildBlogUrl({ category: category.slug, sort })}
-                  className={`inline-flex shrink-0 items-center rounded-full px-6 py-2.5 text-sm leading-5 font-semibold transition ${
-                    activeCategory?.id === category.id
-                      ? "bg-blue-500 text-white shadow-lg shadow-blue-500/25"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300"
-                  }`}
-                >
-                  {category.name}
-                </Link>
-              ))}
-            </nav>
+          <BlogCategoryNav
+            categories={categories}
+            activeCategory={activeCategory}
+            buildHref={(slug) => buildBlogUrl({ category: slug, sort })}
+          />
 
-            {/* Right Edge Fade Hint */}
-            <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent dark:from-slate-900" />
-          </div>
-
-          {/* Sort Control */}
           <div className="flex shrink-0 items-center gap-2 text-xs font-semibold tracking-widest text-slate-500 uppercase">
             <span>Sort by:</span>
             <Select

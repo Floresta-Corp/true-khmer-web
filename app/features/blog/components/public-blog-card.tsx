@@ -12,9 +12,9 @@ export function PublicBlogCard({
   return (
     <Link
       to={`/blog/${post.slug}`}
-      className="group flex h-full flex-col overflow-hidden rounded-[12px] border border-[#e2e8f0]/80 bg-white shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition-all hover:border-[#1c97d4]/30 hover:shadow-[0_18px_36px_rgba(15,23,42,0.10)] motion-reduce:transform-none motion-reduce:transition-none dark:border-white/10 dark:bg-slate-950"
+      className="group flex h-full flex-col overflow-hidden rounded-xl border border-[#e2e8f0]/80 bg-white shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition-all hover:border-[#1c97d4]/30 hover:shadow-[0_12px_24px_rgba(15,23,42,0.05)] motion-reduce:transform-none motion-reduce:transition-none dark:border-white/10 dark:bg-slate-950"
     >
-      <div className="relative shrink-0 overflow-hidden rounded-t-[12px]">
+      <div className="relative shrink-0 overflow-hidden rounded-t-xl">
         <img
           src={post.coverImageUrl || FALLBACK_BLOG_IMAGE}
           alt={post.coverImageAlt || post.title}
