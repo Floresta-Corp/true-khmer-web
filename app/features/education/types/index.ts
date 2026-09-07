@@ -69,7 +69,6 @@ export interface CourseReview {
   comment: string;
 }
 
-/** The signed-in learner's own rating of a course, absent until they leave one. */
 export interface OwnCourseReview {
   id: string;
   rating: number;
@@ -129,7 +128,19 @@ export interface QuizAttemptResult {
 }
 
 export interface CourseCertificate {
+  courseId: string;
+  certificateNo: string;
   recipientName: string;
   courseTitle: string;
   completedOn: string;
+  sharedToProfile: boolean;
+}
+
+export interface ProfileCertificate {
+  id: string;
+  courseId: string;
+  courseTitle: string;
+  certificateNo: string;
+  completedAt: string;
+  sharedToProfile: boolean;
 }
