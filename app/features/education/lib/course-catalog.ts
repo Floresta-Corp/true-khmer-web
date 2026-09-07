@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { PublicCourseSort } from "~/api/education/education.server";
 import type { CourseCategory, CourseSummary } from "~/features/education/types";
 
 export function matchesTitle(course: CourseSummary, search: string) {
@@ -42,61 +43,33 @@ export const CATALOG_SORT_LABELS: Record<CatalogSort, string> = {
   az: "A\u2013Z",
 };
 
-export const CATALOG_SORT_QUERY: Record<
-  CatalogSort,
-  "newest" | "oldest" | "az" | "price" | null
-> = {
+/**
+ * Each catalogue sort and the API sort that serves it.
+ *
+ * "Most popular" and "Highest rated" order by enrolment and review counts the
+ * database holds, so they have to be sorted server-side: sorting the page the
+ * API already returned would only rank those eight courses against each other.
+ */
+/**
+ * What the catalogue calls itself when a hub row sent the viewer there.
+ *
+ * "View all" on a row has to land somewhere that reads as that row — before
+ * this, every sort arrived at a page headed "All Courses", so Recently Added
+ * and All Courses were indistinguishable destinations.
+ */
+export const CATALOG_SORT_HEADINGS: Record<CatalogSort, string> = {
+  newest: "Recently Added",
+  popular: "Trending Classes",
+  rating: "Highest Rated",
+  az: "All Courses",
+};
+
+export const CATALOG_SORT_QUERY: Record<CatalogSort, PublicCourseSort> = {
   newest: "newest",
-  popular: null,
-  rating: null,
+  popular: "popular",
+  rating: "rating",
   az: "az",
 };
-
-export function isSortServable(sort: CatalogSort) {
-  return CATALOG_SORT_QUERY[sort] !== null;
-}
-
-export function sortCourses(
-  courses: CourseSummary[],
-  sort: CatalogSort,
-): CourseSummary[] {
-  const ordered = [...courses];
-
-  switch (sort) {
-    case "popular":
-      return ordered.sort((a, b) => b.studentCount - a.studentCount);
-    case "rating":
-      return ordered.sort((a, b) => b.rating - a.rating);
-    case "az":
-      return ordered.sort((a, b) => a.title.localeCompare(b.title));
-    default:
-      return ordered;
-  }
-}
-
-export const CATALOG_TYPES = ["all", "courses", "ks"] as const;
-
-export type CatalogType = (typeof CATALOG_TYPES)[number];
-
-export const CatalogTypeSchema = z.enum(CATALOG_TYPES).catch("all");
-
-export const CATALOG_TYPE_LABELS: Record<CatalogType, string> = {
-  all: "All",
-  courses: "Courses",
-  ks: "Knowledge Sharing",
-};
-
-export const CATALOG_TYPE_SERVABLE: Record<CatalogType, boolean> = {
-  all: true,
-  courses: true,
-  ks: false,
-};
-
-export function matchesType(course: CourseSummary, type: CatalogType) {
-  if (type === "all") return true;
-  const isKnowledgeSharing = course.type === "ks";
-  return type === "ks" ? isKnowledgeSharing : !isKnowledgeSharing;
-}
 
 export const CATALOG_PAGE_SIZE = 8;
 

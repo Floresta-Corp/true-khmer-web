@@ -11,6 +11,13 @@ interface CourseCardProps {
 }
 
 export function CourseCard({ course, isSaved, onToggleSave }: CourseCardProps) {
+  /* A catalogue course starts with no reviews and no learners, so the card has
+     to read as complete without them: the rating slot says so outright rather
+     than showing "0.0 (0)", and the learner count drops out until somebody
+     enrols. */
+  const isRated = course.ratingCount > 0;
+  const hasLearners = course.studentCount > 0;
+
   return (
     <Link
       to={`/education/${course.id}`}
@@ -73,14 +80,27 @@ export function CourseCard({ course, isSaved, onToggleSave }: CourseCardProps) {
           <span className="min-w-0 flex-1 truncate text-[13px] text-[#4B5563]">
             {course.instructor.name}
           </span>
-          <span className="flex shrink-0 items-center gap-1 text-[13px] text-[#1A1A2E]">
-            <Star
-              className="size-3.5 fill-amber-400 text-amber-400"
-              aria-hidden
-            />
-            <span className="font-bold">{course.rating.toFixed(1)}</span>
-            <span className="text-[#6B7280]">({course.ratingCount})</span>
-          </span>
+          {isRated ? (
+            <span
+              className="flex shrink-0 items-center gap-1 text-[13px] text-[#1A1A2E]"
+              aria-label={`Rated ${course.rating.toFixed(1)} out of 5 from ${
+                course.ratingCount
+              } review${course.ratingCount === 1 ? "" : "s"}`}
+            >
+              <Star
+                className="size-3.5 fill-amber-400 text-amber-400"
+                aria-hidden
+              />
+              <span className="font-bold">{course.rating.toFixed(1)}</span>
+              <span className="text-[#6B7280]">
+                ({course.ratingCount.toLocaleString()})
+              </span>
+            </span>
+          ) : (
+            <span className="shrink-0 text-[13px] text-[#6B7280]">
+              No ratings yet
+            </span>
+          )}
         </div>
       </div>
 
@@ -91,12 +111,19 @@ export function CourseCard({ course, isSaved, onToggleSave }: CourseCardProps) {
         </span>
         <span className="flex items-center gap-1.5">
           <Clock className="size-3.5" aria-hidden />
-          {course.lessonCount} lessons
+          {course.lessonCount} lesson{course.lessonCount === 1 ? "" : "s"}
         </span>
-        <span className="flex items-center gap-1.5">
-          <Users className="size-3.5" aria-hidden />
-          {course.studentCount.toLocaleString()}
-        </span>
+        {hasLearners && (
+          <span
+            className="flex items-center gap-1.5"
+            aria-label={`${course.studentCount.toLocaleString()} learner${
+              course.studentCount === 1 ? "" : "s"
+            }`}
+          >
+            <Users className="size-3.5" aria-hidden />
+            {course.studentCount.toLocaleString()}
+          </span>
+        )}
       </div>
     </Link>
   );

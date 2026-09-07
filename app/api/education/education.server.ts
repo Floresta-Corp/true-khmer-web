@@ -508,7 +508,12 @@ export async function gradeCourseQuizAttempt(
 export interface PublicCourseListItem {
   id: string;
   title: string;
-  creator: { id: string; name: string; email: string } | null;
+  creator: {
+    id: string;
+    name: string;
+    email: string;
+    avatarKey: string | null;
+  } | null;
   description: string;
   categoryId: string;
   categoryName: string | null;
@@ -519,6 +524,8 @@ export interface PublicCourseListItem {
   outcomes: string[];
   tags: string[];
   lessonCount: number;
+  studentCount: number;
+  rating: { average: number | null; total: number };
   publishedAt: string | null;
   createdAt: string;
 }
@@ -534,13 +541,21 @@ export interface ListPublicCoursesResponse {
   };
 }
 
+export type PublicCourseSort =
+  | "newest"
+  | "oldest"
+  | "az"
+  | "price"
+  | "popular"
+  | "rating";
+
 export interface ListPublicCoursesParams {
   page?: number;
   limit?: number;
   search?: string;
   categoryId?: string;
   pricing?: "free" | "paid";
-  sortBy?: "newest" | "oldest" | "az" | "price";
+  sortBy?: PublicCourseSort;
 }
 
 export async function listPublicCourses(
@@ -565,6 +580,41 @@ export async function listPublicCourses(
     );
   } catch (error) {
     if (isResourceUnavailable(error, "course catalogue")) return null;
+    throw error;
+  }
+}
+
+export interface ListCourseRecommendationsResponse {
+  ok: true;
+  courses: PublicCourseListItem[];
+}
+
+/**
+ * The courses the API recommends alongside one course.
+ *
+ * Returns `null` — rather than throwing — when the endpoint is missing or its
+ * service is failing, because the web deploys independently of the API: on an
+ * API that predates this route the caller tops the row up from the catalogue
+ * instead of blanking the section.
+ */
+export async function listCourseRecommendations(
+  request: Request,
+  courseId: string,
+  params: { limit?: number } = {},
+) {
+  const query = new URLSearchParams();
+  if (params.limit !== undefined) query.set("limit", String(params.limit));
+
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+
+  try {
+    return await apiRequestWithOptionalSession<ListCourseRecommendationsResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/recommendations${suffix}`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (isResourceUnavailable(error, "course recommendations")) return null;
     throw error;
   }
 }

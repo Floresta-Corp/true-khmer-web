@@ -39,11 +39,11 @@ export function AuthPageShell({
   }
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF]">
-      <main className="flex h-screen w-full overflow-hidden bg-[#FFFFFF]">
+    <div className="min-h-dvh bg-[#FFFFFF]">
+      <main className="flex h-dvh w-full overflow-hidden bg-[#FFFFFF]">
         <section
           className={cn(
-            "relative flex h-full w-full justify-center overflow-y-auto bg-[#FFFFFF] px-5 py-3 lg:w-1/2 lg:px-6 lg:py-3 xl:px-7 xl:py-4",
+            "relative flex h-full w-full justify-center overflow-y-auto overscroll-contain bg-[#FFFFFF] px-5 py-3 lg:w-1/2 lg:px-6 lg:py-3 xl:px-7 xl:py-4",
             leftSectionClassName,
           )}
         >
@@ -52,7 +52,7 @@ export function AuthPageShell({
             replace
             onClick={handleBack}
             className={cn(
-              "group absolute top-5 left-5 z-10 inline-flex items-center gap-2 text-[11px] font-semibold tracking-[1.1px] text-[#99A1AF] uppercase transition-colors hover:text-[#637081] lg:top-7 lg:left-7",
+              "group absolute top-5 left-5 z-10 inline-flex items-center gap-2 text-[11px] font-semibold tracking-[1.1px] text-[#99A1AF] uppercase transition-colors hover:text-[#637081] lg:top-7 lg:left-7 short:top-4 short:left-4",
               backLinkClassName,
             )}
           >
@@ -75,7 +75,7 @@ export function AuthPageShell({
 
           <div
             className={cn(
-              "tk-fade-up w-full max-w-sm pt-10 pb-2 lg:pt-11 lg:pb-2",
+              "tk-fade-up w-full max-w-sm pt-10 pb-2 lg:pt-11 lg:pb-2 short:pt-8",
               contentClassName,
             )}
           >

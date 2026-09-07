@@ -14,6 +14,7 @@ import {
   type AdminUser,
 } from "~/types/api-client";
 import { apiRequestPublic } from "./api-client.server";
+import { refreshAccessToken } from "~/services/auth/api.server";
 
 const SESSION_SECRET = process.env.SESSION_SECRET ?? crypto.randomUUID();
 
@@ -189,12 +190,7 @@ export async function commitAuthToSession(
   session.set("user", slimUser(user));
 
   const headers = new Headers();
-  headers.append(
-    "Set-Cookie",
-    session.get("rememberMe") === true
-      ? await commitSession(session)
-      : await browserSessionStorage.commitSession(session),
-  );
+  headers.append("Set-Cookie", await commitSessionForLogin(session));
   for (const cookie of Array.isArray(options.extraSetCookie)
     ? options.extraSetCookie
     : options.extraSetCookie
@@ -218,15 +214,54 @@ export async function updateUserSession(
 
   session.set("user", slimUser(user));
 
-  const rememberMe = session.get("rememberMe") === true;
-
   return redirect(redirectTo, {
-    headers: {
-      "Set-Cookie": rememberMe
-        ? await commitSession(session)
-        : await browserSessionStorage.commitSession(session),
-    },
+    headers: { "Set-Cookie": await commitSessionForLogin(session) },
   });
+}
+
+// Commits with the lifetime the login chose: the 30-day cookie for "remember
+// me", a browser-session cookie otherwise. Every write that touches an existing
+// session goes through this so a refresh never silently extends (or cuts short)
+// what the user opted into.
+export async function commitSessionForLogin(
+  session: Awaited<ReturnType<typeof getSession>>,
+) {
+  return session.get("rememberMe") === true
+    ? commitSession(session)
+    : browserSessionStorage.commitSession(session);
+}
+
+export type RefreshedSessionTokens = {
+  accessToken: string;
+  refreshToken: string;
+  setCookie: string;
+};
+
+// Trades the session's refresh token for a fresh pair and writes both back into
+// the `__session` cookie, so anything reading the session afterwards -- the
+// normal site pages and the OAuth authorization page alike -- sees the same
+// tokens. `null` means the refresh token is dead too and the caller has to
+// clear the session and ask for a login.
+export async function refreshSessionTokens(
+  request: Request,
+  session: Awaited<ReturnType<typeof getSession>>,
+): Promise<RefreshedSessionTokens | null> {
+  const refreshToken = session.get("refreshToken") as string | undefined;
+  if (!refreshToken) return null;
+
+  try {
+    const refreshed = await refreshAccessToken(refreshToken, request);
+    session.set("accessToken", refreshed.accessToken);
+    session.set("refreshToken", refreshed.refreshToken);
+
+    return {
+      accessToken: refreshed.accessToken,
+      refreshToken: refreshed.refreshToken,
+      setCookie: await commitSessionForLogin(session),
+    };
+  } catch {
+    return null;
+  }
 }
 
 export async function getAccessToken(request: Request) {

@@ -6,21 +6,19 @@ import {
   getCourseCurriculum,
   getLearnerCourseQuiz,
   listCourseReviews,
-  listPublicCourses,
 } from "~/api/education/education.server";
 import { getCourseSaveState } from "~/api/education/my-classes.server";
 import { GetProfileById } from "~/api/profile/profile.server";
 import { resolveImageURL } from "~/lib/utils";
 import { toTelHref } from "~/features/education/lib/phone";
 import { toCourseSummary } from "~/features/education/lib/map-catalog";
+import { loadCourseRecommendations } from "~/features/education/services/course-recommendations.loader";
 import { toCourseSections } from "~/features/education/lib/map-curriculum";
 import type {
   CourseDetail,
   CourseReview,
   CourseSummary,
 } from "~/features/education/types";
-
-const RECOMMENDED_LIMIT = 4;
 
 /* The Reviews tab shows three and expands to the rest in place, so one page is
    enough for the screen; the summary counts every review regardless. */
@@ -130,7 +128,10 @@ export async function loadCourseDetail(
     ratingCount: ratingSummary?.total ?? 0,
     level,
     lessonCount,
-    studentCount: 0,
+    /* Cast until the generated client is regenerated against the API that
+       returns it; falls back to zero on an API that predates the field. */
+    studentCount:
+      (course as { studentCount?: number | null }).studentCount ?? 0,
     isNew: false,
     price: course.price,
     isSaved: saveStateRes?.data?.saved ?? false,
@@ -138,6 +139,7 @@ export async function loadCourseDetail(
 
   return {
     ...summary,
+    format: course.format,
     meta: [
       {
         label: "LESSONS",
@@ -158,7 +160,7 @@ export async function loadCourseDetail(
     curriculum: sections,
     reviews,
     reviewCount: ratingSummary?.total ?? reviews.length,
-    enrolledCount: 0,
+    enrolledCount: summary.studentCount,
     isEnrolled: true,
     progressPercent: 0,
     status: course.status,
@@ -189,16 +191,7 @@ export async function educationDetailLoader({
     throw data({ message: "Course not found" }, { status: 404 });
   }
 
-  const recommendedRes = await listPublicCourses(request, {
-    limit: RECOMMENDED_LIMIT + 1,
-    categoryId: course.categoryId,
-    sortBy: "newest",
-  });
-
-  const recommended = (recommendedRes?.data?.courses ?? [])
-    .filter((item) => item.id !== course.id)
-    .slice(0, RECOMMENDED_LIMIT)
-    .map(toCourseSummary);
+  const recommended = await loadCourseRecommendations(request, course);
 
   return { course: { ...course, hasQuiz }, recommended };
 }

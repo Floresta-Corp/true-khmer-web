@@ -5,12 +5,15 @@ import {
 } from "~/api/education/education.server";
 import {
   CATALOG_PAGE_SIZE,
+  CATALOG_SORT_HEADINGS,
   CATALOG_SORT_QUERY,
-  CATALOG_TYPE_SERVABLE,
   CatalogSortSchema,
-  CatalogTypeSchema,
 } from "~/features/education/lib/course-catalog";
 import { toCourseSummary } from "~/features/education/lib/map-catalog";
+import {
+  loadSavedCourseIds,
+  withSaveState,
+} from "~/features/education/services/course-saves.loader";
 import { getOptionalUser } from "~/lib/server/route-guards.server";
 import type { CourseCategory } from "~/features/education/types";
 
@@ -18,15 +21,15 @@ export async function educationCatalogLoader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const search = url.searchParams.get("search")?.trim() ?? "";
   const categoryId = url.searchParams.get("categoryId") || null;
-  const requestedSort = CatalogSortSchema.parse(url.searchParams.get("sort"));
-  const requestedType = CatalogTypeSchema.parse(url.searchParams.get("type"));
+  /* Kept raw as well as parsed: an absent sort is the plain catalogue, while an
+     explicit one means a hub row sent the viewer here and names the page. */
+  const rawSort = url.searchParams.get("sort");
+  const requestedSort = CatalogSortSchema.parse(rawSort);
   const requestedPage = Number(url.searchParams.get("page")) || 1;
 
-  const sortBy = CATALOG_SORT_QUERY[requestedSort];
-  const sort = sortBy ? requestedSort : "newest";
-  const type = CATALOG_TYPE_SERVABLE[requestedType] ? requestedType : "all";
+  const sort = requestedSort;
 
-  const [, categoriesRes, catalogueRes] = await Promise.all([
+  const [, categoriesRes, catalogueRes, savedCourseIds] = await Promise.all([
     getOptionalUser(request),
     getCourseCategories(request),
     listPublicCourses(request, {
@@ -34,8 +37,9 @@ export async function educationCatalogLoader({ request }: Route.LoaderArgs) {
       limit: CATALOG_PAGE_SIZE,
       search: search || undefined,
       categoryId: categoryId ?? undefined,
-      sortBy: sortBy ?? "newest",
+      sortBy: CATALOG_SORT_QUERY[sort],
     }),
+    loadSavedCourseIds(request),
   ]);
 
   const apiCategories: CourseCategory[] = (
@@ -53,11 +57,15 @@ export async function educationCatalogLoader({ request }: Route.LoaderArgs) {
 
   const catalogue = catalogueRes?.data ?? null;
   const total = catalogue?.pagination.total ?? 0;
+  const sortHeading = rawSort ? CATALOG_SORT_HEADINGS[sort] : "All Courses";
 
   return {
     categories,
-    courses: (catalogue?.courses ?? []).map(toCourseSummary),
-    heading: selectedCategoryName ?? "All Courses",
+    courses: withSaveState(
+      (catalogue?.courses ?? []).map(toCourseSummary),
+      savedCourseIds,
+    ),
+    heading: selectedCategoryName ?? sortHeading,
     foundLabel: `Found ${total} course${total === 1 ? "" : "s"}${
       selectedCategoryName ? ` in ${selectedCategoryName}` : ""
     }`,
@@ -67,6 +75,5 @@ export async function educationCatalogLoader({ request }: Route.LoaderArgs) {
     categoryId,
     selectedCategoryName,
     sort,
-    type,
   };
 }

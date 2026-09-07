@@ -85,14 +85,18 @@ export function CourseDetailCurriculum({ course }: { course: CourseDetail }) {
                   >
                     <LessonTypeIcon
                       type={lesson.type}
-                      className="size-4 shrink-0 text-[#9A9AB0]"
+                      className="size-4.5 shrink-0 text-[#9A9AB0]"
                     />
-                    <span className="line-clamp-2 min-w-0 flex-1 text-sm leading-[1.4] text-[#9A9AB0]">
+                    {/* Title and trailing metadata share one size and one grey,
+                        as the design draws them — the duration used to sit two
+                        steps smaller, which read as a footnote rather than as
+                        the other half of the row. */}
+                    <span className="line-clamp-2 min-w-0 flex-1 text-[15px] leading-[1.4] text-[#9A9AB0]">
                       {lesson.title}
                     </span>
-                    {lessonDetail(lesson) && (
-                      <span className="shrink-0 text-xs text-[#9A9AB0]">
-                        {lessonDetail(lesson)}
+                    {lesson.duration && (
+                      <span className="shrink-0 text-[15px] text-[#9A9AB0]">
+                        {lesson.duration}
                       </span>
                     )}
                   </button>
