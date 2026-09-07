@@ -113,6 +113,12 @@ export default [
         "course-listing/:id/students/:userId",
         "features/course-manage/route/course-manage.$id.students.$userId.ts",
       ),
+      /* Resource route: the Review tab reads further into the reviews through
+         this, for the same reason. */
+      route(
+        "course-listing/:id/reviews",
+        "features/course-manage/route/course-manage.$id.reviews.ts",
+      ),
       route(
         "workspace/manage-post/:sourceType/:id",
         "features/workspace/manage-post/route/manage-post.$sourceType.$id.tsx",
