@@ -1,15 +1,14 @@
-import { Share2, Eye, Bookmark } from "lucide-react";
+import { Share2, Bookmark, MapPin, Calendar } from "lucide-react";
 import { Card } from "~/components/ui/card";
 
 import IconButton from "~/components/icon-button";
-import { Badge } from "~/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import type { LaunchpadOpportunity } from "~/features/launchpad/types";
 import { cn, resolveImageURL } from "~/lib/utils";
 import { buildAbsoluteUrl, copyToClipboard } from "~/lib/clipboard";
 import { useFetcher } from "react-router";
 import { motion } from "motion/react";
-import { useState } from "react";
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -17,10 +16,28 @@ const formatDate = (dateString: string) => {
     return "Invalid date";
   }
   return date.toLocaleDateString("en-US", {
-    day: "2-digit",
-    month: "2-digit",
+    day: "numeric",
+    month: "short",
     year: "numeric",
   });
+};
+
+const formatDateRange = (fromString: string, toString: string) => {
+  const from = new Date(fromString);
+  const to = new Date(toString);
+
+  if (isNaN(from.getTime()) || isNaN(to.getTime())) {
+    return "Invalid date";
+  }
+
+  return `${from.toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "long",
+  })} - ${to.toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })}`;
 };
 
 interface LaunchpadProjectCardProps {
@@ -36,7 +53,6 @@ export default function LaunchpadProjectCard({
 }: LaunchpadProjectCardProps) {
   const fetcher = useFetcher<{ ok: boolean; saved: boolean }>();
   const isSubmitting = fetcher.state !== "idle";
-  const [isHover, setIsHover] = useState(false);
   const optimisticSaved =
     fetcher.state !== "idle"
       ? fetcher.formData?.get("intent") === "save"
@@ -67,44 +83,27 @@ export default function LaunchpadProjectCard({
 
   return (
     <motion.div
-      className="group relative"
-      onHoverStart={() => setIsHover(true)}
-      onHoverEnd={() => setIsHover(false)}
+      className="group relative h-full"
       whileTap={{ scale: 0.99 }}
       transition={{ type: "spring", stiffness: 260, damping: 22 }}
-      // Without this the share/save buttons stay at opacity 0 while remaining
-      // focusable, so keyboard users tab into invisible controls.
-      onFocus={() => setIsHover(true)}
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) {
-          setIsHover(false);
-        }
-      }}
     >
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: isHover ? 1 : 0, x: isHover ? 0 : 20 }}
-        transition={{ duration: 0.2 }}
-        className="absolute top-3.5 right-3.5 z-10 flex gap-1.5"
-      >
-        <IconButton
-          className="size-9 bg-white text-[#65758b] shadow-sm hover:bg-white"
-          icon={<Share2 className="size-3.5" />}
+      <div className="absolute top-3 right-3 z-10 flex gap-1.5">
+        {/* <IconButton
+          className="size-8 rounded-full bg-white text-[#111827] shadow-[0px_1px_2px_0px_rgba(16,24,40,0.08)] hover:bg-white"
+          icon={<Share2 className="size-4" />}
           ariaLabel="Share project"
           onClick={handleShareClick}
-        />
+        /> */}
         <IconButton
           className={cn(
-            "size-9 bg-white text-[#65758b] shadow-sm hover:bg-white",
-            {
-              "bg-blue-600 text-white hover:bg-blue-600": optimisticSaved,
-            },
+            "size-8 rounded-full bg-white text-[#111827] shadow-[0px_1px_2px_0px_rgba(16,24,40,0.08)] hover:bg-white",
+            optimisticSaved &&
+              "bg-[#2f6fe4] text-white hover:bg-[#2f6fe4] hover:text-white",
           )}
           icon={
             <Bookmark
-              className={cn("size-3.5", {
-                "fill-white text-white": optimisticSaved,
-              })}
+              className={cn("size-4", optimisticSaved && "fill-current")}
+              strokeWidth={2}
             />
           }
           ariaLabel={
@@ -113,7 +112,7 @@ export default function LaunchpadProjectCard({
           onClick={handleSaveClick}
           disabled={isSubmitting}
         />
-      </motion.div>
+      </div>
       <Card
         role="button"
         tabIndex={0}
@@ -124,62 +123,74 @@ export default function LaunchpadProjectCard({
             onOpenOpportunity(item);
           }
         }}
-        className="flex min-h-112.5 cursor-pointer flex-col overflow-hidden rounded-2xl border border-[#f3f4f6] bg-white p-0 shadow-none transition-[border-color,box-shadow] duration-300 group-hover:border-[#dbe4f7] group-hover:shadow-[0px_6px_20px_-12px_rgba(47,111,228,0.12)]"
+        className="flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-[#eceef2] bg-white p-0 shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)] transition-[border-color,box-shadow] duration-300 group-hover:border-[#dbe4f7] group-hover:shadow-[0px_10px_30px_-15px_rgba(47,111,228,0.18)]"
       >
-        <div className="relative overflow-hidden">
+        <div className="relative shrink-0 overflow-hidden">
           <img
             src={resolveImageURL(item.coverKey || undefined)}
             alt={`${item.name} cover`}
-            className="h-44 w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            className="h-42 w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
-          <div
-            aria-hidden
-            className="absolute inset-0 bg-linear-to-t from-black/15 via-black/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-          />
-          <Badge className="pointer-events-none absolute top-3.5 left-3.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#2F6FE4]">
+          <span className="pointer-events-none absolute top-3 left-3 inline-flex items-center rounded-lg bg-white px-2.5 py-1 text-[11px] font-semibold tracking-[-0.1px] text-[#111827] shadow-[0px_1px_2px_0px_rgba(16,24,40,0.08)]">
             {item.category.name}
-          </Badge>
+          </span>
         </div>
-        <div className="flex flex-1 flex-col p-5">
-          <div className="text-lg leading-tight font-semibold transition-colors duration-300 group-hover:text-[#2F6FE4]">
+
+        <div className="flex flex-1 flex-col gap-2.5 px-5 pt-4 pb-3">
+          <div className="flex items-center gap-2">
+            <Avatar size="sm">
+              <AvatarImage
+                src={resolveImageURL(item.createdBy.avatarKey || undefined)}
+                alt={item.createdBy.name}
+              />
+              <AvatarFallback className="text-[10px] font-semibold">
+                {item.createdBy.name.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <span className="truncate text-[13px] font-medium text-[#4a5565]">
+              {item.createdBy.name}
+            </span>
+          </div>
+
+          <h3 className="text-[17px] leading-5.5 font-bold tracking-[-0.3px] text-[#111827] transition-colors duration-300 group-hover:text-[#2f6fe4]">
             {item.name}
-          </div>
-          <p className="mt-2 line-clamp-2 text-sm text-[#6B7280]">
-            {item.description}
-          </p>
-          <div className="mt-auto">
-            <div className="flex items-center justify-between rounded-xl bg-[#F8FAFB] px-4 py-2.5">
-              <div className="text-sm font-medium text-[#99A1AF] uppercase">
-                seeking:
-              </div>
-              <Badge className="pointer-events-none bg-white text-[#2F6FE4]">
-                {item.totalRoles} {item.totalRoles > 1 ? "ROLES" : "ROLE"}
-              </Badge>
+          </h3>
+
+          <span className="inline-flex w-fit items-center rounded-lg bg-[#eff4fe] px-2.5 py-1 text-[12.5px] font-semibold text-[#2f6fe4]">
+            Seeking {item.totalRoles} {item.totalRoles > 1 ? "roles" : "role"}
+          </span>
+
+          <div className="flex flex-col gap-1.5 text-[12.5px] font-medium text-[#8b93a1]">
+            <div className="flex items-center gap-2">
+              <MapPin size={14} className="shrink-0" />
+              <span className="truncate">{item.city.name}</span>
             </div>
-            <div className="mt-4 flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-[#9EACC0]">
-              <div className="flex min-w-0 items-center gap-1.75 whitespace-nowrap">
-                <div>Application close:</div>
-                <div className="font-semibold text-[#65758b]">
-                  {formatDate(item.deadline)}
-                </div>
-              </div>
-              <div className="flex shrink-0 items-center gap-1.75 whitespace-nowrap">
-                <Eye size={14} className="shrink-0" />
-                <div className="font-semibold">
-                  {`${item.totalView.toLocaleString()} ${item.totalView > 1 ? "Views" : "View"}`}
-                </div>
-              </div>
+            <div className="flex items-center gap-2">
+              <Calendar size={14} className="shrink-0" />
+              <span className="truncate">
+                {formatDateRange(item.createdAt, item.deadline)}
+              </span>
             </div>
-            {showApplyButton && (
-              <Button
-                variant="outline"
-                onClick={handleApplyClick}
-                className="mt-5 h-11 w-full rounded-xl border-slate-200 bg-white text-sm font-medium text-slate-700 shadow-none transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:bg-gray-200 hover:text-blue-700"
-              >
-                Apply
-              </Button>
-            )}
           </div>
+
+          <div className="mt-auto flex items-center justify-between gap-3 border-t border-[#f1f2f4] pt-3">
+            <span className="text-[12.5px] font-bold text-[#4a5565]">
+              Deadline:
+            </span>
+            <span className="text-[12.5px] font-bold whitespace-nowrap text-[#111827]">
+              {formatDate(item.deadline)}
+            </span>
+          </div>
+
+          {/* {showApplyButton && (
+            <Button
+              variant="outline"
+              onClick={handleApplyClick}
+              className="mt-2 h-11 w-full rounded-xl border-slate-200 bg-white text-sm font-medium text-slate-700 shadow-none transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:bg-gray-200 hover:text-blue-700"
+            >
+              Apply
+            </Button>
+          )} */}
         </div>
       </Card>
     </motion.div>
