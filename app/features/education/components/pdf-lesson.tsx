@@ -44,6 +44,19 @@ function PdfFrame({
   );
 }
 
+type PdfPreview =
+  | { status: "checking" }
+  | { status: "inline" }
+  | { status: "blocked"; reason: string };
+
+function isSameOrigin(src: string): boolean {
+  try {
+    return new URL(src).origin === window.location.origin;
+  } catch {
+    return true;
+  }
+}
+
 function RealPdfLesson({
   lesson,
   src,
@@ -53,34 +66,52 @@ function RealPdfLesson({
   src: string;
   flush?: boolean;
 }) {
-  const [preview, setPreview] = useState<"checking" | "inline" | "blocked">(
-    "checking",
-  );
+  const [preview, setPreview] = useState<PdfPreview>({ status: "checking" });
 
   useEffect(() => {
-    setPreview(navigator.pdfViewerEnabled === false ? "blocked" : "inline");
+    if (navigator.pdfViewerEnabled === false) {
+      setPreview({
+        status: "blocked",
+        reason: "Your browser will not open PDFs inside a page.",
+      });
+      return;
+    }
+
+    if (isSameOrigin(src)) {
+      setPreview({
+        status: "blocked",
+        reason: "This document is not served from the media host.",
+      });
+      return;
+    }
+
+    setPreview({ status: "inline" });
   }, [src]);
 
   return (
     <PdfFrame flush={flush}>
-      {preview === "checking" ? (
+      {preview.status === "checking" ? (
         <p className="flex size-full items-center justify-center text-sm text-[#7A7A8C]">
           Opening document…
         </p>
-      ) : preview === "blocked" ? (
+      ) : preview.status === "blocked" ? (
         <PdfDownloadNotice
           src={src}
           title={lesson.title}
-          reason="Your browser will not open PDFs inside a page."
+          reason={preview.reason}
         />
       ) : (
         <iframe
           key={src}
           src={pdfEmbedUrl(src)}
           title={lesson.title}
-          sandbox="allow-scripts"
           referrerPolicy="no-referrer"
-          onError={() => setPreview("blocked")}
+          onError={() =>
+            setPreview({
+              status: "blocked",
+              reason: "This document could not be displayed here.",
+            })
+          }
           className="size-full border-0"
         />
       )}
