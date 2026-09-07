@@ -79,6 +79,21 @@ export const PERFORMANCE_RANGES = [
 
 export type PerformanceRange = (typeof PERFORMANCE_RANGES)[number]["days"];
 
+/**
+ * Windows the Analytics enrolment trend offers, in months. `0` means all time.
+ *
+ * Months rather than the performance chart's days: that card plots a point per
+ * day, this one a bar per month, and six bars is what the design draws.
+ */
+export const ENROLLMENT_RANGES = [
+  { months: 3, label: "Last 3 months" },
+  { months: 6, label: "Last 6 months" },
+  { months: 12, label: "Last 12 months" },
+  { months: 0, label: "All time" },
+] as const;
+
+export type EnrollmentRange = (typeof ENROLLMENT_RANGES)[number]["months"];
+
 export interface ProgressSegment {
   key: "notStarted" | "inProgress" | "completed";
   label: string;
@@ -88,12 +103,13 @@ export interface ProgressSegment {
 }
 
 /**
- * Everything the Overview tab shows.
+ * Everything the Overview tab shows, all of it from `GET /courses/{id}/stats`.
  *
- * Enrolments, completion and the progress split come from `GET
- * /courses/{id}/stats`. The four nullable fields do not: nothing records quiz
- * attempts or ratings, and `null` says "not tracked" where `0` would read as a
- * course whose learners all failed and nobody liked.
+ * The nullable fields are nullable because the server sends null, not because
+ * they are untracked: it reports no pass rate, average or rating until someone
+ * has sat the quiz or left a review. That distinction is kept all the way to
+ * the card, where `0` would read as a course whose learners all failed and
+ * nobody liked.
  */
 export interface CourseManageOverview {
   enrollments: number;
@@ -164,6 +180,20 @@ export interface ReviewStage {
   state: ReviewStageState;
 }
 
+/**
+ * Reviews per page in the Review tab. Twenty is inside the endpoint's cap of
+ * fifty and covers the first read, so the tab only pages a much-reviewed
+ * course.
+ */
+export const REVIEW_PAGE_SIZE = 20;
+
+/** What the Review tab's fetcher gets back from the reviews resource route. */
+export interface CourseReviewsPage {
+  reviews: CourseReview[];
+  total: number;
+  totalPages: number;
+}
+
 export interface RatingBar {
   stars: number;
   count: number;
@@ -193,7 +223,6 @@ export interface QuizBand {
 }
 
 export interface CourseManageAnalytics {
-  trend: TrendBar[];
   funnel: FunnelStage[];
   quizBands: QuizBand[];
   /** Attempt count shown in the donut's centre. */

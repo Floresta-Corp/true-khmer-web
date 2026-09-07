@@ -155,6 +155,12 @@ export const mySpaceSidebarConfig: AppSidebarProps = {
       to: "/saved-items",
       icon: BookmarkCheck,
     },
+    {
+      id: "myclasses",
+      label: "My Classes",
+      to: "/my-classes",
+      icon: GraduationCap,
+    },
   ],
   footer: {
     to: "/workspace/manage-post",

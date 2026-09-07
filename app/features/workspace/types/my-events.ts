@@ -77,9 +77,7 @@ export const MyEventSchema = z
     endAt: z.union([z.null(), z.string()]).optional(),
     isOnline: z.union([z.null(), z.boolean()]).optional(),
     address: z.union([z.null(), z.string()]).optional(),
-    venue: z
-      .union([z.null(), z.object({ name: z.string().optional() })])
-      .optional(),
+    venueName: z.union([z.null(), z.string()]).optional(),
     currencyCode: z.union([z.null(), z.string()]).optional(),
     // Plumpi reports money and ticket totals as decimal strings.
     totalRevenue: NumericSchema,
@@ -101,7 +99,7 @@ export const MyEventSchema = z
       startAt,
       endAt,
       location:
-        event.venue?.name?.trim() ||
+        event.venueName?.trim() ||
         event.address?.trim() ||
         (event.isOnline ? "Online event" : "Location to be announced"),
       currencyCode: event.currencyCode ?? "USD",

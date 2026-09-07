@@ -7,6 +7,7 @@ import type {
   Country,
   City,
 } from "~/features/myspace/types";
+import type { ListCertificatesResponse } from "~/api/education/education.server";
 import type { SearchSkillsResponse } from "~/types/api-client";
 
 export async function GetMyspaceMe(request: Request) {
@@ -22,6 +23,22 @@ export async function GetRecentActivity(request: Request) {
     {
       method: "GET",
     },
+  );
+}
+
+export async function GetMyCertificates(
+  request: Request,
+  params: { page?: number; limit?: number } = {},
+) {
+  const query = new URLSearchParams();
+  if (params.page) query.set("page", String(params.page));
+  if (params.limit) query.set("limit", String(params.limit));
+  const suffix = query.size > 0 ? `?${query.toString()}` : "";
+
+  return await apiRequestWithSession<ListCertificatesResponse>(
+    request,
+    `/me/certificates${suffix}`,
+    { method: "GET" },
   );
 }
 

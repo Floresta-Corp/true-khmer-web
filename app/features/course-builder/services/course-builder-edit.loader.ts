@@ -1,8 +1,8 @@
 import { data } from "react-router";
 import type { Route } from "project-types/course-builder/route/+types/course-builder.$id";
 import {
-  getCourseById,
   getCourseCategories,
+  getOwnedCourseById,
   readCourseCurriculum,
   readCourseQuiz,
 } from "~/api/education/education.server";
@@ -40,7 +40,7 @@ export async function courseBuilderEditLoader({
   const [categoryResult, courseResult, curriculumResult, quizResult] =
     await Promise.all([
       getCourseCategories(request),
-      getCourseById(request, params.id),
+      getOwnedCourseById(request, params.id),
       readCourseCurriculum(request, params.id),
       readCourseQuiz(request, params.id),
     ]);
@@ -73,10 +73,7 @@ export async function courseBuilderEditLoader({
     coverPreviewUrl: course.coverImageUrl ?? null,
     difficulty: saved.difficulty ? DIFFICULTY_FROM_API[saved.difficulty] : null,
     skills: Array.isArray(saved.skills) ? saved.skills : [],
-    outcomes:
-      Array.isArray(saved.outcomes) && saved.outcomes.length > 0
-        ? saved.outcomes
-        : [""],
+    outcomes: Array.isArray(saved.outcomes) ? saved.outcomes : [],
     tags: Array.isArray(saved.tags) ? saved.tags : [],
   };
 

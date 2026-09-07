@@ -5,27 +5,45 @@ import {
   getCourseCategories,
   getCourseCurriculum,
   getLearnerCourseQuiz,
+  listCourseReviews,
   listPublicCourses,
 } from "~/api/education/education.server";
+import { getCourseSaveState } from "~/api/education/my-classes.server";
 import { GetProfileById } from "~/api/profile/profile.server";
 import { resolveImageURL } from "~/lib/utils";
 import { toTelHref } from "~/features/education/lib/phone";
 import { toCourseSummary } from "~/features/education/lib/map-catalog";
 import { toCourseSections } from "~/features/education/lib/map-curriculum";
-import type { CourseDetail, CourseSummary } from "~/features/education/types";
+import type {
+  CourseDetail,
+  CourseReview,
+  CourseSummary,
+} from "~/features/education/types";
 
 const RECOMMENDED_LIMIT = 4;
+
+/* The Reviews tab shows three and expands to the rest in place, so one page is
+   enough for the screen; the summary counts every review regardless. */
+const REVIEW_LIMIT = 20;
 
 export async function loadCourseDetail(
   request: Request,
   courseId: string,
-  options: { withInstructorContact?: boolean } = {},
+  options: {
+    withInstructorContact?: boolean;
+    withSaveState?: boolean;
+  } = {},
 ): Promise<CourseDetail | null> {
-  const [courseRes, categoriesRes, curriculumRes] = await Promise.all([
-    getCourseById(request, courseId),
-    getCourseCategories(request),
-    getCourseCurriculum(request, courseId),
-  ]);
+  const [courseRes, categoriesRes, curriculumRes, reviewsRes, saveStateRes] =
+    await Promise.all([
+      getCourseById(request, courseId),
+      getCourseCategories(request),
+      getCourseCurriculum(request, courseId),
+      listCourseReviews(request, courseId, { limit: REVIEW_LIMIT }),
+      options.withSaveState
+        ? getCourseSaveState(request, courseId)
+        : Promise.resolve(null),
+    ]);
 
   const course = courseRes?.data?.course;
   if (!course) return null;
@@ -72,6 +90,17 @@ export async function loadCourseDetail(
     ? ((course as { outcomes?: string[] }).outcomes as string[])
     : [];
 
+  const ratingSummary = reviewsRes?.data?.summary;
+  const reviews: CourseReview[] = (reviewsRes?.data?.reviews ?? []).map(
+    (review) => ({
+      id: review.id,
+      name: review.name,
+      avatarUrl: review.avatar ? resolveImageURL(review.avatar) : null,
+      rating: review.rating,
+      comment: review.comment ?? "",
+    }),
+  );
+
   const difficulty = (course as { difficulty?: string | null }).difficulty;
   const level: CourseSummary["level"] =
     difficulty === "INTERMEDIATE"
@@ -95,14 +124,16 @@ export async function loadCourseDetail(
       phone: instructorPhone,
       email: creator?.email ?? null,
     },
-    rating: 0,
-    ratingCount: 0,
+    /* Zero, not null, once it reaches the card: an unrated course reads as
+       "0.0" with no reviews behind it rather than an empty slot. */
+    rating: ratingSummary?.average ?? 0,
+    ratingCount: ratingSummary?.total ?? 0,
     level,
     lessonCount,
     studentCount: 0,
     isNew: false,
     price: course.price,
-    isSaved: false,
+    isSaved: saveStateRes?.data?.saved ?? false,
   };
 
   return {
@@ -125,8 +156,8 @@ export async function loadCourseDetail(
     skills,
     outcomes,
     curriculum: sections,
-    reviews: [],
-    reviewCount: 0,
+    reviews,
+    reviewCount: ratingSummary?.total ?? reviews.length,
     enrolledCount: 0,
     isEnrolled: true,
     progressPercent: 0,
@@ -147,7 +178,10 @@ export async function educationDetailLoader({
   params,
 }: EducationDetailRoute.LoaderArgs) {
   const [course, hasQuiz] = await Promise.all([
-    loadCourseDetail(request, params.id, { withInstructorContact: true }),
+    loadCourseDetail(request, params.id, {
+      withInstructorContact: true,
+      withSaveState: true,
+    }),
     loadCourseHasQuiz(request, params.id),
   ]);
 

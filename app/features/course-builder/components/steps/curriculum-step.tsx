@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { LessonSourceField } from "../lesson-source-field";
+import { Required } from "../required-mark";
 import type { CourseSection, LessonType } from "~/features/education/types";
 import {
   LESSON_SOURCES,
@@ -55,6 +56,10 @@ const TYPE_LABELS: Record<LessonType, string> = {
 };
 
 interface CurriculumStepProps {
+  /** Set when the step was left, or submitted, without enough content. */
+  error?: string;
+  /** Sections the error is pointing at, so each one can say so itself. */
+  emptySectionIds?: Set<string>;
   format: CourseFormat;
   lesson: LessonDraft;
   onLessonChange: (changes: Partial<LessonDraft>) => void;
@@ -72,9 +77,52 @@ interface CurriculumStepProps {
     targetLessonId: string | null,
   ) => void;
   onAddLesson: (sectionId: string) => void;
+  /** Absent while the course is locked, which leaves the rows read-only. */
+  onEditLesson?: (sectionId: string, lessonId: string) => void;
+}
+
+/**
+ * The title and type of a lesson row. While the course is editable this is a
+ * button that opens the lesson; otherwise it is plain text, so a locked course
+ * does not offer a control that would refuse to do anything.
+ */
+function LessonBody({
+  title,
+  meta,
+  onEdit,
+}: {
+  title: string;
+  meta: string;
+  onEdit?: () => void;
+}) {
+  const content = (
+    <>
+      <span className="min-w-0 flex-1 truncate text-sm text-[#333333]">
+        {title}
+      </span>
+      <span className="shrink-0 text-[13px] text-[#9A9AB0]">{meta}</span>
+    </>
+  );
+
+  const shared = "flex min-w-0 flex-1 items-center gap-3 py-3.5 pr-4 pl-3";
+
+  return onEdit ? (
+    <button
+      type="button"
+      onClick={onEdit}
+      title="Edit this lesson"
+      className={cn(shared, "cursor-pointer text-left")}
+    >
+      {content}
+    </button>
+  ) : (
+    <span className={shared}>{content}</span>
+  );
 }
 
 export function CurriculumStep({
+  error,
+  emptySectionIds,
   format,
   lesson,
   onLessonChange,
@@ -87,6 +135,7 @@ export function CurriculumStep({
   onMoveSection,
   onMoveLesson,
   onAddLesson,
+  onEditLesson,
 }: CurriculumStepProps) {
   type Drag =
     | { kind: "section"; sectionId: string }
@@ -94,6 +143,8 @@ export function CurriculumStep({
 
   const dragRef = useRef<Drag | null>(null);
   const [dragging, setDragging] = useState<Drag | null>(null);
+  /** Row the pointer is over, drawn with a line marking the insert point. */
+  const [over, setOver] = useState<string | null>(null);
 
   const startDrag = (drag: Drag) => {
     dragRef.current = drag;
@@ -103,6 +154,7 @@ export function CurriculumStep({
   const endDrag = () => {
     dragRef.current = null;
     setDragging(null);
+    setOver(null);
   };
 
   const allowDrop = (event: React.DragEvent) => {
@@ -272,6 +324,10 @@ export function CurriculumStep({
                 }
               />
 
+              {error && (
+                <p className="mt-1.5 text-[13px] text-[#FB3748]">{error}</p>
+              )}
+
               {lesson.source === "youtube" && (
                 <div className="mt-3 flex items-start gap-2.5 rounded-lg bg-[#EFF4FE] px-3.5 py-3">
                   <Info
@@ -294,6 +350,7 @@ export function CurriculumStep({
             <div>
               <h3 className="mb-1 text-[18px] font-bold whitespace-nowrap text-[#1A1A2E]">
                 Build your curriculum
+                <Required />
               </h3>
               <p className="text-sm text-[#9A9AB0]">
                 Organize your course into sections and lessons.
@@ -308,10 +365,15 @@ export function CurriculumStep({
             </button>
           </div>
 
+          {error && (
+            <p className="mb-3.5 text-[13px] text-[#FB3748]">{error}</p>
+          )}
+
           <div className="flex flex-col gap-3.5">
             {sections.map((section) => {
               const isOpen = openSections.has(section.id);
               const count = section.lessons.length;
+              const isEmpty = emptySectionIds?.has(section.id) ?? false;
 
               return (
                 <div
@@ -341,7 +403,8 @@ export function CurriculumStep({
                   }}
                   onDragEnd={endDrag}
                   className={cn(
-                    "overflow-hidden rounded-lg border border-[#E5E7EB]",
+                    "overflow-hidden rounded-lg border",
+                    isEmpty ? "border-[#FB3748]" : "border-[#E5E7EB]",
                     dragging?.kind === "section" &&
                       dragging.sectionId === section.id &&
                       "opacity-40",
@@ -361,8 +424,17 @@ export function CurriculumStep({
                     >
                       {section.title}
                     </button>
-                    <span className="shrink-0 text-[13px] text-[#9A9AB0]">
-                      {count} {count === 1 ? "lesson" : "lessons"}
+                    <span
+                      className={cn(
+                        "shrink-0 text-[13px]",
+                        isEmpty
+                          ? "font-semibold text-[#FB3748]"
+                          : "text-[#9A9AB0]",
+                      )}
+                    >
+                      {isEmpty
+                        ? "Add at least one lesson"
+                        : `${count} ${count === 1 ? "lesson" : "lessons"}`}
                     </span>
                     <button
                       type="button"
@@ -397,7 +469,17 @@ export function CurriculumStep({
                               lessonId: lesson.id,
                             });
                           }}
-                          onDragOver={allowDrop}
+                          onDragOver={(event) => {
+                            allowDrop(event);
+                            const drag = dragRef.current;
+                            if (drag?.kind !== "lesson") return;
+                            if (drag.lessonId !== lesson.id) setOver(lesson.id);
+                          }}
+                          onDragLeave={() =>
+                            setOver((current) =>
+                              current === lesson.id ? null : current,
+                            )
+                          }
                           onDrop={(event) => {
                             event.preventDefault();
                             event.stopPropagation();
@@ -413,24 +495,31 @@ export function CurriculumStep({
                           }}
                           onDragEnd={endDrag}
                           className={cn(
-                            "flex cursor-pointer items-center gap-3 border-t border-[#E5E7EB] px-4 py-3.5 transition-colors hover:bg-[#F5F5F5]",
+                            "flex cursor-grab items-center border-t border-[#E5E7EB] transition-colors hover:bg-[#F5F5F5] active:cursor-grabbing",
                             dragging?.kind === "lesson" &&
                               dragging.lessonId === lesson.id &&
                               "opacity-40",
+                            over === lesson.id &&
+                              "bg-[#F3F6FD] shadow-[inset_0_2px_0_0_#1C5DD4]",
                           )}
                         >
-                          <GripVertical
-                            size={15}
+                          <span
                             aria-hidden
-                            className="shrink-0 cursor-grab text-[#9A9AB0]"
+                            className="flex shrink-0 items-center py-3.5 pl-4 text-[#9A9AB0]"
+                          >
+                            <GripVertical size={15} />
+                          </span>
+
+                          <LessonBody
+                            title={lesson.title}
+                            meta={`${TYPE_LABELS[lesson.type]}${
+                              lesson.duration ? ` · ${lesson.duration}` : ""
+                            }`}
+                            onEdit={
+                              onEditLesson &&
+                              (() => onEditLesson(section.id, lesson.id))
+                            }
                           />
-                          <span className="min-w-0 flex-1 truncate text-sm text-[#333333]">
-                            {lesson.title}
-                          </span>
-                          <span className="shrink-0 text-[13px] text-[#9A9AB0]">
-                            {TYPE_LABELS[lesson.type]}
-                            {lesson.duration ? ` · ${lesson.duration}` : ""}
-                          </span>
                         </div>
                       ))}
 

@@ -39,7 +39,7 @@ export function ChapterList({
         </span>
       </div>
 
-      <div className="max-h-[420px] overflow-y-auto [scrollbar-color:#BBBBBB_transparent] [scrollbar-width:thin]">
+      <div className="max-h-105 overflow-y-auto [scrollbar-color:#BBBBBB_transparent] [scrollbar-width:thin]">
         {course.curriculum.map((section) => {
           const isOpen = openSectionIds.has(section.id);
           return (

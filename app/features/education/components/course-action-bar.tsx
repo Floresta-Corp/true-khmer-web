@@ -20,6 +20,7 @@ interface CourseActionBarProps {
   backLabel?: string;
   className?: string;
   isSaved: boolean;
+  isSavePending?: boolean;
   onToggleSave: () => void;
   onShare: () => void;
   onDownload?: () => void;
@@ -31,6 +32,7 @@ export function CourseActionBar({
   backLabel = "Back",
   className,
   isSaved,
+  isSavePending = false,
   onToggleSave,
   onShare,
   onDownload,
@@ -54,7 +56,8 @@ export function CourseActionBar({
           aria-label={isSaved ? "Remove from saved" : "Save course"}
           aria-pressed={isSaved}
           onClick={onToggleSave}
-          className="flex size-9 cursor-pointer items-center justify-center rounded-lg transition-colors hover:bg-gray-100"
+          disabled={isSavePending}
+          className="flex size-9 cursor-pointer items-center justify-center rounded-lg transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Bookmark
             aria-hidden

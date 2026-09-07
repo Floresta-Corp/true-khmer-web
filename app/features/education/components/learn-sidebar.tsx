@@ -37,7 +37,7 @@ export function LearnSidebar({
   const isFullyDone = totalLessons > 0 && completedCount === totalLessons;
 
   return (
-    <div className="flex h-full w-[380px] shrink-0 flex-col border-r border-[#E5E7EB] bg-white">
+    <div className="flex h-full w-95 shrink-0 flex-col border-r border-[#E5E7EB] bg-white">
       <div className="flex items-center justify-between border-b border-[#E5E7EB] px-5 py-4.5">
         <Link
           to={`/education/${course.id}`}

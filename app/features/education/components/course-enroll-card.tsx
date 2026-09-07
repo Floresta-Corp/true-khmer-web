@@ -41,7 +41,7 @@ export function CourseEnrollCard({
         <span className="text-sm text-[#9A9AB0]">Price</span>
         <CoursePriceBadge
           price={course.price}
-          className="rounded-lg px-3 py-[5px] text-xs font-bold"
+          className="rounded-lg px-3 py-1.25 text-xs font-bold"
         />
       </div>
 

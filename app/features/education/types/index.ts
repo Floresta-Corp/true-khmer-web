@@ -69,6 +69,13 @@ export interface CourseReview {
   comment: string;
 }
 
+export interface OwnCourseReview {
+  id: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+}
+
 export interface CourseDetail extends CourseSummary {
   meta: CourseMetaItem[];
   hasQuiz: boolean;
@@ -121,7 +128,19 @@ export interface QuizAttemptResult {
 }
 
 export interface CourseCertificate {
+  courseId: string;
+  certificateNo: string;
   recipientName: string;
   courseTitle: string;
   completedOn: string;
+  sharedToProfile: boolean;
+}
+
+export interface ProfileCertificate {
+  id: string;
+  courseId: string;
+  courseTitle: string;
+  certificateNo: string;
+  completedAt: string;
+  sharedToProfile: boolean;
 }

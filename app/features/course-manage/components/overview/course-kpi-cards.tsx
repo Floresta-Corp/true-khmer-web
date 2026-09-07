@@ -12,8 +12,8 @@ export const MANAGE_CARD =
  * The four Overview stat cards: a 38px tinted icon square beside a 13px label,
  * then a 26px figure and a 12.5px sub-label, per the design's `teachStatCards`.
  *
- * A metric nothing records shows an em dash in muted ink and says so in the
- * sub-label, so an untracked figure never reads as a bad one.
+ * A metric with nothing behind it yet shows an em dash in muted ink and says
+ * so in the sub-label, so an empty figure never reads as a bad one.
  */
 export function CourseKpiCards({
   overview,
@@ -42,7 +42,7 @@ export function CourseKpiCards({
       value: overview.quizPassRate === null ? "—" : `${overview.quizPassRate}%`,
       subLabel:
         overview.avgQuizScore === null
-          ? "Attempts are not recorded yet"
+          ? "No quiz attempts yet"
           : `Avg score ${overview.avgQuizScore}%`,
       muted: overview.quizPassRate === null,
       icon: Clock,

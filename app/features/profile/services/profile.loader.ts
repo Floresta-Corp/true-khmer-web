@@ -1,6 +1,15 @@
 import { z } from "zod";
-import { GetProfileById, GetPostedContent } from "~/api/profile/profile.server";
+import {
+  GetProfileById,
+  GetPostedContent,
+  GetProfileCertificates,
+} from "~/api/profile/profile.server";
 import type { GetPostedContentResponse } from "~/features/profile/types";
+import type { ProfileCertificate } from "~/features/education/types";
+import {
+  collectCertificates,
+  toProfileCertificate,
+} from "~/api/education/education.server";
 import type { Route } from "project-types/profile/route/+types/profile.$id";
 
 const ProfileIdSchema = z.string().min(1);
@@ -75,6 +84,24 @@ function normalizePosted(
 
 export type NormalizedPosted = ReturnType<typeof normalizePosted>;
 
+async function loadSharedCertificates(
+  request: Request,
+  userId: string,
+): Promise<ProfileCertificate[]> {
+  try {
+    const records = await collectCertificates((params) =>
+      GetProfileCertificates(request, userId, params),
+    );
+    return records.map(toProfileCertificate);
+  } catch (error) {
+    console.warn(
+      `[profile] certificates for ${userId} unavailable; rendering without them`,
+      error,
+    );
+    return [];
+  }
+}
+
 export async function profileLoader({ request, params }: Route.LoaderArgs) {
   const idResult = ProfileIdSchema.safeParse(params.id);
   if (!idResult.success) {
@@ -106,9 +133,8 @@ export async function profileLoader({ request, params }: Route.LoaderArgs) {
       };
     }
 
-    // SSR with a tab active: fetch profile + first page in parallel.
     if (sourceTypeResult.success) {
-      const [profileResult, postedResult] = await Promise.all([
+      const [profileResult, postedResult, certificates] = await Promise.all([
         GetProfileById(request, idResult.data),
         GetPostedContent(
           request,
@@ -117,10 +143,12 @@ export async function profileLoader({ request, params }: Route.LoaderArgs) {
           undefined,
           10,
         ),
+        loadSharedCertificates(request, idResult.data),
       ]);
       return {
         kind: "profile" as const,
         profile: profileResult.data.profile,
+        certificates,
         initialPosted: normalizePosted(
           postedResult.data,
           sourceTypeResult.data,
@@ -128,9 +156,16 @@ export async function profileLoader({ request, params }: Route.LoaderArgs) {
       };
     }
 
-    const profileResult = await GetProfileById(request, idResult.data);
-    return { kind: "profile" as const, profile: profileResult.data.profile };
+    const [profileResult, certificates] = await Promise.all([
+      GetProfileById(request, idResult.data),
+      loadSharedCertificates(request, idResult.data),
+    ]);
+    return {
+      kind: "profile" as const,
+      profile: profileResult.data.profile,
+      certificates,
+    };
   } catch {
-    return { kind: "profile" as const, profile: null };
+    return { kind: "profile" as const, profile: null, certificates: [] };
   }
 }

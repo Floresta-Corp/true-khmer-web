@@ -1,9 +1,9 @@
 import { data } from "react-router";
 import type { Route } from "project-types/course-manage/route/+types/course-manage.$id";
 import {
-  getCourseById,
   getCourseCurriculum,
   getCourseStats,
+  getOwnedCourseById,
   listCourseReviews,
   listCourseStudents,
 } from "~/api/education/education.server";
@@ -13,12 +13,15 @@ import {
   buildRatingBreakdown,
   buildTrends,
 } from "~/features/course-manage/lib/manage-overview";
+import { toManageReviews } from "~/features/course-manage/lib/manage-reviews";
 import { buildReviewStages } from "~/features/course-manage/lib/review-stages";
 import { toCourseSections } from "~/features/education/lib/map-curriculum";
-import { resolveImageURL } from "~/lib/utils";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
-import { STUDENT_PAGE_SIZE } from "~/features/course-manage/types";
+import {
+  REVIEW_PAGE_SIZE,
+  STUDENT_PAGE_SIZE,
+} from "~/features/course-manage/types";
 
 export async function courseManageLoader({
   request,
@@ -28,12 +31,12 @@ export async function courseManageLoader({
 
   const [result, curriculumResult, statsResult, reviewsResult, studentsResult] =
     await Promise.all([
-      getCourseById(request, params.id),
+      getOwnedCourseById(request, params.id),
       getCourseCurriculum(request, params.id),
       getCourseStats(request, params.id),
       /* First pages only. Both the Review and Students tabs page further
          themselves, so neither pulls a whole list to render a screenful. */
-      listCourseReviews(request, params.id, { limit: 20 }),
+      listCourseReviews(request, params.id, { limit: REVIEW_PAGE_SIZE }),
       listCourseStudents(request, params.id, { limit: STUDENT_PAGE_SIZE }),
     ]);
   const course = result?.data?.course ?? null;
@@ -54,13 +57,11 @@ export async function courseManageLoader({
     curriculum: curriculumResult?.data?.curriculum
       ? toCourseSections(curriculumResult.data.curriculum)
       : [],
-    reviews: (reviewsResult?.data?.reviews ?? []).map((review) => ({
-      id: review.id,
-      name: review.name,
-      avatarUrl: review.avatar ? resolveImageURL(review.avatar) : null,
-      rating: review.rating,
-      comment: review.comment ?? "",
-    })),
+    reviews: toManageReviews(reviewsResult?.data?.reviews ?? []),
+    /* How many there are in total, so the Review tab can say what "show all"
+       will fetch and know when it has reached the end. */
+    reviewPages: reviewsResult?.data?.pagination.totalPages ?? 0,
+    reviewTotal: reviewsResult?.data?.pagination.total ?? 0,
     ratingBreakdown: buildRatingBreakdown(stats),
     students: studentsResult?.data ?? null,
     reviewStages: buildReviewStages(course),
