@@ -506,7 +506,12 @@ export async function gradeCourseQuizAttempt(
 export interface PublicCourseListItem {
   id: string;
   title: string;
-  creator: { id: string; name: string; email: string } | null;
+  creator: {
+    id: string;
+    name: string;
+    email: string;
+    avatarKey: string | null;
+  } | null;
   description: string;
   categoryId: string;
   categoryName: string | null;
@@ -517,6 +522,8 @@ export interface PublicCourseListItem {
   outcomes: string[];
   tags: string[];
   lessonCount: number;
+  studentCount: number;
+  rating: { average: number | null; total: number };
   publishedAt: string | null;
   createdAt: string;
 }
@@ -532,13 +539,21 @@ export interface ListPublicCoursesResponse {
   };
 }
 
+export type PublicCourseSort =
+  | "newest"
+  | "oldest"
+  | "az"
+  | "price"
+  | "popular"
+  | "rating";
+
 export interface ListPublicCoursesParams {
   page?: number;
   limit?: number;
   search?: string;
   categoryId?: string;
   pricing?: "free" | "paid";
-  sortBy?: "newest" | "oldest" | "az" | "price";
+  sortBy?: PublicCourseSort;
 }
 
 export async function listPublicCourses(

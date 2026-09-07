@@ -34,7 +34,6 @@ export interface CourseSummary {
   lessonCount: number;
   studentCount: number;
   isNew: boolean;
-  type?: "course" | "ks";
   price: number;
   isSaved: boolean;
 }
@@ -76,7 +75,11 @@ export interface OwnCourseReview {
   createdAt: string;
 }
 
+/** How a course is structured: many chapters, or one standalone lesson. */
+export type CourseFormat = "MULTI" | "SINGLE";
+
 export interface CourseDetail extends CourseSummary {
+  format: CourseFormat;
   meta: CourseMetaItem[];
   hasQuiz: boolean;
   certificateKind: "PARTICIPATION" | "COMPLETION" | null;

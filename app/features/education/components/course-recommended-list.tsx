@@ -22,7 +22,9 @@ export function CourseRecommendedList({
         Recommended for you
       </h3>
 
-      <div className="bg-white">
+      {/* Bounded by a rule top and bottom rather than a filled panel, so the
+          row sits directly on the page. */}
+      <div className="border-y border-[#E5E7EB]">
         {courses.map((course, index) => {
           const isSaved = savedIds.has(course.id);
 
