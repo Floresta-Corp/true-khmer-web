@@ -1,5 +1,5 @@
 import { data } from "react-router";
-import { formatDuration } from "~/features/education/lib/map-curriculum";
+import { formatDuration } from "~/features/education/lib/lesson-media";
 import type { Route } from "project-types/course-builder/route/+types/course-builder.$id";
 import {
   getCourseCategories,

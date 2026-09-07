@@ -58,7 +58,6 @@ export function LessonSourceField({
   const pendingFile = useRef<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  /** A half-typed link is not wrong yet, so only complain once they leave. */
   const [urlTouched, setUrlTouched] = useState(false);
 
   const selection = useRef(0);
@@ -110,12 +109,13 @@ export function LessonSourceField({
 
     const upload = fetcher.data.upload;
     const startedFor = selection.current;
-    const meta = readLessonAssetMeta(file, source);
+    const metaPromise = readLessonAssetMeta(file, source);
     setUploading(true);
     putLessonAsset(upload, file)
       .then(async (assetKey) => {
+        const meta = await metaPromise;
         if (startedFor !== selection.current) return;
-        onUploaded(assetKey, file.name, await meta);
+        onUploaded(assetKey, file.name, meta);
       })
       .catch(() => {
         if (startedFor !== selection.current) return;

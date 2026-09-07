@@ -12,7 +12,6 @@ interface ChapterListProps {
   completedLessonIds: Set<string>;
   openSectionIds: Set<string>;
   onToggleSection: (sectionId: string) => void;
-  /** Position of a lesson across the whole course, 1-based. */
   lessonIndex: (lesson: CourseLesson) => number;
   quizUnlocked: boolean;
 }

@@ -13,12 +13,10 @@ import {
 
 interface AddLessonModalProps {
   draft: LessonDraft;
-  /** "edit" reopens a saved lesson; the form is otherwise identical. */
   mode?: "add" | "edit";
   onChange: (changes: Partial<LessonDraft>) => void;
   onConfirm: () => void;
   onClose: () => void;
-  /** Offered while editing, so a lesson can be taken out of its section. */
   onDelete?: () => void;
   uploading?: boolean;
   onUploadingChange?: (uploading: boolean) => void;

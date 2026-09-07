@@ -56,10 +56,15 @@ const TYPE_LABELS: Record<LessonType, string> = {
   audio: "Audio",
 };
 
+function lessonMeta(lesson: CourseSection["lessons"][number]): string {
+  const detail = lessonDetail(lesson);
+  return detail
+    ? `${TYPE_LABELS[lesson.type]} · ${detail}`
+    : TYPE_LABELS[lesson.type];
+}
+
 interface CurriculumStepProps {
-  /** Set when the step was left, or submitted, without enough content. */
   error?: string;
-  /** Sections the error is pointing at, so each one can say so itself. */
   emptySectionIds?: Set<string>;
   format: CourseFormat;
   lesson: LessonDraft;
@@ -78,15 +83,9 @@ interface CurriculumStepProps {
     targetLessonId: string | null,
   ) => void;
   onAddLesson: (sectionId: string) => void;
-  /** Absent while the course is locked, which leaves the rows read-only. */
   onEditLesson?: (sectionId: string, lessonId: string) => void;
 }
 
-/**
- * The title and type of a lesson row. While the course is editable this is a
- * button that opens the lesson; otherwise it is plain text, so a locked course
- * does not offer a control that would refuse to do anything.
- */
 function LessonBody({
   title,
   meta,
@@ -144,7 +143,6 @@ export function CurriculumStep({
 
   const dragRef = useRef<Drag | null>(null);
   const [dragging, setDragging] = useState<Drag | null>(null);
-  /** Row the pointer is over, drawn with a line marking the insert point. */
   const [over, setOver] = useState<string | null>(null);
 
   const startDrag = (drag: Drag) => {
@@ -317,11 +315,16 @@ export function CurriculumStep({
                 urlPlaceholder="Paste YouTube URL here"
                 label={LESSON_SOURCE_CARDS[lesson.source].label}
                 onUrlChange={(url) => onLessonChange({ url })}
-                onUploaded={(assetKey, fileName) =>
-                  onLessonChange({ assetKey, fileName })
+                onUploaded={(assetKey, fileName, meta) =>
+                  onLessonChange({ assetKey, fileName, ...meta })
                 }
                 onClearFile={() =>
-                  onLessonChange({ assetKey: null, fileName: null })
+                  onLessonChange({
+                    assetKey: null,
+                    fileName: null,
+                    pageCount: null,
+                    durationSeconds: null,
+                  })
                 }
               />
 
@@ -513,11 +516,7 @@ export function CurriculumStep({
 
                           <LessonBody
                             title={lesson.title}
-                            meta={`${TYPE_LABELS[lesson.type]}${
-                              lessonDetail(lesson)
-                                ? ` · ${lessonDetail(lesson)}`
-                                : ""
-                            }`}
+                            meta={lessonMeta(lesson)}
                             onEdit={
                               onEditLesson &&
                               (() => onEditLesson(section.id, lesson.id))

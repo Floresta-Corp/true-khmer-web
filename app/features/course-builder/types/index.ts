@@ -172,7 +172,6 @@ export interface BuilderSection extends CourseSection {
   lessons: BuilderLesson[];
 }
 
-/** A saved lesson, in the shape the add/edit lesson form works in. */
 export function lessonDraftOf(lesson: BuilderLesson): LessonDraft {
   return {
     title: lesson.title,
@@ -192,7 +191,6 @@ export function lessonDraftOf(lesson: BuilderLesson): LessonDraft {
   };
 }
 
-/** The lesson type a draft's chosen source maps to. */
 export function lessonTypeOf(source: LessonSource): BuilderLesson["type"] {
   return source === "youtube" ? "video" : source;
 }

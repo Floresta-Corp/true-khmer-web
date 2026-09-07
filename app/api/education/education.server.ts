@@ -589,14 +589,6 @@ export interface ListCourseRecommendationsResponse {
   courses: PublicCourseListItem[];
 }
 
-/**
- * The courses the API recommends alongside one course.
- *
- * Returns `null` — rather than throwing — when the endpoint is missing or its
- * service is failing, because the web deploys independently of the API: on an
- * API that predates this route the caller tops the row up from the catalogue
- * instead of blanking the section.
- */
 export async function listCourseRecommendations(
   request: Request,
   courseId: string,
