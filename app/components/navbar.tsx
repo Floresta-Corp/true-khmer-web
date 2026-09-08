@@ -21,6 +21,11 @@ import { cn } from "~/lib/utils";
 import type { AuthenticatedUser } from "~/lib/server/types";
 import ProfileDropDown from "./profile-dropdown";
 import LogoSvg from "~/components/icons/logoSvg";
+import MobileNavSheet from "~/components/mobile-nav-sheet";
+import {
+  mySpaceSidebarConfig,
+  workSpaceSidebarConfig,
+} from "~/components/app-sidebar";
 
 interface NavbarProps {
   user: AuthenticatedUser | null;
@@ -117,10 +122,13 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
     { to: "/poc", label: "POC", icon: TvMinimalPlay, hide: true },
   ];
 
-  // Mobile bottom nav shows the section link (My space / Workspace) at the
-  // far right instead of the left, while the desktop nav keeps it first.
-  const [firstNavLink, ...restNavLinks] = navLinks;
-  const mobileNavLinks: NavLink[] = [...restNavLinks, firstNavLink];
+  // While inside a space section the mobile sheet takes over that section's
+  // nav (My Profile, My Tickets, ...) instead of opening a second drawer.
+  const mobileSpaceNav = isInMySpace
+    ? { label: "My space", ...mySpaceSidebarConfig }
+    : isInWorkspace
+      ? { label: "Workspace", ...workSpaceSidebarConfig }
+      : null;
 
   return (
     <>
@@ -132,8 +140,14 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
             isInSpaceSection ? "w-full px-4 md:px-10" : "site-container",
           )}
         >
-          {/* Left: Logo */}
-          <div className="flex shrink-0 items-center">
+          {/* Left: Hamburger (mobile) + Logo */}
+          <div className="flex shrink-0 items-center gap-1">
+            <MobileNavSheet
+              navLinks={navLinks}
+              spaceNav={mobileSpaceNav}
+              user={user}
+              loginRedirectTo={loginRedirectTo}
+            />
             <Link to="/" className="flex items-center gap-2">
               <LogoSvg
                 width={102}
@@ -233,54 +247,6 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
           </div>
         </div>
       </header>
-
-      {/* Mobile Bottom Navigation Bar */}
-      <nav className="fixed right-3 bottom-2.5 left-3 z-50 rounded-[24px] border-t border-gray-200 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] md:hidden">
-        <div className="flex h-16 items-center justify-around gap-1.5 px-4">
-          {mobileNavLinks.map((link) => {
-            if (link.hide) return null;
-            const isActive =
-              link.forceActive ??
-              (link.to === "/"
-                ? location.pathname === "/"
-                : location.pathname === link.to ||
-                  location.pathname.startsWith(`${link.to}/`));
-            const itemClassName = cn(
-              "flex flex-1 flex-col items-center justify-center gap-0.5 py-1 text-[11px] font-semibold transition-colors",
-              isActive ? "text-blue-600" : "text-gray-400",
-            );
-            const itemContent = (
-              <>
-                <link.icon
-                  className={cn("h-5 w-5", isActive ? "stroke-[2.5]" : "")}
-                />
-                <span>{link.label}</span>
-              </>
-            );
-            if (link.forceActive) {
-              return (
-                <button
-                  key={link.to}
-                  type="button"
-                  aria-label={`Open ${link.label} menu`}
-                  onClick={() =>
-                    window.dispatchEvent(new CustomEvent("space-sidebar:open"))
-                  }
-                  className={itemClassName}
-                >
-                  {itemContent}
-                </button>
-              );
-            }
-
-            return (
-              <Link key={link.to} to={link.to} className={itemClassName}>
-                {itemContent}
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
     </>
   );
 }

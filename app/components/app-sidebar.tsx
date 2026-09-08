@@ -57,13 +57,13 @@ export default function AppSidebar({
   footer,
 }: AppSidebarProps) {
   const location = useLocation();
-  const { setOpenMobile, isMobile } = useSidebar();
+  const { isMobile } = useSidebar();
   const routeData =
     useRouteLoaderData<typeof appLayoutLoader>("layout/app-layout");
   const user = routeData?.user;
   const { displayName, initials, profileImage } = useUserDisplay(user);
 
-  const closeMobile = () => isMobile && setOpenMobile(false);
+  if (isMobile) return null;
 
   const activeId = items.reduce<string | null>((match, item) => {
     const matches =
@@ -76,10 +76,7 @@ export default function AppSidebar({
   }, null);
 
   return (
-    <Sidebar
-      collapsible={isMobile ? "offcanvas" : "none"}
-      className="h-full border-r bg-white"
-    >
+    <Sidebar collapsible="none" className="h-full border-r bg-white">
       <SidebarHeader className="p-4">
         <div className="flex items-center justify-between gap-2 rounded-2xl border border-[#e2e8f0] p-3">
           <div className="flex min-w-0 items-center gap-2">
@@ -115,7 +112,7 @@ export default function AppSidebar({
                   isActive={item.id === activeId}
                   className="rounded-xl p-5 text-[12px] font-normal transition-all data-[active=true]:bg-blue-50 data-[active=true]:text-blue-600"
                 >
-                  <Link to={item.to} onClick={closeMobile}>
+                  <Link to={item.to}>
                     <item.icon className="size-5 shrink-0" />
                     <span className="text-base">{item.label}</span>
                   </Link>
@@ -130,9 +127,7 @@ export default function AppSidebar({
           asChild
           className={`mb-5 h-12 w-full rounded-xl text-sm font-bold text-white ${footer.className}`}
         >
-          <Link to={footer.to} onClick={closeMobile}>
-            {footer.label}
-          </Link>
+          <Link to={footer.to}>{footer.label}</Link>
         </Button>
       </SidebarFooter>
     </Sidebar>
