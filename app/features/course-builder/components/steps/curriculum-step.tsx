@@ -314,6 +314,10 @@ export function CurriculumStep({
                 fileName={lesson.fileName}
                 urlPlaceholder="Paste YouTube URL here"
                 label={LESSON_SOURCE_CARDS[lesson.source].label}
+                durationSeconds={lesson.durationSeconds}
+                onDurationChange={(durationSeconds) =>
+                  onLessonChange({ durationSeconds })
+                }
                 onUrlChange={(url) => onLessonChange({ url })}
                 onUploaded={(assetKey, fileName, meta) =>
                   onLessonChange({ assetKey, fileName, ...meta })
