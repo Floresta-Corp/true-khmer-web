@@ -146,7 +146,8 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
 
           {/* Center: Navigation Links (desktop only) */}
           <nav className="hidden items-center gap-2 md:flex lg:gap-5">
-            {navLinks.map((link) => {
+            {navLinks.map((link, index) => {
+              const isSectionLink = index === 0;
               const isActive =
                 link.forceActive ??
                 (link.to === "/"
@@ -160,12 +161,14 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                   to={link.to}
                   className={cn(
                     "group relative flex items-center gap-1 text-xs text-[#344256] transition-colors duration-200 lg:gap-1.5 lg:text-sm",
-                    link === navLinks[0] &&
+                    isSectionLink &&
                       "mr-1 border-r border-[#c8d6e5] pr-3 lg:pr-6",
                     isActive ? "text-blue-600" : "hover:text-blue-600",
                   )}
                 >
-                  <link.icon className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
+                  {isSectionLink && (
+                    <link.icon className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
+                  )}
 
                   <span className="relative grid">
                     <span
