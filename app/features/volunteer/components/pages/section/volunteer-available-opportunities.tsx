@@ -191,7 +191,7 @@ export function VolunteerAvailableOpportunities({
         )}
 
         {isLoading && items.length === 0 ? (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
             {Array.from({ length: 6 }).map((_, index) => (
               <OpportunityCardSkeleton key={`opportunity-skeleton-${index}`} />
             ))}

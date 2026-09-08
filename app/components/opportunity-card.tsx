@@ -1,5 +1,5 @@
 import { Bookmark, Calendar, MapPin } from "lucide-react";
-import { useFetcher, useNavigate } from "react-router";
+import { Link, useFetcher, useNavigate } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 import { cn, resolveImageURL } from "~/lib/utils";
@@ -29,6 +29,7 @@ export function OpportunityCard({
   const loading = fetcher.state === "loading" || fetcher.state === "submitting";
 
   const isSaved = opportunity.viewerSave;
+  const hasCapacityLimit = opportunity.capacity > 0;
   const spotsLeft = Math.max(
     opportunity.capacity - opportunity.applicationCount,
     0,
@@ -69,7 +70,7 @@ export function OpportunityCard({
 
   return (
     <motion.article
-      className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-[#eceef2] bg-white shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)] transition-[border-color,box-shadow] duration-300 hover:border-[#dbe4f7] hover:shadow-[0px_10px_30px_-15px_rgba(47,111,228,0.18)]"
+      className="group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-[#eceef2] bg-white shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)] transition-[border-color,box-shadow] duration-300 focus-within:border-[#dbe4f7] focus-within:ring-2 focus-within:ring-[#2f6fe4]/40 hover:border-[#dbe4f7] hover:shadow-[0px_10px_30px_-15px_rgba(47,111,228,0.18)]"
       onClick={() => navigate(`/volunteer/detail/${opportunity.id}`)}
       whileTap={{ scale: 0.99 }}
       transition={{ type: "spring", stiffness: 260, damping: 22 }}
@@ -93,7 +94,7 @@ export function OpportunityCard({
           aria-label={isSaved ? "Remove from saved" : "Save opportunity"}
           aria-pressed={isSaved}
           className={cn(
-            "absolute top-3 right-3 size-8 cursor-pointer rounded-full bg-white text-[#111827] shadow-[0px_1px_2px_0px_rgba(16,24,40,0.08)] transition-colors hover:bg-white",
+            "absolute top-3 right-3 z-20 size-8 cursor-pointer rounded-full bg-white text-[#111827] shadow-[0px_1px_2px_0px_rgba(16,24,40,0.08)] transition-colors hover:bg-white",
             isSaved && "bg-[#2f6fe4] text-white hover:bg-[#2f6fe4]",
           )}
           onClick={(e) => {
@@ -114,7 +115,13 @@ export function OpportunityCard({
 
       <div className="flex flex-1 flex-col gap-2.5 px-5 pt-4 pb-3">
         <h3 className="text-[17px] leading-5.5 font-bold tracking-[-0.3px] text-[#111827] transition-colors duration-300 group-hover:text-[#2f6fe4]">
-          {opportunity.title}
+          <Link
+            to={`/volunteer/detail/${opportunity.id}`}
+            className="outline-none after:absolute after:inset-0 after:z-10 after:content-['']"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {opportunity.title}
+          </Link>
         </h3>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13px] font-medium text-[#4a5565]">
@@ -138,7 +145,9 @@ export function OpportunityCard({
 
         <div className="mt-1 flex items-center justify-between gap-3 border-t border-[#f1f2f4] pt-3">
           <span className="text-[12.5px] font-bold text-[#111827]">
-            {spotsLeft} {spotsLeft === 1 ? "spot" : "spots"} left
+            {hasCapacityLimit
+              ? `${spotsLeft} ${spotsLeft === 1 ? "spot" : "spots"} left`
+              : "Unlimited spots"}
           </span>
           <span className="text-[12.5px] font-medium whitespace-nowrap text-[#9aa2af]">
             {format(opportunity.applicationDeadline, "MMM d, yyyy")}
