@@ -5,16 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import {
-  ChevronDown,
-  UserRound,
-  FileUser,
-  Ticket,
-  BookmarkCheck,
-  Settings,
-  LogOut,
-  Moon,
-} from "lucide-react";
+import { ChevronDown, Settings, LogOut, User } from "lucide-react";
 import { Separator } from "./ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
@@ -163,6 +154,15 @@ export default function ProfileDropDown({ user }: ProfileDropDownProps) {
         </div> */}
         <Separator className="bg-[#f1f5f9]" />
         <div className="flex flex-col gap-0 px-1 py-1">
+          <DropdownMenuItem
+            asChild
+            className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-xs font-normal text-[#344256] hover:bg-[#f3f4f6]"
+          >
+            <Link to="/myspace" className="flex w-full items-center gap-3">
+              <User className="size-5 shrink-0" />
+              <span className="text-sm font-semibold">My profile</span>
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem
             asChild
             className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-xs font-normal text-[#344256] hover:bg-[#f3f4f6]"
