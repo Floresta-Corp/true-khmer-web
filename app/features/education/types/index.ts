@@ -52,6 +52,7 @@ export interface CourseLesson {
   isPreview: boolean;
   isComplete: boolean;
   sourceUrl?: string | null;
+  pageCount?: number | null;
 }
 
 export interface CourseSection {
@@ -75,7 +76,6 @@ export interface OwnCourseReview {
   createdAt: string;
 }
 
-/** How a course is structured: many chapters, or one standalone lesson. */
 export type CourseFormat = "MULTI" | "SINGLE";
 
 export interface CourseDetail extends CourseSummary {

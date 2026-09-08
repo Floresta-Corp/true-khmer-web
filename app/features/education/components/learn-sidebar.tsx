@@ -3,6 +3,7 @@ import { Award, Check, ChevronDown, ChevronLeft, Menu, X } from "lucide-react";
 import { cn } from "~/lib/utils";
 import type { CourseDetail, CourseLesson } from "~/features/education/types";
 import { LessonTypeIcon } from "./lesson-type-icon";
+import { lessonDetail } from "~/features/education/lib/lesson-media";
 
 interface LearnSidebarProps {
   course: CourseDetail;
@@ -163,7 +164,9 @@ export function LearnSidebar({
                             type={lesson.type}
                             className="size-3.25 shrink-0"
                           />
-                          {lesson.duration}
+                          <span className="truncate">
+                            {lessonDetail(lesson)}
+                          </span>
                         </span>
                       </span>
                     </Link>
