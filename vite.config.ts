@@ -3,7 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, loadEnv } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
-export default defineConfig(({ mode, command }) => {
+export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
   return {
@@ -26,12 +26,6 @@ export default defineConfig(({ mode, command }) => {
       port: 3001,
       host: true,
       strictPort: true,
-    },
-    ssr: {
-      noExternal:
-        command === "build"
-          ? ["sanitize-html", "htmlparser2", "is-plain-object"]
-          : [],
     },
     plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
     define: {
