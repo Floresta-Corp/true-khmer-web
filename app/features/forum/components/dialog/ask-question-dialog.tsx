@@ -1,6 +1,5 @@
 import {
   type KeyboardEvent,
-  type ChangeEvent,
   useEffect,
   useMemo,
   useRef,
@@ -30,9 +29,9 @@ import {
   type CategoriesPicker as CategoryOption,
 } from "~/features/forum/types";
 import type { QuestionResponse } from "~/types/api-client";
-import type { ForumPostFormFieldErrors } from "~/features/forum/services/forum.validation";
 import { Textarea } from "~/components/ui/textarea";
 import { resolveImageURL } from "~/lib/utils";
+import { validateQuestionImageFile } from "~/features/forum/utils";
 
 // Only object URLs created via URL.createObjectURL need revoking. Resolved
 // remote image URLs must be left untouched, so key the cleanup on the URL
@@ -47,6 +46,9 @@ interface AskQuestionDialogProps {
   isAuthenticated?: boolean;
   data?: QuestionResponse | null;
   trigger?: React.ReactNode;
+  initialImageFile?: File | null;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export default function AskQuestionDialog({
@@ -55,6 +57,9 @@ export default function AskQuestionDialog({
   isAuthenticated = false,
   data,
   trigger,
+  initialImageFile = null,
+  open: controlledOpen,
+  onOpenChange,
 }: AskQuestionDialogProps) {
   const location = useLocation();
   const revalidator = useRevalidator();
@@ -86,7 +91,10 @@ export default function AskQuestionDialog({
   const hasRequiredInput = Boolean(
     watchedTitle?.trim() && watchedBody?.trim() && watchedCategoryId,
   );
-  const [open, setOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = onOpenChange ?? setInternalOpen;
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>(
     () => data?.tags?.map((tag) => tag.name).filter(Boolean) ?? [],
@@ -114,7 +122,6 @@ export default function AskQuestionDialog({
 
   const fetcher = useFetcher();
   const isBusy = fetcher.state !== "idle" || isSubmitting;
-  const fetcherReady = useRef(false);
 
   const onSubmit = (values: CreateForumQuestionInput) => {
     const fd = new FormData();
@@ -208,19 +215,24 @@ export default function AskQuestionDialog({
       setTags(data?.tags?.map((tag) => tag.name).filter(Boolean) ?? []);
       setTagInput("");
       // reset file selection and previews when opening
-      setSelectedFile(null);
       setRemoveExistingImage(false);
       revokeBlobUrl(preview);
-      setPreview(null);
-      // set existing image preview when editing
-      if (isEditing && data?.imageKey) {
+
+      if (initialImageFile) {
+        setSelectedFile(initialImageFile);
+        setExistingImageKey(null);
+        setPreview(URL.createObjectURL(initialImageFile));
+      } else if (isEditing && data?.imageKey) {
+        setSelectedFile(null);
         setExistingImageKey(data.imageKey);
         setPreview(resolveImageURL(data.imageKey));
       } else {
+        setSelectedFile(null);
         setExistingImageKey(null);
+        setPreview(null);
       }
     }
-  }, [data, open, isEditing, reset, categories]);
+  }, [data, open, isEditing, reset, categories, initialImageFile]);
 
   useEffect(() => {
     return () => {
@@ -285,17 +297,21 @@ export default function AskQuestionDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button
-            variant={"default"}
-            className="flex h-10 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca] sm:w-auto"
-          >
-            <Plus size={24} />
-            Ask question
-          </Button>
-        )}
-      </DialogTrigger>
+      {isControlled ? (
+        trigger
+      ) : (
+        <DialogTrigger asChild>
+          {trigger || (
+            <Button
+              variant={"default"}
+              className="flex h-10 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca] sm:w-auto"
+            >
+              <Plus size={24} />
+              Ask question
+            </Button>
+          )}
+        </DialogTrigger>
+      )}
 
       <DialogContent
         onPointerDownOutside={(e) => e.preventDefault()}
@@ -380,7 +396,7 @@ export default function AskQuestionDialog({
                 {...register("body")}
                 placeholder="What are the best resources for learning Khmer business law?"
                 aria-invalid={Boolean(errors.body)}
-                className="h-30 max-w-full overflow-x-auto rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm text-wrap text-[#344256] outline-none placeholder:text-[#9eacc0] focus:border-[#2f6fe4] aria-invalid:border-red-500"
+                className="h-30 max-w-full overflow-x-auto rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm text-wrap text-[#344256] placeholder:text-[#9eacc0] focus-visible:border-[#2f6fe4] focus-visible:ring-1 focus-visible:ring-[#2f6fe4] focus-visible:ring-offset-0 focus-visible:outline-none aria-invalid:border-red-500 aria-invalid:focus-visible:ring-red-500"
                 rows={1}
               />
               {errors.body ? (
@@ -388,13 +404,13 @@ export default function AskQuestionDialog({
               ) : null}
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex w-full flex-col gap-2">
               <Label className="text-xs leading-4.5 font-medium text-[#364153]">
                 Add Media (Photo/Video)
               </Label>
               {preview ? (
-                <div className="mt-2 flex gap-2">
-                  <div className="group relative aspect-video w-full overflow-hidden rounded-lg border-2 border-dashed border-[#d1d5db] bg-transparent focus-within:border-[#2f6fe4] hover:border-[#2f6fe4] sm:w-56">
+                <div className="mt-2 flex w-full gap-2">
+                  <div className="group relative aspect-video w-full overflow-hidden rounded-lg border-2 border-dashed border-[#d1d5db] bg-transparent focus-within:border-[#2f6fe4] hover:border-[#2f6fe4]">
                     <img
                       src={preview}
                       alt={existingImageKey ? "existing image" : "preview"}
@@ -411,7 +427,7 @@ export default function AskQuestionDialog({
                         setSelectedFile(null);
                         setPreview(null);
                       }}
-                      className="absolute top-1 right-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/80 text-[#64748b] hover:bg-white"
+                      className="absolute top-1 right-1 inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white/80 text-[#64748b] hover:bg-white"
                       aria-label="Remove image"
                     >
                       <X className="h-3 w-3" />
@@ -421,7 +437,7 @@ export default function AskQuestionDialog({
               ) : (
                 <label
                   htmlFor="images-upload"
-                  className="group flex aspect-video w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-[#d1d5db] bg-transparent px-4 text-center focus-within:border-[#2f6fe4] hover:border-[#2f6fe4] sm:w-56"
+                  className="group flex aspect-video w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-[#d1d5db] bg-transparent px-4 text-center focus-within:border-[#2f6fe4] hover:border-[#2f6fe4]"
                 >
                   <div className="flex flex-col items-center gap-2">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#2f6fe4] shadow-sm">
@@ -435,12 +451,21 @@ export default function AskQuestionDialog({
                     id="images-upload"
                     type="file"
                     name="images"
-                    accept="image/*"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
                     onChange={(e) => {
-                      const file = e.target.files ? e.target.files[0] : null;
+                      const file = e.target.files?.[0] ?? null;
+                      if (!file) return;
+
+                      const imageError = validateQuestionImageFile(file);
+                      if (imageError) {
+                        toast.error(imageError);
+                        e.target.value = "";
+                        return;
+                      }
+
                       revokeBlobUrl(preview);
                       setSelectedFile(file);
-                      setPreview(file ? URL.createObjectURL(file) : null);
+                      setPreview(URL.createObjectURL(file));
                       setRemoveExistingImage(false);
                     }}
                     className="sr-only"

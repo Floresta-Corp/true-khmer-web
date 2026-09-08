@@ -19,12 +19,12 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 3001,
-      host: true, // This exposes the server to the local network
+      host: true,
       strictPort: true,
     },
     preview: {
       port: 3001,
-      host: true, // This exposes the preview server
+      host: true,
       strictPort: true,
     },
     plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],

@@ -1,6 +1,15 @@
-import { Link } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { Link, useFetcher } from "react-router";
+import { toast } from "sonner";
 import { BackLink } from "~/components/back-link";
-import { ChevronLeft, ExternalLink, MoreVertical, Pencil } from "lucide-react";
+import {
+  ChevronLeft,
+  EyeOff,
+  ExternalLink,
+  MoreVertical,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +21,7 @@ import {
   displayStatusOf,
   type MyCourse,
 } from "~/features/course-listing/types";
+import { DeleteCourseDialog } from "~/features/course-listing/components/delete-course-dialog";
 
 const MONTHS = [
   "Jan",
@@ -38,9 +48,51 @@ function formatDate(value: string) {
   return `${day} ${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
 }
 
-export function CourseManageHeader({ course }: { course: MyCourse }) {
+export function CourseManageHeader({
+  course,
+  learnerCount,
+}: {
+  course: MyCourse;
+  learnerCount: number;
+}) {
   const status = displayStatusOf(course);
   const dated = course.publishedAt ?? course.createdAt;
+
+  const fetcher = useFetcher<{
+    ok: boolean;
+    message?: string;
+    error?: string;
+  }>();
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const busy = fetcher.state !== "idle";
+  const announced = useRef<unknown>(null);
+
+  useEffect(() => {
+    if (fetcher.state !== "idle" || !fetcher.data) return;
+    if (announced.current === fetcher.data) return;
+    announced.current = fetcher.data;
+
+    if (fetcher.data.ok) {
+      toast.success(fetcher.data.message ?? "Course updated.");
+      return;
+    }
+
+    setConfirmingDelete(false);
+    toast.error(fetcher.data.error ?? "That change could not be saved.");
+  }, [fetcher.state, fetcher.data]);
+
+  /* A live course cannot be edited — the builder refuses it and says to
+     unpublish first — so publishing swaps Edit for the two actions that do
+     apply. A draft or unpublished course is the mirror image: nothing to view
+     and nothing to unpublish, so editing leads and Delete is all that is left.
+     A rejected course is a draft carrying a note, so it belongs here too.
+     A successful delete redirects to the listing from the action. */
+  const published = course.status === "PUBLISHED";
+  const editable = course.status === "DRAFT" || course.status === "UNPUBLISHED";
+
+  const editLink = `/education/${course.id}/edit`;
+  const actionButton =
+    "flex items-center gap-1.5 rounded-lg border border-[#E5E7EB] px-3.5 py-[9px] text-[13px] font-bold whitespace-nowrap text-[#1C5DD4] transition-colors hover:bg-[#F9FAFC]";
 
   return (
     <div>
@@ -81,18 +133,23 @@ export function CourseManageHeader({ course }: { course: MyCourse }) {
         </div>
 
         <div className="flex shrink-0 items-center gap-2.5">
-          <Link
-            to={`/education/${course.id}`}
-            className="flex items-center gap-1.5 rounded-lg border border-[#E5E7EB] px-3.5 py-[9px] text-[13px] font-bold whitespace-nowrap text-[#1C5DD4] transition-colors hover:bg-[#F9FAFC]"
-          >
-            View live course
-            <ExternalLink size={13} strokeWidth={2.2} aria-hidden />
-          </Link>
+          {editable ? (
+            <Link to={editLink} className={actionButton}>
+              Edit
+              <Pencil size={13} strokeWidth={2.2} aria-hidden />
+            </Link>
+          ) : (
+            <Link to={`/education/${course.id}`} className={actionButton}>
+              View live course
+              <ExternalLink size={13} strokeWidth={2.2} aria-hidden />
+            </Link>
+          )}
 
           <DropdownMenu>
             <DropdownMenuTrigger
               aria-label={`More actions for ${course.title}`}
-              className="flex size-[38px] cursor-pointer items-center justify-center rounded-lg bg-white text-[#9A9AB0] transition-colors hover:bg-[#F9FAFC]"
+              disabled={busy}
+              className="flex size-[38px] cursor-pointer items-center justify-center rounded-lg bg-white text-[#9A9AB0] transition-colors hover:bg-[#F9FAFC] disabled:opacity-50"
             >
               <MoreVertical size={18} aria-hidden />
             </DropdownMenuTrigger>
@@ -100,16 +157,51 @@ export function CourseManageHeader({ course }: { course: MyCourse }) {
               align="end"
               className="min-w-[170px] rounded-lg p-1.5 shadow-[0_8px_24px_rgba(26,26,46,0.14)]"
             >
-              <DropdownMenuItem asChild className="gap-2.5 px-3.5 py-2.5">
-                <Link to={`/education/${course.id}/edit`}>
-                  <Pencil size={15} aria-hidden />
-                  Edit course
-                </Link>
-              </DropdownMenuItem>
+              {published && (
+                <DropdownMenuItem
+                  className="gap-2.5 px-3.5 py-2.5"
+                  onSelect={() =>
+                    fetcher.submit({ intent: "unpublish" }, { method: "post" })
+                  }
+                >
+                  <EyeOff size={15} aria-hidden />
+                  Unpublish
+                </DropdownMenuItem>
+              )}
+
+              {!published && !editable && (
+                <DropdownMenuItem asChild className="gap-2.5 px-3.5 py-2.5">
+                  <Link to={editLink}>
+                    <Pencil size={15} aria-hidden />
+                    Edit course
+                  </Link>
+                </DropdownMenuItem>
+              )}
+
+              {(published || editable) && (
+                <DropdownMenuItem
+                  className="gap-2.5 px-3.5 py-2.5 text-[#FB3748] focus:text-[#FB3748]"
+                  onSelect={() => setConfirmingDelete(true)}
+                >
+                  <Trash2 size={15} aria-hidden />
+                  Delete
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
+
+      <DeleteCourseDialog
+        open={confirmingDelete}
+        courseTitle={course.title}
+        learnerCount={learnerCount}
+        deleting={busy}
+        onConfirm={() =>
+          fetcher.submit({ intent: "delete-course" }, { method: "post" })
+        }
+        onClose={() => setConfirmingDelete(false)}
+      />
     </div>
   );
 }

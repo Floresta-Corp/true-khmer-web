@@ -91,6 +91,7 @@ export function CourseListingCard({
             cover stays the loudest thing on the tile. */}
         <CourseActionsMenu
           course={course}
+          learnerCount={course.stats?.totalLearners}
           triggerClassName="absolute top-3 right-3 size-8 rounded-lg bg-black/25 text-white opacity-0 backdrop-blur-sm transition group-hover:opacity-100 hover:bg-black/45 focus-visible:opacity-100 data-[state=open]:opacity-100"
           triggerIcon={<MoreVertical size={17} aria-hidden />}
         />
