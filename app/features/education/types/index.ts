@@ -34,7 +34,6 @@ export interface CourseSummary {
   lessonCount: number;
   studentCount: number;
   isNew: boolean;
-  type?: "course" | "ks";
   price: number;
   isSaved: boolean;
 }
@@ -53,6 +52,7 @@ export interface CourseLesson {
   isPreview: boolean;
   isComplete: boolean;
   sourceUrl?: string | null;
+  pageCount?: number | null;
 }
 
 export interface CourseSection {
@@ -76,7 +76,10 @@ export interface OwnCourseReview {
   createdAt: string;
 }
 
+export type CourseFormat = "MULTI" | "SINGLE";
+
 export interface CourseDetail extends CourseSummary {
+  format: CourseFormat;
   meta: CourseMetaItem[];
   hasQuiz: boolean;
   certificateKind: "PARTICIPATION" | "COMPLETION" | null;

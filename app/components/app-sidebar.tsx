@@ -5,6 +5,7 @@ import {
   FileUser,
   GraduationCap,
   MessagesSquare,
+  Ticket,
   UserRound,
 } from "lucide-react";
 import { Link, useLocation, useRouteLoaderData } from "react-router";
@@ -148,7 +149,7 @@ export const mySpaceSidebarConfig: AppSidebarProps = {
       to: "/my-applications",
       icon: FileUser,
     },
-    // { id: "myticket", label: "My ticket", to: "/my-ticket", icon: Ticket },
+    { id: "myticket", label: "My Tickets", to: "/my-ticket", icon: Ticket },
     {
       id: "saveditems",
       label: "Saved Items",

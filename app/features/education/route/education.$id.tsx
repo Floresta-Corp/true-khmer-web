@@ -12,4 +12,15 @@ export function meta({ data }: Route.MetaArgs) {
   ];
 }
 
-export default CourseDetailPage;
+/**
+ * One layout for every course, whatever its format.
+ *
+ * A single-lesson course used to lead with the player, which started it the
+ * moment the page opened. Leading with the cover instead lets anyone preview
+ * the course first — title, rating, learners, what it covers — and begin when
+ * they choose, and a one-lesson curriculum is a list of one rather than a
+ * different screen.
+ */
+export default function CourseDetailRoute() {
+  return <CourseDetailPage />;
+}

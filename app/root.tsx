@@ -10,6 +10,8 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import { Toaster } from "./components/ui/sonner";
+import { ErrorState } from "./features/error/components/error-state";
+import { NotFound } from "./features/error/components/not-found";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -48,30 +50,30 @@ export default function App() {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
-  let stack: string | undefined;
-
-  if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
-    details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
+  if (isRouteErrorResponse(error) && error.status === 404) {
+    return <NotFound />;
   }
 
+  const isRouteError = isRouteErrorResponse(error);
+  const code = isRouteError ? `Error ${error.status}` : "Error";
+  const detail = isRouteError ? error.statusText || undefined : undefined;
+  const stack =
+    import.meta.env.DEV && error instanceof Error ? error.stack : undefined;
+
   return (
-    <main className="container mx-auto p-4 pt-16">
-      <h1>{message}</h1>
-      <p>{details}</p>
+    <ErrorState
+      code={code}
+      heading="It looks like something went wrong."
+      lines={[
+        detail ?? "Don't worry, our team is already on it.",
+        "Please try refreshing the page or come back later.",
+      ]}
+    >
       {stack && (
-        <pre className="w-full overflow-x-auto p-4">
+        <pre className="mt-8 w-full overflow-x-auto rounded-xl bg-[#f4f6f9] p-4 text-left text-xs text-[#606060]">
           <code>{stack}</code>
         </pre>
       )}
-    </main>
+    </ErrorState>
   );
 }

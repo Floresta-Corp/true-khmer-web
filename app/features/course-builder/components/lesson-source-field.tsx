@@ -12,6 +12,10 @@ import {
   type LessonAssetUpload,
 } from "../lib/upload-lesson-asset";
 import { validateYoutubeUrl } from "../lib/youtube-url";
+import {
+  readLessonAssetMeta,
+  type LessonAssetMeta,
+} from "../lib/lesson-asset-meta";
 
 const ACCEPT: Record<Exclude<LessonSource, "youtube">, string> = {
   pdf: "application/pdf",
@@ -28,7 +32,11 @@ interface LessonSourceFieldProps {
   fileName: string | null;
   urlPlaceholder: string;
   onUrlChange: (url: string) => void;
-  onUploaded: (assetKey: string, fileName: string) => void;
+  onUploaded: (
+    assetKey: string,
+    fileName: string,
+    meta: LessonAssetMeta,
+  ) => void;
   onClearFile: () => void;
   onUploadingChange?: (uploading: boolean) => void;
   label: string;
@@ -50,7 +58,6 @@ export function LessonSourceField({
   const pendingFile = useRef<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  /** A half-typed link is not wrong yet, so only complain once they leave. */
   const [urlTouched, setUrlTouched] = useState(false);
 
   const selection = useRef(0);
@@ -103,17 +110,20 @@ export function LessonSourceField({
     const upload = fetcher.data.upload;
     const startedFor = selection.current;
     setUploading(true);
-    putLessonAsset(upload, file)
-      .then((assetKey) => {
+    Promise.all([
+      putLessonAsset(upload, file),
+      readLessonAssetMeta(file, source),
+    ])
+      .then(([assetKey, meta]) => {
         if (startedFor !== selection.current) return;
-        onUploaded(assetKey, file.name);
+        onUploaded(assetKey, file.name, meta);
       })
       .catch(() => {
         if (startedFor !== selection.current) return;
         setError("That upload did not go through. Try again.");
       })
       .finally(() => setUploading(false));
-  }, [fetcher.state, fetcher.data, onUploaded]);
+  }, [fetcher.state, fetcher.data, onUploaded, source]);
 
   if (source === "youtube") {
     const problem = urlTouched ? validateYoutubeUrl(url) : null;

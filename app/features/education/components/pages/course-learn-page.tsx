@@ -14,6 +14,7 @@ import { LearnSidebar } from "../learn-sidebar";
 import { InstructorContactButtons } from "../instructor-contact-buttons";
 import { LessonPlayer } from "../lesson-player";
 import { toActiveLesson } from "~/features/education/lib/map-lesson";
+import { formatPageCount } from "~/features/education/lib/lesson-media";
 import type { educationLearnAction } from "~/features/education/services/education-learn.action";
 import type { educationLearnLoader } from "~/features/education/services/education-learn.loader";
 import type { CourseLesson } from "~/features/education/types";
@@ -145,12 +146,18 @@ export default function CourseLearnPage() {
     ? getSafeExternalUrl(activeLesson.sourceUrl)
     : undefined;
 
+  const lessonPages =
+    activeLesson.type === "pdf"
+      ? formatPageCount(activeLesson.pageCount)
+      : null;
+
   const playerOverlay = (
     <div className="flex items-start justify-between gap-3.5">
       <div className="min-w-0">
         <div className={cn("truncate text-[12.5px]", overlayMutedText)}>
           {activeLesson.sectionTitle} · Chapter {activeLesson.index} of{" "}
           {flatLessons.length}
+          {lessonPages && ` · ${lessonPages}`}
         </div>
         <div
           className={cn("truncate text-[15px] font-bold", overlayStrongText)}

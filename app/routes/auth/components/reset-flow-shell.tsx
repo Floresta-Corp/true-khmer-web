@@ -27,7 +27,7 @@ export function ResetFlowShell({
   descriptionClassName,
 }: ResetFlowShellProps) {
   return (
-    <main className="min-h-screen bg-white px-7 pt-10 pb-10 sm:px-10 sm:pt-12 lg:px-16 lg:pt-25">
+    <main className="min-h-dvh bg-white px-7 pt-10 pb-10 sm:px-10 sm:pt-12 lg:px-16 lg:pt-25 short:pt-6 short:pb-6">
       <div className="mx-auto flex w-full max-w-[1440px] justify-center">
         <section
           className={cn(
@@ -43,13 +43,16 @@ export function ResetFlowShell({
             aria-label="True Khmer"
           />
 
-          <div className="mt-14 flex w-full flex-col items-center sm:mt-[100px]">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#F1F6FF]">
-              <Icon className="h-10 w-10 text-[#2F6FE4]" strokeWidth={1.75} />
+          <div className="mt-14 flex w-full flex-col items-center sm:mt-[100px] short:mt-8">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#F1F6FF] short:h-16 short:w-16">
+              <Icon
+                className="h-10 w-10 text-[#2F6FE4] short:h-8 short:w-8"
+                strokeWidth={1.75}
+              />
             </div>
 
             <header className="mt-6 flex w-full flex-col items-center gap-2 text-center">
-              <h1 className="text-[2rem] leading-10 font-bold text-[#2E3139]">
+              <h1 className="text-[2rem] leading-10 font-bold text-[#2E3139] short:text-2xl short:leading-8">
                 {title}
               </h1>
               <div
@@ -69,7 +72,7 @@ export function ResetFlowShell({
 
           <Link
             to={backTo}
-            className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-[#2F6FE4] transition-colors hover:text-[#1F62DF]"
+            className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-[#2F6FE4] transition-colors hover:text-[#1F62DF] short:mt-6"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>{backLabel}</span>

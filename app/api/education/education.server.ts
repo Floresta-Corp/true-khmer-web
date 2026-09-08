@@ -167,6 +167,7 @@ export interface LessonInput {
   url?: string | null;
   assetKey?: string | null;
   durationSeconds?: number | null;
+  pageCount?: number | null;
   isPreview?: boolean;
 }
 
@@ -355,6 +356,7 @@ export interface CourseCurriculumResponse {
         assetKey: string | null;
         assetUrl: string | null;
         durationSeconds: number | null;
+        pageCount: number | null;
         isPreview: boolean;
       }[];
     }[];
@@ -506,7 +508,12 @@ export async function gradeCourseQuizAttempt(
 export interface PublicCourseListItem {
   id: string;
   title: string;
-  creator: { id: string; name: string; email: string } | null;
+  creator: {
+    id: string;
+    name: string;
+    email: string;
+    avatarKey: string | null;
+  } | null;
   description: string;
   categoryId: string;
   categoryName: string | null;
@@ -517,6 +524,8 @@ export interface PublicCourseListItem {
   outcomes: string[];
   tags: string[];
   lessonCount: number;
+  studentCount: number;
+  rating: { average: number | null; total: number };
   publishedAt: string | null;
   createdAt: string;
 }
@@ -532,13 +541,21 @@ export interface ListPublicCoursesResponse {
   };
 }
 
+export type PublicCourseSort =
+  | "newest"
+  | "oldest"
+  | "az"
+  | "price"
+  | "popular"
+  | "rating";
+
 export interface ListPublicCoursesParams {
   page?: number;
   limit?: number;
   search?: string;
   categoryId?: string;
   pricing?: "free" | "paid";
-  sortBy?: "newest" | "oldest" | "az" | "price";
+  sortBy?: PublicCourseSort;
 }
 
 export async function listPublicCourses(
@@ -563,6 +580,33 @@ export async function listPublicCourses(
     );
   } catch (error) {
     if (isResourceUnavailable(error, "course catalogue")) return null;
+    throw error;
+  }
+}
+
+export interface ListCourseRecommendationsResponse {
+  ok: true;
+  courses: PublicCourseListItem[];
+}
+
+export async function listCourseRecommendations(
+  request: Request,
+  courseId: string,
+  params: { limit?: number } = {},
+) {
+  const query = new URLSearchParams();
+  if (params.limit !== undefined) query.set("limit", String(params.limit));
+
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+
+  try {
+    return await apiRequestWithOptionalSession<ListCourseRecommendationsResponse>(
+      request,
+      `/education-center/courses/${encodeURIComponent(courseId)}/recommendations${suffix}`,
+      { method: "GET" },
+    );
+  } catch (error) {
+    if (isResourceUnavailable(error, "course recommendations")) return null;
     throw error;
   }
 }

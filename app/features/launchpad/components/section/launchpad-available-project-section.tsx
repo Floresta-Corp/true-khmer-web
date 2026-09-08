@@ -38,7 +38,7 @@ export function LaunchpadAvailableProjectsSection() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
           {displayedProjects.map((item) => (
             <LaunchpadProjectCard
               key={item.id}
