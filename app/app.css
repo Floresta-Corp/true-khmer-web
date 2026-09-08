@@ -194,7 +194,7 @@ body {
 }
 
 @utility site-container {
-  @apply mx-auto w-full max-w-300 px-4 lg:px-2;
+  @apply mx-auto w-full max-w-350 px-4 lg:px-2;
 }
 
 /* Hide scrollbar but keep scroll functionality */
@@ -627,7 +627,7 @@ body {
     size: landscape;
     margin: 0;
   }
-/* ------------------------- Print / PDF export ----------------------------
+  /* ------------------------- Print / PDF export ----------------------------
    A page that marks one element `print-sheet` prints only that element. The
    navbar, footer, toasts, the buttons around it and every other sibling drop
    out; the ancestors that have to stay — they are what holds the sheet in the
@@ -636,17 +636,16 @@ body {
    Used by "Download as PDF" on the course certificate, which is a plain
    `window.print()`. Every rule is scoped to `body:has(.print-sheet)`, so a
    page that marks nothing prints exactly as it did before. */
-@page certificate {
-  size: A4 landscape;
-  margin: 12mm;
-}
+  @page certificate {
+    size: A4 landscape;
+    margin: 12mm;
+  }
 
-@media print {
   body:has(.print-sheet) {
     /* A named page rather than a bare `@page`: landscape must not follow the
-       app onto every other printable screen. Where named pages are not
-       supported this falls back to the browser's own page, which the sheet
-       then fills in portrait instead. */
+     app onto every other printable screen. Where named pages are not
+     supported this falls back to the browser's own page, which the sheet
+     then fills in portrait instead. */
     page: certificate;
     background: #fff !important;
   }
@@ -686,15 +685,15 @@ body {
     flex-direction: column;
     justify-content: center;
     /* Fills the page it is given — the ancestors above carry height through
-       from the page box — so the frame reads as the certificate's edge rather
-       than a panel sitting at the top of a sheet. */
+     from the page box — so the frame reads as the certificate's edge rather
+     than a panel sitting at the top of a sheet. */
     min-height: 100%;
     width: 100% !important;
     margin: 0 !important;
     break-inside: avoid;
     /* Keep the blue frame and the coloured text: browsers drop backgrounds and
-       trim colour when printing unless asked not to. */
+     trim colour when printing unless asked not to. */
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-}}
+}
