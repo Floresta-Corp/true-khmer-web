@@ -35,6 +35,8 @@ export type SidebarNavItem = {
   label: string;
   to: string;
   icon: React.ComponentType<{ className?: string }>;
+  /** Extra paths that keep this item active, for sub-pages on their own URL. */
+  matchPaths?: string[];
 };
 
 export interface AppSidebarProps {
@@ -65,10 +67,11 @@ export default function AppSidebar({
 
   const closeMobile = () => isMobile && setOpenMobile(false);
 
+  const isUnder = (path: string) =>
+    location.pathname === path || location.pathname.startsWith(`${path}/`);
+
   const activeId = items.reduce<string | null>((match, item) => {
-    const matches =
-      location.pathname === item.to ||
-      location.pathname.startsWith(`${item.to}/`);
+    const matches = isUnder(item.to) || (item.matchPaths ?? []).some(isUnder);
     if (!matches) return match;
 
     const bestTo = items.find((candidate) => candidate.id === match)?.to ?? "";
@@ -142,7 +145,13 @@ export default function AppSidebar({
 export const mySpaceSidebarConfig: AppSidebarProps = {
   roleLabel: "Member",
   items: [
-    { id: "myprofile", label: "My Profile", to: "/myspace", icon: UserRound },
+    {
+      id: "myprofile",
+      label: "My Profile",
+      to: "/myspace",
+      icon: UserRound,
+      matchPaths: ["/edit-profile"],
+    },
     {
       id: "myapplications",
       label: "My Applications",

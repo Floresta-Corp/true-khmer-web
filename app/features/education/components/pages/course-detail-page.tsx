@@ -88,7 +88,7 @@ export default function CourseDetailPage() {
   const hasStarted = course.progressPercent > 0;
 
   return (
-    <EducationPage surface="muted">
+    <EducationPage>
       <CourseActionBar
         backTo="/education"
         isSaved={isSaved}

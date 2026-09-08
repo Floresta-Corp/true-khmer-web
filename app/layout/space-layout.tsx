@@ -38,7 +38,7 @@ export default function SpaceLayout({ sidebar }: { sidebar: AppSidebarProps }) {
         <div className="flex h-[calc(100vh-var(--navbar-height))] w-full">
           <SidebarOpenBridge />
           <AppSidebar {...sidebar} />
-          <SidebarInset className="flex h-[calc(100vh-var(--navbar-height))] flex-1 flex-col overflow-y-auto bg-[#f8fafc]">
+          <SidebarInset className="flex h-[calc(100vh-var(--navbar-height))] flex-1 flex-col overflow-y-auto bg-[#f5f6f8]">
             <Outlet />
           </SidebarInset>
         </div>
