@@ -10,15 +10,6 @@ import { useUserDisplay } from "~/hooks/use-user-display";
 
 const heroBackgroundImage = "/images/forum-background.jpg";
 
-const ACTIVE_MEMBERS = [
-  { initials: "SR", className: "bg-[#2f6fe4]" },
-  { initials: "CM", className: "bg-[#3fa9f5]" },
-  { initials: "DK", className: "bg-[#1fc16b]" },
-  { initials: "BF", className: "bg-[#0050d4]" },
-];
-const ACTIVE_MEMBERS_OVERFLOW = 9;
-const ACTIVE_MEMBERS_COUNT = 1200;
-
 export default function ForumCommunityHeroCard() {
   const { categories, userId } = useLoaderData<typeof loader>();
   const appLayoutData =
@@ -27,10 +18,9 @@ export default function ForumCommunityHeroCard() {
     appLayoutData?.user,
   );
   const isAuthenticated = Boolean(userId);
-  const prefersReducedMotion = useReducedMotion();
-  const [activeNowCount, setActiveNowCount] = useState(0);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const [pendingImage, setPendingImage] = useState<File | null>(null);
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
 
   const handleImageClick = () => {
     if (!isAuthenticated) return;
@@ -42,36 +32,12 @@ export default function ForumCommunityHeroCard() {
     input.click();
   };
 
-  useEffect(() => {
-    if (prefersReducedMotion) {
-      setActiveNowCount(ACTIVE_MEMBERS_COUNT);
-      return;
-    }
+  const handleImageSelected = (file: File | null) => {
+    if (!file) return;
 
-    const duration = 1200;
-    const startTime = performance.now();
-    let animationFrame = 0;
-
-    const updateCount = (now: number) => {
-      const progress = Math.min((now - startTime) / duration, 1);
-      const easedProgress = 1 - Math.pow(1 - progress, 3);
-
-      setActiveNowCount(Math.round(ACTIVE_MEMBERS_COUNT * easedProgress));
-
-      if (progress < 1) {
-        animationFrame = requestAnimationFrame(updateCount);
-      }
-    };
-
-    animationFrame = requestAnimationFrame(updateCount);
-
-    return () => cancelAnimationFrame(animationFrame);
-  }, [prefersReducedMotion]);
-
-  const activeNowLabel =
-    activeNowCount >= 1000
-      ? `${(activeNowCount / 1000).toFixed(1).replace(/\.0$/, "")}k`
-      : `${activeNowCount}`;
+    setPendingImage(file);
+    setIsImageDialogOpen(true);
+  };
 
   return (
     <section className="relative overflow-hidden rounded-2xl bg-linear-to-br from-[#eef4ff] via-[#f4f8ff] to-[#e6f0ff] p-5 sm:p-8">
@@ -109,9 +75,7 @@ export default function ForumCommunityHeroCard() {
         </div> */}
 
         <motion.div
-          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: prefersReducedMotion ? 0 : 0.35 }}
           className="flex max-w-xl flex-col gap-2"
         >
           <h1 className="text-2xl leading-tight font-semibold tracking-[-0.6px] text-[#0f1729] sm:text-4xl">
@@ -123,7 +87,6 @@ export default function ForumCommunityHeroCard() {
           </p>
         </motion.div>
 
-        {/* Composer — opens the existing ask-question dialog */}
         <div className="flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-[0px_4px_24px_0px_rgba(15,23,41,0.06)] sm:p-5">
           <div className="flex items-center gap-3">
             <Avatar className="size-9 shrink-0 border border-[#f9fafb]">
@@ -155,6 +118,8 @@ export default function ForumCommunityHeroCard() {
               categories={categories}
               isAuthenticated={isAuthenticated}
               initialImageFile={pendingImage}
+              open={isImageDialogOpen}
+              onOpenChange={setIsImageDialogOpen}
               trigger={
                 <button
                   type="button"
@@ -173,7 +138,7 @@ export default function ForumCommunityHeroCard() {
               tabIndex={-1}
               aria-hidden="true"
               onChange={(event) =>
-                setPendingImage(event.target.files?.[0] ?? null)
+                handleImageSelected(event.target.files?.[0] ?? null)
               }
               className="sr-only"
             />

@@ -48,6 +48,8 @@ interface AskQuestionDialogProps {
   data?: QuestionResponse | null;
   trigger?: React.ReactNode;
   initialImageFile?: File | null;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export default function AskQuestionDialog({
@@ -57,6 +59,8 @@ export default function AskQuestionDialog({
   data,
   trigger,
   initialImageFile = null,
+  open: controlledOpen,
+  onOpenChange,
 }: AskQuestionDialogProps) {
   const location = useLocation();
   const revalidator = useRevalidator();
@@ -88,7 +92,10 @@ export default function AskQuestionDialog({
   const hasRequiredInput = Boolean(
     watchedTitle?.trim() && watchedBody?.trim() && watchedCategoryId,
   );
-  const [open, setOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = onOpenChange ?? setInternalOpen;
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>(
     () => data?.tags?.map((tag) => tag.name).filter(Boolean) ?? [],
@@ -99,7 +106,6 @@ export default function AskQuestionDialog({
   const [removeExistingImage, setRemoveExistingImage] = useState(false);
   const wasSubmitting = useRef(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const appliedInitialImage = useRef<File | null>(null);
   // const [searchParams, setSearchParams] = useSearchParams();
   const redirectTo = `${location.pathname}${location.search}`;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
@@ -212,35 +218,30 @@ export default function AskQuestionDialog({
       setTags(data?.tags?.map((tag) => tag.name).filter(Boolean) ?? []);
       setTagInput("");
       // reset file selection and previews when opening
-      setSelectedFile(null);
       setRemoveExistingImage(false);
       revokeBlobUrl(preview);
-      setPreview(null);
-      // set existing image preview when editing
-      if (isEditing && data?.imageKey) {
+
+      if (initialImageFile) {
+        setSelectedFile(initialImageFile);
+        setExistingImageKey(null);
+        setPreview(URL.createObjectURL(initialImageFile));
+      } else if (isEditing && data?.imageKey) {
+        setSelectedFile(null);
         setExistingImageKey(data.imageKey);
         setPreview(resolveImageURL(data.imageKey));
       } else {
+        setSelectedFile(null);
         setExistingImageKey(null);
+        setPreview(null);
       }
     }
-  }, [data, open, isEditing, reset, categories]);
+  }, [data, open, isEditing, reset, categories, initialImageFile]);
 
   useEffect(() => {
     return () => {
       revokeBlobUrl(preview);
     };
   }, [preview]);
-
-  useEffect(() => {
-    if (!open || !initialImageFile) return;
-    if (appliedInitialImage.current === initialImageFile) return;
-
-    appliedInitialImage.current = initialImageFile;
-    setSelectedFile(initialImageFile);
-    setPreview(URL.createObjectURL(initialImageFile));
-    setRemoveExistingImage(false);
-  }, [open, initialImageFile]);
 
   const addTag = (rawValue: string) => {
     const nextTag = rawValue.trim();
@@ -299,17 +300,21 @@ export default function AskQuestionDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button
-            variant={"default"}
-            className="flex h-10 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca] sm:w-auto"
-          >
-            <Plus size={24} />
-            Ask question
-          </Button>
-        )}
-      </DialogTrigger>
+      {isControlled ? (
+        trigger
+      ) : (
+        <DialogTrigger asChild>
+          {trigger || (
+            <Button
+              variant={"default"}
+              className="flex h-10 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-[#2f6fe4] px-6 py-0 text-sm font-medium whitespace-nowrap text-white hover:bg-[#245fca] sm:w-auto"
+            >
+              <Plus size={24} />
+              Ask question
+            </Button>
+          )}
+        </DialogTrigger>
+      )}
 
       <DialogContent
         onPointerDownOutside={(e) => e.preventDefault()}
