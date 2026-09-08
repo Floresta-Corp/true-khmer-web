@@ -9,9 +9,11 @@ import {
 import { formatDate } from "~/lib/time";
 import type { blogDetailLoader } from "../services/blog-detail.loader";
 import BackToButton from "~/components/back-to-button";
+import BlogCommentsSection from "./comment/blog-comments-section";
 
 export function PublicBlogDetailPage() {
-  const { post, relatedPosts } = useLoaderData<typeof blogDetailLoader>();
+  const { post, relatedPosts, comments, commentTotal, commentSort, viewer } =
+    useLoaderData<typeof blogDetailLoader>();
   const [shareLabel, setShareLabel] = useState("Share");
   const navigate = useNavigate();
   const navigation = useNavigation();
@@ -140,6 +142,14 @@ export function PublicBlogDetailPage() {
             extraAllowedAttributes={BLOG_CONTENT_EXTRA_ALLOWED_ATTRIBUTES}
           />
         </article>
+
+        <BlogCommentsSection
+          postId={post.id}
+          comments={comments}
+          total={commentTotal}
+          sort={commentSort}
+          viewer={viewer}
+        />
 
         {relatedPosts.length > 0 ? (
           <section className="mt-24">
