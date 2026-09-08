@@ -36,6 +36,7 @@ import {
   type LessonDraft,
 } from "../../types";
 import type { CourseSection } from "~/features/education/types";
+import { formatDuration } from "~/features/education/lib/lesson-media";
 import {
   CERTIFICATE_API_VALUE,
   DIFFICULTY_API_VALUE,
@@ -310,6 +311,9 @@ export default function CourseBuilderPage({
   const saveEditedLesson = () => {
     if (!editingLesson) return;
 
+    const audioSeconds =
+      lessonDraft.source === "audio" ? lessonDraft.durationSeconds : null;
+
     setSections((current) =>
       current.map((section) =>
         section.id === editingLesson.sectionId
@@ -329,6 +333,12 @@ export default function CourseBuilderPage({
                         lessonDraft.source === "youtube"
                           ? null
                           : lessonDraft.assetKey,
+                      pageCount:
+                        lessonDraft.source === "pdf"
+                          ? lessonDraft.pageCount
+                          : null,
+                      durationSeconds: audioSeconds,
+                      duration: formatDuration(audioSeconds),
                     }
                   : item,
               ),
@@ -364,6 +374,9 @@ export default function CourseBuilderPage({
     if (!lessonTarget) return;
     added.current += 1;
 
+    const audioSeconds =
+      lessonDraft.source === "audio" ? lessonDraft.durationSeconds : null;
+
     setSections((current) =>
       current.map((section) =>
         section.id === lessonTarget
@@ -375,7 +388,7 @@ export default function CourseBuilderPage({
                   id: `${lessonTarget}-new-${added.current}`,
                   title: lessonDraft.title.trim(),
                   type: lessonTypeOf(lessonDraft.source),
-                  duration: "",
+                  duration: formatDuration(audioSeconds),
                   isPreview: false,
                   isComplete: false,
                   url:
@@ -386,6 +399,9 @@ export default function CourseBuilderPage({
                     lessonDraft.source === "youtube"
                       ? null
                       : lessonDraft.assetKey,
+                  pageCount:
+                    lessonDraft.source === "pdf" ? lessonDraft.pageCount : null,
+                  durationSeconds: audioSeconds,
                 },
               ],
             }
@@ -404,6 +420,8 @@ export default function CourseBuilderPage({
     if (!hasSource) return [];
 
     const title = lesson.title.trim() || draft.title.trim() || "Course content";
+    const singleSeconds =
+      lesson.source === "audio" ? lesson.durationSeconds : null;
 
     return [
       {
@@ -415,11 +433,13 @@ export default function CourseBuilderPage({
             title,
             type:
               lesson.source === "youtube" ? ("video" as const) : lesson.source,
-            duration: "",
+            duration: formatDuration(singleSeconds),
             isPreview: false,
             isComplete: false,
             url: lesson.source === "youtube" ? lesson.url.trim() : null,
             assetKey: lesson.source === "youtube" ? null : lesson.assetKey,
+            pageCount: lesson.source === "pdf" ? lesson.pageCount : null,
+            durationSeconds: singleSeconds,
           },
         ],
       },
@@ -452,7 +472,6 @@ export default function CourseBuilderPage({
 
   const patch = useCallback((changes: Partial<CourseDraft>) => {
     setDraft((current) => ({ ...current, ...changes }));
-    // Clear a required-field complaint as soon as that field is edited.
     setLocalErrors((current) => {
       const next = { ...current };
       for (const key of Object.keys(changes)) delete next[key];
@@ -460,11 +479,6 @@ export default function CourseBuilderPage({
     });
   }, []);
 
-  /**
-   * Every field on the Course Details step is required, and the builder submits
-   * through a fetcher rather than a native form, so the `required` attributes
-   * on the fields never fire. Check them here instead.
-   */
   const basicErrors = () => {
     const errors: Record<string, string[]> = {};
     if (!draft.title.trim()) errors.title = ["Add a course title."];
@@ -486,12 +500,6 @@ export default function CourseBuilderPage({
       !section.lessons.some((item) => Boolean(item.url ?? item.assetKey)),
   );
 
-  /**
-   * A course needs something to teach: content for a single-lesson course, and
-   * for a multi-section one at least one section with at least one lesson in
-   * every section. Lessons without a source are dropped on save, so they do not
-   * count towards a section being filled.
-   */
   const curriculumErrors = () => {
     const errors: Record<string, string[]> = {};
 
@@ -524,11 +532,6 @@ export default function CourseBuilderPage({
     return errors;
   };
 
-  /**
-   * The quiz step exists only for a certificate of completion, and a
-   * certificate nobody can fail is not one — so that course needs at least one
-   * answerable question.
-   */
   const quizErrors = () => {
     const errors: Record<string, string[]> = {};
     if (!steps.includes("quiz")) return errors;
@@ -561,9 +564,6 @@ export default function CourseBuilderPage({
   const save = (intent: "save-draft" | "submit") => {
     if (isLocked) return false;
 
-    // A draft is partial work by definition, so only a submit has to have a
-    // finished curriculum. The Course Details fields are checked either way —
-    // the API rejects a course without them.
     const blocking: Array<[BuilderStep, Record<string, string[]>]> = [
       ["basic", basicErrors()],
       ...(intent === "submit"
@@ -593,6 +593,8 @@ export default function CourseBuilderPage({
           type: lessonApiType(lesson),
           url: lesson.url,
           assetKey: lesson.assetKey,
+          pageCount: lesson.pageCount,
+          durationSeconds: lesson.durationSeconds,
           isPreview: lesson.isPreview,
         })),
     }));

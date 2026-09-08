@@ -25,7 +25,7 @@ export function CourseListingRow({ course, index }: CourseListingRowProps) {
       transition={{ duration: 0.24, delay: Math.min(index, 6) * 0.03 }}
       className="relative flex cursor-pointer items-center gap-6 rounded-2xl bg-white p-4 transition-shadow duration-200 hover:shadow-[0_6px_20px_rgba(26,26,46,0.14),0_2px_6px_rgba(26,26,46,0.06)]"
     >
-      <span className="h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-[#E8E8E8]">
+      <span className="h-16 w-20 shrink-0 overflow-hidden rounded-lg bg-[#E8E8E8]">
         <img
           src={cover}
           alt=""
@@ -50,22 +50,24 @@ export function CourseListingRow({ course, index }: CourseListingRowProps) {
         </h3>
       </div>
 
-      <div className="min-w-0 flex-1" />
-
+      {/* Pinned to the right against the overflow menu, as the design has it:
+          the title absorbs the slack, so a short title does not drag the
+          figures leftwards out of line with the rows around it. */}
       {course.stats ? (
-        <CourseLearnerStats stats={course.stats} className="hidden lg:flex" />
+        <CourseLearnerStats
+          stats={course.stats}
+          className="hidden lg:mr-5 lg:flex"
+        />
       ) : (
-        /* A course nobody has started has no figures to report, so the strip
+        /* Nobody enrolled, so there are no figures to report and the strip
            collapses to the design's single em dash. */
         <span
           aria-label="No learner figures yet"
-          className="hidden shrink-0 text-[#9A9AB0] lg:block"
+          className="hidden shrink-0 text-[#9A9AB0] lg:mr-5 lg:block"
         >
           —
         </span>
       )}
-
-      <div className="min-w-0 flex-1" />
 
       <CourseActionsMenu course={course} />
     </motion.article>

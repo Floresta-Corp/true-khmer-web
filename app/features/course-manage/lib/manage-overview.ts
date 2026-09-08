@@ -12,6 +12,7 @@ import {
   type PerformancePoint,
   type ProgressSegment,
   type RatingBar,
+  type TrendBar,
 } from "~/features/course-manage/types";
 
 type Stats = CourseStatsResponse["stats"];
@@ -43,13 +44,6 @@ const MONTHS = [
   "Nov",
   "Dec",
 ];
-
-function shortDate(iso: string) {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "—";
-  const day = String(date.getUTCDate()).padStart(2, "0");
-  return `${day} ${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
-}
 
 /**
  * The three buckets, straight off the server's aggregate.
@@ -185,6 +179,71 @@ export function buildPerformance(
   return points;
 }
 
+/** Months since year zero, so a window is plain integer arithmetic. */
+function monthIndex(key: string) {
+  const [year, month] = key.split("-").map(Number);
+  return year * 12 + (month - 1);
+}
+
+/**
+ * Enrolments per month across the chosen window, for the Analytics bar chart.
+ *
+ * Bucketed here rather than on the server: `GET /courses/{id}/stats` returns
+ * the whole daily history, so every window the card offers is a re-slice of
+ * data already in hand and changing it costs no round trip.
+ *
+ * Months with no enrolments are emitted as zero, so a quiet stretch reads as a
+ * gap in the bars rather than being compressed away.
+ *
+ * `months` of 0 means all time, from the first month that has data.
+ */
+export function buildEnrollmentTrend(
+  trends: CourseTrends,
+  months: number,
+): TrendBar[] {
+  const byMonth = new Map<string, number>();
+  for (const point of trends.enrollment) {
+    const key = point.date.slice(0, 7);
+    byMonth.set(key, (byMonth.get(key) ?? 0) + point.learners);
+  }
+
+  const dated = [...byMonth.keys()].sort();
+  if (dated.length === 0) return [];
+
+  const now = new Date();
+  const thisMonth = now.getUTCFullYear() * 12 + now.getUTCMonth();
+  const firstMonth = monthIndex(dated[0]);
+  const lastMonth = monthIndex(dated[dated.length - 1]);
+
+  /* A fixed window ends this month, so "Last 6 months" means the last six
+     months and not the last six that happened to see an enrolment. All time
+     ends at the last month that did. The `max` guards a course whose newest
+     row is dated ahead of the clock. */
+  const end = months === 0 ? lastMonth : Math.max(thisMonth, firstMonth);
+  const start =
+    months === 0 ? firstMonth : Math.max(firstMonth, end - (months - 1));
+
+  /* "Sep" is unambiguous across a year or less; past that the bars would
+     repeat a month name, so they carry the year too. */
+  const withYear = end - start >= 12;
+
+  const bars: TrendBar[] = [];
+  for (let index = start; index <= end; index += 1) {
+    const year = Math.floor(index / 12);
+    const month = index % 12;
+    const key = `${year}-${String(month + 1).padStart(2, "0")}`;
+
+    bars.push({
+      label: withYear
+        ? `${MONTHS[month]} ${String(year).slice(2)}`
+        : MONTHS[month],
+      value: byMonth.get(key) ?? 0,
+    });
+  }
+
+  return bars;
+}
+
 /** Five bars, five stars first, as the Analytics breakdown reads them. */
 export function buildRatingBreakdown(stats: Stats | null): RatingBar[] {
   const source = stats ?? EMPTY_STATS;
@@ -231,10 +290,6 @@ export function buildAnalytics(stats: Stats | null): CourseManageAnalytics {
   ];
 
   return {
-    trend: source.enrollmentTrend.map((point) => ({
-      label: shortDate(point.date),
-      value: point.learners,
-    })),
     funnel,
     quizBands: source.quiz.bands.map((band, index) => ({
       label: band.label,

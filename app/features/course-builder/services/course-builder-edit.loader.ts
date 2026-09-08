@@ -1,4 +1,5 @@
 import { data } from "react-router";
+import { formatDuration } from "~/features/education/lib/lesson-media";
 import type { Route } from "project-types/course-builder/route/+types/course-builder.$id";
 import {
   getCourseCategories,
@@ -104,11 +105,13 @@ export async function courseBuilderEditLoader({
             : lesson.type === "AUDIO"
               ? ("audio" as const)
               : ("video" as const),
-        duration: "",
+        duration: formatDuration(lesson.durationSeconds),
         isPreview: lesson.isPreview,
         isComplete: false,
         url: lesson.url,
         assetKey: lesson.assetKey,
+        pageCount: lesson.pageCount,
+        durationSeconds: lesson.durationSeconds,
       })),
     }),
   );

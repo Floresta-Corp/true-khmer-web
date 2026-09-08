@@ -10,10 +10,7 @@ export function meta() {
 // Logout only works via POST (for CSRF safety)
 export async function action({ request }: Route.ActionArgs) {
   const session = await getSession(request);
-  return withAuthRedirect(
-    { setCookie: await destroySession(session) },
-    "/login",
-  );
+  return withAuthRedirect({ setCookie: await destroySession(session) }, "/");
 }
 
 // If someone navigates to /logout via GET, redirect to home

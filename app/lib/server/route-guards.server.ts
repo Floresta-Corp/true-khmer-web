@@ -81,7 +81,6 @@ export function requestWithSetCookie(request: Request, setCookie?: string) {
 }
 
 function isAdminRoute(path: string) {
-  // The login page itself must not be treated as a "protected admin route"
   return path.startsWith("/tk-admin") && path !== "/tk-admin/login";
 }
 
@@ -95,7 +94,10 @@ function loginRedirectPath(request: Request) {
   return `${loginPath}?${params.toString()}`;
 }
 
-async function clearAndRedirectToLogin(request: Request, redirectTo?: string) {
+export async function clearAndRedirectToLogin(
+  request: Request,
+  redirectTo?: string,
+) {
   const session = await getSession(request);
   const targetRedirectTo = redirectTo ?? new URL(request.url).pathname;
   const loginPath = isAdminRoute(targetRedirectTo)
@@ -150,8 +152,6 @@ async function redirectForGuardError(error: unknown, request: Request) {
   return null;
 }
 
-// Use for auth-flow pages/actions that only need a logged-in session.
-// This does not check whether signup or onboarding is complete.
 export async function requireAuthUser(
   request: Request,
 ): Promise<AuthenticatedUser> {
@@ -163,8 +163,6 @@ export async function requireAuthUser(
   return user as AuthenticatedUser;
 }
 
-// Use for public app routes. Anonymous users are allowed, but logged-in users
-// must be ACTIVE or they are redirected to their required signup/onboarding step.
 export async function getOptionalUser(
   request: Request,
 ): Promise<OptionalUserResult> {
@@ -208,8 +206,6 @@ export async function redirectIfAuthenticated(request: Request) {
   }
 }
 
-// Use for /complete-signup only. The user must be logged in and currently
-// required to complete signup.
 export async function requireSignupCompletion(
   request: Request,
 ): Promise<GuardResult> {
@@ -235,8 +231,6 @@ export async function requireSignupCompletion(
   }
 }
 
-// Use for /onboarding only. The user must be logged in and currently required
-// to complete onboarding.
 export async function requireOnboarding(
   request: Request,
 ): Promise<OnboardingGuardResult> {
@@ -276,8 +270,6 @@ export async function requireOnboarding(
   }
 }
 
-// Use for normal protected app routes/actions. The user must be logged in and
-// backend /auth/session must say the account is ACTIVE.
 export async function requireUser(
   request: Request,
   options: GuardOptions = {},
@@ -337,14 +329,12 @@ async function resolveAdmin(request: Request): Promise<SuperAdminGuardResult> {
   }
 }
 
-// Accepts both moderator and super admin — use for the admin layout.
 export async function requireAdmin(
   request: Request,
 ): Promise<SuperAdminGuardResult> {
   return resolveAdmin(request);
 }
 
-// Use for routes/actions restricted to super admin only.
 export async function requireSuperAdmin(
   request: Request,
   message = "This page is restricted to Super Admins.",

@@ -4,6 +4,7 @@ import { cn } from "~/lib/utils";
 import { CARD } from "~/features/education/lib/education-styles";
 import type { CourseDetail, CourseLesson } from "~/features/education/types";
 import { LessonTypeIcon } from "./lesson-type-icon";
+import { lessonDetail } from "~/features/education/lib/lesson-media";
 
 interface ChapterListProps {
   course: CourseDetail;
@@ -11,7 +12,6 @@ interface ChapterListProps {
   completedLessonIds: Set<string>;
   openSectionIds: Set<string>;
   onToggleSection: (sectionId: string) => void;
-  /** Position of a lesson across the whole course, 1-based. */
   lessonIndex: (lesson: CourseLesson) => number;
   quizUnlocked: boolean;
 }
@@ -110,7 +110,9 @@ export function ChapterList({
                             type={lesson.type}
                             className="size-3.25"
                           />
-                          {lesson.duration}
+                          <span className="truncate">
+                            {lessonDetail(lesson)}
+                          </span>
                         </span>
                       </span>
                     </Link>

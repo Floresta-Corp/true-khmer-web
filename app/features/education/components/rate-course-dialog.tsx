@@ -37,9 +37,6 @@ export function RateCourseDialog({
       ? fetcher.data.message
       : null;
 
-  /* Closing is driven by the API's answer rather than the click, so a rejected
-     submission (not enrolled, expired session) stays on screen to be retried
-     with the learner's comment still in the box. */
   useEffect(() => {
     const result = fetcher.data;
     if (fetcher.state !== "idle" || !result?.ok) return;
@@ -52,7 +49,7 @@ export function RateCourseDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[440px] font-tk-edu">
+      <DialogContent className="max-w-110 font-tk-edu">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-[#1A1A2E]">
             How was {courseTitle}?
@@ -63,6 +60,7 @@ export function RateCourseDialog({
         </DialogHeader>
 
         <fetcher.Form method="post" className="mt-2">
+          <input type="hidden" name="intent" value="rate" />
           <input type="hidden" name="rating" value={rating} />
 
           <div
@@ -96,7 +94,7 @@ export function RateCourseDialog({
             name="comment"
             placeholder="Add a comment (optional)"
             maxLength={MAX_COMMENT_LENGTH}
-            className="min-h-[70px] w-full resize-y rounded-lg border border-gray-200 px-3 py-2.5 text-sm text-[#333333] outline-none placeholder:text-[#9A9AB0] focus:border-[#1C5DD4]"
+            className="min-h-17.5 w-full resize-y rounded-lg border border-gray-200 px-3 py-2.5 text-sm text-[#333333] outline-none placeholder:text-[#9A9AB0] focus:border-[#1C5DD4]"
           />
 
           {error ? (

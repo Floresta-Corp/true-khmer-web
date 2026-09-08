@@ -1,9 +1,21 @@
+import { useMemo, useState } from "react";
 import { Calendar, ChevronDown, Star } from "lucide-react";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { cn } from "~/lib/utils";
+import {
+  ENROLLMENT_RANGES,
   MANAGE,
   type CourseManageAnalytics,
+  type CourseTrends,
+  type EnrollmentRange,
 } from "~/features/course-manage/types";
 import type { RatingBar } from "~/features/course-manage/types";
+import { buildEnrollmentTrend } from "../../lib/manage-overview";
 import {
   RING_RADIUS,
   TREND_BOX,
@@ -18,6 +30,8 @@ import { CardInfo } from "./analytics-info";
 
 interface AnalyticsTabProps {
   analytics: CourseManageAnalytics;
+  /** Raw daily history; the trend card windows it client-side. */
+  trends: CourseTrends;
   ratingBreakdown: RatingBar[];
   rating: number;
   reviewCount: number;
@@ -28,15 +42,32 @@ const SPARSE_REVIEW_THRESHOLD = 5;
 
 export function AnalyticsTab({
   analytics,
+  trends,
   ratingBreakdown,
   rating,
   reviewCount,
 }: AnalyticsTabProps) {
-  const { trend, funnel, quizBands, quizAttempts } = analytics;
+  const { funnel, quizBands, quizAttempts } = analytics;
+
+  const [range, setRange] = useState<EnrollmentRange>(6);
+  const activeRange =
+    ENROLLMENT_RANGES.find((option) => option.months === range) ??
+    ENROLLMENT_RANGES[1];
+
+  const trend = useMemo(
+    () => buildEnrollmentTrend(trends, range),
+    [trends, range],
+  );
 
   const trendPeak = Math.max(1, ...trend.map((bar) => bar.value));
   const trendTicks = buildTicks(trendPeak, 6, TREND_BOX);
   const bars = buildBars(trend, trendTicks[0]?.value ?? trendPeak, TREND_BOX);
+
+  /* One label slot per bar keeps each one under its own bar. A long window
+     blanks the slots in between rather than dropping them, which would let
+     the survivors slide out from under the bars they name. Anchored on the
+     last bar, so the month the course is in is always named. */
+  const labelStep = Math.max(1, Math.ceil(bars.length / 12));
 
   const polygons = buildFunnelPolygons(funnel.map((stage) => stage.percent));
   const funnelHeight = funnelViewHeight(funnel.length);
@@ -68,14 +99,29 @@ export function AnalyticsTab({
             <h3 className="text-base font-bold text-[#1A1A2E]">
               Enrollment trend
             </h3>
-            <CardInfo text="New enrolments per month over the selected window." />
+            <CardInfo text="New enrolments per month across the selected window." />
           </div>
-          {/* Static: there is no time-series endpoint to re-query. */}
-          <span className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[#E5E7EB] px-3 py-[7px] text-[12.5px] font-semibold text-[#333333]">
-            <Calendar size={14} strokeWidth={2} aria-hidden />
-            Last 6 months
-            <ChevronDown size={12} strokeWidth={2.2} aria-hidden />
-          </span>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-[#E5E7EB] px-3 py-[7px] text-[12.5px] font-semibold text-[#333333] transition-colors hover:bg-[#F9FAFC]">
+              <Calendar size={14} strokeWidth={2} aria-hidden />
+              {activeRange.label}
+              <ChevronDown size={12} strokeWidth={2.2} aria-hidden />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-37.5 rounded-lg">
+              {ENROLLMENT_RANGES.map((option) => (
+                <DropdownMenuItem
+                  key={option.months}
+                  onSelect={() => setRange(option.months)}
+                  className={cn(
+                    "text-[13px]",
+                    option.months === range && "font-bold text-[#1C5DD4]",
+                  )}
+                >
+                  {option.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <div className="relative mt-2.5">
@@ -83,7 +129,7 @@ export function AnalyticsTab({
             viewBox="0 0 400 170"
             width="100%"
             role="img"
-            aria-label="Enrolments per month"
+            aria-label={`Enrolments per month, ${activeRange.label.toLowerCase()}`}
             className="block aspect-400/170 overflow-visible"
           >
             {trendTicks.map((tick) => (
@@ -111,13 +157,13 @@ export function AnalyticsTab({
           ))}
         </div>
 
-        <div className="mt-0.5 flex justify-between pl-[34px]">
-          {bars.map((bar) => (
+        <div className="mt-0.5 flex justify-between pr-2 pl-[34px]">
+          {bars.map((bar, index) => (
             <span
-              key={bar.label}
+              key={`${bar.label}-${index}`}
               className="flex-1 text-center text-[11px] text-[#9A9AB0]"
             >
-              {bar.label}
+              {(bars.length - 1 - index) % labelStep === 0 ? bar.label : ""}
             </span>
           ))}
         </div>

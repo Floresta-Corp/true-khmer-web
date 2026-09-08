@@ -574,6 +574,12 @@ const GetSavedItemsResponse = z.object({ ok: z.literal(true), items: z.array(z.u
 
 const SavedItemsErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
+const CertificateResponse = z.object({ id: z.string().uuid(), courseId: z.string().uuid(), courseTitle: z.string(), certificateNo: z.string(), recipientName: z.string(), completedAt: z.string(), issuedAt: z.string(), sharedToProfile: z.boolean(), coverImageUrl: z.string().nullable() });
+
+const ListCertificatesResponse = z.object({ ok: z.literal(true), certificates: z.array(CertificateResponse), pagination: z.object({ page: z.number().int().gt(0), limit: z.number().int().gt(0), total: z.number().int().gte(0), totalPages: z.number().int().gte(0) }) });
+
+const CertificateErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
+
 const PublicProfileResponse = z.object({ ok: z.literal(true), profile: z.object({ user: z.object({ id: z.string(), firstName: z.string(), lastName: z.string(), displayName: z.string().nullable(), occupation: z.string().nullable(), email: z.string().nullable(), phone: z.object({ country: z.string(), nationalNumber: z.string() }).nullable(), telegramUsername: z.string().nullable() }), profile: z.object({ avatarKey: z.string().nullable(), bio: z.string().nullable(), country: z.object({ id: z.string(), name: z.string(), iso2: z.string().nullable() }).nullable(), city: z.object({ id: z.string(), name: z.string() }).nullable() }), skills: z.array(z.object({ id: z.string(), name: z.string() })), socialLinks: z.object({ website: z.string().nullable(), linkedin: z.string().nullable(), twitter: z.string().nullable(), facebook: z.string().nullable() }), tier: z.object({ id: z.string(), slug: z.string(), name: z.string(), rankOrder: z.number(), minPoints: z.number() }).nullable(), postedCounts: z.object({ forum: z.number().int().gte(0), volunteer: z.number().int().gte(0), project: z.number().int().gte(0) }).nullable(), badges: z.array(z.object({ slug: z.string(), name: z.string(), description: z.string(), category: z.enum(["ONBOARDING", "COLLABORATION", "KNOWLEDGE", "VOLUNTEER", "LAUNCHPAD"]), awardedAt: z.string() })) }) });
 
 const GetMyPostedResponse = z.union([z.object({ ok: z.literal(true), sourceType: z.literal("forum"), questions: z.array(QuestionResponse), pagination: z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) }), z.object({ ok: z.literal(true), sourceType: z.literal("volunteer"), opportunities: z.array(VolunteerOpportunityListItemResponse), pagination: VolunteerOpportunitiesPaginationResponse }), z.object({ ok: z.literal(true), sourceType: z.literal("project"), launchpads: z.array(z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.boolean() })), nextCursor: z.string().nullable() })]);
@@ -731,6 +737,8 @@ const DeleteCourseResponse = z.object({ ok: z.literal(true) });
 
 const EnrollInCourseResponse = z.object({ ok: z.literal(true), enrolled: z.literal(true), created: z.boolean() });
 
+const LeaveCourseResponse = z.object({ ok: z.literal(true), left: z.boolean() });
+
 const CourseEnrollmentResponse = z.object({ ok: z.literal(true), enrolled: z.boolean() });
 
 const PresignCourseLessonAssetRequest = z.object({ contentType: z.enum(["application/pdf", "audio/mpeg", "audio/mp3", "audio/mp4", "audio/x-m4a", "audio/aac", "audio/ogg", "audio/wav", "audio/x-wav", "audio/webm"]), fileSize: z.number().int().gt(0).lte(104857600) });
@@ -789,6 +797,10 @@ const SubmitCourseReviewResponse = z.object({ ok: z.literal(true), review: OwnCo
 
 const DeleteCourseReviewResponse = z.object({ ok: z.literal(true) });
 
+const GetCourseCertificateResponse = z.object({ ok: z.literal(true), earned: z.boolean(), certificate: CertificateResponse.nullable() });
+
+const ShareCourseCertificateResponse = z.object({ ok: z.literal(true), certificate: CertificateResponse });
+
 const CourseStudent = z.object({ userId: z.string().uuid(), name: z.string(), avatar: z.string().nullable(), enrolledAt: z.string(), startedAt: z.string().nullable(), lessonsCompleted: z.number().int().gte(0), completedAt: z.string().nullable(), bestQuizPercent: z.number().int().nullable(), status: z.enum(["completed", "in-progress", "not-started"]) });
 
 const CourseStudentCounts = z.object({ all: z.number().int().gte(0), completed: z.number().int().gte(0), "in-progress": z.number().int().gte(0), "not-started": z.number().int().gte(0) });
@@ -802,6 +814,18 @@ const RemoveCourseStudentResponse = z.object({ ok: z.literal(true) });
 const MessageCourseStudentRequest = z.object({ subject: z.string().min(1).max(120), body: z.string().min(1).max(2000) });
 
 const MessageCourseStudentResponse = z.object({ ok: z.literal(true) });
+
+const SaveCourseResponse = z.object({ ok: z.literal(true), saved: z.boolean(), changed: z.boolean() });
+
+const CourseSaveStateResponse = z.object({ ok: z.literal(true), saved: z.boolean() });
+
+const MyClass = z.object({ courseId: z.string(), title: z.string(), description: z.string(), coverImageUrl: z.string().nullable(), categoryName: z.string().nullable(), courseStatus: z.enum(["DRAFT", "PENDING", "PUBLISHED", "UNPUBLISHED"]), price: z.number(), difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCE", "ALL_LEVELS"]).nullable(), certificateKind: z.enum(["PARTICIPATION", "COMPLETION"]).nullable(), instructor: z.object({ id: z.string(), name: z.string() }).nullable(), lessonCount: z.number().int().gte(0), lessonsCompleted: z.number().int().gte(0), progressPercent: z.number().int().gte(0).lte(100), status: z.enum(["not-started", "in-progress", "completed"]), remainingSeconds: z.number().int().gte(0).nullable(), remainingSecondsEstimated: z.boolean(), isEnrolled: z.boolean(), isSaved: z.boolean(), enrolledAt: z.string().nullable(), savedAt: z.string().nullable(), lastActivityAt: z.string().nullable(), hasQuiz: z.boolean(), bestQuizPercent: z.number().int().nullable(), passedQuiz: z.boolean(), certificateEarned: z.boolean() });
+
+const MyClassCounts = z.object({ learning: z.number().int().gte(0), "in-progress": z.number().int().gte(0), saved: z.number().int().gte(0), completed: z.number().int().gte(0) });
+
+const MyClassesStats = z.object({ inProgress: z.number().int().gte(0), completed: z.number().int().gte(0), timeLearnedSeconds: z.number().int().gte(0), certificates: z.number().int().gte(0) });
+
+const ListMyClassesResponse = z.object({ ok: z.literal(true), courses: z.array(MyClass), counts: MyClassCounts, stats: MyClassesStats, pagination: z.object({ page: z.number().int().gt(0), limit: z.number().int().gt(0), total: z.number().int().gte(0), totalPages: z.number().int().gte(0) }) });
 const AdminCourseResponse = CourseResponse.and(z.object({  }));
 
 const AdminListCoursesResponse = z.object({ ok: z.literal(true), courses: z.array(AdminCourseResponse), pagination: z.object({ limit: z.number().int().gt(0), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) });
@@ -1121,6 +1145,9 @@ export const schemas = {
 	SearchSkillsResponse,
 	GetSavedItemsResponse,
 	SavedItemsErrorResponse,
+	CertificateResponse,
+	ListCertificatesResponse,
+	CertificateErrorResponse,
 	PublicProfileResponse,
 	GetMyPostedResponse,
 	MyPostedErrorResponse,
@@ -1201,6 +1228,7 @@ export const schemas = {
 	UpdateCourseRequest,
 	DeleteCourseResponse,
 	EnrollInCourseResponse,
+	LeaveCourseResponse,
 	CourseEnrollmentResponse,
 	PresignCourseLessonAssetRequest,
 	PresignCourseLessonAssetResponse,
@@ -1230,6 +1258,8 @@ export const schemas = {
 	SubmitCourseReviewRequest,
 	SubmitCourseReviewResponse,
 	DeleteCourseReviewResponse,
+	GetCourseCertificateResponse,
+	ShareCourseCertificateResponse,
 	CourseStudent,
 	CourseStudentCounts,
 	ListCourseStudentsResponse,
@@ -1237,6 +1267,12 @@ export const schemas = {
 	RemoveCourseStudentResponse,
 	MessageCourseStudentRequest,
 	MessageCourseStudentResponse,
+	SaveCourseResponse,
+	CourseSaveStateResponse,
+	MyClass,
+	MyClassCounts,
+	MyClassesStats,
+	ListMyClassesResponse,
 	AdminCourseResponse,
 	AdminListCoursesResponse,
 	AdminCourseDetailResponse,
@@ -5397,6 +5433,104 @@ const endpoints = makeApi([
 	},
 	{
 		method: "get",
+		path: "/v1/education-center/courses/:id/certificate",
+		alias: "getV1educationCentercoursesIdcertificate",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetCourseCertificateResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: CertificateErrorResponse
+			},
+			{
+				status: 404,
+				description: `Course not found or not visible`,
+				schema: CertificateErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: CertificateErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/education-center/courses/:id/certificate/share",
+		alias: "postV1educationCentercoursesIdcertificateshare",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: ShareCourseCertificateResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: CertificateErrorResponse
+			},
+			{
+				status: 403,
+				description: `Course not finished`,
+				schema: CertificateErrorResponse
+			},
+			{
+				status: 404,
+				description: `Course not found or not visible`,
+				schema: CertificateErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: CertificateErrorResponse
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/education-center/courses/:id/certificate/share",
+		alias: "deleteV1educationCentercoursesIdcertificateshare",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: ShareCourseCertificateResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: CertificateErrorResponse
+			},
+			{
+				status: 404,
+				description: `Certificate not found`,
+				schema: CertificateErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: CertificateErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
 		path: "/v1/education-center/courses/:id/curriculum",
 		alias: "getV1educationCentercoursesIdcurriculum",
 		requestFormat: "json",
@@ -5489,6 +5623,32 @@ const endpoints = makeApi([
 			{
 				status: 404,
 				description: `Course not found or not visible`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/education-center/courses/:id/enroll",
+		alias: "deleteV1educationCentercoursesIdenroll",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: LeaveCourseResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Not enrolled on this course`,
 				schema: z.void()
 			},
 		]
@@ -5861,6 +6021,74 @@ const endpoints = makeApi([
 			{
 				status: 404,
 				description: `Review not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/education-center/courses/:id/save",
+		alias: "postV1educationCentercoursesIdsave",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: SaveCourseResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found or not published`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/education-center/courses/:id/save",
+		alias: "getV1educationCentercoursesIdsave",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: CourseSaveStateResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/education-center/courses/:id/save",
+		alias: "deleteV1educationCentercoursesIdsave",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: SaveCourseResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Not signed in`,
 				schema: z.void()
 			},
 		]
@@ -6292,6 +6520,47 @@ const endpoints = makeApi([
 			{
 				status: 403,
 				description: `User access is restricted`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/education-center/my-classes",
+		alias: "getV1educationCentermyClasses",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "tab",
+				type: "Query",
+				schema: z.enum(["learning", "in-progress", "saved", "completed"]).optional().default("learning")
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().max(255).optional()
+			},
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gt(0).optional().default(1)
+			},
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gt(0).lte(100).optional().default(20)
+			},
+		],
+		response: ListMyClassesResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Not signed in`,
 				schema: z.void()
 			},
 		]
@@ -7626,6 +7895,37 @@ const endpoints = makeApi([
 				status: 500,
 				description: `Internal server error`,
 				schema: ProfileErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/me/certificates",
+		alias: "getV1mecertificates",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gt(0).optional().default(1)
+			},
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gt(0).lte(50).optional().default(10)
+			},
+		],
+		response: ListCertificatesResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: CertificateErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: CertificateErrorResponse
 			},
 		]
 	},
@@ -9002,6 +9302,173 @@ const endpoints = makeApi([
 	},
 	{
 		method: "get",
+		path: "/v1/plumpi/tickets/event/:eventId",
+		alias: "getV1plumpiticketseventEventId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "eventId",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: z.object({ event: z.record(z.string(), z.unknown().nullable()), tickets: z.array(z.record(z.string(), z.unknown().nullable())), ok: z.literal(true) }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid event ID`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 401,
+				description: `True Khmer authentication required`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 403,
+				description: `Plumpi operation is not allowed`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 404,
+				description: `No tickets found for this event`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 502,
+				description: `Unsuccessful Plumpi response`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 503,
+				description: `Plumpi integration is unavailable`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/plumpi/tickets/me",
+		alias: "getV1plumpiticketsme",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gte(1).optional()
+			},
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(100).optional()
+			},
+			{
+				name: "sortBy",
+				type: "Query",
+				schema: z.string().min(1).optional()
+			},
+			{
+				name: "sortOrder",
+				type: "Query",
+				schema: z.enum(["asc", "desc"]).optional()
+			},
+			{
+				name: "eventId",
+				type: "Query",
+				schema: z.string().uuid().optional()
+			},
+			{
+				name: "tierId",
+				type: "Query",
+				schema: z.string().uuid().optional()
+			},
+			{
+				name: "orderId",
+				type: "Query",
+				schema: z.string().uuid().optional()
+			},
+			{
+				name: "isValid",
+				type: "Query",
+				schema: z.boolean().optional()
+			},
+			{
+				name: "isUsed",
+				type: "Query",
+				schema: z.boolean().optional()
+			},
+			{
+				name: "isCancelled",
+				type: "Query",
+				schema: z.boolean().optional()
+			},
+			{
+				name: "isRefunded",
+				type: "Query",
+				schema: z.boolean().optional()
+			},
+			{
+				name: "holderEmail",
+				type: "Query",
+				schema: z.string().email().optional()
+			},
+			{
+				name: "source",
+				type: "Query",
+				schema: z.enum(["web", "mobile", "api", "pos"]).optional()
+			},
+			{
+				name: "timeFilter",
+				type: "Query",
+				schema: z.enum(["upcoming", "past"]).optional()
+			},
+		],
+		response: z.object({ ok: z.literal(true), tickets: z.array(z.record(z.string(), z.unknown().nullable())), meta: z.object({ page: z.number().int(), limit: z.number().int(), total: z.number().int(), totalPages: z.number().int() }) }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid ticket-list query`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 401,
+				description: `True Khmer authentication required`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 403,
+				description: `Plumpi operation is not allowed`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 404,
+				description: `No tickets found`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 502,
+				description: `Unsuccessful Plumpi response`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 503,
+				description: `Plumpi integration is unavailable`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+		]
+	},
+	{
+		method: "get",
 		path: "/v1/plumpi/tickets/tiers",
 		alias: "getV1plumpiticketstiers",
 		requestFormat: "json",
@@ -9150,6 +9617,42 @@ const endpoints = makeApi([
 				status: 500,
 				description: `Internal server error`,
 				schema: ProfileErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/profile/:userId/certificates",
+		alias: "getV1profileUserIdcertificates",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "userId",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gt(0).optional().default(1)
+			},
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gt(0).lte(50).optional().default(10)
+			},
+		],
+		response: ListCertificatesResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: CertificateErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: CertificateErrorResponse
 			},
 		]
 	},
@@ -10919,6 +11422,9 @@ export type RecentActivityErrorResponse = z.infer<typeof schemas.RecentActivityE
 export type SearchSkillsResponse = z.infer<typeof schemas.SearchSkillsResponse>;
 export type GetSavedItemsResponse = z.infer<typeof schemas.GetSavedItemsResponse>;
 export type SavedItemsErrorResponse = z.infer<typeof schemas.SavedItemsErrorResponse>;
+export type CertificateResponse = z.infer<typeof schemas.CertificateResponse>;
+export type ListCertificatesResponse = z.infer<typeof schemas.ListCertificatesResponse>;
+export type CertificateErrorResponse = z.infer<typeof schemas.CertificateErrorResponse>;
 export type PublicProfileResponse = z.infer<typeof schemas.PublicProfileResponse>;
 export type GetMyPostedResponse = z.infer<typeof schemas.GetMyPostedResponse>;
 export type MyPostedErrorResponse = z.infer<typeof schemas.MyPostedErrorResponse>;
@@ -10999,6 +11505,7 @@ export type ListMyCoursesResponse = z.infer<typeof schemas.ListMyCoursesResponse
 export type UpdateCourseRequest = z.infer<typeof schemas.UpdateCourseRequest>;
 export type DeleteCourseResponse = z.infer<typeof schemas.DeleteCourseResponse>;
 export type EnrollInCourseResponse = z.infer<typeof schemas.EnrollInCourseResponse>;
+export type LeaveCourseResponse = z.infer<typeof schemas.LeaveCourseResponse>;
 export type CourseEnrollmentResponse = z.infer<typeof schemas.CourseEnrollmentResponse>;
 export type PresignCourseLessonAssetRequest = z.infer<typeof schemas.PresignCourseLessonAssetRequest>;
 export type PresignCourseLessonAssetResponse = z.infer<typeof schemas.PresignCourseLessonAssetResponse>;
@@ -11028,6 +11535,8 @@ export type GetOwnCourseReviewResponse = z.infer<typeof schemas.GetOwnCourseRevi
 export type SubmitCourseReviewRequest = z.infer<typeof schemas.SubmitCourseReviewRequest>;
 export type SubmitCourseReviewResponse = z.infer<typeof schemas.SubmitCourseReviewResponse>;
 export type DeleteCourseReviewResponse = z.infer<typeof schemas.DeleteCourseReviewResponse>;
+export type GetCourseCertificateResponse = z.infer<typeof schemas.GetCourseCertificateResponse>;
+export type ShareCourseCertificateResponse = z.infer<typeof schemas.ShareCourseCertificateResponse>;
 export type CourseStudent = z.infer<typeof schemas.CourseStudent>;
 export type CourseStudentCounts = z.infer<typeof schemas.CourseStudentCounts>;
 export type ListCourseStudentsResponse = z.infer<typeof schemas.ListCourseStudentsResponse>;
@@ -11035,6 +11544,12 @@ export type CourseStudentDetailResponse = z.infer<typeof schemas.CourseStudentDe
 export type RemoveCourseStudentResponse = z.infer<typeof schemas.RemoveCourseStudentResponse>;
 export type MessageCourseStudentRequest = z.infer<typeof schemas.MessageCourseStudentRequest>;
 export type MessageCourseStudentResponse = z.infer<typeof schemas.MessageCourseStudentResponse>;
+export type SaveCourseResponse = z.infer<typeof schemas.SaveCourseResponse>;
+export type CourseSaveStateResponse = z.infer<typeof schemas.CourseSaveStateResponse>;
+export type MyClass = z.infer<typeof schemas.MyClass>;
+export type MyClassCounts = z.infer<typeof schemas.MyClassCounts>;
+export type MyClassesStats = z.infer<typeof schemas.MyClassesStats>;
+export type ListMyClassesResponse = z.infer<typeof schemas.ListMyClassesResponse>;
 export type AdminCourseResponse = z.infer<typeof schemas.AdminCourseResponse>;
 export type AdminListCoursesResponse = z.infer<typeof schemas.AdminListCoursesResponse>;
 export type AdminCourseDetailResponse = z.infer<typeof schemas.AdminCourseDetailResponse>;

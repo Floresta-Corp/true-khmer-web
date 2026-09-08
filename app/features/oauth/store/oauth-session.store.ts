@@ -4,6 +4,7 @@ import type { OAuthAuthResult, OAuthSessionUser } from "../types";
 
 interface OAuthSessionState {
   accessToken: string | null;
+  refreshToken: string | null;
   user: OAuthSessionUser | null;
   setSession: (session: OAuthAuthResult) => void;
   clearSession: () => void;
@@ -16,9 +17,12 @@ export const useOAuthSessionStore = create<OAuthSessionState>()(
   persist(
     (set) => ({
       accessToken: null,
+      refreshToken: null,
       user: null,
-      setSession: ({ accessToken, user }) => set({ accessToken, user }),
-      clearSession: () => set({ accessToken: null, user: null }),
+      setSession: ({ accessToken, refreshToken, user }) =>
+        set({ accessToken, refreshToken: refreshToken ?? null, user }),
+      clearSession: () =>
+        set({ accessToken: null, refreshToken: null, user: null }),
     }),
     {
       name: "oauth-session",

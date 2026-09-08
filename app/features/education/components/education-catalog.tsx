@@ -9,11 +9,8 @@ import { EducationPage } from "./education-page";
 import {
   CATALOG_SORTS,
   CATALOG_SORT_LABELS,
-  CATALOG_TYPES,
-  CATALOG_TYPE_LABELS,
-  CATALOG_TYPE_SERVABLE,
-  isSortServable,
 } from "~/features/education/lib/course-catalog";
+import { useCourseSaves } from "~/features/education/hooks/use-course-saves";
 import type { educationCatalogLoader } from "~/features/education/services/education-catalog.loader";
 
 function FilterRadio({
@@ -21,27 +18,18 @@ function FilterRadio({
   label,
   checked,
   onSelect,
-  unavailable = false,
 }: {
   name: string;
   label: string;
   checked: boolean;
   onSelect: () => void;
-  unavailable?: boolean;
 }) {
   return (
-    <label
-      title={unavailable ? "Not available yet" : undefined}
-      className={cn(
-        "flex items-center gap-2.5",
-        unavailable ? "cursor-not-allowed opacity-45" : "cursor-pointer",
-      )}
-    >
+    <label className="flex cursor-pointer items-center gap-2.5">
       <input
         type="radio"
         name={name}
         checked={checked}
-        disabled={unavailable}
         onChange={onSelect}
         className="peer sr-only"
       />
@@ -111,7 +99,6 @@ export function EducationCatalog() {
     search,
     categoryId,
     sort,
-    type,
   } = useLoaderData<typeof educationCatalogLoader>();
 
   const [, setSearchParams] = useSearchParams();
@@ -120,15 +107,7 @@ export function EducationCatalog() {
 
   const [searchInput, setSearchInput] = useState(search);
 
-  const [savedCourseIds, setSavedCourseIds] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    setSavedCourseIds((current) => {
-      const next = new Set(current);
-      for (const course of courses) if (course.isSaved) next.add(course.id);
-      return next;
-    });
-  }, [courses]);
+  const { savedCourseIds, toggleSave } = useCourseSaves(courses);
 
   const updateParams = useCallback(
     (changes: Record<string, string | null>) => {
@@ -168,23 +147,14 @@ export function EducationCatalog() {
 
   useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
 
-  const toggleSave = (courseId: string) => {
-    setSavedCourseIds((current) => {
-      const next = new Set(current);
-      if (next.has(courseId)) next.delete(courseId);
-      else next.add(courseId);
-      return next;
-    });
-  };
-
   const clearAll = () => {
     debouncedSearch.cancel();
     setSearchInput("");
-    setFilter({ search: null, categoryId: null, sort: null, type: null });
+    setFilter({ search: null, categoryId: null, sort: null });
   };
 
   return (
-    <EducationPage>
+    <EducationPage surface="muted">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -258,16 +228,13 @@ export function EducationCatalog() {
                   name="sort"
                   label={CATALOG_SORT_LABELS[value]}
                   checked={sort === value}
-                  unavailable={!isSortServable(value)}
-                  onSelect={() =>
-                    setFilter({ sort: value === "newest" ? null : value })
-                  }
+                  onSelect={() => setFilter({ sort: value })}
                 />
               ))}
             </div>
           </FilterSection>
 
-          <FilterSection title="Categories">
+          <FilterSection title="Categories" divided={false}>
             <div className="flex max-h-70 flex-col gap-3 overflow-y-auto">
               <FilterRadio
                 name="categoryId"
@@ -282,23 +249,6 @@ export function EducationCatalog() {
                   label={category.name}
                   checked={categoryId === category.id}
                   onSelect={() => setFilter({ categoryId: category.id })}
-                />
-              ))}
-            </div>
-          </FilterSection>
-
-          <FilterSection title="Type" divided={false}>
-            <div className="flex flex-col gap-3">
-              {CATALOG_TYPES.map((value) => (
-                <FilterRadio
-                  key={value}
-                  name="type"
-                  label={CATALOG_TYPE_LABELS[value]}
-                  checked={type === value}
-                  unavailable={!CATALOG_TYPE_SERVABLE[value]}
-                  onSelect={() =>
-                    setFilter({ type: value === "all" ? null : value })
-                  }
                 />
               ))}
             </div>

@@ -12,6 +12,7 @@ import { cn } from "~/lib/utils";
 import { LessonSourceField } from "../lesson-source-field";
 import { Required } from "../required-mark";
 import type { CourseSection, LessonType } from "~/features/education/types";
+import { lessonDetail } from "~/features/education/lib/lesson-media";
 import {
   LESSON_SOURCES,
   LESSON_SOURCE_CARDS,
@@ -55,10 +56,15 @@ const TYPE_LABELS: Record<LessonType, string> = {
   audio: "Audio",
 };
 
+function lessonMeta(lesson: CourseSection["lessons"][number]): string {
+  const detail = lessonDetail(lesson);
+  return detail
+    ? `${TYPE_LABELS[lesson.type]} · ${detail}`
+    : TYPE_LABELS[lesson.type];
+}
+
 interface CurriculumStepProps {
-  /** Set when the step was left, or submitted, without enough content. */
   error?: string;
-  /** Sections the error is pointing at, so each one can say so itself. */
   emptySectionIds?: Set<string>;
   format: CourseFormat;
   lesson: LessonDraft;
@@ -77,15 +83,9 @@ interface CurriculumStepProps {
     targetLessonId: string | null,
   ) => void;
   onAddLesson: (sectionId: string) => void;
-  /** Absent while the course is locked, which leaves the rows read-only. */
   onEditLesson?: (sectionId: string, lessonId: string) => void;
 }
 
-/**
- * The title and type of a lesson row. While the course is editable this is a
- * button that opens the lesson; otherwise it is plain text, so a locked course
- * does not offer a control that would refuse to do anything.
- */
 function LessonBody({
   title,
   meta,
@@ -143,7 +143,6 @@ export function CurriculumStep({
 
   const dragRef = useRef<Drag | null>(null);
   const [dragging, setDragging] = useState<Drag | null>(null);
-  /** Row the pointer is over, drawn with a line marking the insert point. */
   const [over, setOver] = useState<string | null>(null);
 
   const startDrag = (drag: Drag) => {
@@ -191,7 +190,7 @@ export function CurriculumStep({
                 aria-pressed={active}
                 onClick={() => onFormatChange(option.value)}
                 className={cn(
-                  "flex min-w-[260px] flex-1 cursor-pointer items-center gap-3.5 rounded-lg border bg-white p-4 text-left transition-colors",
+                  "flex min-w-65 flex-1 cursor-pointer items-center gap-3.5 rounded-lg border bg-white p-4 text-left transition-colors",
                   active
                     ? "border-[#1C5DD4] bg-[#EFF4FE]"
                     : "border-[#E5E7EB] hover:border-[#C9D6F2]",
@@ -217,7 +216,7 @@ export function CurriculumStep({
                 </span>
 
                 <span className="min-w-0">
-                  <span className="mb-[3px] flex items-center gap-2">
+                  <span className="mb-0.75 flex items-center gap-2">
                     <span className="text-[15px] font-bold text-[#1A1A2E]">
                       {option.label}
                     </span>
@@ -265,7 +264,7 @@ export function CurriculumStep({
                       aria-pressed={active}
                       onClick={() => onLessonChange(lessonSourceChange(source))}
                       className={cn(
-                        "flex flex-1 cursor-pointer items-center gap-3 rounded-lg border p-3.5 text-left transition-colors sm:min-w-[210px] sm:flex-none",
+                        "flex flex-1 cursor-pointer items-center gap-3 rounded-lg border p-3.5 text-left transition-colors sm:min-w-52.5 sm:flex-none",
                         active
                           ? "border-[#1C5DD4] bg-[#EFF4FE]"
                           : "border-[#E5E7EB] hover:border-[#C9D6F2]",
@@ -274,7 +273,7 @@ export function CurriculumStep({
                       <span
                         aria-hidden
                         className={cn(
-                          "flex size-[18px] shrink-0 items-center justify-center rounded-full border-2",
+                          "flex size-4.5 shrink-0 items-center justify-center rounded-full border-2",
                           active ? "border-[#1C5DD4]" : "border-[#C9CBD4]",
                         )}
                       >
@@ -316,11 +315,16 @@ export function CurriculumStep({
                 urlPlaceholder="Paste YouTube URL here"
                 label={LESSON_SOURCE_CARDS[lesson.source].label}
                 onUrlChange={(url) => onLessonChange({ url })}
-                onUploaded={(assetKey, fileName) =>
-                  onLessonChange({ assetKey, fileName })
+                onUploaded={(assetKey, fileName, meta) =>
+                  onLessonChange({ assetKey, fileName, ...meta })
                 }
                 onClearFile={() =>
-                  onLessonChange({ assetKey: null, fileName: null })
+                  onLessonChange({
+                    assetKey: null,
+                    fileName: null,
+                    pageCount: null,
+                    durationSeconds: null,
+                  })
                 }
               />
 
@@ -335,7 +339,7 @@ export function CurriculumStep({
                     aria-hidden
                     className="mt-px shrink-0 text-[#1C5DD4]"
                   />
-                  <span className="text-[13px] leading-[1.5] text-[#1C5DD4]">
+                  <span className="text-[13px] leading-normal text-[#1C5DD4]">
                     Make sure the video is public so your learners can access
                     it.
                   </span>
@@ -346,7 +350,7 @@ export function CurriculumStep({
         </div>
       ) : (
         <div>
-          <div className="mb-[18px] flex flex-wrap items-center justify-between gap-3">
+          <div className="mb-4.5 flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 className="mb-1 text-[18px] font-bold whitespace-nowrap text-[#1A1A2E]">
                 Build your curriculum
@@ -512,9 +516,7 @@ export function CurriculumStep({
 
                           <LessonBody
                             title={lesson.title}
-                            meta={`${TYPE_LABELS[lesson.type]}${
-                              lesson.duration ? ` · ${lesson.duration}` : ""
-                            }`}
+                            meta={lessonMeta(lesson)}
                             onEdit={
                               onEditLesson &&
                               (() => onEditLesson(section.id, lesson.id))

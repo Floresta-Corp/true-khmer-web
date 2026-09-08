@@ -1,5 +1,12 @@
 import type { Route } from "project-types/course-listing/route/+types/course-listing";
-import { listMyCourses } from "~/api/education/education.server";
+import {
+  getCourseStats,
+  listMyCourses,
+} from "~/api/education/education.server";
+import {
+  reportsLearners,
+  toLearnerStats,
+} from "~/features/course-listing/lib/course-stats";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
 import {
@@ -38,10 +45,19 @@ export async function courseListingLoader({ request }: Route.LoaderArgs) {
         ? raw.filter((course) => displayStatusOf(course) === "REJECTED")
         : raw;
 
-  const courses: CourseWithStats[] = filtered.map((course) => ({
-    ...course,
-    stats: null,
-  }));
+  /* The listing endpoint carries no engagement figures, so the strip's numbers
+     come from each course's own stats call. Issued together rather than in
+     sequence: a page is at most PAGE_SIZE courses and only the ones that can
+     have learners are asked about, so this costs one round trip of latency
+     rather than twelve. A batched endpoint is the fix if the page grows. */
+  const courses: CourseWithStats[] = await Promise.all(
+    filtered.map(async (course) => {
+      if (!reportsLearners(course)) return { ...course, stats: null };
+
+      const stats = await getCourseStats(request, course.id);
+      return { ...course, stats: toLearnerStats(stats?.data?.stats) };
+    }),
+  );
 
   const pagination: MyCoursesPagination | null =
     result?.data?.pagination ?? null;

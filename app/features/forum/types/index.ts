@@ -18,10 +18,20 @@ export const ForumQuestionStatusSchema = z.enum(["DRAFT", "PUBLISHED"]);
 export type ForumQuestionStatus = z.infer<typeof ForumQuestionStatusSchema>;
 
 export const CreateForumQuestionInputSchema = z.object({
-  categoryId: z.string(),
-  title: z.string(),
-  body: z.string(),
-  tags: z.array(z.string()),
+  categoryId: z.string().min(1, "Please select a category."),
+  title: z
+    .string()
+    .trim()
+    .min(5, "Title must be at least 5 characters.")
+    .max(200, "Title must be at most 200 characters."),
+  body: z
+    .string()
+    .trim()
+    .min(5, "Discussion details must be at least 5 characters.")
+    .max(5000, "Discussion details must be at most 5000 characters."),
+  tags: z
+    .array(z.string().trim().min(1))
+    .max(5, "You can add up to 5 tags only."),
   imageKey: z.string().nullable(),
   status: ForumQuestionStatusSchema,
 });

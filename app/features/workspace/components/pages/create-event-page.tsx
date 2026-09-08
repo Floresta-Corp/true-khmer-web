@@ -15,7 +15,7 @@ import CreateEventAutosaveStatus, {
   type CreateEventAutosaveStatusValue,
 } from "../create-event/create-event-autosave-status";
 import CreateEventBasicsForm from "../create-event/create-event-basics-form";
-import CreateEventConnecting from "../create-event/create-event-connecting";
+import PlumpiRedirectOverlay from "~/components/plumpi-redirect-overlay";
 import CreateEventDraftSuccessDialog from "../create-event/create-event-draft-success-dialog";
 import CreateEventOrganizerSelect from "../create-event/create-event-organizer-select";
 import CreateEventReview from "../create-event/create-event-review";
@@ -626,7 +626,7 @@ export default function CreateEventPage() {
         onGoBack={() => navigate(MY_EVENTS_PATH)}
       />
 
-      {isHandingOff && <CreateEventConnecting />}
+      {isHandingOff && <PlumpiRedirectOverlay />}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { cn } from "~/lib/utils";
 import { CARD } from "~/features/education/lib/education-styles";
 import type { CourseDetail } from "~/features/education/types";
 import { LessonTypeIcon } from "./lesson-type-icon";
+import { lessonDetail } from "~/features/education/lib/lesson-media";
 
 interface CourseCurriculumTabProps {
   course: CourseDetail;
@@ -100,7 +101,7 @@ export function CourseCurriculumTab({ course }: CourseCurriculumTabProps) {
                           />
                         )}
                         <span className="shrink-0 text-xs text-[#9A9AB0]">
-                          {lesson.duration}
+                          {lessonDetail(lesson)}
                         </span>
                       </button>
                     </li>
