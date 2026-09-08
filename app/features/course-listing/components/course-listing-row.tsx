@@ -69,7 +69,10 @@ export function CourseListingRow({ course, index }: CourseListingRowProps) {
         </span>
       )}
 
-      <CourseActionsMenu course={course} />
+      <CourseActionsMenu
+        course={course}
+        learnerCount={course.stats?.totalLearners}
+      />
     </motion.article>
   );
 }

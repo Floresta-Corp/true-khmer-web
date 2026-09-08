@@ -8,6 +8,7 @@ import {
 } from "~/lib/server/api-client.server";
 import type {
   CreateCourseRequest,
+  DeleteCourseResponse,
   GetCourseResponse,
   ListCourseCategoriesResponse,
   ListMyCoursesResponse,
@@ -114,6 +115,14 @@ export async function unpublishCourse(request: Request, courseId: string) {
     request,
     `/education-center/courses/${encodeURIComponent(courseId)}/unpublish`,
     { method: "POST" },
+  );
+}
+
+export async function deleteCourse(request: Request, courseId: string) {
+  return apiRequestWithSession<DeleteCourseResponse>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}`,
+    { method: "DELETE" },
   );
 }
 

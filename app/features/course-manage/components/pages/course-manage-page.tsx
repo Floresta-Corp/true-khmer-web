@@ -57,7 +57,10 @@ export default function CourseManagePage() {
       transition={{ duration: prefersReducedMotion ? 0 : 0.28 }}
       className="mx-auto w-full max-w-[1200px] px-4 py-6 sm:px-6 lg:px-8"
     >
-      <CourseManageHeader course={course} />
+      <CourseManageHeader
+        course={course}
+        learnerCount={overview.totalLearners}
+      />
       <CourseManageTabs active={tab} onChange={setTab} />
 
       {tab === "overview" && (
