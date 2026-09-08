@@ -10,6 +10,8 @@ import {
   updateCourse,
   updateCourseMeta,
 } from "~/api/education/education.server";
+import { lookupYoutubeDuration } from "~/api/youtube/youtube.server";
+import { youtubeVideoId } from "~/features/course-builder/lib/youtube-url";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
@@ -143,12 +145,29 @@ const PresignLessonSchema = z.object({
   fileSize: z.coerce.number().int().positive().max(MAX_LESSON_ASSET_BYTES),
 });
 
+const YoutubeDurationSchema = z.object({
+  intent: z.literal("youtube-duration"),
+  url: z.string().trim().min(1).max(2000),
+});
+
 const FormSchema = z.discriminatedUnion("intent", [
   SaveDraftSchema,
   SubmitSchema,
   PresignCoverSchema,
   PresignLessonSchema,
+  YoutubeDurationSchema,
 ]);
+
+/** Why a length could not be read, in words the course author can act on. */
+const DURATION_PROBLEMS: Record<
+  "unavailable" | "unconfigured" | "failed",
+  string
+> = {
+  unavailable:
+    "YouTube has no length for that video. Make sure it is public and not a live stream.",
+  unconfigured: "Video lengths are not available right now.",
+  failed: "We could not reach YouTube to read the video length.",
+};
 
 export async function courseBuilderAction({ request }: Route.ActionArgs) {
   const auth = await requireUser(request);
@@ -189,6 +208,43 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
       { status: 502 },
     );
   };
+
+  if (parsed.data.intent === "youtube-duration") {
+    const videoId = youtubeVideoId(parsed.data.url);
+
+    if (!videoId) {
+      return withAuthData(
+        auth,
+        {
+          ok: false as const,
+          fieldErrors: {},
+          error: "That is not a YouTube video link.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const lookup = await lookupYoutubeDuration(videoId);
+
+    if (lookup.status === "ok") {
+      return withAuthData(auth, {
+        ok: true as const,
+        intent: "youtube-duration" as const,
+        videoId,
+        durationSeconds: lookup.durationSeconds,
+      });
+    }
+
+    return withAuthData(
+      auth,
+      {
+        ok: false as const,
+        fieldErrors: {},
+        error: DURATION_PROBLEMS[lookup.status],
+      },
+      { status: lookup.status === "unavailable" ? 404 : 502 },
+    );
+  }
 
   if (parsed.data.intent === "presign-lesson") {
     const { contentType, fileSize } = parsed.data;
