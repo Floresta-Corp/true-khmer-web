@@ -39,7 +39,7 @@ export default function BlogCommentsSection({
   const navigation = useNavigation();
   const isSorting = Boolean(
     navigation.location?.search &&
-      new URLSearchParams(navigation.location.search).get("sortBy") !== sort,
+    new URLSearchParams(navigation.location.search).get("sortBy") !== sort,
   );
 
   const handleSortChange = (value: BlogCommentSort) => {

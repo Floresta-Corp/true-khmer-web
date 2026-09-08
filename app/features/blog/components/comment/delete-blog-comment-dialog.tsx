@@ -36,8 +36,7 @@ export default function DeleteBlogCommentDialog({
       setOpen(false);
       toast.success(message ?? `${Entity} deleted successfully.`);
     },
-    onError: (message) =>
-      toast.error(message ?? `Failed to delete ${label}.`),
+    onError: (message) => toast.error(message ?? `Failed to delete ${label}.`),
   });
 
   return (

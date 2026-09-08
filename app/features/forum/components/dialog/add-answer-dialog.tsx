@@ -27,9 +27,7 @@ export default function AddAnswerDialog({
       isAuthenticated={isAuthenticated}
       trigger={trigger}
       defaultValue={data?.body ?? ""}
-      formKey={
-        isEditing ? `edit-answer-${data?.id ?? "new"}` : "create-answer"
-      }
+      formKey={isEditing ? `edit-answer-${data?.id ?? "new"}` : "create-answer"}
       fields={{
         actionType: isEditing ? "update-answer" : "create-answer",
         replyToAnswer,
