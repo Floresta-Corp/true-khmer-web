@@ -150,6 +150,14 @@ export function lessonSourceChange(source: LessonSource): Partial<LessonDraft> {
   };
 }
 
+/**
+ * The length a lesson draft carries: audio is measured on upload and YouTube
+ * links are read from the Data API. PDFs report pages instead.
+ */
+export function lessonDraftDuration(draft: LessonDraft): number | null {
+  return draft.source === "pdf" ? null : draft.durationSeconds;
+}
+
 export function emptyLessonDraft(): LessonDraft {
   return {
     title: "",

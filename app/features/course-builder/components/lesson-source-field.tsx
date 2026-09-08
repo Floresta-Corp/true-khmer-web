@@ -11,7 +11,7 @@ import {
   validateLessonFile,
   type LessonAssetUpload,
 } from "../lib/upload-lesson-asset";
-import { validateYoutubeUrl } from "../lib/youtube-url";
+import { validateYoutubeUrl, youtubeVideoId } from "../lib/youtube-url";
 import {
   readLessonAssetMeta,
   type LessonAssetMeta,
@@ -26,6 +26,18 @@ type PresignResult =
   | { ok: true; intent: "presign-lesson"; upload: LessonAssetUpload }
   | { ok: false; error?: string };
 
+type DurationResult =
+  | {
+      ok: true;
+      intent: "youtube-duration";
+      videoId: string;
+      durationSeconds: number;
+    }
+  | { ok: false; error?: string };
+
+/** How long to wait after a keystroke before asking YouTube for the length. */
+const LOOKUP_DEBOUNCE_MS = 400;
+
 interface LessonSourceFieldProps {
   source: LessonSource;
   url: string;
@@ -39,6 +51,10 @@ interface LessonSourceFieldProps {
   ) => void;
   onClearFile: () => void;
   onUploadingChange?: (uploading: boolean) => void;
+  /** The length already known for this source, shown while the field is open. */
+  durationSeconds: number | null;
+  /** Called with the length YouTube reports, or null when it has none. */
+  onDurationChange: (durationSeconds: number | null) => void;
   label: string;
 }
 
@@ -51,6 +67,8 @@ export function LessonSourceField({
   onUploaded,
   onClearFile,
   onUploadingChange,
+  durationSeconds,
+  onDurationChange,
   label,
 }: LessonSourceFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -62,17 +80,68 @@ export function LessonSourceField({
 
   const selection = useRef(0);
 
+  const lookup = useFetcher<DurationResult>();
+  const { submit: submitLookup } = lookup;
+  const videoId = source === "youtube" ? youtubeVideoId(url) : null;
+  /** The video we have asked YouTube about, so a link is looked up once. */
+  const askedFor = useRef<string | null>(null);
+  /** The video whose answer is already in the draft. */
+  const [resolvedFor, setResolvedFor] = useState<string | null>(() =>
+    source === "youtube" && durationSeconds ? youtubeVideoId(url) : null,
+  );
+  /* Held in a ref so the effects below do not restart on every parent render. */
+  const durationSink = useRef(onDurationChange);
+  useEffect(() => {
+    durationSink.current = onDurationChange;
+  }, [onDurationChange]);
+
+  const readingLength = Boolean(videoId) && videoId !== resolvedFor;
   const busy = uploading || fetcher.state !== "idle";
+  const working = busy || readingLength;
 
   useEffect(() => {
-    onUploadingChange?.(busy);
-  }, [busy, onUploadingChange]);
+    onUploadingChange?.(working);
+  }, [working, onUploadingChange]);
 
   useEffect(() => {
     selection.current += 1;
     pendingFile.current = null;
     setError(null);
   }, [source]);
+
+  /* The length in the draft belongs to the video we last resolved, so a new or
+     removed link drops it until YouTube answers for the one now in the box. */
+  useEffect(() => {
+    if (source !== "youtube" || videoId === resolvedFor) return;
+    if (durationSeconds !== null) durationSink.current(null);
+  }, [source, videoId, resolvedFor, durationSeconds]);
+
+  /* Ask the Data API for the length as soon as the pasted link settles, so it
+     is already in the draft when the author saves the lesson. */
+  useEffect(() => {
+    if (!videoId || videoId === askedFor.current) return;
+
+    const timer = setTimeout(() => {
+      askedFor.current = videoId;
+      submitLookup(
+        { intent: "youtube-duration", url: url.trim() },
+        { method: "post" },
+      );
+    }, LOOKUP_DEBOUNCE_MS);
+
+    return () => clearTimeout(timer);
+  }, [videoId, url, submitLookup]);
+
+  useEffect(() => {
+    const answer = lookup.data;
+    const asked = askedFor.current;
+    if (lookup.state !== "idle" || !answer || !asked || asked === resolvedFor) {
+      return;
+    }
+
+    setResolvedFor(asked);
+    durationSink.current(answer.ok ? answer.durationSeconds : null);
+  }, [lookup.state, lookup.data, resolvedFor]);
 
   const accept = (file: File | undefined) => {
     if (!file || source === "youtube") return;

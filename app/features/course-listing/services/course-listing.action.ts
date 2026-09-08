@@ -1,6 +1,7 @@
 import type { Route } from "project-types/course-listing/route/+types/course-listing";
 import { z } from "zod";
 import {
+  deleteCourse,
   submitCourseForReview,
   unpublishCourse,
   withdrawCourse,
@@ -9,7 +10,7 @@ import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
 
-const IntentSchema = z.enum(["submit", "withdraw", "unpublish"]);
+const IntentSchema = z.enum(["submit", "withdraw", "unpublish", "delete"]);
 
 const FormSchema = z.object({
   intent: IntentSchema,
@@ -38,6 +39,7 @@ export async function courseListingAction({ request }: Route.ActionArgs) {
     if (intent === "submit") await submitCourseForReview(request, courseId);
     if (intent === "withdraw") await withdrawCourse(request, courseId);
     if (intent === "unpublish") await unpublishCourse(request, courseId);
+    if (intent === "delete") await deleteCourse(request, courseId);
   } catch (error) {
     // The API refuses transitions its state machine does not allow, and that
     // reason is the useful part — do not bury it under a generic message.

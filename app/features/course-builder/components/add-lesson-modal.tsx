@@ -39,17 +39,15 @@ export function AddLessonModal({
     (draft.source === "youtube" ? isYoutubeUrl(draft.url) : !!draft.assetKey);
 
   return (
+    /* The backdrop does not close this dialog: a lesson costs an upload or a
+       link lookup to fill in, so it is dismissed only through Close or Cancel. */
     <div
       role="dialog"
       aria-modal="true"
       aria-label={editing ? "Edit lesson" : "Add lesson"}
-      onClick={onClose}
       className="fixed inset-0 z-80 flex items-center justify-center bg-[rgba(26,26,46,0.45)] p-5"
     >
-      <div
-        onClick={(event) => event.stopPropagation()}
-        className="flex max-h-[85vh] w-full max-w-120 flex-col rounded-xl bg-white shadow-[0_20px_60px_rgba(26,26,46,0.25)]"
-      >
+      <div className="flex max-h-[85vh] w-full max-w-120 flex-col rounded-xl bg-white shadow-[0_20px_60px_rgba(26,26,46,0.25)]">
         <div className="relative shrink-0 px-8 pt-7 pb-5">
           <button
             type="button"
@@ -130,6 +128,10 @@ export function AddLessonModal({
                 fileName={draft.fileName}
                 urlPlaceholder="https://youtube.com/watch?v=..."
                 label={LESSON_FIELD_LABELS[draft.source]}
+                durationSeconds={draft.durationSeconds}
+                onDurationChange={(durationSeconds) =>
+                  onChange({ durationSeconds })
+                }
                 onUrlChange={(url) => onChange({ url })}
                 onUploaded={(assetKey, fileName, meta) =>
                   onChange({ assetKey, fileName, ...meta })

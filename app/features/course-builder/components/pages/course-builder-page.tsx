@@ -28,6 +28,7 @@ import {
   type CategoryOption,
   type CourseDraft,
   emptyLessonDraft,
+  lessonDraftDuration,
   lessonDraftOf,
   lessonTypeOf,
   type CertificateKind,
@@ -311,8 +312,7 @@ export default function CourseBuilderPage({
   const saveEditedLesson = () => {
     if (!editingLesson) return;
 
-    const audioSeconds =
-      lessonDraft.source === "audio" ? lessonDraft.durationSeconds : null;
+    const seconds = lessonDraftDuration(lessonDraft);
 
     setSections((current) =>
       current.map((section) =>
@@ -337,8 +337,8 @@ export default function CourseBuilderPage({
                         lessonDraft.source === "pdf"
                           ? lessonDraft.pageCount
                           : null,
-                      durationSeconds: audioSeconds,
-                      duration: formatDuration(audioSeconds),
+                      durationSeconds: seconds,
+                      duration: formatDuration(seconds),
                     }
                   : item,
               ),
@@ -374,8 +374,7 @@ export default function CourseBuilderPage({
     if (!lessonTarget) return;
     added.current += 1;
 
-    const audioSeconds =
-      lessonDraft.source === "audio" ? lessonDraft.durationSeconds : null;
+    const seconds = lessonDraftDuration(lessonDraft);
 
     setSections((current) =>
       current.map((section) =>
@@ -388,7 +387,7 @@ export default function CourseBuilderPage({
                   id: `${lessonTarget}-new-${added.current}`,
                   title: lessonDraft.title.trim(),
                   type: lessonTypeOf(lessonDraft.source),
-                  duration: formatDuration(audioSeconds),
+                  duration: formatDuration(seconds),
                   isPreview: false,
                   isComplete: false,
                   url:
@@ -401,7 +400,7 @@ export default function CourseBuilderPage({
                       : lessonDraft.assetKey,
                   pageCount:
                     lessonDraft.source === "pdf" ? lessonDraft.pageCount : null,
-                  durationSeconds: audioSeconds,
+                  durationSeconds: seconds,
                 },
               ],
             }
@@ -420,8 +419,7 @@ export default function CourseBuilderPage({
     if (!hasSource) return [];
 
     const title = lesson.title.trim() || draft.title.trim() || "Course content";
-    const singleSeconds =
-      lesson.source === "audio" ? lesson.durationSeconds : null;
+    const singleSeconds = lessonDraftDuration(lesson);
 
     return [
       {
