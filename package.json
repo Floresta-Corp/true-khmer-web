@@ -86,5 +86,8 @@
     "typescript": "^5.9.2",
     "vite": "^7.1.7",
     "vite-tsconfig-paths": "^5.1.4"
+  },
+  "overrides": {
+    "htmlparser2": "^10.1.0"
   }
 }
