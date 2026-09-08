@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useFetcher } from "react-router";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
@@ -8,36 +9,40 @@ import {
   DialogDescription,
   DialogFooter,
   DialogTitle,
+  DialogTrigger,
 } from "~/components/ui/dialog";
 import { useFetcherOutcome } from "~/hooks/use-fetcher-outcome";
 import { BLOG_COMMENT_ACTIONS } from "../../types";
 
 interface DeleteBlogCommentDialogProps {
   commentId: string;
+  /** Lowercase noun used in the copy, e.g. "comment" or "reply". */
   label: string;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  trigger: React.ReactNode;
 }
 
 export default function DeleteBlogCommentDialog({
   commentId,
   label,
-  open,
-  onOpenChange,
+  trigger,
 }: DeleteBlogCommentDialogProps) {
   const fetcher = useFetcher();
   const isDeleting = fetcher.state !== "idle";
+  const [open, setOpen] = useState(false);
+  const Entity = label.charAt(0).toUpperCase() + label.slice(1);
 
   useFetcherOutcome(fetcher, {
     onSuccess: (message) => {
-      onOpenChange(false);
-      toast.success(message ?? `${label} deleted.`);
+      setOpen(false);
+      toast.success(message ?? `${Entity} deleted successfully.`);
     },
-    onError: (message) => toast.error(message ?? `Failed to delete ${label}.`),
+    onError: (message) =>
+      toast.error(message ?? `Failed to delete ${label}.`),
   });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="max-w-sm rounded-2xl">
         <DialogTitle>Delete {label}?</DialogTitle>
         <DialogDescription>

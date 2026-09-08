@@ -1,12 +1,19 @@
 import { useNavigation, useSearchParams } from "react-router";
-import { ListFilter } from "lucide-react";
+import { motion } from "motion/react";
+import CommentReplyBox from "~/components/comment-reply-box";
 import SortDropdown from "~/components/ui/sort-dropdown";
 import { cn } from "~/lib/utils";
 import type { BlogCommentResponse } from "~/types/api-client";
-import type { BlogCommentSort, BlogCommentViewer } from "../../types";
-import BlogCommentComposer from "./blog-comment-composer";
+import {
+  BLOG_COMMENT_ACTIONS,
+  type BlogCommentSort,
+  type BlogCommentViewer,
+} from "../../types";
+import BlogCommentCard from "./blog-comment-card";
 import BlogCommentEmpty from "./blog-comment-empty";
-import BlogCommentItem from "./blog-comment-item";
+import BlogCommentSignInPrompt from "./blog-comment-sign-in-prompt";
+
+const BODY_MAX_LENGTH = 10000;
 
 const SORT_OPTIONS = [
   { label: "Newest", value: "newest" as BlogCommentSort },
@@ -32,7 +39,7 @@ export default function BlogCommentsSection({
   const navigation = useNavigation();
   const isSorting = Boolean(
     navigation.location?.search &&
-    new URLSearchParams(navigation.location.search).get("sortBy") !== sort,
+      new URLSearchParams(navigation.location.search).get("sortBy") !== sort,
   );
 
   const handleSortChange = (value: BlogCommentSort) => {
@@ -42,30 +49,44 @@ export default function BlogCommentsSection({
   };
 
   return (
-    <section className="mt-20 border-t border-slate-200 pt-10 dark:border-white/10">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-[24px] font-bold tracking-tight text-slate-900 dark:text-slate-100">
-          {total} {total === 1 ? "Comment" : "Comments"}
-        </h2>
-
-        <div className="flex items-center gap-1 text-slate-500">
-          <ListFilter className="h-4 w-4" />
-          <span className="text-[13px] font-medium">Sort by:</span>
+    <motion.section
+      className="mt-20 flex flex-col gap-6 border-t border-slate-200 pt-10 dark:border-white/10"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+    >
+      <div className="flex items-center justify-between">
+        <h3 className="flex gap-3 text-lg font-bold text-gray-900 md:text-xl dark:text-white">
+          Comments <p className="text-slate-400">({total})</p>
+        </h3>
+        <div className="flex items-center gap-3">
+          <p className="text-sm leading-5 font-semibold text-[#595c5e]">
+            Sort by:
+          </p>
           <SortDropdown
             value={sort}
             onChange={handleSortChange}
             options={SORT_OPTIONS}
-            className="h-8 gap-1 px-2 text-[13px] font-semibold text-slate-900 dark:text-slate-100"
+            className="inline-flex items-center bg-transparent text-base leading-6 font-semibold text-[#0050d4]"
           />
         </div>
       </div>
 
-      <BlogCommentComposer postId={postId} viewer={viewer} className="mt-6" />
+      {viewer ? (
+        <CommentReplyBox
+          fields={{ actionType: BLOG_COMMENT_ACTIONS.create, postId }}
+          placeholder="Share your thoughts..."
+          submitLabel="Comment"
+          maxLength={BODY_MAX_LENGTH}
+        />
+      ) : (
+        <BlogCommentSignInPrompt />
+      )}
 
       <div
         aria-busy={isSorting}
         className={cn(
-          "mt-10 flex flex-col gap-10 transition-opacity",
+          "flex flex-col gap-6 transition-opacity",
           isSorting && "pointer-events-none opacity-50",
         )}
       >
@@ -73,7 +94,7 @@ export default function BlogCommentsSection({
           <BlogCommentEmpty />
         ) : (
           comments.map((comment, index) => (
-            <BlogCommentItem
+            <BlogCommentCard
               key={comment.id}
               comment={comment}
               postId={postId}
@@ -83,6 +104,6 @@ export default function BlogCommentsSection({
           ))
         )}
       </div>
-    </section>
+    </motion.section>
   );
 }

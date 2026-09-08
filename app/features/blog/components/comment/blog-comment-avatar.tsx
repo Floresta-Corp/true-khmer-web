@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { cn, resolveImageURL } from "~/lib/utils";
 
 interface BlogCommentAvatarProps {
@@ -12,17 +11,18 @@ export default function BlogCommentAvatar({
   avatarKey,
   className,
 }: BlogCommentAvatarProps) {
-  const initials = name
-    .split(/\s+/)
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
   return (
-    <Avatar size="lg" className={cn("shrink-0", className)}>
-      <AvatarImage src={resolveImageURL(avatarKey)} alt={name} />
-      <AvatarFallback>{initials}</AvatarFallback>
-    </Avatar>
+    <div
+      className={cn(
+        "h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#dfe3e6]",
+        className,
+      )}
+    >
+      <img
+        src={resolveImageURL(avatarKey)}
+        alt={name || "Author avatar"}
+        className="h-full w-full object-cover"
+      />
+    </div>
   );
 }
