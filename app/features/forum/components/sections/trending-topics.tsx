@@ -27,7 +27,18 @@ export default function TrendingTopics({
     return null;
   }
 
-  const visibleTags = showAll ? tags : tags.slice(0, COLLAPSED_COUNT);
+  // Collapsing must never hide the topic whose filter is still applied,
+  // otherwise the list stops explaining why the results are filtered.
+  const collapsedTags = tags.slice(0, COLLAPSED_COUNT);
+  const selectedTagOutsideCollapsed =
+    selectedTagId && !collapsedTags.some((tag) => tag.id === selectedTagId)
+      ? tags.find((tag) => tag.id === selectedTagId)
+      : undefined;
+  const visibleTags = showAll
+    ? tags
+    : selectedTagOutsideCollapsed
+      ? [...collapsedTags, selectedTagOutsideCollapsed]
+      : collapsedTags;
 
   return (
     <Card className="w-full gap-0 rounded-2xl border border-[#e9eef5] bg-white p-5 shadow-none">
@@ -50,6 +61,7 @@ export default function TrendingTopics({
         {visibleTags.map((tag) => (
           <button
             key={tag.id}
+            type="button"
             onClick={() => onTagSelect?.(tag)}
             aria-pressed={selectedTagId === tag.id}
             className="group flex w-full cursor-pointer items-center justify-between gap-2 text-left"

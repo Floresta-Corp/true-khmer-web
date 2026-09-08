@@ -222,7 +222,7 @@ export function PublicBlogListPage() {
             >
               <SelectTrigger
                 aria-label="Sort blog posts"
-                className="ring-0.5 h-auto w-auto min-w-28 cursor-pointer gap-2 border border-transparent px-3 py-1 text-sm font-semibold text-blue-500 shadow-none ring-blue-500/20 hover:ring-blue-500/40 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:outline-none dark:bg-slate-800"
+                className="h-auto w-auto min-w-28 cursor-pointer gap-2 border border-transparent px-3 py-1 text-sm font-semibold text-blue-500 shadow-none ring-1 ring-blue-500/20 hover:ring-blue-500/40 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:outline-none dark:bg-slate-800"
               >
                 <SelectValue />
               </SelectTrigger>

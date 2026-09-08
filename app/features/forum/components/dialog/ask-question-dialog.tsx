@@ -1,6 +1,5 @@
 import {
   type KeyboardEvent,
-  type ChangeEvent,
   useEffect,
   useMemo,
   useRef,
@@ -30,9 +29,9 @@ import {
   type CategoriesPicker as CategoryOption,
 } from "~/features/forum/types";
 import type { QuestionResponse } from "~/types/api-client";
-import type { ForumPostFormFieldErrors } from "~/features/forum/services/forum.validation";
 import { Textarea } from "~/components/ui/textarea";
 import { resolveImageURL } from "~/lib/utils";
+import { validateQuestionImageFile } from "~/features/forum/utils";
 
 // Only object URLs created via URL.createObjectURL need revoking. Resolved
 // remote image URLs must be left untouched, so key the cleanup on the URL
@@ -105,7 +104,6 @@ export default function AskQuestionDialog({
   const [existingImageKey, setExistingImageKey] = useState<string | null>(null);
   const [removeExistingImage, setRemoveExistingImage] = useState(false);
   const wasSubmitting = useRef(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   // const [searchParams, setSearchParams] = useSearchParams();
   const redirectTo = `${location.pathname}${location.search}`;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
@@ -124,7 +122,6 @@ export default function AskQuestionDialog({
 
   const fetcher = useFetcher();
   const isBusy = fetcher.state !== "idle" || isSubmitting;
-  const fetcherReady = useRef(false);
 
   const onSubmit = (values: CreateForumQuestionInput) => {
     const fd = new FormData();
@@ -399,7 +396,7 @@ export default function AskQuestionDialog({
                 {...register("body")}
                 placeholder="What are the best resources for learning Khmer business law?"
                 aria-invalid={Boolean(errors.body)}
-                className="focus-visible:ring-0.5 h-30 max-w-full overflow-x-auto rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm text-wrap text-[#344256] placeholder:text-[#9eacc0] focus-visible:border-[#2f6fe4] focus-visible:ring-[#2f6fe4] focus-visible:ring-offset-0 focus-visible:outline-none aria-invalid:border-red-500 aria-invalid:focus-visible:ring-red-500"
+                className="h-30 max-w-full overflow-x-auto rounded-lg border border-transparent bg-[#f8fafc] px-3 py-3 text-sm text-wrap text-[#344256] placeholder:text-[#9eacc0] focus-visible:border-[#2f6fe4] focus-visible:ring-1 focus-visible:ring-[#2f6fe4] focus-visible:ring-offset-0 focus-visible:outline-none aria-invalid:border-red-500 aria-invalid:focus-visible:ring-red-500"
                 rows={1}
               />
               {errors.body ? (
@@ -452,15 +449,23 @@ export default function AskQuestionDialog({
                   </div>
                   <input
                     id="images-upload"
-                    ref={fileInputRef}
                     type="file"
                     name="images"
-                    accept="image/*"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
                     onChange={(e) => {
-                      const file = e.target.files ? e.target.files[0] : null;
+                      const file = e.target.files?.[0] ?? null;
+                      if (!file) return;
+
+                      const imageError = validateQuestionImageFile(file);
+                      if (imageError) {
+                        toast.error(imageError);
+                        e.target.value = "";
+                        return;
+                      }
+
                       revokeBlobUrl(preview);
                       setSelectedFile(file);
-                      setPreview(file ? URL.createObjectURL(file) : null);
+                      setPreview(URL.createObjectURL(file));
                       setRemoveExistingImage(false);
                     }}
                     className="sr-only"
