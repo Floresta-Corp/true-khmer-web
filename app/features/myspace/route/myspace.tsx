@@ -98,9 +98,9 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
 
   if (isPublicView) {
     return (
-      <ForumPageLayout className="min-h-full">
+      <ForumPageLayout className="min-h-full bg-transparent">
         <motion.div
-          className="space-y-6 rounded-2xl border border-[#e1e7ef] bg-white p-4 sm:p-6 lg:p-8"
+          className="space-y-6 rounded-2xl border border-[#e1e7ef] bg-white p-4 sm:p-6 lg:mx-12 lg:p-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
@@ -289,8 +289,8 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <ForumPageLayout>
-      <div className="grid grid-cols-1 items-start gap-6 rounded-2xl bg-white p-4 pb-24 sm:p-6 sm:pb-6 lg:grid-cols-12 lg:p-8">
+    <ForumPageLayout className="bg-transparent">
+      <div className="grid grid-cols-1 items-start gap-6 rounded-2xl bg-white p-4 pb-24 sm:p-6 sm:pb-6 lg:mx-12 lg:grid-cols-12 lg:p-8">
         <div className="col-span-1 space-y-6 lg:col-span-12">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -327,7 +327,7 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
           </motion.div>
         </div>
 
-        <div className="col-span-1 lg:col-span-8">
+        <div className="col-span-1 lg:col-span-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -340,7 +340,7 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
           </motion.div>
         </div>
 
-        <aside className="col-span-1 lg:col-span-4">
+        <aside className="col-span-1 lg:col-span-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-1 lg:grid-cols-1">
             <motion.div
               className="w-full min-w-0"

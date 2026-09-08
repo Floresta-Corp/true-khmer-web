@@ -78,7 +78,7 @@ const legalLinks = [
 
 export function Footer() {
   return (
-    <footer className="w-full border-t border-[#e2e8f0] bg-[#f9fafb]">
+    <footer className="w-full border-t border-[#e2e8f0] bg-white">
       <div className="site-container pt-14 pb-28 sm:pb-14">
         <div className="flex flex-col gap-10 lg:flex-row lg:justify-between lg:gap-20">
           {/* Brand section */}

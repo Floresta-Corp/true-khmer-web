@@ -76,15 +76,9 @@ export function ProfileHeader({
   ].filter(Boolean) as LinkItem[];
 
   return (
-    <div className="relative flex flex-col overflow-hidden rounded-3xl border bg-white">
-      <img
-        src="/images/myspace-header.svg"
-        alt=""
-        aria-hidden
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-      />
-      <div className="relative flex flex-col items-start gap-4 px-6 py-6 sm:flex-row sm:items-center sm:gap-6 sm:px-8 sm:py-7">
-        <div className="relative size-20 shrink-0 rounded-full bg-white p-0.5">
+    <div className="flex flex-col overflow-hidden rounded-3xl bg-linear-to-r from-[#dce8fb] to-white">
+      <div className="flex flex-col items-start gap-4 px-6 py-6 sm:flex-row sm:items-center sm:gap-6 sm:px-8 sm:py-7">
+        <div className="size-20 shrink-0 rounded-full bg-white p-0.5">
           <div className="h-full w-full overflow-hidden rounded-full">
             {avatarKey ? (
               <img
@@ -104,7 +98,7 @@ export function ProfileHeader({
         </div>
 
         {/* Name + Tier + Occupation */}
-        <div className="relative flex flex-col gap-1">
+        <div className="flex flex-col gap-1">
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-[24px] font-bold tracking-tight text-[#1e2329]">
               {displayName}
@@ -123,9 +117,9 @@ export function ProfileHeader({
       </div>
 
       {/* 2. Crisp Divider Line */}
-      <div className="relative h-px bg-[#e2e8f0]" />
+      <div className="mx-6 h-px bg-[#1a1a2e1a] sm:mx-8" />
 
-      <div className="relative flex flex-col items-start gap-2 bg-white/40 px-6 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-2 sm:px-8">
+      <div className="flex flex-col items-start gap-2 px-6 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-2 sm:px-8">
         {infoLinks.map((link, i) =>
           link?.href ? (
             <a

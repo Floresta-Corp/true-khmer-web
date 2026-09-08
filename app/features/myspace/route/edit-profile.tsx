@@ -19,9 +19,15 @@ import {
   Briefcase,
   Send,
   X,
+  Eye,
+  Info,
+  Link2,
+  Wrench,
 } from "lucide-react";
 import { motion } from "motion/react";
 import BackToButton from "~/components/back-to-button";
+import EditProfileCertificatesCard from "~/features/myspace/components/edit-profile-certificates-card";
+import VisibilitySettingCard from "~/features/myspace/components/visibility-setting-card";
 import { phoneCountryOptions } from "~/components/form/phone-country-options";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
@@ -95,7 +101,8 @@ export function meta() {
 }
 
 export default function EditProfile() {
-  const { me, countries, cities } = useLoaderData<typeof loader>();
+  const { me, countries, cities, certificates, certificateOptions } =
+    useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const fetcher = useFetcher();
   const skillSearchFetcher = useFetcher<SkillSearchFetcherData>();
@@ -369,12 +376,12 @@ export default function EditProfile() {
 
   return (
     <motion.div
-      className="min-h-screen bg-[#F8FAFC] px-4 py-8 pb-28 sm:px-6 md:pb-8 lg:px-8"
+      className="min-h-full shrink-0 px-2 py-8 pb-28 sm:px-3 md:pb-16 lg:px-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="mx-auto max-w-5xl space-y-8">
+      <div className="mx-auto max-w-7xl space-y-8">
         {/* Header Section */}
         <motion.div
           className="space-y-4"
@@ -397,14 +404,14 @@ export default function EditProfile() {
 
         <Form method="PATCH" onSubmit={handleSubmit(onSubmit)}>
           <motion.div
-            className="grid grid-cols-1 gap-8 lg:grid-cols-3"
+            className="grid grid-cols-1 gap-8 lg:grid-cols-5"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
             {/* Left Column - Main Form */}
             <motion.div
-              className="space-y-6 lg:col-span-2"
+              className="space-y-6 lg:col-span-3 lg:row-start-1"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
@@ -1032,11 +1039,23 @@ export default function EditProfile() {
                   </CardContent>
                 </Card>
               </motion.div>
+
+              {/* Certificates Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.4 }}
+              >
+                <EditProfileCertificatesCard
+                  certificates={certificates}
+                  certificateOptions={certificateOptions}
+                />
+              </motion.div>
             </motion.div>
 
             {/* Right Column - Profile Visibility */}
             <motion.div
-              className="space-y-4 lg:col-start-3 lg:row-span-2 lg:row-start-1"
+              className="space-y-4 lg:sticky lg:top-8 lg:col-span-2 lg:col-start-4 lg:row-start-1 lg:self-start"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.35, duration: 0.5 }}
@@ -1048,10 +1067,15 @@ export default function EditProfile() {
               >
                 <Card className="border border-gray-200">
                   <CardContent className="p-6">
-                    <h3 className="text-lg font-bold text-gray-900">
-                      Profile Visibility
-                    </h3>
-                    <p className="mt-1 mb-6 text-sm text-gray-400">
+                    <div className="flex items-center gap-3">
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                        <Eye className="size-5" />
+                      </span>
+                      <h3 className="text-lg font-bold text-gray-900">
+                        Profile Visibility
+                      </h3>
+                    </div>
+                    <p className="mt-2 mb-6 text-sm text-gray-400">
                       Manage your identity visibility
                     </p>
                     <motion.div
@@ -1061,114 +1085,103 @@ export default function EditProfile() {
                       transition={{ delay: 0.45, duration: 0.4 }}
                     >
                       {[
-                        { key: "profileVisibility", label: "Your Profile" },
-                        { key: "contactVisibility", label: "Contact Details" },
-                        { key: "socialLinksVisibility", label: "Social Links" },
+                        {
+                          key: "profileVisibility",
+                          label: "Your Profile",
+                          description: "Your name, photo, and title",
+                          icon: User,
+                        },
+                        {
+                          key: "contactVisibility",
+                          label: "Contact Details",
+                          description: "Email, phone, and Telegram",
+                          icon: Phone,
+                        },
+                        {
+                          key: "socialLinksVisibility",
+                          label: "Social Links",
+                          description: "Website, LinkedIn, and other links",
+                          icon: Link2,
+                        },
                         {
                           key: "contributionsVisibility",
                           label: "Contribution Activities",
+                          description: "Posts, volunteering, and projects",
+                          icon: Wrench,
                         },
-                      ].map(({ key, label }) => (
+                      ].map(({ key, label, description, icon }) => (
                         <motion.div
                           key={key}
-                          className="space-y-2"
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.45, duration: 0.4 }}
                         >
-                          <p className="text-sm font-semibold text-gray-800">
-                            {label}
-                          </p>
-                          <div className="flex justify-between gap-2 sm:justify-start sm:gap-3">
-                            {["public", "members", "private"].map((option) => {
-                              const isActive =
-                                watch(key as keyof EditProfileFormData) ===
-                                option;
-                              return (
-                                <motion.div
-                                  key={option}
-                                  className="flex-1 sm:flex-none"
-                                  whileHover={{ scale: 1.03 }}
-                                  whileTap={{ scale: 0.97 }}
-                                >
-                                  <Button
-                                    type="button"
-                                    size="sm"
-                                    aria-pressed={isActive}
-                                    onClick={() =>
-                                      toggleVisibility(
-                                        key as
-                                          | "profileVisibility"
-                                          | "contactVisibility"
-                                          | "socialLinksVisibility"
-                                          | "contributionsVisibility",
-                                        option,
-                                      )
-                                    }
-                                    className={`h-9 w-full gap-5 rounded-lg border-0 px-4 text-xs font-medium shadow-none transition-all sm:w-auto ${
-                                      isActive
-                                        ? "bg-blue-600 text-white hover:bg-blue-700"
-                                        : "bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700"
-                                    }`}
-                                  >
-                                    {option.charAt(0).toUpperCase() +
-                                      option.slice(1)}
-                                  </Button>
-                                </motion.div>
-                              );
-                            })}
-                          </div>
+                          <VisibilitySettingCard
+                            icon={icon}
+                            label={label}
+                            description={description}
+                            value={
+                              watch(key as keyof EditProfileFormData) as string
+                            }
+                            onChange={(option) =>
+                              toggleVisibility(
+                                key as
+                                  | "profileVisibility"
+                                  | "contactVisibility"
+                                  | "socialLinksVisibility"
+                                  | "contributionsVisibility",
+                                option,
+                              )
+                            }
+                          />
                         </motion.div>
                       ))}
                     </motion.div>
-                    <p className="mt-6 text-xs text-gray-400 italic">
-                      Visibility settings affect how your data appears in search
-                      results and to other community members.
-                    </p>
+                    <div className="mt-6 flex gap-2 text-xs text-gray-400">
+                      <Info className="mt-0.5 size-4 shrink-0" />
+                      <p>
+                        Visibility settings affect how your data appears in
+                        search results and to other community members.
+                      </p>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
             </motion.div>
+          </motion.div>
 
-            {/* Action Buttons */}
-            <motion.div
-              className="flex justify-end gap-3 lg:col-span-2 lg:col-start-1 lg:row-start-2"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.55, duration: 0.4 }}
-            >
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+          {/* Action Buttons */}
+          <motion.div
+            className="mt-8 flex justify-end gap-3"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55, duration: 0.4 }}
+          >
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                type="button"
+                variant="outline"
+                className="h-10 min-w-28 cursor-pointer"
+                onClick={() => navigate("/myspace")}
               >
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-10 cursor-pointer"
-                  onClick={() => navigate("/myspace")}
-                >
-                  Cancel
-                </Button>
-              </motion.div>
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                Cancel
+              </Button>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                type="submit"
+                className="h-10 min-w-28 cursor-pointer bg-blue-600 text-white hover:bg-blue-700"
+                disabled={fetcher.state !== "idle"}
               >
-                <Button
-                  type="submit"
-                  className="h-10 cursor-pointer bg-blue-600 text-white hover:bg-blue-700"
-                  disabled={fetcher.state !== "idle"}
-                >
-                  {fetcher.state !== "idle" ? (
-                    <span className="inline-flex items-center gap-2">
-                      <Spinner className="size-4" />
-                      Saving...
-                    </span>
-                  ) : (
-                    "Save Changes"
-                  )}
-                </Button>
-              </motion.div>
+                {fetcher.state !== "idle" ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Spinner className="size-4" />
+                    Saving...
+                  </span>
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
             </motion.div>
           </motion.div>
         </Form>
