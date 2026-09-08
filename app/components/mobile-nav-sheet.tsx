@@ -22,6 +22,7 @@ type NavLink = {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   hide?: boolean;
   forceActive?: boolean;
+  isSection?: boolean;
 };
 
 export type MobileSpaceNav = AppSidebarProps & { label: string };
@@ -124,9 +125,12 @@ export default function MobileNavSheet({
             </div>
           )}
 
+          <p className="px-3 pb-1.5 text-[11px] font-semibold tracking-wide text-gray-400 uppercase">
+            Explore
+          </p>
           <ul className="flex flex-col gap-1">
             {navLinks.map((link) => {
-              if (link.hide || link.forceActive) return null;
+              if (link.hide || (link.isSection && spaceNav)) return null;
               const isActive =
                 link.to === "/"
                   ? location.pathname === "/"

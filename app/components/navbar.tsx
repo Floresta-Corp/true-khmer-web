@@ -38,6 +38,7 @@ type NavLink = {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   hide?: boolean;
   forceActive?: boolean;
+  isSection?: boolean;
 };
 
 const MYSPACE_SECTION_PATHS = [
@@ -99,12 +100,14 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
           label: "My space",
           icon: UserRound,
           forceActive: isInMySpace,
+          isSection: true,
         }
       : {
           to: "/workspace/manage-post",
           label: "Workspace",
           icon: LayoutDashboard,
           forceActive: isInWorkspace,
+          isSection: true,
         };
 
   const navLinks: NavLink[] = [
@@ -121,14 +124,11 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
     { to: "/about", label: "About", icon: CircleUser, hide: !!user },
     { to: "/poc", label: "POC", icon: TvMinimalPlay, hide: true },
   ];
-
-  // While inside a space section the mobile sheet takes over that section's
-  // nav (My Profile, My Tickets, ...) instead of opening a second drawer.
-  const mobileSpaceNav = isInMySpace
-    ? { label: "My space", ...mySpaceSidebarConfig }
-    : isInWorkspace
-      ? { label: "Workspace", ...workSpaceSidebarConfig }
-      : null;
+  const mobileSpaceNav = !user
+    ? null
+    : activeSection === "myspace"
+      ? { label: "My space", ...mySpaceSidebarConfig }
+      : { label: "Workspace", ...workSpaceSidebarConfig };
 
   return (
     <>
@@ -160,8 +160,8 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
 
           {/* Center: Navigation Links (desktop only) */}
           <nav className="hidden items-center gap-2 md:flex lg:gap-5">
-            {navLinks.map((link, index) => {
-              const isSectionLink = index === 0;
+            {navLinks.map((link) => {
+              const isSectionLink = !!link.isSection;
               const isActive =
                 link.forceActive ??
                 (link.to === "/"
