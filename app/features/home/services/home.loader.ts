@@ -114,10 +114,13 @@ async function loadEvents(request: Request) {
 
 async function loadCourses(request: Request) {
   return safe(async () => {
+    /* The homepage row is titled "Trending classes", so it has to be the same
+       popularity-ordered query the education hub's Trending Classes row uses —
+       the newest page is a different set of courses. */
     const result = await listPublicCourses(request, {
       page: 1,
       limit: COURSE_LIMIT,
-      sortBy: "newest",
+      sortBy: "popular",
     });
     return (result?.data?.courses ?? []).map(toCourseSummary);
   }, []);
