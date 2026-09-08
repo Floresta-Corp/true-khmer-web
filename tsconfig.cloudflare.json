@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    ".react-router/types/+server-build.d.ts",
+    "workers/**/*",
+    "worker-configuration.d.ts"
+  ],
+  "exclude": [],
+  "compilerOptions": {
+    "types": ["vite/client"]
+  }
+}
