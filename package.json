@@ -89,5 +89,8 @@
   },
   "overrides": {
     "htmlparser2": "^10.1.0"
+  },
+  "resolutions": {
+    "htmlparser2": "^10.1.0"
   }
 }
