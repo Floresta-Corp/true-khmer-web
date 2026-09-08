@@ -365,4 +365,7 @@ export default [
     "api/candidate-note",
     "features/workspace/manage-post/route/manage-post.candidate-note.ts",
   ),
+  /* Catch-all: unmatched URLs get the branded 404 on its own, outside every
+     layout, so no navbar, footer or sidebar renders around it. Keep it last. */
+  route("*", "features/error/route/not-found.tsx"),
 ] satisfies RouteConfig;
