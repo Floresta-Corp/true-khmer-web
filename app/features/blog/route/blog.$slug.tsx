@@ -14,7 +14,7 @@ export function meta({ data }: { data?: { post: { title: string } } }) {
     {
       title: data
         ? `${data.post.title} | True Khmer Blog`
-        : "Khmer Voice | True Khmer",
+        : "Khmer voices | True Khmer",
     },
   ];
 }

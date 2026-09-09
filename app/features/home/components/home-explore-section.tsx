@@ -29,7 +29,7 @@ const EXPLORE_LINKS = [
     to: "/education",
   },
   {
-    title: "Khmer Voice",
+    title: "Khmer voices",
     icon: "/home-explore-blog.png",
     to: "/blog",
   },

@@ -163,7 +163,7 @@ export function BlogFeed({ items }: { items: BlogPostListingItemResponse[] }) {
   if (items.length === 0) return null;
 
   return (
-    <FeedSection title="Latest from Khmer Voice" seeAllTo="/blog">
+    <FeedSection title="Latest from Khmer voices" seeAllTo="/blog">
       <div
         className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-3`}
       >
