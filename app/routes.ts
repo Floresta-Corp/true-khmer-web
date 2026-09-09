@@ -23,7 +23,15 @@ export default [
       route("forum/detail/:questionId", "features/forum/route/forum.$id.tsx"),
       route("events", "features/events/routes/events.tsx"),
       route("events/all", "features/events/routes/events.all.tsx"),
-      route("events/detail/:slug", "features/events/routes/events.$slug.tsx"),
+      route("events/detail/:slug", "features/events/routes/events.$slug.tsx", [
+        index("features/events/routes/event-detail-attend.tsx"),
+        route("details", "features/events/routes/event-detail-details.tsx"),
+        route("programs", "features/events/routes/event-detail-programs.tsx"),
+        route(
+          "exhibitors",
+          "features/events/routes/event-detail-exhibitors.tsx",
+        ),
+      ]),
       route("volunteer", "features/volunteer/route/volunteer.tsx"),
       route("volunteer/all", "features/volunteer/route/volunteer.all.tsx"),
       route(
