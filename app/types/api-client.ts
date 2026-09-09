@@ -716,14 +716,16 @@ const UpdateCourseCategoryRequest = z.object({ name: z.string().min(1).max(120),
 
 const DeleteCourseCategoryResponse = z.object({ ok: z.literal(true) });
 
-const CourseResponse = z.object({ id: z.string().uuid(), title: z.string(), description: z.string(), categoryId: z.string().uuid(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), price: z.number(), status: z.enum(["DRAFT", "PENDING", "PUBLISHED", "UNPUBLISHED"]), difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCE", "ALL_LEVELS"]).nullable(), format: z.enum(["MULTI", "SINGLE"]), skills: z.array(z.string()), outcomes: z.array(z.string()), tags: z.array(z.string()), certificateKind: z.enum(["PARTICIPATION", "COMPLETION"]).nullable(), quizPassMark: z.number().int(), createdBy: z.string().uuid(), creator: z.object({ id: z.string().uuid(), name: z.string(), email: z.string().email() }).nullish(), updatedBy: z.string().uuid().nullable(), publishedAt: z.string().nullable(), publishedBy: z.string().uuid().nullable(), unpublishedAt: z.string().nullable(), unpublishedBy: z.string().uuid().nullable(), rejectionNote: z.string().nullable(), rejectedAt: z.string().nullable(), rejectedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string() });
-const PublicCourseListItem = CourseResponse.and(z.object({ categoryName: z.string().nullable(), lessonCount: z.number().int().gte(0) }));
+const CourseResponse = z.object({ id: z.string().uuid(), title: z.string(), description: z.string(), categoryId: z.string().uuid(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), price: z.number(), status: z.enum(["DRAFT", "PENDING", "PUBLISHED", "UNPUBLISHED"]), difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCE", "ALL_LEVELS"]).nullable(), format: z.enum(["MULTI", "SINGLE"]), skills: z.array(z.string()), outcomes: z.array(z.string()), tags: z.array(z.string()), certificateKind: z.enum(["PARTICIPATION", "COMPLETION"]).nullable(), quizPassMark: z.number().int(), createdBy: z.string().uuid(), creator: z.object({ id: z.string().uuid(), name: z.string(), email: z.string().email(), avatarKey: z.string().nullable() }).nullish(), updatedBy: z.string().uuid().nullable(), publishedAt: z.string().nullable(), publishedBy: z.string().uuid().nullable(), unpublishedAt: z.string().nullable(), unpublishedBy: z.string().uuid().nullable(), rejectionNote: z.string().nullable(), rejectedAt: z.string().nullable(), rejectedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string(), studentCount: z.number().int().gte(0).nullish() });
+const PublicCourseListItem = CourseResponse.and(z.object({ studentCount: z.number().int().gte(0), categoryName: z.string().nullable(), lessonCount: z.number().int().gte(0), rating: z.object({ average: z.number().nullable(), total: z.number().int().gte(0) }) }));
 
 const ListPublicCoursesResponse = z.object({ ok: z.literal(true), courses: z.array(PublicCourseListItem), pagination: z.object({ page: z.number().int().gt(0), limit: z.number().int().gt(0), total: z.number().int().gte(0), totalPages: z.number().int().gte(0) }) });
 
 const CreateCourseRequest = z.object({ title: z.string().min(1).max(255), description: z.string().min(1).max(20000), categoryId: z.string().uuid(), coverImageKey: z.string().min(1).max(600).nullish() });
 
 const GetCourseResponse = z.object({ ok: z.literal(true), course: CourseResponse });
+
+const ListCourseRecommendationsResponse = z.object({ ok: z.literal(true), courses: z.array(PublicCourseListItem) });
 
 const PresignCourseCoverUploadRequest = z.object({ contentType: z.string(), fileSize: z.number().int().gt(0).lte(5242880) });
 
@@ -745,7 +747,7 @@ const PresignCourseLessonAssetRequest = z.object({ contentType: z.enum(["applica
 
 const PresignCourseLessonAssetResponse = z.object({ ok: z.literal(true), upload: z.object({ uploadUrl: z.string(), method: z.literal("PUT"), requiredHeaders: z.record(z.string(), z.string()), assetKey: z.string(), publicUrl: z.string().nullable(), expiresInSeconds: z.number() }) });
 
-const CourseLessonResponse = z.object({ id: z.string().uuid(), title: z.string(), type: z.enum(["YOUTUBE", "PDF", "AUDIO"]), url: z.string().nullable(), assetKey: z.string().nullable(), assetUrl: z.string().nullable(), durationSeconds: z.number().int().nullable(), isPreview: z.boolean(), position: z.number().int() });
+const CourseLessonResponse = z.object({ id: z.string().uuid(), title: z.string(), type: z.enum(["YOUTUBE", "PDF", "AUDIO"]), url: z.string().nullable(), assetKey: z.string().nullable(), assetUrl: z.string().nullable(), durationSeconds: z.number().int().nullable(), pageCount: z.number().int().nullable(), isPreview: z.boolean(), position: z.number().int() });
 
 const CourseChapterResponse = z.object({ id: z.string().uuid(), title: z.string(), position: z.number().int(), lessons: z.array(CourseLessonResponse) });
 
@@ -753,7 +755,7 @@ const CourseCurriculumResponse = z.object({ format: z.enum(["MULTI", "SINGLE"]),
 
 const GetCourseCurriculumResponse = z.object({ ok: z.literal(true), curriculum: CourseCurriculumResponse });
 
-const ReplaceCourseCurriculumRequest = z.object({ format: z.enum(["MULTI", "SINGLE"]).optional().default("MULTI"), chapters: z.array(z.object({ id: z.string().uuid().nullish(), title: z.string().min(1).max(255), lessons: z.array(z.object({ id: z.string().uuid().nullish(), title: z.string().min(1).max(255), type: z.enum(["YOUTUBE", "PDF", "AUDIO"]), url: z.string().max(2000).url().nullish(), assetKey: z.string().min(1).max(600).nullish(), durationSeconds: z.number().int().gte(0).lte(86400).nullish(), isPreview: z.boolean().optional().default(false) })).max(200) })).max(100) });
+const ReplaceCourseCurriculumRequest = z.object({ format: z.enum(["MULTI", "SINGLE"]).optional().default("MULTI"), chapters: z.array(z.object({ id: z.string().uuid().nullish(), title: z.string().min(1).max(255), lessons: z.array(z.object({ id: z.string().uuid().nullish(), title: z.string().min(1).max(255), type: z.enum(["YOUTUBE", "PDF", "AUDIO"]), url: z.string().max(2000).url().nullish(), assetKey: z.string().min(1).max(600).nullish(), durationSeconds: z.number().int().gte(0).lte(86400).nullish(), pageCount: z.number().int().gt(0).lte(10000).nullish(), isPreview: z.boolean().optional().default(false) })).max(200) })).max(100) });
 
 const CourseQuizQuestionResponse = z.object({ id: z.string().uuid(), question: z.string(), position: z.number().int(), options: z.array(z.object({ id: z.string().uuid(), label: z.string(), isCorrect: z.boolean(), position: z.number().int() })) });
 
@@ -1222,6 +1224,7 @@ export const schemas = {
 	ListPublicCoursesResponse,
 	CreateCourseRequest,
 	GetCourseResponse,
+	ListCourseRecommendationsResponse,
 	PresignCourseCoverUploadRequest,
 	PresignCourseCoverUploadResponse,
 	ListMyCoursesResponse,
@@ -5285,7 +5288,7 @@ const endpoints = makeApi([
 			{
 				name: "sortBy",
 				type: "Query",
-				schema: z.enum(["newest", "oldest", "az", "price"]).optional().default("newest")
+				schema: z.enum(["newest", "oldest", "az", "price", "popular", "rating"]).optional().default("newest")
 			},
 		],
 		response: ListPublicCoursesResponse,
@@ -5897,6 +5900,37 @@ const endpoints = makeApi([
 			{
 				status: 404,
 				description: `Course not visible, or it has no quiz`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/education-center/courses/:id/recommendations",
+		alias: "getV1educationCentercoursesIdrecommendations",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(12).optional().default(4)
+			},
+		],
+		response: ListCourseRecommendationsResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Course not found or not visible`,
 				schema: z.void()
 			},
 		]
@@ -9125,6 +9159,272 @@ const endpoints = makeApi([
 	},
 	{
 		method: "get",
+		path: "/v1/plumpi/events/slug/:slug/exhibitor-categories",
+		alias: "getV1plumpieventsslugSlugexhibitorCategories",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "slug",
+				type: "Path",
+				schema: z.string().min(1).max(255)
+			},
+		],
+		response: z.object({ ok: z.literal(true), categories: z.array(z.record(z.string(), z.unknown().nullable())) }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid exhibitor query`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 404,
+				description: `Event not found`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 502,
+				description: `Unsuccessful Plumpi response`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 503,
+				description: `Plumpi integration is unavailable`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/plumpi/events/slug/:slug/exhibitors",
+		alias: "getV1plumpieventsslugSlugexhibitors",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "slug",
+				type: "Path",
+				schema: z.string().min(1).max(255)
+			},
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gte(1).optional().default(1)
+			},
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(100).optional().default(12)
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().min(1).optional()
+			},
+			{
+				name: "categoryId",
+				type: "Query",
+				schema: z.string().uuid().optional()
+			},
+		],
+		response: z.object({ ok: z.literal(true), exhibitors: z.array(z.record(z.string(), z.unknown().nullable())), meta: z.object({ page: z.number().int(), limit: z.number().int(), total: z.number().int(), totalPages: z.number().int() }) }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid exhibitor query`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 404,
+				description: `Event not found`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 502,
+				description: `Unsuccessful Plumpi response`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 503,
+				description: `Plumpi integration is unavailable`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/plumpi/events/slug/:slug/floor-plan-photos",
+		alias: "getV1plumpieventsslugSlugfloorPlanPhotos",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "slug",
+				type: "Path",
+				schema: z.string().min(1).max(255)
+			},
+		],
+		response: z.object({ ok: z.literal(true), photos: z.array(z.record(z.string(), z.unknown().nullable())) }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid exhibitor query`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 404,
+				description: `Event not found`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 502,
+				description: `Unsuccessful Plumpi response`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 503,
+				description: `Plumpi integration is unavailable`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/plumpi/events/slug/:slug/organizer",
+		alias: "getV1plumpieventsslugSlugorganizer",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "slug",
+				type: "Path",
+				schema: z.string().min(1).max(255)
+			},
+		],
+		response: z.object({ ok: z.literal(true), organizer: z.record(z.string(), z.unknown().nullable()) }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid event slug`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 404,
+				description: `Event or its organizer was not found`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 502,
+				description: `Unsuccessful Plumpi response`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 503,
+				description: `Plumpi integration is unavailable`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/plumpi/events/slug/:slug/photos",
+		alias: "getV1plumpieventsslugSlugphotos",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "slug",
+				type: "Path",
+				schema: z.string().min(1).max(255)
+			},
+		],
+		response: z.object({ ok: z.literal(true), photos: z.array(z.record(z.string(), z.unknown().nullable())) }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid event slug`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 404,
+				description: `Event not found`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 502,
+				description: `Unsuccessful Plumpi response`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 503,
+				description: `Plumpi integration is unavailable`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/plumpi/events/slug/:slug/sessions",
+		alias: "getV1plumpieventsslugSlugsessions",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "slug",
+				type: "Path",
+				schema: z.string().min(1).max(255)
+			},
+		],
+		response: z.object({ ok: z.literal(true), sessions: z.array(z.record(z.string(), z.unknown().nullable())) }),
+		errors: [
+			{
+				status: 400,
+				description: `Invalid event slug`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 404,
+				description: `Event not found`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 502,
+				description: `Unsuccessful Plumpi response`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+			{
+				status: 503,
+				description: `Plumpi integration is unavailable`,
+				schema: z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() })
+			},
+		]
+	},
+	{
+		method: "get",
 		path: "/v1/plumpi/myevents",
 		alias: "getV1plumpimyevents",
 		requestFormat: "json",
@@ -11499,6 +11799,7 @@ export type PublicCourseListItem = z.infer<typeof schemas.PublicCourseListItem>;
 export type ListPublicCoursesResponse = z.infer<typeof schemas.ListPublicCoursesResponse>;
 export type CreateCourseRequest = z.infer<typeof schemas.CreateCourseRequest>;
 export type GetCourseResponse = z.infer<typeof schemas.GetCourseResponse>;
+export type ListCourseRecommendationsResponse = z.infer<typeof schemas.ListCourseRecommendationsResponse>;
 export type PresignCourseCoverUploadRequest = z.infer<typeof schemas.PresignCourseCoverUploadRequest>;
 export type PresignCourseCoverUploadResponse = z.infer<typeof schemas.PresignCourseCoverUploadResponse>;
 export type ListMyCoursesResponse = z.infer<typeof schemas.ListMyCoursesResponse>;

@@ -1,8 +1,7 @@
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import {
   Await,
   Link,
-  useFetcher,
   useLoaderData,
   useNavigation,
   useSearchParams,
@@ -17,12 +16,11 @@ import MyEventsGridSkeleton from "../card/my-events-grid-skeleton";
 import MyEventsFilters from "../card/my-events-filter";
 import type { loader } from "../../route/my-events";
 import { PLUMPI_HANDOFF_INTENT } from "~/features/workspace/lib/plumpi-handoff";
-import { openPlumpiHandoffWindow } from "~/features/workspace/lib/plumpi-handoff.client";
+import { usePlumpiHandoff } from "~/lib/plumpi/use-plumpi-handoff";
 import {
   MyEventFilterSchema,
   type MyEvent,
   type MyEventFilter,
-  type MyEventsActionData,
 } from "~/features/workspace/types/my-events";
 
 const CREATE_EVENT_PATH = "/my-events/create";
@@ -37,7 +35,9 @@ export default function MyEventsPage() {
   const { content, hasLiveEvents } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const fetcher = useFetcher<MyEventsActionData>();
+  const { start, pendingKey: openingEventId } = usePlumpiHandoff({
+    popupBlockedMessage: "Allow pop-ups to open this event in Plumpi.",
+  });
 
   const [filter, setFilter] = useState<MyEventFilter>(() =>
     readFilter(searchParams.get("filter")),
@@ -45,11 +45,6 @@ export default function MyEventsPage() {
   const [searchInput, setSearchInput] = useState(
     searchParams.get("search") ?? "",
   );
-  const [openingEventId, setOpeningEventId] = useState<string | null>(null);
-
-  /** Tab opened synchronously on click so the browser does not block it. */
-  const plumpiWindowRef = useRef<Window | null>(null);
-  const handledResultRef = useRef<MyEventsActionData | null>(null);
 
   const isLoading =
     navigation.state === "loading" &&
@@ -74,35 +69,6 @@ export default function MyEventsPage() {
     };
   }, [content]);
 
-  useEffect(() => {
-    const result = fetcher.data;
-    if (
-      !result ||
-      fetcher.state !== "idle" ||
-      handledResultRef.current === result
-    ) {
-      return;
-    }
-    handledResultRef.current = result;
-
-    const plumpiWindow = plumpiWindowRef.current;
-    plumpiWindowRef.current = null;
-    setOpeningEventId(null);
-
-    if (!result.ok || !result.redirectTo) {
-      plumpiWindow?.close();
-      toast.error(result.error ?? "Plumpi could not be opened automatically.");
-      return;
-    }
-
-    if (!plumpiWindow || plumpiWindow.closed) {
-      toast.error("The Plumpi tab was closed. Please try again.");
-      return;
-    }
-
-    plumpiWindow.location.replace(result.redirectTo);
-  }, [fetcher.data, fetcher.state]);
-
   const updateParam = (key: string, value: string) => {
     const nextParams = new URLSearchParams(searchParams);
     if (!value || value === "all") {
@@ -125,27 +91,19 @@ export default function MyEventsPage() {
   };
 
   const handleOpenEvent = (event: MyEvent) => {
-    if (openingEventId) return;
-
     if (!event.organizationId) {
       toast.error("This event is not linked to a Plumpi organization yet.");
       return;
     }
 
-    const plumpiWindow = openPlumpiHandoffWindow();
-    if (!plumpiWindow) {
-      toast.error("Allow pop-ups to open this event in Plumpi.");
-      return;
-    }
-    plumpiWindowRef.current = plumpiWindow;
-
-    setOpeningEventId(event.id);
-
-    const submission = new FormData();
-    submission.set("intent", PLUMPI_HANDOFF_INTENT);
-    submission.set("eventId", event.id);
-    submission.set("organizationId", event.organizationId);
-    fetcher.submit(submission, { method: "post", action: MY_EVENTS_PATH });
+    start(
+      {
+        intent: PLUMPI_HANDOFF_INTENT,
+        eventId: event.id,
+        organizationId: event.organizationId,
+      },
+      { action: MY_EVENTS_PATH, key: event.id },
+    );
   };
 
   return (

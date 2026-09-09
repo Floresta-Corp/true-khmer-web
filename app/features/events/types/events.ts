@@ -318,7 +318,8 @@ export type EventDetail = z.infer<typeof EventDetailSchema> & {
   tickets: EventTicket[];
 };
 
-export type EventDetailLoaderData = {
-  event: EventDetail | null;
-  loadError: string | null;
+/** Data the event detail layout shares with its nested tab routes. */
+export type EventDetailOutletContext = {
+  event: EventDetail;
+  isAuthenticated: boolean;
 };

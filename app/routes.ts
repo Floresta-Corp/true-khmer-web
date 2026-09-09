@@ -23,7 +23,17 @@ export default [
       route("forum/detail/:questionId", "features/forum/route/forum.$id.tsx"),
       route("events", "features/events/routes/events.tsx"),
       route("events/all", "features/events/routes/events.all.tsx"),
-      route("events/detail/:slug", "features/events/routes/events.$slug.tsx"),
+      route("events/detail/:slug", "features/events/routes/events.$slug.tsx", [
+        layout("features/events/routes/event-detail-sidebar-layout.tsx", [
+          index("features/events/routes/event-detail-attend.tsx"),
+          route("details", "features/events/routes/event-detail-details.tsx"),
+        ]),
+        route("programs", "features/events/routes/event-detail-programs.tsx"),
+        route(
+          "exhibitors",
+          "features/events/routes/event-detail-exhibitors.tsx",
+        ),
+      ]),
       route("volunteer", "features/volunteer/route/volunteer.tsx"),
       route("volunteer/all", "features/volunteer/route/volunteer.all.tsx"),
       route(
@@ -73,7 +83,6 @@ export default [
       "education/:id/learn",
       "features/education/route/education.learn.$id.tsx",
     ),
-    route("edit-profile", "features/myspace/route/edit-profile.tsx"),
     route(
       "my-applications/detail/:sourceType/:postingId",
       "features/myspace/route/my-application.$sourceType.$postingId.tsx",
@@ -82,6 +91,7 @@ export default [
 
     layout("layout/myspace-layout.tsx", [
       route("myspace", "features/myspace/route/myspace.tsx"),
+      route("edit-profile", "features/myspace/route/edit-profile.tsx"),
       route("my-applications", "features/myspace/route/my-applications.tsx"),
       route("my-ticket", "features/my-tickets/route/my-tickets.tsx"),
       route("saved-items", "features/saved-items/route/saved-items.tsx"),

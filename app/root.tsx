@@ -12,6 +12,7 @@ import "./app.css";
 import { Toaster } from "./components/ui/sonner";
 import { ErrorState } from "./features/error/components/error-state";
 import { NotFound } from "./features/error/components/not-found";
+import { getScrollRestorationKey } from "./lib/scroll-restoration";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -37,7 +38,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body suppressHydrationWarning>
         {children}
-        <ScrollRestoration />
+        <ScrollRestoration getKey={getScrollRestorationKey} />
         <Scripts />
         <Toaster richColors theme="light" position="top-right" closeButton />
       </body>

@@ -5,7 +5,7 @@ export const loader = blogLoader;
 export const headers = blogHeaders;
 
 export function meta() {
-  return [{ title: "Khmer Voice | True Khmer" }];
+  return [{ title: "Khmer voices | True Khmer" }];
 }
 
 export default function BlogRoute() {

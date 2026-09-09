@@ -34,7 +34,7 @@ const footerColumns = [
     links: [
       // { label: "Sponsors", to: "/" },
       // { label: "Success Stories", to: "/" },
-      { label: "Khmer Voice", to: "/blog" },
+      { label: "Khmer voices", to: "/blog" },
       { label: "Partners", to: "/community" },
     ],
   },
@@ -70,6 +70,21 @@ const socialLinks = [
   },
 ];
 
+const storeLinks = [
+  {
+    caption: "Download on the",
+    label: "App Store",
+    to: "#",
+    path: "M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.47-2.09-.49-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.24 7.31c1.35.07 2.29.74 3.07.79.9-.16 1.85-.86 3.24-.75 2.06.16 3.51 1.51 4.06 3.05-3.46 2.05-2.71 6.66.44 7.62-.65 1.05-1.19 1.66-2 2.26zM12.14 7.15c-.15-2.23 1.63-4.09 3.72-4.26.24 2.14-1.9 4.24-3.72 4.26z",
+  },
+  {
+    caption: "Get it on",
+    label: "Google Play",
+    to: "#",
+    path: "M3.6 2.6c-.3.3-.5.7-.5 1.2v16.4c0 .5.2.9.5 1.2l.1.1L13 12l-9.3-9.4-.1 0zM15.9 14.9l-2.5-2.5L3.7 22.1c.3.2.7.2 1.1 0l11.1-7.2zM15.9 9.1L4.8 1.9c-.4-.2-.8-.2-1.1 0l9.7 9.7 2.5-2.5zM20.6 10.9l-3.5-2-2.7 2.1 2.7 2.1 3.5-2c.6-.4.6-1.4 0-1.8-.1-.1-.1-.1 0-.4z",
+  },
+];
+
 const legalLinks = [
   { label: "Privacy Policy", to: "/" },
   { label: "Terms of Service", to: "/" },
@@ -78,7 +93,7 @@ const legalLinks = [
 
 export function Footer() {
   return (
-    <footer className="w-full border-t border-[#e2e8f0] bg-[#f9fafb]">
+    <footer className="w-full border-t border-[#e2e8f0] bg-white">
       <div className="site-container pt-14 pb-28 sm:pb-14">
         <div className="flex flex-col gap-10 lg:flex-row lg:justify-between lg:gap-20">
           {/* Brand section */}
@@ -87,7 +102,7 @@ export function Footer() {
               <LogoSvg
                 width={82}
                 height={32}
-                className="h-8 w-auto"
+                className="h-10 w-auto"
                 aria-label="True Khmer"
               />
             </Link>
@@ -111,6 +126,34 @@ export function Footer() {
                   </Link>
                 );
               })}
+            </div>
+            <div className="mt-1.5 flex flex-wrap gap-3">
+              {storeLinks.map((store) => (
+                <a
+                  key={store.label}
+                  href={store.to}
+                  className="flex items-center gap-2 rounded-lg bg-black px-3 py-1.5 text-white no-underline transition-opacity hover:opacity-90"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="shrink-0"
+                    aria-hidden="true"
+                  >
+                    <path d={store.path} />
+                  </svg>
+                  <span className="whitespace-nowrap">
+                    <span className="block text-[9px] leading-tight font-medium text-white">
+                      {store.caption}
+                    </span>
+                    <span className="block text-[13px] leading-tight font-bold text-white">
+                      {store.label}
+                    </span>
+                  </span>
+                </a>
+              ))}
             </div>
           </div>
 

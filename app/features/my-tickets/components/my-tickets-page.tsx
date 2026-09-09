@@ -55,8 +55,8 @@ export default function MyTicketsPage() {
     setError(null);
   }
   return (
-    <main className="min-h-full bg-white px-4 py-8 sm:px-6 sm:py-10 lg:p-12">
-      <div className="mx-auto w-full max-w-7xl">
+    <main className="flex min-h-full bg-white px-4 py-8 sm:px-6 sm:py-10 lg:p-12">
+      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col">
         <h1 className="mb-6 text-3xl font-medium">My Tickets</h1>
         <nav
           aria-label="Ticket filters"
@@ -117,7 +117,7 @@ export default function MyTicketsPage() {
           )}
         </div>
         {pagination.total > 0 && (
-          <div className="mt-10">
+          <div className="mt-auto pt-10">
             <SpacePagination
               total={pagination.total}
               totalPages={pagination.totalPages}

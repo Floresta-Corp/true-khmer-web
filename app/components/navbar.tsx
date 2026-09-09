@@ -21,6 +21,11 @@ import { cn } from "~/lib/utils";
 import type { AuthenticatedUser } from "~/lib/server/types";
 import ProfileDropDown from "./profile-dropdown";
 import LogoSvg from "~/components/icons/logoSvg";
+import MobileNavSheet from "~/components/mobile-nav-sheet";
+import {
+  mySpaceSidebarConfig,
+  workSpaceSidebarConfig,
+} from "~/components/app-sidebar";
 
 interface NavbarProps {
   user: AuthenticatedUser | null;
@@ -33,6 +38,7 @@ type NavLink = {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   hide?: boolean;
   forceActive?: boolean;
+  isSection?: boolean;
 };
 
 const MYSPACE_SECTION_PATHS = [
@@ -41,8 +47,9 @@ const MYSPACE_SECTION_PATHS = [
   "/my-applications",
   "/my-ticket",
   "/saved-items",
+  "/my-classes",
 ];
-const WORKSPACE_SECTION_PATHS = ["/workspace", "/my-events"];
+const WORKSPACE_SECTION_PATHS = ["/workspace", "/my-events", "/course-listing"];
 
 function isInSection(pathname: string, sectionPaths: string[]) {
   return sectionPaths.some(
@@ -60,6 +67,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
   const isInWorkspace = isInSection(location.pathname, WORKSPACE_SECTION_PATHS);
 
   const [lastSection, setLastSection] = useState<NavSection>("myspace");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(LAST_SECTION_STORAGE_KEY);
@@ -94,12 +102,14 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
           label: "My space",
           icon: UserRound,
           forceActive: isInMySpace,
+          isSection: true,
         }
       : {
           to: "/workspace/manage-post",
           label: "Workspace",
           icon: LayoutDashboard,
           forceActive: isInWorkspace,
+          isSection: true,
         };
 
   const navLinks: NavLink[] = [
@@ -112,15 +122,23 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
     { to: "/volunteer", label: "Volunteer", icon: HeartHandshake },
     { to: "/launchpad", label: "Launchpad", icon: BriefcaseBusiness },
     { to: "/education", label: "Education", icon: GraduationCap },
-    { to: "/blog", label: "Khmer Voice", icon: ClipboardPen },
+    { to: "/blog", label: "Khmer voices", icon: ClipboardPen },
     { to: "/about", label: "About", icon: CircleUser, hide: !!user },
     { to: "/poc", label: "POC", icon: TvMinimalPlay, hide: true },
   ];
+  const mobileNavLinks: NavLink[] = [
+    { ...sectionLink, hide: !user },
+    { to: "/", label: "Home", icon: House },
+    { to: "/forum", label: "Forum", icon: MessagesSquare },
+    { to: "/volunteer", label: "Volunteer", icon: HeartHandshake },
+    { to: "/launchpad", label: "Launchpad", icon: BriefcaseBusiness },
+  ];
 
-  // Mobile bottom nav shows the section link (My space / Workspace) at the
-  // far right instead of the left, while the desktop nav keeps it first.
-  const [firstNavLink, ...restNavLinks] = navLinks;
-  const mobileNavLinks: NavLink[] = [...restNavLinks, firstNavLink];
+  const mobileSpaceNav = !user
+    ? null
+    : activeSection === "myspace"
+      ? { label: "My space", ...mySpaceSidebarConfig }
+      : { label: "Workspace", ...workSpaceSidebarConfig };
 
   return (
     <>
@@ -132,8 +150,16 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
             isInSpaceSection ? "w-full px-4 md:px-10" : "site-container",
           )}
         >
-          {/* Left: Logo */}
-          <div className="flex shrink-0 items-center">
+          {/* Left: Hamburger (mobile) + Logo */}
+          <div className="flex shrink-0 items-center gap-1">
+            <MobileNavSheet
+              navLinks={navLinks}
+              spaceNav={mobileSpaceNav}
+              user={user}
+              loginRedirectTo={loginRedirectTo}
+              open={mobileNavOpen}
+              onOpenChange={setMobileNavOpen}
+            />
             <Link to="/" className="flex items-center gap-2">
               <LogoSvg
                 width={102}
@@ -146,8 +172,8 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
 
           {/* Center: Navigation Links (desktop only) */}
           <nav className="hidden items-center gap-2 md:flex lg:gap-5">
-            {navLinks.map((link, index) => {
-              const isSectionLink = index === 0;
+            {navLinks.map((link) => {
+              const isSectionLink = !!link.isSection;
               const isActive =
                 link.forceActive ??
                 (link.to === "/"
@@ -234,7 +260,6 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
         </div>
       </header>
 
-      {/* Mobile Bottom Navigation Bar */}
       <nav className="fixed right-3 bottom-2.5 left-3 z-50 rounded-[24px] border-t border-gray-200 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] md:hidden">
         <div className="flex h-16 items-center justify-around gap-1.5 px-4">
           {mobileNavLinks.map((link) => {
@@ -263,18 +288,20 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
                   key={link.to}
                   type="button"
                   aria-label={`Open ${link.label} menu`}
-                  onClick={() =>
-                    window.dispatchEvent(new CustomEvent("space-sidebar:open"))
-                  }
+                  onClick={() => setMobileNavOpen(true)}
                   className={itemClassName}
                 >
                   {itemContent}
                 </button>
               );
             }
-
             return (
-              <Link key={link.to} to={link.to} className={itemClassName}>
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setMobileNavOpen(false)}
+                className={itemClassName}
+              >
                 {itemContent}
               </Link>
             );

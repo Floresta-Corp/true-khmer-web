@@ -310,3 +310,28 @@ export const UpdateMySpaceResponseSchema = z.object({
   profile: ProfileSchema,
 });
 export type UpdateMySpaceResponse = z.infer<typeof UpdateMySpaceResponseSchema>;
+
+// ── Edit Profile certificates ────────────────────────────────────────────────
+
+/**
+ * An issued certificate plus the course category, which the certificates API
+ * does not carry.
+ */
+export type EditProfileCertificate =
+  import("~/features/education/types").ProfileCertificate & {
+    categoryName: string | null;
+  };
+
+/**
+ * A course the member can put on their profile.
+ *
+ * Sourced from completed classes rather than issued certificates: the API
+ * issues a certificate row lazily — on opening the certificate page, or on
+ * sharing — so a finished course the member never opened has no certificate
+ * to list yet. Sharing issues it on demand.
+ */
+export interface EditProfileCertificateOption {
+  courseId: string;
+  courseTitle: string;
+  categoryName: string | null;
+}

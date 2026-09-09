@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Link } from "react-router";
-import { Eye, Link2, MoreVertical, PenLine, X } from "lucide-react";
+import { Eye, Link2, MoreVertical, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import {
@@ -61,9 +61,12 @@ export function PageHeader({
           </Button>
         ) : (
           <>
-            <Button variant="outline" className="h-12 rounded-xl px-5" asChild>
+            <Button
+              className="h-12 rounded-xl bg-[#2F6FE4] px-5 text-white hover:bg-[#1F62DF] [a]:hover:bg-[#1F62DF]"
+              asChild
+            >
               <Link to="/edit-profile">
-                <PenLine /> <p className="font-semibold">Edit Profile</p>
+                <p className="font-semibold">Edit Profile</p>
               </Link>
             </Button>
             <Popover open={open} onOpenChange={setOpen}>

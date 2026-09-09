@@ -4,13 +4,16 @@ import {
   createPlumpiEvent,
   uploadPlumpiEventThumbnail,
 } from "~/api/events/events.server";
-import { PLUMPI_HANDOFF_INTENT } from "~/features/workspace/lib/plumpi-handoff";
+import {
+  PLUMPI_HANDOFF_INTENT,
+  plumpiConsoleEventPath,
+  plumpiHandoffParamsSchema,
+} from "~/features/workspace/lib/plumpi-handoff";
 import {
   PLUMPI_HANDOFF_RESPONSE_INIT,
   plumpiHandoffErrorMessage,
-  plumpiHandoffParamsSchema,
   resolvePlumpiHandoffUrl,
-} from "~/features/workspace/services/plumpi-handoff.server";
+} from "~/lib/plumpi/handoff.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import {
@@ -235,7 +238,10 @@ export async function createEventAction({ request }: Route.ActionArgs) {
     try {
       const redirectTo = await resolvePlumpiHandoffUrl(
         apiRequest,
-        handoffParams.data,
+        plumpiConsoleEventPath(
+          handoffParams.data.organizationId,
+          handoffParams.data.eventId,
+        ),
         cookies,
       );
 
