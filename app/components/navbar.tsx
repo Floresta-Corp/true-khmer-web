@@ -296,7 +296,12 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
               );
             }
             return (
-              <Link key={link.to} to={link.to} className={itemClassName}>
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setMobileNavOpen(false)}
+                className={itemClassName}
+              >
                 {itemContent}
               </Link>
             );
