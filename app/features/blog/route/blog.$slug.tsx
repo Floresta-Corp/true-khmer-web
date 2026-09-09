@@ -3,8 +3,10 @@ import {
   blogDetailLoader,
   headers as blogDetailHeaders,
 } from "../services/blog-detail.loader";
+import { blogCommentAction } from "../services/blog-comment.action";
 
 export const loader = blogDetailLoader;
+export const action = blogCommentAction;
 export const headers = blogDetailHeaders;
 
 export function meta({ data }: { data?: { post: { title: string } } }) {

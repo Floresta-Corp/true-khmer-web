@@ -14,7 +14,7 @@ import ForumReportDialog, {
   type ReportReasonData,
 } from "../dialog/forum-report-dialog";
 import NestedReplyCard from "./nested-reply-card";
-import CommentWrapper from "../comment-wrapper";
+import CommentWrapper from "~/components/comment-wrapper";
 import SlideToLeftHoverAnimation from "~/components/slide-to-left-hover-animation";
 import MarkBestAnswerDialog from "../dialog/mark-best-answer-dialog";
 import { useState, useEffect, useRef } from "react";

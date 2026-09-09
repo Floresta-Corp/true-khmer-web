@@ -22,9 +22,9 @@ export function CourseRecommendedList({
         Recommended for you
       </h3>
 
-      {/* Bounded by a rule top and bottom rather than a filled panel, so the
-          row sits directly on the page. */}
-      <div className="border-y border-[#E5E7EB]">
+      {/* Separated only by rules between rows rather than a filled panel, so
+          the list sits directly on the page. */}
+      <div>
         {courses.map((course, index) => {
           const isSaved = savedIds.has(course.id);
 
@@ -33,7 +33,7 @@ export function CourseRecommendedList({
               key={course.id}
               to={`/education/${course.id}`}
               className={cn(
-                "flex items-center gap-3.5 py-3.5 transition-colors hover:bg-gray-100",
+                "flex items-center gap-3.5 py-3.5",
                 index < courses.length - 1 && "border-b border-[#E5E7EB]",
               )}
             >

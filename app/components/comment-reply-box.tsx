@@ -4,10 +4,14 @@ import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import { Spinner } from "~/components/ui/spinner";
 import { cn } from "~/lib/utils";
-import type { QuestionResponse } from "~/types/api-client";
 import { useFetcherOutcome } from "~/hooks/use-fetcher-outcome";
 
-export interface ReplyBoxProps {
+export interface CommentReplyBoxProps {
+  /**
+   * Hidden inputs the route action needs (action type, parent ids). Entries
+   * with an undefined value are skipped.
+   */
+  fields: Record<string, string | undefined>;
   /**
    * Placeholder text for the textarea.
    */
@@ -21,27 +25,23 @@ export interface ReplyBoxProps {
    */
   className?: string;
   /**
-   * Maximum allowed characters. When provided, a counter is shown.
+   * Maximum allowed characters.
    */
   maxLength?: number;
   /**
    * Label for the submit button.
    */
   submitLabel?: string;
-  /**
-   * The question the reply belongs to (required by CreateAnswerInputSchema).
-   */
-  question: QuestionResponse;
 }
 
-export default function ReplyBox({
+export default function CommentReplyBox({
+  fields,
   placeholder = "Add a reply...",
   disabled = false,
   className,
   maxLength,
   submitLabel = "Reply",
-  question,
-}: ReplyBoxProps) {
+}: CommentReplyBoxProps) {
   const fetcher = useFetcher();
   const revalidator = useRevalidator();
   const [body, setBody] = useState("");
@@ -61,8 +61,6 @@ export default function ReplyBox({
     }
   };
 
-  if (!question) return null;
-
   return (
     <div className={cn("rounded-xl bg-[#EEF1F3] p-3", className)}>
       <div className="relative overflow-hidden rounded-xl border border-[#f1f5f9] bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05),0px_0px_0px_1px_rgba(171,173,175,0.1)]">
@@ -71,9 +69,11 @@ export default function ReplyBox({
           className="relative w-full"
           onSubmit={handleSubmit}
         >
-          {/* Server expects these per CreateAnswerInputSchema */}
-          <input type="hidden" name="actionType" value="create-answer" />
-          <input type="hidden" name="questionId" value={question.id} />
+          {Object.entries(fields).map(([name, value]) =>
+            value === undefined ? null : (
+              <input key={name} type="hidden" name={name} value={value} />
+            ),
+          )}
 
           {/* Textarea area. Add bottom padding so overlay doesn't overlap content */}
           <div className="w-full p-4">

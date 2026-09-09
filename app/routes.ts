@@ -73,7 +73,6 @@ export default [
       "education/:id/learn",
       "features/education/route/education.learn.$id.tsx",
     ),
-    route("edit-profile", "features/myspace/route/edit-profile.tsx"),
     route(
       "my-applications/detail/:sourceType/:postingId",
       "features/myspace/route/my-application.$sourceType.$postingId.tsx",
@@ -82,6 +81,7 @@ export default [
 
     layout("layout/myspace-layout.tsx", [
       route("myspace", "features/myspace/route/myspace.tsx"),
+      route("edit-profile", "features/myspace/route/edit-profile.tsx"),
       route("my-applications", "features/myspace/route/my-applications.tsx"),
       route("my-ticket", "features/my-tickets/route/my-tickets.tsx"),
       route("saved-items", "features/saved-items/route/saved-items.tsx"),

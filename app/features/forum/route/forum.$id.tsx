@@ -9,7 +9,7 @@ import { forumDetailLoader } from "../services/forum-detail.loader";
 import { forumDetailAction } from "../services/forum-detail.action";
 import BackToButton from "~/components/back-to-button";
 import ForumDetailQuestionHeader from "../components/forum-detail-question-header";
-import ReplyBox from "../components/reply-box";
+import CommentReplyBox from "~/components/comment-reply-box";
 import ShareQuestionDialog from "../components/dialog/share-question-dialog";
 import ForumBestAnswer from "../components/sections/forum-best-answer";
 import { resolveImageURL } from "~/lib/utils";
@@ -232,7 +232,12 @@ export default function ForumDetailPage() {
             className="mt-6"
           >
             {/* Reply box for posting a new answer / reply */}
-            <ReplyBox question={question} />
+            <CommentReplyBox
+              fields={{
+                actionType: "create-answer",
+                questionId: question.id,
+              }}
+            />
           </motion.div>
 
           {bestAnswer && bestAnswer.length > 0 && (
