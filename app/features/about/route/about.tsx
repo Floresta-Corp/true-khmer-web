@@ -4,15 +4,21 @@ import { MissionVisionSection } from "../components/MissionVisionSection";
 import { EmpowermentSection } from "../components/EmpowermentSection";
 import { PillarsSection } from "../components/PillarsSection";
 import { TeamSection } from "../components/TeamSection";
+import { metaOrigin, pageMeta } from "~/lib/seo";
+import { breadcrumbJsonLd } from "~/lib/seo/structured-data";
 
-export function meta(_: Route.MetaArgs) {
-  return [
-    { title: "About Us" },
-    {
-      name: "description",
-      content: "Learn more about our mission and values.",
-    },
-  ];
+export function meta(args: Route.MetaArgs) {
+  return pageMeta(args, {
+    title: "About us",
+    description:
+      "Why True Khmer exists, what we are building, and the team behind it — a platform for Khmer talent, ventures and initiatives.",
+    jsonLd: [
+      breadcrumbJsonLd(metaOrigin(args), [
+        { name: "Home", path: "/" },
+        { name: "About us", path: "/about" },
+      ]),
+    ],
+  });
 }
 
 export function headers(_: Route.HeadersArgs) {

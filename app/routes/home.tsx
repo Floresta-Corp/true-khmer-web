@@ -14,16 +14,21 @@ import {
   EventsFeed,
   OpportunitiesFeed,
 } from "~/features/home/components/home-feed-sections";
+import { metaOrigin, pageMeta, SITE } from "~/lib/seo";
+import { webSiteJsonLd } from "~/lib/seo/structured-data";
 
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "True Khmer — Unleashing the Potential of Cambodia" },
-    {
-      name: "description",
-      content:
-        "Khmer for Khmer, together, taking an active role in shaping our Kingdom's future by supporting local talent, ventures, and initiatives.",
-    },
-  ];
+export function meta(args: Route.MetaArgs) {
+  return pageMeta(args, {
+    title: `${SITE.name} — ${SITE.tagline}`,
+    // The brand is already the whole title here; the suffix would repeat it.
+    bareTitle: true,
+    description:
+      "Khmer for Khmer, together, taking an active role in shaping our Kingdom's future by supporting local talent, ventures, and initiatives.",
+    // The WebSite entity belongs on the home page: it is what carries the
+    // sitelinks search box under a brand result, and `pageMeta` has already
+    // added the Organization node it points at.
+    jsonLd: [webSiteJsonLd(metaOrigin(args))],
+  });
 }
 
 export const loader = homeLoader;

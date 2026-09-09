@@ -10,14 +10,52 @@ import { PartnerLightbox } from "../components/detail/partner-lightbox";
 import { PartnerOnlinePresence } from "../components/detail/partner-online-presence";
 import { PartnerPhotoGallery } from "../components/detail/partner-photo-gallery";
 import { communityDetailLoader } from "../services/community-detail.loader";
+import { metaOrigin, pageMeta } from "~/lib/seo";
+import { breadcrumbJsonLd, partnerJsonLd } from "~/lib/seo/structured-data";
 
 export const loader = communityDetailLoader;
 
-export function meta({ data }: Route.MetaArgs) {
-  return [
-    { title: `${data?.partner?.name || "Partner"} - True Khmer` },
-    { name: "description", content: "Learn more about our partner" },
-  ];
+export function meta(args: Route.MetaArgs) {
+  const partner = args.data?.partner;
+  const origin = metaOrigin(args);
+
+  if (!partner) {
+    return pageMeta(args, {
+      title: "Partner",
+      description: "This partner could not be found.",
+      noindex: true,
+    });
+  }
+
+  const name = partner.name || "Partner";
+  const path = `/community/partner/${partner.id}`;
+
+  return pageMeta(args, {
+    title: name,
+    description:
+      partner.bio ||
+      partner.description ||
+      `${name} is a True Khmer partner${partner.sectorActivity ? ` working in ${partner.sectorActivity}` : ""}.`,
+    type: "profile",
+    image: partner.logo,
+    jsonLd: [
+      partnerJsonLd({
+        origin,
+        pathname: path,
+        name,
+        description: partner.bio || partner.description,
+        logo: partner.logo,
+        website: partner.website,
+        sameAs: [partner.facebook, partner.linkedin],
+        sector: partner.sectorActivity,
+      }),
+      breadcrumbJsonLd(origin, [
+        { name: "Home", path: "/" },
+        { name: "Partners", path: "/community" },
+        { name, path },
+      ]),
+    ],
+  });
 }
 
 export default function CommunityPartnerDetail() {
