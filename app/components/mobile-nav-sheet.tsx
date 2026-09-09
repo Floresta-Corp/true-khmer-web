@@ -32,6 +32,8 @@ interface MobileNavSheetProps {
   spaceNav: MobileSpaceNav | null;
   user: AuthenticatedUser | null;
   loginRedirectTo?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export default function MobileNavSheet({
@@ -39,9 +41,13 @@ export default function MobileNavSheet({
   spaceNav,
   user,
   loginRedirectTo,
+  open: controlledOpen,
+  onOpenChange,
 }: MobileNavSheetProps) {
   const location = useLocation();
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
+  const setOpen = onOpenChange ?? setUncontrolledOpen;
 
   const itemClassName = (isActive: boolean) =>
     cn(
