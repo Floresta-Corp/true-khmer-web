@@ -165,9 +165,9 @@ export function BlogFeed({ items }: { items: BlogPostListingItemResponse[] }) {
   return (
     <FeedSection title="Latest from Khmer voices" seeAllTo="/blog">
       <div
-        className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-3`}
+        className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-4`}
       >
-        {items.slice(0, 3).map((post) => (
+        {items.map((post) => (
           <motion.div key={post.id} variants={slideUpVariants}>
             <PublicBlogCard post={post} />
           </motion.div>
