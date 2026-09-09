@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { useFetcher, useLocation, useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
 import { Ticket } from "lucide-react";
-import { toast } from "sonner";
 import PlumpiRedirectOverlay from "~/components/plumpi-redirect-overlay";
 import { cn } from "~/lib/utils";
 import {
@@ -10,8 +9,7 @@ import {
 } from "~/features/events/lib/plumpi-links";
 import type { EventDetail, EventTicket } from "~/features/events/types/events";
 import { describeTicketAvailability } from "~/features/events/lib/ticket-availability";
-import type { EventTicketHandoffActionData } from "~/features/events/services/event-ticket-handoff.action";
-import { openPlumpiHandoffWindow } from "~/features/workspace/lib/plumpi-handoff.client";
+import { usePlumpiHandoff } from "~/lib/plumpi/use-plumpi-handoff";
 
 /** "$10.00", or the tier's own currency when it is not USD. */
 function formatTicketPrice(ticket: EventTicket): string {
@@ -158,13 +156,12 @@ export function EventTicketList({
   isAuthenticated: boolean;
 }) {
   const hasCheckout = Boolean(buildPlumpiEventUrl(event.slug));
-  const fetcher = useFetcher<EventTicketHandoffActionData>();
   const location = useLocation();
   const navigate = useNavigate();
-  /** Opened synchronously so the browser allows the eventual Plumpi redirect. */
-  const plumpiWindowRef = useRef<Window | null>(null);
-  const handledResultRef = useRef<EventTicketHandoffActionData | null>(null);
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  const { start, isRedirecting } = usePlumpiHandoff({
+    popupBlockedMessage: "Allow pop-ups to select this ticket in Plumpi.",
+    failureMessage: "This ticket could not be opened in Plumpi.",
+  });
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -176,38 +173,6 @@ export function EventTicketList({
       window.removeEventListener("focus", refresh);
     };
   }, []);
-
-  useEffect(() => {
-    return () => plumpiWindowRef.current?.close();
-  }, []);
-
-  useEffect(() => {
-    const result = fetcher.data;
-    if (
-      !result ||
-      fetcher.state !== "idle" ||
-      handledResultRef.current === result
-    ) {
-      return;
-    }
-    handledResultRef.current = result;
-    const plumpiWindow = plumpiWindowRef.current;
-    plumpiWindowRef.current = null;
-    setIsRedirecting(false);
-
-    if (!result.ok) {
-      plumpiWindow?.close();
-      toast.error(result.error);
-      return;
-    }
-
-    if (!plumpiWindow || plumpiWindow.closed) {
-      toast.error("The Plumpi tab was closed. Please try again.");
-      return;
-    }
-
-    plumpiWindow.location.replace(result.redirectTo);
-  }, [fetcher.data, fetcher.state]);
 
   const selectTicket = (
     ticket: EventTicket,
@@ -223,17 +188,9 @@ export function EventTicketList({
       return;
     }
 
-    const plumpiWindow = openPlumpiHandoffWindow();
-    if (!plumpiWindow) {
-      toast.error("Allow pop-ups to select this ticket in Plumpi.");
-      return;
-    }
-    plumpiWindowRef.current = plumpiWindow;
-
-    setIsRedirecting(true);
-    fetcher.submit(
+    start(
       { intent: "select-ticket", ticketTierId: ticket.id },
-      { method: "post", action: location.pathname },
+      { action: location.pathname },
     );
   };
 

@@ -243,19 +243,6 @@ export function uploadPlumpiEventThumbnail(
   });
 }
 
-/**
- * Deep link that drops the organizer straight into an event in the Plumpi
- * console, authenticated by a fresh handoff token.
- */
-export function buildPlumpiEventHandoffUrl(
-  organizationId: string,
-  eventId: string,
-  handoffToken: string,
-) {
-  const nextPath = `/console/${encodeURIComponent(organizationId)}/events/${encodeURIComponent(eventId)}`;
-  return buildPlumpiHandoffUrl(nextPath, handoffToken);
-}
-
 /** Builds Plumpi's one-time sign-in URL for an internal Plumpi destination. */
 export function buildPlumpiHandoffUrl(nextPath: string, handoffToken: string) {
   const baseUrl = process.env.VITE_PLUMPI_WEB?.trim();
