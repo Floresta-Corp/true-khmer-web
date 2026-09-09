@@ -14,14 +14,70 @@ import { eventDetailLoader } from "~/features/events/services/event-detail.loade
 import { eventTicketHandoffAction } from "~/features/events/services/event-ticket-handoff.action";
 import type { EventDetail } from "~/features/events/types/events";
 import type { ScrollGroupHandle } from "~/lib/scroll-restoration";
+import type { Route } from "./+types/events.$slug";
+import { metaOrigin, pageMeta } from "~/lib/seo";
+import { breadcrumbJsonLd, eventJsonLd } from "~/lib/seo/structured-data";
 
 export const loader = eventDetailLoader;
 export const action = eventTicketHandoffAction;
 export const handle: ScrollGroupHandle = { scrollGroup: true };
 
-export function meta({ data }: { data?: { event: EventDetail | null } }) {
-  const title = data?.event?.title;
-  return [{ title: title ? `${title} | True Khmer` : "Event | True Khmer" }];
+export function meta(args: Route.MetaArgs) {
+  const event = args.data?.event;
+  const origin = metaOrigin(args);
+
+  if (!event) {
+    return pageMeta(args, {
+      title: "Event",
+      description: "This event could not be found.",
+      noindex: true,
+    });
+  }
+
+  const path = `/events/detail/${event.slug}`;
+  const location = event.isOnline ? "Online" : (event.venueName ?? "Cambodia");
+  /* What the event costs to attend, or `undefined` when we cannot say.
+     An RSVP or open-access event is free by definition. A ticketed one is
+     priced from its tiers, which the Attend tab loads -- this route has no
+     ticket data of its own, so a ticketed event gets no `offers` node at all
+     rather than being advertised as free. */
+  const price = event.entryMode === "TICKETED" ? undefined : 0;
+
+  return pageMeta(args, {
+    title: event.title,
+    description:
+      event.excerpt ||
+      event.description ||
+      `${event.title} — ${event.categoryLabel} in ${location}.`,
+    type: "article",
+    image: event.cover ?? event.photos[0] ?? null,
+    /* The Attend / Details / Programs / Exhibitors tabs are child routes, so
+       each is its own URL -- and none of them exports `meta`, which means this
+       one describes all four. Without a fixed canonical they would compete as
+       four near-identical pages; they are views of one event, so they all
+       canonicalise to the event's own URL. */
+    canonicalPath: path,
+    jsonLd: [
+      eventJsonLd({
+        origin,
+        pathname: path,
+        name: event.title,
+        description: event.excerpt || event.description,
+        image: event.cover ?? event.photos[0] ?? null,
+        startAt: event.startAt,
+        endAt: event.endAt,
+        isOnline: event.isOnline,
+        venueName: event.venueName,
+        venueAddress: event.venueAddress,
+        price,
+      }),
+      breadcrumbJsonLd(origin, [
+        { name: "Home", path: "/" },
+        { name: "Events", path: "/events" },
+        { name: event.title, path },
+      ]),
+    ],
+  });
 }
 
 function BackToEvents() {

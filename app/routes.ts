@@ -375,6 +375,18 @@ export default [
     "api/candidate-note",
     "features/workspace/manage-post/route/manage-post.candidate-note.ts",
   ),
+  /* Crawler-facing resource routes. Outside every layout: these serve plain
+     text and XML, not documents, and they must sit above the catch-all. */
+  route("robots.txt", "features/seo/route/robots.txt.ts"),
+  route("sitemap.xml", "features/seo/route/sitemap.xml.ts"),
+  route("sitemap-pages.xml", "features/seo/route/sitemap-pages.xml.ts"),
+  route("sitemap-blog.xml", "features/seo/route/sitemap-blog.xml.ts"),
+  route("sitemap-events.xml", "features/seo/route/sitemap-events.xml.ts"),
+  route("sitemap-education.xml", "features/seo/route/sitemap-education.xml.ts"),
+  route("sitemap-volunteer.xml", "features/seo/route/sitemap-volunteer.xml.ts"),
+  route("sitemap-launchpad.xml", "features/seo/route/sitemap-launchpad.xml.ts"),
+  route("sitemap-community.xml", "features/seo/route/sitemap-community.xml.ts"),
+
   /* Catch-all: unmatched URLs get the branded 404 on its own, outside every
      layout, so no navbar, footer or sidebar renders around it. Keep it last. */
   route("*", "features/error/route/not-found.tsx"),

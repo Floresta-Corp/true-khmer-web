@@ -9,18 +9,23 @@ import { EducationHero } from "../components/education-hero";
 import { EducationPage } from "../components/education-page";
 import { educationLoader } from "../services/education.loader";
 import type { Route } from "./+types/education";
+import { metaOrigin, pageMeta } from "~/lib/seo";
+import { breadcrumbJsonLd } from "~/lib/seo/structured-data";
 
 export const loader = educationLoader;
 
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "Education - True Khmer" },
-    {
-      name: "description",
-      content:
-        "Free online classes in business, tech, design and trades, taught by experienced Cambodian professionals.",
-    },
-  ];
+export function meta(args: Route.MetaArgs) {
+  return pageMeta(args, {
+    title: "Education",
+    description:
+      "Free online classes in business, tech, design and trades, taught by experienced Cambodian professionals.",
+    jsonLd: [
+      breadcrumbJsonLd(metaOrigin(args), [
+        { name: "Home", path: "/" },
+        { name: "Education", path: "/education" },
+      ]),
+    ],
+  });
 }
 
 export default function EducationHubPage() {
@@ -85,7 +90,7 @@ export default function EducationHubPage() {
     : (selectedCategoryName ?? "Results");
 
   return (
-    <EducationPage surface="muted">
+    <EducationPage>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}

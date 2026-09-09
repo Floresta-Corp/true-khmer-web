@@ -1,3 +1,4 @@
+import type { Route } from "./+types/forum.new";
 import {
   useLoaderData,
   useFetcher,
@@ -18,14 +19,26 @@ import ForumContentNew, {
   type ForumQuestionTab,
 } from "../components/sections/forum-content-new";
 import { forumListAction } from "../services/forum.action";
+import { metaOrigin, pageMeta } from "~/lib/seo";
+import { breadcrumbJsonLd } from "~/lib/seo/structured-data";
 
 const LIMIT = 10;
 
 export const loader = forumListloader;
 export const action = forumListAction;
 
-export function meta() {
-  return [{ title: "Forum Discussions | True Khmer" }];
+export function meta(args: Route.MetaArgs) {
+  return pageMeta(args, {
+    title: "Forum",
+    description:
+      "Ask a question, share what you know — the Khmer community's Q&A on business, careers, tech and life in Cambodia.",
+    jsonLd: [
+      breadcrumbJsonLd(metaOrigin(args), [
+        { name: "Home", path: "/" },
+        { name: "Forum", path: "/forum" },
+      ]),
+    ],
+  });
 }
 
 function getTabQueryFlags(tab: ForumQuestionTab) {

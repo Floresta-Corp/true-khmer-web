@@ -1,3 +1,4 @@
+import type { Route } from "./+types/launchpad.all";
 import { useLoaderData, useNavigate, useSearchParams } from "react-router";
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
@@ -16,6 +17,8 @@ import { RadioGroup, RadioGroupItem } from "~/components/ui/radio";
 import { cn } from "~/lib/utils";
 import { launchpadLoader } from "../services/launchpad.loader";
 import { Button } from "~/components/ui/button";
+import { metaOrigin, pageMeta } from "~/lib/seo";
+import { breadcrumbJsonLd } from "~/lib/seo/structured-data";
 
 export const loader = launchpadLoader;
 
@@ -26,8 +29,19 @@ const SORT_OPTIONS = [
   { value: "mostSpotsAvailable", label: "Most Spots Available" },
 ] as const;
 
-export function meta() {
-  return [{ title: "All Projects | True Khmer Launchpad" }];
+export function meta(args: Route.MetaArgs) {
+  return pageMeta(args, {
+    title: "All projects",
+    description:
+      "Every project on True Khmer Launchpad, filtered by category and city — find one that needs what you do.",
+    jsonLd: [
+      breadcrumbJsonLd(metaOrigin(args), [
+        { name: "Home", path: "/" },
+        { name: "Launchpad", path: "/launchpad" },
+        { name: "All projects", path: "/launchpad/all" },
+      ]),
+    ],
+  });
 }
 
 export default function LaunchpadAllPage() {

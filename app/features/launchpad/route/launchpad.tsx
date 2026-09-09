@@ -5,18 +5,23 @@ import { LaunchpadAvailableProjectsSection } from "../components/section/launchp
 import { launchpadLoader } from "../services/launchpad.loader";
 import type { Route } from "./+types/launchpad";
 import { useLoaderData, useNavigate } from "react-router";
+import { metaOrigin, pageMeta } from "~/lib/seo";
+import { breadcrumbJsonLd } from "~/lib/seo/structured-data";
 
 export const loader = launchpadLoader;
 
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "Launchpad - True Khmer" },
-    {
-      name: "description",
-      content:
-        "Discover and join exciting projects on the True Khmer Launchpad.",
-    },
-  ];
+export function meta(args: Route.MetaArgs) {
+  return pageMeta(args, {
+    title: "Launchpad",
+    description:
+      "Cambodian projects looking for people — join a venture, a startup or an initiative that needs your skills.",
+    jsonLd: [
+      breadcrumbJsonLd(metaOrigin(args), [
+        { name: "Home", path: "/" },
+        { name: "Launchpad", path: "/launchpad" },
+      ]),
+    ],
+  });
 }
 
 export default function LaunchpadPage() {
