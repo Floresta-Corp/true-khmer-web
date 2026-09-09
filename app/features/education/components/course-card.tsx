@@ -21,7 +21,7 @@ export function CourseCard({ course, isSaved, onToggleSave }: CourseCardProps) {
   return (
     <Link
       to={`/education/${course.id}`}
-      className="group flex h-full flex-col overflow-hidden rounded-xl border border-[#E5E7EB] bg-white transition-shadow hover:shadow-[0_4px_20px_rgba(26,26,46,0.10)]"
+      className="group flex h-full flex-col overflow-hidden rounded-xl border border-[#E5E7EB] bg-white transition duration-200 hover:-translate-y-[3px] hover:shadow-[0_8px_20px_rgba(26,26,46,0.10)] motion-reduce:transform-none motion-reduce:transition-none"
     >
       <div className="relative aspect-[16/9] shrink-0 overflow-hidden bg-[#E8E8E8]">
         <img
