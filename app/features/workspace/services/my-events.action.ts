@@ -5,11 +5,14 @@ import {
   requireUser,
 } from "~/lib/server/route-guards.server";
 import {
+  plumpiConsoleEventPath,
+  plumpiHandoffParamsSchema,
+} from "~/features/workspace/lib/plumpi-handoff";
+import {
   PLUMPI_HANDOFF_RESPONSE_INIT,
   plumpiHandoffErrorMessage,
-  plumpiHandoffParamsSchema,
   resolvePlumpiHandoffUrl,
-} from "~/features/workspace/services/plumpi-handoff.server";
+} from "~/lib/plumpi/handoff.server";
 import type { MyEventsActionData } from "~/features/workspace/types/my-events";
 
 /**
@@ -41,7 +44,7 @@ export async function myEventsAction({ request }: Route.ActionArgs) {
   try {
     const redirectTo = await resolvePlumpiHandoffUrl(
       requestWithSetCookie(request, auth.setCookie),
-      params.data,
+      plumpiConsoleEventPath(params.data.organizationId, params.data.eventId),
       cookies,
     );
 
