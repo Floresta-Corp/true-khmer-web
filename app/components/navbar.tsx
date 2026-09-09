@@ -47,8 +47,9 @@ const MYSPACE_SECTION_PATHS = [
   "/my-applications",
   "/my-ticket",
   "/saved-items",
+  "/my-classes",
 ];
-const WORKSPACE_SECTION_PATHS = ["/workspace", "/my-events"];
+const WORKSPACE_SECTION_PATHS = ["/workspace", "/my-events", "/course-listing"];
 
 function isInSection(pathname: string, sectionPaths: string[]) {
   return sectionPaths.some(
