@@ -34,7 +34,8 @@ import {
   saveCreateEventDraft,
 } from "~/features/workspace/lib/create-event-draft.client";
 import { validateCreateEventCover } from "~/features/workspace/lib/create-event-cover";
-import { openPlumpiHandoffWindow } from "~/features/workspace/lib/plumpi-handoff.client";
+import { PLUMPI_HANDOFF_INTENT } from "~/features/workspace/lib/plumpi-handoff";
+import { usePlumpiHandoff } from "~/lib/plumpi/use-plumpi-handoff";
 import {
   CreateEventInputSchema,
   initialCreateEventFormState,
@@ -72,27 +73,31 @@ export default function CreateEventPage() {
     useState<CreateEventAutosaveStatusValue>("loading");
   const [autosaveLabel, setAutosaveLabel] = useState("Restoring draft...");
   const objectUrlRef = useRef<string | null>(null);
-  const plumpiWindowRef = useRef<Window | null>(null);
   const handledResultRef = useRef<CreateEventActionData | null>(null);
   const restoreCompletedRef = useRef(false);
   const autosaveReadyRef = useRef(false);
   const autosaveRevisionRef = useRef(0);
   const lastSavedFormRef = useRef("");
   const lastSavedCoverRef = useRef<File | null>(null);
-  /** True while the submit in flight should hand the draft over to Plumpi. */
-  const [isHandoff, setIsHandoff] = useState(false);
+  /**
+   * The handoff runs on its own fetcher, so the created draft's result and the
+   * "Continue in Plumpi" result never have to be told apart.
+   */
+  const { start: startPlumpiHandoff, isRedirecting: isHandingOff } =
+    usePlumpiHandoff({
+      popupBlockedMessage: "Allow pop-ups to continue editing in Plumpi.",
+      failureMessage: "The created event could not be opened in Plumpi.",
+    });
 
   const isComplete = isCreateEventFormComplete(form);
   const isSubmitting = fetcher.state !== "idle";
   const isCreatingDraft =
     isSubmitting && fetcher.formData?.get("intent") === "create-draft";
-  const isHandingOff = isHandoff && isSubmitting;
 
   // Revoke the preview URL when it is replaced or the page unmounts.
   useEffect(() => {
     return () => {
       if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
-      plumpiWindowRef.current?.close();
     };
   }, []);
 
@@ -248,48 +253,25 @@ export default function CreateEventPage() {
     handledResultRef.current = result;
 
     if (!result.ok) {
-      if (isHandoff) {
-        plumpiWindowRef.current?.close();
-        plumpiWindowRef.current = null;
-      }
-
-      if (!isHandoff) {
-        setErrors(result.errors ?? {});
-        setSearchParams(
-          (prev) => {
-            const next = new URLSearchParams(prev);
-            next.delete("step");
-            return next;
-          },
-          { replace: true },
-        );
-      }
+      setErrors(result.errors ?? {});
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete("step");
+          return next;
+        },
+        { replace: true },
+      );
       toast.error(result.error ?? "Please review the highlighted fields.");
-      setIsHandoff(false);
       return;
     }
 
     if (result.warning) toast.warning(result.warning);
 
-    if (result.redirectTo) {
-      const plumpiWindow = plumpiWindowRef.current;
-      plumpiWindowRef.current = null;
-      setIsHandoff(false);
-
-      if (!plumpiWindow || plumpiWindow.closed) {
-        toast.error("The Plumpi tab was closed. Please try again.");
-        return;
-      }
-
-      plumpiWindow.location.replace(result.redirectTo);
-      return;
-    }
-
     if (result.eventId) {
       autosaveReadyRef.current = false;
       autosaveRevisionRef.current += 1;
       setCreatedEventId(result.eventId);
-      setIsHandoff(false);
 
       if (userId) {
         void deleteCreateEventDraft(userId)
@@ -306,18 +288,8 @@ export default function CreateEventPage() {
       return;
     }
 
-    setIsHandoff(false);
-    plumpiWindowRef.current?.close();
-    plumpiWindowRef.current = null;
-    toast.error("Plumpi could not be opened automatically.");
-  }, [
-    fetcher.data,
-    isHandoff,
-    isSubmitting,
-    navigate,
-    setSearchParams,
-    userId,
-  ]);
+    toast.error("The event could not be created. Please try again.");
+  }, [fetcher.data, isSubmitting, navigate, setSearchParams, userId]);
 
   const goToStep = (next: Step) => {
     setSearchParams(
@@ -415,7 +387,6 @@ export default function CreateEventPage() {
     const dateRanges = getCreateEventDateRanges(form);
     if (!coverFile || !dateRanges) return;
 
-    setIsHandoff(false);
     const submission = new FormData();
     submission.set("intent", "create-draft");
     submission.set("organizerId", form.organizerId);
@@ -459,19 +430,11 @@ export default function CreateEventPage() {
   const continueToPlumpi = () => {
     if (!createdEventId || isSubmitting) return;
 
-    const plumpiWindow = openPlumpiHandoffWindow();
-    if (!plumpiWindow) {
-      toast.error("Allow pop-ups to continue editing in Plumpi.");
-      return;
-    }
-    plumpiWindowRef.current = plumpiWindow;
-
-    setIsHandoff(true);
-    const submission = new FormData();
-    submission.set("intent", "continue-to-plumpi");
-    submission.set("eventId", createdEventId);
-    submission.set("organizationId", form.organizerId);
-    fetcher.submit(submission, { method: "post" });
+    startPlumpiHandoff({
+      intent: PLUMPI_HANDOFF_INTENT,
+      eventId: createdEventId,
+      organizationId: form.organizerId,
+    });
   };
 
   const transition = { duration: prefersReducedMotion ? 0 : 0.28 };

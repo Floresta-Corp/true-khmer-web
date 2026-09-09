@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
 import { Ticket } from "lucide-react";
 import PlumpiRedirectOverlay from "~/components/plumpi-redirect-overlay";
 import { cn } from "~/lib/utils";
@@ -8,6 +9,7 @@ import {
 } from "~/features/events/lib/plumpi-links";
 import type { EventDetail, EventTicket } from "~/features/events/types/events";
 import { describeTicketAvailability } from "~/features/events/lib/ticket-availability";
+import { usePlumpiHandoff } from "~/lib/plumpi/use-plumpi-handoff";
 
 /** "$10.00", or the tier's own currency when it is not USD. */
 function formatTicketPrice(ticket: EventTicket): string {
@@ -53,7 +55,7 @@ function TicketRow({
   /** `null` when the tier cannot be bought, which drops the card's link. */
   orderUrl: string | null;
   /** Raises the redirect hold before the browser leaves for Plumpi. */
-  onSelect: () => void;
+  onSelect: (event: React.MouseEvent<HTMLAnchorElement>) => void;
   now: number;
 }) {
   const availability = describeTicketAvailability(ticket, now);
@@ -126,22 +128,7 @@ function TicketRow({
           event.preventDefault();
           return;
         }
-
-        // A modified click is the visitor asking for a new tab or window, so
-        // leave it to the browser rather than covering this page with a hold
-        // for a navigation that never happens here.
-        if (
-          event.defaultPrevented ||
-          event.button !== 0 ||
-          event.metaKey ||
-          event.ctrlKey ||
-          event.shiftKey ||
-          event.altKey
-        ) {
-          return;
-        }
-
-        onSelect();
+        onSelect(event);
       }}
       className={cn(
         shell,
@@ -161,9 +148,20 @@ function TicketRow({
  * same "Redirecting you to Plumpi" card the workspace shows, so leaving True
  * Khmer reads the same wherever it happens.
  */
-export function EventTicketList({ event }: { event: EventDetail }) {
+export function EventTicketList({
+  event,
+  isAuthenticated,
+}: {
+  event: EventDetail;
+  isAuthenticated: boolean;
+}) {
   const hasCheckout = Boolean(buildPlumpiEventUrl(event.slug));
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { start, isRedirecting } = usePlumpiHandoff({
+    popupBlockedMessage: "Allow pop-ups to select this ticket in Plumpi.",
+    failureMessage: "This ticket could not be opened in Plumpi.",
+  });
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -175,6 +173,26 @@ export function EventTicketList({ event }: { event: EventDetail }) {
       window.removeEventListener("focus", refresh);
     };
   }, []);
+
+  const selectTicket = (
+    ticket: EventTicket,
+    clickEvent: React.MouseEvent<HTMLAnchorElement>,
+  ) => {
+    clickEvent.preventDefault();
+
+    if (isRedirecting) return;
+
+    if (!isAuthenticated) {
+      const redirectTo = `${location.pathname}${location.search}`;
+      navigate(`/login?redirectTo=${encodeURIComponent(redirectTo)}`);
+      return;
+    }
+
+    start(
+      { intent: "select-ticket", ticketTierId: ticket.id },
+      { action: location.pathname },
+    );
+  };
 
   return (
     <div>
@@ -193,7 +211,7 @@ export function EventTicketList({ event }: { event: EventDetail }) {
             key={ticket.id}
             ticket={ticket}
             orderUrl={buildPlumpiTicketOrderUrl(event.slug, ticket.id)}
-            onSelect={() => setIsRedirecting(true)}
+            onSelect={(clickEvent) => selectTicket(ticket, clickEvent)}
             now={now}
           />
         ))}

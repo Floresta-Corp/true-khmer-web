@@ -12,8 +12,44 @@ import "./app.css";
 import { Toaster } from "./components/ui/sonner";
 import { ErrorState } from "./features/error/components/error-state";
 import { NotFound } from "./features/error/components/not-found";
+import { getScrollRestorationKey } from "./lib/scroll-restoration";
+import { pageMeta, SITE } from "./lib/seo";
+import { isIndexableOrigin, resolveSiteOrigin } from "./lib/seo/origin.server";
+
+/**
+ * Publishes the SEO context every route's `meta` reads back out of `matches`.
+ *
+ * It lives on the root rather than in each `meta` because a `meta` function is
+ * given only a pathname, and also runs in the browser -- neither the canonical
+ * host nor the "is this deployment indexable" decision is knowable there.
+ */
+export function loader({ request }: Route.LoaderArgs) {
+  const origin = resolveSiteOrigin(request);
+  return { seo: { origin, indexable: isIndexableOrigin(origin) } };
+}
+
+/** The origin cannot change between navigations, so root never refetches. */
+export function shouldRevalidate() {
+  return false;
+}
+
+/**
+ * The fallback tag set, used by any route that does not export its own `meta`.
+ *
+ * React Router replaces rather than merges parent meta, so this is a safety net
+ * for un-tagged routes, not a base layer -- a route that needs its own title
+ * builds the whole set through `buildSeoMeta`.
+ */
+export function meta(args: Route.MetaArgs) {
+  return pageMeta(args, {
+    title: `${SITE.name} — ${SITE.tagline}`,
+    bareTitle: true,
+    description: SITE.description,
+  });
+}
 
 export const links: Route.LinksFunction = () => [
+  { rel: "icon", href: "/favicon.ico", sizes: "any" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",
@@ -37,7 +73,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body suppressHydrationWarning>
         {children}
-        <ScrollRestoration />
+        <ScrollRestoration getKey={getScrollRestorationKey} />
         <Scripts />
         <Toaster richColors theme="light" position="top-right" closeButton />
       </body>

@@ -14,6 +14,8 @@ import type { EventCategory } from "~/features/events/lib/event-types";
 import { Button } from "~/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import { EventCategoryCarousel } from "~/features/events/components/event-category-carousel";
+import { metaOrigin, pageMeta } from "~/lib/seo";
+import { breadcrumbJsonLd } from "~/lib/seo/structured-data";
 
 const PAGE_SIZE = 8;
 
@@ -65,8 +67,19 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 }
 
-export function meta() {
-  return [{ title: "All Events | True Khmer" }];
+export function meta(args: Route.MetaArgs) {
+  return pageMeta(args, {
+    title: "All events",
+    description:
+      "Every event on True Khmer, filtered by category — conferences, workshops and meet-ups across Cambodia.",
+    jsonLd: [
+      breadcrumbJsonLd(metaOrigin(args), [
+        { name: "Home", path: "/" },
+        { name: "Events", path: "/events" },
+        { name: "All events", path: "/events/all" },
+      ]),
+    ],
+  });
 }
 
 export default function AllEvents() {

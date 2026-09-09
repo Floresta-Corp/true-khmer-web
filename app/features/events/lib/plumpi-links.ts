@@ -28,8 +28,19 @@ export function buildPlumpiTicketOrderUrl(
   slug: string,
   ticketTierId: string,
 ): string | null {
-  const eventUrl = buildPlumpiEventUrl(slug);
-  if (!eventUrl) return null;
+  const base = plumpiWebBase();
+  if (!base) return null;
 
-  return `${eventUrl}/order?ticketTierId=${encodeURIComponent(ticketTierId)}`;
+  return `${base}${plumpiTicketOrderPath(slug, ticketTierId)}`;
+}
+
+/**
+ * The same order page as a Plumpi-internal path, which is what the handoff
+ * carries as `nextPath`. Lives beside the public URL so the two cannot drift.
+ */
+export function plumpiTicketOrderPath(
+  slug: string,
+  ticketTierId: string,
+): string {
+  return `/events/${encodeURIComponent(slug)}/order?ticketTierId=${encodeURIComponent(ticketTierId)}`;
 }

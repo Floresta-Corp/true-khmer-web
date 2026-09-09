@@ -31,9 +31,15 @@ const ENTRY_COPY = {
  * so when none come back this falls back to how the visitor gets in
  * (`entryMode`) and hands them off to the event's Plumpi page.
  */
-export function EventAttendPanel({ event }: { event: EventDetail }) {
+export function EventAttendPanel({
+  event,
+  isAuthenticated,
+}: {
+  event: EventDetail;
+  isAuthenticated: boolean;
+}) {
   if (event.tickets.length > 0) {
-    return <EventTicketList event={event} />;
+    return <EventTicketList event={event} isAuthenticated={isAuthenticated} />;
   }
 
   const copy = ENTRY_COPY[event.entryMode];

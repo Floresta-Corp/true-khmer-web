@@ -19,16 +19,81 @@ import SuspensionNoticeDialog from "~/components/suspension-notice-dialog";
 import { isSuspendedForViewer } from "../utils";
 import { useDismissibleNotice } from "~/hooks/use-dismissible-notice";
 import { useRestorationNotice } from "~/hooks/use-restoration-notice";
+import { metaOrigin, pageMeta } from "~/lib/seo";
+import { breadcrumbJsonLd, qaPageJsonLd } from "~/lib/seo/structured-data";
 
 export const loader = forumDetailLoader;
 export const action = forumDetailAction;
 
-export function meta({ loaderData }: Route.MetaArgs) {
-  const title = loaderData?.question?.title ?? "Forum Discussion";
-  return [
-    { title: `${title} - True Khmer Forum` },
-    { name: "description", content: title },
-  ];
+export function meta(args: Route.MetaArgs) {
+  const question = args.loaderData?.question;
+  const origin = metaOrigin(args);
+
+  if (!question) {
+    return pageMeta(args, {
+      title: "Forum discussion",
+      description: "This discussion could not be found.",
+      noindex: true,
+    });
+  }
+
+  const path = `/forum/detail/${question.id}`;
+  const best = args.loaderData?.bestAnswer?.[0];
+  const others = args.loaderData?.answers ?? [];
+  // A question with nothing answered does not qualify as a QAPage, so the
+  // markup is only attached once there is an answer to show.
+  const hasAnswers = Boolean(best) || others.length > 0;
+
+  return pageMeta(args, {
+    title: question.title,
+    description: question.body || question.title,
+    type: "article",
+    image: question.imageKey ? resolveImageURL(question.imageKey) : null,
+    article: {
+      publishedTime: question.createdAt,
+      modifiedTime: question.updatedAt,
+      authors: [question.author.name],
+      section: question.category.name,
+      tags: question.tags.map((tag) => tag.name),
+    },
+    jsonLd: [
+      ...(hasAnswers
+        ? [
+            qaPageJsonLd({
+              origin,
+              pathname: path,
+              title: question.title,
+              body: question.body,
+              authorName: question.author.name,
+              createdAt: question.createdAt,
+              upvoteCount: question.upvoteCount,
+              answerCount: question.answerCount,
+              acceptedAnswer: best
+                ? {
+                    id: best.id,
+                    body: best.body,
+                    authorName: best.author.name,
+                    upvoteCount: best.upvoteCount,
+                    createdAt: best.createdAt,
+                  }
+                : null,
+              suggestedAnswers: others.map((answer) => ({
+                id: answer.id,
+                body: answer.body,
+                authorName: answer.author.name,
+                upvoteCount: answer.upvoteCount,
+                createdAt: answer.createdAt,
+              })),
+            }),
+          ]
+        : []),
+      breadcrumbJsonLd(origin, [
+        { name: "Home", path: "/" },
+        { name: "Forum", path: "/forum" },
+        { name: question.title, path },
+      ]),
+    ],
+  });
 }
 
 // ─── Animation variants ──────────────────────────────────────────────────────

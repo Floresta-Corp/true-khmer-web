@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  apiRequestPublic,
   apiRequestWithOptionalSession,
   apiRequestWithSession,
 } from "~/lib/server/api-client.server";
@@ -97,6 +98,56 @@ export function getPlumpiEventBySlug(request: Request, slug: string) {
   >(request, `/plumpi/events/slug/${encodeURIComponent(slug)}`);
 }
 
+export function getPlumpiEventOrganizer(request: Request, slug: string) {
+  return apiRequestPublic<
+    Awaited<ReturnType<PlumpiApi["getV1plumpieventsslugSlugorganizer"]>>
+  >(request, `/plumpi/events/slug/${encodeURIComponent(slug)}/organizer`);
+}
+
+export function getPlumpiEventPhotos(request: Request, slug: string) {
+  return apiRequestWithOptionalSession<
+    Awaited<ReturnType<PlumpiApi["getV1plumpieventsslugSlugphotos"]>>
+  >(request, `/plumpi/events/slug/${encodeURIComponent(slug)}/photos`);
+}
+
+export function getPlumpiEventSessions(request: Request, slug: string) {
+  return apiRequestWithOptionalSession<
+    Awaited<ReturnType<PlumpiApi["getV1plumpieventsslugSlugsessions"]>>
+  >(request, `/plumpi/events/slug/${encodeURIComponent(slug)}/sessions`);
+}
+
+export function getPlumpiEventExhibitors(request: Request, slug: string) {
+  return apiRequestWithOptionalSession<
+    Awaited<ReturnType<PlumpiApi["getV1plumpieventsslugSlugexhibitors"]>>
+  >(
+    request,
+    `/plumpi/events/slug/${encodeURIComponent(slug)}/exhibitors?page=1&limit=100`,
+  );
+}
+
+export function getPlumpiEventExhibitorCategories(
+  request: Request,
+  slug: string,
+) {
+  return apiRequestWithOptionalSession<
+    Awaited<
+      ReturnType<PlumpiApi["getV1plumpieventsslugSlugexhibitorCategories"]>
+    >
+  >(
+    request,
+    `/plumpi/events/slug/${encodeURIComponent(slug)}/exhibitor-categories`,
+  );
+}
+
+export function getPlumpiEventFloorPlanPhotos(request: Request, slug: string) {
+  return apiRequestWithOptionalSession<
+    Awaited<ReturnType<PlumpiApi["getV1plumpieventsslugSlugfloorPlanPhotos"]>>
+  >(
+    request,
+    `/plumpi/events/slug/${encodeURIComponent(slug)}/floor-plan-photos`,
+  );
+}
+
 /**
  * Reads an event's ticket tiers — `GET /v1/plumpi/tickets/tiers?eventId={id}`.
  *
@@ -192,21 +243,13 @@ export function uploadPlumpiEventThumbnail(
   });
 }
 
-/**
- * Deep link that drops the organizer straight into an event in the Plumpi
- * console, authenticated by a fresh handoff token.
- */
-export function buildPlumpiEventHandoffUrl(
-  organizationId: string,
-  eventId: string,
-  handoffToken: string,
-) {
+/** Builds Plumpi's one-time sign-in URL for an internal Plumpi destination. */
+export function buildPlumpiHandoffUrl(nextPath: string, handoffToken: string) {
   const baseUrl = process.env.VITE_PLUMPI_WEB?.trim();
   if (!baseUrl) {
     throw new Error("Plumpi web URL is not configured.");
   }
 
-  const nextPath = `/console/${encodeURIComponent(organizationId)}/events/${encodeURIComponent(eventId)}`;
   const url = new URL("/auth/handoff", baseUrl);
   url.searchParams.set("token", handoffToken);
   url.searchParams.set("nextPath", nextPath);

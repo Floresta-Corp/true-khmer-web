@@ -1,3 +1,4 @@
+import type { Route } from "./+types/community";
 import { Suspense } from "react";
 import { Await, useLoaderData } from "react-router";
 import { CommunityHero } from "../components/community-hero";
@@ -13,14 +14,23 @@ import {
   communityLoader,
   type PartnersByTier,
 } from "../services/community.loader";
+import { metaOrigin, pageMeta } from "~/lib/seo";
+import { breadcrumbJsonLd } from "~/lib/seo/structured-data";
 
 export const loader = communityLoader;
 
-export function meta() {
-  return [
-    { title: "Community | True Khmer" },
-    { name: "description", content: "Welcome to True Khmer Community!" },
-  ];
+export function meta(args: Route.MetaArgs) {
+  return pageMeta(args, {
+    title: "Our partners",
+    description:
+      "The organisations backing True Khmer — the companies, institutions and supporters building Cambodia's talent ecosystem.",
+    jsonLd: [
+      breadcrumbJsonLd(metaOrigin(args), [
+        { name: "Home", path: "/" },
+        { name: "Partners", path: "/community" },
+      ]),
+    ],
+  });
 }
 
 const TIER_SECTIONS: Array<{

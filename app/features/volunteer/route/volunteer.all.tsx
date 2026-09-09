@@ -1,3 +1,4 @@
+import type { Route } from "./+types/volunteer.all";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
@@ -16,6 +17,8 @@ import { volunteerAction } from "~/features/volunteer/services/volunteer-action"
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio";
 import { cn } from "~/lib/utils";
 import BackToButton from "~/components/back-to-button";
+import { metaOrigin, pageMeta } from "~/lib/seo";
+import { breadcrumbJsonLd } from "~/lib/seo/structured-data";
 
 export const loader = volunteerLoader;
 export const action = volunteerAction;
@@ -28,8 +31,19 @@ const SORT_OPTIONS = [
 
 const COMMITMENT_OPTIONS = ["Light", "Regular", "Intensive"] as const;
 
-export function meta() {
-  return [{ title: "All Volunteer Opportunities | True Khmer" }];
+export function meta(args: Route.MetaArgs) {
+  return pageMeta(args, {
+    title: "All volunteer opportunities",
+    description:
+      "Every open volunteer role on True Khmer, filtered by cause, location and time commitment.",
+    jsonLd: [
+      breadcrumbJsonLd(metaOrigin(args), [
+        { name: "Home", path: "/" },
+        { name: "Volunteer", path: "/volunteer" },
+        { name: "All opportunities", path: "/volunteer/all" },
+      ]),
+    ],
+  });
 }
 
 export default function VolunteerAllPage() {

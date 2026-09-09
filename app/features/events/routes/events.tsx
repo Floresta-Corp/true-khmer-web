@@ -1,3 +1,4 @@
+import type { Route } from "./+types/events";
 import { useLoaderData, useNavigate, useNavigation } from "react-router";
 import { useState } from "react";
 import { AlertCircle } from "lucide-react";
@@ -6,11 +7,23 @@ import { EventHero } from "~/features/events/components/event-hero";
 import { EventListCard } from "~/features/events/components/event-list-card";
 import { EventCardSkeleton } from "~/features/events/components/event-card-skeleton";
 import { eventsHubLoader } from "~/features/events/services/events.loader";
+import { metaOrigin, pageMeta } from "~/lib/seo";
+import { breadcrumbJsonLd } from "~/lib/seo/structured-data";
 
 export const loader = eventsHubLoader;
 
-export function meta() {
-  return [{ title: "Events | True Khmer" }];
+export function meta(args: Route.MetaArgs) {
+  return pageMeta(args, {
+    title: "Events",
+    description:
+      "Upcoming conferences, workshops and meet-ups across Cambodia — find one near you and get your ticket.",
+    jsonLd: [
+      breadcrumbJsonLd(metaOrigin(args), [
+        { name: "Home", path: "/" },
+        { name: "Events", path: "/events" },
+      ]),
+    ],
+  });
 }
 
 export default function Events() {

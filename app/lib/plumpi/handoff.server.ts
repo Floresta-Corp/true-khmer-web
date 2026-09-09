@@ -1,28 +1,23 @@
-import { z } from "zod";
 import {
-  buildPlumpiEventHandoffUrl,
+  buildPlumpiHandoffUrl,
   createPlumpiHandoff,
 } from "~/api/events/events.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
-import { PLUMPI_HANDOFF_INTENT } from "~/features/workspace/lib/plumpi-handoff";
 
 /**
- * Shared "Continue in Plumpi" step. Both the create-event success dialog and a
- * card on the My Events listing hand an existing event over the same way:
- * mint a short-lived handoff token, then send the already-opened tab to the
- * Plumpi organizer console.
+ * Shared "hand the visitor over to Plumpi" step.
+ *
+ * Every crossing works the same way — mint a short-lived, single-use handoff
+ * token, then send the already-opened tab to Plumpi's sign-in URL with the
+ * destination attached. Only the destination differs (the organizer console
+ * for the workspace, the order page for a ticket), so callers pass their own
+ * `nextPath` and everything else lives here.
  */
 
 /** The token is single-use and short-lived, so the URL must never be cached. */
 export const PLUMPI_HANDOFF_RESPONSE_INIT = {
   headers: { "Cache-Control": "private, no-store" },
 } satisfies ResponseInit;
-
-export const plumpiHandoffParamsSchema = z.object({
-  intent: z.literal(PLUMPI_HANDOFF_INTENT),
-  eventId: z.string().uuid(),
-  organizationId: z.string().uuid(),
-});
 
 export class ExpiredPlumpiHandoffError extends Error {
   constructor() {
@@ -57,12 +52,13 @@ export function plumpiHandoffErrorMessage(error: unknown) {
 }
 
 /**
- * Mints a handoff token and returns the console URL for `eventId`. Any
- * `Set-Cookie` from the refreshed session is pushed onto `cookies`.
+ * Mints a handoff token and returns the Plumpi URL that lands on `nextPath`
+ * (a path inside Plumpi). Any `Set-Cookie` from the refreshed session is
+ * pushed onto `cookies`.
  */
 export async function resolvePlumpiHandoffUrl(
   request: Request,
-  params: { organizationId: string; eventId: string },
+  nextPath: string,
   cookies: string[],
 ) {
   const handoff = await createPlumpiHandoff(request);
@@ -72,9 +68,5 @@ export async function resolvePlumpiHandoffUrl(
     throw new ExpiredPlumpiHandoffError();
   }
 
-  return buildPlumpiEventHandoffUrl(
-    params.organizationId,
-    params.eventId,
-    handoff.data.token,
-  );
+  return buildPlumpiHandoffUrl(nextPath, handoff.data.token);
 }
