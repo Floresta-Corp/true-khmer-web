@@ -16,7 +16,7 @@ import { toCourseSummary } from "~/features/education/lib/map-catalog";
 const LAUNCHPAD_LIMIT = 2;
 const VOLUNTEER_LIMIT = 2;
 const DISCUSSION_LIMIT = 2;
-const BLOG_POST_LIMIT = 3;
+const BLOG_POST_LIMIT = 4;
 const EVENT_LIMIT = 4;
 const COURSE_LIMIT = 4;
 
