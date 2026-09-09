@@ -11,14 +11,27 @@ import { TextField } from "../components/text-field";
 import { SearchableField } from "../components/searchable-field";
 import { CountryField } from "~/components/form/country-field";
 import { PhoneField } from "~/components/form/phone-field";
+import type { Route } from "./+types/partner-registration";
+import { metaOrigin, pageMeta } from "~/lib/seo";
+import { breadcrumbJsonLd } from "~/lib/seo/structured-data";
 
 export const action = partnerRegistrationAction;
 
-export function meta() {
-  return [
-    { title: "Partner Registration | True Khmer" },
-    { name: "description", content: "Register as a partner with us today." },
-  ];
+export function meta(args: Route.MetaArgs) {
+  return pageMeta(args, {
+    title: "Become a partner",
+    description:
+      "Partner with True Khmer to reach Cambodian talent — sponsor the community, post opportunities and back local ventures.",
+    jsonLd: [
+      breadcrumbJsonLd(metaOrigin(args), [
+        { name: "Home", path: "/" },
+        {
+          name: "Become a partner",
+          path: "/registration/partner-registration",
+        },
+      ]),
+    ],
+  });
 }
 
 type ActionData = {

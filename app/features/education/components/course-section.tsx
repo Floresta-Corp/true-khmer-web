@@ -29,7 +29,7 @@ export function CourseSection({
         {viewAllTo && (
           <Link
             to={viewAllTo}
-            className="flex shrink-0 items-center gap-1 text-sm font-semibold text-[#1A1A2E] hover:text-[#1C5DD4]"
+            className="flex shrink-0 items-center gap-1 text-sm font-semibold text-[#1C5DD4] hover:text-[#164AAA]"
           >
             View all
             <ChevronRight className="size-4" aria-hidden />

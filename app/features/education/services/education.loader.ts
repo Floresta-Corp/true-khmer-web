@@ -12,7 +12,7 @@ import { getOptionalUser } from "~/lib/server/route-guards.server";
 import type { CourseCategory } from "~/features/education/types";
 
 /** How many cards a hub row shows before "View all" takes over. */
-const SECTION_LIMIT = 8;
+const SECTION_LIMIT = 4;
 
 export async function educationLoader({ request }: EducationRoute.LoaderArgs) {
   const url = new URL(request.url);
@@ -77,7 +77,7 @@ export async function educationLoader({ request }: EducationRoute.LoaderArgs) {
     results: published,
     trending,
     recent: published.slice(0, SECTION_LIMIT),
-    allCourses: published,
+    allCourses: published.slice(0, SECTION_LIMIT),
     search,
     categoryId,
     selectedCategoryName,

@@ -1,3 +1,4 @@
+import type { Route } from "./+types/volunteer";
 import { VolunteerAvailableOpportunities } from "../components/pages/section/volunteer-available-opportunities";
 import { VolunteerCategoriesSection } from "../components/pages/section/volunteer-categories-section";
 import { motion, useReducedMotion } from "motion/react";
@@ -5,12 +6,24 @@ import VolunteerHeader from "../components/pages/section/volunteer-header";
 import { volunteerLoader } from "~/features/volunteer/services/volunteer-loader";
 import { useLoaderData, useNavigate, useRevalidator } from "react-router";
 import { volunteerAction } from "~/features/volunteer/services/volunteer-action";
+import { metaOrigin, pageMeta } from "~/lib/seo";
+import { breadcrumbJsonLd } from "~/lib/seo/structured-data";
 
 export const loader = volunteerLoader;
 export const action = volunteerAction;
 
-export function meta() {
-  return [{ title: "Volunteer Opportunities | True Khmer" }];
+export function meta(args: Route.MetaArgs) {
+  return pageMeta(args, {
+    title: "Volunteer opportunities",
+    description:
+      "Give your time to causes across Cambodia — find a volunteer role that fits your skills and your schedule.",
+    jsonLd: [
+      breadcrumbJsonLd(metaOrigin(args), [
+        { name: "Home", path: "/" },
+        { name: "Volunteer", path: "/volunteer" },
+      ]),
+    ],
+  });
 }
 
 export default function VolunteerPage() {

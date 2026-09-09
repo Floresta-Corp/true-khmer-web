@@ -77,7 +77,7 @@ export function CourseCategoryRow({
                 "flex shrink-0 cursor-pointer flex-col items-center gap-4 rounded-xl px-3 py-4 transition-colors sm:w-full",
                 isActive
                   ? "bg-[#D8E2F8] text-[#1C5DD4]"
-                  : "text-[#8C8CA1] hover:bg-[#D8E2F8] hover:text-[#1C5DD4]",
+                  : "border border-transparent text-[#8C8CA1] hover:border-gray-200 hover:text-[#1C5DD4]",
               )}
             >
               <Icon className="size-5.5" strokeWidth={1.6} aria-hidden />

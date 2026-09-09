@@ -1,3 +1,4 @@
+import type { Route } from "./+types/forum.search";
 import { motion, useReducedMotion } from "motion/react";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { forumSearchLoader } from "../services/forum-search.loader";
@@ -9,12 +10,18 @@ import type {
   GetQuestionsResponse,
 } from "~/types/api-client";
 import { forumSearchAction } from "../services/forum-search.action";
+import { pageMeta } from "~/lib/seo";
 
 export const loader = forumSearchLoader;
 export const action = forumSearchAction;
 
-export function meta() {
-  return [{ title: "Search Discussions | True Khmer" }];
+export function meta(args: Route.MetaArgs) {
+  return pageMeta(args, {
+    title: "Search discussions",
+    description:
+      "Search the True Khmer forum for questions and answers from the Khmer community.",
+    noindex: true,
+  });
 }
 
 export default function ForumSearchPage() {

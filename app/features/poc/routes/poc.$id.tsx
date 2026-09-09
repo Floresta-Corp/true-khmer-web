@@ -6,9 +6,23 @@ import {
   StoryDetailSidebarSection,
 } from "~/features/poc/components/sections";
 import PocWatchVideoSection from "../components/sections/watch-video-section";
+import type { Route } from "./+types/poc.$id";
+import { metaOrigin, pageMeta } from "~/lib/seo";
+import { breadcrumbJsonLd } from "~/lib/seo/structured-data";
 
-export function meta() {
-  return [{ title: "People of Cambodia Story | True Khmer" }];
+export function meta(args: Route.MetaArgs) {
+  return pageMeta(args, {
+    title: "People of Cambodia",
+    description:
+      "A story from across the Kingdom — the people shaping Cambodia, in their own words.",
+    type: "article",
+    jsonLd: [
+      breadcrumbJsonLd(metaOrigin(args), [
+        { name: "Home", path: "/" },
+        { name: "People of Cambodia", path: "/poc" },
+      ]),
+    ],
+  });
 }
 
 export default function PeopleOfCambodiaDetailPage() {
