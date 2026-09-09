@@ -12,7 +12,8 @@ import {
   CoursesFeed,
   DiscussionFeed,
   EventsFeed,
-  OpportunitiesFeed,
+  LaunchpadFeed,
+  VolunteerFeed,
 } from "~/features/home/components/home-feed-sections";
 
 export function meta({}: Route.MetaArgs) {
@@ -49,7 +50,10 @@ export default function Home() {
           <HomeExploreSection />
           <DiscussionFeed items={discussions} />
           <EventsFeed items={events} />
-          <OpportunitiesFeed volunteers={volunteers} launchpads={launchpads} />
+          <VolunteerFeed items={volunteers} />
+          <LaunchpadFeed items={launchpads} />
+
+          {/* <OpportunitiesFeed volunteers={volunteers} launchpads={launchpads} /> */}
           <CoursesFeed items={courses} />
           <BlogFeed items={blogPosts} />
         </>
@@ -60,8 +64,9 @@ export default function Home() {
           <HomeTrustedBySection />
           <HomePillarsSection />
           <EventsFeed items={events} />
+          <VolunteerFeed items={volunteers} />
+          <LaunchpadFeed items={launchpads} />
           <CoursesFeed items={courses} />
-          <OpportunitiesFeed volunteers={volunteers} launchpads={launchpads} />
           <BlogFeed items={blogPosts} />
         </>
       )}

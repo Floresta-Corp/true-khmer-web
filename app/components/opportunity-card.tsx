@@ -70,7 +70,7 @@ export function OpportunityCard({
 
   return (
     <motion.article
-      className="group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-[#eceef2] bg-white shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)] transition-[border-color,box-shadow] duration-300 focus-within:border-[#dbe4f7] focus-within:ring-2 focus-within:ring-[#2f6fe4]/40 hover:border-[#dbe4f7] hover:shadow-[0px_10px_30px_-15px_rgba(47,111,228,0.18)]"
+      className="group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-[#eceef2] bg-white transition duration-200 hover:-translate-y-[3px] hover:shadow-[0_8px_20px_rgba(26,26,46,0.10)]"
       onClick={() => navigate(`/volunteer/detail/${opportunity.id}`)}
       whileTap={{ scale: 0.99 }}
       transition={{ type: "spring", stiffness: 260, damping: 22 }}
@@ -79,7 +79,7 @@ export function OpportunityCard({
         <img
           src={image}
           alt={opportunity.title}
-          className="absolute inset-0 size-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+          className="absolute inset-0 size-full object-cover transition-transform"
           loading="lazy"
         />
 
