@@ -13,8 +13,8 @@ import { getPublicBlogPosts } from "~/api/blog/blog-public.server";
 import { listPublicCourses } from "~/api/education/education.server";
 import { toCourseSummary } from "~/features/education/lib/map-catalog";
 
-const LAUNCHPAD_LIMIT = 2;
-const VOLUNTEER_LIMIT = 2;
+const LAUNCHPAD_LIMIT = 4;
+const VOLUNTEER_LIMIT = 4;
 const DISCUSSION_LIMIT = 2;
 const BLOG_POST_LIMIT = 4;
 const EVENT_LIMIT = 4;

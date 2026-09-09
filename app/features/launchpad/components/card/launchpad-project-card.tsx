@@ -58,10 +58,10 @@ export default function LaunchpadProjectCard({
       ? fetcher.formData?.get("intent") === "save"
       : item.isSaved;
 
-  const handleShareClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    copyToClipboard(buildAbsoluteUrl(`/launchpad/detail/${item.id}`));
-  };
+  // const handleShareClick = (e: React.MouseEvent) => {
+  //   e.stopPropagation();
+  //   copyToClipboard(buildAbsoluteUrl(`/launchpad/detail/${item.id}`));
+  // };
 
   const handleSaveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -76,10 +76,10 @@ export default function LaunchpadProjectCard({
     );
   };
 
-  const handleApplyClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onOpenOpportunity(item);
-  };
+  // const handleApplyClick = (e: React.MouseEvent) => {
+  //   e.stopPropagation();
+  //   onOpenOpportunity(item);
+  // };
 
   return (
     <motion.div
@@ -123,13 +123,13 @@ export default function LaunchpadProjectCard({
             onOpenOpportunity(item);
           }
         }}
-        className="flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-[#eceef2] bg-white p-0 shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)] transition-[border-color,box-shadow] duration-300 group-hover:border-[#dbe4f7] group-hover:shadow-[0px_10px_30px_-15px_rgba(47,111,228,0.18)]"
+        className="flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-[#eceef2] bg-white p-0 transition duration-200 hover:-translate-y-[3px] hover:shadow-[0_8px_20px_rgba(26,26,46,0.10)]"
       >
         <div className="relative shrink-0 overflow-hidden">
           <img
             src={resolveImageURL(item.coverKey || undefined)}
             alt={`${item.name} cover`}
-            className="h-42 w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            className="h-42 w-full object-cover transition-transform"
           />
           <span className="pointer-events-none absolute top-3 left-3 inline-flex items-center rounded-lg bg-white px-2.5 py-1 text-[11px] font-semibold tracking-[-0.1px] text-[#111827] shadow-[0px_1px_2px_0px_rgba(16,24,40,0.08)]">
             {item.category.name}

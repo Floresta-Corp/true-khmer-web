@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router";
+import { useCallback, useState } from "react";
+import { Link, useNavigate } from "react-router";
 import { motion, MotionConfig } from "motion/react";
 import { slideUpVariants, staggerContainerVariants } from "./home-motion";
 import { LaunchpadCompactCard } from "~/features/home/components/launchpad-compact-card";
@@ -16,6 +16,8 @@ import type {
   QuestionResponse,
 } from "~/types/api-client";
 import { PublicBlogCard } from "~/features/blog/components/public-blog-card";
+import { OpportunityCard } from "~/components/opportunity-card";
+import LaunchpadProjectCard from "~/features/launchpad/components/card/launchpad-project-card";
 
 const OPPORTUNITY_PREVIEW_COUNT = 2;
 
@@ -100,49 +102,53 @@ function OpportunityColumn({
   );
 }
 
-export function OpportunitiesFeed({
-  volunteers,
-  launchpads,
-}: {
-  volunteers: Opportunity[];
-  launchpads: LaunchpadOpportunity[];
-}) {
-  if (volunteers.length === 0 && launchpads.length === 0) return null;
+export function VolunteerFeed({ items }: { items: Opportunity[] }) {
+  if (items.length === 0) return null;
 
   return (
-    <FeedShell>
-      <div className={`site-container grid ${CARD_GAP} lg:grid-cols-2`}>
-        {volunteers.length > 0 && (
-          <OpportunityColumn
-            title="Volunteer opportunities"
-            seeAllTo="/volunteer/all"
-          >
-            {volunteers
-              .slice(0, OPPORTUNITY_PREVIEW_COUNT)
-              .map((opportunity) => (
-                <VolunteerCompactCard
-                  key={opportunity.id}
-                  opportunity={opportunity}
-                />
-              ))}
-          </OpportunityColumn>
-        )}
-
-        {launchpads.length > 0 && (
-          <OpportunityColumn
-            title="Launchpad openings"
-            seeAllTo="/launchpad/all"
-          >
-            {launchpads.slice(0, OPPORTUNITY_PREVIEW_COUNT).map((item) => (
-              <LaunchpadCompactCard key={item.id} item={item} />
-            ))}
-          </OpportunityColumn>
-        )}
+    <FeedSection title="Volunteer opportunities" seeAllTo="/volunteer/all">
+      <div
+        className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-4`}
+      >
+        {items.map((opportunity) => (
+          <motion.div key={opportunity.id} variants={slideUpVariants}>
+            <OpportunityCard opportunity={opportunity} />
+          </motion.div>
+        ))}
       </div>
-    </FeedShell>
+    </FeedSection>
   );
 }
 
+export function LaunchpadFeed({ items }: { items: LaunchpadOpportunity[] }) {
+  const navigate = useNavigate();
+
+  const onOpenOpportunity = useCallback(
+    (item: LaunchpadOpportunity) => {
+      navigate(`/launchpad/detail/${item.id}`);
+    },
+    [navigate],
+  );
+
+  if (items.length === 0) return null;
+
+  return (
+    <FeedSection title="Launchpad openings" seeAllTo="/launchpad/all">
+      <div
+        className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-4`}
+      >
+        {items.map((item) => (
+          <motion.div key={item.id} variants={slideUpVariants}>
+            <LaunchpadProjectCard
+              item={item}
+              onOpenOpportunity={onOpenOpportunity}
+            />
+          </motion.div>
+        ))}
+      </div>
+    </FeedSection>
+  );
+}
 export function DiscussionFeed({ items }: { items: QuestionResponse[] }) {
   if (items.length === 0) return null;
 
