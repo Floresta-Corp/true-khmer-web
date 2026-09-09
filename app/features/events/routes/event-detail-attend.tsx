@@ -5,6 +5,7 @@ import {
   getPlumpiEventTicketTiers,
 } from "~/api/events/events.server";
 import { EventAttendPanel } from "~/features/events/components/event-attend-panel";
+import { EventTabTransition } from "~/features/events/components/event-tab-transition";
 import { readString } from "~/features/events/lib/public-event-data";
 import {
   parseEventTickets,
@@ -33,9 +34,11 @@ export default function EventDetailAttendRoute() {
   const { tickets } = useLoaderData<typeof loader>();
 
   return (
-    <EventAttendPanel
-      event={{ ...event, tickets }}
-      isAuthenticated={isAuthenticated}
-    />
+    <EventTabTransition>
+      <EventAttendPanel
+        event={{ ...event, tickets }}
+        isAuthenticated={isAuthenticated}
+      />
+    </EventTabTransition>
   );
 }

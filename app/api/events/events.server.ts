@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  apiRequestPublic,
   apiRequestWithOptionalSession,
   apiRequestWithSession,
 } from "~/lib/server/api-client.server";
@@ -95,6 +96,12 @@ export function getPlumpiEventBySlug(request: Request, slug: string) {
   return apiRequestWithOptionalSession<
     Awaited<ReturnType<PlumpiApi["getV1plumpieventsslugSlug"]>>
   >(request, `/plumpi/events/slug/${encodeURIComponent(slug)}`);
+}
+
+export function getPlumpiEventOrganizer(request: Request, slug: string) {
+  return apiRequestPublic<
+    Awaited<ReturnType<PlumpiApi["getV1plumpieventsslugSlugorganizer"]>>
+  >(request, `/plumpi/events/slug/${encodeURIComponent(slug)}/organizer`);
 }
 
 export function getPlumpiEventPhotos(request: Request, slug: string) {

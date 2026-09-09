@@ -24,8 +24,10 @@ export default [
       route("events", "features/events/routes/events.tsx"),
       route("events/all", "features/events/routes/events.all.tsx"),
       route("events/detail/:slug", "features/events/routes/events.$slug.tsx", [
-        index("features/events/routes/event-detail-attend.tsx"),
-        route("details", "features/events/routes/event-detail-details.tsx"),
+        layout("features/events/routes/event-detail-sidebar-layout.tsx", [
+          index("features/events/routes/event-detail-attend.tsx"),
+          route("details", "features/events/routes/event-detail-details.tsx"),
+        ]),
         route("programs", "features/events/routes/event-detail-programs.tsx"),
         route(
           "exhibitors",

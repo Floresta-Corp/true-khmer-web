@@ -3,21 +3,21 @@ import {
   NavLink,
   Outlet,
   useLoaderData,
-  useLocation,
   useRouteLoaderData,
 } from "react-router";
 import { useState } from "react";
 import { ChevronLeft } from "lucide-react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { cn } from "~/lib/utils";
 import { EventDetailCover } from "~/features/events/components/event-detail-cover";
-import { EventDetailOverview } from "~/features/events/components/event-detail-overview";
 import { eventDetailLoader } from "~/features/events/services/event-detail.loader";
 import { eventTicketHandoffAction } from "~/features/events/services/event-ticket-handoff.action";
 import type { EventDetail } from "~/features/events/types/events";
+import type { ScrollGroupHandle } from "~/lib/scroll-restoration";
 
 export const loader = eventDetailLoader;
 export const action = eventTicketHandoffAction;
+export const handle: ScrollGroupHandle = { scrollGroup: true };
 
 export function meta({ data }: { data?: { event: EventDetail | null } }) {
   const title = data?.event?.title;
@@ -37,7 +37,6 @@ function BackToEvents() {
 }
 
 export default function EventDetailPage() {
-  const location = useLocation();
   const prefersReducedMotion = useReducedMotion();
   const appLayoutData = useRouteLoaderData("layout/app-layout") as
     | { user: unknown | null }
@@ -89,10 +88,6 @@ export default function EventDetailPage() {
         ]
       : []),
   ];
-  const usesWideContent =
-    location.pathname.endsWith("/programs") ||
-    location.pathname.endsWith("/exhibitors");
-
   return (
     <div className="min-h-screen bg-white">
       <main className="site-container pt-8 pb-12 font-tk-edu sm:pt-12 sm:pb-20">
@@ -164,52 +159,12 @@ export default function EventDetailPage() {
           ))}
         </motion.div>
 
-        <div
-          className={cn(
-            "grid items-start gap-8",
-            !usesWideContent && "lg:grid-cols-[minmax(0,1fr)_360px]",
-          )}
-        >
-          <div className="min-w-0">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={location.pathname}
-                initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: prefersReducedMotion ? 0 : -8 }}
-                transition={{
-                  duration: prefersReducedMotion ? 0 : 0.25,
-                  ease: "easeOut",
-                }}
-              >
-                <Outlet
-                  context={{
-                    event,
-                    isAuthenticated: Boolean(appLayoutData?.user),
-                  }}
-                />
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {!usesWideContent && (
-            <motion.aside
-              initial={{
-                opacity: 0,
-                x: prefersReducedMotion ? 0 : 14,
-                y: prefersReducedMotion ? 0 : 12,
-              }}
-              animate={{ opacity: 1, x: 0, y: 0 }}
-              transition={{
-                duration: prefersReducedMotion ? 0 : 0.3,
-                delay: prefersReducedMotion ? 0 : 0.2,
-              }}
-              className="lg:sticky lg:top-24"
-            >
-              <EventDetailOverview event={event} />
-            </motion.aside>
-          )}
-        </div>
+        <Outlet
+          context={{
+            event,
+            isAuthenticated: Boolean(appLayoutData?.user),
+          }}
+        />
       </main>
     </div>
   );

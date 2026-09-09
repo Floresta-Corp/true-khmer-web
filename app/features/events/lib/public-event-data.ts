@@ -5,6 +5,10 @@ export type PublicEventPhoto = Awaited<
   ReturnType<typeof api.getV1plumpieventsslugSlugphotos>
 >["photos"][number];
 
+export type PublicEventOrganizer = Awaited<
+  ReturnType<typeof api.getV1plumpieventsslugSlugorganizer>
+>["organizer"];
+
 export type PublicEventSession = Awaited<
   ReturnType<typeof api.getV1plumpieventsslugSlugsessions>
 >["sessions"][number];

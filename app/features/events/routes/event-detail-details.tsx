@@ -2,6 +2,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData, useOutletContext } from "react-router";
 import { getPlumpiEventPhotos } from "~/api/events/events.server";
 import { EventDetailsPanel } from "~/features/events/components/event-details-panel";
+import { EventTabTransition } from "~/features/events/components/event-tab-transition";
 import type { EventDetailOutletContext } from "~/features/events/types/events";
 import { readOptional } from "~/lib/server/api-client.server";
 
@@ -15,5 +16,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export default function EventDetailDetailsRoute() {
   const { event } = useOutletContext<EventDetailOutletContext>();
   const { photos } = useLoaderData<typeof loader>();
-  return <EventDetailsPanel event={event} photos={photos} />;
+  return (
+    <EventTabTransition>
+      <EventDetailsPanel event={event} photos={photos} />
+    </EventTabTransition>
+  );
 }

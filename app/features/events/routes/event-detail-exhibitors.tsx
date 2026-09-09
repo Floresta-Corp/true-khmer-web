@@ -6,6 +6,7 @@ import {
   getPlumpiEventFloorPlanPhotos,
 } from "~/api/events/events.server";
 import { EventExhibitors } from "~/features/events/components/event-exhibitors";
+import { EventTabTransition } from "~/features/events/components/event-tab-transition";
 import { readOptional } from "~/lib/server/api-client.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -35,10 +36,12 @@ export default function EventDetailExhibitorsRoute() {
     useLoaderData<typeof loader>();
 
   return (
-    <EventExhibitors
-      exhibitors={exhibitors}
-      categories={exhibitorCategories}
-      floorPlanPhotos={floorPlanPhotos}
-    />
+    <EventTabTransition>
+      <EventExhibitors
+        exhibitors={exhibitors}
+        categories={exhibitorCategories}
+        floorPlanPhotos={floorPlanPhotos}
+      />
+    </EventTabTransition>
   );
 }
