@@ -8,17 +8,15 @@ import { getAdminAccessToken } from "~/lib/server/session.server";
 import type {
   CreateBlogCategoryRequest,
   CreateBlogCategoryResponse,
-  CreateBlogPostRequest,
-  CreateBlogPostResponse,
   DeleteBlogPostResponse,
   GetBlogCategoriesResponse,
   GetBlogPostResponse,
-  ListModeratorBlogPostsResponse,
-  PresignBlogImageUploadResponse,
+  ListModerationBlogPostsResponse,
+  RejectBlogPostRequest,
   SetBlogPostFeaturedRequest,
+  UnpublishBlogPostRequest,
   UpdateBlogCategoryRequest,
   UpdateBlogCategoryResponse,
-  UpdateBlogPostRequest,
   UpdateBlogPostResponse,
 } from "~/types/api-client";
 
@@ -67,11 +65,23 @@ export interface ListModeratorBlogPostsQuery {
   page?: number;
   pageSize?: number;
   search?: string;
-  status?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
-  placement?: "HOME" | "CONTACT" | "NONE";
-  sortField?: "createdAt" | "updatedAt" | "publishedAt" | "title";
+  status?: ModerationBlogPostStatus;
+  categoryId?: string;
+  sortField?:
+    | "createdAt"
+    | "updatedAt"
+    | "publishedAt"
+    | "submittedAt"
+    | "title";
   sortOrder?: "asc" | "desc";
 }
+
+export type ModerationBlogPostStatus =
+  | "DRAFT"
+  | "PENDING_REVIEW"
+  | "PUBLISHED"
+  | "REJECTED"
+  | "UNPUBLISHED";
 
 // GET /v1/admin/blog/posts
 export async function getModeratorBlogPosts(
@@ -84,14 +94,14 @@ export async function getModeratorBlogPosts(
     searchParams.set("pageSize", String(query.pageSize));
   if (query.search) searchParams.set("search", query.search);
   if (query.status) searchParams.set("status", query.status);
-  if (query.placement) searchParams.set("placement", query.placement);
+  if (query.categoryId) searchParams.set("categoryId", query.categoryId);
   if (query.sortField) searchParams.set("sortField", query.sortField);
   if (query.sortOrder) searchParams.set("sortOrder", query.sortOrder);
 
   const queryString = searchParams.toString();
 
   return retryAdminRequestAfterRefresh(request, (accessToken) =>
-    apiRequestWithAccessToken<ListModeratorBlogPostsResponse>(
+    apiRequestWithAccessToken<ListModerationBlogPostsResponse>(
       request,
       accessToken,
       `/admin/blog/posts${queryString ? `?${queryString}` : ""}`,
@@ -112,33 +122,46 @@ export async function getModeratorBlogPost(request: Request, postId: string) {
   );
 }
 
-// POST /v1/admin/blog/posts
-export async function createBlogPost(
-  request: Request,
-  payload: CreateBlogPostRequest,
-) {
+// POST /v1/admin/blog/posts/{id}/approve
+export async function approveBlogPost(request: Request, postId: string) {
   return retryAdminRequestAfterRefresh(request, (accessToken) =>
-    apiRequestWithAccessToken<CreateBlogPostResponse, CreateBlogPostRequest>(
+    apiRequestWithAccessToken<UpdateBlogPostResponse>(
       request,
       accessToken,
-      "/admin/blog/posts",
+      `/admin/blog/posts/${encodeURIComponent(postId)}/approve`,
+      { method: "POST" },
+    ),
+  );
+}
+
+// POST /v1/admin/blog/posts/{id}/reject
+export async function rejectBlogPost(
+  request: Request,
+  postId: string,
+  payload: RejectBlogPostRequest,
+) {
+  return retryAdminRequestAfterRefresh(request, (accessToken) =>
+    apiRequestWithAccessToken<UpdateBlogPostResponse, RejectBlogPostRequest>(
+      request,
+      accessToken,
+      `/admin/blog/posts/${encodeURIComponent(postId)}/reject`,
       { method: "POST", body: payload },
     ),
   );
 }
 
-// PATCH /v1/admin/blog/posts/{id}
-export async function updateBlogPost(
+// POST /v1/admin/blog/posts/{id}/unpublish
+export async function unpublishBlogPost(
   request: Request,
   postId: string,
-  payload: UpdateBlogPostRequest,
+  payload: UnpublishBlogPostRequest,
 ) {
   return retryAdminRequestAfterRefresh(request, (accessToken) =>
-    apiRequestWithAccessToken<UpdateBlogPostResponse, UpdateBlogPostRequest>(
+    apiRequestWithAccessToken<UpdateBlogPostResponse, UnpublishBlogPostRequest>(
       request,
       accessToken,
-      `/admin/blog/posts/${encodeURIComponent(postId)}`,
-      { method: "PATCH", body: payload },
+      `/admin/blog/posts/${encodeURIComponent(postId)}/unpublish`,
+      { method: "POST", body: payload },
     ),
   );
 }
@@ -174,26 +197,6 @@ export async function setBlogPostFeatured(
         body: payload,
       },
     ),
-  );
-}
-
-// POST /v1/admin/blog/posts/image/presign
-export async function presignBlogImage(
-  request: Request,
-  input: { contentType: string; fileSize: number },
-  existingAccessToken?: string,
-) {
-  return retryAdminRequestAfterRefresh(
-    request,
-    (accessToken) =>
-      apiRequestWithAccessToken<
-        PresignBlogImageUploadResponse,
-        { contentType: string; fileSize: number }
-      >(request, accessToken, "/admin/blog/posts/image/presign", {
-        method: "POST",
-        body: input,
-      }),
-    existingAccessToken,
   );
 }
 

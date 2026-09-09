@@ -8,7 +8,7 @@ import {
 } from "react-router";
 import { toast } from "sonner";
 
-import { ConfirmationModal } from "~/features/admin/components/confirmation-modal";
+import { ConfirmationModal } from "~/components/confirmation-modal";
 import { CredentialRevealModal } from "../credential-reveal-modal";
 import {
   DeveloperClientModal,

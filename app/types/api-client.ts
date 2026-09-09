@@ -570,6 +570,12 @@ const RecentActivityErrorResponse = z.object({ ok: z.literal(false), error: z.st
 
 const SearchSkillsResponse = z.object({ ok: z.literal(true), skills: z.array(z.object({ id: z.string(), name: z.string() })) });
 
+const InterestsResponse = z.object({ ok: z.literal(true), interests: z.array(z.object({ id: z.string(), slug: z.string(), label: z.string(), icon: z.string().nullable() })) });
+
+const UpdateInterestsRequest = z.object({ interestIds: z.array(z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)).min(2).max(20) });
+
+const UpdateInterestsResponse = z.object({ ok: z.literal(true), interests: z.array(z.object({ id: z.string(), slug: z.string(), label: z.string(), icon: z.string().nullable() })) });
+
 const GetSavedItemsResponse = z.object({ ok: z.literal(true), items: z.array(z.union([z.object({ type: z.literal("project"), savedAt: z.string(), item: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.literal(true), savedAt: z.string() }) }), z.object({ type: z.literal("volunteer"), savedAt: z.string(), item: VolunteerOpportunityListItemResponse }), z.object({ type: z.literal("forum"), savedAt: z.string(), item: QuestionResponse })])), pagination: z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }), counts: z.object({ all: z.number().int().gte(0), project: z.number().int().gte(0), volunteer: z.number().int().gte(0), forum: z.number().int().gte(0) }) });
 
 const SavedItemsErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
@@ -657,13 +663,39 @@ const UpdateBlogCategoryRequest = z.object({ name: z.string().min(1).max(120), s
 
 const UpdateBlogCategoryResponse = z.object({ ok: z.boolean(), category: BlogCategoryResponse });
 
+const BlogPostAuthor = z.object({ id: z.string().uuid().nullable(), name: z.string(), avatarKey: z.string().nullable() });
+
+const BlogPostModeration = z.object({ submittedAt: z.string().nullable(), reviewedAt: z.string().nullable(), reviewedBy: z.string().uuid().nullable(), rejectionReason: z.string().nullable(), unpublishedAt: z.string().nullable(), unpublishedByAdminId: z.string().uuid().nullable(), unpublishedByUserId: z.string().uuid().nullable(), unpublishReason: z.enum(["AUTHOR_REQUEST", "POLICY_VIOLATION", "MODERATOR_DECISION", "OUTDATED_CONTENT"]).nullable(), unpublishNote: z.string().nullable() });
+
+const BlogPostSummaryResponse = z.object({ id: z.string().uuid(), title: z.string(), slug: z.string(), excerpt: z.string(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), coverImageAlt: z.string().nullable(), coverImageCaption: z.string().nullable(), authorName: z.string().nullable(), authorRole: z.string().nullable(), tags: z.array(z.string()), categoryId: z.string().uuid().nullable(), categoryName: z.string().nullish(), isFeatured: z.boolean(), commentCount: z.number().int().gte(0), status: z.enum(["DRAFT", "PENDING_REVIEW", "PUBLISHED", "REJECTED", "UNPUBLISHED"]), placement: z.enum(["HOME", "CONTACT", "NONE"]), publishedAt: z.string().nullable(), authorId: z.string().uuid().nullable(), author: BlogPostAuthor, moderation: BlogPostModeration, createdBy: z.string().uuid().nullable(), updatedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string() });
+
 const PaginationMeta = z.object({ page: z.number().int().gt(0), pageSize: z.number().int().gt(0), total: z.number().int().gte(0), totalPages: z.number().int().gte(0) });
 
-const ListModeratorBlogPostsResponse = z.object({ ok: z.boolean(), data: z.array(z.object({ id: z.string().uuid(), title: z.string(), slug: z.string(), excerpt: z.string(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), coverImageAlt: z.string().nullable(), coverImageCaption: z.string().nullable(), authorName: z.string(), authorRole: z.string().nullable(), tags: z.array(z.string()), categoryId: z.string().uuid().nullable(), categoryName: z.string().nullish(), isFeatured: z.boolean(), commentCount: z.number().int().gte(0), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]), placement: z.enum(["HOME", "CONTACT", "NONE"]), publishedAt: z.string().nullable(), createdBy: z.string().uuid(), updatedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string() })), meta: PaginationMeta });
+const ListModerationBlogPostsResponse = z.object({ ok: z.boolean(), data: z.array(BlogPostSummaryResponse), meta: PaginationMeta });
 
-const CreateBlogPostRequest = z.object({ title: z.string().min(1).max(255), slug: z.string().max(255).optional(), excerpt: z.string().min(1), coverImageKey: z.string().max(600).nullish(), coverImageAlt: z.string().max(255).nullish(), coverImageCaption: z.string().nullish(), authorName: z.string().min(1).max(120), authorRole: z.string().max(120).nullish(), content: z.string().optional().default(""), tags: z.array(z.string().min(1).max(40)).max(5).optional(), categoryId: z.string().uuid().nullish(), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional().default("DRAFT"), placement: z.enum(["HOME", "CONTACT", "NONE"]).optional().default("HOME") });
+const BlogPostErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
-const BlogPostResponse = z.object({ id: z.string().uuid(), title: z.string(), slug: z.string(), excerpt: z.string(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), coverImageAlt: z.string().nullable(), coverImageCaption: z.string().nullable(), authorName: z.string(), authorRole: z.string().nullable(), content: z.string(), tags: z.array(z.string()), categoryId: z.string().uuid().nullable(), categoryName: z.string().nullish(), isFeatured: z.boolean(), commentCount: z.number().int().gte(0), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]), placement: z.enum(["HOME", "CONTACT", "NONE"]), publishedAt: z.string().nullable(), createdBy: z.string().uuid(), updatedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string() });
+const BlogPostResponse = z.object({ id: z.string().uuid(), title: z.string(), slug: z.string(), excerpt: z.string(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), coverImageAlt: z.string().nullable(), coverImageCaption: z.string().nullable(), authorName: z.string().nullable(), authorRole: z.string().nullable(), content: z.string(), tags: z.array(z.string()), categoryId: z.string().uuid().nullable(), categoryName: z.string().nullish(), isFeatured: z.boolean(), commentCount: z.number().int().gte(0), status: z.enum(["DRAFT", "PENDING_REVIEW", "PUBLISHED", "REJECTED", "UNPUBLISHED"]), placement: z.enum(["HOME", "CONTACT", "NONE"]), publishedAt: z.string().nullable(), authorId: z.string().uuid().nullable(), author: BlogPostAuthor, moderation: BlogPostModeration, createdBy: z.string().uuid().nullable(), updatedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string() });
+
+const GetBlogPostResponse = z.object({ ok: z.boolean(), post: BlogPostResponse });
+
+const ModerateBlogPostRequest = z.object({ categoryId: z.string().uuid().nullable(), placement: z.enum(["HOME", "CONTACT", "NONE"]) }).partial();
+
+const UpdateBlogPostResponse = z.object({ ok: z.boolean(), post: BlogPostResponse });
+
+const BlogPostValidationErrorResponse = z.object({ ok: z.literal(false), error: z.string(), issues: z.array(z.string()).optional() });
+
+const DeleteBlogPostResponse = z.object({ ok: z.boolean() });
+
+const RejectBlogPostRequest = z.object({ reason: z.string().min(1).max(1000) });
+
+const UnpublishBlogPostRequest = z.object({ reason: z.enum(["AUTHOR_REQUEST", "POLICY_VIOLATION", "MODERATOR_DECISION", "OUTDATED_CONTENT"]).default("MODERATOR_DECISION"), note: z.string().max(1000) }).partial();
+
+const SetBlogPostFeaturedRequest = z.object({ isFeatured: z.boolean() });
+
+const ListMyBlogPostsResponse = z.object({ ok: z.boolean(), data: z.array(BlogPostSummaryResponse), meta: PaginationMeta });
+
+const CreateBlogPostRequest = z.object({ title: z.string().max(255), slug: z.string().max(255), excerpt: z.string(), coverImageKey: z.string().max(600).nullable(), coverImageAlt: z.string().max(255).nullable(), coverImageCaption: z.string().nullable(), authorRole: z.string().max(120).nullable(), content: z.string(), tags: z.array(z.string().min(1).max(40)).max(5), categoryId: z.string().uuid().nullable() }).partial();
 
 const CreateBlogPostResponse = z.object({ ok: z.boolean(), post: BlogPostResponse });
 
@@ -671,21 +703,17 @@ const PresignBlogImageUploadRequest = z.object({ contentType: z.string(), fileSi
 
 const PresignBlogImageUploadResponse = z.object({ ok: z.boolean(), upload: z.object({ uploadUrl: z.string(), method: z.literal("PUT"), requiredHeaders: z.record(z.string(), z.string()), imageKey: z.string(), publicUrl: z.string().nullable(), expiresInSeconds: z.number() }) });
 
-const GetBlogPostResponse = z.object({ ok: z.boolean(), post: BlogPostResponse });
+const UpdateBlogPostRequest = z.object({ title: z.string().max(255), slug: z.string().max(255), excerpt: z.string(), coverImageKey: z.string().max(600).nullable(), coverImageAlt: z.string().max(255).nullable(), coverImageCaption: z.string().nullable(), authorRole: z.string().max(120).nullable(), content: z.string(), tags: z.array(z.string().min(1).max(40)).max(5), categoryId: z.string().uuid().nullable() }).partial();
 
-const UpdateBlogPostRequest = z.object({ title: z.string().min(1).max(255), slug: z.string().max(255), excerpt: z.string().min(1), coverImageKey: z.string().max(600).nullable(), coverImageAlt: z.string().max(255).nullable(), coverImageCaption: z.string().nullable(), authorName: z.string().min(1).max(120), authorRole: z.string().max(120).nullable(), content: z.string().default(""), tags: z.array(z.string().min(1).max(40)).max(5), categoryId: z.string().uuid().nullable(), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).default("DRAFT"), placement: z.enum(["HOME", "CONTACT", "NONE"]).default("HOME") }).partial();
+const UnpublishMyBlogPostRequest = z.object({ note: z.string().max(500) }).partial();
 
-const UpdateBlogPostResponse = z.object({ ok: z.boolean(), post: BlogPostResponse });
+const PublicBlogPostListingItemResponse = z.object({ id: z.string().uuid(), title: z.string(), slug: z.string(), excerpt: z.string(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), coverImageAlt: z.string().nullable(), coverImageCaption: z.string().nullable(), authorName: z.string().nullable(), authorRole: z.string().nullable(), tags: z.array(z.string()), categoryId: z.string().uuid().nullable(), categoryName: z.string().nullish(), isFeatured: z.boolean(), commentCount: z.number().int().gte(0), status: z.enum(["DRAFT", "PENDING_REVIEW", "PUBLISHED", "REJECTED", "UNPUBLISHED"]), placement: z.enum(["HOME", "CONTACT", "NONE"]), publishedAt: z.string().nullable(), authorId: z.string().uuid().nullable(), author: BlogPostAuthor, createdAt: z.string(), updatedAt: z.string(), previewText: z.string() });
 
-const DeleteBlogPostResponse = z.object({ ok: z.boolean() });
+const ListPublicBlogPostsResponse = z.object({ ok: z.boolean(), data: z.array(PublicBlogPostListingItemResponse), meta: PaginationMeta, featuredPost: PublicBlogPostListingItemResponse.nullable() });
 
-const SetBlogPostFeaturedRequest = z.object({ isFeatured: z.boolean() });
+const PublicBlogPostResponse = z.object({ id: z.string().uuid(), title: z.string(), slug: z.string(), excerpt: z.string(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), coverImageAlt: z.string().nullable(), coverImageCaption: z.string().nullable(), authorName: z.string().nullable(), authorRole: z.string().nullable(), content: z.string(), tags: z.array(z.string()), categoryId: z.string().uuid().nullable(), categoryName: z.string().nullish(), isFeatured: z.boolean(), commentCount: z.number().int().gte(0), status: z.enum(["DRAFT", "PENDING_REVIEW", "PUBLISHED", "REJECTED", "UNPUBLISHED"]), placement: z.enum(["HOME", "CONTACT", "NONE"]), publishedAt: z.string().nullable(), authorId: z.string().uuid().nullable(), author: BlogPostAuthor, createdAt: z.string(), updatedAt: z.string() });
 
-const BlogPostListingItemResponse = z.object({ id: z.string().uuid(), title: z.string(), slug: z.string(), excerpt: z.string(), coverImageKey: z.string().nullable(), coverImageUrl: z.string().nullable(), coverImageAlt: z.string().nullable(), coverImageCaption: z.string().nullable(), authorName: z.string(), authorRole: z.string().nullable(), tags: z.array(z.string()), categoryId: z.string().uuid().nullable(), categoryName: z.string().nullish(), isFeatured: z.boolean(), commentCount: z.number().int().gte(0), status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]), placement: z.enum(["HOME", "CONTACT", "NONE"]), publishedAt: z.string().nullable(), createdBy: z.string().uuid(), updatedBy: z.string().uuid().nullable(), createdAt: z.string(), updatedAt: z.string(), previewText: z.string() });
-
-const ListPublicBlogPostsResponse = z.object({ ok: z.boolean(), data: z.array(BlogPostListingItemResponse), meta: PaginationMeta, featuredPost: BlogPostListingItemResponse.nullable() });
-
-const GetPublicBlogPostResponse = z.object({ ok: z.boolean(), post: BlogPostResponse, relatedPosts: z.array(BlogPostListingItemResponse) });
+const GetPublicBlogPostResponse = z.object({ ok: z.boolean(), post: PublicBlogPostResponse, relatedPosts: z.array(PublicBlogPostListingItemResponse) });
 
 const RepliedBlogCommentResponse = z.object({ id: z.string(), body: z.string(), author: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable() }), replyCount: z.number(), createdAt: z.string(), updatedAt: z.string(), postId: z.string(), status: z.enum(["PUBLISHED", "SUSPENDED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), replyTo: z.string().nullable() });
 const BlogCommentResponse = RepliedBlogCommentResponse.and(z.object({ repliedComments: z.array(RepliedBlogCommentResponse).nullable() }));
@@ -1145,6 +1173,9 @@ export const schemas = {
 	GetRecentActivitiesResponse,
 	RecentActivityErrorResponse,
 	SearchSkillsResponse,
+	InterestsResponse,
+	UpdateInterestsRequest,
+	UpdateInterestsResponse,
 	GetSavedItemsResponse,
 	SavedItemsErrorResponse,
 	CertificateResponse,
@@ -1189,20 +1220,31 @@ export const schemas = {
 	CreateBlogCategoryResponse,
 	UpdateBlogCategoryRequest,
 	UpdateBlogCategoryResponse,
+	BlogPostAuthor,
+	BlogPostModeration,
+	BlogPostSummaryResponse,
 	PaginationMeta,
-	ListModeratorBlogPostsResponse,
-	CreateBlogPostRequest,
+	ListModerationBlogPostsResponse,
+	BlogPostErrorResponse,
 	BlogPostResponse,
+	GetBlogPostResponse,
+	ModerateBlogPostRequest,
+	UpdateBlogPostResponse,
+	BlogPostValidationErrorResponse,
+	DeleteBlogPostResponse,
+	RejectBlogPostRequest,
+	UnpublishBlogPostRequest,
+	SetBlogPostFeaturedRequest,
+	ListMyBlogPostsResponse,
+	CreateBlogPostRequest,
 	CreateBlogPostResponse,
 	PresignBlogImageUploadRequest,
 	PresignBlogImageUploadResponse,
-	GetBlogPostResponse,
 	UpdateBlogPostRequest,
-	UpdateBlogPostResponse,
-	DeleteBlogPostResponse,
-	SetBlogPostFeaturedRequest,
-	BlogPostListingItemResponse,
+	UnpublishMyBlogPostRequest,
+	PublicBlogPostListingItemResponse,
 	ListPublicBlogPostsResponse,
+	PublicBlogPostResponse,
 	GetPublicBlogPostResponse,
 	RepliedBlogCommentResponse,
 	BlogCommentResponse,
@@ -1446,6 +1488,7 @@ const endpoints = makeApi([
 		method: "get",
 		path: "/v1/admin/blog/posts",
 		alias: "getV1adminblogposts",
+		description: `Moderation queue. Filter by status&#x3D;PENDING_REVIEW for posts awaiting a decision.`,
 		requestFormat: "json",
 		parameters: [
 			{
@@ -1466,7 +1509,7 @@ const endpoints = makeApi([
 			{
 				name: "status",
 				type: "Query",
-				schema: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional()
+				schema: z.enum(["DRAFT", "PENDING_REVIEW", "PUBLISHED", "REJECTED", "UNPUBLISHED"]).optional()
 			},
 			{
 				name: "placement",
@@ -1474,9 +1517,19 @@ const endpoints = makeApi([
 				schema: z.enum(["HOME", "CONTACT", "NONE"]).optional()
 			},
 			{
+				name: "authorId",
+				type: "Query",
+				schema: z.string().uuid().optional()
+			},
+			{
+				name: "categoryId",
+				type: "Query",
+				schema: z.string().uuid().optional()
+			},
+			{
 				name: "sortField",
 				type: "Query",
-				schema: z.enum(["createdAt", "updatedAt", "publishedAt", "title"]).optional().default("updatedAt")
+				schema: z.enum(["createdAt", "updatedAt", "publishedAt", "submittedAt", "title"]).optional().default("updatedAt")
 			},
 			{
 				name: "sortOrder",
@@ -1484,26 +1537,17 @@ const endpoints = makeApi([
 				schema: z.enum(["asc", "desc"]).optional().default("desc")
 			},
 		],
-		response: ListModeratorBlogPostsResponse,
-	},
-	{
-		method: "post",
-		path: "/v1/admin/blog/posts",
-		alias: "postV1adminblogposts",
-		requestFormat: "json",
-		parameters: [
-			{
-				name: "body",
-				type: "Body",
-				schema: CreateBlogPostRequest
-			},
-		],
-		response: CreateBlogPostResponse,
+		response: ListModerationBlogPostsResponse,
 		errors: [
 			{
-				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
+				status: 401,
+				description: `Unauthorized`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: BlogPostErrorResponse
 			},
 		]
 	},
@@ -1522,9 +1566,19 @@ const endpoints = makeApi([
 		response: GetBlogPostResponse,
 		errors: [
 			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: BlogPostErrorResponse
+			},
+			{
 				status: 404,
 				description: `Blog post not found`,
-				schema: z.void()
+				schema: BlogPostErrorResponse
 			},
 		]
 	},
@@ -1532,12 +1586,13 @@ const endpoints = makeApi([
 		method: "patch",
 		path: "/v1/admin/blog/posts/:id",
 		alias: "patchV1adminblogpostsId",
+		description: `Updates the site-placement fields a moderator owns. The author&#x27;s writing is never edited here.`,
 		requestFormat: "json",
 		parameters: [
 			{
 				name: "body",
 				type: "Body",
-				schema: UpdateBlogPostRequest
+				schema: ModerateBlogPostRequest
 			},
 			{
 				name: "id",
@@ -1550,17 +1605,22 @@ const endpoints = makeApi([
 			{
 				status: 400,
 				description: `Validation failed`,
-				schema: z.void()
+				schema: BlogPostValidationErrorResponse
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: BlogPostErrorResponse
 			},
 			{
 				status: 403,
-				description: `Not the owner of this blog post`,
-				schema: z.void()
+				description: `Moderator role required`,
+				schema: BlogPostErrorResponse
 			},
 			{
 				status: 404,
 				description: `Blog post not found`,
-				schema: z.void()
+				schema: BlogPostErrorResponse
 			},
 		]
 	},
@@ -1568,6 +1628,7 @@ const endpoints = makeApi([
 		method: "delete",
 		path: "/v1/admin/blog/posts/:id",
 		alias: "deleteV1adminblogpostsId",
+		description: `Moderator takedown. Soft-deletes the post for everyone.`,
 		requestFormat: "json",
 		parameters: [
 			{
@@ -1579,14 +1640,61 @@ const endpoints = makeApi([
 		response: z.object({ ok: z.boolean() }),
 		errors: [
 			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: BlogPostErrorResponse
+			},
+			{
 				status: 403,
-				description: `Not the owner of this blog post`,
-				schema: z.void()
+				description: `Moderator role required`,
+				schema: BlogPostErrorResponse
 			},
 			{
 				status: 404,
 				description: `Blog post not found`,
-				schema: z.void()
+				schema: BlogPostErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/blog/posts/:id/approve",
+		alias: "postV1adminblogpostsIdapprove",
+		description: `Publishes the post: PENDING_REVIEW -&gt; PUBLISHED, or republishes UNPUBLISHED -&gt; PUBLISHED.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: UpdateBlogPostResponse,
+		errors: [
+			{
+				status: 400,
+				description: `The post is not complete enough to publish`,
+				schema: BlogPostValidationErrorResponse
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 404,
+				description: `Blog post not found`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 409,
+				description: `The post&#x27;s current status does not allow approving`,
+				schema: BlogPostErrorResponse
 			},
 		]
 	},
@@ -1612,38 +1720,116 @@ const endpoints = makeApi([
 			{
 				status: 400,
 				description: `Only published blog posts can be featured`,
-				schema: z.void()
+				schema: BlogPostValidationErrorResponse
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: BlogPostErrorResponse
 			},
 			{
 				status: 403,
-				description: `Not the owner of this blog post`,
-				schema: z.void()
+				description: `Moderator role required`,
+				schema: BlogPostErrorResponse
 			},
 			{
 				status: 404,
 				description: `Blog post not found`,
-				schema: z.void()
+				schema: BlogPostErrorResponse
 			},
 		]
 	},
 	{
 		method: "post",
-		path: "/v1/admin/blog/posts/image/presign",
-		alias: "postV1adminblogpostsimagepresign",
+		path: "/v1/admin/blog/posts/:id/reject",
+		alias: "postV1adminblogpostsIdreject",
+		description: `Declines the submission: PENDING_REVIEW -&gt; REJECTED.`,
 		requestFormat: "json",
 		parameters: [
 			{
 				name: "body",
 				type: "Body",
-				schema: PresignBlogImageUploadRequest
+				schema: z.object({ reason: z.string().min(1).max(1000) })
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
 			},
 		],
-		response: PresignBlogImageUploadResponse,
+		response: UpdateBlogPostResponse,
 		errors: [
 			{
 				status: 400,
 				description: `Validation failed`,
-				schema: z.void()
+				schema: BlogPostValidationErrorResponse
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 404,
+				description: `Blog post not found`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 409,
+				description: `Only a post awaiting review can be rejected`,
+				schema: BlogPostErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/admin/blog/posts/:id/unpublish",
+		alias: "postV1adminblogpostsIdunpublish",
+		description: `Takes the post off the public site: PUBLISHED -&gt; UNPUBLISHED.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: UnpublishBlogPostRequest
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: UpdateBlogPostResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: BlogPostValidationErrorResponse
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 403,
+				description: `Moderator role required`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 404,
+				description: `Blog post not found`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 409,
+				description: `Only a published post can be unpublished`,
+				schema: BlogPostErrorResponse
 			},
 		]
 	},
@@ -5031,6 +5217,305 @@ const endpoints = makeApi([
 	},
 	{
 		method: "get",
+		path: "/v1/blog/posts",
+		alias: "getV1blogposts",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gt(0).optional().default(1)
+			},
+			{
+				name: "pageSize",
+				type: "Query",
+				schema: z.number().int().gt(0).lte(100).optional()
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().optional()
+			},
+			{
+				name: "status",
+				type: "Query",
+				schema: z.enum(["DRAFT", "PENDING_REVIEW", "PUBLISHED", "REJECTED", "UNPUBLISHED"]).optional()
+			},
+			{
+				name: "sortField",
+				type: "Query",
+				schema: z.enum(["createdAt", "updatedAt", "publishedAt", "title"]).optional().default("updatedAt")
+			},
+			{
+				name: "sortOrder",
+				type: "Query",
+				schema: z.enum(["asc", "desc"]).optional().default("desc")
+			},
+		],
+		response: ListMyBlogPostsResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: BlogPostErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/blog/posts",
+		alias: "postV1blogposts",
+		description: `Creates a DRAFT owned by the caller. Every field is optional so the editor can auto-save an unfinished post.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: CreateBlogPostRequest
+			},
+		],
+		response: CreateBlogPostResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: BlogPostValidationErrorResponse
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: BlogPostErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/blog/posts/:id",
+		alias: "getV1blogpostsId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: GetBlogPostResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 404,
+				description: `Blog post not found or not owned by the caller`,
+				schema: BlogPostErrorResponse
+			},
+		]
+	},
+	{
+		method: "patch",
+		path: "/v1/blog/posts/:id",
+		alias: "patchV1blogpostsId",
+		description: `Auto-save endpoint. Editing is allowed while the post is DRAFT, REJECTED or UNPUBLISHED; PENDING_REVIEW and PUBLISHED posts are frozen.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: UpdateBlogPostRequest
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: UpdateBlogPostResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: BlogPostValidationErrorResponse
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 404,
+				description: `Blog post not found or not owned by the caller`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 409,
+				description: `The post&#x27;s current status does not allow editing`,
+				schema: BlogPostErrorResponse
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/blog/posts/:id",
+		alias: "deleteV1blogpostsId",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: z.object({ ok: z.boolean() }),
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 404,
+				description: `Blog post not found or not owned by the caller`,
+				schema: BlogPostErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/blog/posts/:id/submit",
+		alias: "postV1blogpostsIdsubmit",
+		description: `Hands the post to moderation: DRAFT | REJECTED | UNPUBLISHED -&gt; PENDING_REVIEW. Publish requirements are enforced here.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: UpdateBlogPostResponse,
+		errors: [
+			{
+				status: 400,
+				description: `The post is not complete enough to publish`,
+				schema: BlogPostValidationErrorResponse
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 404,
+				description: `Blog post not found or not owned by the caller`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 409,
+				description: `The post&#x27;s current status does not allow submitting`,
+				schema: BlogPostErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/blog/posts/:id/unpublish",
+		alias: "postV1blogpostsIdunpublish",
+		description: `Takes the author&#x27;s own post off the public site: PUBLISHED -&gt; UNPUBLISHED with reason AUTHOR_REQUEST.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: z.object({ note: z.string().max(500) }).partial()
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: UpdateBlogPostResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 404,
+				description: `Blog post not found or not owned by the caller`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 409,
+				description: `Only a published post can be unpublished`,
+				schema: BlogPostErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/blog/posts/:id/withdraw",
+		alias: "postV1blogpostsIdwithdraw",
+		description: `Pulls a submission back out of the moderation queue: PENDING_REVIEW -&gt; DRAFT.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: UpdateBlogPostResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 404,
+				description: `Blog post not found or not owned by the caller`,
+				schema: BlogPostErrorResponse
+			},
+			{
+				status: 409,
+				description: `Only a post awaiting review can be withdrawn`,
+				schema: BlogPostErrorResponse
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/blog/posts/image/presign",
+		alias: "postV1blogpostsimagepresign",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: PresignBlogImageUploadRequest
+			},
+		],
+		response: PresignBlogImageUploadResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: BlogPostValidationErrorResponse
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: BlogPostErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
 		path: "/v1/blog/public/category",
 		alias: "getV1blogpubliccategory",
 		requestFormat: "json",
@@ -7960,6 +8445,90 @@ const endpoints = makeApi([
 				status: 500,
 				description: `Internal server error`,
 				schema: CertificateErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/me/interests",
+		alias: "getV1meinterests",
+		requestFormat: "json",
+		response: InterestsResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Onboarding required`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: ProfileErrorResponse
+			},
+		]
+	},
+	{
+		method: "put",
+		path: "/v1/me/interests",
+		alias: "putV1meinterests",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: UpdateInterestsRequest
+			},
+		],
+		response: UpdateInterestsResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: ProfileErrorResponse
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Onboarding required`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: ProfileErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/me/interests/options",
+		alias: "getV1meinterestsoptions",
+		requestFormat: "json",
+		response: InterestsResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Onboarding required`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: ProfileErrorResponse
 			},
 		]
 	},
@@ -11720,6 +12289,9 @@ export type RecentActivity = z.infer<typeof schemas.RecentActivity>;
 export type GetRecentActivitiesResponse = z.infer<typeof schemas.GetRecentActivitiesResponse>;
 export type RecentActivityErrorResponse = z.infer<typeof schemas.RecentActivityErrorResponse>;
 export type SearchSkillsResponse = z.infer<typeof schemas.SearchSkillsResponse>;
+export type InterestsResponse = z.infer<typeof schemas.InterestsResponse>;
+export type UpdateInterestsRequest = z.infer<typeof schemas.UpdateInterestsRequest>;
+export type UpdateInterestsResponse = z.infer<typeof schemas.UpdateInterestsResponse>;
 export type GetSavedItemsResponse = z.infer<typeof schemas.GetSavedItemsResponse>;
 export type SavedItemsErrorResponse = z.infer<typeof schemas.SavedItemsErrorResponse>;
 export type CertificateResponse = z.infer<typeof schemas.CertificateResponse>;
@@ -11764,20 +12336,31 @@ export type CreateBlogCategoryRequest = z.infer<typeof schemas.CreateBlogCategor
 export type CreateBlogCategoryResponse = z.infer<typeof schemas.CreateBlogCategoryResponse>;
 export type UpdateBlogCategoryRequest = z.infer<typeof schemas.UpdateBlogCategoryRequest>;
 export type UpdateBlogCategoryResponse = z.infer<typeof schemas.UpdateBlogCategoryResponse>;
+export type BlogPostAuthor = z.infer<typeof schemas.BlogPostAuthor>;
+export type BlogPostModeration = z.infer<typeof schemas.BlogPostModeration>;
+export type BlogPostSummaryResponse = z.infer<typeof schemas.BlogPostSummaryResponse>;
 export type PaginationMeta = z.infer<typeof schemas.PaginationMeta>;
-export type ListModeratorBlogPostsResponse = z.infer<typeof schemas.ListModeratorBlogPostsResponse>;
-export type CreateBlogPostRequest = z.infer<typeof schemas.CreateBlogPostRequest>;
+export type ListModerationBlogPostsResponse = z.infer<typeof schemas.ListModerationBlogPostsResponse>;
+export type BlogPostErrorResponse = z.infer<typeof schemas.BlogPostErrorResponse>;
 export type BlogPostResponse = z.infer<typeof schemas.BlogPostResponse>;
+export type GetBlogPostResponse = z.infer<typeof schemas.GetBlogPostResponse>;
+export type ModerateBlogPostRequest = z.infer<typeof schemas.ModerateBlogPostRequest>;
+export type UpdateBlogPostResponse = z.infer<typeof schemas.UpdateBlogPostResponse>;
+export type BlogPostValidationErrorResponse = z.infer<typeof schemas.BlogPostValidationErrorResponse>;
+export type DeleteBlogPostResponse = z.infer<typeof schemas.DeleteBlogPostResponse>;
+export type RejectBlogPostRequest = z.infer<typeof schemas.RejectBlogPostRequest>;
+export type UnpublishBlogPostRequest = z.infer<typeof schemas.UnpublishBlogPostRequest>;
+export type SetBlogPostFeaturedRequest = z.infer<typeof schemas.SetBlogPostFeaturedRequest>;
+export type ListMyBlogPostsResponse = z.infer<typeof schemas.ListMyBlogPostsResponse>;
+export type CreateBlogPostRequest = z.infer<typeof schemas.CreateBlogPostRequest>;
 export type CreateBlogPostResponse = z.infer<typeof schemas.CreateBlogPostResponse>;
 export type PresignBlogImageUploadRequest = z.infer<typeof schemas.PresignBlogImageUploadRequest>;
 export type PresignBlogImageUploadResponse = z.infer<typeof schemas.PresignBlogImageUploadResponse>;
-export type GetBlogPostResponse = z.infer<typeof schemas.GetBlogPostResponse>;
 export type UpdateBlogPostRequest = z.infer<typeof schemas.UpdateBlogPostRequest>;
-export type UpdateBlogPostResponse = z.infer<typeof schemas.UpdateBlogPostResponse>;
-export type DeleteBlogPostResponse = z.infer<typeof schemas.DeleteBlogPostResponse>;
-export type SetBlogPostFeaturedRequest = z.infer<typeof schemas.SetBlogPostFeaturedRequest>;
-export type BlogPostListingItemResponse = z.infer<typeof schemas.BlogPostListingItemResponse>;
+export type UnpublishMyBlogPostRequest = z.infer<typeof schemas.UnpublishMyBlogPostRequest>;
+export type PublicBlogPostListingItemResponse = z.infer<typeof schemas.PublicBlogPostListingItemResponse>;
 export type ListPublicBlogPostsResponse = z.infer<typeof schemas.ListPublicBlogPostsResponse>;
+export type PublicBlogPostResponse = z.infer<typeof schemas.PublicBlogPostResponse>;
 export type GetPublicBlogPostResponse = z.infer<typeof schemas.GetPublicBlogPostResponse>;
 export type RepliedBlogCommentResponse = z.infer<typeof schemas.RepliedBlogCommentResponse>;
 export type BlogCommentResponse = z.infer<typeof schemas.BlogCommentResponse>;

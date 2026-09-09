@@ -6,6 +6,8 @@ import {
   BLOG_CONTENT_EXTRA_ALLOWED_ATTRIBUTES,
   BLOG_CONTENT_EXTRA_ALLOWED_TAGS,
 } from "~/lib/blog-content-sanitize";
+import { AuthorAvatar } from "~/components/author-avatar";
+import { resolveBlogAuthor } from "~/lib/blog-author";
 import { formatDate } from "~/lib/time";
 import type { blogDetailLoader } from "../services/blog-detail.loader";
 import BackToButton from "~/components/back-to-button";
@@ -14,6 +16,7 @@ import BlogCommentsSection from "./comment/blog-comments-section";
 export function PublicBlogDetailPage() {
   const { post, relatedPosts, comments, commentTotal, commentSort, viewer } =
     useLoaderData<typeof blogDetailLoader>();
+  const author = resolveBlogAuthor(post);
   const [shareLabel, setShareLabel] = useState("Share");
   const navigate = useNavigate();
   const navigation = useNavigation();
@@ -25,7 +28,7 @@ export function PublicBlogDetailPage() {
       navigate(-1);
       return;
     }
-    navigate("/blog");
+    navigate("/khmervoices");
   }
 
   async function handleShare() {
@@ -52,7 +55,7 @@ export function PublicBlogDetailPage() {
     <main className="bg-white pt-6 pb-14 font-sans sm:pt-7 lg:pt-8 lg:pb-16 dark:bg-slate-950">
       <div className="site-container">
         <div className="mb-3 hidden sm:block">
-          <BackToButton to="/blog" />
+          <BackToButton to="/khmervoices" />
         </div>
 
         {post.coverImageUrl ? (
@@ -117,13 +120,23 @@ export function PublicBlogDetailPage() {
         </h1>
 
         <div className="mt-8 flex items-end justify-between gap-4 border-t border-slate-200 pt-6 dark:border-white/10">
-          <div>
-            <p className="text-[14px] font-medium text-slate-900 dark:text-slate-100">
-              {post.authorName}
-            </p>
-            <p className="mt-1 text-[12px] text-slate-500">
-              {formatDate(post.publishedAt || post.createdAt)}
-            </p>
+          <div className="flex items-center gap-3">
+            {author.avatarKey ? (
+              <AuthorAvatar
+                name={author.name}
+                avatarKey={author.avatarKey}
+                className="h-10 w-10"
+              />
+            ) : null}
+            <div>
+              <p className="text-[14px] font-medium text-slate-900 dark:text-slate-100">
+                {author.name}
+              </p>
+              <p className="mt-1 text-[12px] text-slate-500">
+                {author.role ? `${author.role} • ` : ""}
+                {formatDate(post.publishedAt || post.createdAt)}
+              </p>
+            </div>
           </div>
           <button
             type="button"
@@ -163,7 +176,7 @@ export function PublicBlogDetailPage() {
                 </p>
               </div>
               <Link
-                to="/blog"
+                to="/khmervoices"
                 className="text-[12px] font-semibold text-[#0082e1] hover:underline"
               >
                 View all stories +
@@ -174,7 +187,7 @@ export function PublicBlogDetailPage() {
               {relatedPosts.map((relatedPost) => (
                 <Link
                   key={relatedPost.id}
-                  to={`/blog/${relatedPost.slug}`}
+                  to={`/khmervoices/${relatedPost.slug}`}
                   className="group block overflow-hidden rounded-[12px] border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.04)] transition-transform duration-200 hover:-translate-y-1 hover:border-[#1c97d4]/30 dark:border-white/10 dark:bg-slate-950"
                 >
                   <img

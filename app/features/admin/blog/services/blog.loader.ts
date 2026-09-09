@@ -6,16 +6,20 @@ import {
   getModeratorBlogPosts,
 } from "~/api/admin/blog/blog.server";
 import { requireAdmin } from "~/lib/server/route-guards.server";
+import { BLOG_QUEUE_PAGE_SIZE } from "../types";
 
 const querySchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
   search: z.string().optional(),
-  status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
-  placement: z.enum(["HOME", "CONTACT", "NONE"]).optional(),
+  status: z
+    .enum(["DRAFT", "PENDING_REVIEW", "PUBLISHED", "REJECTED", "UNPUBLISHED"])
+    .optional(),
 });
 
 export async function blogLoader({ request }: Route.LoaderArgs) {
-  const { admin, setCookie } = await requireAdmin(request);
+  // Admin sessions are MODERATOR or SUPER_ADMIN — the moderation queue's
+  // minimum role.
+  const { setCookie } = await requireAdmin(request);
   const url = new URL(request.url);
   const query = querySchema.parse(
     Object.fromEntries(url.searchParams.entries()),
@@ -27,10 +31,9 @@ export async function blogLoader({ request }: Route.LoaderArgs) {
   const content = Promise.all([
     getModeratorBlogPosts(request, {
       page: query.page,
-      pageSize: 12,
+      pageSize: BLOG_QUEUE_PAGE_SIZE,
       search: query.search,
       status: query.status,
-      placement: query.placement,
       sortField: "updatedAt",
       sortOrder: "desc",
     }),
@@ -41,12 +44,5 @@ export async function blogLoader({ request }: Route.LoaderArgs) {
     categories: categoriesResult.data.categories,
   }));
 
-  return data(
-    {
-      content,
-      currentUserId: admin?.id ?? "",
-      filters: query,
-    },
-    cookieHeader,
-  );
+  return data({ content, filters: query }, cookieHeader);
 }

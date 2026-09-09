@@ -1,17 +1,21 @@
 import { Link } from "react-router";
+import { AuthorAvatar } from "~/components/author-avatar";
+import { resolveBlogAuthor } from "~/lib/blog-author";
 import { formatDate } from "~/lib/time";
-import type { BlogPostListingItemResponse } from "~/types/api-client";
+import type { PublicBlogPostListingItemResponse } from "~/types/api-client";
 
 const FALLBACK_BLOG_IMAGE = "/images/hero-background-image.webp";
 
 export function PublicBlogCard({
   post,
 }: {
-  post: BlogPostListingItemResponse;
+  post: PublicBlogPostListingItemResponse;
 }) {
+  const author = resolveBlogAuthor(post);
+
   return (
     <Link
-      to={`/blog/${post.slug}`}
+      to={`/khmervoices/${post.slug}`}
       className="group flex h-full flex-col overflow-hidden rounded-xl border border-[#e2e8f0]/80 bg-white shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition-all hover:border-[#1c97d4]/30 hover:shadow-[0_12px_24px_rgba(15,23,42,0.05)] motion-reduce:transform-none motion-reduce:transition-none dark:border-white/10 dark:bg-slate-950"
     >
       <div className="relative shrink-0 overflow-hidden rounded-t-xl">
@@ -35,7 +39,14 @@ export function PublicBlogCard({
 
       <div className="flex flex-1 flex-col px-8 pt-8 pb-8">
         <div className="flex items-center gap-2 text-[14px] font-medium text-blue-500">
-          <span>{post.authorName}</span>
+          {author.avatarKey ? (
+            <AuthorAvatar
+              name={author.name}
+              avatarKey={author.avatarKey}
+              className="h-6 w-6"
+            />
+          ) : null}
+          <span>{author.name}</span>
           <span className="h-1 w-1 rounded-full bg-blue-500/70" />
           <span>{formatDate(post.publishedAt || post.createdAt)}</span>
         </div>

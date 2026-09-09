@@ -1,8 +1,9 @@
-import { data } from "react-router";
+import { data, redirect } from "react-router";
 import type { Route } from "project-types/admin/blog/route/+types/blog.$postId";
-import { deleteBlogPost } from "~/api/admin/blog/blog.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { requireAdmin } from "~/lib/server/route-guards.server";
+import { BLOG_MODERATION_INTENTS } from "../types";
+import { applyBlogModerationIntent } from "./blog-moderation.server";
 
 export async function blogDetailAction({ request, params }: Route.ActionArgs) {
   const { setCookie } = await requireAdmin(request);
@@ -14,14 +15,37 @@ export async function blogDetailAction({ request, params }: Route.ActionArgs) {
     ? { headers: { "Set-Cookie": setCookie } }
     : {};
 
+  const formData = await request.formData();
+  const intent = String(formData.get("intent") ?? "");
+
   try {
-    await deleteBlogPost(request, postId);
+    const moderation = await applyBlogModerationIntent(
+      request,
+      intent,
+      formData,
+      postId,
+    );
+
+    if (!moderation) {
+      return data(
+        { ok: false, message: "Unknown action intent" },
+        { status: 400 },
+      );
+    }
+
+    if (!moderation.ok) {
+      return data(
+        { ok: false, message: moderation.error },
+        { status: 400, ...cookieHeader },
+      );
+    }
+
+    if (intent === BLOG_MODERATION_INTENTS.delete) {
+      return redirect("/tk-admin/blog", cookieHeader);
+    }
+
     return data(
-      {
-        ok: true,
-        message: "Blog deleted successfully.",
-        redirectTo: "/tk-admin/blog",
-      },
+      { ok: true, message: moderation.message, intent },
       cookieHeader,
     );
   } catch (err) {
@@ -32,7 +56,7 @@ export async function blogDetailAction({ request, params }: Route.ActionArgs) {
       );
     }
     return data(
-      { ok: false, message: "Failed to delete blog post" },
+      { ok: false, message: "Moderation action failed" },
       { status: 500 },
     );
   }

@@ -9,6 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { AuthorAvatar } from "~/components/author-avatar";
+import { resolveBlogAuthor } from "~/lib/blog-author";
 import { formatDate } from "~/lib/time";
 import { cn } from "~/lib/utils";
 import type { blogLoader } from "../services/blog.loader";
@@ -29,7 +31,7 @@ function buildBlogUrl(input: {
   if (input.category) params.set("category", input.category);
   if (input.sort && input.sort !== "newest") params.set("sort", input.sort);
   const query = params.toString();
-  return query ? `/blog?${query}` : "/blog";
+  return query ? `/khmervoices?${query}` : "/khmervoices";
 }
 
 export function PublicBlogListPage() {
@@ -45,6 +47,7 @@ export function PublicBlogListPage() {
   const navigate = useNavigate();
   const navigation = useNavigation();
   const prefersReducedMotion = useReducedMotion();
+  const featuredAuthor = featuredPost ? resolveBlogAuthor(featuredPost) : null;
   const featuredCategoryName =
     activeCategory?.name ||
     (featuredPost?.categoryId
@@ -53,7 +56,7 @@ export function PublicBlogListPage() {
       : null);
   const isLoadingMore =
     navigation.state !== "idle" &&
-    navigation.location?.pathname === "/blog" &&
+    navigation.location?.pathname === "/khmervoices" &&
     Number(new URLSearchParams(navigation.location.search).get("page") || "1") >
       page;
 
@@ -110,7 +113,7 @@ export function PublicBlogListPage() {
             }}
           >
             <Link
-              to={`/blog/${featuredPost.slug}`}
+              to={`/khmervoices/${featuredPost.slug}`}
               className="group relative block overflow-hidden rounded-xl bg-slate-100"
             >
               <img
@@ -143,15 +146,24 @@ export function PublicBlogListPage() {
                   <h1 className="mt-4 line-clamp-4 text-[30px] leading-[1.05] font-semibold tracking-tight text-white sm:text-[36px] md:text-[42px] lg:text-[48px] xl:text-[54px]">
                     {featuredPost.title}
                   </h1>
-                  <div className="mt-5 sm:mt-6">
-                    <p className="text-[14px] font-semibold text-white">
-                      {featuredPost.authorName}
-                    </p>
-                    <p className="mt-1 text-[12px] text-white/80">
-                      {formatDate(
-                        featuredPost.publishedAt || featuredPost.createdAt,
-                      )}
-                    </p>
+                  <div className="mt-5 flex items-center gap-3 sm:mt-6">
+                    {featuredAuthor?.avatarKey ? (
+                      <AuthorAvatar
+                        name={featuredAuthor.name}
+                        avatarKey={featuredAuthor.avatarKey}
+                        className="h-9 w-9"
+                      />
+                    ) : null}
+                    <div>
+                      <p className="text-[14px] font-semibold text-white">
+                        {featuredAuthor?.name}
+                      </p>
+                      <p className="mt-1 text-[12px] text-white/80">
+                        {formatDate(
+                          featuredPost.publishedAt || featuredPost.createdAt,
+                        )}
+                      </p>
+                    </div>
                   </div>
                 </motion.div>
               </div>

@@ -37,10 +37,10 @@ export async function sitemapBlogLoader({ request }: { request: Request }) {
   });
 
   const entries: SitemapEntry[] = [
-    { path: "/blog", changefreq: "daily", priority: 0.9 },
+    { path: "/khmervoices", changefreq: "daily", priority: 0.9 },
     ...posts.map(
       (post): SitemapEntry => ({
-        path: `/blog/${post.slug}`,
+        path: `/khmervoices/${post.slug}`,
         lastmod: post.updatedAt ?? post.publishedAt,
         changefreq: "weekly",
         priority: post.isFeatured ? 0.8 : 0.7,

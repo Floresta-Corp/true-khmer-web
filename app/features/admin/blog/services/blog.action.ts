@@ -2,12 +2,11 @@ import { data } from "react-router";
 import type { Route } from "project-types/admin/blog/route/+types/blog";
 import {
   createBlogCategory,
-  deleteBlogPost,
-  setBlogPostFeatured,
   updateBlogCategory,
 } from "~/api/admin/blog/blog.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { requireAdmin } from "~/lib/server/route-guards.server";
+import { applyBlogModerationIntent } from "./blog-moderation.server";
 
 export async function blogAction({ request }: Route.ActionArgs) {
   const { setCookie } = await requireAdmin(request);
@@ -74,22 +73,19 @@ export async function blogAction({ request }: Route.ActionArgs) {
       );
     }
 
-    if (intent === "delete") {
-      const postId = String(formData.get("postId") ?? "");
-      await deleteBlogPost(request, postId);
+    const moderation = await applyBlogModerationIntent(
+      request,
+      intent,
+      formData,
+    );
+    if (moderation) {
       return data(
-        { ok: true, intent, message: "Blog deleted successfully." },
-        cookieHeader,
-      );
-    }
-
-    if (intent === "feature") {
-      const postId = String(formData.get("postId") ?? "");
-      const isFeatured = formData.get("isFeatured") === "true";
-      await setBlogPostFeatured(request, postId, { isFeatured });
-      return data(
-        { ok: true, intent, message: "Featured blog updated successfully." },
-        cookieHeader,
+        {
+          ...moderation,
+          intent,
+          message: moderation.message ?? moderation.error,
+        },
+        moderation.ok ? cookieHeader : { status: 400 },
       );
     }
 

@@ -27,7 +27,7 @@ import {
 import { toast } from "sonner";
 
 import { Button } from "~/components/ui/button";
-import { ConfirmationModal } from "~/features/admin/components/confirmation-modal";
+import { ConfirmationModal } from "~/components/confirmation-modal";
 import { getSafeExternalUrl } from "~/lib/utils";
 import { PackageBadge, PartnerStatusBadge } from "../partner-badges";
 import { formatPartnerAddress, formatPartnerDate } from "../partner-utils";

@@ -61,8 +61,8 @@ export default [
         "education/:id/certificate",
         "features/education/route/education.certificate.$id.tsx",
       ),
-      route("blog", "features/blog/route/blog.tsx"),
-      route("blog/:slug", "features/blog/route/blog.$slug.tsx"),
+      route("khmervoices", "features/blog/route/blog.tsx"),
+      route("khmervoices/:slug", "features/blog/route/blog.$slug.tsx"),
       route("launchpad", "features/launchpad/route/launchpad.tsx"),
       route("launchpad/all", "features/launchpad/route/launchpad.all.tsx"),
       route(
@@ -106,6 +106,10 @@ export default [
         "features/workspace/manage-post/route/manage-post.tsx",
       ),
       route(
+        "workspace/khmer-voices",
+        "features/workspace/my-blog/route/my-blog.tsx",
+      ),
+      route(
         "course-listing",
         "features/course-listing/route/course-listing.tsx",
       ),
@@ -136,6 +140,18 @@ export default [
     ]),
     route("notifications", "features/notifications/route/notifications.tsx"),
   ]),
+  route(
+    "workspace/khmer-voices/new",
+    "features/workspace/my-blog/route/my-blog.new.tsx",
+  ),
+  route(
+    "workspace/khmer-voices/preview",
+    "features/workspace/my-blog/route/my-blog.preview.tsx",
+  ),
+  route(
+    "workspace/khmer-voices/:postId/edit",
+    "features/workspace/my-blog/route/my-blog.$postId.edit.tsx",
+  ),
   route("education/create", "features/course-builder/route/course-builder.tsx"),
   route(
     "education/:id/edit",
@@ -196,13 +212,7 @@ export default [
       "features/admin/registrations/route/registrations.partner.$partnerId.tsx",
     ),
     route("blog", "features/admin/blog/route/blog.tsx"),
-    route("blog/new", "features/admin/blog/route/blog.new.tsx"),
-    route("blog/preview", "features/admin/blog/route/blog.preview.tsx"),
     route("blog/:postId", "features/admin/blog/route/blog.$postId.tsx"),
-    route(
-      "blog/:postId/edit",
-      "features/admin/blog/route/blog.$postId.edit.tsx",
-    ),
     route("partners", "features/admin/partners/route/partners.tsx"),
     route("partners/new", "features/admin/partners/route/partners.new.tsx"),
     route(
@@ -305,12 +315,12 @@ export default [
     "routes/api/api.admin.partners.$partnerId.logo-presign.tsx",
   ),
   route(
-    "api/admin/blog/image-presign",
-    "features/admin/blog/route/blog.image-presign.ts",
+    "api/blog/image-presign",
+    "features/workspace/my-blog/route/my-blog.image-presign.ts",
   ),
   route(
-    "api/moderator/blog/autosave",
-    "features/admin/blog/route/blog.autosave.ts",
+    "api/blog/autosave",
+    "features/workspace/my-blog/route/my-blog.autosave.ts",
   ),
   route(
     "api/admin/partners/:partnerId/photo-presign",

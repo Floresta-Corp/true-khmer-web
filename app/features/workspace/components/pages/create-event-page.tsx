@@ -11,9 +11,9 @@ import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import CreateEventAccessForm from "../create-event/create-event-access-form";
 import CreateEventAside from "../create-event/create-event-aside";
-import CreateEventAutosaveStatus, {
-  type CreateEventAutosaveStatusValue,
-} from "../create-event/create-event-autosave-status";
+import AutosaveStatus, {
+  type AutosaveStatusValue,
+} from "~/components/autosave-status";
 import CreateEventBasicsForm from "../create-event/create-event-basics-form";
 import PlumpiRedirectOverlay from "~/components/plumpi-redirect-overlay";
 import CreateEventDraftSuccessDialog from "../create-event/create-event-draft-success-dialog";
@@ -70,7 +70,7 @@ export default function CreateEventPage() {
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [createdEventId, setCreatedEventId] = useState("");
   const [autosaveStatus, setAutosaveStatus] =
-    useState<CreateEventAutosaveStatusValue>("loading");
+    useState<AutosaveStatusValue>("loading");
   const [autosaveLabel, setAutosaveLabel] = useState("Restoring draft...");
   const objectUrlRef = useRef<string | null>(null);
   const handledResultRef = useRef<CreateEventActionData | null>(null);
@@ -446,7 +446,7 @@ export default function CreateEventPage() {
         autosaveStatus={autosaveStatus}
         autosaveLabel={autosaveLabel}
       />
-      <CreateEventAutosaveStatus
+      <AutosaveStatus
         status={autosaveStatus}
         label={autosaveLabel}
         className="shrink-0 justify-end border-b border-[#E1E7EF] bg-slate-50/70 px-5 py-2 sm:hidden"

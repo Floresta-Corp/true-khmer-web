@@ -5,6 +5,7 @@ import {
   FileUser,
   GraduationCap,
   MessagesSquare,
+  PenLine,
   Ticket,
   UserRound,
 } from "lucide-react";
@@ -200,6 +201,12 @@ export const workSpaceSidebarConfig: AppSidebarProps = {
       label: "My Events",
       to: "/my-events",
       icon: CalendarDays,
+    },
+    {
+      id: "khmervoices",
+      label: "Khmer Voices",
+      to: "/workspace/khmer-voices",
+      icon: PenLine,
     },
   ],
   footer: {

@@ -1,4 +1,5 @@
 import type { Route } from "project-types/blog/route/+types/blog.$slug";
+import { resolveBlogAuthor } from "~/lib/blog-author";
 import { imageAlt, metaOrigin, pageMeta, SITE } from "~/lib/seo";
 import { blogPostingJsonLd, breadcrumbJsonLd } from "~/lib/seo/structured-data";
 import { PublicBlogDetailPage } from "../components/public-blog-detail-page";
@@ -20,13 +21,14 @@ export function meta(args: Route.MetaArgs) {
     return pageMeta(args, {
       title: "Khmer voices",
       description: SITE.description,
-      // The loader redirects a missing slug to /blog, so this only renders on
+      // The loader redirects a missing slug to /khmervoices, so this only renders on
       // a failed load -- not a page to leave in the index.
       noindex: true,
     });
   }
 
-  const path = `/blog/${post.slug}`;
+  const path = `/khmervoices/${post.slug}`;
+  const author = resolveBlogAuthor(post);
 
   return pageMeta(args, {
     title: post.title,
@@ -43,7 +45,7 @@ export function meta(args: Route.MetaArgs) {
     article: {
       publishedTime: post.publishedAt,
       modifiedTime: post.updatedAt,
-      authors: [post.authorName],
+      authors: [author.name],
       section: post.categoryName ?? null,
       tags: post.tags,
     },
@@ -54,7 +56,7 @@ export function meta(args: Route.MetaArgs) {
         headline: post.title,
         description: post.excerpt,
         image: post.coverImageUrl,
-        authorName: post.authorName,
+        authorName: author.name,
         publishedAt: post.publishedAt,
         updatedAt: post.updatedAt,
         section: post.categoryName ?? null,
@@ -64,7 +66,7 @@ export function meta(args: Route.MetaArgs) {
       }),
       breadcrumbJsonLd(origin, [
         { name: "Home", path: "/" },
-        { name: "Khmer voices", path: "/blog" },
+        { name: "Khmer voices", path: "/khmervoices" },
         { name: post.title, path },
       ]),
     ],
