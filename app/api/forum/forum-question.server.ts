@@ -1,3 +1,4 @@
+import { saveItem, unsaveItem } from "~/api/saved-items/saved-items.server";
 import {
   apiRequestWithOptionalSession,
   apiRequestWithSession,
@@ -194,28 +195,15 @@ export async function getQuestionById(request: Request, questionId: string) {
   }
 }
 
+// Saves go through the unified /saved-items endpoints rather than the
+// per-domain ones, so everything the web saves lands in saved_item and shows
+// up on the saved-items page.
 export async function deleteSaveQuestion(request: Request, questionId: string) {
-  const result = await apiRequestWithSession<GetQuestionResponse>(
-    request,
-    `/forum/questions/save-question/${questionId}`,
-    {
-      method: "DELETE",
-    },
-  );
-
-  return result;
+  return await unsaveItem(request, "forum", questionId);
 }
 
 export async function addSaveQuestion(request: Request, questionId: string) {
-  const result = await apiRequestWithSession<GetQuestionResponse>(
-    request,
-    `/forum/questions/save-question/${questionId}`,
-    {
-      method: "POST",
-    },
-  );
-
-  return result;
+  return await saveItem(request, "forum", questionId);
 }
 
 export async function presignForumQuestionImage(

@@ -1,3 +1,4 @@
+import { saveItem, unsaveItem } from "~/api/saved-items/saved-items.server";
 import {
   apiRequestWithSession,
   AuthSessionExpiredError,
@@ -110,7 +111,7 @@ export async function getCourseSaveState(request: Request, courseId: string) {
   try {
     return await apiRequestWithSession<CourseSaveStateResponse>(
       request,
-      `/education-center/courses/${encodeURIComponent(courseId)}/save`,
+      `/saved-items/course/${encodeURIComponent(courseId)}`,
       { method: "GET" },
     );
   } catch (error) {
@@ -120,20 +121,14 @@ export async function getCourseSaveState(request: Request, courseId: string) {
   }
 }
 
+// See the note in forum-question.server.ts: saves are unified, and so is the
+// save-state read above.
 export async function saveCourse(request: Request, courseId: string) {
-  return apiRequestWithSession<SaveCourseResponse>(
-    request,
-    `/education-center/courses/${encodeURIComponent(courseId)}/save`,
-    { method: "POST" },
-  );
+  return saveItem(request, "course", courseId);
 }
 
 export async function unsaveCourse(request: Request, courseId: string) {
-  return apiRequestWithSession<SaveCourseResponse>(
-    request,
-    `/education-center/courses/${encodeURIComponent(courseId)}/save`,
-    { method: "DELETE" },
-  );
+  return unsaveItem(request, "course", courseId);
 }
 
 export interface LeaveCourseResponse {

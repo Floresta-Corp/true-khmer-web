@@ -1,5 +1,7 @@
 import { Tag } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { useCallback } from "react";
+import { useNavigate } from "react-router";
 import type { CategoriesPicker } from "~/features/forum/types";
 import type { QuestionResponse } from "~/types/api-client";
 import type { Opportunity } from "~/features/volunteer/types/volunteer-types";
@@ -7,21 +9,21 @@ import type { LaunchpadOpportunity } from "~/features/launchpad/types";
 import { OpportunityCard } from "~/components/opportunity-card";
 import QuestionCard from "~/features/forum/components/card/question-card";
 import LaunchpadProjectCard from "~/features/launchpad/components/card/launchpad-project-card";
-import { useCallback, useMemo } from "react";
-import { useNavigate } from "react-router";
-import type { FilterId } from "../types";
-
-type SavedCardItem =
-  | { type: "forum"; data: QuestionResponse }
-  | { type: "volunteer"; data: Opportunity }
-  | { type: "launchpad"; data: LaunchpadOpportunity };
+import { CourseCard } from "~/features/education/components/course-card";
+import { EventListCard } from "~/features/events/components/event-list-card";
+import { toCourseSummary } from "~/features/education/lib/map-catalog";
+import type { PublicCourseListItem } from "~/api/education/education.server";
+import { EventListItemSchema } from "~/features/events/types/events";
+import SavedItemCard from "./saved-item-card";
+import type { FilterId, SavedItemCard as SavedItemCardData } from "../types";
 
 interface SavedGridProps {
   activeFilter: FilterId;
-  savedForums: QuestionResponse[];
-  savedVolunteers: Opportunity[];
-  savedLaunchpads: LaunchpadOpportunity[];
+  items: SavedItemCardData[];
+  removingIds?: Set<string>;
+  onUnsave: (item: SavedItemCardData) => void;
   categories?: CategoriesPicker[];
+  userId?: string;
   isLoading?: boolean;
 }
 
@@ -32,7 +34,21 @@ const itemAnim = {
   transition: { duration: 0.2, ease: "easeOut" },
 } as const;
 
-const MASONRY_COLUMNS_CLASS = "columns-1 gap-6 sm:columns-2 xl:columns-3";
+// Default (stretch) alignment, so every card in a row takes the row's height.
+// `[&>*]:h-full` on the cell makes the card itself fill it even when its own
+// root does not set a height — the forum card, for one, does not.
+const GRID_CLASS =
+  "grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+const GRID_CELL_CLASS = "h-full [&>*]:h-full";
+
+const EMPTY_LABELS: Record<FilterId, string> = {
+  all: "items",
+  forum: "forum questions",
+  volunteer: "volunteer opportunities",
+  project: "projects",
+  course: "courses",
+  event: "events",
+};
 
 function SkeletonCard() {
   return (
@@ -50,24 +66,20 @@ function SkeletonCard() {
 
 function SkeletonGrid() {
   return (
-    <div className={MASONRY_COLUMNS_CLASS}>
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={`skel-${i}`} className="mb-6 break-inside-avoid">
-          <SkeletonCard />
-        </div>
+    <div className={GRID_CLASS}>
+      {Array.from({ length: 8 }).map((_, i) => (
+        <SkeletonCard key={`skel-${i}`} />
       ))}
     </div>
   );
 }
 
 function EmptyState({ activeFilter }: { activeFilter: FilterId }) {
-  const label = activeFilter === "all" ? "items" : activeFilter;
-
   return (
     <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-16 text-center">
       <Tag className="mx-auto mb-4 size-10 text-slate-300" />
       <p className="text-base font-semibold text-slate-700">
-        No saved {label} yet.
+        No saved {EMPTY_LABELS[activeFilter]} yet.
       </p>
       <p className="mt-2 text-sm text-slate-400">
         Saved content will appear here after you bookmark it.
@@ -76,77 +88,106 @@ function EmptyState({ activeFilter }: { activeFilter: FilterId }) {
   );
 }
 
+/**
+ * Each row renders through its own domain card, so a saved question looks like
+ * a question and a saved event like an event. The card comes from the `item`
+ * payload the API hydrates; a row whose item could not be read falls back to
+ * the generic card rather than disappearing.
+ */
 function CardRenderer({
-  item,
+  card,
   categories,
-  onOpenOpportunity,
+  userId,
+  onUnsave,
+  isRemoving,
+  onOpenProject,
 }: {
-  item: SavedCardItem;
+  card: SavedItemCardData;
   categories: CategoriesPicker[];
-  onOpenOpportunity: (item: LaunchpadOpportunity) => void;
+  userId?: string;
+  onUnsave: (item: SavedItemCardData) => void;
+  isRemoving?: boolean;
+  onOpenProject: (item: LaunchpadOpportunity) => void;
 }) {
-  switch (item.type) {
+  const fallback = (
+    <SavedItemCard item={card} onUnsave={onUnsave} isRemoving={isRemoving} />
+  );
+
+  if (!card.item) return fallback;
+
+  switch (card.type) {
     case "forum":
-      return <QuestionCard question={item.data} categories={categories} />;
+      return (
+        <QuestionCard
+          question={card.item as QuestionResponse}
+          categories={categories}
+          userId={userId}
+        />
+      );
     case "volunteer":
       return (
         <OpportunityCard
-          opportunity={item.data}
+          opportunity={card.item as Opportunity}
           onMutationComplete={() => {}}
         />
       );
-    case "launchpad":
+    case "project":
       return (
         <LaunchpadProjectCard
-          item={item.data}
-          onOpenOpportunity={onOpenOpportunity}
+          item={card.item as LaunchpadOpportunity}
+          onOpenOpportunity={onOpenProject}
         />
       );
+    case "course":
+      return (
+        <CourseCard
+          course={toCourseSummary(card.item as PublicCourseListItem)}
+          isSaved
+          onToggleSave={() => onUnsave(card)}
+        />
+      );
+    case "event": {
+      // The same card the /events hub renders — category pill, thumbnail,
+      // bookmark — fed from the saved snapshot, which is shaped like a Plumpi
+      // listing row so the events page's own parser applies.
+      const parsed = EventListItemSchema.safeParse(card.item);
+      if (!parsed.success) return fallback;
+      return (
+        <EventListCard
+          event={parsed.data}
+          isSaved
+          onToggleSave={() => onUnsave(card)}
+        />
+      );
+    }
+    default:
+      return fallback;
   }
 }
 
 export default function SavedItemsGrid({
   activeFilter,
-  savedForums,
-  savedVolunteers,
-  savedLaunchpads,
+  items,
+  removingIds,
+  onUnsave,
   categories = [],
+  userId,
   isLoading = false,
 }: SavedGridProps) {
   const navigate = useNavigate();
 
-  const onOpenOpportunity = useCallback(
+  const onOpenProject = useCallback(
     (item: LaunchpadOpportunity) => {
       navigate(`/launchpad/detail/${item.id}`);
     },
     [navigate],
   );
 
-  const allItems = useMemo(() => {
-    const items: SavedCardItem[] = [];
-
-    if (activeFilter === "all" || activeFilter === "forum") {
-      savedForums.forEach((q) => items.push({ type: "forum", data: q }));
-    }
-    if (activeFilter === "all" || activeFilter === "volunteer") {
-      savedVolunteers.forEach((o) =>
-        items.push({ type: "volunteer", data: o }),
-      );
-    }
-    if (activeFilter === "all" || activeFilter === "launchpad") {
-      savedLaunchpads.forEach((p) =>
-        items.push({ type: "launchpad", data: p }),
-      );
-    }
-
-    return items;
-  }, [activeFilter, savedForums, savedVolunteers, savedLaunchpads]);
-
   if (isLoading) {
     return <SkeletonGrid />;
   }
 
-  if (allItems.length === 0) {
+  if (items.length === 0) {
     return (
       <motion.div
         layout
@@ -160,23 +201,26 @@ export default function SavedItemsGrid({
   }
 
   return (
-    <AnimatePresence mode="wait" initial={true}>
-      <motion.div layout className={MASONRY_COLUMNS_CLASS}>
-        {allItems.map((item, idx) => (
+    <AnimatePresence mode="popLayout" initial={true}>
+      <motion.div layout className={GRID_CLASS}>
+        {items.map((card, idx) => (
           <motion.div
-            key={`${item.type}-${item.data.id}`}
+            key={card.id}
             layout
             {...itemAnim}
             animate={{
               ...itemAnim.animate,
               transition: { ...itemAnim.transition, delay: 0.03 * idx },
             }}
-            className="mb-6 break-inside-avoid"
+            className={GRID_CELL_CLASS}
           >
             <CardRenderer
-              item={item}
+              card={card}
               categories={categories}
-              onOpenOpportunity={onOpenOpportunity}
+              userId={userId}
+              onUnsave={onUnsave}
+              isRemoving={removingIds?.has(card.id)}
+              onOpenProject={onOpenProject}
             />
           </motion.div>
         ))}
