@@ -8,6 +8,8 @@ import {
   getMyAnswers,
   myForumQuestion,
   myForumAnswer,
+  getTopContributors,
+  getPublicTopContributors,
 } from "~/api/forum/forum.server";
 import { getReportReasons } from "~/api/reporting";
 import { questionSortBySchema } from "~/features/forum/types";
@@ -17,11 +19,13 @@ import type {
   GetReportingTypesResponse,
   GetQuestionsResponse,
   TrendingTagResponse,
+  TopContributorResponse,
 } from "~/types/api-client";
 import type { Route as ForumRoute } from "project-types/forum/route/+types/forum.new";
 import { getUserId } from "../../../lib/server/session.server";
 
 const LIMIT = 10;
+const TOP_CONTRIBUTORS_LIMIT = 10;
 
 type ForumListLoaderData = {
   data: GetQuestionsResponse;
@@ -32,6 +36,7 @@ type ForumListLoaderData = {
   reportReasons: GetReportingTypesResponse | null;
   questionCount: number;
   answerCount: number;
+  topContributors: TopContributorResponse[];
 };
 
 export async function forumListloader({ request }: ForumRoute.LoaderArgs) {
@@ -48,7 +53,7 @@ export async function forumListloader({ request }: ForumRoute.LoaderArgs) {
 
   const userId = await getUserId(request);
 
-  const [question, categoriesResult, tags, reportReasons] = userId
+  const [question, categoriesResult, tags, reportReasons, contributors] = userId
     ? await Promise.all([
         getQuestionPagination(request, {
           limit: limit ? Number(limit) : LIMIT,
@@ -62,6 +67,7 @@ export async function forumListloader({ request }: ForumRoute.LoaderArgs) {
         getCategories(request),
         getTrendingTags(request),
         getReportReasons(request),
+        getTopContributors(request, TOP_CONTRIBUTORS_LIMIT),
       ])
     : await Promise.all([
         getPublicQuestionPagination(request, {
@@ -76,6 +82,7 @@ export async function forumListloader({ request }: ForumRoute.LoaderArgs) {
         getPublicCategories(request),
         getPublicTrendingTags(request),
         getReportReasons(request),
+        getPublicTopContributors(request, TOP_CONTRIBUTORS_LIMIT),
       ]);
 
   let answers: AnswerResponse[] = [];
@@ -100,5 +107,6 @@ export async function forumListloader({ request }: ForumRoute.LoaderArgs) {
     reportReasons,
     questionCount,
     answerCount,
+    topContributors: contributors.data.contributors,
   } satisfies ForumListLoaderData;
 }

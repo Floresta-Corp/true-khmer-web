@@ -357,6 +357,10 @@ const MyAnswersPaginationResponse = z.object({ limit: z.number().int().gt(0), ha
 
 const GetMyAnswersResponse = z.object({ ok: z.boolean(), discussions: z.array(MyAnswerDiscussionResponse), totalAnswers: z.number().int().gte(0), pagination: MyAnswersPaginationResponse });
 
+const TopContributorResponse = z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), answerCount: z.number().int().gte(0), voteCount: z.number().int().gte(0) });
+
+const GetTopContributorsResponse = z.object({ ok: z.boolean(), contributors: z.array(TopContributorResponse) });
+
 const CreateAnswerRequest = z.object({ questionId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), replyToAnswer: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).nullish(), body: z.string().min(1).max(10000) });
 
 const CreateAnswerResponse = z.object({ ok: z.boolean(), answer: AnswerResponse });
@@ -569,6 +573,12 @@ const GetRecentActivitiesResponse = z.object({ ok: z.literal(true), activities: 
 const RecentActivityErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
 const SearchSkillsResponse = z.object({ ok: z.literal(true), skills: z.array(z.object({ id: z.string(), name: z.string() })) });
+
+const InterestsResponse = z.object({ ok: z.literal(true), interests: z.array(z.object({ id: z.string(), slug: z.string(), label: z.string(), icon: z.string().nullable() })) });
+
+const UpdateInterestsRequest = z.object({ interestIds: z.array(z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)).min(2).max(20) });
+
+const UpdateInterestsResponse = z.object({ ok: z.literal(true), interests: z.array(z.object({ id: z.string(), slug: z.string(), label: z.string(), icon: z.string().nullable() })) });
 
 const GetSavedItemsResponse = z.object({ ok: z.literal(true), items: z.array(z.union([z.object({ type: z.literal("project"), savedAt: z.string(), item: z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED"]), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.literal(true), savedAt: z.string() }) }), z.object({ type: z.literal("volunteer"), savedAt: z.string(), item: VolunteerOpportunityListItemResponse }), z.object({ type: z.literal("forum"), savedAt: z.string(), item: QuestionResponse })])), pagination: z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }), counts: z.object({ all: z.number().int().gte(0), project: z.number().int().gte(0), volunteer: z.number().int().gte(0), forum: z.number().int().gte(0) }) });
 
@@ -1037,6 +1047,8 @@ export const schemas = {
 	MyAnswerDiscussionResponse,
 	MyAnswersPaginationResponse,
 	GetMyAnswersResponse,
+	TopContributorResponse,
+	GetTopContributorsResponse,
 	CreateAnswerRequest,
 	CreateAnswerResponse,
 	UpdateAnswerRequest,
@@ -1145,6 +1157,9 @@ export const schemas = {
 	GetRecentActivitiesResponse,
 	RecentActivityErrorResponse,
 	SearchSkillsResponse,
+	InterestsResponse,
+	UpdateInterestsRequest,
+	UpdateInterestsResponse,
 	GetSavedItemsResponse,
 	SavedItemsErrorResponse,
 	CertificateResponse,
@@ -6740,6 +6755,32 @@ const endpoints = makeApi([
 		response: GetMyAnswersResponse,
 	},
 	{
+		method: "get",
+		path: "/v1/forum/answer/top-contributors",
+		alias: "getV1forumanswertopContributors",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(10).optional()
+			},
+			{
+				name: "categoryId",
+				type: "Query",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
+			},
+		],
+		response: GetTopContributorsResponse,
+		errors: [
+			{
+				status: 404,
+				description: `Category not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
 		method: "post",
 		path: "/v1/forum/answer/vote-answer/:answerId",
 		alias: "postV1forumanswervoteAnswerAnswerId",
@@ -6809,6 +6850,32 @@ const endpoints = makeApi([
 			},
 		],
 		response: GetAnswersResponse,
+	},
+	{
+		method: "get",
+		path: "/v1/forum/public/answer/top-contributors",
+		alias: "getV1forumpublicanswertopContributors",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(10).optional()
+			},
+			{
+				name: "categoryId",
+				type: "Query",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
+			},
+		],
+		response: GetTopContributorsResponse,
+		errors: [
+			{
+				status: 404,
+				description: `Category not found`,
+				schema: z.void()
+			},
+		]
 	},
 	{
 		method: "get",
@@ -7960,6 +8027,90 @@ const endpoints = makeApi([
 				status: 500,
 				description: `Internal server error`,
 				schema: CertificateErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/me/interests",
+		alias: "getV1meinterests",
+		requestFormat: "json",
+		response: InterestsResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Onboarding required`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: ProfileErrorResponse
+			},
+		]
+	},
+	{
+		method: "put",
+		path: "/v1/me/interests",
+		alias: "putV1meinterests",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: UpdateInterestsRequest
+			},
+		],
+		response: UpdateInterestsResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: ProfileErrorResponse
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Onboarding required`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: ProfileErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/me/interests/options",
+		alias: "getV1meinterestsoptions",
+		requestFormat: "json",
+		response: InterestsResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Onboarding required`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: ProfileErrorResponse
 			},
 		]
 	},
@@ -11612,6 +11763,8 @@ export type MyAnswerResponse = z.infer<typeof schemas.MyAnswerResponse>;
 export type MyAnswerDiscussionResponse = z.infer<typeof schemas.MyAnswerDiscussionResponse>;
 export type MyAnswersPaginationResponse = z.infer<typeof schemas.MyAnswersPaginationResponse>;
 export type GetMyAnswersResponse = z.infer<typeof schemas.GetMyAnswersResponse>;
+export type TopContributorResponse = z.infer<typeof schemas.TopContributorResponse>;
+export type GetTopContributorsResponse = z.infer<typeof schemas.GetTopContributorsResponse>;
 export type CreateAnswerRequest = z.infer<typeof schemas.CreateAnswerRequest>;
 export type CreateAnswerResponse = z.infer<typeof schemas.CreateAnswerResponse>;
 export type UpdateAnswerRequest = z.infer<typeof schemas.UpdateAnswerRequest>;
@@ -11720,6 +11873,9 @@ export type RecentActivity = z.infer<typeof schemas.RecentActivity>;
 export type GetRecentActivitiesResponse = z.infer<typeof schemas.GetRecentActivitiesResponse>;
 export type RecentActivityErrorResponse = z.infer<typeof schemas.RecentActivityErrorResponse>;
 export type SearchSkillsResponse = z.infer<typeof schemas.SearchSkillsResponse>;
+export type InterestsResponse = z.infer<typeof schemas.InterestsResponse>;
+export type UpdateInterestsRequest = z.infer<typeof schemas.UpdateInterestsRequest>;
+export type UpdateInterestsResponse = z.infer<typeof schemas.UpdateInterestsResponse>;
 export type GetSavedItemsResponse = z.infer<typeof schemas.GetSavedItemsResponse>;
 export type SavedItemsErrorResponse = z.infer<typeof schemas.SavedItemsErrorResponse>;
 export type CertificateResponse = z.infer<typeof schemas.CertificateResponse>;
