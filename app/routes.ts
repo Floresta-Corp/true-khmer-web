@@ -325,6 +325,7 @@ export default [
     "api/myspace/skills/search",
     "features/myspace/route/myspace.skills-search.ts",
   ),
+  route("api/saved-events", "features/events/routes/saved-events.ts"),
   route("api/my-events/venues", "features/workspace/route/my-events.venues.ts"),
   route(
     "api/launchpad/batch-apply",

@@ -26,7 +26,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     const search = url.searchParams.get("search")?.trim() ?? "";
 
     // Fetch categories first so we can validate categoryId against them
-    const categories = await getEventCategories();
+    const categories = await getEventCategories(request);
 
     // Only use categoryId if it matches a known category; fall back to all events otherwise
     const validCategoryId =
@@ -35,8 +35,8 @@ export async function loader({ request }: Route.LoaderArgs) {
         : null;
 
     const events = validCategoryId
-      ? await getEventsByCategory(validCategoryId)
-      : await getEventList();
+      ? await getEventsByCategory(request, validCategoryId)
+      : await getEventList(request);
 
     // The Events hub search submits here, so honour the `search` param.
     const query = search.toLowerCase();

@@ -1,59 +1,98 @@
-import { apiRequestWithSession } from "~/lib/server/api-client.server";
+import {
+  apiRequestWithSession,
+  AuthSessionExpiredError,
+} from "~/lib/server/api-client.server";
 
 import type {
-  FilterSavedItem,
   GetSavedItemsResponse,
-  GetSavedLaunchpadOpportunitiesResponse,
-  GetSavedVolunteerOpportunitiesResponse,
-  GetSaveForumQuestionResponse,
+  LocalSavedItemType,
+  SavedItemType,
+  ToggleSavedItemResponse,
 } from "~/features/saved-items/types";
 
 export interface SavedItemsParams {
-  filter?: FilterSavedItem;
+  type?: SavedItemType;
   cursor?: string;
   limit?: number;
 }
 
-export async function getSavedForums(request: Request) {
-  return await apiRequestWithSession<GetSaveForumQuestionResponse>(
-    request,
-    "/forum/questions/saved",
-    { method: "GET" },
-  );
-}
-
-export async function getSavedVolunteers(request: Request) {
-  return await apiRequestWithSession<GetSavedVolunteerOpportunitiesResponse>(
-    request,
-    "/volunteer/saved",
-    { method: "GET" },
-  );
-}
-
-export async function getSavedLaunchpads(request: Request) {
-  return await apiRequestWithSession<GetSavedLaunchpadOpportunitiesResponse>(
-    request,
-    "/launchpad/saved",
-    { method: "GET" },
-  );
-}
-
+/**
+ * One request for the whole page: the items for the active tab plus the counts
+ * for every tab, so switching tabs never needs a second round trip.
+ */
 export async function getSavedItems(
   request: Request,
-  params: SavedItemsParams,
+  params: SavedItemsParams = {},
 ) {
-  const queryParams = new URLSearchParams();
-  if (params.filter) queryParams.set("filter", params.filter);
-  if (params.cursor) queryParams.set("cursor", params.cursor);
-  if (params.limit !== undefined)
-    queryParams.set("limit", params.limit.toString());
+  const query = new URLSearchParams();
+  if (params.type) query.set("type", params.type);
+  if (params.cursor) query.set("cursor", params.cursor);
+  if (params.limit !== undefined) query.set("limit", String(params.limit));
 
-  const result = await apiRequestWithSession<GetSavedItemsResponse>(
+  const search = query.toString();
+  return await apiRequestWithSession<GetSavedItemsResponse>(
     request,
-    `/me/saved?${queryParams.toString()}`,
-    {
-      method: "GET",
-    },
+    `/saved-items${search ? `?${search}` : ""}`,
+    { method: "GET" },
   );
-  return result;
+}
+
+export async function saveItem(
+  request: Request,
+  type: LocalSavedItemType,
+  itemId: string,
+) {
+  return await apiRequestWithSession<ToggleSavedItemResponse>(
+    request,
+    `/saved-items/${type}/${itemId}`,
+    { method: "POST" },
+  );
+}
+
+export async function unsaveItem(
+  request: Request,
+  type: LocalSavedItemType,
+  itemId: string,
+) {
+  return await apiRequestWithSession<ToggleSavedItemResponse>(
+    request,
+    `/saved-items/${type}/${itemId}`,
+    { method: "DELETE" },
+  );
+}
+
+/**
+ * Events live in Plumpi, so they are addressed by slug: the API reads the
+ * event from the provider itself rather than trusting anything sent from here.
+ */
+export async function saveEvent(request: Request, slug: string) {
+  return await apiRequestWithSession<ToggleSavedItemResponse>(
+    request,
+    `/saved-items/event/${encodeURIComponent(slug)}`,
+    { method: "POST" },
+  );
+}
+
+export async function unsaveEvent(request: Request, slug: string) {
+  return await apiRequestWithSession<ToggleSavedItemResponse>(
+    request,
+    `/saved-items/event/${encodeURIComponent(slug)}`,
+    { method: "DELETE" },
+  );
+}
+
+/**
+ * The provider ids of the events this viewer has saved, for seeding the
+ * bookmark state on the events pages. Signed-out visitors get an empty list
+ * rather than an error, since the listing itself is public.
+ */
+export async function getSavedEventIds(request: Request): Promise<string[]> {
+  try {
+    const result = await getSavedItems(request, { type: "event", limit: 100 });
+    return (result?.data?.items ?? []).map((item) => item.itemId);
+  } catch (error) {
+    if (error instanceof AuthSessionExpiredError) return [];
+    console.error("Could not read saved events:", error);
+    return [];
+  }
 }

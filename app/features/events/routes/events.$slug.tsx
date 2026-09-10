@@ -2,10 +2,11 @@ import {
   Link,
   NavLink,
   Outlet,
+  useFetcher,
   useLoaderData,
   useRouteLoaderData,
 } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { cn } from "~/lib/utils";
@@ -97,8 +98,29 @@ export default function EventDetailPage() {
   const appLayoutData = useRouteLoaderData("layout/app-layout") as
     | { user: unknown | null }
     | undefined;
-  const { event, loadError } = useLoaderData<typeof loader>();
-  const [isSaved, setIsSaved] = useState(() => event?.isFavorite ?? false);
+  const {
+    event,
+    isSaved: initialIsSaved,
+    loadError,
+  } = useLoaderData<typeof loader>();
+  const saveFetcher = useFetcher();
+  const [isSaved, setIsSaved] = useState(initialIsSaved);
+
+  useEffect(() => {
+    setIsSaved(initialIsSaved);
+  }, [initialIsSaved]);
+
+  // Optimistic, same as the hub: flip the bookmark, then write through the
+  // saved-events resource route.
+  const toggleSave = () => {
+    if (!event) return;
+    const next = !isSaved;
+    setIsSaved(next);
+    saveFetcher.submit(
+      { intent: next ? "save" : "unsave", slug: event.slug },
+      { method: "post", action: "/api/saved-events" },
+    );
+  };
 
   if (!event) {
     return (
@@ -171,7 +193,7 @@ export default function EventDetailPage() {
           <EventDetailCover
             event={event}
             isSaved={isSaved}
-            onToggleSave={() => setIsSaved((saved) => !saved)}
+            onToggleSave={toggleSave}
           />
         </motion.div>
 

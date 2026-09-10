@@ -1,6 +1,7 @@
 import { savedItemsLoader } from "../services/saved-items.loader";
 import { savedItemsAction } from "../services/saved-items.action";
 import SaveItemPage from "../components/pages/saved-items-page";
+import { SavedItemPageLayout } from "../components/saved-item-page-layout";
 
 export const loader = savedItemsLoader;
 export const action = savedItemsAction;
@@ -10,5 +11,9 @@ export function meta() {
 }
 
 export default function SavedItems() {
-  return <SaveItemPage />;
+  return (
+    <SavedItemPageLayout>
+      <SaveItemPage />
+    </SavedItemPageLayout>
+  );
 }

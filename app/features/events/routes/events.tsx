@@ -1,6 +1,11 @@
 import type { Route } from "./+types/events";
-import { useLoaderData, useNavigate, useNavigation } from "react-router";
-import { useState } from "react";
+import {
+  useFetcher,
+  useLoaderData,
+  useNavigate,
+  useNavigation,
+} from "react-router";
+import { useEffect, useState } from "react";
 import { AlertCircle } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { EventHero } from "~/features/events/components/event-hero";
@@ -27,14 +32,17 @@ export function meta(args: Route.MetaArgs) {
 }
 
 export default function Events() {
-  const { events, loadError } = useLoaderData<typeof loader>();
+  const { events, savedEventIds, loadError } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const navigation = useNavigation();
   const prefersReducedMotion = useReducedMotion();
+  const saveFetcher = useFetcher();
   const [search, setSearch] = useState("");
-  const [savedIds, setSavedIds] = useState<string[]>(() =>
-    events.filter((event) => event.isFavorite).map((event) => event.id),
-  );
+  const [savedIds, setSavedIds] = useState<string[]>(savedEventIds);
+
+  useEffect(() => {
+    setSavedIds(savedEventIds);
+  }, [savedEventIds]);
 
   const duration = prefersReducedMotion ? 0 : 0.4;
   const sectionDelay = prefersReducedMotion ? 0 : 0.18;
@@ -42,11 +50,20 @@ export default function Events() {
     navigation.state === "loading" &&
     navigation.location?.pathname === "/events";
 
+  // Optimistic: the bookmark flips straight away and the write goes to the
+  // saved-items resource route, which addresses the event by slug.
   const toggleSave = (eventId: string) => {
+    const event = events.find((candidate) => candidate.id === eventId);
+    if (!event) return;
+
+    const wasSaved = savedIds.includes(eventId);
     setSavedIds((current) =>
-      current.includes(eventId)
-        ? current.filter((id) => id !== eventId)
-        : [...current, eventId],
+      wasSaved ? current.filter((id) => id !== eventId) : [...current, eventId],
+    );
+
+    saveFetcher.submit(
+      { intent: wasSaved ? "unsave" : "save", slug: event.slug },
+      { method: "post", action: "/api/saved-events" },
     );
   };
 

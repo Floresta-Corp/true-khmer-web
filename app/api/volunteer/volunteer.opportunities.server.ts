@@ -1,3 +1,4 @@
+import { saveItem, unsaveItem } from "~/api/saved-items/saved-items.server";
 import {
   apiRequestWithOptionalSession,
   apiRequestWithSession,
@@ -160,28 +161,17 @@ export async function uploadOpportunityCoverImage(
     body: body,
   });
 }
+// See the note in forum-question.server.ts: saves are unified.
 export async function SaveVolunteerOpportunity(
   request: Request,
   opportunityId: string,
 ) {
-  return await apiRequestWithSession<{ ok: boolean; message: string }>(
-    request,
-    `/volunteer/save-opportunity/${opportunityId}`,
-    {
-      method: "POST",
-    },
-  );
+  return await saveItem(request, "volunteer", opportunityId);
 }
 
 export async function UnsaveVolunteerOpportunity(
   request: Request,
   opportunityId: string,
 ) {
-  return await apiRequestWithSession<{ ok: boolean; message: string }>(
-    request,
-    `/volunteer/save-opportunity/${opportunityId}`,
-    {
-      method: "DELETE",
-    },
-  );
+  return await unsaveItem(request, "volunteer", opportunityId);
 }
