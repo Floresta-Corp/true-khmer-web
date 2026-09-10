@@ -46,9 +46,9 @@ export function BlogModerationBanner({ post }: BlogModerationBannerProps) {
     return (
       <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200">
         <p className="font-semibold">
-          Waiting for a moderator
+          Submitted at
           {post.moderation.submittedAt
-            ? ` since ${formatDateTime(post.moderation.submittedAt)}`
+            ? ` ${formatDateTime(post.moderation.submittedAt)}`
             : ""}
         </p>
         <p className="mt-1 leading-6">

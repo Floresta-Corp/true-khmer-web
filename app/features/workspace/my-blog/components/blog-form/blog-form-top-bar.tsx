@@ -23,8 +23,14 @@ export function BlogFormTopBar({ form, slug }: BlogFormTopBarProps) {
   const [isSubmitConfirmOpen, setIsSubmitConfirmOpen] = useState(false);
   const [isWithdrawConfirmOpen, setIsWithdrawConfirmOpen] = useState(false);
   const [isUnpublishOpen, setIsUnpublishOpen] = useState(false);
-  const { autosaveLabel, autosaveStatus, isEditable, isSubmitting, status } =
-    form;
+  const {
+    autosaveLabel,
+    autosaveStatus,
+    isAutosaving,
+    isEditable,
+    isSubmitting,
+    status,
+  } = form;
   const statusStyle = BLOG_STATUS_STYLES[status];
 
   function handleGoBack() {
@@ -82,7 +88,7 @@ export function BlogFormTopBar({ form, slug }: BlogFormTopBarProps) {
 
         {status === "PUBLISHED" && slug ? (
           <Button asChild variant="outline" className={OUTLINE_BUTTON_CLASS}>
-            <Link to={`/khmervoices/${slug}`} target="_blank" rel="noreferrer">
+            <Link to={`/khmer-voices/${slug}`} target="_blank" rel="noreferrer">
               View live post
             </Link>
           </Button>
@@ -90,7 +96,7 @@ export function BlogFormTopBar({ form, slug }: BlogFormTopBarProps) {
 
         <Button
           type="button"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isAutosaving}
           onClick={
             isEditable
               ? handleSubmitClick
@@ -100,7 +106,9 @@ export function BlogFormTopBar({ form, slug }: BlogFormTopBarProps) {
           }
           className="h-10 bg-blue-600 px-6 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"
         >
-          {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+          {(isSubmitting || isAutosaving) && (
+            <Loader2 className="size-4 animate-spin" />
+          )}
           {isEditable
             ? status === "DRAFT"
               ? "Submit for review"
@@ -123,6 +131,7 @@ export function BlogFormTopBar({ form, slug }: BlogFormTopBarProps) {
         confirmText="Submit"
         cancelText="Cancel"
         variant="info"
+        loading={isAutosaving || isSubmitting}
       />
 
       <ConfirmationModal

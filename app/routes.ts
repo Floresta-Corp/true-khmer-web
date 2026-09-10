@@ -61,8 +61,8 @@ export default [
         "education/:id/certificate",
         "features/education/route/education.certificate.$id.tsx",
       ),
-      route("khmervoices", "features/blog/route/blog.tsx"),
-      route("khmervoices/:slug", "features/blog/route/blog.$slug.tsx"),
+      route("khmer-voices", "features/blog/route/blog.tsx"),
+      route("khmer-voices/:slug", "features/blog/route/blog.$slug.tsx"),
       route("launchpad", "features/launchpad/route/launchpad.tsx"),
       route("launchpad/all", "features/launchpad/route/launchpad.all.tsx"),
       route(
@@ -110,6 +110,14 @@ export default [
         "features/workspace/my-blog/route/my-blog.tsx",
       ),
       route(
+        "workspace/khmer-voices/new",
+        "features/workspace/my-blog/route/my-blog.new.tsx",
+      ),
+      route(
+        "workspace/khmer-voices/:postId/edit",
+        "features/workspace/my-blog/route/my-blog.$postId.edit.tsx",
+      ),
+      route(
         "course-listing",
         "features/course-listing/route/course-listing.tsx",
       ),
@@ -141,16 +149,8 @@ export default [
     route("notifications", "features/notifications/route/notifications.tsx"),
   ]),
   route(
-    "workspace/khmer-voices/new",
-    "features/workspace/my-blog/route/my-blog.new.tsx",
-  ),
-  route(
     "workspace/khmer-voices/preview",
     "features/workspace/my-blog/route/my-blog.preview.tsx",
-  ),
-  route(
-    "workspace/khmer-voices/:postId/edit",
-    "features/workspace/my-blog/route/my-blog.$postId.edit.tsx",
   ),
   route("education/create", "features/course-builder/route/course-builder.tsx"),
   route(
@@ -211,8 +211,16 @@ export default [
       "registrations/partner/:partnerId",
       "features/admin/registrations/route/registrations.partner.$partnerId.tsx",
     ),
-    route("blog", "features/admin/blog/route/blog.tsx"),
-    route("blog/:postId", "features/admin/blog/route/blog.$postId.tsx"),
+    route("khmer-voices", "features/admin/blog/route/blog.tsx"),
+    route(
+      "khmer-voices/categories",
+      "features/admin/blog/route/blog.categories.tsx",
+    ),
+    route("khmer-voices/review", "features/admin/blog/route/blog.review.tsx"),
+    route(
+      "khmer-voices/:postId",
+      "features/admin/blog/route/blog.$postId.tsx",
+    ),
     route("partners", "features/admin/partners/route/partners.tsx"),
     route("partners/new", "features/admin/partners/route/partners.new.tsx"),
     route(

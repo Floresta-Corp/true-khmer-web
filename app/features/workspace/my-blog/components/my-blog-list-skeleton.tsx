@@ -8,21 +8,21 @@ export function MyBlogCardsSkeleton({ count = 4 }: { count?: number }) {
       {Array.from({ length: count }).map((_, index) => (
         <Card
           key={index}
-          className="h-full min-w-0 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none"
+          className="h-full min-w-0 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-5 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none"
         >
-          <div className="flex h-full min-w-0 flex-col gap-5 md:flex-row">
-            <Skeleton className="aspect-video h-auto w-full shrink-0 rounded-xl md:aspect-auto md:h-52 md:w-56 xl:w-44 2xl:w-52" />
+          <div className="flex h-full min-w-0 flex-col gap-4 md:flex-row md:items-stretch">
+            <Skeleton className="aspect-video w-full shrink-0 self-stretch rounded-xl md:aspect-auto md:h-auto md:min-h-44 md:w-56 xl:w-44 2xl:w-52" />
             <div className="flex min-w-0 flex-1 flex-col">
-              <div className="mb-3 flex flex-wrap gap-2">
+              <div className="mb-2.5 flex flex-wrap gap-2">
                 <Skeleton className="h-5 w-16 rounded-lg" />
                 <Skeleton className="h-5 w-20 rounded-lg" />
               </div>
               <Skeleton className="h-6 w-full" />
               <Skeleton className="mt-2 h-6 w-3/4" />
-              <Skeleton className="mt-3 h-4 w-full" />
+              <Skeleton className="mt-2 h-4 w-full" />
               <Skeleton className="mt-2 h-4 w-2/3" />
-              <Skeleton className="mt-4 h-4 w-40" />
-              <div className="mt-auto flex flex-wrap gap-2 pt-5">
+              <Skeleton className="mt-3 h-4 w-40" />
+              <div className="mt-4 flex flex-wrap gap-2">
                 <Skeleton className="h-9 w-20 rounded-lg" />
                 <Skeleton className="h-9 w-20 rounded-lg" />
               </div>

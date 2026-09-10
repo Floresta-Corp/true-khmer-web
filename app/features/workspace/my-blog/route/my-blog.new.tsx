@@ -1,5 +1,6 @@
 import { useLoaderData, useSearchParams } from "react-router";
 import { BlogForm } from "../components/blog-form/blog-form";
+import { MyBlogDetailSkeleton } from "../components/my-blog-detail-skeleton";
 import { myBlogNewAction } from "../services/my-blog-new.action";
 import { myBlogNewLoader } from "../services/my-blog-new.loader";
 
@@ -8,6 +9,10 @@ export const action = myBlogNewAction;
 
 export function meta() {
   return [{ title: "Write a Blog | True Khmer" }];
+}
+
+export function HydrateFallback() {
+  return <MyBlogDetailSkeleton withCover={false} />;
 }
 
 export default function MyBlogNewRoute() {

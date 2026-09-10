@@ -4,6 +4,7 @@ import {
   useRouteError,
 } from "react-router";
 import { BlogForm } from "../components/blog-form/blog-form";
+import { MyBlogDetailSkeleton } from "../components/my-blog-detail-skeleton";
 import { MyBlogNotFound } from "../components/my-blog-not-found";
 import { myBlogEditAction } from "../services/my-blog-edit.action";
 import { myBlogEditLoader } from "../services/my-blog-edit.loader";
@@ -13,6 +14,10 @@ export const action = myBlogEditAction;
 
 export function meta() {
   return [{ title: "Edit Blog | True Khmer" }];
+}
+
+export function HydrateFallback() {
+  return <MyBlogDetailSkeleton />;
 }
 
 export function ErrorBoundary() {

@@ -671,7 +671,9 @@ const BlogPostSummaryResponse = z.object({ id: z.string().uuid(), title: z.strin
 
 const PaginationMeta = z.object({ page: z.number().int().gt(0), pageSize: z.number().int().gt(0), total: z.number().int().gte(0), totalPages: z.number().int().gte(0) });
 
-const ListModerationBlogPostsResponse = z.object({ ok: z.boolean(), data: z.array(BlogPostSummaryResponse), meta: PaginationMeta });
+const ModerationBlogPostStatusCounts = z.object({ PENDING_REVIEW: z.number().int().gte(0), PUBLISHED: z.number().int().gte(0), REJECTED: z.number().int().gte(0), UNPUBLISHED: z.number().int().gte(0) });
+
+const ListModerationBlogPostsResponse = z.object({ ok: z.boolean(), data: z.array(BlogPostSummaryResponse), meta: PaginationMeta.and(z.object({ statusCounts: ModerationBlogPostStatusCounts })) });
 
 const BlogPostErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
 
@@ -1224,6 +1226,7 @@ export const schemas = {
 	BlogPostModeration,
 	BlogPostSummaryResponse,
 	PaginationMeta,
+	ModerationBlogPostStatusCounts,
 	ListModerationBlogPostsResponse,
 	BlogPostErrorResponse,
 	BlogPostResponse,
@@ -1509,7 +1512,7 @@ const endpoints = makeApi([
 			{
 				name: "status",
 				type: "Query",
-				schema: z.enum(["DRAFT", "PENDING_REVIEW", "PUBLISHED", "REJECTED", "UNPUBLISHED"]).optional()
+				schema: z.enum(["PENDING_REVIEW", "PUBLISHED", "REJECTED", "UNPUBLISHED"]).optional()
 			},
 			{
 				name: "placement",
@@ -12340,6 +12343,7 @@ export type BlogPostAuthor = z.infer<typeof schemas.BlogPostAuthor>;
 export type BlogPostModeration = z.infer<typeof schemas.BlogPostModeration>;
 export type BlogPostSummaryResponse = z.infer<typeof schemas.BlogPostSummaryResponse>;
 export type PaginationMeta = z.infer<typeof schemas.PaginationMeta>;
+export type ModerationBlogPostStatusCounts = z.infer<typeof schemas.ModerationBlogPostStatusCounts>;
 export type ListModerationBlogPostsResponse = z.infer<typeof schemas.ListModerationBlogPostsResponse>;
 export type BlogPostErrorResponse = z.infer<typeof schemas.BlogPostErrorResponse>;
 export type BlogPostResponse = z.infer<typeof schemas.BlogPostResponse>;

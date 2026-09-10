@@ -76,8 +76,9 @@ export interface ListModeratorBlogPostsQuery {
   sortOrder?: "asc" | "desc";
 }
 
+// DRAFT is intentionally absent: the moderation list endpoint never returns
+// or filters drafts.
 export type ModerationBlogPostStatus =
-  | "DRAFT"
   | "PENDING_REVIEW"
   | "PUBLISHED"
   | "REJECTED"

@@ -35,7 +35,7 @@ export function BlogDetailPage() {
   useEffect(() => {
     if (!fetcher.data) return;
     if (fetcher.data.ok) {
-      toast.success(fetcher.data.message || "Blog updated successfully.");
+      toast.success(fetcher.data.message || "Post updated successfully.");
     } else {
       toast.error(fetcher.data.message || "Moderation action failed.");
     }
@@ -46,7 +46,7 @@ export function BlogDetailPage() {
       navigate(-1);
       return;
     }
-    navigate("/tk-admin/blog");
+    navigate("/tk-admin/khmer-voices");
   }
 
   return (
@@ -55,7 +55,7 @@ export function BlogDetailPage() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/tk-admin/blog">Blogs</Link>
+              <Link to="/tk-admin/khmer-voices">Khmer Voices</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />

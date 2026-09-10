@@ -21,13 +21,13 @@ export function meta(args: Route.MetaArgs) {
     return pageMeta(args, {
       title: "Khmer voices",
       description: SITE.description,
-      // The loader redirects a missing slug to /khmervoices, so this only renders on
+      // The loader redirects a missing slug to /khmer-voices, so this only renders on
       // a failed load -- not a page to leave in the index.
       noindex: true,
     });
   }
 
-  const path = `/khmervoices/${post.slug}`;
+  const path = `/khmer-voices/${post.slug}`;
   const author = resolveBlogAuthor(post);
 
   return pageMeta(args, {
@@ -66,7 +66,7 @@ export function meta(args: Route.MetaArgs) {
       }),
       breadcrumbJsonLd(origin, [
         { name: "Home", path: "/" },
-        { name: "Khmer voices", path: "/khmervoices" },
+        { name: "Khmer voices", path: "/khmer-voices" },
         { name: post.title, path },
       ]),
     ],

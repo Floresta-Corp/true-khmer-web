@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useActionData } from "react-router";
 import { toast } from "sonner";
+import { readActionResult } from "~/lib/action-result";
 import { resolveBlogAuthor } from "~/lib/blog-author";
 import type {
   BlogCategoryWithUsageResponse,
@@ -28,16 +29,19 @@ export function BlogForm({
   draftKey,
   viewer,
 }: BlogFormProps) {
-  const actionData = useActionData<{ ok?: boolean; message?: string }>();
+  const actionData = useActionData<{
+    ok?: boolean;
+    message?: string;
+    error?: string;
+  }>();
   const author = post ? resolveBlogAuthor(post) : viewer;
   const form = useBlogForm({ post, categories, draftKey, author });
 
   useEffect(() => {
-    if (actionData?.ok === true) {
-      toast.success(actionData.message || "Blog saved successfully.");
-    } else if (actionData?.ok === false) {
-      toast.error(actionData.message || "Unable to save the blog post.");
-    }
+    if (!actionData) return;
+    const { ok, message } = readActionResult(actionData);
+    if (ok) toast.success(message || "Blog saved successfully.");
+    else toast.error(message || "Unable to save the blog post.");
   }, [actionData]);
 
   return (

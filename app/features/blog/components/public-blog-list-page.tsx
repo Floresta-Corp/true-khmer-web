@@ -31,7 +31,7 @@ function buildBlogUrl(input: {
   if (input.category) params.set("category", input.category);
   if (input.sort && input.sort !== "newest") params.set("sort", input.sort);
   const query = params.toString();
-  return query ? `/khmervoices?${query}` : "/khmervoices";
+  return query ? `/khmer-voices?${query}` : "/khmer-voices";
 }
 
 export function PublicBlogListPage() {
@@ -56,7 +56,7 @@ export function PublicBlogListPage() {
       : null);
   const isLoadingMore =
     navigation.state !== "idle" &&
-    navigation.location?.pathname === "/khmervoices" &&
+    navigation.location?.pathname === "/khmer-voices" &&
     Number(new URLSearchParams(navigation.location.search).get("page") || "1") >
       page;
 
@@ -113,7 +113,7 @@ export function PublicBlogListPage() {
             }}
           >
             <Link
-              to={`/khmervoices/${featuredPost.slug}`}
+              to={`/khmer-voices/${featuredPost.slug}`}
               className="group relative block overflow-hidden rounded-xl bg-slate-100"
             >
               <img

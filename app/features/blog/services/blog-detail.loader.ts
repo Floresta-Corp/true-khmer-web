@@ -38,7 +38,7 @@ function toCommentViewer(
 export async function blogDetailLoader({ request, params }: Route.LoaderArgs) {
   const slug = params.slug;
   if (!slug) {
-    throw redirect("/khmervoices");
+    throw redirect("/khmer-voices");
   }
 
   const commentSort = parseBlogCommentSort(
@@ -69,7 +69,7 @@ export async function blogDetailLoader({ request, params }: Route.LoaderArgs) {
     );
   } catch (error) {
     if (error instanceof ProtectedApiError && error.status === 404) {
-      throw redirect("/khmervoices");
+      throw redirect("/khmer-voices");
     }
     throw error;
   }

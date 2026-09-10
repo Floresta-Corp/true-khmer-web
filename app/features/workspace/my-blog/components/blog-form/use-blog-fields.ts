@@ -14,7 +14,6 @@ interface UseBlogFieldsOptions {
 
 /** Every editable field of the composer, plus the local-draft restore. */
 export function useBlogFields({ post, draftKey }: UseBlogFieldsOptions) {
-  const [didRestoreDraft, setDidRestoreDraft] = useState(false);
   const [title, setTitle] = useState(getDisplayTitle(post?.title));
   const [excerpt, setExcerpt] = useState(post?.excerpt ?? "");
   const [authorRole, setAuthorRole] = useState(post?.authorRole ?? "");
@@ -85,7 +84,6 @@ export function useBlogFields({ post, draftKey }: UseBlogFieldsOptions) {
         setShowImageCreditEditor(true);
       }
       if (readText("content")) setContent(readText("content"));
-      setDidRestoreDraft(true);
     } catch {
       // Ignore malformed local draft data.
     }
@@ -115,7 +113,6 @@ export function useBlogFields({ post, draftKey }: UseBlogFieldsOptions) {
 
   return {
     content,
-    didRestoreDraft,
     setContent,
     fields: {
       authorRole,

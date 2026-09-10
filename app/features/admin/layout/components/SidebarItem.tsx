@@ -81,9 +81,9 @@ export const navItems: NavItem[] = [
   },
   {
     id: "blog",
-    label: "Blog",
+    label: "Khmer Voices",
     icon: Newspaper,
-    href: "/tk-admin/blog",
+    href: "/tk-admin/khmer-voices",
     section: "manage",
   },
   {

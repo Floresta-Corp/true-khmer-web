@@ -15,7 +15,7 @@ export function PublicBlogCard({
 
   return (
     <Link
-      to={`/khmervoices/${post.slug}`}
+      to={`/khmer-voices/${post.slug}`}
       className="group flex h-full flex-col overflow-hidden rounded-xl border border-[#e2e8f0]/80 bg-white shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition-all hover:border-[#1c97d4]/30 hover:shadow-[0_12px_24px_rgba(15,23,42,0.05)] motion-reduce:transform-none motion-reduce:transition-none dark:border-white/10 dark:bg-slate-950"
     >
       <div className="relative shrink-0 overflow-hidden rounded-t-xl">

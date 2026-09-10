@@ -56,7 +56,7 @@ export function MyBlogFilters({ search, status }: MyBlogFiltersProps) {
               type="text"
               value={searchValue}
               onChange={(event) => setSearchValue(event.target.value)}
-              placeholder="Search by title, excerpt, or author..."
+              placeholder="Search by title or excerpt..."
               className="h-10 border-slate-200 bg-white pr-9 pl-9 dark:border-slate-700 dark:bg-slate-950/60"
             />
             {searchValue ? (

@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { useNavigation, useSubmit } from "react-router";
 import type {
   BlogCategoryWithUsageResponse,
@@ -43,7 +43,6 @@ export function useBlogForm({
 
   const {
     content,
-    didRestoreDraft,
     fields,
     isUploadingCover,
     refs,
@@ -79,27 +78,16 @@ export function useBlogForm({
     [content, fields],
   );
 
-  const {
-    autosaveLabel,
-    autosaveStatus,
-    savedPostIdRef,
-    setAutosaveLabel,
-    setAutosaveStatus,
-  } = useBlogAutosave({
-    // `tagInput` is the in-progress keystrokes of the tag box, not saved data.
-    payload: { ...autosavedFields, content },
-    buildFormData,
-    draftKey,
-    postId: post?.id,
-    savedAt: post?.updatedAt,
-    enabled: isEditable,
-  });
-
-  useEffect(() => {
-    if (!didRestoreDraft) return;
-    setAutosaveStatus("saved");
-    setAutosaveLabel("Draft restored");
-  }, [didRestoreDraft, setAutosaveLabel, setAutosaveStatus]);
+  const { autosaveLabel, autosaveStatus, isAutosaving, savedPostIdRef } =
+    useBlogAutosave({
+      // `tagInput` is the in-progress keystrokes of the tag box, not saved data.
+      payload: { ...autosavedFields, content },
+      buildFormData,
+      draftKey,
+      postId: post?.id,
+      savedAt: post?.updatedAt,
+      enabled: isEditable,
+    });
 
   const openPreview = useCallback(() => {
     const draft: BlogPreviewDraft = {
@@ -156,6 +144,7 @@ export function useBlogForm({
     editor,
     fields,
     isEditable,
+    isAutosaving,
     isSubmittable,
     isSubmitting: navigation.state === "submitting",
     isUploadingCover,

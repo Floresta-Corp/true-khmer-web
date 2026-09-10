@@ -10,16 +10,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { BLOG_STATUS_LABELS, type BlogPostStatus } from "~/lib/blog-status";
+import { BLOG_STATUS_LABELS } from "~/lib/blog-status";
+import { BLOG_LIBRARY_STATUSES, type BlogLibraryStatus } from "../types";
 
 interface BlogQueueFiltersProps {
   filters: {
     search?: string;
-    status?: BlogPostStatus;
+    status?: BlogLibraryStatus;
   };
+  searchPlaceholder?: string;
+  /** The pending-review queue is pinned to one status and only needs search. */
+  showStatusFilter?: boolean;
 }
 
-export function BlogQueueFilters({ filters }: BlogQueueFiltersProps) {
+export function BlogQueueFilters({
+  filters,
+  searchPlaceholder = "Search by title, excerpt, or author...",
+  showStatusFilter = true,
+}: BlogQueueFiltersProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
   const [searchValue, setSearchValue] = useState(filters.search ?? "");
@@ -67,7 +75,7 @@ export function BlogQueueFilters({ filters }: BlogQueueFiltersProps) {
               type="text"
               value={searchValue}
               onChange={(event) => setSearchValue(event.target.value)}
-              placeholder="Search by title, excerpt, or author..."
+              placeholder={searchPlaceholder}
               className="h-10 border-slate-200 bg-white pr-9 pl-9 dark:border-slate-700 dark:bg-slate-950/60"
             />
             {searchValue ? (
@@ -84,22 +92,24 @@ export function BlogQueueFilters({ filters }: BlogQueueFiltersProps) {
             ) : null}
           </div>
         </div>
-        <Button
-          type="button"
-          variant="ghost"
-          className={`h-10 w-full rounded-lg border sm:w-auto ${
-            hasFilters
-              ? "border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:text-white dark:border-blue-500 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"
-              : "border-slate-200 bg-white text-slate-700 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-blue-500 dark:hover:bg-blue-950/40 dark:hover:text-blue-300"
-          }`}
-          onClick={() => setShowFilters((current) => !current)}
-        >
-          <Filter className="size-4" />
-          Filters
-        </Button>
+        {showStatusFilter ? (
+          <Button
+            type="button"
+            variant="ghost"
+            className={`h-10 w-full rounded-lg border sm:w-auto ${
+              hasFilters
+                ? "border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:text-white dark:border-blue-500 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"
+                : "border-slate-200 bg-white text-slate-700 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-blue-500 dark:hover:bg-blue-950/40 dark:hover:text-blue-300"
+            }`}
+            onClick={() => setShowFilters((current) => !current)}
+          >
+            <Filter className="size-4" />
+            Filters
+          </Button>
+        ) : null}
       </div>
 
-      {showFilters ? (
+      {showStatusFilter && showFilters ? (
         <div className="mt-4 rounded-2xl bg-slate-50 p-4 sm:p-6 dark:bg-slate-950/60">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-lg font-semibold">Filter Options</h3>
@@ -125,13 +135,11 @@ export function BlogQueueFilters({ filters }: BlogQueueFiltersProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All statuses</SelectItem>
-                {(Object.keys(BLOG_STATUS_LABELS) as BlogPostStatus[]).map(
-                  (status) => (
-                    <SelectItem key={status} value={status}>
-                      {BLOG_STATUS_LABELS[status]}
-                    </SelectItem>
-                  ),
-                )}
+                {BLOG_LIBRARY_STATUSES.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {BLOG_STATUS_LABELS[status]}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

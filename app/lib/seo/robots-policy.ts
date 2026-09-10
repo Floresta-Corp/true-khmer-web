@@ -114,7 +114,7 @@ export function isPrivatePath(pathname: string): boolean {
 export const CRAWLABLE_SECTIONS = [
   "/",
   "/about",
-  "/khmervoices",
+  "/khmer-voices",
   "/community",
   "/education",
   "/events",

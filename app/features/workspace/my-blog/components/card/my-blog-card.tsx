@@ -29,16 +29,16 @@ export function MyBlogCard({
   const isEditable = isEditableBlogStatus(post.status);
 
   return (
-    <Card className="h-full min-w-0 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-colors sm:p-6 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none dark:hover:border-slate-700">
-      <div className="flex h-full min-w-0 flex-col gap-5 md:flex-row">
+    <Card className="h-full min-w-0 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-colors sm:p-5 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none dark:hover:border-slate-700">
+      <div className="flex h-full min-w-0 flex-col gap-4 md:flex-row md:items-stretch">
         {post.coverImageUrl ? (
           <img
             src={post.coverImageUrl}
             alt={post.coverImageAlt || post.title}
-            className="aspect-video h-auto w-full shrink-0 rounded-xl object-cover md:aspect-auto md:h-52 md:w-56 xl:w-44 2xl:w-52"
+            className="aspect-video w-full shrink-0 self-stretch rounded-xl object-cover md:aspect-auto md:h-auto md:min-h-44 md:w-56 xl:w-44 2xl:w-52"
           />
         ) : (
-          <div className="flex aspect-video h-auto w-full shrink-0 flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 text-center text-slate-400 md:aspect-auto md:h-52 md:w-56 xl:w-44 2xl:w-52 dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-500">
+          <div className="flex aspect-video w-full shrink-0 flex-col items-center justify-center self-stretch rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 text-center text-slate-400 md:aspect-auto md:h-auto md:min-h-44 md:w-56 xl:w-44 2xl:w-52 dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-500">
             <div className="text-sm font-medium">No cover image</div>
             <div className="mt-1 text-xs">
               Add a hero image to improve the card preview.
@@ -46,7 +46,7 @@ export function MyBlogCard({
           </div>
         )}
         <div className="flex min-w-0 flex-1 flex-col">
-          <div className="mb-3 flex flex-wrap gap-2">
+          <div className="mb-2.5 flex flex-wrap gap-2">
             <Badge
               variant="outline"
               className={`gap-1.5 rounded-lg px-2 py-1 text-[10px] font-bold tracking-wider uppercase ${statusStyle.badge}`}
@@ -72,12 +72,12 @@ export function MyBlogCard({
             ) : null}
           </div>
           <h2
-            className="line-clamp-3 text-xl leading-tight font-semibold break-words text-(--blog-secondary) sm:text-2xl xl:min-h-[5.5rem] dark:text-blue-300"
+            className="line-clamp-2 text-xl leading-tight font-semibold break-words text-(--blog-secondary) sm:text-2xl dark:text-blue-300"
             title={post.title}
           >
             {post.title}
           </h2>
-          <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600 sm:min-h-[3rem] sm:text-base dark:text-slate-300">
+          <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600 sm:text-base dark:text-slate-300">
             {post.excerpt}
           </p>
           {post.status === "REJECTED" && post.moderation.rejectionReason ? (
@@ -85,15 +85,15 @@ export function MyBlogCard({
               {post.moderation.rejectionReason}
             </p>
           ) : null}
-          <div className="mt-4 text-sm break-words text-slate-500 dark:text-slate-400">
+          <div className="mt-3 text-sm break-words text-slate-500 dark:text-slate-400">
             {author.name}
             {" • "}
             {formatDate(post.publishedAt || post.updatedAt)}
           </div>
-          <div className="mt-auto flex flex-wrap gap-2 pt-5">
+          <div className="mt-4 flex flex-wrap gap-2">
             {post.status === "PUBLISHED" ? (
               <Button asChild variant="ghost" className={GHOST_BUTTON_CLASS}>
-                <Link to={`/khmervoices/${post.slug}`}>View</Link>
+                <Link to={`/khmer-voices/${post.slug}`}>View</Link>
               </Button>
             ) : null}
 

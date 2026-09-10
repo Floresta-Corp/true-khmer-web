@@ -50,6 +50,8 @@ export function useBlogAutosave({
   const lastSavedPayloadRef = useRef<string | null>(postId ? serialized : null);
   const currentPostIdRef = useRef<string | undefined>(postId);
   const revisionRef = useRef(0);
+  const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const pendingRedirectRef = useRef<string | null>(null);
   const buildFormDataRef = useRef(buildFormData);
   buildFormDataRef.current = buildFormData;
 
@@ -76,14 +78,18 @@ export function useBlogAutosave({
     setAutosaveStatus("saving");
     setAutosaveLabel("Saving draft...");
 
-    const timeout = window.setTimeout(async () => {
+    const timeout = window.setTimeout(() => {
       window.localStorage.setItem(
         `${BLOG_AUTOSAVE_STORAGE_PREFIX}${draftKey}`,
         serialized,
       );
 
-      try {
-        const formData = buildFormDataRef.current();
+      // Capture this revision's fields now. The queued request may not start
+      // until an earlier save completes and the live form may have changed by
+      // then.
+      const formData = buildFormDataRef.current();
+
+      const saveRevision = async () => {
         if (currentPostIdRef.current) {
           formData.set("postId", currentPostIdRef.current);
         }
@@ -97,13 +103,21 @@ export function useBlogAutosave({
           throw new Error(result?.error || "Autosave failed");
         }
 
-        // A newer edit already started saving; its result is the current one.
-        if (revision !== revisionRef.current) return;
-
-        lastSavedPayloadRef.current = serialized;
+        // This must happen before the next queued save starts, even when a
+        // newer revision exists. It turns every later request into an update
+        // instead of allowing another create.
         if (result.postId && !currentPostIdRef.current) {
           currentPostIdRef.current = String(result.postId);
         }
+        if (result.redirectTo) {
+          pendingRedirectRef.current = String(result.redirectTo);
+        }
+
+        // A newer edit is queued; let that revision own the visible status and
+        // navigate only after it has also reached the server.
+        if (revision !== revisionRef.current) return;
+
+        lastSavedPayloadRef.current = serialized;
 
         setAutosaveStatus("saved");
         setAutosaveLabel(
@@ -113,18 +127,25 @@ export function useBlogAutosave({
           ),
         );
 
-        if (result.redirectTo && !postId) {
+        if (pendingRedirectRef.current && !postId) {
           window.localStorage.removeItem(
             `${BLOG_AUTOSAVE_STORAGE_PREFIX}${draftKey}`,
           );
-          navigate(String(result.redirectTo), { replace: true });
+          navigate(pendingRedirectRef.current, { replace: true });
         }
-      } catch (error) {
+      };
+
+      const queuedSave = saveQueueRef.current
+        .catch(() => undefined)
+        .then(saveRevision);
+      saveQueueRef.current = queuedSave;
+
+      void queuedSave.catch((error: unknown) => {
         if (revision !== revisionRef.current) return;
         console.error("Blog autosave fell back to local storage", error);
         setAutosaveStatus("error");
         setAutosaveLabel(savedAtLabel("Saved locally", new Date()));
-      }
+      });
     }, AUTOSAVE_DEBOUNCE_MS);
 
     return () => window.clearTimeout(timeout);
@@ -133,8 +154,7 @@ export function useBlogAutosave({
   return {
     autosaveStatus,
     autosaveLabel,
-    setAutosaveStatus,
-    setAutosaveLabel,
+    isAutosaving: autosaveStatus === "saving",
     /**
      * The server id of the draft, which autosave may have created after this
      * component mounted on `/workspace/khmer-voices/new`.

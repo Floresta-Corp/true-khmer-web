@@ -41,7 +41,7 @@ export async function blogDetailAction({ request, params }: Route.ActionArgs) {
     }
 
     if (intent === BLOG_MODERATION_INTENTS.delete) {
-      return redirect("/tk-admin/blog", cookieHeader);
+      return redirect("/tk-admin/khmer-voices", cookieHeader);
     }
 
     return data(
