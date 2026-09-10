@@ -106,9 +106,7 @@ export function BlogFormTopBar({ form, slug }: BlogFormTopBarProps) {
           }
           className="h-10 bg-blue-600 px-6 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"
         >
-          {(isSubmitting || isAutosaving) && (
-            <Loader2 className="size-4 animate-spin" />
-          )}
+          {isSubmitting && <Loader2 className="size-4 animate-spin" />}
           {isEditable
             ? status === "DRAFT"
               ? "Submit for review"

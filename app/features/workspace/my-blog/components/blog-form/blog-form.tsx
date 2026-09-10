@@ -46,11 +46,14 @@ export function BlogForm({
 
   return (
     <div className="mx-auto max-w-[1180px] space-y-8 px-0 pt-0 pb-20 text-slate-950 dark:text-slate-100">
-      <BlogFormTopBar form={form} slug={post?.slug} />
+      {/* Header + editor toolbar stay pinned to the top of the scroll container. */}
+      <div className="sticky top-0 z-30 -mx-6 space-y-4 bg-[#f8fafc] px-6 py-4 dark:bg-slate-950">
+        <BlogFormTopBar form={form} slug={post?.slug} />
+
+        {form.isEditable ? <BlogEditorToolbar {...form.editor} /> : null}
+      </div>
 
       <BlogModerationBanner post={post} />
-
-      {form.isEditable ? <BlogEditorToolbar {...form.editor} /> : null}
 
       <div className="mx-auto max-w-[1140px] rounded-2xl border border-slate-100 bg-white px-6 pb-10 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
         <div className="space-y-10 pt-4">

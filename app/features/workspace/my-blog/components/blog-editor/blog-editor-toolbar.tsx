@@ -707,7 +707,7 @@ export function BlogEditorToolbar({
   return (
     <div
       className={clsx(
-        "sticky top-0 z-30 rounded-2xl border border-slate-100 bg-white/95 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/95 dark:shadow-none",
+        "rounded-2xl border border-slate-100 bg-white/95 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/95 dark:shadow-none",
         className,
       )}
     >
