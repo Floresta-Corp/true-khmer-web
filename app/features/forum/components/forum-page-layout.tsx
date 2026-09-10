@@ -13,7 +13,7 @@ export function ForumPageLayout({
   contentClassName,
 }: ForumPageLayoutProps) {
   return (
-    <div className={cn("min-h-screen w-full bg-[#f8fafc]", className)}>
+    <div className={cn("min-h-screen w-full", className)}>
       <main className={cn("site-container pt-8 pb-10", contentClassName)}>
         {children}
       </main>
