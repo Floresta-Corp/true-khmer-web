@@ -23,10 +23,10 @@ const footerColumns = [
     heading: "Platform",
     links: [
       { label: "Forum", to: "/forum" },
-      // { label: "Events", to: "/events" },
+      { label: "Events", to: "/events" },
       { label: "Volunteers", to: "/volunteer" },
       { label: "Launchpad", to: "/launchpad" },
-      { label: "People of Cambodia", to: "#" },
+      // { label: "People of Cambodia", to: "#" },
     ],
   },
   {
@@ -42,7 +42,7 @@ const footerColumns = [
     heading: "About",
     links: [
       { label: "About Us", to: "/about" },
-      { label: "Our Team", to: "/" },
+      // { label: "Our Team", to: "/" },
     ],
   },
 ];
@@ -102,7 +102,7 @@ export function Footer() {
               <LogoSvg
                 width={82}
                 height={32}
-                className="h-10 w-auto"
+                className="h-12 w-auto"
                 aria-label="True Khmer"
               />
             </Link>
@@ -158,7 +158,7 @@ export function Footer() {
           </div>
 
           {/* Link columns */}
-          <div className="grid flex-1 grid-cols-2 gap-8 sm:grid-cols-3 lg:max-w-xl lg:gap-12">
+          <div className="grid flex-1 grid-cols-2 gap-8 sm:grid-cols-3 lg:max-w-3xl lg:gap-12">
             {footerColumns.map((column) => (
               <div key={column.heading} className="flex flex-col gap-4">
                 <h3 className="text-xs font-semibold tracking-wider text-[#2f6fe4] uppercase">
