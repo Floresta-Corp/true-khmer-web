@@ -5,6 +5,7 @@ import type { Route } from "./+types/profile.$id";
 import { metaOrigin, pageMeta } from "~/lib/seo";
 import { breadcrumbJsonLd, personJsonLd } from "~/lib/seo/structured-data";
 import { resolveImageURL } from "~/lib/utils";
+import { ProfilePageLayout } from "../components/profile-page-layout";
 
 export const loader = profileLoader;
 
@@ -57,8 +58,8 @@ export function meta(args: Route.MetaArgs) {
 
 export default function ProfilePage() {
   return (
-    <ForumPageLayout>
+    <ProfilePageLayout>
       <ProfileDetailPage />
-    </ForumPageLayout>
+    </ProfilePageLayout>
   );
 }

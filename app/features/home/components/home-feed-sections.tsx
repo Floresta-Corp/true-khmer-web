@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { motion, MotionConfig } from "motion/react";
+import { ChevronRight } from "lucide-react";
 import { slideUpVariants, staggerContainerVariants } from "./home-motion";
 import { LaunchpadCompactCard } from "~/features/home/components/launchpad-compact-card";
 import { VolunteerCompactCard } from "~/features/home/components/volunteer-compact-card";
@@ -39,9 +40,10 @@ function SectionHeading({
       </h2>
       <Link
         to={seeAllTo}
-        className="shrink-0 text-sm font-semibold text-[#1c5dd4] transition-colors hover:text-[#2f6fe4]"
+        className="flex shrink-0 items-center gap-1 text-sm font-semibold text-[#1c5dd4] transition-colors hover:text-[#2f6fe4] hover:underline"
       >
         See all
+        <ChevronRight className="size-4" aria-hidden />
       </Link>
     </div>
   );

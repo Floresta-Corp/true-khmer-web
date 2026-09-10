@@ -37,7 +37,7 @@ export function PublicBlogCard({
         ) : null}
       </div>
 
-      <div className="flex flex-1 flex-col px-8 pt-8 pb-8">
+      <div className="flex flex-1 flex-col p-5">
         <div className="flex items-center gap-2 text-[14px] font-medium text-blue-500">
           {author.avatarKey ? (
             <AuthorAvatar
@@ -50,10 +50,10 @@ export function PublicBlogCard({
           <span className="h-1 w-1 rounded-full bg-blue-500/70" />
           <span>{formatDate(post.publishedAt || post.createdAt)}</span>
         </div>
-        <h2 className="mt-4 line-clamp-2 min-h-12.5 text-xl leading-tight font-semibold tracking-tight text-[#243d95] transition-colors group-hover:text-blue-500 dark:text-slate-100">
+        <h2 className="mt-2 line-clamp-2 text-xl leading-tight font-semibold tracking-tight text-[#243d95] transition-colors group-hover:text-blue-500 dark:text-slate-100">
           {post.title}
         </h2>
-        <p className="mt-4 line-clamp-3 min-h-15 text-[14px] leading-5 text-slate-600 dark:text-slate-400">
+        <p className="mt-2 line-clamp-3 text-[14px] leading-5 text-slate-600 dark:text-slate-400">
           {post.previewText}
         </p>
       </div>

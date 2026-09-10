@@ -154,9 +154,7 @@ export function EventHero({
           />
           Organizing something?{" "}
           <Link
-            to={import.meta.env.VITE_PLUMPI_WEB}
-            target="_blank"
-            rel="noopener noreferrer"
+            to="/my-events/create"
             className="group inline-flex items-center gap-1 font-bold text-[#1C5DD4] hover:underline"
           >
             Create your own event

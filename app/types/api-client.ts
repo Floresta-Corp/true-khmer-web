@@ -357,6 +357,10 @@ const MyAnswersPaginationResponse = z.object({ limit: z.number().int().gt(0), ha
 
 const GetMyAnswersResponse = z.object({ ok: z.boolean(), discussions: z.array(MyAnswerDiscussionResponse), totalAnswers: z.number().int().gte(0), pagination: MyAnswersPaginationResponse });
 
+const TopContributorResponse = z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), answerCount: z.number().int().gte(0), voteCount: z.number().int().gte(0) });
+
+const GetTopContributorsResponse = z.object({ ok: z.boolean(), contributors: z.array(TopContributorResponse) });
+
 const CreateAnswerRequest = z.object({ questionId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), replyToAnswer: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).nullish(), body: z.string().min(1).max(10000) });
 
 const CreateAnswerResponse = z.object({ ok: z.boolean(), answer: AnswerResponse });
@@ -1067,6 +1071,8 @@ export const schemas = {
 	MyAnswerDiscussionResponse,
 	MyAnswersPaginationResponse,
 	GetMyAnswersResponse,
+	TopContributorResponse,
+	GetTopContributorsResponse,
 	CreateAnswerRequest,
 	CreateAnswerResponse,
 	UpdateAnswerRequest,
@@ -7228,6 +7234,32 @@ const endpoints = makeApi([
 		response: GetMyAnswersResponse,
 	},
 	{
+		method: "get",
+		path: "/v1/forum/answer/top-contributors",
+		alias: "getV1forumanswertopContributors",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(10).optional()
+			},
+			{
+				name: "categoryId",
+				type: "Query",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
+			},
+		],
+		response: GetTopContributorsResponse,
+		errors: [
+			{
+				status: 404,
+				description: `Category not found`,
+				schema: z.void()
+			},
+		]
+	},
+	{
 		method: "post",
 		path: "/v1/forum/answer/vote-answer/:answerId",
 		alias: "postV1forumanswervoteAnswerAnswerId",
@@ -7297,6 +7329,32 @@ const endpoints = makeApi([
 			},
 		],
 		response: GetAnswersResponse,
+	},
+	{
+		method: "get",
+		path: "/v1/forum/public/answer/top-contributors",
+		alias: "getV1forumpublicanswertopContributors",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(10).optional()
+			},
+			{
+				name: "categoryId",
+				type: "Query",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i).optional()
+			},
+		],
+		response: GetTopContributorsResponse,
+		errors: [
+			{
+				status: 404,
+				description: `Category not found`,
+				schema: z.void()
+			},
+		]
 	},
 	{
 		method: "get",
@@ -12184,6 +12242,8 @@ export type MyAnswerResponse = z.infer<typeof schemas.MyAnswerResponse>;
 export type MyAnswerDiscussionResponse = z.infer<typeof schemas.MyAnswerDiscussionResponse>;
 export type MyAnswersPaginationResponse = z.infer<typeof schemas.MyAnswersPaginationResponse>;
 export type GetMyAnswersResponse = z.infer<typeof schemas.GetMyAnswersResponse>;
+export type TopContributorResponse = z.infer<typeof schemas.TopContributorResponse>;
+export type GetTopContributorsResponse = z.infer<typeof schemas.GetTopContributorsResponse>;
 export type CreateAnswerRequest = z.infer<typeof schemas.CreateAnswerRequest>;
 export type CreateAnswerResponse = z.infer<typeof schemas.CreateAnswerResponse>;
 export type UpdateAnswerRequest = z.infer<typeof schemas.UpdateAnswerRequest>;

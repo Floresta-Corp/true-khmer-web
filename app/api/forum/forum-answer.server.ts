@@ -22,7 +22,10 @@ import {
   UpdateAnswerInputSchema,
 } from "~/features/forum/types";
 import type { VoteIntent } from "~/services/types";
-import type { GetMyAnswersResponse } from "~/types/api-client";
+import type {
+  GetMyAnswersResponse,
+  GetTopContributorsResponse,
+} from "~/types/api-client";
 
 export async function voteForumAnswer(
   request: Request,
@@ -191,4 +194,36 @@ export async function markAsBestAnswer(request: Request, answerId: string) {
       method: "POST",
     },
   );
+}
+
+export async function getTopContributors(request: Request, limit?: number) {
+  const qs = limit ? `?limit=${limit}` : "";
+
+  const result = await apiRequestWithSession<GetTopContributorsResponse>(
+    request,
+    `/forum/answer/top-contributors${qs}`,
+    {
+      method: "GET",
+    },
+  );
+
+  return result;
+}
+
+export async function getPublicTopContributors(
+  request: Request,
+  limit?: number,
+) {
+  const qs = limit ? `?limit=${limit}` : "";
+
+  const result =
+    await apiRequestWithOptionalSession<GetTopContributorsResponse>(
+      request,
+      `/forum/public/answer/top-contributors${qs}`,
+      {
+        method: "GET",
+      },
+    );
+
+  return result;
 }
