@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { ChevronRight, Search } from "lucide-react";
 import { Link, useFetcher, useLocation } from "react-router";
 import { Button } from "~/components/ui/button";
 import type { Opportunity } from "~/features/volunteer/types/volunteer-types";
@@ -185,7 +185,10 @@ export function VolunteerAvailableOpportunities({
               variant="ghost"
               className="h-9 shrink-0 px-4 text-sm text-blue-500 hover:bg-transparent hover:text-blue-700 hover:underline"
             >
-              <Link to="/volunteer/all">View all</Link>
+              <Link to="/volunteer/all">
+                View all
+                <ChevronRight />
+              </Link>
             </Button>
           </div>
         )}
