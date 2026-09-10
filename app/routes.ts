@@ -217,10 +217,7 @@ export default [
       "features/admin/blog/route/blog.categories.tsx",
     ),
     route("khmer-voices/review", "features/admin/blog/route/blog.review.tsx"),
-    route(
-      "khmer-voices/:postId",
-      "features/admin/blog/route/blog.$postId.tsx",
-    ),
+    route("khmer-voices/:postId", "features/admin/blog/route/blog.$postId.tsx"),
     route("partners", "features/admin/partners/route/partners.tsx"),
     route("partners/new", "features/admin/partners/route/partners.new.tsx"),
     route(

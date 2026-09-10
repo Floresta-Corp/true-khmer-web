@@ -18,9 +18,7 @@ export function ErrorBoundary() {
     (error.status === 403 || error.status === 404)
   ) {
     return (
-      <AccessRestricted
-        message={error.data?.message ?? "Post not found."}
-      />
+      <AccessRestricted message={error.data?.message ?? "Post not found."} />
     );
   }
   throw error;
