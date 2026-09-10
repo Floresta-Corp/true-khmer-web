@@ -7,7 +7,7 @@ export const loader = myBlogLoader;
 export const action = myBlogAction;
 
 export function meta() {
-  return [{ title: "My Blogs | True Khmer" }];
+  return [{ title: "Khmer Voices | True Khmer" }];
 }
 
 export function HydrateFallback() {
