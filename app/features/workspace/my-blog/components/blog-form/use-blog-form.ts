@@ -15,9 +15,18 @@ import {
 import { useBlogAutosave } from "./use-blog-autosave";
 import { getDisplayTitle, useBlogFields } from "./use-blog-fields";
 
+const BLOG_BODY_MIN_LENGTH = 20;
+
+function getBlogBodyText(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;|&#160;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function hasMeaningfulContent(html: string): boolean {
-  const stripped = html.replace(/<[^>]*>/g, "").trim();
-  if (stripped.length >= 20) return true;
+  if (getBlogBodyText(html).length >= BLOG_BODY_MIN_LENGTH) return true;
   return /<(img|iframe|video|blockquote|pre|ul|ol|h[1-6])[\s>]/i.test(html);
 }
 
@@ -129,11 +138,22 @@ export function useBlogForm({
     [buildFormData, post?.id, savedPostIdRef, submit],
   );
 
-  const isSubmittable = Boolean(
-    fields.title.trim() &&
-    fields.coverImageUrl.trim() &&
-    hasMeaningfulContent(content),
-  );
+  const submissionIssues: string[] = [];
+  if (!fields.title.trim()) {
+    submissionIssues.push("Title is required.");
+  }
+  // The API publishes the stored image key. The public URL is only used to
+  // render the preview and can legitimately be absent for a valid upload.
+  if (!fields.coverImageKey?.trim()) {
+    submissionIssues.push("Cover image is required.");
+  }
+  if (!hasMeaningfulContent(content)) {
+    submissionIssues.push(
+      `Blog content must be at least ${BLOG_BODY_MIN_LENGTH} characters.`,
+    );
+  }
+
+  const isSubmittable = submissionIssues.length === 0;
 
   return {
     author,
@@ -155,6 +175,7 @@ export function useBlogForm({
     setters,
     showImageCreditEditor,
     status,
+    submissionIssues,
   };
 }
 

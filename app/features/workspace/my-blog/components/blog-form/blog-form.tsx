@@ -15,6 +15,8 @@ import { BlogFormTopBar } from "./blog-form-top-bar";
 import { BlogModerationBanner } from "./blog-moderation-banner";
 import { useBlogForm } from "./use-blog-form";
 
+const BLOG_ACTION_TOAST_ID = "my-blog-form-action";
+
 interface BlogFormProps {
   post?: BlogPostResponse;
   categories: BlogCategoryWithUsageResponse[];
@@ -40,8 +42,15 @@ export function BlogForm({
   useEffect(() => {
     if (!actionData) return;
     const { ok, message } = readActionResult(actionData);
-    if (ok) toast.success(message || "Blog saved successfully.");
-    else toast.error(message || "Unable to save the blog post.");
+    if (ok) {
+      toast.success(message || "Blog saved successfully.", {
+        id: BLOG_ACTION_TOAST_ID,
+      });
+    } else {
+      toast.error(message || "Unable to save the blog post.", {
+        id: BLOG_ACTION_TOAST_ID,
+      });
+    }
   }, [actionData]);
 
   return (

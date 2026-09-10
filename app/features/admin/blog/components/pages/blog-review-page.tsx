@@ -40,6 +40,7 @@ export function BlogReviewPage() {
             <BlogQueueFilters
               filters={filters}
               showStatusFilter={false}
+              showSubmissionSort
               searchPlaceholder="Search submissions by title, excerpt, or author..."
             />
           </div>

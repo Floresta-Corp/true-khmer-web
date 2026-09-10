@@ -43,9 +43,7 @@ export function BlogFormTopBar({ form, slug }: BlogFormTopBarProps) {
 
   function handleSubmitClick() {
     if (!form.isSubmittable) {
-      toast.error(
-        "Title, cover image, and blog body content are required to publish.",
-      );
+      toast.error(form.submissionIssues.join(" "));
       return;
     }
     setIsSubmitConfirmOpen(true);

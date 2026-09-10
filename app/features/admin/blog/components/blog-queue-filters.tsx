@@ -17,21 +17,29 @@ interface BlogQueueFiltersProps {
   filters: {
     search?: string;
     status?: BlogLibraryStatus;
+    sortOrder?: "asc" | "desc";
   };
   searchPlaceholder?: string;
-  /** The pending-review queue is pinned to one status and only needs search. */
+  /** The pending-review queue is pinned to one status. */
   showStatusFilter?: boolean;
+  showSubmissionSort?: boolean;
 }
 
 export function BlogQueueFilters({
   filters,
   searchPlaceholder = "Search by title, excerpt, or author...",
   showStatusFilter = true,
+  showSubmissionSort = false,
 }: BlogQueueFiltersProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
   const [searchValue, setSearchValue] = useState(filters.search ?? "");
-  const hasFilters = Boolean(filters.search || filters.status);
+  const hasFilters = Boolean(
+    filters.search ||
+    filters.status ||
+    (showSubmissionSort && filters.sortOrder === "desc"),
+  );
+  const hasFilterOptions = showStatusFilter || showSubmissionSort;
 
   const updateQuery = useCallback(
     (key: string, value: string) => {
@@ -92,7 +100,7 @@ export function BlogQueueFilters({
             ) : null}
           </div>
         </div>
-        {showStatusFilter ? (
+        {hasFilterOptions ? (
           <Button
             type="button"
             variant="ghost"
@@ -109,7 +117,7 @@ export function BlogQueueFilters({
         ) : null}
       </div>
 
-      {showStatusFilter && showFilters ? (
+      {hasFilterOptions && showFilters ? (
         <div className="mt-4 rounded-2xl bg-slate-50 p-4 sm:p-6 dark:bg-slate-950/60">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-lg font-semibold">Filter Options</h3>
@@ -126,22 +134,39 @@ export function BlogQueueFilters({
             )}
           </div>
           <div className="grid grid-cols-1 gap-4">
-            <Select
-              value={filters.status || "all"}
-              onValueChange={(value) => updateQuery("status", value)}
-            >
-              <SelectTrigger className="h-10 border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
-                <SelectValue placeholder="All statuses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All statuses</SelectItem>
-                {BLOG_LIBRARY_STATUSES.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {BLOG_STATUS_LABELS[status]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {showStatusFilter ? (
+              <Select
+                value={filters.status || "all"}
+                onValueChange={(value) => updateQuery("status", value)}
+              >
+                <SelectTrigger className="h-10 border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+                  <SelectValue placeholder="All statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All statuses</SelectItem>
+                  {BLOG_LIBRARY_STATUSES.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {BLOG_STATUS_LABELS[status]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : null}
+
+            {showSubmissionSort ? (
+              <Select
+                value={filters.sortOrder || "asc"}
+                onValueChange={(value) => updateQuery("sortOrder", value)}
+              >
+                <SelectTrigger className="h-10 border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+                  <SelectValue placeholder="Submission order" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="asc">Oldest first</SelectItem>
+                  <SelectItem value="desc">Newest first</SelectItem>
+                </SelectContent>
+              </Select>
+            ) : null}
           </div>
         </div>
       ) : null}

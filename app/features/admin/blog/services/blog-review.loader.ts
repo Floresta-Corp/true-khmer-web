@@ -8,6 +8,7 @@ import { BLOG_QUEUE_PAGE_SIZE } from "../types";
 const querySchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
   search: z.string().optional(),
+  sortOrder: z.enum(["asc", "desc"]).optional().default("asc"),
 });
 
 export async function blogReviewLoader({ request }: Route.LoaderArgs) {
@@ -27,7 +28,7 @@ export async function blogReviewLoader({ request }: Route.LoaderArgs) {
     search: query.search,
     status: "PENDING_REVIEW",
     sortField: "submittedAt",
-    sortOrder: "asc",
+    sortOrder: query.sortOrder,
   }).then((postsResult) => ({
     posts: postsResult.data.data,
     meta: postsResult.data.meta,
