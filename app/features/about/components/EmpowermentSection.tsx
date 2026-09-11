@@ -59,9 +59,9 @@ export function EmpowermentSection() {
         </div>
       </div>
       <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-        <h2 className="text-3xl tracking-tight text-balance text-white sm:text-4xl lg:text-5xl xl:text-6xl">
+        <div className="text-3xl tracking-tight text-balance text-white sm:text-4xl lg:text-5xl xl:text-6xl">
           Empowerment <br /> at the heart of our roadmap
-        </h2>
+        </div>
         <p className="mx-auto mt-4 max-w-xl text-xs leading-relaxed text-white sm:mt-6 sm:text-base lg:max-w-2xl lg:text-lg">
           True Khmer is seeking to establish a virtuous cycle of positive action
           that will allow our members to find the energy and support to stand by
@@ -81,12 +81,12 @@ export function EmpowermentSection() {
                 <IconComponent className={iconClasses} />
               </div>
               <div className="text-center text-white">
-                <h1 className="text-lg font-semibold sm:text-xl md:text-2xl xl:text-3xl/tight">
+                <div className="text-lg font-semibold sm:text-xl md:text-2xl xl:text-3xl/tight">
                   {card.title}
-                </h1>
-                <h3 className="text-sm font-light sm:text-base md:text-lg xl:text-xl">
+                </div>
+                <div className="text-sm font-light sm:text-base md:text-lg xl:text-xl">
                   {card.subtitle}
-                </h3>
+                </div>
               </div>
             </div>
           );
