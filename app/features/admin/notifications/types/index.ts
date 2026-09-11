@@ -1,10 +1,15 @@
 import { z } from "zod";
 
-export const adminNotificationTypeEnum = z.enum(["content_report", "system"]);
+export const adminNotificationTypeEnum = z.enum([
+  "content_report",
+  "blog",
+  "system",
+]);
 export type AdminNotificationType = z.infer<typeof adminNotificationTypeEnum>;
 
 export const adminNotificationIconNameEnum = z.enum([
   "Flag",
+  "Newspaper",
   "ShieldAlert",
   "Bell",
 ]);
@@ -17,6 +22,7 @@ export const ADMIN_NOTIFICATION_ICON_MAP: Record<
   AdminNotificationIconName
 > = {
   content_report: "Flag",
+  blog: "Newspaper",
   system: "Bell",
 };
 

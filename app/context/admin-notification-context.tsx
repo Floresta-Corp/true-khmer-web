@@ -9,7 +9,7 @@ import {
   type SetStateAction,
 } from "react";
 import { useNavigate } from "react-router";
-import { Bell, Flag, ShieldAlert } from "lucide-react";
+import { Bell, Flag, Newspaper, ShieldAlert } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { showNotificationToast } from "~/components/notification-toast";
 import {
@@ -21,16 +21,17 @@ import type { AdminNotification } from "~/features/admin/notifications/types";
 
 const ADMIN_TOAST_ICON_MAP: Record<AdminNotificationIconName, LucideIcon> = {
   Flag,
+  Newspaper,
   ShieldAlert,
   Bell,
 };
 
-// Accent gradient per notification type; content reports read as urgent,
-// everything else uses the brand primary (#2F6FE4).
+// Accent gradient per notification type; reports read as urgent, blog uses
+// its editorial palette, and everything else uses the brand primary.
 function adminToastAccent(type: string) {
-  return type === "content_report"
-    ? "from-rose-500 to-orange-500"
-    : "from-[#2F6FE4] to-[#1E5AD0]";
+  if (type === "content_report") return "from-rose-500 to-orange-500";
+  if (type === "blog") return "from-[#1C97D4] to-[#243D95]";
+  return "from-[#2F6FE4] to-[#1E5AD0]";
 }
 
 export type { AdminNotification } from "~/features/admin/notifications/types";
