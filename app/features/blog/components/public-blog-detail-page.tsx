@@ -119,6 +119,12 @@ export function PublicBlogDetailPage() {
           {post.title}
         </h1>
 
+        {post.excerpt.trim() ? (
+          <p className="mt-5 max-w-4xl text-lg leading-8 text-slate-600 sm:text-xl sm:leading-9 dark:text-slate-300">
+            {post.excerpt}
+          </p>
+        ) : null}
+
         <div className="mt-8 flex items-end justify-between gap-4 border-t border-slate-200 pt-6 dark:border-white/10">
           <div className="flex items-center gap-3">
             {author.avatarKey ? (
