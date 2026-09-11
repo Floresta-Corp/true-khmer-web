@@ -2,7 +2,14 @@ import type { CourseLesson } from "~/features/education/types";
 
 const YOUTUBE_ID = /^[\w-]+$/;
 
-export function youtubeEmbedUrl(url: string): string | null {
+/**
+ * The video id inside a YouTube link, in any of the shapes creators paste.
+ *
+ * An id rather than an embed URL because the video lesson is built through the
+ * IFrame Player API, which takes one: a bare `<iframe>` would play the lesson
+ * without telling the page anything about whether it was watched.
+ */
+export function youtubeVideoId(url: string): string | null {
   try {
     const parsed = new URL(url);
     const host = parsed.hostname.replace(/^www\./, "");
@@ -17,9 +24,7 @@ export function youtubeEmbedUrl(url: string): string | null {
             null)
           : null;
 
-    return id && YOUTUBE_ID.test(id)
-      ? `https://www.youtube.com/embed/${id}`
-      : null;
+    return id && YOUTUBE_ID.test(id) ? id : null;
   } catch {
     return null;
   }

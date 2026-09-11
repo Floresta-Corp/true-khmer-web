@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLoaderData, useFetcher, useSearchParams } from "react-router";
-import { Bookmark, Download, Menu, MoreVertical } from "lucide-react";
+import { Bookmark, Download, Lock, Menu, MoreVertical } from "lucide-react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -17,19 +17,62 @@ import { toActiveLesson } from "~/features/education/lib/map-lesson";
 import { formatPageCount } from "~/features/education/lib/lesson-media";
 import type { educationLearnAction } from "~/features/education/services/education-learn.action";
 import type { educationLearnLoader } from "~/features/education/services/education-learn.loader";
-import type { CourseLesson } from "~/features/education/types";
+import type {
+  CourseLesson,
+  LessonGateState,
+  LessonResumePoint,
+} from "~/features/education/types";
 
 const HEADING = "text-[17px] font-bold text-[#1A1A2E]";
 
+/**
+ * How often a lesson's place is written back while it plays.
+ *
+ * Often enough that closing the tab loses only a few seconds, rarely enough
+ * that an hour-long lesson costs a few hundred small writes rather than tens
+ * of thousands. The route skips revalidation for these, so a save is one
+ * request and nothing else.
+ */
+const RESUME_INTERVAL_MS = 10_000;
+
+/** Movement below this is not worth a write — a paused player, mostly. */
+const RESUME_STEP_SECONDS = 5;
+
+/**
+ * The learner screen.
+ *
+ * A lesson is recorded as finished when its player says the learner got to the
+ * end of it — not when the lesson was opened, which is what this screen used to
+ * do and which made "completed" mean "clicked". Because completion is what
+ * opens the next lesson and, with the quiz, earns the certificate, the two
+ * had to come apart.
+ */
 export default function CourseLearnPage() {
-  const { course, completedLessonIds: watched } =
-    useLoaderData<typeof educationLearnLoader>();
+  const {
+    course,
+    completedLessonIds: watched,
+    unlockedLessonIds: unlocked,
+    nextLessonId,
+    resumePoints,
+    lastLessonId,
+  } = useLoaderData<typeof educationLearnLoader>();
+
   const progress = useFetcher<typeof educationLearnAction>();
+  /* Its own fetcher, so a place-keeping write never shows up as the
+     completion request the screen reports on. */
+  const resume = useFetcher();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  /* Where they were, falling back to the frontier: a learner who went back to
+     revise lands on the lesson they were revising, not the one after it. */
   const activeLesson = useMemo(
-    () => toActiveLesson(course, searchParams.get("lesson"))!,
-    [course, searchParams],
+    () =>
+      toActiveLesson(
+        course,
+        searchParams.get("lesson"),
+        lastLessonId ?? nextLessonId,
+      )!,
+    [course, searchParams, lastLessonId, nextLessonId],
   );
 
   const flatLessons = useMemo(
@@ -40,6 +83,9 @@ export default function CourseLearnPage() {
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(
     () => new Set(watched),
   );
+  const [unlockedLessonIds, setUnlockedLessonIds] = useState<Set<string>>(
+    () => new Set(unlocked),
+  );
 
   useEffect(() => {
     setCompletedLessonIds((current) => {
@@ -47,36 +93,280 @@ export default function CourseLearnPage() {
       return new Set([...current, ...watched]);
     });
   }, [watched]);
+
+  useEffect(() => {
+    setUnlockedLessonIds((current) => {
+      if (unlocked.every((id) => current.has(id))) return current;
+      return new Set([...current, ...unlocked]);
+    });
+  }, [unlocked]);
+
   const [isSaved, setIsSaved] = useState(course.isSaved);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [openSectionIds, setOpenSectionIds] = useState<Set<string>>(
     () => new Set([activeLesson.sectionId]),
   );
 
+  /**
+   * What the player says about finishing this lesson.
+   *
+   * Null until the player has measured anything, which is why the Next button
+   * starts out shut: "nothing measured yet" must not read as "nothing left".
+   */
+  const [gate, setGate] = useState<LessonGateState | null>(null);
+  const [gateLessonId, setGateLessonId] = useState(activeLesson.id);
+
+  /* The gate belongs to the lesson that produced it. Clearing it here, during
+     the render that changes lesson, stops the previous lesson's verdict from
+     marking the new one finished before its player has started. */
+  if (gateLessonId !== activeLesson.id) {
+    setGateLessonId(activeLesson.id);
+    setGate(null);
+  }
+
+  /* The latest verdict, for the timer and the unload handler to read without
+     either of them having to be rebuilt each time it changes. */
+  const latestGate = useRef<{ lessonId: string; gate: LessonGateState } | null>(
+    null,
+  );
+
+  const handleGateChange = useCallback(
+    (next: LessonGateState) => {
+      latestGate.current = { lessonId: activeLesson.id, gate: next };
+      setGate(next);
+    },
+    [activeLesson.id],
+  );
+
+  /**
+   * Resume points written during this visit.
+   *
+   * The loader's copy is from page load, and switching lessons does not
+   * revalidate it, so without this a learner who moved on and came back in the
+   * same sitting would find the lesson at the beginning again.
+   */
+  const savedThisVisit = useRef<Map<string, LessonResumePoint>>(new Map());
+
+  const loadedResume = useMemo(
+    () => new Map(resumePoints.map((point) => [point.lessonId, point])),
+    [resumePoints],
+  );
+
+  /* Held still for as long as the lesson is on screen. The players seed their
+     counters from it, and re-seeding mid-lesson with our own saves would
+     reset the very coverage those saves are recording. */
+  const [resumeFor, setResumeFor] = useState(() => ({
+    lessonId: activeLesson.id,
+    point:
+      savedThisVisit.current.get(activeLesson.id) ??
+      loadedResume.get(activeLesson.id) ??
+      null,
+  }));
+
+  if (resumeFor.lessonId !== activeLesson.id) {
+    setResumeFor({
+      lessonId: activeLesson.id,
+      point:
+        savedThisVisit.current.get(activeLesson.id) ??
+        loadedResume.get(activeLesson.id) ??
+        null,
+    });
+  }
+
+  const activeResume =
+    resumeFor.lessonId === activeLesson.id ? resumeFor.point : null;
+
+  const learnAction = `/education/${course.id}/learn`;
+
+  /* One attempt per lesson, so a refused save is not retried in a loop — the
+     strip under the player offers it again instead. */
+  const attempted = useRef<Set<string>>(new Set());
   const savingLessonId = useRef<string | null>(null);
 
-  useEffect(() => {
-    setCompletedLessonIds((current) => {
-      if (current.has(activeLesson.id)) return current;
-      const next = new Set(current);
-      next.add(activeLesson.id);
-      return next;
+  const markFinished = useCallback(
+    (lessonId: string, watchedSeconds: number | null) => {
+      attempted.current.add(lessonId);
+      savingLessonId.current = lessonId;
+
+      setCompletedLessonIds((current) => {
+        if (current.has(lessonId)) return current;
+        const next = new Set(current);
+        next.add(lessonId);
+        return next;
+      });
+
+      progress.submit(
+        {
+          intent: "complete",
+          lessonId,
+          ...(watchedSeconds !== null
+            ? { watchedSeconds: String(Math.round(watchedSeconds)) }
+            : {}),
+        },
+        { method: "post", action: learnAction },
+      );
+    },
+    /* `progress.submit` rather than the fetcher: the fetcher object is new on
+       every render, which would rebuild this callback and re-run the effect
+       below for nothing. */
+    [learnAction, progress.submit],
+  );
+
+  /**
+   * Writes where the learner has got to, if it has moved enough to be worth it.
+   *
+   * Returns the values it sent, so the unload path can build the same body for
+   * `sendBeacon` without duplicating the rules about what counts as movement.
+   */
+  const lastWrite = useRef<{
+    lessonId: string;
+    position: number;
+    watched: number;
+  } | null>(null);
+
+  const resumeBody = useCallback((force: boolean) => {
+    const snapshot = latestGate.current;
+    if (!snapshot) return null;
+
+    const { lessonId, gate: current } = snapshot;
+    const position = Math.max(0, Math.round(current.positionSeconds));
+    const watched = Math.max(0, Math.round(current.watchedSeconds ?? 0));
+
+    // Nothing has happened yet — do not file an empty place.
+    if (position === 0 && watched === 0) return null;
+
+    const previous = lastWrite.current;
+    const moved =
+      !previous ||
+      previous.lessonId !== lessonId ||
+      Math.abs(position - previous.position) >= RESUME_STEP_SECONDS ||
+      Math.abs(watched - previous.watched) >= RESUME_STEP_SECONDS;
+
+    if (!force && !moved) return null;
+
+    lastWrite.current = { lessonId, position, watched };
+    savedThisVisit.current.set(lessonId, {
+      lessonId,
+      positionSeconds: position,
+      watchedSeconds: watched,
+      updatedAt: new Date().toISOString(),
     });
 
-    savingLessonId.current = activeLesson.id;
-    progress.submit(
-      { lessonId: activeLesson.id },
-      { method: "post", action: `/education/${course.id}/learn` },
-    );
-  }, [activeLesson.id, course.id]);
+    return {
+      intent: "resume",
+      lessonId,
+      positionSeconds: String(position),
+      watchedSeconds: String(watched),
+    };
+  }, []);
+
+  const saveResume = useCallback(
+    (force = false) => {
+      const body = resumeBody(force);
+      if (body) resume.submit(body, { method: "post", action: learnAction });
+    },
+    [resumeBody, resume.submit, learnAction],
+  );
+
+  useEffect(() => {
+    const timer = window.setInterval(() => saveResume(), RESUME_INTERVAL_MS);
+    return () => window.clearInterval(timer);
+  }, [saveResume]);
+
+  /* Leaving a lesson files where it was left. The cleanup runs before the new
+     lesson's player reports anything, so the snapshot in hand is still the
+     outgoing lesson's. */
+  useEffect(() => {
+    return () => saveResume(true);
+  }, [activeLesson.id, saveResume]);
+
+  /**
+   * Closing the tab is the case this whole feature is for.
+   *
+   * `pagehide` is the last moment a page reliably gets, and a normal request
+   * started there is usually cancelled — `sendBeacon` is the one that survives,
+   * so the same body goes out through it instead.
+   */
+  useEffect(() => {
+    const flush = () => {
+      const body = resumeBody(true);
+      if (!body || typeof navigator.sendBeacon !== "function") return;
+
+      const form = new FormData();
+      for (const [key, value] of Object.entries(body)) form.append(key, value);
+      navigator.sendBeacon(learnAction, form);
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") flush();
+    };
+
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [resumeBody, learnAction]);
+
+  /** A lesson is open once its own lesson, or the one before it, is done. */
+  const isUnlocked = useCallback(
+    (lesson: CourseLesson) =>
+      unlockedLessonIds.has(lesson.id) ||
+      completedLessonIds.has(lesson.id) ||
+      lesson.isPreview,
+    [unlockedLessonIds, completedLessonIds],
+  );
+
+  /* A video or audio lesson records itself the moment it has been played
+     through; a document waits for the learner to say they have read it. */
+  useEffect(() => {
+    if (!gate?.isSatisfied) return;
+    if (gateLessonId !== activeLesson.id) return;
+    if (completedLessonIds.has(activeLesson.id)) return;
+    if (attempted.current.has(activeLesson.id)) return;
+
+    /* Never record a lesson the learner has not reached. A locked lesson
+       arrives with its media stripped, which a player reads as "nothing to
+       play" and reports as finished — so without this, the one route to a
+       locked lesson would be the one that completes it. The API refuses it
+       too; this keeps the screen from claiming otherwise in the meantime. */
+    if (!isUnlocked(activeLesson)) return;
+
+    markFinished(activeLesson.id, gate.watchedSeconds);
+  }, [
+    gate,
+    gateLessonId,
+    activeLesson,
+    completedLessonIds,
+    isUnlocked,
+    markFinished,
+  ]);
 
   useEffect(() => {
     if (progress.state !== "idle" || !progress.data) return;
 
+    const result = progress.data;
     const saved = savingLessonId.current;
     savingLessonId.current = null;
-    if (progress.data.ok || !saved) return;
 
+    if (result.ok) {
+      /* The server's answer replaces the guess: finishing a lesson is what
+         opens the next one, and it is the server that decided. */
+      if (result.intent === "complete") {
+        setUnlockedLessonIds(
+          (current) => new Set([...current, ...result.unlockedLessonIds]),
+        );
+      }
+      return;
+    }
+
+    if (!saved) return;
+
+    /* Put the lesson back to unfinished: the record is the server's, and
+       showing a tick it never accepted would be a lie the certificate later
+       contradicts. */
     setCompletedLessonIds((current) => {
       if (!current.has(saved)) return current;
       const next = new Set(current);
@@ -84,8 +374,15 @@ export default function CourseLearnPage() {
       return next;
     });
 
-    toast.error("Could not save your progress for this lesson.");
-  }, [progress.state, progress.data]);
+    toast.error(result.message);
+
+    /* Refused because an earlier lesson is unfinished — go to that one rather
+       than leave the learner on a lesson that will not record. */
+    const resume = result.nextLessonId;
+    if (result.isLocked && resume && resume !== saved) {
+      setSearchParams({ lesson: resume });
+    }
+  }, [progress.state, progress.data, setSearchParams]);
 
   useEffect(() => {
     setOpenSectionIds((current) =>
@@ -112,8 +409,16 @@ export default function CourseLearnPage() {
   const allComplete =
     flatLessons.length > 0 && completedInCourse.size === flatLessons.length;
 
+  const canGoNext = Boolean(nextLesson && isUnlocked(nextLesson));
+
   const goToLesson = (lesson: CourseLesson | undefined) => {
     if (!lesson) return;
+
+    if (!isUnlocked(lesson)) {
+      toast.error("Finish this lesson to open the next one.");
+      return;
+    }
+
     setSearchParams({ lesson: lesson.id });
   };
 
@@ -248,6 +553,7 @@ export default function CourseLearnPage() {
             course={course}
             activeLessonId={activeLesson.id}
             completedLessonIds={completedInCourse}
+            isLessonUnlocked={isUnlocked}
             openSectionIds={openSectionIds}
             onToggleSection={(sectionId) =>
               setOpenSectionIds((current) => {
@@ -268,7 +574,13 @@ export default function CourseLearnPage() {
         )}
 
         <div className="h-full min-w-0 flex-1 overflow-y-auto [scrollbar-color:#BBBBBB_transparent] [scrollbar-width:thin]">
-          <LessonPlayer lesson={activeLesson} flush overlay={playerOverlay} />
+          <LessonPlayer
+            lesson={activeLesson}
+            flush
+            overlay={playerOverlay}
+            resume={activeResume}
+            onGateChange={handleGateChange}
+          />
 
           <div className="px-7 pt-5.5 pb-7.5">
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4 pb-5.5">
@@ -295,9 +607,17 @@ export default function CourseLearnPage() {
                 <button
                   type="button"
                   onClick={() => goToLesson(nextLesson)}
-                  disabled={!nextLesson}
+                  disabled={!canGoNext}
+                  title={
+                    nextLesson && !canGoNext
+                      ? "Finish this lesson to open the next one"
+                      : undefined
+                  }
                   className={navButton}
                 >
+                  {nextLesson && !canGoNext && (
+                    <Lock className="mr-1.5 inline size-3.5" aria-hidden />
+                  )}
                   Next ›
                 </button>
               </div>

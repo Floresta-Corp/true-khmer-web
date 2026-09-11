@@ -243,9 +243,27 @@ export async function updateCourseMeta(
   );
 }
 
+export interface LessonResumePoint {
+  lessonId: string;
+  positionSeconds: number;
+  watchedSeconds: number;
+  updatedAt: string;
+}
+
 export interface CourseProgressResponse {
   ok: true;
   completedLessonIds: string[];
+  /** Finished lessons, the one in progress, and every preview. */
+  unlockedLessonIds: string[];
+  /** The lesson to resume on — null once the course is finished. */
+  nextLessonId: string | null;
+  lessonCount: number;
+  /** Every lesson finished, which is what opens the final quiz. */
+  isComplete: boolean;
+  /** Part-finished lessons, newest first, so a player can be put back. */
+  resumePoints: LessonResumePoint[];
+  /** The lesson the learner was last on. Null before they start. */
+  lastLessonId: string | null;
 }
 
 export async function getCourseProgress(request: Request, courseId: string) {
@@ -262,15 +280,61 @@ export async function getCourseProgress(request: Request, courseId: string) {
   }
 }
 
+/**
+ * Records a lesson as finished.
+ *
+ * `watchedSeconds` is what the player actually played, for the API to check
+ * against the lesson's own duration; a PDF has none to report. The call is
+ * refused with 409 when an earlier lesson is still unfinished.
+ */
 export async function markLessonWatched(
   request: Request,
   courseId: string,
   lessonId: string,
+  watchedSeconds?: number | null,
 ) {
-  return apiRequestWithSession<CourseProgressResponse, { lessonId: string }>(
+  return apiRequestWithSession<
+    CourseProgressResponse,
+    { lessonId: string; watchedSeconds?: number }
+  >(
     request,
     `/education-center/courses/${encodeURIComponent(courseId)}/progress`,
-    { method: "PUT", body: { lessonId } },
+    {
+      method: "PUT",
+      body: {
+        lessonId,
+        ...(typeof watchedSeconds === "number"
+          ? { watchedSeconds: Math.round(watchedSeconds) }
+          : {}),
+      },
+    },
+  );
+}
+
+export interface SaveLessonResumeResponse {
+  ok: true;
+  resume: LessonResumePoint;
+}
+
+/**
+ * Records where the learner has got to inside a lesson.
+ *
+ * Sent repeatedly while a lesson plays, so it is kept separate from marking a
+ * lesson finished: one says "still here", the other says "done".
+ */
+export async function saveLessonResume(
+  request: Request,
+  courseId: string,
+  body: {
+    lessonId: string;
+    positionSeconds: number;
+    watchedSeconds: number;
+  },
+) {
+  return apiRequestWithSession<SaveLessonResumeResponse, typeof body>(
+    request,
+    `/education-center/courses/${encodeURIComponent(courseId)}/resume`,
+    { method: "PUT", body },
   );
 }
 
@@ -367,6 +431,12 @@ export interface CourseCurriculumResponse {
         durationSeconds: number | null;
         pageCount: number | null;
         isPreview: boolean;
+        /**
+         * Locked until the lesson before it is finished. A locked lesson
+         * arrives with `url` and `assetUrl` nulled by the API, so there is
+         * nothing to play even if something tried.
+         */
+        isLocked: boolean;
       }[];
     }[];
     lessonCount: number;
