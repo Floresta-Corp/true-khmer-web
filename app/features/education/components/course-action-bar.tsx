@@ -79,7 +79,7 @@ export function CourseActionBar({
           <Share2 className="size-4.5 text-[#9A9AB0]" aria-hidden />
         </button>
 
-        {onDownload && (
+        {/* {onDownload && (
           <button
             type="button"
             aria-label="Download course materials"
@@ -89,7 +89,7 @@ export function CourseActionBar({
           >
             <Download className="size-4.5 text-[#9A9AB0]" aria-hidden />
           </button>
-        )}
+        )} */}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

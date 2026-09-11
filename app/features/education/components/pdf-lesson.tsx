@@ -144,7 +144,7 @@ function PdfDownloadNotice({
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-2.5">
-        <a
+        {/* <a
           href={src}
           download
           target="_blank"
@@ -153,7 +153,7 @@ function PdfDownloadNotice({
         >
           <Download className="size-4" aria-hidden />
           Download PDF
-        </a>
+        </a> */}
         <a
           href={src}
           target="_blank"

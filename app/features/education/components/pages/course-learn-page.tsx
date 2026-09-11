@@ -180,7 +180,7 @@ export default function CourseLearnPage() {
           />
         </button>
 
-        {lessonFileUrl && (
+        {/* {lessonFileUrl && (
           <a
             href={lessonFileUrl}
             download
@@ -192,7 +192,7 @@ export default function CourseLearnPage() {
           >
             <Download className="size-4" aria-hidden />
           </a>
-        )}
+        )} */}
 
         {!isPanelOpen && (
           <button
