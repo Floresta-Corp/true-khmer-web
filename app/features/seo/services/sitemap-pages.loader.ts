@@ -25,6 +25,11 @@ const STATIC_ENTRIES: readonly SitemapEntry[] = [
   { path: "/poc", changefreq: "weekly", priority: 0.7 },
   { path: "/volunteer", changefreq: "daily", priority: 0.9 },
   { path: "/volunteer/all", changefreq: "daily", priority: 0.7 },
+  /* The legal pages change rarely but are expected to be findable: a searcher
+     looking for the terms they agreed to should not have to hunt the footer. */
+  { path: "/privacy", changefreq: "yearly", priority: 0.4 },
+  { path: "/terms", changefreq: "yearly", priority: 0.4 },
+  { path: "/cookies", changefreq: "yearly", priority: 0.3 },
   /* `/registration` itself only redirects here, and a sitemap entry that
      answers with a 302 is reported as a soft error. */
   {
