@@ -142,7 +142,10 @@ export default function ProfileDetailPage() {
               )}
 
               {certificates.length > 0 ? (
-                <ProfileCertificatesCard certificates={certificates} />
+                <ProfileCertificatesCard
+                  certificates={certificates}
+                  recipientName={profile.user.displayName ?? ""}
+                />
               ) : null}
             </div>
           </TabsContent>

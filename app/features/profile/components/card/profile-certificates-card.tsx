@@ -1,14 +1,16 @@
-import { Award, ExternalLink } from "lucide-react";
-import { Link } from "react-router";
+import { useState } from "react";
+import { Award, Eye, X } from "lucide-react";
 import { Card } from "~/components/ui/card";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
+import { CertificateSheet } from "~/features/education/components/certificate-sheet";
 import type { ProfileCertificate } from "~/features/education/types";
 import { formatDate } from "~/lib/time";
 
@@ -17,13 +19,16 @@ const PREVIEW_COUNT = 2;
 interface ProfileCertificatesCardProps {
   certificates: ProfileCertificate[];
   isOwner?: boolean;
+  recipientName?: string;
 }
 
 export function ProfileCertificatesCard({
   certificates,
   isOwner = false,
+  recipientName = "",
 }: ProfileCertificatesCardProps) {
   const preview = certificates.slice(0, PREVIEW_COUNT);
+  const [selected, setSelected] = useState<ProfileCertificate | null>(null);
 
   return (
     <Dialog>
@@ -55,6 +60,7 @@ export function ProfileCertificatesCard({
                 key={certificate.id}
                 certificate={certificate}
                 isOwner={isOwner}
+                onSelect={setSelected}
               />
             ))}
           </div>
@@ -90,9 +96,67 @@ export function ProfileCertificatesCard({
                 key={certificate.id}
                 certificate={certificate}
                 isOwner={isOwner}
+                onSelect={setSelected}
               />
             ))}
           </div>
+        </div>
+      </DialogContent>
+
+      <CertificatePreviewDialog
+        certificate={selected}
+        recipientName={recipientName}
+        onClose={() => setSelected(null)}
+      />
+    </Dialog>
+  );
+}
+
+function CertificatePreviewDialog({
+  certificate,
+  recipientName,
+  onClose,
+}: {
+  certificate: ProfileCertificate | null;
+  recipientName: string;
+  onClose: () => void;
+}) {
+  return (
+    <Dialog
+      open={certificate !== null}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <DialogContent
+        showCloseButton={false}
+        className="overflow-visible rounded-3xl border-none p-0 sm:max-w-175"
+      >
+        <DialogClose
+          aria-label="Close"
+          className="absolute -top-12 -right-10 flex size-9 cursor-pointer items-center justify-center rounded-full bg-white/90 text-[#475569] shadow-sm transition-colors hover:bg-white hover:text-[#0f172a]"
+        >
+          <X className="size-4.5" aria-hidden />
+        </DialogClose>
+
+        <DialogHeader className="sr-only">
+          <DialogTitle>
+            {certificate?.courseTitle ?? "Certificate"} certificate
+          </DialogTitle>
+          <DialogDescription>
+            Certificate of completion earned on True Khmer
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="max-h-[80vh] overflow-y-auto rounded-3xl bg-background p-5 sm:p-8">
+          {certificate ? (
+            <CertificateSheet
+              recipientName={recipientName}
+              courseTitle={certificate.courseTitle}
+              completedOn={formatDate(certificate.completedAt)}
+              certificateNo={certificate.certificateNo}
+            />
+          ) : null}
         </div>
       </DialogContent>
     </Dialog>
@@ -102,12 +166,18 @@ export function ProfileCertificatesCard({
 function CertificateRow({
   certificate,
   isOwner,
+  onSelect,
 }: {
   certificate: ProfileCertificate;
   isOwner: boolean;
+  onSelect: (certificate: ProfileCertificate) => void;
 }) {
-  const body = (
-    <>
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(certificate)}
+      className="flex w-full cursor-pointer items-center gap-3 rounded-2xl border border-[#e6ebf2] bg-white px-4 py-3 text-left transition-colors hover:border-[#dbe6f7] hover:bg-[#f8fafc]"
+    >
       <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#eef2f7] bg-white text-[#94a3b8]">
         <Award className="size-5" aria-hidden />
       </span>
@@ -126,25 +196,7 @@ function CertificateRow({
         </span>
       </span>
 
-      {isOwner ? (
-        <ExternalLink className="size-4 shrink-0 text-[#94a3b8]" aria-hidden />
-      ) : null}
-    </>
-  );
-
-  const className =
-    "flex items-center gap-3 rounded-2xl border border-[#e6ebf2] bg-white px-4 py-3";
-
-  if (!isOwner) {
-    return <div className={className}>{body}</div>;
-  }
-
-  return (
-    <Link
-      to={`/education/${certificate.courseId}/certificate`}
-      className={`${className} transition-colors hover:border-[#dbe6f7] hover:bg-[#f8fafc]`}
-    >
-      {body}
-    </Link>
+      <Eye className="size-4 shrink-0 text-[#94a3b8]" aria-hidden />
+    </button>
   );
 }
