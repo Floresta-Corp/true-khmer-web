@@ -204,7 +204,7 @@ export const workSpaceSidebarConfig: AppSidebarProps = {
     },
     {
       id: "khmervoices",
-      label: "Khmer Voices",
+      label: "My Voices",
       to: "/workspace/khmer-voices",
       icon: PenLine,
     },
