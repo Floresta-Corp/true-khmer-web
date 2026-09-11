@@ -1,4 +1,12 @@
-import { Search, Bell, Inbox, Users, Zap, Archive } from "lucide-react";
+import {
+  Search,
+  Bell,
+  Inbox,
+  Newspaper,
+  Users,
+  Zap,
+  Archive,
+} from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { Card } from "~/components/ui/card";
 
@@ -27,6 +35,12 @@ const filterItems: NotificationFilterItem[] = [
     label: "Volunteer",
     to: "/notifications?type=application",
     icon: Users,
+  },
+  {
+    id: "khmer-voices",
+    label: "Khmer Voices",
+    to: "/notifications?type=blog",
+    icon: Newspaper,
   },
   {
     id: "launchpad",

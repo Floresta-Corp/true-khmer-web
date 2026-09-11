@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const notificationTypeEnum = z.enum([
   "forum",
+  "blog",
   "profile_view",
   "new_message",
   "achievement",
@@ -15,6 +16,7 @@ export type NotificationType = z.infer<typeof notificationTypeEnum>;
 
 export const notificationIconNameEnum = z.enum([
   "MessageCircle",
+  "Newspaper",
   "ThumbsUp",
   "User",
   "MessageSquare",
@@ -32,6 +34,7 @@ export const NOTIFICATION_ICON_MAP: Record<
   NotificationIconName
 > = {
   forum: "MessageCircle",
+  blog: "Newspaper",
   profile_view: "User",
   new_message: "MessageSquare",
   achievement: "Trophy",

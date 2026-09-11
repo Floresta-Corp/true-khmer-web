@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { Bell, Flag, ShieldAlert } from "lucide-react";
+import { Bell, Flag, Newspaper, ShieldAlert } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { formatRelativeTime } from "~/lib/datetime";
@@ -20,6 +20,7 @@ import {
 const ADMIN_ICON_COMPONENT_MAP: Record<AdminNotificationIconName, LucideIcon> =
   {
     Flag,
+    Newspaper,
     ShieldAlert,
     Bell,
   };

@@ -55,12 +55,19 @@ export function BlogDetailPage() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/tk-admin/khmer-voices">Khmer Voices</Link>
+              <Link
+                to="/tk-admin/khmer-voices"
+                className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+              >
+                Khmer Voices
+              </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>{post.title}</BreadcrumbPage>
+            <BreadcrumbPage className="text-slate-900 dark:text-slate-100">
+              {post.title}
+            </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -73,7 +80,7 @@ export function BlogDetailPage() {
               variant="outline"
               size="icon-lg"
               onClick={handleGoBack}
-              className="rounded-full text-muted-foreground"
+              className="rounded-full border-slate-200 bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-50"
               aria-label="Go back"
             >
               <ArrowLeft className="h-4.5 w-4.5" />
@@ -121,7 +128,7 @@ export function BlogDetailPage() {
       ) : null}
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <Card className="rounded-[2rem] border-slate-100 bg-white p-6 lg:p-10 dark:border-slate-800 dark:bg-slate-900">
+        <Card className="rounded-[2rem] border-slate-100 bg-white p-6 text-slate-950 lg:p-10 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
           <SanitizedHtml
             html={post.content}
             className="blog-rich-text max-w-none"
@@ -133,7 +140,7 @@ export function BlogDetailPage() {
         <div className="space-y-6">
           <BlogModerationSummary post={post} />
 
-          <Card className="rounded-[2rem] border-slate-100 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+          <Card className="rounded-[2rem] border-slate-100 bg-white p-6 text-slate-950 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
             <h2 className="text-lg font-semibold">Publishing</h2>
             <div className="mt-4 space-y-3 text-sm">
               <div>
@@ -151,7 +158,7 @@ export function BlogDetailPage() {
             </div>
           </Card>
 
-          <Card className="rounded-[2rem] border-slate-100 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+          <Card className="rounded-[2rem] border-slate-100 bg-white p-6 text-slate-950 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
             <h2 className="text-lg font-semibold">Category</h2>
             <div className="mt-4">
               {post.categoryName ? (
@@ -166,12 +173,16 @@ export function BlogDetailPage() {
             </div>
           </Card>
 
-          <Card className="rounded-[2rem] border-slate-100 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+          <Card className="rounded-[2rem] border-slate-100 bg-white p-6 text-slate-950 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
             <h2 className="text-lg font-semibold">Tags</h2>
             <div className="mt-4 flex flex-wrap gap-2">
               {post.tags.length > 0 ? (
                 post.tags.map((tag) => (
-                  <Badge key={tag} variant="outline">
+                  <Badge
+                    key={tag}
+                    variant="outline"
+                    className="border-slate-200 text-slate-700 dark:border-slate-700 dark:text-slate-200"
+                  >
                     {tag}
                   </Badge>
                 ))

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { MessageCircle } from "lucide-react";
+import { useLocation } from "react-router";
 import CommentFormDialog from "~/components/comment-form-dialog";
 import {
   Accordion,
@@ -10,12 +11,17 @@ import {
 } from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
+import { cn } from "~/lib/utils";
 import type { BlogCommentResponse } from "~/types/api-client";
 import { BLOG_COMMENT_ACTIONS, type BlogCommentViewer } from "../../types";
 import BlogCommentAuthor from "./blog-comment-author";
 import BlogCommentBody from "./blog-comment-body";
 import BlogCommentOwnerActions from "./blog-comment-owner-actions";
 import BlogCommentReplies from "./blog-comment-replies";
+import {
+  getBlogCommentIdFromHash,
+  highlightBlogCommentClassName,
+} from "./blog-comment-highlight";
 
 interface BlogCommentCardProps {
   comment: BlogCommentResponse;
@@ -31,11 +37,46 @@ export default function BlogCommentCard({
   index = 0,
 }: BlogCommentCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const [accordionValue, setAccordionValue] = useState<string | undefined>();
+  const location = useLocation();
+  const targetCommentId = getBlogCommentIdFromHash(location.hash);
   const replies = comment.repliedComments ?? [];
+  const containsTargetReply = replies.some(
+    (reply) => reply.id === targetCommentId,
+  );
+  const [accordionValue, setAccordionValue] = useState<string | undefined>(
+    containsTargetReply ? "replies" : undefined,
+  );
+  const cardRef = useRef<HTMLElement>(null);
+  const isHighlighted = targetCommentId === comment.id;
+  const [showAnimation, setShowAnimation] = useState(false);
   const replyCount = comment.replyCount;
   const isOwner = Boolean(viewer) && viewer?.id === comment.author.id;
   const replyLabel = replyCount === 1 ? "reply" : "replies";
+
+  useEffect(() => {
+    if (containsTargetReply) setAccordionValue("replies");
+  }, [containsTargetReply]);
+
+  useEffect(() => {
+    if (!isHighlighted || !cardRef.current) return;
+
+    const scrollTimer = window.setTimeout(() => {
+      cardRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }, 100);
+    setShowAnimation(true);
+    const animationTimer = window.setTimeout(
+      () => setShowAnimation(false),
+      1500,
+    );
+
+    return () => {
+      window.clearTimeout(scrollTimer);
+      window.clearTimeout(animationTimer);
+    };
+  }, [isHighlighted]);
 
   return (
     <Accordion
@@ -47,7 +88,12 @@ export default function BlogCommentCard({
     >
       <AccordionItem value="replies">
         <motion.article
-          className="z-10 flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-none"
+          ref={cardRef}
+          id={comment.id}
+          className={cn(
+            "z-10 flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-none",
+            showAnimation && highlightBlogCommentClassName,
+          )}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{
