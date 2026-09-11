@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useFetcher, useSearchParams } from "react-router";
 import { toast } from "sonner";
+import { debounce } from "~/lib/utils";
 import type { BlogCategoryWithUsageResponse } from "~/types/api-client";
 import { BLOG_CATEGORY_INTENTS, type BlogCategoryIntent } from "../../types";
 
@@ -32,19 +33,44 @@ export function useBlogCategoryManager(
     setSearch(initialSearch);
   }, [initialSearch]);
 
+  const updateSearchParams = useCallback(
+    (query: string) => {
+      setSearchParams(
+        (current) => {
+          const params = new URLSearchParams(current);
+          if (query) params.set("search", query);
+          else params.delete("search");
+          return params;
+        },
+        { replace: true, preventScrollReset: true },
+      );
+    },
+    [setSearchParams],
+  );
+
+  const debouncedSearch = useMemo(
+    () => debounce(updateSearchParams, 300),
+    [updateSearchParams],
+  );
+
   useEffect(() => {
-    const query = search.trim();
-    if ((searchParams.get("search") ?? "") === query) return;
+    // A URL change can come from browser navigation. Do not let a pending edit
+    // replace that external state after the debounce delay.
+    debouncedSearch.cancel();
+  }, [debouncedSearch, searchParams]);
 
-    const timeout = window.setTimeout(() => {
-      const params = new URLSearchParams(searchParams);
-      if (query) params.set("search", query);
-      else params.delete("search");
-      setSearchParams(params, { replace: true, preventScrollReset: true });
-    }, 300);
+  useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
 
-    return () => window.clearTimeout(timeout);
-  }, [search, searchParams, setSearchParams]);
+  function updateSearch(value: string) {
+    setSearch(value);
+    const query = value.trim();
+    if ((searchParams.get("search") ?? "") === query) {
+      debouncedSearch.cancel();
+      return;
+    }
+
+    debouncedSearch(query);
+  }
 
   useEffect(() => {
     const result = fetcher.data;
@@ -113,7 +139,7 @@ export function useBlogCategoryManager(
     openEditDialog,
     search,
     setDialogName,
-    setSearch,
+    setSearch: updateSearch,
     submitDialog,
     toggleVisibility,
     visibleCount,

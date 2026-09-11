@@ -11,9 +11,12 @@ const querySchema = z.object({
 export async function blogCategoriesLoader({ request }: Route.LoaderArgs) {
   const { setCookie } = await requireAdmin(request);
   const url = new URL(request.url);
-  const filters = querySchema.parse(
+  const parsedFilters = querySchema.safeParse(
     Object.fromEntries(url.searchParams.entries()),
   );
+  const filters: z.infer<typeof querySchema> = parsedFilters.success
+    ? parsedFilters.data
+    : {};
   const cookieHeader = setCookie
     ? { headers: { "Set-Cookie": setCookie } }
     : {};
