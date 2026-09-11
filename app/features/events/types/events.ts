@@ -85,8 +85,6 @@ export type EventListItem = z.infer<typeof EventListItemSchema>;
 
 export type EventsHubLoaderData = {
   events: EventListItem[];
-  /** Provider ids of the events this viewer has saved. Empty when signed out. */
-  savedEventIds: string[];
   /** Set when the listing could not be read at all. */
   loadError: string | null;
 };
