@@ -7,11 +7,12 @@ import {
   formatEventDayLabel,
   formatEventTimeRange,
 } from "~/features/events/lib/event-formatters";
+import { useEventFavorite } from "~/features/events/lib/use-event-favorite";
 
 interface EventListCardProps {
   event: EventListItem;
   isSaved: boolean;
-  onToggleSave: (eventId: string) => void;
+  onToggleSave?: (eventId: string) => void;
 }
 
 /**
@@ -26,6 +27,9 @@ export function EventListCard({
   isSaved,
   onToggleSave,
 }: EventListCardProps) {
+  const favorite = useEventFavorite(event.slug, isSaved);
+  const displayedIsSaved = onToggleSave ? isSaved : favorite.isFavorite;
+  const isSaving = !onToggleSave && favorite.isPending;
   const dayLabel = formatEventDayLabel(event.startAt);
   const timeLabel = formatEventTimeRange(event.startAt, event.endAt);
   const isFree = event.price === null || event.price === 0;
@@ -58,21 +62,28 @@ export function EventListCard({
 
         <button
           type="button"
-          aria-label={isSaved ? "Remove from saved events" : "Save event"}
-          aria-pressed={isSaved}
+          aria-label={
+            displayedIsSaved ? "Remove from saved events" : "Save event"
+          }
+          aria-pressed={displayedIsSaved}
+          aria-busy={isSaving}
+          disabled={isSaving}
           onClick={(clickEvent) => {
             clickEvent.preventDefault();
-            onToggleSave(event.id);
+            clickEvent.stopPropagation();
+            if (onToggleSave) onToggleSave(event.id);
+            else favorite.toggleFavorite();
           }}
-          className="absolute top-2.5 right-2.5 flex size-7.5 cursor-pointer items-center justify-center rounded-full bg-white/92 shadow-[0_1px_4px_rgba(0,0,0,0.18)]"
+          className="absolute top-2.5 right-2.5 flex size-7.5 cursor-pointer items-center justify-center rounded-full bg-white/92 shadow-[0_1px_4px_rgba(0,0,0,0.18)] transition-transform active:scale-90 disabled:cursor-wait"
         >
           <Bookmark
             aria-hidden
             className={cn(
-              "size-[15px]",
-              isSaved
+              "size-[15px] transition-[color,fill,transform,opacity] duration-150",
+              displayedIsSaved
                 ? "fill-[#1C5DD4] text-[#1C5DD4]"
                 : "fill-none text-[#9A9AB0]",
+              isSaving && "scale-90 opacity-75",
             )}
           />
         </button>
