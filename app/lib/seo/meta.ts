@@ -25,7 +25,7 @@ export type SeoInput = {
   /** Page title without the brand — the suffix is added unless `bareTitle`. */
   title: string;
   description?: string | null;
-  /** Path of the canonical URL, e.g. `/blog/my-post`. Query strings are
+  /** Path of the canonical URL, e.g. `/khmer-voices/my-post`. Query strings are
       dropped: a filtered or paginated view canonicalises to the clean path. */
   pathname: string;
   origin: string;

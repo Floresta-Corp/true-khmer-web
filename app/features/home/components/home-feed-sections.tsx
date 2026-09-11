@@ -13,7 +13,7 @@ import { HomeDiscussionCard } from "./home-discussion-card";
 import type { LaunchpadOpportunity } from "~/features/launchpad/types";
 import type { Opportunity } from "~/features/volunteer/types/volunteer-types";
 import type {
-  BlogPostListingItemResponse,
+  PublicBlogPostListingItemResponse,
   QuestionResponse,
 } from "~/types/api-client";
 import { PublicBlogCard } from "~/features/blog/components/public-blog-card";
@@ -167,11 +167,15 @@ export function DiscussionFeed({ items }: { items: QuestionResponse[] }) {
   );
 }
 
-export function BlogFeed({ items }: { items: BlogPostListingItemResponse[] }) {
+export function BlogFeed({
+  items,
+}: {
+  items: PublicBlogPostListingItemResponse[];
+}) {
   if (items.length === 0) return null;
 
   return (
-    <FeedSection title="Latest from Khmer voices" seeAllTo="/blog">
+    <FeedSection title="Latest from Khmer voices" seeAllTo="/khmer-voices">
       <div
         className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-4`}
       >
