@@ -10,9 +10,15 @@ export const action = educationLearnAction;
 export function shouldRevalidate({
   currentUrl,
   nextUrl,
+  formData,
   formMethod,
   defaultShouldRevalidate,
 }: ShouldRevalidateFunctionArgs) {
+  /* A resume ping only files where the learner is; nothing this loader returns
+     depends on it. Left in, it would refetch the course, its reviews and its
+     recommendations every few seconds of playback. */
+  if (formData?.get("intent") === "resume") return false;
+
   if (!formMethod && currentUrl.pathname === nextUrl.pathname) return false;
   return defaultShouldRevalidate;
 }

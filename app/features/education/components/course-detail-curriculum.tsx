@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Lock } from "lucide-react";
 import { useNavigate } from "react-router";
 import { cn } from "~/lib/utils";
 import type { CourseDetail } from "~/features/education/types";
@@ -7,6 +7,15 @@ import { LessonTypeIcon } from "./lesson-type-icon";
 import { lessonDetail } from "~/features/education/lib/lesson-media";
 
 const DEFAULT_OPEN_SECTIONS = 3;
+
+/**
+ * The syllabus on the course page.
+ *
+ * Every lesson is listed, because the list is what a reader is deciding on.
+ * Only the ones they have reached open, though: a course is taken in order, so
+ * a locked row says so rather than linking somewhere that would bounce them
+ * back to where they actually are.
+ */
 
 export function CourseDetailCurriculum({ course }: { course: CourseDetail }) {
   const navigate = useNavigate();
@@ -72,32 +81,54 @@ export function CourseDetailCurriculum({ course }: { course: CourseDetail }) {
 
             {isOpen && (
               <div>
-                {section.lessons.map((lesson) => (
-                  <button
-                    key={lesson.id}
-                    type="button"
-                    onClick={() =>
-                      navigate(
-                        `/education/${course.id}/learn?lesson=${lesson.id}`,
-                      )
-                    }
-                    className="flex w-full cursor-pointer items-center gap-6 bg-white px-5 py-3.5 text-left transition-colors hover:bg-[#EFF4FE]"
-                  >
-                    <LessonTypeIcon
-                      type={lesson.type}
-                      className="size-4.5 shrink-0 text-[#9A9AB0]"
-                    />
+                {section.lessons.map((lesson) => {
+                  const isLocked = Boolean(lesson.isLocked);
 
-                    <span className="line-clamp-2 min-w-0 flex-1 text-[15px] leading-[1.4] text-[#9A9AB0]">
-                      {lesson.title}
-                    </span>
-                    {lessonDetail(lesson) && (
-                      <span className="shrink-0 text-[15px] text-[#9A9AB0]">
-                        {lessonDetail(lesson)}
+                  return (
+                    <button
+                      key={lesson.id}
+                      type="button"
+                      disabled={isLocked}
+                      title={
+                        isLocked
+                          ? "Finish the lesson before this one to open it"
+                          : undefined
+                      }
+                      onClick={() =>
+                        navigate(
+                          `/education/${course.id}/learn?lesson=${lesson.id}`,
+                        )
+                      }
+                      className={cn(
+                        "flex w-full items-center gap-6 bg-white px-5 py-3.5 text-left transition-colors",
+                        isLocked
+                          ? "cursor-not-allowed"
+                          : "cursor-pointer hover:bg-[#EFF4FE]",
+                      )}
+                    >
+                      {isLocked ? (
+                        <Lock
+                          className="size-4.5 shrink-0 text-[#B4B4C2]"
+                          aria-hidden
+                        />
+                      ) : (
+                        <LessonTypeIcon
+                          type={lesson.type}
+                          className="size-4.5 shrink-0 text-[#9A9AB0]"
+                        />
+                      )}
+
+                      <span className="line-clamp-2 min-w-0 flex-1 text-[15px] leading-[1.4] text-[#9A9AB0]">
+                        {lesson.title}
                       </span>
-                    )}
-                  </button>
-                ))}
+                      {lessonDetail(lesson) && (
+                        <span className="shrink-0 text-[15px] text-[#9A9AB0]">
+                          {lessonDetail(lesson)}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>

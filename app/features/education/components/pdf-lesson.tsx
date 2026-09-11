@@ -2,24 +2,56 @@ import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { Download, ExternalLink, FileText } from "lucide-react";
 import { cn, getSafeExternalUrl } from "~/lib/utils";
-import type { ActiveLesson } from "~/features/education/types";
+import type {
+  ActiveLesson,
+  LessonGateState,
+  LessonResumePoint,
+} from "~/features/education/types";
 import { pdfEmbedUrl } from "~/features/education/lib/lesson-media";
+import {
+  pdfReadingSeconds,
+  readingLessonGate,
+  unavailableLessonGate,
+} from "~/features/education/lib/lesson-gate";
+import { useReadingDwell } from "~/features/education/hooks/use-reading-dwell";
+import { useReportLessonGate } from "~/features/education/hooks/use-report-lesson-gate";
 import {
   MediaBar,
   mediaFrame,
   type LessonMediaProps,
 } from "./lesson-media-frame";
 
-export function PdfLesson({ lesson, overlay, flush }: LessonMediaProps) {
+/**
+ * A PDF lesson.
+ *
+ * The document is served from the media host and framed, so the page cannot
+ * see it being read: there is no page-turn event to listen for across origins.
+ * The gate is therefore time with the document open, after which the learner
+ * confirms they have read it — see `readingLessonGate`, which is where that
+ * choice is argued.
+ */
+export function PdfLesson({
+  lesson,
+  overlay,
+  flush,
+  resume,
+  onGateChange,
+}: LessonMediaProps) {
   const src = getSafeExternalUrl(lesson.sourceUrl);
 
   return (
     <div>
       {overlay && <MediaBar>{overlay}</MediaBar>}
       {src ? (
-        <RealPdfLesson lesson={lesson} src={src} flush={flush} />
+        <RealPdfLesson
+          lesson={lesson}
+          src={src}
+          flush={flush}
+          resume={resume}
+          onGateChange={onGateChange}
+        />
       ) : (
-        <SimulatedPdfLesson flush={flush} />
+        <UnavailablePdfLesson flush={flush} onGateChange={onGateChange} />
       )}
     </div>
   );
@@ -44,6 +76,9 @@ function PdfFrame({
   );
 }
 
+/** Long enough to start a download, short enough not to be a wait. */
+const DOWNLOAD_SECONDS = 15;
+
 type PdfPreview =
   | { status: "checking" }
   | { status: "inline" }
@@ -61,12 +96,38 @@ function RealPdfLesson({
   lesson,
   src,
   flush,
+  resume,
+  onGateChange,
 }: {
   lesson: ActiveLesson;
   src: string;
   flush?: boolean;
+  resume?: LessonResumePoint | null;
+  onGateChange?: (gate: LessonGateState) => void;
 }) {
   const [preview, setPreview] = useState<PdfPreview>({ status: "checking" });
+
+  const requiredSeconds = pdfReadingSeconds(lesson.pageCount);
+  /* Reading time already served carries over, so coming back to a long
+     document does not start the wait again. */
+  const elapsedSeconds = useReadingDwell(
+    lesson.id,
+    resume?.watchedSeconds ?? 0,
+  );
+
+  /* A document the browser will not show inline is read by downloading it, and
+     nothing here can time that. Holding the learner to the full reading time
+     would keep them behind a viewer they do not have, so the requirement drops
+     to the moment it takes to fetch the file. */
+  const gate = readingLessonGate({
+    elapsedSeconds,
+    requiredSeconds:
+      preview.status === "blocked"
+        ? Math.min(requiredSeconds, DOWNLOAD_SECONDS)
+        : requiredSeconds,
+  });
+
+  useReportLessonGate(gate, onGateChange);
 
   useEffect(() => {
     if (navigator.pdfViewerEnabled === false) {
@@ -169,7 +230,21 @@ function PdfDownloadNotice({
   );
 }
 
-function SimulatedPdfLesson({ flush }: { flush?: boolean }) {
+/**
+ * A document lesson with no file behind it.
+ *
+ * The placeholder page is kept so the screen still reads as a document, and
+ * the gate opens: a missing upload must not strand a learner mid-course.
+ */
+function UnavailablePdfLesson({
+  flush,
+  onGateChange,
+}: {
+  flush?: boolean;
+  onGateChange?: (gate: LessonGateState) => void;
+}) {
+  useReportLessonGate(unavailableLessonGate(), onGateChange);
+
   const lines = useMemo(
     () =>
       Array.from({ length: 9 }, (_, index) => ({
