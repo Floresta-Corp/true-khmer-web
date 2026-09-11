@@ -1,7 +1,6 @@
 import type { Route } from "project-types/events/routes/+types/events.$slug";
 import { redirect } from "react-router";
 import { getPlumpiEventBySlug } from "~/api/events/events.server";
-import { getSavedEventIds } from "~/api/saved-items/saved-items.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { EventDetailSchema } from "~/features/events/types/events";
@@ -17,10 +16,7 @@ const LOAD_ERROR = "Unable to load this event right now. Please try again.";
  */
 export async function eventDetailLoader({ params, request }: Route.LoaderArgs) {
   try {
-    const [result, savedEventIds] = await Promise.all([
-      getPlumpiEventBySlug(request, params.slug),
-      getSavedEventIds(request),
-    ]);
+    const result = await getPlumpiEventBySlug(request, params.slug);
     const parsed = EventDetailSchema.safeParse(result.data.event);
 
     if (!parsed.success) {
@@ -29,7 +25,6 @@ export async function eventDetailLoader({ params, request }: Route.LoaderArgs) {
         { setCookie: result.setCookie },
         {
           event: null,
-          isSaved: false,
           loadError: LOAD_ERROR,
         },
       );
@@ -57,8 +52,6 @@ export async function eventDetailLoader({ params, request }: Route.LoaderArgs) {
       { setCookie: result.setCookie },
       {
         event: { ...parsed.data, tickets: [] },
-        // Our saved list is the truth here, not Plumpi's own favourite flag.
-        isSaved: savedEventIds.includes(parsed.data.id),
         loadError: null,
       },
     );
@@ -75,7 +68,6 @@ export async function eventDetailLoader({ params, request }: Route.LoaderArgs) {
       {},
       {
         event: null,
-        isSaved: false,
         loadError: isMissing ? NOT_FOUND : LOAD_ERROR,
       },
     );
