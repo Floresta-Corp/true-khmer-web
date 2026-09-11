@@ -202,12 +202,19 @@ export async function setBlogPostFeatured(
 }
 
 // GET /v1/admin/blog/category
-export async function getModeratorBlogCategories(request: Request) {
+export async function getModeratorBlogCategories(
+  request: Request,
+  search?: string,
+) {
+  const searchParams = new URLSearchParams();
+  if (search) searchParams.set("search", search);
+  const queryString = searchParams.toString();
+
   return retryAdminRequestAfterRefresh(request, (accessToken) =>
     apiRequestWithAccessToken<GetBlogCategoriesResponse>(
       request,
       accessToken,
-      "/admin/blog/category",
+      `/admin/blog/category${queryString ? `?${queryString}` : ""}`,
       { method: "GET" },
     ),
   );

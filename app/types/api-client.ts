@@ -1434,6 +1434,13 @@ const endpoints = makeApi([
 		path: "/v1/admin/blog/category",
 		alias: "getV1adminblogcategory",
 		requestFormat: "json",
+		parameters: [
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().min(1).max(120).optional()
+			},
+		],
 		response: GetBlogCategoriesResponse,
 	},
 	{
@@ -5528,6 +5535,13 @@ const endpoints = makeApi([
 		path: "/v1/blog/public/category",
 		alias: "getV1blogpubliccategory",
 		requestFormat: "json",
+		parameters: [
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().min(1).max(120).optional()
+			},
+		],
 		response: GetBlogCategoriesResponse,
 	},
 	{

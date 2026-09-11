@@ -5,6 +5,7 @@ import { BlogCategoryRow } from "./blog-category-row";
 interface BlogCategoryTableProps {
   categories: BlogCategoryWithUsageResponse[];
   totalCount: number;
+  hasSearch: boolean;
   isSubmitting: boolean;
   onEdit: (category: BlogCategoryWithUsageResponse) => void;
   onToggleVisibility: (category: BlogCategoryWithUsageResponse) => void;
@@ -13,12 +14,13 @@ interface BlogCategoryTableProps {
 export function BlogCategoryTable({
   categories,
   totalCount,
+  hasSearch,
   isSubmitting,
   onEdit,
   onToggleVisibility,
 }: BlogCategoryTableProps) {
   return (
-    <div className="overflow-x-auto border-t border-slate-100 dark:border-slate-800">
+    <div className="min-h-0 flex-1 overflow-auto border-t border-slate-100 dark:border-slate-800">
       <table className="w-full min-w-[760px] border-collapse text-left">
         <thead className="bg-slate-50/80 text-xs font-semibold tracking-wide text-slate-500 uppercase dark:bg-slate-950/50 dark:text-slate-400">
           <tr>
@@ -48,10 +50,12 @@ export function BlogCategoryTable({
         <div className="flex min-h-48 flex-col items-center justify-center px-5 py-10 text-center">
           <FolderTree className="size-8 text-slate-300 dark:text-slate-600" />
           <p className="mt-3 font-semibold text-slate-900 dark:text-white">
-            {totalCount === 0 ? "No categories yet" : "No matching categories"}
+            {totalCount === 0 && !hasSearch
+              ? "No categories yet"
+              : "No matching categories"}
           </p>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            {totalCount === 0
+            {totalCount === 0 && !hasSearch
               ? "Create a category so authors can organize their blogs."
               : "Try a different name or slug."}
           </p>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useFetcher } from "react-router";
+import { useFetcher, useSearchParams } from "react-router";
 import { toast } from "sonner";
 import type { BlogCategoryWithUsageResponse } from "~/types/api-client";
 import { BLOG_CATEGORY_INTENTS, type BlogCategoryIntent } from "../../types";
@@ -16,26 +16,35 @@ type CategoryDialogState =
 
 export function useBlogCategoryManager(
   categories: BlogCategoryWithUsageResponse[],
+  initialSearch: string,
 ) {
   const fetcher = useFetcher<CategoryActionResult>();
-  const [search, setSearch] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [search, setSearch] = useState(initialSearch);
   const [dialog, setDialog] = useState<CategoryDialogState | null>(null);
-
-  const filteredCategories = useMemo(() => {
-    const query = search.trim().toLocaleLowerCase();
-    if (!query) return categories;
-
-    return categories.filter(
-      (category) =>
-        category.name.toLocaleLowerCase().includes(query) ||
-        category.slug.toLocaleLowerCase().includes(query),
-    );
-  }, [categories, search]);
 
   const visibleCount = useMemo(
     () => categories.filter((category) => category.isVisible).length,
     [categories],
   );
+
+  useEffect(() => {
+    setSearch(initialSearch);
+  }, [initialSearch]);
+
+  useEffect(() => {
+    const query = search.trim();
+    if ((searchParams.get("search") ?? "") === query) return;
+
+    const timeout = window.setTimeout(() => {
+      const params = new URLSearchParams(searchParams);
+      if (query) params.set("search", query);
+      else params.delete("search");
+      setSearchParams(params, { replace: true, preventScrollReset: true });
+    }, 300);
+
+    return () => window.clearTimeout(timeout);
+  }, [search, searchParams, setSearchParams]);
 
   useEffect(() => {
     const result = fetcher.data;
@@ -99,7 +108,6 @@ export function useBlogCategoryManager(
   return {
     closeDialog: () => setDialog(null),
     dialog,
-    filteredCategories,
     isSubmitting: fetcher.state !== "idle",
     openCreateDialog,
     openEditDialog,

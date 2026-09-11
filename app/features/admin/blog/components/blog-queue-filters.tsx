@@ -120,7 +120,9 @@ export function BlogQueueFilters({
       {hasFilterOptions && showFilters ? (
         <div className="mt-4 rounded-2xl bg-slate-50 p-4 sm:p-6 dark:bg-slate-950/60">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-            <h3 className="text-lg font-semibold">Filter Options</h3>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              Filter Options
+            </h3>
             {hasFilters && (
               <Button
                 type="button"
@@ -139,7 +141,7 @@ export function BlogQueueFilters({
                 value={filters.status || "all"}
                 onValueChange={(value) => updateQuery("status", value)}
               >
-                <SelectTrigger className="h-10 border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+                <SelectTrigger className="h-10 border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                   <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
                 <SelectContent>
@@ -158,7 +160,7 @@ export function BlogQueueFilters({
                 value={filters.sortOrder || "asc"}
                 onValueChange={(value) => updateQuery("sortOrder", value)}
               >
-                <SelectTrigger className="h-10 border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+                <SelectTrigger className="h-10 border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                   <SelectValue placeholder="Submission order" />
                 </SelectTrigger>
                 <SelectContent>

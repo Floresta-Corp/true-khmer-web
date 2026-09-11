@@ -6,7 +6,7 @@ import { BlogCategoriesSkeleton } from "../blog-list-page-skeleton";
 import type { blogCategoriesLoader } from "../../services/blog-categories.loader";
 
 export function BlogCategoriesPage() {
-  const { content } = useLoaderData<typeof blogCategoriesLoader>();
+  const { content, filters } = useLoaderData<typeof blogCategoriesLoader>();
 
   return (
     <main className="min-h-full bg-[#f8fafc] px-4 py-5 sm:px-6 sm:py-6 lg:px-10 lg:py-8 dark:bg-[#020617]">
@@ -22,7 +22,12 @@ export function BlogCategoriesPage() {
               </div>
             }
           >
-            {(categories) => <BlogCategoryManager categories={categories} />}
+            {(categories) => (
+              <BlogCategoryManager
+                categories={categories}
+                initialSearch={filters.search ?? ""}
+              />
+            )}
           </Await>
         </Suspense>
       </div>

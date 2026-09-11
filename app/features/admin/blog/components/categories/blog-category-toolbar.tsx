@@ -30,6 +30,7 @@ export function BlogCategoryToolbar({
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
           <Input
             value={search}
+            maxLength={120}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder="Search categories..."
             aria-label="Search categories"

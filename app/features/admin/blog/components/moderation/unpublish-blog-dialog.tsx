@@ -45,12 +45,12 @@ export function UnpublishBlogDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => (open ? null : onClose())}>
-      <DialogContent className="sm:max-w-md dark:bg-slate-900 dark:ring-slate-800">
+      <DialogContent className="sm:max-w-md dark:bg-slate-950 dark:text-slate-100 dark:ring-slate-800">
         <DialogHeader>
           <DialogTitle className="text-amber-600 dark:text-amber-400">
             Unpublish blog
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="dark:text-slate-400">
             The blog leaves the public site. The author can edit it and submit
             it for review again.
           </DialogDescription>
@@ -60,7 +60,7 @@ export function UnpublishBlogDialog({
           value={reason}
           onValueChange={(value) => setReason(value as BlogUnpublishReason)}
         >
-          <SelectTrigger className="h-10">
+          <SelectTrigger className="h-10 border-slate-200 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
             <SelectValue placeholder="Reason" />
           </SelectTrigger>
           <SelectContent>
@@ -77,11 +77,16 @@ export function UnpublishBlogDialog({
           maxLength={1000}
           onChange={(event) => setNote(event.target.value)}
           placeholder="Add a note for the author (optional)"
-          className="min-h-24 resize-none"
+          className="min-h-24 resize-none border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
         />
 
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose}>
+        <DialogFooter className="dark:border-slate-800 dark:bg-slate-900/70">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            className="dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
+          >
             Cancel
           </Button>
           <Button

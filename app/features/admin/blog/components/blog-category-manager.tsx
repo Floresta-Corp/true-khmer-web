@@ -8,14 +8,16 @@ import { useBlogCategoryManager } from "./categories/use-blog-category-manager";
 
 export function BlogCategoryManager({
   categories,
+  initialSearch,
 }: {
   categories: BlogCategoryWithUsageResponse[];
+  initialSearch: string;
 }) {
-  const manager = useBlogCategoryManager(categories);
+  const manager = useBlogCategoryManager(categories, initialSearch);
 
   return (
     <>
-      <Card className="overflow-hidden rounded-2xl border-slate-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+      <Card className="flex h-[clamp(32rem,calc(100dvh-19rem),48rem)] flex-col overflow-hidden rounded-2xl border-slate-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
         <div className="p-4 sm:p-6">
           <BlogCategoryToolbar
             search={manager.search}
@@ -29,8 +31,9 @@ export function BlogCategoryManager({
         </div>
 
         <BlogCategoryTable
-          categories={manager.filteredCategories}
+          categories={categories}
           totalCount={categories.length}
+          hasSearch={Boolean(manager.search.trim())}
           isSubmitting={manager.isSubmitting}
           onEdit={manager.openEditDialog}
           onToggleVisibility={manager.toggleVisibility}
