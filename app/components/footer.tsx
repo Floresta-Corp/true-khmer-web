@@ -86,9 +86,9 @@ const storeLinks = [
 ];
 
 const legalLinks = [
-  { label: "Privacy Policy", to: "/" },
-  { label: "Terms of Service", to: "/" },
-  { label: "Cookie Settings", to: "/" },
+  { label: "Privacy Policy", to: "/privacy" },
+  { label: "Terms of Service", to: "/terms" },
+  { label: "Cookie Policy", to: "/cookies" },
 ];
 
 export function Footer() {
