@@ -128,7 +128,7 @@ export default function ManagePostCard({ posting, index = 0 }: Props) {
             <img
               src={imageUrl}
               alt={posting.title}
-              className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className="size-full object-cover transition-transform"
             />
           ) : (
             <div className="flex size-full items-center justify-center bg-linear-to-br from-blue-50 via-slate-100 to-emerald-50 text-blue-500">
