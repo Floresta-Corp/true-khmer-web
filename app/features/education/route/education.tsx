@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLoaderData, useSearchParams } from "react-router";
+import {
+  useLoaderData,
+  useLocation,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 import { debounce } from "~/lib/utils";
 import { useCourseSaves } from "../hooks/use-course-saves";
 import { CourseCategoryRow } from "../components/course-category-row";
 import { CourseSection } from "../components/course-section";
+import { CourseSectionSkeleton } from "../components/course-card-skeleton";
 import { EducationHero } from "../components/education-hero";
 import { EducationPage } from "../components/education-page";
 import { educationLoader } from "../services/education.loader";
@@ -43,9 +49,14 @@ export default function EducationHubPage() {
   } = useLoaderData<typeof loader>();
   const [, setSearchParams] = useSearchParams();
   const prefersReducedMotion = useReducedMotion();
+  const location = useLocation();
+  const navigation = useNavigation();
   const duration = prefersReducedMotion ? 0 : 0.35;
 
   const [searchInput, setSearchInput] = useState(search);
+  const isReloadingResults =
+    navigation.state === "loading" &&
+    navigation.location?.pathname === location.pathname;
 
   const listed = useMemo(
     () => [...trending, ...recent, ...allCourses, ...results],
@@ -126,7 +137,9 @@ export default function EducationHubPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration, delay: prefersReducedMotion ? 0 : 0.16 }}
       >
-        {isFiltering ? (
+        {isReloadingResults ? (
+          <CourseSectionSkeleton />
+        ) : isFiltering ? (
           <CourseSection
             title={resultsHeading}
             courses={results}
