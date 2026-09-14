@@ -92,6 +92,29 @@ export async function removeModerator(
   return result;
 }
 
+/**
+ * Sends a pending member's invitation again, under a fresh link.
+ *
+ * A separate endpoint from the invite above: re-sending leaves the row, its
+ * role and its place in the list alone, so it is not refused for the address
+ * already being on the team.
+ */
+export async function resendModeratorInvite(
+  request: Request,
+  id: string,
+  accessToken: string,
+) {
+  const result = await apiRequestWithAccessToken<InviteModeratorResponse>(
+    request,
+    accessToken,
+    `/admin/moderator/${id}/resend-invite`,
+    {
+      method: "POST",
+    },
+  );
+  return result;
+}
+
 export async function patchModerator(
   request: Request,
   id: string,

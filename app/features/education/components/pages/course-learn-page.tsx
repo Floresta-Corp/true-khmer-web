@@ -29,6 +29,8 @@ const RESUME_INTERVAL_MS = 10_000;
 
 const RESUME_STEP_SECONDS = 5;
 
+const RETRY_COVERAGE_SECONDS = 15;
+
 export default function CourseLearnPage() {
   const {
     course,
@@ -136,13 +138,26 @@ export default function CourseLearnPage() {
 
   const learnAction = `/education/${course.id}/learn`;
 
-  const attempted = useRef<Set<string>>(new Set());
-  const savingLessonId = useRef<string | null>(null);
+  /**
+   * Completions the API refused, against the coverage they were refused at.
+   *
+   * A refusal is rarely final: usually the learner has not watched enough of
+   * the lesson yet, and the seconds keep climbing while it plays. Holding the
+   * figure rather than the lesson id is what lets the attempt be made again
+   * on new evidence — a bare set of ids strands the lesson for the life of
+   * the page, including after a refusal the learner has since worked off.
+   */
+  const refusedAt = useRef<Map<string, number>>(new Map());
+  const saving = useRef<{ lessonId: string; watchedSeconds: number } | null>(
+    null,
+  );
 
   const markFinished = useCallback(
     (lessonId: string, watchedSeconds: number | null) => {
-      attempted.current.add(lessonId);
-      savingLessonId.current = lessonId;
+      saving.current = {
+        lessonId,
+        watchedSeconds: Math.max(0, Math.round(watchedSeconds ?? 0)),
+      };
 
       setCompletedLessonIds((current) => {
         if (current.has(lessonId)) return current;
@@ -257,10 +272,20 @@ export default function CourseLearnPage() {
   useEffect(() => {
     if (!gate?.isSatisfied) return;
     if (gateLessonId !== activeLesson.id) return;
+    /* Marked optimistically the moment the request goes out, so this is also
+       what stops a second one while the first is in flight; a refusal takes
+       the lesson back off it. */
     if (completedLessonIds.has(activeLesson.id)) return;
-    if (attempted.current.has(activeLesson.id)) return;
 
     if (!isUnlocked(activeLesson)) return;
+
+    const refused = refusedAt.current.get(activeLesson.id);
+    if (
+      refused !== undefined &&
+      (gate.watchedSeconds ?? 0) < refused + RETRY_COVERAGE_SECONDS
+    ) {
+      return;
+    }
 
     markFinished(activeLesson.id, gate.watchedSeconds);
   }, [
@@ -276,8 +301,8 @@ export default function CourseLearnPage() {
     if (progress.state !== "idle" || !progress.data) return;
 
     const result = progress.data;
-    const saved = savingLessonId.current;
-    savingLessonId.current = null;
+    const attempt = saving.current;
+    saving.current = null;
 
     if (result.ok) {
       if (result.intent === "complete") {
@@ -288,7 +313,10 @@ export default function CourseLearnPage() {
       return;
     }
 
-    if (!saved) return;
+    if (!attempt) return;
+
+    const saved = attempt.lessonId;
+    refusedAt.current.set(saved, attempt.watchedSeconds);
 
     setCompletedLessonIds((current) => {
       if (!current.has(saved)) return current;
