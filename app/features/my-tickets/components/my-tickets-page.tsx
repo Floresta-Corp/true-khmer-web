@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useLoaderData, useNavigation } from "react-router";
+import { Link, useLoaderData, useLocation, useNavigation } from "react-router";
 import { Ticket } from "lucide-react";
 import type { loader } from "../route/my-tickets";
 import type { MyTicket } from "../types";
@@ -7,11 +7,16 @@ import { ticketDetailsSchema } from "../lib/ticket-schema";
 import TicketCard from "./ticket-card";
 import TicketModal from "./ticket-modal";
 import TicketLoadingModal from "./ticket-loading-modal";
+import MyTicketsSkeleton from "./my-tickets-skeleton";
 import SpacePagination from "~/components/space-pagination";
 
 export default function MyTicketsPage() {
   const { tab, tickets, pagination, counts } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
+  const location = useLocation();
+  const isLoadingTickets =
+    navigation.state === "loading" &&
+    navigation.location?.pathname === location.pathname;
   const [eventId, setEventId] = useState<string | null>(null);
   const [detail, setDetail] = useState<MyTicket | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -91,11 +96,10 @@ export default function MyTicketsPage() {
             </button>
           </div>
         )}
-        <div
-          aria-busy={navigation.state !== "idle"}
-          className={`mt-8 transition-opacity ${navigation.state !== "idle" ? "opacity-50" : ""}`}
-        >
-          {tickets.length ? (
+        <div className="mt-8" aria-busy={isLoadingTickets}>
+          {isLoadingTickets ? (
+            <MyTicketsSkeleton count={Math.max(tickets.length, 2)} />
+          ) : tickets.length ? (
             <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
               {tickets.map((ticket) => (
                 <TicketCard
