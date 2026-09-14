@@ -11,6 +11,7 @@ function SectionLabel({ children }: SectionLabelProps) {
   return (
     <p className="text-[14px] leading-[19.5px] font-semibold text-[#344256]">
       {children}
+      <span className="inline-block text-[#fb3748]">*</span>
     </p>
   );
 }
