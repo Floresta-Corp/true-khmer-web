@@ -1,5 +1,14 @@
 import { Link } from "react-router";
-import { Award, Check, ChevronDown, ChevronLeft, Menu, X } from "lucide-react";
+import { BackLink } from "~/components/back-link";
+import {
+  Award,
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  Lock,
+  Menu,
+  X,
+} from "lucide-react";
 import { cn } from "~/lib/utils";
 import type { CourseDetail, CourseLesson } from "~/features/education/types";
 import { LessonTypeIcon } from "./lesson-type-icon";
@@ -9,6 +18,7 @@ interface LearnSidebarProps {
   course: CourseDetail;
   activeLessonId: string;
   completedLessonIds: Set<string>;
+  isLessonUnlocked: (lesson: CourseLesson) => boolean;
   openSectionIds: Set<string>;
   onToggleSection: (sectionId: string) => void;
   onClose: () => void;
@@ -22,6 +32,7 @@ export function LearnSidebar({
   course,
   activeLessonId,
   completedLessonIds,
+  isLessonUnlocked,
   openSectionIds,
   onToggleSection,
   onClose,
@@ -38,13 +49,13 @@ export function LearnSidebar({
   return (
     <div className="flex h-full w-95 shrink-0 flex-col border-r border-[#E5E7EB] bg-white">
       <div className="border-b border-[#E5E7EB] px-5 py-3.5">
-        <Link
+        <BackLink
           to={`/education/${course.id}`}
           className="inline-flex min-w-0 items-center gap-1.5 text-sm font-semibold text-[#1C5DD4] transition-colors hover:underline"
         >
           <ChevronLeft className="size-4 shrink-0" aria-hidden />
           <span className="truncate">Back to course</span>
-        </Link>
+        </BackLink>
       </div>
 
       <div className="flex items-center justify-between border-b border-[#E5E7EB] px-5 py-4.5">
@@ -86,30 +97,59 @@ export function LearnSidebar({
 
       <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-color:#BBBBBB_transparent] [scrollbar-width:thin]">
         {course.curriculum.map((section) => {
-          const isOpen = openSectionIds.has(section.id);
+          const isSectionLocked =
+            section.lessons.length > 0 &&
+            !section.lessons.some(isLessonUnlocked);
+
+          const isOpen = openSectionIds.has(section.id) && !isSectionLocked;
+          const doneInSection = section.lessons.filter((lesson) =>
+            completedLessonIds.has(lesson.id),
+          ).length;
 
           return (
             <div key={section.id}>
               <button
                 type="button"
+                disabled={isSectionLocked}
                 onClick={() => onToggleSection(section.id)}
-                aria-expanded={isOpen}
-                className="flex w-full cursor-pointer items-center justify-between gap-3 px-5 py-3.5 text-left transition-colors hover:bg-[#EFF4FE]"
+                aria-expanded={isSectionLocked ? undefined : isOpen}
+                title={
+                  isSectionLocked
+                    ? "Finish the section before this one to open it"
+                    : undefined
+                }
+                className={cn(
+                  "flex w-full items-center justify-between gap-3 px-5 py-3.5 text-left transition-colors",
+                  isSectionLocked
+                    ? "cursor-not-allowed"
+                    : "cursor-pointer hover:bg-[#EFF4FE]",
+                )}
               >
-                <span className="text-sm font-bold text-[#1A1A2E]">
+                <span
+                  className={cn(
+                    "text-sm font-bold",
+                    isSectionLocked ? "text-[#9A9AB0]" : "text-[#1A1A2E]",
+                  )}
+                >
                   {section.title}
                 </span>
                 <span className="flex shrink-0 items-center gap-2">
                   <span className="text-sm text-[#9A9AB0]">
-                    {section.lessons.length}
+                    {isSectionLocked || doneInSection === 0
+                      ? section.lessons.length
+                      : `${doneInSection}/${section.lessons.length}`}
                   </span>
-                  <ChevronDown
-                    className={cn(
-                      "size-5 text-[#9A9AB0] transition-transform",
-                      isOpen && "rotate-180",
-                    )}
-                    aria-hidden
-                  />
+                  {isSectionLocked ? (
+                    <Lock className="size-4 text-[#B4B4C2]" aria-hidden />
+                  ) : (
+                    <ChevronDown
+                      className={cn(
+                        "size-5 text-[#9A9AB0] transition-transform",
+                        isOpen && "rotate-180",
+                      )}
+                      aria-hidden
+                    />
+                  )}
                 </span>
               </button>
 
@@ -117,58 +157,85 @@ export function LearnSidebar({
                 section.lessons.map((lesson) => {
                   const isActive = lesson.id === activeLessonId;
                   const isDone = completedLessonIds.has(lesson.id);
+                  const isLocked = !isLessonUnlocked(lesson);
+
+                  const marker = (
+                    <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center">
+                      {isDone ? (
+                        <span className="flex size-5 items-center justify-center rounded-full bg-[#1FC16B]">
+                          <Check
+                            className="size-3 text-white"
+                            strokeWidth={3}
+                            aria-hidden
+                          />
+                        </span>
+                      ) : isLocked ? (
+                        <Lock className="size-3.5 text-[#B4B4C2]" aria-hidden />
+                      ) : (
+                        <span
+                          className={cn(
+                            "size-4 rounded-full border-2",
+                            isActive ? "border-[#1C5DD4]" : "border-[#D5D5DE]",
+                          )}
+                        />
+                      )}
+                    </span>
+                  );
+
+                  const body = (
+                    <span className="min-w-0 flex-1">
+                      <span
+                        className={cn(
+                          "block text-sm leading-[1.4]",
+                          isActive
+                            ? "font-bold text-[#1C5DD4]"
+                            : isLocked
+                              ? "text-[#9A9AB0]"
+                              : "text-[#333333]",
+                        )}
+                      >
+                        {lessonIndex(lesson)}. {lesson.title}
+                      </span>
+                      <span className="mt-1 flex items-center gap-1.5 text-xs text-[#9A9AB0]">
+                        <LessonTypeIcon
+                          type={lesson.type}
+                          className="size-3.25 shrink-0"
+                        />
+                        <span className="truncate">
+                          {isLocked
+                            ? "Finish the lesson before this one"
+                            : lessonDetail(lesson)}
+                        </span>
+                      </span>
+                    </span>
+                  );
+
+                  if (isLocked) {
+                    return (
+                      <div
+                        key={lesson.id}
+                        aria-disabled
+                        title="Finish the lesson before this one to open it"
+                        className="flex cursor-not-allowed items-start gap-3 px-5 py-3"
+                      >
+                        {marker}
+                        {body}
+                      </div>
+                    );
+                  }
 
                   return (
                     <Link
                       key={lesson.id}
                       to={`/education/${course.id}/learn?lesson=${lesson.id}`}
+                      replace
                       className={cn(
                         "flex items-start gap-3 px-5 py-3 transition-colors",
                         isActive ? "bg-[#EFF4FE]" : "hover:bg-[#F5F6F8]",
                       )}
                     >
-                      <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center">
-                        {isDone ? (
-                          <span className="flex size-5 items-center justify-center rounded-full bg-[#1FC16B]">
-                            <Check
-                              className="size-3 text-white"
-                              strokeWidth={3}
-                              aria-hidden
-                            />
-                          </span>
-                        ) : (
-                          <span
-                            className={cn(
-                              "size-4 rounded-full border-2",
-                              isActive
-                                ? "border-[#1C5DD4]"
-                                : "border-[#D5D5DE]",
-                            )}
-                          />
-                        )}
-                      </span>
-
-                      <span className="min-w-0 flex-1">
-                        <span
-                          className={cn(
-                            "block text-sm leading-[1.4]",
-                            isActive
-                              ? "font-bold text-[#1C5DD4]"
-                              : "text-[#333333]",
-                          )}
-                        >
-                          {lessonIndex(lesson)}. {lesson.title}
-                        </span>
-                        <span className="mt-1 flex items-center gap-1.5 text-xs text-[#9A9AB0]">
-                          <LessonTypeIcon
-                            type={lesson.type}
-                            className="size-3.25 shrink-0"
-                          />
-                          <span className="truncate">
-                            {lessonDetail(lesson)}
-                          </span>
-                        </span>
-                      </span>
+                      {marker}
+                      {body}
                     </Link>
                   );
                 })}

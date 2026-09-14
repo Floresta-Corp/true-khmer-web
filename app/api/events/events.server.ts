@@ -38,6 +38,8 @@ export type PlumpiEventsQuery = {
   limit?: number;
   search?: string;
   eventType?: EventType;
+  /** Plumpi's own event category, which the /events/all carousel filters on. */
+  categoryId?: string;
   status?: PlumpiEventStatus;
   visibility?: "LISTED" | "UNLISTED";
   /** ISO date or datetime; keeps only events starting on or after it. */
@@ -76,6 +78,7 @@ export function getPlumpiEvents(
   });
   if (query.search) searchParams.set("search", query.search);
   if (query.eventType) searchParams.set("eventType", query.eventType);
+  if (query.categoryId) searchParams.set("categoryId", query.categoryId);
   if (query.status) searchParams.set("status", query.status);
   if (query.visibility) searchParams.set("visibility", query.visibility);
   if (query.startDate) searchParams.set("startDate", query.startDate);

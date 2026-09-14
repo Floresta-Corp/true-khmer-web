@@ -8,6 +8,7 @@ import TrendingTopics from "./trending-topics";
 import type { QuestionResponse, TrendingTagResponse } from "~/types/api-client";
 import type { CategoriesPicker, QuestionSortBy } from "~/features/forum/types";
 import YourActivitiesCard from "../card/your-activities-card";
+import TopContributorsCard from "../card/top-contributors-card";
 import MobileQuestionFilter from "../mobile-question-filter";
 import QuestionSortByDropdown from "../question-sort-by-dropdown";
 import QuestionCard from "../card/question-card";
@@ -245,6 +246,7 @@ export default function ForumContentNew({
 
         <div className="space-y-5 lg:hidden">
           {userId && <YourActivitiesCard />}
+          <TopContributorsCard />
           {categoriesCard}
           {trendingCard}
         </div>
@@ -264,6 +266,17 @@ export default function ForumContentNew({
             <YourActivitiesCard />
           </motion.div>
         )}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.35 * d,
+            delay: (userId ? 0.25 : 0.15) * d,
+            ease: "easeOut",
+          }}
+        >
+          <TopContributorsCard />
+        </motion.div>
       </aside>
     </ForumPageLayout>
   );

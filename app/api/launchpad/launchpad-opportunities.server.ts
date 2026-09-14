@@ -1,3 +1,4 @@
+import { saveItem, unsaveItem } from "~/api/saved-items/saved-items.server";
 import {
   apiRequestWithOptionalSession,
   apiRequestWithSession,
@@ -154,18 +155,13 @@ export async function uploadLaunchpadDocumentPresign(
   });
 }
 
+// See the note in forum-question.server.ts: saves are unified. The API calls
+// the launchpad domain "project".
 export async function saveLaunchpad(
   request: Request,
   launchpadId: string,
 ): Promise<void> {
-  const encodedLaunchpadId = encodeURIComponent(launchpadId);
-  await apiRequestWithSession(
-    request,
-    `/launchpad/save/${encodedLaunchpadId}`,
-    {
-      method: "POST",
-    },
-  );
+  await saveItem(request, "project", launchpadId);
 }
 
 export async function updateLaunchpad(
@@ -185,12 +181,5 @@ export async function unsaveLaunchpad(
   request: Request,
   launchpadId: string,
 ): Promise<void> {
-  const encodedLaunchpadId = encodeURIComponent(launchpadId);
-  await apiRequestWithSession(
-    request,
-    `/launchpad/save/${encodedLaunchpadId}`,
-    {
-      method: "DELETE",
-    },
-  );
+  await unsaveItem(request, "project", launchpadId);
 }

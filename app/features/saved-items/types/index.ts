@@ -1,163 +1,96 @@
 import * as z from "zod";
-import { schemas } from "~/types/api-client";
-import { PaginationSchema } from "~/services/types";
-import { OpportunitySchema } from "~/features/volunteer/types";
-import { LaunchpadOpportunitySchema } from "~/features/launchpad/types";
 
-export type FilterId = "all" | "forum" | "volunteer" | "launchpad";
+/**
+ * Hand-written rather than pulled from ~/types/api-client: that file is
+ * generated from the staging OpenAPI document (`bun run api`), which does not
+ * carry /saved-items yet. Regenerate and swap these over once the API ships.
+ */
 
-export const getSaveForumQuestionSchema = z.object({
-  ok: z.boolean(),
-  questions: z.array(schemas.QuestionResponse),
-  pagination: PaginationSchema,
-});
-export type GetSaveForumQuestionResponse = z.infer<
-  typeof getSaveForumQuestionSchema
->;
-
-export const GetSavedVolunteerOpportunitiesSchema = z.object({
-  ok: z.boolean(),
-  opportunities: z.array(OpportunitySchema),
-  pagination: PaginationSchema,
-});
-export type GetSavedVolunteerOpportunitiesResponse = z.infer<
-  typeof GetSavedVolunteerOpportunitiesSchema
->;
-
-export const GetSavedLaunchpadOpportunitiesSchema = z.object({
-  ok: z.boolean(),
-  launchpads: z.array(LaunchpadOpportunitySchema),
-  nextCursor: z.null(),
-});
-export type GetSavedLaunchpadOpportunitiesResponse = z.infer<
-  typeof GetSavedLaunchpadOpportunitiesSchema
->;
-
-export const StatusSchema = z.enum([
-  "CANCELED",
-  "CLOSED",
-  "COMPLETED",
-  "DELETED",
-  "DRAFT",
-  "IN_PROGRESS",
-  "LIVE",
-  "PUBLISHED",
+export const SavedItemTypeSchema = z.enum([
+  "forum",
+  "volunteer",
+  "project",
+  "course",
+  "event",
 ]);
-export type Status = z.infer<typeof StatusSchema>;
+export type SavedItemType = z.infer<typeof SavedItemTypeSchema>;
 
-export const ViewerVoteSchema = z.enum(["DOWNVOTE", "UPVOTE"]);
-export type ViewerVote = z.infer<typeof ViewerVoteSchema>;
+/** Types that live in our own tables, so they are addressed by id. */
+export const LocalSavedItemTypeSchema = z.enum([
+  "forum",
+  "volunteer",
+  "project",
+  "course",
+]);
+export type LocalSavedItemType = z.infer<typeof LocalSavedItemTypeSchema>;
 
-export const FilterSavedItemSchema = z.enum(["forum", "project", "volunteer"]);
-export type FilterSavedItem = z.infer<typeof FilterSavedItemSchema>;
+/** Tab ids. "all" is the unfiltered view; the rest map 1:1 onto item types. */
+export type FilterId = "all" | SavedItemType;
 
-export const AuthorSchema = z.object({
-  avatarKey: z.union([z.null(), z.string()]),
+/**
+ * One shape for every saved row whatever it points at. Cards render this
+ * directly and never branch on where the item came from.
+ */
+export const SavedItemCardSchema = z.object({
   id: z.string(),
-  name: z.string(),
+  itemId: z.string(),
+  type: SavedItemTypeSchema,
+  title: z.string(),
+  imageUrl: z.string().nullable(),
+  webHref: z.string(),
+  savedAt: z.string(),
+  isExternal: z.boolean(),
+  /**
+   * The full item behind the row, shaped per `type`, so each card renders the
+   * same as it does on its own listing. Loose here and narrowed at the point
+   * of render, exactly as the old saved endpoint's payloads were.
+   */
+  item: z.unknown().optional(),
 });
-export type Author = z.infer<typeof AuthorSchema>;
+export type SavedItemCard = z.infer<typeof SavedItemCardSchema>;
 
-export const CategorySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-});
-export type Category = z.infer<typeof CategorySchema>;
-
-export const CitySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-});
-export type City = z.infer<typeof CitySchema>;
-
-export const CreatedBySchema = z.object({
-  avatarKey: z.union([z.null(), z.string()]),
-  id: z.string(),
-  launchpadCount: z.number(),
-  name: z.string(),
-});
-export type CreatedBy = z.infer<typeof CreatedBySchema>;
-
-export const LocationSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-});
-export type Location = z.infer<typeof LocationSchema>;
-
-export const TagSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-});
-export type Tag = z.infer<typeof TagSchema>;
-
-export const ItemItemSchema = z.object({
-  category: CategorySchema.optional(),
-  city: CitySchema.optional(),
-  coverKey: z.union([z.null(), z.string()]).optional(),
-  createdAt: z.string(),
-  createdBy: CreatedBySchema.optional(),
-  deadline: z.union([z.coerce.date(), z.null()]).optional(),
-  description: z.union([z.null(), z.string()]).optional(),
-  documentKeys: z.array(z.string()).optional(),
-  documentNames: z.array(z.string()).optional(),
-  email: z.union([z.null(), z.string()]).optional(),
-  id: z.string(),
-  isSaved: z.boolean().optional(),
-  logoKey: z.union([z.null(), z.string()]).optional(),
-  name: z.string().optional(),
-  phoneNumber: z.union([z.null(), z.string()]).optional(),
-  savedAt: z.coerce.date().optional(),
-  status: StatusSchema.optional(),
-  telegramUsername: z.union([z.null(), z.string()]).optional(),
-  totalRoles: z.number().optional(),
-  totalView: z.number().optional(),
-  applicationCount: z.number().optional(),
-  applicationDeadline: z.string().optional(),
-  capacity: z.number().optional(),
-  commitmentDescription: z.union([z.null(), z.string()]).optional(),
-  commitmentLabel: z.union([z.null(), z.string()]).optional(),
-  coverImageKey: z.string().optional(),
-  endDate: z.union([z.null(), z.string()]).optional(),
-  filled: z.boolean().optional(),
-  location: LocationSchema.optional(),
-  overview: z.string().optional(),
-  startDate: z.union([z.null(), z.string()]).optional(),
-  title: z.string().optional(),
-  viewerSave: z.boolean().optional(),
-  answerCount: z.number().optional(),
-  author: AuthorSchema.optional(),
-  bestAnswerId: z.union([z.null(), z.string()]).optional(),
-  bestAnswerSelectedAt: z.union([z.coerce.date(), z.null()]).optional(),
-  body: z.string().optional(),
-  downvoteCount: z.number().optional(),
-  imageKey: z.union([z.null(), z.string()]).optional(),
-  score: z.number().optional(),
-  tags: z.array(TagSchema).optional(),
-  updatedAt: z.coerce.date().optional(),
-  upvoteCount: z.number().optional(),
-  viewerVote: z.union([ViewerVoteSchema, z.null()]).optional(),
-});
-export type ItemItem = z.infer<typeof ItemItemSchema>;
-
-export const CountSaveItemSchema = z.object({
+export const SavedItemCountsSchema = z.object({
   all: z.number(),
   forum: z.number(),
-  project: z.number(),
   volunteer: z.number(),
+  project: z.number(),
+  course: z.number(),
+  event: z.number(),
 });
-export type CountSavedItemResponse = z.infer<typeof CountSaveItemSchema>;
-
-export const ItemElementSchema = z.object({
-  item: ItemItemSchema,
-  savedAt: z.coerce.date(),
-  type: FilterSavedItemSchema,
-});
-export type ItemElement = z.infer<typeof ItemElementSchema>;
+export type SavedItemCounts = z.infer<typeof SavedItemCountsSchema>;
 
 export const GetSavedItemsSchema = z.object({
-  counts: CountSaveItemSchema,
-  items: z.array(ItemElementSchema),
   ok: z.boolean(),
-  pagination: PaginationSchema,
+  items: z.array(SavedItemCardSchema),
+  nextCursor: z.string().nullable(),
+  counts: SavedItemCountsSchema,
 });
 export type GetSavedItemsResponse = z.infer<typeof GetSavedItemsSchema>;
+
+export const ToggleSavedItemSchema = z.object({
+  ok: z.boolean(),
+  saved: z.boolean(),
+});
+export type ToggleSavedItemResponse = z.infer<typeof ToggleSavedItemSchema>;
+
+export const EMPTY_SAVED_ITEM_COUNTS: SavedItemCounts = {
+  all: 0,
+  forum: 0,
+  volunteer: 0,
+  project: 0,
+  course: 0,
+  event: 0,
+};
+
+/**
+ * The tab bar has always used "launchpad" in the URL; the API calls the same
+ * thing "project". Kept so existing bookmarks keep working.
+ */
+export function filterIdToItemType(
+  filter: string | null,
+): SavedItemType | undefined {
+  if (!filter || filter === "all") return undefined;
+  const normalized = filter === "launchpad" ? "project" : filter;
+  const parsed = SavedItemTypeSchema.safeParse(normalized);
+  return parsed.success ? parsed.data : undefined;
+}

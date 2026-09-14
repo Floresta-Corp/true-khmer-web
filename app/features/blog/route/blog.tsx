@@ -15,7 +15,7 @@ export function meta(args: Route.MetaArgs) {
     jsonLd: [
       breadcrumbJsonLd(metaOrigin(args), [
         { name: "Home", path: "/" },
-        { name: "Khmer voices", path: "/blog" },
+        { name: "Khmer voices", path: "/khmer-voices" },
       ]),
     ],
   });

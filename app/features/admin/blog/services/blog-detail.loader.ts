@@ -5,7 +5,9 @@ import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { requireAdmin } from "~/lib/server/route-guards.server";
 
 export async function blogDetailLoader({ request, params }: Route.LoaderArgs) {
-  const { admin, setCookie } = await requireAdmin(request);
+  // Admin sessions are MODERATOR or SUPER_ADMIN, so this is the
+  // "at least moderator" gate the blog moderation endpoints expect.
+  const { setCookie } = await requireAdmin(request);
   const postId = params.postId;
   if (!postId) {
     throw new Response("Blog post ID is required", { status: 400 });
@@ -14,10 +16,7 @@ export async function blogDetailLoader({ request, params }: Route.LoaderArgs) {
   try {
     const result = await getModeratorBlogPost(request, postId);
     return data(
-      {
-        post: result.data.post,
-        canManage: result.data.post.createdBy === admin.id,
-      },
+      { post: result.data.post },
       setCookie ? { headers: { "Set-Cookie": setCookie } } : {},
     );
   } catch (err) {

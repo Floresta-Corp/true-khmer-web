@@ -1,140 +1,107 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useFetcher, useLoaderData, useSearchParams } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 import { Loader2 } from "lucide-react";
 import SavedItemsFilterBar from "../saved-items-filter-bar";
+import SavedItemsGrid from "../saved-items-gride";
 import type { loader } from "../../route/saved-items";
 import type { SavedItemsLoaderData } from "~/features/saved-items/services/saved-items.loader";
-import type { QuestionResponse } from "~/types/api-client";
-import type { Opportunity } from "~/features/volunteer/types/volunteer-types";
-import type { LaunchpadOpportunity } from "~/features/launchpad/types";
-import SavedItemsGrid from "../saved-items-gride";
-import type {
-  CountSavedItemResponse,
-  FilterId,
-  ItemElement,
+import {
+  type FilterId,
+  type SavedItemCard,
+  type SavedItemCounts,
 } from "~/features/saved-items/types";
 import { ForumPageLayout } from "~/features/forum/components/forum-page-layout";
 
-const VALID_FILTERS: FilterId[] = ["all", "forum", "volunteer", "launchpad"];
+const VALID_FILTERS: FilterId[] = [
+  "all",
+  "forum",
+  "volunteer",
+  "project",
+  "course",
+  "event",
+];
 
 function getFilterFromParams(searchParams: URLSearchParams): FilterId {
   const raw = searchParams.get("filter");
-  return VALID_FILTERS.includes(raw as FilterId) ? (raw as FilterId) : "all";
-}
-
-function groupSavedItems(items: ItemElement[]) {
-  const forums = items
-    .filter((v) => v.type === "forum")
-    .map((v) => v.item as unknown as QuestionResponse);
-
-  const volunteers = items
-    .filter((v) => v.type === "volunteer")
-    .map((v) => v.item as unknown as Opportunity);
-
-  const launchpads = items
-    .filter((v) => v.type === "project")
-    .map((v) => v.item as unknown as LaunchpadOpportunity);
-
-  return { forums, volunteers, launchpads };
+  // "launchpad" is what older links used for what the API calls "project".
+  const normalized = raw === "launchpad" ? "project" : raw;
+  return VALID_FILTERS.includes(normalized as FilterId)
+    ? (normalized as FilterId)
+    : "all";
 }
 
 export default function SaveItemPage() {
   const prefersReducedMotion = useReducedMotion();
   const loaderData = useLoaderData<typeof loader>() as SavedItemsLoaderData;
-  const {
-    saveItem: initialSaveItem,
-    count: initialCount,
-    pagination: initialPagination,
-  } = loaderData;
   const [searchParams, setSearchParams] = useSearchParams();
-  const fetcher = useFetcher<typeof loader>();
+  const listFetcher = useFetcher<typeof loader>();
+  const unsaveFetcher = useFetcher();
 
-  const [saveItem, setSaveItem] = useState<ItemElement[]>(initialSaveItem);
-  const [count, setCount] = useState<CountSavedItemResponse>(initialCount);
+  const [items, setItems] = useState<SavedItemCard[]>(loaderData.saveItem);
+  const [counts, setCounts] = useState<SavedItemCounts>(loaderData.count);
   const [nextCursor, setNextCursor] = useState<string | null>(
-    initialPagination?.nextCursor ?? null,
+    loaderData.nextCursor,
   );
-  const [hasMore, setHasMore] = useState(initialPagination?.hasMore ?? false);
   const [activeFilter, setActiveFilter] = useState<FilterId>(() =>
     getFilterFromParams(searchParams),
   );
+  const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
 
   const sentinelRef = useRef<HTMLDivElement>(null);
   const lastFetchUrl = useRef("");
 
+  const buildUrl = useCallback((filter: FilterId, cursor?: string) => {
+    const params = new URLSearchParams();
+    if (filter !== "all") params.set("filter", filter);
+    if (cursor) params.set("cursor", cursor);
+    const search = params.toString();
+    return `/saved-items${search ? `?${search}` : ""}`;
+  }, []);
+
+  // A filter change arriving through the URL (back button, shared link).
   useEffect(() => {
     const urlFilter = getFilterFromParams(searchParams);
     if (urlFilter !== activeFilter) {
       setActiveFilter(urlFilter);
       setNextCursor(null);
-      setHasMore(false);
-      const url = `/saved-items?${searchParams.toString()}`;
+      const url = buildUrl(urlFilter);
       lastFetchUrl.current = url;
-      fetcher.load(url);
+      listFetcher.load(url);
     }
   }, [searchParams]);
 
-  // Merge revalidated loader data (e.g. after voting on a saved question)
-  // into the accumulated list without discarding pages loaded via infinite scroll.
   useEffect(() => {
-    const fresh = loaderData?.saveItem ?? [];
-    setCount(loaderData.count);
-
-    if (!fresh.length) return;
-
-    const freshByKey = new Map(fresh.map((i) => [`${i.type}:${i.item.id}`, i]));
-    setSaveItem((prev) => {
-      let changed = false;
-      const merged = prev.map((i) => {
-        const updated = freshByKey.get(`${i.type}:${i.item.id}`);
-
-        if (
-          updated &&
-          (updated.item.score !== i.item.score ||
-            updated.item.viewerVote !== i.item.viewerVote)
-        ) {
-          changed = true;
-          return updated;
-        }
-        return i;
-      });
-      return changed ? merged : prev;
-    });
+    setItems(loaderData.saveItem);
+    setCounts(loaderData.count);
+    setNextCursor(loaderData.nextCursor);
   }, [loaderData]);
 
   useEffect(() => {
-    const data = fetcher.data as SavedItemsLoaderData | undefined;
+    const data = listFetcher.data as SavedItemsLoaderData | undefined;
     if (!data) return;
 
     if (lastFetchUrl.current.includes("cursor=")) {
-      setSaveItem((prev) => {
-        const existing = new Set(prev.map((i) => `${i.type}:${i.item.id}`));
-        const newItems = data.saveItem.filter(
-          (i) => !existing.has(`${i.type}:${i.item.id}`),
-        );
-        return [...prev, ...newItems];
+      // Appending a page: the cursor is stable, but guard against a row that
+      // moved across the boundary anyway.
+      setItems((prev) => {
+        const seen = new Set(prev.map((i) => i.id));
+        return [...prev, ...data.saveItem.filter((i) => !seen.has(i.id))];
       });
     } else {
-      setSaveItem(data.saveItem);
+      setItems(data.saveItem);
     }
 
-    setCount(data.count);
-    setNextCursor(data.pagination?.nextCursor ?? null);
-    setHasMore(data.pagination?.hasMore ?? false);
-  }, [fetcher.data]);
+    setCounts(data.count);
+    setNextCursor(data.nextCursor);
+  }, [listFetcher.data]);
 
   const loadMore = useCallback(() => {
-    if (fetcher.state === "loading" || !hasMore || !nextCursor) return;
-
-    const params = new URLSearchParams();
-    if (activeFilter !== "all") params.set("filter", activeFilter);
-    params.set("cursor", nextCursor);
-
-    const url = `/saved-items?${params.toString()}`;
+    if (listFetcher.state === "loading" || !nextCursor) return;
+    const url = buildUrl(activeFilter, nextCursor);
     lastFetchUrl.current = url;
-    fetcher.load(url);
-  }, [fetcher.state, hasMore, nextCursor, activeFilter]);
+    listFetcher.load(url);
+  }, [listFetcher.state, nextCursor, activeFilter, buildUrl]);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -142,9 +109,7 @@ export default function SaveItemPage() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMore();
-        }
+        if (entries[0].isIntersecting) loadMore();
       },
       { rootMargin: "300px" },
     );
@@ -153,28 +118,50 @@ export default function SaveItemPage() {
     return () => observer.disconnect();
   }, [loadMore]);
 
-  const { forums, volunteers, launchpads } = useMemo(
-    () => groupSavedItems(saveItem),
-    [saveItem],
-  );
-
   const handleFilterChange = (id: FilterId) => {
     setActiveFilter(id);
     setNextCursor(null);
-    setHasMore(false);
 
     const params = new URLSearchParams();
     if (id !== "all") params.set("filter", id);
-
     setSearchParams(params, { replace: true, preventScrollReset: true });
 
-    const url = `/saved-items?${params.toString()}`;
+    const url = buildUrl(id);
     lastFetchUrl.current = url;
-    fetcher.load(url);
+    listFetcher.load(url);
   };
 
+  // Optimistic: the row leaves the grid and the counts drop immediately, and
+  // the list is reloaded once the server confirms.
+  const handleUnsave = useCallback(
+    (item: SavedItemCard) => {
+      setRemovingIds((prev) => new Set(prev).add(item.id));
+      setItems((prev) => prev.filter((i) => i.id !== item.id));
+      setCounts((prev) => ({
+        ...prev,
+        all: Math.max(0, prev.all - 1),
+        [item.type]: Math.max(0, prev[item.type] - 1),
+      }));
+
+      unsaveFetcher.submit(
+        { actionType: "unsave", type: item.type, itemId: item.itemId },
+        { method: "post", action: "/saved-items" },
+      );
+    },
+    [unsaveFetcher],
+  );
+
+  useEffect(() => {
+    if (unsaveFetcher.state !== "idle" || !unsaveFetcher.data) return;
+    setRemovingIds(new Set());
+
+    const url = buildUrl(activeFilter);
+    lastFetchUrl.current = url;
+    listFetcher.load(url);
+  }, [unsaveFetcher.state, unsaveFetcher.data]);
+
   return (
-    <ForumPageLayout className="min-h-full">
+    <ForumPageLayout className="min-h-full lg:px-10">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -189,8 +176,8 @@ export default function SaveItemPage() {
               Saved Items
             </h1>
             <p className="text-[15px] font-medium text-slate-500 sm:text-base">
-              Managing all your saved items across the platform (
-              {count?.all ?? 0} total).
+              Managing all your saved items across the platform ({counts.all}{" "}
+              total).
             </p>
           </div>
 
@@ -203,18 +190,19 @@ export default function SaveItemPage() {
         <main className="min-w-0">
           <SavedItemsGrid
             activeFilter={activeFilter}
-            savedForums={forums}
-            savedVolunteers={volunteers}
-            savedLaunchpads={launchpads}
+            items={items}
+            removingIds={removingIds}
+            onUnsave={handleUnsave}
+            userId={loaderData.userId ?? undefined}
             isLoading={
-              fetcher.state !== "idle" &&
+              listFetcher.state !== "idle" &&
               !lastFetchUrl.current.includes("cursor=")
             }
           />
 
-          {hasMore && (
+          {nextCursor && (
             <div ref={sentinelRef} className="flex justify-center py-8">
-              {fetcher.state === "loading" && (
+              {listFetcher.state === "loading" && (
                 <Loader2 className="size-6 animate-spin text-slate-400" />
               )}
             </div>

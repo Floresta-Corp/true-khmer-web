@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLoaderData, useFetcher, useSearchParams } from "react-router";
-import { Bookmark, Download, Menu, MoreVertical } from "lucide-react";
+import { Bookmark, Download, Lock, Menu, MoreVertical } from "lucide-react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -17,19 +17,41 @@ import { toActiveLesson } from "~/features/education/lib/map-lesson";
 import { formatPageCount } from "~/features/education/lib/lesson-media";
 import type { educationLearnAction } from "~/features/education/services/education-learn.action";
 import type { educationLearnLoader } from "~/features/education/services/education-learn.loader";
-import type { CourseLesson } from "~/features/education/types";
+import type {
+  CourseLesson,
+  LessonGateState,
+  LessonResumePoint,
+} from "~/features/education/types";
 
 const HEADING = "text-[17px] font-bold text-[#1A1A2E]";
 
+const RESUME_INTERVAL_MS = 10_000;
+
+const RESUME_STEP_SECONDS = 5;
+
 export default function CourseLearnPage() {
-  const { course, completedLessonIds: watched } =
-    useLoaderData<typeof educationLearnLoader>();
+  const {
+    course,
+    completedLessonIds: watched,
+    unlockedLessonIds: unlocked,
+    nextLessonId,
+    resumePoints,
+    lastLessonId,
+  } = useLoaderData<typeof educationLearnLoader>();
+
   const progress = useFetcher<typeof educationLearnAction>();
+
+  const resume = useFetcher();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const activeLesson = useMemo(
-    () => toActiveLesson(course, searchParams.get("lesson"))!,
-    [course, searchParams],
+    () =>
+      toActiveLesson(
+        course,
+        searchParams.get("lesson"),
+        lastLessonId ?? nextLessonId,
+      )!,
+    [course, searchParams, lastLessonId, nextLessonId],
   );
 
   const flatLessons = useMemo(
@@ -40,6 +62,9 @@ export default function CourseLearnPage() {
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(
     () => new Set(watched),
   );
+  const [unlockedLessonIds, setUnlockedLessonIds] = useState<Set<string>>(
+    () => new Set(unlocked),
+  );
 
   useEffect(() => {
     setCompletedLessonIds((current) => {
@@ -47,35 +72,223 @@ export default function CourseLearnPage() {
       return new Set([...current, ...watched]);
     });
   }, [watched]);
+
+  useEffect(() => {
+    setUnlockedLessonIds((current) => {
+      if (unlocked.every((id) => current.has(id))) return current;
+      return new Set([...current, ...unlocked]);
+    });
+  }, [unlocked]);
+
   const [isSaved, setIsSaved] = useState(course.isSaved);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [openSectionIds, setOpenSectionIds] = useState<Set<string>>(
     () => new Set([activeLesson.sectionId]),
   );
 
+  const [gate, setGate] = useState<LessonGateState | null>(null);
+  const [gateLessonId, setGateLessonId] = useState(activeLesson.id);
+
+  if (gateLessonId !== activeLesson.id) {
+    setGateLessonId(activeLesson.id);
+    setGate(null);
+  }
+
+  const latestGate = useRef<{ lessonId: string; gate: LessonGateState } | null>(
+    null,
+  );
+
+  const handleGateChange = useCallback(
+    (next: LessonGateState) => {
+      latestGate.current = { lessonId: activeLesson.id, gate: next };
+      setGate(next);
+    },
+    [activeLesson.id],
+  );
+
+  const savedThisVisit = useRef<Map<string, LessonResumePoint>>(new Map());
+
+  const loadedResume = useMemo(
+    () => new Map(resumePoints.map((point) => [point.lessonId, point])),
+    [resumePoints],
+  );
+
+  const [resumeFor, setResumeFor] = useState(() => ({
+    lessonId: activeLesson.id,
+    point:
+      savedThisVisit.current.get(activeLesson.id) ??
+      loadedResume.get(activeLesson.id) ??
+      null,
+  }));
+
+  if (resumeFor.lessonId !== activeLesson.id) {
+    setResumeFor({
+      lessonId: activeLesson.id,
+      point:
+        savedThisVisit.current.get(activeLesson.id) ??
+        loadedResume.get(activeLesson.id) ??
+        null,
+    });
+  }
+
+  const activeResume =
+    resumeFor.lessonId === activeLesson.id ? resumeFor.point : null;
+
+  const learnAction = `/education/${course.id}/learn`;
+
+  const attempted = useRef<Set<string>>(new Set());
   const savingLessonId = useRef<string | null>(null);
 
-  useEffect(() => {
-    setCompletedLessonIds((current) => {
-      if (current.has(activeLesson.id)) return current;
-      const next = new Set(current);
-      next.add(activeLesson.id);
-      return next;
+  const markFinished = useCallback(
+    (lessonId: string, watchedSeconds: number | null) => {
+      attempted.current.add(lessonId);
+      savingLessonId.current = lessonId;
+
+      setCompletedLessonIds((current) => {
+        if (current.has(lessonId)) return current;
+        const next = new Set(current);
+        next.add(lessonId);
+        return next;
+      });
+
+      progress.submit(
+        {
+          intent: "complete",
+          lessonId,
+          ...(watchedSeconds !== null
+            ? { watchedSeconds: String(Math.round(watchedSeconds)) }
+            : {}),
+        },
+        { method: "post", action: learnAction },
+      );
+    },
+
+    [learnAction, progress.submit],
+  );
+
+  const lastWrite = useRef<{
+    lessonId: string;
+    position: number;
+    watched: number;
+  } | null>(null);
+
+  const resumeBody = useCallback((force: boolean) => {
+    const snapshot = latestGate.current;
+    if (!snapshot) return null;
+
+    const { lessonId, gate: current } = snapshot;
+    const position = Math.max(0, Math.round(current.positionSeconds));
+    const watched = Math.max(0, Math.round(current.watchedSeconds ?? 0));
+
+    if (position === 0 && watched === 0) return null;
+
+    const previous = lastWrite.current;
+    const moved =
+      !previous ||
+      previous.lessonId !== lessonId ||
+      Math.abs(position - previous.position) >= RESUME_STEP_SECONDS ||
+      Math.abs(watched - previous.watched) >= RESUME_STEP_SECONDS;
+
+    if (!force && !moved) return null;
+
+    lastWrite.current = { lessonId, position, watched };
+    savedThisVisit.current.set(lessonId, {
+      lessonId,
+      positionSeconds: position,
+      watchedSeconds: watched,
+      updatedAt: new Date().toISOString(),
     });
 
-    savingLessonId.current = activeLesson.id;
-    progress.submit(
-      { lessonId: activeLesson.id },
-      { method: "post", action: `/education/${course.id}/learn` },
-    );
-  }, [activeLesson.id, course.id]);
+    return {
+      intent: "resume",
+      lessonId,
+      positionSeconds: String(position),
+      watchedSeconds: String(watched),
+    };
+  }, []);
+
+  const saveResume = useCallback(
+    (force = false) => {
+      const body = resumeBody(force);
+      if (body) resume.submit(body, { method: "post", action: learnAction });
+    },
+    [resumeBody, resume.submit, learnAction],
+  );
+
+  useEffect(() => {
+    const timer = window.setInterval(() => saveResume(), RESUME_INTERVAL_MS);
+    return () => window.clearInterval(timer);
+  }, [saveResume]);
+
+  useEffect(() => {
+    return () => saveResume(true);
+  }, [activeLesson.id, saveResume]);
+
+  useEffect(() => {
+    const flush = () => {
+      const body = resumeBody(true);
+      if (!body || typeof navigator.sendBeacon !== "function") return;
+
+      const form = new FormData();
+      for (const [key, value] of Object.entries(body)) form.append(key, value);
+      navigator.sendBeacon(learnAction, form);
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") flush();
+    };
+
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [resumeBody, learnAction]);
+  const isUnlocked = useCallback(
+    (lesson: CourseLesson) =>
+      unlockedLessonIds.has(lesson.id) ||
+      completedLessonIds.has(lesson.id) ||
+      lesson.isPreview,
+    [unlockedLessonIds, completedLessonIds],
+  );
+
+  useEffect(() => {
+    if (!gate?.isSatisfied) return;
+    if (gateLessonId !== activeLesson.id) return;
+    if (completedLessonIds.has(activeLesson.id)) return;
+    if (attempted.current.has(activeLesson.id)) return;
+
+    if (!isUnlocked(activeLesson)) return;
+
+    markFinished(activeLesson.id, gate.watchedSeconds);
+  }, [
+    gate,
+    gateLessonId,
+    activeLesson,
+    completedLessonIds,
+    isUnlocked,
+    markFinished,
+  ]);
 
   useEffect(() => {
     if (progress.state !== "idle" || !progress.data) return;
 
+    const result = progress.data;
     const saved = savingLessonId.current;
     savingLessonId.current = null;
-    if (progress.data.ok || !saved) return;
+
+    if (result.ok) {
+      if (result.intent === "complete") {
+        setUnlockedLessonIds(
+          (current) => new Set([...current, ...result.unlockedLessonIds]),
+        );
+      }
+      return;
+    }
+
+    if (!saved) return;
 
     setCompletedLessonIds((current) => {
       if (!current.has(saved)) return current;
@@ -84,8 +297,13 @@ export default function CourseLearnPage() {
       return next;
     });
 
-    toast.error("Could not save your progress for this lesson.");
-  }, [progress.state, progress.data]);
+    toast.error(result.message);
+
+    const resume = result.nextLessonId;
+    if (result.isLocked && resume && resume !== saved) {
+      setSearchParams({ lesson: resume }, { replace: true });
+    }
+  }, [progress.state, progress.data, setSearchParams]);
 
   useEffect(() => {
     setOpenSectionIds((current) =>
@@ -112,9 +330,17 @@ export default function CourseLearnPage() {
   const allComplete =
     flatLessons.length > 0 && completedInCourse.size === flatLessons.length;
 
+  const canGoNext = Boolean(nextLesson && isUnlocked(nextLesson));
+
   const goToLesson = (lesson: CourseLesson | undefined) => {
     if (!lesson) return;
-    setSearchParams({ lesson: lesson.id });
+
+    if (!isUnlocked(lesson)) {
+      toast.error("Finish this lesson to open the next one.");
+      return;
+    }
+
+    setSearchParams({ lesson: lesson.id }, { replace: true });
   };
 
   const handleShare = async () => {
@@ -180,7 +406,7 @@ export default function CourseLearnPage() {
           />
         </button>
 
-        {lessonFileUrl && (
+        {/* {lessonFileUrl && (
           <a
             href={lessonFileUrl}
             download
@@ -192,7 +418,7 @@ export default function CourseLearnPage() {
           >
             <Download className="size-4" aria-hidden />
           </a>
-        )}
+        )} */}
 
         {!isPanelOpen && (
           <button
@@ -248,6 +474,7 @@ export default function CourseLearnPage() {
             course={course}
             activeLessonId={activeLesson.id}
             completedLessonIds={completedInCourse}
+            isLessonUnlocked={isUnlocked}
             openSectionIds={openSectionIds}
             onToggleSection={(sectionId) =>
               setOpenSectionIds((current) => {
@@ -268,7 +495,13 @@ export default function CourseLearnPage() {
         )}
 
         <div className="h-full min-w-0 flex-1 overflow-y-auto [scrollbar-color:#BBBBBB_transparent] [scrollbar-width:thin]">
-          <LessonPlayer lesson={activeLesson} flush overlay={playerOverlay} />
+          <LessonPlayer
+            lesson={activeLesson}
+            flush
+            overlay={playerOverlay}
+            resume={activeResume}
+            onGateChange={handleGateChange}
+          />
 
           <div className="px-7 pt-5.5 pb-7.5">
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4 pb-5.5">
@@ -295,9 +528,17 @@ export default function CourseLearnPage() {
                 <button
                   type="button"
                   onClick={() => goToLesson(nextLesson)}
-                  disabled={!nextLesson}
+                  disabled={!canGoNext}
+                  title={
+                    nextLesson && !canGoNext
+                      ? "Finish this lesson to open the next one"
+                      : undefined
+                  }
                   className={navButton}
                 >
+                  {nextLesson && !canGoNext && (
+                    <Lock className="mr-1.5 inline size-3.5" aria-hidden />
+                  )}
                   Next ›
                 </button>
               </div>

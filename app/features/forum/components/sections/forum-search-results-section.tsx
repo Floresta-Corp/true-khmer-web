@@ -48,7 +48,7 @@ export default function ForumSearchResultsSection({
   }));
 
   return (
-    <section className="bg-[#f8fafc] px-4 pt-7 pb-14 md:px-10 lg:px-0">
+    <section className="px-4 pt-7 pb-14 md:px-10 lg:px-0">
       <div className="mx-auto flex w-full max-w-300 flex-col gap-7 lg:flex-row lg:items-start">
         <SearchFiltersSidebar
           search={search}

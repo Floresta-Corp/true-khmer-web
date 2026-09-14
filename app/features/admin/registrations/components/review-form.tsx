@@ -20,7 +20,7 @@ import {
   X,
 } from "lucide-react";
 
-import { ConfirmationModal } from "~/features/admin/components/confirmation-modal";
+import { ConfirmationModal } from "~/components/confirmation-modal";
 import { getSafeExternalUrl } from "~/lib/utils";
 import {
   formatRegistrationDate,

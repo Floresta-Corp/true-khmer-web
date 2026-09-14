@@ -1,6 +1,6 @@
 import { Skeleton } from "~/components/ui/skeleton";
 import CreateEventAside from "./create-event-aside";
-import CreateEventAutosaveStatus from "./create-event-autosave-status";
+import AutosaveStatus from "~/components/autosave-status";
 import CreateEventTopBar from "./create-event-top-bar";
 
 export default function CreateEventPageSkeleton() {
@@ -15,7 +15,7 @@ export default function CreateEventPageSkeleton() {
         autosaveStatus="loading"
         autosaveLabel="Loading..."
       />
-      <CreateEventAutosaveStatus
+      <AutosaveStatus
         status="loading"
         label="Loading..."
         className="shrink-0 justify-end border-b border-[#E1E7EF] bg-slate-50/70 px-5 py-2 sm:hidden"

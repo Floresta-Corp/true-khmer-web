@@ -32,23 +32,12 @@ export default function Events() {
   const navigation = useNavigation();
   const prefersReducedMotion = useReducedMotion();
   const [search, setSearch] = useState("");
-  const [savedIds, setSavedIds] = useState<string[]>(() =>
-    events.filter((event) => event.isFavorite).map((event) => event.id),
-  );
 
   const duration = prefersReducedMotion ? 0 : 0.4;
   const sectionDelay = prefersReducedMotion ? 0 : 0.18;
   const isLoadingEvents =
     navigation.state === "loading" &&
     navigation.location?.pathname === "/events";
-
-  const toggleSave = (eventId: string) => {
-    setSavedIds((current) =>
-      current.includes(eventId)
-        ? current.filter((id) => id !== eventId)
-        : [...current, eventId],
-    );
-  };
 
   const submitSearch = () => {
     const query = search.trim();
@@ -144,11 +133,7 @@ export default function Events() {
                     }}
                     style={{ willChange: "transform, opacity" }}
                   >
-                    <EventListCard
-                      event={event}
-                      isSaved={savedIds.includes(event.id)}
-                      onToggleSave={toggleSave}
-                    />
+                    <EventListCard event={event} isSaved={event.isFavorite} />
                   </motion.div>
                 ))}
               </motion.div>

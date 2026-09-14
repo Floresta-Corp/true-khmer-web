@@ -1,5 +1,10 @@
 import type { EventData } from "~/features/events/components/event-card";
-import { requireUser } from "~/lib/server/route-guards.server";
+import {
+  getPlumpiEventCategories,
+  getPlumpiEvents,
+  type PlumpiEventsQuery,
+} from "~/api/events/events.server";
+import { AuthSessionExpiredError } from "~/lib/server/api-client.server";
 import { EVENT_TYPES, type EventType } from "./event-types";
 import type { EventCategory, TicketTier, Organizer } from "./event-types";
 
@@ -11,216 +16,126 @@ export {
   type Organizer,
 };
 
-const PLUMPI_ENDPOINT = process.env.PLUMPI_ENDPOINT;
-if (!PLUMPI_ENDPOINT) {
-  console.warn(
-    "PLUMPI_ENDPOINT is not set. Event data requests will fail until it is configured.",
-  );
+/**
+ * Event reads for the listing pages.
+ *
+ * Everything goes through our own API, never Plumpi directly: the provider
+ * requires an API key that only the API holds, so a fetch from here comes back
+ * 401. The proxy endpoints also attach the visitor's session when there is one,
+ * which is what makes `isFavorite` correct per account.
+ */
+
+/** How many rows the "all events" grid pulls in one page. */
+const EVENT_LIST_LIMIT = 100;
+
+type PlumpiEventRow = {
+  id: string;
+  title: string;
+  excerpt?: string | null;
+  slug?: string | null;
+  thumbnail?: string | null;
+  startAt: string;
+  endAt?: string | null;
+  venueName?: string | null;
+  eventType?: string | null;
+  basePrice?: string | number | null;
+  salePrice?: string | number | null;
+  ticketStatus?: string | null;
+  isOnline?: boolean | null;
+  isFavorite?: boolean | null;
+};
+
+function toEventData(event: PlumpiEventRow): EventData {
+  return {
+    id: event.id,
+    title: event.title,
+    excerpt: event.excerpt || "",
+    slug: event.slug || "",
+    thumbnail: event.thumbnail || null,
+    startAt: event.startAt,
+    endAt: event.endAt ?? event.startAt,
+    venueName: event.venueName || null,
+    eventType: event.eventType || "OTHER",
+    price: String(event.salePrice || event.basePrice || "Free"),
+    ticketStatus: event.ticketStatus || undefined,
+    isOnline: event.isOnline || false,
+    isFavorite: event.isFavorite || false,
+  };
 }
 
-export async function getEventCategories(): Promise<EventCategory[]> {
+async function readEvents(
+  request: Request,
+  query: PlumpiEventsQuery,
+  label: string,
+): Promise<EventData[]> {
   try {
-    const response = await fetch(`${PLUMPI_ENDPOINT}/event-categories`);
+    const result = await getPlumpiEvents(request, query);
+    return (result.data.events ?? []).map((event) =>
+      toEventData(event as PlumpiEventRow),
+    );
+  } catch (err) {
+    console.error(`Failed to fetch ${label}:`, err);
+    return [];
+  }
+}
 
-    if (!response.ok) {
-      return [];
-    }
-
-    const json = await response.json();
-    const categories = Array.isArray(json.data) ? json.data : [];
+/**
+ * Category list for the carousel. The proxy endpoint needs a session, so a
+ * signed-out visitor gets no categories rather than an error page — the grid
+ * itself stays public.
+ */
+export async function getEventCategories(
+  request: Request,
+): Promise<EventCategory[]> {
+  try {
+    const result = await getPlumpiEventCategories(request);
+    const categories = (result.data.categories ?? []) as Array<
+      Record<string, unknown>
+    >;
 
     return categories
-      .filter((c: any) => c.status === "ACTIVE")
-      .sort((a: any, b: any) => a.sortOrder - b.sortOrder)
-      .map((c: any) => ({
-        id: c.id,
-        name: c.name,
-        slug: c.slug,
-        description: c.description || "",
-        icon: c.icon || "📌",
-        color: c.color || "#6B7280",
-        sortOrder: c.sortOrder,
-        status: c.status,
-        eventCount: c.eventCount || 0,
+      .filter((c) => c.status === "ACTIVE")
+      .sort((a, b) => Number(a.sortOrder ?? 0) - Number(b.sortOrder ?? 0))
+      .map((c) => ({
+        id: String(c.id),
+        name: String(c.name),
+        slug: String(c.slug ?? ""),
+        description: String(c.description ?? ""),
+        icon: String(c.icon ?? "📌"),
+        color: String(c.color ?? "#6B7280"),
+        sortOrder: Number(c.sortOrder ?? 0),
+        status: String(c.status) as EventCategory["status"],
+        eventCount: Number(c.eventCount ?? 0),
       }));
   } catch (err) {
+    if (err instanceof AuthSessionExpiredError) return [];
     console.error("Failed to fetch event categories:", err);
     return [];
   }
 }
 
-export async function getEventsData(request: Request) {
-  const user = await requireUser(request);
-
-  try {
-    const response = await fetch(`${PLUMPI_ENDPOINT}/events?limit=5`);
-
-    if (!response.ok) {
-      throw new Error(`Plumpi API Error: ${response.status}`);
-    }
-
-    const json = await response.json();
-    const eventList = Array.isArray(json.data) ? json.data : [];
-
-    const mappedEvents: EventData[] = eventList.map((apiEvent: any) => ({
-      id: apiEvent.id,
-      title: apiEvent.title,
-      excerpt: apiEvent.excerpt || "",
-      slug: apiEvent.slug || "",
-      thumbnail: apiEvent.thumbnail || null,
-      startAt: apiEvent.startAt,
-      endAt: apiEvent.endAt,
-      venueName: apiEvent.venueName || null,
-      eventType: apiEvent.eventType,
-      price: apiEvent.salePrice || apiEvent.basePrice || "Free",
-      ticketStatus: apiEvent.ticketStatus || null,
-      isOnline: apiEvent.isOnline || false,
-      isFavorite: apiEvent.isFavorite || false,
-    }));
-
-    return { user, events: mappedEvents, error: null };
-  } catch (err) {
-    console.error("Failed to fetch events:", err);
-    return {
-      user,
-      events: [],
-      error: "Unable to load events from the server.",
-    };
-  }
-}
-
-export async function getUpcomingEvents(): Promise<EventData[]> {
-  try {
-    const response = await fetch(`${PLUMPI_ENDPOINT}/events/upcoming`);
-
-    if (!response.ok) {
-      return [];
-    }
-
-    const data = await response.json();
-    const eventList = Array.isArray(data) ? data : [];
-
-    return eventList.map((apiEvent: any) => ({
-      id: apiEvent.id,
-      title: apiEvent.name || apiEvent.title || "",
-      slug: apiEvent.slug || "",
-      excerpt: apiEvent.excerpt || "",
-      thumbnail: apiEvent.cover || apiEvent.thumbnail || null,
-      cover: apiEvent.cover || null,
-      startAt: apiEvent.startAt,
-      endAt: apiEvent.endAt,
-      venueName: apiEvent.venueName || null,
-      eventType: apiEvent.eventType,
-      price: apiEvent.salePrice || apiEvent.basePrice || "Free",
-      ticketStatus: apiEvent.ticketStatus || null,
-      isOnline: apiEvent.isOnline || false,
-      isFavorite: apiEvent.isFavorite || false,
-    }));
-  } catch (err) {
-    console.error("Failed to fetch upcoming events:", err);
-    return [];
-  }
-}
-
 export async function getEventsByType(
+  request: Request,
   eventType: EventType,
 ): Promise<EventData[]> {
-  try {
-    const response = await fetch(
-      `${PLUMPI_ENDPOINT}/events?eventType=${eventType}`,
-    );
-
-    if (!response.ok) {
-      throw new Error(`Plumpi API Error: ${response.status}`);
-    }
-
-    const json = await response.json();
-    const eventList = Array.isArray(json.data) ? json.data : [];
-
-    return eventList.map((apiEvent: any) => ({
-      id: apiEvent.id,
-      title: apiEvent.title,
-      excerpt: apiEvent.excerpt || "",
-      slug: apiEvent.slug || "",
-      thumbnail: apiEvent.thumbnail || null,
-      startAt: apiEvent.startAt,
-      endAt: apiEvent.endAt,
-      venueName: apiEvent.venueName || null,
-      eventType: apiEvent.eventType,
-      price: apiEvent.salePrice || apiEvent.basePrice || "Free",
-      ticketStatus: apiEvent.ticketStatus || null,
-      isOnline: apiEvent.isOnline || false,
-      isFavorite: apiEvent.isFavorite || false,
-    }));
-  } catch (err) {
-    console.error("Failed to fetch events by type:", err);
-    return [];
-  }
+  return readEvents(
+    request,
+    { eventType, limit: EVENT_LIST_LIMIT },
+    `events of type ${eventType}`,
+  );
 }
 
 export async function getEventsByCategory(
+  request: Request,
   categoryId: string,
 ): Promise<EventData[]> {
-  try {
-    const response = await fetch(
-      `${PLUMPI_ENDPOINT}/events?categoryId=${categoryId}`,
-    );
-
-    if (!response.ok) {
-      throw new Error(`Plumpi API Error: ${response.status}`);
-    }
-
-    const json = await response.json();
-    const eventList = Array.isArray(json.data) ? json.data : [];
-
-    return eventList.map((apiEvent: any) => ({
-      id: apiEvent.id,
-      title: apiEvent.title,
-      excerpt: apiEvent.excerpt || "",
-      thumbnail: apiEvent.thumbnail || null,
-      startAt: apiEvent.startAt,
-      endAt: apiEvent.endAt,
-      venueName: apiEvent.venueName || null,
-      eventType: apiEvent.eventType,
-      price: apiEvent.salePrice || apiEvent.basePrice || "Free",
-      ticketStatus: apiEvent.ticketStatus || null,
-      isOnline: apiEvent.isOnline || false,
-      isFavorite: apiEvent.isFavorite || false,
-    }));
-  } catch (err) {
-    console.error("Failed to fetch events by category:", err);
-    return [];
-  }
+  return readEvents(
+    request,
+    { categoryId, limit: EVENT_LIST_LIMIT },
+    "events by category",
+  );
 }
 
-export async function getEventList(): Promise<EventData[]> {
-  try {
-    const response = await fetch(`${PLUMPI_ENDPOINT}/events`);
-
-    if (!response.ok) {
-      throw new Error(`Plumpi API Error: ${response.status}`);
-    }
-
-    const json = await response.json();
-    const eventList = Array.isArray(json.data) ? json.data : [];
-
-    return eventList.map((apiEvent: any) => ({
-      id: apiEvent.id,
-      title: apiEvent.title,
-      excerpt: apiEvent.excerpt || "",
-      slug: apiEvent.slug || "",
-      thumbnail: apiEvent.thumbnail || null,
-      startAt: apiEvent.startAt,
-      endAt: apiEvent.endAt,
-      venueName: apiEvent.venueName || null,
-      eventType: apiEvent.eventType,
-      price: apiEvent.salePrice || apiEvent.basePrice || "Free",
-      ticketStatus: apiEvent.ticketStatus || null,
-      isOnline: apiEvent.isOnline || false,
-      isFavorite: apiEvent.isFavorite || false,
-    }));
-  } catch (err) {
-    console.error("Failed to fetch event list:", err);
-    return [];
-  }
+export async function getEventList(request: Request): Promise<EventData[]> {
+  return readEvents(request, { limit: EVENT_LIST_LIMIT }, "event list");
 }

@@ -204,6 +204,7 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
                   {sharedCertificates.length > 0 ? (
                     <ProfileCertificatesCard
                       certificates={sharedCertificates}
+                      recipientName={displayName}
                     />
                   ) : null}
                 </div>
@@ -372,7 +373,11 @@ export default function MySpacePage({ loaderData }: Route.ComponentProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
             >
-              <ProfileCertificatesCard certificates={certificates} isOwner />
+              <ProfileCertificatesCard
+                certificates={certificates}
+                isOwner
+                recipientName={displayName}
+              />
             </motion.div>
           </div>
         </aside>

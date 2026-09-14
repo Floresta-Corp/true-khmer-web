@@ -13,7 +13,7 @@ import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
 import { CountryField } from "~/components/form/country-field";
 import { PhoneField } from "~/components/form/phone-field";
-import { ConfirmationModal } from "~/features/admin/components/confirmation-modal";
+import { ConfirmationModal } from "~/components/confirmation-modal";
 import {
   FormField,
   FormSectionHeading,

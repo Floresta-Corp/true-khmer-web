@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { ChevronRight } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import LaunchpadProjectCard from "../card/launchpad-project-card";
 import { useLoaderData, useNavigate } from "react-router";
@@ -35,6 +36,7 @@ export function LaunchpadAvailableProjectsSection() {
             onClick={() => navigate("/launchpad/all")}
           >
             View All
+            <ChevronRight />
           </Button>
         </div>
 

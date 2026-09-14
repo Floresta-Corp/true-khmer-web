@@ -10,6 +10,9 @@ export default [
     layout("layout/footer-layout.tsx", [
       index("routes/home.tsx"),
       route("about", "features/about/route/about.tsx"),
+      route("privacy", "features/legal/route/privacy.tsx"),
+      route("terms", "features/legal/route/terms.tsx"),
+      route("cookies", "features/legal/route/cookies.tsx"),
       route("community", "features/community/route/community.tsx"),
       route(
         "community/partner/:partnerId",
@@ -61,8 +64,8 @@ export default [
         "education/:id/certificate",
         "features/education/route/education.certificate.$id.tsx",
       ),
-      route("blog", "features/blog/route/blog.tsx"),
-      route("blog/:slug", "features/blog/route/blog.$slug.tsx"),
+      route("khmer-voices", "features/blog/route/blog.tsx"),
+      route("khmer-voices/:slug", "features/blog/route/blog.$slug.tsx"),
       route("launchpad", "features/launchpad/route/launchpad.tsx"),
       route("launchpad/all", "features/launchpad/route/launchpad.all.tsx"),
       route(
@@ -106,6 +109,18 @@ export default [
         "features/workspace/manage-post/route/manage-post.tsx",
       ),
       route(
+        "workspace/khmer-voices",
+        "features/workspace/my-blog/route/my-blog.tsx",
+      ),
+      route(
+        "workspace/khmer-voices/new",
+        "features/workspace/my-blog/route/my-blog.new.tsx",
+      ),
+      route(
+        "workspace/khmer-voices/:postId/edit",
+        "features/workspace/my-blog/route/my-blog.$postId.edit.tsx",
+      ),
+      route(
         "course-listing",
         "features/course-listing/route/course-listing.tsx",
       ),
@@ -136,6 +151,10 @@ export default [
     ]),
     route("notifications", "features/notifications/route/notifications.tsx"),
   ]),
+  route(
+    "workspace/khmer-voices/preview",
+    "features/workspace/my-blog/route/my-blog.preview.tsx",
+  ),
   route("education/create", "features/course-builder/route/course-builder.tsx"),
   route(
     "education/:id/edit",
@@ -195,14 +214,13 @@ export default [
       "registrations/partner/:partnerId",
       "features/admin/registrations/route/registrations.partner.$partnerId.tsx",
     ),
-    route("blog", "features/admin/blog/route/blog.tsx"),
-    route("blog/new", "features/admin/blog/route/blog.new.tsx"),
-    route("blog/preview", "features/admin/blog/route/blog.preview.tsx"),
-    route("blog/:postId", "features/admin/blog/route/blog.$postId.tsx"),
+    route("khmer-voices", "features/admin/blog/route/blog.tsx"),
     route(
-      "blog/:postId/edit",
-      "features/admin/blog/route/blog.$postId.edit.tsx",
+      "khmer-voices/categories",
+      "features/admin/blog/route/blog.categories.tsx",
     ),
+    route("khmer-voices/review", "features/admin/blog/route/blog.review.tsx"),
+    route("khmer-voices/:postId", "features/admin/blog/route/blog.$postId.tsx"),
     route("partners", "features/admin/partners/route/partners.tsx"),
     route("partners/new", "features/admin/partners/route/partners.new.tsx"),
     route(
@@ -305,12 +323,12 @@ export default [
     "routes/api/api.admin.partners.$partnerId.logo-presign.tsx",
   ),
   route(
-    "api/admin/blog/image-presign",
-    "features/admin/blog/route/blog.image-presign.ts",
+    "api/blog/image-presign",
+    "features/workspace/my-blog/route/my-blog.image-presign.ts",
   ),
   route(
-    "api/moderator/blog/autosave",
-    "features/admin/blog/route/blog.autosave.ts",
+    "api/blog/autosave",
+    "features/workspace/my-blog/route/my-blog.autosave.ts",
   ),
   route(
     "api/admin/partners/:partnerId/photo-presign",
@@ -325,6 +343,7 @@ export default [
     "api/myspace/skills/search",
     "features/myspace/route/myspace.skills-search.ts",
   ),
+  route("api/saved-events", "features/events/routes/saved-events.ts"),
   route("api/my-events/venues", "features/workspace/route/my-events.venues.ts"),
   route(
     "api/launchpad/batch-apply",

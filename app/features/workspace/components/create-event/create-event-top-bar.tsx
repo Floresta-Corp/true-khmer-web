@@ -1,13 +1,13 @@
 import { Link } from "react-router";
 import { X } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import CreateEventAutosaveStatus, {
-  type CreateEventAutosaveStatusValue,
-} from "./create-event-autosave-status";
+import AutosaveStatus, {
+  type AutosaveStatusValue,
+} from "~/components/autosave-status";
 
 type Props = {
   closeTo: string;
-  autosaveStatus: CreateEventAutosaveStatusValue;
+  autosaveStatus: AutosaveStatusValue;
   autosaveLabel: string;
 };
 
@@ -33,7 +33,7 @@ export default function CreateEventTopBar({
       </Button>
 
       <div className="flex min-w-0 items-center gap-3 text-[13px] font-normal text-slate-500">
-        <CreateEventAutosaveStatus
+        <AutosaveStatus
           status={autosaveStatus}
           label={autosaveLabel}
           className="hidden sm:flex"

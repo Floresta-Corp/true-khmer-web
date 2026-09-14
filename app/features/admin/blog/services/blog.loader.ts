@@ -1,21 +1,22 @@
 import { z } from "zod";
 import { data } from "react-router";
 import type { Route } from "project-types/admin/blog/route/+types/blog";
-import {
-  getModeratorBlogCategories,
-  getModeratorBlogPosts,
-} from "~/api/admin/blog/blog.server";
+import { getModeratorBlogPosts } from "~/api/admin/blog/blog.server";
 import { requireAdmin } from "~/lib/server/route-guards.server";
+import { BLOG_LIBRARY_STATUSES, BLOG_QUEUE_PAGE_SIZE } from "../types";
 
 const querySchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
   search: z.string().optional(),
-  status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
-  placement: z.enum(["HOME", "CONTACT", "NONE"]).optional(),
+  // Pending submissions are handled on /tk-admin/khmer-voices/review, so this page only
+  // filters across statuses a post reaches after review.
+  status: z.enum(BLOG_LIBRARY_STATUSES).optional().default("PUBLISHED"),
 });
 
 export async function blogLoader({ request }: Route.LoaderArgs) {
-  const { admin, setCookie } = await requireAdmin(request);
+  // Admin sessions are MODERATOR or SUPER_ADMIN — the moderation queue's
+  // minimum role.
+  const { setCookie } = await requireAdmin(request);
   const url = new URL(request.url);
   const query = querySchema.parse(
     Object.fromEntries(url.searchParams.entries()),
@@ -24,29 +25,20 @@ export async function blogLoader({ request }: Route.LoaderArgs) {
     ? { headers: { "Set-Cookie": setCookie } }
     : {};
 
-  const content = Promise.all([
-    getModeratorBlogPosts(request, {
-      page: query.page,
-      pageSize: 12,
-      search: query.search,
-      status: query.status,
-      placement: query.placement,
-      sortField: "updatedAt",
-      sortOrder: "desc",
-    }),
-    getModeratorBlogCategories(request),
-  ]).then(([postsResult, categoriesResult]) => ({
+  const content = getModeratorBlogPosts(request, {
+    page: query.page,
+    pageSize: BLOG_QUEUE_PAGE_SIZE,
+    search: query.search,
+    status: query.status,
+    sortField: "updatedAt",
+    sortOrder: "desc",
+  }).then((postsResult) => ({
     posts: postsResult.data.data,
     meta: postsResult.data.meta,
-    categories: categoriesResult.data.categories,
+    // statusCounts is computed before the status filter is applied, so the
+    // "action required" banner stays accurate while viewing published blogs.
+    pendingCount: postsResult.data.meta.statusCounts.PENDING_REVIEW,
   }));
 
-  return data(
-    {
-      content,
-      currentUserId: admin?.id ?? "",
-      filters: query,
-    },
-    cookieHeader,
-  );
+  return data({ content, filters: query }, cookieHeader);
 }

@@ -8,7 +8,7 @@ export const loader = blogDetailLoader;
 export const action = blogDetailAction;
 
 export function meta() {
-  return [{ title: "Blog Post | True Khmer" }];
+  return [{ title: "Khmer Voices Post | True Khmer" }];
 }
 
 export function ErrorBoundary() {
@@ -18,9 +18,7 @@ export function ErrorBoundary() {
     (error.status === 403 || error.status === 404)
   ) {
     return (
-      <AccessRestricted
-        message={error.data?.message ?? "Blog post not found."}
-      />
+      <AccessRestricted message={error.data?.message ?? "Post not found."} />
     );
   }
   throw error;

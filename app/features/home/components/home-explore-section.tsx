@@ -31,7 +31,7 @@ const EXPLORE_LINKS = [
   {
     title: "Khmer voices",
     icon: "/home-explore-blog.png",
-    to: "/blog",
+    to: "/khmer-voices",
   },
 ] as const;
 
