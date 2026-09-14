@@ -32,9 +32,13 @@ export default function OpenRolesForm({
   onCancelEdit,
   onRemovePoint,
 }: OpenRolesFormProps) {
-  const hasRoleErrors =
-    errors?.title || errors?.commitmentLabel || errors?.capacity;
-  const isRoleEmpty = draftRole.title.trim() === "";
+  const hasRoleErrors = Boolean(
+    errors?.title ||
+    errors?.commitmentLabel ||
+    errors?.capacity ||
+    errors?.responsibilityErrors?.some(Boolean) ||
+    errors?.requirementErrors?.some(Boolean),
+  );
 
   return (
     <section
@@ -96,11 +100,15 @@ export default function OpenRolesForm({
         </div>
 
         <div className="border-t border-[#F3F4F6] pt-4">
+          {hasRoleErrors && (
+            <p className="mb-3 text-xs text-red-500" role="alert">
+              Please complete the highlighted fields before saving this role.
+            </p>
+          )}
           <Button
             type="button"
             className="h-10 w-full bg-[#2f6fe4] text-sm text-[#f8fafc] hover:bg-[#245fca]"
             onClick={onAddRole}
-            disabled={isRoleEmpty}
           >
             <Plus className="size-4" />
             {editingIndex !== null ? "Save Changes" : "Add Role"}
