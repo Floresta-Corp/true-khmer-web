@@ -1,6 +1,10 @@
 import type { FormDataVolunteerInput } from "~/features/volunteer/types";
 import type { VolunteerPostPage1Errors } from "../components/pages/volunteer-post-page-1";
-import type { VolunteerPostPage2Errors } from "../components/pages/volunteer-post-page-2";
+import type {
+  DraftRole,
+  VolunteerPostPage2Errors,
+  VolunteerRoleErrors,
+} from "../components/pages/volunteer-post-page-2";
 import { z } from "zod";
 import { isBefore, isValid, parseISO } from "date-fns";
 
@@ -121,6 +125,54 @@ export const validateDetailStep = (
     errors.coverImageKey = "Main event cover is required.";
   }
   return errors;
+};
+
+const validateDraftPointList = (
+  values: string[],
+  label: "responsibility" | "requirement",
+) => {
+  const hasAnyFilled = values.some((value) => hasText(value));
+  const itemErrors = values.map((value, index) => {
+    if (hasText(value)) return "";
+    if (!hasAnyFilled && index === 0) {
+      return `Please add at least one ${label}.`;
+    }
+    return `Please fill in this ${label} or remove it.`;
+  });
+
+  return itemErrors.some(Boolean) ? itemErrors : undefined;
+};
+
+export const validateDraftRole = (
+  draft: DraftRole,
+): VolunteerRoleErrors | null => {
+  const roleErrors: VolunteerRoleErrors = {};
+
+  if (!hasText(draft.title)) {
+    roleErrors.title = "Role title is required.";
+  }
+
+  if (!Number.isFinite(draft.capacity) || draft.capacity < 1) {
+    roleErrors.capacity = "Capacity must be at least 1.";
+  }
+
+  const responsibilityErrors = validateDraftPointList(
+    draft.responsibilities,
+    "responsibility",
+  );
+  if (responsibilityErrors) {
+    roleErrors.responsibilityErrors = responsibilityErrors;
+  }
+
+  const requirementErrors = validateDraftPointList(
+    draft.requirements,
+    "requirement",
+  );
+  if (requirementErrors) {
+    roleErrors.requirementErrors = requirementErrors;
+  }
+
+  return Object.keys(roleErrors).length > 0 ? roleErrors : null;
 };
 
 export const validateRoleStep = (

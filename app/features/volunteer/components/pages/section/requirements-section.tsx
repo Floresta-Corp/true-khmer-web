@@ -10,6 +10,7 @@ function SectionLabel({ children }: SectionLabelProps) {
   return (
     <p className="text-[14px] leading-[19.5px] font-semibold text-[#344256]">
       {children}
+      <span className="inline-block text-[#fb3748]">*</span>
     </p>
   );
 }
@@ -49,38 +50,41 @@ export default function RequirementsSection({
       </div>
 
       <div className="mt-3 space-y-3">
-        {requirements.map((requirement, index) => (
-          <div key={`req-${index}`} className="flex items-center gap-2">
-            <Input
-              placeholder="What skills are you looking for?"
-              value={requirement}
-              onChange={(e) => {
-                const newRequirements = [...requirements];
-                newRequirements[index] = e.target.value;
-                onUpdate(newRequirements);
-              }}
-              className="h-11 flex-1 rounded-lg border border-transparent bg-[#f8fafc] px-4 text-sm font-medium text-[#364153] placeholder:text-[#c8d6e5] focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-blue-500/45"
-            />
-            {requirements.length > 1 && (
-              <IconButton
-                ariaLabel={`Remove requirement ${index + 1}`}
-                icon={<Trash2 className="size-4 text-red-500" />}
-                onClick={() => onRemovePoint(index)}
-                className="border"
-              />
-            )}
-          </div>
-        ))}
-      </div>
+        {requirements.map((requirement, index) => {
+          const itemError = errors?.[index];
 
-      {errors?.map(
-        (itemError, index) =>
-          itemError && (
-            <p key={`${itemError}-${index}`} className="text-xs text-red-500">
-              {itemError}
-            </p>
-          ),
-      )}
+          return (
+            <div key={`req-${index}`} className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Input
+                  placeholder="What skills are you looking for?"
+                  value={requirement}
+                  onChange={(e) => {
+                    const newRequirements = [...requirements];
+                    newRequirements[index] = e.target.value;
+                    onUpdate(newRequirements);
+                  }}
+                  aria-invalid={Boolean(itemError)}
+                  className={`h-11 flex-1 rounded-lg border bg-[#f8fafc] px-4 text-sm font-medium text-[#364153] placeholder:text-[#c8d6e5] focus-visible:ring-2 ${
+                    itemError
+                      ? "border-red-500 ring-2 ring-red-200 focus-visible:border-red-500 focus-visible:ring-red-500"
+                      : "border-transparent focus-visible:border-transparent focus-visible:ring-blue-500/45"
+                  }`}
+                />
+                {requirements.length > 1 && (
+                  <IconButton
+                    ariaLabel={`Remove requirement ${index + 1}`}
+                    icon={<Trash2 className="size-4 text-red-500" />}
+                    onClick={() => onRemovePoint(index)}
+                    className="border"
+                  />
+                )}
+              </div>
+              {itemError && <p className="text-xs text-red-500">{itemError}</p>}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
