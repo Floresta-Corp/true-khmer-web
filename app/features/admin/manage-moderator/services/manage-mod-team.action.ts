@@ -5,6 +5,7 @@ import {
   patchModerator,
   postManageTeam,
   removeModerator,
+  resendModeratorInvite,
 } from "~/api/admin/manage-moderator/manage-moderator.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { requireSuperAdmin } from "~/lib/server/route-guards.server";
@@ -19,6 +20,8 @@ const inviteSchema = z.object({
 const removeSchema = z.object({
   memberId: z.string().min(1, "Member ID is required."),
 });
+
+const resendSchema = removeSchema;
 
 const updateRoleSchema = z.object({
   memberId: z.string().min(1, "Member ID is required."),
@@ -38,7 +41,12 @@ export async function manageModTeamAction({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const actionType = String(formData.get("intent") ?? "").trim();
 
-  const allowedActionTypes = new Set(["invite", "remove", "update-role"]);
+  const allowedActionTypes = new Set([
+    "invite",
+    "remove",
+    "resend-invite",
+    "update-role",
+  ]);
 
   if (actionType && !allowedActionTypes.has(actionType)) {
     return data(
@@ -111,6 +119,38 @@ export async function manageModTeamAction({ request }: Route.ActionArgs) {
 
       return data(
         { ok: false, message: "Failed to remove moderator." },
+        { status: 400 },
+      );
+    }
+  }
+
+  //  Resend a pending invitation
+  if (actionType === "resend-invite") {
+    const result = resendSchema.safeParse({
+      memberId: formData.get("memberId"),
+    });
+
+    if (!result.success) {
+      return data(
+        { ok: false, message: result.error.issues[0].message },
+        { status: 400 },
+      );
+    }
+
+    try {
+      await resendModeratorInvite(request, result.data.memberId, accessToken);
+
+      return data({ ok: true, message: null }, cookieHeader);
+    } catch (err) {
+      if (err instanceof ProtectedApiError) {
+        return data(
+          { ok: false, message: err.message },
+          { status: err.status },
+        );
+      }
+
+      return data(
+        { ok: false, message: "Failed to resend the invitation." },
         { status: 400 },
       );
     }
