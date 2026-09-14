@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLoaderData, useSearchParams } from "react-router";
+import {
+  useLoaderData,
+  useLocation,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
 import { BackLink } from "~/components/back-link";
 import { motion, useReducedMotion } from "motion/react";
 import { ChevronDown, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { cn, debounce } from "~/lib/utils";
 import { CourseCard } from "./course-card";
+import { CourseGridSkeleton } from "./course-card-skeleton";
 import { EducationPage } from "./education-page";
 import {
   CATALOG_SORTS,
@@ -103,9 +109,15 @@ export function EducationCatalog() {
 
   const [, setSearchParams] = useSearchParams();
   const prefersReducedMotion = useReducedMotion();
+  const location = useLocation();
+  const navigation = useNavigation();
   const duration = prefersReducedMotion ? 0 : 0.35;
 
   const [searchInput, setSearchInput] = useState(search);
+
+  const isReloadingResults =
+    navigation.state === "loading" &&
+    navigation.location?.pathname === location.pathname;
 
   const { savedCourseIds, toggleSave } = useCourseSaves(courses);
 
@@ -261,7 +273,12 @@ export function EducationCatalog() {
           transition={{ duration, delay: prefersReducedMotion ? 0 : 0.16 }}
           className="min-w-0"
         >
-          {courses.length === 0 ? (
+          {isReloadingResults ? (
+            <CourseGridSkeleton
+              count={Math.max(courses.length, 6)}
+              className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3"
+            />
+          ) : courses.length === 0 ? (
             <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-white px-8 py-16 text-center">
               <p className="mb-2 text-[15px] font-semibold text-[#1A1A2E]">
                 {search

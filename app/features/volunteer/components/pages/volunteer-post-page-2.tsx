@@ -7,6 +7,7 @@ import ContactDetailsForm from "./section/contact-details-form";
 import FormActions from "./section/form-actions";
 import PublishOpportunitySuccessDialog from "../dialog/publish-opportunity-dialog";
 import type { FormDataVolunteerInput } from "~/features/volunteer/types";
+import { validateDraftRole } from "~/features/volunteer/lib/volunteer-validation";
 
 export type VolunteerRoleErrors = {
   title?: string;
@@ -70,6 +71,9 @@ export default function VolunteerPostPage2({
   const navigate = useNavigate();
 
   const [draftRole, setDraftRole] = useState<DraftRole>(emptyDraft);
+  const [draftErrors, setDraftErrors] = useState<VolunteerRoleErrors | null>(
+    null,
+  );
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -116,7 +120,8 @@ export default function VolunteerPostPage2({
     hasSavedRoles &&
     safeTrim(formData.contact?.phone) !== "" &&
     safeTrim(formData.contact?.email) !== "";
-  const currentRoleErrors = hasSavedRoles ? undefined : errors?.roleErrors?.[0];
+  const currentRoleErrors =
+    draftErrors ?? (hasSavedRoles ? undefined : errors?.roleErrors?.[0]);
 
   const updateContactField = (
     field: keyof FormDataVolunteerInput["contact"],
@@ -129,7 +134,11 @@ export default function VolunteerPostPage2({
     field: K,
     value: DraftRole[K],
   ) => {
-    setDraftRole((prev) => ({ ...prev, [field]: value }));
+    const next = { ...draftRole, [field]: value };
+    setDraftRole(next);
+    if (draftErrors !== null) {
+      setDraftErrors(validateDraftRole(next));
+    }
   };
 
   const handleRemovePoint = (
@@ -143,6 +152,13 @@ export default function VolunteerPostPage2({
   };
 
   const handleAddRole = () => {
+    const validationErrors = validateDraftRole(draftRole);
+    if (validationErrors) {
+      setDraftErrors(validationErrors);
+      return;
+    }
+    setDraftErrors(null);
+
     if (editingIndex !== null) {
       const updatedRoles = formData.roles.map((role, i) => {
         if (i === editingIndex) {
@@ -174,6 +190,7 @@ export default function VolunteerPostPage2({
       requirements: role.requirements,
     });
     setEditingIndex(index);
+    setDraftErrors(null);
   };
 
   const handleRemoveRole = (index: number) => {
@@ -183,6 +200,7 @@ export default function VolunteerPostPage2({
     if (editingIndex === index) {
       setEditingIndex(null);
       setDraftRole(emptyDraft);
+      setDraftErrors(null);
     } else if (editingIndex !== null && editingIndex > index) {
       setEditingIndex(editingIndex - 1);
     }
@@ -191,6 +209,7 @@ export default function VolunteerPostPage2({
   const handleCancelEdit = () => {
     setEditingIndex(null);
     setDraftRole(emptyDraft);
+    setDraftErrors(null);
   };
 
   const [state, setState] = useState(true);

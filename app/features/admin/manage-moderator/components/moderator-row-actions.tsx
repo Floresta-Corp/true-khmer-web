@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MoreVertical, Trash2, AlertTriangle } from "lucide-react";
+import { MoreVertical, Trash2, AlertTriangle, Send } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -14,21 +14,28 @@ import {
   DialogTitle,
 } from "~/components/ui/dialog";
 
-interface RemoveModeratorMemberProps {
+interface ModeratorRowActionsProps {
   memberId: string;
   firstName: string;
   lastName?: string;
+  email?: string;
+  /** A member who has not accepted their invite, so it can be sent again. */
+  isPending?: boolean;
   onRemove: (id: string) => void;
+  onResendInvite?: (id: string) => void;
   currentUserId?: string;
 }
 
-export default function RemoveModeratorMember({
+export default function ModeratorRowActions({
   memberId,
   firstName,
   lastName,
+  email,
+  isPending,
   onRemove,
+  onResendInvite,
   currentUserId,
-}: RemoveModeratorMemberProps) {
+}: ModeratorRowActionsProps) {
   const [showConfirm, setShowConfirm] = useState(false);
 
   // Don't render anything if the current user is trying to remove themselves
@@ -57,6 +64,17 @@ export default function RemoveModeratorMember({
           align="end"
           className="w-48 rounded-xl border border-slate-100 bg-white p-2 dark:border-slate-800 dark:bg-slate-900"
         >
+          {/* Only a pending member has an invitation outstanding; an accepted
+              one has nothing left to send. */}
+          {isPending && onResendInvite && (
+            <DropdownMenuItem
+              onSelect={() => onResendInvite(memberId)}
+              className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-black tracking-widest text-slate-600 uppercase transition-colors focus:bg-slate-100 focus:text-slate-900 dark:text-slate-300 dark:focus:bg-slate-800 dark:focus:text-white"
+            >
+              <Send size={14} /> Resend Invite
+            </DropdownMenuItem>
+          )}
+
           <DropdownMenuItem
             onSelect={() => setShowConfirm(true)}
             className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-black tracking-widest text-rose-500 uppercase transition-colors focus:bg-rose-500/10 focus:text-rose-600 dark:focus:bg-rose-500/20 dark:focus:text-rose-400"
@@ -93,7 +111,9 @@ export default function RemoveModeratorMember({
             <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">
               Are you sure you want to remove{" "}
               <span className="font-semibold text-slate-900 dark:text-slate-100">
-                {firstName} {lastName ?? ""}
+                {[firstName, lastName].filter(Boolean).join(" ") ||
+                  email ||
+                  "this member"}
               </span>{" "}
               from the moderators? This action cannot be undone.
             </p>

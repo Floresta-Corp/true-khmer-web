@@ -11,7 +11,7 @@ import type { ListModeratorsResponse } from "~/types/api-client";
 import { EmptySearchState, EmptyTeamState } from "./empty-search-state";
 import { ModeratorRoles } from "./moderator-roles";
 import { ModeratorStatusBadge } from "./moderator-status-badge";
-import RemoveModeratorMember from "./remove-moderator-member";
+import ModeratorRowActions from "./moderator-row-actions";
 import ManageModeratorSkeleton from "./manage-moderator-skeleton";
 
 type ModeratorMember = ListModeratorsResponse["moderators"][number];
@@ -23,6 +23,7 @@ interface ManageModeratorTableProps {
   currentUserId?: string;
   onClearSearch: () => void;
   onRemove: (id: string) => void;
+  onResendInvite: (id: string) => void;
   onRoleConfirm: (
     memberId: string,
     currentRole: ModeratorMember["role"] | string,
@@ -49,6 +50,7 @@ export function ManageModeratorTable({
   onClearSearch,
   currentUserId,
   onRemove,
+  onResendInvite,
   onRoleConfirm,
 }: ManageModeratorTableProps) {
   return (
@@ -81,6 +83,7 @@ export function ManageModeratorTable({
             onClearSearch={onClearSearch}
             currentUserId={currentUserId}
             onRemove={onRemove}
+            onResendInvite={onResendInvite}
             onRoleConfirm={onRoleConfirm}
           />
         )}
@@ -94,6 +97,7 @@ function ManageModeratorTableContent({
   searchValue,
   onClearSearch,
   onRemove,
+  onResendInvite,
   currentUserId,
   onRoleConfirm,
 }: {
@@ -102,6 +106,7 @@ function ManageModeratorTableContent({
   currentUserId?: string;
   onClearSearch: () => void;
   onRemove: (id: string) => void;
+  onResendInvite: (id: string) => void;
   onRoleConfirm: ManageModeratorTableProps["onRoleConfirm"];
 }) {
   if (moderators.length === 0 && searchValue) {
@@ -157,11 +162,14 @@ function ManageModeratorTableContent({
       </TableCell>
       <TableCell className="static px-8 py-6 text-right">
         {member.id !== currentUserId && (
-          <RemoveModeratorMember
+          <ModeratorRowActions
             memberId={member.id}
             firstName={member.firstName ?? ""}
             lastName={member.lastName ?? ""}
+            email={member.email}
+            isPending={member.status === "PENDING"}
             onRemove={onRemove}
+            onResendInvite={onResendInvite}
           />
         )}
       </TableCell>

@@ -70,6 +70,14 @@ export default function ManageModeratorPage() {
     fetcher.submit(formData, { method: "post" });
   };
 
+  const handleResendInvite = (id: string) => {
+    lastIntent.current = "resend-invite";
+    const formData = new FormData();
+    formData.append("intent", "resend-invite");
+    formData.append("memberId", id);
+    fetcher.submit(formData, { method: "post" });
+  };
+
   const handleSearchChange = (value: string) => {
     setSearchInput(value);
     const nextParams = new URLSearchParams(searchParams);
@@ -114,6 +122,8 @@ export default function ManageModeratorPage() {
           setInviteError(null);
         } else if (intent === "remove") {
           toast.success("Moderator removed successfully.");
+        } else if (intent === "resend-invite") {
+          toast.success("Invitation sent again.");
         } else if (intent === "update-role") {
           toast.success("Moderator role updated successfully.");
         }
@@ -122,6 +132,7 @@ export default function ManageModeratorPage() {
         const actions: Record<string, string> = {
           invite: "send invitation",
           remove: "remove member",
+          "resend-invite": "resend the invitation",
           "update-role": "update moderator role",
         };
         const label = actions[intent] ?? "perform action";
@@ -175,6 +186,7 @@ export default function ManageModeratorPage() {
           searchValue={searchInput}
           onClearSearch={() => handleSearchChange("")}
           onRemove={handleRemove}
+          onResendInvite={handleResendInvite}
           onRoleConfirm={handleRoleConfirm}
           currentUserId={currentUserId}
         />
