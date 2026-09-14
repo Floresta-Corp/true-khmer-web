@@ -2,23 +2,20 @@ import { useState } from "react";
 import { Bookmark, Share2 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { EVENT_TYPE_COVER_COLORS } from "~/features/events/lib/event-formatters";
+import { useEventFavorite } from "~/features/events/lib/use-event-favorite";
 import type { EventDetail } from "~/features/events/types/events";
 
 interface EventDetailCoverProps {
   event: EventDetail;
-  isSaved: boolean;
-  onToggleSave: () => void;
+  isFavorite: boolean;
 }
 
 const CIRCLE_BUTTON =
   "flex size-11 cursor-pointer items-center justify-center rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.12)]";
 
 /** Cover panel of the event detail screen: photo, category pill, save, share. */
-export function EventDetailCover({
-  event,
-  isSaved,
-  onToggleSave,
-}: EventDetailCoverProps) {
+export function EventDetailCover({ event, isFavorite }: EventDetailCoverProps) {
+  const favorite = useEventFavorite(event.slug, isFavorite);
   const [shareLabel, setShareLabel] = useState<string | null>(null);
   const coverColor =
     EVENT_TYPE_COVER_COLORS[event.eventType] ?? EVENT_TYPE_COVER_COLORS.OTHER;
@@ -69,18 +66,26 @@ export function EventDetailCover({
         )}
         <button
           type="button"
-          onClick={onToggleSave}
-          aria-label={isSaved ? "Remove from saved events" : "Save event"}
-          aria-pressed={isSaved}
-          className={CIRCLE_BUTTON}
+          onClick={favorite.toggleFavorite}
+          aria-label={
+            favorite.isFavorite ? "Remove from saved events" : "Save event"
+          }
+          aria-pressed={favorite.isFavorite}
+          aria-busy={favorite.isPending}
+          disabled={favorite.isPending}
+          className={cn(
+            CIRCLE_BUTTON,
+            "transition-transform active:scale-90 disabled:cursor-wait",
+          )}
         >
           <Bookmark
             aria-hidden
             className={cn(
-              "size-4.5",
-              isSaved
+              "size-4.5 transition-[color,fill,transform,opacity] duration-150",
+              favorite.isFavorite
                 ? "fill-[#1C5DD4] text-[#1C5DD4]"
                 : "fill-none text-[#1A1A2E]",
+              favorite.isPending && "scale-90 opacity-75",
             )}
           />
         </button>

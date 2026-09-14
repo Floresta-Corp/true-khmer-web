@@ -17,7 +17,7 @@ export function BlogModerationSummary({ post }: { post: BlogPostResponse }) {
   const { moderation } = post;
 
   return (
-    <Card className="rounded-[2rem] border-slate-100 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+    <Card className="rounded-[2rem] border-slate-100 bg-white p-6 text-slate-950 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
       <h2 className="text-lg font-semibold">Moderation</h2>
       <div className="mt-4 space-y-3 text-sm">
         <Row
@@ -67,7 +67,12 @@ export function BlogModerationSummary({ post }: { post: BlogPostResponse }) {
         ) : null}
 
         <div className="flex flex-wrap items-center gap-2 pt-1">
-          <Badge variant="outline">by {post.author.name}</Badge>
+          <Badge
+            variant="outline"
+            className="border-slate-200 text-slate-700 dark:border-slate-700 dark:text-slate-200"
+          >
+            by {post.author.name}
+          </Badge>
           {post.isFeatured ? (
             <Badge className="bg-blue-500/15 text-blue-700 dark:text-blue-300">
               Featured

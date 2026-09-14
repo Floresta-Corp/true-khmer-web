@@ -1,131 +1,154 @@
-import { useEffect, useRef, useState } from "react";
-import { Maximize2, Minimize2, Pause, Play } from "lucide-react";
+import type { ReactNode } from "react";
+import { Youtube } from "lucide-react";
 import { cn } from "~/lib/utils";
-import { youtubeEmbedUrl } from "~/features/education/lib/lesson-media";
+import { youtubeVideoId } from "~/features/education/lib/lesson-media";
+import {
+  timedLessonGate,
+  unavailableLessonGate,
+} from "~/features/education/lib/lesson-gate";
+import { useWatchCoverage } from "~/features/education/hooks/use-watch-coverage";
+import { useYouTubePlayer } from "~/features/education/hooks/use-youtube-player";
+import { useReportLessonGate } from "~/features/education/hooks/use-report-lesson-gate";
 import { mediaFrame, type LessonMediaProps } from "./lesson-media-frame";
 
-export function VideoLesson({ lesson, overlay, flush }: LessonMediaProps) {
-  const embedUrl = lesson.sourceUrl ? youtubeEmbedUrl(lesson.sourceUrl) : null;
+/**
+ * A YouTube lesson.
+ *
+ * Played through the IFrame Player API rather than a bare iframe, so the page
+ * can see what happened: the seconds the learner really played are what opens
+ * the next lesson. YouTube's own controls are left in place — reimplementing
+ * play, seek and fullscreen over an API we are already polling would only add
+ * a second set of buttons to keep in sync.
+ */
+export function VideoLesson(props: LessonMediaProps) {
+  const { lesson } = props;
+  const videoId = lesson.sourceUrl ? youtubeVideoId(lesson.sourceUrl) : null;
 
-  if (embedUrl) {
-    return (
-      <div
-        className={cn(
-          "relative h-65 overflow-hidden bg-black sm:h-115",
-          mediaFrame(flush),
-        )}
-      >
-        <iframe
-          src={embedUrl}
-          title={lesson.title}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          className="size-full border-0"
-        />
-
-        {overlay && (
-          <div className="pointer-events-none absolute inset-x-0 top-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.7)_0%,rgba(0,0,0,0.35)_60%,transparent_100%)] px-5 pt-4 pb-8">
-            <div className="pointer-events-auto">{overlay}</div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <SimulatedVideoLesson lesson={lesson} overlay={overlay} flush={flush} />
-  );
+  if (!videoId) return <UnavailableVideoLesson {...props} />;
+  return <PlayableVideoLesson {...props} videoId={videoId} />;
 }
 
-function SimulatedVideoLesson({ lesson, overlay, flush }: LessonMediaProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  useEffect(() => {
-    const sync = () =>
-      setIsFullscreen(document.fullscreenElement === containerRef.current);
-
-    document.addEventListener("fullscreenchange", sync);
-    return () => document.removeEventListener("fullscreenchange", sync);
-  }, []);
-
-  const toggleFullscreen = async () => {
-    const element = containerRef.current;
-    if (!element) return;
-
-    try {
-      if (document.fullscreenElement === element) {
-        await document.exitFullscreen();
-      } else {
-        await element.requestFullscreen();
-      }
-    } catch {
-      setIsFullscreen(document.fullscreenElement === element);
-    }
-  };
-
+function VideoFrame({
+  children,
+  overlay,
+  flush,
+  tone = "black",
+}: {
+  children?: ReactNode;
+  overlay?: ReactNode;
+  flush?: boolean;
+  tone?: "black" | "grey";
+}) {
   return (
     <div
-      ref={containerRef}
       className={cn(
-        "relative h-65 overflow-hidden bg-[#4A4A4A] sm:h-115",
+        "relative h-65 overflow-hidden sm:h-115",
+        tone === "black" ? "bg-black" : "bg-[#4A4A4A]",
         mediaFrame(flush),
       )}
     >
+      {children}
+
+      {overlay && (
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 bg-[linear-gradient(180deg,rgba(0,0,0,0.7)_0%,rgba(0,0,0,0.35)_60%,transparent_100%)] px-5 pt-4 pb-8">
+          <div className="pointer-events-auto">{overlay}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PlayableVideoLesson({
+  lesson,
+  videoId,
+  overlay,
+  flush,
+  resume,
+  onGateChange,
+}: LessonMediaProps & { videoId: string }) {
+  const { watchedSeconds, record } = useWatchCoverage(
+    lesson.id,
+    resume?.watchedSeconds ?? 0,
+  );
+
+  const player = useYouTubePlayer({
+    videoId,
+    startSeconds: resume?.positionSeconds ?? 0,
+    onProgress: record,
+  });
+
+  /* The API's own duration is used where it has one. The creator's recorded
+     `durationSeconds` is a fallback for the moment before the player reports,
+     and can be wrong or absent — YouTube knows the real length. */
+  const durationSeconds =
+    player.durationSeconds > 0
+      ? player.durationSeconds
+      : (lesson.durationSeconds ?? 0);
+
+  const gate = player.error
+    ? unavailableLessonGate()
+    : timedLessonGate({
+        watchedSeconds,
+        durationSeconds,
+        positionSeconds: player.currentTime,
+        hasEnded: player.hasEnded,
+        isReady: player.isReady,
+      });
+
+  useReportLessonGate(gate, onGateChange);
+
+  return (
+    <VideoFrame overlay={overlay} flush={flush}>
+      {/* The iframe is the API's, not React's, so it is sized from here. */}
+      <div
+        ref={player.containerRef}
+        className="size-full [&_iframe]:size-full [&_iframe]:border-0"
+      />
+
+      {player.error && (
+        <p className="absolute inset-0 z-20 flex items-center justify-center bg-black/70 px-8 text-center text-sm text-white">
+          {player.error}
+        </p>
+      )}
+    </VideoFrame>
+  );
+}
+
+/**
+ * A video lesson whose link is not a YouTube video.
+ *
+ * Shown rather than a player, because there is nothing to play. The gate opens
+ * so one bad link cannot strand a learner part-way through a course.
+ */
+function UnavailableVideoLesson({
+  lesson,
+  overlay,
+  flush,
+  onGateChange,
+}: LessonMediaProps) {
+  const gate = unavailableLessonGate();
+
+  useReportLessonGate(gate, onGateChange);
+
+  return (
+    <VideoFrame overlay={overlay} flush={flush} tone="grey">
       {lesson.posterUrl && (
         <img src={lesson.posterUrl} alt="" className="size-full object-cover" />
       )}
-      <div className="absolute inset-0 bg-[rgba(10,20,40,0.42)]" />
+      <div className="absolute inset-0 bg-[rgba(10,20,40,0.55)]" />
 
-      {overlay && (
-        <div className="absolute inset-x-0 top-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.7)_0%,rgba(0,0,0,0.35)_60%,transparent_100%)] px-5 pt-4 pb-8">
-          {overlay}
-        </div>
-      )}
-
-      <button
-        type="button"
-        aria-label={isPlaying ? "Pause lesson" : "Play lesson"}
-        onClick={() => setIsPlaying((value) => !value)}
-        className="absolute top-1/2 left-1/2 flex size-18.5 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/95 transition-transform hover:scale-105"
-      >
-        {isPlaying ? (
-          <Pause
-            className="size-6.5 fill-[#1C5DD4] text-[#1C5DD4]"
-            aria-hidden
-          />
-        ) : (
-          <Play
-            className="ml-1 size-6.5 fill-[#1C5DD4] text-[#1C5DD4]"
-            aria-hidden
-          />
-        )}
-      </button>
-
-      <div className="absolute inset-x-0 bottom-0 flex items-center gap-3.5 bg-[linear-gradient(180deg,transparent_0%,rgba(0,0,0,0.6)_100%)] px-5 py-4.5">
-        <span className="text-xs text-white tabular-nums">
-          {lesson.elapsed}
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-8 text-center">
+        <span className="flex size-14 items-center justify-center rounded-full bg-white/95">
+          <Youtube className="size-6.5 text-[#1C5DD4]" aria-hidden />
         </span>
-        <div className="h-1 flex-1 overflow-hidden rounded-sm bg-white/35">
-          <div className="h-full w-0 rounded-sm bg-white" />
-        </div>
-        <span className="text-xs text-white/85 tabular-nums">
-          {lesson.duration}
-        </span>
-        <button
-          type="button"
-          aria-label={isFullscreen ? "Exit full screen" : "Enter full screen"}
-          onClick={toggleFullscreen}
-          className="flex size-7 shrink-0 cursor-pointer items-center justify-center"
-        >
-          {isFullscreen ? (
-            <Minimize2 className="size-4.25 text-white" aria-hidden />
-          ) : (
-            <Maximize2 className="size-4.25 text-white" aria-hidden />
-          )}
-        </button>
+        <p className="text-[15px] font-bold text-white">
+          This video is unavailable
+        </p>
+        <p className="max-w-90 text-sm leading-[1.6] text-white/80">
+          The link on this lesson is not a YouTube video. You can carry on to
+          the next lesson.
+        </p>
       </div>
-    </div>
+    </VideoFrame>
   );
 }

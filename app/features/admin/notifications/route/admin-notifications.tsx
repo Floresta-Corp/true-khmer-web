@@ -5,7 +5,7 @@ import {
   useNavigation,
   useSearchParams,
 } from "react-router";
-import { Bell, CheckCircle2, Flag, ShieldAlert } from "lucide-react";
+import { Bell, CheckCircle2, Flag, Newspaper, ShieldAlert } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { formatRelativeTime } from "~/lib/datetime";
 import { useAdminNotifications } from "~/context/admin-notification-context";
@@ -32,6 +32,7 @@ export function meta() {
 const ADMIN_ICON_COMPONENT_MAP: Record<AdminNotificationIconName, LucideIcon> =
   {
     Flag,
+    Newspaper,
     ShieldAlert,
     Bell,
   };
@@ -39,6 +40,7 @@ const ADMIN_ICON_COMPONENT_MAP: Record<AdminNotificationIconName, LucideIcon> =
 const TYPE_FILTERS = [
   { label: "All", value: "" },
   { label: "Content reports", value: "content_report" },
+  { label: "Khmer Voices", value: "blog" },
   { label: "System", value: "system" },
 ] as const;
 

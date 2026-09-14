@@ -1,7 +1,4 @@
-import {
-  apiRequestWithSession,
-  AuthSessionExpiredError,
-} from "~/lib/server/api-client.server";
+import { apiRequestWithSession } from "~/lib/server/api-client.server";
 
 import type {
   GetSavedItemsResponse,
@@ -79,20 +76,4 @@ export async function unsaveEvent(request: Request, slug: string) {
     `/saved-items/event/${encodeURIComponent(slug)}`,
     { method: "DELETE" },
   );
-}
-
-/**
- * The provider ids of the events this viewer has saved, for seeding the
- * bookmark state on the events pages. Signed-out visitors get an empty list
- * rather than an error, since the listing itself is public.
- */
-export async function getSavedEventIds(request: Request): Promise<string[]> {
-  try {
-    const result = await getSavedItems(request, { type: "event", limit: 100 });
-    return (result?.data?.items ?? []).map((item) => item.itemId);
-  } catch (error) {
-    if (error instanceof AuthSessionExpiredError) return [];
-    console.error("Could not read saved events:", error);
-    return [];
-  }
 }

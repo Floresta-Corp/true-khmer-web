@@ -118,9 +118,9 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
     // { to: "/dashboard", label: "My Journey", icon: Compass },
     { to: "/forum", label: "Forum", icon: MessagesSquare },
     // { to: "/forumv2", label: "Forum V2", icon: MessageSquare },
-    { to: "/events", label: "Events", icon: Calendar },
     { to: "/volunteer", label: "Volunteer", icon: HeartHandshake },
     { to: "/launchpad", label: "Launchpad", icon: BriefcaseBusiness },
+    { to: "/events", label: "Events", icon: Calendar },
     { to: "/education", label: "Education", icon: GraduationCap },
     { to: "/khmer-voices", label: "Khmer Voices", icon: ClipboardPen },
     { to: "/about", label: "About", icon: CircleUser, hide: !!user },
@@ -146,8 +146,10 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
       <header className="sticky top-0 z-50 w-full border-b border-[#f1f5f9] bg-white shadow-sm">
         <div
           className={cn(
-            "flex h-(--navbar-height) items-center justify-between gap-2 md:gap-4",
-            isInSpaceSection ? "w-full px-4 md:px-10" : "site-container",
+            "flex h-(--navbar-height) w-full items-center justify-between gap-2 px-4 transition-[padding] duration-400 ease-out motion-reduce:transition-none md:gap-4",
+            isInSpaceSection
+              ? "md:px-10"
+              : "lg:px-[max(0.5rem,calc((100%-87.5rem)/2+0.5rem))]",
           )}
         >
           {/* Left: Hamburger (mobile) + Logo */}

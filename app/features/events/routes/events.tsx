@@ -1,11 +1,6 @@
 import type { Route } from "./+types/events";
-import {
-  useFetcher,
-  useLoaderData,
-  useNavigate,
-  useNavigation,
-} from "react-router";
-import { useEffect, useState } from "react";
+import { useLoaderData, useNavigate, useNavigation } from "react-router";
+import { useState } from "react";
 import { AlertCircle } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { EventHero } from "~/features/events/components/event-hero";
@@ -32,40 +27,17 @@ export function meta(args: Route.MetaArgs) {
 }
 
 export default function Events() {
-  const { events, savedEventIds, loadError } = useLoaderData<typeof loader>();
+  const { events, loadError } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const navigation = useNavigation();
   const prefersReducedMotion = useReducedMotion();
-  const saveFetcher = useFetcher();
   const [search, setSearch] = useState("");
-  const [savedIds, setSavedIds] = useState<string[]>(savedEventIds);
-
-  useEffect(() => {
-    setSavedIds(savedEventIds);
-  }, [savedEventIds]);
 
   const duration = prefersReducedMotion ? 0 : 0.4;
   const sectionDelay = prefersReducedMotion ? 0 : 0.18;
   const isLoadingEvents =
     navigation.state === "loading" &&
     navigation.location?.pathname === "/events";
-
-  // Optimistic: the bookmark flips straight away and the write goes to the
-  // saved-items resource route, which addresses the event by slug.
-  const toggleSave = (eventId: string) => {
-    const event = events.find((candidate) => candidate.id === eventId);
-    if (!event) return;
-
-    const wasSaved = savedIds.includes(eventId);
-    setSavedIds((current) =>
-      wasSaved ? current.filter((id) => id !== eventId) : [...current, eventId],
-    );
-
-    saveFetcher.submit(
-      { intent: wasSaved ? "unsave" : "save", slug: event.slug },
-      { method: "post", action: "/api/saved-events" },
-    );
-  };
 
   const submitSearch = () => {
     const query = search.trim();
@@ -161,11 +133,7 @@ export default function Events() {
                     }}
                     style={{ willChange: "transform, opacity" }}
                   >
-                    <EventListCard
-                      event={event}
-                      isSaved={savedIds.includes(event.id)}
-                      onToggleSave={toggleSave}
-                    />
+                    <EventListCard event={event} isSaved={event.isFavorite} />
                   </motion.div>
                 ))}
               </motion.div>

@@ -120,7 +120,7 @@ export default function ManagePostingPage() {
 
   return (
     <WorkSpacePageLayout
-      title="Manage Posting"
+      title="Manage Opportunities"
       subtitle="Manage and monitor your active community opportunities postings."
       action={<CreateOpportunityDialog />}
     >

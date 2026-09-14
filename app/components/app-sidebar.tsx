@@ -80,7 +80,11 @@ export default function AppSidebar({
   }, null);
 
   return (
-    <Sidebar collapsible="none" className="h-full border-r bg-white">
+    <Sidebar
+      collapsible="none"
+      className="h-full border-r bg-white"
+      style={{ width: "17.5rem" }}
+    >
       <SidebarHeader className="p-4">
         <div className="flex items-center justify-between gap-2 rounded-2xl border border-[#e2e8f0] p-3">
           <div className="flex min-w-0 items-center gap-2">
@@ -114,7 +118,7 @@ export default function AppSidebar({
                 <SidebarMenuButton
                   asChild
                   isActive={item.id === activeId}
-                  className="rounded-xl p-5 text-[12px] font-normal transition-all data-[active=true]:bg-blue-50 data-[active=true]:text-blue-600"
+                  className="rounded-xl px-3 py-5 text-[12px] font-normal transition-all data-[active=true]:bg-blue-50 data-[active=true]:text-blue-600"
                 >
                   <Link to={item.to}>
                     <item.icon className="size-5 shrink-0" />
@@ -180,7 +184,7 @@ export const workSpaceSidebarConfig: AppSidebarProps = {
   items: [
     {
       id: "managepost",
-      label: "Manage Posting",
+      label: "Manage Opportunities",
       to: "/workspace/manage-post",
       icon: ClipboardList,
     },

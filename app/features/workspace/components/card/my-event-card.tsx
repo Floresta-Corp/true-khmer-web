@@ -69,14 +69,14 @@ export default function MyEventCard({
         damping: 20,
         delay: index * 0.05,
       }}
-      className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl bg-white text-left shadow-[0_1px_3px_rgba(26,26,46,0.06),0_8px_24px_rgba(26,26,46,0.04)] transition-shadow hover:shadow-[0_2px_6px_rgba(26,26,46,0.10),0_12px_32px_rgba(26,26,46,0.08)] focus-visible:ring-2 focus-visible:ring-[#1C5DD4]/40 focus-visible:outline-none disabled:cursor-wait"
+      className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl bg-white text-left shadow-[0_1px_3px_rgba(26,26,46,0.06),0_8px_24px_rgba(26,26,46,0.04)] transition duration-200 hover:-translate-y-[3px] hover:shadow-[0_8px_20px_rgba(26,26,46,0.10)] focus-visible:ring-2 focus-visible:ring-[#1C5DD4]/40 focus-visible:outline-none disabled:cursor-wait"
     >
       <div className="relative h-32.5 shrink-0 bg-[#F5F6F8]">
         {event.thumbnail ? (
           <img
             src={event.thumbnail}
             alt=""
-            className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="size-full object-cover transition-transform"
           />
         ) : (
           <div className="flex size-full items-center justify-center text-[#9A9AB0]">
