@@ -87,6 +87,17 @@ function FeedSection({
   );
 }
 
+function FeedEmpty({ message }: { message: string }) {
+  return (
+    <motion.div
+      variants={slideUpVariants}
+      className="rounded-2xl border border-dashed border-[#e2e8f0] bg-white/60 px-6 py-12 text-center"
+    >
+      <p className="text-sm font-medium text-[#64748b]">{message}</p>
+    </motion.div>
+  );
+}
+
 function OpportunityColumn({
   title,
   seeAllTo,
@@ -105,19 +116,21 @@ function OpportunityColumn({
 }
 
 export function VolunteerFeed({ items }: { items: Opportunity[] }) {
-  if (items.length === 0) return null;
-
   return (
     <FeedSection title="Volunteer opportunities" seeAllTo="/volunteer/all">
-      <div
-        className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-4`}
-      >
-        {items.map((opportunity) => (
-          <motion.div key={opportunity.id} variants={slideUpVariants}>
-            <OpportunityCard opportunity={opportunity} />
-          </motion.div>
-        ))}
-      </div>
+      {items.length === 0 ? (
+        <FeedEmpty message="No volunteer opportunities are open right now. Check back soon." />
+      ) : (
+        <div
+          className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-4`}
+        >
+          {items.map((opportunity) => (
+            <motion.div key={opportunity.id} variants={slideUpVariants}>
+              <OpportunityCard opportunity={opportunity} />
+            </motion.div>
+          ))}
+        </div>
+      )}
     </FeedSection>
   );
 }
@@ -132,37 +145,41 @@ export function LaunchpadFeed({ items }: { items: LaunchpadOpportunity[] }) {
     [navigate],
   );
 
-  if (items.length === 0) return null;
-
   return (
     <FeedSection title="Launchpad openings" seeAllTo="/launchpad/all">
-      <div
-        className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-4`}
-      >
-        {items.map((item) => (
-          <motion.div key={item.id} variants={slideUpVariants}>
-            <LaunchpadProjectCard
-              item={item}
-              onOpenOpportunity={onOpenOpportunity}
-            />
-          </motion.div>
-        ))}
-      </div>
+      {items.length === 0 ? (
+        <FeedEmpty message="No Launchpad openings are listed right now. Check back soon." />
+      ) : (
+        <div
+          className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-4`}
+        >
+          {items.map((item) => (
+            <motion.div key={item.id} variants={slideUpVariants}>
+              <LaunchpadProjectCard
+                item={item}
+                onOpenOpportunity={onOpenOpportunity}
+              />
+            </motion.div>
+          ))}
+        </div>
+      )}
     </FeedSection>
   );
 }
 export function DiscussionFeed({ items }: { items: QuestionResponse[] }) {
-  if (items.length === 0) return null;
-
   return (
     <FeedSection title="Trending discussions" seeAllTo="/forum">
-      <div className="flex flex-col gap-3">
-        {items.slice(0, 2).map((question) => (
-          <motion.div key={question.id} variants={slideUpVariants}>
-            <HomeDiscussionCard question={question} />
-          </motion.div>
-        ))}
-      </div>
+      {items.length === 0 ? (
+        <FeedEmpty message="No discussions are trending yet. Head to the forum to start one." />
+      ) : (
+        <div className="flex flex-col gap-3">
+          {items.slice(0, 2).map((question) => (
+            <motion.div key={question.id} variants={slideUpVariants}>
+              <HomeDiscussionCard question={question} />
+            </motion.div>
+          ))}
+        </div>
+      )}
     </FeedSection>
   );
 }
@@ -172,19 +189,21 @@ export function BlogFeed({
 }: {
   items: PublicBlogPostListingItemResponse[];
 }) {
-  if (items.length === 0) return null;
-
   return (
     <FeedSection title="Latest from Khmer voices" seeAllTo="/khmer-voices">
-      <div
-        className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-4`}
-      >
-        {items.map((post) => (
-          <motion.div key={post.id} variants={slideUpVariants}>
-            <PublicBlogCard post={post} />
-          </motion.div>
-        ))}
-      </div>
+      {items.length === 0 ? (
+        <FeedEmpty message="No stories have been published yet. Check back soon." />
+      ) : (
+        <div
+          className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-4`}
+        >
+          {items.map((post) => (
+            <motion.div key={post.id} variants={slideUpVariants}>
+              <PublicBlogCard post={post} />
+            </motion.div>
+          ))}
+        </div>
+      )}
     </FeedSection>
   );
 }
@@ -193,8 +212,6 @@ export function CoursesFeed({ items }: { items: CourseSummary[] }) {
   const [savedIds, setSavedIds] = useState<Set<string>>(
     () => new Set(items.filter((course) => course.isSaved).map((c) => c.id)),
   );
-
-  if (items.length === 0) return null;
 
   const toggleSave = (courseId: string) => {
     setSavedIds((current) => {
@@ -210,19 +227,23 @@ export function CoursesFeed({ items }: { items: CourseSummary[] }) {
       title="Trending classes"
       seeAllTo="/education/all?sort=popular"
     >
-      <div
-        className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-4`}
-      >
-        {items.map((course) => (
-          <motion.div key={course.id} variants={slideUpVariants}>
-            <CourseCard
-              course={course}
-              isSaved={savedIds.has(course.id)}
-              onToggleSave={toggleSave}
-            />
-          </motion.div>
-        ))}
-      </div>
+      {items.length === 0 ? (
+        <FeedEmpty message="No classes are trending right now. Check back soon." />
+      ) : (
+        <div
+          className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-4`}
+        >
+          {items.map((course) => (
+            <motion.div key={course.id} variants={slideUpVariants}>
+              <CourseCard
+                course={course}
+                isSaved={savedIds.has(course.id)}
+                onToggleSave={toggleSave}
+              />
+            </motion.div>
+          ))}
+        </div>
+      )}
     </FeedSection>
   );
 }
@@ -231,8 +252,6 @@ export function EventsFeed({ items }: { items: EventListItem[] }) {
   const [savedIds, setSavedIds] = useState<string[]>(() =>
     items.filter((event) => event.isFavorite).map((event) => event.id),
   );
-
-  if (items.length === 0) return null;
 
   const toggleSave = (eventId: string) => {
     setSavedIds((current) =>
@@ -244,19 +263,23 @@ export function EventsFeed({ items }: { items: EventListItem[] }) {
 
   return (
     <FeedSection title="Upcoming events" seeAllTo="/events/all">
-      <div
-        className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-4`}
-      >
-        {items.map((event) => (
-          <motion.div key={event.id} variants={slideUpVariants}>
-            <EventListCard
-              event={event}
-              isSaved={savedIds.includes(event.id)}
-              onToggleSave={toggleSave}
-            />
-          </motion.div>
-        ))}
-      </div>
+      {items.length === 0 ? (
+        <FeedEmpty message="No upcoming events are scheduled right now. Check back soon." />
+      ) : (
+        <div
+          className={`grid grid-cols-1 ${CARD_GAP} sm:grid-cols-2 lg:grid-cols-4`}
+        >
+          {items.map((event) => (
+            <motion.div key={event.id} variants={slideUpVariants}>
+              <EventListCard
+                event={event}
+                isSaved={savedIds.includes(event.id)}
+                onToggleSave={toggleSave}
+              />
+            </motion.div>
+          ))}
+        </div>
+      )}
     </FeedSection>
   );
 }
