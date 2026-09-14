@@ -40,6 +40,7 @@ import {
   type RegisterFormValues,
 } from "~/routes/auth/domain/register-schema";
 import type { RegisterActionData } from "~/routes/auth/domain/auth.types";
+import LogoSvg from "~/components/icons/logoSvg";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import { Checkbox } from "~/components/ui/checkbox";
@@ -217,7 +218,6 @@ export default function RegisterPage() {
     defaultValues,
   });
 
-  const participation = watch("participation");
   const phoneCountry = watch("phoneCountry");
   const gender = watch("gender");
   const agreeToDirectory = watch("agreeToDirectory");
@@ -316,69 +316,25 @@ export default function RegisterPage() {
       backTo={back.to}
       backLabel={back.label}
       leftSectionClassName="items-start justify-center px-6 py-10 short:py-6 sm:px-10 lg:px-8 lg:py-0 xl:px-12"
-      contentClassName="max-w-md pb-10 pt-20 short:pt-14 short:pb-6 lg:pt-40"
-      backLinkClassName="left-6 top-8 text-sm font-semibold normal-case tracking-normal text-[#1C5DD4] hover:text-[#164CB0] short:top-6 sm:left-10 lg:left-1/2 lg:top-24 lg:-translate-x-56"
+      contentClassName="max-w-md pb-10 pt-20 short:pt-14 short:pb-6 lg:pt-36 xl:pt-40"
+      backLinkClassName="left-6 top-8 text-sm font-semibold normal-case tracking-normal text-[#1C5DD4] hover:text-[#164CB0] short:top-6 sm:left-10 lg:left-1/2 lg:top-16 lg:-translate-x-56 xl:top-24"
       backIconClassName="h-auto w-auto rounded-none border-0"
       rightPanelContent={<RegisterBrandPanel />}
       rightPanelContentClassName="items-stretch justify-stretch text-left"
       showRightPanelOverlay={false}
     >
-      <div className="space-y-8 short:space-y-6">
-        <header className="space-y-2">
+      <div className="space-y-6">
+        <header className="space-y-2 text-center">
+          <Link to="/" className="mx-auto block w-fit" aria-label="True Khmer">
+            <LogoSvg width={150} height={60} />
+          </Link>
           <h1 className="text-3xl leading-9 font-bold text-[#111827] short:text-2xl">
             Create Your Account
           </h1>
           <p className="text-base leading-6 font-normal text-[#4B5563]">
-            Please choose your participation type
+            Please enter your details to get started.
           </p>
         </header>
-
-        <div className="grid grid-cols-2 rounded-2xl bg-[#ECEDF8] p-1">
-          <Button
-            type="button"
-            onClick={() =>
-              setValue("participation", "member", { shouldDirty: true })
-            }
-            variant="ghost"
-            className={cn(
-              "h-10 rounded-xl px-4 py-2 text-sm leading-5 font-semibold transition-colors",
-              participation === "member"
-                ? "bg-white text-[#0046AC] shadow-sm"
-                : "text-[#434654]",
-            )}
-          >
-            Member
-          </Button>
-          <Button
-            type="button"
-            onClick={() =>
-              setValue("participation", "partner", { shouldDirty: true })
-            }
-            variant="ghost"
-            className={cn(
-              "h-10 rounded-xl px-4 py-2 text-sm leading-5 font-semibold transition-colors",
-              participation === "partner"
-                ? "bg-white text-[#0046AC] shadow-sm"
-                : "text-[#434654]",
-            )}
-          >
-            Partner
-          </Button>
-        </div>
-
-        <GoogleAuthButton
-          className="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3 text-base font-semibold text-[#111827] shadow-sm hover:bg-[#F9FAFB] short:h-11"
-          redirectTo={redirectTo}
-          waitlistId={hasWaitlistInvite ? appliedWaitlistId : undefined}
-          onError={setGoogleError}
-        />
-
-        <FormDivider
-          label="or"
-          className="py-4 short:py-1"
-          lineClassName="bg-[#E5E7EB]"
-          labelClassName="text-sm font-normal normal-case tracking-normal text-[#4B5563]"
-        />
 
         <div ref={errorAnchorRef} className="space-y-4 empty:hidden">
           <FormError message={googleError} />
@@ -589,23 +545,44 @@ export default function RegisterPage() {
             {isSubmitting ? (
               <>
                 <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                Joining as {participation}...
+                Creating account...
               </>
             ) : (
-              `Join as ${participation}`
+              "Create Account"
             )}
           </Button>
         </Form>
 
-        <p className="text-center text-base leading-6 font-normal text-gray-700 short:text-sm">
-          Already have an account?{" "}
-          <Link
-            to={withRedirectTo("/login", searchParams.get("redirectTo"))}
-            className="font-bold text-[#1C5DD4] transition-colors hover:text-[#164CB0]"
-          >
-            Sign In
-          </Link>
-        </p>
+        <div className="space-y-6">
+          <FormDivider
+            label="or"
+            lineClassName="bg-[#E5E7EB]"
+            labelClassName="text-sm font-normal normal-case tracking-normal text-[#4B5563]"
+          />
+
+          <GoogleAuthButton
+            className="h-12 rounded-lg border-[#E5E7EB] bg-white px-4 py-3 text-base font-semibold text-[#111827] shadow-sm hover:bg-[#F9FAFB] short:h-11"
+            redirectTo={redirectTo}
+            waitlistId={hasWaitlistInvite ? appliedWaitlistId : undefined}
+            onError={setGoogleError}
+          />
+
+          <p className="text-center text-sm leading-5 font-normal text-[#4B5563]">
+            Already have an account?{" "}
+            <Link
+              to={withRedirectTo("/login", searchParams.get("redirectTo"))}
+              className="group font-semibold text-[#1C5DD4] no-underline transition-colors duration-200 hover:text-[#164CB0] hover:no-underline"
+            >
+              <span className="relative">
+                Sign In
+                <span
+                  aria-hidden
+                  className="absolute -bottom-0.5 left-0 h-px w-full origin-center scale-x-0 rounded-full bg-current transition-transform duration-200 ease-out group-hover:scale-x-100"
+                />
+              </span>
+            </Link>
+          </p>
+        </div>
       </div>
     </AuthPageShell>
   );
