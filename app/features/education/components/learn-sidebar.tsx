@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { BackLink } from "~/components/back-link";
 import {
   Award,
   Check,
@@ -17,7 +18,6 @@ interface LearnSidebarProps {
   course: CourseDetail;
   activeLessonId: string;
   completedLessonIds: Set<string>;
-  /** Whether the learner has reached this lesson yet. */
   isLessonUnlocked: (lesson: CourseLesson) => boolean;
   openSectionIds: Set<string>;
   onToggleSection: (sectionId: string) => void;
@@ -49,13 +49,13 @@ export function LearnSidebar({
   return (
     <div className="flex h-full w-95 shrink-0 flex-col border-r border-[#E5E7EB] bg-white">
       <div className="border-b border-[#E5E7EB] px-5 py-3.5">
-        <Link
+        <BackLink
           to={`/education/${course.id}`}
           className="inline-flex min-w-0 items-center gap-1.5 text-sm font-semibold text-[#1C5DD4] transition-colors hover:underline"
         >
           <ChevronLeft className="size-4 shrink-0" aria-hidden />
           <span className="truncate">Back to course</span>
-        </Link>
+        </BackLink>
       </div>
 
       <div className="flex items-center justify-between border-b border-[#E5E7EB] px-5 py-4.5">
@@ -97,11 +97,6 @@ export function LearnSidebar({
 
       <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-color:#BBBBBB_transparent] [scrollbar-width:thin]">
         {course.curriculum.map((section) => {
-          /* A section opens once it holds something the learner may open: the
-             lessons walk in order, so a section either sits behind the
-             frontier, holds it, or is entirely past it. An empty section has
-             nothing to gate. Derived from the lesson locks rather than being
-             gated separately, so the two cannot disagree. */
           const isSectionLocked =
             section.lessons.length > 0 &&
             !section.lessons.some(isLessonUnlocked);
@@ -215,9 +210,6 @@ export function LearnSidebar({
                     </span>
                   );
 
-                  /* Rendered as plain text rather than a dimmed link: a locked
-                     lesson has had its media withheld, so a link would lead to
-                     a player with nothing in it. */
                   if (isLocked) {
                     return (
                       <div
@@ -236,6 +228,7 @@ export function LearnSidebar({
                     <Link
                       key={lesson.id}
                       to={`/education/${course.id}/learn?lesson=${lesson.id}`}
+                      replace
                       className={cn(
                         "flex items-start gap-3 px-5 py-3 transition-colors",
                         isActive ? "bg-[#EFF4FE]" : "hover:bg-[#F5F6F8]",
