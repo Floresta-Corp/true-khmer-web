@@ -95,9 +95,10 @@ export default function CreateEventOrganizerSelect({
   if (organizers.length === 0) {
     return (
       <section
+        aria-invalid={Boolean(error)}
         className={cn(
           "rounded-[10px] border bg-white p-4",
-          error ? "border-red-500" : "border-[#E1E7EF]",
+          error ? "border-red-500 ring-2 ring-red-500/20" : "border-[#E1E7EF]",
         )}
       >
         {label}
@@ -113,12 +114,15 @@ export default function CreateEventOrganizerSelect({
     <section
       className={cn(
         "rounded-[10px] border bg-white",
-        error ? "border-red-500" : "border-[#E1E7EF]",
+        error ? "border-red-500 ring-2 ring-red-500/20" : "border-[#E1E7EF]",
       )}
     >
       <DropdownMenu>
         {/* The trigger spans the whole card so the menu can match its width. */}
-        <DropdownMenuTrigger className="w-full cursor-pointer rounded-[10px] p-4 text-left transition-colors hover:bg-slate-50/70 focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:outline-none">
+        <DropdownMenuTrigger
+          aria-invalid={Boolean(error)}
+          className="w-full cursor-pointer rounded-[10px] p-4 text-left transition-colors hover:bg-slate-50/70 focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:outline-none"
+        >
           {label}
           <span className="mt-2.5 flex items-center gap-3.5">
             <OrganizerRow organizer={selected} subtitle={SUBTITLE} />

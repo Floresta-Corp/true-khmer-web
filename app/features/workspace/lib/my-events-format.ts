@@ -127,24 +127,6 @@ export function formatMyEventTickets(
   return ticketCapacity === null ? `${sold}` : `${sold}/${ticketCapacity}`;
 }
 
-/** Every required field of the basics step is filled in. */
-export function isCreateEventFormComplete(form: CreateEventFormState): boolean {
-  return Boolean(
-    form.name.trim() &&
-    form.organizerId &&
-    form.category &&
-    form.description.trim() &&
-    form.format === "IN_PERSON" &&
-    form.eventDates.length > 0 &&
-    form.eventDates.every(
-      (eventDate) => eventDate.date && eventDate.startTime && eventDate.endTime,
-    ) &&
-    (form.venueId || form.venueName.trim()) &&
-    form.googleMapLink.trim() &&
-    form.coverImageName,
-  );
-}
-
 /** Convert the browser-local date/time inputs to the API's UTC timestamps. */
 export function getCreateEventDateRange(eventDate: CreateEventDateInput) {
   const start = new Date(`${eventDate.date}T${eventDate.startTime}:00`);
