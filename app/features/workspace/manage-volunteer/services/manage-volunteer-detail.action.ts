@@ -87,7 +87,6 @@ export async function manageVolunteerDetailAction({
 
   if (actionType === "note") {
     const candidateId = String(formData.get("candidateId") ?? "").trim();
-    const notePostingId = String(formData.get("postingId") ?? "").trim();
     const note = String(formData.get("note") ?? "").trim();
 
     if (!candidateId) {
@@ -97,7 +96,7 @@ export async function manageVolunteerDetailAction({
       );
     }
 
-    if (!notePostingId) {
+    if (!postingId) {
       return respond(
         { ok: false, message: "Posting ID is required." },
         { status: 400 },
@@ -109,7 +108,7 @@ export async function manageVolunteerDetailAction({
     try {
       const res = await updateApplicantNote(
         request,
-        notePostingId,
+        postingId,
         candidateId,
         body,
       );

@@ -40,7 +40,7 @@ type Props = {
   onApplicantNoteSaved?: (candidateId: string, note: string) => void;
   onApplicantDeclined?: (
     candidateId: string,
-    options: { blocked: boolean },
+    options: { blocked: boolean; declinedApplicationIds: string[] },
   ) => void;
   onClose: () => void;
   candidateId: string;
@@ -71,7 +71,9 @@ export default function ApplicantSideBar({
 
   const isNew = overallStatus === "new";
 
-  const noteFetcher = useFetcher<string | null>();
+  const noteFetcher = useFetcher<string | null>({
+    key: `volunteer-note-${postingId}-${candidateId}`,
+  });
   useEffect(() => {
     if (!applicant?.candidate?.id) return;
     noteFetcher.load(
@@ -207,6 +209,7 @@ export default function ApplicantSideBar({
 
                 {/* Private Note */}
                 <ApplicantNoteAction
+                  key={applicant.candidate.id}
                   postingId={postingId}
                   candidateId={applicant.candidate.id}
                   existingNote={existingNote}

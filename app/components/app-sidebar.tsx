@@ -164,6 +164,7 @@ const workspaceNavItems: SidebarNavItem[] = [
     label: "My Launchpad",
     to: "/workspace/launchpad",
     icon: ClipboardList,
+    matchPaths: ["/workspace/projects"],
   },
   {
     id: "discussion",

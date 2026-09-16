@@ -153,7 +153,7 @@ export default [
         "features/workspace/manage-volunteer/route/manage-volunteer.$id.tsx",
       ),
       route(
-        "workspace/launchpad/:id",
+        "workspace/projects/:id",
         "features/workspace/manage-launchpad/route/manage-launchpad.$id.tsx",
       ),
     ]),

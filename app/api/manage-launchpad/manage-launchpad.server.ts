@@ -1,5 +1,8 @@
 import { GetLaunchpadDetail } from "~/api/launchpad/launchpad.server";
-import { apiRequestWithSession } from "~/lib/server/api-client.server";
+import {
+  apiRequestWithSession,
+  ProtectedApiError,
+} from "~/lib/server/api-client.server";
 import type {
   ApplicantFilter,
   ApplicantStatusAction,
@@ -116,11 +119,24 @@ export async function declineApplicantStatus(
   );
 }
 
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function requireUuid(value: string, label: string) {
+  if (!UUID_PATTERN.test(value)) {
+    throw new ProtectedApiError(`Invalid ${label}.`, 400);
+  }
+  return value;
+}
+
 export async function getCandidateNote(
   request: Request,
   postingId: string,
   candidateId: string,
 ) {
+  requireUuid(postingId, "postingId");
+  requireUuid(candidateId, "candidateId");
+
   return apiRequestWithSession<DetailCandidateResponse>(
     request,
     `/workspace/manage-posting/projects/${postingId}/${candidateId}`,
@@ -150,15 +166,10 @@ export async function getPostingSuspension(
   request: Request,
   postingId: string,
 ): Promise<PostingSuspension | null> {
-  try {
-    const launchpad = await GetLaunchpadDetail(postingId, request);
-    if (!launchpad) return null;
-
-    return {
-      suspendedAt: launchpad.suspendedAt ?? null,
-      suspensionReason: launchpad.suspensionReason ?? null,
-    };
-  } catch {
-    return null;
-  }
+  const launchpad = await GetLaunchpadDetail(postingId, request);
+  if (!launchpad) return null;
+  return {
+    suspendedAt: launchpad.suspendedAt ?? null,
+    suspensionReason: launchpad.suspensionReason ?? null,
+  };
 }

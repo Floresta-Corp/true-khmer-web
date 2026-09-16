@@ -78,8 +78,7 @@ export default function ManagePostOption({
   const wasExtendingDeadline = useRef(false);
 
   const editRoute = `/launchpad/edit/${postingId}`;
-  // The card renders outside the detail route, so actions target it explicitly.
-  const detailRoute = `/workspace/launchpad/${postingId}`;
+  const detailRoute = `/workspace/projects/${postingId}`;
 
   const handleAction = (postingAction: UpdateManagePostResponse) => {
     wasPostingAction.current = true;

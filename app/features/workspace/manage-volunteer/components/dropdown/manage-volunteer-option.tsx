@@ -263,13 +263,13 @@ export default function ManagePostOption({
                 <Pencil size={16} className="text-slate-400" />
                 Edit Posting
               </DropdownMenuItem>
-              <DropdownMenuItem
+              {/* <DropdownMenuItem
                 // onClick={() => handleAction("")}
                 className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-slate-700"
               >
                 <Globe size={16} className="text-slate-400" />
                 Publish
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               <DropdownMenuSeparator className="my-1" />
               <DropdownMenuItem
                 onClick={() => handleAction("delete")}

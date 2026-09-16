@@ -71,7 +71,9 @@ export default function ApplicantSideBar({
 
   const isNew = overallStatus === "new";
 
-  const noteFetcher = useFetcher<string | null>();
+  const noteFetcher = useFetcher<string | null>({
+    key: `launchpad-note-${postingId}-${candidateId}`,
+  });
   useEffect(() => {
     if (!applicant?.candidate?.id) return;
     noteFetcher.load(
@@ -207,6 +209,7 @@ export default function ApplicantSideBar({
 
                 {/* Private Note */}
                 <ApplicantNoteAction
+                  key={applicant.candidate.id}
                   postingId={postingId}
                   candidateId={applicant.candidate.id}
                   existingNote={existingNote}

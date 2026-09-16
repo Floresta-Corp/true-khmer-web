@@ -1,3 +1,4 @@
+import * as z from "zod";
 import { getOpportunityById } from "~/api/volunteer/volunteer.opportunities.server";
 import { apiRequestWithSession } from "~/lib/server/api-client.server";
 import type {
@@ -11,6 +12,8 @@ import type {
   PrivateNoteInput,
   UpdateManagePostResponse,
 } from "~/features/workspace/manage-volunteer/types";
+
+export const UuidSchema = z.uuid();
 
 export interface ManagePostParams {
   search?: string;
@@ -121,6 +124,9 @@ export async function getCandidateNote(
   postingId: string,
   candidateId: string,
 ) {
+  if (!UuidSchema.safeParse(postingId).success) return null;
+  if (!UuidSchema.safeParse(candidateId).success) return null;
+
   return apiRequestWithSession<DetailCandidateResponse>(
     request,
     `/workspace/manage-posting/volunteer/${postingId}/${candidateId}`,

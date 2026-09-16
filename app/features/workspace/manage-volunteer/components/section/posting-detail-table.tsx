@@ -339,13 +339,37 @@ export default function ManagePostingDetailTable({
         onClose={() => setSelectedApplicant(null)}
         postingId={postingId}
         candidateId={selectedApplicant?.candidate.id ?? ""}
-        onApplicantDeclined={(candidateId, { blocked }) => {
+        onApplicantDeclined={(
+          candidateId,
+          { blocked, declinedApplicationIds },
+        ) => {
+          const declined = new Set(declinedApplicationIds);
           setLocalApplicants((current) =>
-            current.map((a) =>
-              a.candidate.id === candidateId
-                ? { ...a, overallStatus: "DECLINED" }
-                : a,
-            ),
+            current.map((a) => {
+              if (a.candidate.id !== candidateId) return a;
+
+              const submissions = a.submissions.map((submission) => ({
+                ...submission,
+                roles: submission.roles.map((role) =>
+                  declined.has(role.applicationId)
+                    ? { ...role, status: "DECLINED" as const }
+                    : role,
+                ),
+              }));
+              const allRoles = submissions.flatMap((s) => s.roles);
+              const isFullyDeclined =
+                allRoles.length > 0 &&
+                allRoles.every(
+                  (role) =>
+                    role.status === "DECLINED" || role.status === "WITHDRAWN",
+                );
+
+              return {
+                ...a,
+                submissions,
+                overallStatus: isFullyDeclined ? "DECLINED" : a.overallStatus,
+              };
+            }),
           );
           if (blocked) {
             setBlockedCandidateIds((prev) => {

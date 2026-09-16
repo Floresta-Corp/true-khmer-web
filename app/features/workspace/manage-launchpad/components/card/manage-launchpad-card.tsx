@@ -40,7 +40,7 @@ type Props = {
 
 export default function ManagePostCard({ posting, index = 0 }: Props) {
   const navigate = useNavigate();
-  const cardHref = `/workspace/launchpad/${posting.id}`;
+  const cardHref = `/workspace/projects/${posting.id}`;
   const imageUrl = resolveImageURL(posting.imageKey ?? undefined);
   const isCompleted = posting.status === "COMPLETED";
 
