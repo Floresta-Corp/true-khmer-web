@@ -64,6 +64,13 @@ async function oauthLogout(request: Request) {
   } satisfies OAuthLoginActionData);
 }
 
+// The popup has no "remember me" checkbox — it is a one-shot window the user
+// closes as soon as consent is given, so asking there would be noise. Signing
+// in through it is treated as a deliberate sign-in and persists like a checked
+// box would, rather than dying with the popup and leaving the user signed out
+// of the site they just authorized.
+const OAUTH_REMEMBER_ME = true;
+
 // The authorization URL to come back to once a detour finishes. Only a path
 // back into this same OAuth request carrying the resume flag is accepted, so a
 // tampered field cannot turn the two-factor page into an open redirect.
@@ -124,7 +131,7 @@ export async function OauthLoginAction({ request }: Route.ActionArgs) {
           twoFactorToken: auth.twoFactorToken,
           methods: auth.twoFactorMethods,
           expiresAt: new Date(Date.now() + auth.expiresIn * 1000).toISOString(),
-          rememberMe: false,
+          rememberMe: OAUTH_REMEMBER_ME,
         },
         `/oauth/2fa?redirectTo=${encodeURIComponent(returnTo)}`,
       );
@@ -142,7 +149,9 @@ export async function OauthLoginAction({ request }: Route.ActionArgs) {
 
     // Save the login into the normal site session, same as any other login —
     // the popup just renders the result inline instead of redirecting.
-    const sessionHeaders = await commitAuthToSession(request, auth);
+    const sessionHeaders = await commitAuthToSession(request, auth, {
+      rememberMe: OAUTH_REMEMBER_ME,
+    });
     const setCookie = sessionHeaders.get("Set-Cookie") ?? undefined;
 
     return withAuthData({ setCookie }, success);
