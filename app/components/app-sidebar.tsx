@@ -5,6 +5,7 @@ import {
   ClipboardList,
   FileUser,
   GraduationCap,
+  HandHeart,
   MessagesSquare,
   PenLine,
   Ticket,
@@ -153,9 +154,15 @@ export default function AppSidebar({
 
 const workspaceNavItems: SidebarNavItem[] = [
   {
-    id: "managepost",
-    label: "Manage Opportunities",
-    to: "/workspace/manage-post",
+    id: "managevolunteer",
+    label: "My Volunteer",
+    to: "/workspace/volunteer",
+    icon: HandHeart,
+  },
+  {
+    id: "managelaunchpad",
+    label: "My Launchpad",
+    to: "/workspace/launchpad",
     icon: ClipboardList,
   },
   {
@@ -215,7 +222,7 @@ export const mySpaceSidebarConfig: AppSidebarProps = {
     },
   ],
   footer: {
-    to: "/workspace/manage-post",
+    to: "/workspace/volunteer",
     label: "Switch to Workspace",
     className: "bg-[#32A8FF] [a]:hover:bg-[#1E90FF]",
     spaceId: "workspace",

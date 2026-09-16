@@ -105,7 +105,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
           isSection: true,
         }
       : {
-          to: "/workspace/manage-post",
+          to: "/workspace/volunteer",
           label: "Workspace",
           icon: LayoutDashboard,
           forceActive: isInWorkspace,
