@@ -22,7 +22,6 @@ import CreateEventReview from "../create-event/create-event-review";
 import CreateEventTopBar from "../create-event/create-event-top-bar";
 import {
   getCreateEventDateRanges,
-  isCreateEventFormComplete,
   isOpenEntryDisabled,
 } from "~/features/workspace/lib/my-events-format";
 import { hasInvalidCreateEventDates } from "~/features/workspace/lib/create-event-dates";
@@ -71,7 +70,13 @@ export default function CreateEventPage() {
   const [createdEventId, setCreatedEventId] = useState("");
   const [autosaveStatus, setAutosaveStatus] =
     useState<AutosaveStatusValue>("loading");
+  /**
+   * Bumped on every failed validation so the effect below re-runs and moves the
+   * creator to the first highlighted field, even when the same fields fail again.
+   */
+  const [errorFocusToken, setErrorFocusToken] = useState(0);
   const [autosaveLabel, setAutosaveLabel] = useState("Restoring draft...");
+  const basicsRef = useRef<HTMLDivElement>(null);
   const objectUrlRef = useRef<string | null>(null);
   const handledResultRef = useRef<CreateEventActionData | null>(null);
   const restoreCompletedRef = useRef(false);
@@ -89,7 +94,6 @@ export default function CreateEventPage() {
       failureMessage: "The created event could not be opened in Plumpi.",
     });
 
-  const isComplete = isCreateEventFormComplete(form);
   const isSubmitting = fetcher.state !== "idle";
   const isCreatingDraft =
     isSubmitting && fetcher.formData?.get("intent") === "create-draft";
@@ -100,6 +104,23 @@ export default function CreateEventPage() {
       if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
     };
   }, []);
+
+  // Scroll the first field the creator still has to fix into view once the
+  // errors have been painted.
+  useEffect(() => {
+    if (!errorFocusToken || step !== "basics") return;
+
+    const field = basicsRef.current?.querySelector<HTMLElement>(
+      '[aria-invalid="true"]',
+    );
+    if (!field) return;
+
+    field.scrollIntoView({
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+      block: "center",
+    });
+    field.focus({ preventScroll: true });
+  }, [errorFocusToken, prefersReducedMotion, step]);
 
   useEffect(() => {
     if (restoreCompletedRef.current) return;
@@ -380,6 +401,7 @@ export default function CreateEventPage() {
         "Check that every end time is after its start time";
     }
     setErrors(nextErrors);
+    setErrorFocusToken((token) => token + 1);
     return false;
   };
 
@@ -412,8 +434,10 @@ export default function CreateEventPage() {
   };
 
   const handleReview = () => {
+    // The button stays enabled on an incomplete form so the missing fields can
+    // be named instead of leaving the creator to guess what is blocking them.
     if (!validate()) {
-      toast.error("Please complete the required fields.");
+      toast.error("Please complete the highlighted required fields.");
       return;
     }
     goToStep("review");
@@ -421,7 +445,10 @@ export default function CreateEventPage() {
 
   const handleSaveDraft = () => {
     if (!validate()) {
-      toast.error("Please complete the required fields before saving.");
+      // A value can go stale while the review step is open, so send the creator
+      // back to the fields that now need fixing.
+      goToStep("basics");
+      toast.error("Please complete the highlighted required fields.");
       return;
     }
     submitDraft();
@@ -480,7 +507,7 @@ export default function CreateEventPage() {
                   and other full setup, you&apos;ll continue in Plumpi.
                 </p>
 
-                <div className="space-y-6">
+                <div ref={basicsRef} className="space-y-6">
                   <CreateEventOrganizerSelect
                     organizers={organizers}
                     selectedOrganizerId={form.organizerId}
@@ -509,7 +536,7 @@ export default function CreateEventPage() {
                 <div className="mt-7 flex flex-wrap justify-end gap-3">
                   <Button
                     type="button"
-                    disabled={!isComplete || isSubmitting}
+                    disabled={isSubmitting}
                     onClick={handleReview}
                     className="h-11 rounded-lg bg-blue-600 px-6.5 text-sm font-bold text-white hover:bg-blue-700"
                   >
