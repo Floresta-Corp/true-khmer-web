@@ -8,13 +8,16 @@ import {
 import { withAuthData } from "~/lib/server/auth-response.server";
 import {
   commitAuthToSession,
+  createPendingTwoFactorLogin,
   destroySession,
   getSession,
 } from "~/lib/server/session.server";
+import { isOAuthResumeRedirect, sanitizeRedirectPath } from "~/lib/redirects";
 import { toOAuthSessionUser } from "../lib/oauth-user";
 import { oauthLoginSchema } from "../lib/oauth-login-schema";
 import {
   OAUTH_LOGOUT_INTENT,
+  OAUTH_RETURN_TO_FIELD,
   type OAuthLoginActionData,
   type OAuthLoginFieldErrors,
 } from "../types";
@@ -61,6 +64,17 @@ async function oauthLogout(request: Request) {
   } satisfies OAuthLoginActionData);
 }
 
+// The authorization URL to come back to once a detour finishes. Only a path
+// back into this same OAuth request carrying the resume flag is accepted, so a
+// tampered field cannot turn the two-factor page into an open redirect.
+function readOAuthReturnTo(formData: FormData) {
+  const returnTo = sanitizeRedirectPath(
+    formData.get(OAUTH_RETURN_TO_FIELD)?.toString(),
+  );
+
+  return isOAuthResumeRedirect(returnTo) ? returnTo : null;
+}
+
 export async function OauthLoginAction({ request }: Route.ActionArgs) {
   const formData = await request.formData();
 
@@ -88,12 +102,32 @@ export async function OauthLoginAction({ request }: Route.ActionArgs) {
   try {
     const auth = await loginUser(email, password, request);
 
+    // No tokens yet — the account wants a second factor. Park the challenge in
+    // its own short-lived cookie and send this window to `/oauth/2fa`, which
+    // runs the main login's two-factor step inside the popup card. Verifying
+    // there writes `__session` and redirects back to this exact OAuth request,
+    // where the loader picks the session up and the consent card takes over.
     if (isTwoFactorRequiredResponse(auth)) {
-      return {
-        errors: {
-          form: "This account has two-factor authentication enabled. Please sign in from the main login page first, then reopen this window.",
+      const returnTo = readOAuthReturnTo(formData);
+
+      if (!returnTo) {
+        return {
+          errors: {
+            form: "This account has two-factor authentication enabled. Please sign in from the main login page first, then reopen this window.",
+          },
+        } satisfies OAuthLoginActionData;
+      }
+
+      return createPendingTwoFactorLogin(
+        request,
+        {
+          twoFactorToken: auth.twoFactorToken,
+          methods: auth.twoFactorMethods,
+          expiresAt: new Date(Date.now() + auth.expiresIn * 1000).toISOString(),
+          rememberMe: false,
         },
-      } satisfies OAuthLoginActionData;
+        `/oauth/2fa?redirectTo=${encodeURIComponent(returnTo)}`,
+      );
     }
 
     const success = {
