@@ -17,7 +17,7 @@ type PrivateRule = {
   match: RegExp;
 };
 
-/** `Disallow: /workspace` already covers `/workspace/manage-post`. */
+/** `Disallow: /workspace` already covers `/workspace/volunteer` and the rest. */
 function prefix(path: string): PrivateRule {
   return { path, match: new RegExp(`^${path}(/|$)`, "i") };
 }

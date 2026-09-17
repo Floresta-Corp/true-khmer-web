@@ -105,8 +105,12 @@ export default [
       route("workspace", "features/workspace/route/workspace.tsx"),
       route("my-events", "features/workspace/route/my-events.tsx"),
       route(
-        "workspace/manage-post",
-        "features/workspace/manage-post/route/manage-post.tsx",
+        "workspace/volunteer",
+        "features/workspace/manage-volunteer/route/manage-volunteer.tsx",
+      ),
+      route(
+        "workspace/launchpad",
+        "features/workspace/manage-launchpad/route/manage-launchpad.tsx",
       ),
       route(
         "workspace/khmer-voices",
@@ -145,8 +149,12 @@ export default [
         "features/course-manage/route/course-manage.$id.reviews.ts",
       ),
       route(
-        "workspace/manage-post/:sourceType/:id",
-        "features/workspace/manage-post/route/manage-post.$sourceType.$id.tsx",
+        "workspace/volunteer/:id",
+        "features/workspace/manage-volunteer/route/manage-volunteer.$id.tsx",
+      ),
+      route(
+        "workspace/projects/:id",
+        "features/workspace/manage-launchpad/route/manage-launchpad.$id.tsx",
       ),
     ]),
     route("notifications", "features/notifications/route/notifications.tsx"),
@@ -391,8 +399,12 @@ export default [
     "features/admin/notifications/route/admin-notifications.read.all.ts",
   ),
   route(
-    "api/candidate-note",
-    "features/workspace/manage-post/route/manage-post.candidate-note.ts",
+    "api/volunteer-candidate-note",
+    "features/workspace/manage-volunteer/route/manage-volunteer.candidate-note.ts",
+  ),
+  route(
+    "api/launchpad-candidate-note",
+    "features/workspace/manage-launchpad/route/manage-launchpad.candidate-note.ts",
   ),
   /* Crawler-facing resource routes. Outside every layout: these serve plain
      text and XML, not documents, and they must sit above the catch-all. */
