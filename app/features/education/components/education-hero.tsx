@@ -26,7 +26,7 @@ export function EducationHero({
             alt=""
             className="size-9 shrink-0 object-contain"
           />
-          <span className="text-[13px] font-bold tracking-[0.08em] text-[#1C5DD4]">
+          <span className="text-[13px] font-bold tracking-[0.08em] text-[#32A8FF]">
             TRUE KHMER LEARNING
           </span>
         </div>
@@ -35,7 +35,7 @@ export function EducationHero({
           Hello {displayName},
           <br />
           Ready to grow your{" "}
-          <span className="font-bold text-[#1C5DD4]">skills?</span>
+          <span className="font-bold text-[#32A8FF]">skills?</span>
         </h1>
 
         <form
