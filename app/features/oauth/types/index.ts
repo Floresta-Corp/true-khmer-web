@@ -43,3 +43,10 @@ export type OAuthHandoffResult = {
   // the card drops its own copy and reloads into the login form.
   sessionExpired?: boolean;
 };
+
+// The authorization URL the login form was rendered on, posted along with the
+// credentials so a 2FA challenge can send the user to `/login/2fa` and back
+// here afterwards. The action reads it from the form rather than `request.url`
+// because a `<Form>` submission is not guaranteed to carry the query string the
+// whole OAuth request lives in.
+export const OAUTH_RETURN_TO_FIELD = "oauthReturnTo";
