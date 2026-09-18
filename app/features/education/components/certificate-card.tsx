@@ -47,6 +47,7 @@ export function CertificateCard({ certificate }: CertificateCardProps) {
       <CertificateSheet
         recipientName={certificate.recipientName}
         courseTitle={certificate.courseTitle}
+        certificateKind={certificate.certificateKind}
         completedOn={certificate.completedOn}
         certificateNo={certificate.certificateNo}
       />
