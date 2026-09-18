@@ -3,38 +3,12 @@ import { LESSON_COMPLETION_RATIO } from "~/features/education/types";
 /**
  * What each kind of lesson has to do before the next one opens.
  *
- * Video and audio are measurable: the player counts the seconds it really
- * played, and 95% of the media is the bar. A PDF is not — it is a file in a
- * frame served from another origin, so nothing in the page can see a page turn
- * or a scroll. The honest substitute is time spent with the document open,
- * after which the learner says they have read it. The timer is not proof of
- * reading; it is what stops "read" being a click on arrival.
+ * Every gate here asks for something the learner did to the media, never for
+ * time they spent near it. Video and audio count the seconds really played,
+ * and 95% of the media is the bar. A document asks to be scrolled through to
+ * its last page. A clock would be easier to measure and would mean nothing: it
+ * says a file was open, not that anyone read it.
  */
-
-/** Reading time asked of one page, before the floor and ceiling below. */
-export const PDF_SECONDS_PER_PAGE = 15;
-
-/** Enough that a one-page handout is not finished by accident. */
-export const PDF_MIN_SECONDS = 30;
-
-/** A long document should not hold the course up for half an hour. */
-export const PDF_MAX_SECONDS = 600;
-
-/** Used when the creator never recorded a page count. */
-export const PDF_SECONDS_WITHOUT_PAGE_COUNT = 60;
-
-export function pdfReadingSeconds(
-  pageCount: number | null | undefined,
-): number {
-  if (!pageCount || !Number.isFinite(pageCount) || pageCount < 1) {
-    return PDF_SECONDS_WITHOUT_PAGE_COUNT;
-  }
-
-  return Math.min(
-    PDF_MAX_SECONDS,
-    Math.max(PDF_MIN_SECONDS, Math.round(pageCount * PDF_SECONDS_PER_PAGE)),
-  );
-}
 
 /** Seconds of a timed lesson that count as having watched it. */
 export function requiredWatchSeconds(durationSeconds: number): number {
@@ -92,31 +66,31 @@ export function timedLessonGate({
 }
 
 /**
- * The gate for a PDF lesson.
+ * The gate for a document lesson.
  *
- * Time served is all there is to go on, so it is what finishes the lesson.
- * That is a weaker claim than a video played through — it says the document
- * was open, not that it was read — but it is the only thing measurable across
- * an iframe from another origin, and it still cannot be satisfied on arrival.
+ * The one piece of evidence taken is the learner having scrolled our own
+ * viewer to the last page — a thing they did to the document, which is what a
+ * gate is for. Only a viewer we draw ourselves can see it: a PDF handed to the
+ * browser's built-in viewer is a closed frame that reports nothing, and those
+ * lessons are opened by `unavailableLessonGate` rather than held shut on
+ * evidence that is never coming.
+ *
+ * `ratio` is either end of the scale because there is no half-read: a document
+ * has been through to its end or it has not.
+ *
+ * `watchedSeconds` is null because nothing is counted. The completion check
+ * compares it against the lesson's duration, so reporting zero against a
+ * document would read as "not played through" and refuse the very completion
+ * this is opening; null makes that check skip, as it does for a lesson with
+ * nothing behind it.
  */
-export function readingLessonGate({
-  elapsedSeconds,
-  requiredSeconds,
-}: {
-  elapsedSeconds: number;
-  requiredSeconds: number;
-}) {
-  const isSatisfied = elapsedSeconds >= requiredSeconds;
-
+export function documentLessonGate(hasReachedEnd: boolean) {
   return {
-    ratio: isSatisfied ? 1 : clampRatio(elapsedSeconds / requiredSeconds),
-    isSatisfied,
-    /* Reading time served. The completion check compares this against the
-       lesson's duration, and a document has none, so it is ignored there —
-       but it is what the resume point restores, so the timer picks up where
-       it stopped instead of starting the wait again. */
-    watchedSeconds: elapsedSeconds,
-    /* A document has no play head; its place is the time already served. */
+    ratio: hasReachedEnd ? 1 : 0,
+    isSatisfied: hasReachedEnd,
+    watchedSeconds: null,
+    /* A document has no play head, and its place in the reading is not worth
+       restoring: what persists across visits is the finished lesson itself. */
     positionSeconds: 0,
   };
 }

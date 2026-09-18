@@ -86,9 +86,9 @@ export const LESSON_COMPLETION_RATIO = 0.95;
  * Whether a lesson may be marked finished yet.
  *
  * Each player measures its own medium and reports one of these up: a video or
- * audio lesson counts the seconds actually played, a PDF counts time spent on
- * it. The learner screen turns it into the call that records the lesson, and
- * into whether Next is open.
+ * audio lesson counts the seconds actually played, a document reports whether
+ * it was scrolled through to its last page. The learner screen turns it into
+ * the call that records the lesson, and into whether Next is open.
  */
 export interface LessonGateState {
   /** How far through the requirement the learner is, 0 to 1. */
@@ -101,8 +101,8 @@ export interface LessonGateState {
    * Where to put the player back when the learner returns.
    *
    * The play head for a video or audio lesson; zero for a document, which has
-   * no position — its resume point is the reading time already served, which
-   * rides in `watchedSeconds`.
+   * no position and keeps no resume point — what persists across visits is the
+   * finished lesson itself.
    */
   positionSeconds: number;
 }
