@@ -69,7 +69,7 @@ export default function NestedReplyCard({
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       className={cn(
-        "w-full rounded-xl border border-slate-200 bg-[#fffefe] px-5 py-5 shadow-[0px_1px_2px_rgba(15,23,42,0.04)]",
+        "w-full rounded-xl bg-white p-3",
         showAnimation && highlightAnswerClassName,
       )}
     >

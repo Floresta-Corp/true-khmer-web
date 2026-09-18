@@ -117,7 +117,9 @@ function AnswerComponent({
           ref={cardRef}
           id={`answer-${answer.id}`}
           className={cn(
-            "z-10 flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-none",
+            "z-10 flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-none",
+            // Only the marked best answer is framed; plain answers stay borderless.
+            isBestAnswer && "border border-[#0050d4]/30",
             showAnimation && highlightAnswerClassName,
           )}
           initial={{ opacity: 0, y: 12 }}
@@ -219,7 +221,7 @@ function AnswerComponent({
             </div>
           </div>
 
-          <div className="pb-2">
+          <div className="">
             <p className="text-base leading-6.5 whitespace-pre-line text-[#595c5e]">
               {answer.body}
             </p>
