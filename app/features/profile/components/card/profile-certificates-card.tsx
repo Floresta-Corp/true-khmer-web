@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import { CertificateSheet } from "~/features/education/components/certificate-sheet";
+import { CERTIFICATE_KIND_COPY } from "~/features/education/components/certificate-sheet";
 import type { ProfileCertificate } from "~/features/education/types";
 import { formatDate } from "~/lib/time";
 import CertificatePreviewDialog from "./profile-certificates-dialog";
@@ -137,7 +137,11 @@ function CertificateRow({
           {certificate.courseTitle}
         </span>
         <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-semibold text-[#8a99b5]">
-          Completed {formatDate(certificate.completedAt)}
+          {
+            CERTIFICATE_KIND_COPY[certificate.certificateKind ?? "COMPLETION"]
+              .dateLabel
+          }{" "}
+          {formatDate(certificate.completedAt)}
           {isOwner && !certificate.sharedToProfile ? (
             <span className="rounded-full bg-[#eef2f7] px-2 py-0.5 text-[11px] font-bold text-[#64748b]">
               Not on profile

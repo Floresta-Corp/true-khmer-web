@@ -43,7 +43,7 @@ export default function CertificatePreviewDialog({
             {certificate?.courseTitle ?? "Certificate"} certificate
           </DialogTitle>
           <DialogDescription>
-            Certificate of completion earned on True Khmer
+            Certificate earned on True Khmer
           </DialogDescription>
         </DialogHeader>
 
@@ -52,6 +52,7 @@ export default function CertificatePreviewDialog({
             <CertificateSheet
               recipientName={recipientName}
               courseTitle={certificate.courseTitle}
+              certificateKind={certificate.certificateKind}
               completedOn={formatDate(certificate.completedAt)}
               certificateNo={certificate.certificateNo}
             />
