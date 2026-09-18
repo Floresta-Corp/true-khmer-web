@@ -83,7 +83,7 @@ export default function QuestionVoteComponent({
 
   return (
     <div
-      className={`flex h-fit items-center overflow-hidden rounded-xl bg-[#f9fafb] text-[#4a5565] ${className ?? ""}`}
+      className={`flex h-fit items-center overflow-hidden rounded-xl border border-[#e9eef5] text-[#4a5565] ${className ?? ""}`}
     >
       <Button
         type="button"

@@ -16,15 +16,8 @@ export default function ForumBestAnswer({
 }: ForumBestAnswerProps) {
   const { reportReasons } = useLoaderData<typeof loader>();
 
-  if (!answer) {
-    return (
-      <div className="mt-6 rounded-2xl border border-[#e1e7ef] bg-white p-4 sm:p-6 lg:px-8 lg:py-8">
-        <h2 className="mb-6 text-lg font-semibold text-[#030213]">
-          Best answer
-        </h2>
-      </div>
-    );
-  }
+  // No best answer picked yet: render nothing rather than an empty framed card.
+  if (!answer) return null;
 
   const isCurrentAuthor = userId === answer.author.id;
   const isAuthenticated = Boolean(userId);

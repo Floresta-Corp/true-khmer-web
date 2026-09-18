@@ -11,7 +11,7 @@ const CommentWrapper = ({
   isFirst = false,
   isLast = false,
 }: CommentWrapperProps) => {
-  const timelineClassName = isReply ? `ml-1 ${!isLast ? "my-6" : ""}` : "mt-6";
+  const timelineClassName = isReply ? `ml-1 ${!isLast ? "mb-1" : ""}` : "-mt-2";
 
   // Determine timeline line styling based on position
   const getLineClassName = () => {
@@ -24,11 +24,11 @@ const CommentWrapper = ({
 
   return (
     <div className="relative w-full pl-5">
-      {isReply && <div className={getLineClassName()} />}
-      {/* The Curved Arrow (Branch) */}
+      {/* {isReply && <div className={getLineClassName()} />}
+      The Curved Arrow (Branch)
       {isReply && (
         <div className="absolute top-15 -left-2 h-5 w-8 rounded-bl-xl border-b-2 border-l-2 border-slate-200" />
-      )}
+      )} */}
       <div className={timelineClassName}>{children}</div>
     </div>
   );
