@@ -785,7 +785,7 @@ const GetCourseQuizResponse = z.object({ ok: z.literal(true), quiz: CourseQuizRe
 
 const ReplaceCourseQuizRequest = z.object({ passMark: z.number().int().gte(0).lte(100).optional().default(70), questions: z.array(z.object({ question: z.string().min(1).max(2000), options: z.array(z.object({ label: z.string().min(1).max(500), isCorrect: z.boolean().optional().default(false) })).min(2).max(6) })).max(100) });
 
-const LearnerCourseQuizQuestionResponse = z.object({ id: z.string().uuid(), question: z.string(), position: z.number().int(), options: z.array(z.object({ id: z.string().uuid(), label: z.string(), position: z.number().int() })) });
+const LearnerCourseQuizQuestionResponse = z.object({ id: z.string().uuid(), question: z.string(), options: z.array(z.object({ id: z.string().uuid(), label: z.string() })) });
 
 const LearnerCourseQuizResponse = z.object({ passMark: z.number().int(), questions: z.array(LearnerCourseQuizQuestionResponse) });
 

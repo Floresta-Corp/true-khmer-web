@@ -531,8 +531,7 @@ export interface LearnerCourseQuizResponse {
     questions: {
       id: string;
       question: string;
-      position: number;
-      options: { id: string; label: string; position: number }[];
+      options: { id: string; label: string }[];
     }[];
   };
 }
