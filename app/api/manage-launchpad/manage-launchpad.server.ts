@@ -18,8 +18,12 @@ import type {
 
 export const UuidSchema = z.uuid();
 
+export function isUuid(value: string) {
+  return UuidSchema.safeParse(value).success;
+}
+
 function requireUuid(value: string, label: string) {
-  if (!UuidSchema.safeParse(value).success) {
+  if (!isUuid(value)) {
     throw new ProtectedApiError(`Invalid ${label}.`, 400);
   }
   return value;
@@ -88,7 +92,7 @@ export async function getManagePostDetail(
   params: ManagePostDetailParams,
   postingId: string,
 ) {
-  if (!UuidSchema.safeParse(postingId).success) return null;
+  if (!isUuid(postingId)) return null;
 
   const queryParams = new URLSearchParams();
   if (params.search) queryParams.set("search", params.search);
@@ -146,8 +150,8 @@ export async function getCandidateNote(
   postingId: string,
   candidateId: string,
 ) {
-  if (!UuidSchema.safeParse(postingId).success) return null;
-  if (!UuidSchema.safeParse(candidateId).success) return null;
+  if (!isUuid(postingId)) return null;
+  if (!isUuid(candidateId)) return null;
 
   return apiRequestWithSession<DetailCandidateResponse>(
     request,
@@ -181,7 +185,7 @@ export async function getPostingSuspension(
   request: Request,
   postingId: string,
 ): Promise<PostingSuspension | null> {
-  if (!UuidSchema.safeParse(postingId).success) return null;
+  if (!isUuid(postingId)) return null;
 
   const launchpad = await GetLaunchpadDetail(postingId, request);
   if (!launchpad) return null;

@@ -234,11 +234,7 @@ export default function ApplicantStatusChangeButton({
                   <div className="flex max-h-52 flex-col gap-2 overflow-y-auto pr-1">
                     {roles.map((role) => {
                       const isSelected = selectedDialogRoleId === role.roleId;
-                      const isFinalized = [
-                        "CONFIRMED",
-                        "COMPLETED",
-                        "DECLINED",
-                      ].includes(role.status);
+                      const isFinalized = FINAL_STATUSES.includes(role.status);
                       return (
                         <Button
                           key={role.roleId}
