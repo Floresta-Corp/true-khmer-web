@@ -1,15 +1,11 @@
 import { LESSON_COMPLETION_RATIO } from "~/features/education/types";
 
-/** Reading time asked of one page, before the floor and ceiling below. */
 export const PDF_SECONDS_PER_PAGE = 15;
 
-/** Enough that a one-page handout is not finished by accident. */
 export const PDF_MIN_SECONDS = 30;
 
-/** A long document should not hold the course up for half an hour. */
 export const PDF_MAX_SECONDS = 600;
 
-/** Used when the creator never recorded a page count. */
 export const PDF_SECONDS_WITHOUT_PAGE_COUNT = 60;
 
 export function pdfReadingSeconds(
@@ -25,7 +21,6 @@ export function pdfReadingSeconds(
   );
 }
 
-/** Seconds of a timed lesson that count as having watched it. */
 export function requiredWatchSeconds(durationSeconds: number): number {
   if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) return 0;
   return durationSeconds * LESSON_COMPLETION_RATIO;

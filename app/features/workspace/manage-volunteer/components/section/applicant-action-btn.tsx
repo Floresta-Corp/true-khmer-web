@@ -75,27 +75,6 @@ export default function ApplicantActionButton({
           <ExternalLink size={14} className="text-gray-400" />
           View Full Detail
         </DropdownMenuItem>
-
-        {/* {!isActioned(displayStatus) &&
-          applicant.submissions[0]?.roles.length === 1 && (
-            <>
-              <DropdownMenuSeparator className="my-1" />
-              {displayStatus !== "approve" && (
-                <DropdownMenuItem
-                  className="flex cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-green-600 focus:bg-green-50 focus:text-green-600"
-                  onClick={(e) => handleAction(e, "approve")}
-                >
-                  Approve
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem
-                className="flex cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold text-red-500 focus:bg-red-50 focus:text-red-500"
-                onClick={(e) => handleAction(e, "decline")}
-              >
-                Decline
-              </DropdownMenuItem>
-            </>
-          )} */}
       </DropdownMenuContent>
     </DropdownMenu>
   );

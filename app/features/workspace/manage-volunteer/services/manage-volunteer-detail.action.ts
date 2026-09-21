@@ -224,7 +224,7 @@ export async function manageVolunteerDetailAction({
   }
 
   try {
-    const result = await Promise.all(
+    const settled = await Promise.allSettled(
       targetApplicationIds.map((targetApplicationId) =>
         updateApplicantStatus(
           request,
@@ -234,6 +234,37 @@ export async function manageVolunteerDetailAction({
         ),
       ),
     );
+
+    const succeeded = settled.flatMap((entry, index) =>
+      entry.status === "fulfilled"
+        ? [{ applicationId: targetApplicationIds[index], result: entry.value }]
+        : [],
+    );
+    const rejected = settled.flatMap((entry, index) =>
+      entry.status === "rejected"
+        ? [{ applicationId: targetApplicationIds[index], reason: entry.reason }]
+        : [],
+    );
+
+    if (rejected.length) {
+      const firstError = transformActionResponse(rejected[0].reason);
+      return respond(
+        {
+          ok: false,
+          success: false,
+          error: succeeded.length
+            ? `Updated ${succeeded.length} of ${targetApplicationIds.length} applications. ${
+                firstError.error ?? "The rest could not be updated."
+              }`
+            : (firstError.error ?? "An unexpected error occurred."),
+          updatedApplicationIds: succeeded.map((entry) => entry.applicationId),
+          failedApplicationIds: rejected.map((entry) => entry.applicationId),
+        },
+        { status: rejected[0].reason?.status ?? 500 },
+      );
+    }
+
+    const result = succeeded.map((entry) => entry.result);
     return respond({
       success: true,
       data: applicationIds.length ? result : result[0],

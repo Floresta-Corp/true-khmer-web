@@ -15,14 +15,23 @@ type Props = {
   postingId: string;
   applicationId: string;
   applicant: Applicant;
-  onDeclined?: (candidateId: string, options: { blocked: boolean }) => void;
+  onDeclined?: (
+    candidateId: string,
+    options: { blocked: boolean; declinedApplicationIds: string[] },
+  ) => void;
 };
 
 type DialogMode = "process" | "confirm-approve" | "confirm-decline" | null;
 
 const FINALIZED_APPROVED = ["CONFIRMED", "COMPLETED"] as const;
 const FINALIZED_DECLINED = ["DECLINED", "WITHDRAWN"] as const;
-const FINAL_STATUSES = ["DECLINED", "CONFIRMED", "COMPLETED", "APPROVED"];
+const FINAL_STATUSES = [
+  "DECLINED",
+  "WITHDRAWN",
+  "CONFIRMED",
+  "COMPLETED",
+  "APPROVED",
+];
 
 const displayLabel: Record<string, string> = {
   APPROVED: "approved",
@@ -108,6 +117,7 @@ export default function ApplicantStatusChangeButton({
   const lastSubmittedAction = useRef<"decline" | "approve" | null>(null);
   const lastBlockFutureApply = useRef(false);
   const lastDeclinedCandidateId = useRef<string | null>(null);
+  const lastDeclinedApplicationIds = useRef<string[]>([]);
 
   const openReprocess = () => {
     const approvedRoleId = roles.find((r) =>
@@ -131,6 +141,17 @@ export default function ApplicantStatusChangeButton({
     lastSubmittedAction.current = "decline";
     lastBlockFutureApply.current = blockFutureApply;
     lastDeclinedCandidateId.current = applicant.candidate.id;
+
+    lastDeclinedApplicationIds.current = declineAll
+      ? [
+          ...new Set([
+            resolvedApplicationId,
+            ...roles
+              .filter((r) => !FINAL_STATUSES.includes(r.status))
+              .map((r) => r.applicationId),
+          ]),
+        ]
+      : [resolvedApplicationId];
 
     fetcher.submit(formData, {
       method: "POST",
@@ -158,10 +179,12 @@ export default function ApplicantStatusChangeButton({
     ) {
       onDeclinedRef.current?.(lastDeclinedCandidateId.current!, {
         blocked: lastBlockFutureApply.current,
+        declinedApplicationIds: lastDeclinedApplicationIds.current,
       });
       lastSubmittedAction.current = null;
       lastDeclinedCandidateId.current = null;
       lastBlockFutureApply.current = false;
+      lastDeclinedApplicationIds.current = [];
     }
   }, [fetcher.state, fetcher.data]);
 
@@ -170,7 +193,6 @@ export default function ApplicantStatusChangeButton({
       <AnimatePresence>
         {dialogMode && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -179,7 +201,6 @@ export default function ApplicantStatusChangeButton({
               className="fixed inset-0 z-60 bg-black/40"
             />
 
-            {/* Process Dialog */}
             {dialogMode === "process" && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 8 }}
@@ -188,7 +209,6 @@ export default function ApplicantStatusChangeButton({
                 transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
                 className="fixed top-1/2 left-1/2 z-70 flex w-full max-w-md -translate-x-1/2 -translate-y-1/2 flex-col gap-5 rounded-2xl bg-white p-6 shadow-2xl"
               >
-                {/* Header */}
                 <div className="flex items-start justify-between">
                   <div>
                     <h2 className="text-base font-bold text-gray-900">
@@ -207,7 +227,6 @@ export default function ApplicantStatusChangeButton({
                   </Button>
                 </div>
 
-                {/* Roles list */}
                 <div className="flex flex-col gap-2">
                   <p className="text-xs font-bold tracking-widest text-gray-400 uppercase">
                     Applications
@@ -265,7 +284,6 @@ export default function ApplicantStatusChangeButton({
                     })}
                   </div>
 
-                  {/* {hasMultipleRoles && ( */}
                   <div className="mt-1 flex gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3">
                     <TriangleAlert
                       className="mt-0.5 shrink-0 text-amber-500"
@@ -275,12 +293,10 @@ export default function ApplicantStatusChangeButton({
                       Note: You can only approve one application per candidate.
                     </p>
                   </div>
-                  {/* )} */}
                 </div>
 
                 <div className="h-px bg-gray-100" />
 
-                {/* Actions */}
                 <div className="grid grid-cols-2 gap-3">
                   <Button
                     variant="ghost"
@@ -328,7 +344,6 @@ export default function ApplicantStatusChangeButton({
               </motion.div>
             )}
 
-            {/* Confirm Approve Dialog */}
             {dialogMode === "confirm-approve" && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 8 }}
@@ -359,7 +374,6 @@ export default function ApplicantStatusChangeButton({
                   </div>
                 </div>
 
-                {/* {hasMultipleRoles && ( */}
                 <div className="flex gap-2.5 rounded-xl border border-amber-200 bg-amber-50 p-3.5">
                   <TriangleAlert
                     className="mt-0.5 shrink-0 text-amber-500"
@@ -370,7 +384,6 @@ export default function ApplicantStatusChangeButton({
                     automatically.
                   </p>
                 </div>
-                {/* )} */}
 
                 <div className="h-px bg-gray-100" />
 
@@ -392,7 +405,6 @@ export default function ApplicantStatusChangeButton({
               </motion.div>
             )}
 
-            {/* Confirm Decline Dialog */}
             {dialogMode === "confirm-decline" && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 8 }}
@@ -425,7 +437,6 @@ export default function ApplicantStatusChangeButton({
 
                 <div className="h-px bg-gray-100" />
 
-                {/* Options */}
                 <div className="flex flex-col gap-3">
                   <p className="text-xs font-semibold tracking-widest text-gray-500 uppercase">
                     You also can:
@@ -499,7 +510,6 @@ export default function ApplicantStatusChangeButton({
         )}
       </AnimatePresence>
 
-      {/* Bottom bar */}
       <div className="mt-auto flex flex-col gap-3 border-t border-gray-100 p-6">
         {isPendingCandidateConfirmation && !isFinalPending ? (
           <>

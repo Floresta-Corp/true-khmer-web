@@ -132,8 +132,7 @@ export default [
         "course-listing/:id",
         "features/course-manage/route/course-manage.$id.tsx",
       ),
-      /* Resource route: the Students tab pages its roster through this, so a
-         page change does not refetch the whole course screen. */
+
       route(
         "course-listing/:id/students",
         "features/course-manage/route/course-manage.$id.students.ts",
@@ -142,8 +141,7 @@ export default [
         "course-listing/:id/students/:userId",
         "features/course-manage/route/course-manage.$id.students.$userId.ts",
       ),
-      /* Resource route: the Review tab reads further into the reviews through
-         this, for the same reason. */
+
       route(
         "course-listing/:id/reviews",
         "features/course-manage/route/course-manage.$id.reviews.ts",
@@ -406,8 +404,7 @@ export default [
     "api/launchpad-candidate-note",
     "features/workspace/manage-launchpad/route/manage-launchpad.candidate-note.ts",
   ),
-  /* Crawler-facing resource routes. Outside every layout: these serve plain
-     text and XML, not documents, and they must sit above the catch-all. */
+
   route("robots.txt", "features/seo/route/robots.txt.ts"),
   route("sitemap.xml", "features/seo/route/sitemap.xml.ts"),
   route("sitemap-pages.xml", "features/seo/route/sitemap-pages.xml.ts"),
@@ -418,7 +415,5 @@ export default [
   route("sitemap-launchpad.xml", "features/seo/route/sitemap-launchpad.xml.ts"),
   route("sitemap-community.xml", "features/seo/route/sitemap-community.xml.ts"),
 
-  /* Catch-all: unmatched URLs get the branded 404 on its own, outside every
-     layout, so no navbar, footer or sidebar renders around it. Keep it last. */
   route("*", "features/error/route/not-found.tsx"),
 ] satisfies RouteConfig;

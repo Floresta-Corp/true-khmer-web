@@ -8,7 +8,7 @@ import type { ManagePostLoaderData } from "../../services/manage-volunteer.loade
 import type { ManagePost } from "../../types";
 import CreateOpportunityDialog from "../dialog/manage-volunteer-button";
 import { Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 
 type FilterType =
@@ -29,6 +29,8 @@ const VALID_STATUS_VALUES = [
   "completed",
   "filled",
 ] as const;
+
+const SEARCH_DEBOUNCE_MS = 400;
 
 function isValidStatus(value: string | null): value is FilterType {
   return (
@@ -55,41 +57,60 @@ export default function ManagePostingPage() {
 
   const isLastPage = pagination ? !pagination.hasNextPage : true;
 
+  const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     const rawFilter = searchParams.get("filter");
-    const nextFilter = isValidStatus(rawFilter) ? rawFilter : "all";
-    const nextSearch = searchParams.get("search") ?? "";
+    setFilter(isValidStatus(rawFilter) ? rawFilter : "all");
 
-    setFilter(nextFilter);
-    setSearchInput(nextSearch);
+    if (searchDebounce.current === null) {
+      setSearchInput(searchParams.get("search") ?? "");
+    }
   }, [searchParams]);
 
-  const applySearchParams = (nextParams: URLSearchParams) => {
-    setSearchParams(nextParams, { replace: true });
+  useEffect(() => {
+    return () => {
+      if (searchDebounce.current) clearTimeout(searchDebounce.current);
+    };
+  }, []);
+
+  const applySearchParams = (
+    update: (current: URLSearchParams) => URLSearchParams,
+  ) => {
+    setSearchParams((current) => update(new URLSearchParams(current)), {
+      replace: true,
+    });
   };
 
   const handleFilterChange = (value: FilterType) => {
     setFilter(value);
-    const nextParams = new URLSearchParams(searchParams);
-    if (!value || value === "all") {
-      nextParams.delete("filter");
-    } else {
-      nextParams.set("filter", value);
-    }
-    nextParams.delete("page");
-    applySearchParams(nextParams);
+    applySearchParams((nextParams) => {
+      if (!value || value === "all") {
+        nextParams.delete("filter");
+      } else {
+        nextParams.set("filter", value);
+      }
+      nextParams.delete("page");
+      return nextParams;
+    });
   };
 
   const handleSearchChange = (value: string) => {
     setSearchInput(value);
-    const nextParams = new URLSearchParams(searchParams);
-    if (value) {
-      nextParams.set("search", value);
-    } else {
-      nextParams.delete("search");
-    }
-    nextParams.delete("page");
-    applySearchParams(nextParams);
+
+    if (searchDebounce.current) clearTimeout(searchDebounce.current);
+    searchDebounce.current = setTimeout(() => {
+      searchDebounce.current = null;
+      applySearchParams((nextParams) => {
+        if (value) {
+          nextParams.set("search", value);
+        } else {
+          nextParams.delete("search");
+        }
+        nextParams.delete("page");
+        return nextParams;
+      });
+    }, SEARCH_DEBOUNCE_MS);
   };
 
   return (

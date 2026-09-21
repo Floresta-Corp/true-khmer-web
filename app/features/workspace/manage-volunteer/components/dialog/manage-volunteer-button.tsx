@@ -71,7 +71,6 @@ export default function CreateOpportunityDialog({
           />
         </div>
 
-        {/* Footer Button  */}
         <div className="flex justify-end pt-2 sm:pt-4">
           <Button
             disabled={!selected || isLoading}

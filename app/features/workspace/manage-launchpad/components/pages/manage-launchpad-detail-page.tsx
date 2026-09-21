@@ -32,7 +32,7 @@ export default function ManagePostingDetailPage() {
 
   const isSuspended = postDetail?.posting?.status === "SUSPENDED";
   const postingNoun = "project";
-  // Keyed on the suspension, not the posting: a re-suspension notifies again.
+
   const suspensionNotice = useDismissibleNotice(
     isSuspended && postDetail?.posting
       ? `posting:${postDetail.posting.id}:${suspension?.suspendedAt ?? ""}`
@@ -72,7 +72,6 @@ export default function ManagePostingDetailPage() {
               suspendedAt={suspension?.suspendedAt}
             />
 
-            {/* The dialog auto-opens once; this keeps the reason reachable after. */}
             <motion.div
               {...fadeUp(0.1)}
               className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3"
@@ -93,9 +92,7 @@ export default function ManagePostingDetailPage() {
           </>
         )}
 
-        {/* Header Layout: Stacked on mobile, side-by-side on desktop */}
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-          {/* Left: Metadata & Title */}
           <motion.div
             {...fadeUp(0.15)}
             className="flex w-full min-w-0 flex-col gap-3"
@@ -121,12 +118,10 @@ export default function ManagePostingDetailPage() {
               </span>
             </div>
 
-            {/* Title: Wraps on mobile, truncates cleanly on large displays if needed */}
             <h1 className="text-2xl leading-tight font-bold wrap-break-word text-gray-900 sm:text-3xl">
               {postDetail?.posting?.title}
             </h1>
 
-            {/* Date */}
             <motion.div
               {...fadeUp(0.2)}
               className="flex items-center gap-2 text-sm text-gray-400"
@@ -138,12 +133,10 @@ export default function ManagePostingDetailPage() {
             </motion.div>
           </motion.div>
 
-          {/* Right: actions */}
           <motion.div
             {...fadeUp(0.2)}
             className="flex w-full shrink-0 items-center gap-3 sm:w-auto md:self-start"
           >
-            {/* Edit Button */}
             <Link
               to={editRoute}
               className="shadow-brand-blue/20 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-bold whitespace-nowrap text-white shadow-lg transition-all hover:scale-[1.02] active:scale-95 sm:w-auto"
@@ -151,11 +144,6 @@ export default function ManagePostingDetailPage() {
               <Pencil size={18} />
               Edit Posting
             </Link>
-
-            {/* Share Button */}
-            {/* <button className="h-11 w-11 border border-gray-200 dark:border-slate-800 rounded-xl text-gray-400 hover:text-blue-600 hover:border-blue-600 transition-all flex items-center justify-center shrink-0 bg-white dark:bg-slate-900">
-              <Share2 size={20} />
-            </button> */}
 
             <div className="relative h-11 w-11 shrink-0">
               {postDetail?.posting ? (
@@ -176,7 +164,6 @@ export default function ManagePostingDetailPage() {
           <ManagePostingDetailStats />
         </motion.div>
 
-        {/* Note: Ensure this table container handles internal scrolling if it's wide */}
         <motion.div {...fadeUp(0.4)} className="mt-6 overflow-x-auto">
           <ManagePostingDetailTable
             applicants={postDetail?.applicants ?? []}

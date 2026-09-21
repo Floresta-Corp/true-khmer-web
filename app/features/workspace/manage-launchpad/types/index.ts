@@ -10,7 +10,7 @@ export const StatusSchema = z.enum([
   "COMPLETED",
   "IN_PROGRESS",
   "LIVE",
-  // A moderator hold. Only the poster is served the post while it lasts.
+
   "SUSPENDED",
 ]);
 export type ManagePostStatus = z.infer<typeof StatusSchema>;
@@ -72,8 +72,6 @@ export const ManagePostResponseSchema = z.object({
   postings: z.array(ManagePostSchema),
 });
 export type ManagePostResponse = z.infer<typeof ManagePostResponseSchema>;
-
-// --- Detail types ---
 
 export const ApplicantStatusSchema = z.enum([
   "APPROVED",
@@ -286,15 +284,11 @@ export const ManagePostDetailSchema = z.object({
 });
 export type ManagePostDetailResponse = z.infer<typeof ManagePostDetailSchema>;
 
-// --- Applicant detail ---
-
 export const DetailCandidateSchema = z.object({
   applicant: ApplicantSchema,
   ok: z.boolean(),
 });
 export type DetailCandidateResponse = z.infer<typeof DetailCandidateSchema>;
-
-// --- Action params ---
 
 export type DeclineApplicantParams = {
   declineAll?: boolean;

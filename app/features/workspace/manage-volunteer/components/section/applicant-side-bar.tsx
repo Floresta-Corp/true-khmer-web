@@ -85,7 +85,6 @@ export default function ApplicantSideBar({
 
   return (
     <>
-      {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: applicant ? 1 : 0 }}
@@ -96,7 +95,6 @@ export default function ApplicantSideBar({
         )}
       />
 
-      {/* Drawer */}
       <motion.div
         initial={{ x: "100%" }}
         animate={{ x: applicant ? 0 : "100%" }}
@@ -105,7 +103,6 @@ export default function ApplicantSideBar({
       >
         {applicant && (
           <>
-            {/* Header */}
             <div className="flex items-start justify-between border-b border-gray-100 px-6 py-4">
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12 border border-gray-100">
@@ -156,7 +153,6 @@ export default function ApplicantSideBar({
             <div className="flex flex-1 flex-col overflow-y-auto">
               <div className="flex flex-col gap-4 px-6 py-4">
                 <div className="flex items-center justify-around rounded-xl border border-gray-100 bg-white p-2">
-                  {/* Submissions Stat */}
                   <div className="flex flex-1 flex-col items-center justify-center text-center">
                     <div className="flex h-8 items-center justify-center">
                       <span className="text-sm font-semibold text-gray-900">
@@ -170,7 +166,6 @@ export default function ApplicantSideBar({
 
                   <div className="h-10 w-px bg-gray-100" />
 
-                  {/* Roles Applied Stat */}
                   <div className="flex flex-1 flex-col items-center justify-center text-center">
                     <div className="flex h-8 items-center justify-center">
                       <span className="text-sm font-semibold text-gray-900">
@@ -184,7 +179,6 @@ export default function ApplicantSideBar({
 
                   <div className="h-10 w-px bg-gray-100" />
 
-                  {/* Overall Status Stat */}
                   <div className="flex flex-1 flex-col items-center justify-center text-center">
                     <div className="flex h-8 items-center justify-center">
                       <span
@@ -207,7 +201,6 @@ export default function ApplicantSideBar({
 
                 <ApplicantRolesSelection applicant={applicant} />
 
-                {/* Private Note */}
                 <ApplicantNoteAction
                   key={applicant.candidate.id}
                   postingId={postingId}
@@ -220,7 +213,6 @@ export default function ApplicantSideBar({
               </div>
             </div>
 
-            {/* Accept / Decline */}
             <ApplicantStatusChangeButton
               applicant={applicant}
               currentStatus={overallStatus as ApplicantStatusAction}

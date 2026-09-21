@@ -149,8 +149,7 @@ export default function ApplicantStatusChangeButton({
     lastSubmittedAction.current = "decline";
     lastBlockFutureApply.current = blockFutureApply;
     lastDeclinedCandidateId.current = applicant.candidate.id;
-    // Only the roles this submission actually declines: "decline all" sweeps up
-    // every still-open role, a plain decline touches just the selected one.
+
     lastDeclinedApplicationIds.current = declineAll
       ? [
           ...new Set([
@@ -199,13 +198,11 @@ export default function ApplicantStatusChangeButton({
 
   return (
     <>
-      {/* Process Dialog */}
       <Dialog
         open={dialogMode === "process"}
         onOpenChange={(open) => !open && setDialogMode(null)}
       >
         <DialogContent showCloseButton={false} className={DIALOG_PANEL_CLASS}>
-          {/* Header */}
           <div className="flex items-start justify-between">
             <div>
               <DialogTitle className="text-base font-bold text-gray-900">
@@ -224,7 +221,6 @@ export default function ApplicantStatusChangeButton({
             </Button>
           </div>
 
-          {/* Roles list */}
           <div className="flex flex-col gap-2">
             <p className="text-xs font-bold tracking-widest text-gray-400 uppercase">
               Applications
@@ -279,7 +275,6 @@ export default function ApplicantStatusChangeButton({
               })}
             </div>
 
-            {/* {hasMultipleRoles && ( */}
             <div className="mt-1 flex gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3">
               <TriangleAlert
                 className="mt-0.5 shrink-0 text-amber-500"
@@ -289,12 +284,10 @@ export default function ApplicantStatusChangeButton({
                 Note: You can only approve one application per candidate.
               </p>
             </div>
-            {/* )} */}
           </div>
 
           <div className="h-px bg-gray-100" />
 
-          {/* Actions */}
           <div className="grid grid-cols-2 gap-3">
             <Button
               variant="ghost"
@@ -340,7 +333,6 @@ export default function ApplicantStatusChangeButton({
         </DialogContent>
       </Dialog>
 
-      {/* Confirm Approve Dialog */}
       <Dialog
         open={dialogMode === "confirm-approve"}
         onOpenChange={(open) => !open && setDialogMode(null)}
@@ -368,7 +360,6 @@ export default function ApplicantStatusChangeButton({
             </div>
           </div>
 
-          {/* {hasMultipleRoles && ( */}
           <div className="flex gap-2.5 rounded-xl border border-amber-200 bg-amber-50 p-3.5">
             <TriangleAlert
               className="mt-0.5 shrink-0 text-amber-500"
@@ -379,7 +370,6 @@ export default function ApplicantStatusChangeButton({
               automatically.
             </p>
           </div>
-          {/* )} */}
 
           <div className="h-px bg-gray-100" />
 
@@ -401,7 +391,6 @@ export default function ApplicantStatusChangeButton({
         </DialogContent>
       </Dialog>
 
-      {/* Confirm Decline Dialog */}
       <Dialog
         open={dialogMode === "confirm-decline"}
         onOpenChange={(open) => !open && setDialogMode(null)}
@@ -431,7 +420,6 @@ export default function ApplicantStatusChangeButton({
 
           <div className="h-px bg-gray-100" />
 
-          {/* Options */}
           <div className="flex flex-col gap-3">
             <p className="text-xs font-semibold tracking-widest text-gray-500 uppercase">
               You also can:
@@ -502,7 +490,6 @@ export default function ApplicantStatusChangeButton({
         </DialogContent>
       </Dialog>
 
-      {/* Bottom bar */}
       <div className="mt-auto flex flex-col gap-3 border-t border-gray-100 p-6">
         {isPendingCandidateConfirmation && !isFinalPending ? (
           <>

@@ -1,6 +1,9 @@
 import * as z from "zod";
 import { getOpportunityById } from "~/api/volunteer/volunteer.opportunities.server";
-import { apiRequestWithSession } from "~/lib/server/api-client.server";
+import {
+  apiRequestWithSession,
+  ProtectedApiError,
+} from "~/lib/server/api-client.server";
 import type {
   ApplicantFilter,
   ApplicantStatusAction,
@@ -14,6 +17,13 @@ import type {
 } from "~/features/workspace/manage-volunteer/types";
 
 export const UuidSchema = z.uuid();
+
+function requireUuid(value: string, label: string) {
+  if (!UuidSchema.safeParse(value).success) {
+    throw new ProtectedApiError(`Invalid ${label}.`, 400);
+  }
+  return value;
+}
 
 export interface ManagePostParams {
   search?: string;
@@ -43,6 +53,8 @@ export async function updateManagePost(
   postingId: string,
   postingAction: UpdateManagePostResponse,
 ) {
+  requireUuid(postingId, "postingId");
+
   return apiRequestWithSession<ManagePostResponse>(
     request,
     `/workspace/manage-posting/volunteer/${postingId}/action/${postingAction}`,
@@ -55,6 +67,8 @@ export async function updateManagePostExtendDate(
   postingId: string,
   deadline: string,
 ) {
+  requireUuid(postingId, "postingId");
+
   return apiRequestWithSession<ManagePostResponse>(
     request,
     `/workspace/manage-posting/volunteer/${postingId}/extend-application-deadline`,
@@ -74,6 +88,8 @@ export async function getManagePostDetail(
   params: ManagePostDetailParams,
   postingId: string,
 ) {
+  if (!UuidSchema.safeParse(postingId).success) return null;
+
   const queryParams = new URLSearchParams();
   if (params.search) queryParams.set("search", params.search);
   if (params.filter) queryParams.set("filter", params.filter);
@@ -95,6 +111,9 @@ export async function updateApplicantStatus(
   applicationId: string,
   statusAction: ApplicantStatusAction,
 ) {
+  requireUuid(postingId, "postingId");
+  requireUuid(applicationId, "applicationId");
+
   return apiRequestWithSession<DetailCandidateResponse>(
     request,
     `/workspace/manage-posting/volunteer/${postingId}/${applicationId}/change-status/${statusAction}`,
@@ -108,6 +127,9 @@ export async function declineApplicantStatus(
   applicationId: string,
   params: DeclineApplicantParams,
 ) {
+  requireUuid(postingId, "postingId");
+  requireUuid(applicationId, "applicationId");
+
   const queryParams = new URLSearchParams();
   if (params.declineAll) queryParams.set("declineAll", "true");
   if (params.blockFutureApply) queryParams.set("blockFutureApply", "true");
@@ -140,6 +162,9 @@ export async function updateApplicantNote(
   candidateId: string,
   body: PrivateNoteInput,
 ) {
+  requireUuid(postingId, "postingId");
+  requireUuid(candidateId, "candidateId");
+
   return apiRequestWithSession<DetailCandidateResponse>(
     request,
     `/workspace/manage-posting/volunteer/${postingId}/${candidateId}/note`,
@@ -156,16 +181,14 @@ export async function getPostingSuspension(
   request: Request,
   postingId: string,
 ): Promise<PostingSuspension | null> {
-  try {
-    const result = await getOpportunityById(request, postingId);
-    const opportunity = result?.data?.opportunity;
-    if (!opportunity) return null;
+  if (!UuidSchema.safeParse(postingId).success) return null;
 
-    return {
-      suspendedAt: opportunity.suspendedAt ?? null,
-      suspensionReason: opportunity.suspensionReason ?? null,
-    };
-  } catch {
-    return null;
-  }
+  const result = await getOpportunityById(request, postingId);
+  const opportunity = result?.data?.opportunity;
+  if (!opportunity) return null;
+
+  return {
+    suspendedAt: opportunity.suspendedAt ?? null,
+    suspensionReason: opportunity.suspensionReason ?? null,
+  };
 }

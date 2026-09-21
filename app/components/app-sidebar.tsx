@@ -41,17 +41,16 @@ export type SidebarNavItem = {
   label: string;
   to: string;
   icon: React.ComponentType<{ className?: string }>;
-  /** Extra paths that keep this item active, for sub-pages on their own URL. */
+
   matchPaths?: string[];
 };
 
 export interface AppSidebarProps {
-  /** Role badge shown under the user's name (e.g. "Member", "Creator"). */
   roleLabel: string;
-  /** Primary navigation links. */
+
   items: SidebarNavItem[];
   headerAccentSrc?: string;
-  /** Footer CTA that switches the user to the other space. */
+
   footer: SpaceSwitchFooter;
 }
 

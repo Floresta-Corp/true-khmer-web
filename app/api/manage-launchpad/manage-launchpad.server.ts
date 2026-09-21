@@ -1,3 +1,4 @@
+import * as z from "zod";
 import { GetLaunchpadDetail } from "~/api/launchpad/launchpad.server";
 import {
   apiRequestWithSession,
@@ -14,6 +15,15 @@ import type {
   PrivateNoteInput,
   UpdateManagePostResponse,
 } from "~/features/workspace/manage-launchpad/types";
+
+export const UuidSchema = z.uuid();
+
+function requireUuid(value: string, label: string) {
+  if (!UuidSchema.safeParse(value).success) {
+    throw new ProtectedApiError(`Invalid ${label}.`, 400);
+  }
+  return value;
+}
 
 export interface ManagePostParams {
   search?: string;
@@ -43,6 +53,8 @@ export async function updateManagePost(
   postingId: string,
   postingAction: UpdateManagePostResponse,
 ) {
+  requireUuid(postingId, "postingId");
+
   return apiRequestWithSession<ManagePostResponse>(
     request,
     `/workspace/manage-posting/projects/${postingId}/action/${postingAction}`,
@@ -55,6 +67,8 @@ export async function updateManagePostExtendDate(
   postingId: string,
   deadline: string,
 ) {
+  requireUuid(postingId, "postingId");
+
   return apiRequestWithSession<ManagePostResponse>(
     request,
     `/workspace/manage-posting/projects/${postingId}/extend-application-deadline`,
@@ -74,6 +88,8 @@ export async function getManagePostDetail(
   params: ManagePostDetailParams,
   postingId: string,
 ) {
+  if (!UuidSchema.safeParse(postingId).success) return null;
+
   const queryParams = new URLSearchParams();
   if (params.search) queryParams.set("search", params.search);
   if (params.filter) queryParams.set("filter", params.filter);
@@ -95,6 +111,9 @@ export async function updateApplicantStatus(
   applicationId: string,
   statusAction: ApplicantStatusAction,
 ) {
+  requireUuid(postingId, "postingId");
+  requireUuid(applicationId, "applicationId");
+
   return apiRequestWithSession<DetailCandidateResponse>(
     request,
     `/workspace/manage-posting/projects/${postingId}/${applicationId}/change-status/${statusAction}`,
@@ -108,6 +127,9 @@ export async function declineApplicantStatus(
   applicationId: string,
   params: DeclineApplicantParams,
 ) {
+  requireUuid(postingId, "postingId");
+  requireUuid(applicationId, "applicationId");
+
   const queryParams = new URLSearchParams();
   if (params.declineAll) queryParams.set("declineAll", "true");
   if (params.blockFutureApply) queryParams.set("blockFutureApply", "true");
@@ -119,23 +141,13 @@ export async function declineApplicantStatus(
   );
 }
 
-const UUID_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-function requireUuid(value: string, label: string) {
-  if (!UUID_PATTERN.test(value)) {
-    throw new ProtectedApiError(`Invalid ${label}.`, 400);
-  }
-  return value;
-}
-
 export async function getCandidateNote(
   request: Request,
   postingId: string,
   candidateId: string,
 ) {
-  requireUuid(postingId, "postingId");
-  requireUuid(candidateId, "candidateId");
+  if (!UuidSchema.safeParse(postingId).success) return null;
+  if (!UuidSchema.safeParse(candidateId).success) return null;
 
   return apiRequestWithSession<DetailCandidateResponse>(
     request,
@@ -150,6 +162,9 @@ export async function updateApplicantNote(
   candidateId: string,
   body: PrivateNoteInput,
 ) {
+  requireUuid(postingId, "postingId");
+  requireUuid(candidateId, "candidateId");
+
   return apiRequestWithSession<DetailCandidateResponse>(
     request,
     `/workspace/manage-posting/projects/${postingId}/${candidateId}/note`,
@@ -166,6 +181,8 @@ export async function getPostingSuspension(
   request: Request,
   postingId: string,
 ): Promise<PostingSuspension | null> {
+  if (!UuidSchema.safeParse(postingId).success) return null;
+
   const launchpad = await GetLaunchpadDetail(postingId, request);
   if (!launchpad) return null;
   return {

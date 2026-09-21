@@ -48,7 +48,6 @@ export default function ApplicantTabRange() {
   };
 
   return (
-    /* Handles horizontal swipe overflow on mobile without clipping shadows */
     <div className="-mx-4 no-scrollbar w-full overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
       <div className="relative isolate flex w-max min-w-max gap-1 rounded-xl bg-slate-100 p-1 shadow-inner dark:bg-slate-900">
         {FILTER.map((filter) => {

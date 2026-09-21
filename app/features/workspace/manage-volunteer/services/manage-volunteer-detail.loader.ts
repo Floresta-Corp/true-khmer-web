@@ -65,8 +65,6 @@ export async function manageVolunteerDetailLoader({
 
   const postDetail = result?.data?.detail ?? null;
 
-  // The hold's reason lives on the source post, so it is only worth a second
-  // request once the posting reports itself suspended.
   const suspension =
     postDetail?.posting?.status === "SUSPENDED"
       ? await getPostingSuspension(request, params.id)

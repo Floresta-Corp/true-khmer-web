@@ -135,12 +135,9 @@ export default function ManagePostingDetailTable({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* filter applicant  */}
       <ApplicantTabRange />
 
-      {/* Embedded Title, Search, and Data Box Header */}
       <div className="flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm dark:border-slate-900 dark:bg-slate-950">
-        {/* Table Inner Layout Header Block */}
         <div className="flex flex-col gap-4 border-b border-slate-50 p-5 sm:flex-row sm:items-center sm:justify-between dark:border-slate-900">
           <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
             All Applications
@@ -163,7 +160,6 @@ export default function ManagePostingDetailTable({
           </div>
         </div>
 
-        {/* Responsive Scrolling Core Layout Wrapper */}
         <div className="w-full overflow-x-auto">
           <Table>
             <TableHeader className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-bold tracking-wider uppercase dark:border-slate-900 dark:bg-slate-900/30">
@@ -339,13 +335,38 @@ export default function ManagePostingDetailTable({
         onClose={() => setSelectedApplicant(null)}
         postingId={postingId}
         candidateId={selectedApplicant?.candidate.id ?? ""}
-        onApplicantDeclined={(candidateId, { blocked }) => {
+        onApplicantDeclined={(
+          candidateId,
+          { blocked, declinedApplicationIds },
+        ) => {
+          const declined = new Set(declinedApplicationIds);
           setLocalApplicants((current) =>
-            current.map((a) =>
-              a.candidate.id === candidateId
-                ? { ...a, overallStatus: "DECLINED" }
-                : a,
-            ),
+            current.map((a) => {
+              if (a.candidate.id !== candidateId) return a;
+
+              const submissions = a.submissions.map((submission) => ({
+                ...submission,
+                roles: submission.roles.map((role) =>
+                  declined.has(role.applicationId)
+                    ? { ...role, status: "DECLINED" as const }
+                    : role,
+                ),
+              }));
+
+              const allRoles = submissions.flatMap((s) => s.roles);
+              const isFullyDeclined =
+                allRoles.length > 0 &&
+                allRoles.every(
+                  (role) =>
+                    role.status === "DECLINED" || role.status === "WITHDRAWN",
+                );
+
+              return {
+                ...a,
+                submissions,
+                overallStatus: isFullyDeclined ? "DECLINED" : a.overallStatus,
+              };
+            }),
           );
           if (blocked) {
             setBlockedCandidateIds((prev) => {

@@ -1,5 +1,5 @@
 import { Pencil } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
@@ -24,18 +24,21 @@ export default function ApplicantNoteAction({
   const isSubmitting = fetcher.state !== "idle";
   const hasChanges = noteText !== savedNote;
 
+  const submittedNote = useRef("");
+
   useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data) {
       const data = fetcher.data as { success?: boolean; error?: string };
       if (data.success) {
-        setSavedNote(noteText);
+        setSavedNote(submittedNote.current);
+        onSaved?.(submittedNote.current);
         toast.success("Confidential note saved successfully.");
         setEditMode(false);
       } else if (data.error) {
         toast.error(data.error);
       }
     }
-  }, [fetcher.state, fetcher.data]);
+  }, [fetcher.state, fetcher.data, onSaved]);
 
   useEffect(() => {
     setSavedNote(existingNote ?? "");
@@ -53,7 +56,13 @@ export default function ApplicantNoteAction({
         </span>
       </div>
 
-      <fetcher.Form method="POST" className="w-full">
+      <fetcher.Form
+        method="POST"
+        className="w-full"
+        onSubmit={() => {
+          submittedNote.current = noteText;
+        }}
+      >
         {!editMode && savedNote ? (
           <div className="border-gray-150 rounded-2xl border p-4">
             <p className="text-gray-850 font-sans text-sm leading-relaxed whitespace-pre-wrap dark:text-gray-100">
@@ -61,6 +70,7 @@ export default function ApplicantNoteAction({
             </p>
             <div className="mt-3 flex justify-end">
               <Button
+                type="button"
                 onClick={() => setEditMode(true)}
                 className="flex cursor-pointer items-center gap-1.5 bg-white text-xs font-bold text-blue-500 hover:underline"
               >
@@ -86,6 +96,7 @@ export default function ApplicantNoteAction({
               <div className="mt-3 flex items-center justify-end gap-2.5">
                 {savedNote && (
                   <Button
+                    type="button"
                     onClick={() => {
                       setNoteText(savedNote);
                       setEditMode(false);
@@ -97,7 +108,6 @@ export default function ApplicantNoteAction({
                 )}
                 <Button
                   type="submit"
-                  // onClick={handleSave}
                   disabled={isSubmitting}
                   className="bg-brand-blue cursor-pointer rounded-lg bg-blue-500 px-5 py-1.5 text-xs font-semibold tracking-wide text-white shadow-sm transition-all disabled:opacity-50"
                 >

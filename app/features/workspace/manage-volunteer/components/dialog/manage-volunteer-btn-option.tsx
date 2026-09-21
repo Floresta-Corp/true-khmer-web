@@ -21,6 +21,7 @@ export default function OptionCard({
   return (
     <button
       type="button"
+      aria-pressed={isSelected}
       onClick={onClick}
       className={cn(
         "flex flex-1 flex-col gap-3 rounded-2xl border-2 p-4 text-left transition-all duration-300 sm:gap-4 sm:rounded-[24px] sm:p-8",

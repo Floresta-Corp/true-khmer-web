@@ -18,12 +18,10 @@ export default function ManagePostingDetailStats() {
 
   const remaining = capacity - totalApplicant;
 
-  // Determine if the recruitment goal has been met
   const isGoalReached = totalApplicant >= capacity && capacity > 0;
 
   return (
     <div className="grid grid-cols-1 gap-5 sm:grid-cols-4">
-      {/* 1. Pending Card */}
       <div className="relative flex h-40 items-start justify-between overflow-hidden rounded-[24px] bg-blue-500 p-6">
         <div className="relative z-20">
           <p className="mb-4 text-[14px] font-semibold tracking-wider text-white/70">
@@ -31,7 +29,6 @@ export default function ManagePostingDetailStats() {
           </p>
         </div>
 
-        {/* Bottom text + watermark */}
         <div className="pointer-events-none absolute bottom-4 left-6 z-20">
           <p className="text-4xl font-bold tracking-tight text-white">
             {postDetail?.stats?.pending ?? 0}
@@ -44,7 +41,6 @@ export default function ManagePostingDetailStats() {
         <div className="pointer-events-none absolute inset-0 z-10 bg-linear-to-br from-indigo-600/0 via-indigo-600/0 to-black/10" />
       </div>
 
-      {/* 2. Total Applicants */}
       <div className="relative flex h-40 items-start justify-between overflow-hidden rounded-[24px] border border-gray-100 bg-white p-6">
         <div className="relative z-20">
           <p className="mb-4 text-[14px] font-semibold tracking-wider text-gray-400">
@@ -55,9 +51,6 @@ export default function ManagePostingDetailStats() {
           <p className="text-4xl font-bold tracking-tight text-black">
             {postDetail?.stats?.totalApplicants ?? 0}
           </p>
-          <span className="text-xs font-medium text-green-500">
-            +12% this week
-          </span>
         </div>
         <HeartHandshake
           size={120}
@@ -66,7 +59,6 @@ export default function ManagePostingDetailStats() {
         />
       </div>
 
-      {/* 4. Recruitment Goal */}
       <div
         className={`relative flex h-40 items-start justify-between overflow-hidden rounded-[24px] border p-6 transition-all duration-300 ${
           isGoalReached
@@ -111,7 +103,6 @@ export default function ManagePostingDetailStats() {
           )}
         </div>
 
-        {/* Conditional Large Watermark Icon */}
         {isGoalReached ? (
           <CheckCircle2
             size={120}
@@ -127,7 +118,6 @@ export default function ManagePostingDetailStats() {
         )}
       </div>
 
-      {/* 3. Total Views */}
       <div className="relative flex h-40 items-start justify-between overflow-hidden rounded-[24px] border border-gray-100 bg-white p-6">
         <div className="relative z-20">
           <p className="mb-4 text-[14px] font-semibold tracking-wider text-gray-400">
@@ -138,7 +128,6 @@ export default function ManagePostingDetailStats() {
           <p className="text-4xl font-bold tracking-tight text-black">
             {postDetail?.posting?.views ?? 0}
           </p>
-          <span className="text-xs font-medium text-green-500">+450 today</span>
         </div>
 
         <ScanSearch
