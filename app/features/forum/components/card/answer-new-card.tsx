@@ -18,7 +18,8 @@ import CommentWrapper from "~/components/comment-wrapper";
 import SlideToLeftHoverAnimation from "~/components/slide-to-left-hover-animation";
 import MarkBestAnswerDialog from "../dialog/mark-best-answer-dialog";
 import { useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router";
+import { Link, useLocation } from "react-router";
+import CommentReplyBox from "~/components/comment-reply-box";
 import {
   Accordion,
   AccordionContent,
@@ -77,6 +78,10 @@ function AnswerComponent({
     openAccordion,
   );
   const [repliedAnswerId, setRepliedAnswerId] = useState<string | null>(null);
+  const [isReplyOpen, setIsReplyOpen] = useState(false);
+  const loginHref = `/login?redirectTo=${encodeURIComponent(
+    `${location.pathname}${location.search}`,
+  )}`;
 
   // After a reply succeeds we save the replied-to answer id; once it matches
   // this answer (or one of its replies) we auto-open the replies accordion.
@@ -238,21 +243,26 @@ function AnswerComponent({
                 className="w-auto flex-row items-center gap-0 pt-0"
               />
 
-              <AddAnswerDialog
-                questionId={answer.questionId}
-                replyToAnswer={answer.id}
-                isAuthenticated={isAuthenticated}
-                onReplySuccess={setRepliedAnswerId}
-                trigger={
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="h-auto cursor-pointer p-0 text-sm leading-5 font-semibold text-[#0050d4] hover:bg-transparent hover:text-[#0045b8]"
-                  >
-                    Reply
-                  </Button>
-                }
-              />
+              {isAuthenticated ? (
+                // Plain button, not <Button variant="ghost">: the ghost variant
+                // paints a muted background while aria-expanded is true and
+                // nudges the label down on press, which reads wrong for a link.
+                <button
+                  type="button"
+                  onClick={() => setIsReplyOpen((previous) => !previous)}
+                  aria-expanded={isReplyOpen}
+                  className="cursor-pointer bg-transparent text-sm leading-5 font-semibold text-[#0050d4] transition-colors outline-none hover:text-[#0045b8] focus-visible:underline focus-visible:underline-offset-4"
+                >
+                  Reply
+                </button>
+              ) : (
+                <Link
+                  to={loginHref}
+                  className="text-sm leading-5 font-semibold text-[#0050d4] hover:text-[#0045b8]"
+                >
+                  Reply
+                </Link>
+              )}
 
               {replyCount > 0 ? (
                 <AccordionTrigger className="inline-flex items-center gap-2 text-[#48566a]">
@@ -281,6 +291,35 @@ function AnswerComponent({
               />
             ) : null}
           </div>
+
+          <AnimatePresence initial={false}>
+            {isReplyOpen ? (
+              <motion.div
+                key="reply-box"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.18, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <CommentReplyBox
+                  autoFocus
+                  className="pt-2"
+                  textareaClassName="min-h-20"
+                  fields={{
+                    actionType: "create-answer",
+                    questionId: answer.questionId,
+                    replyToAnswer: answer.id,
+                  }}
+                  onCancel={() => setIsReplyOpen(false)}
+                  onSuccess={() => {
+                    setIsReplyOpen(false);
+                    setRepliedAnswerId(answer.id);
+                  }}
+                />
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
         </motion.article>
         {answer.repliedAnswers && (
           <AccordionContent>

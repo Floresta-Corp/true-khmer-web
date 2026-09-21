@@ -35,6 +35,10 @@ export interface CommentReplyBoxProps {
    * Label for the submit button.
    */
   submitLabel?: string;
+  textareaClassName?: string;
+  autoFocus?: boolean;
+  onCancel?: () => void;
+  onSuccess?: () => void;
 }
 
 export default function CommentReplyBox({
@@ -44,6 +48,10 @@ export default function CommentReplyBox({
   className,
   maxLength,
   submitLabel = "Reply",
+  textareaClassName,
+  autoFocus = false,
+  onCancel,
+  onSuccess,
 }: CommentReplyBoxProps) {
   const fetcher = useFetcher();
   const revalidator = useRevalidator();
@@ -60,6 +68,7 @@ export default function CommentReplyBox({
     onSuccess: () => {
       setBody("");
       revalidator.revalidate();
+      onSuccess?.();
     },
   });
 
@@ -95,24 +104,42 @@ export default function CommentReplyBox({
           disabled={disabled || isSubmitting}
           value={body}
           onChange={(event) => setBody(event.target.value)}
-          className="min-h-32 w-full resize-y rounded-xl border-[#abadaf33] bg-white px-4 py-3 text-sm leading-5 text-[#2c2f31] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] placeholder:text-[#595c5e] focus-visible:border-[#0050d4] focus-visible:ring-[#0050d4]/15"
+          className={cn(
+            "min-h-32 w-full resize-y rounded-xl border-[#abadaf33] bg-white px-4 py-3 text-sm leading-5 text-[#2c2f31] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] placeholder:text-[#595c5e] focus-visible:border-[#0050d4] focus-visible:ring-[#0050d4]/15",
+            textareaClassName,
+          )}
           maxLength={maxLength}
+          autoFocus={autoFocus}
         />
 
-        <Button
-          type="submit"
-          disabled={disabled || isSubmitting || isBodyEmpty}
-          className="h-10 rounded-lg bg-[#0050d4] px-6 text-sm font-medium text-white hover:bg-[#0045b8] disabled:opacity-60"
-        >
-          {isSubmitting ? (
-            <span className="inline-flex items-center gap-2">
-              <Spinner className="size-3.5" />
-              Posting...
-            </span>
-          ) : (
-            submitLabel
-          )}
-        </Button>
+        <div className="flex items-center gap-2">
+          {onCancel ? (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onCancel}
+              disabled={isSubmitting}
+              className="h-10 rounded-lg px-4 text-sm font-medium text-[#595c5e] hover:bg-transparent hover:text-[#2c2f31]"
+            >
+              Cancel
+            </Button>
+          ) : null}
+
+          <Button
+            type="submit"
+            disabled={disabled || isSubmitting || isBodyEmpty}
+            className="h-10 rounded-lg bg-[#0050d4] px-6 text-sm font-medium text-white hover:bg-[#0045b8] disabled:opacity-60"
+          >
+            {isSubmitting ? (
+              <span className="inline-flex items-center gap-2">
+                <Spinner className="size-3.5" />
+                Posting...
+              </span>
+            ) : (
+              submitLabel
+            )}
+          </Button>
+        </div>
       </div>
     </fetcher.Form>
   );
