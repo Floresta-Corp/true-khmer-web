@@ -159,7 +159,7 @@ export default function ForumDetailPage() {
   }
 
   return (
-    <ForumPageLayout>
+    <div className="mx-auto w-full max-w-4xl px-4 pt-8 pb-10 lg:px-2">
       {/* Back nav + actions */}
       <motion.div
         className="mb-8 flex items-center justify-between"
@@ -213,7 +213,7 @@ export default function ForumDetailPage() {
             animate="visible"
             custom={1}
           >
-            <div className="rounded-2xl bg-white p-4 sm:p-6 lg:px-8 lg:py-8">
+            <div className="rounded-2xl bg-white p-4 sm:p-6 lg:px-8 lg:py-1">
               <ForumDetailQuestionHeader
                 question={question}
                 isAuthenticated={Boolean(userId)}
@@ -225,11 +225,11 @@ export default function ForumDetailPage() {
                 }
               />
 
-              <h1 className="mt-5 text-2xl leading-8 font-bold text-[#2c2f31] sm:mt-6 sm:text-3xl sm:leading-9 lg:text-[40px] lg:leading-10 lg:tracking-[-0.2px]">
+              <h1 className="mt-5 text-2xl leading-8 font-bold text-[#2c2f31] sm:mt-6 sm:text-3xl sm:leading-9 lg:text-[26px] lg:leading-10 lg:tracking-[-0.2px]">
                 {question.title}
               </h1>
 
-              <p className="mt-4 text-base leading-6.75 text-[#595c5e] sm:mt-6 sm:text-lg sm:leading-9">
+              <p className="sm:leading-1.65 mt-4 text-base leading-6.75 text-[#595c5e] sm:mt-2 sm:text-base">
                 {question.body}
               </p>
 
@@ -346,6 +346,6 @@ export default function ForumDetailPage() {
             <RelatedDiscussionsCard discussions={displayedRelatedDiscussions} />
           </motion.aside> */}
       </section>
-    </ForumPageLayout>
+    </div>
   );
 }

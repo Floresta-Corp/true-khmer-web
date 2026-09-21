@@ -1,22 +1,14 @@
 import { AnimatePresence, motion } from "motion/react";
-import { Award, MessageCircle, Pencil, Trash2 } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import AnswerVoteComponent from "../answer-vote-component";
 import { Separator } from "~/components/ui/separator";
-import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import { resolveImageURL, cn } from "~/lib/utils";
 import type { AnswerResponse } from "~/types/api-client";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
-import AddAnswerDialog from "../dialog/add-answer-dialog";
-import DeleteAnswerDialog from "../dialog/delete-answer-dialog";
-import ForumReportDialog, {
-  ReportDialogType,
-  type ReportReasonData,
-} from "../dialog/forum-report-dialog";
+import { type ReportReasonData } from "../dialog/forum-report-dialog";
 import NestedReplyCard from "./nested-reply-card";
 import CommentWrapper from "~/components/comment-wrapper";
-import SlideToLeftHoverAnimation from "~/components/slide-to-left-hover-animation";
-import MarkBestAnswerDialog from "../dialog/mark-best-answer-dialog";
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router";
 import CommentReplyBox from "~/components/comment-reply-box";
@@ -28,6 +20,7 @@ import {
 } from "~/components/ui/accordion";
 import { highlightAnswerClassName } from "../../utils";
 import ProfileLinkWrapper from "~/components/profile-link-wrapper";
+import AnswerActionsDropdown from "../dropdown/answer-actions-dropdown";
 
 interface AnswerNewCardProps {
   answer: AnswerResponse;
@@ -56,7 +49,6 @@ function AnswerComponent({
   const formattedDate = formatMinutesOrHoursAgo(answer.createdAt);
   const imageUrl = resolveImageURL(answer.author.avatarKey);
   const replyCount = answer.replyCount;
-  const [isHovered, setIsHovered] = useState(false);
   const location = useLocation();
   let id: string | null = null;
   const match = location.hash.match(/^#answer-([A-Za-z0-9-_]+)$/);
@@ -134,8 +126,6 @@ function AnswerComponent({
             delay: index * 0.06,
             ease: [0.25, 0.1, 0.25, 1],
           }}
-          onHoverStart={() => setIsHovered(true)}
-          onHoverEnd={() => setIsHovered(false)}
         >
           <div className="flex w-full items-start justify-between gap-2">
             <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -171,58 +161,15 @@ function AnswerComponent({
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
-              <SlideToLeftHoverAnimation isHovered={isHovered}>
-                {isViewerQuestionAuthor && !isBestAnswer && (
-                  <MarkBestAnswerDialog
-                    answerId={answer.id}
-                    trigger={
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
-                        aria-label="Mark best answer"
-                      >
-                        <Award size={12} />
-                      </Button>
-                    }
-                  />
-                )}
-                {isCurrentAuthor && (
-                  <AddAnswerDialog
-                    questionId={answer.questionId}
-                    isEditing
-                    data={{ id: answer.id, body: answer.body }}
-                    trigger={
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
-                        aria-label="Edit answer"
-                      >
-                        <Pencil size={12} />
-                      </Button>
-                    }
-                  />
-                )}
-                {isCurrentAuthor && (
-                  <DeleteAnswerDialog
-                    answerId={answer.id}
-                    trigger={
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="h-7 w-7 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
-                        aria-label="Delete answer"
-                      >
-                        <Trash2 size={12} />
-                      </Button>
-                    }
-                  />
-                )}
-              </SlideToLeftHoverAnimation>
+              <AnswerActionsDropdown
+                answerId={answer.id}
+                answerBody={answer.body}
+                questionId={answer.questionId}
+                isCurrentAuthor={isCurrentAuthor}
+                isAuthenticated={isAuthenticated}
+                canMarkBestAnswer={isViewerQuestionAuthor && !isBestAnswer}
+                reportReasons={reportReasons}
+              />
             </div>
           </div>
 
@@ -234,7 +181,7 @@ function AnswerComponent({
 
           <Separator className="bg-[#abadaf1a]" />
 
-          <div className="flex items-center justify-between pt-1">
+          <div className="flex items-center pt-1">
             <div className="flex items-center gap-4">
               <AnswerVoteComponent
                 answerId={answer.id}
@@ -277,16 +224,6 @@ function AnswerComponent({
                 </div>
               )}
             </div>
-
-            {!isCurrentAuthor ? (
-              <ForumReportDialog
-                title={answer.body}
-                id={answer.id}
-                type={ReportDialogType.ANSWER}
-                reportReasons={reportReasons || []}
-                isAuthenticated={isAuthenticated}
-              />
-            ) : null}
           </div>
 
           <AnimatePresence initial={false}>

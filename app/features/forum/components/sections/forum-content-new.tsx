@@ -59,7 +59,12 @@ export default function ForumContentNew({
   hasMore,
   isLoading,
 }: ForumContentNewProps) {
-  const { userId } = useLoaderData<typeof loader>();
+  const { userId, reportReasons } = useLoaderData<typeof loader>();
+  const reportReasonOptions =
+    reportReasons?.reportingTypes.map((type) => ({
+      id: type.id,
+      reason: type.type,
+    })) ?? [];
   const sentinelRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const d = prefersReducedMotion ? 0 : 1;
@@ -217,6 +222,7 @@ export default function ForumContentNew({
                     userId={userId ?? undefined}
                     categories={categories}
                     index={index}
+                    reportReasons={reportReasonOptions}
                   />
                 </motion.div>
               ))}

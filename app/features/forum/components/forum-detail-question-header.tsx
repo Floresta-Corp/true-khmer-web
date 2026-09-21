@@ -169,7 +169,7 @@ export default function ForumDetailQuestionHeader({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <div className="hidden items-center text-sm font-semibold text-[#9eacc0] md:flex">
+      {/* <div className="hidden items-center text-sm font-semibold text-[#9eacc0] md:flex">
         {!isAuthenticated ? (
           <Link to={loginHref}>
             <Button
@@ -215,7 +215,7 @@ export default function ForumDetailQuestionHeader({
             </Button>
           }
         />
-      </div>
+      </div> */}
     </div>
   );
 }

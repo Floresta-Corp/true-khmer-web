@@ -32,6 +32,8 @@ export interface CommentFormDialogProps {
   formKey?: string;
   trigger?: React.ReactNode;
   onSuccess?: (message?: string) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export default function CommentFormDialog({
@@ -45,14 +47,22 @@ export default function CommentFormDialog({
   formKey,
   trigger,
   onSuccess,
+  open: controlledOpen,
+  onOpenChange,
 }: CommentFormDialogProps) {
   const fetcher = useFetcher();
   const location = useLocation();
   const revalidator = useRevalidator();
   const isSubmitting = fetcher.state !== "idle";
   const bodyRef = useRef<HTMLTextAreaElement>(null);
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
   const [bodyError, setBodyError] = useState<string | null>(null);
+
+  function setOpen(next: boolean) {
+    setUncontrolledOpen(next);
+    onOpenChange?.(next);
+  }
   const redirectTo = `${location.pathname}${location.search}`;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
   const Entity = entityLabel.charAt(0).toUpperCase() + entityLabel.slice(1);
@@ -113,16 +123,18 @@ export default function CommentFormDialog({
         }
       }}
     >
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button
-            variant="outline"
-            className="h-9 rounded-lg border-[#e2e8f0] px-4 text-sm font-medium text-[#0f172b] shadow-xs"
-          >
-            {isEditing ? `Edit ${entityLabel}` : `Add your ${entityLabel}`}
-          </Button>
-        )}
-      </DialogTrigger>
+      {controlledOpen === undefined ? (
+        <DialogTrigger asChild>
+          {trigger || (
+            <Button
+              variant="outline"
+              className="h-9 rounded-lg border-[#e2e8f0] px-4 text-sm font-medium text-[#0f172b] shadow-xs"
+            >
+              {isEditing ? `Edit ${entityLabel}` : `Add your ${entityLabel}`}
+            </Button>
+          )}
+        </DialogTrigger>
+      ) : null}
 
       <DialogContent
         showCloseButton={false}
