@@ -244,9 +244,6 @@ function AnswerComponent({
               />
 
               {isAuthenticated ? (
-                // Plain button, not <Button variant="ghost">: the ghost variant
-                // paints a muted background while aria-expanded is true and
-                // nudges the label down on press, which reads wrong for a link.
                 <button
                   type="button"
                   onClick={() => setIsReplyOpen((previous) => !previous)}
