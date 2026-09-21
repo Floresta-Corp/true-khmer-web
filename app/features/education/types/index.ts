@@ -144,11 +144,13 @@ export interface OwnCourseReview {
 
 export type CourseFormat = "MULTI" | "SINGLE";
 
+export type CourseCertificateKind = "PARTICIPATION" | "COMPLETION";
+
 export interface CourseDetail extends CourseSummary {
   format: CourseFormat;
   meta: CourseMetaItem[];
   hasQuiz: boolean;
-  certificateKind: "PARTICIPATION" | "COMPLETION" | null;
+  certificateKind: CourseCertificateKind | null;
   skills: string[];
   outcomes: string[];
   curriculum: CourseSection[];
@@ -201,6 +203,7 @@ export interface CourseCertificate {
   certificateNo: string;
   recipientName: string;
   courseTitle: string;
+  certificateKind: CourseCertificateKind | null;
   completedOn: string;
   sharedToProfile: boolean;
 }
@@ -210,6 +213,7 @@ export interface ProfileCertificate {
   courseId: string;
   courseTitle: string;
   certificateNo: string;
+  certificateKind: CourseCertificateKind | null;
   completedAt: string;
   sharedToProfile: boolean;
 }
