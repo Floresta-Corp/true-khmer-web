@@ -1,21 +1,76 @@
+import { createReadStream } from "node:fs";
+import { cp } from "node:fs/promises";
+import { createRequire } from "node:module";
+import { dirname, join, normalize, sep } from "node:path";
 import { reactRouter } from "@react-router/dev/vite";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
-// Build for the Workers runtime instead of the Node server. Set by the
-// `build:cf` / `dev:cf` scripts, and by the build command Cloudflare Workers
-// Builds runs -- the Dokploy/Docker deploy keeps using the plain Node build.
 const isCloudflare = process.env.BUILD_TARGET === "cloudflare";
+
+const PDFJS_BASE = "pdfjs";
+
+const PDFJS_DIRS = ["cmaps", "iccs", "standard_fonts", "wasm"];
+
+function pdfjsAssets(): Plugin {
+  const pkg = dirname(
+    createRequire(import.meta.url).resolve("pdfjs-dist/package.json"),
+  );
+
+  const assetPath = (url: string) => {
+    const wanted = normalize(decodeURIComponent(url.split("?")[0])).replace(
+      /^[/\\]+/,
+      "",
+    );
+
+    if (!PDFJS_DIRS.includes(wanted.split(/[/\\]/)[0])) return null;
+
+    const file = join(pkg, wanted);
+    return file.startsWith(pkg + sep) ? file : null;
+  };
+
+  return {
+    name: "pdfjs-assets",
+
+    configureServer(server) {
+      server.middlewares.use(`/${PDFJS_BASE}`, (req, res, next) => {
+        const file = req.url && assetPath(req.url);
+        if (!file) return next();
+
+        if (file.endsWith(".wasm")) {
+          res.setHeader("Content-Type", "application/wasm");
+        }
+
+        const stream = createReadStream(file);
+
+        stream.on("error", () => {
+          if (!res.headersSent) res.statusCode = 404;
+          res.end();
+        });
+
+        stream.pipe(res);
+      });
+    },
+
+    async writeBundle({ dir: outDir }) {
+      if (this.environment.name !== "client" || !outDir) return;
+
+      await Promise.all(
+        PDFJS_DIRS.map((dir) =>
+          cp(join(pkg, dir), join(outDir, PDFJS_BASE, dir), {
+            recursive: true,
+          }),
+        ),
+      );
+    },
+  };
+}
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
-  // Only inline the variables that actually have a value at build time.
-  // Defining a missing one would replace `process.env.X` with the literal
-  // `undefined` and shadow the value the host supplies at runtime -- on
-  // Workers these come from the Worker's vars and secrets, not the build.
   const serverEnv = [
     "API_BASE_URL",
     "SESSION_SECRET",
@@ -53,6 +108,7 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       reactRouter(),
       tsconfigPaths(),
+      pdfjsAssets(),
     ],
     define: {
       "process.env.NODE_ENV": JSON.stringify(mode),

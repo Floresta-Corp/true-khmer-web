@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { Download, ExternalLink, FileText } from "lucide-react";
+import { ExternalLink, FileText } from "lucide-react";
 import { cn, getSafeExternalUrl } from "~/lib/utils";
 import type { ActiveLesson, LessonGateState } from "~/features/education/types";
 import { pdfEmbedUrl } from "~/features/education/lib/lesson-media";
@@ -16,13 +16,6 @@ import {
   type LessonMediaProps,
 } from "./lesson-media-frame";
 
-/**
- * A PDF lesson.
- *
- * The pages are drawn into the page itself, so scrolling through to the end of
- * the document is what finishes the lesson — see `PdfDocumentView`, and
- * `documentLessonGate` for why that is the only evidence taken.
- */
 export function PdfLesson({
   lesson,
   overlay,
@@ -36,6 +29,7 @@ export function PdfLesson({
       {overlay && <MediaBar>{overlay}</MediaBar>}
       {src ? (
         <RealPdfLesson
+          key={src}
           lesson={lesson}
           src={src}
           flush={flush}
@@ -67,15 +61,6 @@ function PdfFrame({
   );
 }
 
-/**
- * How the document is being shown, best first.
- *
- * `rendered` draws the pages into the page itself, which is the only way the
- * lesson can see them being read. The rest are fallbacks for when the file
- * cannot be fetched or parsed: `framed` hands it to the browser's own viewer,
- * which shows the document but says nothing about it, and `blocked` gives up on
- * showing it here at all.
- */
 type PdfPreview =
   | { status: "rendered" }
   | { status: "framed" }
@@ -89,7 +74,6 @@ function isSameOrigin(src: string): boolean {
   }
 }
 
-/** Where a document goes when it cannot be drawn into the page. */
 function fallbackPreview(src: string): PdfPreview {
   if (navigator.pdfViewerEnabled === false) {
     return {
@@ -131,12 +115,6 @@ function RealPdfLesson({
     [src],
   );
 
-  /* Only our own viewer can see a document being read. The fallbacks below it
-     show the file but report nothing about it, and a gate with no evidence
-     coming is not a strict gate — it is a lesson the learner cannot leave. A
-     media host that has not set its CORS header is the operator's mistake to
-     fix, not the learner's to be trapped by, so the gate opens as it does for
-     a lesson with nothing behind it at all. */
   const gate =
     preview.status === "rendered"
       ? documentLessonGate(hasReachedEnd)
@@ -148,7 +126,6 @@ function RealPdfLesson({
     <PdfFrame flush={flush}>
       {preview.status === "rendered" ? (
         <PdfDocumentView
-          key={src}
           src={src}
           title={lesson.title}
           onReachedEnd={onReachedEnd}
@@ -162,10 +139,10 @@ function RealPdfLesson({
         />
       ) : (
         <iframe
-          key={src}
           src={pdfEmbedUrl(src)}
           title={lesson.title}
           referrerPolicy="no-referrer"
+          sandbox="allow-same-origin allow-scripts allow-popups allow-downloads allow-forms"
           onError={() =>
             setPreview({
               status: "blocked",
@@ -198,8 +175,6 @@ function PdfDownloadNotice({
         <p className="text-[15px] font-bold text-[#1A1A2E]">
           This document cannot be previewed here
         </p>
-        {/* The gate is open on this path, and saying so is kinder than leaving
-            a learner to discover it by trying the button. */}
         <p className="mt-1.5 text-sm leading-[1.6] text-[#5B5B70]">
           {reason} Open it to read the lesson — you can continue to the next one
           whenever you are ready.
@@ -207,16 +182,6 @@ function PdfDownloadNotice({
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-2.5">
-        {/* <a
-          href={src}
-          download
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 rounded-full bg-[#1C5DD4] px-5.5 py-2.75 text-sm font-bold text-white transition-colors hover:bg-[#174FB4]"
-        >
-          <Download className="size-4" aria-hidden />
-          Download PDF
-        </a> */}
         <a
           href={src}
           target="_blank"
@@ -232,12 +197,6 @@ function PdfDownloadNotice({
   );
 }
 
-/**
- * A document lesson with no file behind it.
- *
- * The placeholder page is kept so the screen still reads as a document, and
- * the gate opens: a missing upload must not strand a learner mid-course.
- */
 function UnavailablePdfLesson({
   flush,
   onGateChange,
