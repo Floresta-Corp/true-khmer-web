@@ -196,7 +196,7 @@ function PdfPage({
   }, [page]);
 
   return (
-    <div className="w-full">
+    <div className="relative w-full">
       <canvas
         ref={canvasRef}
         aria-hidden

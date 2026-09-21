@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLoaderData, useFetcher, useSearchParams } from "react-router";
-import { Bookmark, Download, Lock, Menu, MoreVertical } from "lucide-react";
+import { Bookmark, ChevronLeft, Lock, Menu, MoreVertical } from "lucide-react";
+import { BackLink } from "~/components/back-link";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -496,6 +497,16 @@ export default function CourseLearnPage() {
 
   return (
     <EducationPage surface="muted" layout="full">
+      <div className="shrink-0 py-3.5">
+        <BackLink
+          to={`/education/${course.id}`}
+          className="inline-flex min-w-0 items-center gap-1.5 text-sm font-semibold text-[#1C5DD4] transition-colors hover:underline"
+        >
+          <ChevronLeft className="size-4 shrink-0" aria-hidden />
+          <span className="truncate">Back to course</span>
+        </BackLink>
+      </div>
+
       <div className="flex min-h-0 flex-1 items-stretch overflow-hidden bg-white">
         {isPanelOpen && (
           <LearnSidebar

@@ -38,6 +38,7 @@ export function MyClassActionsMenu({ course }: { course: MyClass }) {
   const announced = useRef<unknown>(null);
   const lastIntent = useRef<MyClassIntent | null>(null);
   const [isLeaveOpen, setIsLeaveOpen] = useState(false);
+  const isAvailable = course.courseStatus === "PUBLISHED";
 
   const submitIntent = (intent: MyClassIntent) => {
     lastIntent.current = intent;
@@ -71,12 +72,14 @@ export function MyClassActionsMenu({ course }: { course: MyClass }) {
           <MoreVertical size={18} aria-hidden />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56 rounded-xl">
-          <DropdownMenuItem asChild>
-            <Link to={`/education/${course.courseId}`}>
-              <Eye size={16} aria-hidden />
-              View course page
-            </Link>
-          </DropdownMenuItem>
+          {isAvailable && (
+            <DropdownMenuItem asChild>
+              <Link to={`/education/${course.courseId}`}>
+                <Eye size={16} aria-hidden />
+                View course page
+              </Link>
+            </DropdownMenuItem>
+          )}
 
           {course.certificateEarned && (
             <DropdownMenuItem asChild>
@@ -116,9 +119,11 @@ export function MyClassActionsMenu({ course }: { course: MyClass }) {
           <DialogHeader>
             <DialogTitle>Leave “{course.title}”?</DialogTitle>
             <DialogDescription>
-              {course.lessonsCompleted > 0
-                ? `Your progress on ${course.lessonsCompleted} of ${course.lessonCount} lessons will be deleted. You can enrol again, but you will start from the beginning.`
-                : "You can enrol again at any time from the course page."}
+              {isAvailable
+                ? course.lessonsCompleted > 0
+                  ? `Your progress on ${course.lessonsCompleted} of ${course.lessonCount} lessons will be deleted. You can enrol again, but you will start from the beginning.`
+                  : "You can enrol again at any time from the course page."
+                : "This course is no longer offered, so you will not be able to enrol again. Your progress will be deleted; any certificate you earned is kept."}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

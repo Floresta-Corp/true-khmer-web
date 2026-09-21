@@ -31,33 +31,53 @@ function CourseCover({ course }: { course: MyClass }) {
 }
 
 export function MyClassRow({ course }: { course: MyClass }) {
-  const remaining = formatRemaining(course);
+  const isAvailable = course.courseStatus === "PUBLISHED";
+  const remaining = isAvailable ? formatRemaining(course) : null;
   const isComplete = course.status === "completed";
   const hasLessons = course.lessonCount > 0;
   const to = `/education/${course.courseId}`;
 
+  const coverClassName = cn(
+    "h-13.5 w-24 shrink-0 overflow-hidden rounded-lg bg-[#f1f5f9] sm:h-14.5 sm:w-26",
+    !isAvailable && "opacity-60",
+  );
+
   return (
     <div className="flex items-start gap-4 px-4 py-4 transition-colors hover:bg-[#fafbfc] sm:px-5">
-      <Link
-        to={to}
-        tabIndex={-1}
-        aria-hidden
-        className="h-13.5 w-24 shrink-0 overflow-hidden rounded-lg bg-[#f1f5f9] sm:h-14.5 sm:w-26"
-      >
-        <CourseCover course={course} />
-      </Link>
+      {isAvailable ? (
+        <Link to={to} tabIndex={-1} aria-hidden className={coverClassName}>
+          <CourseCover course={course} />
+        </Link>
+      ) : (
+        <div className={coverClassName}>
+          <CourseCover course={course} />
+        </div>
+      )}
 
       <div className="min-w-0 flex-1">
-        <div className="text-[10px] font-bold tracking-[0.08em] text-[#9CA3AF] uppercase">
-          {course.categoryName ?? "Course"}
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-bold tracking-[0.08em] text-[#9CA3AF] uppercase">
+            {course.categoryName ?? "Course"}
+          </span>
+          {!isAvailable && (
+            <span className="rounded-full bg-[#E2E8F0] px-2 py-0.5 text-[10px] font-bold tracking-[0.04em] text-[#475569] uppercase">
+              Unavailable
+            </span>
+          )}
         </div>
 
-        <Link
-          to={to}
-          className="mt-0.5 block truncate text-[15px] font-bold text-[#1A1A2E] hover:text-[#1C5DD4] hover:underline"
-        >
-          {course.title}
-        </Link>
+        {isAvailable ? (
+          <Link
+            to={to}
+            className="mt-0.5 block truncate text-[15px] font-bold text-[#1A1A2E] hover:text-[#1C5DD4] hover:underline"
+          >
+            {course.title}
+          </Link>
+        ) : (
+          <div className="mt-0.5 truncate text-[15px] font-bold text-[#6B7280]">
+            {course.title}
+          </div>
+        )}
 
         <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-[#8A94A6]">
           <span>
@@ -87,6 +107,7 @@ export function MyClassRow({ course }: { course: MyClass }) {
                 className={cn(
                   "h-full rounded-full transition-all",
                   isComplete ? "bg-[#1FC16B]" : "bg-[#1C5DD4]",
+                  !isAvailable && !isComplete && "bg-[#9CA3AF]",
                 )}
                 style={{ width: `${course.progressPercent}%` }}
               />
@@ -97,6 +118,7 @@ export function MyClassRow({ course }: { course: MyClass }) {
                 className={cn(
                   "font-bold",
                   isComplete ? "text-[#1FC16B]" : "text-[#1C5DD4]",
+                  !isAvailable && !isComplete && "text-[#6B7280]",
                 )}
               >
                 {course.progressPercent}%
@@ -113,10 +135,18 @@ export function MyClassRow({ course }: { course: MyClass }) {
           </div>
         )}
 
-        {!course.isEnrolled && (
-          <div className="mt-2 text-xs font-semibold text-[#1C5DD4]">
-            Saved — not started
+        {!isAvailable ? (
+          <div className="mt-2 text-xs text-[#8A94A6]">
+            {course.certificateEarned
+              ? "No longer offered — your certificate is still available."
+              : "No longer offered. This course cannot be continued."}
           </div>
+        ) : (
+          !course.isEnrolled && (
+            <div className="mt-2 text-xs font-semibold text-[#1C5DD4]">
+              Saved — not started
+            </div>
+          )
         )}
       </div>
 
