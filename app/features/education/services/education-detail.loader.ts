@@ -4,7 +4,9 @@ import {
   getCourseById,
   getCourseCategories,
   getCourseCurriculum,
+  getCourseProgress,
   getLearnerCourseQuiz,
+  getOwnCourseReview,
   listCourseReviews,
 } from "~/api/education/education.server";
 import { getCourseSaveState } from "~/api/education/my-classes.server";
@@ -175,16 +177,43 @@ export async function loadCourseHasQuiz(
   return (response?.data?.quiz?.questions?.length ?? 0) > 0;
 }
 
+async function loadCourseProgress(request: Request, courseId: string) {
+  try {
+    const response = await getCourseProgress(request, courseId);
+    const progress = response?.data;
+    if (!progress) return null;
+
+    return {
+      completedLessonIds: progress.completedLessonIds,
+      resumePoints: progress.resumePoints,
+      isComplete: progress.isComplete,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function loadOwnReview(request: Request, courseId: string) {
+  try {
+    const response = await getOwnCourseReview(request, courseId);
+    return response?.data?.review ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function educationDetailLoader({
   request,
   params,
 }: EducationDetailRoute.LoaderArgs) {
-  const [course, hasQuiz] = await Promise.all([
+  const [course, hasQuiz, progress, ownReview] = await Promise.all([
     loadCourseDetail(request, params.id, {
       withInstructorContact: true,
       withSaveState: true,
     }),
     loadCourseHasQuiz(request, params.id),
+    loadCourseProgress(request, params.id),
+    loadOwnReview(request, params.id),
   ]);
 
   if (!course) {
@@ -193,5 +222,5 @@ export async function educationDetailLoader({
 
   const recommended = await loadCourseRecommendations(request, course);
 
-  return { course: { ...course, hasQuiz }, recommended };
+  return { course: { ...course, hasQuiz }, recommended, progress, ownReview };
 }
