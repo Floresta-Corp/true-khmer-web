@@ -1,17 +1,25 @@
 import { Link } from "react-router";
 import { BackLink } from "~/components/back-link";
 import { ChevronLeft, List, X } from "lucide-react";
+import { cn } from "~/lib/utils";
 import type { CourseSummary } from "~/features/education/types";
 
 export function CourseRecommendedRail({
   courses,
   onClose,
+  className,
 }: {
   courses: CourseSummary[];
   onClose: () => void;
+  className?: string;
 }) {
   return (
-    <div className="flex h-full w-95 shrink-0 flex-col border-r border-[#E5E7EB] bg-white">
+    <div
+      className={cn(
+        "flex h-full w-95 shrink-0 flex-col border-r border-[#E5E7EB] bg-white",
+        className,
+      )}
+    >
       <div className="border-b border-[#E5E7EB] px-5 py-3.5">
         <BackLink
           to="/education"

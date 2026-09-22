@@ -331,11 +331,12 @@ export default function CourseSingleDetailPage() {
 
   return (
     <EducationPage surface="muted" layout="full">
-      <div className="flex min-h-0 flex-1 items-stretch overflow-hidden bg-white">
+      <div className="relative flex min-h-0 flex-1 items-stretch overflow-hidden bg-white">
         {hasRail && isPanelOpen && (
           <CourseRecommendedRail
             courses={recommended}
             onClose={() => setIsPanelOpen(false)}
+            className="absolute inset-y-0 left-0 z-20 w-full sm:static sm:w-95 sm:shrink-0"
           />
         )}
 

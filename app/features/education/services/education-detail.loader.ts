@@ -178,28 +178,20 @@ export async function loadCourseHasQuiz(
 }
 
 async function loadCourseProgress(request: Request, courseId: string) {
-  try {
-    const response = await getCourseProgress(request, courseId);
-    const progress = response?.data;
-    if (!progress) return null;
+  const response = await getCourseProgress(request, courseId);
+  const progress = response?.data;
+  if (!progress) return null;
 
-    return {
-      completedLessonIds: progress.completedLessonIds,
-      resumePoints: progress.resumePoints,
-      isComplete: progress.isComplete,
-    };
-  } catch {
-    return null;
-  }
+  return {
+    completedLessonIds: progress.completedLessonIds,
+    resumePoints: progress.resumePoints,
+    isComplete: progress.isComplete,
+  };
 }
 
 async function loadOwnReview(request: Request, courseId: string) {
-  try {
-    const response = await getOwnCourseReview(request, courseId);
-    return response?.data?.review ?? null;
-  } catch {
-    return null;
-  }
+  const response = await getOwnCourseReview(request, courseId);
+  return response?.data?.review ?? null;
 }
 
 export async function educationDetailLoader({
