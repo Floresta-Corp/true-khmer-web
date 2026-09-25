@@ -105,7 +105,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
           isSection: true,
         }
       : {
-          to: "/workspace/manage-post",
+          to: "/workspace/volunteer",
           label: "Workspace",
           icon: LayoutDashboard,
           forceActive: isInWorkspace,
@@ -115,9 +115,9 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
   const navLinks: NavLink[] = [
     { ...sectionLink, hide: !user },
     { to: "/", label: "Home", icon: House },
-    // { to: "/dashboard", label: "My Journey", icon: Compass },
+
     { to: "/forum", label: "Forum", icon: MessagesSquare },
-    // { to: "/forumv2", label: "Forum V2", icon: MessageSquare },
+
     { to: "/volunteer", label: "Volunteer", icon: HeartHandshake },
     { to: "/launchpad", label: "Launchpad", icon: BriefcaseBusiness },
     { to: "/events", label: "Events", icon: Calendar },
@@ -142,8 +142,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
 
   return (
     <>
-      {/* Top Header Bar */}
-      <header className="sticky top-0 z-50 h-(--navbar-height) w-full border-b border-[#f1f5f9] bg-white shadow-sm">
+      <header className="sticky top-0 z-50 w-full border-b border-[#f1f5f9] bg-white shadow-sm">
         <div
           className={cn(
             "flex h-full w-full items-center justify-between gap-2 px-4 transition-[padding] duration-400 ease-out motion-reduce:transition-none md:gap-4",
@@ -152,7 +151,6 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
               : "lg:px-[max(0.5rem,calc((100%-87.5rem)/2+0.5rem))]",
           )}
         >
-          {/* Left: Hamburger (mobile) + Logo */}
           <div className="flex shrink-0 items-center gap-1">
             <MobileNavSheet
               navLinks={navLinks}
@@ -172,7 +170,6 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
             </Link>
           </div>
 
-          {/* Center: Navigation Links (desktop only) */}
           <nav className="hidden items-center gap-2 md:flex lg:gap-5">
             {navLinks.map((link) => {
               const isSectionLink = !!link.isSection;
@@ -228,7 +225,6 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
             })}
           </nav>
 
-          {/* Right side */}
           <div className="flex shrink-0 items-center gap-2 lg:gap-4">
             {user ? (
               <>

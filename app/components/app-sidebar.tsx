@@ -5,6 +5,7 @@ import {
   ClipboardList,
   FileUser,
   GraduationCap,
+  HandHeart,
   MessagesSquare,
   PenLine,
   Ticket,
@@ -40,17 +41,16 @@ export type SidebarNavItem = {
   label: string;
   to: string;
   icon: React.ComponentType<{ className?: string }>;
-  /** Extra paths that keep this item active, for sub-pages on their own URL. */
+
   matchPaths?: string[];
 };
 
 export interface AppSidebarProps {
-  /** Role badge shown under the user's name (e.g. "Member", "Creator"). */
   roleLabel: string;
-  /** Primary navigation links. */
+
   items: SidebarNavItem[];
   headerAccentSrc?: string;
-  /** Footer CTA that switches the user to the other space. */
+
   footer: SpaceSwitchFooter;
 }
 
@@ -153,10 +153,17 @@ export default function AppSidebar({
 
 const workspaceNavItems: SidebarNavItem[] = [
   {
-    id: "managepost",
-    label: "Manage Opportunities",
-    to: "/workspace/manage-post",
+    id: "managevolunteer",
+    label: "My Volunteer",
+    to: "/workspace/volunteer",
+    icon: HandHeart,
+  },
+  {
+    id: "managelaunchpad",
+    label: "My Launchpad",
+    to: "/workspace/launchpad",
     icon: ClipboardList,
+    matchPaths: ["/workspace/projects"],
   },
   {
     id: "discussion",
@@ -215,7 +222,7 @@ export const mySpaceSidebarConfig: AppSidebarProps = {
     },
   ],
   footer: {
-    to: "/workspace/manage-post",
+    to: "/workspace/volunteer",
     label: "Switch to Workspace",
     className: "bg-[#32A8FF] [a]:hover:bg-[#1E90FF]",
     spaceId: "workspace",

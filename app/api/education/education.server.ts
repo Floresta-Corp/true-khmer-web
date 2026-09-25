@@ -16,7 +16,10 @@ import type {
   UpdateCourseRequest,
 } from "~/types/api-client";
 import type { CourseStatus } from "~/features/course-listing/types";
-import type { ProfileCertificate } from "~/features/education/types";
+import type {
+  CourseCertificateKind,
+  ProfileCertificate,
+} from "~/features/education/types";
 
 export async function getCourseCategories(request: Request) {
   try {
@@ -835,6 +838,7 @@ export interface CourseCertificateRecord {
   id: string;
   courseId: string;
   courseTitle: string;
+  certificateKind: CourseCertificateKind | null;
   certificateNo: string;
   recipientName: string;
   completedAt: string;
@@ -928,6 +932,7 @@ export function toProfileCertificate(
     courseId: certificate.courseId,
     courseTitle: certificate.courseTitle,
     certificateNo: certificate.certificateNo,
+    certificateKind: certificate.certificateKind ?? null,
     completedAt: certificate.completedAt,
     sharedToProfile: certificate.sharedToProfile,
   };

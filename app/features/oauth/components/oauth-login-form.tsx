@@ -15,7 +15,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { OAUTH_RESUME_PARAM, withRedirectTo } from "~/lib/redirects";
-import type { OAuthLoginActionData } from "../types";
+import { OAUTH_RETURN_TO_FIELD, type OAuthLoginActionData } from "../types";
 import {
   oauthLoginSchema,
   type OAuthLoginFormValues,
@@ -29,10 +29,9 @@ export function OAuthLoginForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const isSubmitting = navigation.state === "submitting";
 
-  // Send new users to the signup page in this same window, carrying a redirect
-  // back to this exact OAuth request tagged with the resume flag. That flag
-  // lets signup skip onboarding and land back here, where the loader reads the
-  // session it just created and renders the consent card.
+  // A redirect back to this exact OAuth request, tagged with the resume flag.
+  // That flag lets signup and 2FA skip onboarding and land back here, where the
+  // loader reads the session they just created and renders the consent card.
   const oauthReturnTo = `${location.pathname}${location.search}${
     location.search ? "&" : "?"
   }${OAUTH_RESUME_PARAM}=1`;
@@ -63,6 +62,14 @@ export function OAuthLoginForm() {
         noValidate
         onSubmit={handleSubmit(onValid)}
       >
+        {/* Where the action sends the user back to if this account turns out
+            to need a two-factor code. */}
+        <input
+          type="hidden"
+          name={OAUTH_RETURN_TO_FIELD}
+          value={oauthReturnTo}
+        />
+
         <div className="space-y-2.5">
           <Label
             htmlFor="email"

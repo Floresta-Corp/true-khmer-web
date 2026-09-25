@@ -72,6 +72,7 @@ export async function educationCertificateLoader({
     certificateNo: issued.certificateNo,
     recipientName: issued.recipientName,
     courseTitle: issued.courseTitle,
+    certificateKind: issued.certificateKind ?? null,
     completedOn: formatDate(issued.completedAt),
     sharedToProfile: issued.sharedToProfile,
   };
