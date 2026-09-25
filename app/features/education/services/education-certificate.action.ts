@@ -55,7 +55,7 @@ export async function educationCertificateAction({
 
 type AuthContext = Awaited<ReturnType<typeof requireUser>>;
 
-interface IntentContext {
+export interface IntentContext {
   request: Request;
   auth: AuthContext;
   cookies: string[];
@@ -122,7 +122,12 @@ async function handleShareIntent({
   }
 }
 
-async function handleRateIntent({
+/**
+ * Shared with the course detail route: a single-lesson course is finished on
+ * the detail screen rather than on the way to a certificate, so its rating
+ * prompt posts there — same form, same result shape, one place that writes it.
+ */
+export async function handleRateIntent({
   request,
   auth,
   cookies,
