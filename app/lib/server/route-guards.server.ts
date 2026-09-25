@@ -123,11 +123,16 @@ function isProtectedApiCode(error: unknown, code: string) {
   );
 }
 
-function isUserNotFoundError(error: unknown) {
+function isInvalidUserError(error: unknown) {
   if (!(error instanceof ProtectedApiError)) return false;
   if (error.status === 404) return true;
-  if (error.code === "USER_NOT_FOUND") return true;
-  return error.message.toLowerCase().includes("user not found");
+  if (error.code === "USER_NOT_FOUND" || error.code === "ACCOUNT_DELETED") {
+    return true;
+  }
+  const message = error.message.trim().toLowerCase();
+  return (
+    message.includes("user not found") || /^account deleted\.?$/.test(message)
+  );
 }
 
 export function isAdminRole(role: string | undefined) {
@@ -139,7 +144,7 @@ export function isAdminRole(role: string | undefined) {
 }
 
 async function redirectForGuardError(error: unknown, request: Request) {
-  if (error instanceof AuthSessionExpiredError || isUserNotFoundError(error)) {
+  if (error instanceof AuthSessionExpiredError || isInvalidUserError(error)) {
     return clearAndRedirectToLogin(request);
   }
   if (isProtectedApiCode(error, "SIGNUP_COMPLETION_REQUIRED")) {

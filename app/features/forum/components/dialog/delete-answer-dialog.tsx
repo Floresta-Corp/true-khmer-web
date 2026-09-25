@@ -15,17 +15,27 @@ import {
 
 interface DeleteAnswerDialogProps {
   answerId: string;
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export default function DeleteAnswerDialog({
   answerId,
   trigger,
+  open: controlledOpen,
+  onOpenChange,
 }: DeleteAnswerDialogProps) {
   const fetcher = useFetcher();
   const isDeleting = fetcher.state !== "idle";
   const wasDeleting = useRef(false);
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
+
+  const setOpen = (next: boolean) => {
+    setUncontrolledOpen(next);
+    onOpenChange?.(next);
+  };
 
   useEffect(() => {
     if (fetcher.state === "submitting") {
@@ -54,7 +64,7 @@ export default function DeleteAnswerDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
       <DialogContent className="max-w-sm rounded-2xl">
         <DialogTitle>Delete answer?</DialogTitle>
         <DialogDescription>

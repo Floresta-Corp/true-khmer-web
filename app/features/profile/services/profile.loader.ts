@@ -10,6 +10,7 @@ import {
   collectCertificates,
   toProfileCertificate,
 } from "~/api/education/education.server";
+import { getReportReasons } from "~/api/reporting/reporting.server";
 import type { Route } from "project-types/profile/route/+types/profile.$id";
 
 const ProfileIdSchema = z.string().min(1);
@@ -118,6 +119,9 @@ export async function profileLoader({ request, params }: Route.LoaderArgs) {
 
   const isClientFetch = url.searchParams.get("_intent") === "client";
 
+  // Needed by the report dialog behind each question card's actions menu.
+  const reportReasons = isClientFetch ? null : await getReportReasons(request);
+
   try {
     if (sourceTypeResult.success && isClientFetch) {
       const result = await GetPostedContent(
@@ -149,6 +153,7 @@ export async function profileLoader({ request, params }: Route.LoaderArgs) {
         kind: "profile" as const,
         profile: profileResult.data.profile,
         certificates,
+        reportReasons,
         initialPosted: normalizePosted(
           postedResult.data,
           sourceTypeResult.data,
@@ -164,8 +169,14 @@ export async function profileLoader({ request, params }: Route.LoaderArgs) {
       kind: "profile" as const,
       profile: profileResult.data.profile,
       certificates,
+      reportReasons,
     };
   } catch {
-    return { kind: "profile" as const, profile: null, certificates: [] };
+    return {
+      kind: "profile" as const,
+      profile: null,
+      certificates: [],
+      reportReasons: null,
+    };
   }
 }

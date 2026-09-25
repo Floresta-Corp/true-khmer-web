@@ -157,7 +157,7 @@ const DeleteModeratorResponse = z.object({ ok: z.boolean() });
 
 const AdminUserManagementTier = z.object({ id: z.string().uuid(), slug: z.string(), name: z.string(), rankOrder: z.number().int(), minPoints: z.number().int() });
 
-const AdminUserManagementUser = z.object({ id: z.string().uuid(), name: z.string(), firstName: z.string(), lastName: z.string(), displayName: z.string().nullable(), avatarKey: z.string().nullable(), email: z.string().email(), emailVerified: z.boolean(), phoneNumber: z.string().nullable(), phoneCountry: z.string().nullable(), role: z.string(), status: z.enum(["SIGNUP_REQUIRED", "ONBOARDING_REQUIRED", "ACTIVE", "SUSPENDED"]), tier: AdminUserManagementTier.nullable(), totalPoints: z.number().int(), signupCompletedAt: z.string().nullable(), onboardingStep: z.number().int(), onboardingCompletedAt: z.string().nullable(), lastActive: z.string().nullable(), createdAt: z.string(), updatedAt: z.string() });
+const AdminUserManagementUser = z.object({ id: z.string().uuid(), name: z.string(), firstName: z.string(), lastName: z.string(), displayName: z.string().nullable(), avatarKey: z.string().nullable(), email: z.string().email(), emailVerified: z.boolean(), phoneNumber: z.string().nullable(), phoneCountry: z.string().nullable(), role: z.string(), status: z.enum(["SIGNUP_REQUIRED", "ONBOARDING_REQUIRED", "ACTIVE", "SUSPENDED", "DELETED"]), deletedAt: z.string().nullable(), tier: AdminUserManagementTier.nullable(), totalPoints: z.number().int(), signupCompletedAt: z.string().nullable(), onboardingStep: z.number().int(), onboardingCompletedAt: z.string().nullable(), lastActive: z.string().nullable(), createdAt: z.string(), updatedAt: z.string() });
 
 const AdminUserManagementListResponse = z.object({ ok: z.literal(true), users: z.array(AdminUserManagementUser), total: z.number().int(), page: z.number().int(), limit: z.number().int(), totalPages: z.number().int() });
 
@@ -570,7 +570,7 @@ const UpdateInterestsRequest = z.object({ interestIds: z.array(z.string().regex(
 
 const UpdateInterestsResponse = z.object({ ok: z.literal(true), interests: z.array(z.object({ id: z.string(), slug: z.string(), label: z.string(), icon: z.string().nullable() })) });
 
-const CertificateResponse = z.object({ id: z.string().uuid(), courseId: z.string().uuid(), courseTitle: z.string(), certificateNo: z.string(), recipientName: z.string(), completedAt: z.string(), issuedAt: z.string(), sharedToProfile: z.boolean(), coverImageUrl: z.string().nullable() });
+const CertificateResponse = z.object({ id: z.string().uuid(), courseId: z.string().uuid(), courseTitle: z.string(), certificateKind: z.enum(["PARTICIPATION", "COMPLETION"]).nullable(), certificateNo: z.string(), recipientName: z.string(), completedAt: z.string(), issuedAt: z.string(), sharedToProfile: z.boolean(), coverImageUrl: z.string().nullable() });
 
 const ListCertificatesResponse = z.object({ ok: z.literal(true), certificates: z.array(CertificateResponse), pagination: z.object({ page: z.number().int().gt(0), limit: z.number().int().gt(0), total: z.number().int().gte(0), totalPages: z.number().int().gte(0) }) });
 
@@ -804,7 +804,7 @@ const UpdateCourseMetaRequest = z.object({ difficulty: z.enum(["BEGINNER", "INTE
 
 const LessonResumePoint = z.object({ lessonId: z.string().uuid(), positionSeconds: z.number().int().gte(0), watchedSeconds: z.number().int().gte(0), updatedAt: z.string() });
 
-const CourseProgressResponse = z.object({ ok: z.literal(true), completedLessonIds: z.array(z.string().uuid()), unlockedLessonIds: z.array(z.string().uuid()), nextLessonId: z.string().uuid().nullable(), lessonCount: z.number().int().gte(0), isComplete: z.boolean(), resumePoints: z.array(LessonResumePoint), lastLessonId: z.string().uuid().nullable() });
+const CourseProgressResponse = z.object({ ok: z.literal(true), completedLessonIds: z.array(z.string().uuid()), unlockedLessonIds: z.array(z.string().uuid()), nextLessonId: z.string().uuid().nullable(), lessonCount: z.number().int().gte(0), isComplete: z.boolean(), resumePoints: z.array(LessonResumePoint), lastLessonId: z.string().uuid().nullable(), quiz: z.object({ hasQuiz: z.boolean(), attempted: z.boolean(), attemptCount: z.number().int().gte(0), bestPercent: z.number().int().nullable(), passed: z.boolean(), lastAttemptedAt: z.string().nullable() }) });
 
 const MarkLessonProgressRequest = z.object({ lessonId: z.string().uuid(), watchedSeconds: z.number().gte(0).lte(86400).nullish() });
 
@@ -4457,7 +4457,7 @@ const endpoints = makeApi([
 			{
 				name: "status",
 				type: "Query",
-				schema: z.enum(["all", "SIGNUP_REQUIRED", "ONBOARDING_REQUIRED", "ACTIVE", "SUSPENDED"]).optional()
+				schema: z.enum(["all", "SIGNUP_REQUIRED", "ONBOARDING_REQUIRED", "ACTIVE", "SUSPENDED", "DELETED"]).optional()
 			},
 			{
 				name: "tier",
@@ -4557,6 +4557,11 @@ const endpoints = makeApi([
 			{
 				status: 404,
 				description: `User not found`,
+				schema: z.object({ ok: z.literal(false), error: z.string() })
+			},
+			{
+				status: 409,
+				description: `Deleted users cannot be suspended or reinstated`,
 				schema: z.object({ ok: z.literal(false), error: z.string() })
 			},
 			{
@@ -4782,6 +4787,48 @@ const endpoints = makeApi([
 				status: 409,
 				description: `Authenticator app already enabled`,
 				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/auth/account",
+		alias: "deleteV1authaccount",
+		description: `Soft-delete the authenticated user&#x27;s own account. No target user ID is accepted.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "confirm",
+				type: "Query",
+				schema: z.literal(true)
+			},
+		],
+		response: z.object({ ok: z.literal(true), userId: z.string().uuid(), status: z.literal("DELETED"), deletedAt: z.string().nullable() }),
+		errors: [
+			{
+				status: 400,
+				description: `Explicit confirm&#x3D;true is required`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Account suspended or deleted`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `User not found`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: AuthProtectedErrorResponse
 			},
 		]
 	},

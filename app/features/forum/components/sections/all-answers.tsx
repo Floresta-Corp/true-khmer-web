@@ -99,7 +99,7 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
       </div>
 
       {/* Answer list */}
-      <div className="flex flex-col gap-6" key={answersKey}>
+      <div className="flex flex-col gap-4" key={answersKey}>
         {isLoading
           ? Array.from({ length: skeletonCount }).map((_, index) => (
               <AnswerCardSkeleton key={`answer-skeleton-${index}`} />

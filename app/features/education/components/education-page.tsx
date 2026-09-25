@@ -16,7 +16,7 @@ export function EducationPage({
     return (
       <div
         className={cn(
-          "h-[calc(100vh-72px)] overflow-hidden font-tk-edu",
+          "h-[calc(100dvh-var(--navbar-height))] overflow-hidden font-tk-edu",
           surface === "muted" ? "bg-[#F5F6F8]" : "bg-white",
           className,
         )}

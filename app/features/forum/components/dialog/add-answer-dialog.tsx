@@ -9,6 +9,8 @@ interface AddAnswerDialogProps {
   trigger?: React.ReactNode;
   replyToAnswer?: string;
   onReplySuccess?: (repliedAnswerId: string) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export default function AddAnswerDialog({
@@ -19,6 +21,8 @@ export default function AddAnswerDialog({
   trigger,
   replyToAnswer,
   onReplySuccess,
+  open,
+  onOpenChange,
 }: AddAnswerDialogProps) {
   return (
     <CommentFormDialog
@@ -26,6 +30,8 @@ export default function AddAnswerDialog({
       isEditing={isEditing}
       isAuthenticated={isAuthenticated}
       trigger={trigger}
+      open={open}
+      onOpenChange={onOpenChange}
       defaultValue={data?.body ?? ""}
       formKey={isEditing ? `edit-answer-${data?.id ?? "new"}` : "create-answer"}
       fields={{

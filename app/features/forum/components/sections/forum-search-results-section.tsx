@@ -40,7 +40,12 @@ export default function ForumSearchResultsSection({
   onLoadMore,
   hasMore,
 }: ForumSearchResultsSectionProps) {
-  const { userId } = useLoaderData<typeof loader>();
+  const { userId, reportReasons } = useLoaderData<typeof loader>();
+  const reportReasonOptions =
+    reportReasons?.reportingTypes.map((type) => ({
+      id: type.id,
+      reason: type.type,
+    })) ?? [];
   const categoriesPicker = categories.map((c) => ({
     id: c.id,
     name: c.name,
@@ -107,6 +112,7 @@ export default function ForumSearchResultsSection({
                 question={question}
                 categories={categoriesPicker}
                 index={index}
+                reportReasons={reportReasonOptions}
               />
             ))
           )}

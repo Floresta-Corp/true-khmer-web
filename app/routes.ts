@@ -299,6 +299,7 @@ export default [
   route("tk-admin/logout", "features/admin/auth/route/admin-logout.tsx"),
 
   route("oauth/login", "features/oauth/route/oauth-login.tsx"),
+  route("oauth/2fa", "features/oauth/route/oauth-2fa.tsx"),
   route("oauth/handoff", "features/oauth/route/oauth-handoff.tsx"),
   route("my-events/create", "features/workspace/route/my-events.create.tsx"),
 
