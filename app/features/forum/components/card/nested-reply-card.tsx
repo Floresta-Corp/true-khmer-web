@@ -2,6 +2,8 @@ import { Pencil, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
 import AnswerVoteComponent from "../answer-vote-component";
 import { Button } from "~/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { getInitials } from "~/routes/onboarding/domain/profile/profile-utils";
 import { resolveImageURL, cn } from "~/lib/utils";
 import type { AnswerResponse } from "~/types/api-client";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
@@ -15,6 +17,7 @@ import ForumReportDialog, {
   type ReportReasonData,
 } from "../dialog/forum-report-dialog";
 import { highlightAnswerClassName } from "../../utils";
+import { Badge } from "~/components/ui/badge";
 
 type RepliedAnswer = NonNullable<AnswerResponse["repliedAnswers"]>[number];
 
@@ -76,13 +79,17 @@ export default function NestedReplyCard({
       <div className="flex w-full items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-[#dfe3e6]">
-              <img
-                src={imageUrl}
-                alt={repliedAnswer.author.name ?? "Author avatar"}
-                className="h-full w-full object-cover"
-              />
-            </div>
+            <Avatar>
+              {imageUrl && (
+                <AvatarImage
+                  src={imageUrl}
+                  alt={repliedAnswer.author.name ?? "Author avatar"}
+                />
+              )}
+              <AvatarFallback className="bg-[#dfe3e6] text-xs font-semibold text-[#2c2f31]">
+                {getInitials(repliedAnswer.author.name ?? "") || "?"}
+              </AvatarFallback>
+            </Avatar>
             <div className="flex flex-col">
               <div className="text-base leading-6 font-semibold text-[#2c2f31]">
                 {repliedAnswer.author.name}
@@ -93,11 +100,12 @@ export default function NestedReplyCard({
             </div>
           </div>
           {isAnswerByQuestionAuthor && (
-            <div>
-              <div className="bg-brand-light-blue dark:bg-brand-blue/20 text-brand-blue border-brand-blue/10 rounded border px-1.5 py-0.5 text-[10px] font-bold tracking-widest uppercase">
-                Author
-              </div>
-            </div>
+            <Badge
+              variant="secondary"
+              className="pointer-events-none shrink-0 bg-green-100 text-xs font-semibold text-green-700"
+            >
+              Author
+            </Badge>
           )}
         </div>
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { X } from "lucide-react";
 import { Link, useFetcher, useLocation, useRevalidator } from "react-router";
 import { toast } from "sonner";
@@ -32,6 +32,8 @@ export interface CommentFormDialogProps {
   formKey?: string;
   trigger?: React.ReactNode;
   onSuccess?: (message?: string) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export default function CommentFormDialog({
@@ -45,13 +47,22 @@ export default function CommentFormDialog({
   formKey,
   trigger,
   onSuccess,
+  open: controlledOpen,
+  onOpenChange,
 }: CommentFormDialogProps) {
   const fetcher = useFetcher();
   const location = useLocation();
   const revalidator = useRevalidator();
   const isSubmitting = fetcher.state !== "idle";
-  const [open, setOpen] = useState(false);
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
   const [bodyError, setBodyError] = useState<string | null>(null);
+
+  function setOpen(next: boolean) {
+    setUncontrolledOpen(next);
+    onOpenChange?.(next);
+  }
   const redirectTo = `${location.pathname}${location.search}`;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
   const Entity = entityLabel.charAt(0).toUpperCase() + entityLabel.slice(1);
@@ -112,19 +123,33 @@ export default function CommentFormDialog({
         }
       }}
     >
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button
-            variant="outline"
-            className="h-9 rounded-lg border-[#e2e8f0] px-4 text-sm font-medium text-[#0f172b] shadow-xs"
-          >
-            {isEditing ? `Edit ${entityLabel}` : `Add your ${entityLabel}`}
-          </Button>
-        )}
-      </DialogTrigger>
+      {controlledOpen === undefined ? (
+        <DialogTrigger asChild>
+          {trigger || (
+            <Button
+              variant="outline"
+              className="h-9 rounded-lg border-[#e2e8f0] px-4 text-sm font-medium text-[#0f172b] shadow-xs"
+            >
+              {isEditing ? `Edit ${entityLabel}` : `Add your ${entityLabel}`}
+            </Button>
+          )}
+        </DialogTrigger>
+      ) : null}
 
       <DialogContent
         showCloseButton={false}
+        // Radix would park focus on the close button; send it to the textarea so
+        // the field is live (and visibly focused) the moment the dialog opens.
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          const textarea = bodyRef.current;
+          if (!textarea) return;
+          textarea.focus();
+          textarea.setSelectionRange(
+            textarea.value.length,
+            textarea.value.length,
+          );
+        }}
         className="max-w-[calc(100%-1rem)] gap-4 overflow-hidden rounded-2xl border border-[#f1f5f9] bg-white p-6 sm:max-w-201"
       >
         <DialogClose>
@@ -152,6 +177,7 @@ export default function CommentFormDialog({
             ),
           )}
           <Textarea
+            ref={bodyRef}
             name="body"
             placeholder={placeholder}
             defaultValue={defaultValue}
@@ -162,7 +188,7 @@ export default function CommentFormDialog({
                 setBodyError(null);
               }
             }}
-            className="min-h-20 w-full resize-none overflow-x-auto rounded-md border border-[#e2e8f0] bg-white px-3 pt-2 text-sm leading-5 text-[#111827] placeholder:text-black/50 focus:ring-2 focus:ring-[#2f6fe4]/20 focus:outline-none aria-invalid:border-red-500"
+            className="min-h-20 w-full resize-none overflow-x-auto rounded-md border border-[#e2e8f0] bg-white px-3 pt-2 text-sm leading-5 text-[#111827] transition-colors placeholder:text-black/50 focus:border-[#0050d4] focus:ring-2 focus:ring-[#0050d4]/20 focus:outline-none focus-visible:border-[#0050d4] focus-visible:ring-2 focus-visible:ring-[#0050d4]/20 aria-invalid:border-red-500 aria-invalid:focus:border-red-500 aria-invalid:focus:ring-red-500/20"
           />
           {bodyError ? (
             <p className="mt-1 text-xs text-red-600">{bodyError}</p>

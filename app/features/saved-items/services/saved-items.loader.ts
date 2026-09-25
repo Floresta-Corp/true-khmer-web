@@ -8,12 +8,15 @@ import {
 } from "~/features/saved-items/types";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
+import { getReportReasons } from "~/api/reporting/reporting.server";
+import type { GetReportingTypesResponse } from "~/types/api-client";
 
 export type SavedItemsLoaderData = {
   saveItem: SavedItemCard[];
   userId: string | null;
   count: SavedItemCounts;
   nextCursor: string | null;
+  reportReasons: GetReportingTypesResponse | null;
 };
 
 export async function savedItemsLoader({ request }: Route.LoaderArgs) {
@@ -25,8 +28,11 @@ export async function savedItemsLoader({ request }: Route.LoaderArgs) {
     cursor: url.searchParams.get("cursor") || undefined,
   });
 
+  const reportReasons = await getReportReasons(request);
+
   return withAuthData(auth, {
     saveItem: result?.data?.items ?? [],
+    reportReasons,
     nextCursor: result?.data?.nextCursor ?? null,
     count: result?.data?.counts ?? EMPTY_SAVED_ITEM_COUNTS,
     userId: auth.user.id,

@@ -44,6 +44,14 @@ export default function ProfileDetailPage() {
       ? data.initialPosted
       : undefined;
 
+  const reportReasonOptions =
+    data.kind === "profile" && "reportReasons" in data
+      ? (data.reportReasons?.reportingTypes.map((type) => ({
+          id: type.id,
+          reason: type.type,
+        })) ?? [])
+      : [];
+
   const {
     accumulated,
     isTabLoading,
@@ -164,6 +172,7 @@ export default function ProfileDetailPage() {
                       question={question as any}
                       categories={[]}
                       index={index}
+                      reportReasons={reportReasonOptions}
                     />
                   ))}
                   <InfiniteScrollTrigger

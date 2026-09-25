@@ -36,6 +36,8 @@ interface ForumReportDialogProps {
   type: ReportDialogType;
   id: string;
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export default function ForumReportDialog({
@@ -45,9 +47,17 @@ export default function ForumReportDialog({
   type,
   id,
   trigger,
+  open: controlledOpen,
+  onOpenChange,
 }: ForumReportDialogProps) {
   const location = useLocation();
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
+
+  function setOpen(next: boolean) {
+    setUncontrolledOpen(next);
+    onOpenChange?.(next);
+  }
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [details, setDetails] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -98,18 +108,20 @@ export default function ForumReportDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-[22.75px] w-[22.75px] cursor-pointer rounded-[3.5px] p-[5.25px] text-[#99a1af] transition-colors hover:bg-transparent hover:text-[#e7000b]"
-          >
-            <Flag className="h-3 w-3" />
-            <span className="sr-only">Report</span>
-          </Button>
-        )}
-      </DialogTrigger>
+      {controlledOpen === undefined ? (
+        <DialogTrigger asChild>
+          {trigger || (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-[22.75px] w-[22.75px] cursor-pointer rounded-[3.5px] p-[5.25px] text-[#99a1af] transition-colors hover:bg-transparent hover:text-[#e7000b]"
+            >
+              <Flag className="h-3 w-3" />
+              <span className="sr-only">Report</span>
+            </Button>
+          )}
+        </DialogTrigger>
+      ) : null}
 
       <DialogContent
         showCloseButton={false}

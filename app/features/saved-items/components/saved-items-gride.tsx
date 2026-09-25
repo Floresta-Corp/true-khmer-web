@@ -1,7 +1,7 @@
 import { Tag } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useCallback } from "react";
-import { useNavigate } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 import type { CategoriesPicker } from "~/features/forum/types";
 import type { QuestionResponse } from "~/types/api-client";
 import type { Opportunity } from "~/features/volunteer/types/volunteer-types";
@@ -15,6 +15,7 @@ import { toCourseSummary } from "~/features/education/lib/map-catalog";
 import type { PublicCourseListItem } from "~/api/education/education.server";
 import { EventListItemSchema } from "~/features/events/types/events";
 import SavedItemCard from "./saved-item-card";
+import type { savedItemsLoader } from "../services/saved-items.loader";
 import type { FilterId, SavedItemCard as SavedItemCardData } from "../types";
 
 interface SavedGridProps {
@@ -109,6 +110,13 @@ function CardRenderer({
   isRemoving?: boolean;
   onOpenProject: (item: LaunchpadOpportunity) => void;
 }) {
+  const { reportReasons } = useLoaderData<typeof savedItemsLoader>();
+  const reportReasonOptions =
+    reportReasons?.reportingTypes.map((type) => ({
+      id: type.id,
+      reason: type.type,
+    })) ?? [];
+
   const fallback = (
     <SavedItemCard item={card} onUnsave={onUnsave} isRemoving={isRemoving} />
   );
@@ -122,6 +130,7 @@ function CardRenderer({
           question={card.item as QuestionResponse}
           categories={categories}
           userId={userId}
+          reportReasons={reportReasonOptions}
         />
       );
     case "volunteer":

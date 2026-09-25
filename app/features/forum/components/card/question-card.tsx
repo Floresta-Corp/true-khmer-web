@@ -1,18 +1,17 @@
-import { Pencil, Trash2, MessageCircle } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL } from "~/lib/utils";
 import type { QuestionResponse } from "~/types/api-client";
 import type { CategoriesPicker } from "~/features/forum/types";
-import AskQuestionDialog from "../dialog/ask-question-dialog";
-import DeleteQuestionDialog from "../dialog/delete-question-dialog";
+import type { ReportReasonData } from "../dialog/forum-report-dialog";
 import ShareQuestionDialog from "../dialog/share-question-dialog";
 import QuestionVoteComponent from "../question-vote-component";
-import MobileAuthorOptions from "../mobile-author-options";
+import QuestionActionsDropdown from "../question-actions-dropdown";
+import SaveQuestionButton from "../save-question-button";
 import { motion, useReducedMotion } from "motion/react";
 import { ImageLightbox } from "~/components/image-lightbox";
 import ProfileLinkWrapper from "~/components/profile-link-wrapper";
@@ -23,6 +22,7 @@ interface QuestionCardProps {
   userId?: string;
   index?: number;
   actions?: React.ReactNode;
+  reportReasons?: ReportReasonData[];
 }
 
 export default function QuestionCard({
@@ -31,6 +31,7 @@ export default function QuestionCard({
   userId,
   index = 0,
   actions,
+  reportReasons,
 }: QuestionCardProps) {
   const prefersReducedMotion = useReducedMotion();
   const createdAgoLabel = formatMinutesOrHoursAgo(question.createdAt);
@@ -41,7 +42,6 @@ export default function QuestionCard({
   };
 
   const isCurrentAuthor = Boolean(userId) && userId === question.author.id;
-  const [isHovered, setIsHovered] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   return (
@@ -53,8 +53,6 @@ export default function QuestionCard({
         duration: prefersReducedMotion ? 0 : 0.1,
         delay: prefersReducedMotion ? 0 : index * 0.02,
       }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
     >
       {/* Header with author info */}
       <div className="mb-3 flex items-start justify-between gap-3 sm:mb-4">
@@ -88,77 +86,29 @@ export default function QuestionCard({
             <span className="text-xs text-[#9eacc0]">{createdAgoLabel}</span>
 
             {isCurrentAuthor && (
-              <Badge
-                variant="secondary"
-                className="pointer-events-none h-5 rounded-md bg-green-100 px-2 text-[10px] font-semibold text-green-600"
-              >
+              <div className="bg-brand-light-blue dark:bg-brand-blue/20 text-brand-blue border-brand-blue/10 rounded border px-1.5 py-0.5 text-[10px] font-bold tracking-widest uppercase">
                 Author
-              </Badge>
+              </div>
             )}
           </div>
         </div>
 
-        {/* Edit/Delete actions */}
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+        {/* Save + actions menu */}
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-1">
           {actions}
 
-          {isCurrentAuthor ? (
-            <>
-              {/* Mobile: Dropdown menu */}
-              <div className="sm:hidden">
-                <MobileAuthorOptions
-                  question={question}
-                  categories={categories}
-                />
-              </div>
+          <SaveQuestionButton
+            question={question}
+            isAuthenticated={Boolean(userId)}
+          />
 
-              {/* Desktop: Inline buttons with animation */}
-              <div className="hidden sm:block">
-                <motion.div
-                  className="flex items-center gap-1.5"
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{
-                    opacity: isHovered ? 1 : 0,
-                    x: isHovered ? 0 : 10,
-                  }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <AskQuestionDialog
-                    categories={categories.filter(
-                      (category) => category.id !== "all-categories",
-                    )}
-                    isEditing
-                    data={question}
-                    trigger={
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-[26.25px] w-[26.25px] cursor-pointer rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
-                        aria-label="Edit question"
-                      >
-                        <Pencil size={12.25} />
-                      </Button>
-                    }
-                  />
-                  <DeleteQuestionDialog
-                    questionId={question.id}
-                    trigger={
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-[26.25px] min-w-[26.25px] flex-1 cursor-pointer rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
-                        aria-label="Delete question"
-                      >
-                        <Trash2 size={12.25} />
-                      </Button>
-                    }
-                  />
-                </motion.div>
-              </div>
-            </>
-          ) : null}
+          <QuestionActionsDropdown
+            question={question}
+            categories={categories}
+            isCurrentAuthor={isCurrentAuthor}
+            isAuthenticated={Boolean(userId)}
+            reportReasons={reportReasons}
+          />
         </div>
       </div>
 

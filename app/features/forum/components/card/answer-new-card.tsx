@@ -1,24 +1,19 @@
 import { AnimatePresence, motion } from "motion/react";
-import { Award, MessageCircle, Pencil, Trash2 } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import AnswerVoteComponent from "../answer-vote-component";
 import { Separator } from "~/components/ui/separator";
-import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { getInitials } from "~/routes/onboarding/domain/profile/profile-utils";
 import { resolveImageURL, cn } from "~/lib/utils";
 import type { AnswerResponse } from "~/types/api-client";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
-import AddAnswerDialog from "../dialog/add-answer-dialog";
-import DeleteAnswerDialog from "../dialog/delete-answer-dialog";
-import ForumReportDialog, {
-  ReportDialogType,
-  type ReportReasonData,
-} from "../dialog/forum-report-dialog";
+import { type ReportReasonData } from "../dialog/forum-report-dialog";
 import NestedReplyCard from "./nested-reply-card";
 import CommentWrapper from "~/components/comment-wrapper";
-import SlideToLeftHoverAnimation from "~/components/slide-to-left-hover-animation";
-import MarkBestAnswerDialog from "../dialog/mark-best-answer-dialog";
 import { useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router";
+import { Link, useLocation } from "react-router";
+import CommentReplyBox from "~/components/comment-reply-box";
 import {
   Accordion,
   AccordionContent,
@@ -27,6 +22,7 @@ import {
 } from "~/components/ui/accordion";
 import { highlightAnswerClassName } from "../../utils";
 import ProfileLinkWrapper from "~/components/profile-link-wrapper";
+import AnswerActionsDropdown from "../dropdown/answer-actions-dropdown";
 
 interface AnswerNewCardProps {
   answer: AnswerResponse;
@@ -55,7 +51,6 @@ function AnswerComponent({
   const formattedDate = formatMinutesOrHoursAgo(answer.createdAt);
   const imageUrl = resolveImageURL(answer.author.avatarKey);
   const replyCount = answer.replyCount;
-  const [isHovered, setIsHovered] = useState(false);
   const location = useLocation();
   let id: string | null = null;
   const match = location.hash.match(/^#answer-([A-Za-z0-9-_]+)$/);
@@ -77,6 +72,10 @@ function AnswerComponent({
     openAccordion,
   );
   const [repliedAnswerId, setRepliedAnswerId] = useState<string | null>(null);
+  const [isReplyOpen, setIsReplyOpen] = useState(false);
+  const loginHref = `/login?redirectTo=${encodeURIComponent(
+    `${location.pathname}${location.search}`,
+  )}`;
 
   // After a reply succeeds we save the replied-to answer id; once it matches
   // this answer (or one of its replies) we auto-open the replies accordion.
@@ -118,6 +117,7 @@ function AnswerComponent({
           id={`answer-${answer.id}`}
           className={cn(
             "z-10 flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-none",
+            isBestAnswer && "border border-[#0050d4]/30",
             showAnimation && highlightAnswerClassName,
           )}
           initial={{ opacity: 0, y: 12 }}
@@ -127,18 +127,20 @@ function AnswerComponent({
             delay: index * 0.06,
             ease: [0.25, 0.1, 0.25, 1],
           }}
-          onHoverStart={() => setIsHovered(true)}
-          onHoverEnd={() => setIsHovered(false)}
         >
           <div className="flex w-full items-start justify-between gap-2">
             <div className="flex min-w-0 flex-1 items-center gap-3">
-              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#dfe3e6]">
-                <img
-                  src={imageUrl}
-                  alt={answer.author.name ?? "Author avatar"}
-                  className="h-full w-full object-cover"
-                />
-              </div>
+              <Avatar>
+                {imageUrl && (
+                  <AvatarImage
+                    src={imageUrl}
+                    alt={answer.author.name ?? "Author avatar"}
+                  />
+                )}
+                <AvatarFallback className="bg-[#dfe3e6] text-sm font-semibold text-[#2c2f31]">
+                  {getInitials(answer.author.name ?? "") || "?"}
+                </AvatarFallback>
+              </Avatar>
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
                   <ProfileLinkWrapper
@@ -151,7 +153,7 @@ function AnswerComponent({
                   {isAnswerByQuestionAuthor && (
                     <Badge
                       variant="secondary"
-                      className="pointer-events-none shrink-0 bg-green-100 text-xs font-semibold text-green-500"
+                      className="pointer-events-none shrink-0 bg-green-100 text-xs font-semibold text-green-700"
                     >
                       Author
                     </Badge>
@@ -164,62 +166,19 @@ function AnswerComponent({
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
-              <SlideToLeftHoverAnimation isHovered={isHovered}>
-                {isViewerQuestionAuthor && !isBestAnswer && (
-                  <MarkBestAnswerDialog
-                    answerId={answer.id}
-                    trigger={
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
-                        aria-label="Mark best answer"
-                      >
-                        <Award size={12} />
-                      </Button>
-                    }
-                  />
-                )}
-                {isCurrentAuthor && (
-                  <AddAnswerDialog
-                    questionId={answer.questionId}
-                    isEditing
-                    data={{ id: answer.id, body: answer.body }}
-                    trigger={
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
-                        aria-label="Edit answer"
-                      >
-                        <Pencil size={12} />
-                      </Button>
-                    }
-                  />
-                )}
-                {isCurrentAuthor && (
-                  <DeleteAnswerDialog
-                    answerId={answer.id}
-                    trigger={
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="h-7 w-7 rounded-xl bg-[#f9fafb] text-[#99a1af] hover:bg-[#f1f5f9] hover:text-[#344256]"
-                        aria-label="Delete answer"
-                      >
-                        <Trash2 size={12} />
-                      </Button>
-                    }
-                  />
-                )}
-              </SlideToLeftHoverAnimation>
+              <AnswerActionsDropdown
+                answerId={answer.id}
+                answerBody={answer.body}
+                questionId={answer.questionId}
+                isCurrentAuthor={isCurrentAuthor}
+                isAuthenticated={isAuthenticated}
+                canMarkBestAnswer={isViewerQuestionAuthor && !isBestAnswer}
+                reportReasons={reportReasons}
+              />
             </div>
           </div>
 
-          <div className="pb-2">
+          <div className="">
             <p className="text-base leading-6.5 whitespace-pre-line text-[#595c5e]">
               {answer.body}
             </p>
@@ -227,7 +186,7 @@ function AnswerComponent({
 
           <Separator className="bg-[#abadaf1a]" />
 
-          <div className="flex items-center justify-between pt-1">
+          <div className="flex items-center pt-1">
             <div className="flex items-center gap-4">
               <AnswerVoteComponent
                 answerId={answer.id}
@@ -236,21 +195,23 @@ function AnswerComponent({
                 className="w-auto flex-row items-center gap-0 pt-0"
               />
 
-              <AddAnswerDialog
-                questionId={answer.questionId}
-                replyToAnswer={answer.id}
-                isAuthenticated={isAuthenticated}
-                onReplySuccess={setRepliedAnswerId}
-                trigger={
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="h-auto cursor-pointer p-0 text-sm leading-5 font-semibold text-[#0050d4] hover:bg-transparent hover:text-[#0045b8]"
-                  >
-                    Reply
-                  </Button>
-                }
-              />
+              {isAuthenticated ? (
+                <button
+                  type="button"
+                  onClick={() => setIsReplyOpen((previous) => !previous)}
+                  aria-expanded={isReplyOpen}
+                  className="cursor-pointer bg-transparent text-sm leading-5 font-semibold text-[#0050d4] transition-colors outline-none hover:text-[#0045b8] focus-visible:underline focus-visible:underline-offset-4"
+                >
+                  Reply
+                </button>
+              ) : (
+                <Link
+                  to={loginHref}
+                  className="text-sm leading-5 font-semibold text-[#0050d4] hover:text-[#0045b8]"
+                >
+                  Reply
+                </Link>
+              )}
 
               {replyCount > 0 ? (
                 <AccordionTrigger className="inline-flex items-center gap-2 text-[#48566a]">
@@ -268,17 +229,36 @@ function AnswerComponent({
                 </div>
               )}
             </div>
-
-            {!isCurrentAuthor ? (
-              <ForumReportDialog
-                title={answer.body}
-                id={answer.id}
-                type={ReportDialogType.ANSWER}
-                reportReasons={reportReasons || []}
-                isAuthenticated={isAuthenticated}
-              />
-            ) : null}
           </div>
+
+          <AnimatePresence initial={false}>
+            {isReplyOpen ? (
+              <motion.div
+                key="reply-box"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.18, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <CommentReplyBox
+                  autoFocus
+                  className="pt-2"
+                  textareaClassName="min-h-20"
+                  fields={{
+                    actionType: "create-answer",
+                    questionId: answer.questionId,
+                    replyToAnswer: answer.id,
+                  }}
+                  onCancel={() => setIsReplyOpen(false)}
+                  onSuccess={() => {
+                    setIsReplyOpen(false);
+                    setRepliedAnswerId(answer.id);
+                  }}
+                />
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
         </motion.article>
         {answer.repliedAnswers && (
           <AccordionContent>
