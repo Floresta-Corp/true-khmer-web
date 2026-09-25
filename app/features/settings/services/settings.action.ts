@@ -1,8 +1,15 @@
 import { data } from "react-router";
 import { z } from "zod";
-import { ProtectedApiError } from "~/lib/server/api-client.server";
+import {
+  AuthSessionExpiredError,
+  ProtectedApiError,
+} from "~/lib/server/api-client.server";
 import { commitAuthToSession } from "~/lib/server/session.server";
-import { requireUser } from "~/lib/server/route-guards.server";
+import {
+  clearAndRedirectToLogin,
+  requestWithSetCookie,
+  requireUser,
+} from "~/lib/server/route-guards.server";
 import { invalidateAuthSessionCacheForRequest } from "~/services/auth/session.server";
 import type { Route } from "project-types/settings/route/+types/settings";
 import type { SettingsActionData } from "../types";
@@ -11,7 +18,7 @@ import type {
   AuthTwoFactorTotpVerifyRequest,
 } from "~/types/api-client";
 export type { SettingsActionData } from "../types";
-import { changePassword } from "~/api/auth/auth.server";
+import { changePassword, deleteAccount } from "~/api/auth/auth.server";
 import {
   disableEmailOtp,
   disableTotp,
@@ -120,6 +127,19 @@ export async function settingsAction({ request }: Route.ActionArgs) {
   appendCookie(headers, auth.setCookie);
 
   try {
+    if (intent === "delete-account") {
+      if (formValues.confirm !== "CONFIRM") {
+        return data<SettingsActionData>(
+          { intent, errors: { form: "Enter CONFIRM to delete your account." } },
+          { status: 400, headers },
+        );
+      }
+
+      await deleteAccount(requestWithSetCookie(request, auth.setCookie));
+      await invalidateAuthSessionCacheForRequest(request);
+      return clearAndRedirectToLogin(request, "/");
+    }
+
     if (intent === "totp-setup") {
       const parsed = TotpSetupSchema.safeParse(formValues);
       if (!parsed.success) {
@@ -322,6 +342,11 @@ export async function settingsAction({ request }: Route.ActionArgs) {
       { status: 400, headers },
     );
   } catch (error) {
+    if (error instanceof Response) throw error;
+    if (error instanceof AuthSessionExpiredError) {
+      return clearAndRedirectToLogin(request);
+    }
+
     if (
       intent === "change-password" &&
       error instanceof ProtectedApiError &&
