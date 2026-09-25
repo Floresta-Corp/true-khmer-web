@@ -1,14 +1,5 @@
 import { Link } from "react-router";
-import { BackLink } from "~/components/back-link";
-import {
-  Award,
-  Check,
-  ChevronDown,
-  ChevronLeft,
-  Lock,
-  Menu,
-  X,
-} from "lucide-react";
+import { Award, Check, ChevronDown, Lock, Menu, X } from "lucide-react";
 import { cn } from "~/lib/utils";
 import type { CourseDetail, CourseLesson } from "~/features/education/types";
 import { LessonTypeIcon } from "./lesson-type-icon";
@@ -48,16 +39,6 @@ export function LearnSidebar({
 
   return (
     <div className="flex h-full w-95 shrink-0 flex-col border-r border-[#E5E7EB] bg-white">
-      <div className="border-b border-[#E5E7EB] px-5 py-3.5">
-        <BackLink
-          to={`/education/${course.id}`}
-          className="inline-flex min-w-0 items-center gap-1.5 text-sm font-semibold text-[#1C5DD4] transition-colors hover:underline"
-        >
-          <ChevronLeft className="size-4 shrink-0" aria-hidden />
-          <span className="truncate">Back to course</span>
-        </BackLink>
-      </div>
-
       <div className="flex items-center justify-between border-b border-[#E5E7EB] px-5 py-4.5">
         <div className="flex min-w-0 items-center gap-2.5">
           <Menu className="size-4.5 shrink-0 text-[#1A1A2E]" aria-hidden />
@@ -82,9 +63,7 @@ export function LearnSidebar({
             Course completion
           </span>
           <span className="text-xs text-[#9A9AB0]">
-            {isFullyDone
-              ? `${totalLessons} lesson${totalLessons === 1 ? "" : "s"}`
-              : `${completedCount}/${totalLessons} lessons`}
+            {percent}% completed · {completedCount}/{totalLessons}
           </span>
         </div>
         <div className="h-2 overflow-hidden rounded-sm bg-[#E8E8E8]">

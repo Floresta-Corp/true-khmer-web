@@ -1,19 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { Download, ExternalLink, FileText } from "lucide-react";
+import { ExternalLink, FileText } from "lucide-react";
 import { cn, getSafeExternalUrl } from "~/lib/utils";
-import type {
-  ActiveLesson,
-  LessonGateState,
-  LessonResumePoint,
-} from "~/features/education/types";
+import type { ActiveLesson, LessonGateState } from "~/features/education/types";
 import { pdfEmbedUrl } from "~/features/education/lib/lesson-media";
+import { PdfDocumentView } from "./pdf-document-view";
 import {
-  pdfReadingSeconds,
-  readingLessonGate,
+  documentLessonGate,
   unavailableLessonGate,
 } from "~/features/education/lib/lesson-gate";
-import { useReadingDwell } from "~/features/education/hooks/use-reading-dwell";
 import { useReportLessonGate } from "~/features/education/hooks/use-report-lesson-gate";
 import {
   MediaBar,
@@ -21,20 +16,10 @@ import {
   type LessonMediaProps,
 } from "./lesson-media-frame";
 
-/**
- * A PDF lesson.
- *
- * The document is served from the media host and framed, so the page cannot
- * see it being read: there is no page-turn event to listen for across origins.
- * The gate is therefore time with the document open, after which the learner
- * confirms they have read it — see `readingLessonGate`, which is where that
- * choice is argued.
- */
 export function PdfLesson({
   lesson,
   overlay,
   flush,
-  resume,
   onGateChange,
 }: LessonMediaProps) {
   const src = getSafeExternalUrl(lesson.sourceUrl);
@@ -44,10 +29,10 @@ export function PdfLesson({
       {overlay && <MediaBar>{overlay}</MediaBar>}
       {src ? (
         <RealPdfLesson
+          key={src}
           lesson={lesson}
           src={src}
           flush={flush}
-          resume={resume}
           onGateChange={onGateChange}
         />
       ) : (
@@ -76,12 +61,9 @@ function PdfFrame({
   );
 }
 
-/** Long enough to start a download, short enough not to be a wait. */
-const DOWNLOAD_SECONDS = 15;
-
 type PdfPreview =
-  | { status: "checking" }
-  | { status: "inline" }
+  | { status: "rendered" }
+  | { status: "framed" }
   | { status: "blocked"; reason: string };
 
 function isSameOrigin(src: string): boolean {
@@ -92,69 +74,63 @@ function isSameOrigin(src: string): boolean {
   }
 }
 
+function fallbackPreview(src: string): PdfPreview {
+  if (navigator.pdfViewerEnabled === false) {
+    return {
+      status: "blocked",
+      reason: "Your browser will not open PDFs inside a page.",
+    };
+  }
+
+  if (isSameOrigin(src)) {
+    return {
+      status: "blocked",
+      reason: "This document is not served from the media host.",
+    };
+  }
+
+  return { status: "framed" };
+}
+
 function RealPdfLesson({
   lesson,
   src,
   flush,
-  resume,
   onGateChange,
 }: {
   lesson: ActiveLesson;
   src: string;
   flush?: boolean;
-  resume?: LessonResumePoint | null;
   onGateChange?: (gate: LessonGateState) => void;
 }) {
-  const [preview, setPreview] = useState<PdfPreview>({ status: "checking" });
+  const [preview, setPreview] = useState<PdfPreview>({ status: "rendered" });
+  const [hasReachedEnd, setHasReachedEnd] = useState(false);
 
-  const requiredSeconds = pdfReadingSeconds(lesson.pageCount);
-  /* Reading time already served carries over, so coming back to a long
-     document does not start the wait again. */
-  const elapsedSeconds = useReadingDwell(
-    lesson.id,
-    resume?.watchedSeconds ?? 0,
+  const onReachedEnd = useCallback(() => setHasReachedEnd(true), []);
+  const onUnavailable = useCallback(
+    () =>
+      setPreview((current) =>
+        current.status === "rendered" ? fallbackPreview(src) : current,
+      ),
+    [src],
   );
 
-  /* A document the browser will not show inline is read by downloading it, and
-     nothing here can time that. Holding the learner to the full reading time
-     would keep them behind a viewer they do not have, so the requirement drops
-     to the moment it takes to fetch the file. */
-  const gate = readingLessonGate({
-    elapsedSeconds,
-    requiredSeconds:
-      preview.status === "blocked"
-        ? Math.min(requiredSeconds, DOWNLOAD_SECONDS)
-        : requiredSeconds,
-  });
+  const gate =
+    preview.status === "rendered"
+      ? documentLessonGate(hasReachedEnd)
+      : unavailableLessonGate();
 
   useReportLessonGate(gate, onGateChange);
 
-  useEffect(() => {
-    if (navigator.pdfViewerEnabled === false) {
-      setPreview({
-        status: "blocked",
-        reason: "Your browser will not open PDFs inside a page.",
-      });
-      return;
-    }
-
-    if (isSameOrigin(src)) {
-      setPreview({
-        status: "blocked",
-        reason: "This document is not served from the media host.",
-      });
-      return;
-    }
-
-    setPreview({ status: "inline" });
-  }, [src]);
-
   return (
     <PdfFrame flush={flush}>
-      {preview.status === "checking" ? (
-        <p className="flex size-full items-center justify-center text-sm text-[#7A7A8C]">
-          Opening document…
-        </p>
+      {preview.status === "rendered" ? (
+        <PdfDocumentView
+          src={src}
+          title={lesson.title}
+          onReachedEnd={onReachedEnd}
+          onUnavailable={onUnavailable}
+        />
       ) : preview.status === "blocked" ? (
         <PdfDownloadNotice
           src={src}
@@ -163,10 +139,10 @@ function RealPdfLesson({
         />
       ) : (
         <iframe
-          key={src}
           src={pdfEmbedUrl(src)}
           title={lesson.title}
           referrerPolicy="no-referrer"
+          sandbox="allow-same-origin allow-scripts allow-popups allow-downloads allow-forms"
           onError={() =>
             setPreview({
               status: "blocked",
@@ -200,21 +176,12 @@ function PdfDownloadNotice({
           This document cannot be previewed here
         </p>
         <p className="mt-1.5 text-sm leading-[1.6] text-[#5B5B70]">
-          {reason} Download it to read the lesson.
+          {reason} Open it to read the lesson — you can continue to the next one
+          whenever you are ready.
         </p>
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-2.5">
-        {/* <a
-          href={src}
-          download
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 rounded-full bg-[#1C5DD4] px-5.5 py-2.75 text-sm font-bold text-white transition-colors hover:bg-[#174FB4]"
-        >
-          <Download className="size-4" aria-hidden />
-          Download PDF
-        </a> */}
         <a
           href={src}
           target="_blank"
@@ -230,12 +197,6 @@ function PdfDownloadNotice({
   );
 }
 
-/**
- * A document lesson with no file behind it.
- *
- * The placeholder page is kept so the screen still reads as a document, and
- * the gate opens: a missing upload must not strand a learner mid-course.
- */
 function UnavailablePdfLesson({
   flush,
   onGateChange,
