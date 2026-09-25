@@ -76,7 +76,7 @@ export default function AnswerVoteComponent({
   return (
     <div
       className={cn(
-        "flex h-fit shrink-0 flex-col items-center gap-[5.25px] overflow-hidden rounded-xl bg-[#f9fafb] pt-[3.5px] text-[#99a1af] transition-all",
+        "flex h-fit shrink-0 flex-col items-center gap-[5.25px] overflow-hidden rounded-xl border border-[#e9eef5] pt-[3.5px] text-[#99a1af] transition-all",
         className,
       )}
     >

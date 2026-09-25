@@ -33,7 +33,7 @@ export function HomeWelcomeHeroSection({ name }: HomeWelcomeHeroSectionProps) {
       />
 
       <div className="relative z-10 flex max-w-xl flex-col justify-center space-y-4 sm:min-h-[340px] sm:space-y-6 lg:min-h-[308px]">
-        <p className="text-sm font-semibold text-[#2563EB]">
+        <p className="text-sm font-semibold text-[#32A8FF]">
           Welcome back, {firstName || "Friend"}!
         </p>
 
@@ -45,7 +45,7 @@ export function HomeWelcomeHeroSection({ name }: HomeWelcomeHeroSectionProps) {
           <span className="hidden sm:inline">
             <br />
           </span>
-          <span className="text-[#2563EB]">make an impact</span> today.
+          <span className="text-[#32A8FF]">make an impact</span> today.
         </h1>
 
         <p className="text-sm leading-relaxed text-slate-500 md:text-base">

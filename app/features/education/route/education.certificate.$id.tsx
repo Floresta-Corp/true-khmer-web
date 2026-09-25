@@ -14,7 +14,9 @@ export const loader = educationCertificateLoader;
 export const action = educationCertificateAction;
 
 export function meta({ data }: Route.MetaArgs) {
-  return [{ title: `Certificate · ${data?.course.title ?? "Course"}` }];
+  return [
+    { title: `Certificate · ${data?.certificate.courseTitle ?? "Course"}` },
+  ];
 }
 
 type CertificatePageData = Route.ComponentProps["loaderData"];
@@ -22,29 +24,39 @@ type CertificatePageData = Route.ComponentProps["loaderData"];
 export default function CourseCertificatePage() {
   const data = useLoaderData<typeof loader>();
 
-  return <CertificateView key={data.course.id} {...data} />;
+  return <CertificateView key={data.certificate.courseId} {...data} />;
 }
 
 function CertificateView({
-  course,
   certificate,
+  isCourseAvailable,
+  backTo,
   ownReview,
 }: CertificatePageData) {
   const prefersReducedMotion = useReducedMotion();
   const duration = prefersReducedMotion ? 0 : 0.35;
 
-  const [isRateOpen, setIsRateOpen] = useState(ownReview === null);
+  const [isRateOpen, setIsRateOpen] = useState(
+    isCourseAvailable && ownReview === null,
+  );
 
   return (
     <EducationPage surface="muted">
       <div className="mx-auto max-w-205">
         <BackLink
-          to={`/education/${course.id}/learn`}
+          to={backTo}
           className="mb-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[#1C5DD4] hover:underline print:hidden"
         >
           <ChevronLeft className="size-4" aria-hidden />
-          Back to course
+          {isCourseAvailable ? "Back to course" : "Back to my classes"}
         </BackLink>
+
+        {!isCourseAvailable && (
+          <p className="mb-5 rounded-lg border border-[#F59E0B]/40 bg-[#F59E0B]/10 px-4 py-3 text-[13px] font-semibold text-[#B45309] print:hidden">
+            This course is no longer offered. Your certificate stays valid and
+            you can still share or print it.
+          </p>
+        )}
 
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -58,7 +70,7 @@ function CertificateView({
       <RateCourseDialog
         open={isRateOpen}
         onOpenChange={setIsRateOpen}
-        courseTitle={course.title}
+        courseTitle={certificate.courseTitle}
       />
     </EducationPage>
   );

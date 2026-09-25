@@ -157,7 +157,7 @@ const DeleteModeratorResponse = z.object({ ok: z.boolean() });
 
 const AdminUserManagementTier = z.object({ id: z.string().uuid(), slug: z.string(), name: z.string(), rankOrder: z.number().int(), minPoints: z.number().int() });
 
-const AdminUserManagementUser = z.object({ id: z.string().uuid(), name: z.string(), firstName: z.string(), lastName: z.string(), displayName: z.string().nullable(), avatarKey: z.string().nullable(), email: z.string().email(), emailVerified: z.boolean(), phoneNumber: z.string().nullable(), phoneCountry: z.string().nullable(), role: z.string(), status: z.enum(["SIGNUP_REQUIRED", "ONBOARDING_REQUIRED", "ACTIVE", "SUSPENDED"]), tier: AdminUserManagementTier.nullable(), totalPoints: z.number().int(), signupCompletedAt: z.string().nullable(), onboardingStep: z.number().int(), onboardingCompletedAt: z.string().nullable(), lastActive: z.string().nullable(), createdAt: z.string(), updatedAt: z.string() });
+const AdminUserManagementUser = z.object({ id: z.string().uuid(), name: z.string(), firstName: z.string(), lastName: z.string(), displayName: z.string().nullable(), avatarKey: z.string().nullable(), email: z.string().email(), emailVerified: z.boolean(), phoneNumber: z.string().nullable(), phoneCountry: z.string().nullable(), role: z.string(), status: z.enum(["SIGNUP_REQUIRED", "ONBOARDING_REQUIRED", "ACTIVE", "SUSPENDED", "DELETED"]), deletedAt: z.string().nullable(), tier: AdminUserManagementTier.nullable(), totalPoints: z.number().int(), signupCompletedAt: z.string().nullable(), onboardingStep: z.number().int(), onboardingCompletedAt: z.string().nullable(), lastActive: z.string().nullable(), createdAt: z.string(), updatedAt: z.string() });
 
 const AdminUserManagementListResponse = z.object({ ok: z.literal(true), users: z.array(AdminUserManagementUser), total: z.number().int(), page: z.number().int(), limit: z.number().int(), totalPages: z.number().int() });
 
@@ -570,7 +570,7 @@ const UpdateInterestsRequest = z.object({ interestIds: z.array(z.string().regex(
 
 const UpdateInterestsResponse = z.object({ ok: z.literal(true), interests: z.array(z.object({ id: z.string(), slug: z.string(), label: z.string(), icon: z.string().nullable() })) });
 
-const CertificateResponse = z.object({ id: z.string().uuid(), courseId: z.string().uuid(), courseTitle: z.string(), certificateNo: z.string(), recipientName: z.string(), completedAt: z.string(), issuedAt: z.string(), sharedToProfile: z.boolean(), coverImageUrl: z.string().nullable() });
+const CertificateResponse = z.object({ id: z.string().uuid(), courseId: z.string().uuid(), courseTitle: z.string(), certificateKind: z.enum(["PARTICIPATION", "COMPLETION"]).nullable(), certificateNo: z.string(), recipientName: z.string(), completedAt: z.string(), issuedAt: z.string(), sharedToProfile: z.boolean(), coverImageUrl: z.string().nullable() });
 
 const ListCertificatesResponse = z.object({ ok: z.literal(true), certificates: z.array(CertificateResponse), pagination: z.object({ page: z.number().int().gt(0), limit: z.number().int().gt(0), total: z.number().int().gte(0), totalPages: z.number().int().gte(0) }) });
 
@@ -752,6 +752,9 @@ const PresignCourseCoverUploadRequest = z.object({ contentType: z.string(), file
 const PresignCourseCoverUploadResponse = z.object({ ok: z.literal(true), upload: z.object({ uploadUrl: z.string(), method: z.literal("PUT"), requiredHeaders: z.record(z.string(), z.string()), coverImageKey: z.string(), publicUrl: z.string().nullable(), expiresInSeconds: z.number() }) });
 
 const ListMyCoursesResponse = z.object({ ok: z.literal(true), courses: z.array(CourseResponse), pagination: z.object({ limit: z.number().int().gt(0), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) });
+const CourseDetailResponse = CourseResponse.and(z.object({ isReview: z.boolean() }));
+
+const GetCourseDetailResponse = z.object({ ok: z.literal(true), course: CourseDetailResponse });
 
 const UpdateCourseRequest = z.object({ title: z.string().min(1).max(255), description: z.string().min(1).max(20000), categoryId: z.string().uuid(), coverImageKey: z.string().min(1).max(600).nullable(), price: z.number().gte(0).lte(9999999999.99) }).partial();
 
@@ -767,7 +770,7 @@ const PresignCourseLessonAssetRequest = z.object({ contentType: z.enum(["applica
 
 const PresignCourseLessonAssetResponse = z.object({ ok: z.literal(true), upload: z.object({ uploadUrl: z.string(), method: z.literal("PUT"), requiredHeaders: z.record(z.string(), z.string()), assetKey: z.string(), publicUrl: z.string().nullable(), expiresInSeconds: z.number() }) });
 
-const CourseLessonResponse = z.object({ id: z.string().uuid(), title: z.string(), type: z.enum(["YOUTUBE", "PDF", "AUDIO"]), url: z.string().nullable(), assetKey: z.string().nullable(), assetUrl: z.string().nullable(), durationSeconds: z.number().int().nullable(), pageCount: z.number().int().nullable(), isPreview: z.boolean(), position: z.number().int() });
+const CourseLessonResponse = z.object({ id: z.string().uuid(), title: z.string(), type: z.enum(["YOUTUBE", "PDF", "AUDIO"]), url: z.string().nullable(), assetKey: z.string().nullable(), assetUrl: z.string().nullable(), durationSeconds: z.number().int().nullable(), pageCount: z.number().int().nullable(), isPreview: z.boolean(), position: z.number().int(), isLocked: z.boolean() });
 
 const CourseChapterResponse = z.object({ id: z.string().uuid(), title: z.string(), position: z.number().int(), lessons: z.array(CourseLessonResponse) });
 
@@ -795,11 +798,19 @@ const GradeCourseQuizAttemptRequest = z.object({ answers: z.array(z.object({ que
 
 const GradeCourseQuizAttemptResponse = z.object({ ok: z.literal(true), result: z.object({ correctCount: z.number().int().gte(0), totalCount: z.number().int().gte(0), percent: z.number().int().gte(0).lte(100), passMark: z.number().int(), passed: z.boolean() }) });
 
+const LessonLockedResponse = z.object({ ok: z.literal(false), error: z.string(), nextLessonId: z.string().uuid().nullable() });
+
 const UpdateCourseMetaRequest = z.object({ difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCE", "ALL_LEVELS"]).nullable(), skills: z.array(z.string().min(1).max(80)).max(30), outcomes: z.array(z.string().min(1).max(300)).max(20), tags: z.array(z.string().min(1).max(80)).max(30), certificateKind: z.enum(["PARTICIPATION", "COMPLETION"]).nullable() }).partial();
 
-const CourseProgressResponse = z.object({ ok: z.literal(true), completedLessonIds: z.array(z.string().uuid()) });
+const LessonResumePoint = z.object({ lessonId: z.string().uuid(), positionSeconds: z.number().int().gte(0), watchedSeconds: z.number().int().gte(0), updatedAt: z.string() });
 
-const MarkLessonProgressRequest = z.object({ lessonId: z.string().uuid() });
+const CourseProgressResponse = z.object({ ok: z.literal(true), completedLessonIds: z.array(z.string().uuid()), unlockedLessonIds: z.array(z.string().uuid()), nextLessonId: z.string().uuid().nullable(), lessonCount: z.number().int().gte(0), isComplete: z.boolean(), resumePoints: z.array(LessonResumePoint), lastLessonId: z.string().uuid().nullable(), quiz: z.object({ hasQuiz: z.boolean(), attempted: z.boolean(), attemptCount: z.number().int().gte(0), bestPercent: z.number().int().nullable(), passed: z.boolean(), lastAttemptedAt: z.string().nullable() }) });
+
+const MarkLessonProgressRequest = z.object({ lessonId: z.string().uuid(), watchedSeconds: z.number().gte(0).lte(86400).nullish() });
+
+const SaveLessonResumeRequest = z.object({ lessonId: z.string().uuid(), positionSeconds: z.number().int().gte(0).lte(86400), watchedSeconds: z.number().int().gte(0).lte(86400).optional().default(0) });
+
+const SaveLessonResumeResponse = z.object({ ok: z.literal(true), resume: LessonResumePoint });
 
 const CourseStatsResponse = z.object({ ok: z.literal(true), stats: z.object({ lessonCount: z.number().int(), progress: z.object({ total: z.number().int().gte(0), notStarted: z.number().int().gte(0), inProgress: z.number().int().gte(0), completed: z.number().int().gte(0) }), enrollmentTrend: z.array(z.object({ date: z.string(), learners: z.number().int() })), activityTrend: z.array(z.object({ date: z.string(), learners: z.number().int() })), quiz: z.object({ attempts: z.number().int().gte(0), passRate: z.number().int().nullable(), averageScore: z.number().int().nullable(), bands: z.array(z.object({ label: z.string(), attempts: z.number().int().gte(0) })) }), rating: z.object({ average: z.number().nullable(), total: z.number().int().gte(0), breakdown: z.array(z.number().int().gte(0)) }) }) });
 
@@ -1264,6 +1275,8 @@ export const schemas = {
 	PresignCourseCoverUploadRequest,
 	PresignCourseCoverUploadResponse,
 	ListMyCoursesResponse,
+	CourseDetailResponse,
+	GetCourseDetailResponse,
 	UpdateCourseRequest,
 	DeleteCourseResponse,
 	EnrollInCourseResponse,
@@ -1285,9 +1298,13 @@ export const schemas = {
 	GetLearnerCourseQuizResponse,
 	GradeCourseQuizAttemptRequest,
 	GradeCourseQuizAttemptResponse,
+	LessonLockedResponse,
 	UpdateCourseMetaRequest,
+	LessonResumePoint,
 	CourseProgressResponse,
 	MarkLessonProgressRequest,
+	SaveLessonResumeRequest,
+	SaveLessonResumeResponse,
 	CourseStatsResponse,
 	CourseReviewResponse,
 	CourseRatingSummary,
@@ -2902,6 +2919,42 @@ const endpoints = makeApi([
 	},
 	{
 		method: "post",
+		path: "/v1/admin/moderator/:id/resend-invite",
+		alias: "postV1adminmoderatorIdresendInvite",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: z.object({ ok: z.boolean() }),
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: z.void()
+			},
+			{
+				status: 403,
+				description: `Super admin role required`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Moderator not found`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `This member has already accepted their invite`,
+				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
 		path: "/v1/admin/moderator/accept-invite",
 		alias: "postV1adminmoderatoracceptInvite",
 		requestFormat: "json",
@@ -4404,7 +4457,7 @@ const endpoints = makeApi([
 			{
 				name: "status",
 				type: "Query",
-				schema: z.enum(["all", "SIGNUP_REQUIRED", "ONBOARDING_REQUIRED", "ACTIVE", "SUSPENDED"]).optional()
+				schema: z.enum(["all", "SIGNUP_REQUIRED", "ONBOARDING_REQUIRED", "ACTIVE", "SUSPENDED", "DELETED"]).optional()
 			},
 			{
 				name: "tier",
@@ -4504,6 +4557,11 @@ const endpoints = makeApi([
 			{
 				status: 404,
 				description: `User not found`,
+				schema: z.object({ ok: z.literal(false), error: z.string() })
+			},
+			{
+				status: 409,
+				description: `Deleted users cannot be suspended or reinstated`,
 				schema: z.object({ ok: z.literal(false), error: z.string() })
 			},
 			{
@@ -4729,6 +4787,48 @@ const endpoints = makeApi([
 				status: 409,
 				description: `Authenticator app already enabled`,
 				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "delete",
+		path: "/v1/auth/account",
+		alias: "deleteV1authaccount",
+		description: `Soft-delete the authenticated user&#x27;s own account. No target user ID is accepted.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "confirm",
+				type: "Query",
+				schema: z.literal(true)
+			},
+		],
+		response: z.object({ ok: z.literal(true), userId: z.string().uuid(), status: z.literal("DELETED"), deletedAt: z.string().nullable() }),
+		errors: [
+			{
+				status: 400,
+				description: `Explicit confirm&#x3D;true is required`,
+				schema: z.void()
+			},
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Account suspended or deleted`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `User not found`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: AuthProtectedErrorResponse
 			},
 		]
 	},
@@ -5839,7 +5939,7 @@ const endpoints = makeApi([
 				schema: z.string().uuid()
 			},
 		],
-		response: GetCourseResponse,
+		response: GetCourseDetailResponse,
 		errors: [
 			{
 				status: 400,
@@ -6249,7 +6349,7 @@ const endpoints = makeApi([
 			{
 				name: "body",
 				type: "Body",
-				schema: z.object({ lessonId: z.string().uuid() })
+				schema: MarkLessonProgressRequest
 			},
 			{
 				name: "id",
@@ -6268,6 +6368,11 @@ const endpoints = makeApi([
 				status: 404,
 				description: `Lesson not found on this course`,
 				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `The lesson is locked: an earlier one is unfinished, or this one was not played to the end`,
+				schema: LessonLockedResponse
 			},
 		]
 	},
@@ -6372,6 +6477,11 @@ const endpoints = makeApi([
 				description: `Course not visible, or it has no quiz`,
 				schema: z.void()
 			},
+			{
+				status: 409,
+				description: `Not every lesson is finished yet`,
+				schema: LessonLockedResponse
+			},
 		]
 	},
 	{
@@ -6428,6 +6538,42 @@ const endpoints = makeApi([
 				status: 404,
 				description: `Course not found or not visible`,
 				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "put",
+		path: "/v1/education-center/courses/:id/resume",
+		alias: "putV1educationCentercoursesIdresume",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: SaveLessonResumeRequest
+			},
+			{
+				name: "id",
+				type: "Path",
+				schema: z.string().uuid()
+			},
+		],
+		response: SaveLessonResumeResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Not signed in`,
+				schema: z.void()
+			},
+			{
+				status: 404,
+				description: `Lesson not found on this course`,
+				schema: z.void()
+			},
+			{
+				status: 409,
+				description: `The lesson is locked: an earlier one is unfinished`,
+				schema: LessonLockedResponse
 			},
 		]
 	},
@@ -11886,6 +12032,98 @@ const endpoints = makeApi([
 			},
 		]
 	},
+	{
+		method: "get",
+		path: "/v1/workspace/manage-posting/launchpad",
+		alias: "getV1workspacemanagePostinglaunchpad",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "filter",
+				type: "Query",
+				schema: z.enum(["all", "live", "draft", "in_progress", "completed", "canceled", "filled"]).optional().default("all")
+			},
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gte(1).optional().default(1)
+			},
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).optional().default(6)
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().max(300).optional()
+			},
+		],
+		response: ManagePostingsResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Onboarding required`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: ManagePostingsErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/workspace/manage-posting/volunteer",
+		alias: "getV1workspacemanagePostingvolunteer",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "filter",
+				type: "Query",
+				schema: z.enum(["all", "live", "draft", "in_progress", "completed", "canceled", "filled"]).optional().default("all")
+			},
+			{
+				name: "page",
+				type: "Query",
+				schema: z.number().int().gte(1).optional().default(1)
+			},
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).optional().default(6)
+			},
+			{
+				name: "search",
+				type: "Query",
+				schema: z.string().max(300).optional()
+			},
+		],
+		response: ManagePostingsResponse,
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Onboarding required`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: ManagePostingsErrorResponse
+			},
+		]
+	},
 ]);
 
 // Generated API schema types
@@ -12271,6 +12509,8 @@ export type ListCourseRecommendationsResponse = z.infer<typeof schemas.ListCours
 export type PresignCourseCoverUploadRequest = z.infer<typeof schemas.PresignCourseCoverUploadRequest>;
 export type PresignCourseCoverUploadResponse = z.infer<typeof schemas.PresignCourseCoverUploadResponse>;
 export type ListMyCoursesResponse = z.infer<typeof schemas.ListMyCoursesResponse>;
+export type CourseDetailResponse = z.infer<typeof schemas.CourseDetailResponse>;
+export type GetCourseDetailResponse = z.infer<typeof schemas.GetCourseDetailResponse>;
 export type UpdateCourseRequest = z.infer<typeof schemas.UpdateCourseRequest>;
 export type DeleteCourseResponse = z.infer<typeof schemas.DeleteCourseResponse>;
 export type EnrollInCourseResponse = z.infer<typeof schemas.EnrollInCourseResponse>;
@@ -12292,9 +12532,13 @@ export type LearnerCourseQuizResponse = z.infer<typeof schemas.LearnerCourseQuiz
 export type GetLearnerCourseQuizResponse = z.infer<typeof schemas.GetLearnerCourseQuizResponse>;
 export type GradeCourseQuizAttemptRequest = z.infer<typeof schemas.GradeCourseQuizAttemptRequest>;
 export type GradeCourseQuizAttemptResponse = z.infer<typeof schemas.GradeCourseQuizAttemptResponse>;
+export type LessonLockedResponse = z.infer<typeof schemas.LessonLockedResponse>;
 export type UpdateCourseMetaRequest = z.infer<typeof schemas.UpdateCourseMetaRequest>;
+export type LessonResumePoint = z.infer<typeof schemas.LessonResumePoint>;
 export type CourseProgressResponse = z.infer<typeof schemas.CourseProgressResponse>;
 export type MarkLessonProgressRequest = z.infer<typeof schemas.MarkLessonProgressRequest>;
+export type SaveLessonResumeRequest = z.infer<typeof schemas.SaveLessonResumeRequest>;
+export type SaveLessonResumeResponse = z.infer<typeof schemas.SaveLessonResumeResponse>;
 export type CourseStatsResponse = z.infer<typeof schemas.CourseStatsResponse>;
 export type CourseReviewResponse = z.infer<typeof schemas.CourseReviewResponse>;
 export type CourseRatingSummary = z.infer<typeof schemas.CourseRatingSummary>;

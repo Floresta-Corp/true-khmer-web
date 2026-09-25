@@ -16,6 +16,10 @@ import { cn } from "~/lib/utils";
 import type { blogLoader } from "../services/blog.loader";
 import { BlogCategoryNav } from "./blog-category-nav";
 import { PublicBlogCard } from "./public-blog-card";
+import {
+  PublicBlogFeaturedSkeleton,
+  PublicBlogGridSkeleton,
+} from "./public-blog-list-skeleton";
 
 const FALLBACK_BLOG_IMAGE = "/images/hero-background-image.webp";
 
@@ -54,11 +58,21 @@ export function PublicBlogListPage() {
       ? categories.find((category) => category.id === featuredPost.categoryId)
           ?.name
       : null);
-  const isLoadingMore =
+  const pendingParams = navigation.location
+    ? new URLSearchParams(navigation.location.search)
+    : null;
+  const isNavigatingToList =
     navigation.state !== "idle" &&
-    navigation.location?.pathname === "/khmer-voices" &&
-    Number(new URLSearchParams(navigation.location.search).get("page") || "1") >
-      page;
+    navigation.location?.pathname === "/khmer-voices";
+
+  const isLoadingMore =
+    isNavigatingToList && Number(pendingParams?.get("page") || "1") > page;
+
+  const isChangingFilters = isNavigatingToList && !isLoadingMore;
+
+  const isChangingCategory =
+    isChangingFilters &&
+    (pendingParams?.get("category") || null) !== (activeCategory?.slug || null);
 
   const cardVariants = useMemo(
     () => ({
@@ -103,7 +117,9 @@ export function PublicBlogListPage() {
   return (
     <main className="bg-white py-14 font-sans lg:py-16 dark:bg-slate-950">
       <div className="site-container">
-        {featuredPost ? (
+        {isChangingCategory ? (
+          <PublicBlogFeaturedSkeleton />
+        ) : featuredPost ? (
           <motion.div
             initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -235,7 +251,17 @@ export function PublicBlogListPage() {
         </motion.div>
 
         <AnimatePresence mode="wait">
-          {posts.length > 0 ? (
+          {isChangingFilters ? (
+            <motion.div
+              key={`skeleton-${gridKey}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
+            >
+              <PublicBlogGridSkeleton count={BLOGS_PAGE_SIZE} />
+            </motion.div>
+          ) : posts.length > 0 ? (
             <motion.div
               key={gridKey}
               className="mt-8 grid grid-cols-1 gap-x-10 gap-y-12 md:grid-cols-2 xl:grid-cols-3"
@@ -267,8 +293,7 @@ export function PublicBlogListPage() {
             </motion.div>
           ) : null}
         </AnimatePresence>
-
-        {hasMore ? (
+        {hasMore && !isChangingFilters ? (
           <div className="mt-14">
             <motion.button
               type="button"

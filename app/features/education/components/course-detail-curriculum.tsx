@@ -63,7 +63,7 @@ export function CourseDetailCurriculum({ course }: { course: CourseDetail }) {
               aria-expanded={isOpen}
               className="flex w-full cursor-pointer items-center justify-between gap-6 px-5 py-3.5 text-left"
             >
-              <span className="text-base leading-[1.4] font-bold text-[#1A1A2E] transition-colors hover:text-[#1C5DD4]">
+              <span className="text-base leading-[1.4] font-bold text-[#1A1A2E] transition-colors">
                 {section.title}
               </span>
               <span className="flex shrink-0 items-center gap-2 text-xs text-[#9A9AB0]">

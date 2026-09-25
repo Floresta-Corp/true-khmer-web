@@ -73,7 +73,7 @@ export function EventHero({
             alt=""
             className="size-14 shrink-0 rounded-[16px] object-contain"
           />
-          <span className="text-[13px] font-bold tracking-[0.05em] text-[#1C5DD4]">
+          <span className="text-[13px] font-bold tracking-[0.05em] text-[#32A8FF]">
             TRUE KHMER EVENTS
           </span>
         </motion.div>
@@ -89,7 +89,7 @@ export function EventHero({
           className="mb-4 text-[30px] leading-[1.18] font-extrabold text-[#1A1A2E] sm:text-[38px]"
         >
           Find experiences that bring Cambodia{" "}
-          <span className="text-[#1C5DD4]">together.</span>
+          <span className="text-[#32A8FF]">together.</span>
         </motion.h1>
 
         <motion.p

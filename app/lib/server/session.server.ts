@@ -177,7 +177,7 @@ export async function createUserSession(
 export async function commitAuthToSession(
   request: Request,
   auth: AuthTokensResponse | AuthTokenResponse,
-  options: { extraSetCookie?: string | string[] } = {},
+  options: { extraSetCookie?: string | string[]; rememberMe?: boolean } = {},
 ) {
   const session = await getSession(request);
   const user = auth.user;
@@ -188,6 +188,11 @@ export async function commitAuthToSession(
   session.set("accessToken", auth.accessToken);
   session.set("refreshToken", auth.refreshToken);
   session.set("user", slimUser(user));
+  // Left alone unless the caller says otherwise, so re-committing an existing
+  // session keeps whatever the user chose when they first signed in.
+  if (options.rememberMe !== undefined) {
+    session.set("rememberMe", options.rememberMe);
+  }
 
   const headers = new Headers();
   headers.append("Set-Cookie", await commitSessionForLogin(session));

@@ -65,7 +65,7 @@ export default function MyEventsFilters({
           </Await>
         </Suspense>
 
-        <div className="scrollbar-none flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-xl bg-[#F7F7F7] p-[5px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.06)]">
+        <div className="scrollbar-hide flex w-full max-w-full overflow-x-auto rounded-xl bg-gray-100 p-1 shadow-inner sm:w-max dark:bg-slate-900">
           {STATUS_TABS.map((tab) => {
             const isActive = filter === tab.value;
 
@@ -74,7 +74,7 @@ export default function MyEventsFilters({
                 key={tab.value}
                 onClick={() => onFilterChange(tab.value)}
                 aria-pressed={isActive}
-                className="relative z-10 shrink-0 cursor-pointer rounded-lg px-[18px] py-[9px] text-[14px] whitespace-nowrap"
+                className="relative z-10 shrink-0 cursor-pointer px-5 py-2 text-[14px] font-bold whitespace-nowrap transition-colors duration-300 sm:px-5 sm:text-[14px]"
               >
                 <span
                   className={cn(

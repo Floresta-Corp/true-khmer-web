@@ -28,14 +28,14 @@ export function CourseListingFilters({
 }: CourseListingFiltersProps) {
   return (
     <div className="mt-5 flex w-full flex-wrap items-center justify-between gap-4">
-      <div className="scrollbar-hide flex w-full max-w-full overflow-x-auto rounded-xl border border-slate-200 bg-white p-1 sm:w-max">
+      <div className="scrollbar-hide flex w-full max-w-full overflow-x-auto rounded-xl bg-gray-100 p-1 shadow-inner sm:w-max dark:bg-slate-900">
         {TABS.map((item) => (
           <button
             key={item.value}
             type="button"
             onClick={() => onTabChange(item.value)}
             aria-pressed={tab === item.value}
-            className="relative z-10 shrink-0 cursor-pointer px-6 py-2 text-[15px] font-bold whitespace-nowrap transition-colors duration-300"
+            className="relative z-10 shrink-0 cursor-pointer px-5 py-2 text-[14px] font-bold whitespace-nowrap transition-colors duration-300 sm:px-5 sm:text-[14px]"
           >
             <span
               className={cn(

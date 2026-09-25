@@ -58,14 +58,13 @@ export async function educationCertificateLoader({
     getOwnCourseReview(apiRequest, params.id),
   ]);
 
-  if (!course) {
-    throw data({ message: "Course not found" }, { status: 404 });
-  }
+  const isCourseAvailable = course !== null;
+  const backTo = course ? `/education/${course.id}/learn` : "/my-classes";
 
   const issued = certificateResponse.certificate;
 
   if (!issued) {
-    throw withAuthRedirect(auth, `/education/${course.id}/learn`);
+    throw withAuthRedirect(auth, backTo);
   }
 
   const certificate: CourseCertificate = {
@@ -73,6 +72,7 @@ export async function educationCertificateLoader({
     certificateNo: issued.certificateNo,
     recipientName: issued.recipientName,
     courseTitle: issued.courseTitle,
+    certificateKind: issued.certificateKind ?? null,
     completedOn: formatDate(issued.completedAt),
     sharedToProfile: issued.sharedToProfile,
   };
@@ -80,6 +80,8 @@ export async function educationCertificateLoader({
   return withAuthData(auth, {
     course,
     certificate,
+    isCourseAvailable,
+    backTo,
     ownReview: ownReviewResult?.data?.review ?? null,
   });
 }

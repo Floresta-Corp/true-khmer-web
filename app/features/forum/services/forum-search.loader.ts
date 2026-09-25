@@ -3,7 +3,9 @@ import { questionSortBySchema } from "~/features/forum/types";
 import type {
   CategoryResponse,
   GetQuestionsResponse,
+  GetReportingTypesResponse,
 } from "~/types/api-client";
+import { getReportReasons } from "~/api/reporting/reporting.server";
 import {
   getCategories,
   getPublicCategories,
@@ -16,6 +18,7 @@ type ForumSearchLoaderData = {
   data: GetQuestionsResponse;
   categories: CategoryResponse[];
   userId: string | null;
+  reportReasons: GetReportingTypesResponse | null;
 };
 
 export async function forumSearchLoader({
@@ -80,9 +83,12 @@ export async function forumSearchLoader({
     pagination: { limit: 10, hasMore: false, nextCursor: null, total: 0 },
   };
 
+  const reportReasons = await getReportReasons(request);
+
   return {
     data: question?.data ?? emptyResponse,
     categories: categories.data.categories,
     userId: userId || null,
+    reportReasons,
   } satisfies ForumSearchLoaderData;
 }

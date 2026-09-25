@@ -141,7 +141,10 @@ export default function CreateEventBasicsForm({
             <SelectTrigger
               id="createEventCategory"
               aria-invalid={Boolean(errors.category)}
-              className="mt-2 h-11.5 w-full rounded-lg border-[#E1E7EF] bg-white px-3.5 text-sm text-[#364153] focus-visible:border-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500/20 data-placeholder:text-slate-400"
+              className={cn(
+                "mt-2 h-11.5 w-full rounded-lg border-[#E1E7EF] bg-white px-3.5 text-sm text-[#364153] focus-visible:border-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500/20 data-placeholder:text-slate-400",
+                errors.category && "border-red-500 ring-2 ring-red-500/20",
+              )}
             >
               <SelectValue placeholder="Select a category" />
             </SelectTrigger>
