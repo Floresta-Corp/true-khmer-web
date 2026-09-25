@@ -3,6 +3,8 @@ import { MessageCircle } from "lucide-react";
 import AnswerVoteComponent from "../answer-vote-component";
 import { Separator } from "~/components/ui/separator";
 import { Badge } from "~/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { getInitials } from "~/routes/onboarding/domain/profile/profile-utils";
 import { resolveImageURL, cn } from "~/lib/utils";
 import type { AnswerResponse } from "~/types/api-client";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
@@ -114,8 +116,7 @@ function AnswerComponent({
           ref={cardRef}
           id={`answer-${answer.id}`}
           className={cn(
-            "z-10 flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-none",
-            // Only the marked best answer is framed; plain answers stay borderless.
+            "z-10 flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-none",
             isBestAnswer && "border border-[#0050d4]/30",
             showAnimation && highlightAnswerClassName,
           )}
@@ -129,13 +130,17 @@ function AnswerComponent({
         >
           <div className="flex w-full items-start justify-between gap-2">
             <div className="flex min-w-0 flex-1 items-center gap-3">
-              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#dfe3e6]">
-                <img
-                  src={imageUrl}
-                  alt={answer.author.name ?? "Author avatar"}
-                  className="h-full w-full object-cover"
-                />
-              </div>
+              <Avatar>
+                {imageUrl && (
+                  <AvatarImage
+                    src={imageUrl}
+                    alt={answer.author.name ?? "Author avatar"}
+                  />
+                )}
+                <AvatarFallback className="bg-[#dfe3e6] text-sm font-semibold text-[#2c2f31]">
+                  {getInitials(answer.author.name ?? "") || "?"}
+                </AvatarFallback>
+              </Avatar>
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
                   <ProfileLinkWrapper
@@ -146,12 +151,9 @@ function AnswerComponent({
                     {answer.author.name}
                   </ProfileLinkWrapper>
                   {isAnswerByQuestionAuthor && (
-                    <Badge
-                      variant="secondary"
-                      className="pointer-events-none shrink-0 bg-green-100 text-xs font-semibold text-green-500"
-                    >
+                    <div className="bg-brand-light-blue dark:bg-brand-blue/20 text-brand-blue border-brand-blue/10 rounded border px-1.5 py-0.5 text-[10px] font-bold tracking-widest uppercase">
                       Author
-                    </Badge>
+                    </div>
                   )}
                 </div>
                 <span className="mt-0.5 text-xs leading-4 text-[#595c5e]">

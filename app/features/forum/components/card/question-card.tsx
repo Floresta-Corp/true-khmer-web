@@ -86,12 +86,9 @@ export default function QuestionCard({
             <span className="text-xs text-[#9eacc0]">{createdAgoLabel}</span>
 
             {isCurrentAuthor && (
-              <Badge
-                variant="secondary"
-                className="pointer-events-none h-5 rounded-md bg-green-100 px-2 text-[10px] font-semibold text-green-600"
-              >
+              <div className="bg-brand-light-blue dark:bg-brand-blue/20 text-brand-blue border-brand-blue/10 rounded border px-1.5 py-0.5 text-[10px] font-bold tracking-widest uppercase">
                 Author
-              </Badge>
+              </div>
             )}
           </div>
         </div>

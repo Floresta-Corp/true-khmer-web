@@ -213,7 +213,7 @@ export default function ForumDetailPage() {
             animate="visible"
             custom={1}
           >
-            <div className="rounded-2xl bg-white p-4 sm:p-6 lg:px-8 lg:py-1">
+            <div className="rounded-2xl bg-white">
               <ForumDetailQuestionHeader
                 question={question}
                 isAuthenticated={Boolean(userId)}
