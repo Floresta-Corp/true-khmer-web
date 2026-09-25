@@ -6,9 +6,16 @@ import { educationDetailLoader } from "../services/education-detail.loader";
 import { educationDetailAction } from "../services/education-detail.action";
 import { metaOrigin, pageMeta } from "~/lib/seo";
 import { breadcrumbJsonLd, courseJsonLd } from "~/lib/seo/structured-data";
+import type { FooterHandle } from "~/layout/footer-layout";
 
 export const loader = educationDetailLoader;
 export const action = educationDetailAction;
+
+export const handle: FooterHandle = {
+  hideFooter: (data) =>
+    (data as Route.ComponentProps["loaderData"] | undefined)?.course?.format ===
+    "SINGLE",
+};
 
 export function shouldRevalidate({
   formData,
