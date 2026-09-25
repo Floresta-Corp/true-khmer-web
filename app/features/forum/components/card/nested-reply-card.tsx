@@ -17,6 +17,7 @@ import ForumReportDialog, {
   type ReportReasonData,
 } from "../dialog/forum-report-dialog";
 import { highlightAnswerClassName } from "../../utils";
+import { Badge } from "~/components/ui/badge";
 
 type RepliedAnswer = NonNullable<AnswerResponse["repliedAnswers"]>[number];
 
@@ -99,11 +100,12 @@ export default function NestedReplyCard({
             </div>
           </div>
           {isAnswerByQuestionAuthor && (
-            <div>
-              <div className="bg-brand-light-blue dark:bg-brand-blue/20 text-brand-blue border-brand-blue/10 rounded border px-1.5 py-0.5 text-[10px] font-bold tracking-widest uppercase">
-                Author
-              </div>
-            </div>
+            <Badge
+              variant="secondary"
+              className="pointer-events-none shrink-0 bg-green-100 text-xs font-semibold text-green-700"
+            >
+              Author
+            </Badge>
           )}
         </div>
 

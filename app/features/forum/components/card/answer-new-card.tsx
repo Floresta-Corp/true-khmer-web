@@ -151,9 +151,12 @@ function AnswerComponent({
                     {answer.author.name}
                   </ProfileLinkWrapper>
                   {isAnswerByQuestionAuthor && (
-                    <div className="bg-brand-light-blue dark:bg-brand-blue/20 text-brand-blue border-brand-blue/10 rounded border px-1.5 py-0.5 text-[10px] font-bold tracking-widest uppercase">
+                    <Badge
+                      variant="secondary"
+                      className="pointer-events-none shrink-0 bg-green-100 text-xs font-semibold text-green-700"
+                    >
                       Author
-                    </div>
+                    </Badge>
                   )}
                 </div>
                 <span className="mt-0.5 text-xs leading-4 text-[#595c5e]">
