@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { resolveLegacyManagePostRoute } from "~/lib/redirects";
 
 export const notificationTypeEnum = z.enum([
   "forum",
@@ -94,5 +95,22 @@ export function getNotificationEventType(notification: ApiNotification) {
 }
 
 export function getNotificationRoute(notification: ApiNotification) {
-  return notification.webRoute ?? notification.data?.webRoute;
+  const webRoute = notification.webRoute ?? notification.data?.webRoute;
+  if (!webRoute) return webRoute;
+
+  const raw = webRoute.trim();
+  if (!raw) return undefined;
+
+  if (/^[a-z][a-z\d+\-.]*:/i.test(raw) || raw.startsWith("//"))
+    return undefined;
+
+  const path = raw.startsWith("/") ? raw : `/${raw}`;
+  const [pathname, rest = ""] = splitPathname(path);
+
+  return `${resolveLegacyManagePostRoute(pathname) ?? pathname}${rest}`;
+}
+
+function splitPathname(path: string): [string, string] {
+  const index = path.search(/[?#]/);
+  return index === -1 ? [path, ""] : [path.slice(0, index), path.slice(index)];
 }

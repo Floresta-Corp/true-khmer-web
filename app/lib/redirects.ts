@@ -36,6 +36,43 @@ export function isOAuthResumeRedirect(value: string | null | undefined) {
   );
 }
 
+// `/workspace/manage-post` was split into `/workspace/volunteer` and
+// `/workspace/launchpad`. Notifications still carry the old path, and the
+// backend builds it by concatenation, so it arrives in a few broken shapes:
+// a missing `/workspace` prefix, a missing separator before the source type
+// ("manage-postvolunteer"), or the API's own "manage-posting" spelling.
+const MANAGE_POST_DESTINATIONS: Record<
+  string,
+  { listing: string; detail: string }
+> = {
+  volunteer: {
+    listing: "/workspace/volunteer",
+    detail: "/workspace/volunteer",
+  },
+  launchpad: { listing: "/workspace/launchpad", detail: "/workspace/projects" },
+  projects: { listing: "/workspace/launchpad", detail: "/workspace/projects" },
+};
+
+const MANAGE_POST_PATTERN =
+  /^\/(?:workspace\/)?manage-post(?:ing)?\/?(volunteer|launchpad|projects)?\/?([^/?#]*)/;
+
+/**
+ * Maps a legacy manage-post path onto its current route, or returns null when
+ * the path is not a manage-post one. `path` is a pathname without a query.
+ */
+export function resolveLegacyManagePostRoute(path: string) {
+  const match = MANAGE_POST_PATTERN.exec(path);
+  if (!match) return null;
+
+  const [, sourceType, id] = match;
+  const destination = sourceType
+    ? MANAGE_POST_DESTINATIONS[sourceType]
+    : undefined;
+  if (!destination) return "/workspace";
+
+  return id ? `${destination.detail}/${id}` : destination.listing;
+}
+
 const BACK_LABELS: Record<string, string> = {
   forum: "Back to Forum",
   launchpad: "Back to Launchpad",
