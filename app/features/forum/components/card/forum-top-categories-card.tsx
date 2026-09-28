@@ -13,6 +13,10 @@ export default function ForumTopCategoriesCard({
   selectedCategory = { id: "all-categories", name: "All Categories" },
   onCategorySelect,
 }: ForumTopCategoriesCardProps) {
+  if (!categories || categories.length === 0) {
+    return null;
+  }
+
   return (
     <Card className="w-full gap-0 rounded-2xl border border-[#e9eef5] bg-white p-5 shadow-none">
       <div className="mb-3">
