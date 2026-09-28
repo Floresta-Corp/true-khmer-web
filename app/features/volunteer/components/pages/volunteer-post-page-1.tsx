@@ -271,9 +271,8 @@ export default function VolunteerPostPage1({
             </div>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
-            <div className="space-y-4">
-              <FieldLabel>Start from - End at</FieldLabel>
+          <div className="grid gap-5 md:grid-cols-3">
+            <div className="md:col-span-2">
               <VolunteerDateRangeField
                 startDate={formData.startDate}
                 endDate={formData.endDate}
