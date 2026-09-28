@@ -14,6 +14,7 @@ import {
 import { PasswordField } from "~/routes/auth/components/password-field";
 import { getPasswordValidationError } from "~/routes/auth/domain/password-validation";
 import { Divider } from "./Divider";
+import { PasswordRequirements } from "./PasswordRequirements";
 import { DeleteAccount } from "./DeleteAccount";
 import { SecurityRow } from "./SecurityRow";
 import { TwoFactorToggle } from "./TwoFactorToggle";
@@ -216,6 +217,10 @@ export function SecurityView({
                 labelClassName="text-sm font-medium text-[#1A2233]"
                 error={clientErrors.newPassword ?? serverErrors?.newPassword}
               />
+
+              {newPassword ? (
+                <PasswordRequirements password={newPassword} />
+              ) : null}
 
               <PasswordField
                 id="confirm-password"
