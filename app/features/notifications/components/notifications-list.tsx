@@ -1,6 +1,6 @@
 import { CheckCircle2, EllipsisVertical, Loader2 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Button } from "~/components/ui/button";
 import { Card } from "../../../components/ui/card";
 import { Skeleton } from "~/components/ui/skeleton";
@@ -83,6 +83,25 @@ export default function NotificationsList({
   hasMore = false,
 }: NotificationsListProps) {
   const prefersReducedMotion = useReducedMotion();
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  // Infinite scroll: fetch the next page as the load-more area nears the
+  // viewport. The button stays as a manual fallback.
+  useEffect(() => {
+    const sentinel = loadMoreRef.current;
+    if (!sentinel || !hasMore || isLoading || !onLoadMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) onLoadMore();
+      },
+      { rootMargin: "300px" },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMore, isLoading, onLoadMore]);
+
   const rowVariants = useMemo(
     () => ({
       hidden: { opacity: 0, y: prefersReducedMotion ? 0 : 8 },
@@ -292,7 +311,10 @@ export default function NotificationsList({
 
       {/* Load More */}
       {hasMore && (
-        <div className="flex items-center justify-center py-5">
+        <div
+          ref={loadMoreRef}
+          className="flex items-center justify-center py-5"
+        >
           <MotionButton
             type="button"
             variant="outline"
