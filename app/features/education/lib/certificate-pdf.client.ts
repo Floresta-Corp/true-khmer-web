@@ -10,6 +10,7 @@ import {
   setTextRenderingMode,
   type PDFFont,
 } from "pdf-lib";
+import * as fontkit from "fontkit";
 import { saveFile } from "~/lib/save-file.client";
 import type { CourseCertificate } from "~/features/education/types";
 import {
@@ -19,12 +20,55 @@ import {
   type RGB,
 } from "./certificate-layout";
 
-/** The standard PDF fonts only cover WinAnsi (Latin) — Khmer script can't be drawn. */
+const KHMER_FONT_URL = "/fonts/NotoSansKhmer-Regular.ttf";
+
+/** Latin runs use Helvetica, Khmer runs use the embedded Khmer font; any other script can't be drawn. */
 export class UnsupportedCertificateTextError extends Error {
   constructor() {
-    super("Certificate download doesn't support Khmer names yet.");
+    super("Certificate download doesn't support some characters in this name.");
     this.name = "UnsupportedCertificateTextError";
   }
+}
+
+type Face = { latin: PDFFont; khmer: PDFFont | null };
+type Run = { text: string; font: PDFFont };
+
+// Khmer, Khmer Symbols, and the zero-width joiners Khmer text relies on.
+const KHMER = /[\u1780-\u17FF\u19E0-\u19FF\u200B-\u200D]/;
+const KHMER_RUNS = /([\u1780-\u17FF\u19E0-\u19FF\u200B-\u200D]+)/;
+
+/**
+ * pdf-lib only writes widths and ToUnicode entries for glyphs reachable from
+ * the font's cmap, but Khmer shaping swaps in GSUB-only glyphs (subscripts,
+ * ligatures) that would then draw at a default 1000 width. Hand pdf-lib every
+ * glyph instead — recovering unmapped ones' text from their `uniXXXX` names —
+ * while shaping still runs on the real font.
+ */
+const fontkitWithAllGlyphs = {
+  create(data: Uint8Array) {
+    const font = fontkit.create(data);
+    const codePoints = new Map<number, number[]>();
+    for (const codePoint of font.characterSet) {
+      const { id } = font.glyphForCodePoint(codePoint);
+      if (!codePoints.has(id)) codePoints.set(id, [codePoint]);
+    }
+    const glyphs = Array.from({ length: font.numGlyphs }, (_, id) =>
+      font.getGlyph(
+        id,
+        codePoints.get(id) ?? codePointsFromName(font.getGlyph(id).name),
+      ),
+    );
+    return Object.create(font, {
+      characterSet: { value: glyphs.map((_, index) => index) },
+      glyphForCodePoint: { value: (index: number) => glyphs[index] },
+      layout: { value: font.layout.bind(font) },
+    });
+  },
+};
+
+function codePointsFromName(name: string | undefined) {
+  const hex = /^uni((?:[0-9A-F]{4})+)/.exec(name ?? "")?.[1] ?? "FFFD";
+  return hex.match(/.{4}/g)!.map((unit) => parseInt(unit, 16));
 }
 
 export type PrintedCertificate = Pick<
@@ -48,17 +92,27 @@ export async function buildCertificatePdf(
     fetchBytes(CERTIFICATE_SIGNATORY.signatureUrl).catch(() => null),
   ]);
 
-  const doc = await PDFDocument.load(templateBytes);
-  const page = doc.getPage(0);
-  const regular = await doc.embedFont(StandardFonts.Helvetica);
-
   const name = certificate.recipientName.trim().toUpperCase();
   const course = certificate.courseTitle.trim().toUpperCase();
+  const instructor = certificate.instructorName?.trim();
+
+  const doc = await PDFDocument.load(templateBytes);
+  const page = doc.getPage(0);
+  const latin = await doc.embedFont(StandardFonts.Helvetica);
+
+  // Only fetch the Khmer font when a field actually needs it. Embedded whole:
+  // pdf-lib's subsetter relies on an API fontkit 2 no longer has.
+  let khmer: PDFFont | null = null;
+  if ([name, course, instructor].some((text) => text && KHMER.test(text))) {
+    doc.registerFontkit(fontkitWithAllGlyphs);
+    khmer = await doc.embedFont(await fetchBytes(KHMER_FONT_URL));
+  }
+  const regular: Face = { latin, khmer };
   assertEncodable(regular, [name, course, certificate.certificateNo]);
 
   const draw = (
     text: string,
-    font: PDFFont,
+    face: Face,
     slot: { x: number; y: number; size: number; color: RGB },
     size = slot.size,
     y = slot.y,
@@ -72,13 +126,17 @@ export async function buildCertificatePdf(
         setStrokingColor(rgb(...slot.color)),
       );
     }
-    page.drawText(text, {
-      x: slot.x,
-      y,
-      size,
-      font,
-      color: rgb(...slot.color),
-    });
+    let x = slot.x;
+    for (const run of runs(text, face)) {
+      page.drawText(run.text, {
+        x,
+        y,
+        size,
+        font: run.font,
+        color: rgb(...slot.color),
+      });
+      x += run.font.widthOfTextAtSize(run.text, size);
+    }
     if (strokeWidth > 0) page.pushOperators(popGraphicsState());
   };
 
@@ -115,14 +173,13 @@ export async function buildCertificatePdf(
     });
   }
 
-  // Optional, so a Khmer-script instructor name is skipped rather than
-  // failing the whole certificate.
-  const instructor = certificate.instructorName?.trim();
+  // Optional, so an instructor name in an unsupported script is skipped rather
+  // than failing the whole certificate.
   if (instructor && isEncodable(regular, instructor)) {
     const slot = CERTIFICATE_SLOTS.instructorName;
     const size = fitSize(instructor, regular, slot);
     draw(
-      regular.widthOfTextAtSize(instructor, size) > slot.maxWidth
+      widthOf(instructor, regular, size) > slot.maxWidth
         ? ellipsize(instructor, regular, size, slot.maxWidth)
         : instructor,
       regular,
@@ -152,15 +209,33 @@ async function fetchBytes(url: string) {
   return response.arrayBuffer();
 }
 
-function assertEncodable(font: PDFFont, texts: string[]) {
-  if (!texts.every((text) => isEncodable(font, text))) {
+/** Splits text into Khmer and non-Khmer runs, each paired with the font that draws it. */
+function runs(text: string, face: Face): Run[] {
+  return text
+    .split(KHMER_RUNS)
+    .filter(Boolean)
+    .map((part) => ({
+      text: part,
+      font: KHMER.test(part) && face.khmer ? face.khmer : face.latin,
+    }));
+}
+
+function widthOf(text: string, face: Face, size: number) {
+  return runs(text, face).reduce(
+    (total, run) => total + run.font.widthOfTextAtSize(run.text, size),
+    0,
+  );
+}
+
+function assertEncodable(face: Face, texts: string[]) {
+  if (!texts.every((text) => isEncodable(face, text))) {
     throw new UnsupportedCertificateTextError();
   }
 }
 
-function isEncodable(font: PDFFont, text: string) {
+function isEncodable(face: Face, text: string) {
   try {
-    font.encodeText(text);
+    for (const run of runs(text, face)) run.font.encodeText(run.text);
     return true;
   } catch {
     return false;
@@ -169,14 +244,11 @@ function isEncodable(font: PDFFont, text: string) {
 
 function fitSize(
   text: string,
-  font: PDFFont,
+  face: Face,
   slot: { size: number; minSize: number; maxWidth: number },
 ) {
   let size = slot.size;
-  while (
-    size > slot.minSize &&
-    font.widthOfTextAtSize(text, size) > slot.maxWidth
-  ) {
+  while (size > slot.minSize && widthOf(text, face, size) > slot.maxWidth) {
     size -= 0.5;
   }
   return size;
@@ -184,31 +256,31 @@ function fitSize(
 
 function wrapToFit(
   text: string,
-  font: PDFFont,
+  face: Face,
   slot: { size: number; minSize: number; maxWidth: number; maxLines: number },
 ) {
   for (let size = slot.size; size >= slot.minSize; size -= 0.5) {
-    const lines = wrap(text, font, size, slot.maxWidth);
+    const lines = wrap(text, face, size, slot.maxWidth);
     if (lines.length <= slot.maxLines) return { size, lines };
   }
 
-  const lines = wrap(text, font, slot.minSize, slot.maxWidth);
+  const lines = wrap(text, face, slot.minSize, slot.maxWidth);
   const kept = lines.slice(0, slot.maxLines);
   kept[kept.length - 1] = ellipsize(
     `${kept[kept.length - 1]} ${lines.slice(slot.maxLines).join(" ")}`,
-    font,
+    face,
     slot.minSize,
     slot.maxWidth,
   );
   return { size: slot.minSize, lines: kept };
 }
 
-function wrap(text: string, font: PDFFont, size: number, maxWidth: number) {
+function wrap(text: string, face: Face, size: number, maxWidth: number) {
   const lines: string[] = [];
   let current = "";
   for (const word of text.split(/\s+/).filter(Boolean)) {
     const next = current ? `${current} ${word}` : word;
-    if (current && font.widthOfTextAtSize(next, size) > maxWidth) {
+    if (current && widthOf(next, face, size) > maxWidth) {
       lines.push(current);
       current = word;
     } else {
@@ -219,14 +291,9 @@ function wrap(text: string, font: PDFFont, size: number, maxWidth: number) {
   return lines;
 }
 
-function ellipsize(
-  text: string,
-  font: PDFFont,
-  size: number,
-  maxWidth: number,
-) {
+function ellipsize(text: string, face: Face, size: number, maxWidth: number) {
   let result = text;
-  while (result && font.widthOfTextAtSize(`${result}…`, size) > maxWidth) {
+  while (result && widthOf(`${result}…`, face, size) > maxWidth) {
     result = result.slice(0, -1);
   }
   return `${result.trimEnd()}…`;

@@ -16,6 +16,33 @@ import {
 
 const COMPLETED_CLASSES_LIMIT = 50;
 
+const MAX_COMPLETED_CLASS_PAGES = 5;
+
+async function collectCompletedClasses(request: Request) {
+  const first = await listMyClasses(request, {
+    tab: "completed",
+    page: 1,
+    limit: COMPLETED_CLASSES_LIMIT,
+  });
+  if (!first) return [];
+
+  const pageCount = Math.min(
+    first.data.pagination.totalPages,
+    MAX_COMPLETED_CLASS_PAGES,
+  );
+  const rest = await Promise.all(
+    Array.from({ length: Math.max(pageCount - 1, 0) }, (_, index) =>
+      listMyClasses(request, {
+        tab: "completed",
+        page: index + 2,
+        limit: COMPLETED_CLASSES_LIMIT,
+      }),
+    ),
+  );
+
+  return [first, ...rest].flatMap((page) => page?.data?.courses ?? []);
+}
+
 interface MyspaceLoaderData {
   me: Profile | null;
   userId: string | null;
@@ -31,10 +58,7 @@ export async function myspaceLoader({ request }: Route.LoaderArgs) {
       GetMyspaceMe(request),
       GetRecentActivity(request),
       collectCertificates((params) => GetMyCertificates(request, params)),
-      listMyClasses(request, {
-        tab: "completed",
-        limit: COMPLETED_CLASSES_LIMIT,
-      }),
+      collectCompletedClasses(request),
     ]);
 
   if (certificatesResult.status === "rejected") {
@@ -45,7 +69,7 @@ export async function myspaceLoader({ request }: Route.LoaderArgs) {
   }
   const instructorByCourseId = new Map(
     classesResult.status === "fulfilled"
-      ? (classesResult.value?.data?.courses ?? []).map((course) => [
+      ? classesResult.value.map((course) => [
           course.courseId,
           course.instructor?.name ?? null,
         ])
