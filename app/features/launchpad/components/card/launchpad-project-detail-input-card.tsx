@@ -203,11 +203,11 @@ export default function LaunchpadProjectDetailInputCard({
         <div className="mt-2">
           <label htmlFor={projectCoverInputId}>
             <div
-              className={`relative h-37 w-74.25 cursor-pointer rounded-2xl border border-dashed bg-gray-50 text-center hover:bg-gray-100 ${errors?.coverFile ? "border-red-400 ring-1 ring-red-400/60" : "border-gray-200"}`}
+              className={`relative flex aspect-video cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed bg-gray-50 px-4 py-3 text-center hover:bg-gray-100 ${errors?.coverFile ? "border-red-400 ring-1 ring-red-400/60" : "border-gray-200"}`}
             >
               {projectCoverPreview ? (
                 <motion.div
-                  className="h-full w-full"
+                  className="absolute inset-0"
                   onHoverStart={() => setPreviewHovered(true)}
                   onHoverEnd={() => setPreviewHovered(false)}
                   initial={{ opacity: 0, scale: 0.98 }}
@@ -238,7 +238,7 @@ export default function LaunchpadProjectDetailInputCard({
                   </motion.span>
                 </motion.div>
               ) : (
-                <div className="flex flex-col items-center justify-center p-6.5">
+                <div className="flex flex-col items-center justify-center">
                   <img
                     className="mb-3.5 size-8"
                     src={PROJECT_IMAGE_PLACEHOLDER}
