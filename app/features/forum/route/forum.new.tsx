@@ -304,7 +304,6 @@ export default function ForumNewPage() {
     },
     [activeTab, applyFilterParams, selectedCategory.id, selectedTagId],
   );
-
   const allQuestion = categories.reduce(
     (acc, category) => acc + (category.questionCount || 0),
     0,

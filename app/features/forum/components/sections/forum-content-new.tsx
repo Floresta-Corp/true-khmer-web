@@ -12,6 +12,7 @@ import TopContributorsCard from "../card/top-contributors-card";
 import MobileQuestionFilter from "../mobile-question-filter";
 import QuestionSortByDropdown from "../question-sort-by-dropdown";
 import QuestionCard from "../card/question-card";
+import ForumEmptyState from "../card/forum-empty-state";
 import { useLoaderData } from "react-router";
 import type { loader } from "../../route/forum.new";
 import { ForumPageLayout } from "../forum-page-layout";
@@ -31,6 +32,7 @@ interface ForumContentNewProps {
   selectedTagId?: string;
   onTagSelect?: (tag: TrendingTagResponse) => void;
   onLoadMore?: () => void;
+  onClearFilters?: () => void;
   hasMore?: boolean;
   isLoading?: boolean;
 }
@@ -56,9 +58,15 @@ export default function ForumContentNew({
   selectedTagId,
   onTagSelect,
   onLoadMore,
+  onClearFilters,
   hasMore,
   isLoading,
 }: ForumContentNewProps) {
+  // Sort order only reorders results, so it does not count as a filter.
+  const hasActiveFilters =
+    activeTab !== "recent" ||
+    selectedCategory.id !== "all-categories" ||
+    Boolean(selectedTagId);
   const { userId, reportReasons } = useLoaderData<typeof loader>();
   const reportReasonOptions =
     reportReasons?.reportingTypes.map((type) => ({
@@ -191,41 +199,57 @@ export default function ForumContentNew({
           transition={{ duration: 0.3 * d, delay: 0.1 * d }}
           className="flex flex-col gap-5"
         >
-          {isLoading && questions?.length === 0
-            ? Array.from({ length: 4 }).map((_, index) => (
-                <motion.div
-                  key={`question-skeleton-${index}`}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.35 * d,
-                    delay: (0.1 + index * 0.06) * d,
-                    ease: "easeOut",
-                  }}
-                >
-                  <QuestionCardSkeleton />
-                </motion.div>
-              ))
-            : questions?.map((question, index) => (
-                <motion.div
-                  key={question.id}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.35 * d,
-                    delay: (0.1 + index * 0.06) * d,
-                    ease: "easeOut",
-                  }}
-                >
-                  <QuestionCard
-                    question={question}
-                    userId={userId ?? undefined}
-                    categories={categories}
-                    index={index}
-                    reportReasons={reportReasonOptions}
-                  />
-                </motion.div>
-              ))}
+          {!isLoading && !questions?.length ? (
+            hasActiveFilters ? (
+              <ForumEmptyState
+                title="No discussions found"
+                description="Try broadening your filters or switching categories to see more results."
+                actionLabel="Clear Filters & Browse All"
+                onAction={onClearFilters}
+              />
+            ) : (
+              <ForumEmptyState
+                title="No discussions yet"
+                description="Be the first to start a conversation — ask the community something above."
+              />
+            )
+          ) : isLoading && questions?.length === 0 ? (
+            Array.from({ length: 4 }).map((_, index) => (
+              <motion.div
+                key={`question-skeleton-${index}`}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.35 * d,
+                  delay: (0.1 + index * 0.06) * d,
+                  ease: "easeOut",
+                }}
+              >
+                <QuestionCardSkeleton />
+              </motion.div>
+            ))
+          ) : (
+            questions?.map((question, index) => (
+              <motion.div
+                key={question.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.35 * d,
+                  delay: (0.1 + index * 0.06) * d,
+                  ease: "easeOut",
+                }}
+              >
+                <QuestionCard
+                  question={question}
+                  userId={userId ?? undefined}
+                  categories={categories}
+                  index={index}
+                  reportReasons={reportReasonOptions}
+                />
+              </motion.div>
+            ))
+          )}
         </motion.div>
 
         {hasMore && (
