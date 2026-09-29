@@ -12,9 +12,9 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import { PasswordField } from "~/routes/auth/components/password-field";
+import { PasswordRequirements } from "~/routes/auth/components/password-requirements";
 import { getPasswordValidationError } from "~/routes/auth/domain/password-validation";
 import { Divider } from "./Divider";
-import { PasswordRequirements } from "./PasswordRequirements";
 import { DeleteAccount } from "./DeleteAccount";
 import { SecurityRow } from "./SecurityRow";
 import { TwoFactorToggle } from "./TwoFactorToggle";
