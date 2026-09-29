@@ -7,11 +7,14 @@ import {
   collectCertificates,
   toProfileCertificate,
 } from "~/api/education/education.server";
+import { listMyClasses } from "~/api/education/my-classes.server";
 import {
   GetMyCertificates,
   GetMyspaceMe,
   GetRecentActivity,
 } from "~/api/myspace/myspace.server";
+
+const COMPLETED_CLASSES_LIMIT = 50;
 
 interface MyspaceLoaderData {
   me: Profile | null;
@@ -23,11 +26,15 @@ interface MyspaceLoaderData {
 export async function myspaceLoader({ request }: Route.LoaderArgs) {
   const auth = await requireUser(request);
   const userId = auth.user.id;
-  const [meResult, activitiesResult, certificatesResult] =
+  const [meResult, activitiesResult, certificatesResult, classesResult] =
     await Promise.allSettled([
       GetMyspaceMe(request),
       GetRecentActivity(request),
       collectCertificates((params) => GetMyCertificates(request, params)),
+      listMyClasses(request, {
+        tab: "completed",
+        limit: COMPLETED_CLASSES_LIMIT,
+      }),
     ]);
 
   if (certificatesResult.status === "rejected") {
@@ -36,6 +43,14 @@ export async function myspaceLoader({ request }: Route.LoaderArgs) {
       certificatesResult.reason,
     );
   }
+  const instructorByCourseId = new Map(
+    classesResult.status === "fulfilled"
+      ? (classesResult.value?.data?.courses ?? []).map((course) => [
+          course.courseId,
+          course.instructor?.name ?? null,
+        ])
+      : [],
+  );
 
   return withAuthData(auth, {
     userId,
@@ -46,7 +61,12 @@ export async function myspaceLoader({ request }: Route.LoaderArgs) {
         : [],
     certificates:
       certificatesResult.status === "fulfilled"
-        ? certificatesResult.value.map(toProfileCertificate)
+        ? certificatesResult.value.map((record) =>
+            toProfileCertificate(
+              record,
+              instructorByCourseId.get(record.courseId) ?? null,
+            ),
+          )
         : [],
   } satisfies MyspaceLoaderData);
 }

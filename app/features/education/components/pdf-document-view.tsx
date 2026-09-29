@@ -212,7 +212,7 @@ const PAGE_RENDER_WIDTH_PX = 1024;
 
 const BOTTOM_SLACK_PX = 24;
 
-const PDFJS_ASSETS = "/pdfjs";
+export const PDFJS_ASSETS = "/pdfjs";
 
 const DRAW_AHEAD_PX = 800;
 
