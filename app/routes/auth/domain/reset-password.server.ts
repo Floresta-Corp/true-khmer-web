@@ -6,6 +6,7 @@ import {
   getAuthFieldError,
   resetPassword,
 } from "~/services/auth/api.server";
+import { getPasswordValidationError } from "./password-validation";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -17,8 +18,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (!token) errors.token = "Reset token is required";
   if (!newPassword) errors.newPassword = "New password is required";
-  else if (newPassword.length < 8) {
-    errors.newPassword = "Password must be at least 8 characters";
+  else {
+    const passwordError = getPasswordValidationError(newPassword);
+    if (passwordError) errors.newPassword = passwordError;
   }
   if (!confirmPassword) errors.confirmPassword = "Please confirm your password";
   else if (confirmPassword !== newPassword) {

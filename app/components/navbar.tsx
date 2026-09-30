@@ -99,7 +99,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
     activeSection === "myspace"
       ? {
           to: "/myspace",
-          label: "My space",
+          label: "My Space",
           icon: UserRound,
           forceActive: isInMySpace,
           isSection: true,
@@ -137,7 +137,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
   const mobileSpaceNav = !user
     ? null
     : activeSection === "myspace"
-      ? { label: "My space", ...mySpaceSidebarConfig }
+      ? { label: "My Space", ...mySpaceSidebarConfig }
       : { label: "Workspace", ...workSpaceSidebarConfig };
 
   return (

@@ -9,7 +9,9 @@ import {
 import { Button } from "~/components/ui/button";
 import { FormError } from "~/routes/auth/components/form-error";
 import { PasswordField } from "~/routes/auth/components/password-field";
+import { PasswordRequirements } from "~/routes/auth/components/password-requirements";
 import { ResetFlowShell } from "~/routes/auth/components/reset-flow-shell";
+import { getPasswordValidationError } from "~/routes/auth/domain/password-validation";
 import { action as resetPasswordAction } from "~/routes/auth/domain/reset-password.server";
 import type { ResetPasswordActionData } from "~/routes/auth/domain/auth.types";
 
@@ -31,7 +33,7 @@ export default function ResetPasswordPage() {
   const isSubmitting = navigation.state === "submitting";
   const canSubmit =
     token !== "" &&
-    newPassword.trim() !== "" &&
+    !getPasswordValidationError(newPassword) &&
     confirmPassword.trim() !== "" &&
     !isSubmitting;
 
@@ -69,6 +71,8 @@ export default function ResetPasswordPage() {
             iconClassName="left-4 text-[#899CC9]"
             toggleClassName="right-2 h-8 w-8 text-[#899CC9] hover:text-[#6F86B3]"
           />
+
+          {newPassword ? <PasswordRequirements password={newPassword} /> : null}
 
           <PasswordField
             id="confirmPassword"

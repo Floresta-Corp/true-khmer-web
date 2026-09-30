@@ -12,6 +12,7 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import { PasswordField } from "~/routes/auth/components/password-field";
+import { PasswordRequirements } from "~/routes/auth/components/password-requirements";
 import { getPasswordValidationError } from "~/routes/auth/domain/password-validation";
 import { Divider } from "./Divider";
 import { DeleteAccount } from "./DeleteAccount";
@@ -216,6 +217,10 @@ export function SecurityView({
                 labelClassName="text-sm font-medium text-[#1A2233]"
                 error={clientErrors.newPassword ?? serverErrors?.newPassword}
               />
+
+              {newPassword ? (
+                <PasswordRequirements password={newPassword} />
+              ) : null}
 
               <PasswordField
                 id="confirm-password"
