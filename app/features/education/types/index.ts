@@ -157,6 +157,7 @@ export interface CourseCertificate {
   courseTitle: string;
   certificateKind: CourseCertificateKind | null;
   completedOn: string;
+  instructorName: string | null;
   sharedToProfile: boolean;
 }
 
@@ -165,7 +166,9 @@ export interface ProfileCertificate {
   courseId: string;
   courseTitle: string;
   certificateNo: string;
+  recipientName: string;
   certificateKind: CourseCertificateKind | null;
   completedAt: string;
+  instructorName: string | null;
   sharedToProfile: boolean;
 }

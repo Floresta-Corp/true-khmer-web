@@ -31,6 +31,7 @@ import {
   RegisterBrandPanel,
 } from "~/routes/auth/components/page-shell";
 import { PasswordField } from "~/routes/auth/components/password-field";
+import { PasswordRequirements } from "~/routes/auth/components/password-requirements";
 import {
   action as registerAction,
   loader as registerLoader,
@@ -221,6 +222,7 @@ export default function RegisterPage() {
   const phoneCountry = watch("phoneCountry");
   const gender = watch("gender");
   const agreeToDirectory = watch("agreeToDirectory");
+  const password = watch("password");
 
   // Restore the persisted draft after mount rather than during render: the
   // server renders the empty form, so reading sessionStorage any earlier would
@@ -404,6 +406,8 @@ export default function RegisterPage() {
             toggleClassName="right-2 h-8 w-8 text-[#899CC9] hover:text-[#6F86B3]"
             {...register("password")}
           />
+
+          {password ? <PasswordRequirements password={password} /> : null}
 
           <PasswordField
             id="confirmPassword"

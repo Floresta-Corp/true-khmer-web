@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { preconnect, preload } from "react-dom";
 import { useNavigation, useSubmit } from "react-router";
 import { cn } from "~/lib/utils";
 import { GoogleButton } from "./google-button";
@@ -83,11 +84,39 @@ function loadGoogleIdentityScript() {
     script.async = true;
     script.defer = true;
     script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Unable to load Google sign-in."));
+    script.onerror = () => {
+      script.remove();
+      reject(new Error("Unable to load Google sign-in."));
+    };
     document.head.appendChild(script);
+  }).catch((error) => {
+    // Drop the failed attempt so the next mount can retry.
+    googleScriptPromise = null;
+    throw error;
   });
 
   return googleScriptPromise;
+}
+
+// Resolves once the iframe from renderButton has loaded (or after a timeout),
+// so the invisible overlay can actually receive the click.
+function waitForGoogleIframe(container: HTMLElement, timeoutMs = 5000) {
+  return new Promise<void>((resolve) => {
+    const timeout = window.setTimeout(finish, timeoutMs);
+    const observer = new MutationObserver(() => {
+      const iframe = container.querySelector("iframe");
+      if (!iframe) return;
+      observer.disconnect();
+      iframe.addEventListener("load", finish, { once: true });
+    });
+    observer.observe(container, { childList: true, subtree: true });
+
+    function finish() {
+      observer.disconnect();
+      window.clearTimeout(timeout);
+      resolve();
+    }
+  });
 }
 
 export function GoogleAuthButton({
@@ -99,6 +128,13 @@ export function GoogleAuthButton({
   waitlistId,
   onError,
 }: GoogleAuthButtonProps) {
+  // Hint the browser during SSR so the GSI script downloads with the page,
+  // not after hydration. React dedupes these, so remounts are free.
+  if (isConfigured) {
+    preconnect("https://accounts.google.com");
+    preload("https://accounts.google.com/gsi/client", { as: "script" });
+  }
+
   const submit = useSubmit();
   const navigation = useNavigation();
   const [isReady, setIsReady] = useState(false);
@@ -169,16 +205,21 @@ export function GoogleAuthButton({
           cancel_on_tap_outside: true,
         });
 
-        if (googleButtonRef.current) {
-          googleButtonRef.current.replaceChildren();
-          window.google?.accounts?.id?.renderButton(googleButtonRef.current, {
-            shape: "rectangular",
-            size: "large",
-            text: "continue_with",
-            theme: "outline",
-            width: GSI_WIDTH,
-          });
-        }
+        const container = googleButtonRef.current;
+        if (!container) return;
+
+        container.replaceChildren();
+        const iframeLoaded = waitForGoogleIframe(container);
+        window.google?.accounts?.id?.renderButton(container, {
+          shape: "rectangular",
+          size: "large",
+          text: "continue_with",
+          theme: "outline",
+          width: GSI_WIDTH,
+        });
+
+        await iframeLoaded;
+        if (cancelled) return;
 
         setIsReady(true);
       } catch (error) {

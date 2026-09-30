@@ -4,6 +4,7 @@ import { EyeOff, MessageCircle } from "lucide-react";
 import { motion } from "motion/react";
 import QuestionVoteComponent from "../components/question-vote-component";
 import AllAnswers from "../components/sections/all-answers";
+import EmptyAnswerCard from "../components/card/empty-answer-card";
 import type { Route } from "./+types/forum.$id";
 import { forumDetailLoader } from "../services/forum-detail.loader";
 import { forumDetailAction } from "../services/forum-detail.action";
@@ -324,15 +325,7 @@ export default function ForumDetailPage() {
           {answers && answers.length > 0 ? (
             <AllAnswers answers={answers} />
           ) : (
-            <motion.p
-              className="mt-8 text-center text-sm text-[#65758b]"
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={3}
-            >
-              No answers yet. Be the first to share your knowledge!
-            </motion.p>
+            !bestAnswer?.length && <EmptyAnswerCard />
           )}
         </div>
 

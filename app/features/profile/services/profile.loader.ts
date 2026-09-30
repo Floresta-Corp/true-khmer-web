@@ -93,7 +93,7 @@ async function loadSharedCertificates(
     const records = await collectCertificates((params) =>
       GetProfileCertificates(request, userId, params),
     );
-    return records.map(toProfileCertificate);
+    return records.map((record) => toProfileCertificate(record));
   } catch (error) {
     console.warn(
       `[profile] certificates for ${userId} unavailable; rendering without them`,

@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "BUILD_TARGET=cloudflare react-router build",
+    "build": "NODE_OPTIONS=--max-old-space-size=4096 BUILD_TARGET=cloudflare react-router build",
     "build:cf": "bun run build",
     "build:node": "react-router build",
     "dev": "react-router dev",

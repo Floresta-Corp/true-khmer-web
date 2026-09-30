@@ -1,4 +1,4 @@
-import { ImageIcon, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "motion/react";
 import {
@@ -271,9 +271,8 @@ export default function VolunteerPostPage1({
             </div>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
-            <div className="space-y-4">
-              <FieldLabel>Start from - End at</FieldLabel>
+          <div className="grid gap-5 md:grid-cols-3">
+            <div className="md:col-span-2">
               <VolunteerDateRangeField
                 startDate={formData.startDate}
                 endDate={formData.endDate}
@@ -371,11 +370,14 @@ export default function VolunteerPostPage1({
                 </motion.div>
               ) : (
                 <>
-                  <ImageIcon className="size-8 text-[#a3a3a3]" />
+                  <img
+                    className="size-8"
+                    src="/placeholder/images.svg"
+                    alt=""
+                  />
 
                   <p className="mt-3 text-xs leading-4.5 font-semibold">
-                    <span className="text-[#0ea5e9]">Click to upload</span>{" "}
-                    <span className="text-[#525252]">or drag and drop</span>
+                    <span className="text-blue-500">Click to upload</span>{" "}
                   </p>
 
                   <p className="mt-0.5 text-[11px] leading-4 text-[#a3a3a3]">
