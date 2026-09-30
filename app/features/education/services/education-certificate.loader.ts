@@ -74,6 +74,10 @@ export async function educationCertificateLoader({
     courseTitle: issued.courseTitle,
     certificateKind: issued.certificateKind ?? null,
     completedOn: formatDate(issued.completedAt),
+    instructorName:
+      course && course.instructor.name !== "Unknown instructor"
+        ? course.instructor.name
+        : null,
     sharedToProfile: issued.sharedToProfile,
   };
 

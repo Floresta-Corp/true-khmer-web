@@ -926,14 +926,17 @@ export async function collectCertificates(
 
 export function toProfileCertificate(
   certificate: CourseCertificateRecord,
+  instructorName: string | null = null,
 ): ProfileCertificate {
   return {
     id: certificate.id,
     courseId: certificate.courseId,
     courseTitle: certificate.courseTitle,
     certificateNo: certificate.certificateNo,
+    recipientName: certificate.recipientName,
     certificateKind: certificate.certificateKind ?? null,
     completedAt: certificate.completedAt,
+    instructorName,
     sharedToProfile: certificate.sharedToProfile,
   };
 }

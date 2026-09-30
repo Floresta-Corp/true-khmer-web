@@ -1,9 +1,10 @@
 import { useEffect, useRef } from "react";
 import { useFetcher } from "react-router";
 import { toast } from "sonner";
-import { Check, Download, Share2 } from "lucide-react";
+import { Check, Download, Loader2, Share2 } from "lucide-react";
 import { CARD } from "~/features/education/lib/education-styles";
-import { CertificateSheet } from "~/features/education/components/certificate-sheet";
+import { CertificatePreview } from "~/features/education/components/certificate-preview";
+import { useCertificateDownload } from "~/features/education/hooks/use-certificate-download";
 import type { ShareCertificateActionResult } from "~/features/education/services/education-certificate.action";
 import type { CourseCertificate } from "~/features/education/types";
 
@@ -14,6 +15,8 @@ interface CertificateCardProps {
 export function CertificateCard({ certificate }: CertificateCardProps) {
   const fetcher = useFetcher<ShareCertificateActionResult>();
   const settledRef = useRef<ShareCertificateActionResult | null>(null);
+  const { download: handleDownload, isDownloading } =
+    useCertificateDownload(certificate);
 
   const pendingIntent = fetcher.formData?.get("intent");
   const isSharing = fetcher.state !== "idle";
@@ -44,22 +47,21 @@ export function CertificateCard({ certificate }: CertificateCardProps) {
       data-print-region="landscape"
       className={`${CARD} mb-6 p-6 sm:p-10 print:rounded-none print:shadow-none`}
     >
-      <CertificateSheet
-        recipientName={certificate.recipientName}
-        courseTitle={certificate.courseTitle}
-        certificateKind={certificate.certificateKind}
-        completedOn={certificate.completedOn}
-        certificateNo={certificate.certificateNo}
-      />
+      <CertificatePreview certificate={certificate} />
 
       <div className="mt-6.5 flex flex-col items-center justify-center gap-3 sm:flex-row print:hidden">
         <button
           type="button"
-          onClick={() => window.print()}
-          className="flex w-full cursor-pointer items-center justify-center gap-2.25 rounded-lg bg-[#1C5DD4] px-6.5 py-3.25 text-sm font-bold text-white transition-colors hover:bg-[#174FB4] sm:w-auto"
+          onClick={handleDownload}
+          disabled={isDownloading}
+          className="flex w-full cursor-pointer items-center justify-center gap-2.25 rounded-lg bg-[#1C5DD4] px-6.5 py-3.25 text-sm font-bold text-white transition-colors hover:bg-[#174FB4] disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
         >
-          <Download className="size-4" aria-hidden />
-          Download as PDF
+          {isDownloading ? (
+            <Loader2 className="size-4 animate-spin" aria-hidden />
+          ) : (
+            <Download className="size-4" aria-hidden />
+          )}
+          {isDownloading ? "Preparing PDF…" : "Download as PDF"}
         </button>
 
         <fetcher.Form method="post" className="w-full sm:w-auto">
