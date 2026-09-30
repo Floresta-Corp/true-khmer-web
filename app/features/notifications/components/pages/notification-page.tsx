@@ -1,5 +1,10 @@
-import { useEffect, useState } from "react";
-import { useFetcher, useLoaderData, useNavigate } from "react-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useFetcher,
+  useLoaderData,
+  useNavigate,
+  useSearchParams,
+} from "react-router";
 import { formatDistanceToNow } from "date-fns";
 import NotificationsList, {
   type NotificationItem,
@@ -54,17 +59,74 @@ function toItem(notif: ApiNotification): NotificationItem {
 export default function NotificationPage() {
   const loaderData = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
+  const pageFetcher = useFetcher<typeof loader>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { setRecentNotifications, setUnreadCount } = useNotifications();
 
   const [data, setData] = useState<NotificationsData | null>(
     loaderData as NotificationsData,
   );
 
+  const [loadMoreFailed, setLoadMoreFailed] = useState(false);
+  // The filter query a page request was made for, so a response that lands
+  // after the user switched filters is dropped instead of appended.
+  const pendingFilterKey = useRef<string | null>(null);
+
+  const filterKey = (() => {
+    const params = new URLSearchParams(searchParams);
+    params.delete("page");
+    params.sort();
+    return params.toString();
+  })();
+
   // Sync state when loader data changes (filter navigation)
   useEffect(() => {
     setData(loaderData as NotificationsData);
+    setLoadMoreFailed(false);
+    pendingFilterKey.current = null;
   }, [loaderData]);
+
+  useEffect(() => {
+    const next = pageFetcher.data as NotificationsData | undefined;
+    if (!next || pendingFilterKey.current !== filterKey) return;
+    pendingFilterKey.current = null;
+
+    if (next.ok === false) {
+      setLoadMoreFailed(true);
+      return;
+    }
+
+    setData((prev) => {
+      if (!prev) return next;
+      // Offset pagination shifts when new notifications arrive, so skip rows
+      // that slid across the page boundary.
+      const seen = new Set(prev.notifications.map((n) => n.id));
+      return {
+        ...prev,
+        notifications: [
+          ...prev.notifications,
+          ...next.notifications.filter((n) => !seen.has(n.id)),
+        ],
+        page: next.page,
+        total: next.total,
+        unreadCount: next.unreadCount,
+      };
+    });
+  }, [pageFetcher.data]);
+
+  const hasMore =
+    !!data && !loadMoreFailed && data.notifications.length < data.total;
+  const isLoadingMore = pageFetcher.state !== "idle";
+
+  const handleLoadMore = useCallback(() => {
+    if (!data || !hasMore || isLoadingMore) return;
+
+    const params = new URLSearchParams(searchParams);
+    params.set("page", String(data.page + 1));
+    pendingFilterKey.current = filterKey;
+    pageFetcher.load(`/notifications?${params.toString()}`);
+  }, [data, hasMore, isLoadingMore, searchParams, filterKey]);
 
   function handleMarkAllRead() {
     const unreadIds = (data?.notifications ?? [])
@@ -175,6 +237,9 @@ export default function NotificationPage() {
               onMarkAllRead={handleMarkAllRead}
               onMarkRead={handleMarkRead}
               onNotificationClick={handleNotificationClick}
+              onLoadMore={handleLoadMore}
+              hasMore={hasMore}
+              isLoading={isLoadingMore}
               isInitialLoading={!data}
             />
           </div>
