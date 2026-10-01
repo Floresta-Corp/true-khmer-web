@@ -32,6 +32,11 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "~/components/ui/sidebar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { useUserDisplay } from "~/hooks/use-user-display";
 import { cn } from "~/lib/utils";
 import type { loader as appLayoutLoader } from "~/layout/app-layout";
@@ -47,6 +52,7 @@ export type SidebarNavItem = {
 
 export interface AppSidebarProps {
   roleLabel: string;
+  roleDescription?: string;
 
   items: SidebarNavItem[];
   headerAccentSrc?: string;
@@ -54,8 +60,12 @@ export interface AppSidebarProps {
   footer: SpaceSwitchFooter;
 }
 
+const roleBadgeClassName =
+  "w-fit truncate rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-600 focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:outline-none";
+
 export default function AppSidebar({
   roleLabel,
+  roleDescription,
   items,
   headerAccentSrc,
   footer,
@@ -117,9 +127,28 @@ export default function AppSidebar({
               <span className="truncate text-base font-semibold text-[#344256]">
                 {displayName}
               </span>
-              <span className="w-fit truncate rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-600">
-                {roleLabel}
-              </span>
+              {roleDescription ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className={cn(roleBadgeClassName, "cursor-help")}
+                    >
+                      {roleLabel}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="bottom"
+                    align="start"
+                    sideOffset={6}
+                    className="leading-5"
+                  >
+                    {roleDescription}
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <span className={roleBadgeClassName}>{roleLabel}</span>
+              )}
             </div>
           </div>
         </div>
@@ -193,6 +222,8 @@ const workspaceNavItems: SidebarNavItem[] = [
 
 export const mySpaceSidebarConfig: AppSidebarProps = {
   roleLabel: "Member",
+  roleDescription:
+    "You're in My Space, your personal area. Keep track of your profile, applications, tickets, saved items and classes.",
   items: [
     {
       id: "myprofile",
@@ -240,6 +271,8 @@ export const mySpaceSidebarConfig: AppSidebarProps = {
 
 export const workSpaceSidebarConfig: AppSidebarProps = {
   roleLabel: "Creator",
+  roleDescription:
+    "You're in Workspace, where you manage what you post to the community: volunteer roles, launchpad projects, discussions, courses, events and voices.",
   items: workspaceNavItems,
   headerAccentSrc: "/images/workspace-icon.png",
   footer: {
