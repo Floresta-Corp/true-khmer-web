@@ -1,6 +1,7 @@
 import { MessageCircle, Pencil, Trash2 } from "lucide-react";
 import { Link } from "react-router";
-import { Avatar, AvatarImage } from "~/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { getInitials } from "~/routes/onboarding/domain/profile/profile-utils";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL } from "~/lib/utils";
 import type { MyAnswerDiscussionResponse } from "~/types/api-client";
@@ -50,11 +51,16 @@ export default function WorkspaceAnswerItem({ answer, index = 0 }: Props) {
       <div className="mb-4 flex items-start justify-between gap-2">
         <div className="flex min-w-0 flex-1 items-center gap-2.5">
           <Avatar className="h-10 w-10 shrink-0 border border-[#f3f4f6]">
-            <AvatarImage
-              src={profileImage}
-              alt={firstAnswer?.author?.name || "User"}
-              className="object-cover"
-            />
+            {profileImage && (
+              <AvatarImage
+                src={profileImage}
+                alt={firstAnswer?.author?.name || "User"}
+                className="object-cover"
+              />
+            )}
+            <AvatarFallback className="bg-[#dfe3e6] text-sm font-semibold text-[#2c2f31]">
+              {getInitials(firstAnswer?.author?.name ?? "") || "?"}
+            </AvatarFallback>
           </Avatar>
 
           <div className="flex min-w-0 flex-wrap items-center gap-2">

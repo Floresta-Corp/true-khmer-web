@@ -73,7 +73,7 @@ export default function TopContributorsCard() {
                   alt={contributor.name}
                 />
                 <AvatarFallback className="bg-[#2f6fe4] text-xs font-semibold text-white">
-                  {getInitials(contributor.name)}
+                  {getInitials(contributor.name ?? "") || "?"}
                 </AvatarFallback>
               </Avatar>
 

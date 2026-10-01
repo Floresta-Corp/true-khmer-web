@@ -3,7 +3,8 @@ import { motion } from "motion/react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import SlideToLeftHoverAnimation from "~/components/slide-to-left-hover-animation";
-import { Avatar, AvatarImage } from "~/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { getInitials } from "~/routes/onboarding/domain/profile/profile-utils";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import AskQuestionDialog from "~/features/forum/components/dialog/ask-question-dialog";
@@ -57,11 +58,16 @@ export default function WorkspaceQuestionItem({
       <div className="mb-3 flex items-start justify-between gap-2">
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-2.5">
           <Avatar className="h-8 w-8 shrink-0 border border-[#f3f4f6] sm:h-10 sm:w-10">
-            <AvatarImage
-              src={profileImage}
-              alt={question.author?.name || "User"}
-              className="object-cover"
-            />
+            {profileImage && (
+              <AvatarImage
+                src={profileImage}
+                alt={question.author?.name || "User"}
+                className="object-cover"
+              />
+            )}
+            <AvatarFallback className="bg-[#dfe3e6] text-xs font-semibold text-[#2c2f31] sm:text-sm">
+              {getInitials(question.author?.name ?? "") || "?"}
+            </AvatarFallback>
           </Avatar>
 
           <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">

@@ -1,7 +1,8 @@
 import { MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { Avatar, AvatarImage } from "~/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { getInitials } from "~/routes/onboarding/domain/profile/profile-utils";
 import { Badge } from "~/components/ui/badge";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { resolveImageURL } from "~/lib/utils";
@@ -58,11 +59,16 @@ export default function QuestionCard({
       <div className="mb-3 flex items-start justify-between gap-3 sm:mb-4">
         <div className="flex min-w-0 items-center gap-3">
           <Avatar className="size-10 shrink-0 border border-[#f3f4f6]">
-            <AvatarImage
-              src={profileImage}
-              alt={question.author.name}
-              className="object-cover"
-            />
+            {profileImage && (
+              <AvatarImage
+                src={profileImage}
+                alt={question.author.name}
+                className="object-cover"
+              />
+            )}
+            <AvatarFallback className="bg-[#dfe3e6] text-sm font-semibold text-[#2c2f31]">
+              {getInitials(question.author.name ?? "") || "?"}
+            </AvatarFallback>
           </Avatar>
 
           <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">

@@ -17,6 +17,8 @@ import ForumReportDialog, {
 import { Link } from "react-router";
 import type { QuestionResponse } from "~/types/api-client";
 import { resolveImageURL } from "~/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { getInitials } from "~/routes/onboarding/domain/profile/profile-utils";
 import { formatMinutesOrHoursAgo } from "~/lib/time";
 import { Spinner } from "~/components/ui/spinner";
 import ProfileLinkWrapper from "~/components/profile-link-wrapper";
@@ -68,17 +70,18 @@ export default function ForumDetailQuestionHeader({
   return (
     <div className="flex flex-wrap items-start justify-between gap-3 sm:items-center sm:gap-4">
       <div className="flex min-w-0 flex-1 items-start gap-3 sm:items-center">
-        {authorProfile ? (
-          <img
-            src={authorProfile}
-            alt={question.author.name}
-            className="h-6 w-6 shrink-0 rounded-full object-cover"
-          />
-        ) : (
-          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-200 text-[10px] font-semibold text-slate-500">
-            {question.author.name?.[0]?.toUpperCase() ?? "?"}
-          </div>
-        )}
+        <Avatar className="size-6 shrink-0">
+          {authorProfile && (
+            <AvatarImage
+              src={authorProfile}
+              alt={question.author.name}
+              className="object-cover"
+            />
+          )}
+          <AvatarFallback className="bg-[#dfe3e6] text-[10px] font-semibold text-[#2c2f31]">
+            {getInitials(question.author.name ?? "") || "?"}
+          </AvatarFallback>
+        </Avatar>
         <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm leading-5">
           <ProfileLinkWrapper
             authorId={question.author.id}
