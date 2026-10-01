@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { Calendar, Mail, MapPin, PhoneCall, Send, Star } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Card, CardContent } from "~/components/ui/card";
+import { getInitials } from "~/routes/onboarding/domain/profile/profile-utils";
 import { Separator } from "~/components/ui/separator";
 import { resolveImageURL } from "~/lib/utils";
 
@@ -114,11 +116,18 @@ export function DetailAndContactCard({
           </p>
 
           <div className="flex min-w-0 items-center gap-3">
-            <img
-              src={resolveImageURL(organizer.avatar)}
-              alt={organizer.name}
-              className="size-12 shrink-0 rounded-2xl border border-slate-100 object-cover dark:border-slate-800"
-            />
+            <Avatar className="size-12 shrink-0 rounded-2xl border border-slate-100 after:hidden dark:border-slate-800">
+              {organizer.avatar && (
+                <AvatarImage
+                  src={resolveImageURL(organizer.avatar)}
+                  alt={organizer.name}
+                  className="rounded-2xl object-cover"
+                />
+              )}
+              <AvatarFallback className="rounded-2xl bg-[#dfe3e6] text-sm font-semibold text-[#2c2f31]">
+                {getInitials(organizer.name ?? "") || "?"}
+              </AvatarFallback>
+            </Avatar>
             <div className="min-w-0">
               <div className="truncate text-sm font-bold text-slate-800 dark:text-slate-200">
                 {organizer.name}

@@ -1,6 +1,8 @@
 import { Mail, PhoneCall, Send } from "lucide-react";
 import { Link } from "react-router";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
+import { getInitials } from "~/routes/onboarding/domain/profile/profile-utils";
 import { resolveImageURL } from "~/lib/utils";
 import ProfileLinkWrapper from "./profile-link-wrapper";
 
@@ -26,10 +28,7 @@ export default function AuthorCard({
   isAuthor,
 }: AuthorCardProps) {
   const profileName = name;
-  const profileImage = resolveImageURL(
-    avatarKey,
-    "/images/avatar_placeholder.webp",
-  );
+  const profileImage = resolveImageURL(avatarKey);
 
   return (
     <article className="h-26.5 rounded-[14px] border border-[`#e1e7ef`] bg-[`#F9FAFB`] p-4">
@@ -38,11 +37,18 @@ export default function AuthorCard({
           <p className="mb-3 text-sm font-medium text-gray-700">Posted By</p>
           <div className="">
             <div className="flex h-full items-center gap-3">
-              <img
-                src={profileImage}
-                className="h-10 w-10 rounded-full object-cover"
-                alt={profileName}
-              />
+              <Avatar className="size-10">
+                {profileImage && (
+                  <AvatarImage
+                    src={profileImage}
+                    alt={profileName}
+                    className="object-cover"
+                  />
+                )}
+                <AvatarFallback className="bg-[#dfe3e6] text-sm font-semibold text-[#2c2f31]">
+                  {getInitials(profileName ?? "") || "?"}
+                </AvatarFallback>
+              </Avatar>
               <div>
                 <p className="text-[16px] leading-4 font-semibold whitespace-nowrap">
                   {authorId ? (

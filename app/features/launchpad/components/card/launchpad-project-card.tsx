@@ -139,12 +139,14 @@ export default function LaunchpadProjectCard({
         <div className="flex flex-1 flex-col gap-2.5 px-5 pt-4 pb-3">
           <div className="flex items-center gap-2">
             <Avatar size="sm">
-              <AvatarImage
-                src={resolveImageURL(item.createdBy.avatarKey || undefined)}
-                alt={item.createdBy.name}
-              />
+              {item.createdBy.avatarKey && (
+                <AvatarImage
+                  src={resolveImageURL(item.createdBy.avatarKey)}
+                  alt={item.createdBy.name}
+                />
+              )}
               <AvatarFallback className="text-[10px] font-semibold">
-                {item.createdBy.name.charAt(0).toUpperCase()}
+                {item.createdBy.name.trim().charAt(0).toUpperCase() || "?"}
               </AvatarFallback>
             </Avatar>
             <span className="truncate text-[13px] font-medium text-[#4a5565]">
