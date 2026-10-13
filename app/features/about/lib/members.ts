@@ -67,7 +67,7 @@ export const executiveMembers: Member[] = [
   {
     name: "Moran Hadad",
     role: "Executive Director",
-    imageUrl: "https://diwdu0fi8ef70.cloudfront.net/Members/hdjsk.jpg",
+    imageUrl: "https://diwdu0fi8ef70.cloudfront.net/Members/6Wmci9mVwc.jpg",
   },
   {
     name: "Putrea Darane",
