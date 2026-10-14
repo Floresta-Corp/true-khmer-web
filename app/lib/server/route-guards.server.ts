@@ -89,9 +89,24 @@ function loginRedirectPath(request: Request) {
   const adminLoginPath = "/tk-admin/login";
   const loginPath = isAdminRoute(url.pathname) ? adminLoginPath : "/login";
 
-  const redirectTo = `${url.pathname}${url.search}`;
+  const redirectTo =
+    request.method === "GET"
+      ? `${url.pathname}${url.search}`
+      : refererPath(request, url.origin);
   const params = new URLSearchParams({ redirectTo });
   return `${loginPath}?${params.toString()}`;
+}
+
+function refererPath(request: Request, origin: string) {
+  const referer = request.headers.get("Referer");
+  if (!referer) return "/";
+  try {
+    const refererUrl = new URL(referer);
+    if (refererUrl.origin !== origin) return "/";
+    return `${refererUrl.pathname}${refererUrl.search}`;
+  } catch {
+    return "/";
+  }
 }
 
 export async function clearAndRedirectToLogin(
