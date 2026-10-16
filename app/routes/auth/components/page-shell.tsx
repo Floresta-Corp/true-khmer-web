@@ -132,7 +132,7 @@ export function AuthBrandPanel() {
           </h2>
         </header>
 
-        {stats && (
+        {/* {stats && (
           <div className="relative w-full max-w-lg overflow-hidden rounded-xl border border-white/20 bg-white/10 p-8 text-white shadow-2xl backdrop-blur-md">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -186,14 +186,14 @@ export function AuthBrandPanel() {
               </div>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );
 }
 
 export function RegisterBrandPanel() {
-  const stats = usePublicStats();
+  // const stats = usePublicStats(); // used by the hidden Digital Empowerment card
 
   return (
     <div className="relative h-full w-full overflow-hidden bg-[#0046AC]">
@@ -204,20 +204,22 @@ export function RegisterBrandPanel() {
       />
       <div className="absolute inset-0 [background:radial-gradient(ellipse_141%_141%_at_0%_0%,#005CE6_0%,rgba(0,92,230,0)_50%),radial-gradient(ellipse_71%_141%_at_50%_0%,#003399_0%,rgba(0,51,153,0)_50%),radial-gradient(ellipse_141%_141%_at_100%_0%,#0066CC_0%,rgba(0,102,204,0)_50%)]" />
 
-      <div className="relative flex h-full items-center justify-center p-12">
-        <div className="flex w-full max-w-lg flex-col gap-12">
-          <header className="space-y-2">
-            <h2 className="text-3xl leading-9 font-bold text-white">
-              True Khmer
-            </h2>
-            <div className="h-1 w-12 rounded-full bg-indigo-300" />
+      <div className="relative flex h-full items-start justify-center p-12 pt-24">
+        <div className="w-full max-w-lg rounded-2xl border border-white/30 bg-white/15 p-8 text-white shadow-2xl backdrop-blur-md">
+          <header className="space-y-3">
+            <h2 className="text-lg leading-7 font-bold">True Khmer</h2>
+            <div className="h-0.5 w-8 rounded-full bg-indigo-200" />
           </header>
 
-          <section className="space-y-8">
-            <h3 className="text-4xl leading-11.25 font-bold text-white">
-              Building the foundations of a smarter tomorrow.
-            </h3>
+          <h3 className="mt-6 text-3xl leading-9 font-bold">
+            Building the foundations of a smarter tomorrow.
+          </h3>
+          <p className="mt-4 text-sm leading-5 font-normal text-white/80">
+            Create your account and start your journey with True Khmer.
+          </p>
+        </div>
 
+        {/* Digital Empowerment card — hidden for now
             <div className="rounded-2xl border border-white/20 bg-white/10 p-8 text-white shadow-2xl backdrop-blur-md">
               <div className="flex items-center gap-4">
                 <img
@@ -278,8 +280,7 @@ export function RegisterBrandPanel() {
                 </p>
               </div>
             </div>
-          </section>
-        </div>
+        */}
       </div>
     </div>
   );
