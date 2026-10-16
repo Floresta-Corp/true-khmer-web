@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import { useLoaderData, useNavigate, useFetcher, Form } from "react-router";
 import { toast } from "sonner";
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import {
   Image,
   Trash2,
@@ -23,11 +22,27 @@ import {
   Info,
   Link2,
   Wrench,
+  RotateCcw,
 } from "lucide-react";
 import { motion } from "motion/react";
 import BackToButton from "~/components/back-to-button";
 import EditProfileCertificatesCard from "~/features/myspace/components/edit-profile-certificates-card";
-import VisibilitySettingCard from "~/features/myspace/components/visibility-setting-card";
+import VisibilitySettingCard, {
+  VISIBILITY_OPTIONS,
+  type VisibilityOption,
+} from "~/features/myspace/components/visibility-setting-card";
+import {
+  BIO_MAX_LENGTH,
+  EDIT_PROFILE_FIELD_LABELS,
+  editProfileSchema,
+  getChangedFields,
+  pickFields,
+  SKILL_MAX_LENGTH,
+  SKILLS_MAX_COUNT,
+  type EditProfileField,
+  type EditProfileFormData,
+} from "~/features/myspace/lib/edit-profile-schema";
+import { useEditProfileDraftStore } from "~/features/myspace/store/edit-profile-draft.store";
 import { phoneCountryOptions } from "~/components/form/phone-country-options";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
@@ -59,31 +74,46 @@ import type { SearchSkillsResponse } from "~/types/api-client";
 export const loader = editProfileLoader;
 export const action = editProfileAction;
 
-const editProfileSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  gender: z.string().min(1, "Gender is required"),
-  dateOfBirth: z.string().optional(),
-  occupation: z.string().optional(),
-  phoneCountry: z.string().optional(),
-  phoneNationalNumber: z.string().optional(),
-  telegramUsername: z.string().optional(),
-  bio: z.string().optional(),
-  countryId: z.string().optional(),
-  cityId: z.string().optional(),
-  avatarKey: z.string().optional(),
-  skills: z.array(z.string()),
-  website: z.string().optional(),
-  linkedin: z.string().optional(),
-  twitter: z.string().optional(),
-  facebook: z.string().optional(),
-  profileVisibility: z.string(),
-  contactVisibility: z.string(),
-  socialLinksVisibility: z.string(),
-  contributionsVisibility: z.string(),
-});
+// The page paints focused inputs blue, which would otherwise win over the red
+// `aria-invalid` border while an invalid field has focus.
+const INVALID_FOCUS_CLASS =
+  "aria-invalid:focus-visible:border-destructive aria-invalid:focus-visible:ring-destructive/20";
+const INVALID_GROUP_FOCUS_CLASS =
+  "has-[[data-slot][aria-invalid=true]:focus-visible]:border-destructive has-[[data-slot][aria-invalid=true]:focus-visible]:ring-destructive/20";
 
-type EditProfileFormData = z.infer<typeof editProfileSchema>;
+// Page order, so a failed submit lands on the first problem a reader would
+// meet. Controlled fields point at their trigger rather than a registered
+// input, which react-hook-form cannot focus by itself.
+const FIELD_FOCUS_TARGETS: [EditProfileField, string][] = [
+  ["firstName", "firstName"],
+  ["lastName", "lastName"],
+  ["occupation", "occupation"],
+  ["gender", "gender-trigger"],
+  ["dateOfBirth", "dateOfBirth"],
+  ["bio", "bio"],
+  ["skills", "newSkill"],
+  ["website", "website"],
+  ["linkedin", "linkedin"],
+  ["twitter", "twitter"],
+  ["facebook", "facebook"],
+  ["telegramUsername", "telegramUsername"],
+  ["phoneNationalNumber", "phoneNationalNumber"],
+];
+
+const errorId = (field: EditProfileField) => `${field}-error`;
+
+type VisibilityField =
+  | "profileVisibility"
+  | "contactVisibility"
+  | "socialLinksVisibility"
+  | "contributionsVisibility";
+
+function toVisibility(value: string | null | undefined): VisibilityOption {
+  return (VISIBILITY_OPTIONS as readonly string[]).includes(value ?? "")
+    ? (value as VisibilityOption)
+    : "public";
+}
+
 type SkillSearchFetcherData =
   | (SearchSkillsResponse & { search: string })
   | {
@@ -101,12 +131,14 @@ export function meta() {
 }
 
 export default function EditProfile() {
-  const { me, countries, cities, certificates, certificateOptions } =
+  const { me, userId, countries, cities, certificates, certificateOptions } =
     useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const fetcher = useFetcher();
   const skillSearchFetcher = useFetcher<SkillSearchFetcherData>();
   const wasSubmitting = useRef(false);
+  const saveDraft = useEditProfileDraftStore((state) => state.saveDraft);
+  const clearDraft = useEditProfileDraftStore((state) => state.clearDraft);
 
   useEffect(() => {
     if (fetcher.state === "submitting") {
@@ -118,6 +150,7 @@ export default function EditProfile() {
       const result = fetcher.data;
 
       if (result?.ok) {
+        clearDraft();
         toast.success("Profile updated successfully!");
         navigate("/myspace");
       } else {
@@ -126,42 +159,137 @@ export default function EditProfile() {
     }
   }, [fetcher.state, fetcher.data]);
 
-  const defaultValues: EditProfileFormData = {
-    firstName: me?.user.firstName || "",
-    lastName: me?.user.lastName || "",
-    gender: me?.user.gender || "",
-    dateOfBirth: me?.user.dateOfBirth || "",
-    occupation: me?.user.occupation || "",
-    phoneCountry: me?.user.phone?.country || "KH",
-    phoneNationalNumber: me?.user.phone?.nationalNumber || "",
-    telegramUsername: me?.user.telegramUsername || "",
-    bio: me?.profile.bio || "",
-    countryId: me?.profile.country?.id || "",
-    cityId: me?.profile.city?.id || "",
-    avatarKey: me?.profile.avatarKey || "",
-    skills: me?.skills.map((s) => s.name) || [],
-    website: me?.socialLinks.website || "",
-    linkedin: me?.socialLinks.linkedin || "",
-    twitter: me?.socialLinks.twitter || "",
-    facebook: me?.socialLinks.facebook || "",
-    profileVisibility: me?.profile.visibility?.profile || "public",
-    contactVisibility: me?.profile.visibility?.contact || "public",
-    socialLinksVisibility: me?.profile.visibility?.socialLinks || "public",
-    contributionsVisibility: me?.profile.visibility?.contributions || "public",
-  };
+  // The saved profile, which every change is measured against. Changing the
+  // country revalidates the loader, so this is memoised on `me` rather than
+  // rebuilt on every render.
+  const defaultValues = useMemo<EditProfileFormData>(
+    () => ({
+      firstName: me?.user.firstName || "",
+      lastName: me?.user.lastName || "",
+      gender: me?.user.gender || "",
+      dateOfBirth: me?.user.dateOfBirth || "",
+      occupation: me?.user.occupation || "",
+      phoneCountry: me?.user.phone?.country || "KH",
+      phoneNationalNumber: me?.user.phone?.nationalNumber || "",
+      telegramUsername: me?.user.telegramUsername || "",
+      bio: me?.profile.bio || "",
+      countryId: me?.profile.country?.id || "",
+      cityId: me?.profile.city?.id || "",
+      avatarKey: me?.profile.avatarKey || "",
+      skills: me?.skills.map((s) => s.name) || [],
+      website: me?.socialLinks.website || "",
+      linkedin: me?.socialLinks.linkedin || "",
+      twitter: me?.socialLinks.twitter || "",
+      facebook: me?.socialLinks.facebook || "",
+      profileVisibility: toVisibility(me?.profile.visibility?.profile),
+      contactVisibility: toVisibility(me?.profile.visibility?.contact),
+      socialLinksVisibility: toVisibility(me?.profile.visibility?.socialLinks),
+      contributionsVisibility: toVisibility(
+        me?.profile.visibility?.contributions,
+      ),
+    }),
+    [me],
+  );
 
   const {
     register,
     handleSubmit,
     watch,
     setValue,
+    setError,
+    clearErrors,
+    reset,
     formState: { errors },
   } = useForm<EditProfileFormData>({
     resolver: zodResolver(editProfileSchema),
+    mode: "onTouched",
     defaultValues,
+    // Handled in onInvalid so controlled fields get focus too.
+    shouldFocusError: false,
   });
 
+  // Ties an input to its message: the red state comes from `aria-invalid`
+  // styling in the UI primitives, and screen readers read the linked message.
+  const invalidProps = (field: EditProfileField) => ({
+    "aria-invalid": errors[field] ? true : undefined,
+    "aria-describedby": errors[field] ? errorId(field) : undefined,
+  });
+
+  const [changedFields, setChangedFields] = useState<EditProfileField[]>([]);
+  const defaultValuesRef = useRef(defaultValues);
+  defaultValuesRef.current = defaultValues;
+
+  // Restore the persisted draft after mount rather than during render: the
+  // server renders the saved profile, so reading sessionStorage any earlier
+  // would mismatch on hydration.
+  const hasRestoredDraft = useRef(false);
+  useEffect(() => {
+    if (hasRestoredDraft.current) return;
+    hasRestoredDraft.current = true;
+
+    const { draft } = useEditProfileDraftStore.getState();
+    if (!draft) return;
+
+    // Another account on the same tab must never see this one's edits.
+    if (!userId || draft.userId !== userId) {
+      clearDraft();
+      return;
+    }
+
+    const restored = { ...defaultValues, ...draft.changes };
+    const changed = getChangedFields(restored, defaultValues);
+    if (changed.length === 0) {
+      clearDraft();
+      return;
+    }
+
+    // keepDefaultValues leaves the saved profile as the dirty baseline, so the
+    // restored edits still count as unsaved.
+    reset(restored, { keepDefaultValues: true });
+    setChangedFields(changed);
+
+    if (restored.avatarKey !== defaultValues.avatarKey) {
+      setAvatarPreview(resolveImageURL(restored.avatarKey || undefined));
+    }
+
+    // Cities are loaded per country, so a restored country needs its list.
+    if (restored.countryId && restored.countryId !== defaultValues.countryId) {
+      navigate(`?countryId=${restored.countryId}`, {
+        replace: true,
+        preventScrollReset: true,
+      });
+    }
+
+    toast.info("Restored your unsaved profile changes.");
+  }, [defaultValues, userId, reset, clearDraft, navigate]);
+
+  // Mirror only the changed fields into the store, and drop the draft once the
+  // form is back to the saved profile.
+  useEffect(() => {
+    const subscription = watch((values) => {
+      const baseline = defaultValuesRef.current;
+      const changed = getChangedFields(
+        values as Partial<EditProfileFormData>,
+        baseline,
+      );
+      setChangedFields(changed);
+
+      if (!userId || changed.length === 0) {
+        clearDraft();
+        return;
+      }
+
+      saveDraft({
+        userId,
+        changes: pickFields(values as Partial<EditProfileFormData>, changed),
+      });
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch, userId, saveDraft, clearDraft]);
+
   const skills = watch("skills");
+  const bio = watch("bio");
   const countryId = watch("countryId");
   const cityId = watch("cityId");
   const gender = watch("gender");
@@ -231,7 +359,7 @@ export default function EditProfile() {
     }
     setAvatarPreview(undefined);
     setAvatarFile(null);
-    setValue("avatarKey", "");
+    setValue("avatarKey", "", { shouldDirty: true });
 
     const input = document.getElementById(
       "avatarUploadInput",
@@ -277,22 +405,95 @@ export default function EditProfile() {
 
   const handleAddSkill = (skillName = newSkill) => {
     const nextSkill = skillName.trim();
-    if (
-      nextSkill &&
-      !skills.some((skill) => skill.toLowerCase() === nextSkill.toLowerCase())
-    ) {
-      setValue("skills", [...skills, nextSkill], { shouldValidate: true });
-      setNewSkill("");
-      setIsSkillSuggestionsOpen(false);
+    if (!nextSkill) return;
+
+    // Reject up front instead of adding a chip that is already invalid.
+    if (nextSkill.length > SKILL_MAX_LENGTH) {
+      setError("skills", {
+        type: "manual",
+        message: `Each skill must be ${SKILL_MAX_LENGTH} characters or fewer`,
+      });
+      return;
     }
+
+    if (
+      skills.some((skill) => skill.toLowerCase() === nextSkill.toLowerCase())
+    ) {
+      setError("skills", {
+        type: "manual",
+        message: `"${nextSkill}" is already in your skills`,
+      });
+      return;
+    }
+
+    if (skills.length >= SKILLS_MAX_COUNT) {
+      setError("skills", {
+        type: "manual",
+        message: `You can add up to ${SKILLS_MAX_COUNT} skills`,
+      });
+      return;
+    }
+
+    setValue("skills", [...skills, nextSkill], {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    setNewSkill("");
+    setIsSkillSuggestionsOpen(false);
   };
 
   const handleRemoveSkill = (skill: string) => {
     setValue(
       "skills",
       skills.filter((s) => s !== skill),
-      { shouldValidate: true },
+      { shouldValidate: true, shouldDirty: true },
     );
+  };
+
+  const changedLabels = Array.from(
+    new Set([
+      ...(avatarFile ? [EDIT_PROFILE_FIELD_LABELS.avatarKey] : []),
+      ...changedFields.map((field) => EDIT_PROFILE_FIELD_LABELS[field]),
+    ]),
+  );
+  const hasChanges = changedLabels.length > 0;
+  // The array itself (too many skills) or any one item (too long) can fail.
+  const skillsError =
+    errors.skills?.message ??
+    (Array.isArray(errors.skills)
+      ? errors.skills.find((error) => error?.message)?.message
+      : undefined);
+
+  const handleDiscardChanges = useCallback(() => {
+    if (avatarObjectUrlRef.current) {
+      URL.revokeObjectURL(avatarObjectUrlRef.current);
+      avatarObjectUrlRef.current = null;
+    }
+    const input = document.getElementById(
+      "avatarUploadInput",
+    ) as HTMLInputElement | null;
+    if (input) input.value = "";
+
+    const discardedCountry = watch("countryId");
+    reset(defaultValues);
+    setAvatarFile(null);
+    setAvatarPreview(initialAvatarPreview);
+    setChangedFields([]);
+    clearDraft();
+
+    // Reload the saved country's cities if a different country was picked.
+    if (discardedCountry !== defaultValues.countryId) {
+      navigate(".", { replace: true, preventScrollReset: true });
+    }
+  }, [watch, reset, defaultValues, initialAvatarPreview, clearDraft, navigate]);
+
+  const onInvalid = (formErrors: FieldErrors<EditProfileFormData>) => {
+    const target = FIELD_FOCUS_TARGETS.find(([field]) => formErrors[field]);
+    if (target) {
+      const element = document.getElementById(target[1]);
+      element?.focus({ preventScroll: true });
+      element?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
   };
 
   const onSubmit = (data: EditProfileFormData) => {
@@ -316,7 +517,10 @@ export default function EditProfile() {
       formData.append("phone.nationalNumber", nextPhoneNationalNumber);
     }
 
-    formData.append("telegramUsername", data.telegramUsername || "");
+    formData.append(
+      "telegramUsername",
+      data.telegramUsername.trim().replace(/^@/, ""),
+    );
     formData.append("bio", data.bio || "");
     formData.append("countryId", data.countryId || "");
     formData.append("cityId", data.cityId || "");
@@ -342,14 +546,10 @@ export default function EditProfile() {
   };
 
   const toggleVisibility = (
-    field:
-      | "profileVisibility"
-      | "contactVisibility"
-      | "socialLinksVisibility"
-      | "contributionsVisibility",
-    value: string,
+    field: VisibilityField,
+    value: VisibilityOption,
   ) => {
-    setValue(field, value, { shouldValidate: true });
+    setValue(field, value, { shouldValidate: true, shouldDirty: true });
   };
 
   const containerVariants = {
@@ -395,14 +595,28 @@ export default function EditProfile() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.1, duration: 0.5 }}
           >
-            <h1 className="text-4xl font-bold text-gray-900">Edit Profile</h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-4xl font-bold text-gray-900">Edit Profile</h1>
+              {hasChanges && (
+                <Badge
+                  variant="outline"
+                  className="border-amber-300 bg-amber-50 text-amber-700"
+                >
+                  Unsaved changes
+                </Badge>
+              )}
+            </div>
             <p className="mt-2 text-base text-gray-600">
               Update your personal information, photo, and privacy settings.
             </p>
           </motion.div>
         </motion.div>
 
-        <Form method="PATCH" onSubmit={handleSubmit(onSubmit)}>
+        <Form
+          method="PATCH"
+          noValidate
+          onSubmit={handleSubmit(onSubmit, onInvalid)}
+        >
           <motion.div
             className="grid grid-cols-1 gap-8 lg:grid-cols-5"
             initial={{ opacity: 0 }}
@@ -508,38 +722,52 @@ export default function EditProfile() {
                     >
                       <motion.div className="space-y-2" variants={itemVariants}>
                         <Label htmlFor="firstName">First name</Label>
-                        <InputGroup className="mt-1.5 h-12 has-[[data-slot=input-group-control]:focus-visible]:border-blue-500 has-[[data-slot=input-group-control]:focus-visible]:ring-blue-500/20 md:h-10">
+                        <InputGroup
+                          className={`mt-1.5 h-12 has-[[data-slot=input-group-control]:focus-visible]:border-blue-500 has-[[data-slot=input-group-control]:focus-visible]:ring-blue-500/20 ${INVALID_GROUP_FOCUS_CLASS} md:h-10`}
+                        >
                           <InputGroupAddon className="border-none bg-transparent">
                             <User className="size-3.5 text-gray-400" />
                           </InputGroupAddon>
                           <InputGroupInput
                             id="firstName"
                             {...register("firstName")}
+                            {...invalidProps("firstName")}
                             placeholder="First name"
                             className="text-sm"
                           />
                         </InputGroup>
                         {errors.firstName && (
-                          <p className="text-xs text-red-500">
+                          <p
+                            id={errorId("firstName")}
+                            role="alert"
+                            className="text-xs text-red-500"
+                          >
                             {errors.firstName.message}
                           </p>
                         )}
                       </motion.div>
                       <motion.div className="space-y-2" variants={itemVariants}>
                         <Label htmlFor="lastName">Last name</Label>
-                        <InputGroup className="mt-1.5 h-12 has-[[data-slot=input-group-control]:focus-visible]:border-blue-500 has-[[data-slot=input-group-control]:focus-visible]:ring-blue-500/20 md:h-10">
+                        <InputGroup
+                          className={`mt-1.5 h-12 has-[[data-slot=input-group-control]:focus-visible]:border-blue-500 has-[[data-slot=input-group-control]:focus-visible]:ring-blue-500/20 ${INVALID_GROUP_FOCUS_CLASS} md:h-10`}
+                        >
                           <InputGroupAddon className="border-none bg-transparent">
                             <User className="size-3.5 text-gray-400" />
                           </InputGroupAddon>
                           <InputGroupInput
                             id="lastName"
                             {...register("lastName")}
+                            {...invalidProps("lastName")}
                             placeholder="Last name"
                             className="text-sm"
                           />
                         </InputGroup>
                         {errors.lastName && (
-                          <p className="text-xs text-red-500">
+                          <p
+                            id={errorId("lastName")}
+                            role="alert"
+                            className="text-xs text-red-500"
+                          >
                             {errors.lastName.message}
                           </p>
                         )}
@@ -554,17 +782,29 @@ export default function EditProfile() {
                     >
                       <motion.div className="space-y-2" variants={itemVariants}>
                         <Label htmlFor="occupation">Occupation</Label>
-                        <InputGroup className="mt-1.5 h-12 has-[[data-slot=input-group-control]:focus-visible]:border-blue-500 has-[[data-slot=input-group-control]:focus-visible]:ring-blue-500/20 md:h-10">
+                        <InputGroup
+                          className={`mt-1.5 h-12 has-[[data-slot=input-group-control]:focus-visible]:border-blue-500 has-[[data-slot=input-group-control]:focus-visible]:ring-blue-500/20 ${INVALID_GROUP_FOCUS_CLASS} md:h-10`}
+                        >
                           <InputGroupAddon className="border-none bg-transparent">
                             <Briefcase className="size-3.5 text-gray-400" />
                           </InputGroupAddon>
                           <InputGroupInput
                             id="occupation"
                             {...register("occupation")}
+                            {...invalidProps("occupation")}
                             placeholder="Job title"
                             className="text-sm"
                           />
                         </InputGroup>
+                        {errors.occupation && (
+                          <p
+                            id={errorId("occupation")}
+                            role="alert"
+                            className="text-xs text-red-500"
+                          >
+                            {errors.occupation.message}
+                          </p>
+                        )}
                       </motion.div>
 
                       <motion.div variants={itemVariants}>
@@ -573,7 +813,10 @@ export default function EditProfile() {
                           label="Gender"
                           value={gender ?? ""}
                           onValueChange={(val) =>
-                            setValue("gender", val, { shouldValidate: true })
+                            setValue("gender", val, {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            })
                           }
                           options={[
                             { value: "male", label: "Male" },
@@ -581,11 +824,19 @@ export default function EditProfile() {
                             { value: "other", label: "Other" },
                           ]}
                           placeholder="Select gender"
+                          ariaInvalid={Boolean(errors.gender)}
+                          ariaDescribedBy={
+                            errors.gender ? errorId("gender") : undefined
+                          }
                           icon={<User className="size-3.5 text-gray-400" />}
                           className="ring-blue-500 focus:ring-blue-500 focus-visible:border-blue-500 focus-visible:ring-blue-500"
                         />
                         {errors.gender && (
-                          <p className="mt-2 text-xs text-red-500">
+                          <p
+                            id={errorId("gender")}
+                            role="alert"
+                            className="mt-2 text-xs text-red-500"
+                          >
                             {errors.gender.message}
                           </p>
                         )}
@@ -606,8 +857,12 @@ export default function EditProfile() {
                           onValueChange={(val) => {
                             setValue("countryId", val, {
                               shouldValidate: true,
+                              shouldDirty: true,
                             });
-                            setValue("cityId", "", { shouldValidate: true });
+                            setValue("cityId", "", {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            });
                             navigate(`?countryId=${val}`, {
                               preventScrollReset: true,
                             });
@@ -630,7 +885,10 @@ export default function EditProfile() {
                           label="City"
                           value={cityId ?? ""}
                           onValueChange={(val) =>
-                            setValue("cityId", val, { shouldValidate: true })
+                            setValue("cityId", val, {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            })
                           }
                           options={cities.map((c) => ({
                             value: c.id,
@@ -667,9 +925,20 @@ export default function EditProfile() {
                           id="dateOfBirth"
                           type="date"
                           {...register("dateOfBirth")}
+                          {...invalidProps("dateOfBirth")}
                           placeholder="Date"
-                          className="h-10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
+                          max={new Date().toISOString().slice(0, 10)}
+                          className={`h-10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20 ${INVALID_FOCUS_CLASS}`}
                         />
+                        {errors.dateOfBirth && (
+                          <p
+                            id={errorId("dateOfBirth")}
+                            role="alert"
+                            className="text-xs text-red-500"
+                          >
+                            {errors.dateOfBirth.message}
+                          </p>
+                        )}
                       </motion.div>
                     </motion.div>
 
@@ -683,10 +952,29 @@ export default function EditProfile() {
                       <Textarea
                         id="bio"
                         {...register("bio")}
+                        {...invalidProps("bio")}
                         placeholder="Tell us about yourself"
                         rows={6}
-                        className="focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
+                        className={`focus-visible:border-blue-500 focus-visible:ring-blue-500/20 ${INVALID_FOCUS_CLASS}`}
                       />
+                      <div className="flex items-start justify-between gap-3">
+                        <p
+                          id={errorId("bio")}
+                          role="alert"
+                          className="text-xs text-red-500"
+                        >
+                          {errors.bio?.message}
+                        </p>
+                        <p
+                          className={`shrink-0 text-xs ${
+                            (bio?.length ?? 0) > BIO_MAX_LENGTH
+                              ? "text-red-500"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          {bio?.length ?? 0}/{BIO_MAX_LENGTH}
+                        </p>
+                      </div>
                     </motion.div>
                   </CardContent>
                 </Card>
@@ -709,6 +997,11 @@ export default function EditProfile() {
                           value={newSkill}
                           onChange={(e) => {
                             setNewSkill(e.target.value);
+                            // An "add" rejection is about the typed text, so
+                            // it goes stale as soon as that text changes.
+                            if (errors.skills?.type === "manual") {
+                              clearErrors("skills");
+                            }
                             setIsSkillSuggestionsOpen(true);
                           }}
                           onFocus={() => {
@@ -768,8 +1061,14 @@ export default function EditProfile() {
                               handleAddSkill();
                             }
                           }}
+                          id="newSkill"
+                          aria-label="Add a skill"
+                          aria-invalid={skillsError ? true : undefined}
+                          aria-describedby={
+                            skillsError ? errorId("skills") : undefined
+                          }
                           placeholder="Add a skill (e.g. Graphic Design)"
-                          className="h-10 text-sm focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
+                          className={`h-10 text-sm focus-visible:border-blue-500 focus-visible:ring-blue-500/20 ${INVALID_FOCUS_CLASS}`}
                           autoComplete="off"
                           aria-autocomplete="list"
                           aria-expanded={isSkillSuggestionsOpen}
@@ -826,6 +1125,15 @@ export default function EditProfile() {
                         Add
                       </Button>
                     </div>
+                    {skillsError && (
+                      <p
+                        id={errorId("skills")}
+                        role="alert"
+                        className="mb-4 text-xs text-red-500"
+                      >
+                        {skillsError}
+                      </p>
+                    )}
                     <motion.div
                       className="flex flex-wrap gap-2"
                       initial={{ opacity: 0 }}
@@ -892,9 +1200,19 @@ export default function EditProfile() {
                         <Input
                           id="website"
                           {...register("website")}
-                          className="h-10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
+                          {...invalidProps("website")}
+                          className={`h-10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20 ${INVALID_FOCUS_CLASS}`}
                           placeholder="https://truekhmer.org"
                         />
+                        {errors.website && (
+                          <p
+                            id={errorId("website")}
+                            role="alert"
+                            className="text-xs text-red-500"
+                          >
+                            {errors.website.message}
+                          </p>
+                        )}
                       </motion.div>
                       <motion.div className="space-y-2" variants={itemVariants}>
                         <Label
@@ -907,9 +1225,19 @@ export default function EditProfile() {
                         <Input
                           id="linkedin"
                           {...register("linkedin")}
+                          {...invalidProps("linkedin")}
                           placeholder="LinkedIn Profile URL"
-                          className="h-10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
+                          className={`h-10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20 ${INVALID_FOCUS_CLASS}`}
                         />
+                        {errors.linkedin && (
+                          <p
+                            id={errorId("linkedin")}
+                            role="alert"
+                            className="text-xs text-red-500"
+                          >
+                            {errors.linkedin.message}
+                          </p>
+                        )}
                       </motion.div>
                     </motion.div>
                     <motion.div
@@ -929,9 +1257,19 @@ export default function EditProfile() {
                         <Input
                           id="twitter"
                           {...register("twitter")}
+                          {...invalidProps("twitter")}
                           placeholder="Twitter Profile URL"
-                          className="h-10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
+                          className={`h-10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20 ${INVALID_FOCUS_CLASS}`}
                         />
+                        {errors.twitter && (
+                          <p
+                            id={errorId("twitter")}
+                            role="alert"
+                            className="text-xs text-red-500"
+                          >
+                            {errors.twitter.message}
+                          </p>
+                        )}
                       </motion.div>
                       <motion.div className="space-y-2" variants={itemVariants}>
                         <Label
@@ -944,9 +1282,19 @@ export default function EditProfile() {
                         <Input
                           id="facebook"
                           {...register("facebook")}
+                          {...invalidProps("facebook")}
                           placeholder="Facebook Profile URL"
-                          className="h-10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20"
+                          className={`h-10 focus-visible:border-blue-500 focus-visible:ring-blue-500/20 ${INVALID_FOCUS_CLASS}`}
                         />
+                        {errors.facebook && (
+                          <p
+                            id={errorId("facebook")}
+                            role="alert"
+                            className="text-xs text-red-500"
+                          >
+                            {errors.facebook.message}
+                          </p>
+                        )}
                       </motion.div>
                     </motion.div>
                   </CardContent>
@@ -978,17 +1326,29 @@ export default function EditProfile() {
                           <Send className="h-4 w-4 text-blue-600" />
                           Telegram username
                         </Label>
-                        <InputGroup className="h-10 has-[[data-slot=input-group-control]:focus-visible]:border-blue-500 has-[[data-slot=input-group-control]:focus-visible]:ring-blue-500/20">
+                        <InputGroup
+                          className={`h-10 has-[[data-slot=input-group-control]:focus-visible]:border-blue-500 has-[[data-slot=input-group-control]:focus-visible]:ring-blue-500/20 ${INVALID_GROUP_FOCUS_CLASS}`}
+                        >
                           <InputGroupAddon className="bg-blue-gray-50 border-r border-input px-3 text-sm font-medium text-gray-600">
                             @
                           </InputGroupAddon>
                           <InputGroupInput
                             id="telegramUsername"
                             {...register("telegramUsername")}
+                            {...invalidProps("telegramUsername")}
                             placeholder="username"
                             className="text-sm"
                           />
                         </InputGroup>
+                        {errors.telegramUsername && (
+                          <p
+                            id={errorId("telegramUsername")}
+                            role="alert"
+                            className="text-xs text-red-500"
+                          >
+                            {errors.telegramUsername.message}
+                          </p>
+                        )}
                       </motion.div>
                       <motion.div className="space-y-2" variants={itemVariants}>
                         <Label className="flex items-center gap-2">
@@ -1001,6 +1361,7 @@ export default function EditProfile() {
                             onValueChange={(value) =>
                               setValue("phoneCountry", value, {
                                 shouldValidate: true,
+                                shouldDirty: true,
                               })
                             }
                           >
@@ -1028,12 +1389,22 @@ export default function EditProfile() {
                           <Input
                             id="phoneNationalNumber"
                             {...register("phoneNationalNumber")}
+                            {...invalidProps("phoneNationalNumber")}
                             placeholder="12 345 678"
                             inputMode="tel"
                             autoComplete="tel-national"
-                            className="h-full rounded-l-none rounded-r-lg border-[#C3C6D6] px-4 text-sm text-[#111827] shadow-none placeholder:text-gray-500 focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20"
+                            className={`h-full rounded-l-none rounded-r-lg border-[#C3C6D6] px-4 text-sm text-[#111827] shadow-none placeholder:text-gray-500 focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20 ${INVALID_FOCUS_CLASS}`}
                           />
                         </div>
+                        {errors.phoneNationalNumber && (
+                          <p
+                            id={errorId("phoneNationalNumber")}
+                            role="alert"
+                            className="text-xs text-red-500"
+                          >
+                            {errors.phoneNationalNumber.message}
+                          </p>
+                        )}
                       </motion.div>
                     </motion.div>
                   </CardContent>
@@ -1109,33 +1480,29 @@ export default function EditProfile() {
                           description: "Posts, volunteering, and projects",
                           icon: Wrench,
                         },
-                      ].map(({ key, label, description, icon }) => (
-                        <motion.div
-                          key={key}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.45, duration: 0.4 }}
-                        >
-                          <VisibilitySettingCard
-                            icon={icon}
-                            label={label}
-                            description={description}
-                            value={
-                              watch(key as keyof EditProfileFormData) as string
-                            }
-                            onChange={(option) =>
-                              toggleVisibility(
-                                key as
-                                  | "profileVisibility"
-                                  | "contactVisibility"
-                                  | "socialLinksVisibility"
-                                  | "contributionsVisibility",
-                                option,
-                              )
-                            }
-                          />
-                        </motion.div>
-                      ))}
+                      ].map(
+                        ({ key: visibilityKey, label, description, icon }) => {
+                          const key = visibilityKey as VisibilityField;
+                          return (
+                            <motion.div
+                              key={key}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.45, duration: 0.4 }}
+                            >
+                              <VisibilitySettingCard
+                                icon={icon}
+                                label={label}
+                                description={description}
+                                value={watch(key)}
+                                onChange={(option) =>
+                                  toggleVisibility(key, option)
+                                }
+                              />
+                            </motion.div>
+                          );
+                        },
+                      )}
                     </motion.div>
                     <div className="mt-6 flex gap-2 text-xs text-gray-400">
                       <Info className="mt-0.5 size-4 shrink-0" />
@@ -1152,37 +1519,77 @@ export default function EditProfile() {
 
           {/* Action Buttons */}
           <motion.div
-            className="mt-8 flex justify-end gap-3"
+            className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.55, duration: 0.4 }}
           >
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button
-                type="button"
-                variant="outline"
-                className="h-10 min-w-28 cursor-pointer"
-                onClick={() => navigate("/myspace")}
-              >
-                Cancel
-              </Button>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button
-                type="submit"
-                className="h-10 min-w-28 cursor-pointer bg-blue-600 text-white hover:bg-blue-700"
-                disabled={fetcher.state !== "idle"}
-              >
-                {fetcher.state !== "idle" ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Spinner className="size-4" />
-                    Saving...
+            <div
+              className="min-w-0 flex-1 text-sm"
+              role="status"
+              aria-live="polite"
+            >
+              {hasChanges ? (
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <span className="font-medium text-amber-700">
+                    {changedLabels.length} unsaved{" "}
+                    {changedLabels.length === 1 ? "change" : "changes"}:
                   </span>
-                ) : (
-                  "Save Changes"
-                )}
-              </Button>
-            </motion.div>
+                  <span className="truncate text-gray-600">
+                    {changedLabels.join(", ")}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleDiscardChanges}
+                    className="inline-flex cursor-pointer items-center gap-1 text-blue-600 hover:underline"
+                  >
+                    <RotateCcw className="size-3.5" />
+                    Discard changes
+                  </button>
+                </div>
+              ) : (
+                <span className="text-gray-400">No unsaved changes</span>
+              )}
+            </div>
+            <div className="flex justify-end gap-3">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-10 min-w-28 cursor-pointer"
+                  onClick={() => {
+                    // Cancel means "throw these edits away", unlike the back
+                    // link, which keeps the draft for later.
+                    clearDraft();
+                    navigate("/myspace");
+                  }}
+                >
+                  Cancel
+                </Button>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  type="submit"
+                  className="h-10 min-w-28 cursor-pointer bg-blue-600 text-white hover:bg-blue-700"
+                  disabled={fetcher.state !== "idle" || !hasChanges}
+                >
+                  {fetcher.state !== "idle" ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Spinner className="size-4" />
+                      Saving...
+                    </span>
+                  ) : (
+                    "Save Changes"
+                  )}
+                </Button>
+              </motion.div>
+            </div>
           </motion.div>
         </Form>
       </div>
