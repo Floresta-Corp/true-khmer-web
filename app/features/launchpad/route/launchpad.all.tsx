@@ -1,4 +1,5 @@
 import type { Route } from "./+types/launchpad.all";
+import FilterPanelHeader from "~/components/filter-panel-header";
 import { useLoaderData, useNavigate, useSearchParams } from "react-router";
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
@@ -16,7 +17,6 @@ import {
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio";
 import { cn } from "~/lib/utils";
 import { launchpadLoader } from "../services/launchpad.loader";
-import { Button } from "~/components/ui/button";
 import { metaOrigin, pageMeta } from "~/lib/seo";
 import { breadcrumbJsonLd } from "~/lib/seo/structured-data";
 
@@ -142,8 +142,8 @@ export default function LaunchpadAllPage() {
     : `Found ${projectLaunchpad.projects.length} opportunities`;
 
   return (
-    <main className="min-h-screen bg-[#F5F7FB] px-4 py-8 sm:px-6 lg:px-10">
-      <div className="mx-auto flex w-full max-w-304 flex-col gap-6">
+    <main className="min-h-screen bg-[#F5F7FB] py-8">
+      <div className="site-container flex flex-col gap-6">
         <motion.div
           initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -220,16 +220,7 @@ export default function LaunchpadAllPage() {
             }}
             className="rounded-[18px] border border-[#edf2f7] bg-white p-5 shadow-[0px_10px_30px_rgba(15,23,42,0.03)]"
           >
-            <div className="flex items-center justify-between gap-4">
-              <h2 className="text-sm font-bold text-[#020618]">Filters</h2>
-              <Button
-                variant="ghost"
-                onClick={handleClearAll}
-                className="cursor-pointer text-xs font-semibold text-[#2463eb] hover:text-[#1d4ed8]"
-              >
-                Clear all
-              </Button>
-            </div>
+            <FilterPanelHeader onClearAll={handleClearAll} />
             <Accordion
               type="multiple"
               value={openFilterSections}

@@ -11,6 +11,8 @@ import { cn } from "~/lib/utils";
 
 const DEFAULT_LIMIT = 6;
 
+const GRID_COLUMNS = { 3: "xl:grid-cols-3", 4: "xl:grid-cols-4" } as const;
+
 interface VolunteerAvailableOpportunitiesProps {
   opportunities?: Opportunity[];
   pagination?: Pagination;
@@ -22,6 +24,8 @@ interface VolunteerAvailableOpportunitiesProps {
    * pages that embed this section inside their own container.
    */
   containerClassName?: string;
+  /** Cards per row on wide screens: 4 at full width, 3 beside a filter sidebar. */
+  columns?: 3 | 4;
   isLoading?: boolean;
   onMutationComplete?: () => void;
   limit?: number;
@@ -33,6 +37,7 @@ export function VolunteerAvailableOpportunities({
   showHeader = true,
   className = "",
   containerClassName = "mx-auto w-full max-w-304",
+  columns = 4,
   isLoading: externalLoading = false,
   onMutationComplete,
   limit = DEFAULT_LIMIT,
@@ -194,7 +199,12 @@ export function VolunteerAvailableOpportunities({
         )}
 
         {isLoading && items.length === 0 ? (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+          <div
+            className={cn(
+              "grid grid-cols-1 gap-5 md:grid-cols-2",
+              GRID_COLUMNS[columns],
+            )}
+          >
             {Array.from({ length: 6 }).map((_, index) => (
               <OpportunityCardSkeleton key={`opportunity-skeleton-${index}`} />
             ))}
@@ -202,7 +212,10 @@ export function VolunteerAvailableOpportunities({
         ) : items.length > 0 ? (
           <>
             <motion.div
-              className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4"
+              className={cn(
+                "grid grid-cols-1 gap-5 md:grid-cols-2",
+                GRID_COLUMNS[columns],
+              )}
               variants={listVariants}
               initial="hidden"
               animate="show"

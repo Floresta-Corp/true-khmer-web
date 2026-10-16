@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import FilterPanelHeader from "~/components/filter-panel-header";
 import {
   useLoaderData,
   useLocation,
@@ -7,7 +8,14 @@ import {
 } from "react-router";
 import { BackLink } from "~/components/back-link";
 import { motion, useReducedMotion } from "motion/react";
-import { ChevronDown, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
+import { RadioGroup, RadioGroupItem } from "~/components/ui/radio";
 import { cn, debounce } from "~/lib/utils";
 import { CourseCard } from "./course-card";
 import { CourseGridSkeleton } from "./course-card-skeleton";
@@ -19,78 +27,25 @@ import {
 import { useCourseSaves } from "~/features/education/hooks/use-course-saves";
 import type { educationCatalogLoader } from "~/features/education/services/education-catalog.loader";
 
-function FilterRadio({
-  name,
+function FilterOption({
+  value,
   label,
-  checked,
-  onSelect,
+  active,
 }: {
-  name: string;
+  value: string;
   label: string;
-  checked: boolean;
-  onSelect: () => void;
+  active: boolean;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2.5">
-      <input
-        type="radio"
-        name={name}
-        checked={checked}
-        onChange={onSelect}
-        className="peer sr-only"
-      />
-      <span
-        aria-hidden
-        className={cn(
-          "size-4 shrink-0 rounded-full border-2 transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#1C5DD4]",
-          checked
-            ? "border-[#1C5DD4] bg-[#1C5DD4] shadow-[inset_0_0_0_2px_#fff]"
-            : "border-[#E5E7EB] bg-transparent",
-        )}
-      />
-      <span
-        className={cn(
-          "text-sm",
-          checked ? "font-bold text-[#1A1A2E]" : "font-medium text-[#9A9AB0]",
-        )}
-      >
-        {label}
-      </span>
+    <label
+      className={cn(
+        "flex cursor-pointer items-center gap-3 rounded-lg px-1 py-1.5 text-[13px] text-[#475569] transition-colors hover:text-[#020618]",
+        active && "text-[#020618]",
+      )}
+    >
+      <RadioGroupItem value={value} className="border-[#cbd5e1]" />
+      <span>{label}</span>
     </label>
-  );
-}
-
-function FilterSection({
-  title,
-  divided = true,
-  children,
-}: {
-  title: string;
-  divided?: boolean;
-  children: React.ReactNode;
-}) {
-  const [open, setOpen] = useState(true);
-
-  return (
-    <div className={cn(divided && "mb-4 border-b border-[#E5E7EB] pb-4")}>
-      <button
-        type="button"
-        aria-expanded={open}
-        onClick={() => setOpen((value) => !value)}
-        className="mb-3 flex w-full cursor-pointer items-center justify-between gap-2 text-left"
-      >
-        <span className="text-sm font-bold text-[#1A1A2E]">{title}</span>
-        <ChevronDown
-          size={16}
-          aria-hidden
-          className={cn(
-            "shrink-0 text-[#9A9AB0] transition-transform",
-            !open && "-rotate-90",
-          )}
-        />
-      </button>
-      {open && children}
-    </div>
   );
 }
 
@@ -214,57 +169,79 @@ export function EducationCatalog() {
         </div>
       </motion.div>
 
-      <div className="grid items-start gap-7 lg:grid-cols-[260px_minmax(0,1fr)]">
+      <div className="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
         <motion.aside
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration, delay: prefersReducedMotion ? 0 : 0.08 }}
-          className="rounded-xl bg-white p-5 shadow-[0_1px_3px_rgba(26,26,46,0.06),0_8px_24px_rgba(26,26,46,0.04)]"
+          className="rounded-[18px] border border-[#edf2f7] bg-white p-5 shadow-[0px_10px_30px_rgba(15,23,42,0.03)]"
         >
-          <div className="mb-4.5 flex items-center justify-between gap-3">
-            <h2 className="text-base font-bold text-[#1A1A2E]">Filters</h2>
-            <button
-              type="button"
-              onClick={clearAll}
-              className="cursor-pointer text-[13px] font-semibold text-[#1C5DD4] hover:underline"
+          <FilterPanelHeader onClearAll={clearAll} />
+
+          <Accordion
+            type="multiple"
+            defaultValue={["sort-by", "categories"]}
+            className="mt-1 gap-0"
+          >
+            <AccordionItem
+              value="sort-by"
+              className="border-b border-[#edf2f7]"
             >
-              Clear all
-            </button>
-          </div>
+              <AccordionTrigger className="py-4 text-[13px] font-bold text-[#020618] hover:no-underline">
+                Sort by
+              </AccordionTrigger>
+              <AccordionContent className="pt-1 pb-4">
+                <RadioGroup
+                  value={sort}
+                  onValueChange={(value) => setFilter({ sort: value })}
+                  className="gap-3"
+                >
+                  {CATALOG_SORTS.map((value) => (
+                    <FilterOption
+                      key={value}
+                      value={value}
+                      label={CATALOG_SORT_LABELS[value]}
+                      active={sort === value}
+                    />
+                  ))}
+                </RadioGroup>
+              </AccordionContent>
+            </AccordionItem>
 
-          <FilterSection title="Sort by">
-            <div className="flex flex-col gap-3">
-              {CATALOG_SORTS.map((value) => (
-                <FilterRadio
-                  key={value}
-                  name="sort"
-                  label={CATALOG_SORT_LABELS[value]}
-                  checked={sort === value}
-                  onSelect={() => setFilter({ sort: value })}
-                />
-              ))}
-            </div>
-          </FilterSection>
-
-          <FilterSection title="Categories" divided={false}>
-            <div className="flex max-h-70 flex-col gap-3 overflow-y-auto">
-              <FilterRadio
-                name="categoryId"
-                label="All categories"
-                checked={!categoryId}
-                onSelect={() => setFilter({ categoryId: null })}
-              />
-              {categories.map((category) => (
-                <FilterRadio
-                  key={category.id}
-                  name="categoryId"
-                  label={category.name}
-                  checked={categoryId === category.id}
-                  onSelect={() => setFilter({ categoryId: category.id })}
-                />
-              ))}
-            </div>
-          </FilterSection>
+            <AccordionItem
+              value="categories"
+              className="border-b border-[#edf2f7]"
+            >
+              <AccordionTrigger className="py-4 text-[13px] font-bold text-[#020618] hover:no-underline">
+                Categories
+              </AccordionTrigger>
+              <AccordionContent className="pt-1 pb-4">
+                <RadioGroup
+                  value={categoryId || "all-categories"}
+                  onValueChange={(value) =>
+                    setFilter({
+                      categoryId: value === "all-categories" ? null : value,
+                    })
+                  }
+                  className="max-h-70 gap-3 overflow-y-auto"
+                >
+                  <FilterOption
+                    value="all-categories"
+                    label="All categories"
+                    active={!categoryId}
+                  />
+                  {categories.map((category) => (
+                    <FilterOption
+                      key={category.id}
+                      value={category.id}
+                      label={category.name}
+                      active={categoryId === category.id}
+                    />
+                  ))}
+                </RadioGroup>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </motion.aside>
 
         <motion.div
@@ -276,7 +253,7 @@ export function EducationCatalog() {
           {isReloadingResults ? (
             <CourseGridSkeleton
               count={Math.max(courses.length, 6)}
-              className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3"
+              className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3"
             />
           ) : courses.length === 0 ? (
             <div className="rounded-xl border border-dashed border-[#E5E7EB] bg-white px-8 py-16 text-center">
@@ -299,7 +276,7 @@ export function EducationCatalog() {
             </div>
           ) : (
             <>
-              <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {courses.map((course) => (
                   <CourseCard
                     key={course.id}

@@ -92,7 +92,7 @@ export default function AllEvents() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-12 lg:px-8">
+      <div className="site-container py-8 md:py-12">
         {/* Header row */}
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">
