@@ -106,6 +106,13 @@ export function CourseActionBar({
             className="min-w-[170px] rounded-[10px] p-1.5 font-tk-edu shadow-[0_8px_28px_rgba(26,26,46,0.14)]"
           >
             <DropdownMenuItem
+              onSelect={onShare}
+              className="gap-2.5 px-3 py-2.5 font-semibold"
+            >
+              <Share2 className="size-4" aria-hidden />
+              Share
+            </DropdownMenuItem>
+            <DropdownMenuItem
               onSelect={onReport}
               className="gap-2.5 px-3 py-2.5 font-semibold text-[#FB3748] focus:text-[#FB3748]"
             >
