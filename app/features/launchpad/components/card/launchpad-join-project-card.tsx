@@ -48,8 +48,9 @@ export default function LaunchpadJoinProjectCard({
     selectedRoleIds.includes(r.id),
   );
 
+  const roleCount = project.roles.length;
   const totalCapacity = project.roles.reduce(
-    (sum: number, role: any) => sum + (role?.capacity ?? 0),
+    (sum, role) => sum + (role.capacity ?? 0),
     0,
   );
 
@@ -63,7 +64,8 @@ export default function LaunchpadJoinProjectCard({
         <div className="flex items-center justify-between">
           <span className="text-[#64748b]">Open Roles</span>
           <span className="flex items-center justify-center rounded-md bg-[#eff6ff] px-2.5 py-1 text-[13px] font-bold text-[#2f6fe4]">
-            {totalCapacity} spots
+            {roleCount} {roleCount === 1 ? "role" : "roles"} · {totalCapacity}{" "}
+            {totalCapacity === 1 ? "spot" : "spots"}
           </span>
         </div>
         <div className="flex items-center justify-between">
