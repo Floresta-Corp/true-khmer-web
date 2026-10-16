@@ -123,7 +123,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
     { to: "/events", label: "Events", icon: Calendar },
     { to: "/education", label: "Education", icon: GraduationCap },
     { to: "/khmer-voices", label: "Khmer Voices", icon: ClipboardPen },
-    { to: "/about", label: "About", icon: CircleUser, hide: !!user },
+    // { to: "/about", label: "About", icon: CircleUser, hide: !!user },
     { to: "/poc", label: "POC", icon: TvMinimalPlay, hide: true },
   ];
   const mobileNavLinks: NavLink[] = [
