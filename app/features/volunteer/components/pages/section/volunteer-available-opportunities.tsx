@@ -22,6 +22,11 @@ interface VolunteerAvailableOpportunitiesProps {
    * pages that embed this section inside their own container.
    */
   containerClassName?: string;
+  /**
+   * Column layout for the card grid. Pages with a sidebar (e.g. the search
+   * results page) should pass fewer columns so cards keep the listing size.
+   */
+  gridClassName?: string;
   isLoading?: boolean;
   onMutationComplete?: () => void;
   limit?: number;
@@ -33,6 +38,7 @@ export function VolunteerAvailableOpportunities({
   showHeader = true,
   className = "",
   containerClassName = "mx-auto w-full max-w-304",
+  gridClassName = "grid-cols-1 md:grid-cols-2 xl:grid-cols-4",
   isLoading: externalLoading = false,
   onMutationComplete,
   limit = DEFAULT_LIMIT,
@@ -194,7 +200,7 @@ export function VolunteerAvailableOpportunities({
         )}
 
         {isLoading && items.length === 0 ? (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+          <div className={cn("grid gap-5", gridClassName)}>
             {Array.from({ length: 6 }).map((_, index) => (
               <OpportunityCardSkeleton key={`opportunity-skeleton-${index}`} />
             ))}
@@ -202,7 +208,7 @@ export function VolunteerAvailableOpportunities({
         ) : items.length > 0 ? (
           <>
             <motion.div
-              className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4"
+              className={cn("grid gap-5", gridClassName)}
               variants={listVariants}
               initial="hidden"
               animate="show"

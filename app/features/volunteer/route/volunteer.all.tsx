@@ -198,8 +198,8 @@ export default function VolunteerAllPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#F5F7FB] px-4 py-8 sm:px-6 lg:px-10">
-      <div className="mx-auto flex w-full max-w-304 flex-col gap-6">
+    <main className="min-h-screen bg-[#F5F7FB] py-8">
+      <div className="site-container flex flex-col gap-6">
         <motion.div
           initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -477,6 +477,7 @@ export default function VolunteerAllPage() {
             <VolunteerAvailableOpportunities
               showHeader={false}
               className="w-full bg-transparent px-0 py-0"
+              gridClassName="grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
               opportunities={visibleOpportunities}
               pagination={filteredPagination}
               isLoading={isLoading}
