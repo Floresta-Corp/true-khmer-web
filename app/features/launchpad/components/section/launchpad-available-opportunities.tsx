@@ -131,7 +131,7 @@ export function LaunchpadAvailableOpportunities({
 
   if (isRouteLoading || (isLoading && items.length === 0)) {
     return (
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
           <LaunchpadCardSkeleton key={`skeleton-${i}`} />
         ))}
@@ -142,11 +142,11 @@ export function LaunchpadAvailableOpportunities({
   return (
     <>
       <section>
-        <div className="mx-auto flex w-full max-w-304 flex-col gap-8">
+        <div className="flex w-full flex-col gap-8">
           {items.length > 0 ? (
             <>
               <motion.div
-                className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-2"
+                className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3"
                 variants={listVariants}
                 initial="hidden"
                 animate="show"

@@ -1,4 +1,5 @@
 import type { Route } from "./+types/volunteer.all";
+import FilterPanelHeader from "~/components/filter-panel-header";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
@@ -275,16 +276,7 @@ export default function VolunteerAllPage() {
             }}
             className="rounded-[18px] border border-[#edf2f7] bg-white p-5 shadow-[0px_10px_30px_rgba(15,23,42,0.03)] will-change-transform"
           >
-            <div className="flex items-center justify-between gap-4">
-              <h2 className="text-sm font-bold text-[#020618]">Filters</h2>
-              <button
-                type="button"
-                onClick={handleClearAll}
-                className="text-xs font-semibold text-[#2463eb] hover:text-[#1d4ed8]"
-              >
-                Clear all
-              </button>
-            </div>
+            <FilterPanelHeader onClearAll={handleClearAll} />
 
             <Accordion
               type="multiple"
@@ -476,8 +468,8 @@ export default function VolunteerAllPage() {
           >
             <VolunteerAvailableOpportunities
               showHeader={false}
+              columns={3}
               className="w-full bg-transparent px-0 py-0"
-              gridClassName="grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
               opportunities={visibleOpportunities}
               pagination={filteredPagination}
               isLoading={isLoading}
