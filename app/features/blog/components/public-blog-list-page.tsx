@@ -263,7 +263,7 @@ export function PublicBlogListPage() {
           ) : posts.length > 0 ? (
             <motion.div
               key={gridKey}
-              className="mt-8 grid grid-cols-1 gap-x-10 gap-y-12 md:grid-cols-2 xl:grid-cols-3"
+              className="mt-8 grid grid-cols-1 gap-x-5 gap-y-12 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
               initial="hidden"
               animate="show"
               exit="exit"

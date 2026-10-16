@@ -72,7 +72,7 @@ export function PublicBlogGridSkeleton({ count = 6 }: { count?: number }) {
     <div
       aria-busy="true"
       aria-label="Loading blog posts"
-      className="mt-8 grid grid-cols-1 gap-x-10 gap-y-12 md:grid-cols-2 xl:grid-cols-3"
+      className="mt-8 grid grid-cols-1 gap-x-5 gap-y-12 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
     >
       {Array.from({ length: count }).map((_, index) => (
         <PublicBlogCardSkeleton key={`blog-card-skeleton-${index}`} />
