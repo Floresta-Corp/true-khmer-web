@@ -98,30 +98,34 @@ export default function HeaderSearch({
           />
         </div>
 
-        <div className="hidden h-6 w-px shrink-0 bg-slate-200 sm:block" />
+        {locations.length > 0 && (
+          <>
+            <div className="hidden h-6 w-px shrink-0 bg-slate-200 sm:block" />
 
-        <div className="flex w-full justify-start md:w-auto md:px-0">
-          <DropdownMenu>
-            <DropdownMenuTrigger className="flex h-8.5 w-full cursor-pointer items-center justify-start gap-1.5 rounded-xl px-3.5 text-[13px] leading-[19.5px] font-semibold text-[#99a1af] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none md:w-auto">
-              <MapPin className="size-[17.5px] shrink-0 text-[#99a1af]" />
-              {location.name}
-              <ChevronDown className="ml-auto size-3.5 text-[#364153]/65 md:ml-0" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="start"
-              className="max-h-64 min-w-40 overflow-y-auto"
-            >
-              {allLocations.map((loc) => (
-                <DropdownMenuItem
-                  key={loc.id}
-                  onSelect={() => handleLocationSelect(loc)}
+            <div className="flex w-full justify-start md:w-auto md:px-0">
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex h-8.5 w-full cursor-pointer items-center justify-start gap-1.5 rounded-xl px-3.5 text-[13px] leading-[19.5px] font-semibold text-[#99a1af] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none md:w-auto">
+                  <MapPin className="size-[17.5px] shrink-0 text-[#99a1af]" />
+                  {location.name}
+                  <ChevronDown className="ml-auto size-3.5 text-[#364153]/65 md:ml-0" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="start"
+                  className="max-h-64 min-w-40 overflow-y-auto"
                 >
-                  {loc.name}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+                  {allLocations.map((loc) => (
+                    <DropdownMenuItem
+                      key={loc.id}
+                      onSelect={() => handleLocationSelect(loc)}
+                    >
+                      {loc.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </>
+        )}
         <Button
           type="submit"
           onClick={handleSearch}

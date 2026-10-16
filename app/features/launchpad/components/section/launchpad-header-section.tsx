@@ -1,7 +1,6 @@
-import { Link, useLoaderData } from "react-router";
+import { Link } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 import HeaderSearch from "~/components/header-search";
-import type { loader } from "~/features/launchpad/route/launchpad";
 import { ArrowRight } from "lucide-react";
 
 const easings = {
@@ -64,7 +63,6 @@ function LaunchpadPostLink({ to, dur }: { to: string; dur: number }) {
 }
 
 export default function LaunchpadHeaderSection() {
-  const { locations } = useLoaderData<typeof loader>();
   const prefersReducedMotion = useReducedMotion();
   const dur = prefersReducedMotion ? 0 : 1;
 
@@ -131,7 +129,6 @@ export default function LaunchpadHeaderSection() {
             postButton="Post project"
             postUrl="/launchpad/create"
             inputPlaceholder="Search projects..."
-            locations={locations}
             dur={dur}
           />
 
