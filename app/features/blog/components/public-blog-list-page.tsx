@@ -1,7 +1,7 @@
 import { Link, useLoaderData, useNavigate, useNavigation } from "react-router";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useMemo } from "react";
-import { Loader2 } from "lucide-react";
+import { InfiniteScrollTrigger } from "~/components/infinite-scroll-trigger";
 import {
   Select,
   SelectContent,
@@ -12,7 +12,6 @@ import {
 import { AuthorAvatar } from "~/components/author-avatar";
 import { resolveBlogAuthor } from "~/lib/blog-author";
 import { formatDate } from "~/lib/time";
-import { cn } from "~/lib/utils";
 import type { blogLoader } from "../services/blog.loader";
 import { BlogCategoryNav } from "./blog-category-nav";
 import { PublicBlogCard } from "./public-blog-card";
@@ -293,35 +292,16 @@ export function PublicBlogListPage() {
             </motion.div>
           ) : null}
         </AnimatePresence>
-        {hasMore && !isChangingFilters ? (
-          <div className="mt-14">
-            <motion.button
-              type="button"
-              onClick={handleLoadMore}
-              disabled={isLoadingMore}
-              whileHover={
-                prefersReducedMotion || isLoadingMore ? {} : { y: -2 }
-              }
-              whileTap={
-                prefersReducedMotion || isLoadingMore ? {} : { scale: 0.99 }
-              }
-              transition={{ duration: 0.15, ease: "easeOut" }}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white p-4 text-center text-[14px] font-medium text-slate-700 transition-colors hover:border-[#1c97d4]/40 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-white/10 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-white/5"
-            >
-              {isLoadingMore ? (
-                <>
-                  <Loader2
-                    className={cn(
-                      "size-4",
-                      !prefersReducedMotion && "animate-spin",
-                    )}
-                  />
-                  Loading...
-                </>
-              ) : (
-                "Load more"
-              )}
-            </motion.button>
+        {!isChangingFilters ? (
+          <div className="mt-8">
+            {/* Keyed by page so the observer re-attaches after each load and
+                fires again if the sentinel is still on screen. */}
+            <InfiniteScrollTrigger
+              key={page}
+              hasMore={hasMore}
+              isLoading={isLoadingMore}
+              onTrigger={handleLoadMore}
+            />
           </div>
         ) : null}
       </div>
