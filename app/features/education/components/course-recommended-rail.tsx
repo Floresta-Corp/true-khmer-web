@@ -1,5 +1,4 @@
 import { Link } from "react-router";
-import { BackLink } from "~/components/back-link";
 import { ChevronLeft, List, X } from "lucide-react";
 import { cn } from "~/lib/utils";
 import type { CourseSummary } from "~/features/education/types";
@@ -21,13 +20,13 @@ export function CourseRecommendedRail({
       )}
     >
       <div className="border-b border-[#E5E7EB] px-5 py-3.5">
-        <BackLink
+        <Link
           to="/education"
           className="inline-flex min-w-0 items-center gap-1.5 text-sm font-semibold text-[#1C5DD4] transition-colors hover:underline"
         >
           <ChevronLeft className="size-4 shrink-0" aria-hidden />
           <span className="truncate">Back to Education</span>
-        </BackLink>
+        </Link>
       </div>
 
       <div className="flex items-center justify-between border-b border-[#E5E7EB] px-5 py-4.5">

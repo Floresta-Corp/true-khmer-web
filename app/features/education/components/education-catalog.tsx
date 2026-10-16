@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import FilterPanelHeader from "~/components/filter-panel-header";
 import {
+  Link,
   useLoaderData,
   useLocation,
   useNavigation,
   useSearchParams,
 } from "react-router";
-import { BackLink } from "~/components/back-link";
 import { motion, useReducedMotion } from "motion/react";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import {
@@ -127,13 +127,13 @@ export function EducationCatalog() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration }}
       >
-        <BackLink
+        <Link
           to="/education"
           className="mb-4.5 flex w-max items-center gap-1.5 text-sm font-semibold text-[#1C5DD4] hover:underline"
         >
           <ChevronLeft size={16} strokeWidth={2.2} aria-hidden />
           Back to Education
-        </BackLink>
+        </Link>
 
         <div className="mb-7 flex flex-wrap items-start justify-between gap-6">
           <div>
