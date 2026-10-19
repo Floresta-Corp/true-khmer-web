@@ -205,13 +205,14 @@ export default function LaunchpadJoinProjectCard({
               />
             ) : (
               <Button
+                disabled={isNoRolesSelected}
                 onClick={() => {
                   const redirectTo = `${location.pathname}${location.search}`;
                   navigate(
                     `/login?redirectTo=${encodeURIComponent(redirectTo)}`,
                   );
                 }}
-                className="mt-5 h-10 w-full gap-2 rounded-lg bg-[#2F6FE4] text-sm font-semibold text-white hover:bg-[#245cc2]"
+                className="mt-5 h-10 w-full gap-2 rounded-lg bg-[#2F6FE4] text-sm font-semibold text-white hover:bg-[#245cc2] disabled:opacity-50"
               >
                 <Send className="size-4" />
                 Apply Now

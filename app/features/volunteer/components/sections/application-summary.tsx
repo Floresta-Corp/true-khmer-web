@@ -9,6 +9,7 @@ import { useVolunteerSelectedRoles } from "../../../../stores/selected-volunteer
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { AnimatePresence, motion } from "motion/react";
+import { useLocation, useNavigate } from "react-router";
 
 interface ApplicationSummaryProps {
   volunteer: OpportunityDetail;
@@ -17,6 +18,7 @@ interface ApplicationSummaryProps {
   totalCapacity: number;
   onApplyNoRoles?: () => void;
   isActiveTabOpenRoles?: boolean;
+  userId?: string | null;
 }
 
 export default function ApplicationSummary({
@@ -26,6 +28,7 @@ export default function ApplicationSummary({
   disableButtonMessage,
   onApplyNoRoles,
   isActiveTabOpenRoles,
+  userId,
 }: ApplicationSummaryProps) {
   const { selectedRoleIds, topPickRoleId, removeRole, setTopPick } =
     useVolunteerSelectedRoles();
@@ -62,6 +65,7 @@ export default function ApplicationSummary({
         onApplyNoRoles={onApplyNoRoles}
         isActiveTabOpenRoles={isActiveTabOpenRoles}
         opportunityTitle={volunteer.title}
+        userId={userId}
       />
     </aside>
   );
@@ -199,6 +203,7 @@ interface ActionButtonsProps {
   isActiveTabOpenRoles?: boolean;
   disableButtonMessage?: string;
   opportunityTitle: string;
+  userId?: string | null;
 }
 
 function ActionButtons({
@@ -210,7 +215,10 @@ function ActionButtons({
   isActiveTabOpenRoles,
   opportunityTitle,
   disableButtonMessage,
+  userId,
 }: ActionButtonsProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const isNoRolesSelected = selectedRoleIds.length === 0;
 
   return (
@@ -240,21 +248,37 @@ function ActionButtons({
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            <VolunteerApplicationDialog
-              roles={roles}
-              selectedRoleIds={selectedRoleIds}
-              topPickRoleId={topPickRoleId}
-              opportunityTitle={opportunityTitle}
-              trigger={
-                <Button
-                  disabled={disableApplyButton || isNoRolesSelected}
-                  className="h-10 w-full gap-2 bg-[#2f6fe4] text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]"
-                >
-                  <Send className="size-4" />
-                  Apply Now
-                </Button>
-              }
-            />
+            {userId ? (
+              <VolunteerApplicationDialog
+                roles={roles}
+                selectedRoleIds={selectedRoleIds}
+                topPickRoleId={topPickRoleId}
+                opportunityTitle={opportunityTitle}
+                trigger={
+                  <Button
+                    disabled={disableApplyButton || isNoRolesSelected}
+                    className="h-10 w-full gap-2 bg-[#2f6fe4] text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]"
+                  >
+                    <Send className="size-4" />
+                    Apply Now
+                  </Button>
+                }
+              />
+            ) : (
+              <Button
+                disabled={isNoRolesSelected}
+                onClick={() => {
+                  const redirectTo = `${location.pathname}${location.search}`;
+                  navigate(
+                    `/login?redirectTo=${encodeURIComponent(redirectTo)}`,
+                  );
+                }}
+                className="h-10 w-full gap-2 bg-[#2f6fe4] text-sm font-medium text-[#f8fafc] hover:bg-[#245fca]"
+              >
+                <Send className="size-4" />
+                Apply Now
+              </Button>
+            )}
           </motion.div>
         )}
         {disableApplyButton && (
