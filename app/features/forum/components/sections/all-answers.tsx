@@ -26,13 +26,6 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
   const location = useLocation();
   const isLoading = fetcher.state === "loading";
 
-  const answersKey = (fetcher.data?.answers ?? answers)
-    .map(
-      (a: AnswerResponse) =>
-        a.id + (a.repliedAnswers?.map((r) => r.id).join(",") ?? ""),
-    )
-    .join("|");
-
   // derive initial sort from query string (use `sortBy`)
   const search = new URLSearchParams(location.search);
   const initialSort = (search.get("sortBy") as SortValue) || "popular";
@@ -100,7 +93,7 @@ export default function AllAnswers({ answers }: AllAnswersProps) {
       </div>
 
       {/* Answer list */}
-      <div className="flex flex-col gap-4" key={answersKey}>
+      <div className="flex flex-col gap-4">
         {isLoading ? (
           Array.from({ length: skeletonCount }).map((_, index) => (
             <AnswerCardSkeleton key={`answer-skeleton-${index}`} />

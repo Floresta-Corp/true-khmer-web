@@ -71,23 +71,10 @@ function AnswerComponent({
   const [accordionValue, setAccordionValue] = useState<string | undefined>(
     openAccordion,
   );
-  const [repliedAnswerId, setRepliedAnswerId] = useState<string | null>(null);
   const [isReplyOpen, setIsReplyOpen] = useState(false);
   const loginHref = `/login?redirectTo=${encodeURIComponent(
     `${location.pathname}${location.search}`,
   )}`;
-
-  // After a reply succeeds we save the replied-to answer id; once it matches
-  // this answer (or one of its replies) we auto-open the replies accordion.
-  useEffect(() => {
-    if (
-      repliedAnswerId &&
-      (repliedAnswerId === answer.id ||
-        answer.repliedAnswers?.some((a) => a.id === repliedAnswerId))
-    ) {
-      setAccordionValue("replies");
-    }
-  }, [repliedAnswerId, answer.id, answer.repliedAnswers]);
 
   useEffect(() => {
     if (isHighlighted && cardRef.current) {
@@ -253,7 +240,7 @@ function AnswerComponent({
                   onCancel={() => setIsReplyOpen(false)}
                   onSuccess={() => {
                     setIsReplyOpen(false);
-                    setRepliedAnswerId(answer.id);
+                    setAccordionValue("replies");
                   }}
                 />
               </motion.div>
