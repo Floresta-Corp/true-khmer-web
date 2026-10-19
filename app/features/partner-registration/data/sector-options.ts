@@ -258,7 +258,6 @@ export const memberOccupationOptions: OptionItem[] = [
   { value: "Freelancer", label: "Freelancer" },
   { value: "Student", label: "Student" },
   { value: "Retired", label: "Retired" },
-  { value: "Other", label: "Other" },
 ];
 
 export const genderoptions: OptionItem[] = [
