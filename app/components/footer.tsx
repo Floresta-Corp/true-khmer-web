@@ -94,7 +94,7 @@ const legalLinks = [
 export function Footer() {
   return (
     <footer className="w-full border-t border-[#e2e8f0] bg-white">
-      <div className="site-container pt-14 pb-28 sm:pb-14">
+      <div className="site-container pt-10 pb-28 sm:pt-14 md:pb-14">
         <div className="flex flex-col gap-10 lg:flex-row lg:justify-between lg:gap-20">
           {/* Brand section */}
           <div className="flex max-w-sm shrink-0 flex-col gap-5">
@@ -182,7 +182,7 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 flex flex-col gap-4 border-t border-[#e2e8f0] pt-8 text-sm text-[#6a7282] sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-10 flex flex-col gap-4 border-t border-[#e2e8f0] pt-6 text-sm text-[#6a7282] sm:mt-12 sm:flex-row sm:items-center sm:justify-between sm:pt-8">
           <p>© {new Date().getFullYear()} True Khmer. All Rights Reserved.</p>
           <div className="flex flex-wrap items-center gap-6">
             {legalLinks.map((link) => (
