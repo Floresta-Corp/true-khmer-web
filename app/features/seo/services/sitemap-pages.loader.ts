@@ -23,6 +23,7 @@ const STATIC_ENTRIES: readonly SitemapEntry[] = [
   { path: "/launchpad", changefreq: "daily", priority: 0.9 },
   { path: "/launchpad/all", changefreq: "daily", priority: 0.7 },
   { path: "/poc", changefreq: "weekly", priority: 0.7 },
+  { path: "/campaign", changefreq: "monthly", priority: 0.6 },
   { path: "/volunteer", changefreq: "daily", priority: 0.9 },
   { path: "/volunteer/all", changefreq: "daily", priority: 0.7 },
   /* The legal pages change rarely but are expected to be findable: a searcher
