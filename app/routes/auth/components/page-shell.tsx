@@ -212,7 +212,7 @@ export function RegisterBrandPanel() {
           </header>
 
           <h3 className="mt-6 text-3xl leading-9 font-bold">
-            Building the foundations of a smarter tomorrow.
+            Building the foundations of a better tomorrow.
           </h3>
           <p className="mt-4 text-sm leading-5 font-normal text-white/80">
             Create your account and start your journey with True Khmer.
