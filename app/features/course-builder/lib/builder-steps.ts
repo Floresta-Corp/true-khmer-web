@@ -6,7 +6,7 @@ import {
   HelpCircle,
   type LucideIcon,
 } from "lucide-react";
-import type { BuilderStep, CertificateKind, CourseFormat } from "../types";
+import type { BuilderStep, CertificateKind } from "../types";
 
 export interface StepDefinition {
   id: BuilderStep;
@@ -66,22 +66,13 @@ export const STEP_DEFINITIONS: Record<BuilderStep, StepDefinition> = {
 /**
  * The steps this course actually has.
  *
- * The design builds the list conditionally: a single-lesson course has no
- * Certificate step, and the Quiz step exists only when the certificate is one
- * of completion — a participation certificate is earned by finishing the
+ * Every course is built the same way, whatever its lesson count. The Quiz
+ * step exists only when the certificate is one of completion — a participation certificate is earned by finishing the
  * lessons, so there is nothing to be assessed on.
  */
-export function visibleSteps(
-  format: CourseFormat,
-  certificate: CertificateKind,
-): BuilderStep[] {
-  const steps: BuilderStep[] = ["basic", "curriculum"];
-
-  if (format === "multi") {
-    steps.push("certificate");
-    if (certificate === "completion") steps.push("quiz");
-  }
-
+export function visibleSteps(certificate: CertificateKind): BuilderStep[] {
+  const steps: BuilderStep[] = ["basic", "curriculum", "certificate"];
+  if (certificate === "completion") steps.push("quiz");
   steps.push("preview");
   return steps;
 }

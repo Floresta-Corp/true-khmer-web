@@ -1,21 +1,13 @@
 import { useLoaderData, type ShouldRevalidateFunctionArgs } from "react-router";
 import type { Route } from "./+types/education.$id";
 import CourseDetailPage from "../components/pages/course-detail-page";
-import CourseSingleDetailPage from "../components/pages/course-single-detail-page";
 import { educationDetailLoader } from "../services/education-detail.loader";
 import { educationDetailAction } from "../services/education-detail.action";
 import { metaOrigin, pageMeta } from "~/lib/seo";
 import { breadcrumbJsonLd, courseJsonLd } from "~/lib/seo/structured-data";
-import type { FooterHandle } from "~/layout/footer-layout";
 
 export const loader = educationDetailLoader;
 export const action = educationDetailAction;
-
-export const handle: FooterHandle = {
-  hideFooter: (data) =>
-    (data as Route.ComponentProps["loaderData"] | undefined)?.course?.format ===
-    "SINGLE",
-};
 
 export function shouldRevalidate({
   formData,
@@ -67,24 +59,16 @@ export function meta(args: Route.MetaArgs) {
 }
 
 /**
- * Two layouts behind one route: a course built as one standalone lesson leads
- * with the player, while a multi-chapter course leads with its cover and
- * curriculum. The format is the course's own, not a guess from lesson count —
- * a multi-chapter course can legitimately hold a single lesson while it is
- * still being written.
+ * One layout for every course, whatever its format: a course built as a single
+ * standalone lesson still has one chapter, so it reads as a one-lesson
+ * curriculum and is played from the learn route like any other.
  *
- * Keyed on the course, because the recommendations rail moves between courses
+ * Keyed on the course, because the recommendations list moves between courses
  * on this same route: without it React keeps the screen mounted and hands the
- * new course the old one's state — the previous lesson's playback gate, its
- * completion, its bookmark — which is enough to record a lesson as finished
- * the moment the learner arrives at it.
+ * new course the old one's state, such as its optimistic saved flag.
  */
 export default function CourseDetailRoute() {
   const { course } = useLoaderData<typeof loader>();
 
-  return course.format === "SINGLE" ? (
-    <CourseSingleDetailPage key={course.id} />
-  ) : (
-    <CourseDetailPage key={course.id} />
-  );
+  return <CourseDetailPage key={course.id} />;
 }
