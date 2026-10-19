@@ -79,17 +79,6 @@ export function emptyDraft(): CourseDraft {
   };
 }
 
-export const COURSE_FORMATS = ["multi", "single"] as const;
-
-export type CourseFormat = (typeof COURSE_FORMATS)[number];
-
-export interface CourseFormatOption {
-  value: CourseFormat;
-  label: string;
-  desc: string;
-  badge: string | null;
-}
-
 export const LESSON_SOURCES = ["youtube", "pdf", "audio"] as const;
 
 export type LessonSource = (typeof LESSON_SOURCES)[number];
@@ -98,21 +87,6 @@ export const LESSON_SOURCE_LABELS: Record<LessonSource, string> = {
   youtube: "YouTube link",
   pdf: "PDF",
   audio: "Audio",
-};
-
-export const LESSON_SOURCE_CARDS: Record<
-  LessonSource,
-  { label: string; desc: string }
-> = {
-  youtube: { label: "YouTube video", desc: "Link a video from YouTube" },
-  pdf: { label: "PDF", desc: "Upload a PDF file" },
-  audio: { label: "Audio", desc: "Upload an audio file" },
-};
-
-export const LESSON_SOURCE_SUBTITLES: Record<LessonSource, string> = {
-  youtube: "Paste the link to the video learners will watch.",
-  pdf: "Upload the PDF learners will read.",
-  audio: "Upload the audio learners will listen to.",
 };
 
 export const LESSON_FIELD_LABELS: Record<LessonSource, string> = {

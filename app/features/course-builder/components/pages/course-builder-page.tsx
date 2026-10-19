@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useFetcher, useNavigate } from "react-router";
 import { BuilderFooter } from "../builder-footer";
 import { BuilderRail } from "../builder-rail";
@@ -15,7 +15,6 @@ import {
   EditSectionModal,
 } from "../section-modals";
 import { isCompleteQuestion, useQuizDraft } from "../../lib/use-quiz-draft";
-import { isYoutubeUrl } from "../../lib/youtube-url";
 import {
   STEP_DEFINITIONS,
   nextStep,
@@ -32,7 +31,6 @@ import {
   lessonDraftOf,
   lessonTypeOf,
   type CertificateKind,
-  type CourseFormat,
   type QuizQuestion,
   type LessonDraft,
 } from "../../types";
@@ -67,7 +65,6 @@ interface CourseBuilderPageProps {
   canReplaceCurriculum?: boolean;
   canReplaceQuiz?: boolean;
   initialCertificate?: CertificateKind;
-  initialFormat?: CourseFormat;
   initialPassMark?: string;
   initialQuestions?: QuizQuestion[];
   initialCourseId?: string | null;
@@ -89,7 +86,6 @@ export default function CourseBuilderPage({
   canReplaceCurriculum = true,
   canReplaceQuiz = true,
   initialCertificate,
-  initialFormat,
   initialPassMark,
   initialQuestions,
   initialCourseId = null,
@@ -109,31 +105,13 @@ export default function CourseBuilderPage({
     () => initialSections ?? [],
   );
   const [lessonUploading, setLessonUploading] = useState(false);
-  const [format, setFormat] = useState<CourseFormat>(initialFormat ?? "multi");
   const [openSections, setOpenSections] = useState<Set<string>>(
     () => new Set((initialSections ?? []).map((section) => section.id)),
   );
   const added = useRef(0);
 
-  const savedSingle =
-    initialFormat === "single" ? (initialSections?.[0] ?? null) : null;
-  const savedSingleLesson = savedSingle?.lessons[0] ?? null;
-
-  const [lesson, setLesson] = useState<LessonDraft>(() =>
-    savedSingleLesson ? lessonDraftOf(savedSingleLesson) : emptyLessonDraft(),
-  );
-
-  const singleIds = useRef({
-    sectionId: savedSingle?.id,
-    lessonId: savedSingleLesson?.id,
-  });
   const clearCurriculumError = () =>
     setLocalErrors(({ curriculum: _dropped, ...rest }) => rest);
-
-  const patchLesson = (changes: Partial<LessonDraft>) => {
-    setLesson((current) => ({ ...current, ...changes }));
-    clearCurriculumError();
-  };
 
   const [lessonTarget, setLessonTarget] = useState<string | null>(null);
   const [editingLesson, setEditingLesson] = useState<{
@@ -412,39 +390,7 @@ export default function CourseBuilderPage({
     setLessonTarget(null);
   };
 
-  const effectiveSections = useMemo<BuilderSection[]>(() => {
-    if (format !== "single") return sections;
-
-    const hasSource = Boolean(lesson.url.trim() || lesson.assetKey);
-    if (!hasSource) return [];
-
-    const title = lesson.title.trim() || draft.title.trim() || "Course content";
-    const singleSeconds = lessonDraftDuration(lesson);
-
-    return [
-      {
-        id: singleIds.current.sectionId ?? "single-section",
-        title,
-        lessons: [
-          {
-            id: singleIds.current.lessonId ?? "single-lesson",
-            title,
-            type:
-              lesson.source === "youtube" ? ("video" as const) : lesson.source,
-            duration: formatDuration(singleSeconds),
-            isPreview: false,
-            isComplete: false,
-            url: lesson.source === "youtube" ? lesson.url.trim() : null,
-            assetKey: lesson.source === "youtube" ? null : lesson.assetKey,
-            pageCount: lesson.source === "pdf" ? lesson.pageCount : null,
-            durationSeconds: singleSeconds,
-          },
-        ],
-      },
-    ];
-  }, [format, sections, lesson, draft.title]);
-
-  const steps = visibleSteps(format, certificate);
+  const steps = visibleSteps(certificate);
 
   const current = steps.includes(step) ? step : steps[steps.length - 1];
 
@@ -500,19 +446,6 @@ export default function CourseBuilderPage({
 
   const curriculumErrors = () => {
     const errors: Record<string, string[]> = {};
-
-    if (format === "single") {
-      if (lesson.source === "youtube") {
-        if (!lesson.url.trim()) {
-          errors.curriculum = ["Add the content for this lesson."];
-        } else if (!isYoutubeUrl(lesson.url)) {
-          errors.curriculum = ["That is not a YouTube video link."];
-        }
-      } else if (!lesson.assetKey) {
-        errors.curriculum = ["Add the content for this lesson."];
-      }
-      return errors;
-    }
 
     if (sections.length === 0) {
       errors.curriculum = ["Add at least one section."];
@@ -580,7 +513,7 @@ export default function CourseBuilderPage({
 
     setLocalErrors({});
 
-    const chapters = effectiveSections.map((section) => ({
+    const chapters = sections.map((section) => ({
       ...(isSavedId(section.id) ? { id: section.id } : {}),
       title: section.title.trim() || "Untitled section",
       lessons: section.lessons
@@ -623,10 +556,7 @@ export default function CourseBuilderPage({
         ...(courseId ? { courseId } : {}),
         ...(sendCurriculum
           ? {
-              curriculum: JSON.stringify({
-                format: format === "single" ? "SINGLE" : "MULTI",
-                chapters,
-              }),
+              curriculum: JSON.stringify({ chapters }),
             }
           : {}),
         ...(sendQuiz
@@ -728,15 +658,8 @@ export default function CourseBuilderPage({
                       : [],
                   )
                 }
-                format={format}
-                lesson={lesson}
-                onLessonChange={patchLesson}
                 sections={sections}
                 openSections={openSections}
-                onFormatChange={(next) => {
-                  setFormat(next);
-                  clearCurriculumError();
-                }}
                 onToggleSection={toggleSection}
                 onAddSection={openAddSection}
                 onEditSection={openEditSection}
@@ -756,10 +679,9 @@ export default function CourseBuilderPage({
               <PreviewStep
                 draft={draft}
                 categories={categories}
-                sections={effectiveSections}
+                sections={sections}
                 questionCount={quiz.questions.length}
                 passMark={quiz.passMark}
-                format={format}
                 hasQuizStep={steps.includes("quiz")}
                 onEditStep={setStep}
               />

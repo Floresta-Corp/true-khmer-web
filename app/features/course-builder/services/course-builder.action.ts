@@ -38,7 +38,6 @@ const LessonSchema = z.object({
 });
 
 const CurriculumSchema = z.object({
-  format: z.enum(["MULTI", "SINGLE"]),
   chapters: z.array(
     z.object({
       id: z.string().uuid().nullish(),

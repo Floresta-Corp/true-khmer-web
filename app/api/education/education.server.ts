@@ -190,7 +190,6 @@ export interface ChapterInput {
 }
 
 export interface ReplaceCurriculumBody {
-  format: "MULTI" | "SINGLE";
   chapters: ChapterInput[];
 }
 
@@ -420,7 +419,6 @@ export async function presignLessonAsset(
 export interface CourseCurriculumResponse {
   ok: true;
   curriculum: {
-    format: "MULTI" | "SINGLE";
     chapters: {
       id: string;
       title: string;

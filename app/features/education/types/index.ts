@@ -94,12 +94,9 @@ export interface OwnCourseReview {
   createdAt: string;
 }
 
-export type CourseFormat = "MULTI" | "SINGLE";
-
 export type CourseCertificateKind = "PARTICIPATION" | "COMPLETION";
 
 export interface CourseDetail extends CourseSummary {
-  format: CourseFormat;
   meta: CourseMetaItem[];
   hasQuiz: boolean;
   certificateKind: CourseCertificateKind | null;

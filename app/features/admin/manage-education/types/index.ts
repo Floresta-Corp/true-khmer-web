@@ -71,7 +71,6 @@ export type ReviewChapter = {
 };
 
 export type ReviewCurriculum = {
-  format: "MULTI" | "SINGLE";
   chapters: ReviewChapter[];
   lessonCount: number;
 };

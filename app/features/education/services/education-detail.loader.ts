@@ -141,7 +141,6 @@ export async function loadCourseDetail(
 
   return {
     ...summary,
-    format: course.format,
     meta: [
       {
         label: "LESSONS",

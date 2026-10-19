@@ -16,7 +16,6 @@ import {
   type CertificateKind,
   type CourseDifficulty,
   type CourseDraft,
-  type CourseFormat,
   type QuizQuestion,
 } from "~/features/course-builder/types";
 import { withAuthData } from "~/lib/server/auth-response.server";
@@ -62,7 +61,6 @@ export async function courseBuilderEditLoader({
     outcomes: string[];
     tags: string[];
     certificateKind: "PARTICIPATION" | "COMPLETION";
-    format: CourseFormat | "MULTI" | "SINGLE";
   }>;
 
   const draft: CourseDraft = {
@@ -80,8 +78,6 @@ export async function courseBuilderEditLoader({
 
   const certificate: CertificateKind =
     saved.certificateKind === "PARTICIPATION" ? "participation" : "completion";
-
-  const format: CourseFormat = saved.format === "SINGLE" ? "single" : "multi";
 
   const step = BuilderStepSchema.safeParse(
     new URL(request.url).searchParams.get("step"),
@@ -139,7 +135,6 @@ export async function courseBuilderEditLoader({
     canReplaceCurriculum,
     canReplaceQuiz,
     certificate,
-    format,
     passMark: String(quiz?.passMark ?? 70),
     questions,
     courseId: course.id,
