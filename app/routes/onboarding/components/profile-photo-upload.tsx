@@ -2,6 +2,8 @@ import { Camera } from "lucide-react";
 import { useRef } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { useImageDropPaste } from "~/hooks/use-image-drop-paste";
+import { cn } from "~/lib/utils";
 
 type ProfilePhotoUploadProps = {
   avatarPreviewUrl: string;
@@ -11,6 +13,7 @@ type ProfilePhotoUploadProps = {
   avatarKey: string;
   uploadError: string;
   onAvatarChange: (file: File | null) => void;
+  onAvatarUrl: (url: string) => void;
 };
 
 export function ProfilePhotoUpload({
@@ -21,12 +24,24 @@ export function ProfilePhotoUpload({
   avatarKey,
   uploadError,
   onAvatarChange,
+  onAvatarUrl,
 }: ProfilePhotoUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const drop = useImageDropPaste<HTMLDivElement>({
+    onFiles: ([file]) => onAvatarChange(file),
+    onUrl: onAvatarUrl,
+  });
 
   return (
     <div className="space-y-7">
-      <div className="inline-flex items-center gap-5">
+      <div
+        ref={drop.ref}
+        {...drop.dropZoneProps}
+        className={cn(
+          "-m-2 inline-flex items-center gap-5 rounded-2xl border border-dashed border-transparent p-2 transition-colors",
+          drop.isDragging && "border-[#2F6FE4] bg-[#EFF6FF]",
+        )}
+      >
         <div className="relative h-24 w-24">
           {avatarPreviewUrl ? (
             <img
@@ -71,15 +86,18 @@ export function ProfilePhotoUpload({
             <span className="font-bold text-[#2F6FE4]">+10 points</span> for
             completing your profile.
           </p>
+          <p className="text-xs text-[#1414145C]">
+            {drop.isResolvingUrl
+              ? "Checking image link…"
+              : "Drag and drop, or paste an image or image link here."}
+          </p>
           {isUploading && uploadProgress !== null ? (
             <p className="text-xs text-[#2F6FE4]">
               Uploading... {uploadProgress}%
             </p>
           ) : null}
           {avatarKey && !isUploading ? (
-            <p className="text-xs text-emerald-600">
-              Avatar uploaded successfully.
-            </p>
+            <p className="text-xs text-emerald-600">Avatar ready.</p>
           ) : null}
           {uploadError ? (
             <p className="text-xs text-red-500">{uploadError}</p>

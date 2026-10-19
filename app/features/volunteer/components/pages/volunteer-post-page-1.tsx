@@ -22,6 +22,7 @@ import CommitmentSection from "../commitment-section";
 import ImpactSection from "../impact-section";
 import type { FormDataVolunteerInput } from "~/features/volunteer/types";
 import { cn } from "~/lib/utils";
+import { useImageDropPaste } from "~/hooks/use-image-drop-paste";
 
 export type VolunteerPostPage1Errors = {
   title?: string;
@@ -174,10 +175,7 @@ export default function VolunteerPostPage1({
     onUpdateField("communityImpact", value || (null as any));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const selectImageFile = (file: File) => {
     // Basic validations
     const isImage = file.type.startsWith("image/");
     const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
@@ -202,9 +200,24 @@ export default function VolunteerPostPage1({
       file,
       value: URL.createObjectURL(file),
     });
-
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    setDetailErrors((prev) => ({ ...prev, coverImageKey: undefined }));
   };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (file) selectImageFile(file);
+  };
+
+  // A pasted/dropped link is already hosted: it is kept as the cover value
+  // with no file, so the action saves it without uploading.
+  const coverDrop = useImageDropPaste<HTMLLabelElement>({
+    onFiles: ([file]) => selectImageFile(file),
+    onUrl: (url) => {
+      onUpdateField("coverImageKey", { file: null, value: url });
+      setDetailErrors((prev) => ({ ...prev, coverImageKey: undefined }));
+    },
+  });
 
   const [previewHovered, setPreviewHovered] = useState(false);
 
@@ -305,6 +318,12 @@ export default function VolunteerPostPage1({
               tabIndex={0}
               role="button"
               htmlFor="coverImageKey-input"
+              ref={coverDrop.ref}
+              {...coverDrop.dropZoneProps}
+              // Reveal the delete button while the pointer is anywhere over the
+              // input, not just over the image inside its padding.
+              onPointerEnter={() => setPreviewHovered(true)}
+              onPointerLeave={() => setPreviewHovered(false)}
               onKeyDown={(e) => {
                 if (
                   e.key === "Enter" ||
@@ -319,7 +338,9 @@ export default function VolunteerPostPage1({
                 "relative mt-1.5 flex aspect-video cursor-pointer flex-col items-center justify-center rounded-2xl bg-[#fafafa] px-4 py-3 text-center",
                 errors?.coverImageKey
                   ? "border border-red-500 ring-4 ring-red-200"
-                  : "border border-dashed border-[#e5e5e5]",
+                  : coverDrop.isDragging
+                    ? "border border-dashed border-blue-500 bg-blue-50 ring-4 ring-blue-100"
+                    : "border border-dashed border-[#e5e5e5]",
               )}
               aria-invalid={Boolean(errors?.coverImageKey)}
               aria-describedby={
@@ -327,10 +348,7 @@ export default function VolunteerPostPage1({
               }
             >
               {formData.coverImageKey?.value ? (
-                <motion.div
-                  onHoverStart={() => setPreviewHovered(true)}
-                  onHoverEnd={() => setPreviewHovered(false)}
-                >
+                <motion.div>
                   <img
                     src={formData.coverImageKey.value}
                     alt="Selected cover"
@@ -377,7 +395,14 @@ export default function VolunteerPostPage1({
                   />
 
                   <p className="mt-3 text-xs leading-4.5 font-semibold">
-                    <span className="text-blue-500">Click to upload</span>{" "}
+                    <span className="text-blue-500">
+                      {coverDrop.isResolvingUrl
+                        ? "Checking image link…"
+                        : "Click to upload"}
+                    </span>{" "}
+                    <span className="text-[#525252]">
+                      or drag and drop, or paste an image or link
+                    </span>
                   </p>
 
                   <p className="mt-0.5 text-[11px] leading-4 text-[#a3a3a3]">

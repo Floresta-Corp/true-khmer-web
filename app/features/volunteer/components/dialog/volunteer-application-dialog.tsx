@@ -14,6 +14,10 @@ import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import ApplicationSubmitSuccessDialog from "./application-submit-success-dialog";
 import { cn } from "~/lib/utils";
+import { useFileDropPaste } from "~/hooks/use-image-drop-paste";
+import { fileMatchesAccept } from "~/lib/file-accept";
+
+const DOCUMENT_ACCEPT = ".pdf,.doc,.docx";
 
 interface VolunteerApplicationDialogProps {
   roles: Role[];
@@ -74,10 +78,14 @@ export default function VolunteerApplicationDialog({
     }
   }, [fetcher.state, fetcher.data]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = e.target.files;
-    if (selectedFiles) {
-      const newFiles = Array.from(selectedFiles);
+  const addFiles = (incoming: File[]) => {
+    const newFiles = incoming.filter((file) =>
+      fileMatchesAccept(file, DOCUMENT_ACCEPT),
+    );
+    if (newFiles.length < incoming.length) {
+      toast.error("Only PDF or Word documents can be added");
+    }
+    if (newFiles.length > 0) {
       const fileKey = (file: File) =>
         `${file.name}-${file.size}-${file.lastModified}`;
       const existingFileKeys = new Set(files.map(fileKey));
@@ -101,9 +109,19 @@ export default function VolunteerApplicationDialog({
           return next;
         });
       }
-      e.target.value = "";
     }
   };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files ?? []);
+    e.target.value = "";
+    addFiles(selectedFiles);
+  };
+
+  const documentDrop = useFileDropPaste<HTMLDivElement>({
+    onFiles: addFiles,
+    disabled: !open,
+  });
 
   const handleRemoveFile = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
@@ -288,57 +306,69 @@ export default function VolunteerApplicationDialog({
             )}
           </div>
 
-          <div className="mb-5 flex justify-between">
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              className="hidden"
-              accept=".pdf,.doc,.docx"
-              multiple
-            />
-            <p className={`text-sm leading-5.25 font-medium`}>
-              Supporting Documents (Optional)
-            </p>
-            <Button
-              type="button"
-              variant="ghost"
-              className={`text-sm leading-4.5 font-semibold`}
-              onClick={handleTriggerUpload}
-            >
-              + Add
-            </Button>
-          </div>
-          {errors.files && (
-            <p className="text-[11px] font-medium text-red-500">
-              {errors.files}
-            </p>
-          )}
-
-          <div className="space-y-2">
-            {files.map((file, index) => (
-              <div
-                key={`${file.name}-${index}`}
-                className="rounded-lg border border-[#f1f5f9] p-2.5"
+          <div
+            ref={documentDrop.ref}
+            {...documentDrop.dropZoneProps}
+            className={cn(
+              "-mx-2 rounded-xl border border-dashed border-transparent px-2 py-1 transition-colors",
+              documentDrop.isDragging && "border-[#2f6fe4] bg-[#eff6ff]",
+            )}
+          >
+            <div className="mb-5 flex justify-between">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="hidden"
+                accept={DOCUMENT_ACCEPT}
+                multiple
+              />
+              <p className={`text-sm leading-5.25 font-medium`}>
+                Supporting Documents (Optional)
+              </p>
+              <Button
+                type="button"
+                variant="ghost"
+                className={`text-sm leading-4.5 font-semibold`}
+                onClick={handleTriggerUpload}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <FileText className="size-6 text-[#2f6fe4]" />
-                    <p className="text-xs leading-[19.5px] font-medium text-[#0a0a0a]">
-                      {file.name}
-                    </p>
+                + Add
+              </Button>
+            </div>
+            <p className="-mt-4 mb-3 text-[11px] text-[#65758b]">
+              PDF or Word — click Add, or drag and drop files here
+            </p>
+            {errors.files && (
+              <p className="text-[11px] font-medium text-red-500">
+                {errors.files}
+              </p>
+            )}
+
+            <div className="space-y-2">
+              {files.map((file, index) => (
+                <div
+                  key={`${file.name}-${index}`}
+                  className="rounded-lg border border-[#f1f5f9] p-2.5"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FileText className="size-6 text-[#2f6fe4]" />
+                      <p className="text-xs leading-[19.5px] font-medium text-[#0a0a0a]">
+                        {file.name}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs leading-[19.5px] font-medium text-[#ef4444] hover:text-[#dc2626]"
+                      onClick={() => handleRemoveFile(index)}
+                    >
+                      Remove
+                    </Button>
                   </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs leading-[19.5px] font-medium text-[#ef4444] hover:text-[#dc2626]"
-                    onClick={() => handleRemoveFile(index)}
-                  >
-                    Remove
-                  </Button>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 

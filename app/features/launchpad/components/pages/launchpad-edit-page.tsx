@@ -128,6 +128,8 @@ export default function LaunchpadEditPage() {
   const values = watch();
 
   const [coverFile, setCoverFile] = useState<File | null>(null);
+  // A pasted/dropped image link replaces the cover key directly (no upload).
+  const [coverUrl, setCoverUrl] = useState("");
   const [materialDocuments, setMaterialDocuments] = useState<File[]>([]);
   const [detailErrors, setDetailErrors] = useState<DetailErrors>({});
   const [roleErrors, setRoleErrors] = useState<RoleErrors>({});
@@ -495,12 +497,24 @@ export default function LaunchpadEditPage() {
                     })) ?? []
                   }
                   existingCoverUrl={existingCoverUrl}
+                  coverUrl={coverUrl}
                   errors={detailErrors}
                   onNameChange={(value) => setValue("name", value)}
                   onCategoryChange={(value) => setValue("categoryId", value)}
                   onCityChange={(value) => setValue("cityId", value)}
                   onDeadlineChange={(value) => setValue("deadline", value)}
-                  onCoverChange={(file) => setCoverFile(file)}
+                  onCoverChange={(file) => {
+                    setCoverFile(file);
+                    if (coverUrl) {
+                      setCoverUrl("");
+                      setValue("coverKey", project?.coverKey ?? "");
+                    }
+                  }}
+                  onCoverUrlChange={(url) => {
+                    setCoverFile(null);
+                    setCoverUrl(url);
+                    setValue("coverKey", url);
+                  }}
                   onDescriptionChange={(value) =>
                     setValue("description", value)
                   }

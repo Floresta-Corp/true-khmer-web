@@ -30,7 +30,8 @@ import {
 } from "~/features/forum/types";
 import type { QuestionResponse } from "~/types/api-client";
 import { Textarea } from "~/components/ui/textarea";
-import { resolveImageURL } from "~/lib/utils";
+import { cn, resolveImageURL } from "~/lib/utils";
+import { useImageDropPaste } from "~/hooks/use-image-drop-paste";
 import { validateQuestionImageFile } from "~/features/forum/utils";
 
 // Only object URLs created via URL.createObjectURL need revoking. Resolved
@@ -47,6 +48,8 @@ interface AskQuestionDialogProps {
   data?: QuestionResponse | null;
   trigger?: React.ReactNode;
   initialImageFile?: File | null;
+  /** A pasted/dropped image link; saved as the image key without uploading. */
+  initialImageUrl?: string | null;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
@@ -58,6 +61,7 @@ export default function AskQuestionDialog({
   data,
   trigger,
   initialImageFile = null,
+  initialImageUrl = null,
   open: controlledOpen,
   onOpenChange,
 }: AskQuestionDialogProps) {
@@ -119,6 +123,35 @@ export default function AskQuestionDialog({
   useEffect(() => {
     setValue("tags", submittedTags);
   }, [submittedTags, setValue]);
+
+  const selectImageFile = (file: File) => {
+    const imageError = validateQuestionImageFile(file);
+    if (imageError) {
+      toast.error(imageError);
+      return;
+    }
+
+    revokeBlobUrl(preview);
+    setSelectedFile(file);
+    setPreview(URL.createObjectURL(file));
+    setRemoveExistingImage(false);
+  };
+
+  // A pasted/dropped link is already hosted: it is submitted as `imageKey`
+  // the same way an existing image is, so the action skips the upload.
+  const selectImageUrl = (url: string) => {
+    revokeBlobUrl(preview);
+    setSelectedFile(null);
+    setExistingImageKey(url);
+    setPreview(url);
+    setRemoveExistingImage(false);
+  };
+
+  const imageDrop = useImageDropPaste<HTMLDivElement>({
+    onFiles: ([file]) => selectImageFile(file),
+    onUrl: selectImageUrl,
+    disabled: !open,
+  });
 
   const fetcher = useFetcher();
   const isBusy = fetcher.state !== "idle" || isSubmitting;
@@ -222,6 +255,10 @@ export default function AskQuestionDialog({
         setSelectedFile(initialImageFile);
         setExistingImageKey(null);
         setPreview(URL.createObjectURL(initialImageFile));
+      } else if (initialImageUrl) {
+        setSelectedFile(null);
+        setExistingImageKey(initialImageUrl);
+        setPreview(initialImageUrl);
       } else if (isEditing && data?.imageKey) {
         setSelectedFile(null);
         setExistingImageKey(data.imageKey);
@@ -232,7 +269,15 @@ export default function AskQuestionDialog({
         setPreview(null);
       }
     }
-  }, [data, open, isEditing, reset, categories, initialImageFile]);
+  }, [
+    data,
+    open,
+    isEditing,
+    reset,
+    categories,
+    initialImageFile,
+    initialImageUrl,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -404,7 +449,14 @@ export default function AskQuestionDialog({
               ) : null}
             </div>
 
-            <div className="flex w-full flex-col gap-2">
+            <div
+              ref={imageDrop.ref}
+              {...imageDrop.dropZoneProps}
+              className={cn(
+                "flex w-full flex-col gap-2 rounded-lg transition-shadow",
+                imageDrop.isDragging && "ring-4 ring-[#2f6fe4]/30",
+              )}
+            >
               <Label className="text-xs leading-4.5 font-medium text-[#364153]">
                 Add Media (Photo/Video)
               </Label>
@@ -446,6 +498,11 @@ export default function AskQuestionDialog({
                     <span className="text-xs font-medium text-[#9eacc0]">
                       ADD MEDIA
                     </span>
+                    <span className="text-[11px] text-[#9eacc0]">
+                      {imageDrop.isResolvingUrl
+                        ? "Checking image link…"
+                        : "Click, drag and drop, or paste an image or link"}
+                    </span>
                   </div>
                   <input
                     id="images-upload"
@@ -454,19 +511,8 @@ export default function AskQuestionDialog({
                     accept="image/png,image/jpeg,image/webp,image/gif"
                     onChange={(e) => {
                       const file = e.target.files?.[0] ?? null;
-                      if (!file) return;
-
-                      const imageError = validateQuestionImageFile(file);
-                      if (imageError) {
-                        toast.error(imageError);
-                        e.target.value = "";
-                        return;
-                      }
-
-                      revokeBlobUrl(preview);
-                      setSelectedFile(file);
-                      setPreview(URL.createObjectURL(file));
-                      setRemoveExistingImage(false);
+                      e.target.value = "";
+                      if (file) selectImageFile(file);
                     }}
                     className="sr-only"
                   />

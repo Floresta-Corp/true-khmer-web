@@ -299,7 +299,12 @@ export async function launchpadCreateAction({ request }: Route.ActionArgs) {
       .map((entry) => toUploadFile(entry))
       .filter((value): value is File => value instanceof File);
 
-    if (!coverFile) {
+    // A pasted image link is already hosted and is saved as the cover key
+    // as-is; only a cover file goes through the presign upload.
+    const coverUrl = String(formData.get("coverUrl") ?? "").trim();
+    const hasCoverUrl = !coverFile && /^https?:\/\//i.test(coverUrl);
+
+    if (!coverFile && !hasCoverUrl) {
       return respond(
         toLaunchpadCreateActionResponse(
           errorActionResponse("Project cover is required"),
@@ -323,32 +328,38 @@ export async function launchpadCreateAction({ request }: Route.ActionArgs) {
       );
     }
 
-    const coverRes = await uploadLaunchpadCoverPresign(request, {
-      contentType: coverFile.type,
-      fileSize: coverFile.size,
-    });
+    let coverKey = coverUrl;
 
-    const coverPresign = resolvePresignedUpload(coverRes.data);
+    if (coverFile) {
+      const coverRes = await uploadLaunchpadCoverPresign(request, {
+        contentType: coverFile.type,
+        fileSize: coverFile.size,
+      });
 
-    if (!coverPresign) {
-      return respond(
-        toLaunchpadCreateActionResponse(
-          errorActionResponse("Unable to get cover upload payload"),
-        ),
-      );
+      const coverPresign = resolvePresignedUpload(coverRes.data);
+
+      if (!coverPresign) {
+        return respond(
+          toLaunchpadCreateActionResponse(
+            errorActionResponse("Unable to get cover upload payload"),
+          ),
+        );
+      }
+
+      const uploadedKey =
+        getUploadKey(coverPresign) ?? getUploadKey(coverRes.data);
+
+      if (!uploadedKey) {
+        return respond(
+          toLaunchpadCreateActionResponse(
+            errorActionResponse("Unable to get cover upload key"),
+          ),
+        );
+      }
+
+      await uploadToStorage(coverPresign, coverFile);
+      coverKey = uploadedKey;
     }
-
-    const coverKey = getUploadKey(coverPresign) ?? getUploadKey(coverRes.data);
-
-    if (!coverKey) {
-      return respond(
-        toLaunchpadCreateActionResponse(
-          errorActionResponse("Unable to get cover upload key"),
-        ),
-      );
-    }
-
-    await uploadToStorage(coverPresign, coverFile);
 
     const materialDocumentKey: string[] = [];
 

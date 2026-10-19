@@ -74,6 +74,8 @@ export type LaunchpadFormState = {
   phoneNumber: string;
   telegramUsername: string;
   coverFile: File | null;
+  /** A pasted/dropped image link used as the cover instead of a file. */
+  coverUrl: string;
   materialDocuments: File[];
   coverFileSnapshot: PersistedFileSnapshot | null;
   materialDocumentSnapshots: PersistedFileSnapshot[];
@@ -90,6 +92,7 @@ export type LaunchpadCreateStore = LaunchpadFormState & {
   setPhoneNumber: (value: string) => void;
   setTelegramUsername: (value: string) => void;
   setCoverFile: (file: File | null) => void;
+  setCoverUrl: (url: string) => void;
   setMaterialDocuments: (files: File[]) => void;
   setRoles: (roles: LaunchpadRoleInput[]) => void;
   rehydrateFiles: () => Promise<void>;
@@ -107,6 +110,7 @@ const initialState: LaunchpadFormState = {
   phoneNumber: "",
   telegramUsername: "",
   coverFile: null,
+  coverUrl: "",
   materialDocuments: [],
   coverFileSnapshot: null,
   materialDocumentSnapshots: [],
@@ -127,7 +131,7 @@ export const useLaunchpadCreateStore = create<LaunchpadCreateStore>()(
       setPhoneNumber: (value: string) => set({ phoneNumber: value }),
       setTelegramUsername: (value: string) => set({ telegramUsername: value }),
       setCoverFile: (file: File | null) => {
-        set({ coverFile: file, coverFileSnapshot: null });
+        set({ coverFile: file, coverFileSnapshot: null, coverUrl: "" });
 
         if (!file) return;
 
@@ -143,6 +147,8 @@ export const useLaunchpadCreateStore = create<LaunchpadCreateStore>()(
             console.error("Failed to persist cover file snapshot", error);
           });
       },
+      setCoverUrl: (url: string) =>
+        set({ coverUrl: url, coverFile: null, coverFileSnapshot: null }),
       setMaterialDocuments: (files: File[]) => {
         set({ materialDocuments: files, materialDocumentSnapshots: [] });
 
@@ -257,6 +263,7 @@ export const useLaunchpadCreateStore = create<LaunchpadCreateStore>()(
           telegramUsername: state.telegramUsername,
           roles: state.roles,
           coverFile: null,
+          coverUrl: state.coverUrl,
           materialDocuments: [],
           coverFileSnapshot: state.coverFileSnapshot,
           materialDocumentSnapshots: state.materialDocumentSnapshots,

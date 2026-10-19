@@ -5,6 +5,8 @@ import { Input } from "~/components/ui/input";
 import { Calendar, Trash2 } from "lucide-react";
 import FieldLabel from "~/components/field-label";
 import IconButton from "~/components/icon-button";
+import { useImageDropPaste } from "~/hooks/use-image-drop-paste";
+import { cn } from "~/lib/utils";
 import SectionInputCard from "~/components/section-input-card";
 import { SelectOption } from "~/components/ui/select-option";
 import VolunteerDatePickerField from "~/features/volunteer/components/volunteer-date-picker-field";
@@ -24,6 +26,8 @@ interface LaunchpadProjectDetailInputCardProps {
   categories: { id: string; name: string }[];
   cities: { id: string; name: string }[];
   existingCoverUrl?: string;
+  /** A pasted/dropped image link used as the cover (no upload). */
+  coverUrl?: string;
   errors?: {
     name?: string;
     categoryId?: string;
@@ -36,6 +40,7 @@ interface LaunchpadProjectDetailInputCardProps {
   onCityChange: (value: string) => void;
   onDeadlineChange: (value: string) => void;
   onCoverChange: (file: File | null) => void;
+  onCoverUrlChange?: (url: string) => void;
 }
 
 function toDateTimeLocal(value: string) {
@@ -57,12 +62,14 @@ export default function LaunchpadProjectDetailInputCard({
   categories,
   cities,
   existingCoverUrl,
+  coverUrl,
   errors,
   onNameChange,
   onCategoryChange,
   onCityChange,
   onDeadlineChange,
   onCoverChange,
+  onCoverUrlChange,
 }: LaunchpadProjectDetailInputCardProps) {
   const projectNameErrorId = useId();
   const categoryErrorId = useId();
@@ -85,13 +92,18 @@ export default function LaunchpadProjectDetailInputCard({
       };
     }
 
+    if (coverUrl) {
+      setProjectCoverPreview(coverUrl);
+      return;
+    }
+
     if (existingCoverUrl && !isCoverRemoved) {
       setProjectCoverPreview(existingCoverUrl);
       return;
     }
 
     setProjectCoverPreview(undefined);
-  }, [coverFile, existingCoverUrl, isCoverRemoved]);
+  }, [coverFile, coverUrl, existingCoverUrl, isCoverRemoved]);
 
   const selectCoverFile = (file: File | null) => {
     const error = getImageFileError(
@@ -115,6 +127,16 @@ export default function LaunchpadProjectDetailInputCard({
     selectCoverFile(event.currentTarget.files?.[0] ?? null);
     event.currentTarget.value = "";
   };
+
+  const coverDrop = useImageDropPaste<HTMLDivElement>({
+    onFiles: ([file]) => selectCoverFile(file),
+    onUrl: onCoverUrlChange
+      ? (url) => {
+          setIsCoverRemoved(false);
+          onCoverUrlChange(url);
+        }
+      : undefined,
+  });
 
   const handleCoverRemove: React.MouseEventHandler<HTMLButtonElement> = (
     event,
@@ -203,13 +225,24 @@ export default function LaunchpadProjectDetailInputCard({
         <div className="mt-2">
           <label htmlFor={projectCoverInputId}>
             <div
-              className={`relative flex aspect-video cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed bg-gray-50 px-4 py-3 text-center hover:bg-gray-100 ${errors?.coverFile ? "border-red-400 ring-1 ring-red-400/60" : "border-gray-200"}`}
+              ref={coverDrop.ref}
+              {...coverDrop.dropZoneProps}
+              // Reveal the delete button while the pointer is anywhere over the
+              // input, not just over the image inside its padding.
+              onPointerEnter={() => setPreviewHovered(true)}
+              onPointerLeave={() => setPreviewHovered(false)}
+              className={cn(
+                "relative flex aspect-video cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed bg-gray-50 px-4 py-3 text-center hover:bg-gray-100",
+                errors?.coverFile
+                  ? "border-red-400 ring-1 ring-red-400/60"
+                  : coverDrop.isDragging
+                    ? "border-blue-500 bg-blue-50 ring-4 ring-blue-100"
+                    : "border-gray-200",
+              )}
             >
               {projectCoverPreview ? (
                 <motion.div
                   className="absolute inset-0"
-                  onHoverStart={() => setPreviewHovered(true)}
-                  onHoverEnd={() => setPreviewHovered(false)}
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.2 }}
@@ -244,7 +277,12 @@ export default function LaunchpadProjectDetailInputCard({
                     src={PROJECT_IMAGE_PLACEHOLDER}
                   />
                   <div className="text-xs font-semibold text-blue-500">
-                    Click to upload
+                    {coverDrop.isResolvingUrl
+                      ? "Checking image link…"
+                      : "Click to upload"}
+                  </div>
+                  <div className="mt-0.5 text-[11px] text-gray-500">
+                    or drag and drop, or paste an image or link
                   </div>
                   <div className="mt-1.5 w-53.75 text-[11px] text-gray-400">
                     JPG, JPEG, PNG, or WebP • 10MB max Recommended size: 1280 ×

@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { ImageIcon, Trash2, Upload } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
-import { resolveImageURL } from "~/lib/utils";
+import { useImageDropPaste } from "~/hooks/use-image-drop-paste";
+import { cn, resolveImageURL } from "~/lib/utils";
 import {
   LOGO_ACCEPT_ATTRIBUTE,
   formatFileSize,
@@ -17,6 +18,8 @@ interface LogoUploadFieldProps {
   file: File | null;
   disabled?: boolean;
   onSelect: (file: File) => void;
+  /** A pasted/dropped image link — saved as the logo key without uploading. */
+  onSelectUrl: (url: string) => void;
   onRemove: () => void;
 }
 
@@ -25,6 +28,7 @@ export function LogoUploadField({
   file,
   disabled = false,
   onSelect,
+  onSelectUrl,
   onRemove,
 }: LogoUploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -47,12 +51,7 @@ export function LogoUploadField({
   const shownUrl = previewUrl ?? storedUrl;
   const hasLogo = shownUrl !== "";
 
-  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const selected = event.target.files?.[0];
-    // Allow re-picking the same file after a removal.
-    event.target.value = "";
-    if (!selected) return;
-
+  function selectFile(selected: File) {
     const message = validateLogoFile(selected);
     if (message) {
       setError(message);
@@ -63,6 +62,22 @@ export function LogoUploadField({
     onSelect(selected);
   }
 
+  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const selected = event.target.files?.[0];
+    // Allow re-picking the same file after a removal.
+    event.target.value = "";
+    if (selected) selectFile(selected);
+  }
+
+  const drop = useImageDropPaste<HTMLDivElement>({
+    onFiles: ([selected]) => selectFile(selected),
+    onUrl: (url) => {
+      setError(null);
+      onSelectUrl(url);
+    },
+    disabled,
+  });
+
   function handleRemove() {
     setError(null);
     onRemove();
@@ -72,7 +87,16 @@ export function LogoUploadField({
     <div>
       <FieldLabel htmlFor="client-logo">Logo</FieldLabel>
 
-      <div className="flex items-center gap-4 rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-3 dark:border-slate-700 dark:bg-slate-950/40">
+      <div
+        ref={drop.ref}
+        {...drop.dropZoneProps}
+        className={cn(
+          "flex items-center gap-4 rounded-xl border border-dashed p-3 transition-colors",
+          drop.isDragging
+            ? "border-blue-500 bg-blue-50 dark:bg-blue-950/30"
+            : "border-slate-300 bg-slate-50/60 dark:border-slate-700 dark:bg-slate-950/40",
+        )}
+      >
         <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
           {hasLogo ? (
             <img
@@ -90,9 +114,11 @@ export function LogoUploadField({
             {file ? file.name : hasLogo ? "Current logo" : "No logo uploaded"}
           </p>
           <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-            {file
-              ? `${formatFileSize(file.size)} — uploads when you save`
-              : "PNG, JPEG, WebP, or SVG. Up to 5 MB."}
+            {drop.isResolvingUrl
+              ? "Checking image link…"
+              : file
+                ? `${formatFileSize(file.size)} — uploads when you save`
+                : "PNG, JPEG, WebP, or SVG. Up to 5 MB. Drop or paste an image or link."}
           </p>
         </div>
 

@@ -122,6 +122,21 @@ export function useAvatarUpload({ initialAvatarKey }: UseAvatarUploadOptions) {
     [revokeObjectUrl],
   );
 
+  // A pasted/dropped image link is already hosted, so it becomes the avatar
+  // key directly — no presign or upload.
+  const handleAvatarUrl = useCallback(
+    (url: string) => {
+      uploadTokenRef.current = Date.now(); // abandon any upload in flight
+      revokeObjectUrl();
+      setUploadError("");
+      setUploadProgress(null);
+      setIsUploading(false);
+      setAvatarPreviewUrl(url);
+      setAvatarKey(url);
+    },
+    [revokeObjectUrl],
+  );
+
   return {
     avatarPreviewUrl,
     avatarKey,
@@ -129,5 +144,6 @@ export function useAvatarUpload({ initialAvatarKey }: UseAvatarUploadOptions) {
     uploadProgress,
     isUploading,
     handleAvatarChange,
+    handleAvatarUrl,
   };
 }

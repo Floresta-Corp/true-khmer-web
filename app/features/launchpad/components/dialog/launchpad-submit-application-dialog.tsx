@@ -29,6 +29,9 @@ import {
 import { Separator } from "~/components/ui/separator";
 import { Textarea } from "~/components/ui/textarea";
 import { cn } from "~/lib/utils";
+import { toast } from "sonner";
+import { useFileDropPaste } from "~/hooks/use-image-drop-paste";
+import { fileMatchesAccept } from "~/lib/file-accept";
 
 interface LaunchpadSubmitApplicationDialogProps {
   trigger: ReactNode;
@@ -209,8 +212,13 @@ export default function LaunchpadSubmitApplicationDialog({
     return errors;
   }
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
+  function addDocuments(incoming: File[]) {
+    const files = incoming.filter((file) =>
+      fileMatchesAccept(file, "application/pdf,.pdf"),
+    );
+    if (files.length < incoming.length) {
+      toast.error("Only PDF files can be added.");
+    }
     if (files.length > 0) {
       setDocuments((prev) => [...prev, ...files].slice(0, 5));
       // Clear document error when a file is added
@@ -221,8 +229,18 @@ export default function LaunchpadSubmitApplicationDialog({
         });
       }
     }
-    e.target.value = "";
   }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = "";
+    addDocuments(files);
+  }
+
+  const documentDrop = useFileDropPaste<HTMLDivElement>({
+    onFiles: addDocuments,
+    disabled: !open || documents.length >= 5,
+  });
 
   function replaceDocument(index: number) {
     const input = document.createElement("input");
@@ -496,11 +514,25 @@ export default function LaunchpadSubmitApplicationDialog({
                   )}
                 </div>
 
-                <div className="space-y-2">
+                <div
+                  ref={documentDrop.ref}
+                  {...documentDrop.dropZoneProps}
+                  className={cn(
+                    "-mx-2 space-y-2 rounded-xl border border-dashed border-transparent px-2 py-1 transition-colors",
+                    documentDrop.isDragging && "border-[#2F6FE4] bg-[#EFF6FF]",
+                  )}
+                >
                   <div className="flex items-start justify-between">
-                    <p className="text-xs leading-4.5 font-medium text-[#364153]">
-                      Supporting Documents
-                    </p>
+                    <div>
+                      <p className="text-xs leading-4.5 font-medium text-[#364153]">
+                        Supporting Documents
+                      </p>
+                      {documents.length < 5 && (
+                        <p className="text-[11px] text-[#9EACC0]">
+                          PDF only — click Add, or drag and drop files here
+                        </p>
+                      )}
+                    </div>
                     {documents.length < 5 && (
                       <button
                         type="button"

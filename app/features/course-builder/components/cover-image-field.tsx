@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import { Image as ImageIcon, Loader2 } from "lucide-react";
+import { useImageDropPaste } from "~/hooks/use-image-drop-paste";
 import { cn } from "~/lib/utils";
 import {
   putCoverImage,
@@ -27,7 +28,6 @@ export function CoverImageField({
   const fetcher = useFetcher<PresignResult>();
   const inputRef = useRef<HTMLInputElement>(null);
   const pendingFile = useRef<File | null>(null);
-  const [dragging, setDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -74,20 +74,19 @@ export function CoverImageField({
 
   const busy = uploading || fetcher.state !== "idle";
 
+  // A pasted/dropped image link is already hosted, so it becomes the cover
+  // key directly instead of being presigned and uploaded.
+  const drop = useImageDropPaste<HTMLDivElement>({
+    onFiles: ([file]) => accept(file),
+    onUrl: (url) => {
+      setError(null);
+      onUploaded(url, url);
+    },
+    disabled: busy,
+  });
+
   return (
-    <div
-      className="max-w-140"
-      onDragOver={(event) => {
-        event.preventDefault();
-        setDragging(true);
-      }}
-      onDragLeave={() => setDragging(false)}
-      onDrop={(event) => {
-        event.preventDefault();
-        setDragging(false);
-        accept(event.dataTransfer.files[0]);
-      }}
-    >
+    <div ref={drop.ref} className="max-w-140" {...drop.dropZoneProps}>
       <div className="relative">
         {previewUrl ? (
           <div className="aspect-video overflow-hidden rounded-xl border border-[#E5E7EB]">
@@ -107,7 +106,7 @@ export function CoverImageField({
             onClick={() => inputRef.current?.click()}
             className={cn(
               "flex aspect-video w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-[1.5px] border-dashed bg-[#F4F4F5] transition-colors",
-              dragging
+              drop.isDragging
                 ? "border-[#1C5DD4] bg-[#F4F8FF]"
                 : invalid
                   ? "border-[#FB3748]"
@@ -121,7 +120,7 @@ export function CoverImageField({
               className="text-[#9A9AB0]"
             />
             <span className="mt-1 text-[15px] text-[#6B7280]">
-              Drag and drop an image here
+              Drag and drop or paste an image or image link here
             </span>
             <span className="text-[13px] text-[#6B7280]">
               or <span className="underline">browse files</span>
@@ -129,7 +128,7 @@ export function CoverImageField({
           </button>
         )}
 
-        {busy && (
+        {(busy || drop.isResolvingUrl) && (
           <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/70">
             <Loader2 size={20} className="animate-spin text-[#1C5DD4]" />
           </div>

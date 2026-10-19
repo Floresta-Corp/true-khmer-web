@@ -51,7 +51,8 @@ import { Separator } from "~/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { SingleSelectDropdown } from "~/components/ui/single-select-dropdown";
 import { Spinner } from "~/components/ui/spinner";
-import { resolveImageURL } from "~/lib/utils";
+import { cn, resolveImageURL } from "~/lib/utils";
+import { useImageDropPaste } from "~/hooks/use-image-drop-paste";
 import { editProfileLoader } from "../services/edit-profile.loader";
 import { editProfileAction } from "../services/edit-profile.action";
 import type { SearchSkillsResponse } from "~/types/api-client";
@@ -205,9 +206,7 @@ export default function EditProfile() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const avatarObjectUrlRef = useRef<string | null>(null);
 
-  const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.currentTarget.files?.[0] ?? null;
-    if (!file) return;
+  const selectAvatarFile = (file: File) => {
     if (!file.type.startsWith("image/")) {
       toast.error("Please select an image file.");
       return;
@@ -223,6 +222,28 @@ export default function EditProfile() {
     setAvatarPreview(objectUrl);
     setAvatarFile(file);
   };
+
+  const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.currentTarget.files?.[0] ?? null;
+    if (file) selectAvatarFile(file);
+  };
+
+  // A pasted/dropped link is already hosted: save it as the avatar key
+  // directly and skip the presign upload on submit.
+  const selectAvatarUrl = (url: string) => {
+    if (avatarObjectUrlRef.current) {
+      URL.revokeObjectURL(avatarObjectUrlRef.current);
+      avatarObjectUrlRef.current = null;
+    }
+    setAvatarPreview(url);
+    setAvatarFile(null);
+    setValue("avatarKey", url);
+  };
+
+  const avatarDrop = useImageDropPaste<HTMLDivElement>({
+    onFiles: ([file]) => selectAvatarFile(file),
+    onUrl: selectAvatarUrl,
+  });
 
   const handleDeleteAvatar = () => {
     if (avatarObjectUrlRef.current) {
@@ -424,7 +445,14 @@ export default function EditProfile() {
               >
                 <Card className="border border-gray-200">
                   <CardContent className="space-y-6 p-6">
-                    <div className="flex gap-6">
+                    <div
+                      ref={avatarDrop.ref}
+                      {...avatarDrop.dropZoneProps}
+                      className={cn(
+                        "-m-2 flex gap-6 rounded-xl border border-dashed border-transparent p-2 transition-colors",
+                        avatarDrop.isDragging && "border-blue-500 bg-blue-50",
+                      )}
+                    >
                       <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
@@ -452,9 +480,16 @@ export default function EditProfile() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.4, duration: 0.3 }}
                       >
-                        <h3 className="font-semibold text-gray-900">
-                          Profile Picture
-                        </h3>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">
+                            Profile Picture
+                          </h3>
+                          <p className="text-xs text-gray-500">
+                            {avatarDrop.isResolvingUrl
+                              ? "Checking image link…"
+                              : "Drag and drop, or paste an image or image link"}
+                          </p>
+                        </div>
                         <div className="flex flex-col gap-3 sm:flex-row">
                           <motion.div
                             whileHover={{ scale: 1.05 }}

@@ -13,6 +13,7 @@ interface LaunchpadPostPage1Props {
   categories: { id: string; name: string }[];
   cities: { id: string; name: string }[];
   existingCoverUrl?: string;
+  coverUrl?: string;
   errors?: {
     name?: string;
     categoryId?: string;
@@ -25,6 +26,7 @@ interface LaunchpadPostPage1Props {
   onCityChange: (value: string) => void;
   onDeadlineChange: (value: string) => void;
   onCoverChange: (file: File | null) => void;
+  onCoverUrlChange?: (url: string) => void;
   onDescriptionChange: (value: string) => void;
   onSaveClicked?: () => void;
   onCancelClicked?: () => void;
@@ -40,12 +42,14 @@ export default function LaunchpadPostPage1({
   categories,
   cities,
   existingCoverUrl,
+  coverUrl,
   errors,
   onNameChange,
   onCategoryChange,
   onCityChange,
   onDeadlineChange,
   onCoverChange,
+  onCoverUrlChange,
   onDescriptionChange,
   onSaveClicked,
   onCancelClicked,
@@ -72,12 +76,14 @@ export default function LaunchpadPostPage1({
         categories={categories}
         cities={cities}
         existingCoverUrl={existingCoverUrl}
+        coverUrl={coverUrl}
         errors={errors}
         onNameChange={onNameChange}
         onCategoryChange={onCategoryChange}
         onCityChange={onCityChange}
         onDeadlineChange={onDeadlineChange}
         onCoverChange={onCoverChange}
+        onCoverUrlChange={onCoverUrlChange}
       />
       <LaunchpadAboutProjectCard
         value={description}
