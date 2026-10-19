@@ -10,20 +10,17 @@ import type { Role } from "~/features/volunteer/types/opportunities";
 import { useVolunteerSelectedRoles } from "../../../../stores/selected-volunteer-roles-store";
 import { cn } from "~/lib/utils";
 import { AnimatePresence, motion } from "motion/react";
-import { useLocation, useNavigate } from "react-router";
 
 interface AvailableRolesSectionProps {
   roles: Role[];
   showHeader?: boolean;
   hideApplyButton?: boolean;
-  userId: string | null;
 }
 
 export default function AvailableRolesSection({
   roles,
   hideApplyButton,
   showHeader = true,
-  userId,
 }: AvailableRolesSectionProps) {
   return (
     <div className="space-y-5">
@@ -45,7 +42,6 @@ export default function AvailableRolesSection({
             role={role}
             roles={roles}
             hideApplyButton={hideApplyButton}
-            userId={userId}
           />
         ))}
       </Accordion>
@@ -57,10 +53,9 @@ interface RoleCardProps {
   role: Role;
   roles: Role[];
   hideApplyButton?: boolean;
-  userId: string | null;
 }
 
-function RoleCard({ role, hideApplyButton, userId }: RoleCardProps) {
+function RoleCard({ role, hideApplyButton }: RoleCardProps) {
   const {
     addRole,
     removeRole,
@@ -69,18 +64,11 @@ function RoleCard({ role, hideApplyButton, userId }: RoleCardProps) {
     isTopPick,
     selectedRoleIds,
   } = useVolunteerSelectedRoles();
-  const navigate = useNavigate();
-  const location = useLocation();
 
   const selected = isRoleSelected(role.id);
   const topPick = isTopPick(role.id);
 
   const handleSelectRole = () => {
-    if (!userId) {
-      const redirectTo = `${location.pathname}${location.search}`;
-      navigate(`/login?redirectTo=${encodeURIComponent(redirectTo)}`);
-      return;
-    }
     addRole(role.id);
   };
 

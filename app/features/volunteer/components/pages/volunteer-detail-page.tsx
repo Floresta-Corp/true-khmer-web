@@ -270,7 +270,6 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
                         roles={(volunteer as any).roles}
                         showHeader
                         hideApplyButton={hideApplyButton}
-                        userId={userId}
                       />
                     </CardContent>
                   </Card>
@@ -297,6 +296,7 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
                 disableButtonMessage="You cannot apply for this opportunity as you are the organizer"
                 onApplyNoRoles={handleShowAvailableRoles}
                 isActiveTabOpenRoles={activeTab === "open-roles"}
+                userId={userId}
               />
               <OrganizerCard volunteer={volunteer} userId={userId ?? ""} />
             </motion.div>
