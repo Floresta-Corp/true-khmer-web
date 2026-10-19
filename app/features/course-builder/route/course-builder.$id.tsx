@@ -25,7 +25,6 @@ export default function CourseBuilderEditRoute() {
     canReplaceCurriculum,
     canReplaceQuiz,
     certificate,
-    format,
     passMark,
     questions,
     courseId,
@@ -41,7 +40,6 @@ export default function CourseBuilderEditRoute() {
       canReplaceCurriculum={canReplaceCurriculum}
       canReplaceQuiz={canReplaceQuiz}
       initialCertificate={certificate}
-      initialFormat={format}
       initialPassMark={passMark}
       initialQuestions={questions}
       initialCourseId={courseId}

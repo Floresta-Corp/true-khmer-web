@@ -11,7 +11,6 @@ import type {
   BuilderStep,
   CategoryOption,
   CourseDraft,
-  CourseFormat,
 } from "~/features/course-builder/types";
 import type { CourseSection } from "~/features/education/types";
 
@@ -25,7 +24,6 @@ interface PreviewStepProps {
   sections: CourseSection[];
   questionCount: number;
   passMark: string;
-  format: CourseFormat;
   hasQuizStep: boolean;
   onEditStep: (step: BuilderStep) => void;
 }
@@ -36,7 +34,6 @@ export function PreviewStep({
   sections,
   questionCount,
   passMark,
-  format,
   hasQuizStep,
   onEditStep,
 }: PreviewStepProps) {
@@ -68,10 +65,7 @@ export function PreviewStep({
         step: "basic",
       },
       {
-        label:
-          format === "single"
-            ? "Lesson content added"
-            : "At least one chapter with lesson",
+        label: "At least one chapter with lesson",
         done: lessonCount > 0,
         step: "curriculum",
       },
