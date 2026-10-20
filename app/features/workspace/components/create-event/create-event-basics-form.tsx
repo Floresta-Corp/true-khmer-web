@@ -14,6 +14,8 @@ import {
 } from "~/components/ui/select";
 import { Textarea } from "~/components/ui/textarea";
 import { cn } from "~/lib/utils";
+import { useImageDropPaste } from "~/hooks/use-image-drop-paste";
+import { fetchImageAsFile } from "~/lib/image-transfer";
 import CreateEventDateFields from "./create-event-date-fields";
 import CreateEventVenueInput from "./create-event-venue-input";
 import {
@@ -79,7 +81,6 @@ export default function CreateEventBasicsForm({
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewHovered, setPreviewHovered] = useState(false);
-  const [isDraggingCover, setIsDraggingCover] = useState(false);
 
   const selectCover = (file: File) => {
     const error = validateCreateEventCover(file);
@@ -90,6 +91,24 @@ export default function CreateEventBasicsForm({
 
     onCoverChange(file);
   };
+
+  // Event thumbnails can only be sent to the backend as a file, so a pasted
+  // link is downloaded here (works for hosts that allow cross-origin reads).
+  const selectCoverUrl = async (url: string) => {
+    const file = await fetchImageAsFile(url);
+    if (!file) {
+      toast.error(
+        "Couldn't use that image link. Download the image and upload it instead.",
+      );
+      return;
+    }
+    selectCover(file);
+  };
+
+  const coverDrop = useImageDropPaste<HTMLLabelElement>({
+    onFiles: ([file]) => selectCover(file),
+    onUrl: (url) => void selectCoverUrl(url),
+  });
 
   const handleCoverInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -309,53 +328,27 @@ export default function CreateEventBasicsForm({
                 fileInputRef.current?.click();
               }
             }}
-            onDragEnter={(event) => {
-              event.preventDefault();
-              setIsDraggingCover(true);
-            }}
-            onDragOver={(event) => {
-              event.preventDefault();
-              event.dataTransfer.dropEffect = "copy";
-              setIsDraggingCover(true);
-            }}
-            onDragLeave={(event) => {
-              event.preventDefault();
-              setIsDraggingCover(false);
-            }}
-            onDrop={(event) => {
-              event.preventDefault();
-              setIsDraggingCover(false);
-              const file = event.dataTransfer.files[0];
-              if (file) selectCover(file);
-            }}
-            onPaste={(event) => {
-              const file = Array.from(event.clipboardData.items)
-                .find((item) => item.kind === "file")
-                ?.getAsFile();
-              if (!file) return;
-
-              event.preventDefault();
-              selectCover(file);
-            }}
+            ref={coverDrop.ref}
+            {...coverDrop.dropZoneProps}
+            // Reveal the delete button while the pointer is anywhere over the
+            // input, not just over the image inside its padding.
+            onPointerEnter={() => setPreviewHovered(true)}
+            onPointerLeave={() => setPreviewHovered(false)}
             aria-invalid={Boolean(errors.coverImageName)}
-            aria-label="Upload an event thumbnail by choosing, dropping, or pasting an image"
+            aria-label="Upload an event thumbnail by choosing, dropping, or pasting an image or image link"
             className={cn(
               // Sized as a thumbnail rather than a full-width banner: 340px
               // keeps the 16:9 frame at roughly the size the image is used at.
               "relative mt-2.5 flex aspect-video w-full max-w-85 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl bg-white px-4 py-3 text-center transition-colors",
               errors.coverImageName
                 ? "border border-red-500 ring-4 ring-red-200"
-                : isDraggingCover
+                : coverDrop.isDragging
                   ? "border border-dashed border-blue-500 bg-blue-50 ring-4 ring-blue-100"
                   : "border border-dashed border-[#E5E5E5] hover:border-blue-300 hover:bg-blue-50/30",
             )}
           >
             {form.coverPreviewUrl ? (
-              <motion.div
-                className="size-full"
-                onHoverStart={() => setPreviewHovered(true)}
-                onHoverEnd={() => setPreviewHovered(false)}
-              >
+              <motion.div className="size-full">
                 <img
                   src={form.coverPreviewUrl}
                   alt="Selected event thumbnail"
@@ -390,7 +383,7 @@ export default function CreateEventBasicsForm({
                 <p className="mt-3 text-xs leading-4.5 font-semibold">
                   <span className="text-blue-600">Click to upload</span>{" "}
                   <span className="text-[#525252]">
-                    or drag, drop, and paste
+                    or drag and drop, or paste an image or link
                   </span>
                 </p>
                 <p className="mt-0.5 text-[11px] leading-4 text-[#A3A3A3]">

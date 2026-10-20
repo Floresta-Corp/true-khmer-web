@@ -1,6 +1,7 @@
 import { Camera } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { resolveImageURL } from "~/lib/utils";
+import type { useImageDropPaste } from "~/hooks/use-image-drop-paste";
+import { cn, resolveImageURL } from "~/lib/utils";
 import type { AdminUser } from "~/types/api-client";
 
 function formatRole(role: string) {
@@ -17,6 +18,7 @@ type Props = {
   role: string;
   avatarPreview: string | undefined;
   onChangeAvatar: () => void;
+  avatarDrop: ReturnType<typeof useImageDropPaste<HTMLButtonElement>>;
 };
 
 export function AccountSettingsProfileCard({
@@ -26,6 +28,7 @@ export function AccountSettingsProfileCard({
   avatarPreview,
   role,
   onChangeAvatar,
+  avatarDrop,
 }: Props) {
   const displaySrc =
     avatarPreview ??
@@ -37,9 +40,14 @@ export function AccountSettingsProfileCard({
       <div className="flex flex-col items-center p-8 text-center">
         <button
           type="button"
+          ref={avatarDrop.ref}
+          {...avatarDrop.dropZoneProps}
           onClick={onChangeAvatar}
-          className="group relative cursor-pointer focus:outline-none"
-          aria-label="Change avatar"
+          className={cn(
+            "group relative cursor-pointer rounded-full focus:outline-none",
+            avatarDrop.isDragging && "ring-4 ring-blue-500/40",
+          )}
+          aria-label="Change avatar (click, drop, or paste an image or image link)"
         >
           <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
             {displaySrc ? (
@@ -65,6 +73,11 @@ export function AccountSettingsProfileCard({
         </h2>
         <p className="mt-1 text-[10px] font-medium tracking-widest text-slate-400 uppercase">
           {role ? formatRole(role) : "-"}
+        </p>
+        <p className="mt-3 text-xs text-slate-400">
+          {avatarDrop.isResolvingUrl
+            ? "Checking image link…"
+            : "Drop or paste an image or image link on the avatar"}
         </p>
       </div>
     </div>

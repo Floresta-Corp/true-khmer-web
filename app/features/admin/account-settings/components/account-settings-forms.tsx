@@ -26,6 +26,7 @@ type Props = {
   submitIntent: FormDataEntryValue | null | undefined;
   fileInputRef: RefObject<HTMLInputElement | null>;
   onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  avatarUrl: string;
   hasAvatarChange: boolean;
   passwordResetSignal: number;
   profileFieldErrors?: FieldErrors;
@@ -38,6 +39,7 @@ export function AccountSettingsForms({
   submitIntent,
   fileInputRef,
   onFileChange,
+  avatarUrl,
   hasAvatarChange,
   passwordResetSignal,
   profileFieldErrors,
@@ -50,6 +52,7 @@ export function AccountSettingsForms({
         isPending={isSubmitting && submitIntent === "update-profile"}
         fileInputRef={fileInputRef}
         onFileChange={onFileChange}
+        avatarUrl={avatarUrl}
         hasAvatarChange={hasAvatarChange}
         serverErrors={profileFieldErrors}
       />
@@ -80,6 +83,7 @@ function ProfileForm({
   isPending,
   fileInputRef,
   onFileChange,
+  avatarUrl,
   hasAvatarChange,
   serverErrors,
 }: {
@@ -87,6 +91,7 @@ function ProfileForm({
   isPending: boolean;
   fileInputRef: RefObject<HTMLInputElement | null>;
   onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  avatarUrl: string;
   hasAvatarChange: boolean;
   serverErrors?: FieldErrors;
 }) {
@@ -123,6 +128,7 @@ function ProfileForm({
         className="hidden"
         onChange={onFileChange}
       />
+      <input type="hidden" name="avatarUrl" value={avatarUrl} />
 
       <SettingsCard icon={UserIcon} accent="blue" title="Personal Information">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Upload } from "lucide-react";
 import { useFetcher } from "react-router";
+import { useFileDropPaste } from "~/hooks/use-image-drop-paste";
 import { cn } from "~/lib/utils";
 import {
   LESSON_UPLOAD_HINTS,
@@ -194,6 +195,11 @@ export function LessonSourceField({
       .finally(() => setUploading(false));
   }, [fetcher.state, fetcher.data, onUploaded, source]);
 
+  const drop = useFileDropPaste<HTMLButtonElement>({
+    onFiles: ([file]) => accept(file),
+    disabled: busy || source === "youtube",
+  });
+
   if (source === "youtube") {
     const problem = urlTouched ? validateYoutubeUrl(url) : null;
 
@@ -239,16 +245,15 @@ export function LessonSourceField({
         type="button"
         disabled={busy}
         onClick={() => inputRef.current?.click()}
-        onDragOver={(event) => event.preventDefault()}
-        onDrop={(event) => {
-          event.preventDefault();
-          accept(event.dataTransfer.files?.[0]);
-        }}
+        ref={drop.ref}
+        {...drop.dropZoneProps}
         className={cn(
           "w-full cursor-pointer rounded-lg border-[1.5px] border-dashed p-7 text-center text-sm transition-colors",
-          fileName
-            ? "border-[#1C5DD4] bg-[#EFF4FE] text-[#1C5DD4]"
-            : "border-[#E5E7EB] text-[#9A9AB0] hover:border-[#C9D6F2]",
+          drop.isDragging
+            ? "border-[#1C5DD4] bg-[#F4F8FF] text-[#1C5DD4]"
+            : fileName
+              ? "border-[#1C5DD4] bg-[#EFF4FE] text-[#1C5DD4]"
+              : "border-[#E5E7EB] text-[#9A9AB0] hover:border-[#C9D6F2]",
         )}
       >
         {busy ? (

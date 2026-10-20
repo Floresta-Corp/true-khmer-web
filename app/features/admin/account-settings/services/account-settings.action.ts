@@ -74,6 +74,15 @@ export async function accountSettingsAction({ request }: Route.ActionArgs) {
 
     let avatarKey: string | null = null;
     const avatarFile = formData.get("avatarFile") as File | null;
+    const avatarUrl = String(formData.get("avatarUrl") ?? "").trim();
+
+    // A pasted image link is already hosted, so it is saved as-is.
+    if (
+      /^https?:\/\//i.test(avatarUrl) &&
+      !(avatarFile && avatarFile.size > 0)
+    ) {
+      avatarKey = avatarUrl;
+    }
 
     if (avatarFile && avatarFile.size > 0) {
       try {

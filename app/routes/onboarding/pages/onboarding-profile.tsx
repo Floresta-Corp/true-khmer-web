@@ -173,6 +173,7 @@ export default function OnboardingProfilePage() {
     uploadProgress,
     isUploading,
     handleAvatarChange,
+    handleAvatarUrl,
   } = useAvatarUpload({
     initialAvatarKey: savedProfile.avatarKey,
   });
@@ -320,6 +321,7 @@ export default function OnboardingProfilePage() {
             avatarKey={avatarKey}
             uploadError={uploadError}
             onAvatarChange={handleAvatarChange}
+            onAvatarUrl={handleAvatarUrl}
           />
 
           <div className="space-y-5">

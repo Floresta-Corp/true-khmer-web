@@ -288,9 +288,16 @@ export default function VolunteerEditPage() {
     const submitFormData = new FormData();
     submitFormData.append("actionType", "update-volunteer");
 
-    const coverImageValue = formData.coverImageKey?.file
-      ? formData.coverImageKey.value
-      : originalCoverImageKey;
+    // A new file is uploaded by the action; a pasted image link (a value
+    // that differs from the original cover's resolved URL) is saved as-is.
+    const coverValue = formData.coverImageKey?.value ?? "";
+    const isPastedCoverUrl =
+      /^https?:\/\//i.test(coverValue) &&
+      coverValue !== resolveImageURL(originalCoverImageKey || undefined);
+    const coverImageValue =
+      formData.coverImageKey?.file || isPastedCoverUrl
+        ? coverValue
+        : originalCoverImageKey;
     const dataToSubmit = {
       ...formData,
       coverImageKey: coverImageValue,

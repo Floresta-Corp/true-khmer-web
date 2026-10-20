@@ -13,6 +13,8 @@ import AskQuestionDialog from "../dialog/ask-question-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { useUserDisplay } from "~/hooks/use-user-display";
 import { validateQuestionImageFile } from "~/features/forum/utils";
+import { useImageDropPaste } from "~/hooks/use-image-drop-paste";
+import { cn } from "~/lib/utils";
 
 const heroBackgroundImage = "/images/forum-background.jpg";
 
@@ -62,17 +64,20 @@ export default function ForumCommunityHeroCard() {
 
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const [pendingImage, setPendingImage] = useState<File | null>(null);
+  const [pendingImageUrl, setPendingImageUrl] = useState<string | null>(null);
   // A single dialog behind all three controls: mounting one per button gives
   // each its own form state and fetcher for no gain.
   const [isComposerOpen, setIsComposerOpen] = useState(false);
 
   const openComposer = () => {
     setPendingImage(null);
+    setPendingImageUrl(null);
     setIsComposerOpen(true);
   };
 
   const handleImageClick = () => {
     setPendingImage(null);
+    setPendingImageUrl(null);
     const input = imageInputRef.current;
     if (!input) return;
     // Clearing the value first so re-picking the same file still fires change.
@@ -90,8 +95,21 @@ export default function ForumCommunityHeroCard() {
     }
 
     setPendingImage(file);
+    setPendingImageUrl(null);
     setIsComposerOpen(true);
   };
+
+  // Dropping or pasting on the composer opens it with the image attached;
+  // a link is attached as-is, without uploading.
+  const composerDrop = useImageDropPaste<HTMLDivElement>({
+    onFiles: ([file]) => handleImageSelected(file),
+    onUrl: (url) => {
+      setPendingImage(null);
+      setPendingImageUrl(url);
+      setIsComposerOpen(true);
+    },
+    disabled: !isAuthenticated || isComposerOpen,
+  });
 
   return (
     <section className="relative overflow-hidden rounded-2xl bg-linear-to-br from-[#eef4ff] via-[#f4f8ff] to-[#e6f0ff] p-5 sm:p-8">
@@ -112,7 +130,14 @@ export default function ForumCommunityHeroCard() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-[0px_4px_24px_0px_rgba(15,23,41,0.06)] sm:p-5">
+        <div
+          ref={composerDrop.ref}
+          {...composerDrop.dropZoneProps}
+          className={cn(
+            "flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-[0px_4px_24px_0px_rgba(15,23,41,0.06)] transition-shadow sm:p-5",
+            composerDrop.isDragging && "ring-4 ring-[#2f6fe4]/30",
+          )}
+        >
           <div className="flex items-center gap-3">
             <Avatar className="size-9 shrink-0 border border-[#f9fafb]">
               <AvatarImage
@@ -173,6 +198,7 @@ export default function ForumCommunityHeroCard() {
           categories={categories}
           isAuthenticated
           initialImageFile={pendingImage}
+          initialImageUrl={pendingImageUrl}
           open={isComposerOpen}
           onOpenChange={setIsComposerOpen}
         />

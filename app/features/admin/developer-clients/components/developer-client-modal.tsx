@@ -226,6 +226,13 @@ export function DeveloperClientModal({
               onSelect={(logoFile) =>
                 setValues((current) => ({ ...current, logoFile }))
               }
+              onSelectUrl={(logoKey) =>
+                setValues((current) => ({
+                  ...current,
+                  logoKey,
+                  logoFile: null,
+                }))
+              }
               onRemove={() =>
                 setValues((current) => ({
                   ...current,

@@ -18,6 +18,8 @@ import {
   Upload,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useImageDropPaste } from "~/hooks/use-image-drop-paste";
+import { cn } from "~/lib/utils";
 
 import { Textarea } from "~/components/ui/textarea";
 import { Button } from "~/components/ui/button";
@@ -117,12 +119,7 @@ export default function PartnerEditPage() {
     if (status === "INACTIVE") setIsPublished(false);
   };
 
-  const handleLogoUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
+  const uploadLogoFile = async (file: File) => {
     setLogoUploading(true);
     try {
       const presignRes = await fetch(
@@ -152,20 +149,42 @@ export default function PartnerEditPage() {
       toast.error(error instanceof Error ? error.message : "Upload failed");
     } finally {
       setLogoUploading(false);
-      event.target.value = "";
     }
   };
 
-  const handlePhotoUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    event.target.value = "";
+    if (file) void uploadLogoFile(file);
+  };
 
-    if (photos.length >= 4) {
-      toast.error("Maximum of 4 photos allowed");
-      return;
-    }
+  const addPhotoUrl = (url: string) => {
+    setPhotos((prev) => [
+      ...prev,
+      {
+        id: `temp-${prev.length}`,
+        partnerId: partner.id,
+        url,
+        thumbnail: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: null,
+      },
+    ]);
+
+    const formData = new FormData();
+    formData.append("action", "addPhoto");
+    formData.append("photoUrl", url);
+    submit(formData, { method: "post" });
+  };
+
+  const hasPhotoRoom = () => {
+    if (photos.length < 4) return true;
+    toast.error("Maximum of 4 photos allowed");
+    return false;
+  };
+
+  const uploadPhotoFile = async (file: File) => {
+    if (!hasPhotoRoom()) return;
 
     setPhotoUploading(true);
     try {
@@ -190,29 +209,35 @@ export default function PartnerEditPage() {
       });
       if (!putRes.ok) throw new Error("Upload failed");
 
-      setPhotos((prev) => [
-        ...prev,
-        {
-          id: `temp-${prev.length}`,
-          partnerId: partner.id,
-          url: publicUrl,
-          thumbnail: null,
-          createdAt: new Date().toISOString(),
-          updatedAt: null,
-        },
-      ]);
-
-      const formData = new FormData();
-      formData.append("action", "addPhoto");
-      formData.append("photoUrl", publicUrl);
-      submit(formData, { method: "post" });
+      addPhotoUrl(publicUrl);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Upload failed");
     } finally {
       setPhotoUploading(false);
-      event.target.value = "";
     }
   };
+
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (file) void uploadPhotoFile(file);
+  };
+
+  // Pasted/dropped image links are already hosted, so they are saved as-is
+  // instead of going through the presign upload.
+  const logoDrop = useImageDropPaste<HTMLDivElement>({
+    onFiles: ([file]) => void uploadLogoFile(file),
+    onUrl: setLogoUrl,
+    disabled: logoUploading,
+  });
+
+  const photoDrop = useImageDropPaste<HTMLDivElement>({
+    onFiles: ([file]) => void uploadPhotoFile(file),
+    onUrl: (url) => {
+      if (hasPhotoRoom()) addPhotoUrl(url);
+    },
+    disabled: photoUploading || photos.length >= 4,
+  });
 
   const handleDeletePhotoConfirm = () => {
     if (pendingPhotoDelete) {
@@ -332,7 +357,15 @@ export default function PartnerEditPage() {
                   <Building2 className="size-5" /> Basic Information
                 </h3>
 
-                <div className="mb-6 flex items-center gap-4">
+                <div
+                  ref={logoDrop.ref}
+                  {...logoDrop.dropZoneProps}
+                  className={cn(
+                    "-m-2 mb-4 flex items-center gap-4 rounded-xl border border-dashed border-transparent p-2 transition-colors",
+                    logoDrop.isDragging &&
+                      "border-blue-500 bg-blue-50 dark:bg-blue-950/30",
+                  )}
+                >
                   {logoUrl ? (
                     <button
                       type="button"
@@ -372,8 +405,15 @@ export default function PartnerEditPage() {
                       )}
                     </div>
                     <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                      PNG, JPG, WEBP (MAX. 5MB)
+                      PNG, JPG, WEBP (MAX. 5MB) • Drop or paste an image or
+                      image link here
                     </p>
+                    {logoDrop.isResolvingUrl && (
+                      <div className="mt-2 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                        <Loader2 className="size-3.5 animate-spin" /> Checking
+                        image link...
+                      </div>
+                    )}
                     {logoUploading && (
                       <div className="mt-2 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                         <Loader2 className="size-3.5 animate-spin" />{" "}
@@ -666,7 +706,15 @@ export default function PartnerEditPage() {
               </div>
 
               {/* Photo gallery */}
-              <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div
+                ref={photoDrop.ref}
+                {...photoDrop.dropZoneProps}
+                className={cn(
+                  "rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900",
+                  photoDrop.isDragging &&
+                    "border-dashed border-blue-500 bg-blue-50 dark:bg-blue-950/30",
+                )}
+              >
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white">
                     <ImageIcon className="size-5" /> Photo Gallery (
@@ -718,7 +766,8 @@ export default function PartnerEditPage() {
                       No photos uploaded yet
                     </p>
                     <p className="mt-2 text-sm text-slate-400 dark:text-slate-500">
-                      Add up to 4 photos to showcase your partner
+                      Add up to 4 photos to showcase your partner — drop or
+                      paste an image or image link here
                     </p>
                   </div>
                 )}
@@ -731,6 +780,12 @@ export default function PartnerEditPage() {
                   onChange={handlePhotoUpload}
                   disabled={photoUploading || photos.length >= 4}
                 />
+                {photoDrop.isResolvingUrl && (
+                  <div className="mt-4 flex items-center justify-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                    <Loader2 className="size-4 animate-spin" /> Checking image
+                    link...
+                  </div>
+                )}
                 {photoUploading && (
                   <div className="mt-4 flex items-center justify-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                     <Loader2 className="size-4 animate-spin" /> Uploading

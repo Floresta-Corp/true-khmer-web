@@ -6,6 +6,7 @@ import {
   useNavigation,
 } from "react-router";
 import { toast } from "sonner";
+import { useImageDropPaste } from "~/hooks/use-image-drop-paste";
 import { accountSettingsLoader } from "../services/account-settings.loader";
 import { accountSettingsAction } from "../services/account-settings.action";
 import { AccountSettingsProfileCard } from "../components/account-settings-profile-card";
@@ -40,12 +41,19 @@ export default function AccountSettingsRoute() {
 
   const handleChangeAvatar = () => fileInputRef.current?.click();
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.currentTarget.files?.[0] ?? null;
-    if (!file) return;
+  const [avatarUrl, setAvatarUrl] = useState("");
+
+  const selectAvatarFile = (file: File, fromInput: boolean) => {
     if (!file.type.startsWith("image/")) {
       toast.error("Please select an image file.");
       return;
+    }
+    // The file travels with the native form submission, so a dropped or
+    // pasted file has to be placed into the file input.
+    if (!fromInput && fileInputRef.current) {
+      const transfer = new DataTransfer();
+      transfer.items.add(file);
+      fileInputRef.current.files = transfer.files;
     }
     if (avatarObjectUrlRef.current) {
       URL.revokeObjectURL(avatarObjectUrlRef.current);
@@ -53,7 +61,30 @@ export default function AccountSettingsRoute() {
     const objectUrl = URL.createObjectURL(file);
     avatarObjectUrlRef.current = objectUrl;
     setAvatarPreview(objectUrl);
+    setAvatarUrl("");
   };
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.currentTarget.files?.[0] ?? null;
+    if (file) selectAvatarFile(file, true);
+  };
+
+  // A pasted/dropped link is already hosted: it is submitted as `avatarUrl`
+  // and saved directly, without the presign upload.
+  const selectAvatarUrl = (url: string) => {
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (avatarObjectUrlRef.current) {
+      URL.revokeObjectURL(avatarObjectUrlRef.current);
+      avatarObjectUrlRef.current = null;
+    }
+    setAvatarPreview(url);
+    setAvatarUrl(url);
+  };
+
+  const avatarDrop = useImageDropPaste<HTMLButtonElement>({
+    onFiles: ([file]) => selectAvatarFile(file, false),
+    onUrl: selectAvatarUrl,
+  });
 
   useEffect(() => {
     return () => {
@@ -109,6 +140,7 @@ export default function AccountSettingsRoute() {
             fullName={fullName}
             avatarPreview={avatarPreview}
             onChangeAvatar={handleChangeAvatar}
+            avatarDrop={avatarDrop}
           />
         </div>
         <div className="lg:col-span-2">
@@ -118,6 +150,7 @@ export default function AccountSettingsRoute() {
             submitIntent={submitIntent}
             fileInputRef={fileInputRef}
             onFileChange={handleFileChange}
+            avatarUrl={avatarUrl}
             hasAvatarChange={avatarPreview !== undefined}
             passwordResetSignal={passwordChangeCount}
             profileFieldErrors={profileFieldErrors}

@@ -150,12 +150,15 @@ export default function LaunchpadPostPage() {
     if (!store.cityId.trim()) errors.cityId = "City is required.";
     if (!store.deadline.trim()) errors.deadline = "Deadline is required.";
 
-    const coverFileError = getImageFileError(
-      store.coverFile,
-      COVER_MAX_FILE_SIZE,
-      "Project cover",
-      { required: true },
-    );
+    // A pasted image link stands in for the cover file.
+    const coverFileError = store.coverUrl
+      ? null
+      : getImageFileError(
+          store.coverFile,
+          COVER_MAX_FILE_SIZE,
+          "Project cover",
+          { required: true },
+        );
     if (coverFileError) errors.coverFile = coverFileError;
 
     setDetailErrors(errors);
@@ -187,12 +190,15 @@ export default function LaunchpadPostPage() {
     if (!store.deadline.trim())
       detailValidationErrors.deadline = "Deadline is required.";
 
-    const coverFileError = getImageFileError(
-      store.coverFile,
-      COVER_MAX_FILE_SIZE,
-      "Project cover",
-      { required: true },
-    );
+    // A pasted image link stands in for the cover file.
+    const coverFileError = store.coverUrl
+      ? null
+      : getImageFileError(
+          store.coverFile,
+          COVER_MAX_FILE_SIZE,
+          "Project cover",
+          { required: true },
+        );
     if (coverFileError) {
       detailValidationErrors.coverFile = coverFileError;
     }
@@ -253,6 +259,8 @@ export default function LaunchpadPostPage() {
 
     if (store.coverFile) {
       multipart.append("coverFile", store.coverFile);
+    } else if (store.coverUrl) {
+      multipart.append("coverUrl", store.coverUrl);
     }
 
     for (const file of store.materialDocuments) {
@@ -380,6 +388,7 @@ export default function LaunchpadPostPage() {
                   cityId={store.cityId}
                   deadline={store.deadline}
                   coverFile={store.coverFile}
+                  coverUrl={store.coverUrl}
                   description={store.description}
                   categories={
                     categories?.map((item) => ({
@@ -399,6 +408,7 @@ export default function LaunchpadPostPage() {
                   onCityChange={(value) => store.setCityId(value)}
                   onDeadlineChange={(value) => store.setDeadline(value)}
                   onCoverChange={(file) => store.setCoverFile(file)}
+                  onCoverUrlChange={(url) => store.setCoverUrl(url)}
                   onDescriptionChange={(value) => store.setDescription(value)}
                   onSaveClicked={onSaveClicked}
                   onCancelClicked={onCancelClicked}
