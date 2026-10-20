@@ -7,14 +7,30 @@
  * the API whenever it is available.
  */
 export const MEMBER_TIERS = [
-  { slug: "dam", name: "Dam" },
-  { slug: "doh", name: "Doh" },
-  { slug: "loas_sleuk", name: "Loas Sleuk" },
-  { slug: "phka_reek", name: "Phka Reek" },
-  { slug: "preksa", name: "Preksa" },
+  { slug: "dam", name: "Dam", khmerName: "ដាំ", meaning: "To plant" },
+  { slug: "doh", name: "Doh", khmerName: "ដុះ", meaning: "To sprout" },
+  {
+    slug: "loas_sleuk",
+    name: "Loas Sleuk",
+    khmerName: "លាស់ស្លឹក",
+    meaning: "New leaves",
+  },
+  {
+    slug: "phka_reek",
+    name: "Phka Reek",
+    khmerName: "ផ្ការីក",
+    meaning: "In bloom",
+  },
+  {
+    slug: "preksa",
+    name: "Preksa",
+    khmerName: "ព្រឹក្សា",
+    meaning: "The great tree",
+  },
 ] as const;
 
-export type MemberTierSlug = (typeof MEMBER_TIERS)[number]["slug"];
+export type MemberTier = (typeof MEMBER_TIERS)[number];
+export type MemberTierSlug = MemberTier["slug"];
 
 /** Tier every member starts on right after signing up. */
 export const STARTING_MEMBER_TIER = MEMBER_TIERS[0];

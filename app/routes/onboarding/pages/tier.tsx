@@ -48,7 +48,8 @@ export function meta() {
 
 export default function OnboardingTierPage() {
   const actionData = useActionData<typeof action>();
-  const { tierName, nextTierName, totalPoints } = useOnboardingTierProgress();
+  const { tierName, tier, nextTierName, totalPoints } =
+    useOnboardingTierProgress();
 
   return (
     <OnboardingPageShell
@@ -77,9 +78,13 @@ export default function OnboardingTierPage() {
           }
           description={
             <>
-              Every True Khmer member starts at{" "}
-              <span className="font-bold">{tierName}</span> but there are
-              greater ranks to earn. Your actions shape how fast you rise.
+              Every True Khmer member starts at the{" "}
+              <span className="font-bold">
+                {tierName} ({tier.khmerName})
+              </span>{" "}
+              tier, &ldquo;{tier.meaning.toLowerCase()}&rdquo; in Khmer, but
+              there are greater tiers to earn. Your actions shape how fast you
+              rise.
             </>
           }
         />
@@ -87,6 +92,7 @@ export default function OnboardingTierPage() {
         <div className="tk-fade-up-1">
           <OnboardingCurrentTierCard
             tierName={tierName}
+            tier={tier}
             nextTierName={nextTierName}
             totalPoints={totalPoints}
           />

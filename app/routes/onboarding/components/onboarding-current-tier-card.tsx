@@ -1,14 +1,20 @@
 import { Landmark, Sprout, TrendingDown } from "lucide-react";
-import { MEMBER_TIERS, STARTING_MEMBER_TIER } from "~/lib/tiers";
+import {
+  MEMBER_TIERS,
+  STARTING_MEMBER_TIER,
+  type MemberTier,
+} from "~/lib/tiers";
 
 type OnboardingCurrentTierCardProps = {
   tierName?: string;
+  tier?: MemberTier;
   nextTierName?: string | null;
   totalPoints?: number;
 };
 
 export function OnboardingCurrentTierCard({
   tierName = STARTING_MEMBER_TIER.name,
+  tier = STARTING_MEMBER_TIER,
   nextTierName = MEMBER_TIERS[1].name,
   totalPoints = 0,
 }: OnboardingCurrentTierCardProps) {
@@ -23,14 +29,22 @@ export function OnboardingCurrentTierCard({
             Your Current Tier
           </p>
           <p className="text-center text-xl leading-7 font-bold text-[#2F6FE4] sm:text-2xl sm:leading-9">
-            {tierName}
+            {tierName} Tier
+          </p>
+          {/* Tier names are Khmer words; the script and meaning make them
+              readable to members who don't speak Khmer. */}
+          <p className="text-center text-xs leading-5 font-medium text-[#48566A] sm:text-sm">
+            {tier.khmerName} · {tier.meaning}
           </p>
         </div>
 
         <p className="max-w-sm text-center text-xs leading-4 font-normal text-[#111111] sm:text-sm sm:leading-5">
-          You are a citizen of the True Khmer community. Participate, help
+          You are a member of the True Khmer community. Participate, help
           others, and contribute to projects to earn your way
-          {nextTierName ? ` to ${nextTierName} and beyond` : " to the top"}.
+          {nextTierName
+            ? ` to the ${nextTierName} tier and beyond`
+            : " to the top"}
+          .
         </p>
 
         <div className="inline-flex flex-wrap items-center justify-center gap-2">
