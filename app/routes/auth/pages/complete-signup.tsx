@@ -126,8 +126,7 @@ export default function CompleteSignUpPage() {
     lastName.trim() !== "" &&
     contactNumber.trim() !== "" &&
     occupation.trim() !== "" &&
-    gender.trim() !== "" &&
-    memberAgreementAccepted;
+    gender.trim() !== "";
   const displayName = useMemo(() => {
     const name =
       readString(user.name) ||

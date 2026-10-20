@@ -34,12 +34,7 @@ export const registerSchema = z
       }
     }),
     occupation: z.string().trim().min(1, "Occupation is required"),
-    agreeToDirectory: z
-      .boolean()
-      .refine(
-        (value) => value,
-        "You must agree to appear on the member directory",
-      ),
+    agreeToDirectory: z.boolean(),
   })
   .refine((values) => values.password === values.confirmPassword, {
     message: "Passwords do not match",

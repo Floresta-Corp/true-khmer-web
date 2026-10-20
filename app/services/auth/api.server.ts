@@ -122,7 +122,7 @@ export type CompleteSignUpRequest = {
   gender: string;
   occupation: string;
   phone: PhoneInput;
-  memberAgreementAccepted: true;
+  memberAgreementAccepted: boolean;
 };
 
 export type CompleteSignUpResponse = {
