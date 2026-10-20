@@ -380,7 +380,7 @@ export default function AskQuestionDialog({
             {isEditing ? "Edit question" : "Ask question"}
           </DialogTitle>
           <DialogDescription className="text-sm leading-5 font-normal text-[#6a7282]">
-            Share knowledge with the community
+            Ask the community and get helpful answers.
           </DialogDescription>
         </div>
 
