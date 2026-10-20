@@ -4,7 +4,12 @@ import {
   GetPostedContent,
   GetProfileCertificates,
 } from "~/api/profile/profile.server";
-import type { GetPostedContentResponse } from "~/features/profile/types";
+import {
+  ProfileRestrictedCodeSchema,
+  type GetPostedContentResponse,
+  type ProfileRestrictedCode,
+} from "~/features/profile/types";
+import { ProtectedApiError } from "~/lib/server/api-client.server";
 import type { ProfileCertificate } from "~/features/education/types";
 import {
   collectCertificates,
@@ -85,6 +90,56 @@ function normalizePosted(
 
 export type NormalizedPosted = ReturnType<typeof normalizePosted>;
 
+function emptyPosted(sourceType: SourceType): NormalizedPosted {
+  return {
+    sourceType,
+    questions: [],
+    opportunities: [],
+    launchpads: [],
+    nextCursor: null,
+    hasMore: false,
+  } as NormalizedPosted;
+}
+
+/**
+ * The API answers 403 with a visibility code when the member's Profile
+ * Visibility settings don't include this viewer. Anything else is a real
+ * failure and is rethrown.
+ */
+function readRestrictedCode(error: unknown): ProfileRestrictedCode | null {
+  if (!(error instanceof ProtectedApiError) || error.status !== 403) {
+    return null;
+  }
+  const parsed = ProfileRestrictedCodeSchema.safeParse(error.code);
+  return parsed.success ? parsed.data : null;
+}
+
+/** Posted items for a tab; hidden contributions come back empty, not as an error. */
+async function loadPosted(
+  request: Request,
+  userId: string,
+  sourceType: SourceType,
+  cursor?: string,
+) {
+  try {
+    const result = await GetPostedContent(
+      request,
+      userId,
+      sourceType,
+      cursor,
+      10,
+    );
+    return {
+      posted: normalizePosted(result.data, sourceType),
+      restricted: null,
+    };
+  } catch (error) {
+    const restricted = readRestrictedCode(error);
+    if (!restricted) throw error;
+    return { posted: emptyPosted(sourceType), restricted };
+  }
+}
+
 async function loadSharedCertificates(
   request: Request,
   userId: string,
@@ -124,57 +179,49 @@ export async function profileLoader({ request, params }: Route.LoaderArgs) {
 
   try {
     if (sourceTypeResult.success && isClientFetch) {
-      const result = await GetPostedContent(
+      const { posted, restricted } = await loadPosted(
         request,
         idResult.data,
         sourceTypeResult.data,
         cursorResult.data,
-        10,
       );
       return {
         kind: "posted" as const,
-        posted: normalizePosted(result.data, sourceTypeResult.data),
+        posted,
+        restricted,
       };
     }
 
-    if (sourceTypeResult.success) {
-      const [profileResult, postedResult, certificates] = await Promise.all([
-        GetProfileById(request, idResult.data),
-        GetPostedContent(
-          request,
-          idResult.data,
-          sourceTypeResult.data,
-          undefined,
-          10,
-        ),
-        loadSharedCertificates(request, idResult.data),
-      ]);
-      return {
-        kind: "profile" as const,
-        profile: profileResult.data.profile,
-        certificates,
-        reportReasons,
-        initialPosted: normalizePosted(
-          postedResult.data,
-          sourceTypeResult.data,
-        ),
-      };
-    }
-
-    const [profileResult, certificates] = await Promise.all([
+    const [profileResult, postedResult, certificates] = await Promise.all([
       GetProfileById(request, idResult.data),
+      sourceTypeResult.success
+        ? loadPosted(request, idResult.data, sourceTypeResult.data)
+        : Promise.resolve(null),
       loadSharedCertificates(request, idResult.data),
     ]);
+
     return {
       kind: "profile" as const,
       profile: profileResult.data.profile,
+      access: profileResult.data.access,
       certificates,
       reportReasons,
+      ...(postedResult ? { initialPosted: postedResult.posted } : {}),
     };
-  } catch {
+  } catch (error) {
+    const restricted = readRestrictedCode(error);
+    if (restricted) {
+      return {
+        kind: "restricted" as const,
+        code: restricted,
+        profileId: idResult.data,
+      };
+    }
+
     return {
       kind: "profile" as const,
       profile: null,
+      access: null,
       certificates: [],
       reportReasons: null,
     };

@@ -1,4 +1,14 @@
 import { apiRequestWithOptionalSession } from "~/lib/server/api-client.server";
+
+/**
+ * Profile reads depend on the owner's visibility settings, which can change at
+ * any moment, so they are never served from a cache.
+ */
+const FRESH = {
+  method: "GET",
+  cache: "no-store",
+  headers: { "Cache-Control": "no-cache" },
+} as const;
 import type {
   GetPostedContentResponse,
   GetProfileByIdResponse,
@@ -9,9 +19,7 @@ export async function GetProfileById(request: Request, id: string) {
   return await apiRequestWithOptionalSession<GetProfileByIdResponse>(
     request,
     `/profile/${encodeURIComponent(id)}`,
-    {
-      method: "GET",
-    },
+    FRESH,
   );
 }
 
@@ -28,7 +36,7 @@ export async function GetProfileCertificates(
   return await apiRequestWithOptionalSession<ListCertificatesResponse>(
     request,
     `/profile/${encodeURIComponent(userId)}/certificates${suffix}`,
-    { method: "GET" },
+    FRESH,
   );
 }
 
@@ -45,8 +53,6 @@ export async function GetPostedContent(
   return await apiRequestWithOptionalSession<GetPostedContentResponse>(
     request,
     `/profile/${encodeURIComponent(userId)}/posted?${params}`,
-    {
-      method: "GET",
-    },
+    FRESH,
   );
 }

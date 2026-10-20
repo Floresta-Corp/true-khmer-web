@@ -7,7 +7,9 @@ import {
 import type { profileLoader } from "../../services/profile.loader";
 import { motion, useReducedMotion } from "motion/react";
 import BackToButton from "~/components/back-to-button";
-import ProfileAboutCard from "../card/profile-about-card";
+import ProfileAboutCard, {
+  hasContactDetails,
+} from "../card/profile-about-card";
 import ProfileHeaderCard from "../card/profile-header-card";
 import { ProfileCertificatesCard } from "../card/profile-certificates-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
@@ -19,6 +21,11 @@ import LaunchpadProjectCard from "~/features/launchpad/components/card/launchpad
 import LaunchpadProjectCardSkeleton from "~/features/launchpad/components/card/launchpad-project-card-skeleton";
 import { InfiniteScrollTrigger } from "~/components/infinite-scroll-trigger";
 import { usePostedContent } from "../use-posted-content";
+import { useRefetchOnFocus } from "../use-refetch-on-focus";
+import {
+  ProfileRestrictedState,
+  ProfileSectionHidden,
+} from "../profile-restricted-state";
 
 const containerVariants = {
   hidden: {},
@@ -38,6 +45,7 @@ export default function ProfileDetailPage() {
   const params = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  useRefetchOnFocus();
 
   const initialPosted =
     data.kind === "profile" && "initialPosted" in data
@@ -58,7 +66,7 @@ export default function ProfileDetailPage() {
     isLoadingMore,
     handleTabChange,
     handleLoadMore,
-  } = usePostedContent(params.id, initialPosted);
+  } = usePostedContent(params.id, initialPosted, data);
 
   const allowedTabs = ["forum", "volunteer", "project"] as const;
   const urlSourceType = searchParams.get("sourceType");
@@ -69,8 +77,23 @@ export default function ProfileDetailPage() {
       : "about";
 
   const profile = data.kind === "profile" ? data.profile : null;
+  const access = data.kind === "profile" ? data.access : null;
   const certificates = data.kind === "profile" ? data.certificates : [];
   const prefersReducedMotion = useReducedMotion();
+
+  // Contributions default to visible when talking to an older API that
+  // doesn't send `access` yet.
+  const contributionsVisible = access?.contributions ?? true;
+  const isSignedIn = access ? access.viewer !== "anonymous" : false;
+  const tabCount = (count: number | undefined) =>
+    contributionsVisible ? ` (${count ?? 0})` : "";
+  const hiddenContributions = (
+    <ProfileSectionHidden isSignedIn={isSignedIn} className="col-span-full" />
+  );
+
+  if (data.kind === "restricted") {
+    return <ProfileRestrictedState code={data.code} />;
+  }
 
   if (!profile) {
     return (
@@ -120,23 +143,26 @@ export default function ProfileDetailPage() {
                 About
               </TabsTrigger>
               <TabsTrigger className={TAB_TRIGGER_CLASS} value="forum">
-                Forum ({profile.postedCounts?.forum ?? 0})
+                Forum{tabCount(profile.postedCounts?.forum)}
               </TabsTrigger>
               <TabsTrigger className={TAB_TRIGGER_CLASS} value="volunteer">
-                Volunteer ({profile.postedCounts?.volunteer ?? 0})
+                Volunteer{tabCount(profile.postedCounts?.volunteer)}
               </TabsTrigger>
               <TabsTrigger className={TAB_TRIGGER_CLASS} value="project">
-                Launchpad ({profile.postedCounts?.project ?? 0})
+                Launchpad{tabCount(profile.postedCounts?.project)}
               </TabsTrigger>
             </TabsList>
           </div>
 
           <TabsContent value="about">
             <div className="space-y-6">
-              {profile.profile.bio || profile.skills.length > 0 ? (
+              {profile.profile.bio ||
+              profile.skills.length > 0 ||
+              hasContactDetails(profile.user) ? (
                 <ProfileAboutCard
                   about={profile.profile.bio ?? ""}
                   skills={profile.skills}
+                  contact={profile.user}
                 />
               ) : (
                 <div className="flex flex-col items-center justify-center py-16 text-gray-400">
@@ -160,7 +186,9 @@ export default function ProfileDetailPage() {
 
           <TabsContent value="forum">
             <div className="space-y-4">
-              {isTabLoading ? (
+              {!contributionsVisible ? (
+                hiddenContributions
+              ) : isTabLoading ? (
                 Array.from({ length: 3 }).map((_, i) => (
                   <QuestionCardSkeleton key={i} />
                 ))
@@ -191,7 +219,9 @@ export default function ProfileDetailPage() {
 
           <TabsContent value="volunteer">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {isTabLoading ? (
+              {!contributionsVisible ? (
+                hiddenContributions
+              ) : isTabLoading ? (
                 Array.from({ length: 3 }).map((_, i) => (
                   <OpportunityCardSkeleton key={i} />
                 ))
@@ -221,7 +251,9 @@ export default function ProfileDetailPage() {
 
           <TabsContent value="project">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {isTabLoading ? (
+              {!contributionsVisible ? (
+                hiddenContributions
+              ) : isTabLoading ? (
                 Array.from({ length: 3 }).map((_, i) => (
                   <LaunchpadProjectCardSkeleton
                     key={i}
