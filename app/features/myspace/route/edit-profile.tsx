@@ -1188,17 +1188,20 @@ export default function EditProfile() {
                             delay: index * 0.05,
                           }}
                           whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
                         >
                           <Badge
                             variant="outline"
-                            className="flex h-10 cursor-pointer items-center gap-2 text-[13px] hover:bg-gray-100"
-                            onClick={() => handleRemoveSkill(skill)}
+                            className="flex h-10 items-center gap-2 text-[13px]"
                           >
                             {skill}
-                            <span className="ml-1">
+                            <button
+                              type="button"
+                              aria-label={`Remove ${skill}`}
+                              className="ml-1 cursor-pointer rounded-full p-0.5 hover:bg-gray-200"
+                              onClick={() => handleRemoveSkill(skill)}
+                            >
                               <X size={12} />
-                            </span>
+                            </button>
                           </Badge>
                         </motion.div>
                       ))}
