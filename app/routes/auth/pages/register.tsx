@@ -5,7 +5,7 @@ import {
   useState,
   type ComponentProps,
 } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -30,6 +30,7 @@ import {
   AuthPageShell,
   RegisterBrandPanel,
 } from "~/routes/auth/components/page-shell";
+import { OccupationInput } from "~/routes/auth/components/occupation-input";
 import { PasswordField } from "~/routes/auth/components/password-field";
 import { PasswordRequirements } from "~/routes/auth/components/password-requirements";
 import {
@@ -83,6 +84,11 @@ type RegisterTextFieldProps = Omit<
 
 const registerInputClasses =
   "h-12 short:h-11 rounded-xl border-[#C3C6D6] bg-white px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-[#434654]/50 focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20";
+
+// Matches registerInputClasses (size, type scale, colors, focus ring) so the
+// dropdowns read as the same control family as the text inputs.
+const registerSelectTriggerClasses =
+  "h-12 short:h-11 rounded-xl border-[#C3C6D6] bg-white px-4 py-3.5 text-base md:text-sm font-normal text-[#111827] shadow-none focus:border-[#2F6FE4] focus:ring-3 focus:ring-[#2F6FE4]/20 focus:ring-offset-0 data-[placeholder]:[&>span]:text-[#434654]/50 [&>svg]:text-[#899CC9] [&>svg]:opacity-100";
 
 const countryNameFormatter =
   typeof Intl !== "undefined" && "DisplayNames" in Intl
@@ -167,9 +173,26 @@ export default function RegisterPage() {
   const saveDraft = useRegisterDraftStore((state) => state.saveDraft);
   const clearDraft = useRegisterDraftStore((state) => state.clearDraft);
 
-  const formError = actionData?.errors?.form;
-  const serverEmailError =
-    actionData?.errors?.email !== formError ? actionData?.errors?.email : null;
+  // Server errors describe the values that were submitted, so they are
+  // dropped once the member edits what they point at instead of lingering
+  // (and re-toasting) until the next submit. The set starts over with each
+  // new action result.
+  const [editedSinceSubmit, setEditedSinceSubmit] = useState<
+    ReadonlySet<string>
+  >(() => new Set());
+  const serverError = (
+    key: keyof NonNullable<RegisterActionData["errors"]>,
+    ...fields: (keyof RegisterFormValues)[]
+  ) =>
+    fields.some((field) => editedSinceSubmit.has(field))
+      ? undefined
+      : actionData?.errors?.[key];
+
+  // The banner speaks for the whole submission, so any edit clears it.
+  const formError =
+    editedSinceSubmit.size > 0 ? undefined : actionData?.errors?.form;
+  const emailError = serverError("email", "email");
+  const serverEmailError = emailError !== formError ? emailError : null;
   const waitlistPrefill = waitlistContext?.prefill;
   const appliedWaitlistId = waitlistContext?.waitlistId ?? "";
   const hasWaitlistInvite = !!(
@@ -208,6 +231,7 @@ export default function RegisterPage() {
 
   const {
     register,
+    control,
     handleSubmit,
     watch,
     setValue,
@@ -247,6 +271,18 @@ export default function RegisterPage() {
       confirmPassword: "",
     });
   }, [defaultValues, hasWaitlistInvite, reset]);
+
+  useEffect(() => {
+    setEditedSinceSubmit(new Set());
+    const subscription = watch((_, { name }) => {
+      if (!name) return;
+      setEditedSinceSubmit((previous) =>
+        previous.has(name) ? previous : new Set(previous).add(name),
+      );
+    });
+
+    return () => subscription.unsubscribe();
+  }, [actionData, watch]);
 
   // Mirror every edit into the store, minus the passwords.
   useEffect(() => {
@@ -363,7 +399,10 @@ export default function RegisterPage() {
               placeholder="Socheata"
               autoComplete="given-name"
               required
-              error={errors.firstName?.message ?? actionData?.errors?.firstName}
+              error={
+                errors.firstName?.message ??
+                serverError("firstName", "firstName")
+              }
               {...register("firstName")}
             />
             <RegisterTextField
@@ -372,7 +411,9 @@ export default function RegisterPage() {
               placeholder="Mean"
               autoComplete="family-name"
               required
-              error={errors.lastName?.message ?? actionData?.errors?.lastName}
+              error={
+                errors.lastName?.message ?? serverError("lastName", "lastName")
+              }
               {...register("lastName")}
             />
           </div>
@@ -400,7 +441,9 @@ export default function RegisterPage() {
               </>
             }
             placeholder="••••••••"
-            error={errors.password?.message ?? actionData?.errors?.password}
+            error={
+              errors.password?.message ?? serverError("password", "password")
+            }
             labelClassName="text-sm font-semibold leading-5 text-zinc-900"
             inputClassName={cn(registerInputClasses, "pr-11")}
             toggleClassName="right-2 h-8 w-8 text-[#899CC9] hover:text-[#6F86B3]"
@@ -430,7 +473,9 @@ export default function RegisterPage() {
             <RegisterLabel htmlFor="contactNumber" required>
               Contact number
             </RegisterLabel>
-            <div className="flex h-12 overflow-hidden rounded-lg bg-white short:h-11">
+            {/* The wrapper owns the border and focus ring so the code picker and
+                number read as one field; the children only draw the divider. */}
+            <div className="flex h-12 overflow-hidden rounded-xl border border-[#C3C6D6] bg-white transition-colors focus-within:border-[#2F6FE4] focus-within:ring-3 focus-within:ring-[#2F6FE4]/20 short:h-11">
               <Select
                 value={phoneCountry}
                 onValueChange={(value) =>
@@ -442,7 +487,10 @@ export default function RegisterPage() {
               >
                 <SelectTrigger
                   aria-label="Country calling code"
-                  className="h-full w-28 rounded-l-lg rounded-r-none border-r-0 border-[#C3C6D6] bg-slate-50 px-3 text-sm leading-5 font-medium text-[#434654] shadow-none focus:ring-[#2F6FE4]/20 focus:ring-offset-0 xs:w-34"
+                  className={cn(
+                    registerSelectTriggerClasses,
+                    "h-full w-28 shrink-0 rounded-none border-0 border-r bg-slate-50 focus:border-[#C3C6D6] focus:ring-0 xs:w-34",
+                  )}
                 >
                   <span className="truncate">
                     {selectedPhoneCountry.dialCode}
@@ -463,7 +511,10 @@ export default function RegisterPage() {
                 placeholder="12 345 678"
                 inputMode="numeric"
                 autoComplete="tel-national"
-                className="h-full rounded-l-none rounded-r-lg border-[#C3C6D6] px-4 py-3.5 text-base font-normal text-[#111827] placeholder:text-gray-500 focus-visible:border-[#2F6FE4] focus-visible:ring-[#2F6FE4]/20"
+                className={cn(
+                  registerInputClasses,
+                  "h-full rounded-none border-0 bg-transparent focus-visible:ring-0",
+                )}
                 {...contactNumberField}
                 onChange={(event) => {
                   event.target.value = sanitizePhoneNumber(event.target.value);
@@ -471,22 +522,45 @@ export default function RegisterPage() {
                 }}
               />
             </div>
-            {(errors.contactNumber?.message ?? actionData?.errors?.phone) ? (
+            {(errors.contactNumber?.message ??
+            serverError("phone", "phoneCountry", "contactNumber")) ? (
               <p className="text-xs text-red-500">
-                {errors.contactNumber?.message ?? actionData?.errors?.phone}
+                {errors.contactNumber?.message ??
+                  serverError("phone", "phoneCountry", "contactNumber")}
               </p>
             ) : null}
           </div>
 
-          <RegisterTextField
-            id="occupation"
-            label="Occupation"
-            placeholder="Strategist"
-            autoComplete="organization-title"
-            required
-            error={errors.occupation?.message ?? actionData?.errors?.occupation}
-            {...register("occupation")}
-          />
+          <div className="space-y-2">
+            <RegisterLabel htmlFor="occupation" required>
+              Occupation
+            </RegisterLabel>
+            <Controller
+              name="occupation"
+              control={control}
+              render={({ field }) => (
+                <OccupationInput
+                  id="occupation"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  placeholder="Ex: Software Engineer"
+                  ariaInvalid={Boolean(
+                    errors.occupation ??
+                    serverError("occupation", "occupation"),
+                  )}
+                  className={registerInputClasses}
+                />
+              )}
+            />
+            {(errors.occupation?.message ??
+            serverError("occupation", "occupation")) ? (
+              <p className="text-xs text-red-500">
+                {errors.occupation?.message ??
+                  serverError("occupation", "occupation")}
+              </p>
+            ) : null}
+          </div>
 
           <div className="space-y-2 pl-1">
             <RegisterLabel required>Gender</RegisterLabel>
@@ -513,9 +587,9 @@ export default function RegisterPage() {
                 Other
               </Label>
             </RadioGroup>
-            {(errors.gender?.message ?? actionData?.errors?.gender) ? (
+            {(errors.gender?.message ?? serverError("gender", "gender")) ? (
               <p className="text-xs text-red-500">
-                {errors.gender?.message ?? actionData?.errors?.gender}
+                {errors.gender?.message ?? serverError("gender", "gender")}
               </p>
             ) : null}
           </div>
