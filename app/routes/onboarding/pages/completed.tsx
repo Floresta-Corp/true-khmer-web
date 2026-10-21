@@ -42,7 +42,7 @@ export default function OnboardingCompletedPage() {
 
         <p className="tk-fade-up-1 max-w-153.5 text-[20px] leading-7.5 font-medium text-[#65758B]">
           Your profile is live and you&apos;ve already earned{" "}
-          <span className="font-bold text-[#2F6FE4]">10 points</span> for
+          <span className="font-bold text-[#2F6FE4]">50 points</span> for
           setting up. Your journey as a{" "}
           <span className="font-bold">{STARTING_MEMBER_TIER.name}</span> begins
           now.
@@ -57,7 +57,7 @@ export default function OnboardingCompletedPage() {
             <div className="flex min-w-0 flex-1 items-end justify-between gap-3">
               <div className="w-54 text-left">
                 <p className="text-sm leading-5 font-semibold text-black">
-                  10 points earned
+                  50 points earned
                 </p>
                 <p className="text-xs leading-5 font-medium text-[#65758B]">
                   Profile complete
