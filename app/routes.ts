@@ -94,6 +94,10 @@ export default [
 
     layout("layout/myspace-layout.tsx", [
       route("myspace", "features/myspace/route/myspace.tsx"),
+      route(
+        "community-standing",
+        "features/myspace/route/community-standing.tsx",
+      ),
       route("edit-profile", "features/myspace/route/edit-profile.tsx"),
       route("my-applications", "features/myspace/route/my-applications.tsx"),
       route("my-ticket", "features/my-tickets/route/my-tickets.tsx"),

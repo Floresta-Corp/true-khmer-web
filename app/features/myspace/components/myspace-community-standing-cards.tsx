@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Link } from "react-router";
 import { Sparkles, Trophy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Progress } from "~/components/ui/progress";
@@ -57,14 +58,20 @@ export function CommunityStandingCard({
       <CardContent className="p-0">
         <div className="flex items-center justify-between gap-2 text-center @sm:gap-4">
           <StandingStat
+            to="/community-standing?tab=points"
             label="Points"
             value={totalPoints}
             valueClassName="text-[#2563eb]"
           />
           <div className="h-8 w-px bg-[#e2e8f0]" />
-          <StandingStat label="Rank" value={rank ? `#${rank}` : "-"} />
+          <StandingStat
+            to="/community-standing?tab=leaderboard"
+            label="Rank"
+            value={rank ? `#${rank}` : "-"}
+          />
           <div className="h-8 w-px bg-[#e2e8f0]" />
           <StandingStat
+            to="/community-standing?tab=tiers"
             label="Tier"
             value={tier.name.toUpperCase()}
             valueClassName="text-[#ea580c] text-[14px]"
@@ -84,6 +91,7 @@ export function CommunityStandingCard({
           </div>
 
           <Progress
+            animate
             value={progressPercentage}
             className="h-2 bg-[#e8f0ff] [&_[data-slot=progress-indicator]]:bg-blue-500"
           />
@@ -98,18 +106,23 @@ export function CommunityStandingCard({
 }
 
 function StandingStat({
+  to,
   label,
   value,
   valueClassName = "text-[#0f172a]",
   children,
 }: {
+  to: string;
   label: string;
   value: string | number;
   valueClassName?: string;
   children?: ReactNode;
 }) {
   return (
-    <div className="flex flex-1 flex-col items-center gap-1">
+    <Link
+      to={to}
+      className="flex flex-1 flex-col items-center gap-1 rounded-xl py-1 transition-colors hover:bg-[#f1f5f9]"
+    >
       <span className="flex items-center gap-1 text-[10px] font-bold tracking-wider text-[#94a3b8] uppercase">
         {label}
         {children}
@@ -117,6 +130,6 @@ function StandingStat({
       <span className={`text-lg leading-6 font-semibold ${valueClassName}`}>
         {value}
       </span>
-    </div>
+    </Link>
   );
 }
