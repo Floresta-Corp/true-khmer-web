@@ -92,16 +92,22 @@ export function NotificationProvider({ children, enabled = true }: Props) {
             getNotificationEventType(notif),
           );
           const route = getNotificationRoute(notif);
-          showNotificationToast({
-            icon: (
-              <NotificationTypeIcon iconName={iconName} className="size-5" />
-            ),
-            title: notif.title,
-            body: notif.body,
-            imageUrl: notif.imageUrl,
-            accentClassName: NOTIFICATION_ICON_ACCENT_MAP[iconName],
-            onView: route ? () => navigate(route) : undefined,
-          });
+          showNotificationToast(
+            {
+              icon: (
+                <NotificationTypeIcon iconName={iconName} className="size-5" />
+              ),
+              title: notif.title,
+              body: notif.body,
+              imageUrl: notif.imageUrl,
+              accentClassName: NOTIFICATION_ICON_ACCENT_MAP[iconName],
+              onView: route ? () => navigate(route) : undefined,
+            },
+            {
+              isAchievement:
+                notif.type === "points" || notif.type === "achievement",
+            },
+          );
           setUnreadCount((c) => c + 1);
           setRecentNotifications((prev) => [notif, ...prev.slice(0, 9)]);
         } catch {

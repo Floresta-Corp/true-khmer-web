@@ -75,7 +75,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration getKey={getScrollRestorationKey} />
         <Scripts />
-        <Toaster richColors theme="light" position="top-right" closeButton />
+        <Toaster
+          richColors
+          theme="light"
+          position="top-right"
+          closeButton
+          expand
+        />
       </body>
     </html>
   );

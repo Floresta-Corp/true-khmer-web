@@ -82,9 +82,7 @@ export function ProfilePhotoUpload({
             Add a profile photo
           </h2>
           <p className="text-sm leading-5.25 font-normal text-[#1414145C]">
-            Members with photos get 3× more engagement. <br />
-            <span className="font-bold text-[#2F6FE4]">+10 points</span> for
-            completing your profile.
+            Members with photos get 3× more engagement.
           </p>
           <p className="text-xs text-[#1414145C]">
             {drop.isResolvingUrl

@@ -133,7 +133,32 @@ function NotificationToastCard({
   );
 }
 
-export function showNotificationToast(opts: NotificationToastOptions) {
+const ACTION_TOAST_ID_PREFIX = "action-success:";
+let nextActionToastId = 0;
+let lastAchievementCardAt = 0;
+
+/** A success toast for an action that may also earn points or a badge. */
+export function showActionSuccessToast(message: string) {
+  if (Date.now() - lastAchievementCardAt < DEFAULT_DURATION) return;
+  toast.success(message, {
+    id: `${ACTION_TOAST_ID_PREFIX}${nextActionToastId++}`,
+  });
+}
+
+function replaceActionSuccessToasts() {
+  lastAchievementCardAt = Date.now();
+  for (const active of toast.getToasts()) {
+    if (String(active.id).startsWith(ACTION_TOAST_ID_PREFIX)) {
+      toast.dismiss(active.id);
+    }
+  }
+}
+
+export function showNotificationToast(
+  opts: NotificationToastOptions,
+  { isAchievement = false }: { isAchievement?: boolean } = {},
+) {
+  if (isAchievement) replaceActionSuccessToasts();
   const duration = opts.duration ?? DEFAULT_DURATION;
   return toast.custom(
     (id) => (

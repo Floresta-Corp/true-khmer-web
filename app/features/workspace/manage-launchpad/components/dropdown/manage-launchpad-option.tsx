@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useFetcher, useNavigate } from "react-router";
 import { toast } from "sonner";
+import { showActionSuccessToast } from "~/components/notification-toast";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -141,7 +142,8 @@ export default function ManagePostOption({
     wasPostingAction.current = false;
 
     if (fetcher.data.success || fetcher.data.ok) {
-      toast.success("Posting updated successfully.");
+      // Completing a project earns its proposer points, announced by a card.
+      showActionSuccessToast("Posting updated successfully.");
       return;
     }
 

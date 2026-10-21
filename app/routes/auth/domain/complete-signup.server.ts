@@ -61,9 +61,6 @@ export async function action({ request }: ActionFunctionArgs) {
   }
   if (!gender) errors.gender = "Gender is required";
   if (!occupation) errors.occupation = "Occupation is required";
-  if (!memberAgreementAccepted) {
-    errors.memberAgreementAccepted = "Member agreement must be accepted";
-  }
 
   if (Object.keys(errors).length > 0) {
     return respond({ errors: withCompleteSignUpFormError(errors) });
@@ -80,7 +77,7 @@ export async function action({ request }: ActionFunctionArgs) {
           country: phoneCountry,
           nationalNumber: sanitizedPhoneNationalNumber,
         },
-        memberAgreementAccepted: true,
+        memberAgreementAccepted,
       },
       accessToken,
       request,
