@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import { useLoaderData, useNavigate, useFetcher, Form } from "react-router";
 import { toast } from "sonner";
+import { showActionSuccessToast } from "~/components/notification-toast";
 import { useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -152,7 +153,8 @@ export default function EditProfile() {
 
       if (result?.ok) {
         clearDraft();
-        toast.success("Profile updated successfully!");
+        // Completing the profile earns a badge, announced by its own card.
+        showActionSuccessToast("Profile updated successfully!");
         navigate("/myspace");
       } else {
         toast.error(result?.message ?? "Failed to update profile.");
