@@ -43,6 +43,8 @@ const footerColumns = [
     links: [
       { label: "About Us", to: "/about" },
       // { label: "Our Team", to: "/" },
+      { label: "POC", to: "/poc" },
+      { label: "Campaign", to: "/campaign" },
     ],
   },
 ];
