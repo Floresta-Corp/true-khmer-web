@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { SanitizedHtml } from "~/components/sanitized-html";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
@@ -8,21 +7,9 @@ import {
 } from "~/lib/blog-content-sanitize";
 import { AuthorAvatar } from "~/components/author-avatar";
 import { formatDate } from "~/lib/time";
-import { BLOG_PREVIEW_STORAGE_KEY, type BlogPreviewDraft } from "../types";
+import type { BlogPreviewDraft } from "../types";
 
-export function BlogPreview() {
-  const [draft, setDraft] = useState<BlogPreviewDraft | null>(null);
-
-  useEffect(() => {
-    const raw = window.localStorage.getItem(BLOG_PREVIEW_STORAGE_KEY);
-    if (!raw) return;
-    try {
-      setDraft(JSON.parse(raw) as BlogPreviewDraft);
-    } catch {
-      setDraft(null);
-    }
-  }, []);
-
+export function BlogPreview({ draft }: { draft: BlogPreviewDraft | null }) {
   function handleBackToEditor() {
     if (window.opener && !window.opener.closed) {
       window.opener.focus();
