@@ -43,9 +43,11 @@ export default function OnboardingCompletedPage() {
         <p className="tk-fade-up-1 max-w-153.5 text-[20px] leading-7.5 font-medium text-[#65758B]">
           Your profile is live and you&apos;ve already earned{" "}
           <span className="font-bold text-[#2F6FE4]">50 points</span> for
-          setting up. Your journey as a{" "}
-          <span className="font-bold">{STARTING_MEMBER_TIER.name}</span> begins
-          now.
+          setting up. Your journey in the{" "}
+          <span className="font-bold">
+            {STARTING_MEMBER_TIER.name} ({STARTING_MEMBER_TIER.khmerName})
+          </span>{" "}
+          tier begins now.
         </p>
 
         <div className="tk-fade-up-2 w-full max-w-121.5 rounded-2xl border border-[#2F6FE4] bg-[#82CAFF1A] px-5 py-4">
