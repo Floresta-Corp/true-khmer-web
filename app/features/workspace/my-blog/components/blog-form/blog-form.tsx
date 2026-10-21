@@ -10,6 +10,7 @@ import type {
 import { BlogEditorContent } from "../blog-editor/blog-editor-content";
 import { BlogEditorToolbar } from "../blog-editor/blog-editor-toolbar";
 import { BlogFormCover } from "./blog-form-cover";
+import { BlogFormLockedBar } from "./blog-form-locked-bar";
 import { BlogFormMeta } from "./blog-form-meta";
 import { BlogFormTopBar } from "./blog-form-top-bar";
 import { BlogModerationBanner } from "./blog-moderation-banner";
@@ -59,7 +60,11 @@ export function BlogForm({
       <div className="sticky top-0 z-30 -mx-6 space-y-4 bg-[#f8fafc] px-6 py-4 dark:bg-slate-950">
         <BlogFormTopBar form={form} slug={post?.slug} />
 
-        {form.isEditable ? <BlogEditorToolbar {...form.editor} /> : null}
+        {form.isEditable ? (
+          <BlogEditorToolbar {...form.editor} />
+        ) : (
+          <BlogFormLockedBar post={post} />
+        )}
       </div>
 
       <BlogModerationBanner post={post} />
