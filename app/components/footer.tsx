@@ -42,6 +42,7 @@ const footerColumns = [
     heading: "About",
     links: [
       { label: "About Us", to: "/about" },
+      { label: "Contact Us", to: "/support/contact-us" },
       // { label: "Our Team", to: "/" },
     ],
   },

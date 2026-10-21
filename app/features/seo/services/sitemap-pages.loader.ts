@@ -13,6 +13,7 @@ import { renderUrlset, xmlResponse, type SitemapEntry } from "../lib/xml";
 const STATIC_ENTRIES: readonly SitemapEntry[] = [
   { path: "/", changefreq: "daily", priority: 1.0 },
   { path: "/about", changefreq: "monthly", priority: 0.7 },
+  { path: "/support/contact-us", changefreq: "yearly", priority: 0.5 },
   { path: "/khmer-voices", changefreq: "daily", priority: 0.9 },
   { path: "/community", changefreq: "weekly", priority: 0.8 },
   { path: "/education", changefreq: "daily", priority: 0.9 },

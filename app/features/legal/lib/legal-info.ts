@@ -14,6 +14,8 @@ export const LEGAL = {
   jurisdiction: "Kingdom of Cambodia",
   address: "Phnom Penh, Kingdom of Cambodia",
   contact: {
+    /** The one inbox every topic on the Contact us page writes to. */
+    support: "contact@true-khmer.com",
     general: "hello@truekhmer.com",
     privacy: "privacy@truekhmer.com",
     legal: "legal@truekhmer.com",
