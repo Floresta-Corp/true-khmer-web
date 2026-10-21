@@ -24,9 +24,7 @@ interface CommunityStandingLoaderData {
   tiers: Omit<GetTiersResponse, "ok"> | null;
 }
 
-export async function communityStandingLoader({
-  request,
-}: Route.LoaderArgs) {
+export async function communityStandingLoader({ request }: Route.LoaderArgs) {
   const auth = await requireUser(request);
   const searchParams = new URL(request.url).searchParams;
   const tab = StandingTabSchema.catch("points").parse(searchParams.get("tab"));
