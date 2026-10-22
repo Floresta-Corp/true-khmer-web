@@ -1,3 +1,4 @@
+import { Avatar as AvatarPrimitive } from "radix-ui";
 import { cn, resolveImageURL } from "~/lib/utils";
 
 interface StandingAvatarProps {
@@ -21,24 +22,25 @@ export function StandingAvatar({
   avatarKey,
   className,
 }: StandingAvatarProps) {
+  // Radix only swaps the image in once it has loaded, so a broken or
+  // unresolvable avatar URL falls back to the initials instead.
   return (
-    <div
+    <AvatarPrimitive.Root
       className={cn(
-        "size-10 shrink-0 overflow-hidden rounded-full bg-indigo-100",
+        "block size-10 shrink-0 overflow-hidden rounded-full bg-indigo-100",
         className,
       )}
     >
-      {avatarKey ? (
-        <img
+      {avatarKey && (
+        <AvatarPrimitive.Image
           src={resolveImageURL(avatarKey)}
           alt={name}
           className="size-full object-cover"
         />
-      ) : (
-        <div className="flex size-full items-center justify-center text-[0.8em] font-bold text-indigo-500">
-          {initials(name)}
-        </div>
       )}
-    </div>
+      <AvatarPrimitive.Fallback className="flex size-full items-center justify-center text-[0.8em] font-bold text-indigo-500">
+        {initials(name)}
+      </AvatarPrimitive.Fallback>
+    </AvatarPrimitive.Root>
   );
 }

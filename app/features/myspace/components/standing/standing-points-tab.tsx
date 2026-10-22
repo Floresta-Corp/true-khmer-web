@@ -19,14 +19,20 @@ interface StandingPointsTabProps {
   page: number;
 }
 
+// A fixed zone keeps the server render and the hydrated DOM on the same day and
+// month group, whatever timezone the server or the browser is in.
+const TIME_ZONE = "Asia/Phnom_Penh";
+
 const monthFormatter = new Intl.DateTimeFormat("en-GB", {
   month: "long",
   year: "numeric",
+  timeZone: TIME_ZONE,
 });
 
 const dayFormatter = new Intl.DateTimeFormat("en-GB", {
   day: "numeric",
   month: "short",
+  timeZone: TIME_ZONE,
 });
 
 function groupByMonth(transactions: PointsTransaction[]) {
@@ -71,11 +77,10 @@ export function StandingPointsTab({ history, page }: StandingPointsTabProps) {
               {history.breakdown.map((item) => {
                 const style = getActivityStyle(item.actionType);
                 const Icon = style.icon;
-                const share = breakdownTotal
-                  ? Math.round(
-                      (Math.max(item.points, 0) / breakdownTotal) * 100,
-                    )
+                const rawShare = breakdownTotal
+                  ? (Math.max(item.points, 0) / breakdownTotal) * 100
                   : 0;
+                const share = Math.round(rawShare);
                 return (
                   <li
                     key={item.actionType}
@@ -95,7 +100,7 @@ export function StandingPointsTab({ history, page }: StandingPointsTabProps) {
                       </p>
                       <p className="text-xs text-[#64748b] dark:text-slate-400">
                         {item.count} {item.count === 1 ? "time" : "times"} ·{" "}
-                        {share > 0 && share < 1 ? "<1" : share}%
+                        {rawShare > 0 && rawShare < 1 ? "<1" : share}%
                       </p>
                     </div>
                     <span className="shrink-0 text-sm font-bold text-[#0f172a] dark:text-slate-100">

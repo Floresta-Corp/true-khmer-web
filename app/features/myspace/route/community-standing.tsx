@@ -16,8 +16,9 @@ import type { Route } from "./+types/community-standing";
 
 export const loader = communityStandingLoader;
 
-// Every tab's data is already loaded, so switching tabs only rewrites `?tab`;
-// refetch when anything else (the history page) changes.
+// Every tab's data is already loaded, so a navigation that only rewrites `?tab`
+// skips the loader; same-URL revalidation and any other change (the history
+// page) still refetch.
 export function shouldRevalidate({
   currentUrl,
   nextUrl,
@@ -25,9 +26,11 @@ export function shouldRevalidate({
 }: ShouldRevalidateFunctionArgs) {
   const current = new URLSearchParams(currentUrl.search);
   const next = new URLSearchParams(nextUrl.search);
+  const tabChanged = current.get("tab") !== next.get("tab");
   current.delete("tab");
   next.delete("tab");
   if (
+    tabChanged &&
     currentUrl.pathname === nextUrl.pathname &&
     current.toString() === next.toString()
   ) {
