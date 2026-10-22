@@ -30,8 +30,14 @@ function NotificationToastCard({
   actionLabel = "View",
   accentClassName = DEFAULT_ACCENT,
   duration = DEFAULT_DURATION,
-}: NotificationToastOptions & { toastId: string | number }) {
+  onDismiss,
+}: NotificationToastOptions & {
+  toastId: string | number;
+  /** Runs synchronously on X / View, before Sonner's deferred dismissal. */
+  onDismiss?: () => void;
+}) {
   function dismiss() {
+    onDismiss?.();
     toast.dismiss(toastId);
   }
 
@@ -183,6 +189,7 @@ export function createNotificationToastGroup<T>(
           toastId={id}
           {...opts}
           duration={duration}
+          onDismiss={release}
         />
       ),
       { id: group.id, duration, onDismiss: release, onAutoClose: release },
