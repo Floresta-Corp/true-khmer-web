@@ -186,19 +186,23 @@ export function BlogFormCover({ form }: { form: BlogFormState }) {
                 </svg>
               </div>
               <p className="text-[16px] font-medium text-slate-700 dark:text-slate-300">
-                {isUploadingCover
-                  ? "Uploading cover image..."
-                  : coverDrop.isResolvingUrl
-                    ? "Checking image link..."
-                    : "Add a cover photo"}
-              </p>
-              <p className="mt-3 text-[14px] text-slate-500 dark:text-slate-400">
-                Will be cropped to a 3:2 aspect ratio
+                {!isEditable
+                  ? "No cover photo"
+                  : isUploadingCover
+                    ? "Uploading cover image..."
+                    : coverDrop.isResolvingUrl
+                      ? "Checking image link..."
+                      : "Add a cover photo"}
               </p>
               {isEditable ? (
-                <p className="mt-1 text-[14px] text-slate-500 dark:text-slate-400">
-                  Drag and drop, or paste an image or image link here
-                </p>
+                <>
+                  <p className="mt-3 text-[14px] text-slate-500 dark:text-slate-400">
+                    Will be cropped to a 3:2 aspect ratio
+                  </p>
+                  <p className="mt-1 text-[14px] text-slate-500 dark:text-slate-400">
+                    Drag and drop, or paste an image or image link here
+                  </p>
+                </>
               ) : null}
               {isEditable ? (
                 <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
@@ -224,7 +228,13 @@ export function BlogFormCover({ form }: { form: BlogFormState }) {
           )}
         </div>
 
-        {form.showImageCreditEditor || fields.coverImageCaption ? (
+        {!isEditable ? (
+          fields.coverImageCaption ? (
+            <p className="px-4 text-center text-sm text-slate-500 italic dark:text-slate-400">
+              {fields.coverImageCaption}
+            </p>
+          ) : null
+        ) : form.showImageCreditEditor || fields.coverImageCaption ? (
           <div className="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-950/60">
             <p className="text-[11px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
               Image credit
@@ -232,7 +242,6 @@ export function BlogFormCover({ form }: { form: BlogFormState }) {
             <Input
               type="text"
               value={fields.coverImageCaption}
-              disabled={!isEditable}
               onChange={(event) =>
                 setters.setCoverImageCaption(event.target.value)
               }
