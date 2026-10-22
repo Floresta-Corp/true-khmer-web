@@ -24,6 +24,10 @@ import {
 
 export const POINTS_HISTORY_PAGE_SIZE = 20;
 
+const MAX_POINTS_HISTORY_PAGE = Math.floor(
+  Number.MAX_SAFE_INTEGER / POINTS_HISTORY_PAGE_SIZE,
+);
+
 interface CommunityStandingLoaderData {
   tab: StandingTab;
   page: number;
@@ -56,10 +60,13 @@ export async function communityStandingLoader({ request }: Route.LoaderArgs) {
   const tab = StandingTabSchema.catch("points").parse(
     url.searchParams.get("tab"),
   );
-  const page = Math.max(
-    Math.trunc(Number(url.searchParams.get("page"))) || 1,
-    1,
-  );
+  const requestedPage = Math.trunc(Number(url.searchParams.get("page")));
+  // NaN, Infinity and pages whose offset would overflow a safe integer all fall
+  // back to page 1, so the history request always gets a valid offset.
+  const page =
+    requestedPage >= 1 && requestedPage <= MAX_POINTS_HISTORY_PAGE
+      ? requestedPage
+      : 1;
 
   // The guard may have just refreshed the session; read with those tokens, not
   // the stale cookie, so refresh-token rotation cannot reject the reads below.
