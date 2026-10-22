@@ -8,10 +8,14 @@ import {
   type ReactNode,
   type SetStateAction,
 } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, type NavigateFunction } from "react-router";
 import { Bell, Flag, Newspaper, ShieldAlert } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { showNotificationToast } from "~/components/notification-toast";
+import {
+  createNotificationToastGroup,
+  summarizeLines,
+  type NotificationToastOptions,
+} from "~/components/notification-toast";
 import {
   getAdminNotificationRoute,
   resolveAdminNotificationIcon,
@@ -32,6 +36,39 @@ function adminToastAccent(type: string) {
   if (type === "content_report") return "from-rose-500 to-orange-500";
   if (type === "blog") return "from-[#1C97D4] to-[#243D95]";
   return "from-[#2F6FE4] to-[#1E5AD0]";
+}
+
+// One notification keeps its own card; a burst becomes one card listing the
+// titles, styled by their type when they all share one.
+function summarizeAdminNotifications(
+  items: AdminNotification[],
+  navigate: NavigateFunction,
+): NotificationToastOptions {
+  const types = new Set(items.map((notif) => notif.type));
+  const [sharedType] = types;
+  const type = types.size === 1 ? sharedType : "system";
+  const Icon = ADMIN_TOAST_ICON_MAP[resolveAdminNotificationIcon(type)];
+
+  if (items.length === 1) {
+    const [notif] = items;
+    const route = getAdminNotificationRoute(notif);
+    return {
+      icon: <Icon className="size-5" />,
+      title: notif.title,
+      body: notif.body,
+      accentClassName: adminToastAccent(notif.type),
+      onView: route ? () => navigate(route) : undefined,
+    };
+  }
+
+  return {
+    icon: <Icon className="size-5" />,
+    title: `${items.length} new notifications`,
+    body: summarizeLines(items.map((notif) => notif.title)).join(" · "),
+    accentClassName: adminToastAccent(type),
+    onView: () => navigate("/tk-admin/notifications"),
+    actionLabel: "View all",
+  };
 }
 
 export type { AdminNotification } from "~/features/admin/notifications/types";
@@ -89,6 +126,10 @@ export function AdminNotificationProvider({ children, enabled = true }: Props) {
   useEffect(() => {
     if (!enabled) return;
 
+    const pushToast = createNotificationToastGroup<AdminNotification>((items) =>
+      summarizeAdminNotifications(items, navigate),
+    );
+
     function connect() {
       const es = new EventSource("/api/admin/notifications/stream");
       esRef.current = es;
@@ -100,16 +141,7 @@ export function AdminNotificationProvider({ children, enabled = true }: Props) {
           // double-toast or over-count the unread badge.
           if (seenRef.current.has(notif.id)) return;
           seenRef.current.add(notif.id);
-          const iconName = resolveAdminNotificationIcon(notif.type);
-          const Icon = ADMIN_TOAST_ICON_MAP[iconName];
-          const route = getAdminNotificationRoute(notif);
-          showNotificationToast({
-            icon: <Icon className="size-5" />,
-            title: notif.title,
-            body: notif.body,
-            accentClassName: adminToastAccent(notif.type),
-            onView: route ? () => navigate(route) : undefined,
-          });
+          pushToast(notif);
           setUnreadCount((c) => c + 1);
           setRecentNotifications((prev) => [notif, ...prev.slice(0, 9)]);
         } catch {

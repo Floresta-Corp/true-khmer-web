@@ -8,8 +8,12 @@ import {
   type ReactNode,
   type SetStateAction,
 } from "react";
-import { useNavigate } from "react-router";
-import { showNotificationToast } from "~/components/notification-toast";
+import { useNavigate, type NavigateFunction } from "react-router";
+import {
+  createNotificationToastGroup,
+  summarizeLines,
+  type NotificationToastOptions,
+} from "~/components/notification-toast";
 import {
   NOTIFICATION_ICON_ACCENT_MAP,
   NotificationTypeIcon,
@@ -19,9 +23,79 @@ import {
   getNotificationRoute,
   resolveNotificationIcon,
 } from "~/features/notifications/types";
-import type { ApiNotification } from "~/features/notifications/types";
+import type {
+  ApiNotification,
+  NotificationIconName,
+} from "~/features/notifications/types";
 
 export type { ApiNotification } from "~/features/notifications/types";
+
+function isAchievement(notif: ApiNotification) {
+  return notif.type === "points" || notif.type === "achievement";
+}
+
+function toastIcon(iconName: NotificationIconName) {
+  return <NotificationTypeIcon iconName={iconName} className="size-5" />;
+}
+
+// One notification keeps its own card; a burst becomes one card that totals
+// the points and lists everything else.
+function summarizeNotifications(
+  items: ApiNotification[],
+  navigate: NavigateFunction,
+): NotificationToastOptions {
+  if (items.length === 1) {
+    const [notif] = items;
+    const iconName = resolveNotificationIcon(
+      notif.type,
+      getNotificationEventType(notif),
+    );
+    const route = getNotificationRoute(notif);
+    return {
+      icon: toastIcon(iconName),
+      title: notif.title,
+      body: notif.body,
+      imageUrl: notif.imageUrl,
+      accentClassName: NOTIFICATION_ICON_ACCENT_MAP[iconName],
+      onView: route ? () => navigate(route) : undefined,
+    };
+  }
+
+  const pointsItems = items.filter((notif) => notif.type === "points");
+  const others = items.filter((notif) => notif.type !== "points");
+  const points = pointsItems.reduce(
+    (sum, notif) => sum + (Number(notif.data?.points) || 0),
+    0,
+  );
+  const lines = summarizeLines(others.map((notif) => notif.body));
+  if (points > 0) lines.unshift(`+${points} points`);
+
+  const iconName: NotificationIconName = items.every(isAchievement)
+    ? others.length === 0
+      ? "Star"
+      : "Trophy"
+    : "Bell";
+  const title =
+    others.length === 0 && points > 0
+      ? `You earned ${points} points`
+      : `${items.length} new notifications`;
+  const routes = new Set(items.map(getNotificationRoute));
+  const [sharedRoute] = routes;
+  const route =
+    routes.size === 1 && sharedRoute ? sharedRoute : "/notifications";
+
+  return {
+    icon: toastIcon(iconName),
+    title,
+    body:
+      others.length === 0
+        ? `From ${pointsItems.length} activities`
+        : lines.join(" · "),
+    accentClassName: NOTIFICATION_ICON_ACCENT_MAP[iconName],
+    onView: () => navigate(route),
+    actionLabel: route === "/notifications" ? "View all" : "View",
+  };
+}
 
 interface NotificationContextValue {
   unreadCount: number;
@@ -76,6 +150,10 @@ export function NotificationProvider({ children, enabled = true }: Props) {
   useEffect(() => {
     if (!enabled) return;
 
+    const pushToast = createNotificationToastGroup<ApiNotification>((items) =>
+      summarizeNotifications(items, navigate),
+    );
+
     function connect() {
       const es = new EventSource("/api/notifications/stream");
       esRef.current = es;
@@ -87,27 +165,7 @@ export function NotificationProvider({ children, enabled = true }: Props) {
           // double-toast or over-count the unread badge.
           if (seenRef.current.has(notif.id)) return;
           seenRef.current.add(notif.id);
-          const iconName = resolveNotificationIcon(
-            notif.type,
-            getNotificationEventType(notif),
-          );
-          const route = getNotificationRoute(notif);
-          showNotificationToast(
-            {
-              icon: (
-                <NotificationTypeIcon iconName={iconName} className="size-5" />
-              ),
-              title: notif.title,
-              body: notif.body,
-              imageUrl: notif.imageUrl,
-              accentClassName: NOTIFICATION_ICON_ACCENT_MAP[iconName],
-              onView: route ? () => navigate(route) : undefined,
-            },
-            {
-              isAchievement:
-                notif.type === "points" || notif.type === "achievement",
-            },
-          );
+          pushToast(notif, { isAchievement: isAchievement(notif) });
           setUnreadCount((c) => c + 1);
           setRecentNotifications((prev) => [notif, ...prev.slice(0, 9)]);
         } catch {
