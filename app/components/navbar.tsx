@@ -43,6 +43,7 @@ type NavLink = {
 
 const MYSPACE_SECTION_PATHS = [
   "/myspace",
+  "/community-standing",
   "/edit-profile",
   "/my-applications",
   "/my-ticket",
