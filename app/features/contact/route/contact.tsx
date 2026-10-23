@@ -38,7 +38,7 @@ export function headers(_: Route.HeadersArgs) {
 }
 
 export default function Contact() {
-  const { prefill } = useLoaderData<typeof loader>();
+  const { prefill, turnstileSiteKey } = useLoaderData<typeof loader>();
   const messageRef = React.useRef<HTMLElement>(null);
   const [requestedCategory, setRequestedCategory] = React.useState<{
     category: ContactCategory;
@@ -98,6 +98,7 @@ export default function Contact() {
             topics={contactTopics}
             prefill={prefill}
             requestedCategory={requestedCategory}
+            turnstileSiteKey={turnstileSiteKey}
           />
         </section>
 

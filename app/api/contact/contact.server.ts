@@ -8,6 +8,8 @@ export type SendContactMessageBody = {
   subject: string;
   message: string;
   website?: string;
+  /** From the Turnstile widget; the API checks it with Cloudflare. */
+  turnstileToken: string;
 };
 
 export type ContactRateLimit = { limit: number; remaining: number };

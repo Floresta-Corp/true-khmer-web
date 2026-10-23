@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useFetcher } from "react-router";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import { CheckCircle2, Clock, Send } from "lucide-react";
 
 import { FieldError } from "~/components/form/field-error";
@@ -28,6 +29,8 @@ type ContactFormProps = {
    * click, so picking the same topic again still re-selects it.
    */
   requestedCategory?: { category: ContactCategory; nonce: number } | null;
+  /** Public Cloudflare Turnstile key; the API checks the resulting token. */
+  turnstileSiteKey: string;
 };
 
 type Values = Record<ContactFormField, string>;
@@ -90,9 +93,14 @@ function ContactFormInner({
   topics,
   prefill,
   requestedCategory,
+  turnstileSiteKey,
   onSendAnother,
 }: ContactFormProps & { onSendAnother: () => void }) {
   const fetcher = useFetcher<ContactActionResult>();
+  const turnstileRef = React.useRef<TurnstileInstance>(undefined);
+  // Single use: the API spends it on every attempt that reaches it.
+  const [turnstileToken, setTurnstileToken] = React.useState("");
+  const [turnstileFailed, setTurnstileFailed] = React.useState(false);
   const initialValues = React.useMemo<Values>(
     () => ({
       category: prefill.category ?? "",
@@ -132,6 +140,14 @@ function ContactFormInner({
 
   const result = fetcher.data;
   const isSubmitting = fetcher.state !== "idle";
+
+  // A failed send has used up the token; get a fresh one for the retry.
+  React.useEffect(() => {
+    if (fetcher.state === "idle" && result && !result.ok) {
+      setTurnstileToken("");
+      turnstileRef.current?.reset();
+    }
+  }, [fetcher.state, result]);
   const serverErrors =
     result && !result.ok && fetcher.state === "idle"
       ? (result.fieldErrors ?? {})
@@ -154,6 +170,10 @@ function ContactFormInner({
     setTouched(true);
     const found = validate(values);
     setClientErrors(found);
+    if (!turnstileToken) {
+      event.preventDefault();
+      return;
+    }
     if (Object.keys(found).length > 0) {
       event.preventDefault();
       const first = Object.keys(found)[0];
@@ -307,6 +327,35 @@ function ContactFormInner({
         />
       </div>
 
+      <div>
+        <input type="hidden" name="turnstileToken" value={turnstileToken} />
+        <Turnstile
+          ref={turnstileRef}
+          siteKey={turnstileSiteKey}
+          options={{
+            action: "contact",
+            theme: "auto",
+            size: "flexible",
+            responseField: false,
+          }}
+          onSuccess={(token) => {
+            setTurnstileToken(token);
+            setTurnstileFailed(false);
+          }}
+          onExpire={() => setTurnstileToken("")}
+          onError={() => {
+            setTurnstileToken("");
+            setTurnstileFailed(true);
+          }}
+        />
+        {turnstileFailed ? (
+          <p role="alert" className="mt-2 text-sm text-rose-700">
+            We couldn't confirm you're not a bot. Refresh the page and try
+            again.
+          </p>
+        ) : null}
+      </div>
+
       {result && !result.ok && fetcher.state === "idle" ? (
         <div
           role="alert"
@@ -334,7 +383,7 @@ function ContactFormInner({
         </p>
         <Button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !turnstileToken}
           className="h-11 shrink-0 rounded-lg bg-[#2F6FE4] px-6 text-sm font-semibold text-white hover:bg-[#1F62DF]"
         >
           {isSubmitting ? (

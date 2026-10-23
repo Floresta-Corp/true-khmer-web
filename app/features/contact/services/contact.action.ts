@@ -52,6 +52,8 @@ export async function contactAction({ request }: Route.ActionArgs) {
     [...FIELDS, "website"].map((key) => [key, String(formData.get(key) ?? "")]),
   );
 
+  const turnstileToken = String(formData.get("turnstileToken") ?? "");
+
   const parsed = contactFormSchema.safeParse(raw);
   if (!parsed.success) {
     return data<ContactActionResult>(
@@ -64,8 +66,22 @@ export async function contactAction({ request }: Route.ActionArgs) {
     );
   }
 
+  if (!turnstileToken) {
+    return data<ContactActionResult>(
+      {
+        ok: false,
+        error:
+          "Please wait for the verification check to finish, then send again.",
+      },
+      { status: 400 },
+    );
+  }
+
   try {
-    const result = await SendContactMessage(request, parsed.data);
+    const result = await SendContactMessage(request, {
+      ...parsed.data,
+      turnstileToken,
+    });
     return data<ContactActionResult>(
       {
         ok: true,
