@@ -9,6 +9,19 @@ import { isContactCategory } from "../lib/contact-schema";
  */
 const TURNSTILE_TEST_SITE_KEY = "1x00000000000000000000AA";
 
+/**
+ * Null outside development when the key is missing: a test widget there would
+ * only produce tokens the API rejects, so the form says it is unavailable.
+ */
+function turnstileSiteKey(): string | null {
+  const key = getServerEnv("TURNSTILE_SITE_KEY");
+  if (key) return key;
+  if (import.meta.env.DEV) return TURNSTILE_TEST_SITE_KEY;
+
+  console.error("[contact] TURNSTILE_SITE_KEY is not set");
+  return null;
+}
+
 /** Prefills the form for signed-in members and from `?topic=`. */
 export async function contactLoader({ request }: Route.LoaderArgs) {
   const user = await getUser(request).catch(() => null);
@@ -21,7 +34,6 @@ export async function contactLoader({ request }: Route.LoaderArgs) {
       category: isContactCategory(topic) ? topic : null,
     },
     isSignedIn: Boolean(user),
-    turnstileSiteKey:
-      getServerEnv("TURNSTILE_SITE_KEY") ?? TURNSTILE_TEST_SITE_KEY,
+    turnstileSiteKey: turnstileSiteKey(),
   };
 }

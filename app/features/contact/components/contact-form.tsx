@@ -29,8 +29,11 @@ type ContactFormProps = {
    * click, so picking the same topic again still re-selects it.
    */
   requestedCategory?: { category: ContactCategory; nonce: number } | null;
-  /** Public Cloudflare Turnstile key; the API checks the resulting token. */
-  turnstileSiteKey: string;
+  /**
+   * Public Cloudflare Turnstile key; the API checks the resulting token. Null
+   * when the deployment has none, which leaves the form unable to send.
+   */
+  turnstileSiteKey: string | null;
 };
 
 type Values = Record<ContactFormField, string>;
@@ -116,6 +119,10 @@ function ContactFormInner({
     {},
   );
   const [touched, setTouched] = React.useState(false);
+  // Fields changed since the last send, whose server errors are now stale.
+  const [editedSinceSend, setEditedSinceSend] = React.useState<
+    Partial<Record<ContactFormField, true>>
+  >({});
 
   // `?topic=` changes (a topic card's link) preselect the category.
   React.useEffect(() => {
@@ -135,6 +142,7 @@ function ContactFormInner({
         delete next.category;
         return next;
       });
+      setEditedSinceSend((current) => ({ ...current, category: true }));
     }
   }, [requestedCategory]);
 
@@ -148,10 +156,13 @@ function ContactFormInner({
       turnstileRef.current?.reset();
     }
   }, [fetcher.state, result]);
-  const serverErrors =
+  const serverErrors: ContactFieldErrors =
     result && !result.ok && fetcher.state === "idle"
-      ? (result.fieldErrors ?? {})
+      ? { ...result.fieldErrors }
       : {};
+  for (const field of Object.keys(editedSinceSend) as ContactFormField[]) {
+    delete serverErrors[field];
+  }
   const errors: ContactFieldErrors = { ...serverErrors, ...clientErrors };
 
   const validate = (next: Values) => {
@@ -162,6 +173,9 @@ function ContactFormInner({
   const update = (field: ContactFormField, value: string) => {
     const next = { ...values, [field]: value };
     setValues(next);
+    setEditedSinceSend((current) =>
+      current[field] ? current : { ...current, [field]: true },
+    );
     // Re-check as they type once they've tried to submit.
     if (touched) setClientErrors(validate(next));
   };
@@ -178,7 +192,9 @@ function ContactFormInner({
       event.preventDefault();
       const first = Object.keys(found)[0];
       document.querySelector<HTMLElement>(`[data-field="${first}"]`)?.focus();
+      return;
     }
+    setEditedSinceSend({});
   };
 
   if (result?.ok && fetcher.state === "idle") {
@@ -329,26 +345,32 @@ function ContactFormInner({
 
       <div>
         <input type="hidden" name="turnstileToken" value={turnstileToken} />
-        <Turnstile
-          ref={turnstileRef}
-          siteKey={turnstileSiteKey}
-          options={{
-            action: "contact",
-            theme: "auto",
-            size: "flexible",
-            responseField: false,
-          }}
-          onSuccess={(token) => {
-            setTurnstileToken(token);
-            setTurnstileFailed(false);
-          }}
-          onExpire={() => setTurnstileToken("")}
-          onError={() => {
-            setTurnstileToken("");
-            setTurnstileFailed(true);
-          }}
-        />
-        {turnstileFailed ? (
+        {turnstileSiteKey ? (
+          <Turnstile
+            ref={turnstileRef}
+            siteKey={turnstileSiteKey}
+            options={{
+              action: "contact",
+              theme: "auto",
+              size: "flexible",
+              responseField: false,
+            }}
+            onSuccess={(token) => {
+              setTurnstileToken(token);
+              setTurnstileFailed(false);
+            }}
+            onExpire={() => setTurnstileToken("")}
+            onError={() => {
+              setTurnstileToken("");
+              setTurnstileFailed(true);
+            }}
+          />
+        ) : null}
+        {!turnstileSiteKey ? (
+          <p role="alert" className="mt-2 text-sm text-rose-700">
+            The contact form is unavailable right now. Please try again later.
+          </p>
+        ) : turnstileFailed ? (
           <p role="alert" className="mt-2 text-sm text-rose-700">
             We couldn't confirm you're not a bot. Refresh the page and try
             again.

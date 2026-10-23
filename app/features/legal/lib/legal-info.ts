@@ -34,7 +34,7 @@ export const LEGAL = {
  * reader uses to decide whether they need to read it again.
  */
 export const LEGAL_UPDATED = {
-  privacy: "2026-09-11",
+  privacy: "2026-10-23",
   terms: "2026-09-11",
   cookies: "2026-09-11",
 } as const;

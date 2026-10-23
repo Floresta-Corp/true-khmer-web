@@ -21,9 +21,10 @@ export type SendContactMessageResponse = {
 };
 
 /**
- * The visitor's IP as seen by this server. The API counts the daily limit per
- * IP, and since the request to the API comes from this server, the original
- * address has to be passed along.
+ * The visitor's IP as seen by this server, passed along because the request to
+ * the API comes from this server. The API stores it for reference only: these
+ * headers can be spoofed, so the daily limit counts by email and account, never
+ * by IP.
  */
 export function getClientIp(request: Request): string | null {
   const cf = request.headers.get("cf-connecting-ip");

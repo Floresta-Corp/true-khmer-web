@@ -2,6 +2,7 @@ import { data } from "react-router";
 import type { Route } from "project-types/contact/route/+types/contact";
 import { SendContactMessage } from "~/api/contact/contact.server";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
+import { isSameOriginRequest } from "~/lib/server/same-origin.server";
 import {
   contactFieldErrors,
   contactFormSchema,
@@ -47,6 +48,13 @@ function fieldErrorsFromApi(details: unknown): ContactFieldErrors | undefined {
 }
 
 export async function contactAction({ request }: Route.ActionArgs) {
+  if (!isSameOriginRequest(request)) {
+    return data<ContactActionResult>(
+      { ok: false, error: "This form can only be sent from our website." },
+      { status: 403 },
+    );
+  }
+
   const formData = await request.formData();
   const raw = Object.fromEntries(
     [...FIELDS, "website"].map((key) => [key, String(formData.get(key) ?? "")]),
@@ -110,12 +118,21 @@ export async function contactAction({ request }: Route.ActionArgs) {
       }
 
       if (error.status === 400) {
+        const fieldErrors = fieldErrorsFromApi(error.details);
         return data<ContactActionResult>(
-          {
-            ok: false,
-            error: "Please check the highlighted fields.",
-            fieldErrors: fieldErrorsFromApi(error.details),
-          },
+          fieldErrors
+            ? {
+                ok: false,
+                error: "Please check the highlighted fields.",
+                fieldErrors,
+              }
+            : {
+                ok: false,
+                error:
+                  details?.error && details.error !== "Validation failed"
+                    ? details.error
+                    : "We couldn't send your message. Please refresh the page and try again.",
+              },
           { status: 400 },
         );
       }
