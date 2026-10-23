@@ -62,6 +62,11 @@ type RequestOptions<K extends object = JsonObject> = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: K | undefined;
   headers?: Record<string, string>;
+  /**
+   * Fetch cache mode. Use "no-store" for reads that must always reflect the
+   * latest server state (e.g. data gated by another user's privacy settings).
+   */
+  cache?: "no-store";
 };
 
 export type ApiResult<T> = {
@@ -127,6 +132,7 @@ async function fetchWithBearer<K extends object = JsonObject>(
       ...options.headers,
     },
     ...(requestBody ? { body: requestBody } : {}),
+    ...(options.cache ? { cache: options.cache } : {}),
   });
 }
 
@@ -207,6 +213,7 @@ export async function apiRequestPublic<T, K extends object = JsonObject>(
       ...options.headers,
     },
     ...(options.body ? { body: JSON.stringify(options.body) } : {}),
+    ...(options.cache ? { cache: options.cache } : {}),
   });
 
   const payload = await parseJson(response);

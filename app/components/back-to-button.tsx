@@ -5,18 +5,33 @@ import { cn } from "~/lib/utils";
 
 interface BackToButtonProps {
   text?: string;
-  to: string;
+  /** A path, or a history delta such as -1 to go back. */
+  to: string | number;
+  /** Where to go when `to` is a delta but there's no history to go back to. */
+  fallback?: string;
   className?: string;
 }
 
 export default function BackToButton({
   text,
   to,
+  fallback = "/",
   className,
 }: BackToButtonProps) {
   const navigate = useNavigate();
   const goBack = () => {
-    navigate(to);
+    if (typeof to === "string") {
+      navigate(to);
+      return;
+    }
+    // React Router keeps the in-app history index on history.state.idx; a
+    // visitor who landed here directly has nothing in-app to go back to.
+    const idx = (window.history.state as { idx?: number } | null)?.idx ?? 0;
+    if (idx > 0) {
+      navigate(to);
+    } else {
+      navigate(fallback, { replace: true });
+    }
   };
 
   return (

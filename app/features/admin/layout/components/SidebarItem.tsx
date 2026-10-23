@@ -80,13 +80,6 @@ export const navItems: NavItem[] = [
     superAdminOnly: true,
   },
   {
-    id: "blog",
-    label: "Khmer Voices",
-    icon: Newspaper,
-    href: "/tk-admin/khmer-voices",
-    section: "manage",
-  },
-  {
     id: "registrations",
     label: "Registrations",
     icon: ClipboardList,
@@ -127,6 +120,13 @@ export const navItems: NavItem[] = [
     label: "Education",
     icon: GraduationCap,
     href: "/tk-admin/manage-education",
+    section: "content_management",
+  },
+  {
+    id: "blog",
+    label: "Khmer Voices",
+    icon: Newspaper,
+    href: "/tk-admin/khmer-voices",
     section: "content_management",
   },
   {

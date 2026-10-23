@@ -9,9 +9,37 @@ import { ProfilePageLayout } from "../components/profile-page-layout";
 
 export const loader = profileLoader;
 
+/**
+ * What a profile shows depends on who is looking and on the owner's current
+ * visibility settings, so neither the document nor its `.data` requests may be
+ * cached by the browser or a CDN.
+ */
+export function headers(_: Route.HeadersArgs) {
+  return {
+    "Cache-Control": "private, no-cache, no-store, must-revalidate",
+    Vary: "Cookie",
+  };
+}
+
+/** Always refetch: visibility can change between any two navigations. */
+export function shouldRevalidate() {
+  return true;
+}
+
 export function meta(args: Route.MetaArgs) {
   const data = args.data;
   const origin = metaOrigin(args);
+
+  if (data?.kind === "restricted") {
+    return pageMeta(args, {
+      title: "Profile",
+      description:
+        data.code === "PROFILE_MEMBERS_ONLY"
+          ? "This profile is only visible to True Khmer members."
+          : "This profile is private.",
+      noindex: true,
+    });
+  }
 
   if (data?.kind !== "profile" || !data.profile) {
     return pageMeta(args, {

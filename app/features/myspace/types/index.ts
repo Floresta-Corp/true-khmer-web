@@ -335,3 +335,68 @@ export interface EditProfileCertificateOption {
   courseTitle: string;
   categoryName: string | null;
 }
+
+export const StandingTabSchema = z.enum(["points", "leaderboard", "tiers"]);
+export type StandingTab = z.infer<typeof StandingTabSchema>;
+
+export const PointsBreakdownItemSchema = z.object({
+  actionType: z.string(),
+  label: z.string(),
+  points: z.number(),
+  count: z.number(),
+});
+export type PointsBreakdownItem = z.infer<typeof PointsBreakdownItemSchema>;
+
+export const PointsTransactionSchema = z.object({
+  id: z.string(),
+  actionType: z.string(),
+  label: z.string(),
+  points: z.number(),
+  createdAt: z.string(),
+});
+export type PointsTransaction = z.infer<typeof PointsTransactionSchema>;
+
+export const GetPointsHistoryResponseSchema = z.object({
+  ok: z.boolean(),
+  totalPoints: z.number(),
+  breakdown: z.array(PointsBreakdownItemSchema),
+  transactions: z.array(PointsTransactionSchema),
+  hasMore: z.boolean(),
+});
+export type GetPointsHistoryResponse = z.infer<
+  typeof GetPointsHistoryResponseSchema
+>;
+
+export const LeaderboardEntrySchema = z.object({
+  rank: z.number(),
+  userId: z.string(),
+  displayName: z.string(),
+  avatarKey: z.string().nullable(),
+  totalPoints: z.number(),
+  tier: z.object({ slug: z.string(), name: z.string() }).nullable(),
+  isMe: z.boolean(),
+});
+export type LeaderboardEntry = z.infer<typeof LeaderboardEntrySchema>;
+
+export const GetLeaderboardResponseSchema = z.object({
+  ok: z.boolean(),
+  entries: z.array(LeaderboardEntrySchema),
+  me: z.object({ rank: z.number().nullable(), totalPoints: z.number() }),
+});
+export type GetLeaderboardResponse = z.infer<
+  typeof GetLeaderboardResponseSchema
+>;
+
+export const StandingTierSchema = TierSchema.extend({
+  description: z.string().nullable(),
+  achievedAt: z.string().nullable(),
+});
+export type StandingTier = z.infer<typeof StandingTierSchema>;
+
+export const GetTiersResponseSchema = z.object({
+  ok: z.boolean(),
+  currentTierId: z.string().nullable(),
+  totalPoints: z.number(),
+  tiers: z.array(StandingTierSchema),
+});
+export type GetTiersResponse = z.infer<typeof GetTiersResponseSchema>;

@@ -120,7 +120,9 @@ export function useBlogForm({
       BLOG_PREVIEW_STORAGE_KEY,
       JSON.stringify(draft),
     );
-    window.open("/workspace/khmer-voices/preview", "_blank");
+    // A named target reuses the same preview tab on repeat clicks instead of
+    // piling up a new tab every time.
+    window.open("/workspace/khmer-voices/preview", "blog-preview");
   }, [author, categories, content, fields]);
 
   const runIntent = useCallback(

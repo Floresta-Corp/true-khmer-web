@@ -91,10 +91,13 @@ export const privacyPolicy: LegalDocument = {
             "**Other members**, where someone reports your content or names you in a report.",
           ],
         },
-        {
-          kind: "callout",
-          text: "We never ask for your national ID number, bank card details or payment credentials through the Platform's own forms. If a page appears to ask you for them, do not enter them, and [let us know](/support/contact-us#privacy).",
-        },
+        // {
+        //   kind: "callout",
+        //   text:
+        //     "We never ask for your national ID number, bank card details or payment credentials through the Platform's own forms. If a page appears to ask you for them, do not enter them, and tell us at " +
+        //     LEGAL.contact.privacy +
+        //     ".",
+        // },
       ],
     },
     {

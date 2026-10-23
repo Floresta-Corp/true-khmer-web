@@ -52,8 +52,8 @@ export default [
         "volunteer/edit/:id",
         "features/volunteer/route/volunteer.edit.$id.tsx",
       ),
-      route("poc", "features/poc/routes/poc.tsx"),
-      route("poc/detail/:id", "features/poc/routes/poc.$id.tsx"),
+      route("poc", "features/poc/route/poc.tsx"),
+      route("campaign", "features/campaign/route/campaign.tsx"),
       route("education", "features/education/route/education.tsx"),
       route("education/all", "features/education/route/education.all.tsx"),
       route("education/:id", "features/education/route/education.$id.tsx"),
@@ -95,6 +95,10 @@ export default [
 
     layout("layout/myspace-layout.tsx", [
       route("myspace", "features/myspace/route/myspace.tsx"),
+      route(
+        "community-standing",
+        "features/myspace/route/community-standing.tsx",
+      ),
       route("edit-profile", "features/myspace/route/edit-profile.tsx"),
       route("my-applications", "features/myspace/route/my-applications.tsx"),
       route("my-ticket", "features/my-tickets/route/my-tickets.tsx"),

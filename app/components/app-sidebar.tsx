@@ -230,7 +230,7 @@ export const mySpaceSidebarConfig: AppSidebarProps = {
       label: "My Profile",
       to: "/myspace",
       icon: UserRound,
-      matchPaths: ["/edit-profile"],
+      matchPaths: ["/edit-profile", "/community-standing"],
     },
     {
       id: "myapplications",

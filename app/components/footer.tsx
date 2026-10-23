@@ -44,6 +44,8 @@ const footerColumns = [
       { label: "About Us", to: "/about" },
       { label: "Contact Us", to: "/support/contact-us" },
       // { label: "Our Team", to: "/" },
+      { label: "POC", to: "/poc" },
+      { label: "Campaign", to: "/campaign" },
     ],
   },
 ];

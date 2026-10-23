@@ -35,6 +35,10 @@ export function BlogFormMeta({ form, children }: BlogFormMetaProps) {
     }
   }
 
+  if (!isEditable) {
+    return <BlogFormMetaReadOnly form={form}>{children}</BlogFormMetaReadOnly>;
+  }
+
   return (
     <div className="mx-auto max-w-[760px] space-y-5">
       <div className="space-y-5">
@@ -148,6 +152,72 @@ export function BlogFormMeta({ form, children }: BlogFormMetaProps) {
             disabled={!isEditable || fields.tags.length >= BLOG_TAG_LIMIT}
           />
         </div>
+      </div>
+
+      <div className="pt-2">{children}</div>
+    </div>
+  );
+}
+
+/**
+ * Locked posts render as plain typography instead of disabled inputs, so the
+ * page reads like an article rather than a broken form.
+ */
+function BlogFormMetaReadOnly({ form, children }: BlogFormMetaProps) {
+  const { categories, fields } = form;
+  const categoryName = categories.find(
+    (category) => category.id === fields.categoryId,
+  )?.name;
+
+  return (
+    <div className="mx-auto max-w-[760px] space-y-5">
+      <div className="space-y-5">
+        <h1 className="blog-compose-title text-slate-950 dark:text-white">
+          {fields.title || (
+            <span className="text-slate-400 dark:text-slate-500">Untitled</span>
+          )}
+        </h1>
+        {fields.excerpt ? (
+          <p className="blog-compose-subtitle text-slate-600 dark:text-slate-300">
+            {fields.excerpt}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 pt-1">
+        <div className="inline-flex min-h-11 max-w-full items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-300">
+          <AuthorAvatar
+            name={form.author.name}
+            avatarKey={form.author.avatarKey}
+            className="h-6.5 w-6.5 text-[11px]"
+          />
+          <span className="truncate text-sm text-slate-700 dark:text-slate-300">
+            {form.author.name}
+          </span>
+        </div>
+        {categoryName ? (
+          <div className="flex min-h-11 items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-1.5 text-sm text-blue-800 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300">
+            <span className="inline-flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-full bg-(--blog-primary)/15 text-(--blog-primary)">
+              <LayoutGrid className="h-3.5 w-3.5" />
+            </span>
+            {categoryName}
+          </div>
+        ) : null}
+        {fields.tags.length > 0 ? (
+          <div className="flex min-h-11 flex-wrap items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300">
+            <span className="inline-flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-amber-600">
+              <Tags className="h-3.5 w-3.5" />
+            </span>
+            {fields.tags.map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex h-8 items-center rounded-lg border border-amber-200 bg-amber-100 px-3 text-sm font-medium text-amber-800 dark:border-amber-900/60 dark:bg-amber-900/40 dark:text-amber-200"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       <div className="pt-2">{children}</div>

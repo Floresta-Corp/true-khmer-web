@@ -30,8 +30,14 @@ function NotificationToastCard({
   actionLabel = "View",
   accentClassName = DEFAULT_ACCENT,
   duration = DEFAULT_DURATION,
-}: NotificationToastOptions & { toastId: string | number }) {
+  onDismiss,
+}: NotificationToastOptions & {
+  toastId: string | number;
+  /** Runs synchronously on X / View, before Sonner's deferred dismissal. */
+  onDismiss?: () => void;
+}) {
   function dismiss() {
+    onDismiss?.();
     toast.dismiss(toastId);
   }
 
@@ -133,12 +139,67 @@ function NotificationToastCard({
   );
 }
 
-export function showNotificationToast(opts: NotificationToastOptions) {
-  const duration = opts.duration ?? DEFAULT_DURATION;
-  return toast.custom(
-    (id) => (
-      <NotificationToastCard toastId={id} {...opts} duration={duration} />
-    ),
-    { duration },
-  );
+const ACTION_TOAST_ID_PREFIX = "action-success:";
+let nextActionToastId = 0;
+let lastAchievementCardAt = 0;
+
+/** A success toast for an action that may also earn points or a badge. */
+export function showActionSuccessToast(message: string) {
+  if (Date.now() - lastAchievementCardAt < DEFAULT_DURATION) return;
+  toast.success(message, {
+    id: `${ACTION_TOAST_ID_PREFIX}${nextActionToastId++}`,
+  });
+}
+
+function replaceActionSuccessToasts() {
+  lastAchievementCardAt = Date.now();
+  for (const active of toast.getToasts()) {
+    if (String(active.id).startsWith(ACTION_TOAST_ID_PREFIX)) {
+      toast.dismiss(active.id);
+    }
+  }
+}
+
+let nextGroupToastId = 0;
+
+export function createNotificationToastGroup<T>(
+  summarize: (items: T[]) => NotificationToastOptions,
+) {
+  let active: { id: string; items: T[] } | null = null;
+
+  return function push(
+    item: T,
+    { isAchievement = false }: { isAchievement?: boolean } = {},
+  ) {
+    if (isAchievement) replaceActionSuccessToasts();
+    active ??= { id: `notification-group:${nextGroupToastId++}`, items: [] };
+    const group = active;
+    group.items.push(item);
+
+    const opts = summarize(group.items);
+    const duration = opts.duration ?? DEFAULT_DURATION;
+    const release = () => {
+      if (active === group) active = null;
+    };
+    toast.custom(
+      (id) => (
+        <NotificationToastCard
+          // Remount on every push so the progress bar restarts with the timer.
+          key={group.items.length}
+          toastId={id}
+          {...opts}
+          duration={duration}
+          onDismiss={release}
+        />
+      ),
+      { id: group.id, duration, onDismiss: release, onAutoClose: release },
+    );
+  };
+}
+
+/** Distinct strings in first-seen order, repeats marked "×n". */
+export function summarizeLines(lines: string[]) {
+  const counts = new Map<string, number>();
+  for (const line of lines) counts.set(line, (counts.get(line) ?? 0) + 1);
+  return [...counts].map(([line, n]) => (n > 1 ? `${line} ×${n}` : line));
 }

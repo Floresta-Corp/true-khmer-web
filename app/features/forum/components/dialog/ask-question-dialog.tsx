@@ -6,6 +6,7 @@ import {
   useState,
 } from "react";
 import { toast } from "sonner";
+import { showActionSuccessToast } from "~/components/notification-toast";
 import { Plus, X } from "lucide-react";
 import { Link, useFetcher, useLocation, useRevalidator } from "react-router";
 import { Badge } from "~/components/ui/badge";
@@ -202,12 +203,14 @@ export default function AskQuestionDialog({
       if (isSuccess) {
         setOpen(false);
         revalidator.revalidate();
-        toast.success(
+        const message =
           result?.message ??
-            (isEditing
-              ? "Question updated successfully!"
-              : "Question posted successfully!"),
-        );
+          (isEditing
+            ? "Question updated successfully!"
+            : "Question posted successfully!");
+        // Posting a new question can earn points, announced by its own card.
+        if (isEditing) toast.success(message);
+        else showActionSuccessToast(message);
         reset();
         revokeBlobUrl(preview);
         setPreview(null);

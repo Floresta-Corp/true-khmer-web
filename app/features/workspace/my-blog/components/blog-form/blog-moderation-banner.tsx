@@ -42,37 +42,5 @@ export function BlogModerationBanner({ post }: BlogModerationBannerProps) {
     );
   }
 
-  if (post.status === "PENDING_REVIEW") {
-    return (
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200">
-        <p className="font-semibold">
-          Submitted at
-          {post.moderation.submittedAt
-            ? ` ${formatDateTime(post.moderation.submittedAt)}`
-            : ""}
-        </p>
-        <p className="mt-1 leading-6">
-          Your blog is locked while it is in review. Withdraw the submission to
-          keep editing.
-        </p>
-      </div>
-    );
-  }
-
-  if (post.status === "PUBLISHED") {
-    return (
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-200">
-        <p className="font-semibold">
-          Published
-          {post.publishedAt ? ` on ${formatDateTime(post.publishedAt)}` : ""}
-        </p>
-        <p className="mt-1 leading-6">
-          Published blogs are locked. Unpublish it first if you need to make
-          changes.
-        </p>
-      </div>
-    );
-  }
-
   return null;
 }

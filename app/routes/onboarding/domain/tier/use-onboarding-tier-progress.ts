@@ -1,5 +1,5 @@
 import { useMatches } from "react-router";
-import { MEMBER_TIERS } from "~/lib/tiers";
+import { MEMBER_TIERS, type MemberTier } from "~/lib/tiers";
 import type { OnboardingState } from "~/services/onboarding.server";
 
 type OnboardingTierLayoutData = {
@@ -8,6 +8,8 @@ type OnboardingTierLayoutData = {
 
 export type OnboardingTierProgress = {
   tierName: string;
+  /** The current tier's rung on the ladder, for its Khmer name and meaning. */
+  tier: MemberTier;
   nextTierName: string | null;
   totalPoints: number;
 };
@@ -42,6 +44,7 @@ export function useOnboardingTierProgress(): OnboardingTierProgress {
 
   return {
     tierName: tier?.name ?? MEMBER_TIERS[ladderIndex].name,
+    tier: MEMBER_TIERS[ladderIndex],
     nextTierName: MEMBER_TIERS[ladderIndex + 1]?.name ?? null,
     totalPoints: progress?.totalPoints ?? 0,
   };

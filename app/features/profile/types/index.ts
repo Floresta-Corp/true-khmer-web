@@ -75,9 +75,34 @@ export const ProfileByIdSchema = z.object({
   tier: ProfileTierSchema.nullable(),
   postedCounts: ProfilePostedCountsSchema.nullable(),
 });
+
+// Profile visibility — mirrors the Edit Profile "Profile Visibility" panel.
+export const ProfileViewerSchema = z.enum(["owner", "member", "anonymous"]);
+export type ProfileViewer = z.infer<typeof ProfileViewerSchema>;
+
+/** Which sections of the profile the current viewer is allowed to see. */
+export const ProfileAccessSchema = z.object({
+  viewer: ProfileViewerSchema,
+  isOwner: z.boolean(),
+  profile: z.boolean(),
+  contact: z.boolean(),
+  socialLinks: z.boolean(),
+  contributions: z.boolean(),
+});
+export type ProfileAccess = z.infer<typeof ProfileAccessSchema>;
+
+export const ProfileRestrictedCodeSchema = z.enum([
+  "PROFILE_MEMBERS_ONLY",
+  "PROFILE_PRIVATE",
+  "CONTRIBUTIONS_MEMBERS_ONLY",
+  "CONTRIBUTIONS_PRIVATE",
+]);
+export type ProfileRestrictedCode = z.infer<typeof ProfileRestrictedCodeSchema>;
+
 export const GetProfileByIdResponseSchema = z.object({
   ok: z.literal(true),
   profile: ProfileByIdSchema,
+  access: ProfileAccessSchema,
 });
 export type GetProfileByIdResponse = z.infer<
   typeof GetProfileByIdResponseSchema

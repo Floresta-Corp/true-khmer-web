@@ -2,6 +2,9 @@ import { apiRequestWithSession } from "~/lib/server/api-client.server";
 import type {
   GetMySpaceMeResponse,
   GetRecentActivityResponse,
+  GetLeaderboardResponse,
+  GetPointsHistoryResponse,
+  GetTiersResponse,
   UpdateMySpaceInput,
   UpdateMySpaceResponse,
   Country,
@@ -23,6 +26,38 @@ export async function GetRecentActivity(request: Request) {
     {
       method: "GET",
     },
+  );
+}
+
+export async function GetPointsHistory(
+  request: Request,
+  params: { limit?: number; offset?: number } = {},
+) {
+  const query = new URLSearchParams();
+  if (params.limit) query.set("limit", String(params.limit));
+  if (params.offset) query.set("offset", String(params.offset));
+  const suffix = query.size > 0 ? `?${query.toString()}` : "";
+
+  return await apiRequestWithSession<GetPointsHistoryResponse>(
+    request,
+    `/me/standing/points${suffix}`,
+    { method: "GET" },
+  );
+}
+
+export async function GetLeaderboard(request: Request) {
+  return await apiRequestWithSession<GetLeaderboardResponse>(
+    request,
+    "/me/standing/leaderboard",
+    { method: "GET" },
+  );
+}
+
+export async function GetTiers(request: Request) {
+  return await apiRequestWithSession<GetTiersResponse>(
+    request,
+    "/me/standing/tiers",
+    { method: "GET" },
   );
 }
 
