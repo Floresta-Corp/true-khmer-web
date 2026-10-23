@@ -31,7 +31,7 @@ export const privacyPolicy: LegalDocument = {
         },
         {
           kind: "p",
-          text: `You can reach us about anything in this policy at **${LEGAL.contact.privacy}**, or by post at ${LEGAL.address}.`,
+          text: "You can reach us about anything in this policy through our [Contact us](/support/contact-us#privacy) page.",
         },
       ],
     },
@@ -328,10 +328,7 @@ export const privacyPolicy: LegalDocument = {
         },
         {
           kind: "p",
-          text:
-            "No service can promise perfect security. You can help by using a password you use nowhere else, turning on two-factor authentication in Settings, and telling us at **" +
-            LEGAL.contact.privacy +
-            "** if you think your account has been accessed by someone else. If a breach occurs that is likely to result in a risk to your rights, we will notify you and the relevant authority as the applicable law requires.",
+          text: "No service can promise perfect security. You can help by using a password you use nowhere else, turning on two-factor authentication in Settings, and [contacting us](/support/contact-us#privacy) if you think your account has been accessed by someone else. If a breach occurs that is likely to result in a risk to your rights, we will notify you and the relevant authority as the applicable law requires.",
         },
       ],
     },
@@ -358,7 +355,7 @@ export const privacyPolicy: LegalDocument = {
         },
         {
           kind: "p",
-          text: `To make a request, write to **${LEGAL.contact.privacy}** from the email address on your account. We answer within 30 days, and will tell you if we need longer. We may need to verify your identity first; we will not charge you for a request unless it is manifestly unfounded or excessive.`,
+          text: `To make a request, reach us through our [Contact us](/support/contact-us#privacy) page using the email address on your account. We answer within 30 days, and will tell you if we need longer. We may need to verify your identity first; we will not charge you for a request unless it is manifestly unfounded or excessive.`,
         },
         {
           kind: "p",
@@ -372,7 +369,7 @@ export const privacyPolicy: LegalDocument = {
       blocks: [
         {
           kind: "p",
-          text: `The Platform is not intended for children. You must be at least ${LEGAL.minimumAge} years old to create an account. We do not knowingly collect personal information from anyone under that age, and if we learn that we have, we delete the account and the information promptly. If you believe a child has given us their information, tell us at **${LEGAL.contact.privacy}**.`,
+          text: `The Platform is not intended for children. You must be at least ${LEGAL.minimumAge} years old to create an account. We do not knowingly collect personal information from anyone under that age, and if we learn that we have, we delete the account and the information promptly. If you believe a child has given us their information, [let us know](/support/contact-us#privacy).`,
         },
       ],
     },
@@ -392,7 +389,7 @@ export const privacyPolicy: LegalDocument = {
       blocks: [
         {
           kind: "p",
-          text: `Questions, requests and complaints about privacy: **${LEGAL.contact.privacy}**. Anything else: **${LEGAL.contact.general}**. By post: ${LEGAL.entity}, ${LEGAL.address}.`,
+          text: "Questions, requests and complaints about privacy — or anything else — can be sent to us through our [Contact us](/support/contact-us) page, where you can choose the topic that fits your message.",
         },
       ],
     },

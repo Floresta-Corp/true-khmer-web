@@ -14,6 +14,8 @@ export const LEGAL = {
   jurisdiction: "Kingdom of Cambodia",
   address: "Phnom Penh, Kingdom of Cambodia",
   contact: {
+    /** The one inbox every topic on the Contact us page writes to. */
+    support: "contact@true-khmer.com",
     general: "hello@truekhmer.com",
     privacy: "privacy@truekhmer.com",
     legal: "legal@truekhmer.com",
@@ -32,7 +34,7 @@ export const LEGAL = {
  * reader uses to decide whether they need to read it again.
  */
 export const LEGAL_UPDATED = {
-  privacy: "2026-09-11",
+  privacy: "2026-10-23",
   terms: "2026-09-11",
   cookies: "2026-09-11",
 } as const;

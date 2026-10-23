@@ -10,6 +10,7 @@ export default [
     layout("layout/footer-layout.tsx", [
       index("routes/home.tsx"),
       route("about", "features/about/route/about.tsx"),
+      route("support/contact-us", "features/contact/route/contact.tsx"),
       route("privacy", "features/legal/route/privacy.tsx"),
       route("terms", "features/legal/route/terms.tsx"),
       route("cookies", "features/legal/route/cookies.tsx"),

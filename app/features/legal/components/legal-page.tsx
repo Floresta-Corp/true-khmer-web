@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router";
 
 import type { LegalDocument } from "../types";
 import { formatLegalDate, LEGAL } from "../lib/legal-info";
@@ -148,13 +149,13 @@ export function LegalPage({
 
             <div className="border-t border-[#e2e8f0] pt-8">
               <p className="text-sm leading-6 text-[#6a7282]">
-                Questions about this page? Write to{" "}
-                <a
-                  href={`mailto:${LEGAL.contact.general}`}
+                Questions about this page?{" "}
+                <Link
+                  to="/support/contact-us"
                   className="font-medium text-[#2f6fe4] underline-offset-4 hover:underline"
                 >
-                  {LEGAL.contact.general}
-                </a>
+                  Contact us
+                </Link>
                 .
               </p>
             </div>
