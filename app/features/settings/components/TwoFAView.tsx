@@ -62,13 +62,18 @@ function OtpCodeField({
       <Label className="text-sm font-semibold text-[#1A2233]">
         Verification code
       </Label>
-      <InputOTP maxLength={6} value={value} onChange={onChange}>
-        <InputOTPGroup className="gap-2 rounded-none">
+      <InputOTP
+        maxLength={6}
+        value={value}
+        onChange={onChange}
+        containerClassName="w-full"
+      >
+        <InputOTPGroup className="w-full justify-between">
           {Array.from({ length: 6 }).map((_, index) => (
             <InputOTPSlot
               key={index}
               index={index}
-              className="size-11 rounded-lg border border-[#E5EAF2] bg-white text-base font-semibold text-[#1A2233] first:rounded-lg first:border-l last:rounded-lg data-[active=true]:border-[#2F6FE4] data-[active=true]:ring-[#2F6FE4]/20"
+              className="size-12 rounded-lg border border-[#E5EAF2] bg-white text-lg font-semibold text-[#1A2233] tabular-nums first:rounded-lg first:border-l last:rounded-lg data-[active=true]:border-[#2F6FE4] data-[active=true]:ring-3 data-[active=true]:ring-[#2F6FE4]/15"
             />
           ))}
         </InputOTPGroup>
@@ -249,6 +254,112 @@ export function TwoFAView({
       ) : null}
 
       <div className="space-y-4">
+        <MethodPanel
+          icon={<Mail className="size-5 text-[#2F6FE4]" />}
+          title="Email OTP"
+          description={`Send login and setup verification codes to ${settings.methods.emailOtp.email || email}.`}
+          enabled={emailEnabled}
+        >
+          {emailEnabled ? (
+            <Button
+              variant="outline"
+              onClick={() => setDisableMethod("email")}
+              className="h-9 rounded-lg border-[#D1D9E6] px-4 text-sm font-semibold text-[#344256] hover:bg-[#F0F4FA]"
+            >
+              Disable
+            </Button>
+          ) : (
+            <Dialog open={emailOpen} onOpenChange={setEmailOpen}>
+              <DialogTrigger asChild>
+                <Button className="h-9 rounded-lg bg-[#2F6FE4] px-4 text-sm font-semibold text-white hover:bg-[#1F62DF]">
+                  Set up
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="rounded-2xl sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="text-[#1A2233]">
+                    Set up email OTP
+                  </DialogTitle>
+                  <DialogDescription>
+                    Send a code to your email, then enter it here to enable this
+                    method.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <fetcher.Form method="post">
+                    <input type="hidden" name="intent" value="email-send" />
+                    <Button
+                      type="submit"
+                      variant="outline"
+                      disabled={isSubmitting}
+                      className="h-10 w-full rounded-lg border-[#D1D9E6] font-semibold text-[#344256] hover:bg-[#F0F4FA]"
+                    >
+                      {pendingIntent === "email-send"
+                        ? "Sending..."
+                        : "Send code"}
+                    </Button>
+                  </fetcher.Form>
+                  {data?.intent === "email-send" && data.errors?.form ? (
+                    <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-600">
+                      {data.errors.form}
+                    </p>
+                  ) : null}
+                  {data?.intent === "email-send" && data.message ? (
+                    <p className="text-sm font-medium text-[#166534]">
+                      {data.message}
+                    </p>
+                  ) : null}
+                  <fetcher.Form method="post" className="space-y-4">
+                    <input type="hidden" name="intent" value="email-verify" />
+                    <input type="hidden" name="code" value={emailCode} />
+                    <input
+                      type="hidden"
+                      name="trustDevice"
+                      value={trustEmailDevice ? "true" : "false"}
+                    />
+                    <OtpCodeField
+                      value={emailCode}
+                      onChange={setEmailCode}
+                      error={
+                        data?.intent === "email-verify"
+                          ? data.errors?.code
+                          : undefined
+                      }
+                    />
+                    <Label className="flex items-center gap-2 text-sm font-semibold text-[#1D283A]">
+                      <Checkbox
+                        checked={trustEmailDevice}
+                        onCheckedChange={(checked) =>
+                          setTrustEmailDevice(checked === true)
+                        }
+                      />
+                      Trust this device
+                    </Label>
+                    <DialogFooter className="rounded-b-2xl">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setEmailOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="submit"
+                        data-otp-submit
+                        disabled={isSubmitting || emailCode.length !== 6}
+                        className="bg-[#2F6FE4] text-white hover:bg-[#1F62DF]"
+                      >
+                        {pendingIntent === "email-verify"
+                          ? "Verifying..."
+                          : "Enable email OTP"}
+                      </Button>
+                    </DialogFooter>
+                  </fetcher.Form>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+        </MethodPanel>
         <MethodPanel
           icon={<Smartphone className="size-5 text-[#2F6FE4]" />}
           title="Authenticator app"
@@ -435,113 +546,6 @@ export function TwoFAView({
                     </DialogFooter>
                   </fetcher.Form>
                 )}
-              </DialogContent>
-            </Dialog>
-          )}
-        </MethodPanel>
-
-        <MethodPanel
-          icon={<Mail className="size-5 text-[#2F6FE4]" />}
-          title="Email OTP"
-          description={`Send login and setup verification codes to ${settings.methods.emailOtp.email || email}.`}
-          enabled={emailEnabled}
-        >
-          {emailEnabled ? (
-            <Button
-              variant="outline"
-              onClick={() => setDisableMethod("email")}
-              className="h-9 rounded-lg border-[#D1D9E6] px-4 text-sm font-semibold text-[#344256] hover:bg-[#F0F4FA]"
-            >
-              Disable
-            </Button>
-          ) : (
-            <Dialog open={emailOpen} onOpenChange={setEmailOpen}>
-              <DialogTrigger asChild>
-                <Button className="h-9 rounded-lg bg-[#2F6FE4] px-4 text-sm font-semibold text-white hover:bg-[#1F62DF]">
-                  Set up
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="rounded-2xl sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle className="text-[#1A2233]">
-                    Set up email OTP
-                  </DialogTitle>
-                  <DialogDescription>
-                    Send a code to your email, then enter it here to enable this
-                    method.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <fetcher.Form method="post">
-                    <input type="hidden" name="intent" value="email-send" />
-                    <Button
-                      type="submit"
-                      variant="outline"
-                      disabled={isSubmitting}
-                      className="h-10 w-full rounded-lg border-[#D1D9E6] font-semibold text-[#344256] hover:bg-[#F0F4FA]"
-                    >
-                      {pendingIntent === "email-send"
-                        ? "Sending..."
-                        : "Send code"}
-                    </Button>
-                  </fetcher.Form>
-                  {data?.intent === "email-send" && data.errors?.form ? (
-                    <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-600">
-                      {data.errors.form}
-                    </p>
-                  ) : null}
-                  {data?.intent === "email-send" && data.message ? (
-                    <p className="text-sm font-medium text-[#166534]">
-                      {data.message}
-                    </p>
-                  ) : null}
-                  <fetcher.Form method="post" className="space-y-4">
-                    <input type="hidden" name="intent" value="email-verify" />
-                    <input type="hidden" name="code" value={emailCode} />
-                    <input
-                      type="hidden"
-                      name="trustDevice"
-                      value={trustEmailDevice ? "true" : "false"}
-                    />
-                    <OtpCodeField
-                      value={emailCode}
-                      onChange={setEmailCode}
-                      error={
-                        data?.intent === "email-verify"
-                          ? data.errors?.code
-                          : undefined
-                      }
-                    />
-                    <Label className="flex items-center gap-2 text-sm font-semibold text-[#1D283A]">
-                      <Checkbox
-                        checked={trustEmailDevice}
-                        onCheckedChange={(checked) =>
-                          setTrustEmailDevice(checked === true)
-                        }
-                      />
-                      Trust this device
-                    </Label>
-                    <DialogFooter className="rounded-b-2xl">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setEmailOpen(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        type="submit"
-                        data-otp-submit
-                        disabled={isSubmitting || emailCode.length !== 6}
-                        className="bg-[#2F6FE4] text-white hover:bg-[#1F62DF]"
-                      >
-                        {pendingIntent === "email-verify"
-                          ? "Verifying..."
-                          : "Enable email OTP"}
-                      </Button>
-                    </DialogFooter>
-                  </fetcher.Form>
-                </div>
               </DialogContent>
             </Dialog>
           )}

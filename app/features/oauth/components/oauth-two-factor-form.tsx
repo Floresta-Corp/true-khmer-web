@@ -29,7 +29,7 @@ export function OAuthTwoFactorForm({
   const emailAvailable = methods.includes("email") || methods.includes("otp");
   const totpAvailable = methods.includes("totp");
   const [method, setMethod] = useState<"totp" | "email">(
-    totpAvailable ? "totp" : "email",
+    emailAvailable ? "email" : "totp",
   );
   const [code, setCode] = useState("");
   const [trustDevice, setTrustDevice] = useState(false);
@@ -49,7 +49,7 @@ export function OAuthTwoFactorForm({
           disabled rather than hidden — same as the main login's step, so the
           user can see the option exists at all. */}
       <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
-        {(["totp", "email"] as const).map((option) => {
+        {(["email", "totp"] as const).map((option) => {
           const Icon = option === "totp" ? Smartphone : Mail;
           const available = option === "totp" ? totpAvailable : emailAvailable;
 
@@ -94,9 +94,9 @@ export function OAuthTwoFactorForm({
             maxLength={6}
             value={code}
             onChange={setCode}
-            containerClassName="justify-between"
+            containerClassName="w-full"
           >
-            <InputOTPGroup className="gap-2 rounded-none">
+            <InputOTPGroup className="w-full justify-between">
               {Array.from({ length: 6 }).map((_, index) => (
                 <InputOTPSlot
                   key={index}
