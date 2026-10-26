@@ -44,7 +44,7 @@ export default function LoginTwoFactorPage() {
   const emailAvailable = methods.includes("email") || methods.includes("otp");
   const totpAvailable = methods.includes("totp");
   const [method, setMethod] = useState<"totp" | "email">(
-    totpAvailable ? "totp" : "email",
+    emailAvailable ? "email" : "totp",
   );
   const [code, setCode] = useState("");
   const [trustDevice, setTrustDevice] = useState(false);
@@ -97,22 +97,6 @@ export default function LoginTwoFactorPage() {
         <div className="grid grid-cols-2 gap-2 rounded-xl bg-[#F3F6FB] p-1">
           <button
             type="button"
-            disabled={!totpAvailable}
-            onClick={() => {
-              setMethod("totp");
-              setCode("");
-            }}
-            className={`flex h-10 items-center justify-center gap-2 rounded-lg text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-              method === "totp"
-                ? "bg-white text-[#111827] shadow-sm"
-                : "text-[#6B7280] hover:text-[#111827]"
-            }`}
-          >
-            <Smartphone className="size-4" />
-            App
-          </button>
-          <button
-            type="button"
             disabled={!emailAvailable}
             onClick={() => {
               setMethod("email");
@@ -126,6 +110,22 @@ export default function LoginTwoFactorPage() {
           >
             <Mail className="size-4" />
             Email
+          </button>
+          <button
+            type="button"
+            disabled={!totpAvailable}
+            onClick={() => {
+              setMethod("totp");
+              setCode("");
+            }}
+            className={`flex h-10 items-center justify-center gap-2 rounded-lg text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+              method === "totp"
+                ? "bg-white text-[#111827] shadow-sm"
+                : "text-[#6B7280] hover:text-[#111827]"
+            }`}
+          >
+            <Smartphone className="size-4" />
+            App
           </button>
         </div>
 
@@ -147,20 +147,21 @@ export default function LoginTwoFactorPage() {
               maxLength={6}
               value={code}
               onChange={setCode}
-              containerClassName="justify-between"
+              containerClassName="w-full"
             >
-              <InputOTPGroup className="gap-2 rounded-none">
+              <InputOTPGroup className="w-full justify-between">
                 {Array.from({ length: 6 }).map((_, index) => (
                   <InputOTPSlot
                     key={index}
                     index={index}
-                    className="size-12 rounded-lg border border-[#E5E7EB] bg-white text-lg font-semibold text-[#111827] first:rounded-lg first:border-l last:rounded-lg data-[active=true]:border-[#2F6FE4] data-[active=true]:ring-[#2F6FE4]/20"
+                    aria-invalid={Boolean(actionData?.errors?.code)}
+                    className="size-14 rounded-lg border border-[#E5E7EB] bg-white text-xl font-semibold text-[#111827] tabular-nums first:rounded-lg first:border-l last:rounded-lg data-[active=true]:border-[#2F6FE4] data-[active=true]:ring-3 data-[active=true]:ring-[#2F6FE4]/15"
                   />
                 ))}
               </InputOTPGroup>
             </InputOTP>
             {actionData?.errors?.code ? (
-              <p className="text-xs text-red-500">{actionData.errors.code}</p>
+              <p className="text-sm text-red-500">{actionData.errors.code}</p>
             ) : null}
           </div>
 
