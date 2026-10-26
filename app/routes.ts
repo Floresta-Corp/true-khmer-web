@@ -91,7 +91,15 @@ export default [
       "my-applications/detail/:sourceType/:postingId",
       "features/myspace/route/my-application.$sourceType.$postingId.tsx",
     ),
-    route("settings", "features/settings/route/settings.tsx"),
+    route("settings", "features/settings/route/settings.tsx", [
+      index("features/settings/route/settings.security.tsx"),
+      route("2fa", "features/settings/route/settings.2fa.tsx"),
+      route(
+        "2fa/authenticator",
+        "features/settings/route/settings.2fa.authenticator.tsx",
+      ),
+      route("2fa/email", "features/settings/route/settings.2fa.email.tsx"),
+    ]),
 
     layout("layout/myspace-layout.tsx", [
       route("myspace", "features/myspace/route/myspace.tsx"),

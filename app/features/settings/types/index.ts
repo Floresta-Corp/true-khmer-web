@@ -1,4 +1,13 @@
-import type { AuthTwoFactorTotpSetupResponse } from "~/types/api-client";
+import type {
+  AuthTwoFactorSettingsResponse,
+  AuthTwoFactorTotpSetupResponse,
+} from "~/types/api-client";
+
+export type SettingsOutletContext = {
+  email: string;
+  setupNewPassword: boolean;
+  twoFactor: AuthTwoFactorSettingsResponse;
+};
 
 export type SettingsActionData = {
   ok?: boolean;

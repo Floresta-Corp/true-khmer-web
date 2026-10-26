@@ -16,6 +16,7 @@ import type {
   AuthLoginTwoFactorTotpVerifyRequest,
   AuthStatusResponse,
   AuthTokenResponse,
+  AuthTwoFactorDisableRequest,
   AuthTwoFactorEmailVerifyRequest,
   AuthTwoFactorSettingsResponse,
   AuthTwoFactorTotpSetupRequest,
@@ -228,20 +229,24 @@ export function verifyEmailOtpSetup(
   >(request, "/auth/2fa/email/verify", body);
 }
 
-export function disableTotp(request: Request) {
-  return protectedTwoFactorRequest<AuthStatusResponse, Record<string, never>>(
-    request,
-    "/auth/2fa/totp/disable",
-    {},
-  );
+export function disableTotp(
+  request: Request,
+  body: AuthTwoFactorDisableRequest,
+) {
+  return protectedTwoFactorRequest<
+    AuthStatusResponse,
+    AuthTwoFactorDisableRequest
+  >(request, "/auth/2fa/totp/disable", body);
 }
 
-export function disableEmailOtp(request: Request) {
-  return protectedTwoFactorRequest<AuthStatusResponse, Record<string, never>>(
-    request,
-    "/auth/2fa/email/disable",
-    {},
-  );
+export function disableEmailOtp(
+  request: Request,
+  body: AuthTwoFactorDisableRequest,
+) {
+  return protectedTwoFactorRequest<
+    AuthStatusResponse,
+    AuthTwoFactorDisableRequest
+  >(request, "/auth/2fa/email/disable", body);
 }
 
 export function sendLoginEmailOtp(

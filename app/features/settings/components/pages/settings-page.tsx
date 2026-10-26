@@ -1,18 +1,13 @@
-import { useState } from "react";
-import { useLoaderData } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 import { ShieldCheck } from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 import { SidebarItem } from "../SidebarItem";
-import { SecurityView } from "../SecurityView";
-import { TwoFAView } from "../TwoFAView";
 import type { settingsLoader } from "../../services/settings.loader";
-
-type View = "security" | "2fa";
+import type { SettingsOutletContext } from "../../types";
 
 export default function SettingsPage() {
   const { email, setupNewPassword, twoFactor } =
     useLoaderData<typeof settingsLoader>();
-  const [view, setView] = useState<View>("security");
 
   return (
     <div className="min-h-screen bg-[#F5F7FA] px-4 pt-10 pb-24 sm:px-6 md:pb-10 lg:px-8">
@@ -38,20 +33,15 @@ export default function SettingsPage() {
                 <SidebarItem icon={<Settings className="size-4" />} label="Preferences" /> */}
               </nav>
               <div className="flex-1 p-8">
-                {view === "security" ? (
-                  <SecurityView
-                    email={email}
-                    setupNewPassword={setupNewPassword}
-                    enabled={twoFactor.twoFactorEnabled}
-                    onEdit2FA={() => setView("2fa")}
-                  />
-                ) : (
-                  <TwoFAView
-                    email={email}
-                    settings={twoFactor}
-                    onBack={() => setView("security")}
-                  />
-                )}
+                <Outlet
+                  context={
+                    {
+                      email,
+                      setupNewPassword,
+                      twoFactor,
+                    } satisfies SettingsOutletContext
+                  }
+                />
               </div>
             </div>
           </CardContent>
