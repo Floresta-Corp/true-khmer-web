@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ArrowRight, X } from "lucide-react";
+import { ArrowRight, Undo2, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "~/lib/utils";
 
@@ -136,6 +136,89 @@ function NotificationToastCard({
         />
       </div>
     </div>
+  );
+}
+
+export interface UndoToastOptions {
+  icon: ReactNode;
+  title: string;
+  body: string;
+  onUndo: () => void;
+  duration?: number;
+}
+
+const UNDO_DURATION = 5000;
+
+function UndoToastCard({
+  toastId,
+  icon,
+  title,
+  body,
+  onUndo,
+  duration = UNDO_DURATION,
+}: UndoToastOptions & { toastId: string | number }) {
+  function handleUndo() {
+    onUndo();
+    toast.dismiss(toastId);
+  }
+
+  return (
+    <div
+      className={cn(
+        "group pointer-events-auto relative w-95 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border backdrop-blur-xl",
+        "border-slate-200/70 bg-white/95 shadow-[0_16px_48px_-16px_rgba(15,23,42,0.35)]",
+        "dark:border-white/10 dark:bg-slate-900/90 dark:shadow-[0_16px_48px_-16px_rgba(0,0,0,0.7)]",
+      )}
+    >
+      <div className="flex items-center gap-3 p-4">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300">
+          {icon}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[13px] leading-tight font-semibold text-slate-900 dark:text-white">
+            {title}
+          </p>
+          <p className="mt-1 truncate text-xs text-slate-500 dark:text-slate-400">
+            {body}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleUndo}
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-[#2F6FE4] transition-colors hover:bg-[#2F6FE4]/10 dark:text-[#6FA0F0] dark:hover:bg-[#6FA0F0]/10"
+        >
+          <Undo2 className="size-3.5" />
+          Undo
+        </button>
+        <button
+          type="button"
+          onClick={() => toast.dismiss(toastId)}
+          aria-label="Dismiss"
+          className="-mr-1 shrink-0 rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+        >
+          <X className="size-3.5" />
+        </button>
+      </div>
+
+      {/* Time left to undo */}
+      <div className="absolute inset-x-0 bottom-0 h-0.5 bg-slate-100/70 dark:bg-white/5">
+        <div
+          className="h-full origin-left bg-linear-to-r from-[#2F6FE4] to-[#1E5AD0] group-hover:paused"
+          style={{ animation: `toast-progress ${duration}ms linear forwards` }}
+        />
+      </div>
+    </div>
+  );
+}
+
+/** A toast that offers to reverse an action the user just took. */
+export function showUndoToast(options: UndoToastOptions) {
+  const duration = options.duration ?? UNDO_DURATION;
+  toast.custom(
+    (id) => <UndoToastCard toastId={id} {...options} duration={duration} />,
+    { duration },
   );
 }
 

@@ -443,14 +443,16 @@ export default function LaunchpadEditPage() {
                   telegramUsernameError={roleErrors.telegramUsername}
                   originalRoles={originalRoles}
                   onRolesChange={(roles) => {
-                    const mergedRoles = roles.map((role, i) => {
-                      const existingId = values.roles[i]?.id;
-                      return {
-                        ...role,
-                        id: existingId || "",
-                      };
-                    });
-                    setValue("roles", mergedRoles as any);
+                    // Keep each role's own id; matching by index would hand a
+                    // removed role's id to whichever role shifts into its slot.
+                    const mergedRoles = roles.map((role) => ({
+                      ...role,
+                      id:
+                        "id" in role && typeof role.id === "string"
+                          ? role.id
+                          : "",
+                    }));
+                    setValue("roles", mergedRoles);
                   }}
                   onResetRoles={() => setValue("roles", originalRoles)}
                   onMaterialDocumentsChange={setMaterialDocuments}

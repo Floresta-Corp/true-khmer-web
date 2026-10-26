@@ -1,11 +1,12 @@
-import { useState } from "react";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Trash2 } from "lucide-react";
 import { Separator } from "~/components/ui/separator";
 import LaunchpadOpenRoleCard from "../card/launchpad-openrole-card";
 import LaunchpadProjectMaterialCard from "../card/launchpad-project-material-card";
 import LaunchpadContactDetailCard from "../card/launchpad-contact-detail-card";
 import LaunchpadRolesList from "../launchpad-roles-list";
 import { Button } from "~/components/ui/button";
+import { showUndoToast } from "~/components/notification-toast";
 
 type LaunchpadRoleInput = {
   name: string;
@@ -131,7 +132,26 @@ export default function LaunchpadPostPage2({
     setEditingIndex(index);
   };
 
+  // The undo toast outlives this render, so it reads the latest roles from a
+  // ref instead of restoring a stale snapshot that would drop later edits.
+  const rolesRef = useRef(roles);
+  rolesRef.current = roles;
+
+  const handleUndoRemoveRole = (role: LaunchpadRoleInput, index: number) => {
+    const current = rolesRef.current;
+    const insertAt = Math.min(index, current.length);
+    onRolesChange([
+      ...current.slice(0, insertAt),
+      role,
+      ...current.slice(insertAt),
+    ]);
+    setEditingIndex((prev) =>
+      prev !== null && prev >= insertAt ? prev + 1 : prev,
+    );
+  };
+
   const handleRemoveRole = (index: number) => {
+    const removedRole = roles[index];
     onRolesChange(roles.filter((_, itemIndex) => itemIndex !== index));
     if (editingIndex === index) {
       setEditingIndex(null);
@@ -139,6 +159,13 @@ export default function LaunchpadPostPage2({
     } else if (editingIndex !== null && editingIndex > index) {
       setEditingIndex(editingIndex - 1);
     }
+
+    showUndoToast({
+      icon: <Trash2 className="size-4.5" />,
+      title: "Role removed",
+      body: removedRole.name,
+      onUndo: () => handleUndoRemoveRole(removedRole, index),
+    });
   };
 
   const handleCancelEdit = () => {
@@ -153,7 +180,7 @@ export default function LaunchpadPostPage2({
         originalRoles={originalRoles}
         editingIndex={editingIndex}
         onResetRoles={onResetRoles}
-        onRolesChange={onRolesChange}
+        onRemoveRole={handleRemoveRole}
         onEditRole={handleEditRole}
       />
       <LaunchpadOpenRoleCard
