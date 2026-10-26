@@ -62,7 +62,7 @@ export default function CategoriesPicker({
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="start"
-          className="w-(--radix-dropdown-menu-trigger-width) rounded-lg border-[#e2e8f0] bg-white p-1 shadow-lg"
+          className="max-h-[min(20rem,var(--radix-dropdown-menu-content-available-height))] w-(--radix-dropdown-menu-trigger-width) overflow-y-auto rounded-lg border-[#e2e8f0] bg-white p-1 shadow-lg"
         >
           {categories.map((category) => (
             <DropdownMenuItem
