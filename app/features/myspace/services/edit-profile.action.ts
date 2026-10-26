@@ -87,8 +87,8 @@ export async function editProfileAction({ request }: Route.ActionArgs) {
   const telegramUsername =
     String(formData.get("telegramUsername") ?? "").trim() || null;
   const bio = String(formData.get("bio") ?? "").trim() || null;
-  const countryId = String(formData.get("countryId") ?? "").trim() || null;
-  const cityId = String(formData.get("cityId") ?? "").trim() || null;
+  const countryId = String(formData.get("countryId") ?? "").trim();
+  const cityId = String(formData.get("cityId") ?? "").trim();
   const avatarKey = String(formData.get("avatarKey") ?? "").trim() || null;
   const skillsRaw = String(formData.get("skills") ?? "").trim();
   const skills = skillsRaw
@@ -130,8 +130,8 @@ export async function editProfileAction({ request }: Route.ActionArgs) {
       : {}),
     telegramUsername,
     bio,
-    countryId,
-    cityId,
+    ...(countryId ? { countryId } : {}),
+    ...(cityId ? { cityId } : {}),
     avatarKey,
     skills,
     socialLinks: {

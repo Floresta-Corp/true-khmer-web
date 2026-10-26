@@ -296,8 +296,9 @@ export const UpdateMySpaceInputSchema = z.object({
   phone: z.union([PhoneInputSchema, z.null()]).optional(),
   telegramUsername: z.string().nullable(),
   bio: z.string().nullable(),
-  countryId: z.string().nullable(),
-  cityId: z.string().nullable(),
+  // The API rejects null here; omit the field when no location is chosen.
+  countryId: z.string().optional(),
+  cityId: z.string().optional(),
   avatarKey: z.string().nullable(),
   skills: z.array(z.string()),
   socialLinks: SocialLinksSchema,
