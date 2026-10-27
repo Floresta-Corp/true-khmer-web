@@ -1,18 +1,13 @@
-import { useEffect, useRef, useState } from "react";
-import { useFetcher } from "react-router";
-import QRCode from "qrcode";
+import { useEffect, useState } from "react";
+import { Link, useFetcher } from "react-router";
 import {
   ArrowLeft,
   CheckCircle2,
-  KeyRound,
   Mail,
   ShieldCheck,
   Smartphone,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { Checkbox } from "~/components/ui/checkbox";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -20,21 +15,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "~/components/ui/dialog";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "~/routes/auth/components/input-otp";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
 import type { SettingsActionData } from "../types";
-import type {
-  AuthTwoFactorSettingsResponse,
-  AuthTwoFactorTotpSetupResponse,
-} from "~/types/api-client";
+import type { AuthTwoFactorSettingsResponse } from "~/types/api-client";
 
 type Method = "totp" | "email";
-type TotpSetupStep = "password" | "qr" | "verify";
 
 function MethodStatus({ enabled }: { enabled: boolean }) {
   return (
@@ -45,41 +32,6 @@ function MethodStatus({ enabled }: { enabled: boolean }) {
     >
       {enabled ? "Enabled" : "Disabled"}
     </span>
-  );
-}
-
-function OtpCodeField({
-  value,
-  onChange,
-  error,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  error?: string;
-}) {
-  return (
-    <div className="space-y-2">
-      <Label className="text-sm font-semibold text-[#1A2233]">
-        Verification code
-      </Label>
-      <InputOTP
-        maxLength={6}
-        value={value}
-        onChange={onChange}
-        containerClassName="w-full"
-      >
-        <InputOTPGroup className="w-full justify-between">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <InputOTPSlot
-              key={index}
-              index={index}
-              className="size-12 rounded-lg border border-[#E5EAF2] bg-white text-lg font-semibold text-[#1A2233] tabular-nums first:rounded-lg first:border-l last:rounded-lg data-[active=true]:border-[#2F6FE4] data-[active=true]:ring-3 data-[active=true]:ring-[#2F6FE4]/15"
-            />
-          ))}
-        </InputOTPGroup>
-      </InputOTP>
-      {error ? <p className="text-xs text-red-500">{error}</p> : null}
-    </div>
   );
 }
 
@@ -121,78 +73,66 @@ function MethodPanel({
   );
 }
 
-function AuthenticatorQrCode({ value }: { value: string }) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    QRCode.toCanvas(canvas, value, {
-      width: 220,
-      margin: 2,
-      color: {
-        dark: "#111827",
-        light: "#FFFFFF",
-      },
-      errorCorrectionLevel: "M",
-    });
-  }, [value]);
+function MethodAction({
+  enabled,
+  setupTo,
+  onDisable,
+}: {
+  enabled: boolean;
+  setupTo: string;
+  onDisable: () => void;
+}) {
+  if (enabled) {
+    return (
+      <Button
+        variant="outline"
+        onClick={onDisable}
+        className="h-9 rounded-lg border-[#D1D9E6] px-4 text-sm font-semibold text-[#344256] hover:bg-[#F0F4FA]"
+      >
+        Disable
+      </Button>
+    );
+  }
 
   return (
-    <div className="flex justify-center rounded-2xl border border-[#E5EAF2] bg-white p-4">
-      <canvas
-        ref={canvasRef}
-        width={220}
-        height={220}
-        className="h-55 w-55 rounded-lg"
-        aria-label="Authenticator app setup QR code"
-      />
-    </div>
+    <Button
+      asChild
+      className="h-9 rounded-lg bg-[#2F6FE4] px-4 text-sm font-semibold text-white hover:bg-[#1F62DF]"
+    >
+      <Link to={setupTo}>Set up</Link>
+    </Button>
   );
 }
 
 export function TwoFAView({
   email,
+  setupNewPassword,
   settings,
-  onBack,
 }: {
   email: string;
+  setupNewPassword: boolean;
   settings: AuthTwoFactorSettingsResponse;
-  onBack: () => void;
 }) {
   const fetcher = useFetcher<SettingsActionData>();
-  const [totpOpen, setTotpOpen] = useState(false);
-  const [emailOpen, setEmailOpen] = useState(false);
   const [disableMethod, setDisableMethod] = useState<Method | null>(null);
-  const [totpSetup, setTotpSetup] =
-    useState<AuthTwoFactorTotpSetupResponse | null>(null);
-  const [totpSetupStep, setTotpSetupStep] = useState<TotpSetupStep>("password");
-  const [totpCode, setTotpCode] = useState("");
-  const [emailCode, setEmailCode] = useState("");
-  const [trustTotpDevice, setTrustTotpDevice] = useState(false);
-  const [trustEmailDevice, setTrustEmailDevice] = useState(false);
+  // Result from before the dialog was opened, so old errors don't reappear.
+  const [staleData, setStaleData] = useState<SettingsActionData>();
   const data = fetcher.data;
+  const disableErrors =
+    data !== staleData && data?.intent?.endsWith("-disable")
+      ? data.errors
+      : undefined;
+
+  function openDisableDialog(method: Method) {
+    setStaleData(fetcher.data);
+    setDisableMethod(method);
+  }
   const pendingIntent = fetcher.formData?.get("intent")?.toString();
   const isSubmitting = fetcher.state !== "idle";
   const totpEnabled = settings.methods.authenticatorApp.enabled;
   const emailEnabled = settings.methods.emailOtp.enabled;
 
   useEffect(() => {
-    if (data?.setup) {
-      setTotpSetup(data.setup);
-      setTotpSetupStep("qr");
-    }
-    if (data?.ok && data.intent === "totp-verify") {
-      setTotpOpen(false);
-      setTotpSetup(null);
-      setTotpSetupStep("password");
-      setTotpCode("");
-    }
-    if (data?.ok && data.intent === "email-verify") {
-      setEmailOpen(false);
-      setEmailCode("");
-    }
     if (
       data?.ok &&
       (data.intent === "totp-disable" || data.intent === "email-disable")
@@ -201,20 +141,15 @@ export function TwoFAView({
     }
   }, [data]);
 
-  const actionError = data?.errors?.form;
-  const activeDialog =
-    totpOpen || emailOpen || disableMethod !== null ? data?.intent : undefined;
-
   return (
     <div className="space-y-8">
-      <button
-        type="button"
-        onClick={onBack}
+      <Link
+        to="/settings"
         className="inline-flex items-center gap-2 text-sm text-[#6B7A99] transition-colors hover:text-[#344256]"
       >
         <ArrowLeft className="size-4" />
         Back to Security
-      </button>
+      </Link>
 
       <div className="space-y-2">
         <h2 className="text-2xl font-bold text-[#1A2233]">
@@ -242,12 +177,7 @@ export function TwoFAView({
         </div>
       </div>
 
-      {actionError && activeDialog ? (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-600">
-          {actionError}
-        </p>
-      ) : null}
-      {data?.message && !activeDialog ? (
+      {data?.message && disableMethod === null ? (
         <p className="rounded-lg border border-[#CFE8D8] bg-[#F0FDF4] px-3 py-2 text-sm font-medium text-[#166534]">
           {data.message}
         </p>
@@ -260,105 +190,11 @@ export function TwoFAView({
           description={`Send login and setup verification codes to ${settings.methods.emailOtp.email || email}.`}
           enabled={emailEnabled}
         >
-          {emailEnabled ? (
-            <Button
-              variant="outline"
-              onClick={() => setDisableMethod("email")}
-              className="h-9 rounded-lg border-[#D1D9E6] px-4 text-sm font-semibold text-[#344256] hover:bg-[#F0F4FA]"
-            >
-              Disable
-            </Button>
-          ) : (
-            <Dialog open={emailOpen} onOpenChange={setEmailOpen}>
-              <DialogTrigger asChild>
-                <Button className="h-9 rounded-lg bg-[#2F6FE4] px-4 text-sm font-semibold text-white hover:bg-[#1F62DF]">
-                  Set up
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="rounded-2xl sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle className="text-[#1A2233]">
-                    Set up email OTP
-                  </DialogTitle>
-                  <DialogDescription>
-                    Send a code to your email, then enter it here to enable this
-                    method.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <fetcher.Form method="post">
-                    <input type="hidden" name="intent" value="email-send" />
-                    <Button
-                      type="submit"
-                      variant="outline"
-                      disabled={isSubmitting}
-                      className="h-10 w-full rounded-lg border-[#D1D9E6] font-semibold text-[#344256] hover:bg-[#F0F4FA]"
-                    >
-                      {pendingIntent === "email-send"
-                        ? "Sending..."
-                        : "Send code"}
-                    </Button>
-                  </fetcher.Form>
-                  {data?.intent === "email-send" && data.errors?.form ? (
-                    <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-600">
-                      {data.errors.form}
-                    </p>
-                  ) : null}
-                  {data?.intent === "email-send" && data.message ? (
-                    <p className="text-sm font-medium text-[#166534]">
-                      {data.message}
-                    </p>
-                  ) : null}
-                  <fetcher.Form method="post" className="space-y-4">
-                    <input type="hidden" name="intent" value="email-verify" />
-                    <input type="hidden" name="code" value={emailCode} />
-                    <input
-                      type="hidden"
-                      name="trustDevice"
-                      value={trustEmailDevice ? "true" : "false"}
-                    />
-                    <OtpCodeField
-                      value={emailCode}
-                      onChange={setEmailCode}
-                      error={
-                        data?.intent === "email-verify"
-                          ? data.errors?.code
-                          : undefined
-                      }
-                    />
-                    <Label className="flex items-center gap-2 text-sm font-semibold text-[#1D283A]">
-                      <Checkbox
-                        checked={trustEmailDevice}
-                        onCheckedChange={(checked) =>
-                          setTrustEmailDevice(checked === true)
-                        }
-                      />
-                      Trust this device
-                    </Label>
-                    <DialogFooter className="rounded-b-2xl">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setEmailOpen(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        type="submit"
-                        data-otp-submit
-                        disabled={isSubmitting || emailCode.length !== 6}
-                        className="bg-[#2F6FE4] text-white hover:bg-[#1F62DF]"
-                      >
-                        {pendingIntent === "email-verify"
-                          ? "Verifying..."
-                          : "Enable email OTP"}
-                      </Button>
-                    </DialogFooter>
-                  </fetcher.Form>
-                </div>
-              </DialogContent>
-            </Dialog>
-          )}
+          <MethodAction
+            enabled={emailEnabled}
+            setupTo="/settings/2fa/email"
+            onDisable={() => openDisableDialog("email")}
+          />
         </MethodPanel>
         <MethodPanel
           icon={<Smartphone className="size-5 text-[#2F6FE4]" />}
@@ -366,189 +202,11 @@ export function TwoFAView({
           description="Use apps such as Google Authenticator, Authy, 1Password, or iCloud Passwords to generate time-based codes."
           enabled={totpEnabled}
         >
-          {totpEnabled ? (
-            <Button
-              variant="outline"
-              onClick={() => setDisableMethod("totp")}
-              className="h-9 rounded-lg border-[#D1D9E6] px-4 text-sm font-semibold text-[#344256] hover:bg-[#F0F4FA]"
-            >
-              Disable
-            </Button>
-          ) : (
-            <Dialog
-              open={totpOpen}
-              onOpenChange={(open) => {
-                setTotpOpen(open);
-                if (!open) {
-                  setTotpSetup(null);
-                  setTotpSetupStep("password");
-                  setTotpCode("");
-                  setTrustTotpDevice(false);
-                }
-              }}
-            >
-              <DialogTrigger asChild>
-                <Button className="h-9 rounded-lg bg-[#2F6FE4] px-4 text-sm font-semibold text-white hover:bg-[#1F62DF]">
-                  Set up
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="rounded-2xl sm:max-w-lg">
-                <DialogHeader>
-                  <DialogTitle className="text-[#1A2233]">
-                    Set up authenticator app
-                  </DialogTitle>
-                  <DialogDescription>
-                    Confirm your password, scan the QR code, then enter the code
-                    from your authenticator app.
-                  </DialogDescription>
-                </DialogHeader>
-
-                {totpSetupStep === "password" || !totpSetup ? (
-                  <fetcher.Form method="post" className="space-y-4">
-                    <input type="hidden" name="intent" value="totp-setup" />
-                    <div className="space-y-2">
-                      <Label htmlFor="totp-password">Current password</Label>
-                      <Input
-                        id="totp-password"
-                        name="password"
-                        type="password"
-                        autoComplete="current-password"
-                        className="h-11 border-[#E5EAF2] bg-white"
-                      />
-                      {data?.intent === "totp-setup" &&
-                      data.errors?.password ? (
-                        <p className="text-xs text-red-500">
-                          {data.errors.password}
-                        </p>
-                      ) : null}
-                    </div>
-                    {data?.intent === "totp-setup" && data.errors?.form ? (
-                      <p className="text-sm font-medium text-red-600">
-                        {data.errors.form}
-                      </p>
-                    ) : null}
-                    <DialogFooter className="rounded-b-2xl">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          setTotpOpen(false);
-                          setTotpSetup(null);
-                          setTotpSetupStep("password");
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="bg-[#2F6FE4] text-white hover:bg-[#1F62DF]"
-                      >
-                        {pendingIntent === "totp-setup"
-                          ? "Starting..."
-                          : "Continue"}
-                      </Button>
-                    </DialogFooter>
-                  </fetcher.Form>
-                ) : totpSetupStep === "qr" ? (
-                  <div className="space-y-5">
-                    <AuthenticatorQrCode value={totpSetup.totpURI} />
-                    <div className="space-y-2 rounded-xl border border-[#E5EAF2] bg-[#F8FAFC] p-3">
-                      <div className="flex items-center gap-2 text-sm font-semibold text-[#1A2233]">
-                        <KeyRound className="size-4 text-[#2F6FE4]" />
-                        Manual setup URI
-                      </div>
-                      <p className="text-xs leading-5 break-all text-[#5C6B82]">
-                        {totpSetup.totpURI}
-                      </p>
-                    </div>
-                    <div className="rounded-xl bg-[#F8FAFC] p-3">
-                      <p className="mb-2 text-xs font-semibold tracking-wide text-[#6B7A99] uppercase">
-                        Backup codes
-                      </p>
-                      <div className="grid grid-cols-2 gap-2">
-                        {totpSetup.backupCodes.map((code) => (
-                          <code
-                            key={code}
-                            className="rounded-lg bg-white px-2 py-1 text-xs font-semibold text-[#1A2233]"
-                          >
-                            {code}
-                          </code>
-                        ))}
-                      </div>
-                    </div>
-                    <DialogFooter className="rounded-b-2xl">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          setTotpOpen(false);
-                          setTotpSetup(null);
-                          setTotpSetupStep("password");
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        type="button"
-                        className="bg-[#2F6FE4] text-white hover:bg-[#1F62DF]"
-                        onClick={() => setTotpSetupStep("verify")}
-                      >
-                        Next
-                      </Button>
-                    </DialogFooter>
-                  </div>
-                ) : (
-                  <fetcher.Form method="post" className="space-y-5">
-                    <input type="hidden" name="intent" value="totp-verify" />
-                    <input type="hidden" name="code" value={totpCode} />
-                    <input
-                      type="hidden"
-                      name="trustDevice"
-                      value={trustTotpDevice ? "true" : "false"}
-                    />
-                    <OtpCodeField
-                      value={totpCode}
-                      onChange={setTotpCode}
-                      error={
-                        data?.intent === "totp-verify"
-                          ? data.errors?.code
-                          : undefined
-                      }
-                    />
-                    <Label className="flex items-center gap-2 text-sm font-semibold text-[#1D283A]">
-                      <Checkbox
-                        checked={trustTotpDevice}
-                        onCheckedChange={(checked) =>
-                          setTrustTotpDevice(checked === true)
-                        }
-                      />
-                      Trust this device
-                    </Label>
-                    <DialogFooter className="rounded-b-2xl">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setTotpSetupStep("qr")}
-                      >
-                        Back
-                      </Button>
-                      <Button
-                        type="submit"
-                        data-otp-submit
-                        disabled={isSubmitting || totpCode.length !== 6}
-                        className="bg-[#2F6FE4] text-white hover:bg-[#1F62DF]"
-                      >
-                        {pendingIntent === "totp-verify"
-                          ? "Verifying..."
-                          : "Enable authenticator"}
-                      </Button>
-                    </DialogFooter>
-                  </fetcher.Form>
-                )}
-              </DialogContent>
-            </Dialog>
-          )}
+          <MethodAction
+            enabled={totpEnabled}
+            setupTo="/settings/2fa/authenticator"
+            onDisable={() => openDisableDialog("totp")}
+          />
         </MethodPanel>
       </div>
 
@@ -568,10 +226,26 @@ export function TwoFAView({
               {disableMethod === "totp" ? "authenticator app" : "email OTP"}?
             </DialogTitle>
             <DialogDescription className="text-center">
-              You can enable this method again later from this page.
+              {disableMethod === "totp"
+                ? "Your authenticator and backup codes will be removed. To turn this back on, you'll need to set it up again."
+                : "To turn this back on, you'll need to verify your email again."}
             </DialogDescription>
           </DialogHeader>
-          <fetcher.Form method="post">
+          {setupNewPassword ? (
+            <p className="rounded-lg border border-[#FEDF89] bg-[#FFFAEB] px-3 py-2 text-sm font-medium text-[#B54708]">
+              Your account doesn&apos;t have a password yet.{" "}
+              <Link to="/settings" className="underline">
+                Set a password
+              </Link>{" "}
+              before disabling 2-step verification.
+            </p>
+          ) : null}
+          {disableErrors?.form ? (
+            <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-600">
+              {disableErrors.form}
+            </p>
+          ) : null}
+          <fetcher.Form method="post" className="space-y-4">
             <input
               type="hidden"
               name="intent"
@@ -579,6 +253,20 @@ export function TwoFAView({
                 disableMethod === "totp" ? "totp-disable" : "email-disable"
               }
             />
+            <div className="space-y-2">
+              <Label htmlFor="disable-2fa-password">Current password</Label>
+              <Input
+                id="disable-2fa-password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                disabled={setupNewPassword}
+                className="h-11 border-[#E5EAF2] bg-white"
+              />
+              {disableErrors?.password ? (
+                <p className="text-xs text-red-500">{disableErrors.password}</p>
+              ) : null}
+            </div>
             <DialogFooter className="rounded-b-2xl">
               <Button
                 type="button"
@@ -589,7 +277,7 @@ export function TwoFAView({
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || setupNewPassword}
                 className="bg-[#D92D20] text-white hover:bg-[#B42318]"
               >
                 {pendingIntent?.endsWith("-disable")

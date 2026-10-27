@@ -1,12 +1,7 @@
+import { Link } from "react-router";
 import { ChevronRight } from "lucide-react";
 
-export function TwoFactorToggle({
-  enabled,
-  onEditSettings,
-}: {
-  enabled: boolean;
-  onEditSettings: () => void;
-}) {
+export function TwoFactorToggle({ enabled }: { enabled: boolean }) {
   return (
     <div className="flex flex-col items-end gap-2">
       <span
@@ -18,14 +13,13 @@ export function TwoFactorToggle({
       >
         {enabled ? "Enabled" : "Disabled"}
       </span>
-      <button
-        type="button"
-        onClick={onEditSettings}
+      <Link
+        to="/settings/2fa"
         className="flex items-center gap-1 text-sm font-semibold text-[#2F6FE4] hover:underline"
       >
         Edit 2FA Settings
         <ChevronRight className="size-4" />
-      </button>
+      </Link>
     </div>
   );
 }
