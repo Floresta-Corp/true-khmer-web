@@ -30,6 +30,12 @@ type RemovedRole = {
   toastId?: string | number;
 };
 
+// Empties the list in place, so undo handlers already holding it see nothing
+// left to restore, and closes the toasts that offered the undo.
+const withdrawRemovals = (pending: RemovedRole[]) => {
+  pending.splice(0).forEach(({ toastId }) => toast.dismiss(toastId));
+};
+
 const emptyDraft: LaunchpadRoleInput = {
   name: "",
   capacity: 1,
@@ -155,10 +161,25 @@ export default function LaunchpadPostPage2({
   // (e.g. two neighbours removed in turn); their order here breaks the tie.
   const pendingRemovalsRef = useRef<RemovedRole[]>([]);
 
+  // Undo writes back through this step's roles, so it ends when the step
+  // unmounts (an undo then would restore an out-of-date list) ...
+  useEffect(() => {
+    const pending = pendingRemovalsRef.current;
+    return () => withdrawRemovals(pending);
+  }, []);
+
+  // ... or when publishing starts: the request has already captured the roles,
+  // so a role restored now would show in the form but not be saved.
+  useEffect(() => {
+    if (isSubmitting) {
+      withdrawRemovals(pendingRemovalsRef.current);
+    }
+  }, [isSubmitting]);
+
   const handleUndoRemoveRole = (removed: RemovedRole) => {
     const pending = pendingRemovalsRef.current;
     const at = pending.indexOf(removed);
-    // Gone after Reset roles, which has already brought the original roles back.
+    // Withdrawn by Reset roles, a step change or publishing.
     if (at === -1) {
       return;
     }
@@ -210,8 +231,8 @@ export default function LaunchpadPostPage2({
   };
 
   const handleResetRoles = () => {
-    pendingRemovalsRef.current.forEach(({ toastId }) => toast.dismiss(toastId));
-    pendingRemovalsRef.current = [];
+    // Reset has already brought the removed original roles back.
+    withdrawRemovals(pendingRemovalsRef.current);
     onResetRoles?.();
   };
 
