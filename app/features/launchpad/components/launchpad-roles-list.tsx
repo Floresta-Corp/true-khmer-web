@@ -12,7 +12,7 @@ type Props = {
   originalRoles?: LaunchpadRoleInput[];
   editingIndex: number | null;
   onResetRoles?: () => void;
-  onRolesChange: (roles: LaunchpadRoleInput[]) => void;
+  onRemoveRole: (index: number) => void;
   onEditRole: (index: number) => void;
 };
 
@@ -21,14 +21,10 @@ export default function LaunchpadRolesList({
   originalRoles,
   editingIndex,
   onResetRoles,
-  onRolesChange,
+  onRemoveRole,
   onEditRole,
 }: Props) {
   const count = roles.length;
-
-  const handleRemoveRole = (index: number) => {
-    onRolesChange(roles.filter((_, itemIndex) => itemIndex !== index));
-  };
 
   return (
     <div className="gap-2">
@@ -77,7 +73,7 @@ export default function LaunchpadRolesList({
                     type="button"
                     variant="ghost"
                     className="text-destructive"
-                    onClick={() => handleRemoveRole(index)}
+                    onClick={() => onRemoveRole(index)}
                   >
                     Remove
                   </Button>
