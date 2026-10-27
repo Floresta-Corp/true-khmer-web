@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { Link, useLoaderData, useNavigate, useNavigation } from "react-router";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Share2 } from "lucide-react";
+import IconButton from "~/components/icon-button";
 import { SanitizedHtml } from "~/components/sanitized-html";
 import {
   BLOG_CONTENT_EXTRA_ALLOWED_ATTRIBUTES,
@@ -9,6 +9,7 @@ import {
 import { AuthorAvatar } from "~/components/author-avatar";
 import { resolveBlogAuthor } from "~/lib/blog-author";
 import { formatDate } from "~/lib/time";
+import { copyToClipboard } from "~/lib/clipboard";
 import type { blogDetailLoader } from "../services/blog-detail.loader";
 import BackToButton from "~/components/back-to-button";
 import BlogCommentsSection from "./comment/blog-comments-section";
@@ -17,7 +18,6 @@ export function PublicBlogDetailPage() {
   const { post, relatedPosts, comments, commentTotal, commentSort, viewer } =
     useLoaderData<typeof blogDetailLoader>();
   const author = resolveBlogAuthor(post);
-  const [shareLabel, setShareLabel] = useState("Share");
   const navigate = useNavigate();
   const navigation = useNavigation();
   const isGoingBack = navigation.state !== "idle";
@@ -31,24 +31,8 @@ export function PublicBlogDetailPage() {
     navigate("/khmer-voices");
   }
 
-  async function handleShare() {
-    const url = window.location.href;
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: post.title, text: post.excerpt, url });
-      } catch {
-        // The native share sheet was dismissed.
-      }
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(url);
-      setShareLabel("Copied");
-      window.setTimeout(() => setShareLabel("Share"), 1800);
-    } catch {
-      setShareLabel("Share");
-    }
+  function handleShare() {
+    copyToClipboard(window.location.href);
   }
 
   return (
@@ -138,13 +122,11 @@ export function PublicBlogDetailPage() {
               </p>
             </div>
           </div>
-          <button
-            type="button"
+          <IconButton
+            icon={<Share2 className="size-5 md:size-4" />}
+            ariaLabel="Share post"
             onClick={handleShare}
-            className="inline-flex h-10 min-w-10 cursor-pointer items-center justify-center rounded-full border border-slate-200 px-4 text-[12px] font-medium text-slate-500 transition hover:border-blue-500 hover:text-blue-500 dark:border-white/15"
-          >
-            {shareLabel}
-          </button>
+          />
         </div>
 
         <article className="mt-12">

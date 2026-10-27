@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useFetcher, useLoaderData, useNavigate } from "react-router";
 import { motion, useReducedMotion } from "motion/react";
 import { toast } from "sonner";
+import { copyToClipboard } from "~/lib/clipboard";
 import { getSafeExternalUrl } from "~/lib/utils";
 import { EducationPage } from "../education-page";
 import { CourseActionBar } from "../course-action-bar";
@@ -53,21 +54,8 @@ export default function CourseDetailPage() {
     toast.error(saveFetcher.data.error ?? "That course could not be saved.");
   }, [saveFetcher.state, saveFetcher.data]);
 
-  const handleShare = async () => {
-    const url = window.location.href;
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: course.title, url });
-        return;
-      } catch {}
-    }
-
-    try {
-      await navigator.clipboard.writeText(url);
-      toast.success("Link copied to clipboard");
-    } catch {
-      toast.error("Could not copy the link. Copy it from the address bar.");
-    }
+  const handleShare = () => {
+    copyToClipboard(window.location.href);
   };
 
   const downloadable = course.curriculum
