@@ -6,7 +6,8 @@ const UUID_PATTERN =
 const LaunchpadRoleInputSchema = z.object({
   name: z.string().min(1).max(100),
   capacity: z.number().int().gt(0).max(1000),
-  description: z.string().nullable().optional(),
+  responsibilities: z.array(z.string().min(1).max(240)).max(20),
+  requirements: z.array(z.string().min(1).max(240)).max(20),
 });
 
 export const LaunchpadCreateInputSchema = z
@@ -40,7 +41,8 @@ const LaunchpadUpdateRoleInputSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1).max(100),
   capacity: z.number().int().gt(0).max(1000),
-  description: z.string().nullable().optional(),
+  responsibilities: z.array(z.string().min(1).max(240)).max(20),
+  requirements: z.array(z.string().min(1).max(240)).max(20),
 });
 
 export const LaunchpadUpdateInputSchema = z

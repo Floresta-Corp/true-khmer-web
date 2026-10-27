@@ -205,11 +205,14 @@ export default function ManageLaunchpadDetailPage() {
                           {role.capacity === 1 ? "" : "s"}
                         </span>
                       </div>
-                      {role.description && (
-                        <p className="mt-1.5 text-xs leading-5 whitespace-pre-line text-slate-500 dark:text-slate-400">
-                          {role.description}
-                        </p>
-                      )}
+                      <RolePoints
+                        label="Responsibilities"
+                        items={role.responsibilities}
+                      />
+                      <RolePoints
+                        label="Requirements"
+                        items={role.requirements}
+                      />
                     </li>
                   ))}
                 </ul>
@@ -292,6 +295,25 @@ export default function ManageLaunchpadDetailPage() {
           <div className="pb-2" />
         </div>
       </div>
+    </div>
+  );
+}
+
+function RolePoints({ label, items }: { label: string; items: string[] }) {
+  if (items.length === 0) return null;
+
+  return (
+    <div className="mt-2">
+      <p className="text-[11px] font-semibold tracking-wide text-slate-400 uppercase">
+        {label}
+      </p>
+      <ul className="mt-1 list-disc space-y-0.5 pl-4 text-xs leading-5 text-slate-500 dark:text-slate-400">
+        {items.map((item, index) => (
+          <li key={index} className="whitespace-pre-line">
+            {item}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

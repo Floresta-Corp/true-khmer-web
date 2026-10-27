@@ -59,9 +59,11 @@ function isSameFile(a: File | null, b: File): boolean {
 }
 
 export type LaunchpadRoleInput = {
+  id?: string;
   name: string;
   capacity: number;
-  description: string;
+  responsibilities: string[];
+  requirements: string[];
 };
 
 export type LaunchpadFormState = {
@@ -216,7 +218,28 @@ export const useLaunchpadCreateStore = create<LaunchpadCreateStore>()(
     }),
     {
       name: "launchpad-create-store",
-      version: 1,
+      version: 2,
+      // v1 drafts kept one free-text description per role; carry it over as
+      // the first responsibility, as the API migration does for saved roles.
+      migrate: (persisted, version) => {
+        const state = persisted as Partial<LaunchpadFormState> | null;
+        if (!state || version >= 2) return state as LaunchpadCreateStore;
+        const legacyRoles = (state.roles ?? []) as Array<
+          Partial<LaunchpadRoleInput> & { description?: string }
+        >;
+        const migrated: Partial<LaunchpadFormState> = {
+          ...state,
+          roles: legacyRoles.map((role) => ({
+            name: role.name ?? "",
+            capacity: role.capacity ?? 1,
+            responsibilities: role.description?.trim()
+              ? [role.description.trim()]
+              : [],
+            requirements: [],
+          })),
+        };
+        return migrated as LaunchpadCreateStore;
+      },
       storage: {
         getItem: (name) => {
           if (typeof window === "undefined") return null;
