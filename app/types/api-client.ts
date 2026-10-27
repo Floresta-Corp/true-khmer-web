@@ -1,7 +1,7 @@
 import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
 import { z } from "zod";
 
-const AuthRegisterRequest = z.object({ firstName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u), lastName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u), gender: z.enum(["male", "female", "other"]), dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullish(), occupation: z.string().min(1).max(120), phone: z.object({ country: z.string().min(2).max(2), nationalNumber: z.string().min(1) }), email: z.string().min(1).email(), password: z.string().min(8).regex(/^\S+$/), waitlistId: z.string().uuid().optional() });
+const AuthRegisterRequest = z.object({ firstName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$/u), lastName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$/u), gender: z.enum(["male", "female", "other"]), dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullish(), occupation: z.string().min(1).max(120), phone: z.object({ country: z.string().min(2).max(2), nationalNumber: z.string().min(1) }), email: z.string().min(1).email(), password: z.string().min(8).regex(/^\S+$/), waitlistId: z.string().uuid().optional() });
 
 const AuthUserProfile = z.object({ id: z.string(), displayName: z.string().optional(), avatarKey: z.string().optional() });
 
@@ -15,7 +15,7 @@ const AuthWaitlistPrefill = z.object({ firstName: z.string(), lastName: z.string
 
 const AuthWaitlistContextResponse = z.object({ found: z.boolean(), eligibleForEarlyFounder: z.boolean(), waitlistId: z.string().uuid().nullable(), prefill: AuthWaitlistPrefill.nullable() });
 
-const AuthCompleteSignUpRequest = z.object({ firstName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u), lastName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u), gender: z.enum(["male", "female", "other"]), dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullish(), occupation: z.string().min(1).max(120), phone: z.object({ country: z.string().min(2).max(2), nationalNumber: z.string().min(1) }), memberAgreementAccepted: z.literal(true) });
+const AuthCompleteSignUpRequest = z.object({ firstName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$/u), lastName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$/u), gender: z.enum(["male", "female", "other"]), dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullish(), occupation: z.string().min(1).max(120), phone: z.object({ country: z.string().min(2).max(2), nationalNumber: z.string().min(1) }), memberAgreementAccepted: z.boolean().optional() });
 
 const AuthAccessState = z.enum(["SIGNUP_REQUIRED", "ONBOARDING_REQUIRED", "ACTIVE"]);
 
@@ -64,6 +64,8 @@ const AuthLoginTwoFactorTotpVerifyRequest = AuthLoginTwoFactorSessionRequest.and
 const AuthStatusResponse = z.object({ status: z.boolean() });
 const AuthTwoFactorEmailVerifyRequest = AuthTwoFactorSessionRequest.and(z.object({ code: z.string().min(6).max(6), trustDevice: z.boolean().optional() }));
 const AuthLoginTwoFactorEmailVerifyRequest = AuthLoginTwoFactorSessionRequest.and(z.object({ code: z.string().min(6).max(6), trustDevice: z.boolean().optional() }));
+
+const AuthTwoFactorDisableRequest = z.object({ password: z.string().min(1) });
 
 const AuthForgotPasswordRequest = z.object({ email: z.string().min(1).email(), resetPageUrl: z.string().min(1) });
 
@@ -552,7 +554,7 @@ const ProfileResponse = z.object({ ok: z.literal(true), profile: z.object({ user
 
 const ProfileErrorResponse = z.object({ ok: z.literal(false), error: z.string(), issues: z.array(z.string()).optional() });
 
-const UpdateProfileRequest = z.object({ firstName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u), lastName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$\/u/u), gender: z.enum(["male", "female", "other"]), dateOfBirth: z.union([z.string(), z.unknown()]), occupation: z.union([z.string(), z.unknown()]), phone: z.union([z.object({ country: z.string().min(2).max(2), nationalNumber: z.string().min(1) }), z.unknown()]), telegramUsername: z.union([z.string(), z.unknown()]), bio: z.union([z.string(), z.unknown()]), countryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), avatarKey: z.union([z.string(), z.unknown()]), skills: z.array(z.string()).max(20), socialLinks: z.object({ website: z.union([z.string(), z.string(), z.unknown()]), linkedin: z.union([z.string(), z.string(), z.unknown()]), twitter: z.union([z.string(), z.string(), z.unknown()]), facebook: z.union([z.string(), z.string(), z.unknown()]) }).partial(), visibility: z.object({ profile: z.enum(["public", "members", "private"]), contact: z.enum(["public", "members", "private"]), socialLinks: z.enum(["public", "members", "private"]), contributions: z.enum(["public", "members", "private"]) }).partial() }).partial();
+const UpdateProfileRequest = z.object({ firstName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$/u), lastName: z.string().min(2).max(100).regex(/^[\p{L}\p{M}]+(?:[\s'-][\p{L}\p{M}]+)*$/u), gender: z.enum(["male", "female", "other"]), dateOfBirth: z.union([z.string(), z.unknown()]), occupation: z.union([z.string(), z.unknown()]), phone: z.union([z.object({ country: z.string().min(2).max(2), nationalNumber: z.string().min(1) }), z.unknown()]), telegramUsername: z.union([z.string(), z.unknown()]), bio: z.union([z.string(), z.unknown()]), countryId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), cityId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i), avatarKey: z.union([z.string(), z.unknown()]), skills: z.array(z.string()).max(20), socialLinks: z.object({ website: z.union([z.string(), z.string(), z.unknown()]), linkedin: z.union([z.string(), z.string(), z.unknown()]), twitter: z.union([z.string(), z.string(), z.unknown()]), facebook: z.union([z.string(), z.string(), z.unknown()]) }).partial(), visibility: z.object({ profile: z.enum(["public", "members", "private"]), contact: z.enum(["public", "members", "private"]), socialLinks: z.enum(["public", "members", "private"]), contributions: z.enum(["public", "members", "private"]) }).partial() }).partial();
 
 const UpdateProfileResponse = z.object({ ok: z.literal(true), profile: z.object({ user: z.object({ id: z.string(), firstName: z.string(), lastName: z.string(), displayName: z.string().nullable(), email: z.string(), gender: z.enum(["male", "female", "other"]), dateOfBirth: z.string().nullable(), occupation: z.string().nullable(), phone: z.object({ country: z.string(), nationalNumber: z.string() }).nullable(), telegramUsername: z.string().nullable() }), profile: z.object({ avatarKey: z.string().nullable(), bio: z.string().nullable(), country: z.object({ id: z.string(), name: z.string(), iso2: z.string().nullable() }).nullable(), city: z.object({ id: z.string(), name: z.string() }).nullable(), visibility: z.object({ profile: z.enum(["public", "members", "private"]), contact: z.enum(["public", "members", "private"]), socialLinks: z.enum(["public", "members", "private"]), contributions: z.enum(["public", "members", "private"]) }) }), skills: z.array(z.object({ id: z.string(), name: z.string() })), socialLinks: z.object({ website: z.string().nullable(), linkedin: z.string().nullable(), twitter: z.string().nullable(), facebook: z.string().nullable() }), progress: z.object({ totalPoints: z.number(), rank: z.number().nullable(), tier: z.object({ id: z.string(), slug: z.string(), name: z.string(), rankOrder: z.number(), minPoints: z.number() }).nullable(), nextTier: z.object({ id: z.string(), slug: z.string(), name: z.string(), rankOrder: z.number(), minPoints: z.number() }).nullable(), pointsUntilNextTier: z.number() }), badges: z.array(z.object({ slug: z.string(), name: z.string(), description: z.string(), category: z.enum(["ONBOARDING", "COLLABORATION", "KNOWLEDGE", "VOLUNTEER", "LAUNCHPAD"]), awardedAt: z.string() })) }) });
 
@@ -574,9 +576,13 @@ const CertificateResponse = z.object({ id: z.string().uuid(), courseId: z.string
 
 const ListCertificatesResponse = z.object({ ok: z.literal(true), certificates: z.array(CertificateResponse), pagination: z.object({ page: z.number().int().gt(0), limit: z.number().int().gt(0), total: z.number().int().gte(0), totalPages: z.number().int().gte(0) }) });
 
-const CertificateErrorResponse = z.object({ ok: z.literal(false), error: z.string() });
+const CertificateErrorResponse = z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() });
 
-const PublicProfileResponse = z.object({ ok: z.literal(true), profile: z.object({ user: z.object({ id: z.string(), firstName: z.string(), lastName: z.string(), displayName: z.string().nullable(), occupation: z.string().nullable(), email: z.string().nullable(), phone: z.object({ country: z.string(), nationalNumber: z.string() }).nullable(), telegramUsername: z.string().nullable() }), profile: z.object({ avatarKey: z.string().nullable(), bio: z.string().nullable(), country: z.object({ id: z.string(), name: z.string(), iso2: z.string().nullable() }).nullable(), city: z.object({ id: z.string(), name: z.string() }).nullable() }), skills: z.array(z.object({ id: z.string(), name: z.string() })), socialLinks: z.object({ website: z.string().nullable(), linkedin: z.string().nullable(), twitter: z.string().nullable(), facebook: z.string().nullable() }), tier: z.object({ id: z.string(), slug: z.string(), name: z.string(), rankOrder: z.number(), minPoints: z.number() }).nullable(), postedCounts: z.object({ forum: z.number().int().gte(0), volunteer: z.number().int().gte(0), project: z.number().int().gte(0) }).nullable(), badges: z.array(z.object({ slug: z.string(), name: z.string(), description: z.string(), category: z.enum(["ONBOARDING", "COLLABORATION", "KNOWLEDGE", "VOLUNTEER", "LAUNCHPAD"]), awardedAt: z.string() })) }) });
+const ProfileVisibilityResponse = z.object({ ok: z.literal(true), userId: z.string(), viewer: z.enum(["owner", "member", "anonymous"]), isOwner: z.boolean(), sections: z.object({ profile: z.object({ section: z.enum(["profile", "contact", "socialLinks", "contributions"]), audience: z.enum(["public", "members", "private"]), visible: z.boolean(), reason: z.enum(["MEMBERS_ONLY", "PRIVATE", "PROFILE_HIDDEN"]).nullable() }), contact: z.object({ section: z.enum(["profile", "contact", "socialLinks", "contributions"]), audience: z.enum(["public", "members", "private"]), visible: z.boolean(), reason: z.enum(["MEMBERS_ONLY", "PRIVATE", "PROFILE_HIDDEN"]).nullable() }), socialLinks: z.object({ section: z.enum(["profile", "contact", "socialLinks", "contributions"]), audience: z.enum(["public", "members", "private"]), visible: z.boolean(), reason: z.enum(["MEMBERS_ONLY", "PRIVATE", "PROFILE_HIDDEN"]).nullable() }), contributions: z.object({ section: z.enum(["profile", "contact", "socialLinks", "contributions"]), audience: z.enum(["public", "members", "private"]), visible: z.boolean(), reason: z.enum(["MEMBERS_ONLY", "PRIVATE", "PROFILE_HIDDEN"]).nullable() }) }) });
+
+const PublicProfileResponse = z.object({ ok: z.literal(true), profile: z.object({ user: z.object({ id: z.string(), firstName: z.string(), lastName: z.string(), displayName: z.string().nullable(), occupation: z.string().nullable(), email: z.string().nullable(), phone: z.object({ country: z.string(), nationalNumber: z.string() }).nullable(), telegramUsername: z.string().nullable() }), profile: z.object({ avatarKey: z.string().nullable(), bio: z.string().nullable(), country: z.object({ id: z.string(), name: z.string(), iso2: z.string().nullable() }).nullable(), city: z.object({ id: z.string(), name: z.string() }).nullable() }), skills: z.array(z.object({ id: z.string(), name: z.string() })), socialLinks: z.object({ website: z.string().nullable(), linkedin: z.string().nullable(), twitter: z.string().nullable(), facebook: z.string().nullable() }), tier: z.object({ id: z.string(), slug: z.string(), name: z.string(), rankOrder: z.number(), minPoints: z.number() }).nullable(), postedCounts: z.object({ forum: z.number().int().gte(0), volunteer: z.number().int().gte(0), project: z.number().int().gte(0) }).nullable(), badges: z.array(z.object({ slug: z.string(), name: z.string(), description: z.string(), category: z.enum(["ONBOARDING", "COLLABORATION", "KNOWLEDGE", "VOLUNTEER", "LAUNCHPAD"]), awardedAt: z.string() })) }), access: z.object({ viewer: z.enum(["owner", "member", "anonymous"]), isOwner: z.boolean(), profile: z.boolean(), contact: z.boolean(), socialLinks: z.boolean(), contributions: z.boolean() }) });
+
+const ProfileRestrictedResponse = z.object({ ok: z.literal(false), error: z.string(), code: z.enum(["PROFILE_MEMBERS_ONLY", "PROFILE_PRIVATE", "CONTRIBUTIONS_MEMBERS_ONLY", "CONTRIBUTIONS_PRIVATE"]) });
 
 const GetMyPostedResponse = z.union([z.object({ ok: z.literal(true), sourceType: z.literal("forum"), questions: z.array(QuestionResponse), pagination: z.object({ limit: z.number(), hasMore: z.boolean(), nextCursor: z.string().nullable(), total: z.number().int().gte(0) }) }), z.object({ ok: z.literal(true), sourceType: z.literal("volunteer"), opportunities: z.array(VolunteerOpportunityListItemResponse), pagination: VolunteerOpportunitiesPaginationResponse }), z.object({ ok: z.literal(true), sourceType: z.literal("project"), launchpads: z.array(z.object({ id: z.string(), name: z.string(), description: z.string().nullable(), deadline: z.string().nullable(), status: z.enum(["DRAFT", "LIVE", "IN_PROGRESS", "COMPLETED", "CANCELED", "SUSPENDED"]), suspendedAt: z.string().nullable(), suspensionReason: z.string().nullable(), coverKey: z.string().nullable(), documentKeys: z.array(z.string()), documentNames: z.array(z.string()), phoneNumber: z.string().nullable(), email: z.string().nullable(), telegramUsername: z.string().nullable(), createdBy: z.object({ id: z.string(), name: z.string(), avatarKey: z.string().nullable(), launchpadCount: z.number() }), createdAt: z.string(), category: z.object({ id: z.string(), name: z.string() }).optional(), city: z.object({ id: z.string(), name: z.string() }).optional(), totalRoles: z.number(), totalView: z.number(), isSaved: z.boolean() })), nextCursor: z.string().nullable() })]);
 
@@ -622,9 +628,11 @@ const ManagePostingDetailResponse = z.object({ ok: z.literal(true), detail: Mana
 
 const postV1notificationstokens_Body = z.object({ token: z.string().min(1), platform: z.enum(["android", "ios"]) });
 
-const postV1notificationssenduser_Body = z.object({ userId: z.string().uuid(), title: z.string().min(1), body: z.string().min(1), data: z.record(z.string(), z.string()).optional(), imageUrl: z.string().optional(), type: z.enum(["forum", "blog", "profile_view", "new_message", "achievement", "event_reminder", "application", "launchpad_update", "points", "system"]).optional().default("system"), archived: z.boolean().optional(), webRoute: z.string().optional(), mobileRoute: z.string().optional() });
+const postV1notificationssenduser_Body = z.object({ userId: z.string().uuid(), title: z.string().min(1), body: z.string().min(1), data: z.record(z.string(), z.string()).optional(), imageUrl: z.string().url().nullish(), type: z.enum(["forum", "blog", "profile_view", "new_message", "achievement", "event_reminder", "application", "launchpad_update", "points", "system"]).optional().default("system"), archived: z.boolean().optional(), webRoute: z.string().nullish(), mobileRoute: z.string().nullish() });
 
-const postV1notificationsbroadcast_Body = z.object({ title: z.string().min(1), body: z.string().min(1), data: z.record(z.string(), z.string()).optional(), imageUrl: z.string().optional(), type: z.enum(["forum", "blog", "profile_view", "new_message", "achievement", "event_reminder", "application", "launchpad_update", "points", "system"]).optional().default("system"), archived: z.boolean().optional(), webRoute: z.string().optional(), mobileRoute: z.string().optional() });
+const postV1notificationsbroadcast_Body = z.object({ title: z.string().min(1), body: z.string().min(1), data: z.record(z.string(), z.string()).optional(), imageUrl: z.string().url().nullish(), type: z.enum(["forum", "blog", "profile_view", "new_message", "achievement", "event_reminder", "application", "launchpad_update", "points", "system"]).optional().default("system"), archived: z.boolean().optional(), webRoute: z.string().nullish(), mobileRoute: z.string().nullish() });
+
+const patchV1notificationspreferences_Body = z.object({ pushNotifications: z.boolean(), emailNotifications: z.boolean(), forumActivity: z.boolean(), applicationUpdates: z.boolean(), communityAnnouncements: z.boolean() }).partial();
 
 const PartnerRegistrationRequest = z.object({ firstName: z.string().min(2).max(50), lastName: z.string().min(2).max(50), registrationNumber: z.string().optional(), sectorOfActivity: z.string().min(2), country: z.string().min(2), companyName: z.string().min(2).max(150), companyAddress: z.string().min(5).max(200), city: z.string().min(2).max(100), zipCode: z.string().max(20).optional(), userContactNumber: z.string().min(5).max(30), companyContactNumber: z.string().min(5).max(30), position: z.string().min(2), website: z.string().url().optional(), companyFacebookUrl: z.string().url().optional(), companyLinkedinUrl: z.string().url().optional(), companyEmail: z.string().min(1).max(100).email(), companyTelegram: z.string().optional(), userFacebookUrl: z.string().url().optional(), userLinkedinUrl: z.string().url().optional(), userEmail: z.string().min(1).max(100).email(), userIdentity: z.string().max(50).optional(), userTelegram: z.string().optional(), package: z.enum(["Platinum", "Gold", "Silver", "Bronze", "Government", "SME", "Video", "Free"]).optional().default("Bronze"), title: z.string().min(2).max(100), gender: z.string().min(2).max(10) });
 
@@ -892,6 +900,16 @@ const SsoUserResponse = z.object({ ok: z.literal(true), user: SsoUser });
 
 const postV1plumpievents_Body = z.object({ organizationId: z.string().uuid(), title: z.string().min(1).max(100), excerpt: z.string().min(1).max(200), eventCategories: z.array(z.string().uuid()), isOnline: z.boolean(), venueId: z.string().uuid().optional(), venueName: z.string().min(1).optional(), address: z.string().min(1).optional(), googleMapLink: z.string().max(500).url().optional(), eventDates: z.array(z.object({ startAt: z.string(), endAt: z.string() })).min(1), visibility: z.enum(["LISTED", "UNLISTED"]).optional().default("LISTED"), registrationMode: z.enum(["ANYONE", "REQUIRED_APPROVAL", "INVITED_GUESTS_ONLY"]).optional().default("ANYONE"), entryMode: z.enum(["TICKETED", "RSVP", "OPEN_ACCESS"]).optional().default("TICKETED") });
 
+const ContactCategory = z.enum(["support", "privacy", "partnerships", "moderation"]);
+
+const SendContactMessageRequest = z.object({ category: ContactCategory, name: z.string(), email: z.string().max(254), subject: z.string(), message: z.string(), website: z.string().max(200).optional(), turnstileToken: z.string().max(2048) });
+
+const SendContactMessageResponse = z.object({ ok: z.literal(true), message: z.string(), rateLimit: z.object({ limit: z.number().int(), remaining: z.number().int().gte(0) }) });
+
+const ContactErrorResponse = z.object({ ok: z.literal(false), error: z.string(), code: z.string().optional() });
+
+const ContactRateLimitedResponse = z.object({ ok: z.literal(false), error: z.string(), code: z.literal("CONTACT_DAILY_LIMIT"), retryAt: z.string(), rateLimit: z.object({ limit: z.number().int(), remaining: z.number().int().gte(0) }) });
+
 export const schemas = {
 	AuthRegisterRequest,
 	AuthUserProfile,
@@ -927,6 +945,7 @@ export const schemas = {
 	AuthStatusResponse,
 	AuthTwoFactorEmailVerifyRequest,
 	AuthLoginTwoFactorEmailVerifyRequest,
+	AuthTwoFactorDisableRequest,
 	AuthForgotPasswordRequest,
 	ForgotPasswordResponse,
 	AuthForgotPasswordRequestOtpRequest,
@@ -1185,7 +1204,9 @@ export const schemas = {
 	CertificateResponse,
 	ListCertificatesResponse,
 	CertificateErrorResponse,
+	ProfileVisibilityResponse,
 	PublicProfileResponse,
+	ProfileRestrictedResponse,
 	GetMyPostedResponse,
 	MyPostedErrorResponse,
 	ManagePostingStatus,
@@ -1210,6 +1231,7 @@ export const schemas = {
 	postV1notificationstokens_Body,
 	postV1notificationssenduser_Body,
 	postV1notificationsbroadcast_Body,
+	patchV1notificationspreferences_Body,
 	PartnerRegistrationRequest,
 	PartnerRegistrationResponse,
 	PartnerRegistrationKmRequest,
@@ -1346,6 +1368,11 @@ export const schemas = {
 	SsoUser,
 	SsoUserResponse,
 	postV1plumpievents_Body,
+	ContactCategory,
+	SendContactMessageRequest,
+	SendContactMessageResponse,
+	ContactErrorResponse,
+	ContactRateLimitedResponse,
 };
 
 const endpoints = makeApi([
@@ -4604,15 +4631,15 @@ const endpoints = makeApi([
 			{
 				name: "body",
 				type: "Body",
-				schema: z.object({  }).partial()
+				schema: z.object({ password: z.string().min(1) })
 			},
 		],
 		response: z.object({ status: z.boolean() }),
 		errors: [
 			{
 				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
+				description: `Validation failed, password not set, or password is invalid`,
+				schema: z.object({ error: z.string() })
 			},
 			{
 				status: 401,
@@ -4711,15 +4738,15 @@ const endpoints = makeApi([
 			{
 				name: "body",
 				type: "Body",
-				schema: z.object({  }).partial()
+				schema: z.object({ password: z.string().min(1) })
 			},
 		],
 		response: z.object({ status: z.boolean() }),
 		errors: [
 			{
 				status: 400,
-				description: `Validation failed`,
-				schema: z.void()
+				description: `Validation failed, password not set, or password is invalid`,
+				schema: z.object({ error: z.string() })
 			},
 			{
 				status: 401,
@@ -4794,7 +4821,7 @@ const endpoints = makeApi([
 		method: "delete",
 		path: "/v1/auth/account",
 		alias: "deleteV1authaccount",
-		description: `Soft-delete the authenticated user&#x27;s own account. No target user ID is accepted.`,
+		description: `Delete your account.`,
 		requestFormat: "json",
 		parameters: [
 			{
@@ -4807,7 +4834,7 @@ const endpoints = makeApi([
 		errors: [
 			{
 				status: 400,
-				description: `Explicit confirm&#x3D;true is required`,
+				description: `Please confirm that you want to delete your account.`,
 				schema: z.void()
 			},
 			{
@@ -5679,6 +5706,48 @@ const endpoints = makeApi([
 				status: 404,
 				description: `Blog post not found`,
 				schema: z.void()
+			},
+		]
+	},
+	{
+		method: "post",
+		path: "/v1/contact",
+		alias: "postV1contact",
+		description: `Open to everyone; a signed-in sender is linked to their account. Emails the team inbox (contact@true-khmer.com) with Reply-To set to the sender, and sends the sender a receipt. Each sender may send a limited number of messages per rolling 24 hours, counted by email address and account. Requires a Cloudflare Turnstile token from the web form, so it cannot be called from API clients or this playground in production.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: SendContactMessageRequest
+			},
+		],
+		response: SendContactMessageResponse,
+		errors: [
+			{
+				status: 400,
+				description: `Validation failed`,
+				schema: ContactErrorResponse
+			},
+			{
+				status: 403,
+				description: `Turnstile token missing, invalid, reused or expired`,
+				schema: ContactErrorResponse
+			},
+			{
+				status: 429,
+				description: `Daily limit reached for this email or account`,
+				schema: ContactRateLimitedResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: ContactErrorResponse
+			},
+			{
+				status: 503,
+				description: `Email delivery or Turnstile verification unavailable; nothing was counted`,
+				schema: ContactErrorResponse
 			},
 		]
 	},
@@ -8556,6 +8625,102 @@ const endpoints = makeApi([
 	},
 	{
 		method: "get",
+		path: "/v1/me/standing/leaderboard",
+		alias: "getV1mestandingleaderboard",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(100).optional()
+			},
+			{
+				name: "offset",
+				type: "Query",
+				schema: z.number().int().gte(0).nullish()
+			},
+		],
+		response: z.object({ ok: z.literal(true), entries: z.array(z.object({ rank: z.number(), userId: z.string(), displayName: z.string(), avatarKey: z.string().nullable(), totalPoints: z.number(), tier: z.object({ slug: z.string(), name: z.string() }).nullable(), isMe: z.boolean() })), me: z.object({ rank: z.number().nullable(), totalPoints: z.number() }) }),
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Onboarding required`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string() })
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/me/standing/points",
+		alias: "getV1mestandingpoints",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "limit",
+				type: "Query",
+				schema: z.number().int().gte(1).lte(100).optional()
+			},
+			{
+				name: "offset",
+				type: "Query",
+				schema: z.number().int().gte(0).nullish()
+			},
+		],
+		response: z.object({ ok: z.literal(true), totalPoints: z.number(), breakdown: z.array(z.object({ actionType: z.string(), label: z.string(), points: z.number(), count: z.number() })), transactions: z.array(z.object({ id: z.string(), actionType: z.string(), label: z.string(), points: z.number(), createdAt: z.string() })), hasMore: z.boolean() }),
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Onboarding required`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string() })
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/me/standing/tiers",
+		alias: "getV1mestandingtiers",
+		requestFormat: "json",
+		response: z.object({ ok: z.literal(true), currentTierId: z.string().nullable(), totalPoints: z.number(), tiers: z.array(z.object({ id: z.string(), slug: z.string(), name: z.string(), rankOrder: z.number(), minPoints: z.number(), description: z.string().nullable(), achievedAt: z.string().nullable() })) }),
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 403,
+				description: `Onboarding required`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string() })
+			},
+		]
+	},
+	{
+		method: "get",
 		path: "/v1/my-application",
 		alias: "getV1myApplication",
 		requestFormat: "json",
@@ -8792,6 +8957,52 @@ const endpoints = makeApi([
 			},
 		],
 		response: z.object({ ok: z.boolean(), successCount: z.number(), failureCount: z.number() }),
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string() })
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/notifications/preferences",
+		alias: "getV1notificationspreferences",
+		requestFormat: "json",
+		response: z.object({ ok: z.literal(true), preferences: z.object({ pushNotifications: z.boolean(), emailNotifications: z.boolean(), forumActivity: z.boolean(), applicationUpdates: z.boolean(), communityAnnouncements: z.boolean() }) }),
+		errors: [
+			{
+				status: 401,
+				description: `Unauthorized`,
+				schema: AuthProtectedErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: z.object({ ok: z.literal(false), error: z.string() })
+			},
+		]
+	},
+	{
+		method: "patch",
+		path: "/v1/notifications/preferences",
+		alias: "patchV1notificationspreferences",
+		description: `Partially update notification settings; omitted fields keep their current value. emailNotifications is stored but not enforced yet.`,
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "body",
+				type: "Body",
+				schema: patchV1notificationspreferences_Body
+			},
+		],
+		response: z.object({ ok: z.literal(true), preferences: z.object({ pushNotifications: z.boolean(), emailNotifications: z.boolean(), forumActivity: z.boolean(), applicationUpdates: z.boolean(), communityAnnouncements: z.boolean() }) }),
 		errors: [
 			{
 				status: 401,
@@ -10399,6 +10610,11 @@ const endpoints = makeApi([
 		response: PublicProfileResponse,
 		errors: [
 			{
+				status: 403,
+				description: `The member&#x27;s profile visibility doesn&#x27;t include this viewer (members-only or private)`,
+				schema: ProfileRestrictedResponse
+			},
+			{
 				status: 404,
 				description: `User not found`,
 				schema: ProfileErrorResponse
@@ -10437,6 +10653,16 @@ const endpoints = makeApi([
 			{
 				status: 400,
 				description: `Validation failed`,
+				schema: CertificateErrorResponse
+			},
+			{
+				status: 403,
+				description: `The learner&#x27;s profile visibility doesn&#x27;t include this viewer`,
+				schema: CertificateErrorResponse
+			},
+			{
+				status: 404,
+				description: `User not found`,
 				schema: CertificateErrorResponse
 			},
 			{
@@ -10481,6 +10707,11 @@ const endpoints = makeApi([
 				schema: MyPostedErrorResponse
 			},
 			{
+				status: 403,
+				description: `The member&#x27;s profile or contribution visibility doesn&#x27;t include this viewer`,
+				schema: ProfileRestrictedResponse
+			},
+			{
 				status: 404,
 				description: `User not found`,
 				schema: MyPostedErrorResponse
@@ -10489,6 +10720,32 @@ const endpoints = makeApi([
 				status: 500,
 				description: `Internal server error`,
 				schema: MyPostedErrorResponse
+			},
+		]
+	},
+	{
+		method: "get",
+		path: "/v1/profile/:userId/visibility",
+		alias: "getV1profileUserIdvisibility",
+		requestFormat: "json",
+		parameters: [
+			{
+				name: "userId",
+				type: "Path",
+				schema: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+			},
+		],
+		response: ProfileVisibilityResponse,
+		errors: [
+			{
+				status: 404,
+				description: `User not found`,
+				schema: ProfileErrorResponse
+			},
+			{
+				status: 500,
+				description: `Internal server error`,
+				schema: ProfileErrorResponse
 			},
 		]
 	},
@@ -12161,6 +12418,7 @@ export type AuthLoginTwoFactorTotpVerifyRequest = z.infer<typeof schemas.AuthLog
 export type AuthStatusResponse = z.infer<typeof schemas.AuthStatusResponse>;
 export type AuthTwoFactorEmailVerifyRequest = z.infer<typeof schemas.AuthTwoFactorEmailVerifyRequest>;
 export type AuthLoginTwoFactorEmailVerifyRequest = z.infer<typeof schemas.AuthLoginTwoFactorEmailVerifyRequest>;
+export type AuthTwoFactorDisableRequest = z.infer<typeof schemas.AuthTwoFactorDisableRequest>;
 export type AuthForgotPasswordRequest = z.infer<typeof schemas.AuthForgotPasswordRequest>;
 export type ForgotPasswordResponse = z.infer<typeof schemas.ForgotPasswordResponse>;
 export type AuthForgotPasswordRequestOtpRequest = z.infer<typeof schemas.AuthForgotPasswordRequestOtpRequest>;
@@ -12419,7 +12677,9 @@ export type UpdateInterestsResponse = z.infer<typeof schemas.UpdateInterestsResp
 export type CertificateResponse = z.infer<typeof schemas.CertificateResponse>;
 export type ListCertificatesResponse = z.infer<typeof schemas.ListCertificatesResponse>;
 export type CertificateErrorResponse = z.infer<typeof schemas.CertificateErrorResponse>;
+export type ProfileVisibilityResponse = z.infer<typeof schemas.ProfileVisibilityResponse>;
 export type PublicProfileResponse = z.infer<typeof schemas.PublicProfileResponse>;
+export type ProfileRestrictedResponse = z.infer<typeof schemas.ProfileRestrictedResponse>;
 export type GetMyPostedResponse = z.infer<typeof schemas.GetMyPostedResponse>;
 export type MyPostedErrorResponse = z.infer<typeof schemas.MyPostedErrorResponse>;
 export type ManagePostingStatus = z.infer<typeof schemas.ManagePostingStatus>;
@@ -12444,6 +12704,7 @@ export type ManagePostingDetailResponse = z.infer<typeof schemas.ManagePostingDe
 export type postV1notificationstokens_Body = z.infer<typeof schemas.postV1notificationstokens_Body>;
 export type postV1notificationssenduser_Body = z.infer<typeof schemas.postV1notificationssenduser_Body>;
 export type postV1notificationsbroadcast_Body = z.infer<typeof schemas.postV1notificationsbroadcast_Body>;
+export type patchV1notificationspreferences_Body = z.infer<typeof schemas.patchV1notificationspreferences_Body>;
 export type PartnerRegistrationRequest = z.infer<typeof schemas.PartnerRegistrationRequest>;
 export type PartnerRegistrationResponse = z.infer<typeof schemas.PartnerRegistrationResponse>;
 export type PartnerRegistrationKmRequest = z.infer<typeof schemas.PartnerRegistrationKmRequest>;
@@ -12580,6 +12841,11 @@ export type SsoRedeemHandoffRequest = z.infer<typeof schemas.SsoRedeemHandoffReq
 export type SsoUser = z.infer<typeof schemas.SsoUser>;
 export type SsoUserResponse = z.infer<typeof schemas.SsoUserResponse>;
 export type postV1plumpievents_Body = z.infer<typeof schemas.postV1plumpievents_Body>;
+export type ContactCategory = z.infer<typeof schemas.ContactCategory>;
+export type SendContactMessageRequest = z.infer<typeof schemas.SendContactMessageRequest>;
+export type SendContactMessageResponse = z.infer<typeof schemas.SendContactMessageResponse>;
+export type ContactErrorResponse = z.infer<typeof schemas.ContactErrorResponse>;
+export type ContactRateLimitedResponse = z.infer<typeof schemas.ContactRateLimitedResponse>;
 // End generated API schema types
 
 export const api = new Zodios(endpoints);

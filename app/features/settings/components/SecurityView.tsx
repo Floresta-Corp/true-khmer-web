@@ -37,12 +37,10 @@ export function SecurityView({
   email,
   setupNewPassword,
   enabled,
-  onEdit2FA,
 }: {
   email: string;
   setupNewPassword: boolean;
   enabled: boolean;
-  onEdit2FA: () => void;
 }) {
   const fetcher = useFetcher<SettingsActionData>();
   const [open, setOpen] = useState(false);
@@ -285,7 +283,7 @@ export function SecurityView({
         label="2-step verification"
         description="Make your account extra secure. Along with your password, you'll need to enter a code"
       >
-        <TwoFactorToggle enabled={enabled} onEditSettings={onEdit2FA} />
+        <TwoFactorToggle enabled={enabled} />
       </SecurityRow>
 
       <Divider />
