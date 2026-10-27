@@ -216,7 +216,7 @@ function UndoToastCard({
 /** A toast that offers to reverse an action the user just took. */
 export function showUndoToast(options: UndoToastOptions) {
   const duration = options.duration ?? UNDO_DURATION;
-  toast.custom(
+  return toast.custom(
     (id) => <UndoToastCard toastId={id} {...options} duration={duration} />,
     { duration },
   );

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { Separator } from "~/components/ui/separator";
 import LaunchpadOpenRoleCard from "../card/launchpad-openrole-card";
 import LaunchpadProjectMaterialCard from "../card/launchpad-project-material-card";
@@ -9,6 +10,8 @@ import { Button } from "~/components/ui/button";
 import { showUndoToast } from "~/components/notification-toast";
 
 type LaunchpadRoleInput = {
+  // Set for roles already saved on an existing launchpad; the API matches on it.
+  id?: string;
   name: string;
   capacity: number;
   description: string;
@@ -18,6 +21,14 @@ interface ExistingDocument {
   name: string;
   url?: string;
 }
+
+type RemovedRole = {
+  role: LaunchpadRoleInput;
+  // Index in the current list the role goes back to. Kept up to date as other
+  // roles are removed or restored, so it does not go stale.
+  gap: number;
+  toastId?: string | number;
+};
 
 const emptyDraft: LaunchpadRoleInput = {
   name: "",
@@ -96,6 +107,7 @@ export default function LaunchpadPostPage2({
       const updatedRoles = roles.map((role, i) =>
         i === editingIndex
           ? {
+              ...role,
               name: draftRole.name.trim(),
               capacity: Number.isFinite(draftRole.capacity)
                 ? draftRole.capacity
@@ -135,14 +147,32 @@ export default function LaunchpadPostPage2({
   // The undo toast outlives this render, so it reads the latest roles from a
   // ref instead of restoring a stale snapshot that would drop later edits.
   const rolesRef = useRef(roles);
-  rolesRef.current = roles;
+  useEffect(() => {
+    rolesRef.current = roles;
+  }, [roles]);
 
-  const handleUndoRemoveRole = (role: LaunchpadRoleInput, index: number) => {
+  // Removals that can still be undone, in list order. Several can share a gap
+  // (e.g. two neighbours removed in turn); their order here breaks the tie.
+  const pendingRemovalsRef = useRef<RemovedRole[]>([]);
+
+  const handleUndoRemoveRole = (removed: RemovedRole) => {
+    const pending = pendingRemovalsRef.current;
+    const at = pending.indexOf(removed);
+    // Gone after Reset roles, which has already brought the original roles back.
+    if (at === -1) {
+      return;
+    }
+    pending.splice(at, 1);
+    // Everything queued after this role now sits after it in the list.
+    pending.slice(at).forEach((other) => {
+      other.gap += 1;
+    });
+
     const current = rolesRef.current;
-    const insertAt = Math.min(index, current.length);
+    const insertAt = Math.min(removed.gap, current.length);
     onRolesChange([
       ...current.slice(0, insertAt),
-      role,
+      removed.role,
       ...current.slice(insertAt),
     ]);
     setEditingIndex((prev) =>
@@ -160,12 +190,29 @@ export default function LaunchpadPostPage2({
       setEditingIndex(editingIndex - 1);
     }
 
-    showUndoToast({
+    // Removals queued before this role keep their gap; those after it move
+    // into this role's gap, behind it.
+    const pending = pendingRemovalsRef.current;
+    const at = pending.findIndex((other) => other.gap > index);
+    const insertAt = at === -1 ? pending.length : at;
+    pending.slice(insertAt).forEach((other) => {
+      other.gap -= 1;
+    });
+    const removed: RemovedRole = { role: removedRole, gap: index };
+    pending.splice(insertAt, 0, removed);
+
+    removed.toastId = showUndoToast({
       icon: <Trash2 className="size-4.5" />,
       title: "Role removed",
       body: removedRole.name,
-      onUndo: () => handleUndoRemoveRole(removedRole, index),
+      onUndo: () => handleUndoRemoveRole(removed),
     });
+  };
+
+  const handleResetRoles = () => {
+    pendingRemovalsRef.current.forEach(({ toastId }) => toast.dismiss(toastId));
+    pendingRemovalsRef.current = [];
+    onResetRoles?.();
   };
 
   const handleCancelEdit = () => {
@@ -179,7 +226,7 @@ export default function LaunchpadPostPage2({
         roles={roles}
         originalRoles={originalRoles}
         editingIndex={editingIndex}
-        onResetRoles={onResetRoles}
+        onResetRoles={onResetRoles ? handleResetRoles : undefined}
         onRemoveRole={handleRemoveRole}
         onEditRole={handleEditRole}
       />

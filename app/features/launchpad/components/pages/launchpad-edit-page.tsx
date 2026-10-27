@@ -447,10 +447,7 @@ export default function LaunchpadEditPage() {
                     // removed role's id to whichever role shifts into its slot.
                     const mergedRoles = roles.map((role) => ({
                       ...role,
-                      id:
-                        "id" in role && typeof role.id === "string"
-                          ? role.id
-                          : "",
+                      id: role.id ?? "",
                     }));
                     setValue("roles", mergedRoles);
                   }}
