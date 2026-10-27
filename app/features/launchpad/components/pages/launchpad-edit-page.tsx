@@ -67,7 +67,8 @@ function mapProjectToFormFields(project: LaunchpadDetail) {
         id: r.id ?? "",
         name: r.title ?? "",
         capacity: r.capacity ?? 1,
-        description: r.description ?? "",
+        responsibilities: r.responsibilities ?? [],
+        requirements: r.requirements ?? [],
       })) ?? [],
   };
 }
@@ -90,7 +91,8 @@ const launchpadEditSchema = z.object({
         id: z.string(),
         name: z.string().min(1, "Role name is required"),
         capacity: z.number().int().gt(0, "Capacity must be at least 1"),
-        description: z.string(),
+        responsibilities: z.array(z.string()),
+        requirements: z.array(z.string()),
       }),
     )
     .min(1, "At least one role is required"),
@@ -153,7 +155,8 @@ export default function LaunchpadEditPage() {
         id: r.id ?? "",
         name: r.title ?? "",
         capacity: r.capacity ?? 1,
-        description: r.description ?? "",
+        responsibilities: r.responsibilities ?? [],
+        requirements: r.requirements ?? [],
       })),
     [project],
   );
@@ -331,7 +334,8 @@ export default function LaunchpadEditPage() {
         id: role.id || undefined,
         name: role.name.trim(),
         capacity: role.capacity,
-        description: role.description.trim() || null,
+        responsibilities: role.responsibilities,
+        requirements: role.requirements,
       })),
       materialDocumentKey: values.materialDocumentKey,
       materialDocumentName: values.materialDocumentName,
@@ -443,14 +447,12 @@ export default function LaunchpadEditPage() {
                   telegramUsernameError={roleErrors.telegramUsername}
                   originalRoles={originalRoles}
                   onRolesChange={(roles) => {
-                    const mergedRoles = roles.map((role, i) => {
-                      const existingId = values.roles[i]?.id;
-                      return {
-                        ...role,
-                        id: existingId || "",
-                      };
-                    });
-                    setValue("roles", mergedRoles as any);
+                    // Keep each role's own id; matching by index would hand a
+                    // removed role's id to whichever role shifts into its slot.
+                    setValue(
+                      "roles",
+                      roles.map((role) => ({ ...role, id: role.id ?? "" })),
+                    );
                   }}
                   onResetRoles={() => setValue("roles", originalRoles)}
                   onMaterialDocumentsChange={setMaterialDocuments}

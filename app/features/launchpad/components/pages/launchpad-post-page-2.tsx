@@ -1,28 +1,41 @@
-import { useState } from "react";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Separator } from "~/components/ui/separator";
-import LaunchpadOpenRoleCard from "../card/launchpad-openrole-card";
 import LaunchpadProjectMaterialCard from "../card/launchpad-project-material-card";
 import LaunchpadContactDetailCard from "../card/launchpad-contact-detail-card";
-import LaunchpadRolesList from "../launchpad-roles-list";
 import { Button } from "~/components/ui/button";
-
-type LaunchpadRoleInput = {
-  name: string;
-  capacity: number;
-  description: string;
-};
+import {
+  OpenRolesForm,
+  RolesList,
+} from "~/features/volunteer/components/pages/section";
+import type {
+  DraftRole,
+  VolunteerRoleErrors,
+} from "~/features/volunteer/components/pages/volunteer-post-page-2";
+import { validateDraftRole } from "~/features/volunteer/lib/volunteer-validation";
+import type { LaunchpadRoleInput } from "~/stores/launchpad-create-store";
 
 interface ExistingDocument {
   name: string;
   url?: string;
 }
 
-const emptyDraft: LaunchpadRoleInput = {
-  name: "",
+// The role form is shared with Volunteer, which names the role "title".
+const emptyDraft: DraftRole = {
+  title: "",
   capacity: 1,
-  description: "",
+  responsibilities: [""],
+  requirements: [""],
 };
+
+const toDraftRole = (role: LaunchpadRoleInput): DraftRole => ({
+  title: role.name,
+  capacity: role.capacity,
+  responsibilities: role.responsibilities.length ? role.responsibilities : [""],
+  requirements: role.requirements.length ? role.requirements : [""],
+});
+
+const trimPoints = (points: string[]) =>
+  points.map((point) => point.trim()).filter(Boolean);
 
 interface LaunchpadPostPage2Props {
   roles: LaunchpadRoleInput[];
@@ -71,8 +84,12 @@ export default function LaunchpadPostPage2({
   onPublishedClicked,
   isSubmitting = false,
 }: LaunchpadPostPage2Props) {
-  const [draftRole, setDraftRole] = useState<LaunchpadRoleInput>(emptyDraft);
+  const [draftRole, setDraftRole] = useState<DraftRole>(emptyDraft);
+  const [draftErrors, setDraftErrors] = useState<VolunteerRoleErrors | null>(
+    null,
+  );
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia(
@@ -86,49 +103,72 @@ export default function LaunchpadPostPage2({
     });
   }, []);
 
+  useEffect(() => {
+    if (editingIndex !== null && formRef.current) {
+      const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      formRef.current.scrollIntoView({
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+        block: "center",
+      });
+    }
+  }, [editingIndex]);
+
+  const handleDraftChange = <K extends keyof DraftRole>(
+    field: K,
+    value: DraftRole[K],
+  ) => {
+    const next = { ...draftRole, [field]: value };
+    setDraftRole(next);
+    if (draftErrors !== null) {
+      setDraftErrors(validateDraftRole(next));
+    }
+  };
+
+  const handleRemovePoint = (
+    field: "responsibilities" | "requirements",
+    itemIndex: number,
+  ) => {
+    const nextValues = draftRole[field].filter(
+      (_, index) => index !== itemIndex,
+    );
+    handleDraftChange(field, nextValues.length > 0 ? nextValues : [""]);
+  };
+
   const handleAddRole = () => {
-    if (!draftRole.name.trim()) {
+    const validationErrors = validateDraftRole(draftRole);
+    if (validationErrors) {
+      setDraftErrors(validationErrors);
       return;
     }
+    setDraftErrors(null);
+
+    const savedRole = {
+      name: draftRole.title.trim(),
+      capacity: draftRole.capacity,
+      responsibilities: trimPoints(draftRole.responsibilities),
+      requirements: trimPoints(draftRole.requirements),
+    };
 
     if (editingIndex !== null) {
-      const updatedRoles = roles.map((role, i) =>
-        i === editingIndex
-          ? {
-              name: draftRole.name.trim(),
-              capacity: Number.isFinite(draftRole.capacity)
-                ? draftRole.capacity
-                : 1,
-              description: draftRole.description,
-            }
-          : role,
+      onRolesChange(
+        roles.map((role, i) =>
+          i === editingIndex ? { ...role, ...savedRole } : role,
+        ),
       );
-      onRolesChange(updatedRoles);
       setEditingIndex(null);
     } else {
-      onRolesChange([
-        ...roles,
-        {
-          name: draftRole.name.trim(),
-          capacity: Number.isFinite(draftRole.capacity)
-            ? draftRole.capacity
-            : 1,
-          description: draftRole.description,
-        },
-      ]);
+      onRolesChange([...roles, savedRole]);
     }
 
     setDraftRole(emptyDraft);
   };
 
   const handleEditRole = (index: number) => {
-    const role = roles[index];
-    setDraftRole({
-      name: role.name,
-      capacity: role.capacity,
-      description: role.description,
-    });
+    setDraftRole(toDraftRole(roles[index]));
     setEditingIndex(index);
+    setDraftErrors(null);
   };
 
   const handleRemoveRole = (index: number) => {
@@ -136,6 +176,7 @@ export default function LaunchpadPostPage2({
     if (editingIndex === index) {
       setEditingIndex(null);
       setDraftRole(emptyDraft);
+      setDraftErrors(null);
     } else if (editingIndex !== null && editingIndex > index) {
       setEditingIndex(editingIndex - 1);
     }
@@ -144,45 +185,34 @@ export default function LaunchpadPostPage2({
   const handleCancelEdit = () => {
     setEditingIndex(null);
     setDraftRole(emptyDraft);
+    setDraftErrors(null);
   };
 
   return (
     <div className="space-y-8">
-      <LaunchpadRolesList
-        roles={roles}
-        originalRoles={originalRoles}
+      <RolesList
+        roles={roles.map(toDraftRole)}
+        originalRoles={originalRoles?.map(toDraftRole)}
         editingIndex={editingIndex}
         onResetRoles={onResetRoles}
-        onRolesChange={onRolesChange}
+        onRemoveRole={handleRemoveRole}
         onEditRole={handleEditRole}
       />
-      <LaunchpadOpenRoleCard
-        name={draftRole.name}
-        capacity={draftRole.capacity}
-        description={draftRole.description}
-        roleError={roleError}
-        editingIndex={editingIndex}
-        onNameChange={(value) =>
-          setDraftRole((prev) => ({
-            ...prev,
-            name: value,
-          }))
-        }
-        onCapacityChange={(value) =>
-          setDraftRole((prev) => ({
-            ...prev,
-            capacity: Number.isFinite(value) && value > 0 ? value : 1,
-          }))
-        }
-        onDescriptionChange={(value) =>
-          setDraftRole((prev) => ({
-            ...prev,
-            description: value,
-          }))
-        }
-        onAddRole={handleAddRole}
-        onCancelEdit={handleCancelEdit}
-      />
+      <div ref={formRef}>
+        <OpenRolesForm
+          draftRole={draftRole}
+          editingIndex={editingIndex}
+          errors={draftErrors ?? undefined}
+          hasSavedRoles={roles.length > 0}
+          onDraftChange={handleDraftChange}
+          onAddRole={handleAddRole}
+          onCancelEdit={handleCancelEdit}
+          onRemovePoint={handleRemovePoint}
+        />
+        {roleError ? (
+          <p className="mt-2 text-xs text-red-500">{roleError}</p>
+        ) : null}
+      </div>
       <Separator />
       <LaunchpadProjectMaterialCard
         files={materialDocuments}

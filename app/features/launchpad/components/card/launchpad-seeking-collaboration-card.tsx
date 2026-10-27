@@ -14,7 +14,8 @@ export default function LaunchpadSeekingCollaborationCard({
   const collaborationData = project.roles.map((role) => ({
     id: role.id,
     title: role.title,
-    details: role.description,
+    responsibilities: role.responsibilities,
+    requirements: role.requirements,
     availableSpot: role.capacity,
   }));
 

@@ -247,7 +247,8 @@ export default function LaunchpadPostPage() {
       role: store.roles.map((role) => ({
         name: role.name.trim(),
         capacity: role.capacity,
-        description: role.description.trim() || null,
+        responsibilities: role.responsibilities,
+        requirements: role.requirements,
       })),
       description: store.description.trim() || null,
       telegramUsername: store.telegramUsername.trim() || null,
