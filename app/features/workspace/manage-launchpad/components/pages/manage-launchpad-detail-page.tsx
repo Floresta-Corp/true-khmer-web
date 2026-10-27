@@ -1,5 +1,5 @@
-import { Link, useLoaderData, useParams } from "react-router";
-import { Briefcase, CalendarRange, EyeOff, Pencil, Share2 } from "lucide-react";
+import { useLoaderData } from "react-router";
+import { Briefcase, CalendarRange, EyeOff, Share2 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import type { ManagePostDetailLoaderData } from "../../services/manage-launchpad-detail.loader";
 import ManagePostingDetailStats from "../section/posting-detail-stats";
@@ -27,7 +27,6 @@ const ease = [0.25, 0.1, 0.25, 1] as const;
 export default function ManagePostingDetailPage() {
   const { postDetail, suspension } =
     useLoaderData<ManagePostDetailLoaderData>();
-  const { id } = useParams();
   const prefersReducedMotion = useReducedMotion();
 
   const isSuspended = postDetail?.posting?.status === "SUSPENDED";
@@ -38,7 +37,6 @@ export default function ManagePostingDetailPage() {
       ? `posting:${postDetail.posting.id}:${suspension?.suspendedAt ?? ""}`
       : null,
   );
-  const editRoute = `/launchpad/edit/${id}`;
 
   const fadeUp = (delay: number) => ({
     initial: { opacity: 0, y: 16 },
@@ -137,14 +135,6 @@ export default function ManagePostingDetailPage() {
             {...fadeUp(0.2)}
             className="flex w-full shrink-0 items-center gap-3 sm:w-auto md:self-start"
           >
-            <Link
-              to={editRoute}
-              className="shadow-brand-blue/20 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-bold whitespace-nowrap text-white shadow-lg transition-all hover:scale-[1.02] active:scale-95 sm:w-auto"
-            >
-              <Pencil size={18} />
-              Edit Posting
-            </Link>
-
             <div className="relative h-11 w-11 shrink-0">
               {postDetail?.posting ? (
                 <ManagePostOption
