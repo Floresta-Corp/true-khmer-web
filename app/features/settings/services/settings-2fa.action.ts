@@ -139,6 +139,9 @@ export async function settings2faAction({ request }: ActionFunctionArgs) {
           ok: true,
           intent,
           message: "A verification code was sent to your email.",
+          expiresInMs: result.data.expiresAt
+            ? Math.max(Date.parse(result.data.expiresAt) - Date.now(), 0)
+            : undefined,
         },
         { headers },
       );
@@ -210,6 +213,26 @@ export async function settings2faAction({ request }: ActionFunctionArgs) {
       { status: 400, headers },
     );
   } catch (error) {
+    // Better-auth deletes the code in both cases, so only a new one will work.
+    if (
+      intent === "email-verify" &&
+      error instanceof ProtectedApiError &&
+      (error.code === "OTP_HAS_EXPIRED" ||
+        error.code === "TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE")
+    ) {
+      return data<SettingsActionData>(
+        {
+          intent,
+          codeExpired: true,
+          errors:
+            error.code === "TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE"
+              ? { code: "Too many incorrect attempts." }
+              : undefined,
+        },
+        { status: error.status, headers },
+      );
+    }
+
     // The disable endpoints answer 400 for a wrong (or unset) password.
     if (
       (intent === "totp-disable" || intent === "email-disable") &&
