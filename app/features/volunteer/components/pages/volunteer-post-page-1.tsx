@@ -406,7 +406,7 @@ export default function VolunteerPostPage1({
                   </p>
 
                   <p className="mt-0.5 text-[11px] leading-4 text-[#a3a3a3]">
-                    JPG or PNG • 3MB max
+                    JPG or PNG • 5MB max
                     <br />
                     Recommended size: 1280 × 720 px (16:9)
                   </p>

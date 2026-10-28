@@ -16,8 +16,10 @@ import ApplicationSubmitSuccessDialog from "./application-submit-success-dialog"
 import { cn } from "~/lib/utils";
 import { useFileDropPaste } from "~/hooks/use-image-drop-paste";
 import { fileMatchesAccept } from "~/lib/file-accept";
+import { APPLICATION_DOCUMENT_MAX_SIZE_MB } from "~/features/volunteer/lib/volunteer-validation";
 
-const DOCUMENT_ACCEPT = ".pdf,.doc,.docx";
+const DOCUMENT_ACCEPT = ".pdf";
+const DOCUMENT_MAX_SIZE = APPLICATION_DOCUMENT_MAX_SIZE_MB * 1024 * 1024;
 
 interface VolunteerApplicationDialogProps {
   roles: Role[];
@@ -79,12 +81,19 @@ export default function VolunteerApplicationDialog({
   }, [fetcher.state, fetcher.data]);
 
   const addFiles = (incoming: File[]) => {
-    const newFiles = incoming.filter((file) =>
+    const acceptedFiles = incoming.filter((file) =>
       fileMatchesAccept(file, DOCUMENT_ACCEPT),
     );
-    if (newFiles.length < incoming.length) {
-      toast.error("Only PDF or Word documents can be added");
+    if (acceptedFiles.length < incoming.length) {
+      toast.error("Only PDF files can be added");
     }
+    const newFiles = acceptedFiles.filter((file) => {
+      if (file.size <= DOCUMENT_MAX_SIZE) return true;
+      toast.error(
+        `${file.name} is too large. Maximum file size is ${APPLICATION_DOCUMENT_MAX_SIZE_MB} MB.`,
+      );
+      return false;
+    });
     if (newFiles.length > 0) {
       const fileKey = (file: File) =>
         `${file.name}-${file.size}-${file.lastModified}`;
@@ -336,7 +345,8 @@ export default function VolunteerApplicationDialog({
               </Button>
             </div>
             <p className="-mt-4 mb-3 text-[11px] text-[#65758b]">
-              PDF or Word — click Add, or drag and drop files here
+              PDF only, up to {APPLICATION_DOCUMENT_MAX_SIZE_MB} MB each — click
+              Add, or drag and drop files here
             </p>
             {errors.files && (
               <p className="text-[11px] font-medium text-red-500">
