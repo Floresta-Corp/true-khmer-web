@@ -133,7 +133,12 @@ export function VolunteerDetailPage({}: VolunteerDetailPageProps) {
           }}
           className="flex items-center justify-between"
         >
-          <BackToButton to="/volunteer" />
+          <BackToButton
+            to={
+              (location.state as { backTo?: string } | null)?.backTo ??
+              "/volunteer"
+            }
+          />
           <div className="flex items-center gap-2">
             <Button
               type="button"
