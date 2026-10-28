@@ -11,8 +11,6 @@ import { isBefore, isValid, parseISO } from "date-fns";
 const hasText = (value: unknown): value is string =>
   typeof value === "string" && value.trim().length > 0;
 
-// Mirror the backend normalization (trim + collapse whitespace) so the
-// character count matches what the API validates against.
 const normalizeText = (value: string) => value.trim().replace(/\s+/g, " ");
 
 export const MAX_BENEFITS = 12;

@@ -1,9 +1,21 @@
 import { data, replace } from "react-router";
 import type { Route as EducationLearnRoute } from "project-types/education/route/+types/education.learn.$id";
-import { getCourseProgress } from "~/api/education/education.server";
+import {
+  getCourseCertificate,
+  getCourseProgress,
+} from "~/api/education/education.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { loadCourseDetail, loadCourseHasQuiz } from "./education-detail.loader";
+
+async function loadCertificateEarned(request: Request, courseId: string) {
+  try {
+    const response = await getCourseCertificate(request, courseId);
+    return response.data.earned;
+  } catch {
+    return false;
+  }
+}
 
 export async function educationLearnLoader({
   request,
@@ -11,10 +23,11 @@ export async function educationLearnLoader({
 }: EducationLearnRoute.LoaderArgs) {
   const auth = await requireUser(request);
 
-  const [course, hasQuiz, progressRes] = await Promise.all([
+  const [course, hasQuiz, progressRes, certificateEarned] = await Promise.all([
     loadCourseDetail(request, params.id, { withInstructorContact: true }),
     loadCourseHasQuiz(request, params.id),
     getCourseProgress(request, params.id),
+    loadCertificateEarned(request, params.id),
   ]);
 
   if (!course) {
@@ -55,6 +68,7 @@ export async function educationLearnLoader({
     unlockedLessonIds,
     nextLessonId: progress?.nextLessonId ?? null,
     isCourseComplete: progress?.isComplete ?? false,
+    certificateEarned,
     resumePoints: progress?.resumePoints ?? [],
     lastLessonId: progress?.lastLessonId ?? null,
   });

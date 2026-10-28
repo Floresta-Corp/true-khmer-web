@@ -40,6 +40,7 @@ export default function CourseLearnPage() {
     nextLessonId,
     resumePoints,
     lastLessonId,
+    certificateEarned,
   } = useLoaderData<typeof educationLearnLoader>();
 
   const progress = useFetcher<typeof educationLearnAction>();
@@ -530,6 +531,7 @@ export default function CourseLearnPage() {
             totalLessons={flatLessons.length}
             hasQuiz={course.hasQuiz}
             quizUnlocked={allComplete}
+            certificateEarned={certificateEarned}
           />
         )}
 

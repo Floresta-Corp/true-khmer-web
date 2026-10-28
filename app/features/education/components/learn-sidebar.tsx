@@ -17,6 +17,7 @@ interface LearnSidebarProps {
   totalLessons: number;
   hasQuiz: boolean;
   quizUnlocked: boolean;
+  certificateEarned: boolean;
 }
 
 export function LearnSidebar({
@@ -31,11 +32,14 @@ export function LearnSidebar({
   totalLessons,
   hasQuiz,
   quizUnlocked,
+  certificateEarned,
 }: LearnSidebarProps) {
   const completedCount = completedLessonIds.size;
   const percent =
     totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
   const isFullyDone = totalLessons > 0 && completedCount === totalLessons;
+
+  const showCertificate = hasQuiz ? certificateEarned : isFullyDone;
 
   return (
     <div className="flex h-full w-95 shrink-0 flex-col border-r border-[#E5E7EB] bg-white">
@@ -261,7 +265,7 @@ export function LearnSidebar({
         </Link>
       )}
 
-      {isFullyDone && (
+      {showCertificate && (
         <div className="shrink-0 border-t border-[#E5E7EB] px-5 py-3.5">
           <Link
             to={`/education/${course.id}/certificate`}
