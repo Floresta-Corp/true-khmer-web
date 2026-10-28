@@ -49,6 +49,23 @@ function isValidEmail(value: string) {
   return /^\S+@\S+\.\S+$/.test(value.trim());
 }
 
+function mapRoleToFormRole(role: LaunchpadDetail["roles"][number]) {
+  const responsibilities = role.responsibilities ?? [];
+  const description = role.description?.trim();
+  return {
+    id: role.id ?? "",
+    name: role.title ?? "",
+    capacity: role.capacity ?? 1,
+    // Older roles only have a free-text description; carry it over as the
+    // first responsibility so the owner can see and edit it.
+    responsibilities:
+      responsibilities.length === 0 && description
+        ? [description]
+        : responsibilities,
+    requirements: role.requirements ?? [],
+  };
+}
+
 function mapProjectToFormFields(project: LaunchpadDetail) {
   return {
     name: project.name ?? "",
@@ -62,14 +79,7 @@ function mapProjectToFormFields(project: LaunchpadDetail) {
     coverKey: project.coverKey ?? "",
     materialDocumentKey: project.documentKeys ?? [],
     materialDocumentName: project.documentNames ?? [],
-    roles:
-      project.roles?.map((r) => ({
-        id: r.id ?? "",
-        name: r.title ?? "",
-        capacity: r.capacity ?? 1,
-        responsibilities: r.responsibilities ?? [],
-        requirements: r.requirements ?? [],
-      })) ?? [],
+    roles: project.roles?.map(mapRoleToFormRole) ?? [],
   };
 }
 
@@ -150,14 +160,7 @@ export default function LaunchpadEditPage() {
   );
 
   const originalRoles = useMemo(
-    () =>
-      (project?.roles ?? []).map((r) => ({
-        id: r.id ?? "",
-        name: r.title ?? "",
-        capacity: r.capacity ?? 1,
-        responsibilities: r.responsibilities ?? [],
-        requirements: r.requirements ?? [],
-      })),
+    () => (project?.roles ?? []).map(mapRoleToFormRole),
     [project],
   );
 

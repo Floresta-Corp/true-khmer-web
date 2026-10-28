@@ -9,6 +9,7 @@ interface CollaborationCardProps {
   data: {
     id: string;
     title: string;
+    description: string | null;
     responsibilities: string[];
     requirements: string[];
     availableSpot: number;
@@ -27,8 +28,13 @@ export default function LaunchpadCollaborationCard({
     useLaunchpadSelectedRoles();
 
   const [expanded, setExpanded] = useState(false);
-  const hasDetails =
+  const hasPointLists =
     data.responsibilities.length > 0 || data.requirements.length > 0;
+  // Older roles have no responsibilities, only a free-text description.
+  const description =
+    data.responsibilities.length === 0 ? data.description : null;
+  const hasDetails = Boolean(description) || hasPointLists;
+  const summary = data.responsibilities[0] ?? description;
 
   const spotLabel = data.availableSpot === 1 ? "Spot" : "Spots";
   const selected = isRoleSelected(data.id);
@@ -45,9 +51,9 @@ export default function LaunchpadCollaborationCard({
             <div className="truncate font-semibold text-[#0F1729]">
               {data.title}
             </div>
-            {data.responsibilities[0] ? (
+            {summary ? (
               <p className="line-clamp-1 text-[13px] text-[#94A3B8]">
-                {data.responsibilities[0]}
+                {summary}
               </p>
             ) : null}
             {hasDetails ? (
@@ -160,12 +166,24 @@ export default function LaunchpadCollaborationCard({
             transition={{ duration: 0.2, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <div className="mt-4 grid gap-5 border-t border-[#E7ECF3] pt-4 lg:grid-cols-2">
-              <RolePointList
-                title="Responsibilities"
-                items={data.responsibilities}
-              />
-              <RolePointList title="Requirements" items={data.requirements} />
+            <div className="mt-4 space-y-5 border-t border-[#E7ECF3] pt-4">
+              {description ? (
+                <p className="text-sm whitespace-pre-line text-gray-600">
+                  {description}
+                </p>
+              ) : null}
+              {hasPointLists ? (
+                <div className="grid gap-5 lg:grid-cols-2">
+                  <RolePointList
+                    title="Responsibilities"
+                    items={data.responsibilities}
+                  />
+                  <RolePointList
+                    title="Requirements"
+                    items={data.requirements}
+                  />
+                </div>
+              ) : null}
             </div>
           </motion.div>
         ) : null}
