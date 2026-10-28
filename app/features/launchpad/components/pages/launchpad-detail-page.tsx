@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from "motion/react";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useLocation } from "react-router";
 import { useRef, useState } from "react";
 import { EllipsisVertical } from "lucide-react";
 import LaunchpadProjectDetailCard from "../card/launchpad-project-detail-card";
@@ -29,6 +29,7 @@ function formatPostedProjectCount(count: number): string {
 
 export default function LaunchpadDetailPage() {
   const { project, userId } = useLoaderData<typeof loader>();
+  const location = useLocation();
   const hideApplyButton = project.createdBy.id === userId;
   const prefersReducedMotion = useReducedMotion();
   const [activeTab, setActiveTab] = useState<"details" | "open-roles">(
@@ -75,7 +76,12 @@ export default function LaunchpadDetailPage() {
           }}
           className="flex items-center justify-between"
         >
-          <BackToButton to="/launchpad" />
+          <BackToButton
+            to={
+              (location.state as { backTo?: string } | null)?.backTo ??
+              "/launchpad"
+            }
+          />
           <div className="flex items-center gap-2">
             <ShareLaunchpadDialog
               projectId={project.id}

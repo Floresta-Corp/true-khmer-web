@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useFetcher, useLoaderData } from "react-router";
+import { Link, useFetcher, useLoaderData, useLocation } from "react-router";
 import { toast } from "sonner";
 import BackToButton from "~/components/back-to-button";
 import { Badge } from "~/components/ui/badge";
@@ -282,6 +282,7 @@ function StatusSummary({
 export default function MyApplicationDetailPage() {
   const { application, applicationTitle, postingId, statusLabel, sourceType } =
     useLoaderData<typeof loader>();
+  const location = useLocation();
   const fetcher = useFetcher();
   const archiveFetcher = useFetcher();
   const pendingStatusAction = useRef<"confirm" | "decline" | "withdraw" | null>(
@@ -480,7 +481,10 @@ export default function MyApplicationDetailPage() {
                 asChild
                 className="rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 focus:bg-slate-50"
               >
-                <Link to={postingDetailHref}>
+                <Link
+                  to={postingDetailHref}
+                  state={{ backTo: `${location.pathname}${location.search}` }}
+                >
                   <ExternalLink className="size-4 text-[#1A73E8]" />
                   View posting detail
                 </Link>
