@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Trash2 } from "lucide-react";
 import IconButton from "~/components/icon-button";
 import { Button } from "~/components/ui/button";
+import { MAX_BENEFIT_LENGTH, MAX_BENEFITS } from "../lib/volunteer-validation";
 
 type Benefit = { id: number; value: string };
 
@@ -28,21 +29,34 @@ export default function BenefitsSection({
   }>;
   benefitErrors?: string[];
 }) {
+  const atLimit = benefits.length >= MAX_BENEFITS;
+
   return (
     <section className="rounded-2xl border border-[#E1E7EF] bg-white p-6">
       <div className="flex items-center justify-between gap-2">
         <h3 className="flex items-center gap-3 text-lg leading-8.25 font-bold text-[#344256] sm:text-[22px]">
           Benefits <span className="text-red-600">*</span>
         </h3>
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-auto shrink-0 px-0 py-0 text-xs leading-4.5 font-semibold text-[#2F6FE4] hover:text-[#245fca]"
-          onClick={onAdd}
-        >
-          + Add point
-        </Button>
+        <div className="flex shrink-0 items-center gap-3">
+          <span className="text-xs font-medium text-slate-400 tabular-nums">
+            {benefits.length}/{MAX_BENEFITS}
+          </span>
+          <Button
+            type="button"
+            variant="ghost"
+            className="h-auto px-0 py-0 text-xs leading-4.5 font-semibold text-[#2F6FE4] hover:text-[#245fca]"
+            onClick={onAdd}
+            disabled={atLimit}
+          >
+            + Add point
+          </Button>
+        </div>
       </div>
+      <p className="mt-1 text-xs text-slate-400">
+        {atLimit
+          ? `You've reached the limit of ${MAX_BENEFITS} benefits.`
+          : `Add up to ${MAX_BENEFITS} benefits, ${MAX_BENEFIT_LENGTH} characters each.`}
+      </p>
 
       <div className="mt-3 space-y-3">
         <AnimatePresence mode="popLayout">
@@ -65,16 +79,23 @@ export default function BenefitsSection({
                     onChange={(value) => onChange(benefit.id, value)}
                     id={`benefit-${benefit.id}`}
                     hasError={Boolean(benefitErrors && benefitErrors[idx])}
-                    maxLength={180}
+                    maxLength={MAX_BENEFIT_LENGTH}
                   />
-                  {benefitErrors && benefitErrors[idx] ? (
-                    <p
-                      id={`benefit-${benefit.id}-error`}
-                      className="mt-1 text-xs text-red-500"
-                    >
-                      {benefitErrors[idx]}
-                    </p>
-                  ) : null}
+                  <div className="mt-1 flex items-start justify-between gap-2">
+                    {benefitErrors && benefitErrors[idx] ? (
+                      <p
+                        id={`benefit-${benefit.id}-error`}
+                        className="text-xs text-red-500"
+                      >
+                        {benefitErrors[idx]}
+                      </p>
+                    ) : (
+                      <span />
+                    )}
+                    <span className="shrink-0 text-xs text-slate-400 tabular-nums">
+                      {benefit.value.length}/{MAX_BENEFIT_LENGTH}
+                    </span>
+                  </div>
                 </div>
                 {benefits.length > 1 && (
                   <IconButton

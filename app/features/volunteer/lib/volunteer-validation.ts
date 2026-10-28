@@ -15,8 +15,8 @@ const hasText = (value: unknown): value is string =>
 // character count matches what the API validates against.
 const normalizeText = (value: string) => value.trim().replace(/\s+/g, " ");
 
-const MAX_BENEFITS = 12;
-const MAX_BENEFIT_LENGTH = 180;
+export const MAX_BENEFITS = 12;
+export const MAX_BENEFIT_LENGTH = 180;
 
 const VolunteerDateRangeSchema = z
   .object({
