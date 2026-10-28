@@ -4,10 +4,10 @@ import {
   Ban,
   CheckCircle2,
   Clock,
-  Copy,
   EllipsisVertical,
   ExternalLink,
   PartyPopper,
+  Share2,
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -493,7 +493,7 @@ export default function MyApplicationDetailPage() {
                 className="rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 focus:bg-slate-50"
                 onClick={handleSharePostingLink}
               >
-                <Copy className="size-4 text-[#1A73E8]" />
+                <Share2 className="size-4 text-[#1A73E8]" />
                 {copiedPostingLink ? "Link copied" : "Share"}
               </DropdownMenuItem>
             </DropdownMenuContent>
