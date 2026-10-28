@@ -281,7 +281,8 @@ export const validateVolunteerApplicationData = (
 };
 
 const ALLOWED_FILE_TYPES = ["application/pdf"];
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 5MB
+export const APPLICATION_DOCUMENT_MAX_SIZE_MB = 10;
+const MAX_FILE_SIZE = APPLICATION_DOCUMENT_MAX_SIZE_MB * 1024 * 1024;
 
 export const validateVolunteerApplicationFiles = (
   files: unknown[],
@@ -297,7 +298,9 @@ export const validateVolunteerApplicationFiles = (
         return { files: "Only PDF files are allowed" };
       }
       if (file.size > MAX_FILE_SIZE) {
-        return { files: "Each file must be less than 10MB" };
+        return {
+          files: `${file.name} is too large. Maximum file size is ${APPLICATION_DOCUMENT_MAX_SIZE_MB} MB.`,
+        };
       }
     }
   }
