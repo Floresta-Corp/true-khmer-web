@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { Bookmark, Share2 } from "lucide-react";
 import { cn } from "~/lib/utils";
+import { copyToClipboard } from "~/lib/clipboard";
 import { EVENT_TYPE_COVER_COLORS } from "~/features/events/lib/event-formatters";
 import { useEventFavorite } from "~/features/events/lib/use-event-favorite";
 import type { EventDetail } from "~/features/events/types/events";
@@ -16,30 +16,11 @@ const CIRCLE_BUTTON =
 /** Cover panel of the event detail screen: photo, category pill, save, share. */
 export function EventDetailCover({ event, isFavorite }: EventDetailCoverProps) {
   const favorite = useEventFavorite(event.slug, isFavorite);
-  const [shareLabel, setShareLabel] = useState<string | null>(null);
   const coverColor =
     EVENT_TYPE_COVER_COLORS[event.eventType] ?? EVENT_TYPE_COVER_COLORS.OTHER;
 
-  const share = async () => {
-    const url = window.location.href;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: event.title, url });
-        return;
-      } catch {
-        // Cancelled, or sharing is blocked — fall through to the clipboard.
-      }
-    }
-
-    try {
-      await navigator.clipboard.writeText(url);
-      setShareLabel("Link copied");
-      window.setTimeout(() => setShareLabel(null), 2000);
-    } catch {
-      setShareLabel("Could not copy the link");
-      window.setTimeout(() => setShareLabel(null), 2000);
-    }
+  const share = () => {
+    copyToClipboard(window.location.href);
   };
 
   return (
@@ -56,14 +37,6 @@ export function EventDetailCover({ event, isFavorite }: EventDetailCoverProps) {
       </span>
 
       <div className="absolute top-5 right-5 flex items-center gap-2.5">
-        {shareLabel && (
-          <span
-            role="status"
-            className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#1A1A2E] shadow-[0_2px_8px_rgba(0,0,0,0.12)]"
-          >
-            {shareLabel}
-          </span>
-        )}
         <button
           type="button"
           onClick={favorite.toggleFavorite}
