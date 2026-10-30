@@ -315,6 +315,10 @@ export default [
   route("oauth/2fa", "features/oauth/route/oauth-2fa.tsx"),
   route("oauth/handoff", "features/oauth/route/oauth-handoff.tsx"),
   route("my-events/create", "features/workspace/route/my-events.create.tsx"),
+  route(
+    "my-events/:eventId",
+    "features/workspace/route/my-events.$eventId.tsx",
+  ),
 
   route("login", "routes/auth/pages/login.tsx"),
   route("login/2fa", "routes/auth/pages/login-2fa.tsx"),

@@ -192,6 +192,18 @@ export function getPlumpiMyEvents(
 }
 
 /**
+ * One event the user organizes — `GET /v1/plumpi/myevents/{eventId}`. Not in
+ * the generated client yet, and the row is a Plumpi pass-through either way,
+ * so the caller parses `event`.
+ */
+export function getPlumpiMyEvent(request: Request, eventId: string) {
+  return apiRequestWithSession<{ ok: true; event: unknown }>(
+    request,
+    `/plumpi/myevents/${encodeURIComponent(eventId)}`,
+  );
+}
+
+/**
  * Query for `GET /v1/plumpi/venues`. Plumpi owns the matching, so `search` is
  * forwarded rather than filtered here; see `getV1plumpivenues` in
  * `~/types/api-client` for the parameters this endpoint also accepts.
