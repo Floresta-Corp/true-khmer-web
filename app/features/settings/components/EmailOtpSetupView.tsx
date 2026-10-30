@@ -5,6 +5,7 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { Label } from "~/components/ui/label";
 import { showActionSuccessToast } from "~/components/notification-toast";
 import { OtpCodeField } from "./OtpCodeField";
+import { OtpCountdown } from "./OtpCountdown";
 import { SetupActions, TwoFASetupLayout } from "./TwoFASetupLayout";
 import type { SettingsActionData } from "../types";
 
@@ -19,11 +20,40 @@ export function EmailOtpSetupView({
   const navigate = useNavigate();
   const [code, setCode] = useState("");
   const [trustDevice, setTrustDevice] = useState(false);
+  // Kept in state so a failed verify (which replaces fetcher.data) doesn't
+  // drop the countdown for the code that is still in the user's inbox.
+  const [expiresAtMs, setExpiresAtMs] = useState<number | null>(null);
+  const [totalMs, setTotalMs] = useState(0);
+  const [remainingMs, setRemainingMs] = useState(0);
   const data = fetcher.data;
   const pendingIntent = fetcher.formData?.get("intent")?.toString();
   const isSubmitting = fetcher.state !== "idle";
   const verified = data?.ok && data.intent === "email-verify";
   const codeSent = data?.ok && data.intent === "email-send";
+  const isExpired = expiresAtMs !== null && remainingMs <= 0;
+
+  useEffect(() => {
+    if (data?.ok && data.intent === "email-send" && data.expiresInMs) {
+      setExpiresAtMs(Date.now() + data.expiresInMs);
+      setTotalMs(data.expiresInMs);
+    }
+    // The server is the source of truth: end the countdown even if it still
+    // had time left on this device.
+    if (data?.codeExpired) {
+      setExpiresAtMs(Date.now());
+      setCode("");
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (expiresAtMs === null) return;
+
+    const tick = () => setRemainingMs(Math.max(expiresAtMs - Date.now(), 0));
+    tick();
+    const intervalId = window.setInterval(tick, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [expiresAtMs]);
 
   useEffect(() => {
     if (data?.ok && data.intent === "email-verify") {
@@ -51,7 +81,7 @@ export function EmailOtpSetupView({
         >
           {pendingIntent === "email-send"
             ? "Sending..."
-            : codeSent
+            : codeSent || expiresAtMs !== null
               ? "Resend code"
               : "Send code"}
         </Button>
@@ -78,6 +108,9 @@ export function EmailOtpSetupView({
             data?.intent === "email-verify" ? data.errors?.code : undefined
           }
         />
+        {expiresAtMs !== null ? (
+          <OtpCountdown remainingMs={remainingMs} totalMs={totalMs} />
+        ) : null}
         <Label className="flex items-center gap-2 text-sm font-medium text-[#1D283A]">
           <Checkbox
             checked={trustDevice}
@@ -101,7 +134,7 @@ export function EmailOtpSetupView({
           <Button
             type="submit"
             data-otp-submit
-            disabled={isSubmitting || code.length !== 6}
+            disabled={isSubmitting || isExpired || code.length !== 6}
             className="h-11 w-full rounded-lg bg-[#2F6FE4] font-semibold text-white hover:bg-[#1F62DF]"
           >
             {pendingIntent === "email-verify" ? "Verifying..." : "Enable"}

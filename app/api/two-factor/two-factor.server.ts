@@ -25,6 +25,11 @@ import type {
 } from "~/types/api-client";
 import { redirect } from "react-router";
 
+// Not in the staging-generated client yet; optional until the API ships it.
+export type TwoFactorEmailSendResponse = AuthStatusResponse & {
+  expiresAt?: string;
+};
+
 type TwoFactorApiResult<T> = {
   data: T;
   setCookie?: string | string[];
@@ -212,11 +217,10 @@ export function verifyTotpSetup(
 }
 
 export function sendEmailOtpSetup(request: Request) {
-  return protectedTwoFactorRequest<AuthStatusResponse, Record<string, never>>(
-    request,
-    "/auth/2fa/email/send",
-    {},
-  );
+  return protectedTwoFactorRequest<
+    TwoFactorEmailSendResponse,
+    Record<string, never>
+  >(request, "/auth/2fa/email/send", {});
 }
 
 export function verifyEmailOtpSetup(
