@@ -3,6 +3,7 @@ import { Card, CardContent } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 
 export interface ProjectOverviewCardProps {
+  roleTitle: string;
   overview: string;
   sourceType: "volunteer" | "projects";
   responsibilities: string[];
@@ -10,6 +11,7 @@ export interface ProjectOverviewCardProps {
 }
 
 export function ProjectOverviewCard({
+  roleTitle,
   overview,
   sourceType,
   responsibilities,
@@ -21,6 +23,9 @@ export function ProjectOverviewCard({
         <h2 className="text-sm font-bold tracking-wider text-slate-900 uppercase dark:text-white">
           About this Role
         </h2>
+        <p className="mt-1 text-base font-extrabold text-[#202124] dark:text-white">
+          {roleTitle}
+        </p>
         <p className="mt-4 text-[14px] leading-7 font-medium text-slate-600 dark:text-slate-400">
           {overview}
         </p>

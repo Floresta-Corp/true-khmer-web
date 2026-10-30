@@ -1,3 +1,4 @@
+import { ChevronRight } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { Card, CardContent } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
@@ -74,6 +75,29 @@ function getCompactStatus(status: string) {
   }
 }
 
+/**
+ * Accent of a role by status, shared by the selected card's side bar and the
+ * selected-role header beside the list, so the two read as one.
+ */
+export function getRoleAccent(status: string) {
+  switch (status.toUpperCase()) {
+    case "APPROVED":
+      return {
+        bar: "bg-amber-500",
+        text: "text-amber-700 dark:text-amber-400",
+      };
+    case "DECLINED":
+      return { bar: "bg-red-500", text: "text-red-600 dark:text-red-400" };
+    case "WITHDRAWN":
+      return {
+        bar: "bg-slate-400",
+        text: "text-slate-500 dark:text-slate-400",
+      };
+    default:
+      return { bar: "bg-blue-600", text: "text-blue-600 dark:text-blue-400" };
+  }
+}
+
 export function AppliedRoleCard({
   roles,
   selectedApplicationId,
@@ -87,7 +111,7 @@ export function AppliedRoleCard({
             Applied Roles
           </h3>
           <p className="mt-1 text-xs text-slate-400">
-            Select a role to view status and details.
+            Select a role to see its status and details.
           </p>
         </div>
 
@@ -99,14 +123,16 @@ export function AppliedRoleCard({
             const isWithdrawn = role.status === "WITHDRAWN";
             const isInactive = isDeclined || isWithdrawn;
             const statusStyle = getCompactStatus(role.status);
+            const accent = getRoleAccent(role.status);
 
             return (
               <button
                 key={role.applicationId}
                 type="button"
                 onClick={() => onSelectRole(role.applicationId)}
+                aria-pressed={isSelected}
                 className={cn(
-                  "relative w-full overflow-hidden rounded-2xl border p-4 text-left transition-all",
+                  "relative w-full cursor-pointer overflow-hidden rounded-2xl border p-4 text-left transition-all",
                   isSelected
                     ? needsAction
                       ? "border-amber-500 bg-amber-50/30 ring-1 ring-amber-500/30 dark:border-amber-800 dark:bg-amber-950/10"
@@ -128,13 +154,7 @@ export function AppliedRoleCard({
                   <div
                     className={cn(
                       "absolute top-0 bottom-0 left-0 w-1.5",
-                      needsAction
-                        ? "bg-amber-500"
-                        : isDeclined
-                          ? "bg-red-500"
-                          : isWithdrawn
-                            ? "bg-slate-400"
-                            : "bg-blue-600",
+                      accent.bar,
                     )}
                   />
                 ) : null}
@@ -157,13 +177,7 @@ export function AppliedRoleCard({
                   className={cn(
                     "truncate pr-4 text-sm font-extrabold",
                     isSelected
-                      ? needsAction
-                        ? "text-amber-700 dark:text-amber-400"
-                        : isDeclined
-                          ? "text-red-600 dark:text-red-400"
-                          : isWithdrawn
-                            ? "text-slate-500 dark:text-slate-400"
-                            : "text-blue-600 dark:text-blue-400"
+                      ? accent.text
                       : "text-slate-800 dark:text-slate-200",
                   )}
                 >
@@ -174,15 +188,24 @@ export function AppliedRoleCard({
                   <span className="text-[11px] text-slate-400">
                     Applied {formatDate(role.appliedAt)}
                   </span>
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      "rounded-md border px-2 py-0.5 text-[9px] font-black shadow-none",
-                      statusStyle.className,
-                    )}
-                  >
-                    {statusStyle.label}
-                  </Badge>
+                  <div className="flex items-center gap-1.5">
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        "rounded-md border px-2 py-0.5 text-[9px] font-black shadow-none",
+                        statusStyle.className,
+                      )}
+                    >
+                      {statusStyle.label}
+                    </Badge>
+                    {/* Points at the details beside the list on wide screens. */}
+                    {isSelected ? (
+                      <ChevronRight
+                        aria-hidden
+                        className={cn("hidden size-4 lg:block", accent.text)}
+                      />
+                    ) : null}
+                  </div>
                 </div>
               </button>
             );
