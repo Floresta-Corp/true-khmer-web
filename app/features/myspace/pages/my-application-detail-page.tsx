@@ -24,7 +24,10 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { cn, resolveImageURL } from "~/lib/utils";
-import { AppliedRoleCard } from "../components/applied-role-card";
+import {
+  AppliedRoleCard,
+  getRoleAccent,
+} from "../components/applied-role-card";
 import ApplicationStatusConfirmDialog from "../components/application-status-confirm-dialog";
 import { DetailAndContactCard } from "../components/detail-and-contact-card";
 import { ProjectOverviewCard } from "../components/project-overview-card";
@@ -368,6 +371,8 @@ export default function MyApplicationDetailPage() {
   const responsibilities = selectedRole?.responsibilities ?? [];
   const requirements = selectedRole?.requirements ?? [];
   const roleStatus = selectedRole?.status ?? statusLabel;
+  const roleAccent = getRoleAccent(roleStatus);
+  const selectedRoleNumber = selectedRole ? roles.indexOf(selectedRole) + 1 : 0;
   const rewardPoints = Number(detail.opportunity.impactRewardPoints ?? 0);
   const scheduleLabel = [
     detail.opportunity.startDate,
@@ -573,7 +578,41 @@ export default function MyApplicationDetailPage() {
             </motion.div>
           </section>
 
-          <section className="order-1 flex min-w-0 flex-col gap-6 lg:order-2">
+          {/* Keyed on the role so switching roles replays the entrance and
+              the change of content reads as a change of selection. */}
+          <section
+            key={selectedRole?.applicationId}
+            aria-label={`Selected role: ${roleTitle}`}
+            className="order-1 flex min-w-0 flex-col gap-6 lg:order-2"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: prefersReducedMotion ? 0 : 0.24 }}
+              className="flex items-stretch gap-4"
+            >
+              <span
+                aria-hidden
+                className={cn("w-1.5 shrink-0 rounded-full", roleAccent.bar)}
+              />
+              <div className="min-w-0 py-0.5">
+                <span
+                  className={cn(
+                    "block text-xs font-bold tracking-widest uppercase",
+                    roleAccent.text,
+                  )}
+                >
+                  Selected role
+                  {roles.length > 1
+                    ? ` \u00b7 ${selectedRoleNumber} of ${roles.length}`
+                    : ""}
+                </span>
+                <h2 className="mt-1 truncate text-xl font-extrabold tracking-tight text-[#202124] sm:text-2xl dark:text-white">
+                  {roleTitle}
+                </h2>
+              </div>
+            </motion.div>
+
             <motion.div
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
@@ -621,6 +660,7 @@ export default function MyApplicationDetailPage() {
               }}
             >
               <ProjectOverviewCard
+                roleTitle={roleTitle}
                 overview={overview}
                 sourceType={sourceType}
                 responsibilities={responsibilities}
