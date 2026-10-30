@@ -60,7 +60,7 @@ function mapOpportunityToFormData(
       websiteUrl: (contact?.websiteUrl as string) ?? null,
     },
     roles: roles.map((r) => ({
-      id: (r.id as string) ?? "",
+      id: (r.id as string | undefined) || undefined,
       title: (r.title as string) ?? "",
       capacity: (r.capacity as number) ?? 1,
       responsibilities: (r.responsibilities as string[]) ?? [],
@@ -222,10 +222,13 @@ export default function VolunteerEditPage() {
         const mergedRoles = newRoles.map((role, i) => {
           const existingId = (role as Record<string, unknown>).id;
           if (existingId) return role;
+          // An edited role keeps its saved id; a newly added one goes without,
+          // since the API creates roles that have no id and rejects "".
           const prevRole = prev.roles[i] as Record<string, unknown> | undefined;
+          if (!prevRole?.id) return role;
           return {
             ...role,
-            id: prevRole?.id ?? "",
+            id: prevRole.id,
           } as FormDataVolunteerInput["roles"][number];
         });
         return { ...prev, roles: mergedRoles };
