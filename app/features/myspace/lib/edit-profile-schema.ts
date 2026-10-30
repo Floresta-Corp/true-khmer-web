@@ -1,54 +1,24 @@
 import { z } from "zod";
 import { VISIBILITY_OPTIONS } from "~/features/myspace/components/visibility-setting-card";
+import {
+  getSocialLinkError,
+  type SocialLinkPlatform,
+} from "~/features/myspace/lib/social-link-rules";
 
 export const EDIT_PROFILE_GENDERS = ["male", "female", "other"] as const;
 export const BIO_MAX_LENGTH = 1000;
 export const SKILL_MAX_LENGTH = 50;
 export const SKILLS_MAX_COUNT = 30;
 
-function isHttpUrl(value: string) {
-  try {
-    const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
-function hostMatches(value: string, domains: readonly string[]) {
-  try {
-    const host = new URL(value).hostname.toLowerCase();
-    return domains.some(
-      (domain) => host === domain || host.endsWith(`.${domain}`),
-    );
-  } catch {
-    return false;
-  }
-}
-
 // Social links are optional, so an empty string is valid; anything typed has
-// to be a full http(s) URL, and the network-specific ones on that network.
-function optionalUrl(label: string, domains?: readonly string[]) {
+// to pass the shared link rules, which the action and the API also apply.
+function optionalSocialLink(platform: SocialLinkPlatform) {
   return z
     .string()
     .trim()
     .superRefine((value, ctx) => {
-      if (!value) return;
-
-      if (!isHttpUrl(value)) {
-        ctx.addIssue({
-          code: "custom",
-          message: `${label} must be a valid URL starting with https://`,
-        });
-        return;
-      }
-
-      if (domains && !hostMatches(value, domains)) {
-        ctx.addIssue({
-          code: "custom",
-          message: `${label} must be a ${domains[0]} link`,
-        });
-      }
+      const message = getSocialLinkError(platform, value);
+      if (message) ctx.addIssue({ code: "custom", message });
     });
 }
 
@@ -148,10 +118,10 @@ export const editProfileSchema = z.object({
         ),
     )
     .max(SKILLS_MAX_COUNT, `You can add up to ${SKILLS_MAX_COUNT} skills`),
-  website: optionalUrl("Website"),
-  linkedin: optionalUrl("LinkedIn", ["linkedin.com"]),
-  twitter: optionalUrl("Twitter", ["x.com", "twitter.com"]),
-  facebook: optionalUrl("Facebook", ["facebook.com", "fb.com"]),
+  website: optionalSocialLink("website"),
+  linkedin: optionalSocialLink("linkedin"),
+  twitter: optionalSocialLink("twitter"),
+  facebook: optionalSocialLink("facebook"),
   profileVisibility: z.enum(VISIBILITY_OPTIONS),
   contactVisibility: z.enum(VISIBILITY_OPTIONS),
   socialLinksVisibility: z.enum(VISIBILITY_OPTIONS),

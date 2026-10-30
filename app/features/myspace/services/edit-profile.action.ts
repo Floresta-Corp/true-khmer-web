@@ -6,6 +6,7 @@ import { commitSession, getSession } from "~/lib/server/session.server";
 import { invalidateAuthSessionCacheForRequest } from "~/services/auth/session.server";
 import { UpdateMyspace } from "~/api/myspace/myspace.server";
 import type { Profile, UpdateMySpaceInput } from "~/features/myspace/types";
+import { getSocialLinkError } from "~/features/myspace/lib/social-link-rules";
 import { UploadAvatarPresign } from "~/services/uploads-avatar-presign.server";
 
 function readRecord(value: unknown): Record<string, unknown> {
@@ -102,6 +103,22 @@ export async function editProfileAction({ request }: Route.ActionArgs) {
   const linkedin = String(formData.get("linkedin") ?? "").trim() || null;
   const twitter = String(formData.get("twitter") ?? "").trim() || null;
   const facebook = String(formData.get("facebook") ?? "").trim() || null;
+
+  // The form checks these as they are typed; this catches a submission that
+  // skipped the form, with the same rules.
+  const socialLinkError = (
+    [
+      ["website", website],
+      ["linkedin", linkedin],
+      ["twitter", twitter],
+      ["facebook", facebook],
+    ] as const
+  )
+    .map(([platform, value]) => getSocialLinkError(platform, value ?? ""))
+    .find(Boolean);
+  if (socialLinkError) {
+    return respond({ ok: false, message: socialLinkError });
+  }
 
   const profileVisibility =
     String(formData.get("profileVisibility") ?? "").trim() || "public";
