@@ -143,6 +143,132 @@ export type MyEventsActionData = {
   error?: string;
 };
 
+// --- Event summary ---
+
+const NullableStringSchema = z.union([z.null(), z.string()]).optional();
+
+/** A category as Plumpi may send it: a bare id or an expanded record. */
+const MyEventCategorySchema = z.union([
+  z.string(),
+  z.object({ id: z.string().optional(), name: NullableStringSchema }),
+]);
+
+/**
+ * `GET /v1/plumpi/myevents/{eventId}` passes Plumpi's console event through,
+ * so like the listing row it is read leniently: a field Plumpi drops or
+ * reshapes falls back to a placeholder on the summary instead of failing it.
+ */
+export const MyEventDetailSchema = z
+  .object({
+    id: z.string(),
+    organizationId: NullableStringSchema,
+    organization: z
+      .object({ name: NullableStringSchema })
+      .nullable()
+      .optional()
+      .catch(null),
+    title: NullableStringSchema,
+    excerpt: NullableStringSchema,
+    status: z.unknown(),
+    thumbnail: NullableStringSchema,
+    cover: NullableStringSchema,
+    eventDates: z.array(MyEventDateSchema).optional().catch(undefined),
+    startAt: NullableStringSchema,
+    endAt: NullableStringSchema,
+    venueName: NullableStringSchema,
+    address: NullableStringSchema,
+    googleMapLink: NullableStringSchema,
+    venue: z
+      .object({
+        name: NullableStringSchema,
+        address: NullableStringSchema,
+        locationUrl: NullableStringSchema,
+      })
+      .nullable()
+      .optional()
+      .catch(null),
+    eventCategories: z.array(MyEventCategorySchema).optional().catch(undefined),
+    eventCategory: NullableStringSchema.catch(null),
+    visibility: z.unknown(),
+    registrationMode: z.unknown(),
+    entryMode: z.unknown(),
+  })
+  .transform((event) => {
+    const dates = event.eventDates?.length
+      ? event.eventDates
+      : event.startAt
+        ? [{ startAt: event.startAt, endAt: event.endAt }]
+        : [];
+    const categories = event.eventCategories ?? [];
+    const categoryName =
+      event.eventCategory?.trim() ||
+      categories
+        .map((category) =>
+          typeof category === "string" ? "" : (category.name?.trim() ?? ""),
+        )
+        .find(Boolean) ||
+      null;
+
+    return {
+      id: event.id,
+      organizationId: event.organizationId ?? null,
+      organizerName: event.organization?.name?.trim() || null,
+      title: event.title?.trim() || "Untitled event",
+      description: event.excerpt?.trim() ?? "",
+      status: MyEventStatusSchema.catch("DRAFT").parse(event.status),
+      coverUrl: event.thumbnail || event.cover || null,
+      dates: dates.map((date) => ({
+        startAt: date.startAt,
+        endAt: date.endAt ?? null,
+      })),
+      venueName: event.venueName?.trim() || event.venue?.name?.trim() || "",
+      address: event.address?.trim() || event.venue?.address?.trim() || "",
+      googleMapLink:
+        event.googleMapLink?.trim() || event.venue?.locationUrl?.trim() || "",
+      categoryName,
+      /** Bare category ids, resolved to a name by the loader when needed. */
+      categoryIds: categories.flatMap((category) =>
+        typeof category === "string"
+          ? [category]
+          : category.id
+            ? [category.id]
+            : [],
+      ),
+      visibility: EventVisibilitySchema.nullable()
+        .catch(null)
+        .parse(event.visibility ?? null),
+      registrationMode: EventRegistrationModeSchema.nullable()
+        .catch(null)
+        .parse(event.registrationMode ?? null),
+      entryMode: EventEntryModeSchema.nullable()
+        .catch(null)
+        .parse(event.entryMode ?? null),
+    };
+  });
+export type MyEventDetail = z.infer<typeof MyEventDetailSchema>;
+
+export type MyEventDetailLoaderData = {
+  event: MyEventDetail | null;
+  loadError: string | null;
+};
+
+/**
+ * What the shared event summary renders, already formatted. The review step
+ * builds it from the form and the event page from the Plumpi event.
+ */
+export type EventSummaryView = {
+  coverUrl: string;
+  name: string;
+  category: string;
+  organizerName: string | null;
+  dates: { key: string; date: string; time: string }[];
+  location: string;
+  address: string;
+  googleMapLink: string;
+  description: string;
+  access: { visibility: string; registration: string; entry: string };
+};
+
 // --- Create event ---
 
 /** Only the two formats the basics step offers; hybrid is set up in Plumpi. */

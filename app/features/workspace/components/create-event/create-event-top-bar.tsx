@@ -7,12 +7,14 @@ import AutosaveStatus, {
 
 type Props = {
   closeTo: string;
-  autosaveStatus: AutosaveStatusValue;
-  autosaveLabel: string;
+  /** Left out on pages with nothing to autosave, such as the event summary. */
+  autosaveStatus?: AutosaveStatusValue;
+  autosaveLabel?: string;
 };
 
 /**
- * Sticky bar of the create-event takeover: leave, plus the Plumpi attribution.
+ * Sticky bar of the create-event and event-summary takeovers: leave, plus the
+ * Plumpi attribution.
  */
 export default function CreateEventTopBar({
   closeTo,
@@ -33,13 +35,17 @@ export default function CreateEventTopBar({
       </Button>
 
       <div className="flex min-w-0 items-center gap-3 text-[13px] font-normal text-slate-500">
-        <AutosaveStatus
-          status={autosaveStatus}
-          label={autosaveLabel}
-          className="hidden sm:flex"
-        />
+        {autosaveStatus && (
+          <>
+            <AutosaveStatus
+              status={autosaveStatus}
+              label={autosaveLabel ?? ""}
+              className="hidden sm:flex"
+            />
 
-        <span className="hidden h-5 w-px bg-[#E1E7EF] sm:block" />
+            <span className="hidden h-5 w-px bg-[#E1E7EF] sm:block" />
+          </>
+        )}
 
         <div className="flex items-center gap-2">
           <span>Powered by</span>

@@ -180,6 +180,19 @@ export function formatDateInputValue(value: string): string {
   });
 }
 
+/** "Thursday, 12 March 2026" from a stored timestamp, as on the review step. */
+export function formatMyEventLongDate(value: string | null): string {
+  const date = toDate(value);
+  if (!date) return "Date to be announced";
+
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
 export const EVENT_VISIBILITY_LABELS: Record<EventVisibility, string> = {
   LISTED: "Listed",
   UNLISTED: "Unlisted",
