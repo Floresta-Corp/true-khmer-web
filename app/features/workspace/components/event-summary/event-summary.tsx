@@ -25,6 +25,25 @@ const ACCESS_ICONS = {
   entry: DoorOpen,
 } as const;
 
+const GOOGLE_MAPS_HOST = /(^|\.)google\.[a-z.]+$|^(maps\.app\.)?goo\.gl$/i;
+
+/**
+ * Plumpi stores whatever URL the organizer typed, so only an http(s) link is
+ * rendered, and it is called Google Maps only when it actually points there.
+ */
+function toMapLink(value: string): { href: string; label: string } | null {
+  if (!URL.canParse(value)) return null;
+  const url = new URL(value);
+  if (url.protocol !== "https:" && url.protocol !== "http:") return null;
+
+  return {
+    href: url.href,
+    label: GOOGLE_MAPS_HOST.test(url.hostname)
+      ? "View on Google Maps"
+      : "View location",
+  };
+}
+
 /**
  * Read-only summary of an event's basics, shared by the review step before a
  * draft is created and the event page reached from My Events.
@@ -35,6 +54,7 @@ export default function EventSummary({
   badge,
   summary,
 }: Props) {
+  const mapLink = toMapLink(summary.googleMapLink);
   const accessSummary = [
     {
       key: "visibility" as const,
@@ -143,14 +163,14 @@ export default function EventSummary({
                   {summary.address}
                 </span>
               )}
-              {summary.googleMapLink && (
+              {mapLink && (
                 <a
-                  href={summary.googleMapLink}
+                  href={mapLink.href}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-1.5 pl-6.5 text-xs text-blue-600 hover:underline"
                 >
-                  View on Google Maps
+                  {mapLink.label}
                   <ExternalLink className="size-3" />
                 </a>
               )}

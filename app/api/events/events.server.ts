@@ -16,10 +16,10 @@ const PlumpiHandoffResponseSchema = z.object({
   expiresAt: z.string().datetime({ offset: true }),
 });
 
-export function getPlumpiEventCategories(request: Request) {
+export function getPlumpiEventCategories(request: Request, page = 1) {
   return apiRequestWithSession<
     Awaited<ReturnType<PlumpiApi["getV1plumpieventCategories"]>>
-  >(request, "/plumpi/event-categories?page=1&limit=100");
+  >(request, `/plumpi/event-categories?page=${page}&limit=100`);
 }
 
 export function getPlumpiOrganizations(request: Request) {

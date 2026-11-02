@@ -8,6 +8,8 @@ import type {
   MyEventStatus,
 } from "~/features/workspace/types/my-events";
 
+const EVENT_TIME_ZONE = "Asia/Phnom_Penh";
+
 export const MY_EVENT_FORMAT_LABELS: Record<CreateEventFormat, string> = {
   IN_PERSON: "In-person",
   ONLINE: "Online",
@@ -37,6 +39,7 @@ export function formatMyEventDateRange(
   const end = toDate(endAt);
   if (!end || isSameDay(start, end)) {
     return start.toLocaleDateString("en-US", {
+      timeZone: EVENT_TIME_ZONE,
       weekday: "short",
       month: "short",
       day: "numeric",
@@ -44,15 +47,15 @@ export function formatMyEventDateRange(
   }
 
   const startLabel = start.toLocaleDateString("en-US", {
+    timeZone: EVENT_TIME_ZONE,
     month: "short",
     day: "numeric",
   });
   const endLabel = end.toLocaleDateString(
     "en-US",
-    start.getMonth() === end.getMonth() &&
-      start.getFullYear() === end.getFullYear()
-      ? { day: "numeric" }
-      : { month: "short", day: "numeric" },
+    isSameMonth(start, end)
+      ? { timeZone: EVENT_TIME_ZONE, day: "numeric" }
+      : { timeZone: EVENT_TIME_ZONE, month: "short", day: "numeric" },
   );
 
   return `${startLabel} \u2013 ${endLabel}`;
@@ -78,12 +81,22 @@ function toDate(value: string | null | undefined): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
+/** "2026-03-12" in the event zone, so day checks agree with the labels. */
+function toEventDay(date: Date): string {
+  return date.toLocaleDateString("en-CA", { timeZone: EVENT_TIME_ZONE });
+}
+
 function isSameDay(a: Date, b: Date): boolean {
-  return a.toDateString() === b.toDateString();
+  return toEventDay(a) === toEventDay(b);
+}
+
+function isSameMonth(a: Date, b: Date): boolean {
+  return toEventDay(a).slice(0, 7) === toEventDay(b).slice(0, 7);
 }
 
 function formatClockTime(date: Date): string {
   return date.toLocaleTimeString("en-US", {
+    timeZone: EVENT_TIME_ZONE,
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
@@ -186,6 +199,7 @@ export function formatMyEventLongDate(value: string | null): string {
   if (!date) return "Date to be announced";
 
   return date.toLocaleDateString("en-US", {
+    timeZone: EVENT_TIME_ZONE,
     weekday: "long",
     day: "numeric",
     month: "long",

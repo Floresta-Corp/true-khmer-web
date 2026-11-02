@@ -21,38 +21,44 @@ const NOT_FOUND =
   "We could not find this event. It may have been removed, or it belongs to an organization you are no longer part of.";
 const LOAD_ERROR = "Unable to load this event right now. Please try again.";
 
-/**
- * Plumpi may send the event's categories as bare ids; those are named from the
- * category list. A failed lookup only hides the category chip.
- */
+type CategoryLookup = { name: string | null; setCookie?: string };
+
 async function resolveCategoryName(
   request: Request,
   event: MyEventDetail,
-): Promise<string | null> {
+): Promise<CategoryLookup> {
   if (event.categoryName || event.categoryIds.length === 0) {
-    return event.categoryName;
+    return { name: event.categoryName };
   }
 
+  let pageRequest = request;
+  let setCookie: string | undefined;
+
   try {
-    const result = await getPlumpiEventCategories(request);
-    const categories = EventCategorySchema.array().parse(
-      result.data.categories,
-    );
-    return (
-      categories.find((category) => event.categoryIds.includes(category.id))
-        ?.name ?? null
-    );
+    for (let page = 1, totalPages = 1; page <= totalPages; page++) {
+      const result = await getPlumpiEventCategories(pageRequest, page);
+      if (result.setCookie) {
+        setCookie = result.setCookie;
+        pageRequest = requestWithSetCookie(pageRequest, setCookie);
+      }
+      totalPages = result.data.meta.totalPages;
+
+      // Entries are checked one by one so a malformed sibling is skipped.
+      for (const entry of result.data.categories) {
+        const category = EventCategorySchema.safeParse(entry);
+        if (category.success && event.categoryIds.includes(category.data.id)) {
+          return { name: category.data.name, setCookie };
+        }
+      }
+    }
+    return { name: null, setCookie };
   } catch (error) {
+    if (error instanceof Response) throw error;
     console.error("Could not name the event category:", error);
-    return null;
+    return { name: null, setCookie };
   }
 }
 
-/**
- * One event the organizer runs, for the summary page reached from My Events.
- * A missing event and a failing read are rendered by the page rather than
- * thrown, so a stale link still offers the way back to the listing.
- */
 export async function myEventDetailLoader({
   params,
   request,
@@ -80,17 +86,24 @@ export async function myEventDetailLoader({
       } satisfies MyEventDetailLoaderData);
     }
 
-    const categoryName = await resolveCategoryName(apiRequest, parsed.data);
+    // A session refreshed by the event read is reused for the category lookup.
+    const category = await resolveCategoryName(
+      requestWithSetCookie(apiRequest, result.setCookie),
+      parsed.data,
+    );
     const setCookie = [
-      ...(auth.setCookie ? [auth.setCookie] : []),
-      ...(result.setCookie ? [result.setCookie] : []),
-    ];
+      auth.setCookie,
+      result.setCookie,
+      category.setCookie,
+    ].filter((cookie): cookie is string => Boolean(cookie));
 
     return withAuthData({ setCookie }, {
-      event: { ...parsed.data, categoryName },
+      event: { ...parsed.data, categoryName: category.name },
       loadError: null,
     } satisfies MyEventDetailLoaderData);
   } catch (error) {
+    if (error instanceof Response) throw error;
+
     const isMissing =
       error instanceof ProtectedApiError &&
       (error.status === 404 || error.status === 403);

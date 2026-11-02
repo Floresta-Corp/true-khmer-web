@@ -172,7 +172,12 @@ export const MyEventDetailSchema = z
     status: z.unknown(),
     thumbnail: NullableStringSchema,
     cover: NullableStringSchema,
-    eventDates: z.array(MyEventDateSchema).optional().catch(undefined),
+    // Entries fall back one at a time, so one malformed sibling is dropped
+    // rather than the whole list.
+    eventDates: z
+      .array(MyEventDateSchema.nullable().catch(null))
+      .optional()
+      .catch(undefined),
     startAt: NullableStringSchema,
     endAt: NullableStringSchema,
     venueName: NullableStringSchema,
@@ -187,19 +192,25 @@ export const MyEventDetailSchema = z
       .nullable()
       .optional()
       .catch(null),
-    eventCategories: z.array(MyEventCategorySchema).optional().catch(undefined),
+    eventCategories: z
+      .array(MyEventCategorySchema.nullable().catch(null))
+      .optional()
+      .catch(undefined),
     eventCategory: NullableStringSchema.catch(null),
     visibility: z.unknown(),
     registrationMode: z.unknown(),
     entryMode: z.unknown(),
   })
   .transform((event) => {
-    const dates = event.eventDates?.length
-      ? event.eventDates
+    const eventDates = (event.eventDates ?? []).filter((date) => date !== null);
+    const dates = eventDates.length
+      ? eventDates
       : event.startAt
         ? [{ startAt: event.startAt, endAt: event.endAt }]
         : [];
-    const categories = event.eventCategories ?? [];
+    const categories = (event.eventCategories ?? []).filter(
+      (category) => category !== null,
+    );
     const categoryName =
       event.eventCategory?.trim() ||
       categories

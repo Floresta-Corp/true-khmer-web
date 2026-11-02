@@ -45,8 +45,9 @@ function toSummaryView(event: MyEventDetail): EventSummaryView {
             time: "Time to be announced",
           },
         ],
-    location: event.venueName || "Location to be announced",
-    address: event.address,
+    // Without a venue name the address stands in, as on the My Events card.
+    location: event.venueName || event.address || "Location to be announced",
+    address: event.venueName ? event.address : "",
     googleMapLink: event.googleMapLink,
     description: event.description,
     access: {
