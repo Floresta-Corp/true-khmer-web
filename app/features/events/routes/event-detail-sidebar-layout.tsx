@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { getPlumpiEventOrganizer } from "~/api/events/events.server";
 import { EventDetailOverview } from "~/features/events/components/event-detail-overview";
 import { EventOrganizerCard } from "~/features/events/components/event-organizer-card";
+import { parsePublicEventCreator } from "~/features/events/lib/public-event-data";
 import type { EventDetailOutletContext } from "~/features/events/types/events";
 import { readOptional } from "~/lib/server/api-client.server";
 
@@ -11,13 +12,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const result = await readOptional("event organizer", () =>
     getPlumpiEventOrganizer(request, params.slug ?? ""),
   );
-  return { organizer: result?.data.organizer ?? null };
+  return {
+    organizer: result?.data.organizer ?? null,
+    creator: parsePublicEventCreator(
+      (result?.data as { creator?: unknown } | undefined)?.creator,
+    ),
+  };
 }
 
 export default function EventDetailSidebarLayout() {
   const prefersReducedMotion = useReducedMotion();
   const context = useOutletContext<EventDetailOutletContext>();
-  const { organizer } = useLoaderData<typeof loader>();
+  const { organizer, creator } = useLoaderData<typeof loader>();
 
   return (
     <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
@@ -36,7 +42,9 @@ export default function EventDetailSidebarLayout() {
         className="flex flex-col gap-6"
       >
         <EventDetailOverview event={context.event} />
-        {organizer && <EventOrganizerCard organizer={organizer} />}
+        {organizer && (
+          <EventOrganizerCard organizer={organizer} creator={creator} />
+        )}
       </motion.aside>
     </div>
   );

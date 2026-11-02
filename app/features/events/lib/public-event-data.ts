@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { api } from "~/types/api-client";
 
 /** Public-event payload types come directly from the generated API client. */
@@ -8,6 +9,24 @@ export type PublicEventPhoto = Awaited<
 export type PublicEventOrganizer = Awaited<
   ReturnType<typeof api.getV1plumpieventsslugSlugorganizer>
 >["organizer"];
+
+/**
+ * The True Khmer member who created the event, sent beside the organizer.
+ * Newer than the generated client, so it is parsed here; anything malformed
+ * reads as no creator.
+ */
+export const PublicEventCreatorSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  avatarKey: z.string().nullable(),
+  profileVisibility: z.enum(["public", "members", "private"]),
+});
+export type PublicEventCreator = z.infer<typeof PublicEventCreatorSchema>;
+
+export function parsePublicEventCreator(value: unknown) {
+  const result = PublicEventCreatorSchema.safeParse(value);
+  return result.success ? result.data : null;
+}
 
 export type PublicEventSession = Awaited<
   ReturnType<typeof api.getV1plumpieventsslugSlugsessions>

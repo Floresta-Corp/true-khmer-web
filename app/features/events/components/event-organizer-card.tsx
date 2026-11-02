@@ -1,7 +1,13 @@
 import { memo } from "react";
+import { Link } from "react-router";
 import { Globe, Mail, MapPin, Phone } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { readString } from "~/features/events/lib/public-event-data";
-import type { PublicEventOrganizer } from "~/features/events/lib/public-event-data";
+import type {
+  PublicEventCreator,
+  PublicEventOrganizer,
+} from "~/features/events/lib/public-event-data";
+import { resolveImageURL } from "~/lib/utils";
 
 function websiteUrl(value: string | null) {
   if (!value) return null;
@@ -21,10 +27,52 @@ function hostedEventCount(organizer: PublicEventOrganizer) {
   return Number.isFinite(count) ? count : null;
 }
 
+/** The True Khmer member behind the event; a private profile isn't linked. */
+function EventCreatorRow({ creator }: { creator: PublicEventCreator }) {
+  const identity = (
+    <>
+      <Avatar size="sm">
+        {creator.avatarKey && (
+          <AvatarImage
+            src={resolveImageURL(creator.avatarKey)}
+            alt={creator.name}
+          />
+        )}
+        <AvatarFallback className="text-[10px] font-semibold">
+          {creator.name.trim().charAt(0).toUpperCase() || "?"}
+        </AvatarFallback>
+      </Avatar>
+      <span className="min-w-0 truncate font-bold text-[#1A1A2E]">
+        {creator.name}
+      </span>
+    </>
+  );
+
+  return (
+    <div className="mt-4 flex items-center gap-2.5 rounded-[10px] bg-[#F5F8FE] px-3 py-2.5 text-sm">
+      <span className="shrink-0 text-xs font-semibold text-[#6B7280]">
+        Created by
+      </span>
+      {creator.profileVisibility === "private" ? (
+        <span className="flex min-w-0 items-center gap-2">{identity}</span>
+      ) : (
+        <Link
+          to={`/profile/${creator.id}`}
+          className="flex min-w-0 items-center gap-2 transition-colors hover:text-[#1C5DD4] hover:underline"
+        >
+          {identity}
+        </Link>
+      )}
+    </div>
+  );
+}
+
 function EventOrganizerCardComponent({
   organizer,
+  creator,
 }: {
   organizer: PublicEventOrganizer;
+  creator: PublicEventCreator | null;
 }) {
   const name = readString(organizer, "name") ?? "Event organizer";
   const logo = readString(organizer, "logo", "logoUrl");
@@ -71,6 +119,8 @@ function EventOrganizerCardComponent({
           )}
         </div>
       </div>
+
+      {creator && <EventCreatorRow creator={creator} />}
 
       {description && (
         <p className="mt-4 line-clamp-3 text-sm leading-6 text-[#9A9AB0]">
