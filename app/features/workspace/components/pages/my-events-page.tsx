@@ -15,8 +15,6 @@ import MyEventCard from "../card/my-event-card";
 import MyEventsGridSkeleton from "../card/my-events-grid-skeleton";
 import MyEventsFilters from "../card/my-events-filter";
 import type { loader } from "../../route/my-events";
-import { PLUMPI_HANDOFF_INTENT } from "~/features/workspace/lib/plumpi-handoff";
-import { usePlumpiHandoff } from "~/lib/plumpi/use-plumpi-handoff";
 import {
   MyEventFilterSchema,
   type MyEvent,
@@ -35,9 +33,6 @@ export default function MyEventsPage() {
   const { content, hasLiveEvents } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { start, pendingKey: openingEventId } = usePlumpiHandoff({
-    popupBlockedMessage: "Allow pop-ups to open this event in Plumpi.",
-  });
 
   const [filter, setFilter] = useState<MyEventFilter>(() =>
     readFilter(searchParams.get("filter")),
@@ -88,22 +83,6 @@ export default function MyEventsPage() {
   const handleSearchChange = (value: string) => {
     setSearchInput(value);
     updateParam("search", value);
-  };
-
-  const handleOpenEvent = (event: MyEvent) => {
-    if (!event.organizationId) {
-      toast.error("This event is not linked to a Plumpi organization yet.");
-      return;
-    }
-
-    start(
-      {
-        intent: PLUMPI_HANDOFF_INTENT,
-        eventId: event.id,
-        organizationId: event.organizationId,
-      },
-      { action: MY_EVENTS_PATH, key: event.id },
-    );
   };
 
   return (
@@ -177,8 +156,6 @@ export default function MyEventsPage() {
                           key={event.id}
                           event={event}
                           index={index}
-                          isOpening={openingEventId === event.id}
-                          onOpen={handleOpenEvent}
                         />
                       ))}
                     </div>

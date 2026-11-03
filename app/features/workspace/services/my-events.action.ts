@@ -16,8 +16,9 @@ import {
 import type { MyEventsActionData } from "~/features/workspace/types/my-events";
 
 /**
- * Opening an event card hands the organizer over to the Plumpi console, the
- * same way the "Continue in Plumpi" button does after a draft is created.
+ * "Edit event" on an event's summary page posts here to hand the organizer
+ * over to the Plumpi console, the same way the "Continue in Plumpi" button
+ * does after a draft is created.
  */
 export async function myEventsAction({ request }: Route.ActionArgs) {
   const auth = await requireUser(request);

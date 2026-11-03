@@ -1,5 +1,6 @@
+import { Link } from "react-router";
 import { motion } from "motion/react";
-import { CalendarDays, LoaderCircle } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { cn } from "~/lib/utils";
 import {
   MY_EVENT_STATUS_LABELS,
@@ -14,7 +15,7 @@ import type {
 } from "~/features/workspace/types/my-events";
 
 /** Badge/dot colour per status, from the design system status ramp. */
-const STATUS_COLORS: Record<MyEventStatus, string> = {
+export const MY_EVENT_STATUS_COLORS: Record<MyEventStatus, string> = {
   ACTIVE: "text-[#FB3748]",
   PUBLISHED: "text-[#1C5DD4]",
   COMPLETED: "text-[oklch(0.5_0.08_152)]",
@@ -35,19 +36,14 @@ function EventStat({ label, value }: { label: string; value: string }) {
   );
 }
 
+const MotionLink = motion.create(Link);
+
 type Props = {
   event: MyEvent;
   index?: number;
-  isOpening?: boolean;
-  onOpen: (event: MyEvent) => void;
 };
 
-export default function MyEventCard({
-  event,
-  index = 0,
-  isOpening = false,
-  onOpen,
-}: Props) {
+export default function MyEventCard({ event, index = 0 }: Props) {
   // Drafts and cancelled events never sell tickets, so their zeroed figures are
   // dropped rather than shown; otherwise the row needs at least one real value.
   const hasStats =
@@ -56,11 +52,9 @@ export default function MyEventCard({
     (event.revenue !== null || event.ticketsSold !== null);
 
   return (
-    <motion.button
-      type="button"
-      onClick={() => onOpen(event)}
-      disabled={isOpening}
-      aria-label={`Open ${event.title} in Plumpi`}
+    <MotionLink
+      to={`/my-events/${encodeURIComponent(event.id)}`}
+      aria-label={`View ${event.title}`}
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -69,7 +63,7 @@ export default function MyEventCard({
         damping: 20,
         delay: index * 0.05,
       }}
-      className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl bg-white text-left shadow-[0_1px_3px_rgba(26,26,46,0.06),0_8px_24px_rgba(26,26,46,0.04)] transition duration-200 hover:-translate-y-[3px] hover:shadow-[0_8px_20px_rgba(26,26,46,0.10)] focus-visible:ring-2 focus-visible:ring-[#1C5DD4]/40 focus-visible:outline-none disabled:cursor-wait"
+      className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl bg-white text-left shadow-[0_1px_3px_rgba(26,26,46,0.06),0_8px_24px_rgba(26,26,46,0.04)] transition duration-200 hover:-translate-y-[3px] hover:shadow-[0_8px_20px_rgba(26,26,46,0.10)] focus-visible:ring-2 focus-visible:ring-[#1C5DD4]/40 focus-visible:outline-none"
     >
       <div className="relative h-32.5 shrink-0 bg-[#F5F6F8]">
         {event.thumbnail ? (
@@ -88,19 +82,13 @@ export default function MyEventCard({
           <span
             className={cn(
               "size-1.5 rounded-full bg-current",
-              STATUS_COLORS[event.status],
+              MY_EVENT_STATUS_COLORS[event.status],
             )}
           />
-          <span className={STATUS_COLORS[event.status]}>
+          <span className={MY_EVENT_STATUS_COLORS[event.status]}>
             {MY_EVENT_STATUS_LABELS[event.status]}
           </span>
         </span>
-
-        {isOpening && (
-          <span className="absolute inset-0 flex items-center justify-center bg-white/70">
-            <LoaderCircle className="size-6 animate-spin text-[#1C5DD4]" />
-          </span>
-        )}
       </div>
 
       <div className="flex flex-1 flex-col p-4">
@@ -134,6 +122,6 @@ export default function MyEventCard({
           </div>
         )}
       </div>
-    </motion.button>
+    </MotionLink>
   );
 }

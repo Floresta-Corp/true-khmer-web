@@ -16,10 +16,10 @@ const PlumpiHandoffResponseSchema = z.object({
   expiresAt: z.string().datetime({ offset: true }),
 });
 
-export function getPlumpiEventCategories(request: Request) {
+export function getPlumpiEventCategories(request: Request, page = 1) {
   return apiRequestWithSession<
     Awaited<ReturnType<PlumpiApi["getV1plumpieventCategories"]>>
-  >(request, "/plumpi/event-categories?page=1&limit=100");
+  >(request, `/plumpi/event-categories?page=${page}&limit=100`);
 }
 
 export function getPlumpiOrganizations(request: Request) {
@@ -189,6 +189,18 @@ export function getPlumpiMyEvents(
   return apiRequestWithSession<
     Awaited<ReturnType<PlumpiApi["getV1plumpimyevents"]>>
   >(request, `/plumpi/myevents?${searchParams.toString()}`);
+}
+
+/**
+ * One event the user organizes — `GET /v1/plumpi/myevents/{eventId}`. Not in
+ * the generated client yet, and the row is a Plumpi pass-through either way,
+ * so the caller parses `event`.
+ */
+export function getPlumpiMyEvent(request: Request, eventId: string) {
+  return apiRequestWithSession<{ ok: true; event: unknown }>(
+    request,
+    `/plumpi/myevents/${encodeURIComponent(eventId)}`,
+  );
 }
 
 /**
