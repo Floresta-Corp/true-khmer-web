@@ -582,36 +582,40 @@ export default function MyApplicationDetailPage() {
               the change of content reads as a change of selection. */}
           <section
             key={selectedRole?.applicationId}
-            aria-label={`Selected role: ${roleTitle}`}
+            aria-label={
+              selectedRole ? `Selected role: ${roleTitle}` : undefined
+            }
             className="order-1 flex min-w-0 flex-col gap-6 lg:order-2"
           >
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: prefersReducedMotion ? 0 : 0.24 }}
-              className="flex items-stretch gap-4"
-            >
-              <span
-                aria-hidden
-                className={cn("w-1.5 shrink-0 rounded-full", roleAccent.bar)}
-              />
-              <div className="min-w-0 py-0.5">
+            {selectedRole && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: prefersReducedMotion ? 0 : 0.24 }}
+                className="flex items-stretch gap-4"
+              >
                 <span
-                  className={cn(
-                    "block text-xs font-bold tracking-widest uppercase",
-                    roleAccent.text,
-                  )}
-                >
-                  Selected role
-                  {roles.length > 1
-                    ? ` \u00b7 ${selectedRoleNumber} of ${roles.length}`
-                    : ""}
-                </span>
-                <h2 className="mt-1 truncate text-xl font-extrabold tracking-tight text-[#202124] sm:text-2xl dark:text-white">
-                  {roleTitle}
-                </h2>
-              </div>
-            </motion.div>
+                  aria-hidden
+                  className={cn("w-1.5 shrink-0 rounded-full", roleAccent.bar)}
+                />
+                <div className="min-w-0 py-0.5">
+                  <span
+                    className={cn(
+                      "block text-xs font-bold tracking-widest uppercase",
+                      roleAccent.text,
+                    )}
+                  >
+                    Selected role
+                    {roles.length > 1
+                      ? ` \u00b7 ${selectedRoleNumber} of ${roles.length}`
+                      : ""}
+                  </span>
+                  <h2 className="mt-1 truncate text-xl font-extrabold tracking-tight text-[#202124] sm:text-2xl dark:text-white">
+                    {roleTitle}
+                  </h2>
+                </div>
+              </motion.div>
+            )}
 
             <motion.div
               initial={{ opacity: 0, y: 18 }}
