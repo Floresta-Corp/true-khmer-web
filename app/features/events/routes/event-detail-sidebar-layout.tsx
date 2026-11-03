@@ -7,17 +7,21 @@ import { EventOrganizerCard } from "~/features/events/components/event-organizer
 import { parsePublicEventCreator } from "~/features/events/lib/public-event-data";
 import type { EventDetailOutletContext } from "~/features/events/types/events";
 import { readOptional } from "~/lib/server/api-client.server";
+import { withAuthData } from "~/lib/server/auth-response.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const result = await readOptional("event organizer", () =>
     getPlumpiEventOrganizer(request, params.slug ?? ""),
   );
-  return {
-    organizer: result?.data.organizer ?? null,
-    creator: parsePublicEventCreator(
-      (result?.data as { creator?: unknown } | undefined)?.creator,
-    ),
-  };
+  return withAuthData(
+    { setCookie: result?.setCookie },
+    {
+      organizer: result?.data.organizer ?? null,
+      creator: parsePublicEventCreator(
+        (result?.data as { creator?: unknown } | undefined)?.creator,
+      ),
+    },
+  );
 }
 
 export default function EventDetailSidebarLayout() {
