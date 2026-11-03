@@ -1,6 +1,5 @@
 import { z } from "zod";
 import {
-  apiRequestPublic,
   apiRequestWithOptionalSession,
   apiRequestWithSession,
 } from "~/lib/server/api-client.server";
@@ -102,9 +101,13 @@ export function getPlumpiEventBySlug(request: Request, slug: string) {
 }
 
 export function getPlumpiEventOrganizer(request: Request, slug: string) {
-  return apiRequestPublic<
+  // Guests stay on the public event page; signed-in viewers get profile access
+  // appropriate to their membership. Expired sessions fall back to anonymous.
+  return apiRequestWithOptionalSession<
     Awaited<ReturnType<PlumpiApi["getV1plumpieventsslugSlugorganizer"]>>
-  >(request, `/plumpi/events/slug/${encodeURIComponent(slug)}/organizer`);
+  >(request, `/plumpi/events/slug/${encodeURIComponent(slug)}/organizer`, {
+    cache: "no-store",
+  });
 }
 
 export function getPlumpiEventPhotos(request: Request, slug: string) {
