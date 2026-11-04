@@ -9,6 +9,7 @@ export interface ListPublicBlogPostsQuery {
   page?: number;
   pageSize?: number;
   categorySlug?: string;
+  search?: string;
   sort?: "newest" | "oldest";
 }
 
@@ -22,6 +23,7 @@ export async function getPublicBlogPosts(
   if (query.pageSize !== undefined)
     searchParams.set("pageSize", String(query.pageSize));
   if (query.categorySlug) searchParams.set("categorySlug", query.categorySlug);
+  if (query.search) searchParams.set("search", query.search);
   if (query.sort) searchParams.set("sort", query.sort);
 
   const queryString = searchParams.toString();

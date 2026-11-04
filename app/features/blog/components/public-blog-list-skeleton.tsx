@@ -1,38 +1,5 @@
 import { Skeleton } from "~/components/ui/skeleton";
 
-export function PublicBlogFeaturedSkeleton() {
-  return (
-    <div
-      aria-hidden
-      className="relative h-80 w-full overflow-hidden rounded-xl bg-slate-100 sm:h-90 md:h-105 lg:h-120 xl:h-130 dark:bg-slate-900"
-    >
-      <Skeleton className="absolute inset-0 size-full rounded-xl" />
-
-      <div className="absolute inset-0 flex items-end">
-        <div className="w-full max-w-180 px-6 pb-6 sm:px-8 sm:pb-8 lg:px-10 lg:pb-10 xl:max-w-190 xl:px-12 xl:pb-12">
-          <div className="flex flex-wrap gap-3">
-            <Skeleton className="h-8 w-28 rounded-full" />
-            <Skeleton className="h-8 w-24 rounded-full" />
-          </div>
-
-          <div className="mt-4 space-y-3">
-            <Skeleton className="h-9 w-11/12 rounded-lg sm:h-11 md:h-12 lg:h-14" />
-            <Skeleton className="h-9 w-7/12 rounded-lg sm:h-11 md:h-12 lg:h-14" />
-          </div>
-
-          <div className="mt-5 flex items-center gap-3 sm:mt-6">
-            <Skeleton className="h-9 w-9 rounded-full" />
-            <div className="space-y-1.5">
-              <Skeleton className="h-3.5 w-32 rounded" />
-              <Skeleton className="h-3 w-24 rounded" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function PublicBlogCardSkeleton() {
   return (
     <div

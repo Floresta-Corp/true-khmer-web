@@ -21,6 +21,7 @@ interface HeaderSearchProps {
   buttonWidth?: string;
   locations?: Location[];
   searchBaseUrl?: string;
+  defaultSearch?: string;
   dur: number;
 }
 
@@ -35,11 +36,12 @@ export default function HeaderSearch({
   buttonWidth,
   locations = [],
   searchBaseUrl = "/launchpad/all",
+  defaultSearch = "",
   dur,
 }: HeaderSearchProps) {
   const allLocations = [ANYWHERE, ...locations];
   const [location, setLocation] = useState<Location>(ANYWHERE);
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState(defaultSearch);
   const navigate = useNavigate();
 
   const buildUrl = (search: string, cityId: string | null) => {

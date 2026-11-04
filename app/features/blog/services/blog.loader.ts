@@ -11,6 +11,7 @@ const BLOGS_PAGE_SIZE = 6;
 const querySchema = z.object({
   sort: z.enum(["newest", "oldest"]).optional().default("newest"),
   category: z.string().optional(),
+  search: z.string().trim().optional(),
   page: z.coerce.number().int().positive().optional().default(1),
 });
 
@@ -35,6 +36,7 @@ export async function blogLoader({ request }: Route.LoaderArgs) {
       page: 1,
       pageSize: query.page * BLOGS_PAGE_SIZE,
       categorySlug: query.category,
+      search: query.search,
       sort: query.sort,
     }),
   ]);
@@ -49,6 +51,7 @@ export async function blogLoader({ request }: Route.LoaderArgs) {
     activeCategory,
     featuredPost: listingResult.data.featuredPost,
     posts: listingResult.data.data,
+    search: query.search ?? "",
     sort: query.sort,
     page: query.page,
     hasMore: listingResult.data.meta.total > query.page * BLOGS_PAGE_SIZE,
