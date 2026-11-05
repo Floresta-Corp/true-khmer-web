@@ -1,5 +1,9 @@
 import * as z from "zod";
 import {
+  normalizePlumpiEventTitle,
+  plumpiEventTitleError,
+} from "~/features/workspace/lib/plumpi-event-title";
+import {
   schemas,
   type postV1plumpievents_Body as CreatePlumpiEventBody,
 } from "~/types/api-client";
@@ -388,8 +392,16 @@ export const CreateEventInputSchema = z
       .pipe(schemas.postV1plumpievents_Body.shape.organizationId),
     name: z
       .string()
-      .trim()
-      .min(1, "Event name is required")
+      .transform(normalizePlumpiEventTitle)
+      .pipe(
+        z
+          .string()
+          .min(1, "Event name is required")
+          .superRefine((title, ctx) => {
+            const message = plumpiEventTitleError(title, "Event name");
+            if (message) ctx.addIssue({ code: "custom", message });
+          }),
+      )
       .pipe(schemas.postV1plumpievents_Body.shape.title),
     category: z
       .string()

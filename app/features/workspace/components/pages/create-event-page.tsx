@@ -32,6 +32,7 @@ import {
   loadCreateEventDraft,
   saveCreateEventDraft,
 } from "~/features/workspace/lib/create-event-draft.client";
+import { plumpiEventTitleCharacterError } from "~/features/workspace/lib/plumpi-event-title";
 import { validateCreateEventCover } from "~/features/workspace/lib/create-event-cover";
 import { PLUMPI_HANDOFF_INTENT } from "~/features/workspace/lib/plumpi-handoff";
 import { usePlumpiHandoff } from "~/lib/plumpi/use-plumpi-handoff";
@@ -332,7 +333,14 @@ export default function CreateEventPage() {
     value: CreateEventFormState[K],
   ) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: undefined }));
+    // The name is checked as it's typed so a character Plumpi refuses is
+    // flagged on the spot; other fields just clear their error on edit.
+    const liveError =
+      field === "name"
+        ? (plumpiEventTitleCharacterError(value as string, "Event name") ??
+          undefined)
+        : undefined;
+    setErrors((prev) => ({ ...prev, [field]: liveError }));
   };
 
   const handleAccessChange = (patch: EventAccessPatch) => {
