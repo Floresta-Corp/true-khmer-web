@@ -242,11 +242,9 @@ export function PublicBlogListPage() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
               >
-                {featuredPost
-                  ? search
-                    ? `No other voices matched "${search}".`
-                    : "No other blog posts matched this filter."
-                  : `No voices matched "${search}".`}
+                {search
+                  ? `No voices matched "${search}".`
+                  : "No blog posts matched this filter."}
               </motion.div>
             ) : null}
           </AnimatePresence>
