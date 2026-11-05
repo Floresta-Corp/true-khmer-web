@@ -35,7 +35,7 @@ export default function BenefitsSection({
     <section className="rounded-2xl border border-[#E1E7EF] bg-white p-6">
       <div className="flex items-center justify-between gap-2">
         <h3 className="flex items-center gap-3 text-lg leading-8.25 font-bold text-[#344256] sm:text-[22px]">
-          Benefits <span className="text-red-600">*</span>
+          Benefits
         </h3>
         <div className="flex shrink-0 items-center gap-3">
           <span className="text-xs font-medium text-slate-400 tabular-nums">
