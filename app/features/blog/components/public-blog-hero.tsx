@@ -177,8 +177,14 @@ function BlogWriteLink({ to, dur }: { to: string; dur: number }) {
 
 export function PublicBlogHero({
   search,
+  category,
+  sort,
   ...featured
-}: FeaturedProps & { search: string }) {
+}: FeaturedProps & {
+  search: string;
+  category: string | null;
+  sort: "newest" | "oldest";
+}) {
   const prefersReducedMotion = useReducedMotion();
   const dur = prefersReducedMotion ? 0 : 1;
 
@@ -244,6 +250,11 @@ export function PublicBlogHero({
             inputPlaceholder="Search voices..."
             searchBaseUrl="/khmer-voices"
             defaultSearch={search}
+            // Keep the active filters; "newest" is the default, so omit it.
+            extraParams={{
+              category,
+              sort: sort === "newest" ? null : sort,
+            }}
             dur={dur}
           />
 

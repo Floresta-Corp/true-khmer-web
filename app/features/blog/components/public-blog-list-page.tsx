@@ -117,7 +117,12 @@ export function PublicBlogListPage() {
 
   return (
     <>
-      <PublicBlogHero {...featured} search={search} />
+      <PublicBlogHero
+        {...featured}
+        search={search}
+        category={activeCategory?.slug ?? null}
+        sort={sort}
+      />
       <main className="bg-white pt-10 pb-14 font-sans lg:pt-12 lg:pb-16 dark:bg-slate-950">
         <div className="site-container">
           {/* The hero hides its featured panel below lg, so show it here. */}
@@ -237,9 +242,11 @@ export function PublicBlogListPage() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
               >
-                {search
-                  ? `No voices matched "${search}".`
-                  : "No blog posts matched this filter."}
+                {featuredPost
+                  ? search
+                    ? `No other voices matched "${search}".`
+                    : "No other blog posts matched this filter."
+                  : `No voices matched "${search}".`}
               </motion.div>
             ) : null}
           </AnimatePresence>

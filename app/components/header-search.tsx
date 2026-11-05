@@ -22,6 +22,8 @@ interface HeaderSearchProps {
   locations?: Location[];
   searchBaseUrl?: string;
   defaultSearch?: string;
+  /** Params to carry over into the search URL, e.g. an active filter. */
+  extraParams?: Record<string, string | null | undefined>;
   dur: number;
 }
 
@@ -37,6 +39,7 @@ export default function HeaderSearch({
   locations = [],
   searchBaseUrl = "/launchpad/all",
   defaultSearch = "",
+  extraParams,
   dur,
 }: HeaderSearchProps) {
   const allLocations = [ANYWHERE, ...locations];
@@ -46,6 +49,9 @@ export default function HeaderSearch({
 
   const buildUrl = (search: string, cityId: string | null) => {
     const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(extraParams ?? {})) {
+      if (value) params.set(key, value);
+    }
     if (search.trim()) params.set("search", search.trim());
     if (cityId && cityId !== "anywhere") params.set("cityId", cityId);
     const qs = params.toString();
