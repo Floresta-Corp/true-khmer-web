@@ -56,7 +56,7 @@ export default function VolunteerDateRangeField({
   return (
     <div className="grid gap-5 sm:grid-cols-2">
       <div className="space-y-4">
-        <FieldLabel>Start date</FieldLabel>
+        <FieldLabel required>Start date</FieldLabel>
         <Popover open={startOpen} onOpenChange={setStartOpen}>
           <DateTrigger
             id="opportunity-start-date-trigger"
@@ -79,7 +79,7 @@ export default function VolunteerDateRangeField({
       </div>
 
       <div className="space-y-4">
-        <FieldLabel>End date</FieldLabel>
+        <FieldLabel required>End date</FieldLabel>
         <Popover
           open={endOpen}
           onOpenChange={(open) => {
