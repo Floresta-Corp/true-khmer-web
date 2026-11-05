@@ -1,4 +1,7 @@
-import { apiRequestPublic } from "~/lib/server/api-client.server";
+import {
+  apiRequestPublic,
+  apiRequestWithOptionalSession,
+} from "~/lib/server/api-client.server";
 import type {
   GetBlogCategoriesResponse,
   GetPublicBlogPostResponse,
@@ -35,9 +38,21 @@ export async function getPublicBlogPosts(
   );
 }
 
+// `likeCount` and `viewerLiked` are newer than the staging-generated client.
+export type PublicBlogPostDetail = GetPublicBlogPostResponse["post"] & {
+  likeCount: number;
+  viewerLiked: boolean;
+};
+
+export type PublicBlogPostDetailResponse = Omit<
+  GetPublicBlogPostResponse,
+  "post"
+> & { post: PublicBlogPostDetail };
+
 // GET /v1/blog/public/posts/{slug}
+// Sent with the session when there is one, so the API can fill `viewerLiked`.
 export async function getPublicBlogPostBySlug(request: Request, slug: string) {
-  return apiRequestPublic<GetPublicBlogPostResponse>(
+  return apiRequestWithOptionalSession<PublicBlogPostDetailResponse>(
     request,
     `/blog/public/posts/${encodeURIComponent(slug)}`,
     { method: "GET" },

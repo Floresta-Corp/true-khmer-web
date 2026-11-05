@@ -6,6 +6,7 @@ import {
   ProtectedApiError,
   readOptional,
 } from "~/lib/server/api-client.server";
+import { requestWithSetCookie } from "~/lib/server/route-guards.server";
 import { getUser } from "~/lib/server/session.server";
 import { parseBlogCommentSort, type BlogCommentViewer } from "../types";
 
@@ -47,12 +48,16 @@ export async function blogDetailLoader({ request, params }: Route.LoaderArgs) {
 
   try {
     const result = await getPublicBlogPostBySlug(request, slug);
+    // If the post read refreshed the session, the next read must use the new
+    // tokens: replaying the rotated refresh token would sign the viewer out.
+    const sessionRequest = requestWithSetCookie(request, result.setCookie);
     const [user, commentsResult] = await Promise.all([
-      getUser(request),
+      getUser(sessionRequest),
       readOptional("blog comments", () =>
-        getBlogComments(request, result.data.post.id, commentSort),
+        getBlogComments(sessionRequest, result.data.post.id, commentSort),
       ),
     ]);
+    const setCookie = commentsResult?.setCookie ?? result.setCookie;
 
     return data(
       {
@@ -63,9 +68,7 @@ export async function blogDetailLoader({ request, params }: Route.LoaderArgs) {
         commentSort,
         viewer: toCommentViewer(user),
       },
-      commentsResult?.setCookie
-        ? { headers: { "Set-Cookie": commentsResult.setCookie } }
-        : undefined,
+      setCookie ? { headers: { "Set-Cookie": setCookie } } : undefined,
     );
   } catch (error) {
     if (error instanceof ProtectedApiError && error.status === 404) {
