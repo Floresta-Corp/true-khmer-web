@@ -11,6 +11,11 @@ function plumpiWebBase(): string | null {
   return import.meta.env.VITE_PLUMPI_WEB?.trim() || null;
 }
 
+/** Plumpi's landing page, for "learn more about Plumpi" links. */
+export function buildPlumpiHomeUrl(): string | null {
+  return plumpiWebBase();
+}
+
 /** The event's public Plumpi page. */
 export function buildPlumpiEventUrl(slug: string): string | null {
   const base = plumpiWebBase();
