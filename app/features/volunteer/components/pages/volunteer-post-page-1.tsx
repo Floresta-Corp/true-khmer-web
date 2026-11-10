@@ -128,12 +128,10 @@ export default function VolunteerPostPage1({
   }, []);
 
   const [benefits, setBenefits] = useState(() =>
-    formData.benefits && formData.benefits.length > 0
-      ? formData.benefits.map((benefit, index) => ({
-          id: index,
-          value: benefit,
-        }))
-      : [{ id: Date.now(), value: "" }],
+    (formData.benefits ?? []).map((benefit, index) => ({
+      id: index,
+      value: benefit,
+    })),
   );
 
   const handleAddBenefit = () => {

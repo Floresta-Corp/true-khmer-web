@@ -1,7 +1,12 @@
-import { Plus, Trash2 } from "lucide-react";
-import { Button } from "~/components/ui/button";
+import { useEffect, useRef } from "react";
+import { Trash2 } from "lucide-react";
 import IconButton from "~/components/icon-button";
 import { Input } from "~/components/ui/input";
+import {
+  AddAnotherPointButton,
+  AddPointEmptyState,
+} from "../../add-point-controls";
+
 interface SectionLabelProps {
   children: string;
 }
@@ -28,63 +33,84 @@ export default function RequirementsSection({
   onUpdate,
   onRemovePoint,
 }: RequirementsSectionProps) {
+  const isEmpty = requirements.length === 0;
+  const lastIsEmpty = requirements[requirements.length - 1]?.trim() === "";
+
   const handleAddPoint = () => {
     onUpdate([...requirements, ""]);
   };
 
-  const lastIsEmpty = requirements[requirements.length - 1]?.trim() === "";
+  // Put the cursor in a point as soon as it's added.
+  const prevCount = useRef(requirements.length);
+  useEffect(() => {
+    if (requirements.length > prevCount.current) {
+      document.getElementById(`req-${requirements.length - 1}`)?.focus();
+    }
+    prevCount.current = requirements.length;
+  }, [requirements.length]);
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <SectionLabel>Requirements</SectionLabel>
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-auto p-0 text-xs font-semibold text-[#2f6fe4]"
-          onClick={handleAddPoint}
-          disabled={lastIsEmpty}
-        >
-          + Add point
-        </Button>
-      </div>
+      <SectionLabel>Requirements</SectionLabel>
 
-      <div className="mt-3 space-y-3">
-        {requirements.map((requirement, index) => {
-          const itemError = errors?.[index];
+      {isEmpty ? (
+        <>
+          <AddPointEmptyState
+            compact
+            message="No requirements yet. Add the skills or experience you need."
+            onAdd={handleAddPoint}
+            hasError={Boolean(errors?.[0])}
+          />
+          {errors?.[0] && (
+            <p className="text-xs text-red-500" role="alert">
+              {errors[0]}
+            </p>
+          )}
+        </>
+      ) : (
+        <div className="mt-3 space-y-3">
+          {requirements.map((requirement, index) => {
+            const itemError = errors?.[index];
 
-          return (
-            <div key={`req-${index}`} className="space-y-1">
-              <div className="flex items-center gap-2">
-                <Input
-                  placeholder="What skills are you looking for?"
-                  value={requirement}
-                  onChange={(e) => {
-                    const newRequirements = [...requirements];
-                    newRequirements[index] = e.target.value;
-                    onUpdate(newRequirements);
-                  }}
-                  aria-invalid={Boolean(itemError)}
-                  className={`h-11 flex-1 rounded-lg border bg-[#f8fafc] px-4 text-sm font-medium text-[#364153] placeholder:text-[#c8d6e5] focus-visible:ring-2 ${
-                    itemError
-                      ? "border-red-500 ring-2 ring-red-200 focus-visible:border-red-500 focus-visible:ring-red-500"
-                      : "border-transparent focus-visible:border-transparent focus-visible:ring-blue-500/45"
-                  }`}
-                />
-                {requirements.length > 1 && (
+            return (
+              <div key={`req-${index}`} className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Input
+                    id={`req-${index}`}
+                    placeholder="What skills are you looking for?"
+                    value={requirement}
+                    onChange={(e) => {
+                      const next = [...requirements];
+                      next[index] = e.target.value;
+                      onUpdate(next);
+                    }}
+                    aria-invalid={Boolean(itemError)}
+                    className={`h-11 flex-1 rounded-lg border bg-[#f8fafc] px-4 text-sm font-medium text-[#364153] placeholder:text-[#c8d6e5] focus-visible:ring-2 ${
+                      itemError
+                        ? "border-red-500 ring-2 ring-red-200 focus-visible:border-red-500 focus-visible:ring-red-500"
+                        : "border-transparent focus-visible:border-transparent focus-visible:ring-blue-500/45"
+                    }`}
+                  />
                   <IconButton
                     ariaLabel={`Remove requirement ${index + 1}`}
                     icon={<Trash2 className="size-4 text-red-500" />}
                     onClick={() => onRemovePoint(index)}
                     className="border"
                   />
+                </div>
+                {itemError && (
+                  <p className="text-xs text-red-500">{itemError}</p>
                 )}
               </div>
-              {itemError && <p className="text-xs text-red-500">{itemError}</p>}
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+
+          <AddAnotherPointButton
+            onAdd={handleAddPoint}
+            disabled={lastIsEmpty}
+          />
+        </div>
+      )}
     </div>
   );
 }

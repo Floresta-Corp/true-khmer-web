@@ -129,6 +129,8 @@ const validateDraftPointList = (
   values: string[],
   label: "responsibility" | "requirement",
 ) => {
+  if (values.length === 0) return [`Please add at least one ${label}.`];
+
   const hasAnyFilled = values.some((value) => hasText(value));
   const itemErrors = values.map((value, index) => {
     if (hasText(value)) return "";

@@ -290,7 +290,7 @@ export const initialFormDataVolunteerInput: FormDataVolunteerInput = {
   commitmentLabel: "",
   commitmentDescription: "",
   applicationDeadline: "",
-  benefits: [""],
+  benefits: [],
   contact: {
     email: "",
     telegramUsername: null,
