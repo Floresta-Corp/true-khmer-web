@@ -226,14 +226,16 @@ export default function VolunteerPostPage1({
       <section className="rounded-2xl border border-[#E1E7EF] bg-white p-6">
         <h2 className="text-[22px] leading-8.25 font-bold text-[#344256]">
           Opportunity Details
-          <span className="inline-block text-red-600">*</span>
         </h2>
 
         <div className="mt-6 border-t border-[#F3F4F6]" />
 
         <div className="mt-6 space-y-6">
           <div className="space-y-4">
-            <FieldLabel className="text-[13px] leading-[19.5px] font-semibold text-[#344256]">
+            <FieldLabel
+              required
+              className="text-[13px] leading-[19.5px] font-semibold text-[#344256]"
+            >
               Opportunity name
             </FieldLabel>
             <Input
@@ -252,7 +254,7 @@ export default function VolunteerPostPage1({
 
           <div className="grid gap-8 md:grid-cols-2">
             <div className="space-y-4">
-              <FieldLabel>Category</FieldLabel>
+              <FieldLabel required>Category</FieldLabel>
               <SelectOption
                 id="categoryId"
                 triggerClassName="mt-1.5 h-11 w-full rounded-[14px] border border-[#E1E7EF] bg-[#F8FAFC] px-3 text-sm font-medium text-black shadow-none hover:bg-[#F8FAFC] focus:ring-blue-500/45 data-[state=open]:ring-blue-500/45"
@@ -268,7 +270,7 @@ export default function VolunteerPostPage1({
             </div>
 
             <div className="space-y-4">
-              <FieldLabel>Location</FieldLabel>
+              <FieldLabel required>Location</FieldLabel>
               <SelectOption
                 id="locationId"
                 triggerClassName="mt-1.5 h-11 w-full rounded-[14px] border border-[#E1E7EF] bg-[#F8FAFC] px-3 text-sm font-medium text-black shadow-none hover:bg-[#F8FAFC] focus:ring-blue-500/45 data-[state=open]:ring-blue-500/45"
@@ -298,7 +300,7 @@ export default function VolunteerPostPage1({
             </div>
 
             <div className="space-y-4">
-              <FieldLabel>Application deadline</FieldLabel>
+              <FieldLabel required>Application deadline</FieldLabel>
               <VolunteerDatePickerField
                 value={formData.applicationDeadline}
                 onChange={(value) =>
@@ -310,7 +312,10 @@ export default function VolunteerPostPage1({
           </div>
 
           <div className="space-y-2">
-            <FieldLabel className="mb-3.5 text-[13px] leading-[19.5px] font-semibold text-[#344256]">
+            <FieldLabel
+              required
+              className="mb-3.5 text-[13px] leading-[19.5px] font-semibold text-[#344256]"
+            >
               Cover Image
             </FieldLabel>
             <label
@@ -435,7 +440,6 @@ export default function VolunteerPostPage1({
       <section className="rounded-2xl border border-[#E1E7EF] bg-white p-6">
         <h3 className="text-[22px] leading-8.25 font-bold text-[#1D283A]">
           Project Overview
-          <span className="text-red-600">*</span>
         </h3>
         <div className="mt-3">
           <CustomTextarea

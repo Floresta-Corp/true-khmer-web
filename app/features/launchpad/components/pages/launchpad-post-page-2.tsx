@@ -296,7 +296,6 @@ export default function LaunchpadPostPage2({
           draftRole={draftRole}
           editingIndex={editingIndex}
           errors={draftErrors ?? undefined}
-          hasSavedRoles={roles.length > 0}
           onDraftChange={handleDraftChange}
           onAddRole={handleAddRole}
           onCancelEdit={handleCancelEdit}

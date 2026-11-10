@@ -231,7 +231,6 @@ export default function VolunteerPostPage2({
           draftRole={draftRole}
           editingIndex={editingIndex}
           errors={currentRoleErrors}
-          hasSavedRoles={hasSavedRoles}
           onDraftChange={handleDraftChange}
           onAddRole={handleAddRole}
           onCancelEdit={handleCancelEdit}

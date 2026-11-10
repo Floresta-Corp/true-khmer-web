@@ -9,7 +9,6 @@ interface OpenRolesFormProps {
   draftRole: DraftRole;
   editingIndex: number | null;
   errors?: VolunteerRoleErrors;
-  hasSavedRoles: boolean;
   onDraftChange: <K extends keyof DraftRole>(
     field: K,
     value: DraftRole[K],
@@ -26,7 +25,6 @@ export default function OpenRolesForm({
   draftRole,
   editingIndex,
   errors,
-  hasSavedRoles,
   onDraftChange,
   onAddRole,
   onCancelEdit,
@@ -50,9 +48,6 @@ export default function OpenRolesForm({
           <Users className="size-6 text-[#2f6fe4]" />
           <h3 className="text-[22px] leading-8.25 font-bold text-[#344256]">
             {editingIndex !== null ? "Edit Role" : "Add a Role"}
-            {!hasSavedRoles && (
-              <span className="inline-block text-[#fb3748]">*</span>
-            )}
           </h3>
         </div>
         {editingIndex !== null && (
