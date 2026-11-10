@@ -33,6 +33,7 @@ export async function blogLikeAction(request: Request, formData: FormData) {
       },
     );
   } catch (error) {
+    if (error instanceof Response) throw error;
     return respond(transformActionResponse(error));
   }
 }

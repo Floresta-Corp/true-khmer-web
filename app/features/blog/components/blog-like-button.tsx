@@ -67,6 +67,7 @@ export default function BlogLikeButton({
     <Button
       type="button"
       variant="ghost"
+      disabled={fetcher.state !== "idle"}
       aria-pressed={liked}
       aria-label={label}
       title={label}
@@ -81,7 +82,12 @@ export default function BlogLikeButton({
           { method: "post" },
         )
       }
-      className={cn(BUTTON_CLASS, liked && "text-rose-500")}
+      // Keep full opacity while pending so the optimistic state doesn't dim.
+      className={cn(
+        BUTTON_CLASS,
+        "disabled:opacity-100",
+        liked && "text-rose-500",
+      )}
     >
       {content}
     </Button>
