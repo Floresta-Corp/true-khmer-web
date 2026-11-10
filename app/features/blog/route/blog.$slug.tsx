@@ -7,10 +7,10 @@ import {
   blogDetailLoader,
   headers as blogDetailHeaders,
 } from "../services/blog-detail.loader";
-import { blogCommentAction } from "../services/blog-comment.action";
+import { blogDetailAction } from "../services/blog-detail.action";
 
 export const loader = blogDetailLoader;
-export const action = blogCommentAction;
+export const action = blogDetailAction;
 export const headers = blogDetailHeaders;
 
 export function meta(args: Route.MetaArgs) {

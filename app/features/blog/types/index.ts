@@ -13,6 +13,17 @@ export const BLOG_COMMENT_ACTIONS = {
   delete: "delete-comment",
 } as const;
 
+export const BLOG_LIKE_ACTIONS = {
+  like: "like-post",
+  unlike: "unlike-post",
+} as const;
+
+export function isBlogLikeAction(
+  value: string,
+): value is (typeof BLOG_LIKE_ACTIONS)[keyof typeof BLOG_LIKE_ACTIONS] {
+  return value === BLOG_LIKE_ACTIONS.like || value === BLOG_LIKE_ACTIONS.unlike;
+}
+
 export function parseBlogCommentSort(
   value: string | null | undefined,
 ): BlogCommentSort {

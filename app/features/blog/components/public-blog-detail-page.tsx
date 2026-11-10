@@ -13,6 +13,7 @@ import { copyToClipboard } from "~/lib/clipboard";
 import type { blogDetailLoader } from "../services/blog-detail.loader";
 import BackToButton from "~/components/back-to-button";
 import BlogCommentsSection from "./comment/blog-comments-section";
+import BlogLikeButton from "./blog-like-button";
 
 export function PublicBlogDetailPage() {
   const { post, relatedPosts, comments, commentTotal, commentSort, viewer } =
@@ -122,11 +123,19 @@ export function PublicBlogDetailPage() {
               </p>
             </div>
           </div>
-          <IconButton
-            icon={<Share2 className="size-5 md:size-4" />}
-            ariaLabel="Share post"
-            onClick={handleShare}
-          />
+          <div className="flex items-center gap-2">
+            <BlogLikeButton
+              postId={post.id}
+              likeCount={post.likeCount}
+              viewerLiked={post.viewerLiked}
+              isAuthenticated={Boolean(viewer)}
+            />
+            <IconButton
+              icon={<Share2 className="size-5 md:size-4" />}
+              ariaLabel="Share post"
+              onClick={handleShare}
+            />
+          </div>
         </div>
 
         <article className="mt-12">
