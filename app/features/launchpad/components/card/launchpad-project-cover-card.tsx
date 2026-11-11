@@ -1,3 +1,4 @@
+import { formatPostingStatus } from "~/lib/posting-status";
 import { resolveImageURL } from "~/lib/utils";
 import type { LaunchpadDetail } from "~/features/launchpad/types";
 
@@ -26,8 +27,13 @@ export default function LaunchpadProjectCoverCard({
     >
       <div className="flex h-full items-end">
         <div className="space-y-2">
-          <div className="inline-flex rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-[#2F6FE4]">
-            {categoryName}
+          <div className="flex items-center gap-2">
+            <div className="inline-flex rounded-md bg-[#2F6FE4] px-2.5 py-1 text-xs font-semibold text-white">
+              {categoryName}
+            </div>
+            <div className="inline-flex rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-[#2F6FE4]">
+              {formatPostingStatus(project.status)}
+            </div>
           </div>
           <div className="text-3xl leading-tight font-bold text-white md:text-5xl">
             {project.name}
