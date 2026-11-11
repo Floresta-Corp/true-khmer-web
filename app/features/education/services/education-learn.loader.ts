@@ -4,7 +4,10 @@ import {
   getCourseCertificate,
   getCourseProgress,
 } from "~/api/education/education.server";
-import { withAuthData } from "~/lib/server/auth-response.server";
+import {
+  withAuthData,
+  withAuthRedirect,
+} from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
 import { loadCourseDetail, loadCourseHasQuiz } from "./education-detail.loader";
 
@@ -48,6 +51,14 @@ export async function educationLearnLoader({
     lessons.filter((lesson) => !lesson.isLocked).map((lesson) => lesson.id);
 
   const requested = new URL(request.url).searchParams.get("lesson");
+
+  /* A finished class opens on its "class completed" screen. Asking for a
+     particular lesson still plays it, which is how that screen's curriculum
+     lets the learner go back over a chapter. */
+  if (certificateEarned && !requested) {
+    throw withAuthRedirect(auth, `/education/${params.id}/complete`);
+  }
+
   const unlocked = new Set(unlockedLessonIds);
 
   if (requested && !unlocked.has(requested)) {

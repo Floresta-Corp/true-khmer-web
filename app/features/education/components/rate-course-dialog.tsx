@@ -18,12 +18,15 @@ interface RateCourseDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   courseTitle: string;
+  /** Called once the review has been saved. */
+  onRated?: () => void;
 }
 
 export function RateCourseDialog({
   open,
   onOpenChange,
   courseTitle,
+  onRated,
 }: RateCourseDialogProps) {
   const fetcher = useFetcher<RateCourseActionResult>();
   const [rating, setRating] = useState(0);
@@ -44,8 +47,9 @@ export function RateCourseDialog({
 
     settledRef.current = result;
     toast.success(result.message);
+    onRated?.();
     onOpenChange(false);
-  }, [fetcher.state, fetcher.data, onOpenChange]);
+  }, [fetcher.state, fetcher.data, onOpenChange, onRated]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

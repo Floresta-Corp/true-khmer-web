@@ -59,7 +59,7 @@ export async function educationCertificateLoader({
   ]);
 
   const isCourseAvailable = course !== null;
-  const backTo = course ? `/education/${course.id}/learn` : "/my-classes";
+  const backTo = course ? `/education/${course.id}/complete` : "/my-classes";
 
   const issued = certificateResponse.certificate;
 
