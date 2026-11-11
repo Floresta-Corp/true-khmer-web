@@ -1,5 +1,6 @@
 import { ExternalLink, Sparkles } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
+import { buildPlumpiHomeUrl } from "~/features/events/lib/plumpi-links";
 
 type Props = {
   animateOnMount?: boolean;
@@ -11,6 +12,7 @@ type Props = {
 export default function CreateEventAside({ animateOnMount = false }: Props) {
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = animateOnMount && !prefersReducedMotion;
+  const plumpiHomeUrl = buildPlumpiHomeUrl();
 
   return (
     <motion.aside
@@ -40,10 +42,18 @@ export default function CreateEventAside({ animateOnMount = false }: Props) {
           Built for event organizers to save time, engage audiences and run
           successful events.
         </p>
-        <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-blue-600">
-          Learn more
-          <ExternalLink className="size-3.5" />
-        </span>
+        {plumpiHomeUrl && (
+          <a
+            href={plumpiHomeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-5 inline-flex items-center gap-1.5 rounded-sm text-sm font-bold text-blue-600 hover:text-blue-700 hover:underline focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 focus-visible:outline-none"
+          >
+            Learn more
+            <ExternalLink className="size-3.5" aria-hidden="true" />
+            <span className="sr-only">about Plumpi (opens in a new tab)</span>
+          </a>
+        )}
       </div>
     </motion.aside>
   );
