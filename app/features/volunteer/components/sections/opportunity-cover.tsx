@@ -1,3 +1,4 @@
+import { formatPostingStatus } from "~/lib/posting-status";
 import { cn, resolveImageURL } from "~/lib/utils";
 import type { OpportunityDetail } from "~/features/volunteer/types/opportunities";
 
@@ -15,7 +16,7 @@ export default function OpportunityCover({ volunteer }: OpportunityCoverProps) {
       type: "category",
     },
     {
-      name: volunteer.status,
+      name: formatPostingStatus(volunteer.status),
       type: "status",
     },
   ];
