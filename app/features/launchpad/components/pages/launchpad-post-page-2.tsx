@@ -40,15 +40,15 @@ const withdrawRemovals = (pending: RemovedRole[]) => {
 const emptyDraft: DraftRole = {
   title: "",
   capacity: 1,
-  responsibilities: [""],
-  requirements: [""],
+  responsibilities: [],
+  requirements: [],
 };
 
 const toDraftRole = (role: LaunchpadRoleInput): DraftRole => ({
   title: role.name,
   capacity: role.capacity,
-  responsibilities: role.responsibilities.length ? role.responsibilities : [""],
-  requirements: role.requirements.length ? role.requirements : [""],
+  responsibilities: role.responsibilities,
+  requirements: role.requirements,
 });
 
 const trimPoints = (points: string[]) =>
@@ -150,7 +150,7 @@ export default function LaunchpadPostPage2({
     const nextValues = draftRole[field].filter(
       (_, index) => index !== itemIndex,
     );
-    handleDraftChange(field, nextValues.length > 0 ? nextValues : [""]);
+    handleDraftChange(field, nextValues);
   };
 
   const handleAddRole = () => {

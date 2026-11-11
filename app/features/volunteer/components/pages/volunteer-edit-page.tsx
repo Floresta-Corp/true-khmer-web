@@ -52,7 +52,7 @@ function mapOpportunityToFormData(
     commitmentLabel: (volunteer.commitmentLabel as string) ?? "",
     commitmentDescription: (volunteer.commitmentDescription as string) ?? "",
     applicationDeadline: (volunteer.applicationDeadline as string) ?? "",
-    benefits: (volunteer.benefits as string[]) ?? [""],
+    benefits: (volunteer.benefits as string[]) ?? [],
     contact: {
       email: (contact?.email as string) ?? "",
       telegramUsername: (contact?.telegramUsername as string) ?? null,

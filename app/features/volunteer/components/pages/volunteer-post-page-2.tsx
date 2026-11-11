@@ -36,8 +36,8 @@ export type DraftRole = {
 const emptyDraft: DraftRole = {
   title: "",
   capacity: 1,
-  responsibilities: [""],
-  requirements: [""],
+  responsibilities: [],
+  requirements: [],
 };
 
 const safeTrim = (value?: string | null) => (value ?? "").trim();
@@ -80,10 +80,8 @@ export default function VolunteerPostPage2({
   const isBlankRole = (role: FormDataVolunteerInput["roles"][number]) =>
     !safeTrim(role.title) &&
     role.capacity === 1 &&
-    role.responsibilities.length === 1 &&
-    !safeTrim(role.responsibilities[0]) &&
-    role.requirements.length === 1 &&
-    !safeTrim(role.requirements[0]);
+    role.responsibilities.every((item) => !safeTrim(item)) &&
+    role.requirements.every((item) => !safeTrim(item));
 
   useEffect(() => {
     if (fetcher.data?.success) {
@@ -148,7 +146,7 @@ export default function VolunteerPostPage2({
     const nextValues = draftRole[field].filter(
       (_, index) => index !== itemIndex,
     );
-    handleDraftChange(field, nextValues.length > 0 ? nextValues : [""]);
+    handleDraftChange(field, nextValues);
   };
 
   const handleAddRole = () => {
