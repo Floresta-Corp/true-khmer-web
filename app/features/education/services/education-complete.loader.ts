@@ -32,7 +32,7 @@ export async function educationCompleteLoader({
   const auth = await requireUser(request);
   const apiRequest = requestWithSetCookie(request, auth.setCookie);
 
-  const [course, certificateResponse, ownReviewResult] = await Promise.all([
+  const [course, certificateResponse] = await Promise.all([
     loadCourseDetail(apiRequest, params.id),
     getCourseCertificate(apiRequest, params.id).catch(async (error) => {
       if (error instanceof AuthSessionExpiredError) {
@@ -44,7 +44,6 @@ export async function educationCompleteLoader({
       }
       throw error;
     }),
-    getOwnCourseReview(apiRequest, params.id),
   ]);
 
   if (!course) {
@@ -53,12 +52,27 @@ export async function educationCompleteLoader({
 
   const certificate = certificateResponse.data.certificate;
   if (!certificateResponse.data.earned || !certificate) {
-    throw withAuthRedirect(auth, `/education/${course.id}/learn`);
+    throw withAuthRedirect(
+      { setCookie: certificateResponse.setCookie ?? auth.setCookie },
+      `/education/${course.id}/learn`,
+    );
   }
 
-  return withAuthData(auth, {
-    course,
-    completedOn: formatDate(certificate.completedAt),
-    ownReview: ownReviewResult?.data?.review ?? null,
-  });
+  const ownReviewResult = await getOwnCourseReview(
+    requestWithSetCookie(apiRequest, certificateResponse.setCookie),
+    params.id,
+  );
+  const setCookie =
+    ownReviewResult?.setCookie ??
+    certificateResponse.setCookie ??
+    auth.setCookie;
+
+  return withAuthData(
+    { setCookie },
+    {
+      course,
+      completedOn: formatDate(certificate.completedAt),
+      ownReview: ownReviewResult?.data?.review ?? null,
+    },
+  );
 }

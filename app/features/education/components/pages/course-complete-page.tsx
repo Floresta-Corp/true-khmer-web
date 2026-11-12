@@ -9,7 +9,6 @@ import {
   PartyPopper,
   Star,
 } from "lucide-react";
-import { BackLink } from "~/components/back-link";
 import { cn } from "~/lib/utils";
 import { CARD } from "~/features/education/lib/education-styles";
 import { lessonDetail } from "~/features/education/lib/lesson-media";
@@ -46,13 +45,13 @@ export default function CourseCompletePage() {
   return (
     <EducationPage surface="muted">
       <div className="mx-auto max-w-205">
-        <BackLink
+        <Link
           to={`/education/${course.id}`}
           className="mb-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[#1C5DD4] hover:underline"
         >
           <ChevronLeft className="size-4" aria-hidden />
           Back to course
-        </BackLink>
+        </Link>
 
         <motion.section
           initial={{ opacity: 0, y: 16 }}
