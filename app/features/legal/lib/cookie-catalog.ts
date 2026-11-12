@@ -33,6 +33,27 @@ export const THIRD_PARTY_EMBEDS: CookieEntry[] = [
     duration: "Set by Google",
   },
   {
+    name: "Vimeo",
+    provider: "Vimeo",
+    purpose:
+      "Plays video lessons hosted on Vimeo. Loads only on a lesson using a Vimeo video, with Vimeo's do-not-track option on, and sets cookies under Vimeo's own policy.",
+    duration: "Set by Vimeo",
+  },
+  {
+    name: "TikTok",
+    provider: "TikTok",
+    purpose:
+      "Plays video lessons hosted on TikTok. Loads only on a lesson using a TikTok video, and sets cookies under TikTok's own policy.",
+    duration: "Set by TikTok",
+  },
+  {
+    name: "Facebook",
+    provider: "Meta",
+    purpose:
+      "Plays video lessons hosted on Facebook. Loads only on a lesson using a Facebook video, and sets cookies under Meta's own policy.",
+    duration: "Set by Meta",
+  },
+  {
     name: "Google Sign-In",
     provider: "Google",
     purpose:

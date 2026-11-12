@@ -36,9 +36,6 @@ export function useWatchCoverage(resetKey: string, baselineSeconds = 0) {
     setCoverage({ key: resetKey, baseline, watched: baseline });
   }
 
-  /* Read through a ref so `record` keeps one identity for the life of the
-     player: it is handed to the YouTube hook, which rebuilds nothing when it
-     changes but would re-run its polling effect. */
   const baselineRef = useRef(baseline);
   baselineRef.current = baseline;
 

@@ -12,13 +12,18 @@ import {
   validateLessonFile,
   type LessonAssetUpload,
 } from "../lib/upload-lesson-asset";
-import { validateYoutubeUrl, youtubeVideoId } from "../lib/youtube-url";
+import {
+  parseVideoSource,
+  validateVideoUrl,
+  videoSourceKey,
+} from "~/features/education/lib/video-source";
+import { measureVideoUrlDuration } from "../lib/video-file-duration";
 import {
   readLessonAssetMeta,
   type LessonAssetMeta,
 } from "../lib/lesson-asset-meta";
 
-const ACCEPT: Record<Exclude<LessonSource, "youtube">, string> = {
+const ACCEPT: Record<Exclude<LessonSource, "video">, string> = {
   pdf: "application/pdf",
   audio: "audio/*",
 };
@@ -30,13 +35,12 @@ type PresignResult =
 type DurationResult =
   | {
       ok: true;
-      intent: "youtube-duration";
-      videoId: string;
+      intent: "video-duration";
+      videoKey: string;
       durationSeconds: number;
     }
   | { ok: false; error?: string };
 
-/** How long to wait after a keystroke before asking YouTube for the length. */
 const LOOKUP_DEBOUNCE_MS = 400;
 
 interface LessonSourceFieldProps {
@@ -44,6 +48,7 @@ interface LessonSourceFieldProps {
   url: string;
   fileName: string | null;
   urlPlaceholder: string;
+  urlHint?: string;
   onUrlChange: (url: string) => void;
   onUploaded: (
     assetKey: string,
@@ -54,7 +59,6 @@ interface LessonSourceFieldProps {
   onUploadingChange?: (uploading: boolean) => void;
   /** The length already known for this source, shown while the field is open. */
   durationSeconds: number | null;
-  /** Called with the length YouTube reports, or null when it has none. */
   onDurationChange: (durationSeconds: number | null) => void;
   label: string;
 }
@@ -64,6 +68,7 @@ export function LessonSourceField({
   url,
   fileName,
   urlPlaceholder,
+  urlHint,
   onUrlChange,
   onUploaded,
   onClearFile,
@@ -83,12 +88,18 @@ export function LessonSourceField({
 
   const lookup = useFetcher<DurationResult>();
   const { submit: submitLookup } = lookup;
-  const videoId = source === "youtube" ? youtubeVideoId(url) : null;
-  /** The video we have asked YouTube about, so a link is looked up once. */
+  const video = source === "video" ? parseVideoSource(url) : null;
+  const videoId = video ? videoSourceKey(video) : null;
+  const lengthSource =
+    video?.platform === "youtube" || video?.platform === "vimeo"
+      ? "server"
+      : video?.platform === "file"
+        ? "browser"
+        : "none";
   const askedFor = useRef<string | null>(null);
   /** The video whose answer is already in the draft. */
   const [resolvedFor, setResolvedFor] = useState<string | null>(() =>
-    source === "youtube" && durationSeconds ? youtubeVideoId(url) : null,
+    durationSeconds ? videoId : null,
   );
   /* Held in a ref so the effects below do not restart on every parent render. */
   const durationSink = useRef(onDurationChange);
@@ -110,28 +121,45 @@ export function LessonSourceField({
     setError(null);
   }, [source]);
 
-  /* The length in the draft belongs to the video we last resolved, so a new or
-     removed link drops it until YouTube answers for the one now in the box. */
   useEffect(() => {
-    if (source !== "youtube" || videoId === resolvedFor) return;
+    if (source !== "video" || videoId === resolvedFor) return;
     if (durationSeconds !== null) durationSink.current(null);
   }, [source, videoId, resolvedFor, durationSeconds]);
 
-  /* Ask the Data API for the length as soon as the pasted link settles, so it
-     is already in the draft when the author saves the lesson. */
   useEffect(() => {
     if (!videoId || videoId === askedFor.current) return;
 
+    if (lengthSource === "none") {
+      askedFor.current = videoId;
+      setResolvedFor(videoId);
+      durationSink.current(null);
+      return;
+    }
+
+    let cancelled = false;
     const timer = setTimeout(() => {
       askedFor.current = videoId;
-      submitLookup(
-        { intent: "youtube-duration", url: url.trim() },
-        { method: "post" },
-      );
+
+      if (lengthSource === "server") {
+        submitLookup(
+          { intent: "video-duration", url: url.trim() },
+          { method: "post" },
+        );
+        return;
+      }
+
+      void measureVideoUrlDuration(url.trim()).then((seconds) => {
+        if (cancelled || askedFor.current !== videoId) return;
+        setResolvedFor(videoId);
+        durationSink.current(seconds);
+      });
     }, LOOKUP_DEBOUNCE_MS);
 
-    return () => clearTimeout(timer);
-  }, [videoId, url, submitLookup]);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [videoId, lengthSource, url, submitLookup]);
 
   useEffect(() => {
     const answer = lookup.data;
@@ -139,13 +167,14 @@ export function LessonSourceField({
     if (lookup.state !== "idle" || !answer || !asked || asked === resolvedFor) {
       return;
     }
+    if (answer.ok && answer.videoKey !== asked) return;
 
     setResolvedFor(asked);
     durationSink.current(answer.ok ? answer.durationSeconds : null);
   }, [lookup.state, lookup.data, resolvedFor]);
 
   const accept = (file: File | undefined) => {
-    if (!file || source === "youtube") return;
+    if (!file || source === "video") return;
 
     const problem = validateLessonFile(file, source);
     if (problem) {
@@ -197,11 +226,11 @@ export function LessonSourceField({
 
   const drop = useFileDropPaste<HTMLButtonElement>({
     onFiles: ([file]) => accept(file),
-    disabled: busy || source === "youtube",
+    disabled: busy || source === "video",
   });
 
-  if (source === "youtube") {
-    const problem = urlTouched ? validateYoutubeUrl(url) : null;
+  if (source === "video") {
+    const problem = urlTouched ? validateVideoUrl(url) : null;
 
     return (
       <div>
@@ -222,10 +251,14 @@ export function LessonSourceField({
               : "border-[#E5E7EB] focus:border-[#1C5DD4]",
           )}
         />
-        {problem && (
+        {problem ? (
           <p className="mt-2 text-[13px] font-semibold text-[#FB3748]">
             {problem}
           </p>
+        ) : (
+          urlHint && (
+            <p className="mt-2 text-[13px] text-[#9A9AB0]">{urlHint}</p>
+          )
         )}
       </div>
     );

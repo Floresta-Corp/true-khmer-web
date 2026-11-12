@@ -102,6 +102,7 @@ function RealAudioLesson({
     : timedLessonGate({
         watchedSeconds,
         durationSeconds,
+        recordedDurationSeconds: lesson.durationSeconds,
         positionSeconds: currentTime,
         hasEnded,
         isReady: durationSeconds > 0,

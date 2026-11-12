@@ -128,7 +128,7 @@ const POLL_MS = 400;
  */
 const IDLE_POLL_MS = 1000;
 
-export interface YouTubeLessonPlayer {
+export interface LessonVideoPlayer {
   containerRef: (node: HTMLDivElement | null) => void;
   isReady: boolean;
   isPlaying: boolean;
@@ -156,7 +156,7 @@ export function useYouTubePlayer({
   startSeconds?: number;
   /** Called with the play position, often enough to count every second. */
   onProgress?: (seconds: number) => void;
-}): YouTubeLessonPlayer {
+}): LessonVideoPlayer {
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const playerRef = useRef<YouTubePlayer | null>(null);
 

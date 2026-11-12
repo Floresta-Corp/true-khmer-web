@@ -252,6 +252,11 @@ export const privacyPolicy: LegalDocument = {
               "That a video was loaded, plus the data YouTube collects under Google's own policy",
             ],
             [
+              "Vimeo, TikTok and Facebook (Meta)",
+              "Play video lessons a course creator chose to host on those services",
+              "That a video was loaded, plus the data each service collects under its own policy",
+            ],
+            [
               "Plumpi",
               "Event ticketing and registration for events run on that platform",
               "Your registration and ticket details for those events",

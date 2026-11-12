@@ -39,3 +39,19 @@ export function validateCoverFile(file: File): string | null {
   }
   return null;
 }
+
+export async function fetchImageAsFile(url: string): Promise<File | null> {
+  try {
+    const response = await fetch(url, { mode: "cors", credentials: "omit" });
+    if (!response.ok) return null;
+
+    const blob = await response.blob();
+    if (!blob.type.startsWith("image/")) return null;
+
+    const name =
+      new URL(url).pathname.split("/").filter(Boolean).pop() || "cover";
+    return new File([blob], name, { type: blob.type });
+  } catch {
+    return null;
+  }
+}

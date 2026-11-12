@@ -1,7 +1,10 @@
 import { Trash2, X } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { LessonSourceField } from "./lesson-source-field";
-import { isYoutubeUrl } from "../lib/youtube-url";
+import {
+  parseVideoSource,
+  SUPPORTED_VIDEO_LINKS,
+} from "~/features/education/lib/video-source";
 import {
   LESSON_FIELD_LABELS,
   LESSON_SOURCES,
@@ -36,7 +39,9 @@ export function AddLessonModal({
   const ready =
     !uploading &&
     draft.title.trim().length > 0 &&
-    (draft.source === "youtube" ? isYoutubeUrl(draft.url) : !!draft.assetKey);
+    (draft.source === "video"
+      ? parseVideoSource(draft.url) !== null
+      : !!draft.assetKey);
 
   return (
     /* The backdrop does not close this dialog: a lesson costs an upload or a
@@ -126,7 +131,8 @@ export function AddLessonModal({
                 source={draft.source}
                 url={draft.url}
                 fileName={draft.fileName}
-                urlPlaceholder="https://youtube.com/watch?v=..."
+                urlPlaceholder="Paste a YouTube, Vimeo, TikTok or Facebook video link"
+                urlHint={`Paste ${SUPPORTED_VIDEO_LINKS}.`}
                 label={LESSON_FIELD_LABELS[draft.source]}
                 durationSeconds={draft.durationSeconds}
                 onDurationChange={(durationSeconds) =>

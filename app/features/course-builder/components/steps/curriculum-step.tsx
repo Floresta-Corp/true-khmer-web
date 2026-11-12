@@ -136,7 +136,14 @@ export function CurriculumStep({
         </button>
       </div>
 
-      {error && <p className="mb-3.5 text-[13px] text-[#FB3748]">{error}</p>}
+      {error && (
+        <p
+          role="alert"
+          className="mb-3.5 text-[13px] whitespace-pre-line text-[#FB3748]"
+        >
+          {error}
+        </p>
+      )}
 
       <div className="flex flex-col gap-3.5">
         {sections.map((section) => {

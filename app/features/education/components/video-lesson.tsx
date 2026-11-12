@@ -1,31 +1,45 @@
-import type { ReactNode } from "react";
-import { Youtube } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { Video } from "lucide-react";
 import { cn } from "~/lib/utils";
-import { youtubeVideoId } from "~/features/education/lib/lesson-media";
+import {
+  parseVideoSource,
+  SUPPORTED_VIDEO_LINKS,
+} from "~/features/education/lib/video-source";
 import {
   timedLessonGate,
   unavailableLessonGate,
 } from "~/features/education/lib/lesson-gate";
 import { useWatchCoverage } from "~/features/education/hooks/use-watch-coverage";
-import { useYouTubePlayer } from "~/features/education/hooks/use-youtube-player";
+import {
+  useYouTubePlayer,
+  type LessonVideoPlayer,
+} from "~/features/education/hooks/use-youtube-player";
+import { useVimeoPlayer } from "~/features/education/hooks/use-vimeo-player";
+import { useTikTokPlayer } from "~/features/education/hooks/use-tiktok-player";
+import { useFacebookPlayer } from "~/features/education/hooks/use-facebook-player";
 import { useReportLessonGate } from "~/features/education/hooks/use-report-lesson-gate";
 import { mediaFrame, type LessonMediaProps } from "./lesson-media-frame";
 
-/**
- * A YouTube lesson.
- *
- * Played through the IFrame Player API rather than a bare iframe, so the page
- * can see what happened: the seconds the learner really played are what opens
- * the next lesson. YouTube's own controls are left in place — reimplementing
- * play, seek and fullscreen over an API we are already polling would only add
- * a second set of buttons to keep in sync.
- */
 export function VideoLesson(props: LessonMediaProps) {
   const { lesson } = props;
-  const videoId = lesson.sourceUrl ? youtubeVideoId(lesson.sourceUrl) : null;
+  const source = lesson.sourceUrl ? parseVideoSource(lesson.sourceUrl) : null;
 
-  if (!videoId) return <UnavailableVideoLesson {...props} />;
-  return <PlayableVideoLesson {...props} videoId={videoId} />;
+  switch (source?.platform) {
+    case "youtube":
+      return <YouTubeVideoLesson {...props} videoId={source.id} />;
+    case "vimeo":
+      return (
+        <VimeoVideoLesson {...props} videoId={source.id} hash={source.hash} />
+      );
+    case "tiktok":
+      return <TikTokVideoLesson {...props} videoId={source.id} />;
+    case "facebook":
+      return <FacebookVideoLesson {...props} videoId={source.id} />;
+    case "file":
+      return <FileVideoLesson {...props} src={source.url} />;
+    default:
+      return <UnavailableVideoLesson {...props} />;
+  }
 }
 
 function VideoFrame({
@@ -58,14 +72,8 @@ function VideoFrame({
   );
 }
 
-function PlayableVideoLesson({
-  lesson,
-  videoId,
-  overlay,
-  flush,
-  resume,
-  onGateChange,
-}: LessonMediaProps & { videoId: string }) {
+function YouTubeVideoLesson(props: LessonMediaProps & { videoId: string }) {
+  const { lesson, videoId, resume } = props;
   const { watchedSeconds, record } = useWatchCoverage(
     lesson.id,
     resume?.watchedSeconds ?? 0,
@@ -77,9 +85,106 @@ function PlayableVideoLesson({
     onProgress: record,
   });
 
-  /* The API's own duration is used where it has one. The creator's recorded
-     `durationSeconds` is a fallback for the moment before the player reports,
-     and can be wrong or absent — YouTube knows the real length. */
+  return (
+    <EmbeddedVideoLesson
+      {...props}
+      player={player}
+      watchedSeconds={watchedSeconds}
+    />
+  );
+}
+
+function VimeoVideoLesson(
+  props: LessonMediaProps & { videoId: string; hash: string | null },
+) {
+  const { lesson, videoId, hash, resume } = props;
+  const { watchedSeconds, record } = useWatchCoverage(
+    lesson.id,
+    resume?.watchedSeconds ?? 0,
+  );
+
+  const player = useVimeoPlayer({
+    videoId,
+    hash,
+    startSeconds: resume?.positionSeconds ?? 0,
+    onProgress: record,
+  });
+
+  return (
+    <EmbeddedVideoLesson
+      {...props}
+      player={player}
+      watchedSeconds={watchedSeconds}
+    />
+  );
+}
+
+function TikTokVideoLesson(props: LessonMediaProps & { videoId: string }) {
+  const { lesson, videoId, resume } = props;
+  const { watchedSeconds, record } = useWatchCoverage(
+    lesson.id,
+    resume?.watchedSeconds ?? 0,
+  );
+
+  const player = useTikTokPlayer({
+    videoId,
+    startSeconds: resume?.positionSeconds ?? 0,
+    onProgress: record,
+  });
+
+  return (
+    <EmbeddedVideoLesson
+      {...props}
+      player={player}
+      watchedSeconds={watchedSeconds}
+      layout="portrait"
+    />
+  );
+}
+
+function FacebookVideoLesson(props: LessonMediaProps & { videoId: string }) {
+  const { lesson, videoId, resume } = props;
+  const { watchedSeconds, record } = useWatchCoverage(
+    lesson.id,
+    resume?.watchedSeconds ?? 0,
+  );
+
+  const player = useFacebookPlayer({
+    videoId,
+    startSeconds: resume?.positionSeconds ?? 0,
+    onProgress: record,
+  });
+
+  return (
+    <EmbeddedVideoLesson
+      {...props}
+      player={player}
+      watchedSeconds={watchedSeconds}
+      layout="plugin"
+    />
+  );
+}
+
+const PLAYER_LAYOUT = {
+  fill: "size-full [&_iframe]:size-full [&_iframe]:border-0",
+  portrait:
+    "mx-auto aspect-9/16 h-full max-w-full [&_iframe]:size-full [&_iframe]:border-0",
+  plugin: "flex size-full items-center justify-center overflow-hidden",
+} as const;
+
+function EmbeddedVideoLesson({
+  lesson,
+  overlay,
+  flush,
+  onGateChange,
+  player,
+  watchedSeconds,
+  layout = "fill",
+}: LessonMediaProps & {
+  player: LessonVideoPlayer;
+  watchedSeconds: number;
+  layout?: keyof typeof PLAYER_LAYOUT;
+}) {
   const durationSeconds =
     player.durationSeconds > 0
       ? player.durationSeconds
@@ -90,6 +195,7 @@ function PlayableVideoLesson({
     : timedLessonGate({
         watchedSeconds,
         durationSeconds,
+        recordedDurationSeconds: lesson.durationSeconds,
         positionSeconds: player.currentTime,
         hasEnded: player.hasEnded,
         isReady: player.isReady,
@@ -99,11 +205,7 @@ function PlayableVideoLesson({
 
   return (
     <VideoFrame overlay={overlay} flush={flush}>
-      {/* The iframe is the API's, not React's, so it is sized from here. */}
-      <div
-        ref={player.containerRef}
-        className="size-full [&_iframe]:size-full [&_iframe]:border-0"
-      />
+      <div ref={player.containerRef} className={PLAYER_LAYOUT[layout]} />
 
       {player.error && (
         <p className="absolute inset-0 z-20 flex items-center justify-center bg-black/70 px-8 text-center text-sm text-white">
@@ -114,12 +216,86 @@ function PlayableVideoLesson({
   );
 }
 
-/**
- * A video lesson whose link is not a YouTube video.
- *
- * Shown rather than a player, because there is nothing to play. The gate opens
- * so one bad link cannot strand a learner part-way through a course.
- */
+function FileVideoLesson({
+  lesson,
+  src,
+  overlay,
+  flush,
+  resume,
+  onGateChange,
+}: LessonMediaProps & { src: string }) {
+  const [currentTime, setCurrentTime] = useState(resume?.positionSeconds ?? 0);
+  const [duration, setDuration] = useState(0);
+  const [hasEnded, setHasEnded] = useState(false);
+  const [isBroken, setIsBroken] = useState(false);
+
+  const { watchedSeconds, record } = useWatchCoverage(
+    lesson.id,
+    resume?.watchedSeconds ?? 0,
+  );
+
+  const startSeconds = resume?.positionSeconds ?? 0;
+
+  const durationSeconds =
+    duration > 0 ? duration : (lesson.durationSeconds ?? 0);
+
+  const gate = isBroken
+    ? unavailableLessonGate()
+    : timedLessonGate({
+        watchedSeconds,
+        durationSeconds,
+        recordedDurationSeconds: lesson.durationSeconds,
+        positionSeconds: currentTime,
+        hasEnded,
+        isReady: durationSeconds > 0,
+      });
+
+  useReportLessonGate(gate, onGateChange);
+
+  return (
+    <VideoFrame overlay={overlay} flush={flush}>
+      <video
+        src={src}
+        controls
+        playsInline
+        preload="metadata"
+        poster={lesson.posterUrl ?? undefined}
+        controlsList="nodownload"
+        className="size-full object-contain"
+        onLoadedMetadata={(event) => {
+          const value = event.currentTarget.duration;
+          setDuration(Number.isFinite(value) ? value : 0);
+
+          if (startSeconds > 0 && startSeconds < value) {
+            event.currentTarget.currentTime = startSeconds;
+            setCurrentTime(startSeconds);
+          }
+        }}
+        onTimeUpdate={(event) => {
+          const time = event.currentTarget.currentTime;
+          setCurrentTime(time);
+          if (!event.currentTarget.paused) record(time);
+        }}
+        onSeeked={(event) => setCurrentTime(event.currentTarget.currentTime)}
+        onEnded={(event) => {
+          setHasEnded(true);
+          record(event.currentTarget.currentTime);
+        }}
+        onError={() => setIsBroken(true)}
+      >
+        Your browser cannot play this video.
+      </video>
+
+      {isBroken && (
+        <p className="absolute inset-0 z-20 flex items-center justify-center bg-black/70 px-8 text-center text-sm text-white">
+          This video lesson could not be played. You can carry on to the next
+          lesson.
+        </p>
+      )}
+    </VideoFrame>
+  );
+}
+
 function UnavailableVideoLesson({
   lesson,
   overlay,
@@ -139,14 +315,14 @@ function UnavailableVideoLesson({
 
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-8 text-center">
         <span className="flex size-14 items-center justify-center rounded-full bg-white/95">
-          <Youtube className="size-6.5 text-[#1C5DD4]" aria-hidden />
+          <Video className="size-6.5 text-[#1C5DD4]" aria-hidden />
         </span>
         <p className="text-[15px] font-bold text-white">
           This video is unavailable
         </p>
         <p className="max-w-90 text-sm leading-[1.6] text-white/80">
-          The link on this lesson is not a YouTube video. You can carry on to
-          the next lesson.
+          The link on this lesson is not {SUPPORTED_VIDEO_LINKS}. You can carry
+          on to the next lesson.
         </p>
       </div>
     </VideoFrame>

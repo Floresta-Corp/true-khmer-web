@@ -4,6 +4,7 @@ import { Image as ImageIcon, Loader2 } from "lucide-react";
 import { useImageDropPaste } from "~/hooks/use-image-drop-paste";
 import { cn } from "~/lib/utils";
 import {
+  fetchImageAsFile,
   putCoverImage,
   validateCoverFile,
   type CoverUpload,
@@ -72,15 +73,24 @@ export function CoverImageField({
       .finally(() => setUploading(false));
   }, [fetcher.state, fetcher.data, onUploaded]);
 
-  const busy = uploading || fetcher.state !== "idle";
+  const [fetchingLink, setFetchingLink] = useState(false);
+  const busy = uploading || fetchingLink || fetcher.state !== "idle";
 
-  // A pasted/dropped image link is already hosted, so it becomes the cover
-  // key directly instead of being presigned and uploaded.
   const drop = useImageDropPaste<HTMLDivElement>({
     onFiles: ([file]) => accept(file),
     onUrl: (url) => {
       setError(null);
-      onUploaded(url, url);
+      setFetchingLink(true);
+      void fetchImageAsFile(url)
+        .then((file) => {
+          if (file) accept(file);
+          else {
+            setError(
+              "That website does not let us copy its image. Save the image to your device, then upload it here.",
+            );
+          }
+        })
+        .finally(() => setFetchingLink(false));
     },
     disabled: busy,
   });

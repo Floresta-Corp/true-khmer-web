@@ -11,7 +11,7 @@ export type LessonAssetUpload = {
 
 export const MAX_LESSON_ASSET_BYTES = 100 * 1024 * 1024;
 
-const ACCEPTED: Record<Exclude<LessonSource, "youtube">, string[]> = {
+const ACCEPTED: Record<Exclude<LessonSource, "video">, string[]> = {
   pdf: ["application/pdf"],
   audio: [
     "audio/mpeg",
@@ -42,7 +42,7 @@ export async function putLessonAsset(upload: LessonAssetUpload, file: File) {
 
 export function validateLessonFile(
   file: File,
-  source: Exclude<LessonSource, "youtube">,
+  source: Exclude<LessonSource, "video">,
 ): string | null {
   if (!ACCEPTED[source].includes(file.type)) {
     return source === "pdf"

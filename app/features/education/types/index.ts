@@ -64,6 +64,7 @@ export interface LessonGateState {
   isSatisfied: boolean;
   watchedSeconds: number | null;
   positionSeconds: number;
+  secondsShort?: number;
 }
 
 export interface LessonResumePoint {

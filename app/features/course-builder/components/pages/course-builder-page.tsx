@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useFetcher, useNavigate } from "react-router";
 import { BuilderFooter } from "../builder-footer";
 import { BuilderRail } from "../builder-rail";
@@ -15,6 +15,7 @@ import {
   EditSectionModal,
 } from "../section-modals";
 import { isCompleteQuestion, useQuizDraft } from "../../lib/use-quiz-draft";
+import { FIELD_STEP, type BuilderField } from "../../lib/save-field-errors";
 import {
   STEP_DEFINITIONS,
   nextStep,
@@ -100,6 +101,9 @@ export default function CourseBuilderPage({
   );
   const [courseId, setCourseId] = useState<string | null>(initialCourseId);
   const [localErrors, setLocalErrors] = useState<Record<string, string[]>>({});
+  const [serverErrors, setServerErrors] = useState<Record<string, string[]>>(
+    {},
+  );
 
   const [sections, setSections] = useState<BuilderSection[]>(
     () => initialSections ?? [],
@@ -304,11 +308,11 @@ export default function CourseBuilderPage({
                       title: lessonDraft.title.trim(),
                       type: lessonTypeOf(lessonDraft.source),
                       url:
-                        lessonDraft.source === "youtube"
+                        lessonDraft.source === "video"
                           ? lessonDraft.url.trim()
                           : null,
                       assetKey:
-                        lessonDraft.source === "youtube"
+                        lessonDraft.source === "video"
                           ? null
                           : lessonDraft.assetKey,
                       pageCount:
@@ -369,11 +373,11 @@ export default function CourseBuilderPage({
                   isPreview: false,
                   isComplete: false,
                   url:
-                    lessonDraft.source === "youtube"
+                    lessonDraft.source === "video"
                       ? lessonDraft.url.trim()
                       : null,
                   assetKey:
-                    lessonDraft.source === "youtube"
+                    lessonDraft.source === "video"
                       ? null
                       : lessonDraft.assetKey,
                   pageCount:
@@ -409,19 +413,41 @@ export default function CourseBuilderPage({
 
   const result = fetcher.data;
   const fieldErrors: Record<string, string[] | undefined> = {
-    ...(result && result.ok === false ? result.fieldErrors : {}),
+    ...serverErrors,
     ...localErrors,
   };
   const formError = result && result.ok === false ? result.error : null;
 
   const patch = useCallback((changes: Partial<CourseDraft>) => {
     setDraft((current) => ({ ...current, ...changes }));
-    setLocalErrors((current) => {
+    const clear = (current: Record<string, string[]>) => {
       const next = { ...current };
       for (const key of Object.keys(changes)) delete next[key];
       return next;
-    });
+    };
+    setLocalErrors(clear);
+    setServerErrors(clear);
   }, []);
+
+  useEffect(() => {
+    if (fetcher.state !== "idle" || !result || result.ok) return;
+
+    setServerErrors(result.fieldErrors);
+    const first = (Object.keys(FIELD_STEP) as BuilderField[]).find(
+      (field) => result.fieldErrors[field]?.length,
+    );
+    if (first) setStep(FIELD_STEP[first]);
+  }, [fetcher.state, result]);
+
+  const clearServerError = (field: BuilderField) =>
+    setServerErrors((current) => {
+      if (!(field in current)) return current;
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+  useEffect(() => clearServerError("curriculum"), [sections]);
+  useEffect(() => clearServerError("quiz"), [quiz.questions, quiz.passMark]);
 
   const basicErrors = () => {
     const errors: Record<string, string[]> = {};
@@ -512,6 +538,7 @@ export default function CourseBuilderPage({
     }
 
     setLocalErrors({});
+    setServerErrors({});
 
     const chapters = sections.map((section) => ({
       ...(isSavedId(section.id) ? { id: section.id } : {}),
@@ -598,6 +625,24 @@ export default function CourseBuilderPage({
     setCourseId(savedCourseId);
   }
 
+  const submitted =
+    fetcher.state === "idle" &&
+    result?.ok === true &&
+    result.intent === "submit";
+  useEffect(() => {
+    if (submitted) navigate("/course-listing?tab=in-review");
+  }, [submitted, navigate]);
+
+  const formErrorRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (formError) {
+      formErrorRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [formError]);
+
   return (
     <div className="flex min-h-screen bg-white">
       <BuilderRail
@@ -618,7 +663,11 @@ export default function CourseBuilderPage({
             </p>
 
             {formError && (
-              <p className="mb-5 rounded-lg border border-[#FB3748]/30 bg-[#FB3748]/5 px-4 py-3 text-[13px] font-semibold text-[#FB3748]">
+              <p
+                ref={formErrorRef}
+                role="alert"
+                className="mb-5 rounded-lg border border-[#FB3748]/30 bg-[#FB3748]/5 px-4 py-3 text-[13px] font-semibold text-[#FB3748]"
+              >
                 {formError}
               </p>
             )}
@@ -650,7 +699,7 @@ export default function CourseBuilderPage({
               />
             ) : current === "curriculum" ? (
               <CurriculumStep
-                error={fieldErrors.curriculum?.[0]}
+                error={fieldErrors.curriculum?.join("\n")}
                 emptySectionIds={
                   new Set(
                     fieldErrors.curriculum
@@ -671,7 +720,11 @@ export default function CourseBuilderPage({
             ) : current === "quiz" ? (
               <QuizStep
                 quiz={quiz}
-                error={fieldErrors.quiz ? quizErrors().quiz?.[0] : undefined}
+                error={
+                  localErrors.quiz
+                    ? quizErrors().quiz?.[0]
+                    : serverErrors.quiz?.join("\n")
+                }
               />
             ) : current === "certificate" ? (
               <CertificateStep value={certificate} onChange={setCertificate} />
@@ -700,9 +753,7 @@ export default function CourseBuilderPage({
             setStep(forward);
           }}
           onSaveDraft={() => save("save-draft")}
-          onSubmit={() => {
-            if (save("submit")) navigate("/course-listing");
-          }}
+          onSubmit={() => save("submit")}
         />
       </div>
 

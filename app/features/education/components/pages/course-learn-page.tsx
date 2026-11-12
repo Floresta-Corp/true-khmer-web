@@ -4,6 +4,7 @@ import {
   Bookmark,
   Check,
   ChevronLeft,
+  Info,
   Lock,
   MoreVertical,
   PanelLeftOpen,
@@ -22,7 +23,10 @@ import { LearnSidebar } from "../learn-sidebar";
 import { InstructorContactButtons } from "../instructor-contact-buttons";
 import { LessonPlayer } from "../lesson-player";
 import { toActiveLesson } from "~/features/education/lib/map-lesson";
-import { formatPageCount } from "~/features/education/lib/lesson-media";
+import {
+  formatDuration,
+  formatPageCount,
+} from "~/features/education/lib/lesson-media";
 import type { educationLearnAction } from "~/features/education/services/education-learn.action";
 import type { educationLearnLoader } from "~/features/education/services/education-learn.loader";
 import type {
@@ -555,6 +559,22 @@ export default function CourseLearnPage() {
             resume={activeResume}
             onGateChange={handleGateChange}
           />
+
+          {gate?.secondsShort &&
+            gateLessonId === activeLesson.id &&
+            !completedLessonIds.has(activeLesson.id) && (
+              <p
+                role="status"
+                className="mx-7 mt-5.5 flex items-start gap-2.5 rounded-lg border border-[#F59E0B]/40 bg-[#F59E0B]/10 px-4 py-3 text-sm text-[#92400E]"
+              >
+                <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
+                <span>
+                  Part of this lesson was skipped. Play the parts you missed
+                  (about {formatDuration(gate.secondsShort)} more) to finish it
+                  and open the next lesson.
+                </span>
+              </p>
+            )}
 
           <div className="px-7 pt-5.5 pb-7.5">
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4 pb-5.5">
