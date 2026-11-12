@@ -1,5 +1,12 @@
 import { Link } from "react-router";
-import { Award, Check, ChevronDown, Lock, Menu, X } from "lucide-react";
+import {
+  Award,
+  Check,
+  ChevronDown,
+  Lock,
+  Menu,
+  PanelLeftClose,
+} from "lucide-react";
 import { cn } from "~/lib/utils";
 import type { CourseDetail, CourseLesson } from "~/features/education/types";
 import { LessonTypeIcon } from "./lesson-type-icon";
@@ -53,11 +60,12 @@ export function LearnSidebar({
         <button
           type="button"
           onClick={onClose}
-          title="Close content panel"
-          aria-label="Close content panel"
+          title="Hide content panel"
+          aria-label="Hide content panel"
+          aria-expanded
           className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md transition-colors hover:bg-gray-100"
         >
-          <X className="size-4 text-[#9A9AB0]" aria-hidden />
+          <PanelLeftClose className="size-4.5 text-[#9A9AB0]" aria-hidden />
         </button>
       </div>
 

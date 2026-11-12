@@ -5,8 +5,8 @@ import {
   Check,
   ChevronLeft,
   Lock,
-  Menu,
   MoreVertical,
+  PanelLeftOpen,
 } from "lucide-react";
 import { BackLink } from "~/components/back-link";
 import { toast } from "sonner";
@@ -457,18 +457,6 @@ export default function CourseLearnPage() {
           </a>
         )} */}
 
-        {!isPanelOpen && (
-          <button
-            type="button"
-            title="Show content panel"
-            aria-label="Show content panel"
-            onClick={() => setIsPanelOpen(true)}
-            className={overlayButton}
-          >
-            <Menu className="size-4" aria-hidden />
-          </button>
-        )}
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
@@ -516,6 +504,23 @@ export default function CourseLearnPage() {
       </div>
 
       <div className="flex min-h-0 flex-1 items-stretch overflow-hidden bg-white">
+        {/* Collapsed, the panel leaves a rail in its place, with the reopen
+            button exactly where the close button was. */}
+        {!isPanelOpen && (
+          <div className="flex h-full w-14 shrink-0 flex-col items-center border-r border-[#E5E7EB] bg-white py-4.5">
+            <button
+              type="button"
+              onClick={() => setIsPanelOpen(true)}
+              title="Show content panel"
+              aria-label="Show content panel"
+              aria-expanded={false}
+              className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md transition-colors hover:bg-gray-100"
+            >
+              <PanelLeftOpen className="size-4.5 text-[#1A1A2E]" aria-hidden />
+            </button>
+          </div>
+        )}
+
         {isPanelOpen && (
           <LearnSidebar
             course={course}
