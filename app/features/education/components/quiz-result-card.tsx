@@ -63,12 +63,20 @@ export function QuizResultCard({
 
         <div className="flex flex-col items-stretch gap-2.5">
           {passed ? (
-            <Link
-              to={`/education/${courseId}/certificate`}
-              className="cursor-pointer rounded-lg bg-[#1C5DD4] px-6.5 py-3.5 text-[15px] font-bold text-white transition-colors hover:bg-[#174FB4]"
-            >
-              View certificate
-            </Link>
+            <>
+              <Link
+                to={`/education/${courseId}/complete`}
+                className="cursor-pointer rounded-lg bg-[#1C5DD4] px-6.5 py-3.5 text-[15px] font-bold text-white transition-colors hover:bg-[#174FB4]"
+              >
+                Finish class
+              </Link>
+              <Link
+                to={`/education/${courseId}/certificate`}
+                className="cursor-pointer px-6.5 py-3.5 text-[15px] font-semibold text-[#1C5DD4] hover:underline"
+              >
+                View certificate
+              </Link>
+            </>
           ) : (
             <button
               type="button"
@@ -79,12 +87,14 @@ export function QuizResultCard({
             </button>
           )}
 
-          <Link
-            to={`/education/${courseId}/learn`}
-            className="cursor-pointer px-6.5 py-3.5 text-[15px] font-semibold text-[#1C5DD4] hover:underline"
-          >
-            Back to course
-          </Link>
+          {!passed && (
+            <Link
+              to={`/education/${courseId}/learn`}
+              className="cursor-pointer px-6.5 py-3.5 text-[15px] font-semibold text-[#1C5DD4] hover:underline"
+            >
+              Back to course
+            </Link>
+          )}
         </div>
       </div>
     </div>

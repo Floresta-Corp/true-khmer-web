@@ -263,11 +263,13 @@ export function LearnSidebar({
               Final quiz
             </span>
             <span className="mt-0.75 block text-xs text-[#9A9AB0]">
-              {quizUnlocked
-                ? "Unlocked"
-                : `${totalLessons - completedCount} chapter${
-                    totalLessons - completedCount === 1 ? "" : "s"
-                  } left`}
+              {certificateEarned
+                ? "Passed"
+                : quizUnlocked
+                  ? "Unlocked"
+                  : `${totalLessons - completedCount} chapter${
+                      totalLessons - completedCount === 1 ? "" : "s"
+                    } left`}
             </span>
           </span>
         </Link>
@@ -276,11 +278,11 @@ export function LearnSidebar({
       {showCertificate && (
         <div className="shrink-0 border-t border-[#E5E7EB] px-5 py-3.5">
           <Link
-            to={`/education/${course.id}/certificate`}
+            to={`/education/${course.id}/complete`}
             className="flex w-full items-center justify-center gap-2 rounded-full bg-[#1C5DD4] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#174FB4]"
           >
             <Award className="size-4" aria-hidden />
-            View my certificate
+            Class completed
           </Link>
         </div>
       )}

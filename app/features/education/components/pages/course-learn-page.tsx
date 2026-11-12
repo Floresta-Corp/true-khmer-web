@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLoaderData, useFetcher, useSearchParams } from "react-router";
 import {
   Bookmark,
+  Check,
   ChevronLeft,
   Lock,
   MoreVertical,
@@ -558,13 +559,24 @@ export default function CourseLearnPage() {
           <div className="px-7 pt-5.5 pb-7.5">
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4 pb-5.5">
               <div className="flex flex-wrap items-center gap-2.5">
-                {course.hasQuiz && allComplete && (
+                {certificateEarned ? (
                   <Link
-                    to={`/education/${course.id}/quiz`}
-                    className="rounded-full bg-[#1C5DD4] px-5.5 py-2.75 text-sm font-bold text-white transition-colors hover:bg-[#174FB4]"
+                    to={`/education/${course.id}/complete`}
+                    className="inline-flex items-center gap-2 rounded-full bg-[#1FC16B]/15 px-5.5 py-2.75 text-sm font-bold text-[#1FC16B] transition-colors hover:bg-[#1FC16B]/25"
                   >
-                    Take the quiz
+                    <Check className="size-4" aria-hidden />
+                    Class completed
                   </Link>
+                ) : (
+                  course.hasQuiz &&
+                  allComplete && (
+                    <Link
+                      to={`/education/${course.id}/quiz`}
+                      className="rounded-full bg-[#1C5DD4] px-5.5 py-2.75 text-sm font-bold text-white transition-colors hover:bg-[#174FB4]"
+                    >
+                      Take the quiz
+                    </Link>
+                  )
                 )}
               </div>
 
