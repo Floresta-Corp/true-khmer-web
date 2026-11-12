@@ -65,6 +65,10 @@ export default [
         "education/:id/certificate",
         "features/education/route/education.certificate.$id.tsx",
       ),
+      route(
+        "education/:id/complete",
+        "features/education/route/education.complete.$id.tsx",
+      ),
       route("khmer-voices", "features/blog/route/blog.tsx"),
       route("khmer-voices/:slug", "features/blog/route/blog.$slug.tsx"),
       route("launchpad", "features/launchpad/route/launchpad.tsx"),
