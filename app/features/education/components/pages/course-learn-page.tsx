@@ -8,7 +8,6 @@ import {
   MoreVertical,
   PanelLeftOpen,
 } from "lucide-react";
-import { BackLink } from "~/components/back-link";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -494,18 +493,16 @@ export default function CourseLearnPage() {
   return (
     <EducationPage surface="muted" layout="full">
       <div className="shrink-0 py-3.5">
-        <BackLink
+        <Link
           to={`/education/${course.id}`}
           className="inline-flex min-w-0 items-center gap-1.5 text-sm font-semibold text-[#1C5DD4] transition-colors hover:underline"
         >
           <ChevronLeft className="size-4 shrink-0" aria-hidden />
-          <span className="truncate">Back to course</span>
-        </BackLink>
+          <span className="truncate">Back to course page</span>
+        </Link>
       </div>
 
       <div className="flex min-h-0 flex-1 items-stretch overflow-hidden bg-white">
-        {/* Collapsed, the panel leaves a rail in its place, with the reopen
-            button exactly where the close button was. */}
         {!isPanelOpen && (
           <div className="flex h-full w-14 shrink-0 flex-col items-center border-r border-[#E5E7EB] bg-white py-4.5">
             <button
