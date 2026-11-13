@@ -1,4 +1,5 @@
-import { cn, resolveImageURL } from "~/lib/utils";
+import { AuthorAvatar } from "~/components/author-avatar";
+import { cn } from "~/lib/utils";
 
 interface BlogCommentAvatarProps {
   name: string;
@@ -12,17 +13,10 @@ export default function BlogCommentAvatar({
   className,
 }: BlogCommentAvatarProps) {
   return (
-    <div
-      className={cn(
-        "h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#dfe3e6]",
-        className,
-      )}
-    >
-      <img
-        src={resolveImageURL(avatarKey)}
-        alt={name || "Author avatar"}
-        className="h-full w-full object-cover"
-      />
-    </div>
+    <AuthorAvatar
+      name={name}
+      avatarKey={avatarKey}
+      className={cn("h-10 w-10 text-sm", className)}
+    />
   );
 }
