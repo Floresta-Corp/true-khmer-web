@@ -50,7 +50,10 @@ export function QuizStep({ quiz, error }: QuizStepProps) {
         </div>
 
         {error && (
-          <p className="mb-3 text-[13px] font-semibold text-[#FB3748]">
+          <p
+            role="alert"
+            className="mb-3 text-[13px] font-semibold whitespace-pre-line text-[#FB3748]"
+          >
             {error}
           </p>
         )}

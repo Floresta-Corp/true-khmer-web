@@ -106,7 +106,7 @@ export const DIFFICULTY_LABELS: Record<
 };
 
 export const LESSON_TYPE_LABELS: Record<ReviewLesson["type"], string> = {
-  YOUTUBE: "YouTube",
+  YOUTUBE: "Video",
   PDF: "PDF",
   AUDIO: "Audio",
 };

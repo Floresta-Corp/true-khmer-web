@@ -1,35 +1,5 @@
 import type { CourseLesson } from "~/features/education/types";
 
-const YOUTUBE_ID = /^[\w-]+$/;
-
-/**
- * The video id inside a YouTube link, in any of the shapes creators paste.
- *
- * An id rather than an embed URL because the video lesson is built through the
- * IFrame Player API, which takes one: a bare `<iframe>` would play the lesson
- * without telling the page anything about whether it was watched.
- */
-export function youtubeVideoId(url: string): string | null {
-  try {
-    const parsed = new URL(url);
-    const host = parsed.hostname.replace(/^www\./, "");
-    const isYouTube = host === "youtube.com" || host.endsWith(".youtube.com");
-
-    const id =
-      host === "youtu.be"
-        ? parsed.pathname.slice(1)
-        : isYouTube
-          ? (parsed.searchParams.get("v") ??
-            parsed.pathname.match(/^\/(?:embed|shorts|v)\/([^/?]+)/)?.[1] ??
-            null)
-          : null;
-
-    return id && YOUTUBE_ID.test(id) ? id : null;
-  } catch {
-    return null;
-  }
-}
-
 export function pdfEmbedUrl(src: string): string {
   try {
     const url = new URL(src);

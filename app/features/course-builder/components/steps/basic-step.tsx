@@ -167,6 +167,9 @@ export function BasicStep({
           placeholder="e.g. SEO Strategy — press Enter"
           onChange={(skills) => onChange({ skills })}
         />
+        {error("skills") && (
+          <p className="mt-1.5 text-[13px] text-[#FB3748]">{error("skills")}</p>
+        )}
       </div>
 
       <div>
@@ -178,6 +181,9 @@ export function BasicStep({
           placeholder="Add a tag and press Enter"
           onChange={(tags) => onChange({ tags })}
         />
+        {error("tags") && (
+          <p className="mt-1.5 text-[13px] text-[#FB3748]">{error("tags")}</p>
+        )}
       </div>
 
       <div>

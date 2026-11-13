@@ -11,7 +11,17 @@ import {
   updateCourseMeta,
 } from "~/api/education/education.server";
 import { lookupYoutubeDuration } from "~/api/youtube/youtube.server";
-import { youtubeVideoId } from "~/features/course-builder/lib/youtube-url";
+import { lookupVimeoDuration } from "~/api/vimeo/vimeo.server";
+import {
+  parseVideoSource,
+  videoSourceKey,
+} from "~/features/education/lib/video-source";
+import {
+  placeSaveIssues,
+  readApiIssues,
+  type SaveIssue,
+  type SaveStage,
+} from "~/features/course-builder/lib/save-field-errors";
 import { ProtectedApiError } from "~/lib/server/api-client.server";
 import { withAuthData } from "~/lib/server/auth-response.server";
 import { requireUser } from "~/lib/server/route-guards.server";
@@ -77,7 +87,7 @@ const MetaSchema = z.object({
 type JsonFieldResult<T> =
   | { status: "absent" }
   | { status: "ok"; value: T }
-  | { status: "invalid"; message: string };
+  | { status: "invalid"; issues: SaveIssue[] };
 
 function readJsonField<T>(
   raw: unknown,
@@ -90,17 +100,22 @@ function readJsonField<T>(
   try {
     decoded = JSON.parse(raw);
   } catch {
-    return { status: "invalid", message: `Could not read the ${label}.` };
+    return {
+      status: "invalid",
+      issues: [{ path: [], message: `Could not read the ${label}.` }],
+    };
   }
 
   const parsed = schema.safeParse(decoded);
   if (!parsed.success) {
-    const issue = parsed.error.issues[0];
     return {
       status: "invalid",
-      message: issue
-        ? `${label}: ${issue.path.join(".") || "value"} — ${issue.message}`
-        : `The ${label} is not valid.`,
+      issues: parsed.error.issues.map((issue) => ({
+        path: issue.path.filter(
+          (part): part is string | number => typeof part !== "symbol",
+        ),
+        message: issue.message,
+      })),
     };
   }
 
@@ -117,6 +132,8 @@ const CourseFieldsSchema = z.object({
 const ContentFieldsSchema = z.object({
   curriculum: z.string().optional(),
   quiz: z.string().optional(),
+  /** Where each sent question sits in the builder's list, 1-based. */
+  quizNumbers: z.string().optional(),
   meta: z.string().optional(),
 });
 
@@ -144,8 +161,8 @@ const PresignLessonSchema = z.object({
   fileSize: z.coerce.number().int().positive().max(MAX_LESSON_ASSET_BYTES),
 });
 
-const YoutubeDurationSchema = z.object({
-  intent: z.literal("youtube-duration"),
+const VideoDurationSchema = z.object({
+  intent: z.literal("video-duration"),
   url: z.string().trim().min(1).max(2000),
 });
 
@@ -154,7 +171,7 @@ const FormSchema = z.discriminatedUnion("intent", [
   SubmitSchema,
   PresignCoverSchema,
   PresignLessonSchema,
-  YoutubeDurationSchema,
+  VideoDurationSchema,
 ]);
 
 /** Why a length could not be read, in words the course author can act on. */
@@ -163,9 +180,9 @@ const DURATION_PROBLEMS: Record<
   string
 > = {
   unavailable:
-    "YouTube has no length for that video. Make sure it is public and not a live stream.",
+    "That video has no length we can read. Make sure it is public (or unlisted) and not a live stream.",
   unconfigured: "Video lengths are not available right now.",
-  failed: "We could not reach YouTube to read the video length.",
+  failed: "We could not reach the video site to read the length.",
 };
 
 export async function courseBuilderAction({ request }: Route.ActionArgs) {
@@ -182,6 +199,10 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
         ok: false as const,
         fieldErrors,
         error: formErrors[0] ?? "Check the highlighted fields.",
+        /* Only the generic pointer to the marked fields, so fixing them
+           answers it; a form-level problem has to stay until a retry. */
+        fieldsOnly:
+          formErrors.length === 0 && Object.keys(fieldErrors).length > 0,
       },
       { status: 400 },
     );
@@ -208,28 +229,34 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
     );
   };
 
-  if (parsed.data.intent === "youtube-duration") {
-    const videoId = youtubeVideoId(parsed.data.url);
+  if (parsed.data.intent === "video-duration") {
+    const source = parseVideoSource(parsed.data.url);
 
-    if (!videoId) {
+    if (
+      !source ||
+      (source.platform !== "youtube" && source.platform !== "vimeo")
+    ) {
       return withAuthData(
         auth,
         {
           ok: false as const,
           fieldErrors: {},
-          error: "That is not a YouTube video link.",
+          error: "That is not a YouTube or Vimeo video link.",
         },
         { status: 400 },
       );
     }
 
-    const lookup = await lookupYoutubeDuration(videoId);
+    const lookup =
+      source.platform === "youtube"
+        ? await lookupYoutubeDuration(source.id)
+        : await lookupVimeoDuration(source.id, source.hash);
 
     if (lookup.status === "ok") {
       return withAuthData(auth, {
         ok: true as const,
-        intent: "youtube-duration" as const,
-        videoId,
+        intent: "video-duration" as const,
+        videoKey: videoSourceKey(source),
         durationSeconds: lookup.durationSeconds,
       });
     }
@@ -240,6 +267,7 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
         ok: false as const,
         fieldErrors: {},
         error: DURATION_PROBLEMS[lookup.status],
+        videoKey: videoSourceKey(source),
       },
       { status: lookup.status === "unavailable" ? 404 : 502 },
     );
@@ -284,6 +312,7 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
     courseId,
     curriculum: rawCurriculum,
     quiz: rawQuiz,
+    quizNumbers: rawQuizNumbers,
     meta: rawMeta,
     ...fields
   } = parsed.data;
@@ -296,21 +325,81 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
   );
   const quiz = readJsonField(rawQuiz, QuizSchema, "quiz");
 
-  const invalid = [meta, curriculum, quiz].find(
-    (field) => field.status === "invalid",
+  const sentCurriculum =
+    curriculum.status === "ok" ? curriculum.value : undefined;
+  const quizNumbers = readJsonField(
+    rawQuizNumbers,
+    z.array(z.number().int().positive()),
+    "question numbers",
   );
-  if (invalid && invalid.status === "invalid") {
+  const sentQuestionNumbers =
+    quizNumbers.status === "ok" ? quizNumbers.value : undefined;
+
+  const refused = (
+    stage: SaveStage,
+    issues: SaveIssue[],
+    fallback: string,
+    status: number,
+    savedCourseId: string | undefined,
+  ) => {
+    const { fieldErrors, unplaced } = placeSaveIssues(
+      stage,
+      issues,
+      sentCurriculum,
+      sentQuestionNumbers,
+    );
+    const placed = Object.keys(fieldErrors).length > 0;
+
     return withAuthData(
       auth,
       {
         ok: false as const,
-        fieldErrors: {},
-        error: invalid.message,
-        courseId,
+        fieldErrors,
+        error:
+          unplaced.join(" ") ||
+          (placed
+            ? "Some details need fixing. They are marked below."
+            : fallback),
+        /* True when the message only points at the marked fields. Issues that
+           could not be placed are the message, and fixing fields won't fix them. */
+        fieldsOnly: placed && unplaced.length === 0,
+        courseId: savedCourseId,
       },
-      { status: 400 },
+      { status },
     );
+  };
+
+  const jsonFields = [
+    ["meta", meta],
+    ["curriculum", curriculum],
+    ["quiz", quiz],
+  ] as const;
+  for (const [stage, field] of jsonFields) {
+    if (field.status === "invalid") {
+      return refused(
+        stage,
+        field.issues,
+        "Some details need fixing.",
+        400,
+        courseId,
+      );
+    }
   }
+
+  const refusedByApi = (
+    stage: SaveStage,
+    error: ProtectedApiError,
+    savedCourseId: string | undefined,
+  ) => {
+    console.warn(`The API refused the course ${stage} save`, error.details);
+    return refused(
+      stage,
+      readApiIssues(error.details),
+      error.message,
+      error.status,
+      savedCourseId,
+    );
+  };
 
   let saved;
   try {
@@ -322,33 +411,14 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
       : await createCourse(request, fields);
   } catch (error) {
     if (error instanceof ProtectedApiError && error.status < 500) {
-      return withAuthData(
-        auth,
-        {
-          ok: false as const,
-          fieldErrors: {},
-          error: error.message,
-          courseId,
-        },
-        { status: error.status },
-      );
+      return refusedByApi("course", error, courseId);
     }
     throw error;
   }
 
   let course = saved.data.course;
 
-  const failed = (error: ProtectedApiError) =>
-    withAuthData(
-      auth,
-      {
-        ok: false as const,
-        fieldErrors: {},
-        error: error.message,
-        courseId: course.id,
-      },
-      { status: error.status },
-    );
+  let stage: SaveStage = "meta";
 
   try {
     if (meta.status === "ok") {
@@ -356,14 +426,17 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
       course = updated.data.course;
     }
 
+    stage = "curriculum";
     if (curriculum.status === "ok") {
       await replaceCourseCurriculum(request, course.id, curriculum.value);
     }
 
+    stage = "quiz";
     if (quiz.status === "ok") {
       await replaceCourseQuiz(request, course.id, quiz.value);
     }
 
+    stage = "submit";
     if (intent === "submit") {
       const submitted = await submitCourseForReview(request, course.id);
       return withAuthData(auth, {
@@ -374,7 +447,7 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
     }
   } catch (error) {
     if (error instanceof ProtectedApiError && error.status < 500) {
-      return failed(error);
+      return refusedByApi(stage, error, course.id);
     }
     throw error;
   }

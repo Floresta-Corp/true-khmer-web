@@ -1,4 +1,7 @@
-import { LESSON_COMPLETION_RATIO } from "~/features/education/types";
+import {
+  LESSON_COMPLETION_RATIO,
+  type LessonGateState,
+} from "~/features/education/types";
 
 export function requiredWatchSeconds(durationSeconds: number): number {
   if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) return 0;
@@ -11,21 +14,30 @@ const clampRatio = (value: number) =>
 export function timedLessonGate({
   watchedSeconds,
   durationSeconds,
+  recordedDurationSeconds,
   positionSeconds,
   hasEnded,
-  isReady,
 }: {
   watchedSeconds: number;
   durationSeconds: number;
+  recordedDurationSeconds: number | null | undefined;
   positionSeconds: number;
   hasEnded: boolean;
-  isReady: boolean;
-}) {
-  const required = requiredWatchSeconds(durationSeconds);
+  isReady?: boolean;
+}): LessonGateState {
+  const measured =
+    Number.isFinite(durationSeconds) && durationSeconds > 0
+      ? durationSeconds
+      : null;
+  const recorded =
+    recordedDurationSeconds && recordedDurationSeconds > 0
+      ? recordedDurationSeconds
+      : null;
+  const required = requiredWatchSeconds(measured ?? recorded ?? 0);
 
   const isSatisfied =
-    (hasEnded && watchedSeconds > 0) ||
-    (required > 0 && watchedSeconds >= required);
+    (required > 0 && watchedSeconds >= required) ||
+    (required === 0 && hasEnded && watchedSeconds > 0);
 
   const ratio = isSatisfied
     ? 1
@@ -33,7 +45,12 @@ export function timedLessonGate({
       ? clampRatio(watchedSeconds / required)
       : 0;
 
-  return { ratio, isSatisfied, watchedSeconds, positionSeconds };
+  const secondsShort =
+    hasEnded && !isSatisfied && required > 0
+      ? Math.ceil(required - watchedSeconds)
+      : undefined;
+
+  return { ratio, isSatisfied, watchedSeconds, positionSeconds, secondsShort };
 }
 
 export function documentLessonGate(hasReachedEnd: boolean) {

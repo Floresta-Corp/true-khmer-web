@@ -79,24 +79,24 @@ export function emptyDraft(): CourseDraft {
   };
 }
 
-export const LESSON_SOURCES = ["youtube", "pdf", "audio"] as const;
+export const LESSON_SOURCES = ["video", "pdf", "audio"] as const;
 
 export type LessonSource = (typeof LESSON_SOURCES)[number];
 
 export const LESSON_SOURCE_LABELS: Record<LessonSource, string> = {
-  youtube: "YouTube link",
+  video: "Video link",
   pdf: "PDF",
   audio: "Audio",
 };
 
 export const LESSON_FIELD_LABELS: Record<LessonSource, string> = {
-  youtube: "YouTube URL",
+  video: "Video URL",
   pdf: "PDF file",
   audio: "Audio file",
 };
 
 export const LESSON_UPLOAD_HINTS: Record<
-  Exclude<LessonSource, "youtube">,
+  Exclude<LessonSource, "video">,
   string
 > = {
   pdf: "Drop a PDF here or click to browse",
@@ -124,10 +124,6 @@ export function lessonSourceChange(source: LessonSource): Partial<LessonDraft> {
   };
 }
 
-/**
- * The length a lesson draft carries: audio is measured on upload and YouTube
- * links are read from the Data API. PDFs report pages instead.
- */
 export function lessonDraftDuration(draft: LessonDraft): number | null {
   return draft.source === "pdf" ? null : draft.durationSeconds;
 }
@@ -135,7 +131,7 @@ export function lessonDraftDuration(draft: LessonDraft): number | null {
 export function emptyLessonDraft(): LessonDraft {
   return {
     title: "",
-    source: "youtube",
+    source: "video",
     url: "",
     fileName: null,
     assetKey: null,
@@ -162,7 +158,7 @@ export function lessonDraftOf(lesson: BuilderLesson): LessonDraft {
         ? "pdf"
         : lesson.type === "audio"
           ? "audio"
-          : "youtube",
+          : "video",
     url: lesson.url ?? "",
     fileName: lesson.assetKey
       ? (lesson.assetKey.split("/").pop() ?? null)
@@ -174,7 +170,7 @@ export function lessonDraftOf(lesson: BuilderLesson): LessonDraft {
 }
 
 export function lessonTypeOf(source: LessonSource): BuilderLesson["type"] {
-  return source === "youtube" ? "video" : source;
+  return source;
 }
 
 export type LessonApiType = "YOUTUBE" | "PDF" | "AUDIO";
