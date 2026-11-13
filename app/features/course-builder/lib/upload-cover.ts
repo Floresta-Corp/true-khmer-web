@@ -40,9 +40,21 @@ export function validateCoverFile(file: File): string | null {
   return null;
 }
 
+/** How long a pasted image link may take to download before we give up on it. */
+const IMAGE_DOWNLOAD_TIMEOUT_MS = 15_000;
+
 export async function fetchImageAsFile(url: string): Promise<File | null> {
+  /* Covers the body as well as the headers: a host that stalls mid-transfer
+     would otherwise keep the cover field busy with no way to retry. */
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), IMAGE_DOWNLOAD_TIMEOUT_MS);
+
   try {
-    const response = await fetch(url, { mode: "cors", credentials: "omit" });
+    const response = await fetch(url, {
+      mode: "cors",
+      credentials: "omit",
+      signal: controller.signal,
+    });
     if (!response.ok) return null;
 
     const blob = await response.blob();
@@ -53,5 +65,7 @@ export async function fetchImageAsFile(url: string): Promise<File | null> {
     return new File([blob], name, { type: blob.type });
   } catch {
     return null;
+  } finally {
+    clearTimeout(timer);
   }
 }

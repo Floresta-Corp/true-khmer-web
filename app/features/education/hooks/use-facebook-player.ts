@@ -179,6 +179,9 @@ export function useFacebookPlayer({
 
       const player = message.instance;
       playerRef.current = player;
+      /* Ready after the timeout gave up on it: the video plays after all,
+         so take back the error that is covering it. */
+      setError(null);
       setIsReady(true);
 
       let resumed = startRef.current <= 0;

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { Video } from "lucide-react";
 import { cn } from "~/lib/utils";
 import {
@@ -9,6 +9,7 @@ import {
   timedLessonGate,
   unavailableLessonGate,
 } from "~/features/education/lib/lesson-gate";
+import { createSeekGuard } from "~/features/education/lib/seek-guard";
 import { useWatchCoverage } from "~/features/education/hooks/use-watch-coverage";
 import {
   useYouTubePlayer,
@@ -228,6 +229,7 @@ function FileVideoLesson({
   const [duration, setDuration] = useState(0);
   const [hasEnded, setHasEnded] = useState(false);
   const [isBroken, setIsBroken] = useState(false);
+  const seekGuard = useRef(createSeekGuard());
 
   const { watchedSeconds, record } = useWatchCoverage(
     lesson.id,
@@ -274,9 +276,18 @@ function FileVideoLesson({
         onTimeUpdate={(event) => {
           const time = event.currentTarget.currentTime;
           setCurrentTime(time);
-          if (!event.currentTarget.paused) record(time);
+          /* A seek while playing also fires this; landing somewhere is not
+             having watched it. */
+          if (!event.currentTarget.paused && seekGuard.current.credits(time)) {
+            record(time);
+          }
         }}
-        onSeeked={(event) => setCurrentTime(event.currentTarget.currentTime)}
+        onSeeking={() => seekGuard.current.seeking()}
+        onSeeked={(event) => {
+          const time = event.currentTarget.currentTime;
+          seekGuard.current.seeked(time);
+          setCurrentTime(time);
+        }}
         onEnded={(event) => {
           setHasEnded(true);
           record(event.currentTarget.currentTime);

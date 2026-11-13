@@ -114,6 +114,9 @@ export function useTikTokPlayer({
       switch (message.type) {
         case "onPlayerReady":
           window.clearTimeout(readyTimer);
+          /* Ready after the timeout gave up on it: the video plays after all,
+             so take back the error that is covering it. */
+          setError(null);
           setIsReady(true);
           break;
 

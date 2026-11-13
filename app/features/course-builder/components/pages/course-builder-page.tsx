@@ -104,6 +104,12 @@ export default function CourseBuilderPage({
   const [serverErrors, setServerErrors] = useState<Record<string, string[]>>(
     {},
   );
+  /* The refusal from the last save, held apart from `fetcher.data` so a retry
+     or a fix can take it down without waiting for the next answer. */
+  const [formFailure, setFormFailure] = useState<{
+    message: string;
+    pointsAtFields: boolean;
+  } | null>(null);
 
   const [sections, setSections] = useState<BuilderSection[]>(
     () => initialSections ?? [],
@@ -416,7 +422,7 @@ export default function CourseBuilderPage({
     ...serverErrors,
     ...localErrors,
   };
-  const formError = result && result.ok === false ? result.error : null;
+  const formError = formFailure?.message ?? null;
 
   const patch = useCallback((changes: Partial<CourseDraft>) => {
     setDraft((current) => ({ ...current, ...changes }));
@@ -433,6 +439,10 @@ export default function CourseBuilderPage({
     if (fetcher.state !== "idle" || !result || result.ok) return;
 
     setServerErrors(result.fieldErrors);
+    setFormFailure({
+      message: result.error,
+      pointsAtFields: Object.keys(result.fieldErrors).length > 0,
+    });
     const first = (Object.keys(FIELD_STEP) as BuilderField[]).find(
       (field) => result.fieldErrors[field]?.length,
     );
@@ -448,6 +458,14 @@ export default function CourseBuilderPage({
     });
   useEffect(() => clearServerError("curriculum"), [sections]);
   useEffect(() => clearServerError("quiz"), [quiz.questions, quiz.passMark]);
+
+  /* A refusal that only pointed at fields is answered once every one of those
+     fields has been corrected. */
+  useEffect(() => {
+    if (formFailure?.pointsAtFields && Object.keys(serverErrors).length === 0) {
+      setFormFailure(null);
+    }
+  }, [formFailure, serverErrors]);
 
   const basicErrors = () => {
     const errors: Record<string, string[]> = {};
@@ -539,6 +557,7 @@ export default function CourseBuilderPage({
 
     setLocalErrors({});
     setServerErrors({});
+    setFormFailure(null);
 
     const chapters = sections.map((section) => ({
       ...(isSavedId(section.id) ? { id: section.id } : {}),
@@ -557,17 +576,20 @@ export default function CourseBuilderPage({
         })),
     }));
 
-    const questions = quiz.questions
-      .filter(isCompleteQuestion)
-      .map((question) => ({
-        question: question.text.trim(),
-        options: question.answers
-          .filter((answer) => answer.text.trim())
-          .map((answer) => ({
-            label: answer.text.trim(),
-            isCorrect: answer.correct,
-          })),
-      }));
+    /* Unfinished questions are left out, so remember where each sent one sits
+       in the list the author sees; errors then name the same Q-number. */
+    const sentQuestions = quiz.questions
+      .map((question, index) => ({ question, number: index + 1 }))
+      .filter(({ question }) => isCompleteQuestion(question));
+    const questions = sentQuestions.map(({ question }) => ({
+      question: question.text.trim(),
+      options: question.answers
+        .filter((answer) => answer.text.trim())
+        .map((answer) => ({
+          label: answer.text.trim(),
+          isCorrect: answer.correct,
+        })),
+    }));
 
     const nothingToOverwrite = !courseId;
     const sendCurriculum = nothingToOverwrite || canReplaceCurriculum;
@@ -592,6 +614,9 @@ export default function CourseBuilderPage({
                 passMark: Number(quiz.passMark) || 70,
                 questions,
               }),
+              quizNumbers: JSON.stringify(
+                sentQuestions.map(({ number }) => number),
+              ),
             }
           : {}),
         meta: JSON.stringify({

@@ -132,6 +132,8 @@ const CourseFieldsSchema = z.object({
 const ContentFieldsSchema = z.object({
   curriculum: z.string().optional(),
   quiz: z.string().optional(),
+  /** Where each sent question sits in the builder's list, 1-based. */
+  quizNumbers: z.string().optional(),
   meta: z.string().optional(),
 });
 
@@ -261,6 +263,7 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
         ok: false as const,
         fieldErrors: {},
         error: DURATION_PROBLEMS[lookup.status],
+        videoKey: videoSourceKey(source),
       },
       { status: lookup.status === "unavailable" ? 404 : 502 },
     );
@@ -305,6 +308,7 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
     courseId,
     curriculum: rawCurriculum,
     quiz: rawQuiz,
+    quizNumbers: rawQuizNumbers,
     meta: rawMeta,
     ...fields
   } = parsed.data;
@@ -319,6 +323,13 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
 
   const sentCurriculum =
     curriculum.status === "ok" ? curriculum.value : undefined;
+  const quizNumbers = readJsonField(
+    rawQuizNumbers,
+    z.array(z.number().int().positive()),
+    "question numbers",
+  );
+  const sentQuestionNumbers =
+    quizNumbers.status === "ok" ? quizNumbers.value : undefined;
 
   const refused = (
     stage: SaveStage,
@@ -331,6 +342,7 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
       stage,
       issues,
       sentCurriculum,
+      sentQuestionNumbers,
     );
     const placed = Object.keys(fieldErrors).length > 0;
 

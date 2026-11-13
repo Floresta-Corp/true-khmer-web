@@ -39,7 +39,7 @@ type DurationResult =
       videoKey: string;
       durationSeconds: number;
     }
-  | { ok: false; error?: string };
+  | { ok: false; error?: string; videoKey?: string };
 
 const LOOKUP_DEBOUNCE_MS = 400;
 
@@ -123,6 +123,9 @@ export function LessonSourceField({
 
   useEffect(() => {
     if (source !== "video" || videoId === resolvedFor) return;
+
+    if (askedFor.current !== videoId) askedFor.current = null;
+    setResolvedFor(null);
     if (durationSeconds !== null) durationSink.current(null);
   }, [source, videoId, resolvedFor, durationSeconds]);
 
@@ -137,6 +140,7 @@ export function LessonSourceField({
     }
 
     let cancelled = false;
+    let measuring = false;
     const timer = setTimeout(() => {
       askedFor.current = videoId;
 
@@ -148,7 +152,9 @@ export function LessonSourceField({
         return;
       }
 
+      measuring = true;
       void measureVideoUrlDuration(url.trim()).then((seconds) => {
+        measuring = false;
         if (cancelled || askedFor.current !== videoId) return;
         setResolvedFor(videoId);
         durationSink.current(seconds);
@@ -158,20 +164,26 @@ export function LessonSourceField({
     return () => {
       cancelled = true;
       clearTimeout(timer);
+      /* A measurement cut short never answers, so let the next run start it
+         again rather than wait on it forever with the save button held. */
+      if (measuring && askedFor.current === videoId) askedFor.current = null;
     };
   }, [videoId, lengthSource, url, submitLookup]);
 
   useEffect(() => {
     const answer = lookup.data;
     const asked = askedFor.current;
+    /* A direct file is measured in the browser, so a late server answer from
+       an earlier YouTube or Vimeo link must not settle it. */
+    if (lengthSource !== "server") return;
     if (lookup.state !== "idle" || !answer || !asked || asked === resolvedFor) {
       return;
     }
-    if (answer.ok && answer.videoKey !== asked) return;
+    if (answer.videoKey && answer.videoKey !== asked) return;
 
     setResolvedFor(asked);
     durationSink.current(answer.ok ? answer.durationSeconds : null);
-  }, [lookup.state, lookup.data, resolvedFor]);
+  }, [lookup.state, lookup.data, resolvedFor, lengthSource]);
 
   const accept = (file: File | undefined) => {
     if (!file || source === "video") return;

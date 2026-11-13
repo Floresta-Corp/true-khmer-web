@@ -28,11 +28,16 @@ export function CoverImageField({
 }: CoverImageFieldProps) {
   const fetcher = useFetcher<PresignResult>();
   const inputRef = useRef<HTMLInputElement>(null);
-  const pendingFile = useRef<File | null>(null);
+  const pendingFile = useRef<{ file: File; selection: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
 
-  const accept = (file: File | undefined) => {
+  const selection = useRef(0);
+  const [uploadingFor, setUploadingFor] = useState<number | null>(null);
+  const [fetchingFor, setFetchingFor] = useState<number | null>(null);
+  const settle = (id: number) => (current: number | null) =>
+    current === id ? null : current;
+
+  const accept = (file: File | undefined, id = ++selection.current) => {
     if (!file) return;
     const problem = validateCoverFile(file);
     if (problem) {
@@ -40,7 +45,7 @@ export function CoverImageField({
       return;
     }
     setError(null);
-    pendingFile.current = file;
+    pendingFile.current = { file, selection: id };
     fetcher.submit(
       {
         intent: "presign-cover",
@@ -52,45 +57,52 @@ export function CoverImageField({
   };
 
   useEffect(() => {
-    const file = pendingFile.current;
-    if (fetcher.state !== "idle" || !fetcher.data || !file) return;
+    const pending = pendingFile.current;
+    if (fetcher.state !== "idle" || !fetcher.data || !pending) return;
+
+    pendingFile.current = null;
+    const { file, selection: startedFor } = pending;
+    if (startedFor !== selection.current) return;
 
     if (!fetcher.data.ok) {
-      pendingFile.current = null;
       setError(fetcher.data.error ?? "That image could not be uploaded.");
       return;
     }
 
-    pendingFile.current = null;
-
     const upload = fetcher.data.upload;
-    setUploading(true);
+    setUploadingFor(startedFor);
     putCoverImage(upload, file)
       .then((key) => {
+        if (startedFor !== selection.current) return;
         onUploaded(key, upload.publicUrl ?? URL.createObjectURL(file));
       })
-      .catch(() => setError("That upload did not go through. Try again."))
-      .finally(() => setUploading(false));
+      .catch(() => {
+        if (startedFor !== selection.current) return;
+        setError("That upload did not go through. Try again.");
+      })
+      .finally(() => setUploadingFor(settle(startedFor)));
   }, [fetcher.state, fetcher.data, onUploaded]);
 
-  const [fetchingLink, setFetchingLink] = useState(false);
-  const busy = uploading || fetchingLink || fetcher.state !== "idle";
+  const busy =
+    uploadingFor !== null || fetchingFor !== null || fetcher.state !== "idle";
 
   const drop = useImageDropPaste<HTMLDivElement>({
     onFiles: ([file]) => accept(file),
     onUrl: (url) => {
+      const id = ++selection.current;
       setError(null);
-      setFetchingLink(true);
+      setFetchingFor(id);
       void fetchImageAsFile(url)
         .then((file) => {
-          if (file) accept(file);
+          if (id !== selection.current) return;
+          if (file) accept(file, id);
           else {
             setError(
               "That website does not let us copy its image. Save the image to your device, then upload it here.",
             );
           }
         })
-        .finally(() => setFetchingLink(false));
+        .finally(() => setFetchingFor(settle(id)));
     },
     disabled: busy,
   });

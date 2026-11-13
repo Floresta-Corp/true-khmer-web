@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { LessonVideoPlayer } from "./use-youtube-player";
+import { createSeekGuard } from "~/features/education/lib/seek-guard";
 
 interface VimeoTimeEvent {
   seconds: number;
@@ -8,7 +9,7 @@ interface VimeoTimeEvent {
 
 interface VimeoPlayer {
   on(event: "loaded", callback: () => void): void;
-  on(event: "play" | "pause", callback: () => void): void;
+  on(event: "play" | "pause" | "seeking", callback: () => void): void;
   on(
     event: "timeupdate" | "seeked" | "ended",
     callback: (event: VimeoTimeEvent) => void,
@@ -16,6 +17,7 @@ interface VimeoPlayer {
   on(event: "error", callback: (error: { name?: string }) => void): void;
   ready(): Promise<void>;
   getDuration(): Promise<number>;
+  getPaused(): Promise<boolean>;
   setCurrentTime(seconds: number): Promise<number>;
   play(): Promise<void>;
   pause(): Promise<void>;
@@ -112,6 +114,9 @@ export function useVimeoPlayer({
     let cancelled = false;
     let player: VimeoPlayer | null = null;
     let playing = false;
+    /* True while the saved position is being put back; see `loaded`. */
+    let restoring = false;
+    const seekGuard = createSeekGuard();
 
     setIsReady(false);
     setIsPlaying(false);
@@ -152,13 +157,25 @@ export function useVimeoPlayer({
 
             const start = startRef.current;
             if (start > 0 && (!duration || start < duration)) {
-              void active.setCurrentTime(start).catch(() => undefined);
+              /* Vimeo starts playback when the time is set before the first
+                 play, so put the paused state back once the seek lands and
+                 count nothing until then — opening a lesson must not start
+                 it on the learner's behalf. */
+              restoring = true;
+              void active
+                .setCurrentTime(start)
+                .then(() => active.getPaused())
+                .then((paused) => (paused ? undefined : active.pause()))
+                .catch(() => undefined)
+                .finally(() => {
+                  restoring = false;
+                });
             }
           });
         });
 
         active.on("play", () => {
-          if (cancelled) return;
+          if (cancelled || restoring) return;
           playing = true;
           setIsPlaying(true);
         });
@@ -173,11 +190,21 @@ export function useVimeoPlayer({
           if (cancelled) return;
           setCurrentTime(seconds);
           if (duration > 0) setDurationSeconds(duration);
-          if (playing) progressRef.current?.(seconds);
+          /* A seek while playing also reports the spot it lands on; that is
+             a position change, not watched video. */
+          if (playing && !restoring && seekGuard.credits(seconds)) {
+            progressRef.current?.(seconds);
+          }
+        });
+
+        active.on("seeking", () => {
+          if (cancelled) return;
+          seekGuard.seeking();
         });
 
         active.on("seeked", ({ seconds }) => {
           if (cancelled) return;
+          seekGuard.seeked(seconds);
           setCurrentTime(seconds);
         });
 

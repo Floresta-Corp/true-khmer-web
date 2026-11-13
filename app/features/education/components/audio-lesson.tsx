@@ -11,19 +11,12 @@ import {
   timedLessonGate,
   unavailableLessonGate,
 } from "~/features/education/lib/lesson-gate";
+import { createSeekGuard } from "~/features/education/lib/seek-guard";
 import { useWatchCoverage } from "~/features/education/hooks/use-watch-coverage";
 import { useReportLessonGate } from "~/features/education/hooks/use-report-lesson-gate";
 import { AudioPlayerShell } from "./audio-player-shell";
 import { MediaBar, type LessonMediaProps } from "./lesson-media-frame";
 
-/**
- * An audio lesson.
- *
- * Gated the same way as a video, and for the same reason: `timeupdate` is the
- * element's own account of where it is, so the seconds it actually played can
- * be counted. Scrubbing to the end therefore does not finish the lesson —
- * only playing it does.
- */
 export function AudioLesson({
   lesson,
   overlay,
@@ -75,6 +68,7 @@ function RealAudioLesson({
   const [scrubRatio, setScrubRatio] = useState<number | null>(null);
   const [hasEnded, setHasEnded] = useState(false);
   const [isBroken, setIsBroken] = useState(false);
+  const seekGuard = useRef(createSeekGuard());
 
   const { watchedSeconds, record } = useWatchCoverage(
     lesson.id,
@@ -144,10 +138,6 @@ function RealAudioLesson({
         onLoadedMetadata={(event) => {
           const value = event.currentTarget.duration;
           setDuration(Number.isFinite(value) ? value : 0);
-
-          /* Put the play head back once the element knows how long it is —
-             seeking before that is silently ignored by the browser. Guarded
-             against a stale resume point outrunning a re-uploaded file. */
           if (startSeconds > 0 && startSeconds < value) {
             event.currentTarget.currentTime = startSeconds;
             setCurrentTime(startSeconds);
@@ -156,24 +146,23 @@ function RealAudioLesson({
         onTimeUpdate={(event) => {
           const time = event.currentTarget.currentTime;
           setCurrentTime(time);
-          /* Only while playing: a seek also fires this, and landing somewhere
-             is not the same as having listened to it. */
-          if (!event.currentTarget.paused) record(time);
+
+          if (!event.currentTarget.paused && seekGuard.current.credits(time)) {
+            record(time);
+          }
         }}
+        onSeeking={() => seekGuard.current.seeking()}
         onSeeked={(event) => {
-          /* `timeupdate` is silent while paused, so a seek made from anywhere
-             other than our own scrub bar — a media key, the OS controls —
-             would otherwise leave the play head we save behind where it was.
-             Position only: landing somewhere is not listening to it. */
-          setCurrentTime(event.currentTarget.currentTime);
+          const time = event.currentTarget.currentTime;
+          seekGuard.current.seeked(time);
+          setCurrentTime(time);
         }}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onEnded={(event) => {
           setIsPlaying(false);
           setHasEnded(true);
-          /* The final stretch between the last `timeupdate` and the end is
-             never reported, so credit it here. */
+
           record(event.currentTarget.currentTime);
         }}
         onError={() => {
@@ -201,12 +190,6 @@ function RealAudioLesson({
   );
 }
 
-/**
- * An audio lesson with no file behind it.
- *
- * The gate opens, so a lesson whose upload has gone missing cannot strand a
- * learner part-way through the course.
- */
 function UnavailableAudioLesson({
   lesson,
   flush,

@@ -25,11 +25,15 @@ export function timedLessonGate({
   hasEnded: boolean;
   isReady?: boolean;
 }): LessonGateState {
+  const measured =
+    Number.isFinite(durationSeconds) && durationSeconds > 0
+      ? durationSeconds
+      : null;
   const recorded =
     recordedDurationSeconds && recordedDurationSeconds > 0
       ? recordedDurationSeconds
       : null;
-  const required = requiredWatchSeconds(recorded ?? durationSeconds);
+  const required = requiredWatchSeconds(measured ?? recorded ?? 0);
 
   const isSatisfied =
     (required > 0 && watchedSeconds >= required) ||

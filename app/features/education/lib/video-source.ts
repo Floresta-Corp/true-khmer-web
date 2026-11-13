@@ -44,7 +44,7 @@ const TIKTOK_HOSTS = new Set(["tiktok.com", "www.tiktok.com", "m.tiktok.com"]);
 const TIKTOK_ID = /^\d{15,25}$/;
 
 const TIKTOK_PATH_FORMS =
-  /^\/(?:@[^/]+\/(?:video|photo)|player\/v1|embed(?:\/v2)?|v)\/(\d+)(?:\.html)?(?:\/|$)/;
+  /^\/(?:@[^/]+\/video|player\/v1|embed(?:\/v2)?|v)\/(\d+)(?:\.html)?(?:\/|$)/;
 
 const FACEBOOK_HOSTS = new Set([
   "facebook.com",
@@ -148,7 +148,11 @@ export function videoSourceKey(source: VideoSource): string {
     case "youtube":
       return `youtube:${source.id}`;
     case "vimeo":
-      return `vimeo:${source.id}`;
+      /* The hash is part of an unlisted video's address, so a link corrected
+         by adding it must count as a new video and be looked up again. */
+      return source.hash
+        ? `vimeo:${source.id}:${source.hash}`
+        : `vimeo:${source.id}`;
     case "tiktok":
       return `tiktok:${source.id}`;
     case "facebook":

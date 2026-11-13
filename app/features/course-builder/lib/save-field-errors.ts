@@ -138,6 +138,8 @@ export function placeSaveIssues(
   stage: SaveStage,
   issues: SaveIssue[],
   sent?: SentCurriculum,
+  /** The builder's Q-number for each sent question, by sent position. */
+  questionNumbers?: number[],
 ): PlacedErrors {
   const fieldErrors: Record<string, string[]> = {};
   const unplaced: string[] = [];
@@ -160,7 +162,7 @@ export function placeSaveIssues(
       add(
         "quiz",
         root === "questions" && typeof index === "number"
-          ? `Question ${index + 1}: ${issue.message}`
+          ? `Question ${questionNumbers?.[index] ?? index + 1}: ${issue.message}`
           : message,
       );
       continue;
