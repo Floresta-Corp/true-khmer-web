@@ -54,6 +54,8 @@ type SaveResult =
       ok: false;
       error: string;
       fieldErrors: Record<string, string[]>;
+      /** The message only points at `fieldErrors`; fixing them answers it. */
+      fieldsOnly?: boolean;
       courseId?: string;
     }
   | { ok: true; intent: "presign-cover" };
@@ -441,7 +443,7 @@ export default function CourseBuilderPage({
     setServerErrors(result.fieldErrors);
     setFormFailure({
       message: result.error,
-      pointsAtFields: Object.keys(result.fieldErrors).length > 0,
+      pointsAtFields: result.fieldsOnly === true,
     });
     const first = (Object.keys(FIELD_STEP) as BuilderField[]).find(
       (field) => result.fieldErrors[field]?.length,
@@ -460,7 +462,8 @@ export default function CourseBuilderPage({
   useEffect(() => clearServerError("quiz"), [quiz.questions, quiz.passMark]);
 
   /* A refusal that only pointed at fields is answered once every one of those
-     fields has been corrected. */
+     fields has been corrected. One carrying its own problem (an issue that
+     could not be placed on a field) stays until the next save. */
   useEffect(() => {
     if (formFailure?.pointsAtFields && Object.keys(serverErrors).length === 0) {
       setFormFailure(null);

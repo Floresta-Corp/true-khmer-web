@@ -199,6 +199,10 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
         ok: false as const,
         fieldErrors,
         error: formErrors[0] ?? "Check the highlighted fields.",
+        /* Only the generic pointer to the marked fields, so fixing them
+           answers it; a form-level problem has to stay until a retry. */
+        fieldsOnly:
+          formErrors.length === 0 && Object.keys(fieldErrors).length > 0,
       },
       { status: 400 },
     );
@@ -356,6 +360,9 @@ export async function courseBuilderAction({ request }: Route.ActionArgs) {
           (placed
             ? "Some details need fixing. They are marked below."
             : fallback),
+        /* True when the message only points at the marked fields. Issues that
+           could not be placed are the message, and fixing fields won't fix them. */
+        fieldsOnly: placed && unplaced.length === 0,
         courseId: savedCourseId,
       },
       { status },
