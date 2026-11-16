@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { cn, resolveImageURL } from "~/lib/utils";
 
 interface AuthorAvatarProps {
@@ -13,6 +14,7 @@ export function AuthorAvatar({
 }: AuthorAvatarProps) {
   const src = resolveImageURL(avatarKey);
   const initial = name.trim().charAt(0).toUpperCase() || "?";
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
 
   return (
     <span
@@ -21,12 +23,16 @@ export function AuthorAvatar({
         className,
       )}
     >
-      {src ? (
+      {src && src !== failedSrc ? (
         <img
           src={src}
           alt={name}
           loading="lazy"
           decoding="async"
+          onError={() => setFailedSrc(src)}
+          ref={(img) => {
+            if (img?.complete && img.naturalWidth === 0) setFailedSrc(src);
+          }}
           className="h-full w-full object-cover"
         />
       ) : (
