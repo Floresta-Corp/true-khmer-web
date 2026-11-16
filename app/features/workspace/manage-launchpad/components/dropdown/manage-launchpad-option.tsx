@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   Archive,
   Calendar,
+  Eye,
   CalendarClock,
   CheckCircle,
   Globe,
@@ -15,7 +16,7 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { useFetcher, useNavigate } from "react-router";
+import { Link, useFetcher, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { showActionSuccessToast } from "~/components/notification-toast";
 import { Button } from "~/components/ui/button";
@@ -47,6 +48,14 @@ type Props = {
   currentDeadline?: string | null;
   title: string;
 };
+
+const VIEWABLE_STATUSES: ManagePostStatus[] = [
+  "LIVE",
+  "IN_PROGRESS",
+  "COMPLETED",
+  "CANCELED",
+  "SUSPENDED",
+];
 
 const PRESET_DATE = [
   { label: "+7 days", days: 7 },
@@ -80,6 +89,18 @@ export default function ManagePostOption({
 
   const editRoute = `/launchpad/edit/${postingId}`;
   const detailRoute = `/workspace/projects/${postingId}`;
+
+  const viewItem = VIEWABLE_STATUSES.includes(status) ? (
+    <DropdownMenuItem
+      asChild
+      className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-slate-700"
+    >
+      <Link to={`/launchpad/detail/${postingId}`}>
+        <Eye size={16} className="text-slate-400" />
+        View Posting
+      </Link>
+    </DropdownMenuItem>
+  ) : null;
 
   const handleAction = (postingAction: UpdateManagePostResponse) => {
     wasPostingAction.current = true;
@@ -204,6 +225,7 @@ export default function ManagePostOption({
                 <Pencil size={16} className="text-slate-400" />
                 Edit Posting
               </DropdownMenuItem>
+              {viewItem}
 
               <DropdownMenuItem
                 onClick={() => handleAction("close")}
@@ -239,6 +261,7 @@ export default function ManagePostOption({
                 <Pencil size={16} className="text-slate-400" />
                 Edit Posting
               </DropdownMenuItem>
+              {viewItem}
               <DropdownMenuItem
                 onClick={() => {
                   setDeadline(currentDeadline ?? "");
@@ -312,6 +335,7 @@ export default function ManagePostOption({
 
           {status === "COMPLETED" && (
             <>
+              {viewItem}
               <DropdownMenuItem
                 disabled
                 className="flex items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-slate-700"
@@ -340,8 +364,11 @@ export default function ManagePostOption({
             </>
           )}
 
+          {status === "SUSPENDED" && viewItem}
+
           {status === "CANCELED" && (
             <>
+              {viewItem}
               <DropdownMenuItem
                 onClick={() => handleAction("delete")}
                 className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-red-500 focus:bg-red-50 focus:text-red-500"
