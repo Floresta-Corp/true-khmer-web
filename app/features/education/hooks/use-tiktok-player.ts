@@ -32,6 +32,8 @@ const AUTO_RETRIES = 2;
 
 const AUTO_RETRY_DELAY_MS = 1_000;
 
+const READY_TIMEOUT_MS = 20_000;
+
 const ERROR_MESSAGES: Record<number, string> = {
   1001: "This TikTok video is unavailable. It may be private or removed.",
   1002: "This TikTok video's owner does not allow it to be embedded on other sites.",
@@ -105,7 +107,8 @@ export function useTikTokPlayer({
 
     let playing = false;
     let duration = 0;
-    let resumed = startRef.current <= 0;
+    let resumeAt = startRef.current;
+    let resumed = resumeAt <= 0;
     let retries = 0;
     let retryTimer: number | undefined;
 
@@ -125,7 +128,24 @@ export function useTikTokPlayer({
     container.replaceChildren(frame);
     frameRef.current = frame;
 
-    const readyTimer = window.setTimeout(() => setError(UNPLAYABLE), 20_000);
+    let readyTimer: number | undefined;
+    const armReadyTimer = () => {
+      window.clearTimeout(readyTimer);
+      readyTimer = window.setTimeout(
+        () => setError(UNPLAYABLE),
+        READY_TIMEOUT_MS,
+      );
+    };
+    armReadyTimer();
+
+    const reload = () => {
+      playing = false;
+      resumed = resumeAt <= 0;
+      setIsPlaying(false);
+      setIsReady(false);
+      frame.src = tiktokPlayerUrl(videoId);
+      armReadyTimer();
+    };
 
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== PLAYER_ORIGIN) return;
@@ -150,8 +170,7 @@ export function useTikTokPlayer({
             setHasEnded(false);
             if (!resumed) {
               resumed = true;
-              const start = startRef.current;
-              if (!duration || start < duration) send("seekTo", start);
+              if (!duration || resumeAt < duration) send("seekTo", resumeAt);
             }
           } else if (state === STATE.PAUSED) {
             playing = false;
@@ -177,7 +196,10 @@ export function useTikTokPlayer({
           }
           if (Number.isFinite(time)) {
             setCurrentTime(time);
-            if (playing) progressRef.current?.(time);
+            if (playing) {
+              resumeAt = time;
+              progressRef.current?.(time);
+            }
           }
           break;
         }
@@ -194,9 +216,12 @@ export function useTikTokPlayer({
             if (retries < AUTO_RETRIES) {
               retries += 1;
               window.clearTimeout(retryTimer);
-              retryTimer = window.setTimeout(() => {
-                frame.src = tiktokPlayerUrl(videoId);
-              }, AUTO_RETRY_DELAY_MS * retries);
+              retryTimer = window.setTimeout(
+                reload,
+                AUTO_RETRY_DELAY_MS * retries,
+              );
+            } else {
+              setError(UNPLAYABLE);
             }
             break;
           }

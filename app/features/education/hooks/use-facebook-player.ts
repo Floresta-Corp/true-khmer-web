@@ -164,14 +164,6 @@ export function useFacebookPlayer({
         }
       }
     };
-
-    /* The plugin only takes a width; Facebook sets the height from the
-       video's own shape. Sized for 16:9, a portrait video or reel comes out
-       far taller than the frame, and the frame's overflow cuts off the bottom
-       — where the controls are. So the rendered height is measured: the first
-       time it overflows, the plugin is rendered again at the width that fits,
-       and if Facebook's minimum width still overflows (a reel on a phone),
-       the plugin is scaled down to fit instead. */
     const bounds = container.getBoundingClientRect();
     let width = Math.max(
       MIN_WIDTH,
@@ -179,6 +171,14 @@ export function useFacebookPlayer({
     );
     let refitted = false;
     let resizeObserver: ResizeObserver | null = null;
+    let readyTimer: number | undefined;
+
+    const armReadyTimer = () => {
+      window.clearTimeout(readyTimer);
+      readyTimer = window.setTimeout(() => {
+        if (!cancelled && !playerRef.current) setError(UNPLAYABLE);
+      }, READY_TIMEOUT_MS);
+    };
 
     const render = () => {
       elementId = `fb-video-lesson-${++playerCount}`;
@@ -195,8 +195,9 @@ export function useFacebookPlayer({
       resizeObserver?.disconnect();
       resizeObserver = new ResizeObserver(() => {
         if (cancelled) return;
+        const available = container.getBoundingClientRect().height;
         const height = mount.offsetHeight;
-        if (height <= bounds.height + 1) {
+        if (height <= available + 1) {
           mount.style.transform = "";
           return;
         }
@@ -205,7 +206,7 @@ export function useFacebookPlayer({
           refitted = true;
           const fitted = Math.max(
             MIN_WIDTH,
-            Math.floor((width * bounds.height) / height),
+            Math.floor((width * available) / height),
           );
           if (fitted < width) {
             width = fitted;
@@ -214,22 +215,22 @@ export function useFacebookPlayer({
             setIsReady(false);
             setIsPlaying(false);
             render();
+            armReadyTimer();
             sdk?.XFBML.parse(container);
             return;
           }
         }
 
         mount.style.transformOrigin = "center";
-        mount.style.transform = `scale(${bounds.height / height})`;
+        mount.style.transform = `scale(${available / height})`;
       });
       resizeObserver.observe(mount);
+      resizeObserver.observe(container);
     };
 
     render();
 
-    const readyTimer = window.setTimeout(() => {
-      if (!cancelled && !playerRef.current) setError(UNPLAYABLE);
-    }, READY_TIMEOUT_MS);
+    armReadyTimer();
 
     const onReady = (message: XfbmlReadyMessage) => {
       if (cancelled || message.type !== "video" || message.id !== elementId) {
