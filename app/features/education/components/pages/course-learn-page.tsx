@@ -96,6 +96,17 @@ export default function CourseLearnPage() {
 
   const [isSaved, setIsSaved] = useState(course.isSaved);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
+
+  useEffect(() => {
+    const phone = window.matchMedia("(max-width: 767px)");
+    if (phone.matches) setIsPanelOpen(false);
+
+    const onChange = (event: MediaQueryListEvent) => {
+      if (event.matches) setIsPanelOpen(false);
+    };
+    phone.addEventListener("change", onChange);
+    return () => phone.removeEventListener("change", onChange);
+  }, [activeLesson.id]);
   const [openSectionIds, setOpenSectionIds] = useState<Set<string>>(
     () => new Set([activeLesson.sectionId]),
   );
@@ -506,7 +517,7 @@ export default function CourseLearnPage() {
         </Link>
       </div>
 
-      <div className="flex min-h-0 flex-1 items-stretch overflow-hidden bg-white">
+      <div className="relative flex min-h-0 flex-1 items-stretch overflow-hidden bg-white">
         {!isPanelOpen && (
           <div className="flex h-full w-14 shrink-0 flex-col items-center border-r border-[#E5E7EB] bg-white py-4.5">
             <button

@@ -49,7 +49,7 @@ export function LearnSidebar({
   const showCertificate = hasQuiz ? certificateEarned : isFullyDone;
 
   return (
-    <div className="flex h-full w-95 shrink-0 flex-col border-r border-[#E5E7EB] bg-white">
+    <div className="flex h-full w-95 shrink-0 flex-col border-r border-[#E5E7EB] bg-white max-md:absolute max-md:inset-y-0 max-md:left-0 max-md:z-30 max-md:w-full max-md:max-w-95 max-md:shadow-xl">
       <div className="flex items-center justify-between border-b border-[#E5E7EB] px-5 py-4.5">
         <div className="flex min-w-0 items-center gap-2.5">
           <Menu className="size-4.5 shrink-0 text-[#1A1A2E]" aria-hidden />
