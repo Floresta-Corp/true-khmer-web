@@ -143,7 +143,7 @@ export function Navbar({ user, loginRedirectTo }: NavbarProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-[#f1f5f9] bg-white shadow-sm">
+      <header className="sticky top-0 z-50 w-full bg-white shadow-sm after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-[#f1f5f9]">
         <div
           className={cn(
             "flex h-(--navbar-height) w-full items-center justify-between gap-2 px-4 transition-[padding] duration-400 ease-out motion-reduce:transition-none sm:px-6 md:gap-4",
