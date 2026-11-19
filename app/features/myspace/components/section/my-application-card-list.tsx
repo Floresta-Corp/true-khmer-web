@@ -27,6 +27,24 @@ import type { loader } from "../../route/my-applications";
 import ApplicationStatusConfirmDialog from "../application-status-confirm-dialog";
 import { MyApplicationActions } from "../my-application-actions";
 import EmptyApplicationCard from "./empty-application-card";
+import { getApplicationStatusStyle } from "../../lib/application-status";
+
+function ApplicationStatusBadge({ status }: { status: string }) {
+  const { label, icon: Icon, className } = getApplicationStatusStyle(status);
+
+  return (
+    <span
+      className={cn(
+        "inline-flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold whitespace-nowrap lg:text-xs",
+        className,
+      )}
+    >
+      <Icon className="size-3.5 shrink-0" aria-hidden />
+      <span className="sr-only">Status: </span>
+      {label}
+    </span>
+  );
+}
 
 function normalizeSourceType(
   sourceType: Application["sourceType"],
@@ -244,7 +262,8 @@ function ApplicationGroupCard({ application }: { application: Application }) {
             </div>
 
             <div className="flex h-full w-full min-w-0 flex-1 flex-col justify-center pr-10">
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col items-start gap-2">
+                <ApplicationStatusBadge status={application.status} />
                 <h2 className="line-clamp-2 text-sm leading-snug font-bold tracking-tight text-[#111827] transition-colors group-hover:text-[#1A73E8] sm:text-base lg:text-lg xl:text-xl dark:text-white">
                   {application.opportunityTitle || "Application"}
                 </h2>
