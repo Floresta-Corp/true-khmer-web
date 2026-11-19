@@ -567,6 +567,7 @@ export interface GradeQuizAttemptResponse {
     percent: number;
     passMark: number;
     passed: boolean;
+    questions: { questionId: string; correct: boolean }[];
   };
 }
 
