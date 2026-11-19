@@ -13,7 +13,7 @@ export async function loader({ request }: { request: Request }) {
   const candidateId = UuidSchema.safeParse(url.searchParams.get("candidateId"));
 
   if (!postingId.success || !candidateId.success) {
-    return withAuthJson(auth, null, { status: 400 });
+    return withAuthJson(auth, [], { status: 400 });
   }
 
   const result = await getCandidateNote(
@@ -22,5 +22,5 @@ export async function loader({ request }: { request: Request }) {
     candidateId.data,
   );
 
-  return withAuthJson(auth, result?.data?.applicant?.privateNote?.note ?? null);
+  return withAuthJson(auth, result?.data?.applicant?.privateNotes ?? []);
 }

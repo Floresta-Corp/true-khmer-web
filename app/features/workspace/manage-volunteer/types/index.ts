@@ -161,6 +161,14 @@ export const PrivateNoteSchema = z.object({
 });
 export type PrivateNote = z.infer<typeof PrivateNoteSchema>;
 
+export const PrivateNoteEntrySchema = z.object({
+  id: z.string(),
+  note: z.string(),
+  createdAt: z.string(),
+  author: z.object({ id: z.string(), name: z.string() }),
+});
+export type PrivateNoteEntry = z.infer<typeof PrivateNoteEntrySchema>;
+
 export const PrivateNoteInputSchema = z.object({
   note: z.string(),
 });
@@ -263,6 +271,7 @@ export const ApplicantSchema = z.object({
   lastAppliedAt: z.string(),
   overallStatus: ApplicantStatusSchema,
   privateNote: PrivateNoteSchema.nullable(),
+  privateNotes: z.array(PrivateNoteEntrySchema).optional(),
   submissionCount: z.number(),
   submissions: z.array(SubmissionSchema),
   totalRoleApplied: z.number(),

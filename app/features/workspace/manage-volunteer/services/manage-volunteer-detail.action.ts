@@ -103,6 +103,13 @@ export async function manageVolunteerDetailAction({
       );
     }
 
+    if (!note) {
+      return respond(
+        { success: false, ok: false, error: "Write a note before adding it." },
+        { status: 400 },
+      );
+    }
+
     const body: PrivateNoteInput = { note };
 
     try {
@@ -113,7 +120,7 @@ export async function manageVolunteerDetailAction({
         body,
       );
 
-      if (res && res.data?.applicant?.privateNote) {
+      if (res?.data?.applicant?.privateNotes?.length) {
         return respond({ success: true, ok: true });
       }
 
