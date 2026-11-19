@@ -21,6 +21,32 @@ const PLAYER_PARAMS = new URLSearchParams({
   closed_caption: "1",
 });
 
+const UNPLAYABLE =
+  "This TikTok video could not be played. It may be private, removed, or not allowed to be embedded.";
+
+const RECOVERABLE_ERRORS = new Set([3001, 3002]);
+
+const RETRYABLE_ERRORS = new Set([2001, 2004, 2005]);
+
+const AUTO_RETRIES = 2;
+
+const AUTO_RETRY_DELAY_MS = 1_000;
+
+const READY_TIMEOUT_MS = 20_000;
+
+const ERROR_MESSAGES: Record<number, string> = {
+  1001: "This TikTok video is unavailable. It may be private or removed.",
+  1002: "This TikTok video's owner does not allow it to be embedded on other sites.",
+  1003: "TikTok's embedded player cannot show this kind of post.",
+};
+
+function readErrorCode(value: unknown) {
+  const code = Number(
+    (value as { errorCode?: unknown } | undefined)?.errorCode,
+  );
+  return Number.isFinite(code) ? code : null;
+}
+
 function tiktokPlayerUrl(videoId: string) {
   return `${PLAYER_ORIGIN}/player/v1/${videoId}?${PLAYER_PARAMS}`;
 }
@@ -81,7 +107,10 @@ export function useTikTokPlayer({
 
     let playing = false;
     let duration = 0;
-    let resumed = startRef.current <= 0;
+    let resumeAt = startRef.current;
+    let resumed = resumeAt <= 0;
+    let retries = 0;
+    let retryTimer: number | undefined;
 
     setIsReady(false);
     setIsPlaying(false);
@@ -99,11 +128,24 @@ export function useTikTokPlayer({
     container.replaceChildren(frame);
     frameRef.current = frame;
 
-    const readyTimer = window.setTimeout(() => {
-      setError(
-        "This TikTok video could not be played. It may be private, removed, or not allowed to be embedded.",
+    let readyTimer: number | undefined;
+    const armReadyTimer = () => {
+      window.clearTimeout(readyTimer);
+      readyTimer = window.setTimeout(
+        () => setError(UNPLAYABLE),
+        READY_TIMEOUT_MS,
       );
-    }, 20_000);
+    };
+    armReadyTimer();
+
+    const reload = () => {
+      playing = false;
+      resumed = resumeAt <= 0;
+      setIsPlaying(false);
+      setIsReady(false);
+      frame.src = tiktokPlayerUrl(videoId);
+      armReadyTimer();
+    };
 
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== PLAYER_ORIGIN) return;
@@ -128,8 +170,7 @@ export function useTikTokPlayer({
             setHasEnded(false);
             if (!resumed) {
               resumed = true;
-              const start = startRef.current;
-              if (!duration || start < duration) send("seekTo", start);
+              if (!duration || resumeAt < duration) send("seekTo", resumeAt);
             }
           } else if (state === STATE.PAUSED) {
             playing = false;
@@ -155,17 +196,38 @@ export function useTikTokPlayer({
           }
           if (Number.isFinite(time)) {
             setCurrentTime(time);
-            if (playing) progressRef.current?.(time);
+            if (playing) {
+              resumeAt = time;
+              progressRef.current?.(time);
+            }
           }
           break;
         }
 
-        case "onPlayerError":
+        case "onPlayerError": {
+          const code = readErrorCode(message.value);
+          if (code !== null && RECOVERABLE_ERRORS.has(code)) {
+            playing = false;
+            setIsPlaying(false);
+            break;
+          }
           window.clearTimeout(readyTimer);
-          setError(
-            "This TikTok video could not be played. It may be private, removed, or not allowed to be embedded.",
-          );
+          if (code !== null && RETRYABLE_ERRORS.has(code)) {
+            if (retries < AUTO_RETRIES) {
+              retries += 1;
+              window.clearTimeout(retryTimer);
+              retryTimer = window.setTimeout(
+                reload,
+                AUTO_RETRY_DELAY_MS * retries,
+              );
+            } else {
+              setError(UNPLAYABLE);
+            }
+            break;
+          }
+          setError((code !== null && ERROR_MESSAGES[code]) || UNPLAYABLE);
           break;
+        }
       }
     };
 
@@ -173,6 +235,7 @@ export function useTikTokPlayer({
 
     return () => {
       window.clearTimeout(readyTimer);
+      window.clearTimeout(retryTimer);
       window.removeEventListener("message", onMessage);
       frameRef.current = null;
       container.replaceChildren();

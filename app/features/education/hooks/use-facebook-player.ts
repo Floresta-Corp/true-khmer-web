@@ -57,6 +57,9 @@ const SDK_VERSION = "v21.0";
 
 const POLL_MS = 400;
 
+/* The narrowest the embedded video plugin renders. */
+const MIN_WIDTH = 220;
+
 const READY_TIMEOUT_MS = 20_000;
 
 const UNPLAYABLE =
@@ -143,7 +146,7 @@ export function useFacebookPlayer({
     let cancelled = false;
     let sdk: FacebookSdk | null = null;
     const subscriptions: FacebookSubscription[] = [];
-    const elementId = `fb-video-lesson-${++playerCount}`;
+    let elementId = "";
 
     setIsReady(false);
     setIsPlaying(false);
@@ -152,24 +155,82 @@ export function useFacebookPlayer({
     setCurrentTime(startRef.current);
     setError(null);
 
+    const releaseSubscriptions = () => {
+      for (const subscription of subscriptions.splice(0)) {
+        try {
+          subscription.release();
+        } catch {
+          continue;
+        }
+      }
+    };
     const bounds = container.getBoundingClientRect();
-    const width = Math.max(
-      220,
+    let width = Math.max(
+      MIN_WIDTH,
       Math.floor(Math.min(bounds.width, (bounds.height * 16) / 9)),
     );
-    const mount = document.createElement("div");
-    mount.id = elementId;
-    mount.className = "fb-video";
-    mount.dataset.href = facebookVideoHref(videoId);
-    mount.dataset.width = String(width);
-    mount.dataset.allowfullscreen = "true";
-    mount.dataset.showText = "false";
-    mount.dataset.showCaptions = "true";
-    container.replaceChildren(mount);
+    let refitted = false;
+    let resizeObserver: ResizeObserver | null = null;
+    let readyTimer: number | undefined;
 
-    const readyTimer = window.setTimeout(() => {
-      if (!cancelled && !playerRef.current) setError(UNPLAYABLE);
-    }, READY_TIMEOUT_MS);
+    const armReadyTimer = () => {
+      window.clearTimeout(readyTimer);
+      readyTimer = window.setTimeout(() => {
+        if (!cancelled && !playerRef.current) setError(UNPLAYABLE);
+      }, READY_TIMEOUT_MS);
+    };
+
+    const render = () => {
+      elementId = `fb-video-lesson-${++playerCount}`;
+      const mount = document.createElement("div");
+      mount.id = elementId;
+      mount.className = "fb-video shrink-0";
+      mount.dataset.href = facebookVideoHref(videoId);
+      mount.dataset.width = String(width);
+      mount.dataset.allowfullscreen = "true";
+      mount.dataset.showText = "false";
+      mount.dataset.showCaptions = "true";
+      container.replaceChildren(mount);
+
+      resizeObserver?.disconnect();
+      resizeObserver = new ResizeObserver(() => {
+        if (cancelled) return;
+        const available = container.getBoundingClientRect().height;
+        const height = mount.offsetHeight;
+        if (height <= available + 1) {
+          mount.style.transform = "";
+          return;
+        }
+
+        if (!refitted) {
+          refitted = true;
+          const fitted = Math.max(
+            MIN_WIDTH,
+            Math.floor((width * available) / height),
+          );
+          if (fitted < width) {
+            width = fitted;
+            releaseSubscriptions();
+            playerRef.current = null;
+            setIsReady(false);
+            setIsPlaying(false);
+            render();
+            armReadyTimer();
+            sdk?.XFBML.parse(container);
+            return;
+          }
+        }
+
+        mount.style.transformOrigin = "center";
+        mount.style.transform = `scale(${available / height})`;
+      });
+      resizeObserver.observe(mount);
+      resizeObserver.observe(container);
+    };
+
+    render();
+
+    armReadyTimer();
 
     const onReady = (message: XfbmlReadyMessage) => {
       if (cancelled || message.type !== "video" || message.id !== elementId) {
@@ -239,13 +300,8 @@ export function useFacebookPlayer({
       cancelled = true;
       window.clearTimeout(readyTimer);
       sdk?.Event.unsubscribe("xfbml.ready", onReady);
-      for (const subscription of subscriptions) {
-        try {
-          subscription.release();
-        } catch {
-          continue;
-        }
-      }
+      resizeObserver?.disconnect();
+      releaseSubscriptions();
       playerRef.current = null;
       container.replaceChildren();
     };
