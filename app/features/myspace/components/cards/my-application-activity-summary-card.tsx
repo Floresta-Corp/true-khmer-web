@@ -65,7 +65,7 @@ export default function MyApplicationActivitySummaryCard() {
                 <p className="text-[10px] font-black tracking-[0.1em] text-[#80868B] uppercase">
                   {v.label}
                 </p>
-                <span className="text-[20px] leading-tight font-bold text-[#202124] dark:text-white">
+                <span className="text-[20px] leading-tight font-bold text-[#202124] tabular-nums dark:text-white">
                   {v.value >= 10 ? v.value : `0${v.value}`}
                 </span>
               </div>
