@@ -27,9 +27,10 @@ export function MyBlogCard({
   const author = resolveBlogAuthor(post);
   const statusStyle = BLOG_STATUS_STYLES[post.status];
   const isEditable = isEditableBlogStatus(post.status);
+  const editorHref = `/workspace/khmer-voices/${post.id}/edit`;
 
   return (
-    <Card className="h-full min-w-0 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-colors sm:p-5 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none dark:hover:border-slate-700">
+    <Card className="relative h-full min-w-0 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-colors hover:border-slate-200 sm:p-5 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none dark:hover:border-slate-700">
       <div className="flex h-full min-w-0 flex-col gap-4 md:flex-row md:items-stretch">
         {post.coverImageUrl ? (
           <img
@@ -75,7 +76,12 @@ export function MyBlogCard({
             className="line-clamp-2 text-xl leading-tight font-semibold break-words text-(--blog-secondary) sm:text-2xl dark:text-blue-300"
             title={post.title}
           >
-            {post.title}
+            <Link
+              to={editorHref}
+              className="rounded-sm after:absolute after:inset-0 after:rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            >
+              {post.title}
+            </Link>
           </h2>
           <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600 sm:text-base dark:text-slate-300">
             {post.excerpt}
@@ -90,7 +96,7 @@ export function MyBlogCard({
             {" • "}
             {formatDate(post.publishedAt || post.updatedAt)}
           </div>
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="relative z-10 mt-4 flex flex-wrap gap-2">
             {post.status === "PUBLISHED" ? (
               <Button asChild variant="ghost" className={GHOST_BUTTON_CLASS}>
                 <Link to={`/khmer-voices/${post.slug}`}>View</Link>
@@ -106,9 +112,7 @@ export function MyBlogCard({
               }
               variant={isEditable ? "default" : "ghost"}
             >
-              <Link to={`/workspace/khmer-voices/${post.id}/edit`}>
-                {isEditable ? "Edit" : "Open"}
-              </Link>
+              <Link to={editorHref}>{isEditable ? "Edit" : "Open"}</Link>
             </Button>
 
             {post.status === "PENDING_REVIEW" ? (
