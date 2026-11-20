@@ -38,6 +38,7 @@ export default function CourseQuizPage() {
           <QuizResultCard
             courseId={course.id}
             result={result}
+            questions={quiz.questions}
             passMark={quiz.passMark}
             onRetake={retake}
           />

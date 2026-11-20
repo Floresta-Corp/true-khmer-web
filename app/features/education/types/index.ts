@@ -141,11 +141,17 @@ export interface PublicCourseQuiz {
   questions: PublicQuizQuestion[];
 }
 
+export interface QuizQuestionResult {
+  questionId: string;
+  correct: boolean;
+}
+
 export interface QuizAttemptResult {
   correctCount: number;
   totalCount: number;
   percent: number;
   passed: boolean;
+  questions: QuizQuestionResult[];
 }
 
 export interface CourseCertificate {

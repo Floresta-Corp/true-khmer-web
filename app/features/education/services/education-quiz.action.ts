@@ -29,8 +29,18 @@ export async function educationQuizAction({
       readQuizAnswers(formData),
     );
 
-    const { correctCount, totalCount, percent, passed } = response.data.result;
-    return { ok: true, result: { correctCount, totalCount, percent, passed } };
+    const { correctCount, totalCount, percent, passed, questions } =
+      response.data.result;
+    return {
+      ok: true,
+      result: {
+        correctCount,
+        totalCount,
+        percent,
+        passed,
+        questions: questions ?? [],
+      },
+    };
   } catch (error) {
     if (error instanceof AuthSessionExpiredError) {
       return { ok: false, message: "Sign in to submit your answers." };

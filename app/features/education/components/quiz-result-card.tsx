@@ -1,12 +1,16 @@
 import { Link } from "react-router";
-import { RotateCcw, Trophy } from "lucide-react";
+import { CircleCheck, CircleX, RotateCcw, Trophy } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { CARD_SHADOW } from "~/features/education/lib/education-styles";
-import type { QuizAttemptResult } from "~/features/education/types";
+import type {
+  PublicQuizQuestion,
+  QuizAttemptResult,
+} from "~/features/education/types";
 
 interface QuizResultCardProps {
   courseId: string;
   result: QuizAttemptResult;
+  questions: PublicQuizQuestion[];
   passMark: number;
   onRetake: () => void;
 }
@@ -14,10 +18,19 @@ interface QuizResultCardProps {
 export function QuizResultCard({
   courseId,
   result,
+  questions,
   passMark,
   onRetake,
 }: QuizResultCardProps) {
   const { passed, percent, correctCount, totalCount } = result;
+
+  const promptById = new Map(
+    questions.map((question) => [question.id, question.question]),
+  );
+  const review = result.questions.flatMap((graded, index) => {
+    const prompt = promptById.get(graded.questionId);
+    return prompt ? [{ ...graded, number: index + 1, prompt }] : [];
+  });
 
   return (
     <div className="mx-auto max-w-[560px]">
@@ -97,6 +110,57 @@ export function QuizResultCard({
           )}
         </div>
       </div>
+
+      {review.length > 0 && (
+        <section
+          aria-labelledby="quiz-review-heading"
+          className={`mt-5 rounded-2xl bg-white px-6 py-7 sm:px-10 ${CARD_SHADOW}`}
+        >
+          <h2
+            id="quiz-review-heading"
+            className="mb-4 text-base font-bold text-[#1A1A2E]"
+          >
+            Your answers
+          </h2>
+
+          <ol className="flex flex-col divide-y divide-[#EEEEF2]">
+            {review.map((item) => (
+              <li
+                key={item.questionId}
+                className="flex items-start gap-3 py-3.5 first:pt-0 last:pb-0"
+              >
+                {item.correct ? (
+                  <CircleCheck
+                    className="mt-0.5 size-5 shrink-0 text-[#1FC16B]"
+                    aria-hidden
+                  />
+                ) : (
+                  <CircleX
+                    className="mt-0.5 size-5 shrink-0 text-[#FB3748]"
+                    aria-hidden
+                  />
+                )}
+                <p className="min-w-0 flex-1 text-sm leading-relaxed text-[#333333]">
+                  <span className="font-semibold text-[#1A1A2E]">
+                    {item.number}.
+                  </span>{" "}
+                  {item.prompt}
+                </p>
+                <span
+                  className={cn(
+                    "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold",
+                    item.correct
+                      ? "bg-[#1FC16B]/15 text-[#1FC16B]"
+                      : "bg-[#FB3748]/10 text-[#FB3748]",
+                  )}
+                >
+                  {item.correct ? "Correct" : "Incorrect"}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
     </div>
   );
 }
