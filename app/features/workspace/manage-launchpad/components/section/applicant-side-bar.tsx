@@ -7,6 +7,7 @@ import { cn, resolveImageURL } from "~/lib/utils";
 import type {
   Applicant,
   ApplicantStatusAction,
+  PrivateNoteEntry,
 } from "~/features/workspace/manage-launchpad/types";
 import ApplicantNoteAction from "./applicant-note-action";
 import ApplicantStatusChangeButton from "./applicant-change-status-button";
@@ -37,7 +38,6 @@ const STATUS_LABELS: Record<ApplicantStatusAction, string> = {
 type Props = {
   applicant: Applicant | null;
   postingId: string;
-  onApplicantNoteSaved?: (candidateId: string, note: string) => void;
   onApplicantDeclined?: (
     candidateId: string,
     options: { blocked: boolean; declinedApplicationIds: string[] },
@@ -49,7 +49,6 @@ export default function ApplicantSideBar({
   applicant,
   onClose,
   onApplicantDeclined,
-  onApplicantNoteSaved,
   postingId,
   candidateId,
 }: Props) {
@@ -71,7 +70,7 @@ export default function ApplicantSideBar({
 
   const isNew = overallStatus === "new";
 
-  const noteFetcher = useFetcher<string | null>({
+  const noteFetcher = useFetcher<PrivateNoteEntry[]>({
     key: `launchpad-note-${postingId}-${candidateId}`,
   });
   useEffect(() => {
@@ -81,7 +80,7 @@ export default function ApplicantSideBar({
     );
   }, [applicant?.candidate?.id, candidateId, postingId]);
 
-  const existingNote = noteFetcher.data ?? applicant?.privateNote?.note ?? "";
+  const noteEntries = noteFetcher.data ?? applicant?.privateNotes ?? [];
 
   return (
     <>
@@ -205,9 +204,9 @@ export default function ApplicantSideBar({
                   key={applicant.candidate.id}
                   postingId={postingId}
                   candidateId={applicant.candidate.id}
-                  existingNote={existingNote}
-                  onSaved={(note) =>
-                    onApplicantNoteSaved?.(applicant.candidate.id, note)
+                  entries={noteEntries}
+                  isLoading={
+                    noteFetcher.state === "loading" && !noteFetcher.data
                   }
                 />
               </div>
