@@ -279,6 +279,24 @@ export const ApplicantSchema = z.object({
 });
 export type Applicant = z.infer<typeof ApplicantSchema>;
 
+// An API without the ledger only sends the single latest `privateNote`;
+// show it as a one-entry history rather than hiding it.
+export function toNoteHistory(
+  applicant: Pick<Applicant, "privateNote" | "privateNotes"> | undefined | null,
+): PrivateNoteEntry[] {
+  if (applicant?.privateNotes) return applicant.privateNotes;
+  const legacy = applicant?.privateNote;
+  if (!legacy?.note) return [];
+  return [
+    {
+      id: legacy.id,
+      note: legacy.note,
+      createdAt: legacy.updatedAt || legacy.createdAt,
+      author: { id: legacy.updatedBy || legacy.createdBy, name: "Team member" },
+    },
+  ];
+}
+
 export const DetailSchema = z.object({
   applicants: z.array(ApplicantSchema),
   pagination: DetailPaginationSchema,

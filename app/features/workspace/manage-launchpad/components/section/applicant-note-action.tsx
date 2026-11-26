@@ -71,6 +71,7 @@ export default function ApplicantNoteAction({
           name="note"
           value={noteText}
           maxLength={5000}
+          readOnly={isSubmitting}
           onChange={(event) => setNoteText(event.target.value)}
           placeholder="Add an evaluation note or review update..."
           aria-label="New private note"

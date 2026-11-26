@@ -121,7 +121,8 @@ export async function manageLaunchpadDetailAction({
         body,
       );
 
-      if (res?.data?.applicant?.privateNotes?.length) {
+      // A failed save throws (non-2xx), so a returned applicant means it saved.
+      if (res?.data?.applicant) {
         return respond({ success: true, ok: true });
       }
 

@@ -9,6 +9,7 @@ import type {
   ApplicantStatusAction,
   PrivateNoteEntry,
 } from "~/features/workspace/manage-volunteer/types";
+import { toNoteHistory } from "~/features/workspace/manage-volunteer/types";
 import ApplicantNoteAction from "./applicant-note-action";
 import ApplicantStatusChangeButton from "./applicant-change-status-button";
 import { useFetcher } from "react-router";
@@ -80,7 +81,7 @@ export default function ApplicantSideBar({
     );
   }, [applicant?.candidate?.id, candidateId, postingId]);
 
-  const noteEntries = noteFetcher.data ?? applicant?.privateNotes ?? [];
+  const noteEntries = noteFetcher.data ?? toNoteHistory(applicant);
 
   return (
     <>
