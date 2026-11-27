@@ -161,6 +161,14 @@ export const PrivateNoteSchema = z.object({
 });
 export type PrivateNote = z.infer<typeof PrivateNoteSchema>;
 
+export const PrivateNoteEntrySchema = z.object({
+  id: z.string(),
+  note: z.string(),
+  createdAt: z.string(),
+  author: z.object({ id: z.string(), name: z.string() }),
+});
+export type PrivateNoteEntry = z.infer<typeof PrivateNoteEntrySchema>;
+
 export const PrivateNoteInputSchema = z.object({
   note: z.string(),
 });
@@ -263,12 +271,31 @@ export const ApplicantSchema = z.object({
   lastAppliedAt: z.string(),
   overallStatus: ApplicantStatusSchema,
   privateNote: PrivateNoteSchema.nullable(),
+  privateNotes: z.array(PrivateNoteEntrySchema).optional(),
   submissionCount: z.number(),
   submissions: z.array(SubmissionSchema),
   totalRoleApplied: z.number(),
   updatedAt: z.string(),
 });
 export type Applicant = z.infer<typeof ApplicantSchema>;
+
+// An API without the ledger only sends the single latest `privateNote`;
+// show it as a one-entry history rather than hiding it.
+export function toNoteHistory(
+  applicant: Pick<Applicant, "privateNote" | "privateNotes"> | undefined | null,
+): PrivateNoteEntry[] {
+  if (applicant?.privateNotes) return applicant.privateNotes;
+  const legacy = applicant?.privateNote;
+  if (!legacy?.note) return [];
+  return [
+    {
+      id: legacy.id,
+      note: legacy.note,
+      createdAt: legacy.updatedAt || legacy.createdAt,
+      author: { id: legacy.updatedBy || legacy.createdBy, name: "Team member" },
+    },
+  ];
+}
 
 export const DetailSchema = z.object({
   applicants: z.array(ApplicantSchema),

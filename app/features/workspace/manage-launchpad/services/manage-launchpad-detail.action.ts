@@ -104,6 +104,13 @@ export async function manageLaunchpadDetailAction({
       );
     }
 
+    if (!note) {
+      return respond(
+        { success: false, ok: false, error: "Write a note before adding it." },
+        { status: 400 },
+      );
+    }
+
     const body: PrivateNoteInput = { note };
 
     try {
@@ -114,7 +121,8 @@ export async function manageLaunchpadDetailAction({
         body,
       );
 
-      if (res && res.data?.applicant?.privateNote) {
+      // A failed save throws (non-2xx), so a returned applicant means it saved.
+      if (res?.data?.applicant) {
         return respond({ success: true, ok: true });
       }
 
