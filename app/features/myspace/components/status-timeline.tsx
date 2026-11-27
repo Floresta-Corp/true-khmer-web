@@ -39,11 +39,16 @@ export function StatusTimeline({
   const isWithdrawn = normalizedStatus === "WITHDRAWN";
   const hasEvaluationStep = Boolean(timeline?.underReview);
   const wasApprovedBeforeTerminal = Boolean(timeline?.approved);
-  const terminalLabel = isWithdrawn ? "Withdrawn" : "Declined";
+  const closedBySystem = !isWithdrawn && timeline?.declined?.by === "SYSTEM";
+  const terminalLabel = isWithdrawn
+    ? "Withdrawn"
+    : closedBySystem
+      ? "Closed"
+      : "Declined";
   const terminalSubtext = isWithdrawn
     ? "Withdrawn by you"
-    : timeline?.declined?.by === "SYSTEM"
-      ? "Position filled"
+    : closedBySystem
+      ? "Closed automatically"
       : timeline?.declined?.by === "POSTER"
         ? "Declined by organizer"
         : "No longer active";

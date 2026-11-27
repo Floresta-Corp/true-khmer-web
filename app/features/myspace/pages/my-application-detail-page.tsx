@@ -27,8 +27,10 @@ import { cn, resolveImageURL } from "~/lib/utils";
 import {
   AppliedRoleCard,
   getRoleAccent,
+  isClosedBySystem,
 } from "../components/applied-role-card";
 import ApplicationStatusConfirmDialog from "../components/application-status-confirm-dialog";
+import { CompletedNextStepsCard } from "../components/completed-next-steps-card";
 import { DetailAndContactCard } from "../components/detail-and-contact-card";
 import { ProjectOverviewCard } from "../components/project-overview-card";
 import { StatusTimeline } from "../components/status-timeline";
@@ -83,6 +85,7 @@ function buildTelegramLink(username?: string | null) {
 
 function StatusSummary({
   status,
+  closedBySystem,
   roleTitle,
   actions,
   isSubmitting,
@@ -93,6 +96,7 @@ function StatusSummary({
   onArchive,
 }: {
   status: string;
+  closedBySystem: boolean;
   roleTitle: string;
   actions?: {
     canConfirm: boolean;
@@ -110,8 +114,8 @@ function StatusSummary({
   const isApproved = normalizedStatus === "APPROVED";
   const isConfirmed = normalizedStatus === "CONFIRMED";
   const isCompleted = normalizedStatus === "COMPLETED";
-  const isWithdrawn = normalizedStatus === "WITHDRAWN";
-  const isClosed = normalizedStatus === "DECLINED";
+  const isWithdrawn = normalizedStatus === "WITHDRAWN" || closedBySystem;
+  const isClosed = normalizedStatus === "DECLINED" && !closedBySystem;
   const canConfirm = actions?.canConfirm ?? isApproved;
   const canDecline = actions?.canDecline ?? isApproved;
   const canWithdraw =
@@ -169,10 +173,10 @@ function StatusSummary({
                 variant="outline"
                 className={cn(
                   "rounded-md border-none px-3 py-1 text-[10px] font-black tracking-widest uppercase shadow-none",
-                  getStatusBadgeClass(status),
+                  getStatusBadgeClass(closedBySystem ? "WITHDRAWN" : status),
                 )}
               >
-                {status.replaceAll("_", " ")}
+                {closedBySystem ? "Closed" : status.replaceAll("_", " ")}
               </Badge>
             </div>
             <p
@@ -189,11 +193,13 @@ function StatusSummary({
                   ? "You have officially accepted this role. You are set for participation."
                   : isCompleted
                     ? "This application has been completed."
-                    : isWithdrawn
-                      ? "This application has been withdrawn by you."
-                      : isClosed
-                        ? "This application is no longer active."
-                        : "The organizer is currently evaluating your application."}
+                    : closedBySystem
+                      ? "This application closed without a decision, for example because the opportunity ended. You can archive it."
+                      : isWithdrawn
+                        ? "This application has been withdrawn by you."
+                        : isClosed
+                          ? "This application is no longer active."
+                          : "The organizer is currently evaluating your application."}
             </p>
           </div>
         </div>
@@ -371,7 +377,9 @@ export default function MyApplicationDetailPage() {
   const responsibilities = selectedRole?.responsibilities ?? [];
   const requirements = selectedRole?.requirements ?? [];
   const roleStatus = selectedRole?.status ?? statusLabel;
-  const roleAccent = getRoleAccent(roleStatus);
+  const closedBySystem = selectedRole ? isClosedBySystem(selectedRole) : false;
+  const roleAccent = getRoleAccent(roleStatus, closedBySystem);
+  const isCompleted = roleStatus.toUpperCase() === "COMPLETED";
   const selectedRoleNumber = selectedRole ? roles.indexOf(selectedRole) + 1 : 0;
   const rewardPoints = Number(detail.opportunity.impactRewardPoints ?? 0);
   const scheduleLabel = [
@@ -627,6 +635,7 @@ export default function MyApplicationDetailPage() {
             >
               <StatusSummary
                 status={roleStatus}
+                closedBySystem={closedBySystem}
                 roleTitle={roleTitle}
                 actions={selectedRole?.actions}
                 isSubmitting={fetcher.state !== "idle"}
@@ -637,6 +646,22 @@ export default function MyApplicationDetailPage() {
                 onArchive={handleArchive}
               />
             </motion.div>
+
+            {isCompleted ? (
+              <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: prefersReducedMotion ? 0 : 0.28,
+                  delay: prefersReducedMotion ? 0 : 0.08,
+                }}
+              >
+                <CompletedNextStepsCard
+                  sourceType={sourceType}
+                  pointsEarned={detail.pointsEarned ?? 0}
+                />
+              </motion.div>
+            ) : null}
 
             <motion.div
               initial={{ opacity: 0, y: 18 }}

@@ -22,7 +22,30 @@ function formatDate(dateString?: string | null) {
   });
 }
 
-function getCompactStatus(status: string) {
+/**
+ * The system declines applications nobody decided on: the opportunity was
+ * completed or canceled, the applicant took another role, or the poster left.
+ * That isn't a rejection, so it reads as "Closed" rather than "Declined".
+ */
+export function isClosedBySystem(role: {
+  status: string;
+  timeline?: { declined?: { by?: string | null } | null } | null;
+}) {
+  return (
+    role.status.toUpperCase() === "DECLINED" &&
+    role.timeline?.declined?.by === "SYSTEM"
+  );
+}
+
+const CLOSED_STATUS_STYLE = {
+  label: "Closed",
+  className:
+    "border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800/40 dark:text-slate-400 dark:hover:bg-slate-800/40",
+};
+
+function getCompactStatus(status: string, closedBySystem = false) {
+  if (closedBySystem) return CLOSED_STATUS_STYLE;
+
   switch (status.toUpperCase()) {
     case "SUBMITTED":
       return {
@@ -79,7 +102,14 @@ function getCompactStatus(status: string) {
  * Accent of a role by status, shared by the selected card's side bar and the
  * selected-role header beside the list, so the two read as one.
  */
-export function getRoleAccent(status: string) {
+export function getRoleAccent(status: string, closedBySystem = false) {
+  if (closedBySystem) {
+    return {
+      bar: "bg-slate-400",
+      text: "text-slate-500 dark:text-slate-400",
+    };
+  }
+
   switch (status.toUpperCase()) {
     case "APPROVED":
       return {
@@ -119,11 +149,13 @@ export function AppliedRoleCard({
           {roles.map((role) => {
             const isSelected = role.applicationId === selectedApplicationId;
             const needsAction = role.status.toUpperCase() === "APPROVED";
-            const isDeclined = role.status === "DECLINED";
-            const isWithdrawn = role.status === "WITHDRAWN";
+            const closedBySystem = isClosedBySystem(role);
+            // A system close looks like a withdrawal (neutral), not a rejection.
+            const isDeclined = role.status === "DECLINED" && !closedBySystem;
+            const isWithdrawn = role.status === "WITHDRAWN" || closedBySystem;
             const isInactive = isDeclined || isWithdrawn;
-            const statusStyle = getCompactStatus(role.status);
-            const accent = getRoleAccent(role.status);
+            const statusStyle = getCompactStatus(role.status, closedBySystem);
+            const accent = getRoleAccent(role.status, closedBySystem);
 
             return (
               <button
